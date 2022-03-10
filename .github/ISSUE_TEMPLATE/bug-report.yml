@@ -1,0 +1,41 @@
+name: 🐞 Bug Report
+description: Report an issue with SKKUding
+title: "[Bug]: "
+labels: ["bug", "pending triage"]
+body:
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: 버그의 상세한 내용을 설명해주세요.
+      placeholder: Bug Description
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction
+      description: 버그 reproduction 방법을 설명해주세요. 사진과 동영상을 첨부하거나, 해당 상황이 구현된 링크 등을 남기면 더 좋습니다!
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Logs
+      description: (선택) 버그와 함께 생긴 log를 남겨주세요. 가능한 이미지 대신 텍스트 형식으로 남겨주세요.
+  - type: textarea
+    attributes:
+      label: System Info
+      description: 해당 버그가 발생한 환경의 정보를 알려주세요. (개발 환경, 시스템(CPU, 메모리, OS), 브라우저 등)
+  - type: checkboxes
+    attributes:
+      label: Validations
+      description: Issue를 올리기 전 다음 사항들을 확인해주세요.
+      options:
+        - label: Follow our [Code of Conduct](https://github.com/skkuding/next/blob/main/CODE_OF_CONDUCT.md)
+          required: true
+        - label: Read the [Contributing Guidelines](https://github.com/skkuding/next/blob/main/CONTRIBUTING.md)
+          required: true
+        - label: Check that there isn't already an issue
+          required: true
