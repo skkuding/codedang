@@ -62,3 +62,6 @@ jspm_packages/
 # Ignore all local history of files
 .history
 .ionide
+
+# Mac OS metadata
+.DS_Store
