@@ -10,5 +10,10 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server: {
+    hmr: {
+      port: process.env.GITPOD_HOST ? 443 : undefined
+    }
   }
 })
