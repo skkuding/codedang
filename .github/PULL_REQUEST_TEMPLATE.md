@@ -11,6 +11,6 @@
 ### Before submitting the PR, please make sure you do the following
 
 - [ ] Read the [Contributing Guidelines](https://github.com/skkuding/next/blob/main/CONTRIBUTING.md)
-- [ ] Read the [Contributing Guidelines](https://github.com/skkuding/next/blob/main/CONTRIBUTING.md#pull-request-and-branching) and follow the [Commit Convention](https://github.com/skkuding/next/blob/main/CONTRIBUTING.md#commit-convention)
+- [ ] Read the [Contributing Guidelines](https://github.com/skkuding/next/blob/main/CONTRIBUTING.md#pr-and-branch) and follow the [Commit Convention](https://github.com/skkuding/next/blob/main/CONTRIBUTING.md#commit-convention)
 - [ ] Provide a description in this PR that addresses **what** the PR is solving, or reference the issue that it solves (e.g. `fixes #123`).
 - [ ] Ideally, include relevant tests that fail without this PR but pass with it.
