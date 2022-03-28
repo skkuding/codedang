@@ -1,0 +1,20 @@
+gitConfig:
+  pull.rebase: "true"
+
+ports:
+  - port: 3000 # Vite
+    onOpen: open-browser
+  - port: 5000 # Nest.js
+    onOpen: ignore
+    visibility: public
+
+tasks:
+  - name: Node.js
+    init: pnpm install
+
+vscode:
+  extensions:
+    - esbenp.prettier-vscode
+    - editorconfig.editorconfig
+    - johnsoncodehk.volar
+    - johnsoncodehk.vscode-typescript-vue-plugin
