@@ -1,6 +1,6 @@
 name: 🚀 New feature proposal
 description: Propose a new feature to be added to SKKUding
-labels: ["pending triage"]
+labels: ['pending triage']
 body:
   - type: textarea
     attributes:

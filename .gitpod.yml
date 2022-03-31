@@ -1,5 +1,5 @@
 gitConfig:
-  pull.rebase: "true"
+  pull.rebase: 'true'
 
 ports:
   - port: 3000 # Vite
