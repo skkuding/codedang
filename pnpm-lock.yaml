@@ -9,16 +9,20 @@ importers:
       eslint: ^8.12.0
       eslint-config-prettier: ^8.5.0
       eslint-plugin-prettier: ^4.0.0
+      eslint-plugin-vue: ^8.5.0
       prettier: ^2.6.1
       typescript: ^4.6.2
+      vue-eslint-parser: ^8.3.0
     devDependencies:
       '@typescript-eslint/eslint-plugin': 5.17.0_19abd711d85a5efffc505795b0ac8452
       '@typescript-eslint/parser': 5.17.0_eslint@8.12.0+typescript@4.6.2
       eslint: 8.12.0
       eslint-config-prettier: 8.5.0_eslint@8.12.0
       eslint-plugin-prettier: 4.0.0_b253a92c95b42c3296c682f11cccb3bd
+      eslint-plugin-vue: 8.5.0_eslint@8.12.0
       prettier: 2.6.1
       typescript: 4.6.2
+      vue-eslint-parser: 8.3.0_eslint@8.12.0
 
   backend:
     specifiers:
@@ -2781,6 +2785,21 @@ packages:
       eslint-config-prettier: 8.5.0_eslint@8.12.0
       prettier: 2.6.1
       prettier-linter-helpers: 1.0.0
+    dev: true
+
+  /eslint-plugin-vue/8.5.0_eslint@8.12.0:
+    resolution: {integrity: sha512-i1uHCTAKOoEj12RDvdtONWrGzjFm/djkzqfhmQ0d6M/W8KM81mhswd/z+iTZ0jCpdUedW3YRgcVfQ37/J4zoYQ==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    peerDependencies:
+      eslint: ^6.2.0 || ^7.0.0 || ^8.0.0
+    dependencies:
+      eslint: 8.12.0
+      eslint-utils: 3.0.0_eslint@8.12.0
+      natural-compare: 1.4.0
+      semver: 7.3.5
+      vue-eslint-parser: 8.3.0_eslint@8.12.0
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /eslint-scope/5.1.1:
@@ -5871,6 +5890,24 @@ packages:
       vscode-languageserver-textdocument: 1.0.4
       vscode-pug-languageservice: 0.31.4
       vscode-typescript-languageservice: 0.31.4
+    dev: true
+
+  /vue-eslint-parser/8.3.0_eslint@8.12.0:
+    resolution: {integrity: sha512-dzHGG3+sYwSf6zFBa0Gi9ZDshD7+ad14DGOdTLjruRVgZXe2J+DcZ9iUhyR48z5g1PqRa20yt3Njna/veLJL/g==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    peerDependencies:
+      eslint: '>=6.0.0'
+    dependencies:
+      debug: 4.3.4
+      eslint: 8.12.0
+      eslint-scope: 7.1.1
+      eslint-visitor-keys: 3.3.0
+      espree: 9.3.1
+      esquery: 1.4.0
+      lodash: 4.17.21
+      semver: 7.3.5
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /vue-tsc/0.31.4_typescript@4.6.2:
