@@ -23,18 +23,7 @@ module.exports = {
         900: '#0e212b'
       },
       zinc: colors.zinc,
-      neutral: {
-        50: '#e9e9ea',
-        100: '#d3d4d5',
-        200: '#bdbec0',
-        300: '#a7a9ab',
-        400: '#929396',
-        500: '#7c7d81',
-        600: '#66686c',
-        700: '#505257',
-        800: '#3a3d42',
-        900: '#24272d' // Basis (Problem.vue)
-      },
+      neutral: colors.neutral,
       stone: colors.stone,
       amber: colors.amber,
       yellow: colors.yellow,
@@ -49,18 +38,7 @@ module.exports = {
       funchsia: colors.fuchsia,
       pink: colors.pink,
       rose: colors.rose,
-      red: {
-        50: '#ffedea',
-        100: '#ffdcd4',
-        200: '#ffb9a9',
-        300: '#ff957e',
-        400: '#ff7253',
-        500: '#ff4f28', // Basis
-        600: '#cc3f20',
-        700: '#992f18',
-        800: '#662010',
-        900: '#331008	'
-      },
+      red: colors.red,
       orange: {
         100: '#ffecd9',
         200: '#ffd9b3',
@@ -109,7 +87,6 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['Manrope', 'Noto Sans KR', ...defaultTheme.fontFamily.sans],
-        admin: ['Noto Sans KR', ...defaultTheme.fontFamily.sans],
         mono: ['JetBrains Mono', ...defaultTheme.fontFamily.mono]
       }
     }
