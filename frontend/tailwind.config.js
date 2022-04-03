@@ -1,11 +1,8 @@
 const defaultTheme = require('tailwindcss/defaultTheme')
-const colors = require("tailwindcss/colors")
+const colors = require('tailwindcss/colors')
 
 module.exports = {
-  content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
     colors: {
       white: colors.white,
@@ -13,29 +10,29 @@ module.exports = {
       transparent: colors.transparent,
       gray: colors.gray,
       slate: {
-        50: "#eceff0",
-        100: "#dadfe2",
-        200: "#b5bfc4",
-        300: "#8f9fa7",
-        400: "#6a7f89",
-        500: "#455f6c",
-        600: "#2e4b59",
-        700: "#173747", // Basis (Problem.vue)
-        800: "#122c39",
-        900: "#0e212b"
+        50: '#eceff0',
+        100: '#dadfe2',
+        200: '#b5bfc4',
+        300: '#8f9fa7',
+        400: '#6a7f89',
+        500: '#455f6c',
+        600: '#2e4b59',
+        700: '#173747', // Basis (Problem.vue)
+        800: '#122c39',
+        900: '#0e212b'
       },
       zinc: colors.zinc,
       neutral: {
-        50: "#e9e9ea",
-        100: "#d3d4d5",
-        200: "#bdbec0",
-        300: "#a7a9ab",
-        400: "#929396",
-        500: "#7c7d81",
-        600: "#66686c",
-        700: "#505257",
-        800: "#3a3d42",
-        900: "#24272d" // Basis (Problem.vue)
+        50: '#e9e9ea',
+        100: '#d3d4d5',
+        200: '#bdbec0',
+        300: '#a7a9ab',
+        400: '#929396',
+        500: '#7c7d81',
+        600: '#66686c',
+        700: '#505257',
+        800: '#3a3d42',
+        900: '#24272d' // Basis (Problem.vue)
       },
       stone: colors.stone,
       amber: colors.amber,
@@ -52,51 +49,51 @@ module.exports = {
       pink: colors.pink,
       rose: colors.rose,
       red: {
-        50: "#ffedea",
-        100: "#ffdcd4",
-        200: "#ffb9a9",
-        300: "#ff957e",
-        400: "#ff7253",
-        500: "#ff4f28", // Basis
-        600: "#cc3f20",
-        700: "#992f18",
-        800: "#662010",
-        900: "#331008	"
+        50: '#ffedea',
+        100: '#ffdcd4',
+        200: '#ffb9a9',
+        300: '#ff957e',
+        400: '#ff7253',
+        500: '#ff4f28', // Basis
+        600: '#cc3f20',
+        700: '#992f18',
+        800: '#662010',
+        900: '#331008	'
       },
       orange: {
-        100: "#ffecd9",
-        200: "#ffd9b3",
-        300: "#ffc58e",
-        400: "#ffb268",
-        500: "#ff9f42", // Basis
-        600: "#cc7f35",
-        700: "#995f28",
-        800: "#66401a",
-        900: "#33200d",
+        100: '#ffecd9',
+        200: '#ffd9b3',
+        300: '#ffc58e',
+        400: '#ffb268',
+        500: '#ff9f42', // Basis
+        600: '#cc7f35',
+        700: '#995f28',
+        800: '#66401a',
+        900: '#33200d'
       },
       lime: {
-        50: "#f4f9ec",
-        100: "#e8f4d9",
-        200: "#d1e8b2",
-        300: "#bbdd8c",
-        400: "#a4d165",
-        500: "#8dc63f", // Basis
-        600: "#719e32",
-        700: "#557726",
-        800: "#384f19",
-        900: "#1c280d"
+        50: '#f4f9ec',
+        100: '#e8f4d9',
+        200: '#d1e8b2',
+        300: '#bbdd8c',
+        400: '#a4d165',
+        500: '#8dc63f', // Basis
+        600: '#719e32',
+        700: '#557726',
+        800: '#384f19',
+        900: '#1c280d'
       },
       sky: {
-        50: "#ebf4fc",
-        100: "#d6e9fa",
-        200: "#add3f5",
-        300: "#85bdef",
-        400: "#5ca7ea",
-        500: "#3391e5", // Basis
-        600: "#2974b7",
-        700: "#1f5789",
-        800: "#143a5c",
-        900: "#0a1d2e"
+        50: '#ebf4fc',
+        100: '#d6e9fa',
+        200: '#add3f5',
+        300: '#85bdef',
+        400: '#5ca7ea',
+        500: '#3391e5', // Basis
+        600: '#2974b7',
+        700: '#1f5789',
+        800: '#143a5c',
+        900: '#0a1d2e'
       },
       level: {
         1: '#CC99C9',
@@ -114,7 +111,7 @@ module.exports = {
         admin: ['Noto Sans KR', ...defaultTheme.fontFamily.sans],
         mono: ['JetBrains Mono', ...defaultTheme.fontFamily.mono]
       }
-    },
+    }
   },
-  plugins: [],
+  plugins: []
 }
