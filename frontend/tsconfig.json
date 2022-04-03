@@ -5,7 +5,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["unplugin-icons/types/vue"]
   },
 
   "references": [
