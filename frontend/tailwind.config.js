@@ -21,7 +21,7 @@ module.exports = {
         500: "#455f6c",
         600: "#2e4b59",
         700: "#173747", // Basis (Problem.vue)
-        800: "#122c39", 
+        800: "#122c39",
         900: "#0e212b"
       },
       zinc: colors.zinc,
@@ -110,7 +110,9 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        sans: ['Manrope', ...defaultTheme.fontFamily.sans]
+        sans: ['Manrope', 'Noto Sans KR', ...defaultTheme.fontFamily.sans],
+        admin: ['Noto Sans KR', ...defaultTheme.fontFamily.sans],
+        mono: ['JetBrains Mono', ...defaultTheme.fontFamily.mono]
       }
     },
   },
