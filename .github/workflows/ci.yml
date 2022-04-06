@@ -58,5 +58,25 @@ jobs:
       - name: Check style
         run: pnpm format:check
 
-  # TODO: test
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [16]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Test
+        run: pnpm -r test
+
   # TODO: deploy
