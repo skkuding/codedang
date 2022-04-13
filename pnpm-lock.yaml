@@ -37,6 +37,7 @@ importers:
       '@types/node': ^16.0.0
       '@types/supertest': ^2.0.11
       jest: ^27.2.5
+      prisma: ^3.12.0
       reflect-metadata: ^0.1.13
       rimraf: ^3.0.2
       rxjs: ^7.2.0
@@ -63,6 +64,7 @@ importers:
       '@types/node': 16.11.26
       '@types/supertest': 2.0.11
       jest: 27.5.1_ts-node@10.7.0
+      prisma: 3.12.0
       source-map-support: 0.5.21
       supertest: 6.2.2
       ts-jest: 27.1.3_60149d457e34ffba7d4e845dde6a1263
@@ -1044,6 +1046,11 @@ packages:
     transitivePeerDependencies:
       - encoding
     dev: false
+
+  /@prisma/engines/3.12.0-37.22b822189f46ef0dc5c5b503368d1bee01213980:
+    resolution: {integrity: sha512-zULjkN8yhzS7B3yeEz4aIym4E2w1ChrV12i14pht3ePFufvsAvBSoZ+tuXMvfSoNTgBS5E4bolRzLbMmbwkkMQ==}
+    requiresBuild: true
+    dev: true
 
   /@sinonjs/commons/1.8.3:
     resolution: {integrity: sha512-xkNcLAn/wZaX14RPlwizcKicDk9G3F8m2nU3L7Ukm5zBgTwiT0wsoFAHx9Jq56fJA1z/7uKGtCRu16sOUCLIHQ==}
@@ -4965,6 +4972,15 @@ packages:
       ansi-regex: 5.0.1
       ansi-styles: 5.2.0
       react-is: 17.0.2
+    dev: true
+
+  /prisma/3.12.0:
+    resolution: {integrity: sha512-ltCMZAx1i0i9xuPM692Srj8McC665h6E5RqJom999sjtVSccHSD8Z+HSdBN2183h9PJKvC5dapkn78dd0NWMBg==}
+    engines: {node: '>=12.6'}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      '@prisma/engines': 3.12.0-37.22b822189f46ef0dc5c5b503368d1bee01213980
     dev: true
 
   /process-nextick-args/2.0.1:
