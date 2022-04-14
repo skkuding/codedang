@@ -1,8 +1,7 @@
-import { Global, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PrismaClient } from '@prisma/client'
 
-@Global
 @Injectable()
 export class PrismaService extends PrismaClient {
   constructor(private config: ConfigService) {
