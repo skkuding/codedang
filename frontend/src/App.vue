@@ -24,7 +24,7 @@ import TheWelcome from './home/components/TheWelcome.vue'
 </template>
 
 <style>
-@import './assets/base.css';
+@import './common/styles/base.css';
 
 #app {
   max-width: 1280px;
