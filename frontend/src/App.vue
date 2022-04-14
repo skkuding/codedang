@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import HelloWorld from './home/components/HelloWorld.vue'
+import TheWelcome from './home/components/TheWelcome.vue'
 </script>
 
 <template>
@@ -8,7 +8,7 @@ import TheWelcome from './components/TheWelcome.vue'
     <img
       alt="Vue logo"
       class="logo"
-      src="./assets/logo.svg"
+      src="./common/assets/logo.svg"
       width="125"
       height="125"
     />
@@ -24,8 +24,6 @@ import TheWelcome from './components/TheWelcome.vue'
 </template>
 
 <style>
-@import './assets/base.css';
-
 #app {
   max-width: 1280px;
   margin: 0 auto;
