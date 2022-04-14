@@ -24,7 +24,6 @@ import TheWelcome from './home/components/TheWelcome.vue'
 </template>
 
 <style>
-
 #app {
   max-width: 1280px;
   margin: 0 auto;
