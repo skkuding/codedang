@@ -8,7 +8,8 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "vue": "^3.2.31"
+    "vue": "^3.2.31",
+    "vue-router": "^4.0.14"
   },
   "devDependencies": {
     "@types/node": "^16.11.25",
@@ -20,6 +21,7 @@
     "typescript": "^4.6.2",
     "unplugin-icons": "^0.14.1",
     "vite": "^2.8.4",
+    "vite-plugin-pages": "^0.22.0",
     "vue-tsc": "^0.31.4"
   }
 }

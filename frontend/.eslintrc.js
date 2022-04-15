@@ -9,5 +9,8 @@ module.exports = {
     parser: '@typescript-eslint/parser',
     sourceType: 'module'
   },
-  extends: ['plugin:vue/vue3-recommended', 'plugin:prettier/recommended']
+  extends: ['plugin:vue/vue3-recommended', 'plugin:prettier/recommended'],
+  rules: {
+    'vue/no-empty-component-block': 'error'
+  }
 }
