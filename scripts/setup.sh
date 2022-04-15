@@ -16,7 +16,7 @@ pnpm install
 
 for i in {1..5}
 do
-  npx prisma migrate deploy && break # break if migration succeed
+  npx prisma migrate dev && break # break if migration succeed
   echo -e '\n⚠️ Failed to migrate. Waiting for db to be ready...\n'
   sleep 5
 done
