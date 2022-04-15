@@ -10,7 +10,7 @@ cd $BASEDIR/backend
 echo "DATABASE_URL=\"postgresql://postgres:1234@localhost:5433/skkuding?schema=public\"" > .env
 echo "DATABASE_URL=\"postgresql://postgres:1234@localhost:5434/skkuding?schema=public\"" > .env.test.local
 
-docker-compose up dev-db -d
+docker-compose up -d dev-db
 
 pnpm install
 
