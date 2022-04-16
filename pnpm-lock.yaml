@@ -11,6 +11,7 @@ importers:
       eslint-plugin-prettier: ^4.0.0
       eslint-plugin-vue: ^8.5.0
       prettier: ^2.6.1
+      prettier-plugin-tailwindcss: ^0.1.8
       typescript: ^4.6.2
       vue-eslint-parser: ^8.3.0
     devDependencies:
@@ -21,6 +22,7 @@ importers:
       eslint-plugin-prettier: 4.0.0_b253a92c95b42c3296c682f11cccb3bd
       eslint-plugin-vue: 8.5.0_eslint@8.12.0
       prettier: 2.6.1
+      prettier-plugin-tailwindcss: 0.1.8_prettier@2.6.1
       typescript: 4.6.2
       vue-eslint-parser: 8.3.0_eslint@8.12.0
 
@@ -5192,6 +5194,15 @@ packages:
     engines: {node: '>=6.0.0'}
     dependencies:
       fast-diff: 1.2.0
+    dev: true
+
+  /prettier-plugin-tailwindcss/0.1.8_prettier@2.6.1:
+    resolution: {integrity: sha512-hwarSBCswAXa+kqYtaAkFr3Vop9o04WOyZs0qo3NyvW8L7f1rif61wRyq0+ArmVThOuRBcJF5hjGXYk86cwemg==}
+    engines: {node: '>=12.17.0'}
+    peerDependencies:
+      prettier: '>=2.2.0'
+    dependencies:
+      prettier: 2.6.1
     dev: true
 
   /prettier/2.6.1:
