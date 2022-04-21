@@ -10,7 +10,7 @@ ports:
 
 tasks:
   - name: Node.js
-    init: pnpm install
+    init: ./scripts/setup.sh
 
 vscode:
   extensions:
@@ -21,3 +21,4 @@ vscode:
     - esbenp.prettier-vscode
     - johnsoncodehk.volar
     - johnsoncodehk.vscode-typescript-vue-plugin
+    - prisma.prisma
