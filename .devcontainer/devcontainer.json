@@ -1,0 +1,16 @@
+{
+  "name": "skkuding-next",
+  "image": "mcr.microsoft.com/vscode/devcontainers/typescript-node:16-bullseye",
+  "extensions": [
+    "bradlc.vscode-tailwindcss",
+    "csstools.postcss",
+    "dbaeumer.vscode-eslint",
+    "editorconfig.editorconfig",
+    "esbenp.prettier-vscode",
+    "johnsoncodehk.volar",
+    "johnsoncodehk.vscode-typescript-vue-plugin",
+    "prisma.prisma"
+  ],
+  // Connect as non-root user (https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user)
+  "remoteUser": "vscode"
+}
