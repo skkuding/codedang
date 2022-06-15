@@ -1,0 +1,23 @@
+name: 📕 [Backend] New feature development
+description: 새로운 feature를 개발합니다
+title: '[Feature] module-name: '
+labels: ['feat: backend']
+body:
+  - type: textarea
+    attributes:
+      label: 📌 Describe the feature
+      description: 구현하려는 feature를 자세하게 설명해주세요.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 📚 Describe related database schema
+      description: 관련된 데이터베이스 schema 목록을 적어주세요. 추가되거나 변경된 schema가 있다면 설명을 포함해야 합니다.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 📄 Use-Case(기획)
+      description: Use case를 포함한 기획 의도를 설명해주세요. 내용은 자세할수록 좋습니다.
+    validations:
+      required: true
