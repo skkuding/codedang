@@ -7,9 +7,9 @@
     "dbaeumer.vscode-eslint",
     "editorconfig.editorconfig",
     "esbenp.prettier-vscode",
-    "johnsoncodehk.volar",
-    "johnsoncodehk.vscode-typescript-vue-plugin",
-    "prisma.prisma"
+    "prisma.prisma",
+    "Vue.volar",
+    "Vue.vscode-typescript-vue-plugin"
   ],
   // Connect as non-root user (https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user)
   "remoteUser": "node"
