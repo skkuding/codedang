@@ -1,6 +1,10 @@
 {
   "name": "skkuding-next",
-  "image": "mcr.microsoft.com/vscode/devcontainers/typescript-node:16-bullseye",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "runServices": ["app", "dev-db"],
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "scripts/setup.sh",
   "extensions": [
     "bradlc.vscode-tailwindcss",
     "csstools.postcss",
