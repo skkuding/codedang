@@ -18,7 +18,7 @@ else
 fi
 
 # Install pnpm
-sudo corepack enable
+pnpm --version || sudo corepack enable
 corepack prepare pnpm@7.2.1 --activate
 pnpm install
 
