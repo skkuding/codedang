@@ -68,3 +68,6 @@ dist/
 
 # Mac OS metadata
 .DS_Store
+
+# pnpm store
+.pnpm-store

@@ -1,6 +1,15 @@
-version: '3.8'
+version: '3'
 services:
+  app:
+    container_name: skkuding-dev
+    image: mcr.microsoft.com/vscode/devcontainers/typescript-node:16-bullseye
+    volumes:
+      - .:/workspace:cached
+    command: sleep infinity
+    environment:
+      DEVCONTAINER: 1
   dev-db:
+    container_name: skkuding-dev-db
     image: postgres:14-alpine
     ports:
       - 5433:5432
@@ -9,6 +18,7 @@ services:
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: skkuding
   test-db:
+    container_name: skkuding-test-db
     image: postgres:14-alpine
     ports:
       - 5434:5432

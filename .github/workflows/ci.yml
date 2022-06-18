@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: 7
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
@@ -27,6 +27,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Generate Prisma Client
+        run: pnpm --filter backend exec prisma generate
 
       - name: Build
         run: pnpm -r build
@@ -49,7 +52,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: 7
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
@@ -76,7 +79,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
         with:
-          version: 6
+          version: 7
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
