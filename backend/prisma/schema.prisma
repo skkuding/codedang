@@ -11,6 +11,312 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique
+  id                      Int      @id @default(autoincrement())
+  username                String   @unique
+  password                String
+  role                    String
+  email                   String   @unique
+  has_email_authenticated Boolean  @default(false)
+  last_login              DateTime
+  create_time             DateTime @default(now())
+  update_time             DateTime @updatedAt
+
+  UserProfile    UserProfile?
+  UserGroup      UserGroup[]
+  Group          Group[]
+  Notice         Notice[]
+  Problem        Problem[]
+  Contest        Contest[]
+  ContestRecord  ContestRecord[]
+  ContestRankACM ContestRankACM[]
+  Workbook       Workbook[]
+
+  @@map("user")
+}
+
+model UserProfile {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [user_id], references: [id])
+  user_id     Int      @unique
+  real_name   String?
+  major       String?
+  create_time DateTime @default(now())
+  update_time DateTime @updatedAt
+
+  @@map("user_profile")
+}
+
+model UserGroup {
+  id               Int      @id @default(autoincrement())
+  user             User     @relation(fields: [user_id], references: [id])
+  user_id          Int
+  group            Group    @relation(fields: [group_id], references: [id])
+  group_id         Int
+  is_registered    Boolean  @default(false)
+  is_group_manager Boolean  @default(false)
+  create_time      DateTime @default(now())
+  update_time      DateTime @updatedAt
+
+  @@map("user_group")
+}
+
+model Group {
+  id              Int      @id @default(autoincrement())
+  created_by      User     @relation(fields: [created_by_id], references: [id])
+  created_by_id   Int
+  group_name      String
+  private         Boolean  @default(false)
+  // 생성시 자동 발급
+  invitation_code String
+  description     String
+  create_time     DateTime @default(now())
+  update_time     DateTime @updatedAt
+
+  UserGroup   UserGroup[]
+  GroupNotice GroupNotice[]
+  Problem     Problem[]
+  Contest     Contest[]
+  Workbook    Workbook[]
+
+  @@map("group")
+}
+
+model GroupNotice {
+  id        Int    @id @default(autoincrement())
+  group     Group  @relation(fields: [group_id], references: [id])
+  group_id  Int
+  notice    Notice @relation(fields: [notice_id], references: [id])
+  notice_id Int
+
+  @@map("group_notice")
+}
+
+model Notice {
+  id            Int      @id @default(autoincrement())
+  created_by    User     @relation(fields: [created_by_id], references: [id])
+  created_by_id Int
+  content       String
+  visible       Boolean  @default(true)
+  top_fixed     Boolean  @default(false)
+  create_time   DateTime @default(now())
+  update_time   DateTime @updatedAt
+
+  GroupNotice GroupNotice[]
+
+  @@map("notice")
+}
+
+model Problem {
+  id                 Int      @id @default(autoincrement())
+  created_by         User     @relation(fields: [created_by_id], references: [id])
+  created_by_id      Int
+  group              Group    @relation(fields: [group_id], references: [id])
+  group_id           Int
+  title              String
+  description        String
+  input_description  String
+  output_description String
+  hint               String
+  languages          Json
+  time_limit         Int
+  memory_limit       Int
+  difficulty         String
+  source             Json
+  shared             Boolean  @default(false)
+  submission_num     Int      @default(0)
+  accepted_num       Int      @default(0)
+  score              Int      @default(0)
+  create_time        DateTime @default(now())
+  update_time        DateTime @updatedAt
+
+
+  ProblemTestcase ProblemTestcase[]
+  ProblemTag      ProblemTag[]
+  ContestProblem  ContestProblem[]
+  WorkbookProblem WorkbookProblem[]
+  Submission      Submission[]
+
+  @@map("problem")
+}
+
+model ProblemTestcase {
+  id          Int      @id @default(autoincrement())
+  problem     Problem  @relation(fields: [problem_id], references: [id])
+  problem_id  Int
+  input       String
+  output      String
+  score       Int      @default(0)
+  create_time DateTime @default(now())
+  update_time DateTime @updatedAt
+
+  @@map("problem_testcase")
+}
+
+model ProblemTag {
+  id         Int     @id @default(autoincrement())
+  problem    Problem @relation(fields: [problem_id], references: [id])
+  problem_id Int
+  tag        Tag     @relation(fields: [tag_id], references: [id])
+  tag_id     Int
+
+  @@map("problem_tag")
+}
+
+model Tag {
+  id          Int      @id @default(autoincrement())
+  name        String
+  type        String
+  visible     Boolean  @default(true)
+  create_time DateTime @default(now())
+  update_time DateTime @updatedAt
+
+  ProblemTag ProblemTag[]
+
+  @@map("tag")
+}
+
+model Contest {
+  id              Int      @id @default(autoincrement())
+  created_by      User     @relation(fields: [created_by_id], references: [id])
+  created_by_id   Int
+  group           Group    @relation(fields: [group_id], references: [id])
+  group_id        Int
+  title           String
+  description     String
+  start_time      DateTime
+  end_time        DateTime
+  visible         Boolean  @default(true)
+  is_rank_visible Boolean  @default(true)
+  type            String   @default("ACM")
+  create_time     DateTime @default(now())
+  update_time     DateTime @updatedAt
+
+  ContestNotice  ContestNotice[]
+  ContestProblem ContestProblem[]
+  ContestRecord  ContestRecord[]
+  ContestRankACM ContestRankACM[]
+
+  Submission Submission[]
+
+  @@map("contest")
+}
+
+model ContestNotice {
+  id          Int      @id @default(autoincrement())
+  contest     Contest  @relation(fields: [contest_id], references: [id])
+  contest_id  Int
+  title       String
+  description String
+  problem_id  String
+  create_time DateTime @default(now())
+  update_time DateTime @updatedAt
+
+  @@map("contest_notice")
+}
+
+model ContestProblem {
+  id          Int      @id @default(autoincrement())
+  contest     Contest  @relation(fields: [contest_id], references: [id])
+  contest_id  Int
+  problem     Problem  @relation(fields: [problem_id], references: [id])
+  problem_id  Int
+  score       Int      @default(0)
+  create_time DateTime @default(now())
+  update_time DateTime @updatedAt
+
+  @@map("contest_problem")
+}
+
+model ContestRecord {
+  id          Int      @id @default(autoincrement())
+  contest     Contest  @relation(fields: [contest_id], references: [id])
+  contest_id  Int
+  user        User     @relation(fields: [user_id], references: [id])
+  user_id     Int
+  rank        Int
+  create_time DateTime @default(now())
+  update_time DateTime @updatedAt
+
+  @@map("contest_record")
+}
+
+model ContestRankACM {
+  id                   Int      @id @default(autoincrement())
+  contest              Contest  @relation(fields: [contest_id], references: [id])
+  contest_id           Int
+  user                 User     @relation(fields: [user_id], references: [id])
+  user_id              Int
+  accepted_problem_num Int      @default(0)
+  total_penalty        Int      @default(0)
+  submission_info      Json?
+  create_time          DateTime @default(now())
+  update_time          DateTime @updatedAt
+
+  @@map("contest_rank_acm")
+}
+
+model Workbook {
+  id            Int      @id @default(autoincrement())
+  created_by    User     @relation(fields: [created_by_id], references: [id])
+  created_by_id Int
+  group         Group    @relation(fields: [group_id], references: [id])
+  group_id      Int
+  title         String
+  description   String
+  start_time    DateTime
+  end_time      DateTime
+  visible       Boolean  @default(true)
+  create_time   DateTime @default(now())
+  update_time   DateTime @updatedAt
+
+  WorkbookProblem WorkbookProblem[]
+  Submission      Submission[]
+
+  @@map("workbook")
+}
+
+model WorkbookProblem {
+  id          Int      @id @default(autoincrement())
+  workbook    Workbook @relation(fields: [workbook_id], references: [id])
+  workbook_id Int
+  problem     Problem  @relation(fields: [problem_id], references: [id])
+  problem_id  Int
+  score       Int      @default(0)
+  create_time DateTime @default(now())
+  update_time DateTime @updatedAt
+
+  @@map("workbook_problem")
+}
+
+model Submission {
+  id          Int       @id @default(autoincrement())
+  problem     Problem   @relation(fields: [problem_id], references: [id])
+  problem_id  Int
+  contest     Contest?  @relation(fields: [contest_id], references: [id])
+  contest_id  Int?
+  workbook    Workbook? @relation(fields: [workbook_id], references: [id])
+  workbook_id Int?
+  code        String
+  language    String
+  shared      Boolean   @default(false)
+  ip_addr     String
+  create_time DateTime  @default(now())
+  update_time DateTime  @updatedAt
+
+  SubmissionResult SubmissionResult[]
+
+  @@map("submission")
+}
+
+model SubmissionResult {
+  id            Int        @id @default(autoincrement())
+  submission    Submission @relation(fields: [submission_id], references: [id])
+  submission_id Int
+  result        String
+  accepted_num  Int
+  total_score   Int
+  create_time   DateTime   @default(now())
+  update_time   DateTime   @updatedAt
+
+  @@map("submssion_result")
 }
