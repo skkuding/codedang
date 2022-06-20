@@ -32,6 +32,7 @@ model User {
   Workbook       Workbook[]
 
   @@map("user")
+  Submission Submission[]
 }
 
 model UserProfile {
@@ -62,7 +63,7 @@ model UserGroup {
 
 model Group {
   id              Int      @id @default(autoincrement())
-  created_by      User     @relation(fields: [created_by_id], references: [id])
+  created_by      User     @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
   created_by_id   Int
   group_name      String
   private         Boolean  @default(false)
@@ -93,7 +94,7 @@ model GroupNotice {
 
 model Notice {
   id            Int      @id @default(autoincrement())
-  created_by    User     @relation(fields: [created_by_id], references: [id])
+  created_by    User     @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
   created_by_id Int
   content       String
   visible       Boolean  @default(true)
@@ -108,7 +109,7 @@ model Notice {
 
 model Problem {
   id                 Int      @id @default(autoincrement())
-  created_by         User     @relation(fields: [created_by_id], references: [id])
+  created_by         User     @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
   created_by_id      Int
   group              Group    @relation(fields: [group_id], references: [id])
   group_id           Int
@@ -177,7 +178,7 @@ model Tag {
 
 model Contest {
   id              Int      @id @default(autoincrement())
-  created_by      User     @relation(fields: [created_by_id], references: [id])
+  created_by      User     @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
   created_by_id   Int
   group           Group    @relation(fields: [group_id], references: [id])
   group_id        Int
@@ -257,7 +258,7 @@ model ContestRankACM {
 
 model Workbook {
   id            Int      @id @default(autoincrement())
-  created_by    User     @relation(fields: [created_by_id], references: [id])
+  created_by    User     @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
   created_by_id Int
   group         Group    @relation(fields: [group_id], references: [id])
   group_id      Int
@@ -290,6 +291,8 @@ model WorkbookProblem {
 
 model Submission {
   id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [user_id], references: [id])
+  user_id     Int
   problem     Problem   @relation(fields: [problem_id], references: [id])
   problem_id  Int
   contest     Contest?  @relation(fields: [contest_id], references: [id])
