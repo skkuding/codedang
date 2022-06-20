@@ -1,8 +1,5 @@
-import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { PrismaService } from 'src/prisma/prisma.service'
 import { NoticeController } from './notice.controller'
-import { NoticeService } from './notice.service'
 
 describe('NoticeController', () => {
   let controller: NoticeController
@@ -10,7 +7,7 @@ describe('NoticeController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [NoticeController],
-      providers: [NoticeService, PrismaService, ConfigService]
+      providers: [{ provide: 'notice', useValue: {} }]
     }).compile()
 
     controller = module.get<NoticeController>(NoticeController)
