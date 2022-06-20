@@ -30,9 +30,9 @@ model User {
   ContestRecord  ContestRecord[]
   ContestRankACM ContestRankACM[]
   Workbook       Workbook[]
+  Submission     Submission[]
 
   @@map("user")
-  Submission Submission[]
 }
 
 model UserProfile {
@@ -196,8 +196,7 @@ model Contest {
   ContestProblem ContestProblem[]
   ContestRecord  ContestRecord[]
   ContestRankACM ContestRankACM[]
-
-  Submission Submission[]
+  Submission     Submission[]
 
   @@map("contest")
 }
