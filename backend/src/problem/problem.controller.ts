@@ -1,9 +1,7 @@
-import { Controller, Inject } from '@nestjs/common'
+import { Controller } from '@nestjs/common'
 import { ProblemService } from './problem.service'
 
 @Controller('problem')
 export class ProblemController {
-  constructor(
-    @Inject('problem') private readonly problemService: ProblemService
-  ) {}
+  constructor(private readonly problemService: ProblemService) {}
 }
