@@ -1,0 +1,47 @@
+name: 📕 [Frontend] New component development
+description: 새로운 component를 개발합니다
+title: '[Feature] module-name(component-type) -  '
+labels: ['feat: frontend']
+body:
+  - type: textarea
+    attributes:
+      label: 🎨 Component Image
+      description: 구현하려는 component의 Image를 첨부해주세요.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: ✏️ Describe component
+      description: 구현하려는 component를 자세하게 설명해주세요.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: ☁️ Props
+      description: 상위 컴포넌트에서 전달 받을 props에 대해 자세하게 설명해주세요.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: ☁️ Data
+      description: 해당 컴포넌트에서 사용할 data에 대해 자세하게 설명해주세요.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: ☁️ Method
+      description: 해당 컴포넌트에서 사용할 method에 대해 자세하게 설명해주세요.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🔎 Using Page
+      description: 해당 컴포넌트를 사용하는 page와 title을 작성해주세요. (title이 없다면 작성하지 않아도 됩니다.)
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🏷 Required Component
+      description: 해당 컴포넌트를 사용할 때 필요한 다른 component list를 작성하고, 관련된 issue number를 적어주세요. 없다면 작성하지 않으셔도 됩니다.
+    validations:
+      required: false
