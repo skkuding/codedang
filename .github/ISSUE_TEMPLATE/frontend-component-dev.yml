@@ -23,18 +23,6 @@ body:
       required: true
   - type: textarea
     attributes:
-      label: ☁️ Data
-      description: 해당 컴포넌트에서 사용할 data에 대해 자세하게 설명해주세요.
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: ☁️ Method
-      description: 해당 컴포넌트에서 사용할 method에 대해 자세하게 설명해주세요.
-    validations:
-      required: true
-  - type: textarea
-    attributes:
       label: 🔎 Using Page
       description: 해당 컴포넌트를 사용하는 page와 title을 작성해주세요. (title이 없다면 작성하지 않아도 됩니다.)
     validations:
