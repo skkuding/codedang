@@ -26,3 +26,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: skkuding
+  dev-cache:
+    container_name: skkuding-dev-cache
+    image: redis:7-alpine
