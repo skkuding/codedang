@@ -10,7 +10,15 @@ export default defineConfig({
   plugins: [
     vue(),
     icons({ autoInstall: true }),
-    pages({ dirs: [{ dir: 'src/**/pages', baseRoute: '' }] })
+    pages({
+      pagesDir: [
+        { dir: 'src/home/pages', baseRoute: '' },
+        { dir: 'src/notice/pages', baseRoute: 'notice' },
+        { dir: 'src/problem/pages', baseRoute: 'problem' },
+        { dir: 'src/contest/pages', baseRoute: 'contest' },
+        { dir: 'src/group/pages', baseRoute: 'group' }
+      ]
+    })
   ],
   resolve: {
     alias: {
