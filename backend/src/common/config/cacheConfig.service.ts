@@ -13,8 +13,8 @@ export class CacheConfigService implements CacheOptionsFactory {
   createCacheOptions(): CacheModuleOptions {
     return {
       store: redisStore,
-      host: 'skkuding-dev-cache',
-      port: 6379
+      host: this.config.get('CACHE_DATABASE_URL'),
+      port: this.config.get('CACHE_DATABASE_PORT')
     }
   }
 }
