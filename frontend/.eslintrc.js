@@ -11,6 +11,7 @@ module.exports = {
   },
   extends: ['plugin:vue/vue3-recommended', 'plugin:prettier/recommended'],
   rules: {
-    'vue/no-empty-component-block': 'error'
+    'vue/no-empty-component-block': 'error',
+    'vue/multi-word-component-names': 'off'
   }
 }
