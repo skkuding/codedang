@@ -2,7 +2,7 @@
   "name": "skkuding-next",
   "dockerComposeFile": "../docker-compose.yml",
   "service": "app",
-  "runServices": ["app", "dev-db"],
+  "runServices": ["app", "dev-db", "dev-cache"],
   "workspaceFolder": "/workspace",
   "postCreateCommand": "scripts/setup.sh",
   "extensions": [

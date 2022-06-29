@@ -11,10 +11,25 @@ if [ -z $DEVCONTAINER ]
 then
   echo "DATABASE_URL=\"postgresql://postgres:1234@localhost:5433/skkuding?schema=public\"" > backend/.env
   echo "DATABASE_URL=\"postgresql://postgres:1234@localhost:5434/skkuding?schema=public\"" > backend/.env.test.local
-  docker-compose up -d dev-db
 else
   echo "DATABASE_URL=\"postgresql://postgres:1234@dev-db:5432/skkuding?schema=public\"" > backend/.env
   echo "DATABASE_URL=\"postgresql://postgres:1234@test-db:5432/skkuding?schema=public\"" > backend/.env.test.local
+fi
+
+# Save cache database URL and PORT to dotenv file
+if [ -z $DEVCONTAINER ]
+then
+  echo "CACHE_DATABASE_URL=\"localhost\"" >> backend/.env
+  echo "CACHE_DATABASE_PORT=6380" >> backend/.env
+else
+  echo "CACHE_DATABASE_URL=\"skkuding-dev-cache\"" >> backend/.env
+  echo "CACHE_DATABASE_PORT=6379" >> backend/.env
+fi
+
+# Use docker-compose profile
+if [ -z $DEVCONTAINER ]
+then
+  docker-compose up -d
 fi
 
 # Install pnpm
