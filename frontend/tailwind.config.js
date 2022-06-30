@@ -54,6 +54,10 @@ module.exports = {
       fontFamily: {
         sans: ['Manrope', 'Noto Sans KR', ...defaultTheme.fontFamily.sans],
         mono: ['JetBrains Mono', ...defaultTheme.fontFamily.mono]
+      },
+      spacing: {
+        page: '156px',
+        page_s: '80px'
       }
     }
   },
