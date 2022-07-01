@@ -1,5 +1,5 @@
 <template>
-  <div class="px-page_s md:px-page">
+  <div class="px-page-sm md:px-page">
     <router-view />
   </div>
 </template>

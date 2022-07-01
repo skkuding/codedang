@@ -57,7 +57,7 @@ module.exports = {
       },
       spacing: {
         page: '156px',
-        page_s: '80px'
+        'page-sm': '80px'
       }
     }
   },
