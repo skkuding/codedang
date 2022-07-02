@@ -4,6 +4,7 @@ importers:
 
   .:
     specifiers:
+      '@evilmartians/lefthook': ^1.0.4
       '@typescript-eslint/eslint-plugin': ^5.30.0
       '@typescript-eslint/parser': ^5.30.0
       eslint: ^8.18.0
@@ -15,6 +16,7 @@ importers:
       typescript: ^4.7.4
       vue-eslint-parser: ^8.3.0
     devDependencies:
+      '@evilmartians/lefthook': 1.0.4
       '@typescript-eslint/eslint-plugin': 5.30.0_5mtqsiui4sk53pmkx7i7ue45wm
       '@typescript-eslint/parser': 5.30.0_b5e7v2qnwxfo6hmiq56u52mz3e
       eslint: 8.18.0
@@ -583,6 +585,14 @@ packages:
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /@evilmartians/lefthook/1.0.4:
+    resolution: {integrity: sha512-BithCdjVebJ7/4NoU/gyoIUHdAnMvZ/k+HrkXHYag7FAMdGpKCNi0tysywJSSRhFZUrfrhfd7gnxKYZDj+j84A==}
+    cpu: [x64, arm64, ia32]
+    os: [darwin, linux, win32]
+    hasBin: true
+    requiresBuild: true
     dev: true
 
   /@humanwhocodes/config-array/0.9.5:
