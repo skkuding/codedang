@@ -26,7 +26,7 @@ module.exports = {
       red: '#ff6663',
       text: {
         title: '#7c7a7b',
-        subtitle: '#a13e51',
+        subtitle: '#173747',
         DEFAULT: '#212529'
       },
       slate: {
