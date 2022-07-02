@@ -1,6 +1,8 @@
 <script setup lang="ts">
-defineProps<{
-  borderColor?: string
+import { computed } from 'vue'
+type BorderColor = 'gray' | 'green'
+const props = defineProps<{
+  borderColor?: BorderColor
   img?: string
   title: string // left-top
   description?: string // left-bottom
@@ -9,15 +11,15 @@ defineProps<{
   coloredTextShort?: string // right-bottom
 }>()
 
-function borderColorClass(borderColor?: string): string {
-  return borderColor === 'gray' ? 'border-gray' : 'border-green'
-}
+const borderColorClass = computed(() => {
+  return props.borderColor === 'gray' ? 'border-gray' : 'border-green'
+})
 </script>
 
 <template>
   <div
     class="mx-40 flex cursor-pointer border p-3 hover:shadow"
-    :class="borderColorClass(borderColor)"
+    :class="borderColorClass"
   >
     <img v-if="img" :src="img" class="aspect-square w-16" />
     <div class="flex w-full pl-2">
@@ -41,7 +43,7 @@ function borderColorClass(borderColor?: string): string {
         <div
           class="text-green absolute bottom-0 right-0 block text-right md:hidden"
         >
-          {{ coloredTextShort }}
+          {{ coloredTextShort || coloredText }}
         </div>
       </div>
     </div>
