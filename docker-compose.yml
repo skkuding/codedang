@@ -1,6 +1,7 @@
 version: '3'
 services:
   app:
+    profiles: ['devcontainer']
     container_name: skkuding-dev
     image: mcr.microsoft.com/vscode/devcontainers/typescript-node:16-bullseye
     volumes:
@@ -18,6 +19,7 @@ services:
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: skkuding
   test-db:
+    profiles: ['test']
     container_name: skkuding-test-db
     image: postgres:14-alpine
     ports:
@@ -26,3 +28,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: skkuding
+  dev-cache:
+    container_name: skkuding-dev-cache
+    image: redis:7-alpine
+    ports:
+      - 6380:6379
