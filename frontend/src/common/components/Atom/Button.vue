@@ -32,13 +32,3 @@ const backgroundColor = computed(() => {
     </button>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: 'ButtonAtom',
-  data() {
-    return {}
-  },
-  methods: {}
-}
-</script>
