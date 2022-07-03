@@ -10,16 +10,3 @@ export const REFRESH_TOKEN_COOKIE_OPTIONS = {
   path: '/auth/reissue',
   httpOnly: true
 }
-
-// TODO: Cache key 디렉토리 옮기기
-export const refreshTokenCacheKey = (userId) => `user:${userId}:refresh_token`
-
-export type JwtPayload = {
-  username: string
-  userId: number
-}
-
-export type JwtObject = JwtPayload & {
-  iat: number
-  exp: number
-}
