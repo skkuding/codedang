@@ -11,38 +11,40 @@ const props = defineProps<{
   coloredTextShort?: string // right-bottom
 }>()
 
-const borderColorClass = computed(() => {
+const borderColorStyle = computed(() => {
   return props.borderColor === 'gray' ? 'border-gray' : 'border-green'
+})
+
+const textColorStyle = computed(() => {
+  return props.borderColor === 'gray' ? 'text-gray-dark' : 'text-green'
 })
 </script>
 
 <template>
   <div
-    class="mx-40 flex cursor-pointer border p-3 hover:shadow"
-    :class="borderColorClass"
+    class="flex cursor-pointer border p-3 hover:border-2"
+    :class="borderColorStyle"
   >
     <img v-if="img" :src="img" class="aspect-square w-16" />
-    <div class="flex w-full pl-2">
-      <div class="relative w-full pl-2">
-        <div class="text-xl font-bold">{{ title }}</div>
-        <div class="text-gray-dark">
-          {{ description }}
+    <div class="w-full pl-2">
+      <div class="flex flex-row pl-2">
+        <div class="text-text-subtitle w-2/3 text-xl font-bold">
+          {{ title }}
         </div>
-      </div>
-      <div class="relative w-1/2">
-        <div class="hidden text-right md:block">
+        <div class="hidden w-1/3 text-right md:block">
           {{ additionalText }}
         </div>
+      </div>
+      <div class="flex flex-row pl-2">
+        <div class="text-gray-dark w-2/3">
+          {{ description }}
+        </div>
         <!-- when screen size is 1440px -->
-        <div
-          class="text-green absolute bottom-0 right-0 hidden text-right md:block"
-        >
+        <div class="hidden w-1/3 text-right md:block" :class="textColorStyle">
           {{ coloredText }}
         </div>
         <!-- when screen size is smaller than 768px -->
-        <div
-          class="text-green absolute bottom-0 right-0 block text-right md:hidden"
-        >
+        <div class="block w-1/3 text-right md:hidden" :class="textColorStyle">
           {{ coloredTextShort || coloredText }}
         </div>
       </div>
