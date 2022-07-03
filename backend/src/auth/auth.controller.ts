@@ -3,7 +3,7 @@ import { User } from '@prisma/client'
 import { Request, Response } from 'express'
 import { AuthService } from './auth.service'
 import { LocalAuthGuard } from './guard/local-auth.guard'
-import { REFRESH_TOKEN_COOKIE_OPTIONS } from './jwt.constants'
+import { REFRESH_TOKEN_COOKIE_OPTIONS } from './config/jwt.config'
 
 const AUTH_TYPE = 'Bearer'
 

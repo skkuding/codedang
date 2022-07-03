@@ -8,15 +8,15 @@ import { Cache } from 'cache-manager'
 import { JwtService, JwtSignOptions, JwtVerifyOptions } from '@nestjs/jwt'
 import { User } from '@prisma/client'
 import { UserService } from 'src/user/user.service'
+import { refreshTokenCacheKey } from '../common/cache/keys'
 
 import {
   ACCESS_TOKEN_EXPIRATION_SEC,
-  JwtObject,
-  JwtPayload,
-  refreshTokenCacheKey,
   REFRESH_TOKEN_EXPIRATION_SEC,
   SECRET_KEY
-} from './jwt.constants'
+} from './config/jwt.config'
+
+import { JwtObject, JwtPayload } from './type/jwt.type'
 
 // TODO: implement decrpyt logic. Errors related with decryption should be thrown here
 function decryptPassword(password): string {
