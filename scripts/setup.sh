@@ -37,6 +37,9 @@ pnpm --version || sudo corepack enable
 corepack prepare pnpm@7.2.1 --activate
 pnpm install
 
+# Install lefthook for git hook
+npx lefthook install
+
 # Apply database migration
 for i in {1..5}
 do
