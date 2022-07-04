@@ -6,7 +6,7 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview --port 5050",
     "typecheck": "vue-tsc --noEmit",
-    "story": "histoire dev",
+    "story": "histoire dev --port 3030",
     "story:build": "histoire build"
   },
   "dependencies": {
