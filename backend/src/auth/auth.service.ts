@@ -1,5 +1,6 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt'
+import { ConfigService } from '@nestjs/config'
 import { User } from '@prisma/client'
 import { UserService } from 'src/user/user.service'
 import { Cache } from 'cache-manager'
@@ -13,8 +14,7 @@ import { validate } from '../common/hash'
 
 import {
   ACCESS_TOKEN_EXPIRATION_SEC,
-  REFRESH_TOKEN_EXPIRATION_SEC,
-  SECRET_KEY
+  REFRESH_TOKEN_EXPIRATION_SEC
 } from './config/jwt.config'
 import { LoginUserDto } from './dto/login-user.dto'
 import { JwtObject, JwtPayload, JwtTokens } from './type/jwt.type'
@@ -24,6 +24,7 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly config: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -42,11 +43,12 @@ export class AuthService {
 
   async createTokens(userId: number, username: string): Promise<JwtTokens> {
     const payload: JwtPayload = { userId, username }
-
-    const accessToken = await this.jwtService.signAsync(payload, {
+    const accessToken = await this.jwtService.signAsync({
+      ...payload,
       expiresIn: ACCESS_TOKEN_EXPIRATION_SEC
     })
-    const refreshToken = await this.jwtService.signAsync(payload, {
+    const refreshToken = await this.jwtService.signAsync({
+      ...payload,
       expiresIn: REFRESH_TOKEN_EXPIRATION_SEC
     })
 
@@ -65,6 +67,7 @@ export class AuthService {
     const cachedRefreshToken = await this.cacheManager.get(
       refreshTokenCacheKey(decodedRefreshToken.userId)
     )
+    //TODO: 기존의 access token은 blacklist에 추가
 
     if (
       decodedAccessToken.username !== decodedRefreshToken.username ||
@@ -73,8 +76,12 @@ export class AuthService {
       throw new InvalidJwtTokenException('Invalid Token')
     }
 
-    const payload: JwtPayload = decodedRefreshToken
-    return await this.jwtService.signAsync(payload, {
+    const payload: JwtPayload = (({ userId, username }) => ({
+      userId,
+      username
+    }))(decodedRefreshToken)
+    return await this.jwtService.signAsync({
+      ...payload,
       expiresIn: ACCESS_TOKEN_EXPIRATION_SEC
     })
   }
@@ -83,7 +90,10 @@ export class AuthService {
     token: string,
     options: JwtVerifyOptions = {}
   ): Promise<JwtObject> {
-    const jwtVerifyOptions = { secret: SECRET_KEY, ...options }
+    const jwtVerifyOptions = {
+      secret: this.config.get('JWT_SECRET'),
+      ...options
+    }
     try {
       return await this.jwtService.verifyAsync(token, jwtVerifyOptions)
     } catch (error) {

@@ -33,7 +33,7 @@ then
 fi
 
 jwt_secret=$(echo -n head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum)
-echo "JWT_PRIVATE_KEY=$jwt_secret" >> backend/.env
+echo "JWT_SECRET=$jwt_secret" >> backend/.env
 
 # Install pnpm
 pnpm --version || sudo corepack enable
