@@ -50,6 +50,8 @@ importers:
       argon2: ^0.28.7
       cache-manager: ^4.0.1
       cache-manager-redis-store: ^2.0.0
+      class-transformer: ^0.5.1
+      class-validator: ^0.13.2
       cookie-parser: ^1.4.6
       jest: ^27.5.1
       passport: ^0.6.0
@@ -67,7 +69,7 @@ importers:
       tsconfig-paths: ^3.14.1
       typescript: ^4.7.4
     dependencies:
-      '@nestjs/common': 8.4.7_o5dm3em3kq5fzcardu5b5ptzfq
+      '@nestjs/common': 8.4.7_rfiwcbffiuhkhhtbrxxsyxpam4
       '@nestjs/config': 2.1.0_g7av3gvncewo44y4rurz3mgav4
       '@nestjs/core': 8.4.7_fkqgj3xrohk2pflugljc4sz7ea
       '@nestjs/jwt': 8.0.1_@nestjs+common@8.4.7
@@ -77,6 +79,8 @@ importers:
       argon2: 0.28.7
       cache-manager: 4.0.1
       cache-manager-redis-store: 2.0.0
+      class-transformer: 0.5.1
+      class-validator: 0.13.2
       cookie-parser: 1.4.6
       passport: 0.6.0
       passport-jwt: 4.0.0
@@ -953,7 +957,7 @@ packages:
       - webpack-cli
     dev: true
 
-  /@nestjs/common/8.4.7_o5dm3em3kq5fzcardu5b5ptzfq:
+  /@nestjs/common/8.4.7_rfiwcbffiuhkhhtbrxxsyxpam4:
     resolution: {integrity: sha512-m/YsbcBal+gA5CFrDpqXqsSfylo+DIQrkFY3qhVIltsYRfu8ct8J9pqsTO6OPf3mvqdOpFGrV5sBjoyAzOBvsw==}
     peerDependencies:
       cache-manager: '*'
@@ -971,6 +975,8 @@ packages:
     dependencies:
       axios: 0.27.2
       cache-manager: 4.0.1
+      class-transformer: 0.5.1
+      class-validator: 0.13.2
       iterare: 1.2.1
       reflect-metadata: 0.1.13
       rxjs: 7.5.5
@@ -986,7 +992,7 @@ packages:
       reflect-metadata: ^0.1.13
       rxjs: ^6.0.0 || ^7.2.0
     dependencies:
-      '@nestjs/common': 8.4.7_o5dm3em3kq5fzcardu5b5ptzfq
+      '@nestjs/common': 8.4.7_rfiwcbffiuhkhhtbrxxsyxpam4
       dotenv: 16.0.1
       dotenv-expand: 8.0.3
       lodash: 4.17.21
@@ -1013,7 +1019,7 @@ packages:
       '@nestjs/websockets':
         optional: true
     dependencies:
-      '@nestjs/common': 8.4.7_o5dm3em3kq5fzcardu5b5ptzfq
+      '@nestjs/common': 8.4.7_rfiwcbffiuhkhhtbrxxsyxpam4
       '@nestjs/platform-express': 8.4.7_7tsmhnugyerf5okgqzer2mfqme
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
@@ -1032,7 +1038,7 @@ packages:
     peerDependencies:
       '@nestjs/common': ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
-      '@nestjs/common': 8.4.7_o5dm3em3kq5fzcardu5b5ptzfq
+      '@nestjs/common': 8.4.7_rfiwcbffiuhkhhtbrxxsyxpam4
       '@types/jsonwebtoken': 8.5.8
       jsonwebtoken: 8.5.1
     dev: false
@@ -1043,7 +1049,7 @@ packages:
       '@nestjs/common': ^6.0.0 || ^7.0.0 || ^8.0.0
       passport: ^0.4.0 || ^0.5.0 || ^0.6.0
     dependencies:
-      '@nestjs/common': 8.4.7_o5dm3em3kq5fzcardu5b5ptzfq
+      '@nestjs/common': 8.4.7_rfiwcbffiuhkhhtbrxxsyxpam4
       passport: 0.6.0
     dev: false
 
@@ -1053,7 +1059,7 @@ packages:
       '@nestjs/common': ^8.0.0
       '@nestjs/core': ^8.0.0
     dependencies:
-      '@nestjs/common': 8.4.7_o5dm3em3kq5fzcardu5b5ptzfq
+      '@nestjs/common': 8.4.7_rfiwcbffiuhkhhtbrxxsyxpam4
       '@nestjs/core': 8.4.7_fkqgj3xrohk2pflugljc4sz7ea
       body-parser: 1.20.0
       cors: 2.8.5
@@ -1091,7 +1097,7 @@ packages:
       '@nestjs/platform-express':
         optional: true
     dependencies:
-      '@nestjs/common': 8.4.7_o5dm3em3kq5fzcardu5b5ptzfq
+      '@nestjs/common': 8.4.7_rfiwcbffiuhkhhtbrxxsyxpam4
       '@nestjs/core': 8.4.7_fkqgj3xrohk2pflugljc4sz7ea
       '@nestjs/platform-express': 8.4.7_7tsmhnugyerf5okgqzer2mfqme
       tslib: 2.4.0
@@ -2401,6 +2407,15 @@ packages:
   /cjs-module-lexer/1.2.2:
     resolution: {integrity: sha512-cOU9usZw8/dXIXKtwa8pM0OTJQuJkxMN6w30csNRUerHfeQ5R6U3kkU/FtJeIf3M202OHfY2U8ccInBG7/xogA==}
     dev: true
+
+  /class-transformer/0.5.1:
+    resolution: {integrity: sha512-SQa1Ws6hUbfC98vKGxZH3KFY0Y1lm5Zm0SY8XX9zbK7FJCyVEac3ATW0RIpwzW+oOfmHE5PMPufDG9hCfoEOMw==}
+
+  /class-validator/0.13.2:
+    resolution: {integrity: sha512-yBUcQy07FPlGzUjoLuUfIOXzgynnQPPruyK1Ge2B74k9ROwnle1E+NxLWnUv5OLU8hA/qL5leAE9XnXq3byaBw==}
+    dependencies:
+      libphonenumber-js: 1.10.7
+      validator: 13.7.0
 
   /cli-cursor/3.1.0:
     resolution: {integrity: sha512-I/zHAwsKf9FqGoXM4WWRACob9+SNukZTd94DWF57E4toouRulbCxcUh6RKUEOQlYTHJnzkPMySvPNaaSLNfLZw==}
@@ -5065,6 +5080,9 @@ packages:
       type-check: 0.4.0
     dev: true
 
+  /libphonenumber-js/1.10.7:
+    resolution: {integrity: sha512-jZXLCCWMe1b/HXkjiLeYt2JsytZMcqH26jLFIdzFDFF0xvSUWrYKyvPlyPG+XJzEyKUFbcZxLdWGMwQsWaHDxQ==}
+
   /lilconfig/2.0.5:
     resolution: {integrity: sha512-xaYmXZtTHPAw5m+xLN8ab9C+3a8YmV3asNSPOATITbtwrfbwaLJj8h66H1WMIpALCkqsIzK3h7oQ+PdX+LQ9Eg==}
     engines: {node: '>=10'}
@@ -6975,6 +6993,10 @@ packages:
       convert-source-map: 1.8.0
       source-map: 0.7.3
     dev: true
+
+  /validator/13.7.0:
+    resolution: {integrity: sha512-nYXQLCBkpJ8X6ltALua9dRrZDHVYxjJ1wgskNt1lH9fzGjs3tgojGSCBjmEPwkWS1y29+DrizMTW19Pr9uB2nw==}
+    engines: {node: '>= 0.10'}
 
   /vary/1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
