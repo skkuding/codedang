@@ -15,7 +15,7 @@ import { validate } from '../common/hash'
 import {
   ACCESS_TOKEN_EXPIRATION_SEC,
   REFRESH_TOKEN_EXPIRATION_SEC
-} from './config/jwt.config'
+} from './constants/jwt.constants'
 import { LoginUserDto } from './dto/login-user.dto'
 import { JwtObject, JwtPayload, JwtTokens } from './type/jwt.type'
 
@@ -35,8 +35,6 @@ export class AuthService {
 
   async validateUser(loginUserDto: LoginUserDto): Promise<User> {
     const user = await this.userService.getUserCredential(loginUserDto.username)
-    // validate가 예외처리가 되어야 하지 않을까?
-    return user
     if (!user || !(await validate(loginUserDto.password, user.password))) {
       throw new PasswordNotMatchException('Password does not match')
     }

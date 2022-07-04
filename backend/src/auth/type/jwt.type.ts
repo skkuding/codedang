@@ -1,5 +1,3 @@
-import { Request } from 'express'
-
 export type JwtPayload = {
   userId: number
   username: string
@@ -16,12 +14,8 @@ export type JwtTokens = {
   refreshToken: string
 }
 
-export type VerifiedUser = {
+export type AuthenticatedUser = {
   id: number
   username: string
   role: string
-}
-
-export interface RequestWithUser extends Request {
-  user: VerifiedUser
 }

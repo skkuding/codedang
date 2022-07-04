@@ -6,7 +6,6 @@ import {
   Post,
   Req,
   Res,
-  HttpException,
   UnauthorizedException,
   InternalServerErrorException
 } from '@nestjs/common'
@@ -19,9 +18,13 @@ import {
 } from '../common/exception/business.exception'
 
 import { LoginUserDto } from './dto/login-user.dto'
-import { REFRESH_TOKEN_COOKIE_OPTIONS, AUTH_TYPE } from './config/jwt.config'
+import {
+  REFRESH_TOKEN_COOKIE_OPTIONS,
+  AUTH_TYPE
+} from './constants/jwt.constants'
 import { JwtAuthGuard } from './guard/jwt-auth.guard'
-import { JwtTokens, RequestWithUser } from './type/jwt.type'
+import { JwtTokens } from './type/jwt.type'
+import { AuthenticatedRequest } from './interface/authenticated-request.interface'
 
 const setJwtResponse = (res: Response, jwtTokens: JwtTokens) => {
   res.setHeader('authorization', `${AUTH_TYPE} ${jwtTokens.accessToken}`)
@@ -50,14 +53,14 @@ export class AuthController {
       if (error instanceof PasswordNotMatchException) {
         throw new UnauthorizedException(error.message)
       }
-      throw new HttpException('Login Failed', 500)
+      throw new InternalServerErrorException('Login failed')
     }
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(
-    @Req() req: RequestWithUser,
+    @Req() req: AuthenticatedRequest,
     @Res({ passthrough: true }) res: Response
   ) {
     try {
@@ -65,12 +68,12 @@ export class AuthController {
       res.clearCookie('refresh_token', REFRESH_TOKEN_COOKIE_OPTIONS)
       return
     } catch (error) {
-      throw new InternalServerErrorException('handled')
+      throw new InternalServerErrorException()
     }
   }
 
   @Get('reissue')
-  async reIssueAccessToken(
+  async reIssueJwtTokens(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response
   ) {
@@ -80,12 +83,12 @@ export class AuthController {
     try {
       const newJwtTokens = await this.authService.updateJwtTokens(refreshToken)
       setJwtResponse(res, newJwtTokens)
-      return 'success'
+      return
     } catch (error) {
       if (error instanceof InvalidJwtTokenException) {
         throw new UnauthorizedException(error.message)
       }
-      throw new HttpException('Failed to reissue Tokens', 500)
+      throw new InternalServerErrorException('Failed to reissue tokens')
     }
   }
 }

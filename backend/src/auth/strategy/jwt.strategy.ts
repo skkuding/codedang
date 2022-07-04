@@ -4,7 +4,7 @@ import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt } from 'passport-jwt'
 import { Strategy } from 'passport-jwt'
 import { UserService } from 'src/user/user.service'
-import { JwtObject, VerifiedUser } from '../type/jwt.type'
+import { JwtObject, AuthenticatedUser } from '../type/jwt.type'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -19,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     })
   }
 
-  async validate(payload: JwtObject): Promise<VerifiedUser> {
+  async validate(payload: JwtObject): Promise<AuthenticatedUser> {
     const user = await this.userService.getUserRole(payload.userId)
     if (!user) {
       throw new UnauthorizedException('Invalid user')
