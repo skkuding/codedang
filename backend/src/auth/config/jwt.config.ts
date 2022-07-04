@@ -8,3 +8,5 @@ export const REFRESH_TOKEN_COOKIE_OPTIONS = {
   path: '/auth/reissue',
   httpOnly: true
 }
+
+export const AUTH_TYPE = 'Bearer'

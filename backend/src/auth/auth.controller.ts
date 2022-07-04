@@ -3,10 +3,12 @@ import {
   Controller,
   Get,
   HttpException,
+  InternalServerErrorException,
   Post,
   Req,
   Res,
-  UnauthorizedException
+  UnauthorizedException,
+  UseGuards
 } from '@nestjs/common'
 import { Request, Response } from 'express'
 import { AuthService } from './auth.service'
@@ -17,9 +19,10 @@ import {
 } from '../common/exception/business.exception'
 
 import { LoginUserDto } from './dto/login-user.dto'
-import { REFRESH_TOKEN_COOKIE_OPTIONS } from './config/jwt.config'
-
-const AUTH_TYPE = 'Bearer'
+import { REFRESH_TOKEN_COOKIE_OPTIONS, AUTH_TYPE } from './config/jwt.config'
+import { JwtAuthGuard } from './guard/jwt-auth.guard'
+import { RequestWithUser } from './type/jwt.type'
+import { extractAccessToken } from './extractAccessToken'
 
 @Controller('auth')
 export class AuthController {
@@ -48,19 +51,26 @@ export class AuthController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logout(@Req() req: RequestWithUser) {
+    const accessToken = extractAccessToken(req)
+    try {
+      await this.authService.disableJwtTokens(req.user.id, accessToken)
+      return
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+
   @Get('reissue')
   async reIssueAccessToken(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response
   ) {
-    const authorizationHeader = req.get('authorization')
+    const accessToken = extractAccessToken(req)
     const refreshToken = req.cookies['refresh_token']
-    if (!refreshToken || !authorizationHeader)
-      throw new UnauthorizedException('Invalid Token')
-
-    const [authType, accessToken] = authorizationHeader.split(' ')
-    if (authType !== AUTH_TYPE)
-      throw new UnauthorizedException('Invalid authorization type')
+    if (!refreshToken) throw new UnauthorizedException('Invalid Token')
 
     try {
       const newAccessToken = await this.authService.updateAccessToken({
