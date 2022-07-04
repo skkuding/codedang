@@ -17,14 +17,14 @@ import {
   InvalidJwtTokenException
 } from '../common/exception/business.exception'
 
-import { LoginUserDto } from './dto/login-user.dto'
 import {
   REFRESH_TOKEN_COOKIE_OPTIONS,
   AUTH_TYPE
 } from './constants/jwt.constants'
+import { LoginUserDto } from './dto/login-user.dto'
 import { JwtAuthGuard } from './guard/jwt-auth.guard'
-import { JwtTokens } from './type/jwt.type'
 import { AuthenticatedRequest } from './interface/authenticated-request.interface'
+import { JwtTokens } from './type/jwt.type'
 
 const setJwtResponse = (res: Response, jwtTokens: JwtTokens) => {
   res.setHeader('authorization', `${AUTH_TYPE} ${jwtTokens.accessToken}`)
@@ -49,7 +49,6 @@ export class AuthController {
       setJwtResponse(res, jwtTokens)
       return
     } catch (error) {
-      console.log(error)
       if (error instanceof PasswordNotMatchException) {
         throw new UnauthorizedException(error.message)
       }
