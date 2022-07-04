@@ -14,7 +14,7 @@ model User {
   id                      Int      @id @default(autoincrement())
   username                String   @unique
   password                String
-  role                    String
+  role                    String   @default("user")
   email                   String   @unique
   has_email_authenticated Boolean  @default(false)
   last_login              DateTime
