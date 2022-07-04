@@ -5,10 +5,7 @@ import { User } from '@prisma/client'
 import { UserService } from 'src/user/user.service'
 import { Cache } from 'cache-manager'
 
-import {
-  jwtBlackListCacheKey,
-  refreshTokenCacheKey
-} from '../common/cache/keys'
+import { refreshTokenCacheKey } from '../common/cache/keys'
 import {
   PasswordNotMatchException,
   InvalidJwtTokenException
@@ -33,18 +30,20 @@ export class AuthService {
 
   async issueJwtTokens(loginUserDto: LoginUserDto): Promise<JwtTokens> {
     const user = await this.validateUser(loginUserDto)
-    return await this.createTokens(user.id, user.username)
+    return await this.createJwtTokens(user.id, user.username)
   }
 
   async validateUser(loginUserDto: LoginUserDto): Promise<User> {
     const user = await this.userService.getUserCredential(loginUserDto.username)
+    // validate가 예외처리가 되어야 하지 않을까?
+    return user
     if (!user || !(await validate(loginUserDto.password, user.password))) {
       throw new PasswordNotMatchException('Password does not match')
     }
     return user
   }
 
-  async createTokens(userId: number, username: string): Promise<JwtTokens> {
+  async createJwtTokens(userId: number, username: string): Promise<JwtTokens> {
     const payload: JwtPayload = { userId, username }
     const accessToken = await this.jwtService.signAsync({
       ...payload,
@@ -62,34 +61,23 @@ export class AuthService {
     return { accessToken, refreshToken }
   }
 
-  async updateAccessToken(jwtTokens: JwtTokens): Promise<string> {
-    const decodedAccessToken = await this.validateToken(jwtTokens.accessToken, {
-      ignoreExpiration: true
-    })
-    const decodedRefreshToken = await this.validateToken(jwtTokens.refreshToken)
+  async updateJwtTokens(refreshToken: string): Promise<JwtTokens> {
+    const decodedRefreshToken = await this.validateJwtToken(refreshToken)
     const cachedRefreshToken = await this.cacheManager.get(
       refreshTokenCacheKey(decodedRefreshToken.userId)
     )
-    //TODO: 기존의 access token은 blacklist에 추가
 
-    if (
-      decodedAccessToken.username !== decodedRefreshToken.username ||
-      cachedRefreshToken !== jwtTokens.refreshToken
-    ) {
+    if (cachedRefreshToken !== refreshToken) {
       throw new InvalidJwtTokenException('Invalid Token')
     }
 
-    const payload: JwtPayload = (({ userId, username }) => ({
-      userId,
-      username
-    }))(decodedRefreshToken)
-    return await this.jwtService.signAsync({
-      ...payload,
-      expiresIn: ACCESS_TOKEN_EXPIRATION_SEC
-    })
+    return await this.createJwtTokens(
+      decodedRefreshToken.userId,
+      decodedRefreshToken.username
+    )
   }
 
-  async validateToken(
+  async validateJwtToken(
     token: string,
     options: JwtVerifyOptions = {}
   ): Promise<JwtObject> {
@@ -104,18 +92,7 @@ export class AuthService {
     }
   }
 
-  async disableJwtTokens(userId: number, accessToken: string) {
-    await this.cacheManager.del(refreshTokenCacheKey(userId))
-    await this.cacheManager.set(
-      jwtBlackListCacheKey(accessToken),
-      accessToken,
-      { ttl: 180 }
-      //TODO: ttl설정 변경
-    )
-  }
-
-  async isUnavailableToken(token: string): Promise<boolean> {
-    //TODO: implement
-    return false
+  async deleteRefreshToken(userId: number) {
+    return await this.cacheManager.del(refreshTokenCacheKey(userId))
   }
 }

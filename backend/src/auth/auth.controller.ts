@@ -1,14 +1,14 @@
 import {
-  Body,
   Controller,
+  UseGuards,
+  Body,
   Get,
-  HttpException,
-  InternalServerErrorException,
   Post,
   Req,
   Res,
+  HttpException,
   UnauthorizedException,
-  UseGuards
+  InternalServerErrorException
 } from '@nestjs/common'
 import { Request, Response } from 'express'
 import { AuthService } from './auth.service'
@@ -21,8 +21,16 @@ import {
 import { LoginUserDto } from './dto/login-user.dto'
 import { REFRESH_TOKEN_COOKIE_OPTIONS, AUTH_TYPE } from './config/jwt.config'
 import { JwtAuthGuard } from './guard/jwt-auth.guard'
-import { RequestWithUser } from './type/jwt.type'
-import { extractAccessToken } from './extractAccessToken'
+import { JwtTokens, RequestWithUser } from './type/jwt.type'
+
+const setJwtResponse = (res: Response, jwtTokens: JwtTokens) => {
+  res.setHeader('authorization', `${AUTH_TYPE} ${jwtTokens.accessToken}`)
+  res.cookie(
+    'refresh_token',
+    jwtTokens.refreshToken,
+    REFRESH_TOKEN_COOKIE_OPTIONS
+  )
+}
 
 @Controller('auth')
 export class AuthController {
@@ -35,15 +43,10 @@ export class AuthController {
   ) {
     try {
       const jwtTokens = await this.authService.issueJwtTokens(loginUserDto)
-
-      res.setHeader('authorization', `${AUTH_TYPE} ${jwtTokens.accessToken}`)
-      res.cookie(
-        'refresh_token',
-        jwtTokens.refreshToken,
-        REFRESH_TOKEN_COOKIE_OPTIONS
-      )
+      setJwtResponse(res, jwtTokens)
       return
     } catch (error) {
+      console.log(error)
       if (error instanceof PasswordNotMatchException) {
         throw new UnauthorizedException(error.message)
       }
@@ -53,13 +56,16 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@Req() req: RequestWithUser) {
-    const accessToken = extractAccessToken(req)
+  async logout(
+    @Req() req: RequestWithUser,
+    @Res({ passthrough: true }) res: Response
+  ) {
     try {
-      await this.authService.disableJwtTokens(req.user.id, accessToken)
+      await this.authService.deleteRefreshToken(req.user.id)
+      res.clearCookie('refresh_token', REFRESH_TOKEN_COOKIE_OPTIONS)
       return
     } catch (error) {
-      throw new InternalServerErrorException()
+      throw new InternalServerErrorException('handled')
     }
   }
 
@@ -68,16 +74,12 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response
   ) {
-    const accessToken = extractAccessToken(req)
     const refreshToken = req.cookies['refresh_token']
     if (!refreshToken) throw new UnauthorizedException('Invalid Token')
 
     try {
-      const newAccessToken = await this.authService.updateAccessToken({
-        accessToken,
-        refreshToken
-      })
-      res.setHeader('authorization', `${AUTH_TYPE} ${newAccessToken}`)
+      const newJwtTokens = await this.authService.updateJwtTokens(refreshToken)
+      setJwtResponse(res, newJwtTokens)
       return 'success'
     } catch (error) {
       if (error instanceof InvalidJwtTokenException) {
