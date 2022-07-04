@@ -53,9 +53,14 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response
   ) {
-    // TODO: 없을때의 예외처리 필요
-    const accessToken = req.get('authorization')?.replace(`${AUTH_TYPE} `, '')
+    const authorizationHeader = req.get('authorization')
     const refreshToken = req.cookies['refresh_token']
+    if (!refreshToken || !authorizationHeader)
+      throw new UnauthorizedException('Invalid Token')
+
+    const [authType, accessToken] = authorizationHeader.split(' ')
+    if (authType !== AUTH_TYPE)
+      throw new UnauthorizedException('Invalid authorization type')
 
     try {
       const newAccessToken = await this.authService.updateAccessToken({
@@ -68,7 +73,7 @@ export class AuthController {
       if (error instanceof InvalidJwtTokenException) {
         throw new UnauthorizedException(error.message)
       }
-      throw new HttpException('Failed to reIssue Tokens', 500)
+      throw new HttpException('Failed to reissue Tokens', 500)
     }
   }
 }
