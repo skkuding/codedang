@@ -1,13 +1,17 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt } from 'passport-jwt'
 import { Strategy } from 'passport-jwt'
+import { UserService } from 'src/user/user.service'
 import { JwtObject } from '../type/jwt.type'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly config: ConfigService) {
+  constructor(
+    private readonly config: ConfigService,
+    private readonly userService: UserService
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -15,11 +19,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     })
   }
 
-  // req.user object에 이게 들어감!
   async validate(payload: JwtObject) {
-    // validation logic 추가하기. 지금은 그냥 바로 뱉어버림
-    // userId와 username으로 user가 존재하는지 확인, 있다면 role이 추가된 무언가를 return해서
-    // req.user로 사용할 수 있도록 함
-    return { userId: payload.userId, username: payload.username }
+    const userRole = this.userService.getUserRole(
+      payload.userId,
+      payload.username
+    )
+    if (!userRole) {
+      throw new UnauthorizedException('Invalid user')
+    }
+
+    return { id: payload.userId, username: payload.username, role: userRole }
   }
 }
