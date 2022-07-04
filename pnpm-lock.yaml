@@ -10,7 +10,7 @@ importers:
       eslint: ^8.19.0
       eslint-config-prettier: ^8.5.0
       eslint-plugin-prettier: ^4.2.1
-      eslint-plugin-vue: ^8.7.1
+      eslint-plugin-vue: ^9.1.1
       prettier: ^2.7.1
       prettier-plugin-tailwindcss: ^0.1.11
       typescript: ^4.7.4
@@ -22,7 +22,7 @@ importers:
       eslint: 8.19.0
       eslint-config-prettier: 8.5.0
       eslint-plugin-prettier: 4.2.1_7uxdfn2xinezdgvmbammh6ev5i
-      eslint-plugin-vue: 8.7.1_eslint@8.19.0
+      eslint-plugin-vue: 9.1.1_eslint@8.19.0
       prettier: 2.7.1
       prettier-plugin-tailwindcss: 0.1.11_prettier@2.7.1
       typescript: 4.7.4
@@ -2951,9 +2951,9 @@ packages:
       prettier-linter-helpers: 1.0.0
     dev: true
 
-  /eslint-plugin-vue/8.7.1_eslint@8.19.0:
-    resolution: {integrity: sha512-28sbtm4l4cOzoO1LtzQPxfxhQABararUb1JtqusQqObJpWX2e/gmVyeYVfepizPFne0Q5cILkYGiBoV36L12Wg==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+  /eslint-plugin-vue/9.1.1_eslint@8.19.0:
+    resolution: {integrity: sha512-W9n5PB1X2jzC7CK6riG0oAcxjmKrjTF6+keL1rni8n57DZeilx/Fulz+IRJK3lYseLNAygN0I62L7DvioW40Tw==}
+    engines: {node: ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: ^6.2.0 || ^7.0.0 || ^8.0.0
     dependencies:
@@ -2962,8 +2962,9 @@ packages:
       natural-compare: 1.4.0
       nth-check: 2.1.1
       postcss-selector-parser: 6.0.10
-      semver: 7.3.5
-      vue-eslint-parser: 8.3.0_eslint@8.19.0
+      semver: 7.3.7
+      vue-eslint-parser: 9.0.3_eslint@8.19.0
+      xml-name-validator: 4.0.0
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4865,7 +4866,7 @@ packages:
     hasBin: true
 
   /natural-compare/1.4.0:
-    resolution: {integrity: sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=}
+    resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
     dev: true
 
   /negotiator/0.6.3:
@@ -6388,24 +6389,6 @@ packages:
       vue: 3.2.37
     dev: false
 
-  /vue-eslint-parser/8.3.0_eslint@8.19.0:
-    resolution: {integrity: sha512-dzHGG3+sYwSf6zFBa0Gi9ZDshD7+ad14DGOdTLjruRVgZXe2J+DcZ9iUhyR48z5g1PqRa20yt3Njna/veLJL/g==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    peerDependencies:
-      eslint: '>=6.0.0'
-    dependencies:
-      debug: 4.3.4
-      eslint: 8.19.0
-      eslint-scope: 7.1.1
-      eslint-visitor-keys: 3.3.0
-      espree: 9.3.2
-      esquery: 1.4.0
-      lodash: 4.17.21
-      semver: 7.3.7
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /vue-eslint-parser/9.0.3_eslint@8.19.0:
     resolution: {integrity: sha512-yL+ZDb+9T0ELG4VIFo/2anAOz8SvBdlqEnQnvJ3M7Scq56DvtjY0VY88bByRZB0D4J0u8olBcfrXTVONXsh4og==}
     engines: {node: ^14.17.0 || >=16.0.0}
@@ -6670,6 +6653,11 @@ packages:
 
   /xml-name-validator/3.0.0:
     resolution: {integrity: sha512-A5CUptxDsvxKJEU3yO6DuWBSJz/qizqzJKOMIfUJHETbBw/sFaDxgd6fxm1ewUaM0jZ444Fc5vC5ROYurg/4Pw==}
+    dev: true
+
+  /xml-name-validator/4.0.0:
+    resolution: {integrity: sha512-ICP2e+jsHvAj2E2lIHxa5tjXRlKDJo4IdvPvCXbXQGdzSfmSpNVyIKMvoZHjDY9DP0zV17iI85o90vRFXNccRw==}
+    engines: {node: '>=12'}
     dev: true
 
   /xmlchars/2.2.0:
