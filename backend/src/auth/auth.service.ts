@@ -5,7 +5,10 @@ import { User } from '@prisma/client'
 import { UserService } from 'src/user/user.service'
 import { Cache } from 'cache-manager'
 
-import { refreshTokenCacheKey } from '../common/cache/keys'
+import {
+  jwtBlackListCacheKey,
+  refreshTokenCacheKey
+} from '../common/cache/keys'
 import {
   PasswordNotMatchException,
   InvalidJwtTokenException
@@ -99,5 +102,20 @@ export class AuthService {
     } catch (error) {
       throw new InvalidJwtTokenException(error.message)
     }
+  }
+
+  async disableJwtTokens(userId: number, accessToken: string) {
+    await this.cacheManager.del(refreshTokenCacheKey(userId))
+    await this.cacheManager.set(
+      jwtBlackListCacheKey(accessToken),
+      accessToken,
+      { ttl: 180 }
+      //TODO: ttl설정 변경
+    )
+  }
+
+  async isUnavailableToken(token: string): Promise<boolean> {
+    //TODO: implement
+    return false
   }
 }
