@@ -1,5 +1,5 @@
 import { Request } from 'express'
-import { AuthenticatedUser } from '../type/jwt.type'
+import { AuthenticatedUser } from '../interface/authenticated-user.interface'
 
 export interface AuthenticatedRequest extends Request {
   user: AuthenticatedUser

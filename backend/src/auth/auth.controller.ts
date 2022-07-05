@@ -24,7 +24,7 @@ import {
 import { LoginUserDto } from './dto/login-user.dto'
 import { JwtAuthGuard } from './guard/jwt-auth.guard'
 import { AuthenticatedRequest } from './interface/authenticated-request.interface'
-import { JwtTokens } from './type/jwt.type'
+import { JwtTokens } from './interface/jwt.interface'
 
 const setJwtResponse = (res: Response, jwtTokens: JwtTokens) => {
   res.setHeader('authorization', `${AUTH_TYPE} ${jwtTokens.accessToken}`)
