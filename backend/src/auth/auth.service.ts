@@ -17,7 +17,7 @@ import {
   REFRESH_TOKEN_EXPIRATION_SEC
 } from './constants/jwt.constants'
 import { LoginUserDto } from './dto/login-user.dto'
-import { JwtObject, JwtPayload, JwtTokens } from './type/jwt.type'
+import { JwtObject, JwtPayload, JwtTokens } from './interface/jwt.interface'
 
 @Injectable()
 export class AuthService {
