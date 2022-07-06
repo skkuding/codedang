@@ -3,10 +3,7 @@ import CarbonLogoGithub from '~icons/carbon/logo-github'
 import CarbonEmail from '~icons/carbon/email'
 import SimpleIconsKakaotalk from '~icons/simple-icons/kakaotalk'
 import PhLinkThin from '~icons/ph/link-thin'
-import { ref } from 'vue'
 import { copyText } from 'vue3-clipboard'
-
-const email = 'skkuding@gmail.com'
 
 const copyEmail = () => {
   copyText('email', undefined, (error, event) => {
@@ -29,7 +26,7 @@ const copyEmail = () => {
       <a href="https://github.com/skkuding/skku-coding-platform" class="m-1">
         <CarbonLogoGithub />
       </a>
-      <a @click="copyEmail" class="m-1">
+      <a class="m-1" @click="copyEmail">
         <CarbonEmail />
       </a>
       <a href="http://pf.kakao.com/_UKraK/chat" class="m-1">
