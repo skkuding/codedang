@@ -59,10 +59,6 @@ module.exports = {
       spacing: {
         page: '156px',
         'page-sm': '80px'
-      },
-      dropShadow: {
-        input: '0 2px 8px rgba(0, 0, 0, 0.25)',
-        inputfocus: '0 2px 8px rgba(141, 198, 63, 0.5)'
       }
     }
   },
