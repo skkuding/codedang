@@ -8,6 +8,6 @@ export class ContestController {
 
   @Post()
   async create(@Body() contestData: CreateContestDto) {
-    return await this.contestService.create(1, contestData)
+    return await this.contestService.create(contestData)
   }
 }

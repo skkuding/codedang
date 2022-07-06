@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { Contest, ContestType } from '@prisma/client'
+import { Contest } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 
@@ -7,16 +7,15 @@ import { CreateContestDto } from './dto/create-contest.dto'
 export class ContestService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(
-    userId: number,
-    contestData: CreateContestDto
-  ): Promise<Contest> {
-    //TODO: user=group_admin&this group's admin
-    const group = this.prisma.group.findUnique({
+  async create(contestData: CreateContestDto): Promise<Contest> {
+    //TODO: Admin Access Check
+
+    const group = await this.prisma.group.findUnique({
       where: {
         id: contestData.group_id
       }
     })
+
     if (!group) {
       throw new HttpException(
         'The group does not exist',
@@ -44,7 +43,7 @@ export class ContestService {
           connect: { id: contestData.group_id }
         },
         created_by: {
-          connect: { id: userId }
+          connect: { id: 1 }
         }
       }
     })
