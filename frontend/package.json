@@ -5,7 +5,9 @@
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview --port 5050",
-    "typecheck": "vue-tsc --noEmit"
+    "typecheck": "vue-tsc --noEmit",
+    "story": "histoire dev --port 3030",
+    "story:build": "histoire build"
   },
   "dependencies": {
     "pinia": "^2.0.14",
@@ -17,6 +19,7 @@
     "@vitejs/plugin-vue": "^2.3.3",
     "@vue/tsconfig": "^0.1.3",
     "autoprefixer": "^10.4.7",
+    "histoire": "^0.7.8",
     "postcss": "^8.4.14",
     "tailwindcss": "^3.1.4",
     "typescript": "^4.7.4",
