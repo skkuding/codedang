@@ -23,6 +23,7 @@
     "unplugin-icons": "^0.14.7",
     "vite": "^2.9.13",
     "vite-plugin-pages": "^0.25.0",
-    "vue-tsc": "^0.38.2"
+    "vue-tsc": "^0.38.2",
+    "vue3-clipboard": "^1.0.0"
   }
 }
