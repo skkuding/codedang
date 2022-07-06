@@ -8,6 +8,7 @@ import { copyText } from 'vue3-clipboard'
 const copyEmail = () => {
   copyText('email', undefined, (error, event) => {
     if (error) {
+      // TODO: use custom alert
       alert('Can not copy')
       console.log(error)
     } else {
