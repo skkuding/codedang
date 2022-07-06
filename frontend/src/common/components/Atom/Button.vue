@@ -2,21 +2,22 @@
 import { computed } from 'vue'
 
 const props = defineProps<{
-  text?: string
-  buttoncolor?: string
-  isrounded?: boolean
+  color?: string
+  rounded?: boolean
 }>()
 
 const borderRadius = computed(() => {
-  return props.isrounded ? ' rounded-full' : ' rounded'
+  return props.rounded ? 'rounded-full' : 'rounded'
 })
 
 const backgroundColor = computed(() => {
-  if (props.buttoncolor === 'blue') {
+  if (props.color === 'blue') {
     return 'bg-blue hover:bg-blue-dark text-white'
-  } else if (props.buttoncolor === 'gray') {
+  } else if (props.color === 'gray') {
     return 'bg-gray hover:bg-gray-dark text-white'
-  } else if (props.buttoncolor === 'white') {
+  } else if (props.color === 'gray-dark') {
+    return 'bg-gray-dark hover:bg-gray text-white'
+  } else if (props.color === 'white') {
     return 'bg-white hover:bg-gray-light border-black border text-black'
   } else {
     return 'bg-green hover:bg-green-dark text-white'
@@ -25,10 +26,7 @@ const backgroundColor = computed(() => {
 </script>
 
 <template>
-  <div>
-    <button class="px-2.5 py-1" :class="backgroundColor + borderRadius">
-      <slot name="icon"></slot>
-      {{ text }}
-    </button>
-  </div>
+  <button class="px-2 py-1" :class="[borderRadius, backgroundColor]">
+    <slot />
+  </button>
 </template>
