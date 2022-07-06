@@ -50,4 +50,28 @@ export class ContestService {
 
     return contest
   }
+
+  async delete(id: number): Promise<string> {
+    //TODO: Admin Access Check, Response format
+    const contest = await this.prisma.contest.findUnique({
+      where: {
+        id: id
+      }
+    })
+
+    if (!contest) {
+      throw new HttpException(
+        'The contest does not exist',
+        HttpStatus.BAD_REQUEST
+      )
+    }
+
+    await this.prisma.contest.delete({
+      where: {
+        id: id
+      }
+    })
+
+    return 'success'
+  }
 }
