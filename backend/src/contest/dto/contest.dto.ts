@@ -8,7 +8,7 @@ import {
   IsString
 } from 'class-validator'
 
-export class CreateContestDto {
+export class ContestDto {
   @IsNotEmpty()
   @IsInt()
   readonly group_id: number
