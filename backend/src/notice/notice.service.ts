@@ -81,7 +81,7 @@ export class NoticeService {
     noticeData: RequestNoticeDto
   ): Promise<Notice> {
     //TODO: user authentication
-    const noticeExist = this.prisma.notice.findUnique({
+    const noticeExist = await this.prisma.notice.findUnique({
       where: {
         id: id
       }
@@ -89,6 +89,12 @@ export class NoticeService {
     if (!noticeExist) {
       throw new HttpException(
         'The notice does not exist',
+        HttpStatus.BAD_REQUEST
+      )
+    }
+    if (noticeExist.group_id != noticeData.group_id) {
+      throw new HttpException(
+        'Group id must not be changed',
         HttpStatus.BAD_REQUEST
       )
     }
@@ -168,7 +174,7 @@ export class NoticeService {
   ): Promise<Notice> {
     //TODO: user authentication
 
-    const group = this.prisma.group.findUnique({
+    const group = await this.prisma.group.findUnique({
       where: {
         id: noticeData.group_id
       }
