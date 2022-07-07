@@ -56,16 +56,24 @@ export class GroupNoticeController {
   }
 }
 
-@Controller('admin/:id/notice')
+@Controller('admin/:user_id/notice')
 export class AdminNoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
+  @Post()
+  async create(
+    @Param('user_id', ParseIntPipe) userId: number,
+    @Body() NoticeData: RequestNoticeDto
+  ): Promise<Notice> {
+    return await this.noticeService.create(userId, NoticeData)
+  }
+
   @Get()
   async findOwn(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('user_id', ParseIntPipe) userId: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.findOwn(id, offset)
+    return await this.noticeService.findOwn(userId, offset)
   }
 
   @Get(':id')
@@ -83,15 +91,10 @@ export class AdminNoticeController {
   }
 
   @Put(':id')
-  async updateNotice(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() NoticeData: RequestNoticeDto
-  ) {
-    return await this.noticeService.updateNotice(id, NoticeData)
-  }
-
-  @Post()
-  async createNotice(@Body() NoticeData: RequestNoticeDto) {
-    return await this.noticeService.createNotice(1, NoticeData)
+  ): Promise<Notice> {
+    return await this.noticeService.update(id, NoticeData)
   }
 }

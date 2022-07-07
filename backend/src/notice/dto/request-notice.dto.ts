@@ -1,4 +1,9 @@
-import { IsNotEmpty, IsNumberString, IsString } from 'class-validator'
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumberString,
+  IsString
+} from 'class-validator'
 
 export class RequestNoticeDto {
   @IsNumberString()
@@ -13,7 +18,11 @@ export class RequestNoticeDto {
   @IsNotEmpty()
   content: string
 
+  @IsBoolean()
+  @IsNotEmpty()
   visible: boolean
 
+  @IsBoolean()
+  @IsNotEmpty()
   fixed: boolean
 }
