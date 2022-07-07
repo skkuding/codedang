@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common'
+import { UserNoticePage } from './notice.interface'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { Notice } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { UserNoticePage } from './notice.interface'
+import { RequestNoticeDto } from './dto/request-notice.dto'
 
 @Injectable()
 export class NoticeService {
@@ -72,6 +73,37 @@ export class NoticeService {
         title: true
       }
     })
+    return notice
+  }
+
+  async updateNotice(
+    id: number,
+    noticeData: RequestNoticeDto
+  ): Promise<Notice> {
+    //TODO: user authentication
+    const noticeExist = this.prisma.notice.findUnique({
+      where: {
+        id: id
+      }
+    })
+    if (!noticeExist) {
+      throw new HttpException(
+        'The notice does not exist',
+        HttpStatus.BAD_REQUEST
+      )
+    }
+
+    const notice = await this.prisma.notice.update({
+      where: {
+        id: id
+      },
+      data: {
+        title: noticeData.title,
+        content: noticeData.content,
+        visible: noticeData.visible,
+        fixed: noticeData.fixed
+      }
+    })
 
     return notice
   }
@@ -128,5 +160,41 @@ export class NoticeService {
       }
     })
     return { success: true }
+  }
+
+  async createNotice(
+    userId: number,
+    noticeData: RequestNoticeDto
+  ): Promise<Notice> {
+    //TODO: user authentication
+
+    const group = this.prisma.group.findUnique({
+      where: {
+        id: noticeData.group_id
+      }
+    })
+    if (!group) {
+      throw new HttpException(
+        'The group does not exist',
+        HttpStatus.BAD_REQUEST
+      )
+    }
+
+    const notice = await this.prisma.notice.create({
+      data: {
+        title: noticeData.title,
+        content: noticeData.content,
+        visible: noticeData.visible,
+        fixed: noticeData.fixed,
+        group: {
+          connect: { id: noticeData.group_id }
+        },
+        created_by: {
+          connect: { id: userId }
+        }
+      }
+    })
+
+    return notice
   }
 }

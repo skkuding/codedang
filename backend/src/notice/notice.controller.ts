@@ -2,10 +2,14 @@ import {
   Controller,
   Get,
   Delete,
-  Param,
   Query,
+  Put,
+  Post,
+  Body,
+  Param,
   ParseIntPipe
 } from '@nestjs/common'
+import { RequestNoticeDto } from './dto/request-notice.dto'
 import { NoticeService } from './notice.service'
 import { UserNoticePage } from './notice.interface'
 import { Notice } from '@prisma/client'
@@ -76,5 +80,18 @@ export class AdminNoticeController {
     @Param('id', ParseIntPipe) id: number
   ): Promise<{ success: boolean }> {
     return await this.noticeService.delete(id)
+  }
+
+  @Put(':id')
+  async updateNotice(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() NoticeData: RequestNoticeDto
+  ) {
+    return await this.noticeService.updateNotice(id, NoticeData)
+  }
+
+  @Post()
+  async createNotice(@Body() NoticeData: RequestNoticeDto) {
+    return await this.noticeService.createNotice(1, NoticeData)
   }
 }
