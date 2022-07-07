@@ -8,7 +8,11 @@ export class BusinessException extends Error {
 }
 
 export class PasswordNotMatchException extends BusinessException {}
-export class InvalidJwtTokenException extends BusinessException {}
+export class InvalidJwtTokenException extends BusinessException {
+  constructor(message) {
+    super(`Invalid token: ${message}`)
+  }
+}
 
 export class EntityNotExistException extends BusinessException {
   constructor(entity) {

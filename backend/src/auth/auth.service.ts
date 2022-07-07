@@ -66,7 +66,7 @@ export class AuthService {
     )
 
     if (cachedRefreshToken !== refreshToken) {
-      throw new InvalidJwtTokenException('Invalid Token')
+      throw new InvalidJwtTokenException('unidentified refresh token')
     }
 
     return await this.createJwtTokens(
