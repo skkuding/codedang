@@ -1,5 +1,5 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
-import { JwtService, JwtVerifyOptions } from '@nestjs/jwt'
+import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { User } from '@prisma/client'
 import { UserService } from 'src/user/user.service'
@@ -17,7 +17,7 @@ import {
   REFRESH_TOKEN_EXPIRATION_SEC
 } from './constants/jwt.constants'
 import { LoginUserDto } from './dto/login-user.dto'
-import { JwtObject, JwtPayload, JwtTokens } from './interface/jwt.interface'
+import { JwtPayload, JwtTokens } from './interface/jwt.interface'
 
 @Injectable()
 export class AuthService {
@@ -60,7 +60,15 @@ export class AuthService {
   }
 
   async updateJwtTokens(refreshToken: string): Promise<JwtTokens> {
-    const decodedRefreshToken = await this.validateJwtToken(refreshToken)
+    let decodedRefreshToken
+    try {
+      decodedRefreshToken = await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.config.get('JWT_SECRET')
+      })
+    } catch (error) {
+      throw new InvalidJwtTokenException(error.message)
+    }
+
     const cachedRefreshToken = await this.cacheManager.get(
       refreshTokenCacheKey(decodedRefreshToken.userId)
     )
@@ -73,21 +81,6 @@ export class AuthService {
       decodedRefreshToken.userId,
       decodedRefreshToken.username
     )
-  }
-
-  async validateJwtToken(
-    token: string,
-    options: JwtVerifyOptions = {}
-  ): Promise<JwtObject> {
-    const jwtVerifyOptions = {
-      secret: this.config.get('JWT_SECRET'),
-      ...options
-    }
-    try {
-      return await this.jwtService.verifyAsync(token, jwtVerifyOptions)
-    } catch (error) {
-      throw new InvalidJwtTokenException(error.message)
-    }
   }
 
   async deleteRefreshToken(userId: number) {
