@@ -35,7 +35,7 @@ export class AuthService {
 
   async validateUser(loginUserDto: LoginUserDto): Promise<User> {
     const user = await this.userService.getUserCredential(loginUserDto.username)
-    if (!user || !(await validate(loginUserDto.password, user.password))) {
+    if (!user || !(await validate(user.password, loginUserDto.password))) {
       throw new PasswordNotMatchException('Password does not match')
     }
     return user
