@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common'
 import {
   PublicNoticeController,
   GroupNoticeController,
-  AdminNoticeController
+  NoticeAdminController
 } from './notice.controller'
 import { NoticeService } from './notice.service'
 
@@ -10,7 +10,7 @@ import { NoticeService } from './notice.service'
   controllers: [
     PublicNoticeController,
     GroupNoticeController,
-    AdminNoticeController
+    NoticeAdminController
   ],
   providers: [NoticeService]
 })

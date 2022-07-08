@@ -57,7 +57,7 @@ export class GroupNoticeController {
 }
 
 @Controller('admin/:user_id/notice')
-export class AdminNoticeController {
+export class NoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Post()
