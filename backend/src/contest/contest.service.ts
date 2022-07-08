@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Contest } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { ContestDto } from './dto/contest.dto'
@@ -17,17 +17,13 @@ export class ContestService {
     })
 
     if (!group) {
-      throw new HttpException(
-        'The group does not exist',
-        HttpStatus.BAD_REQUEST
-      )
+      //TODO: Throw error
+      throw new Error('The group does not exist')
     }
 
     if (contestData.start_time > contestData.end_time) {
-      throw new HttpException(
-        'start time must be earlier than end time',
-        HttpStatus.BAD_REQUEST
-      )
+      //TODO: Throw error
+      throw new Error('The start_time must be earlier than the end_time')
     }
 
     const contest = await this.prisma.contest.create({
@@ -55,20 +51,17 @@ export class ContestService {
     //TODO: Admin Access Check, Response format
     const contest = await this.prisma.contest.findUnique({
       where: {
-        id: id
+        id
       }
     })
 
     if (!contest) {
-      throw new HttpException(
-        'The contest does not exist',
-        HttpStatus.BAD_REQUEST
-      )
+      throw new Error('The contest does not exist')
     }
 
     await this.prisma.contest.delete({
       where: {
-        id: id
+        id
       }
     })
 
@@ -79,31 +72,25 @@ export class ContestService {
     //TODO: Admin access check
     const contest = await this.prisma.contest.findUnique({
       where: {
-        id: id
+        id
       }
     })
 
     if (!contest) {
-      throw new HttpException(
-        'The contest does not exist',
-        HttpStatus.BAD_REQUEST
-      )
+      throw new Error('The contest does not exist')
     }
 
     if (contest.group_id != contestData.group_id) {
-      throw new HttpException('Group cannot be changed', HttpStatus.BAD_REQUEST)
+      throw new Error('Group cannot be changed')
     }
 
     if (contestData.start_time > contestData.end_time) {
-      throw new HttpException(
-        'start time must be earlier than end time',
-        HttpStatus.BAD_REQUEST
-      )
+      throw new Error('start time must be earlier than end time')
     }
 
     const updated_contest = await this.prisma.contest.update({
       where: {
-        id: id
+        id
       },
       data: {
         ...contestData
