@@ -1,5 +1,5 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
-import { JwtService } from '@nestjs/jwt'
+import { JwtService, JwtVerifyOptions } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { User } from '@prisma/client'
 import { UserService } from 'src/user/user.service'
@@ -17,7 +17,7 @@ import {
   REFRESH_TOKEN_EXPIRATION_SEC
 } from './constants/jwt.constants'
 import { LoginUserDto } from './dto/login-user.dto'
-import { JwtPayload, JwtTokens } from './interface/jwt.interface'
+import { JwtObject, JwtPayload, JwtTokens } from './interface/jwt.interface'
 
 @Injectable()
 export class AuthService {
@@ -30,7 +30,7 @@ export class AuthService {
 
   async issueJwtTokens(loginUserDto: LoginUserDto): Promise<JwtTokens> {
     const user = await this.userService.getUserCredential(loginUserDto.username)
-    if (!this.validateUser(user, loginUserDto.password)) {
+    if (!(await this.validateUser(user, loginUserDto.password))) {
       throw new InvalidUserException('Incorrect username or password')
     }
     return await this.createJwtTokens(user.id, user.username)
@@ -44,27 +44,36 @@ export class AuthService {
   }
 
   async updateJwtTokens(refreshToken: string): Promise<JwtTokens> {
-    let decodedRefreshToken
+    const { userId, username } = await this.verifyJwtToken(refreshToken)
+    if (!(await this.isValidRefreshToken(refreshToken, userId))) {
+      throw new InvalidJwtTokenException('Unidentified refresh token')
+    }
+    return await this.createJwtTokens(userId, username)
+  }
+
+  async verifyJwtToken(
+    token: string,
+    options: JwtVerifyOptions = {}
+  ): Promise<JwtObject> {
+    const jwtVerifyOptions = {
+      secret: this.config.get('JWT_SECRET'),
+      ...options
+    }
     try {
-      decodedRefreshToken = await this.jwtService.verifyAsync(refreshToken, {
-        secret: this.config.get('JWT_SECRET')
-      })
+      return await this.jwtService.verifyAsync(token, jwtVerifyOptions)
     } catch (error) {
       throw new InvalidJwtTokenException(error.message)
     }
+  }
 
+  async isValidRefreshToken(refreshToken: string, userId: number) {
     const cachedRefreshToken = await this.cacheManager.get(
-      refreshTokenCacheKey(decodedRefreshToken.userId)
+      refreshTokenCacheKey(userId)
     )
-
     if (cachedRefreshToken !== refreshToken) {
-      throw new InvalidJwtTokenException('unidentified refresh token')
+      return false
     }
-
-    return await this.createJwtTokens(
-      decodedRefreshToken.userId,
-      decodedRefreshToken.username
-    )
+    return true
   }
 
   async createJwtTokens(userId: number, username: string): Promise<JwtTokens> {
