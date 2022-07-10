@@ -22,6 +22,10 @@ export class ContestDto {
   readonly description: string
 
   @IsNotEmpty()
+  @IsString()
+  readonly description_summary: string
+
+  @IsNotEmpty()
   @IsDateString()
   readonly start_time: Date
 

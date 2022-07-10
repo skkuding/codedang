@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { Contest } from '@prisma/client'
-import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { ContestDto } from './dto/contest.dto'
 
@@ -38,6 +37,7 @@ export class ContestService {
       data: {
         title: contestData.title,
         description: contestData.description,
+        description_summary: contestData.description_summary,
         start_time: contestData.start_time,
         end_time: contestData.end_time,
         visible: contestData.visible,
