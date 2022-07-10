@@ -26,35 +26,49 @@ export default defineConfig({
             text: 'Contributing Guide',
             link: '/introduction/contributing-guide'
           },
-          { text: 'Getting Started', link: '/introduction/getting-started' }
+          { text: 'Getting Started', link: '/introduction/getting-started' },
+          { text: 'Deploy', link: '/introduction/deploy' }
         ]
       },
       {
-        text: '[FE] Atom',
+        text: 'User Use case',
         items: [
-          { text: 'Button', link: '/frontend/Atom/button' }
-          // please add Atom items
+          {
+            text: 'Main',
+            link: '/user/main'
+          },
+          {
+            text: 'Notice',
+            link: '/user/notice'
+          },
+          { text: 'Contest', link: '/user/contest' },
+          { text: 'Group', link: '/user/group' },
         ]
       },
       {
-        text: '[FE] Molecule',
+        text: 'Group Admin Use case',
         items: [
-          { text: 'Progress Card', link: '/frontend/Molecule/card-progress' }
-          // please add Molecule items
+          {
+            text: 'Main',
+            link: '/group-admin/main'
+          },
+          {
+            text: 'Notice',
+            link: '/group-admin/notice'
+          },
+          { text: 'Problem', link: '/group-admin/problem' },
+          { text: 'Contest', link: '/group-admin/contest' },
+          { text: 'Workbook', link: '/group-admin/workbook' },
+          { text: 'Group', link: '/group-admin/group' },
         ]
       },
       {
-        text: '[FE] Organism',
+        text: 'Project Planning',
         items: [
-          { text: 'Header', link: '/frontend/Organism/header' }
-          // please add Organism items
-        ]
-      },
-      {
-        text: '[BE] API',
-        items: [
-          { text: 'Contest', link: '/backend/API/contest' }
-          // please add API items
+          {
+            text: 'Main',
+            link: '/project-planning/main'
+          }
         ]
       }
     ]
