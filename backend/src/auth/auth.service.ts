@@ -7,7 +7,7 @@ import { Cache } from 'cache-manager'
 
 import { refreshTokenCacheKey } from '../common/cache/keys'
 import {
-  PasswordNotMatchException,
+  InvalidUserException,
   InvalidJwtTokenException
 } from '../common/exception/business.exception'
 import { validate } from '../common/hash'
@@ -29,34 +29,18 @@ export class AuthService {
   ) {}
 
   async issueJwtTokens(loginUserDto: LoginUserDto): Promise<JwtTokens> {
-    const user = await this.validateUser(loginUserDto)
+    const user = await this.userService.getUserCredential(loginUserDto.username)
+    if (!this.validateUser(user, loginUserDto.password)) {
+      throw new InvalidUserException('Incorrect username or password')
+    }
     return await this.createJwtTokens(user.id, user.username)
   }
 
-  async validateUser(loginUserDto: LoginUserDto): Promise<User> {
-    const user = await this.userService.getUserCredential(loginUserDto.username)
-    if (!user || !(await validate(user.password, loginUserDto.password))) {
-      throw new PasswordNotMatchException('Password does not match')
+  async validateUser(user: User, password: string) {
+    if (!user || !(await validate(user.password, password))) {
+      return false
     }
-    return user
-  }
-
-  async createJwtTokens(userId: number, username: string): Promise<JwtTokens> {
-    const payload: JwtPayload = { userId, username }
-    const accessToken = await this.jwtService.signAsync({
-      ...payload,
-      expiresIn: ACCESS_TOKEN_EXPIRATION_SEC
-    })
-    const refreshToken = await this.jwtService.signAsync({
-      ...payload,
-      expiresIn: REFRESH_TOKEN_EXPIRATION_SEC
-    })
-
-    await this.cacheManager.set(refreshTokenCacheKey(userId), refreshToken, {
-      ttl: REFRESH_TOKEN_EXPIRATION_SEC
-    })
-
-    return { accessToken, refreshToken }
+    return true
   }
 
   async updateJwtTokens(refreshToken: string): Promise<JwtTokens> {
@@ -81,6 +65,24 @@ export class AuthService {
       decodedRefreshToken.userId,
       decodedRefreshToken.username
     )
+  }
+
+  async createJwtTokens(userId: number, username: string): Promise<JwtTokens> {
+    const payload: JwtPayload = { userId, username }
+    const accessToken = await this.jwtService.signAsync({
+      ...payload,
+      expiresIn: ACCESS_TOKEN_EXPIRATION_SEC
+    })
+    const refreshToken = await this.jwtService.signAsync({
+      ...payload,
+      expiresIn: REFRESH_TOKEN_EXPIRATION_SEC
+    })
+
+    await this.cacheManager.set(refreshTokenCacheKey(userId), refreshToken, {
+      ttl: REFRESH_TOKEN_EXPIRATION_SEC
+    })
+
+    return { accessToken, refreshToken }
   }
 
   async deleteRefreshToken(userId: number) {

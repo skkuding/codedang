@@ -13,8 +13,8 @@ import { Request, Response } from 'express'
 import { AuthService } from './auth.service'
 
 import {
-  PasswordNotMatchException,
-  InvalidJwtTokenException
+  InvalidJwtTokenException,
+  InvalidUserException
 } from '../common/exception/business.exception'
 
 import {
@@ -26,18 +26,18 @@ import { JwtAuthGuard } from './guard/jwt-auth.guard'
 import { AuthenticatedRequest } from './interface/authenticated-request.interface'
 import { JwtTokens } from './interface/jwt.interface'
 
-const setJwtResponse = (res: Response, jwtTokens: JwtTokens) => {
-  res.setHeader('authorization', `${AUTH_TYPE} ${jwtTokens.accessToken}`)
-  res.cookie(
-    'refresh_token',
-    jwtTokens.refreshToken,
-    REFRESH_TOKEN_COOKIE_OPTIONS
-  )
-}
-
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  setJwtResponse = (res: Response, jwtTokens: JwtTokens) => {
+    res.setHeader('authorization', `${AUTH_TYPE} ${jwtTokens.accessToken}`)
+    res.cookie(
+      'refresh_token',
+      jwtTokens.refreshToken,
+      REFRESH_TOKEN_COOKIE_OPTIONS
+    )
+  }
 
   @Post('login')
   async login(
@@ -46,10 +46,10 @@ export class AuthController {
   ) {
     try {
       const jwtTokens = await this.authService.issueJwtTokens(loginUserDto)
-      setJwtResponse(res, jwtTokens)
+      this.setJwtResponse(res, jwtTokens)
       return
     } catch (error) {
-      if (error instanceof PasswordNotMatchException) {
+      if (error instanceof InvalidUserException) {
         throw new UnauthorizedException(error.message)
       }
       throw new InternalServerErrorException('Login failed')
@@ -81,7 +81,7 @@ export class AuthController {
 
     try {
       const newJwtTokens = await this.authService.updateJwtTokens(refreshToken)
-      setJwtResponse(res, newJwtTokens)
+      this.setJwtResponse(res, newJwtTokens)
       return
     } catch (error) {
       if (error instanceof InvalidJwtTokenException) {

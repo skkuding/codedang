@@ -7,7 +7,7 @@ export class BusinessException extends Error {
   }
 }
 
-export class PasswordNotMatchException extends BusinessException {}
+export class InvalidUserException extends BusinessException {}
 export class InvalidJwtTokenException extends BusinessException {
   constructor(message) {
     super(`Invalid token: ${message}`)
