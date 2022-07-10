@@ -30,13 +30,13 @@ export class AuthService {
 
   async issueJwtTokens(loginUserDto: LoginUserDto): Promise<JwtTokens> {
     const user = await this.userService.getUserCredential(loginUserDto.username)
-    if (!(await this.validateUser(user, loginUserDto.password))) {
+    if (!(await this.isValidUser(user, loginUserDto.password))) {
       throw new InvalidUserException('Incorrect username or password')
     }
     return await this.createJwtTokens(user.id, user.username)
   }
 
-  async validateUser(user: User, password: string) {
+  async isValidUser(user: User, password: string) {
     if (!user || !(await validate(user.password, password))) {
       return false
     }
