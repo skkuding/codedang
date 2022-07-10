@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Contest } from '@prisma/client'
+import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { ContestDto } from './dto/contest.dto'
 
@@ -7,22 +8,29 @@ import { ContestDto } from './dto/contest.dto'
 export class ContestService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(contestData: ContestDto): Promise<Contest> {
-    //TODO: Admin Access Check
-
+  async createContest(
+    userId: number,
+    contestData: ContestDto
+  ): Promise<Contest> {
+    // TODO: Guard로 만들기
+    /*
+    const groupId = contestData.group_id
     const group = await this.prisma.group.findUnique({
       where: {
-        id: contestData.group_id
+        id: groupId
       }
     })
 
     if (!group) {
-      //TODO: Throw error
       throw new Error('The group does not exist')
     }
 
+    if (!this.groupService.isUserGroupManager(userId, groupId)) {
+      throw new Error('Permission denied')
+    }
+    */
+
     if (contestData.start_time > contestData.end_time) {
-      //TODO: Throw error
       throw new Error('The start_time must be earlier than the end_time')
     }
 
@@ -39,7 +47,7 @@ export class ContestService {
           connect: { id: contestData.group_id }
         },
         created_by: {
-          connect: { id: 1 }
+          connect: { id: userId }
         }
       }
     })
@@ -47,8 +55,7 @@ export class ContestService {
     return contest
   }
 
-  async delete(id: number): Promise<string> {
-    //TODO: Admin Access Check, Response format
+  async deleteContest(id: number) {
     const contest = await this.prisma.contest.findUnique({
       where: {
         id
@@ -64,12 +71,9 @@ export class ContestService {
         id
       }
     })
-
-    return 'success'
   }
 
-  async update(id: number, contestData: ContestDto): Promise<Contest> {
-    //TODO: Admin access check
+  async updateContest(id: number, contestData: ContestDto): Promise<Contest> {
     const contest = await this.prisma.contest.findUnique({
       where: {
         id
