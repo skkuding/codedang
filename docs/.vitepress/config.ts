@@ -42,7 +42,7 @@ export default defineConfig({
             link: '/user/notice'
           },
           { text: 'Contest', link: '/user/contest' },
-          { text: 'Group', link: '/user/group' },
+          { text: 'Group', link: '/user/group' }
         ]
       },
       {
@@ -59,7 +59,7 @@ export default defineConfig({
           { text: 'Problem', link: '/group-admin/problem' },
           { text: 'Contest', link: '/group-admin/contest' },
           { text: 'Workbook', link: '/group-admin/workbook' },
-          { text: 'Group', link: '/group-admin/group' },
+          { text: 'Group', link: '/group-admin/group' }
         ]
       },
       {
