@@ -42,9 +42,9 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         UserService,
-        PrismaService,
-        ConfigService,
-        JwtService,
+        { provide: PrismaService, useValue: {} },
+        { provide: ConfigService, useValue: {} },
+        { provide: JwtService, useValue: {} },
         {
           provide: CACHE_MANAGER,
           useFactory: () => ({
