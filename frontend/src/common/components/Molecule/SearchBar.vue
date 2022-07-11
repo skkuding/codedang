@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Button from './Button.vue'
+import Button from '../Atom/Button.vue'
 import Search from '~icons/carbon/search'
 import { ref } from 'vue'
 
 defineProps<{
-  content?: string
+  placeholder?: string
 }>()
 
 defineEmits(['search'])
@@ -17,7 +17,7 @@ const data = ref('')
       v-model="data"
       class="border-gray-dark rounded-l-lg border-2 px-2 focus:outline-0"
       type="text"
-      :placeholder="content"
+      :placeholder="placeholder"
       @keyup.enter="$emit('search', data)"
     />
     <Button
