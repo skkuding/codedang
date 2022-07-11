@@ -1,18 +1,50 @@
-<!-- <script setup lang="ts">
-defineProps<{
-  msg?: string
+<script setup lang="ts">
+import { computed } from 'vue'
+import SearchBar from '../Molecule/SearchBar.vue'
+import Pagination from '../Molecule/Pagination.vue'
+
+const props = defineProps<{
+  fields?: Array
+  items?: Array
+  perPage?: number
+  currentPage?: number
+  text?: string
+  noHeader?: boolean
+  noBorder?: boolean
 }>()
+
+const emit = defineEmits(['row-clicked'])
+
+const startIndex = computed(() => {
+  return (props.currentPage - 1) * props.perPage
+})
+
+const endIndex = computed(() => {
+  return props.currentPage * props.perPage - 1
+})
+
+const clickEvent = (row) => {
+  const data = row
+  emit('row-clicked', data)
+}
+
+const capitalize = (key) => {
+  return key.charAt(0).toUpperCase() + key.slice(1)
+}
 </script>
 
 <template>
-  <div>Organism Component props : HELLO WORLD</div>
-</template> -->
-
-<template>
-  <table class="mx-auto mb-5 w-11/12 table-auto">
+  <div class="flex justify-end">
+    <SearchBar placeholder="keywords" class="mb-5"></SearchBar>
+  </div>
+  <table class="mb-5 w-full table-auto">
     <thead v-if="!noHeader">
-      <tr class="bg-table-header text-text-title" :class="setTableStyle">
-        <th v-for="(field, index) in fields" :key="index" class="p-2.5 pl-4">
+      <tr class="text-text-title border-gray border-b-2 bg-[#F9F9F9]">
+        <th
+          v-for="(field, index) in fields"
+          :key="index"
+          class="p-2.5 pl-4 text-left"
+        >
           <span v-if="Object.keys(field).includes('label')">
             {{ field.label }}
           </span>
@@ -28,7 +60,7 @@ defineProps<{
         <tr
           v-if="index >= startIndex && index <= endIndex"
           :key="index"
-          :class="setHover + setTableStyle + setBorder"
+          class="hover:bg-gray-light border-gray cursor-pointer border-b"
           @click="clickEvent(row)"
         >
           <td v-for="(field, idx) in fields" :key="idx" class="p-2.5 pl-4">
@@ -38,89 +70,5 @@ defineProps<{
       </template>
     </tbody>
   </table>
+  <Pagination :number-of-pages="5" />
 </template>
-
-<script>
-export default {
-  components: {},
-  props: {
-    fields: {
-      type: Array,
-      required: true
-    },
-    items: {
-      type: Array,
-      required: true
-    },
-    perPage: {
-      type: Number,
-      required: false,
-      default: 20
-    },
-    currentPage: {
-      type: Number,
-      required: false,
-      default: 1
-    },
-    text: {
-      type: String,
-      required: false,
-      default: 'No Data'
-    },
-    lightStyle: {
-      type: Boolean,
-      required: false
-    },
-    noHeader: {
-      type: Boolean,
-      required: false
-    },
-    noBorder: {
-      type: Boolean,
-      required: false
-    },
-    hover: {
-      type: Boolean,
-      required: false
-    }
-  },
-  computed: {
-    setHover() {
-      if (this.hover) {
-        return 'hover:bg-table-hover cursor-pointer'
-      } else {
-        return ''
-      }
-    },
-    setTableStyle() {
-      if (this.lightStyle) {
-        return ' text-white bg-transparent border-t border-b border-table-border'
-      } else {
-        return ''
-      }
-    },
-    setBorder() {
-      if (this.noBorder) {
-        return ''
-      } else {
-        return ' border-b border-table-border'
-      }
-    },
-    startIndex() {
-      return (this.currentPage - 1) * this.perPage
-    },
-    endIndex() {
-      return this.currentPage * this.perPage - 1
-    }
-  },
-  methods: {
-    clickEvent(row) {
-      const data = row
-      this.$emit('row-clicked', data)
-    },
-    capitalize(key) {
-      return key.charAt(0).toUpperCase() + key.slice(1)
-    }
-  }
-}
-</script>
