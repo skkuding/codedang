@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CarbonLogoGithub from '~icons/carbon/logo-github'
-import CarbonEmail from '~icons/carbon/email'
-import SimpleIconsKakaotalk from '~icons/simple-icons/kakaotalk'
+import FaSolidEnvelope from '~icons/fa-solid/envelope'
+import RiKakaoTalkFill from '~icons/ri/kakao-talk-fill'
 import PhLinkThin from '~icons/ph/link-thin'
 import { copyText } from 'vue3-clipboard'
 
@@ -24,19 +24,21 @@ const copyEmail = () => {
     class="bg-gray-light fixed inset-x-0 bottom-0 flex flex-col justify-center align-middle"
   >
     <div class="flex flex-row justify-center">
-      <a href="https://github.com/skkuding/skku-coding-platform" class="m-1">
-        <CarbonLogoGithub />
-      </a>
-      <a class="m-1" @click="copyEmail">
-        <CarbonEmail />
-      </a>
-      <a href="http://pf.kakao.com/_UKraK/chat" class="m-1">
-        <SimpleIconsKakaotalk />
-      </a>
-      <a href="https://npc.skku.edu" class="m-1"><PhLinkThin /></a>
+      <div class="flex flex-row space-x-1">
+        <a href="https://github.com/skkuding/skku-coding-platform">
+          <CarbonLogoGithub />
+        </a>
+        <a @click="copyEmail">
+          <FaSolidEnvelope />
+        </a>
+        <a href="http://pf.kakao.com/_UKraK/chat">
+          <RiKakaoTalkFill />
+        </a>
+        <a href="https://npc.skku.edu"><PhLinkThin /></a>
+      </div>
     </div>
     <div class="m-1 flex flex-row justify-center">
-      <span>© 2011-2022 SKKUDING</span>
+      <span>© 2020-2022 SKKUDING</span>
     </div>
   </footer>
 </template>
