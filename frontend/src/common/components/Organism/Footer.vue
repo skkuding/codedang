@@ -10,10 +10,8 @@ const copyEmail = () => {
     if (error) {
       // TODO: use custom alert
       alert('Can not copy')
-      console.log(error)
     } else {
       alert('Copied')
-      console.log(event)
     }
   })
 }
