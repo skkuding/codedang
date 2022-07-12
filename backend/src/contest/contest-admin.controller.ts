@@ -100,23 +100,24 @@ export class ContestAdminController {
   }
 
   @Get()
-  async getAdminList(@Req() req) {
+  async getAdminContests(@Req() req) {
     const userId = req.body.user.id
-    return await this.contestService.getAdminList(userId)
+    return await this.contestService.getAdminContests(userId)
   }
 
   @Get('ongoing')
-  async getAdminOngoingList(@Req() req) {
+  async getAdminOngoingContests(@Req() req) {
     const userId = req.body.user.id
-    return await this.contestService.getAdminOngoingList(userId)
+    return await this.contestService.getAdminOngoingContests(userId)
   }
 
   @Get(':id')
-  async getAdminDetailById(
+  @UseGuards(JwtAuthGuard)
+  async getAdminContestById(
     @Req() req,
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     const userId = req.body.user.id
-    return await this.contestService.getAdminDetailById(userId, contestId)
+    return await this.contestService.getAdminContestById(userId, contestId)
   }
 }

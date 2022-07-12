@@ -1,11 +1,11 @@
 import {
   Controller,
   ForbiddenException,
-  Get,
   NotFoundException,
   Param,
   ParseIntPipe,
   Post,
+  Get,
   Req,
   UseGuards
 } from '@nestjs/common'
@@ -36,12 +36,23 @@ export class ContestController {
   async getFinishedContests(): Promise<Partial<Contest>[]> {
     return await this.contestService.getFinishedContests()
   }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async getContestById(
+    @Req() req,
+    @Param('id', ParseIntPipe) contestId: number
+  ): Promise<Partial<Contest>> {
+    const userId = req.body.user.id
+    return await this.contestService.getContestById(userId, contestId)
+  }
 }
 
 @Controller('contest/group')
 export class ContestGroupController {
   constructor(private readonly contestService: ContestService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getContestById(
     @Req() req: AuthenticatedRequest,
