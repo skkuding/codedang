@@ -1,14 +1,12 @@
 import { Module } from '@nestjs/common'
+import { GroupModule } from 'src/group/group.module'
 import { ContestAdminController } from './contest-admin.controller'
-import { ContestController, ContestGroupController } from './contest.controller'
+import { ContestController } from './contest.controller'
 import { ContestService } from './contest.service'
 
 @Module({
-  controllers: [
-    ContestController,
-    ContestAdminController,
-    ContestGroupController
-  ],
+  imports: [GroupModule],
+  controllers: [ContestController, ContestAdminController],
   providers: [ContestService]
 })
 export class ContestModule {}
