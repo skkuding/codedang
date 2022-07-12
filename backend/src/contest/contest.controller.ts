@@ -37,14 +37,13 @@ export class ContestController {
     return await this.contestService.getFinishedContests()
   }
 
-  @Get(':id')
   @UseGuards(JwtAuthGuard)
+  @Get(':id')
   async getContestById(
-    @Req() req,
+    @Req() req: AuthenticatedRequest,
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
-    const userId = req.body.user.id
-    return await this.contestService.getContestById(userId, contestId)
+    return await this.contestService.getContestById(req.user.id, contestId)
   }
 }
 
