@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Get,
   Body,
+  Get,
   Controller,
   Delete,
   InternalServerErrorException,
@@ -96,5 +97,26 @@ export class ContestAdminController {
       }
       throw new InternalServerErrorException()
     }
+  }
+
+  @Get()
+  async getAdminList(@Req() req) {
+    const userId = req.body.user.id
+    return await this.contestService.getAdminList(userId)
+  }
+
+  @Get('ongoing')
+  async getAdminOngoingList(@Req() req) {
+    const userId = req.body.user.id
+    return await this.contestService.getAdminOngoingList(userId)
+  }
+
+  @Get(':id')
+  async getAdminDetailById(
+    @Req() req,
+    @Param('id', ParseIntPipe) contestId: number
+  ): Promise<Partial<Contest>> {
+    const userId = req.body.user.id
+    return await this.contestService.getAdminDetailById(userId, contestId)
   }
 }
