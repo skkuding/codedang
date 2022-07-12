@@ -4,6 +4,7 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
+  Post,
   Req,
   UnauthorizedException,
   UseGuards
@@ -49,6 +50,21 @@ export class ContestController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+      throw new UnauthorizedException(error.message)
+    }
+  }
+
+  // Todo: issue #90
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/participation')
+  async createContestRecord(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseIntPipe) contestId: number
+  ): Promise<null | Error> {
+    try {
+      this.contestService.createContestRecord(req.user.id, contestId)
+      return
+    } catch (error) {
       throw new UnauthorizedException(error.message)
     }
   }

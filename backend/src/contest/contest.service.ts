@@ -6,6 +6,12 @@ import {
 } from 'src/common/exception/business.exception'
 import { PrismaService } from '../prisma/prisma.service'
 
+const PUBLIC = 1
+
+function returnTextIsNotAllowed(user_id: number, contest_id: number): string {
+  return `Contest ${contest_id} is not allowed to user ${user_id}`
+}
+
 const contestListselectOption = {
   id: true,
   title: true,
@@ -81,10 +87,64 @@ export class ContestService {
       (contest.visible == false && isUserInGroup.is_group_manager == false)
     ) {
       throw new InvalidUserException(
-        `Contest ${contest_id} is not allowed to user ${user_id}`
+        returnTextIsNotAllowed(user_id, contest_id)
       )
     }
     return contest
+  }
+
+  // Todo: issue #90
+  async createContestRecord(
+    user_id: number,
+    contest_id: number
+  ): Promise<null | Error> {
+    //중복 참여 확인 in contestRecord
+    const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
+      where: { user_id, contest_id },
+      select: { id: true }
+    })
+    if (isAlreadyRecord) {
+      throw new InvalidUserException(
+        `User ${user_id} is already participated in contest ${contest_id}`
+      )
+    }
+    //contest group 확인
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contest_id },
+      select: { group_id: true, start_time: true, end_time: true, type: true }
+    })
+    //contest private여부 확인
+    if (contest.group_id !== PUBLIC) {
+      //user group인지 확인
+      const isUserInGroup = await this.prisma.userGroup.findFirst({
+        where: { user_id, group_id: contest.group_id, is_registered: true },
+        select: { id: true }
+      })
+      if (!isUserInGroup) {
+        throw new InvalidUserException(
+          returnTextIsNotAllowed(user_id, contest_id)
+        )
+      }
+    }
+    //contest start 전 or contest end 후 -> throw
+    const now = new Date()
+    if (now < contest.start_time || now >= contest.end_time) {
+      throw new InvalidUserException(
+        returnTextIsNotAllowed(user_id, contest_id)
+      )
+    }
+    //contest type ACM -> create contest rank acm record
+    if (contest.type === 'ACM') {
+      await this.prisma.contestRankACM.create({
+        data: { contest_id, user_id }
+      })
+    }
+    //general -> create contest record
+    // Todo: check rank initial value
+    await this.prisma.contestRecord.create({
+      data: { contest_id, user_id, rank: 0 }
+    })
+    return
   }
 
   /* group */
@@ -146,7 +206,7 @@ export class ContestService {
     })
     if (!isUserInGroup) {
       throw new InvalidUserException(
-        `Contest ${contest_id} is not allowed to user ${user_id}`
+        returnTextIsNotAllowed(user_id, contest_id)
       )
     }
 
