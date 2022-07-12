@@ -36,6 +36,11 @@ export class ContestController {
   async getFinishedContests(): Promise<Partial<Contest>[]> {
     return await this.contestService.getFinishedContests()
   }
+}
+
+@Controller('contest/group')
+export class ContestGroupController {
+  constructor(private readonly contestService: ContestService) {}
 
   @Get(':id')
   async getContestById(
