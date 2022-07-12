@@ -7,6 +7,13 @@ import { ContestDto } from './dto/contest.dto'
 export class ContestService {
   constructor(private readonly prisma: PrismaService) {}
 
+  isValidPeriod(startTime: Date, endTime: Date): boolean {
+    if (startTime > endTime) {
+      return false
+    }
+    return true
+  }
+
   async createContest(
     userId: number,
     contestData: ContestDto
@@ -29,7 +36,7 @@ export class ContestService {
     }
     */
 
-    if (contestData.start_time > contestData.end_time) {
+    if (!this.isValidPeriod(contestData.start_time, contestData.end_time)) {
       throw new Error('The start_time must be earlier than the end_time')
     }
 
@@ -88,7 +95,7 @@ export class ContestService {
       throw new Error('Group cannot be changed')
     }
 
-    if (contestData.start_time > contestData.end_time) {
+    if (!this.isValidPeriod(contestData.start_time, contestData.end_time)) {
       throw new Error('start time must be earlier than end time')
     }
 
