@@ -35,7 +35,7 @@ function changePage(page: number): void {
 </script>
 
 <template>
-  <div class="flex flex-row justify-end">
+  <div class="flex flex-row">
     <Button
       class="mr-1 aspect-square w-8 rounded-lg"
       color="white"
