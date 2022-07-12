@@ -29,7 +29,7 @@ describe('AuthService', () => {
     id: 1,
     username: 'user',
     password: VALID_PASSWORD,
-    role: '',
+    role: 'User',
     email: '',
     has_email_authenticated: false,
     last_login: undefined,
