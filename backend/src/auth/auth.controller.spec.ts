@@ -10,7 +10,6 @@ describe('AuthController', () => {
       controllers: [AuthController],
       providers: [{ provide: AuthService, useValue: {} }]
     }).compile()
-
     controller = module.get<AuthController>(AuthController)
   })
 

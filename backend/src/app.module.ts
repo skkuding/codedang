@@ -13,7 +13,7 @@ import { ProblemModule } from './problem/problem.module'
 import { SubmissionModule } from './submission/submission.module'
 import { UserModule } from './user/user.module'
 import { WorkbookModule } from './workbook/workbook.module'
-import { CacheConfigService } from './common/config/cacheConfig.service'
+import { CacheConfigService } from './common/cache/cacheConfig.service'
 
 @Module({
   imports: [
