@@ -2,7 +2,6 @@ import {
   ForbiddenException,
   Get,
   Body,
-  Get,
   Controller,
   Delete,
   InternalServerErrorException,
@@ -13,6 +12,7 @@ import {
   Post,
   Req,
   UnprocessableEntityException,
+  UnauthorizedException,
   UseGuards
 } from '@nestjs/common'
 
@@ -99,25 +99,23 @@ export class ContestAdminController {
     }
   }
 
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  async getAdminContests(@Req() req) {
-    const userId = req.body.user.id
-    return await this.contestService.getAdminContests(userId)
-  }
-
-  @Get('ongoing')
-  @UseGuards(JwtAuthGuard)
-  async getAdminOngoingContests(@Req() req: AuthenticatedRequest) {
-    return await this.contestService.getAdminOngoingContests(req.user.id)
-  }
-
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   async getAdminContestById(
     @Req() req: AuthenticatedRequest,
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
-    return await this.contestService.getAdminContestById(req.user.id, contestId)
+    try {
+      const contests = await this.contestService.getAdminContestById(
+        req.user.id,
+        contestId
+      )
+      return contests
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new UnauthorizedException(error.message)
+    }
   }
 }

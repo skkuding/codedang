@@ -1,12 +1,13 @@
 import {
   Controller,
   ForbiddenException,
+  Get,
   NotFoundException,
   Param,
   ParseIntPipe,
   Post,
-  Get,
   Req,
+  UnauthorizedException,
   UseGuards
 } from '@nestjs/common'
 import { Contest } from '@prisma/client'
@@ -43,7 +44,18 @@ export class ContestController {
     @Req() req: AuthenticatedRequest,
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
-    return await this.contestService.getContestById(req.user.id, contestId)
+    try {
+      const contests = await this.contestService.getContestById(
+        req.user.id,
+        contestId
+      )
+      return contests
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new UnauthorizedException(error.message)
+    }
   }
 }
 
