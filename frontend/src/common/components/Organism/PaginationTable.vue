@@ -1,41 +1,45 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import SearchBar from '../Molecule/SearchBar.vue'
 import Pagination from '../Molecule/Pagination.vue'
 
-const props = defineProps<{
-  fields?: Array
-  items?: Array
+defineProps<{
+  fields: {
+    key: string
+    label?: string
+  }[]
+  items: {
+    [key: string]: any
+  }[]
   perPage?: number
-  currentPage?: number
-  text?: string
+  // currentPage?: number
+  text?: string // show text if there's no data in item
   noHeader?: boolean
-  noBorder?: boolean
+  noSearchBar?: boolean
+  noPagination?: boolean
 }>()
 
-const emit = defineEmits(['row-clicked'])
+defineEmits(['row-clicked'])
 
-const startIndex = computed(() => {
-  return (props.currentPage - 1) * props.perPage
-})
+// const startIndex = computed(() => {
+//   return (props.currentPage - 1) * props.perPage
+// })
 
-const endIndex = computed(() => {
-  return props.currentPage * props.perPage - 1
-})
+// const endIndex = computed(() => {
+//   return props.currentPage * props.perPage - 1
+// })
 
-const clickEvent = (row) => {
-  const data = row
-  emit('row-clicked', data)
-}
-
-const capitalize = (key) => {
+const capitalize = (key: string) => {
   return key.charAt(0).toUpperCase() + key.slice(1)
 }
 </script>
 
 <template>
   <div class="flex justify-end">
-    <SearchBar placeholder="keywords" class="mb-5"></SearchBar>
+    <SearchBar
+      v-if="!noSearchBar"
+      placeholder="keywords"
+      class="mb-5"
+    ></SearchBar>
   </div>
   <table class="mb-5 w-full table-auto">
     <thead v-if="!noHeader">
@@ -56,12 +60,16 @@ const capitalize = (key) => {
       <tr v-if="items.length === 0">
         <td class="p-2.5 pl-4">{{ text }}</td>
       </tr>
-      <template v-for="(row, index) in items" v-else>
-        <tr
+      <template v-for="(row, index) in items" v-else :key="index">
+        <!-- <tr
           v-if="index >= startIndex && index <= endIndex"
           :key="index"
           class="hover:bg-gray-light border-gray cursor-pointer border-b"
           @click="clickEvent(row)"
+        > -->
+        <tr
+          class="hover:bg-gray-light border-gray cursor-pointer border-b"
+          @click="$emit('row-clicked', row)"
         >
           <td v-for="(field, idx) in fields" :key="idx" class="p-2.5 pl-4">
             <slot :name="field.key" :row="row" :index="index"></slot>
@@ -70,5 +78,5 @@ const capitalize = (key) => {
       </template>
     </tbody>
   </table>
-  <Pagination :number-of-pages="5" />
+  <Pagination v-if="!noPagination" :number-of-pages="5" />
 </template>
