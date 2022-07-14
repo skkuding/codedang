@@ -1,24 +1,25 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+type progressType = 'score' | 'problem'
 
 const props = defineProps<{
   title?: string
   header?: string
   description?: string
-  type?: string
+  type?: progressType
   color?: string
-  total?: number
-  complete?: number
+  total: number
+  complete: number
 }>()
 const width = (props.complete / props.total) * 100
 
 const shadowColor = computed(() => {
-  return props.type == 'problem'
+  return props.type === 'problem'
     ? 'box-shadow: 0 4px 8px 4px #7a7c7b;'
     : `box-shadow: 0 4px 8px 4px ${props.color};`
 })
 const progressColor = computed(() => {
-  return props.type == 'problem'
+  return props.type === 'problem'
     ? 'background-color: #7a7c7b;'
     : `background-color: ${props.color};`
 })

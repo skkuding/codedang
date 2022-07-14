@@ -9,8 +9,8 @@ import ProgressCard from './ProgressCard.vue'
       header="updated 3.30"
       description="프로그래밍대회 기출문제 입니다."
       type="problem"
-      total="10"
-      complete="6"
+      :total="10"
+      :complete="6"
     />
     <h2 class="mt-8 mb-2 text-lg">Another Example</h2>
     <ProgressCard
@@ -18,8 +18,8 @@ import ProgressCard from './ProgressCard.vue'
       header="updated 3.30"
       description="프로그래밍대회 기출문제 입니다."
       type="score"
-      total="100"
-      complete="80"
+      :total="100"
+      :complete="80"
       color="#FFC3DA"
     />
   </Story>
