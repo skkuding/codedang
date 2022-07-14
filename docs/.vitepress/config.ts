@@ -28,28 +28,48 @@ export default defineConfig({
   themeConfig: {
     nav: [
       {
-        text: '🖊  GitHub',
-        link: 'https://github.com/skkuding/next'
+        text: '📌 Guide',
+        link: '/intro/'
       },
       {
-        text: '📑  Coding Platform',
+        text: '🧭 Roadmap',
+        link: '/project/roadmap'
+      },
+      {
+        text: '💡 Demo',
         link: 'https://npc.skku.edu'
       }
     ],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/skkuding/next' }],
     sidebar: [
       {
         text: 'Introduction',
         items: [
           {
             text: 'What is Coding Platform?',
-            link: '/introduction/coding-platform'
+            link: '/intro/'
+          },
+          {
+            text: 'Getting Started',
+            link: '/intro/getting-started'
           },
           {
             text: 'Contributing Guide',
-            link: '/introduction/contributing-guide'
+            link: 'https://github.com/skkuding/next/blob/main/CONTRIBUTING.md'
+          }
+        ]
+      },
+      {
+        text: 'Project',
+        items: [
+          {
+            text: 'How Deployments Work',
+            link: '/project/deploy'
           },
-          { text: 'Getting Started', link: '/introduction/getting-started' },
-          { text: 'Deploy', link: '/introduction/deploy' }
+          {
+            text: 'Project Roadmap',
+            link: '/project/roadmap'
+          }
         ]
       },
       {
@@ -82,15 +102,6 @@ export default defineConfig({
           { text: 'Contest', link: '/group-admin/contest' },
           { text: 'Workbook', link: '/group-admin/workbook' },
           { text: 'Group', link: '/group-admin/group' }
-        ]
-      },
-      {
-        text: 'Project Planning',
-        items: [
-          {
-            text: 'Main',
-            link: '/project-planning/main'
-          }
         ]
       }
     ]

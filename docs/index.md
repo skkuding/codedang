@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Coding Platform
   text: with SKKUDING :)
-  tagline: Documents for using our platform
+  tagline: Document for Developers
   actions:
     - theme: brand
       text: Get Started
