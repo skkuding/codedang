@@ -15,24 +15,24 @@ const copyEmail = () => {
 
 <template>
   <footer
-    class="bg-gray-light fixed inset-x-0 bottom-0 flex flex-col justify-center align-middle"
+    class="bg-gray-light text-gray-dark fixed bottom-0 flex w-full flex-col items-center gap-y-2 py-4"
   >
-    <div class="flex flex-row justify-center">
-      <div class="flex flex-row space-x-1">
-        <a href="https://github.com/skkuding/skku-coding-platform">
-          <IconGithub />
-        </a>
-        <a @click="copyEmail">
-          <IconEnvelope />
-        </a>
-        <a href="http://pf.kakao.com/_UKraK/chat">
-          <IconKakaoTalk />
-        </a>
-        <a href="https://npc.skku.edu"><IconLink /></a>
-      </div>
+    <div
+      class="[&>a:hover]:text-gray [&>a:active]:text-gray-light flex flex-row gap-x-4 text-xl [&>a]:cursor-pointer [&>a]:transition"
+    >
+      <a href="https://github.com/skkuding/skku-coding-platform">
+        <IconGithub />
+      </a>
+      <a @click="copyEmail">
+        <IconEnvelope />
+      </a>
+      <a href="http://pf.kakao.com/_UKraK/chat">
+        <IconKakaoTalk />
+      </a>
+      <a href="https://npc.skku.edu">
+        <IconLink />
+      </a>
     </div>
-    <div class="m-1 flex flex-row justify-center">
-      <span>© 2020-2022 SKKUDING</span>
-    </div>
+    <div>© 2020-2022 SKKUDING</div>
   </footer>
 </template>
