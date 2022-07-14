@@ -12,7 +12,6 @@ import {
   Post,
   Req,
   UnprocessableEntityException,
-  UnauthorizedException,
   UseGuards
 } from '@nestjs/common'
 
@@ -115,7 +114,7 @@ export class ContestAdminController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      throw new UnauthorizedException(error.message)
+      throw new ForbiddenException(error.message)
     }
   }
 }
