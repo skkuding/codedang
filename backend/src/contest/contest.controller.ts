@@ -38,66 +38,6 @@ export class ContestController {
     return await this.contestService.getFinishedContests()
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  async getContestById(
-    @Req() req: AuthenticatedRequest,
-    @Param('id', ParseIntPipe) contestId: number
-  ): Promise<Partial<Contest>> {
-    try {
-      const contests = await this.contestService.getContestById(
-        req.user.id,
-        contestId
-      )
-      return contests
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-      throw new UnauthorizedException(error.message)
-    }
-  }
-
-  // Todo: issue #90
-  @UseGuards(JwtAuthGuard)
-  @Post(':id/participation')
-  async createContestRecord(
-    @Req() req: AuthenticatedRequest,
-    @Param('id', ParseIntPipe) contestId: number
-  ): Promise<null | Error> {
-    try {
-      this.contestService.createContestRecord(req.user.id, contestId)
-      return
-    } catch (error) {
-      throw new UnauthorizedException(error.message)
-    }
-  }
-}
-
-@Controller('contest/group')
-export class ContestGroupController {
-  constructor(private readonly contestService: ContestService) {}
-
-  @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  async getContestById(
-    @Req() req: AuthenticatedRequest,
-    @Param('id', ParseIntPipe) contestId: number
-  ): Promise<Partial<Contest>> {
-    try {
-      const contests = await this.contestService.getContestById(
-        req.user.id,
-        contestId
-      )
-      return contests
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-      throw new ForbiddenException(error.message)
-    }
-  }
-
   // Todo: issue #90
   @UseGuards(JwtAuthGuard)
   @Post(':id/participation')
@@ -109,6 +49,23 @@ export class ContestGroupController {
     try {
       this.contestService.createContestRecord(req.user.id, contestId, groupId)
       return
+    } catch (error) {
+      throw new UnauthorizedException(error.message)
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async getContestById(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseIntPipe) contestId: number
+  ): Promise<Partial<Contest>> {
+    try {
+      const contests = await this.contestService.getContestById(
+        req.user.id,
+        contestId
+      )
+      return contests
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

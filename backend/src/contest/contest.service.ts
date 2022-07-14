@@ -191,7 +191,8 @@ export class ContestService {
   // Todo: issue #90
   async createContestRecord(
     user_id: number,
-    contest_id: number
+    contest_id: number,
+    group_id: number
   ): Promise<null | Error> {
     //중복 참여 확인 in contestRecord
     const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
