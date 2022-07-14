@@ -37,7 +37,7 @@ export class ContestService {
     */
 
     if (!this.isValidPeriod(contestData.start_time, contestData.end_time)) {
-      throw new Error('The start_time must be earlier than the end_time')
+      throw new Error('The start time must be earlier than the end time')
     }
 
     const contest = await this.prisma.contest.create({
