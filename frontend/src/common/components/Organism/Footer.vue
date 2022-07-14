@@ -9,6 +9,7 @@ const { copy } = useClipboard()
 
 const copyEmail = () => {
   copy('skkucodingplatform@gmail.com')
+  // TODO: use custom alert
   alert('Email copied!')
 }
 </script>
