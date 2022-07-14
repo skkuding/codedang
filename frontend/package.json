@@ -8,6 +8,7 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@vueuse/core": "^8.9.2",
     "pinia": "^2.0.14",
     "vue": "^3.2.37",
     "vue-router": "^4.0.16"
@@ -23,7 +24,6 @@
     "unplugin-icons": "^0.14.7",
     "vite": "^2.9.13",
     "vite-plugin-pages": "^0.25.0",
-    "vue-tsc": "^0.38.2",
-    "vue3-clipboard": "^1.0.0"
+    "vue-tsc": "^0.38.2"
   }
 }

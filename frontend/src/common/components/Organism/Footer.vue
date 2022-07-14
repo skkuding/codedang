@@ -3,17 +3,13 @@ import CarbonLogoGithub from '~icons/carbon/logo-github'
 import FaSolidEnvelope from '~icons/fa-solid/envelope'
 import RiKakaoTalkFill from '~icons/ri/kakao-talk-fill'
 import PhLinkThin from '~icons/ph/link-thin'
-import { copyText } from 'vue3-clipboard'
+import { useClipboard } from '@vueuse/core'
+
+const { copy } = useClipboard()
 
 const copyEmail = () => {
-  copyText('email', undefined, (error, event) => {
-    if (error) {
-      // TODO: use custom alert
-      alert('Can not copy')
-    } else {
-      alert('Copied')
-    }
-  })
+  copy('skkucodingplatform@gmail.com')
+  alert('Email copied!')
 }
 </script>
 
