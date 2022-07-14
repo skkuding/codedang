@@ -1,4 +1,5 @@
 import DefaultTheme from 'vitepress/theme'
+import './vars.css'
 
 export default {
   // root component to wrap each page

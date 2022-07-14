@@ -2,6 +2,29 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: 'Coding Platform DEV',
+  description: 'Coding Platform Document for Developers',
+  titleTemplate: false,
+  lastUpdated: true,
+
+  head: [
+    ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
+    [
+      'link',
+      {
+        rel: 'preconnect',
+        href: 'https://fonts.gstatic.com',
+        crossorigin: ''
+      }
+    ],
+    [
+      'link',
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap'
+      }
+    ]
+  ],
+
   themeConfig: {
     nav: [
       {
