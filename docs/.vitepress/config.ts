@@ -1,7 +1,6 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  base: '/next/',
   title: 'Coding Platform',
   themeConfig: {
     nav: [
