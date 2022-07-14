@@ -10,18 +10,19 @@ var activeItem = ref(props.items[0])
 var hoverItem = ref()
 const tabcolor = props.color ? props.color : '#8DC63F'
 
-const activeStyle = (item) => {
-  if (item == activeItem.value)
-    return `color: ${tabcolor}; border-bottom: 3px solid ${tabcolor};`
+const activeStyle = (item: string) => {
+  return item === activeItem.value
+    ? `color: ${tabcolor}; border-bottom: 3px solid ${tabcolor};`
+    : ''
 }
-const hoverStyle = (item) => {
-  if (item == hoverItem.value) return `color: ${tabcolor};`
+const hoverStyle = (item: string) => {
+  return item === hoverItem.value ? `color: ${tabcolor};` : ''
 }
 
-const setActiveItem = (item) => {
+const setActiveItem = (item: string) => {
   activeItem.value = item
 }
-const setHoverItem = (item) => {
+const setHoverItem = (item: string) => {
   hoverItem.value = item
 }
 const setHoverFalse = () => {
@@ -40,7 +41,7 @@ const setHoverFalse = () => {
         :style="[hoverStyle(item), activeStyle(item)]"
         @click="setActiveItem(item)"
         @mouseover="setHoverItem(item)"
-        @mouseleave="setHoverFalse(item)"
+        @mouseleave="setHoverFalse()"
       >
         {{ item.charAt(0).toUpperCase() + item.slice(1) }}
       </li>
