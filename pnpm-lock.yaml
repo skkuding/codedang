@@ -91,6 +91,8 @@ importers:
 
   frontend:
     specifiers:
+      '@iconify-json/fa6-brands': ^1.1.4
+      '@iconify-json/fa6-solid': ^1.1.5
       '@types/node': ^16.11.43
       '@vitejs/plugin-vue': ^2.3.3
       '@vue/tsconfig': ^0.1.3
@@ -112,6 +114,8 @@ importers:
       vue: 3.2.37
       vue-router: 4.0.16_vue@3.2.37
     devDependencies:
+      '@iconify-json/fa6-brands': 1.1.4
+      '@iconify-json/fa6-solid': 1.1.5
       '@types/node': 16.11.43
       '@vitejs/plugin-vue': 2.3.3_vite@2.9.13+vue@3.2.37
       '@vue/tsconfig': 0.1.3
@@ -595,6 +599,18 @@ packages:
 
   /@humanwhocodes/object-schema/1.2.1:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
+    dev: true
+
+  /@iconify-json/fa6-brands/1.1.4:
+    resolution: {integrity: sha512-4I5UwiAhQiuigmRMj27AyGYXmAy45fpklTcElM/dUOTrNKV98CxvCsfyWxsjhvO2OFqI6bmvfkZX/6DWFcih+g==}
+    dependencies:
+      '@iconify/types': 1.1.0
+    dev: true
+
+  /@iconify-json/fa6-solid/1.1.5:
+    resolution: {integrity: sha512-ij9yJpXvOeD/SmQvSZar6OCSbjxcl6EvmAVV1E9ubg7ajIHYust6uclpuX46Mk28oluZTnkerd+6Wc6Df4Rcrg==}
+    dependencies:
+      '@iconify/types': 1.1.0
     dev: true
 
   /@iconify/types/1.1.0:

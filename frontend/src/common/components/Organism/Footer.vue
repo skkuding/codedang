@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import CarbonLogoGithub from '~icons/carbon/logo-github'
-import FaSolidEnvelope from '~icons/fa-solid/envelope'
-import RiKakaoTalkFill from '~icons/ri/kakao-talk-fill'
-import PhLinkThin from '~icons/ph/link-thin'
+import IconGithub from '~icons/fa6-brands/github'
+import IconEnvelope from '~icons/fa6-solid/envelope'
+import IconKakaoTalk from '~icons/ri/kakao-talk-fill'
+import IconLink from '~icons/fa6-solid/link'
 import { useClipboard } from '@vueuse/core'
 
 const { copy } = useClipboard()
@@ -20,15 +20,15 @@ const copyEmail = () => {
     <div class="flex flex-row justify-center">
       <div class="flex flex-row space-x-1">
         <a href="https://github.com/skkuding/skku-coding-platform">
-          <CarbonLogoGithub />
+          <IconGithub />
         </a>
         <a @click="copyEmail">
-          <FaSolidEnvelope />
+          <IconEnvelope />
         </a>
         <a href="http://pf.kakao.com/_UKraK/chat">
-          <RiKakaoTalkFill />
+          <IconKakaoTalk />
         </a>
-        <a href="https://npc.skku.edu"><PhLinkThin /></a>
+        <a href="https://npc.skku.edu"><IconLink /></a>
       </div>
     </div>
     <div class="m-1 flex flex-row justify-center">
