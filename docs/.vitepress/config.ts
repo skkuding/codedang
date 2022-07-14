@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'Coding Platform',
+  title: 'Coding Platform DEV',
   themeConfig: {
     nav: [
       {
