@@ -1,11 +1,11 @@
 import {
   Controller,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
   ParseIntPipe,
   Req,
-  UnauthorizedException,
   UseGuards
 } from '@nestjs/common'
 import { Contest } from '@prisma/client'
@@ -48,7 +48,7 @@ export class ContestAdminController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      throw new UnauthorizedException(error.message)
+      throw new ForbiddenException(error.message)
     }
   }
 }
