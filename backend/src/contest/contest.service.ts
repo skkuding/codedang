@@ -133,17 +133,14 @@ export class ContestService {
         returnTextIsNotAllowed(user_id, contest_id)
       )
     }
-    //contest type ACM -> create contest rank acm record
+
+    //contest type ACM -> create contestRankACM record
     if (contest.type === 'ACM') {
       await this.prisma.contestRankACM.create({
         data: { contest_id, user_id }
       })
     }
-    //general -> create contest record
-    // Todo: check rank initial value
-    await this.prisma.contestRecord.create({
-      data: { contest_id, user_id, rank: 0 }
-    })
+    // Todo: other contest type -> create contest record
     return
   }
 
