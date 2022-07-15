@@ -6,8 +6,8 @@ const props = defineProps<{
   color?: string
 }>()
 
-var activeItem = ref(props.items[0])
-var hoverItem = ref()
+const activeItem = ref(props.items[0])
+const hoverItem = ref()
 const tabcolor = props.color ? props.color : '#8DC63F'
 
 const activeStyle = (item: string) => {
