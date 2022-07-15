@@ -18,7 +18,7 @@ const props: data = {
     class="header-container sticky top-0 z-50 flex content-center items-center justify-between border-b-[1px] border-b-[#cdcdcd] bg-white px-12 py-4 font-medium opacity-95"
   >
     <a href="/">
-      <img src="../../common/assets/signature.png" class="h-12 w-auto" />
+      <img src="../../assets/signature.png" class="h-12 w-auto" />
     </a>
     <div>
       <a
