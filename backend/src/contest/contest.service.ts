@@ -46,7 +46,7 @@ export class ContestService {
       )
     }
 
-    const contest = await this.prisma.contest.create({
+    const contest: Contest = await this.prisma.contest.create({
       data: {
         title: contestData.title,
         description: contestData.description,
@@ -69,7 +69,7 @@ export class ContestService {
   }
 
   async deleteContest(contestId: number) {
-    const contest = await this.prisma.contest.findUnique({
+    const contest: Contest = await this.prisma.contest.findUnique({
       where: {
         id: contestId
       }
@@ -90,7 +90,7 @@ export class ContestService {
     contestId: number,
     contestData: ContestDto
   ): Promise<Contest> {
-    const contest = await this.prisma.contest.findUnique({
+    const contest: Contest = await this.prisma.contest.findUnique({
       where: {
         id: contestId
       }
@@ -110,7 +110,7 @@ export class ContestService {
       )
     }
 
-    const updated_contest = await this.prisma.contest.update({
+    const updated_contest: Contest = await this.prisma.contest.update({
       where: {
         id: contestId
       },

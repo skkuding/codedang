@@ -33,7 +33,7 @@ export class ContestAdminController {
     @Body() contestData: ContestDto
   ): Promise<Contest> {
     try {
-      const contest = await this.contestService.createContest(
+      const contest: Contest = await this.contestService.createContest(
         req.user.id,
         contestData
       )
@@ -64,7 +64,10 @@ export class ContestAdminController {
     @Body() contestData: ContestDto
   ): Promise<Contest> {
     try {
-      const contest = await this.contestService.updateContest(id, contestData)
+      const contest: Contest = await this.contestService.updateContest(
+        id,
+        contestData
+      )
       return contest
     } catch (err) {
       if (err instanceof EntityNotExistException) {
