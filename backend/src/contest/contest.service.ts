@@ -7,11 +7,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException
-} from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 
 const PUBLIC = 1
 
@@ -210,7 +206,7 @@ export class ContestService {
       select: { group_id: true, start_time: true, end_time: true, type: true }
     })
     //contest private여부 확인
-    if (contest.group_id !== PUBLIC) {
+    if (group_id !== PUBLIC) {
       //user group인지 확인
       const isUserInGroup = await this.prisma.userGroup.findFirst({
         where: { user_id, group_id: contest.group_id, is_registered: true },
@@ -273,11 +269,13 @@ export class ContestService {
       select: { group: { select: { group_name: true, Contest: true } } }
     })
   }
+
   async getAdminOngoingContests(user_id: number) {
     const allContest = await this.getAdminContests(user_id)
     return this.filterOngoing(allContest)
   }
 
+  /*
   // Todo: check select option
   async getAdminContestById(
     user_id: number,
@@ -343,4 +341,5 @@ export class ContestService {
     })
     return contest
   }
+ */
 }

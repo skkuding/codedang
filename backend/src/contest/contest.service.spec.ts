@@ -193,6 +193,7 @@ describe('ContestService', () => {
       ]
     }).compile()
     service = module.get<ContestService>(ContestService)
+    // prisma = module.get<PrismaService>(PrismaService)
   })
 
   it('should be defined', () => {
@@ -633,7 +634,6 @@ describe('ContestService', () => {
   })
 
   describe('getFinishedContests', () => {
-    mockPrismaService.contest.findMany.mockResolvedValue(finishedContests)
     it('마감된 모든 대회 리스트를 반환한다.', async () => {
       const contests = await service.getFinishedContests()
       expect(contests).toStrictEqual(finishedContests)

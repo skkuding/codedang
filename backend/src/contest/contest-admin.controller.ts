@@ -1,5 +1,10 @@
 import {
+<<<<<<< HEAD
   ForbiddenException,
+=======
+  Body,
+  Controller,
+>>>>>>> d639b3f (feat(be): add test code)
   Get,
   Body,
   Controller,
@@ -98,6 +103,19 @@ export class ContestAdminController {
     }
   }
 
+<<<<<<< HEAD
+=======
+  @Get()
+  async getAdminContests(@Req() req: AuthenticatedRequest) {
+    return await this.contestService.getAdminContests(req.user.id)
+  }
+
+  @Get('ongoing')
+  async getAdminOngoingContests(@Req() req: AuthenticatedRequest) {
+    return await this.contestService.getAdminOngoingContests(req.user.id)
+  }
+  /*
+>>>>>>> d639b3f (feat(be): add test code)
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   async getAdminContestById(
@@ -117,4 +135,5 @@ export class ContestAdminController {
       throw new ForbiddenException(error.message)
     }
   }
+  */
 }
