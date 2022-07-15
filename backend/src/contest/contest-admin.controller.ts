@@ -4,14 +4,21 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  InternalServerErrorException,
+  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
-  Put
+  Put,
+  UnprocessableEntityException
 } from '@nestjs/common'
 import { ContestService } from './contest.service'
 import { ContestDto } from './dto/contest.dto'
 import { Contest } from '@prisma/client'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from 'src/common/exception/business.exception'
 
 @Controller('admin/group/:group_id/contest')
 export class ContestAdminController {
@@ -23,7 +30,10 @@ export class ContestAdminController {
       const contest = await this.contestService.createContest(1, contestData)
       return contest
     } catch (err) {
-      throw new HttpException(err.message, HttpStatus.UNPROCESSABLE_ENTITY)
+      if (err instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(err.message)
+      }
+      throw new InternalServerErrorException()
     }
   }
 
@@ -32,7 +42,10 @@ export class ContestAdminController {
     try {
       await this.contestService.deleteContest(id)
     } catch (err) {
-      throw new HttpException(err.message, HttpStatus.NOT_FOUND)
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      }
+      throw new InternalServerErrorException()
     }
   }
 
@@ -45,7 +58,13 @@ export class ContestAdminController {
       const contest = await this.contestService.updateContest(id, contestData)
       return contest
     } catch (err) {
-      throw new HttpException(err.message, HttpStatus.UNPROCESSABLE_ENTITY)
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      }
+      if (err instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(err.message)
+      }
+      throw new InternalServerErrorException()
     }
   }
 }

@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { Contest } from '@prisma/client'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { ContestDto } from './dto/contest.dto'
 
@@ -37,7 +41,9 @@ export class ContestService {
     */
 
     if (!this.isValidPeriod(contestData.start_time, contestData.end_time)) {
-      throw new Error('The start time must be earlier than the end time')
+      throw new UnprocessableDataException(
+        'The start time must be earlier than the end time'
+      )
     }
 
     const contest = await this.prisma.contest.create({
@@ -70,7 +76,7 @@ export class ContestService {
     })
 
     if (!contest) {
-      throw new Error('The contest does not exist')
+      throw new EntityNotExistException('contest')
     }
 
     await this.prisma.contest.delete({
@@ -88,15 +94,17 @@ export class ContestService {
     })
 
     if (!contest) {
-      throw new Error('The contest does not exist')
+      throw new EntityNotExistException('contest')
     }
 
     if (contest.group_id != contestData.group_id) {
-      throw new Error('Group cannot be changed')
+      throw new UnprocessableDataException('Group cannot be changed')
     }
 
     if (!this.isValidPeriod(contestData.start_time, contestData.end_time)) {
-      throw new Error('start time must be earlier than end time')
+      throw new UnprocessableDataException(
+        'start time must be earlier than end time'
+      )
     }
 
     const updated_contest = await this.prisma.contest.update({
