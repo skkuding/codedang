@@ -4,10 +4,10 @@ import {
   InvalidUserException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
-import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
 import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
 
 const PUBLIC = 1
 
@@ -247,32 +247,62 @@ export class ContestService {
     if (!group) {
       throw new EntityNotExistException(`group ${group_id}`)
     }
-    return await this.prisma.userGroup.findFirst({
-      where: { user_id, group_id, is_registered: true },
-      select: {
-        group: {
-          select: {
-            Contest: {
-              where: { group_id, visible: true },
-              select: contestListselectOption
-            }
-          }
-        }
-      }
+    const isUserInGroup = await this.prisma.userGroup.findFirst({
+      where: { user_id, group_id, is_registered: true }
     })
+    if (!isUserInGroup) {
+      throw new InvalidUserException(
+        `User ${user_id} is not in Group ${group_id}`
+      )
+    }
+    return await this.prisma.contest.findMany({
+      where: { group_id, visible: true },
+      select: contestListselectOption
+    })
+
+    // return await this.prisma.userGroup.findFirst({
+    //   where: { user_id, group_id, is_registered: true },
+    //   select: {
+    //     group: {
+    //       select: {
+    //         Contest: {
+    //           where: { group_id, visible: true },
+    //           select: contestListselectOption
+    //         }
+    //       }
+    //     }
+    //   }
+    // })
   }
 
   /* admin */
   async getAdminContests(user_id: number) {
-    return await this.prisma.userGroup.findFirst({
+    const isUserGroupManager = await this.prisma.userGroup.findMany({
       where: { user_id, is_group_manager: true },
-      select: { group: { select: { group_name: true, Contest: true } } }
+      select: { group_id: true }
+    })
+    if (!isUserGroupManager) {
+      throw new InvalidUserException(`User ${user_id} is not group manager`)
+    }
+    const groupIdList = isUserGroupManager.map((groupId) => groupId.group_id)
+    return await this.prisma.group.findMany({
+      where: {
+        id: { in: groupIdList }
+      },
+      select: {
+        id: true,
+        group_name: true,
+        Contest: true
+      }
     })
   }
 
   async getAdminOngoingContests(user_id: number) {
-    const allContest = await this.getAdminContests(user_id)
-    return this.filterOngoing(allContest)
+    const result = await this.getAdminContests(user_id)
+    if (!result) {
+      throw new InvalidUserException(`User ${user_id} is not group manager`)
+    }
+    return this.filterOngoing(result)
   }
 
   /*

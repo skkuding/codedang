@@ -17,7 +17,8 @@ import {
   Post,
   Req,
   UnprocessableEntityException,
-  UseGuards
+  UseGuards,
+  ForbiddenException
 } from '@nestjs/common'
 
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
@@ -107,13 +108,26 @@ export class ContestAdminController {
 =======
   @Get()
   async getAdminContests(@Req() req: AuthenticatedRequest) {
-    return await this.contestService.getAdminContests(req.user.id)
+    try {
+      const contests = await this.contestService.getAdminContests(req.user.id)
+      return contests
+    } catch (error) {
+      throw new ForbiddenException(error.message)
+    }
   }
 
   @Get('ongoing')
   async getAdminOngoingContests(@Req() req: AuthenticatedRequest) {
-    return await this.contestService.getAdminOngoingContests(req.user.id)
+    try {
+      const contests = await this.contestService.getAdminOngoingContests(
+        req.user.id
+      )
+      return contests
+    } catch (error) {
+      throw new ForbiddenException(error.message)
+    }
   }
+
   /*
 >>>>>>> d639b3f (feat(be): add test code)
   @Get(':id')
