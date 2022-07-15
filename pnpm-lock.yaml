@@ -128,14 +128,6 @@ importers:
       vue: 3.2.37
       vue-router: 4.1.2_vue@3.2.37
     devDependencies:
-      '@iconify-json/fa6-brands': 1.1.4
-      '@iconify-json/fa6-solid': 1.1.5
-      '@iconify-json/ri': 1.1.3
-      '@types/node': 16.11.45
-      '@vitejs/plugin-vue': 2.3.3_vite@2.9.14+vue@3.2.37
-      '@vue/tsconfig': 0.1.3
-      autoprefixer: 10.4.7_postcss@8.4.14
-      histoire: 0.8.1_vite@2.9.14+vue@3.2.37
       '@types/node': 16.11.43
       '@vitejs/plugin-vue': 2.3.3_vite@2.9.14+vue@3.2.37
       '@vue/tsconfig': 0.1.3_@types+node@16.11.43
@@ -636,8 +628,8 @@ packages:
       vue: 3.2.37
     dev: true
 
-  /@histoire/shared/0.8.1:
-    resolution: {integrity: sha512-PcgBg26VWoN+qbnGwCiztxjtKVfp3gRuFpS2X4/SGlRFgpKmJy9kM3tbLk+zUfdupZJ3hRMjJLx5JLBFjhCE5Q==}
+  /@histoire/shared/0.7.9:
+    resolution: {integrity: sha512-uEh2cX3SQZ70LE9044dKUeuq6Chrt6Re6rj82/ts6s0Pyk2bT8E0f9tNFBWujWyraO75jShbG/FYbbbY42NFTg==}
     dev: true
 
   /@humanwhocodes/config-array/0.9.5:
@@ -1758,7 +1750,6 @@ packages:
 
   /@vueuse/shared/8.9.4_vue@3.2.37:
     resolution: {integrity: sha512-wt+T30c4K6dGRMVqPddexEVLa28YwxW5OFIPmzUHICjphfAuBFTTdDoyqREZNDOFJZ44ARH1WWQNCUK8koJ+Ag==}
-=======
       '@vueuse/metadata': 8.9.2
       '@vueuse/shared': 8.9.2_vue@3.2.37
       vue: 3.2.37
@@ -3979,12 +3970,12 @@ packages:
     peerDependencies:
       vite: ^2.9.0
     dependencies:
-      '@histoire/controls': 0.8.1
-      '@histoire/plugin-vue': 0.8.1_histoire@0.8.1+vue@3.2.37
-      '@histoire/shared': 0.8.1
-      '@histoire/vendors': 0.8.1
-      '@types/flexsearch': 0.7.3
+      '@histoire/controls': 0.7.9_vue@3.2.37
+      '@histoire/plugin-vue': 0.7.9_histoire@0.7.9+vue@3.2.37
+      '@histoire/shared': 0.7.9
+      '@iconify/vue': 3.2.1_vue@3.2.37
       '@types/markdown-it': 12.2.3
+      '@vueuse/core': 8.9.4_vue@3.2.37
       birpc: 0.1.1
       case: 1.6.3
       chokidar: 3.5.3
@@ -5753,8 +5744,7 @@ packages:
       '@vue/devtools-api': 6.2.1
       typescript: 4.7.4
       vue: 3.2.37
-      vue-demi: 0.12.5_vue@3.2.37
-    dev: false
+      vue-demi: 0.13.5_vue@3.2.37
 
   /pirates/4.0.5:
     resolution: {integrity: sha512-8V9+HQPupnaXMA23c5hvl69zXvTwTzyAYasnkb0Tts4XvO4CliqONMOnvlq26rkhLC3nWDFBJf73LU1e1VZLaQ==}
@@ -7137,7 +7127,6 @@ packages:
       vue: 3.2.37
     dev: true
 
->>>>>>> c4eb417 (fix(be): settings)
   /vue-router/4.1.2_vue@3.2.37:
     resolution: {integrity: sha512-5BP1qXFncVRwgV/XnqzsKApdMjQPqWIpoUBdL1ynz8HyLxIX/UDAx7Ql2BjmA5CXT/p61JfZvkpiFWFpaqcfag==}
     peerDependencies:
