@@ -1,0 +1,64 @@
+<script setup lang="ts">
+import Dropdown from '../Molecule/Dropdown.vue'
+defineProps<{
+  msg: string
+}>()
+interface data {
+  content: string[]
+  isAuthenticated: boolean
+  isAdminRole: boolean
+}
+const props: data = {
+  content: ['Management', 'Settings', 'Logout'],
+  isAuthenticated: true,
+  isAdminRole: false
+}
+</script>
+
+<template>
+  <nav
+    class="header-container sticky top-0 z-50 flex content-center items-center justify-between border-b-[1px] border-b-[#cdcdcd] bg-white px-12 py-4 font-medium opacity-95"
+  >
+    <a href="/">
+      <img src="../../common/assets/signature.png" class="h-12 w-auto" />
+    </a>
+    <div>
+      <a
+        class="text-text-title hover:text-green active:text-green mr-4 text-2xl font-medium hover:no-underline"
+        href="/announcement"
+      >
+        Notice
+      </a>
+      <a
+        class="text-text-title hover:text-green mr-4 text-2xl font-medium hover:no-underline"
+        href="/contest"
+      >
+        Contests
+      </a>
+      <a
+        class="text-text-title hover:text-green mr-4 text-2xl font-medium hover:no-underline"
+        href="/problem"
+      >
+        Problems
+      </a>
+      <a
+        class="text-text-title hover:text-green mr-8 text-2xl font-medium hover:no-underline"
+        href="/lecture"
+      >
+        Lecture
+      </a>
+    </div>
+    <div>
+      <Dropdown v-bind="props">
+        <template #dropdown-icon></template>
+        <template #dropdown-content></template>
+      </Dropdown>
+    </div>
+  </nav>
+</template>
+
+<!-- <style scoped>
+.header-container {
+  background-color: ;
+}
+</style> -->
