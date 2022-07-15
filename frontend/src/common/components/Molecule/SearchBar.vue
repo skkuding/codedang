@@ -22,7 +22,7 @@ const data = ref('')
     />
     <Button
       color="gray-dark"
-      class="border-gray-dark !rounded-l-none rounded-r-lg border-2 border-l-0"
+      class="border-gray-dark rounded-l-none rounded-r-lg border-2 border-l-0"
       @click="$emit('search', data)"
     >
       <Search />
