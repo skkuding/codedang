@@ -21,21 +21,22 @@ import {
 } from 'src/common/exception/business.exception'
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
 
 @Controller('admin/group/:group_id/contest')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, GroupManagerGuard)
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
   @Post()
   async createContest(
     @Req() req: AuthenticatedRequest,
-    @Body() contestData: ContestDto
+    @Body() contestDto: ContestDto
   ): Promise<Contest> {
     try {
       const contest: Contest = await this.contestService.createContest(
         req.user.id,
-        contestData
+        contestDto
       )
       return contest
     } catch (err) {
@@ -61,12 +62,12 @@ export class ContestAdminController {
   @Put(':id')
   async updateContest(
     @Param('id', ParseIntPipe) id: number,
-    @Body() contestData: ContestDto
+    @Body() contestDto: ContestDto
   ): Promise<Contest> {
     try {
       const contest: Contest = await this.contestService.updateContest(
         id,
-        contestData
+        contestDto
       )
       return contest
     } catch (err) {
