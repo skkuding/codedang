@@ -29,3 +29,9 @@ const data = ref('')
     </Button>
   </div>
 </template>
+
+<style>
+path {
+  fill: white;
+}
+</style>
