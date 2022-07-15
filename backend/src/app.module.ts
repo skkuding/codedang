@@ -16,6 +16,9 @@ import { WorkbookModule } from './workbook/workbook.module'
 import { CacheConfigService } from './common/cache/cacheConfig.service'
 import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from './auth/guard/jwt-auth.guard'
+import { MailerModule } from '@nestjs-modules/mailer'
+import { MailerConfigService } from './email/mailerConfig.service'
+import { EmailModule } from './email/email.module'
 
 @Module({
   imports: [
@@ -23,6 +26,9 @@ import { JwtAuthGuard } from './auth/guard/jwt-auth.guard'
     CacheModule.registerAsync({
       isGlobal: true,
       useClass: CacheConfigService
+    }),
+    MailerModule.forRootAsync({
+      useClass: MailerConfigService
     }),
     PrismaModule,
     AuthModule,
@@ -32,7 +38,8 @@ import { JwtAuthGuard } from './auth/guard/jwt-auth.guard'
     ProblemModule,
     SubmissionModule,
     UserModule,
-    WorkbookModule
+    WorkbookModule,
+    EmailModule
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }]

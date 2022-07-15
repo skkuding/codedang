@@ -9,26 +9,23 @@ import {
 import { Cache } from 'cache-manager'
 import { randomBytes } from 'crypto'
 import { PrismaService } from 'src/prisma/prisma.service'
-import * as nodemailer from 'nodemailer'
-import { ConfigService } from '@nestjs/config'
 import { encrypt } from 'src/common/hash'
-import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import { pwResetTokenCacheKey } from 'src/common/cache/keys'
 import { UserEmailDto } from './userEmail.dto'
 import { NewPwDto } from './newPw.dto'
 import { User } from '@prisma/client'
 import {
-  InvalidMailTransporterException,
   InvalidTokenException,
   InvalidUserException
 } from 'src/common/exception/business.exception'
+import { EmailService } from 'src/email/email.service'
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly prisma: PrismaService,
-    private readonly config: ConfigService
+    private readonly emailService: EmailService
   ) {}
 
   async getUserRole(userId: number) {
@@ -53,32 +50,10 @@ export class UserService {
       data: { last_login: new Date() }
     })
   }
-  async sendEmail(
-    email: string,
-    html: string
-  ): Promise<SMTPTransport.SentMessageInfo> {
-    try {
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: this.config.get('NODEMAILER_USER'),
-          pass: this.config.get('NODEMAILER_PASS')
-        }
-      })
-
-      const sentMessageInfo = await transporter.sendMail({
-        from: `SKKU CODING PLATFORM <${this.config.get('NODEMAILER_USER')}>`,
-        to: email,
-        subject: 'Using Nodemailer',
-        html: html
-      })
-
-      return sentMessageInfo
-    } catch (error) {
-      throw new InvalidMailTransporterException(
-        'mail auth failed or smtp server failed'
-      )
-    }
+  async getUserCredentialByEmail(email: string): Promise<User> {
+    return await this.prisma.user.findUnique({
+      where: { email }
+    })
   }
 
   private async getTokenFromCache(key: string): Promise<string> {
@@ -98,14 +73,10 @@ export class UserService {
     await this.cacheManager.del(key)
   }
 
-  async sendPwResetToken({ email }: UserEmailDto): Promise<string> {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email: email
-      }
-    })
+  async createTokenAndSendEmail({ email }: UserEmailDto): Promise<string> {
+    const user = await this.getUserCredentialByEmail(email)
 
-    if (user === null) {
+    if (!user) {
       throw new InvalidUserException(
         `Cannot find a registered user whose email address is ${email}`
       )
@@ -113,11 +84,7 @@ export class UserService {
 
     const token: string = randomBytes(24).toString('base64url')
 
-    await this.sendEmail(
-      email,
-      `<div>If you want to reset your password, Click the link.</div>
-    <div>http://localhost:5000/user/${user.id}/password/reset/${token}</div>`
-    )
+    await this.emailService.sendPasswordResetLink(email, user.id, token)
 
     await this.createTokenInCache(pwResetTokenCacheKey(user.id), token, 300)
 
