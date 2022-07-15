@@ -11,10 +11,14 @@ const props = defineProps<{
   bgColor: string
 }>()
 
-const modalStyle = computed(() => {
-  return (
-    'bg-' + props.bgColor + ' h-[' + props.height + '] w-[' + props.width + ']'
-  )
+const backgroundColor = computed(() => {
+  return 'bg-' + props.bgColor
+})
+const getHeight = computed(() => {
+  return 'h-[' + props.height + ']'
+})
+const getWidth = computed(() => {
+  return 'w-[' + props.width + ']'
 })
 
 let isModalVisible = ref(true)
@@ -25,7 +29,10 @@ function close() {
 </script>
 
 <template>
-  <div class="rounded-lg p-2" :class="modalStyle" v-show="isModalVisible">
+  <div
+    v-show="isModalVisible"
+    :class="`bg-${props.bgColor} w-${props.width} h-${props.height} rounded-lg p-2`"
+  >
     <span>{{ title }}</span>
     <IconoirCancel class="float-right cursor-pointer" @click="close" />
   </div>
