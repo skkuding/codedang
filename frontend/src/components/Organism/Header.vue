@@ -4,12 +4,10 @@ defineProps<{
   msg: string
 }>()
 interface data {
-  content: string[]
   isAuthenticated: boolean
   isAdminRole: boolean
 }
 const props: data = {
-  content: ['Management', 'Settings', 'Logout'],
   isAuthenticated: true,
   isAdminRole: false
 }
@@ -56,9 +54,3 @@ const props: data = {
     </div>
   </nav>
 </template>
-
-<!-- <style scoped>
-.header-container {
-  background-color: ;
-}
-</style> -->
