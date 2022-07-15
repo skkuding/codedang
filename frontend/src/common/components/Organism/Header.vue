@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import Dropdown from '../Molecule/Dropdown.vue'
-defineProps<{
-  msg: string
-}>()
+
 interface data {
-  isAuthenticated: boolean
-  isAdminRole: boolean
+  content: string[]
+  button: buttonStyle
+}
+interface buttonStyle {
+  color: string
+  rounded: boolean
+  text: string
 }
 const props: data = {
-  isAuthenticated: true,
-  isAdminRole: false
+  content: ['Management', 'Settings', 'Logout'],
+  button: {
+    color: 'green',
+    rounded: true,
+    text: 'this is button'
+  }
 }
 </script>
 
@@ -31,19 +38,19 @@ const props: data = {
         class="text-text-title hover:text-green mr-4 text-2xl font-medium hover:no-underline"
         href="/contest"
       >
-        Contests
+        Contest
       </a>
       <a
         class="text-text-title hover:text-green mr-4 text-2xl font-medium hover:no-underline"
         href="/problem"
       >
-        Problems
+        Problem
       </a>
       <a
         class="text-text-title hover:text-green mr-8 text-2xl font-medium hover:no-underline"
         href="/lecture"
       >
-        Lecture
+        Group
       </a>
     </div>
     <div>
