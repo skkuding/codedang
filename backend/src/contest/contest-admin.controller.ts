@@ -1,17 +1,6 @@
-import {
-  Controller,
-  ForbiddenException,
-  Get,
-  NotFoundException,
-  Param,
-  ParseIntPipe,
-  Req,
-  UseGuards
-} from '@nestjs/common'
-import { Contest } from '@prisma/client'
+import { Controller, Get, Req, UseGuards } from '@nestjs/common'
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
-import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { ContestService } from './contest.service'
 
 @Controller('contest/admin')
@@ -19,19 +8,18 @@ export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
   /* group admin page */
-  @Get()
   @UseGuards(JwtAuthGuard)
-  async getAdminContests(@Req() req) {
-    const userId = req.body.user.id
-    return await this.contestService.getAdminContests(userId)
+  @Get()
+  async getAdminContests(@Req() req: AuthenticatedRequest) {
+    return await this.contestService.getAdminContests(req.user.id)
   }
 
-  @Get('ongoing')
   @UseGuards(JwtAuthGuard)
+  @Get('ongoing')
   async getAdminOngoingContests(@Req() req: AuthenticatedRequest) {
     return await this.contestService.getAdminOngoingContests(req.user.id)
   }
-
+  /*
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   async getAdminContestById(
@@ -51,4 +39,5 @@ export class ContestAdminController {
       throw new ForbiddenException(error.message)
     }
   }
+  */
 }

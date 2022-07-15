@@ -6,7 +6,6 @@ import {
   Param,
   ParseIntPipe,
   Req,
-  UnauthorizedException,
   UseGuards
 } from '@nestjs/common'
 import { Contest } from '@prisma/client'

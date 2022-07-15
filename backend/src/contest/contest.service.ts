@@ -117,11 +117,13 @@ export class ContestService {
       select: { group: { select: { group_name: true, Contest: true } } }
     })
   }
+
   async getAdminOngoingContests(user_id: number) {
     const allContest = await this.getAdminContests(user_id)
     return this.filterOngoing(allContest)
   }
 
+  /*
   // Todo: check select option
   async getAdminContestById(
     user_id: number,
@@ -187,4 +189,5 @@ export class ContestService {
     })
     return contest
   }
+ */
 }
