@@ -193,7 +193,6 @@ describe('ContestService', () => {
       ]
     }).compile()
     service = module.get<ContestService>(ContestService)
-    // prisma = module.get<PrismaService>(PrismaService)
   })
 
   it('should be defined', () => {
