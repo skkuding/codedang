@@ -76,7 +76,10 @@ export class NoticeService {
     return notice
   }
 
-  async update(id: number, noticeData: RequestNoticeDto): Promise<Notice> {
+  async updateNotice(
+    id: number,
+    noticeData: RequestNoticeDto
+  ): Promise<Notice> {
     //TODO: user authentication
     const noticeExist = await this.prisma.notice.findUnique({
       where: {
@@ -165,7 +168,10 @@ export class NoticeService {
     return { success: true }
   }
 
-  async create(userId: number, noticeData: RequestNoticeDto): Promise<Notice> {
+  async createNotice(
+    userId: number,
+    noticeData: RequestNoticeDto
+  ): Promise<Notice> {
     //TODO: user authentication
 
     const group = await this.prisma.group.findUnique({

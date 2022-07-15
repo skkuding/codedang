@@ -61,11 +61,11 @@ export class NoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Post()
-  async create(
+  async createNotice(
     @Param('user_id', ParseIntPipe) userId: number,
     @Body() NoticeData: RequestNoticeDto
   ): Promise<Notice> {
-    return await this.noticeService.create(userId, NoticeData)
+    return await this.noticeService.createNotice(userId, NoticeData)
   }
 
   @Get()
@@ -91,10 +91,10 @@ export class NoticeAdminController {
   }
 
   @Put(':id')
-  async update(
+  async updateNotice(
     @Param('id', ParseIntPipe) id: number,
     @Body() NoticeData: RequestNoticeDto
   ): Promise<Notice> {
-    return await this.noticeService.update(id, NoticeData)
+    return await this.noticeService.updateNotice(id, NoticeData)
   }
 }
