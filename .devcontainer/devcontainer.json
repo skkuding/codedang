@@ -13,7 +13,8 @@
     "esbenp.prettier-vscode",
     "prisma.prisma",
     "Vue.volar",
-    "Vue.vscode-typescript-vue-plugin"
+    "Vue.vscode-typescript-vue-plugin",
+    "rangav.vscode-thunder-client"
   ],
   // Connect as non-root user (https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user)
   "remoteUser": "node"
