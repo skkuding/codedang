@@ -2,14 +2,12 @@
 import IonPersonOutline from '~icons/ion/person-outline'
 import { ref } from 'vue'
 defineProps<{
-  content: string[]
   isAuthenticated: boolean
   isAdminRole: boolean
 }>()
 let click = ref(false)
 
 function isClicked() {
-  console.log(click.value)
   click.value = !click.value
 }
 </script>
@@ -65,9 +63,3 @@ function isClicked() {
     </transition>
   </div>
 </template>
-
-<!--
-<style scoped>
-style code를 작성해주세요.
-</style>
--->
