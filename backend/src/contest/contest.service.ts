@@ -143,7 +143,7 @@ export class ContestService {
         data: { contest_id, user_id }
       })
     }
-
+    // Todo: other contest type -> create contest record
     return
   }
 
