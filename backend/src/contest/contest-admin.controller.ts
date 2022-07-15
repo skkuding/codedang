@@ -2,15 +2,15 @@ import {
   Body,
   Controller,
   Delete,
-  HttpException,
-  HttpStatus,
   InternalServerErrorException,
   NotFoundException,
   Param,
   ParseIntPipe,
   Post,
   Put,
-  UnprocessableEntityException
+  Req,
+  UnprocessableEntityException,
+  UseGuards
 } from '@nestjs/common'
 import { ContestService } from './contest.service'
 import { ContestDto } from './dto/contest.dto'
@@ -19,15 +19,24 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
+import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 
 @Controller('admin/group/:group_id/contest')
+@UseGuards(JwtAuthGuard)
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
   @Post()
-  async createContest(@Body() contestData: ContestDto): Promise<Contest> {
+  async createContest(
+    @Req() req: AuthenticatedRequest,
+    @Body() contestData: ContestDto
+  ): Promise<Contest> {
     try {
-      const contest = await this.contestService.createContest(1, contestData)
+      const contest = await this.contestService.createContest(
+        req.user.id,
+        contestData
+      )
       return contest
     } catch (err) {
       if (err instanceof UnprocessableDataException) {
