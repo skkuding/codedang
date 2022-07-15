@@ -10,8 +10,6 @@ defineProps<{
   items: {
     [key: string]: any
   }[]
-  // perPage?: number
-  // currentPage?: number
   text?: string // show if there's no data in item
   noHeader?: boolean
   noSearchBar?: boolean
@@ -19,14 +17,6 @@ defineProps<{
 }>()
 
 defineEmits(['row-clicked'])
-
-// const startIndex = computed(() => {
-//   return (props.currentPage - 1) * props.perPage
-// })
-
-// const endIndex = computed(() => {
-//   return props.currentPage * props.perPage - 1
-// })
 
 const capitalize = (key: string) => {
   return key.charAt(0).toUpperCase() + key.slice(1)
@@ -40,6 +30,7 @@ const capitalize = (key: string) => {
         v-if="!noSearchBar"
         placeholder="keywords"
         class="mb-5"
+        v-bind="$attrs"
       ></SearchBar>
     </div>
     <table class="mb-5 w-full table-auto">
@@ -62,12 +53,6 @@ const capitalize = (key: string) => {
           <td class="p-2.5 pl-4">{{ text }}</td>
         </tr>
         <template v-for="(row, index) in items" v-else :key="index">
-          <!-- <tr
-          v-if="index >= startIndex && index <= endIndex"
-          :key="index"
-          class="hover:bg-gray-light border-gray cursor-pointer border-b"
-          @click="clickEvent(row)"
-        > -->
           <tr
             class="hover:bg-gray-light border-gray cursor-pointer border-y"
             @click="$emit('row-clicked', row)"
