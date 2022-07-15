@@ -20,27 +20,9 @@ export class ContestService {
 
   async createContest(
     userId: number,
-    contestData: ContestDto
+    contestDto: ContestDto
   ): Promise<Contest> {
-    // TODO: Guard로 만들기
-    /*
-    const groupId = contestData.group_id
-    const group = await this.prisma.group.findUnique({
-      where: {
-        id: groupId
-      }
-    })
-
-    if (!group) {
-      throw new Error('The group does not exist')
-    }
-
-    if (!this.groupService.isUserGroupManager(userId, groupId)) {
-      throw new Error('Permission denied')
-    }
-    */
-
-    if (!this.isValidPeriod(contestData.start_time, contestData.end_time)) {
+    if (!this.isValidPeriod(contestDto.start_time, contestDto.end_time)) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
@@ -48,16 +30,16 @@ export class ContestService {
 
     const contest: Contest = await this.prisma.contest.create({
       data: {
-        title: contestData.title,
-        description: contestData.description,
-        description_summary: contestData.description_summary,
-        start_time: contestData.start_time,
-        end_time: contestData.end_time,
-        visible: contestData.visible,
-        is_rank_visible: contestData.is_rank_visible,
-        type: contestData.type,
+        title: contestDto.title,
+        description: contestDto.description,
+        description_summary: contestDto.description_summary,
+        start_time: contestDto.start_time,
+        end_time: contestDto.end_time,
+        visible: contestDto.visible,
+        is_rank_visible: contestDto.is_rank_visible,
+        type: contestDto.type,
         group: {
-          connect: { id: contestData.group_id }
+          connect: { id: contestDto.group_id }
         },
         created_by: {
           connect: { id: userId }
@@ -88,7 +70,7 @@ export class ContestService {
 
   async updateContest(
     contestId: number,
-    contestData: ContestDto
+    contestDto: ContestDto
   ): Promise<Contest> {
     const contest: Contest = await this.prisma.contest.findUnique({
       where: {
@@ -100,11 +82,11 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
-    if (contest.group_id != contestData.group_id) {
+    if (contest.group_id != contestDto.group_id) {
       throw new UnprocessableDataException('Group cannot be changed')
     }
 
-    if (!this.isValidPeriod(contestData.start_time, contestData.end_time)) {
+    if (!this.isValidPeriod(contestDto.start_time, contestDto.end_time)) {
       throw new UnprocessableDataException(
         'start time must be earlier than end time'
       )
@@ -115,7 +97,7 @@ export class ContestService {
         id: contestId
       },
       data: {
-        ...contestData
+        ...contestDto
       }
     })
 
