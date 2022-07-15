@@ -1,4 +1,10 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common'
+import {
+  Controller,
+  ForbiddenException,
+  Get,
+  Req,
+  UseGuards
+} from '@nestjs/common'
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { ContestService } from './contest.service'
@@ -11,14 +17,27 @@ export class ContestAdminController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async getAdminContests(@Req() req: AuthenticatedRequest) {
-    return await this.contestService.getAdminContests(req.user.id)
+    try {
+      const contests = await this.contestService.getAdminContests(req.user.id)
+      return contests
+    } catch (error) {
+      throw new ForbiddenException(error.message)
+    }
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('ongoing')
   async getAdminOngoingContests(@Req() req: AuthenticatedRequest) {
-    return await this.contestService.getAdminOngoingContests(req.user.id)
+    try {
+      const contests = await this.contestService.getAdminOngoingContests(
+        req.user.id
+      )
+      return contests
+    } catch (error) {
+      throw new ForbiddenException(error.message)
+    }
   }
+
   /*
   @Get(':id')
   @UseGuards(JwtAuthGuard)
