@@ -10,6 +10,8 @@ defineProps<{
   items: {
     [key: string]: any
   }[]
+  placeholder?: string
+  numberOfPages: number
   text?: string // show if there's no data in item
   noHeader?: boolean
   noSearchBar?: boolean
@@ -28,7 +30,7 @@ const capitalize = (key: string) => {
     <div class="flex justify-end">
       <SearchBar
         v-if="!noSearchBar"
-        placeholder="keywords"
+        :placeholder="placeholder"
         class="mb-5"
         v-bind="$attrs"
       ></SearchBar>
@@ -65,7 +67,11 @@ const capitalize = (key: string) => {
       </tbody>
     </table>
     <div class="flex justify-end">
-      <Pagination v-if="!noPagination" v-bind="$attrs" :number-of-pages="5" />
+      <Pagination
+        v-if="!noPagination"
+        v-bind="$attrs"
+        :number-of-pages="numberOfPages"
+      />
     </div>
   </div>
 </template>
