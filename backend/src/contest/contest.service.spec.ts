@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { Contest, ContestType } from '@prisma/client'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { ContestService } from './contest.service'
 import { ContestDto } from './dto/contest.dto'
@@ -46,7 +50,6 @@ const mockPrismaService = {
 
 describe('ContestService', () => {
   let service: ContestService
-  let prisma: PrismaService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -57,7 +60,6 @@ describe('ContestService', () => {
     }).compile()
 
     service = module.get<ContestService>(ContestService)
-    prisma = module.get<PrismaService>(PrismaService)
   })
 
   it('should be defined', () => {
@@ -119,7 +121,7 @@ describe('ContestService', () => {
 
       //then
       await expect(callContestCreate).rejects.toThrow(
-        'The start time must be earlier than the end time'
+        UnprocessableDataException
       )
       expect(mockPrismaService.contest.create).toBeCalledTimes(0)
 
@@ -154,9 +156,7 @@ describe('ContestService', () => {
         await service.deleteContest(contestId)
 
       //then
-      await expect(callContestDelete).rejects.toThrow(
-        'The contest does not exist'
-      )
+      await expect(callContestDelete).rejects.toThrow(EntityNotExistException)
       expect(mockPrismaService.contest.delete).toBeCalledTimes(0)
     })
   })
@@ -184,7 +184,7 @@ describe('ContestService', () => {
       expect(result).toBe(contest)
     })
 
-    it('should throw contest not exist error', async () => {
+    it('should throw error when the contest does not exist', async () => {
       //given
       mockPrismaService.contest.findUnique.mockResolvedValue(null)
 
@@ -193,11 +193,11 @@ describe('ContestService', () => {
       //then
       await expect(
         service.updateContest(contestId, contestData)
-      ).rejects.toThrow('The contest does not exist')
+      ).rejects.toThrow(EntityNotExistException)
       expect(mockPrismaService.contest.update).toBeCalledTimes(0)
     })
 
-    it('should throw group cannot be changed error', async () => {
+    it('should throw error when group_id is attempted to be changed', async () => {
       //given
       const invalidGroupIdContestData: ContestDto = {
         group_id: 2,
@@ -216,11 +216,13 @@ describe('ContestService', () => {
         await service.updateContest(contestId, invalidGroupIdContestData)
 
       //then
-      await expect(callUpdateContest).rejects.toThrow('Group cannot be changed')
+      await expect(callUpdateContest).rejects.toThrow(
+        UnprocessableDataException
+      )
       expect(mockPrismaService.contest.update).toBeCalledTimes(0)
     })
 
-    it('should throw error related to contest time', async () => {
+    it('should throw error when given contest period is not valid', async () => {
       //given
       const isValidPeriodSpy = jest
         .spyOn(service, 'isValidPeriod')
@@ -230,7 +232,7 @@ describe('ContestService', () => {
 
       //then
       await expect(callUpdateContest).rejects.toThrow(
-        'start time must be earlier than end time'
+        UnprocessableDataException
       )
       expect(mockPrismaService.contest.update).toBeCalledTimes(0)
 
