@@ -4,7 +4,6 @@ import {
   EntityNotExistException,
   InvalidUserException
 } from 'src/common/exception/business.exception'
-import { isGeneratorFunction } from 'util/types'
 import { PrismaService } from '../prisma/prisma.service'
 
 const contestListselectOption = {
