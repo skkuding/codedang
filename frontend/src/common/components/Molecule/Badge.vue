@@ -1,8 +1,15 @@
 <script setup lang="ts">
-defineProps<{
-  endtime: string
-  ended: boolean
+import { computed } from 'vue'
+const props = defineProps<{
+  color: string
+  text: string
 }>()
+
+const setColor = computed(() => `bg-${props.color}`)
+const textSize = computed(() => [
+  props.text.length > 8 ? 'text-[18px]' : 'text-[22px]',
+  props.text.length < 6 ? 'ml-6' : 'ml-2'
+])
 </script>
 
 <template>
@@ -10,24 +17,14 @@ defineProps<{
     class="border-gray bg-gray-light relative box-border flex h-14 w-40 rounded-md border p-1"
   >
     <div
-      v-if="ended"
-      class="bg-green margin top-0 bottom-0 my-auto ml-3 h-6 w-6 rounded-full"
+      :class="setColor"
+      class="margin top-0 bottom-0 my-auto ml-3 h-6 w-6 rounded-full"
     ></div>
     <div
-      v-else
-      class="bg-red margin top-0 bottom-0 my-auto ml-3 h-6 w-6 rounded-full"
-    ></div>
-    <div
-      v-if="ended"
-      class="text-gray-dark top-0 bottom-0 my-auto ml-2 text-[22px] font-bold"
+      :class="textSize"
+      class="text-gray-dark top-0 bottom-0 my-auto font-bold"
     >
-      {{ endtime }}
-    </div>
-    <div
-      v-else
-      class="text-gray-dark top-0 bottom-0 my-auto ml-5 text-[22px] font-bold"
-    >
-      Ended
+      {{ text }}
     </div>
   </div>
 </template>
