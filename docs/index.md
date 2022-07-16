@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /introduction/coding-platform
+      link: /intro/
     - theme: alt
       text: View on GitHub
       link: https://github.com/skkuding/next
