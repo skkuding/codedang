@@ -34,12 +34,26 @@ export class ContestAdminController {
     @Body() contestDto: ContestDto
   ): Promise<Contest> {
     try {
-      const contest: Contest = await this.contestService.createContest(
-        req.user.id,
-        contestDto
-      )
-      return contest
+      return await this.contestService.createContest(req.user.id, contestDto)
     } catch (err) {
+      if (err instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(err.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Put(':id')
+  async updateContest(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() contestDto: ContestDto
+  ): Promise<Contest> {
+    try {
+      return await this.contestService.updateContest(id, contestDto)
+    } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      }
       if (err instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(err.message)
       }
@@ -54,28 +68,6 @@ export class ContestAdminController {
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
-      }
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Put(':id')
-  async updateContest(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() contestDto: ContestDto
-  ): Promise<Contest> {
-    try {
-      const contest: Contest = await this.contestService.updateContest(
-        id,
-        contestDto
-      )
-      return contest
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      }
-      if (err instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(err.message)
       }
       throw new InternalServerErrorException()
     }

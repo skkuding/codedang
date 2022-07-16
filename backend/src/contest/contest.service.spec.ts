@@ -11,7 +11,7 @@ import { ContestDto } from './dto/contest.dto'
 const contestId = 1
 const userId = 1
 
-const contestData: ContestDto = {
+const contestDto: ContestDto = {
   group_id: 1,
   title: 'title',
   description: 'description',
@@ -26,15 +26,15 @@ const contestData: ContestDto = {
 const contest: Contest = {
   id: contestId,
   created_by_id: userId,
-  group_id: contestData.group_id,
-  title: contestData.title,
-  description: contestData.description,
-  description_summary: contestData.description_summary,
-  start_time: contestData.start_time,
-  end_time: contestData.end_time,
-  visible: contestData.visible,
-  is_rank_visible: contestData.is_rank_visible,
-  type: contestData.type,
+  group_id: contestDto.group_id,
+  title: contestDto.title,
+  description: contestDto.description,
+  description_summary: contestDto.description_summary,
+  start_time: contestDto.start_time,
+  end_time: contestDto.end_time,
+  visible: contestDto.visible,
+  is_rank_visible: contestDto.is_rank_visible,
+  type: contestDto.type,
   create_time: new Date(),
   update_time: new Date()
 }
@@ -75,7 +75,7 @@ describe('ContestService', () => {
       //given
 
       //when
-      const result = await service.createContest(userId, contestData)
+      const result = await service.createContest(userId, contestDto)
 
       //then
       expect(mockPrismaService.contest.create).toBeCalledTimes(1)
@@ -90,7 +90,7 @@ describe('ContestService', () => {
 
       //when
       const callContestCreate = async () =>
-        await service.createContest(userId, contestData)
+        await service.createContest(userId, contestDto)
 
       //then
       await expect(callContestCreate).rejects.toThrow(
@@ -108,7 +108,7 @@ describe('ContestService', () => {
     beforeEach(() => {
       mockPrismaService.contest.findUnique.mockResolvedValue(contest)
       callUpdateContest = async () =>
-        await service.updateContest(contestId, contestData)
+        await service.updateContest(contestId, contestDto)
     })
     afterEach(() => {
       mockPrismaService.contest.update.mockClear()
@@ -118,7 +118,7 @@ describe('ContestService', () => {
       //given
 
       //when
-      const result = await service.updateContest(contestId, contestData)
+      const result = await service.updateContest(contestId, contestDto)
 
       //then
       expect(mockPrismaService.contest.update).toBeCalledTimes(1)
@@ -133,14 +133,14 @@ describe('ContestService', () => {
 
       //then
       await expect(
-        service.updateContest(contestId, contestData)
+        service.updateContest(contestId, contestDto)
       ).rejects.toThrow(EntityNotExistException)
       expect(mockPrismaService.contest.update).toBeCalledTimes(0)
     })
 
     it('should throw error when group_id is attempted to be changed', async () => {
       //given
-      const invalidGroupIdContestData: ContestDto = {
+      const invalidGroupIdcontestDto: ContestDto = {
         group_id: 2,
         title: 'title',
         description: 'description',
@@ -154,7 +154,7 @@ describe('ContestService', () => {
 
       //when
       callUpdateContest = async () =>
-        await service.updateContest(contestId, invalidGroupIdContestData)
+        await service.updateContest(contestId, invalidGroupIdcontestDto)
 
       //then
       await expect(callUpdateContest).rejects.toThrow(
