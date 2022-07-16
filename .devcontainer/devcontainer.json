@@ -9,15 +9,15 @@
     "bradlc.vscode-tailwindcss",
     "csstools.postcss",
     "dbaeumer.vscode-eslint",
+    "donjayamanne.githistory",
     "editorconfig.editorconfig",
     "esbenp.prettier-vscode",
-    "prisma.prisma",
-    "Vue.volar",
-    "Vue.vscode-typescript-vue-plugin",
-    "rangav.vscode-thunder-client",
-    "Orta.vscode-jest",
     "mhutchie.git-graph",
-    "donjayamanne.githistory"
+    "Orta.vscode-jest",
+    "prisma.prisma",
+    "rangav.vscode-thunder-client",
+    "Vue.volar",
+    "Vue.vscode-typescript-vue-plugin"
   ],
   // Connect as non-root user (https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user)
   "remoteUser": "node"
