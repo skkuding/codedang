@@ -17,8 +17,12 @@ vscode:
     - bradlc.vscode-tailwindcss
     - csstools.postcss
     - dbaeumer.vscode-eslint
+    - donjayamanne.githistory
     - editorconfig.editorconfig
     - esbenp.prettier-vscode
     - johnsoncodehk.volar
     - johnsoncodehk.vscode-typescript-vue-plugin
+    - mhutchie.git-graph
+    - Orta.vscode-jest
     - prisma.prisma
+    - rangav.vscode-thunder-client
