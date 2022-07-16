@@ -11,13 +11,6 @@ import { ContestDto } from './dto/contest.dto'
 export class ContestService {
   constructor(private readonly prisma: PrismaService) {}
 
-  isValidPeriod(startTime: Date, endTime: Date): boolean {
-    if (startTime > endTime) {
-      return false
-    }
-    return true
-  }
-
   async createContest(
     userId: number,
     contestDto: ContestDto
@@ -48,24 +41,6 @@ export class ContestService {
     })
 
     return contest
-  }
-
-  async deleteContest(contestId: number) {
-    const contest: Contest = await this.prisma.contest.findUnique({
-      where: {
-        id: contestId
-      }
-    })
-
-    if (!contest) {
-      throw new EntityNotExistException('contest')
-    }
-
-    await this.prisma.contest.delete({
-      where: {
-        id: contestId
-      }
-    })
   }
 
   async updateContest(
@@ -102,5 +77,30 @@ export class ContestService {
     })
 
     return updated_contest
+  }
+
+  isValidPeriod(startTime: Date, endTime: Date): boolean {
+    if (startTime > endTime) {
+      return false
+    }
+    return true
+  }
+
+  async deleteContest(contestId: number) {
+    const contest: Contest = await this.prisma.contest.findUnique({
+      where: {
+        id: contestId
+      }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('contest')
+    }
+
+    await this.prisma.contest.delete({
+      where: {
+        id: contestId
+      }
+    })
   }
 }

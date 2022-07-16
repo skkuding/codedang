@@ -66,33 +66,6 @@ describe('ContestService', () => {
     expect(service).toBeDefined()
   })
 
-  describe('isValidPeriod', () => {
-    const startTime = new Date()
-    const endTime = new Date()
-
-    it('should return true when given valid start time and end time', () => {
-      //given
-      endTime.setDate(startTime.getDate() + 1)
-
-      //when
-      const result = service.isValidPeriod(startTime, endTime)
-
-      //then
-      expect(result).toBe(true)
-    })
-
-    it('should return false when end time is ealier than start time', () => {
-      //given
-      endTime.setDate(startTime.getDate() - 1)
-
-      //when
-      const result = service.isValidPeriod(startTime, endTime)
-
-      //then
-      expect(result).toBeFalsy()
-    })
-  })
-
   describe('createContest', () => {
     afterEach(() => {
       mockPrismaService.contest.create.mockClear()
@@ -126,38 +99,6 @@ describe('ContestService', () => {
       expect(mockPrismaService.contest.create).toBeCalledTimes(0)
 
       isValidPeriodSpy.mockRestore()
-    })
-  })
-
-  describe('deleteContest', () => {
-    beforeEach(() => {
-      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
-    })
-    afterEach(() => {
-      mockPrismaService.contest.delete.mockClear()
-    })
-
-    it('should successfully delete the contest', async () => {
-      //given
-
-      //when
-      await service.deleteContest(contestId)
-
-      //then
-      expect(mockPrismaService.contest.delete).toBeCalledTimes(1)
-    })
-
-    it('should throw error when contest does not exist', async () => {
-      //given
-      mockPrismaService.contest.findUnique.mockResolvedValue(null)
-
-      //when
-      const callContestDelete = async () =>
-        await service.deleteContest(contestId)
-
-      //then
-      await expect(callContestDelete).rejects.toThrow(EntityNotExistException)
-      expect(mockPrismaService.contest.delete).toBeCalledTimes(0)
     })
   })
 
@@ -237,6 +178,65 @@ describe('ContestService', () => {
       expect(mockPrismaService.contest.update).toBeCalledTimes(0)
 
       isValidPeriodSpy.mockRestore()
+    })
+  })
+
+  describe('isValidPeriod', () => {
+    const startTime = new Date()
+    const endTime = new Date()
+
+    it('should return true when given valid start time and end time', () => {
+      //given
+      endTime.setDate(startTime.getDate() + 1)
+
+      //when
+      const result = service.isValidPeriod(startTime, endTime)
+
+      //then
+      expect(result).toBe(true)
+    })
+
+    it('should return false when end time is ealier than start time', () => {
+      //given
+      endTime.setDate(startTime.getDate() - 1)
+
+      //when
+      const result = service.isValidPeriod(startTime, endTime)
+
+      //then
+      expect(result).toBeFalsy()
+    })
+  })
+
+  describe('deleteContest', () => {
+    beforeEach(() => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
+    })
+    afterEach(() => {
+      mockPrismaService.contest.delete.mockClear()
+    })
+
+    it('should successfully delete the contest', async () => {
+      //given
+
+      //when
+      await service.deleteContest(contestId)
+
+      //then
+      expect(mockPrismaService.contest.delete).toBeCalledTimes(1)
+    })
+
+    it('should throw error when contest does not exist', async () => {
+      //given
+      mockPrismaService.contest.findUnique.mockResolvedValue(null)
+
+      //when
+      const callContestDelete = async () =>
+        await service.deleteContest(contestId)
+
+      //then
+      await expect(callContestDelete).rejects.toThrow(EntityNotExistException)
+      expect(mockPrismaService.contest.delete).toBeCalledTimes(0)
     })
   })
 })
