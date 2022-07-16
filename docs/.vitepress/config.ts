@@ -63,6 +63,14 @@ export default defineConfig({
         text: 'Project',
         items: [
           {
+            text: 'Tech Stack',
+            link: '/project/tech-stack'
+          },
+          {
+            text: 'Hierarchy',
+            link: '/project/hierarchy'
+          },
+          {
             text: 'How Deployments Work',
             link: '/project/deploy'
           },
