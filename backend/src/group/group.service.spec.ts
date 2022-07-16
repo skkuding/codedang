@@ -42,7 +42,7 @@ describe('GroupService', () => {
       const result = await service.isUserGroupMember(userId, groupId)
 
       // then
-      expect(result).toBeTruthy()
+      expect(result).toBe(true)
     })
 
     it('should return false when userGroup record does not exist', async () => {
@@ -53,7 +53,7 @@ describe('GroupService', () => {
       const result = await service.isUserGroupMember(userId, groupId)
 
       // then
-      expect(result).toBeFalsy()
+      expect(result).toBe(false)
     })
 
     it('should return false when given user is not registered yet', async () => {
@@ -65,7 +65,7 @@ describe('GroupService', () => {
       const result = await service.isUserGroupMember(userId, groupId)
 
       // then
-      expect(result).toBeFalsy()
+      expect(result).toBe(false)
     })
   })
 
@@ -81,7 +81,7 @@ describe('GroupService', () => {
       const result = await service.isUserGroupManager(userId, groupId)
 
       // then
-      expect(result).toBeTruthy()
+      expect(result).toBe(true)
     })
 
     it('should return false when userGroup record does not exist', async () => {
@@ -92,7 +92,7 @@ describe('GroupService', () => {
       const result = await service.isUserGroupManager(userId, groupId)
 
       // then
-      expect(result).toBeFalsy()
+      expect(result).toBe(false)
     })
 
     it('should return false when given user is not registered ', async () => {
@@ -104,7 +104,7 @@ describe('GroupService', () => {
       const result = await service.isUserGroupManager(userId, groupId)
 
       // then
-      expect(result).toBeFalsy()
+      expect(result).toBe(false)
     })
 
     it('should return false when given user is not group manager ', async () => {
@@ -116,7 +116,7 @@ describe('GroupService', () => {
       const result = await service.isUserGroupManager(userId, groupId)
 
       // then
-      expect(result).toBeFalsy()
+      expect(result).toBe(false)
     })
   })
 })

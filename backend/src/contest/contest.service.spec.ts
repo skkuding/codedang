@@ -78,7 +78,7 @@ describe('ContestService', () => {
       const result = service.isValidPeriod(startTime, endTime)
 
       //then
-      expect(result).toBeTruthy()
+      expect(result).toBe(true)
     })
 
     it('should return false when end time is ealier than start time', () => {
