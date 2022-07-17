@@ -4,7 +4,12 @@ import Badge from './Badge.vue'
 
 <template>
   <Story>
-    <Badge text="12:30:50" color="green" />
-    <Badge text="14:00:00" color="red" />
+    <Badge color="green">
+      <template #text>Badge</template>
+    </Badge>
+    <h2 class="mt-8 mb-2 text-lg">Another Example</h2>
+    <Badge color="green">
+      <template #text>Compile Error</template>
+    </Badge>
   </Story>
 </template>
