@@ -1,27 +1,26 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-type progressType = 'score' | 'problem'
 
 const props = defineProps<{
   title?: string
   header?: string
   description?: string
-  type?: progressType
   color?: string
   total: number
   complete: number
+  progressText?: string
 }>()
 const width = (props.complete / props.total) * 100
 
 const shadowColor = computed(() => {
-  return props.type === 'problem'
-    ? 'box-shadow: 0 4px 8px 4px #7a7c7b;'
-    : `box-shadow: 0 4px 8px 4px ${props.color};`
+  return props.color
+    ? `box-shadow: 0 4px 8px 4px ${props.color};`
+    : 'box-shadow: 0 4px 8px 4px #7a7c7b;'
 })
 const progressColor = computed(() => {
-  return props.type === 'problem'
-    ? 'background-color: #7a7c7b;'
-    : `background-color: ${props.color};`
+  return props.color
+    ? `background-color: ${props.color};`
+    : 'background-color: #7a7c7b;'
 })
 const progressWidth = computed(() => {
   return `width: ${width}%;`
@@ -36,7 +35,7 @@ const progressWidth = computed(() => {
     <!-- progress bar -->
     <div class="w-full text-right">
       {{ complete + ' / ' + total }}
-      <span v-if="type == 'problem'">Problems</span>
+      <span v-if="progressText">{{ ' ' + progressText }}</span>
       <div class="bg-gray-light relative h-6 w-full rounded-full">
         <div
           class="absolute h-6 rounded-full"
