@@ -8,12 +8,16 @@ export class GroupMemberGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest()
 
-    const group_id = parseInt(request.params.group_id)
-    const user_id = request.user.id
+    const group_id: number = parseInt(request.params.group_id)
+    const user_id: number = request.user.id
 
-    if (!(await this.groupService.isUserGroupMember(user_id, group_id))) {
+    const userGroupMemberShipInfo =
+      await this.groupService.getUserGroupMembershipInfo(user_id, group_id)
+
+    if (!userGroupMemberShipInfo || !userGroupMemberShipInfo.is_registered) {
       return false
     }
+
     return true
   }
 }
