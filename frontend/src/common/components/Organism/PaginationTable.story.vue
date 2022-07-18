@@ -30,7 +30,6 @@ const cur = ref(0)
 const curitems = ref(nitems.value.slice(cur.value * 3, cur.value * 3 + 3))
 
 const filter = (keyword: string) => {
-  console.log(keyword)
   nitems.value = items.filter((el) => {
     if (el.name.includes(keyword) || el.color.includes(keyword)) return true
     return false
