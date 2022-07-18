@@ -35,7 +35,7 @@ const capitalize = (key: string) => {
         v-bind="$attrs"
       ></SearchBar>
     </div>
-    <table class="mb-5 w-full table-auto">
+    <table class="mb-8 w-full table-auto">
       <thead v-if="!noHeader">
         <tr class="text-text-title border-gray border-b-2 bg-[#F9F9F9]">
           <th
@@ -54,8 +54,10 @@ const capitalize = (key: string) => {
         <tr v-if="items.length === 0">
           <td class="p-2.5 pl-4">{{ text }}</td>
         </tr>
-        <template v-for="(row, index) in items" v-else :key="index">
+        <template v-else>
           <tr
+            v-for="(row, index) in items"
+            :key="index"
             class="hover:bg-gray-light border-gray cursor-pointer border-y"
             @click="$emit('row-clicked', row)"
           >

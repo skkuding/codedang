@@ -1,24 +1,43 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import PaginationTable from './PaginationTable.vue'
+const fields = [
+  {
+    key: 'name'
+  },
+  { key: 'color', label: 'Colored' }
+]
+
+const items = [
+  { name: 'Apple', color: 'red' },
+  { name: 'Banana', color: 'yellow' },
+  { name: 'Car', color: 'blue' }
+]
+const nitems = ref(items)
+
+const filter = (keyword: string) => {
+  nitems.value = items.filter((el) => {
+    if (el.name.includes(keyword) || el.color.includes(keyword)) return true
+    return false
+  })
+}
 </script>
 
 <template>
   <Story>
     <PaginationTable
-      :fields="[{ key: 'title' }, { key: 'date' }]"
-      :items="[
-        { title: 'Lorem Ipsum is simply dummy text', date: '2022-01-01' }
-      ]"
-      :per-page="4"
+      :fields="fields"
+      :items="nitems"
       placeholder="keywords"
       text="No data"
       :number-of-pages="5"
+      @search="filter"
     >
-      <template #title="data">
-        {{ data.row.title }}
+      <template #name="data">
+        {{ data.row.name }}
       </template>
-      <template #date="data">
-        {{ data.row.date }}
+      <template #color="data">
+        {{ data.row.color }}
       </template>
     </PaginationTable>
   </Story>
