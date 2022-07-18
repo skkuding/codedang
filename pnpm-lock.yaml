@@ -43,11 +43,7 @@ importers:
       '@types/cache-manager': ^4.0.1
       '@types/express': ^4.17.13
       '@types/jest': 27.5.2
-<<<<<<< HEAD
-      '@types/node': ^16.11.43
-=======
       '@types/node': ^16.11.45
->>>>>>> main
       '@types/passport-jwt': ^3.0.6
       '@types/passport-local': ^1.0.34
       '@types/supertest': ^2.0.12
@@ -73,15 +69,9 @@ importers:
       tsconfig-paths: ^3.14.1
       typescript: ^4.7.4
     dependencies:
-<<<<<<< HEAD
-      '@nestjs/common': 8.4.7_rfiwcbffiuhkhhtbrxxsyxpam4
-      '@nestjs/config': 2.1.0_g7av3gvncewo44y4rurz3mgav4
-      '@nestjs/core': 8.4.7_fkqgj3xrohk2pflugljc4sz7ea
-=======
       '@nestjs/common': 8.4.7_mgy7w2bm3yhmntrbe3boyroj6m
       '@nestjs/config': 2.2.0_zyw32gfu5yv6lfoz64j5eiekme
       '@nestjs/core': 8.4.7_vfcxgjfmqg6zhc6pfncoklq5wm
->>>>>>> main
       '@nestjs/jwt': 8.0.1_@nestjs+common@8.4.7
       '@nestjs/passport': 8.2.2_ajebcnomotz225cztrmzhvaeiq
       '@nestjs/platform-express': 8.4.7_7tsmhnugyerf5okgqzer2mfqme
@@ -105,11 +95,7 @@ importers:
       '@types/cache-manager': 4.0.1
       '@types/express': 4.17.13
       '@types/jest': 27.5.2
-<<<<<<< HEAD
-      '@types/node': 16.11.43
-=======
       '@types/node': 16.11.45
->>>>>>> main
       '@types/passport-jwt': 3.0.6
       '@types/passport-local': 1.0.34
       '@types/supertest': 2.0.12
@@ -128,38 +114,22 @@ importers:
       '@iconify-json/fa6-brands': ^1.1.4
       '@iconify-json/fa6-solid': ^1.1.5
       '@iconify-json/ri': ^1.1.3
-      '@types/node': ^16.11.45
-      '@vitejs/plugin-vue': ^2.3.3
-      '@vue/tsconfig': ^0.1.3
-      '@vueuse/core': ^8.9.4
-      autoprefixer: ^10.4.7
-      histoire: ^0.8.1
       pinia: ^2.0.16
       postcss: ^8.4.14
       tailwindcss: ^3.1.6
       typescript: ^4.7.4
-      unplugin-icons: ^0.14.7
       vite: ^2.9.14
       vite-plugin-pages: ^0.25.0
       vue: ^3.2.37
       vue-router: ^4.1.2
       vue-tsc: ^0.38.9
     dependencies:
-<<<<<<< HEAD
-=======
       '@vueuse/core': 8.9.4_vue@3.2.37
->>>>>>> main
       pinia: 2.0.16_j6bzmzd4ujpabbp5objtwxyjp4
       vue: 3.2.37
       vue-router: 4.1.2_vue@3.2.37
     devDependencies:
-<<<<<<< HEAD
-      '@types/node': 16.11.43
-      '@vitejs/plugin-vue': 2.3.3_vite@2.9.14+vue@3.2.37
-      '@vue/tsconfig': 0.1.3_@types+node@16.11.43
-      autoprefixer: 10.4.7_postcss@8.4.14
-      histoire: 0.7.9_lahzunkvacnqvhsxgkxtoghzza
-=======
+
       '@iconify-json/fa6-brands': 1.1.4
       '@iconify-json/fa6-solid': 1.1.5
       '@iconify-json/ri': 1.1.3
@@ -650,7 +620,11 @@ packages:
     resolution: {integrity: sha512-Kv7iF2uOVe5FsgQgK3KqmW3zlg/hlQGiy+E7VG/W0BHcVjRMvJn7K4ftEn1qwoR95810Jv7pohGhp9HVSxfSvQ==}
     dependencies:
       '@iconify/vue': 3.2.1_vue@3.2.37
+<<<<<<< HEAD
       '@vueuse/core': 8.9.4_vue@3.2.37
+=======
+      '@vueuse/core': 8.9.2_vue@3.2.37
+>>>>>>> 925d0c0 (feat(fe): add footer component (#106))
       floating-vue: 2.0.0-beta.17_vue@3.2.37
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -1570,7 +1544,10 @@ packages:
 
   /@types/web-bluetooth/0.0.14:
     resolution: {integrity: sha512-5d2RhCard1nQUC3aHcq/gHzWYO6K0WJmAbjO7mQJgCQKtZpgXxv1rOM6O/dBDhDYYVutk1sciOgNSe+5YyfM8A==}
+<<<<<<< HEAD
     dev: false
+=======
+>>>>>>> 925d0c0 (feat(fe): add footer component (#106))
 
   /@types/yargs-parser/21.0.0:
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
@@ -1869,8 +1846,13 @@ packages:
       '@types/node': 16.11.43
     dev: true
 
+<<<<<<< HEAD
   /@vueuse/core/8.9.4_vue@3.2.37:
     resolution: {integrity: sha512-B/Mdj9TK1peFyWaPof+Zf/mP9XuGAngaJZBwPaXBvU3aCTZlx3ltlrFFFyMV4iGBwsjSCeUCgZrtkEj9dS2Y3Q==}
+=======
+  /@vueuse/core/8.9.2_vue@3.2.37:
+    resolution: {integrity: sha512-dE3/JgwqIHmmtmRBdZAnq87rZCSFbYVps2t3gWy9Jv/+Qp6sHSSKuPFtwguJVZ2OnaGnB/AMRmx4CuFRxFin3A==}
+>>>>>>> 925d0c0 (feat(fe): add footer component (#106))
     peerDependencies:
       '@vue/composition-api': ^1.1.0
       vue: ^2.6.0 || ^3.2.0
@@ -1881,6 +1863,7 @@ packages:
         optional: true
     dependencies:
       '@types/web-bluetooth': 0.0.14
+<<<<<<< HEAD
       '@vueuse/metadata': 8.9.4
       '@vueuse/shared': 8.9.4_vue@3.2.37
       vue: 3.2.37
@@ -1902,6 +1885,18 @@ packages:
 
   /@vueuse/shared/8.9.4_vue@3.2.37:
     resolution: {integrity: sha512-wt+T30c4K6dGRMVqPddexEVLa28YwxW5OFIPmzUHICjphfAuBFTTdDoyqREZNDOFJZ44ARH1WWQNCUK8koJ+Ag==}
+=======
+      '@vueuse/metadata': 8.9.2
+      '@vueuse/shared': 8.9.2_vue@3.2.37
+      vue: 3.2.37
+      vue-demi: 0.12.5_vue@3.2.37
+
+  /@vueuse/metadata/8.9.2:
+    resolution: {integrity: sha512-g2s2BeyeEtJElmMFfFPnM+BTvnt0omniyvz8U18/zXDpQIMGozlNQgHoFeratyMfgVBhH/u2VKzmchChtDsgPQ==}
+
+  /@vueuse/shared/8.9.2_vue@3.2.37:
+    resolution: {integrity: sha512-s4Nk82oheL5z1GywyGnqjob0MzbAt88olMZa0vgt/p3gcMsT8Ff7+SqmNgEFC6AAs6xiuhOAZpnew9Zs3d90yQ==}
+>>>>>>> 925d0c0 (feat(fe): add footer component (#106))
     peerDependencies:
       '@vue/composition-api': ^1.1.0
       vue: ^2.6.0 || ^3.2.0
@@ -1913,12 +1908,16 @@ packages:
     dependencies:
       vue: 3.2.37
 <<<<<<< HEAD
+<<<<<<< HEAD
       vue-demi: 0.13.5_vue@3.2.37
     dev: true
 =======
       vue-demi: 0.12.5_vue@3.2.37
     dev: false
 >>>>>>> main
+=======
+      vue-demi: 0.12.5_vue@3.2.37
+>>>>>>> 925d0c0 (feat(fe): add footer component (#106))
 
   /@webassemblyjs/ast/1.11.1:
     resolution: {integrity: sha512-ukBh14qFLjxTQNTXocdyksN5QdM28S1CxHt2rdskFyL+xFV7VremuBLVbmCePj+URalXBENx/9Lm7lnhihtCSw==}
@@ -4198,6 +4197,7 @@ packages:
       '@histoire/shared': 0.7.9
       '@iconify/vue': 3.2.1_vue@3.2.37
       '@types/markdown-it': 12.2.3
+<<<<<<< HEAD
       '@vueuse/core': 8.9.4_vue@3.2.37
 =======
       '@histoire/controls': 0.8.1
@@ -4207,6 +4207,9 @@ packages:
       '@types/flexsearch': 0.7.3
       '@types/markdown-it': 12.2.3
 >>>>>>> main
+=======
+      '@vueuse/core': 8.9.2_vue@3.2.37
+>>>>>>> 925d0c0 (feat(fe): add footer component (#106))
       birpc: 0.1.1
       case: 1.6.3
       chokidar: 3.5.3
