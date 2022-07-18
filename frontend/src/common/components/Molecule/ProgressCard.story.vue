@@ -8,7 +8,6 @@ import ProgressCard from './ProgressCard.vue'
       title="프로그래밍대회"
       header="updated 3.30"
       description="프로그래밍대회 기출문제 입니다."
-      type="problem"
       :total="10"
       :complete="6"
     />
@@ -17,9 +16,9 @@ import ProgressCard from './ProgressCard.vue'
       title="프로그래밍대회"
       header="updated 3.30"
       description="프로그래밍대회 기출문제 입니다."
-      type="score"
       :total="100"
       :complete="80"
+      progress-text="problems"
       color="#FFC3DA"
     />
   </Story>
