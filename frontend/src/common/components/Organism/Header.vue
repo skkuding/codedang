@@ -1,25 +1,13 @@
 <script setup lang="ts">
 import Dropdown from '../Molecule/Dropdown.vue'
-
+import IonPersonOutline from '~icons/ion/person-outline'
 interface data {
   content: string[]
-  button: buttonStyle
-}
-interface buttonStyle {
-  color: string
-  rounded: boolean
-  text: string
 }
 const props: data = {
-  content: ['Management', 'Settings', 'Logout'],
-  button: {
-    color: 'green',
-    rounded: true,
-    text: 'this is button'
-  }
+  content: ['Management', 'Settings', 'Logout']
 }
 </script>
-
 <template>
   <nav
     class="header-container sticky top-0 z-50 flex content-center items-center justify-between border-b-[1px] border-b-[#cdcdcd] bg-white px-12 py-4 font-medium opacity-95"
@@ -55,8 +43,9 @@ const props: data = {
     </div>
     <div>
       <Dropdown v-bind="props">
-        <template #dropdown-icon></template>
-        <template #dropdown-content></template>
+        <template #dropdown-icon>
+          <IonPersonOutline class="text-2xl" />
+        </template>
       </Dropdown>
     </div>
   </nav>
