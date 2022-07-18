@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import SearchBar from '../Molecule/SearchBar.vue'
 import Pagination from '../Molecule/Pagination.vue'
+import { ref } from 'vue'
 
 defineProps<{
   fields: {
@@ -18,7 +19,14 @@ defineProps<{
   noPagination?: boolean
 }>()
 
-defineEmits(['row-clicked'])
+const emit = defineEmits(['row-clicked', 'change-page', 'search'])
+
+const pagination = ref()
+
+const search = (inputData: string) => {
+  pagination.value.changePage(1)
+  emit('search', inputData)
+}
 
 const capitalize = (key: string) => {
   return key.charAt(0).toUpperCase() + key.slice(1)
@@ -32,7 +40,7 @@ const capitalize = (key: string) => {
         v-if="!noSearchBar"
         :placeholder="placeholder"
         class="mb-5"
-        v-bind="$attrs"
+        @search="search"
       ></SearchBar>
     </div>
     <table class="mb-8 w-full table-auto">
@@ -71,8 +79,9 @@ const capitalize = (key: string) => {
     <div class="flex justify-end">
       <Pagination
         v-if="!noPagination"
-        v-bind="$attrs"
+        ref="pagination"
         :number-of-pages="numberOfPages"
+        @change-page="(page) => $emit('change-page', page)"
       />
     </div>
   </div>

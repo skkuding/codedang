@@ -12,6 +12,10 @@ const props = defineProps<{
 
 const emit = defineEmits(['change-page'])
 
+defineExpose({
+  changePage
+})
+
 const currentPage = ref(1)
 
 const startPage = computed(() => {
