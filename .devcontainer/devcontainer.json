@@ -11,7 +11,9 @@
     "dbaeumer.vscode-eslint",
     "editorconfig.editorconfig",
     "esbenp.prettier-vscode",
+    "Orta.vscode-jest",
     "prisma.prisma",
+    "rangav.vscode-thunder-client",
     "Vue.volar",
     "Vue.vscode-typescript-vue-plugin"
   ],
