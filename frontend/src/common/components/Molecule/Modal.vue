@@ -6,19 +6,22 @@ import { ref } from 'vue'
 const props = defineProps<{
   title: string
   titleColor: string
-  width: string
-  height: string
-  bgColor: string
+  img?: string
 }>()
 
-const backgroundColor = computed(() => {
-  return 'bg-' + props.bgColor
+const ModalStyle = computed(() => {
+  if (props.titleColor == 'green') {
+    return 'w-[360px] h-[656px] text-center text-xl text-green'
+  } else {
+    return 'w-[360px] h-[656px] text-center text-xl text-gray'
+  }
 })
-const getHeight = computed(() => {
-  return 'h-[' + props.height + ']'
-})
-const getWidth = computed(() => {
-  return 'w-[' + props.width + ']'
+const iconStyle = computed(() => {
+  if (props.titleColor == 'green') {
+    return 'stroke-green'
+  } else {
+    return 'stroke-gray'
+  }
 })
 
 let isModalVisible = ref(true)
@@ -31,9 +34,22 @@ function close() {
 <template>
   <div
     v-show="isModalVisible"
-    :class="`bg-${props.bgColor} w-${props.width} h-${props.height} rounded-lg p-2`"
+    class="relative rounded-lg p-2"
+    :class="ModalStyle"
   >
-    <span>{{ title }}</span>
-    <IconoirCancel class="float-right cursor-pointer" @click="close" />
+    <div v-show="img" class="my-2 flex justify-center">
+      <img :src="img" class="text-align stroke-green aspect-square w-20" />
+      <IconoirCancel
+        class="absolute right-0 float-right cursor-pointer"
+        :class="iconStyle"
+        @click="close"
+      />
+    </div>
+    <span :class="ModalStyle">{{ title }}</span>
+    <IconoirCancel
+      v-if="!img"
+      class="float-right cursor-pointer"
+      @click="close"
+    />
   </div>
 </template>
