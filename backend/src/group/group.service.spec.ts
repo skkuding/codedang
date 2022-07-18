@@ -1,10 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { UserGroup } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { GroupService } from './group.service'
-
-const userId = 1
-const groupId = 1
 
 const mockPrismaService = {
   userGroup: {
