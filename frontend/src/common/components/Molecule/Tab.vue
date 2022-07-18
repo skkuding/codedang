@@ -31,23 +31,19 @@ const setHoverFalse = () => {
 </script>
 
 <template>
-  <div class="mx-auto w-4/5">
-    <div class="bg-gray h-px" />
-    <ul class="flex justify-center">
-      <li
-        v-for="item in items"
-        :key="item"
-        class="text-text-title mx-2 cursor-pointer p-2 text-xl"
-        :style="[hoverStyle(item), activeStyle(item)]"
-        @click="setActiveItem(item)"
-        @mouseover="setHoverItem(item)"
-        @mouseleave="setHoverFalse()"
-      >
-        {{ item.charAt(0).toUpperCase() + item.slice(1) }}
-      </li>
-    </ul>
-    <div class="bg-gray h-px" />
+  <ul class="border-gray mx-auto flex w-4/5 justify-center border-y">
+    <li
+      v-for="item in items"
+      :key="item"
+      class="text-text-title mx-2 cursor-pointer p-2 text-xl"
+      :style="[hoverStyle(item), activeStyle(item)]"
+      @click="setActiveItem(item)"
+      @mouseover="setHoverItem(item)"
+      @mouseleave="setHoverFalse()"
+    >
+      {{ item.charAt(0).toUpperCase() + item.slice(1) }}
+    </li>
+  </ul>
 
-    <div class="m-4"><slot :name="`${activeItem}`"></slot></div>
-  </div>
+  <div class="m-4"><slot :name="`${activeItem}`"></slot></div>
 </template>
