@@ -1,28 +1,23 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { ref } from 'vue'
 import { onMounted, onBeforeUnmount } from 'vue'
-
 import CarouselItem from './CarouselItem.vue'
 import CarouselIndicators from './CarouselIndicators.vue'
 
 const props = defineProps<{
-  slides?: Array
+  slides: Array<any>
 }>()
 
 let currentSlide = 0
-let slideInterval = null
+let slideInterval = 0
 let direction = 'right'
 
 // 현재 슬라이드 지정
-const setCurrentSlide = (index) => {
+const setCurrentSlide = (index: number) => {
   currentSlide = index
 }
 
-// 이전으로 가게 해줌
-// 왼쪽 끝이면 오른쪽 끝으로 가게
-const prev = (step = -1, index) => {
-  currentSlide > 0 ? currentSlide + step : props.slides.length - 1
+const prev = (step = -1) => {
+  const index = currentSlide > 0 ? currentSlide + step : props.slides.length - 1
   setCurrentSlide(index)
   direction = 'left'
   startSlideTimer()
@@ -45,7 +40,7 @@ const startSlideTimer = () => {
   stopSlideTimer()
   slideInterval = setInterval(() => {
     _next()
-  }, props.interval)
+  }, 3000)
 }
 
 const stopSlideTimer = () => {
@@ -54,7 +49,7 @@ const stopSlideTimer = () => {
 
 // 눌렀을때 해당 index로 가게 해줌.
 
-const switchSlide = (index) => {
+const switchSlide = (index: number) => {
   const step = index - currentSlide
   if (step > 0) {
     next(step)
@@ -76,7 +71,7 @@ onBeforeUnmount(() => {
   <div class="flex justify-center">
     <div class="w-225 h-100 relative overflow-hidden">
       <carousel-indicators
-        :total="slides.length"
+        :total="props.slides.length"
         :current-index="currentSlide"
         @switch="switchSlide($event)"
       ></carousel-indicators>

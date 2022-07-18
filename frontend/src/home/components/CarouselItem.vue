@@ -2,10 +2,10 @@
 import { computed } from 'vue'
 
 const props = defineProps<{
-  slide?: number
-  currentSlide?: number
-  index?: number
-  direction?: string
+  slide?: any
+  currentSlide?: any
+  index?: any
+  direction?: any
 }>()
 
 const emit = defineEmits(['mouseenter', 'mouseout'])
