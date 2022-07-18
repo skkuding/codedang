@@ -355,7 +355,7 @@ describe('ContestService', () => {
     it('진행중인 모든 대회 리스트를 반환한다.', async () => {
       db.contest.findMany.mockResolvedValue(ongoingContests)
       const contests = await service.getOngoingContests()
-      expect(contests).toStrictEqual(ongoingContests)
+      expect(contests).toEqual(ongoingContests)
     })
   })
 
@@ -363,7 +363,7 @@ describe('ContestService', () => {
     it('아직 시작하지 않은 모든 대회 리스트를 반환한다.', async () => {
       db.contest.findMany.mockResolvedValue(upcomingContests)
       const contests = await service.getUpcomingContests()
-      expect(contests).toStrictEqual(upcomingContests)
+      expect(contests).toEqual(upcomingContests)
     })
   })
 
@@ -371,7 +371,7 @@ describe('ContestService', () => {
     db.contest.findMany.mockResolvedValue(finishedContests)
     it('마감된 모든 대회 리스트를 반환한다.', async () => {
       const contests = await service.getFinishedContests()
-      expect(contests).toStrictEqual(finishedContests)
+      expect(contests).toEqual(finishedContests)
     })
   })
 
@@ -412,7 +412,7 @@ describe('ContestService', () => {
     it('user가 contest가 속한 group의 멤버가 아니고, contest가 끝난 상태면 contest id에 해당하는 contest를 반환한다.', async () => {
       db.userGroup.findFirst.mockResolvedValue(null)
       const result = await service.getContestById(userId, contestId)
-      expect(result).toStrictEqual(contest)
+      expect(result).toEqual(contest)
     })
 
     it('user가 contest가 속한 group의 멤버지만, visible==false 이고 user가 group manager가 아니라면 InvalidUserException을 반환한다.', async () => {
@@ -430,7 +430,7 @@ describe('ContestService', () => {
 
     it('user가 contest가 속한 group의 멤버라면 주어진 contest id에 해당하는 대회를 반환한다.', async () => {
       const result = await service.getContestById(userId, contestId)
-      expect(result).toStrictEqual(contest)
+      expect(result).toEqual(contest)
     })
   })
 
@@ -459,7 +459,7 @@ describe('ContestService', () => {
     it('group id에 해당하는 group이 존재하고, user가 그 group에 소속되어 있다면, 주어진 group id에 해당하는 모든 대회 리스트를 반환한다.', async () => {
       const contests = await service.getContestsByGroupId(userId, groupId)
       for (const contest in contests) {
-        expect(JSON.parse(contest).group_id).toStrictEqual(groupId)
+        expect(JSON.parse(contest).group_id).toEqual(groupId)
       }
     })
   })
@@ -479,7 +479,7 @@ describe('ContestService', () => {
     })
     it('user가 group manager인 group의 모든 대회 리스트를 반환한다.', async () => {
       const contests = await service.getAdminContests(userId)
-      expect(contests['Contest']).toStrictEqual(adminContestArray)
+      expect(contests['Contest']).toEqual(adminContestArray)
     })
   })
 
@@ -489,7 +489,7 @@ describe('ContestService', () => {
     })
     it('user가 group manager인 group의 모든 진행중인 대회 리스트를 반환한다.', async () => {
       const contests = await service.getAdminOngoingContests(userId)
-      expect(contests['Contest']).toStrictEqual(ongoingContests)
+      expect(contests['Contest']).toEqual(ongoingContests)
     })
   })
 })
