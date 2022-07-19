@@ -7,12 +7,16 @@ import {
   Post,
   Body,
   Param,
-  ParseIntPipe
+  ParseIntPipe,
+  UseGuards,
+  Req
 } from '@nestjs/common'
 import { RequestNoticeDto } from './dto/request-notice.dto'
 import { NoticeService } from './notice.service'
 import { UserNoticePage } from './notice.interface'
 import { Notice } from '@prisma/client'
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
+import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 
 @Controller('notice')
 export class PublicNoticeController {
@@ -57,15 +61,16 @@ export class GroupNoticeController {
 }
 
 @Controller('admin/:user_id/notice')
+@UseGuards(JwtAuthGuard)
 export class NoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Post()
   async createNotice(
-    @Param('user_id', ParseIntPipe) userId: number,
+    @Req() req: AuthenticatedRequest,
     @Body() NoticeData: RequestNoticeDto
   ): Promise<Notice> {
-    return await this.noticeService.createNotice(userId, NoticeData)
+    return await this.noticeService.createNotice(req.user.id, NoticeData)
   }
 
   @Get()
