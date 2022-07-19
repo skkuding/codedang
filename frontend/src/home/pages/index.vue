@@ -11,5 +11,5 @@ const slides = [
 </script>
 
 <template>
-  <Carousel :slides="slides" :interval="3000" controls indicators></Carousel>
+  <Carousel :slides="slides"></Carousel>
 </template>

@@ -2,10 +2,10 @@
 import { computed } from 'vue'
 
 const props = defineProps<{
-  slide: any
-  currentSlide: any
-  index: any
-  direction: any
+  slide: string
+  currentSlide: number
+  index: number
+  direction: string
 }>()
 
 defineEmits(['mouseenter', 'mouseout'])
@@ -19,7 +19,7 @@ const transitionEffect = computed(() => {
   <transition :name="transitionEffect">
     <div
       v-show="currentSlide === index"
-      class="carousel-item"
+      class="absolute inset-0"
       @mouseenter="$emit('mouseenter')"
       @mouseout="$emit('mouseout')"
     >
@@ -29,13 +29,6 @@ const transitionEffect = computed(() => {
 </template>
 
 <style scoped>
-.carousel-item {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
 .slide-in-enter-active,
 .slide-in-leave-active,
 .slide-out-enter-active,

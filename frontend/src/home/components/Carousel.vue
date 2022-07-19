@@ -4,16 +4,14 @@ import CarouselIndicators from './CarouselIndicators.vue'
 import { onMounted, onBeforeUnmount, ref } from 'vue'
 
 const props = defineProps<{
-  slides: any
-  controls: any
-  interval: any
+  slides: string[]
 }>()
 
 let currentSlide = ref(0)
-let slideInterval = null
+let slideInterval = ref(0)
 let direction = ref('right')
 
-const setCurrentSlide = (index: any) => {
+const setCurrentSlide = (index: number) => {
   currentSlide.value = index
 }
 const prev = (step = -1) => {
@@ -35,16 +33,15 @@ const next = (step = 1) => {
 }
 const startSlideTimer = () => {
   stopSlideTimer()
-  slideInterval = setInterval(() => {
+  slideInterval.value = setInterval(() => {
     _next()
-  }, props.interval)
+  }, 3000)
 }
 const stopSlideTimer = () => {
-  clearInterval(slideInterval)
+  clearInterval(slideInterval.value)
 }
-const switchSlide = (index) => {
+const switchSlide = (index: number) => {
   const step = index - currentSlide.value
-  console.log(step)
   if (step > 0) {
     next(step)
   } else {
@@ -60,8 +57,8 @@ onBeforeUnmount(() => {
 })
 </script>
 <template>
-  <div class="carousel">
-    <div class="carousel-inner">
+  <div class="flex justify-center">
+    <div class="relative h-[400px] w-[900px] overflow-hidden">
       <carousel-indicators
         :total="slides.length"
         :current-index="currentSlide"
@@ -80,16 +77,3 @@ onBeforeUnmount(() => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.carousel {
-  display: flex;
-  justify-content: center;
-}
-.carousel-inner {
-  position: relative;
-  width: 900px;
-  height: 400px;
-  overflow: hidden;
-}
-</style>
