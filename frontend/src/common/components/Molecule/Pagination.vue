@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import Button from '../Atom/Button.vue'
-import AngelsLeft from '~icons/fa6-solid/angles-left'
-import AngelsRight from '~icons/fa6-solid/angles-right'
 import AngelLeft from '~icons/fa6-solid/angle-left'
 import AngelRight from '~icons/fa6-solid/angle-right'
+import Ellipsis from '~icons/fa6-solid/ellipsis'
 
 const props = defineProps<{
   numberOfPages: number
@@ -18,20 +17,24 @@ defineExpose({
 
 const currentPage = ref(1)
 
-const startPage = computed(() => {
-  return Math.trunc((currentPage.value - 1) / 3) * 3 + 1
-})
-
-const endPage = computed(() => {
-  return startPage.value + 2 <= props.numberOfPages
-    ? startPage.value + 2
-    : props.numberOfPages
-})
+const buttonColor = (page: number) => {
+  return currentPage.value === page ? 'gray-dark' : 'gray'
+}
+const buttonStyle = (page: number) => {
+  return currentPage.value === page
+    ? 'mr-1 aspect-square w-9 rounded-lg pointer-events-none'
+    : 'mr-1 aspect-square w-9 rounded-lg'
+}
 
 const pageList = computed(() => {
-  return [...Array(endPage.value - startPage.value + 1).keys()].map(
-    (i: number) => startPage.value + i
-  )
+  let startPage = 2
+  if (currentPage.value - 3 < 1) startPage = 2
+  else if (currentPage.value + 3 > props.numberOfPages)
+    startPage = props.numberOfPages - 3
+  else startPage = currentPage.value - 1
+  return [...Array(3).keys()]
+    .map((i: number) => i + startPage)
+    .filter((i: number) => 1 < i && i < props.numberOfPages)
 })
 
 function changePage(page: number): void {
@@ -44,13 +47,7 @@ function changePage(page: number): void {
 
 <template>
   <div class="flex flex-row">
-    <Button
-      class="mr-1 aspect-square rounded-lg"
-      color="white"
-      @click="changePage(1)"
-    >
-      <AngelsLeft />
-    </Button>
+    <!-- prev button  -->
     <Button
       class="mr-1 aspect-square rounded-lg"
       color="white"
@@ -58,29 +55,58 @@ function changePage(page: number): void {
     >
       <AngelLeft />
     </Button>
+
+    <!-- first page = 1 -->
+    <Button
+      :color="buttonColor(1)"
+      :class="buttonStyle(1)"
+      @click="changePage(1)"
+    >
+      1
+    </Button>
+
+    <div
+      v-if="!pageList.includes(2) && numberOfPages > 2"
+      class="text-gray-dark mr-1 px-2 py-2"
+    >
+      <Ellipsis />
+    </div>
+
+    <!-- pageList = [cur-1, cur, cur+1] -->
     <Button
       v-for="page in pageList"
       :key="page"
-      :color="page === currentPage ? 'gray-dark' : 'gray'"
-      class="mr-1 aspect-square w-9 rounded-lg"
-      :class="page === currentPage ? 'pointer-events-none' : ''"
+      :color="buttonColor(page)"
+      :class="buttonStyle(page)"
       @click="changePage(page)"
     >
       {{ page }}
     </Button>
+
+    <div
+      v-if="!pageList.includes(numberOfPages - 1) && numberOfPages > 2"
+      class="text-gray-dark mr-1 px-2 py-2"
+    >
+      <Ellipsis />
+    </div>
+
+    <!-- last page = numberOfPages -->
+    <Button
+      v-if="numberOfPages > 1"
+      :color="buttonColor(numberOfPages)"
+      :class="buttonStyle(numberOfPages)"
+      @click="changePage(numberOfPages)"
+    >
+      {{ numberOfPages }}
+    </Button>
+
+    <!-- next button  -->
     <Button
       class="mr-1 aspect-square rounded-lg"
       color="white"
       @click="changePage(currentPage + 1)"
     >
       <AngelRight />
-    </Button>
-    <Button
-      class="mr-1 aspect-square rounded-lg"
-      color="white"
-      @click="changePage(props.numberOfPages)"
-    >
-      <AngelsRight />
     </Button>
   </div>
 </template>

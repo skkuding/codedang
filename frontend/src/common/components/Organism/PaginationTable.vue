@@ -76,7 +76,7 @@ const capitalize = (key: string) => {
         </template>
       </tbody>
     </table>
-    <div class="flex justify-end">
+    <div class="flex justify-center">
       <Pagination
         v-if="!noPagination"
         ref="pagination"
