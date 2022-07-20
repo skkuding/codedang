@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Dropdown from '../Molecule/Dropdown.vue'
+import SignatureLogo from '../Atom/SignatureLogo.vue'
 import IonPersonOutline from '~icons/ion/person-outline'
 interface data {
   content: string[]
@@ -13,7 +14,7 @@ const props: data = {
     class="header-container sticky top-0 z-50 flex content-center items-center justify-between border-b-[1px] border-b-[#cdcdcd] bg-white px-12 py-4 font-medium opacity-95"
   >
     <a href="/">
-      <img src="../../assets/signature.png" class="h-12 w-auto" />
+      <SignatureLogo class="h-12" />
     </a>
     <div>
       <a
