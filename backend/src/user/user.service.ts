@@ -15,7 +15,6 @@ import { UserEmailDto } from './userEmail.dto'
 import { NewPwDto } from './newPw.dto'
 import { User } from '@prisma/client'
 import {
-  EmailTransmissionFailedException,
   InvalidTokenException,
   InvalidUserException
 } from 'src/common/exception/business.exception'
@@ -57,23 +56,6 @@ export class UserService {
     })
   }
 
-  private async getTokenFromCache(key: string): Promise<string> {
-    const storedToken: string = await this.cacheManager.get(key)
-    return storedToken
-  }
-
-  private async createTokenInCache(
-    key: string,
-    token: string,
-    timeToLive: number
-  ): Promise<void> {
-    await this.cacheManager.set(key, token, { ttl: timeToLive })
-  }
-
-  private async deleteTokenFromCache(key: string): Promise<void> {
-    await this.cacheManager.del(key)
-  }
-
   async createTokenAndSendEmail({ email }: UserEmailDto): Promise<string> {
     const user = await this.getUserCredentialByEmail(email)
 
@@ -83,7 +65,7 @@ export class UserService {
       )
     }
 
-    const token: string = randomBytes(24).toString('base64url')
+    const token = this.createBase64UrlEncodedTokenRandomly(24)
 
     const sentEmailInfo = await this.emailService.sendPasswordResetLink(
       email,
@@ -91,13 +73,21 @@ export class UserService {
       token
     )
 
-    if (sentEmailInfo.accepted.length === 0) {
-      throw new EmailTransmissionFailedException('Email transmission failed')
-    }
-
     await this.createTokenInCache(pwResetTokenCacheKey(user.id), token, 300)
 
     return 'Password reset link was sent to your email'
+  }
+
+  createBase64UrlEncodedTokenRandomly(bytes: number): string {
+    return randomBytes(bytes).toString('base64url')
+  }
+
+  async createTokenInCache(
+    key: string,
+    token: string,
+    timeToLive: number
+  ): Promise<void> {
+    await this.cacheManager.set(key, token, { ttl: timeToLive })
   }
 
   async updatePassword(
@@ -123,7 +113,16 @@ export class UserService {
     return 'Password Reset successfully'
   }
 
-  private async updateUserPasswordInPrisma(
+  async getTokenFromCache(key: string): Promise<string> {
+    const storedToken: string = await this.cacheManager.get(key)
+    return storedToken
+  }
+
+  async deleteTokenFromCache(key: string): Promise<void> {
+    await this.cacheManager.del(key)
+  }
+
+  async updateUserPasswordInPrisma(
     userId: number,
     newPassword: string
   ): Promise<User> {
