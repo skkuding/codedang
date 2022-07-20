@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import MaterialSymbolsMenu from '~icons/material-symbols/menu'
 import MaterialSymbolsArrowForwardIosRounded from '~icons/material-symbols/arrow-forward-ios-rounded'
+
 interface data {
   title: string
   date: string
@@ -12,7 +13,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="text-gray mb-3 max-w-[610px] rounded-lg p-5 shadow-xl">
+  <div class="mb-3 max-w-[610px] rounded-lg p-5 shadow-xl">
     <div class="relative w-full">
       <div class="flex flex-row align-middle">
         <table class="mb-3 w-full">
@@ -30,9 +31,7 @@ defineProps<{
               :key="item.title"
               class="mt-2 flex flex-row align-middle"
             >
-              <td>
-                <a href="#"><MaterialSymbolsArrowForwardIosRounded /></a>
-              </td>
+              <td class="mx-1"><slot name="next-to-text-icon"></slot></td>
               <td class="w-2/3">
                 <a href="#">{{ item.title }}</a>
               </td>
