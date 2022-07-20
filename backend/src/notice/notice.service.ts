@@ -3,6 +3,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { Notice } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { RequestNoticeDto } from './dto/request-notice.dto'
+import { EntityNotExistException } from 'src/common/exception/business.exception'
 
 @Injectable()
 export class NoticeService {
@@ -87,10 +88,7 @@ export class NoticeService {
       }
     })
     if (!noticeExist) {
-      throw new HttpException(
-        'The notice does not exist',
-        HttpStatus.BAD_REQUEST
-      )
+      throw new EntityNotExistException('notice')
     }
     if (noticeExist.group_id != noticeData.group_id) {
       throw new HttpException(
@@ -180,10 +178,7 @@ export class NoticeService {
       }
     })
     if (!group) {
-      throw new HttpException(
-        'The group does not exist',
-        HttpStatus.BAD_REQUEST
-      )
+      throw new EntityNotExistException('group')
     }
 
     const notice = await this.prisma.notice.create({

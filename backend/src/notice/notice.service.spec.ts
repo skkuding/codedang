@@ -3,6 +3,8 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { Group, Notice } from '@prisma/client'
 import { NoticeService } from './notice.service'
 import { RequestNoticeDto } from './dto/request-notice.dto'
+import { EntityNotExistException } from 'src/common/exception/business.exception'
+import { HttpException } from '@nestjs/common'
 
 const noticeId = 1
 const userId = 1
@@ -65,16 +67,52 @@ describe('NoticeService', () => {
   })
 
   describe('createNotice', () => {
+    beforeEach(() => {
+      db.group.findUnique.mockResolvedValue(groupData)
+    })
+
     it('should return new created notice data', async () => {
       const createResult = await service.createNotice(userId, noticeData)
       expect(createResult).toEqual(noticeResult)
     })
+
+    it('should throw error when given group does not exist', async () => {
+      db.group.findUnique.mockResolvedValue(null)
+      await expect(service.createNotice(userId, noticeData)).rejects.toThrow(
+        EntityNotExistException
+      )
+    })
   })
 
   describe('updateNotice', () => {
+    beforeEach(() => {
+      db.notice.findUnique.mockResolvedValue(noticeResult)
+    })
+
     it('should return updated Notice', async () => {
-      const updateResult = await service.updateNotice(userId, noticeData)
+      const updateResult = await service.updateNotice(noticeId, noticeData)
       expect(updateResult).toEqual(noticeResult)
+    })
+
+    it('should throw error when group_id change', async () => {
+      const invalidNoticeData: RequestNoticeDto = {
+        group_id: 2,
+        title: 'Title',
+        content: 'Content',
+        visible: true,
+        fixed: true
+      }
+
+      await expect(
+        service.updateNotice(noticeId, invalidNoticeData)
+      ).rejects.toThrow(HttpException)
+    })
+
+    it('should throw error when given notice does not exist', async () => {
+      db.notice.findUnique.mockResolvedValue(null)
+      await expect(service.updateNotice(noticeId, noticeData)).rejects.toThrow(
+        EntityNotExistException
+      )
     })
   })
 })
