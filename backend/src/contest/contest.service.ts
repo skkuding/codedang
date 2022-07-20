@@ -70,7 +70,7 @@ export class ContestService {
       select: contestListselectOption
     })
     if (!contest) {
-      throw new EntityNotExistException(`contest ${contest_id}`)
+      throw new EntityNotExistException(`Contest ${contest_id}`)
     }
     const isUserInGroup = await this.prisma.userGroup.findFirst({
       where: { user_id, group_id: contest.group_id, is_registered: true },
@@ -93,7 +93,7 @@ export class ContestService {
       where: { id: group_id }
     })
     if (!group) {
-      throw new EntityNotExistException(`group ${group_id}`)
+      throw new EntityNotExistException(`Group ${group_id}`)
     }
     const isUserInGroup = await this.prisma.userGroup.findFirst({
       where: { user_id, group_id, is_registered: true }
@@ -150,7 +150,10 @@ export class ContestService {
     if (!result) {
       throw new InvalidUserException(`User ${user_id} is not group manager`)
     }
-    return this.filterOngoing(result)
+    for (const group of result) {
+      group.Contest = this.filterOngoing(group.Contest)
+    }
+    return result
   }
 
   /*
