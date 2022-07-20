@@ -174,10 +174,6 @@ function returnTextIsNotAllowed(userId: number, contestId: number): string {
   return `Contest ${contestId} is not allowed to User ${contestId}`
 }
 
-const adminContestArray: Partial<Contest>[] = ongoingContests
-  .slice(0, 1)
-  .concat(finishedContests.slice(0, 1), upcomingContests.slice(0, 1))
-
 const returnAdminOngoingContests = {
   ...returnAdminContests,
   Contest: ongoingContests
@@ -639,7 +635,7 @@ describe('ContestService', () => {
     })
   })
 
-  describe('getContestById', () => {
+  describe('getUpcomingContests', () => {
     beforeEach(() => {
       mockPrismaService.contest.findUnique.mockResolvedValue(contest),
         mockPrismaService.userGroup.findFirst.mockResolvedValue(userGroup)
@@ -691,24 +687,12 @@ describe('ContestService', () => {
       const result = await service.getContestById(userId, contestId)
       expect(result).rejects.toThrowError(ForbiddenException)
     })
-
-    it('user가 contest가 속한 group의 멤버라면 주어진 contest id에 해당하는 대회를 반환한다.', async () => {
-      const result = await service.getContestById(userId, contestId)
-      expect(result).toStrictEqual(contest)
+    it('아직 시작하지 않은 모든 대회 리스트를 반환한다.', async () => {
+      expect(await service.getUpcomingContests()).toEqual(upcomingContests)
     })
   })
-  // Todo: issue #90
-  // describe('createContestRecord', () => {
-  //   it('user가 해당 contest에 중복 참여한 경우 InvalidUserException을 반환한다.', async () => {})
-  //   it('contest가 비공개인데 user가 contest가 속한 group 멤버가 아닌 경우 InvalidUserException을 반환한다.', async () => {})
-  //   // it('contest가 아직 시작하지 않은 상태인 경우 InvalidUserException을 반환한다.', async () => {})
-  //   // it('contest가 끝난 상태인 경우 InvalidUserException을 반환한다.', async () => {})
-  //   it('contest type이 ACM인 경우 contestRankACM에 column을 생성한다.', async () => {})
-  //   // it('모든 contest type에 대하여 contestRecord를 생성한다.', async () => {})
-  // })
 
-  /* group */
-  describe('getContestsByGroupId', () => {
+  describe('getFinishedContests', () => {
     beforeEach(() => {
       mockPrismaService.contest.findUnique.mockResolvedValue(contest),
         mockPrismaService.userGroup.findFirst.mockResolvedValue(userGroup),
@@ -726,7 +710,9 @@ describe('ContestService', () => {
       mockPrismaService.userGroup.findFirst.mockResolvedValue(null)
       await expect(
         service.getContestsByGroupId(userId, groupId)
-      ).rejects.toThrowError(InvalidUserException)
+      ).rejects.toThrowError(
+        new InvalidUserException('User 1 is not in Group 1')
+      )
     })
 
     it('group id에 해당하는 group이 존재하고, user가 그 group에 소속되어 있다면, 주어진 group id에 해당하는 모든 대회 리스트를 반환한다.', async () => {
@@ -743,16 +729,18 @@ describe('ContestService', () => {
       mockPrismaService.userGroup.findFirst.mockResolvedValue(userGroup)
       mockPrismaService.group.findMany.mockResolvedValue(returnAdminContests)
     })
-
     it('user가 group manager인 group이 존재하지 않을 때 InvalidUserException을 반환한다.', async () => {
       mockPrismaService.userGroup.findFirst.mockResolvedValue(null)
       await expect(service.getAdminContests(userId)).rejects.toThrowError(
-        InvalidUserException
+        new InvalidUserException('User 1 is not group manager')
       )
     })
+
     it('user가 group manager인 group의 모든 대회 리스트를 반환한다.', async () => {
-      const contests = await service.getAdminContests(userId)
-      expect(contests['Contest']).toStrictEqual(adminContestArray)
+      const result = await service.getAdminContests(userId)
+      for (const group of result) {
+        expect(group['Contest']).toEqual(contests)
+      }
     })
   })
 
