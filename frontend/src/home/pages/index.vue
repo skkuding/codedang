@@ -1,15 +1,8 @@
 <script setup lang="ts">
-import Carousel from '../components/Carousel.vue'
-
-const slides = [
-  'https://picsum.photos/id/1032/900/400',
-  'https://picsum.photos/id/1033/900/400',
-  'https://picsum.photos/id/1037/900/400',
-  'https://picsum.photos/id/1035/900/400',
-  'https://picsum.photos/id/1036/900/400'
-]
+import MyComponent from '../components/MyComponent.vue'
 </script>
 
 <template>
-  <Carousel :slides="slides"></Carousel>
+  <div>This is Main page</div>
+  <MyComponent msg="Main!" />
 </template>
