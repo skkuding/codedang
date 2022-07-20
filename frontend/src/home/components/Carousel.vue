@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import CarouselItem from './CarouselItem.vue'
-import CarouselIndicators from './CarouselIndicators.vue'
 import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps<{
   slides: string[]
@@ -49,6 +48,10 @@ const switchSlide = (index: number) => {
   }
 }
 
+const transitionEffect = computed(() => {
+  return direction.value === 'right' ? 'slide-out' : 'slide-in'
+})
+
 onMounted(() => {
   startSlideTimer()
 })
@@ -59,21 +62,49 @@ onBeforeUnmount(() => {
 <template>
   <div class="flex justify-center">
     <div class="relative h-[400px] w-[900px] overflow-hidden">
-      <carousel-indicators
-        :total="slides.length"
-        :current-index="currentSlide"
-        @switch="(index) => switchSlide(index)"
-      ></carousel-indicators>
-      <carousel-item
+      <div class="absolute left-1/2 bottom-5 z-10 -translate-x-1/2">
+        <button
+          v-for="(item, index) in slides.length"
+          :key="index"
+          class="m-1 h-4 w-4 cursor-pointer rounded-full border-none bg-white opacity-50"
+          :class="currentSlide === index ? 'opacity-100' : ''"
+          @click="switchSlide(index)"
+        ></button>
+      </div>
+      <transition
         v-for="(slide, index) in slides"
+        v-show="currentSlide === index"
         :key="`item-${index}`"
-        :slide="slide"
-        :current-slide="currentSlide"
-        :index="index"
-        :direction="direction"
+        :name="transitionEffect"
+        class="absolute inset-0"
         @mouseenter="stopSlideTimer"
         @mouseout="startSlideTimer"
-      ></carousel-item>
+      >
+        <div>
+          <img :src="slide" />
+        </div>
+      </transition>
     </div>
   </div>
 </template>
+
+<style scoped>
+.slide-in-enter-active,
+.slide-in-leave-active,
+.slide-out-enter-active,
+.slide-out-leave-active {
+  transition: all 1s ease-in-out;
+}
+.slide-in-enter-from {
+  transform: translateX(-100%);
+}
+.slide-in-leave-to {
+  transform: translateX(100%);
+}
+.slide-out-enter-from {
+  transform: translateX(100%);
+}
+.slide-out-leave-to {
+  transform: translateX(-100%);
+}
+</style>
