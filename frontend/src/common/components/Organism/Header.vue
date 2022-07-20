@@ -1,52 +1,45 @@
 <script setup lang="ts">
 import Dropdown from '../Molecule/Dropdown.vue'
-import IonPersonOutline from '~icons/ion/person-outline'
-interface data {
-  content: string[]
-}
-const props: data = {
-  content: ['Management', 'Settings', 'Logout']
-}
+
+const content = ['Management', 'Settings', 'Logout']
 </script>
 <template>
-  <nav
-    class="header-container sticky top-0 z-50 flex content-center items-center justify-between border-b-[1px] border-b-[#cdcdcd] bg-white px-12 py-4 font-medium opacity-95"
+  <header
+    class="sticky top-0 z-50 flex content-center items-center justify-between border-b border-b-[#cdcdcd] bg-white px-12 py-4 font-medium opacity-95"
   >
-    <a href="/">
+    <router-link to="/">
       <img src="../../assets/signature.png" class="h-12 w-auto" />
-    </a>
-    <div>
-      <a
+    </router-link>
+    <nav>
+      <router-link
         class="text-text-title hover:text-green active:text-green mr-4 text-2xl font-medium hover:no-underline"
-        href="/announcement"
+        to="/announcement"
       >
         Notice
-      </a>
-      <a
+      </router-link>
+      <router-link
         class="text-text-title hover:text-green mr-4 text-2xl font-medium hover:no-underline"
-        href="/contest"
+        to="/contest"
       >
         Contest
-      </a>
-      <a
+      </router-link>
+      <router-link
         class="text-text-title hover:text-green mr-4 text-2xl font-medium hover:no-underline"
-        href="/problem"
+        to="/problem"
       >
         Problem
-      </a>
-      <a
+      </router-link>
+      <router-link
         class="text-text-title hover:text-green mr-8 text-2xl font-medium hover:no-underline"
-        href="/lecture"
+        to="/lecture"
       >
         Group
-      </a>
-    </div>
+      </router-link>
+    </nav>
     <div>
-      <Dropdown v-bind="props">
-        <template #dropdown-icon>
-          <IonPersonOutline class="text-2xl" />
-        </template>
+      <Dropdown :content="content">
+        <template #dropdown-icon>click</template>
       </Dropdown>
     </div>
-  </nav>
+  </header>
 </template>

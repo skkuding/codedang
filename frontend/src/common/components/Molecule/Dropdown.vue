@@ -4,7 +4,7 @@ defineProps<{
   content: string[]
 }>()
 
-let click = ref(false)
+const click = ref(false)
 
 function isClicked() {
   click.value = !click.value
