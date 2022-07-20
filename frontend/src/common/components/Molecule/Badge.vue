@@ -26,7 +26,7 @@ const highlightColor = computed(() => {
       <div :class="highlightColor" class="m-auto h-4 w-4 rounded-full"></div>
     </div>
     <div class="text-gray-dark my-auto mx-2 font-bold">
-      <slot name="text" />
+      <slot />
     </div>
   </div>
 </template>

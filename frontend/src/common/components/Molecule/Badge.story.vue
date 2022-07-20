@@ -4,12 +4,7 @@ import Badge from './Badge.vue'
 
 <template>
   <Story>
-    <Badge color="green">
-      <template #text>Badge</template>
-    </Badge>
-    <h2 class="mt-8 mb-2 text-lg">Another Example</h2>
-    <Badge color="green">
-      <template #text>Compile Error</template>
-    </Badge>
+    <Badge color="green">Badge</Badge>
+    <Badge color="green">Compile Error</Badge>
   </Story>
 </template>
