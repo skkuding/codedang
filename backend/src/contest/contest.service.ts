@@ -5,7 +5,8 @@ import {
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { ContestDto } from './dto/contest.dto'
+import { CreateContestDto } from './dto/create-contest.dto'
+import { UpdateContestDto } from './dto/update-contest.dto'
 
 @Injectable()
 export class ContestService {
@@ -13,7 +14,7 @@ export class ContestService {
 
   async createContest(
     userId: number,
-    contestDto: ContestDto
+    contestDto: CreateContestDto
   ): Promise<Contest> {
     if (!this.isValidPeriod(contestDto.start_time, contestDto.end_time)) {
       throw new UnprocessableDataException(
@@ -45,7 +46,7 @@ export class ContestService {
 
   async updateContest(
     contestId: number,
-    contestDto: ContestDto
+    contestDto: UpdateContestDto
   ): Promise<Contest> {
     const contest: Contest = await this.prisma.contest.findUnique({
       where: {
@@ -55,10 +56,6 @@ export class ContestService {
 
     if (!contest) {
       throw new EntityNotExistException('contest')
-    }
-
-    if (contest.group_id != contestDto.group_id) {
-      throw new UnprocessableDataException('Group cannot be changed')
     }
 
     if (!this.isValidPeriod(contestDto.start_time, contestDto.end_time)) {

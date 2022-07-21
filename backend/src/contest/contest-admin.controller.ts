@@ -6,14 +6,15 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
-  Put,
   Req,
   UnprocessableEntityException,
   UseGuards
 } from '@nestjs/common'
 import { ContestService } from './contest.service'
-import { ContestDto } from './dto/contest.dto'
+import { CreateContestDto } from './dto/create-contest.dto'
+import { UpdateContestDto } from './dto/update-contest.dto'
 import { Contest } from '@prisma/client'
 import {
   EntityNotExistException,
@@ -31,7 +32,7 @@ export class ContestAdminController {
   @Post()
   async createContest(
     @Req() req: AuthenticatedRequest,
-    @Body() contestDto: ContestDto
+    @Body() contestDto: CreateContestDto
   ): Promise<Contest> {
     try {
       return await this.contestService.createContest(req.user.id, contestDto)
@@ -43,10 +44,10 @@ export class ContestAdminController {
     }
   }
 
-  @Put(':id')
+  @Patch(':id')
   async updateContest(
     @Param('id', ParseIntPipe) id: number,
-    @Body() contestDto: ContestDto
+    @Body() contestDto: UpdateContestDto
   ): Promise<Contest> {
     try {
       return await this.contestService.updateContest(id, contestDto)
