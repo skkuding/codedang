@@ -10,20 +10,19 @@ const props = defineProps<{
   complete: number
   progressText?: string
 }>()
-const width = (props.complete / props.total) * 100
 
-const shadowColor = computed(() => {
-  return props.color
-    ? `box-shadow: 0 4px 8px 4px ${props.color};`
-    : 'box-shadow: 0 4px 8px 4px #7a7c7b;'
-})
-const progressColor = computed(() => {
-  return props.color
-    ? `background-color: ${props.color};`
-    : 'background-color: #7a7c7b;'
-})
+const width = computed(() => (props.complete / props.total) * 100)
+
+const shadowColor = computed(
+  () => `box-shadow: 0 4px 8px 4px ${props.color || '#7a7c7b'};`
+)
+
+const progressColor = computed(
+  () => `background-color: ${props.color || '#7a7c7b'};`
+)
+
 const progressWidth = computed(() => {
-  return `width: ${width}%;`
+  return `width: ${width.value}%;`
 })
 </script>
 
@@ -40,7 +39,7 @@ const progressWidth = computed(() => {
         <div
           class="absolute h-6 rounded-full"
           :style="[progressColor, progressWidth]"
-        ></div>
+        />
       </div>
     </div>
   </div>
