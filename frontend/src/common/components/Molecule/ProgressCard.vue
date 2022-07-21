@@ -13,6 +13,7 @@ const props = defineProps<{
 
 const width = computed(() => (props.complete / props.total) * 100)
 
+// TODO: define available color set
 const shadowColor = computed(
   () => `box-shadow: 0 4px 8px 4px ${props.color || '#7a7c7b'};`
 )
