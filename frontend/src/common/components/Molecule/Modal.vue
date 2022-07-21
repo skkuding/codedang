@@ -6,14 +6,13 @@ import { ref } from 'vue'
 const props = defineProps<{
   title: string
   titleColor: string
-  img?: string
 }>()
 
 const ModalStyle = computed(() => {
   if (props.titleColor == 'green') {
-    return 'w-[360px] h-[656px] text-center text-xl text-green'
+    return 'text-center text-xl text-green'
   } else {
-    return 'w-[360px] h-[656px] text-center text-xl text-gray'
+    return 'text-center text-xl text-gray'
   }
 })
 const iconStyle = computed(() => {
@@ -24,7 +23,7 @@ const iconStyle = computed(() => {
   }
 })
 
-let isModalVisible = ref(true)
+const isModalVisible = ref(true)
 
 function close() {
   isModalVisible.value = false
@@ -32,13 +31,9 @@ function close() {
 </script>
 
 <template>
-  <div
-    v-show="isModalVisible"
-    class="relative rounded-lg p-2"
-    :class="ModalStyle"
-  >
-    <div v-show="img" class="my-2 flex justify-center">
-      <img :src="img" class="text-align stroke-green aspect-square w-20" />
+  <div v-show="isModalVisible" class="relative rounded-lg p-2 text-center">
+    <div class="my-2 flex justify-center">
+      <slot name="modal-image"></slot>
       <IconoirCancel
         class="absolute right-0 float-right cursor-pointer"
         :class="iconStyle"
@@ -46,10 +41,9 @@ function close() {
       />
     </div>
     <span :class="ModalStyle">{{ title }}</span>
-    <IconoirCancel
-      v-if="!img"
-      class="float-right cursor-pointer"
-      @click="close"
-    />
+
+    <div>
+      <slot name="modal-content"></slot>
+    </div>
   </div>
 </template>
