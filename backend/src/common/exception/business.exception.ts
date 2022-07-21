@@ -19,3 +19,5 @@ export class EntityNotExistException extends BusinessException {
     super(`${entity} does not exist`)
   }
 }
+
+export class UnprocessableDataException extends BusinessException {}

@@ -2,9 +2,12 @@ import { Injectable } from '@nestjs/common'
 import { Contest } from '@prisma/client'
 import {
   EntityNotExistException,
-  InvalidUserException
+  InvalidUserException,
+  UnprocessableDataException
 } from 'src/common/exception/business.exception'
-import { PrismaService } from '../prisma/prisma.service'
+import { PrismaService } from 'src/prisma/prisma.service'
+import { CreateContestDto } from './dto/create-contest.dto'
+import { UpdateContestDto } from './dto/update-contest.dto'
 
 const contestListselectOption = {
   id: true,
@@ -107,20 +110,6 @@ export class ContestService {
       where: { group_id, visible: true },
       select: contestListselectOption
     })
-
-    // return await this.prisma.userGroup.findFirst({
-    //   where: { user_id, group_id, is_registered: true },
-    //   select: {
-    //     group: {
-    //       select: {
-    //         Contest: {
-    //           where: { group_id, visible: true },
-    //           select: contestListselectOption
-    //         }
-    //       }
-    //     }
-    //   }
-    // })
   }
 
   /* admin */
@@ -156,71 +145,92 @@ export class ContestService {
     return result
   }
 
-  /*
-  // Todo: check select option
-  async getAdminContestById(
-    user_id: number,
-    contest_id: number
-  ): Promise<Partial<Contest>> {
-    // 뒤에서 contest db 너무 들고오길래 처음에 contest id만 가져와서 확인하게 해둠
-    const contestGroupId = await this.prisma.contest.findUnique({
-      where: { id: contest_id },
-      select: { group_id: true }
-    })
-
-    if (!contestGroupId) {
-      throw new EntityNotExistException(`contest ${contest_id}`)
-    }
-    const isUserInGroup = await this.prisma.userGroup.findFirst({
-      where: {
-        user_id,
-        group_id: contestGroupId.group_id,
-        is_group_manager: true
-      },
-      select: { is_group_manager: true }
-    })
-    if (!isUserInGroup) {
-      throw new InvalidUserException(
-        `Contest ${contest_id} is not allowed to user ${user_id}`
+  async createContest(
+    userId: number,
+    contestDto: CreateContestDto
+  ): Promise<Contest> {
+    if (!this.isValidPeriod(contestDto.start_time, contestDto.end_time)) {
+      throw new UnprocessableDataException(
+        'The start time must be earlier than the end time'
       )
     }
 
-    const contest = await this.prisma.contest.findUnique({
-      where: { id: contest_id },
-      select: {
-        title: true,
-        // Todo: notice list (add display id)
-        ContestNotice: {
-          select: {
-            id: true,
-            title: true,
-            update_time: true
-            //,display_id: true
-          }
+    const contest: Contest = await this.prisma.contest.create({
+      data: {
+        title: contestDto.title,
+        description: contestDto.description,
+        description_summary: contestDto.description_summary,
+        start_time: contestDto.start_time,
+        end_time: contestDto.end_time,
+        visible: contestDto.visible,
+        is_rank_visible: contestDto.is_rank_visible,
+        type: contestDto.type,
+        group: {
+          connect: { id: contestDto.group_id }
         },
-        // problem list
-        ContestProblem: {
-          select: {
-            problem: {
-              select: { title: true, difficulty: true, update_time: true }
-            }
-          }
-        },
-        // Todo: submission list (add student id)
-        Submission: {
-          select: {
-            create_time: true, // == submission time
-            user: true, // user : {select: {student_id:true}}
-            problem: {
-              select: { title: true, source: true }
-            },
-            language: true,
-            SubmissionResult: true
-          }
+        created_by: {
+          connect: { id: userId }
         }
       }
     })
+
     return contest
   }
- */
+
+  async updateContest(
+    contestId: number,
+    contestDto: UpdateContestDto
+  ): Promise<Contest> {
+    const contest: Contest = await this.prisma.contest.findUnique({
+      where: {
+        id: contestId
+      }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('contest')
+    }
+
+    if (!this.isValidPeriod(contestDto.start_time, contestDto.end_time)) {
+      throw new UnprocessableDataException(
+        'start time must be earlier than end time'
+      )
+    }
+
+    const updated_contest: Contest = await this.prisma.contest.update({
+      where: {
+        id: contestId
+      },
+      data: {
+        ...contestDto
+      }
+    })
+
+    return updated_contest
+  }
+
+  isValidPeriod(startTime: Date, endTime: Date): boolean {
+    if (startTime > endTime) {
+      return false
+    }
+    return true
+  }
+
+  async deleteContest(contestId: number) {
+    const contest: Contest = await this.prisma.contest.findUnique({
+      where: {
+        id: contestId
+      }
+    })
+
+    if (!contest) {
+      throw new EntityNotExistException('contest')
+    }
+
+    await this.prisma.contest.delete({
+      where: {
+        id: contestId
+      }
+    })
+  }
 }
