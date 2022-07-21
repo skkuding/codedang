@@ -43,25 +43,35 @@ const changeItems = (page: number) => {
   cur.value = page - 1
   curitems.value = nitems.value.slice(cur.value * 3, cur.value * 3 + 3)
 }
+
+// show name when click the row
+const selected = ref('')
+
+const clickRow = (idx: number) => {
+  selected.value = curitems.value[idx].name
+}
 </script>
 
 <template>
   <Story>
     <PaginationTable
       :fields="fields"
-      :items="curitems"
+      :number-of-items="curitems.length"
       placeholder="keywords"
       text="No data"
       :number-of-pages="npage"
       @search="filter"
       @change-page="changeItems"
+      @row-clicked="clickRow"
     >
       <template #name="data">
-        {{ data.row.name }}
+        {{ curitems[data.index].name }}
       </template>
       <template #color="data">
-        {{ data.row.color }}
+        {{ curitems[data.index].color }}
       </template>
     </PaginationTable>
+
+    <div class="mt-10">Click item : {{ selected }}</div>
   </Story>
 </template>

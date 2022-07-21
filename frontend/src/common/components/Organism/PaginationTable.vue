@@ -3,14 +3,12 @@ import SearchBar from '../Molecule/SearchBar.vue'
 import Pagination from '../Molecule/Pagination.vue'
 import { ref } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   fields: {
     key: string
     label?: string
   }[]
-  items: {
-    [key: string]: any
-  }[]
+  numberOfItems: number
   placeholder?: string
   numberOfPages: number
   text?: string // show if there's no data in item
@@ -18,6 +16,8 @@ defineProps<{
   noSearchBar?: boolean
   noPagination?: boolean
 }>()
+
+console.log(props.numberOfItems)
 
 const emit = defineEmits(['row-clicked', 'change-page', 'search'])
 
@@ -59,18 +59,18 @@ const capitalize = (key: string) => {
         </tr>
       </thead>
       <tbody>
-        <tr v-if="items.length === 0">
+        <tr v-if="numberOfItems === 0">
           <td class="p-2.5 pl-4">{{ text }}</td>
         </tr>
         <template v-else>
           <tr
-            v-for="(row, index) in items"
+            v-for="index in numberOfItems"
             :key="index"
             class="hover:bg-gray-light border-gray cursor-pointer border-y"
-            @click="$emit('row-clicked', row)"
+            @click="$emit('row-clicked', index - 1)"
           >
             <td v-for="(field, idx) in fields" :key="idx" class="p-2.5 pl-4">
-              <slot :name="field.key" :row="row" :index="index"></slot>
+              <slot :name="field.key" :index="index - 1"></slot>
             </td>
           </tr>
         </template>
