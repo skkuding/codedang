@@ -47,7 +47,6 @@ model UserProfile {
   user       User     @relation(fields: [userId], references: [id])
   userId     Int      @unique @map("user_id")
   realName   String?  @map("real_name")
-  major      String?
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
