@@ -21,4 +21,6 @@ vscode:
     - esbenp.prettier-vscode
     - johnsoncodehk.volar
     - johnsoncodehk.vscode-typescript-vue-plugin
+    - Orta.vscode-jest
     - prisma.prisma
+    - rangav.vscode-thunder-client
