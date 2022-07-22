@@ -12,7 +12,7 @@ import { UpdateContestDto } from './dto/update-contest.dto'
 const PUBLIC = 1
 
 function returnTextIsNotAllowed(user_id: number, contest_id: number): string {
-  return `Contest ${contest_id} is not allowed to user ${user_id}`
+  return `Contest ${contest_id} is not allowed to User ${user_id}`
 }
 
 const contestListselectOption = {
@@ -99,8 +99,18 @@ export class ContestService {
   // Todo: issue #90
   async createContestRecord(
     user_id: number,
-    contest_id: number
+    contest_id: number,
+    group_id: number
   ): Promise<null | Error> {
+    //contest 존재 여부
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contest_id },
+      select: { start_time: true, end_time: true, type: true }
+    })
+    if (!contest) {
+      throw new EntityNotExistException(`Contest ${contest_id}`)
+    }
+
     //중복 참여 확인 in contestRecord
     const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
       where: { user_id, contest_id },
@@ -108,27 +118,25 @@ export class ContestService {
     })
     if (isAlreadyRecord) {
       throw new InvalidUserException(
-        `User ${user_id} is already participated in contest ${contest_id}`
+        `User ${user_id} is already participated in Contest ${contest_id}`
       )
     }
-    //contest group 확인
-    const contest = await this.prisma.contest.findUnique({
-      where: { id: contest_id },
-      select: { group_id: true, start_time: true, end_time: true, type: true }
-    })
+
     //contest private여부 확인
-    if (contest.group_id !== PUBLIC) {
+    if (group_id !== PUBLIC) {
       //user group인지 확인
       const isUserInGroup = await this.prisma.userGroup.findFirst({
-        where: { user_id, group_id: contest.group_id, is_registered: true },
+        where: { user_id, group_id: group_id, is_registered: true },
         select: { id: true }
       })
+      //contest group 확인
       if (!isUserInGroup) {
         throw new InvalidUserException(
           returnTextIsNotAllowed(user_id, contest_id)
         )
       }
     }
+
     //contest start 전 or contest end 후 -> throw
     const now = new Date()
     if (now < contest.start_time || now >= contest.end_time) {
@@ -143,7 +151,7 @@ export class ContestService {
         data: { contest_id, user_id }
       })
     }
-    // Todo: other contest type -> create contest record
+    // Todo: other contest type -> create other contest record table
     return
   }
 

@@ -29,8 +29,7 @@ const contest: Contest = {
   create_time: new Date(),
   update_time: new Date()
 }
-
-const ongoingContests: Partial<Contest>[] = [
+const ongoingContests: Contest[] = [
   {
     ...contest,
     id: contestId,
@@ -48,7 +47,7 @@ const ongoingContests: Partial<Contest>[] = [
     end_time: new Date('2022-11-07T18:34:23.999175+09:00')
   }
 ]
-const finishedContests: Partial<Contest>[] = [
+const finishedContests: Contest[] = [
   {
     ...contest,
     id: contestId + 3,
@@ -63,7 +62,7 @@ const finishedContests: Partial<Contest>[] = [
     id: contestId + 5
   }
 ]
-const upcomingContests: Partial<Contest>[] = [
+const upcomingContests: Contest[] = [
   {
     ...contest,
     id: contestId + 6,
@@ -84,10 +83,18 @@ const upcomingContests: Partial<Contest>[] = [
     end_time: new Date('2022-11-07T18:34:23.999175+09:00')
   }
 ]
-const contests: Partial<Contest>[] = ongoingContests.concat(
+const ongoingContest: Contest = ongoingContests[0]
+const contests: Contest[] = ongoingContests.concat(
   finishedContests,
   upcomingContests
 )
+const adminContests = {
+  id: groupId,
+  group_name: 'groupname',
+  Contest: contests
+}
+const returnAdminContests = [adminContests, adminContests]
+
 const userGroup: UserGroup = {
   id: 1,
   user_id: userId,
@@ -117,12 +124,26 @@ const group: Group = {
   update_time: new Date()
 }
 
-const adminContests = {
-  id: groupId,
-  group_name: 'groupname',
-  Contest: contests
+const record = {
+  id: 1,
+  contest_id: contestId,
+  user_id: userId,
+  rank: 1,
+  create_time: new Date(),
+  update_time: new Date()
 }
-const returnAdminContests = [adminContests, adminContests]
+
+const contestRankACM = {
+  id: 1,
+  contest_id: contestId,
+  user_id: userId,
+  accepted_problem_num: 0,
+  total_penalty: 0,
+  submission_info: {},
+  create_time: new Date(),
+  update_time: new Date()
+}
+
 const mockPrismaService = {
   contest: {
     findUnique: jest.fn().mockResolvedValue(contest),
@@ -132,6 +153,9 @@ const mockPrismaService = {
     update: jest.fn().mockResolvedValue(contest),
     delete: jest.fn()
   },
+  contestRecord: {
+    findFirst: jest.fn().mockResolvedValue(null)
+  },
   userGroup: {
     findFirst: jest.fn().mockResolvedValue(userGroup),
     findMany: jest.fn().mockResolvedValue(userGroups)
@@ -139,7 +163,14 @@ const mockPrismaService = {
   group: {
     findMany: jest.fn().mockResolvedValue(returnAdminContests),
     findUnique: jest.fn().mockResolvedValue(group)
+  },
+  contestRankACM: {
+    create: jest.fn().mockResolvedValue(contestRankACM)
   }
+}
+
+function returnTextIsNotAllowed(userId: number, contestId: number): string {
+  return `Contest ${contestId} is not allowed to User ${contestId}`
 }
 
 describe('ContestService', () => {
@@ -207,7 +238,9 @@ describe('ContestService', () => {
       mockPrismaService.contest.findUnique.mockResolvedValue(null)
       await expect(
         service.getContestById(userId, contestId)
-      ).rejects.toThrowError(new EntityNotExistException('Contest 1'))
+      ).rejects.toThrowError(
+        new EntityNotExistException(`Contest ${contestId}`)
+      )
     })
 
     it('user가 contest가 속한 group의 멤버가 아니고, contest가 진행중인 상태면 InvalidUserException을 반환한다.', async () => {
@@ -220,7 +253,7 @@ describe('ContestService', () => {
       await expect(
         service.getContestById(userId, contestId)
       ).rejects.toThrowError(
-        new InvalidUserException('Contest 1 is not allowed to user 1')
+        new InvalidUserException(returnTextIsNotAllowed(userId, contestId))
       )
     })
 
@@ -233,7 +266,7 @@ describe('ContestService', () => {
       await expect(
         service.getContestById(userId, contestId)
       ).rejects.toThrowError(
-        new InvalidUserException('Contest 1 is not allowed to user 1')
+        new InvalidUserException(returnTextIsNotAllowed(userId, contestId))
       )
     })
 
@@ -254,12 +287,71 @@ describe('ContestService', () => {
       await expect(
         service.getContestById(userId, contestId)
       ).rejects.toThrowError(
-        new InvalidUserException('Contest 1 is not allowed to user 1')
+        new InvalidUserException(returnTextIsNotAllowed(userId, contestId))
       )
     })
 
     it('user가 contest가 속한 group의 멤버라면 주어진 contest id에 해당하는 대회를 반환한다.', async () => {
       expect(await service.getContestById(userId, contestId)).toEqual(contest)
+    })
+  })
+
+  // Todo: issue #90
+  describe('createContestRecord', () => {
+    beforeEach(() => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(ongoingContest)
+      mockPrismaService.contestRecord.findFirst.mockResolvedValue(null)
+      mockPrismaService.userGroup.findFirst.mockResolvedValue(userGroup)
+    })
+    afterEach(() => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
+      mockPrismaService.contestRecord.findFirst.mockResolvedValue(null)
+      mockPrismaService.userGroup.findFirst.mockResolvedValue(userGroup)
+      mockPrismaService.contest.create.mockClear()
+    })
+
+    it('contest id에 해당하는 contest가 없다면 EntityNotExistException을 반환한다.', async () => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(null)
+      await expect(
+        service.createContestRecord(userId, contestId, groupId)
+      ).rejects.toThrowError(
+        new EntityNotExistException(`Contest ${contestId}`)
+      )
+    })
+
+    it('contest를 중복 참여하는 경우, InvalidUserException을 반환한다.', async () => {
+      mockPrismaService.contestRecord.findFirst.mockResolvedValue(record)
+      await expect(
+        service.createContestRecord(userId, contestId, groupId)
+      ).rejects.toThrowError(
+        new InvalidUserException(
+          `User ${userId} is already participated in Contest ${contestId}`
+        )
+      )
+    })
+
+    it('사용자가 속하지 않은 그룹의 contest일 경우 InvalidUserException을 반환한다.', async () => {
+      mockPrismaService.userGroup.findFirst.mockResolvedValue(null)
+      await expect(
+        service.createContestRecord(userId, contestId, groupId + 1)
+      ).rejects.toThrowError(
+        new InvalidUserException(returnTextIsNotAllowed(userId, contestId))
+      )
+    })
+
+    it('public contest이거나 사용자가 속하는 그룹의 contest지만 contest가 진행 중이 아닐때 InvalidUserException을 반환한다.', async () => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
+      await expect(
+        service.createContestRecord(userId, contestId, groupId)
+      ).rejects.toThrowError(
+        new InvalidUserException(returnTextIsNotAllowed(userId, contestId))
+      )
+    })
+
+    it('contest type이 ACM이면 contestRankACM을 생성한다.', async () => {
+      await service.createContestRecord(userId, contestId, groupId)
+      expect(mockPrismaService.contestRankACM.create).toBeCalledTimes(1)
+      // Todo ?: check value
     })
   })
 
@@ -284,13 +376,14 @@ describe('ContestService', () => {
       await expect(
         service.getContestsByGroupId(userId, groupId)
       ).rejects.toThrowError(
-        new InvalidUserException('User 1 is not in Group 1')
+        new InvalidUserException(`User ${userId} is not in Group ${groupId}`)
       )
     })
 
     it('group id에 해당하는 group이 존재하고, user가 그 group에 소속되어 있다면, 주어진 group id에 해당하는 모든 대회 리스트를 반환한다.', async () => {
-      const result = await service.getContestsByGroupId(userId, groupId)
-      expect(result).toEqual(contests)
+      expect(await service.getContestsByGroupId(userId, groupId)).toEqual(
+        contests
+      )
     })
   })
 
@@ -304,7 +397,7 @@ describe('ContestService', () => {
     it('user가 group manager인 group이 존재하지 않을 때 InvalidUserException을 반환한다.', async () => {
       mockPrismaService.userGroup.findMany.mockResolvedValue(null)
       await expect(service.getAdminContests(userId)).rejects.toThrowError(
-        new InvalidUserException('User 1 is not group manager')
+        new InvalidUserException(`User ${userId} is not group manager`)
       )
     })
 
@@ -328,7 +421,7 @@ describe('ContestService', () => {
       await expect(
         service.getAdminOngoingContests(userId)
       ).rejects.toThrowError(
-        new InvalidUserException('User 1 is not group manager')
+        new InvalidUserException(`User ${userId} is not group manager`)
       )
     })
 

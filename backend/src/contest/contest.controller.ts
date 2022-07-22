@@ -7,7 +7,6 @@ import {
   ParseIntPipe,
   Post,
   Req,
-  UnauthorizedException,
   UseGuards
 } from '@nestjs/common'
 import { Contest } from '@prisma/client'
@@ -18,7 +17,7 @@ import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { ContestService } from './contest.service'
 
 @Controller('group/:group_id/contest')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, GroupMemberGuard)
 export class ContestController {
   constructor(private readonly contestService: ContestService) {}
 
@@ -62,13 +61,17 @@ export class ContestController {
   @Post(':id/participation')
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
-    @Param('id', ParseIntPipe) contestId: number
+    @Param('id', ParseIntPipe) contestId: number,
+    @Param('group_id', ParseIntPipe) groupId: number
   ): Promise<null | Error> {
     try {
-      this.contestService.createContestRecord(req.user.id, contestId)
+      this.contestService.createContestRecord(req.user.id, contestId, groupId)
       return
     } catch (error) {
-      throw new UnauthorizedException(error.message)
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new ForbiddenException(error.message)
     }
   }
 

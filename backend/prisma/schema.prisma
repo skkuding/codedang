@@ -18,18 +18,12 @@ model User {
   id                      Int              @id @default(autoincrement())
   username                String           @unique
   password                String
-<<<<<<< HEAD
+  role                    Role             @default(User)
   email                   String           @unique
   has_email_authenticated Boolean          @default(false)
-=======
-  role                    Role     @default(User)
-  email                   String   @unique
-  has_email_authenticated Boolean  @default(false)
->>>>>>> main
   last_login              DateTime
   create_time             DateTime         @default(now())
   update_time             DateTime         @updatedAt
-  role                    Role             @default(User)
   Contest                 Contest[]
   ContestRankACM          ContestRankACM[]
   ContestRecord           ContestRecord[]
@@ -180,27 +174,6 @@ model Tag {
 }
 
 model Contest {
-<<<<<<< HEAD
-  id              Int              @id @default(autoincrement())
-  created_by_id   Int
-  group_id        Int
-  title           String
-  description     String
-  start_time      DateTime
-  end_time        DateTime
-  visible         Boolean          @default(true)
-  is_rank_visible Boolean          @default(true)
-  type            String           @default("ACM")
-  create_time     DateTime         @default(now())
-  update_time     DateTime         @updatedAt
-  created_by      User             @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
-  group           Group            @relation(fields: [group_id], references: [id])
-  ContestNotice   ContestNotice[]
-  ContestProblem  ContestProblem[]
-  ContestRankACM  ContestRankACM[]
-  ContestRecord   ContestRecord[]
-  Submission      Submission[]
-=======
   id                  Int         @id @default(autoincrement())
   created_by          User        @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
   created_by_id       Int
@@ -222,7 +195,6 @@ model Contest {
   ContestRecord  ContestRecord[]
   ContestRankACM ContestRankACM[]
   Submission     Submission[]
->>>>>>> main
 
   @@map("contest")
 }
@@ -347,16 +319,6 @@ model SubmissionResult {
   @@map("submssion_result")
 }
 
-<<<<<<< HEAD
-enum Role {
-  User
-  GroupAdmin
-  SuperManager
-  SuperAdmin
-}
-
-=======
->>>>>>> main
 enum ContestType {
   ACM
   TotalScore
