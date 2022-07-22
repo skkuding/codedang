@@ -17,9 +17,9 @@ const ModalStyle = computed(() => {
 })
 const iconStyle = computed(() => {
   if (props.titleColor == 'green') {
-    return 'stroke-green'
+    return 'text-green'
   } else {
-    return 'stroke-gray'
+    return 'text-gray'
   }
 })
 
