@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import MaterialSymbolsMenu from '~icons/material-symbols/menu'
 import MaterialSymbolsArrowForwardIosRounded from '~icons/material-symbols/arrow-forward-ios-rounded'
+import { computed } from 'vue'
 
 interface data {
   title: string
   date: string
+  state?: string
 }
 
-defineProps<{
+const props = defineProps<{
   noticelist: data[]
 }>()
 </script>
@@ -31,7 +33,17 @@ defineProps<{
               :key="item.title"
               class="mt-2 flex flex-row align-middle"
             >
-              <td class="mx-1"><slot name="next-to-text-icon"></slot></td>
+              <td class="mx-1">
+                <slot name="notice-icon"></slot>
+                <slot
+                  v-if="item.state === 'ongoing'"
+                  name="contest-icon-ongoing"
+                ></slot>
+                <slot
+                  v-if="item.state === 'prearranged'"
+                  name="contest-icon-prearranged"
+                ></slot>
+              </td>
               <td class="w-2/3">
                 <a href="#">{{ item.title }}</a>
               </td>
