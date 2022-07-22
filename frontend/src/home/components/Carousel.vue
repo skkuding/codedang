@@ -6,9 +6,9 @@ const props = defineProps<{
   slides: string[]
 }>()
 
-let currentSlide = ref(0)
-let slideInterval = ref(0)
-let direction = ref('right')
+const currentSlide = ref(0)
+let slideInterval = 0
+const direction = ref('right')
 
 const setCurrentSlide = (index: number) => {
   currentSlide.value = index
@@ -32,12 +32,12 @@ const next = (step = 1) => {
 }
 const startSlideTimer = () => {
   stopSlideTimer()
-  slideInterval.value = setInterval(() => {
+  slideInterval = setInterval(() => {
     _next()
   }, 3000)
 }
 const stopSlideTimer = () => {
-  clearInterval(slideInterval.value)
+  clearInterval(slideInterval)
 }
 const switchSlide = (index: number) => {
   const step = index - currentSlide.value
@@ -61,14 +61,14 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <div class="flex justify-center">
-    <div class="relative h-[400px] w-[900px] overflow-hidden">
+    <div class="relative h-[600px] w-full overflow-hidden">
       <div class="absolute left-1/2 bottom-5 z-10 -translate-x-1/2">
         <button
-          v-for="(item, index) in slides.length"
+          v-for="index in slides.length"
           :key="index"
           class="m-1 h-4 w-4 cursor-pointer rounded-full border-none bg-white opacity-50"
-          :class="currentSlide === index ? 'opacity-100' : ''"
-          @click="switchSlide(index)"
+          :class="currentSlide === index - 1 ? 'opacity-100' : ''"
+          @click="switchSlide(index - 1)"
         ></button>
       </div>
       <transition
@@ -81,7 +81,7 @@ onBeforeUnmount(() => {
         @mouseout="startSlideTimer"
       >
         <div>
-          <img :src="slide" />
+          <img :src="slide" class="h-full w-full" />
         </div>
       </transition>
     </div>
