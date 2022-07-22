@@ -1,9 +1,12 @@
 import { UserNoticePage } from './notice.interface'
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Notice } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { RequestNoticeDto } from './dto/request-notice.dto'
-import { EntityNotExistException } from 'src/common/exception/business.exception'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from 'src/common/exception/business.exception'
 
 @Injectable()
 export class NoticeService {
@@ -91,10 +94,7 @@ export class NoticeService {
       throw new EntityNotExistException('notice')
     }
     if (noticeExist.group_id != noticeData.group_id) {
-      throw new HttpException(
-        'Group id must not be changed',
-        HttpStatus.BAD_REQUEST
-      )
+      throw new UnprocessableDataException('Group id must not be changed')
     }
 
     const notice = await this.prisma.notice.update({

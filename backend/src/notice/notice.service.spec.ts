@@ -3,8 +3,10 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { Group, Notice } from '@prisma/client'
 import { NoticeService } from './notice.service'
 import { RequestNoticeDto } from './dto/request-notice.dto'
-import { EntityNotExistException } from 'src/common/exception/business.exception'
-import { HttpException } from '@nestjs/common'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from 'src/common/exception/business.exception'
 
 const noticeId = 1
 const userId = 1
@@ -105,7 +107,7 @@ describe('NoticeService', () => {
 
       await expect(
         service.updateNotice(noticeId, invalidNoticeData)
-      ).rejects.toThrow(HttpException)
+      ).rejects.toThrow(UnprocessableDataException)
     })
 
     it('should throw error when given notice does not exist', async () => {

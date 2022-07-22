@@ -9,7 +9,8 @@ import {
   Param,
   ParseIntPipe,
   UseGuards,
-  Req
+  Req,
+  InternalServerErrorException
 } from '@nestjs/common'
 import { RequestNoticeDto } from './dto/request-notice.dto'
 import { NoticeService } from './notice.service'
@@ -17,6 +18,10 @@ import { UserNoticePage } from './notice.interface'
 import { Notice } from '@prisma/client'
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from 'src/common/exception/business.exception'
 
 @Controller('notice')
 export class PublicNoticeController {
@@ -70,7 +75,14 @@ export class NoticeAdminController {
     @Req() req: AuthenticatedRequest,
     @Body() NoticeData: RequestNoticeDto
   ): Promise<Notice> {
-    return await this.noticeService.createNotice(req.user.id, NoticeData)
+    try {
+      return await this.noticeService.createNotice(req.user.id, NoticeData)
+    } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new EntityNotExistException(err.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get()
@@ -100,6 +112,16 @@ export class NoticeAdminController {
     @Param('id', ParseIntPipe) id: number,
     @Body() NoticeData: RequestNoticeDto
   ): Promise<Notice> {
-    return await this.noticeService.updateNotice(id, NoticeData)
+    try {
+      return await this.noticeService.updateNotice(id, NoticeData)
+    } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new EntityNotExistException(err.message)
+      }
+      if (err instanceof UnprocessableDataException) {
+        throw new UnprocessableDataException(err.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 }
