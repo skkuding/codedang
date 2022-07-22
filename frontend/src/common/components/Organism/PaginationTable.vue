@@ -3,7 +3,7 @@ import SearchBar from '../Molecule/SearchBar.vue'
 import Pagination from '../Molecule/Pagination.vue'
 import { ref } from 'vue'
 
-const props = defineProps<{
+defineProps<{
   fields: {
     key: string
     label?: string
@@ -16,8 +16,6 @@ const props = defineProps<{
   noSearchBar?: boolean
   noPagination?: boolean
 }>()
-
-console.log(props.numberOfItems)
 
 const emit = defineEmits(['row-clicked', 'change-page', 'search'])
 
@@ -36,14 +34,15 @@ const capitalize = (key: string) => {
 <template>
   <div>
     <div class="flex justify-end">
+      <slot name="option"></slot>
       <SearchBar
         v-if="!noSearchBar"
         :placeholder="placeholder"
-        class="mb-5"
+        class="ml-5"
         @search="search"
       ></SearchBar>
     </div>
-    <table class="mb-8 w-full table-auto">
+    <table class="w-full table-auto" :class="!noSearchBar ? 'mt-5' : ''">
       <thead v-if="!noHeader">
         <tr class="text-text-title border-gray border-b-2 bg-[#F9F9F9]">
           <th
@@ -80,6 +79,7 @@ const capitalize = (key: string) => {
       <Pagination
         v-if="!noPagination"
         ref="pagination"
+        class="mt-8"
         :number-of-pages="numberOfPages"
         @change-page="(page) => $emit('change-page', page)"
       />
