@@ -11,12 +11,12 @@ model User {
   id                      Int              @id @default(autoincrement())
   username                String           @unique
   password                String
+  role                    Role             @default(User)
   email                   String           @unique
   has_email_authenticated Boolean          @default(false)
   last_login              DateTime
   create_time             DateTime         @default(now())
   update_time             DateTime         @updatedAt
-  role                    Role             @default(User)
   Contest                 Contest[]
   ContestRankACM          ContestRankACM[]
   ContestRecord           ContestRecord[]

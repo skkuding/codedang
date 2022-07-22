@@ -152,7 +152,7 @@ const mockPrismaService = {
     findFirst: jest.fn().mockResolvedValue(contest),
     create: jest.fn().mockResolvedValue(contest),
     update: jest.fn().mockResolvedValue(contest),
-    delete: jest.fn()
+    delete: jest.fn().mockClear()
   },
   contestRecord: {
     findFirst: jest.fn().mockResolvedValue(null)
@@ -172,11 +172,6 @@ const mockPrismaService = {
 
 function returnTextIsNotAllowed(userId: number, contestId: number): string {
   return `Contest ${contestId} is not allowed to User ${contestId}`
-}
-
-const returnAdminOngoingContests = {
-  ...returnAdminContests,
-  Contest: ongoingContests
 }
 
 describe('ContestService', () => {
@@ -613,6 +608,12 @@ describe('ContestService', () => {
   })
   /* public */
   describe('getOngoingContests', () => {
+    beforeEach(() => {
+      mockPrismaService.contest.findMany.mockResolvedValue(ongoingContests)
+    })
+    afterEach(() => {
+      mockPrismaService.contest.findMany.mockResolvedValue(contests)
+    })
     it('진행중인 모든 대회 리스트를 반환한다.', async () => {
       mockPrismaService.contest.findMany.mockResolvedValue(ongoingContests)
       const contests = await service.getOngoingContests()
@@ -621,6 +622,12 @@ describe('ContestService', () => {
   })
 
   describe('getUpcomingContests', () => {
+    beforeEach(() => {
+      mockPrismaService.contest.findMany.mockResolvedValue(upcomingContests)
+    })
+    afterEach(() => {
+      mockPrismaService.contest.findMany.mockResolvedValue(contests)
+    })
     it('아직 시작하지 않은 모든 대회 리스트를 반환한다.', async () => {
       mockPrismaService.contest.findMany.mockResolvedValue(upcomingContests)
       const contests = await service.getUpcomingContests()
@@ -629,6 +636,12 @@ describe('ContestService', () => {
   })
 
   describe('getFinishedContests', () => {
+    beforeEach(() => {
+      mockPrismaService.contest.findMany.mockResolvedValue(finishedContests)
+    })
+    afterEach(() => {
+      mockPrismaService.contest.findMany.mockResolvedValue(contests)
+    })
     it('마감된 모든 대회 리스트를 반환한다.', async () => {
       const contests = await service.getFinishedContests()
       expect(contests).toStrictEqual(finishedContests)
@@ -637,6 +650,10 @@ describe('ContestService', () => {
 
   describe('getUpcomingContests', () => {
     beforeEach(() => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(contest),
+        mockPrismaService.userGroup.findFirst.mockResolvedValue(userGroup)
+    })
+    afterEach(() => {
       mockPrismaService.contest.findUnique.mockResolvedValue(contest),
         mockPrismaService.userGroup.findFirst.mockResolvedValue(userGroup)
     })
@@ -671,8 +688,7 @@ describe('ContestService', () => {
 
     it('user가 contest가 속한 group의 멤버가 아니고, contest가 끝난 상태면 contest id에 해당하는 contest를 반환한다.', async () => {
       mockPrismaService.userGroup.findFirst.mockResolvedValue(null)
-      const result = await service.getContestById(userId, contestId)
-      expect(result).toStrictEqual(contest)
+      expect(await service.getContestById(userId, contestId)).toEqual(contest)
     })
 
     it('user가 contest가 속한 group의 멤버지만, visible==false 이고 user가 group manager가 아니라면 InvalidUserException을 반환한다.', async () => {
@@ -694,8 +710,11 @@ describe('ContestService', () => {
 
   describe('getFinishedContests', () => {
     beforeEach(() => {
-      mockPrismaService.contest.findUnique.mockResolvedValue(contest),
-        mockPrismaService.userGroup.findFirst.mockResolvedValue(userGroup),
+      mockPrismaService.userGroup.findFirst.mockResolvedValue(userGroup),
+        mockPrismaService.group.findUnique.mockResolvedValue(group)
+    })
+    afterEach(() => {
+      mockPrismaService.userGroup.findFirst.mockResolvedValue(userGroup),
         mockPrismaService.group.findUnique.mockResolvedValue(group)
     })
 
@@ -726,11 +745,13 @@ describe('ContestService', () => {
   /* admin */
   describe('getAdminContests', () => {
     beforeEach(() => {
-      mockPrismaService.userGroup.findFirst.mockResolvedValue(userGroup)
-      mockPrismaService.group.findMany.mockResolvedValue(returnAdminContests)
+      mockPrismaService.userGroup.findMany.mockResolvedValue(userGroups)
+    })
+    afterEach(() => {
+      mockPrismaService.userGroup.findMany.mockResolvedValue(userGroups)
     })
     it('user가 group manager인 group이 존재하지 않을 때 InvalidUserException을 반환한다.', async () => {
-      mockPrismaService.userGroup.findFirst.mockResolvedValue(null)
+      mockPrismaService.userGroup.findMany.mockResolvedValue(null)
       await expect(service.getAdminContests(userId)).rejects.toThrowError(
         new InvalidUserException('User 1 is not group manager')
       )
@@ -746,8 +767,17 @@ describe('ContestService', () => {
 
   describe('getAdminOngoingContests', () => {
     beforeEach(() => {
-      mockPrismaService.group.findMany.mockResolvedValue(
-        returnAdminOngoingContests
+      mockPrismaService.userGroup.findMany.mockResolvedValue(userGroups)
+    })
+    afterEach(() => {
+      mockPrismaService.userGroup.findMany.mockResolvedValue(userGroups)
+    })
+    it('user가 group manager인 group이 존재하지 않을 때 InvalidUserException을 반환한다.', async () => {
+      mockPrismaService.userGroup.findMany.mockResolvedValue(null)
+      await expect(
+        service.getAdminOngoingContests(userId)
+      ).rejects.toThrowError(
+        new InvalidUserException('User 1 is not group manager')
       )
     })
     it('user가 group manager인 group의 모든 진행중인 대회 리스트를 반환한다.', async () => {

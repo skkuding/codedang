@@ -7,7 +7,6 @@ import {
   ParseIntPipe,
   Post,
   Req,
-  UnauthorizedException,
   UseGuards
 } from '@nestjs/common'
 import { Contest } from '@prisma/client'
@@ -38,22 +37,6 @@ export class ContestController {
     return await this.contestService.getFinishedContests()
   }
 
-  // Todo: issue #90
-  @UseGuards(JwtAuthGuard)
-  @Post(':id/participation')
-  async createContestRecord(
-    @Req() req: AuthenticatedRequest,
-    @Param('id', ParseIntPipe) contestId: number,
-    @Param('group_id', ParseIntPipe) groupId: number
-  ): Promise<null | Error> {
-    try {
-      this.contestService.createContestRecord(req.user.id, contestId, groupId)
-      return
-    } catch (error) {
-      throw new UnauthorizedException(error.message)
-    }
-  }
-
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getContestById(
@@ -74,8 +57,27 @@ export class ContestController {
     }
   }
 
-  @UseGuards(GroupMemberGuard)
-  @Get()
+  // Todo: issue #90
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/participation')
+  async createContestRecord(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseIntPipe) contestId: number,
+    @Param('group_id', ParseIntPipe) groupId: number
+  ): Promise<null | Error> {
+    try {
+      this.contestService.createContestRecord(req.user.id, contestId, groupId)
+      return
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new ForbiddenException(error.message)
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('group/:id/contest')
   async getContestsByGroupId(
     @Req() req: AuthenticatedRequest,
     @Param('group_id', ParseIntPipe) groupId: number
