@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { Role } from '@prisma/client'
-import { IS_PUBLIC_KEY } from 'src/common/decorator/public.decorator'
 import { ROLES_KEY } from 'src/common/decorator/roles.decorator'
 import { UserService } from 'src/user/user.service'
 import { AuthenticatedRequest } from '../../auth/interface/authenticated-request.interface'
@@ -25,16 +24,12 @@ export class RolesGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass()
-    ])
     const role = this.reflector.getAllAndOverride<Role>(ROLES_KEY, [
       context.getHandler(),
       context.getClass()
     ])
 
-    if (isPublic || !role) {
+    if (!role) {
       return true
     }
 
