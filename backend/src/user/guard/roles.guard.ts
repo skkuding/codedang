@@ -12,14 +12,14 @@ import { AuthenticatedRequest } from '../../auth/interface/authenticated-request
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  rolesHierarchy = {}
+  #rolesHierarchy = {}
 
   constructor(
     private readonly reflector: Reflector,
     private readonly userService: UserService
   ) {
     Object.keys(Role).forEach((key, index) => {
-      this.rolesHierarchy[key] = index
+      this.#rolesHierarchy[key] = index
     })
   }
 
@@ -39,7 +39,7 @@ export class RolesGuard implements CanActivate {
       throw new UnauthorizedException()
     }
 
-    if (this.rolesHierarchy[userRole.role] >= this.rolesHierarchy[role]) {
+    if (this.#rolesHierarchy[userRole.role] >= this.#rolesHierarchy[role]) {
       return true
     }
     return false
