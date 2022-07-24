@@ -1,4 +1,3 @@
-import { ForbiddenException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Contest, ContestType, Group, UserGroup } from '@prisma/client'
 import {
