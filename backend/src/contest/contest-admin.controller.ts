@@ -1,13 +1,7 @@
 import {
-<<<<<<< HEAD
-  ForbiddenException,
-=======
   Body,
   Controller,
->>>>>>> d639b3f (feat(be): add test code)
   Get,
-  Body,
-  Controller,
   Delete,
   InternalServerErrorException,
   NotFoundException,
@@ -38,27 +32,6 @@ import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
   @Get()
-  async getAdminContests(@Req() req: AuthenticatedRequest) {
-    try {
-      const contests = await this.contestService.getAdminContests(req.user.id)
-      return contests
-    } catch (error) {
-      throw new ForbiddenException(error.message)
-    }
-  }
-
-  @Get('ongoing')
-  async getAdminOngoingContests(@Req() req: AuthenticatedRequest) {
-    try {
-      const contests = await this.contestService.getAdminOngoingContests(
-        req.user.id
-      )
-      return contests
-    } catch (error) {
-      throw new ForbiddenException(error.message)
-    }
-  }
-
   @Post()
   async createContest(
     @Req() req: AuthenticatedRequest,
@@ -104,8 +77,6 @@ export class ContestAdminController {
     }
   }
 
-<<<<<<< HEAD
-=======
   @Get()
   async getAdminContests(@Req() req: AuthenticatedRequest) {
     try {
@@ -129,7 +100,6 @@ export class ContestAdminController {
   }
 
   /*
->>>>>>> d639b3f (feat(be): add test code)
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   async getAdminContestById(
