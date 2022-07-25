@@ -12,7 +12,43 @@ import {
 export class NoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(group_id: number, offset: number): Promise<Partial<Notice>[]> {
+  async createNotice(
+    userId: number,
+    noticeData: RequestNoticeDto
+  ): Promise<Notice> {
+    //TODO: user authentication
+
+    const group = await this.prisma.group.findUnique({
+      where: {
+        id: noticeData.group_id
+      }
+    })
+    if (!group) {
+      throw new EntityNotExistException('group')
+    }
+
+    const notice = await this.prisma.notice.create({
+      data: {
+        title: noticeData.title,
+        content: noticeData.content,
+        visible: noticeData.visible,
+        fixed: noticeData.fixed,
+        group: {
+          connect: { id: noticeData.group_id }
+        },
+        created_by: {
+          connect: { id: userId }
+        }
+      }
+    })
+
+    return notice
+  }
+
+  async getNoticesByGroupId(
+    group_id: number,
+    offset: number
+  ): Promise<Partial<Notice>[]> {
     return await this.prisma.notice.findMany({
       where: {
         group_id: group_id,
@@ -28,7 +64,7 @@ export class NoticeService {
     })
   }
 
-  async findOne(id: number, group_id: number): Promise<UserNoticePage> {
+  async getNotice(id: number, group_id: number): Promise<UserNoticePage> {
     const current = await this.prisma.notice.findFirst({
       where: {
         id: id,
@@ -80,15 +116,58 @@ export class NoticeService {
     return notice
   }
 
+  async getAdminNotices(
+    id: number,
+    offset: number
+  ): Promise<Partial<Notice>[]> {
+    return await this.prisma.notice.findMany({
+      where: {
+        created_by_id: id
+      },
+      select: {
+        id: true,
+        group: true,
+        title: true,
+        create_time: true,
+        visible: true
+      },
+      skip: offset - 1,
+      take: 5
+    })
+  }
+
+  async getAdminNotice(id: number): Promise<Partial<Notice>> {
+    return await this.prisma.notice.findUnique({
+      where: {
+        id: id
+      },
+      select: {
+        group: {
+          select: {
+            id: true,
+            group_name: true
+          }
+        },
+        title: true,
+        content: true,
+        visible: true,
+        fixed: true
+      },
+      rejectOnNotFound: true
+    })
+  }
+
   async updateNotice(
     id: number,
     noticeData: RequestNoticeDto
   ): Promise<Notice> {
+    //TODO: user authentication
     const noticeExist = await this.prisma.notice.findUnique({
       where: {
         id: id
       }
     })
+
     if (!noticeExist) {
       throw new EntityNotExistException('notice')
     }
@@ -111,45 +190,7 @@ export class NoticeService {
     return notice
   }
 
-  async findOwn(id: number, offset: number): Promise<Partial<Notice>[]> {
-    return await this.prisma.notice.findMany({
-      where: {
-        created_by_id: id
-      },
-      select: {
-        id: true,
-        group: true,
-        title: true,
-        create_time: true,
-        visible: true
-      },
-      skip: offset - 1,
-      take: 5
-    })
-  }
-
-  async findDetail(id: number): Promise<Partial<Notice>> {
-    return await this.prisma.notice.findUnique({
-      where: {
-        id: id
-      },
-      select: {
-        group: {
-          select: {
-            id: true,
-            group_name: true
-          }
-        },
-        title: true,
-        content: true,
-        visible: true,
-        fixed: true
-      },
-      rejectOnNotFound: true
-    })
-  }
-
-  async delete(id: number): Promise<{ success: boolean }> {
+  async deleteNotice(id: number): Promise<{ success: boolean }> {
     await this.prisma.notice.findUnique({
       where: {
         id: id
@@ -163,36 +204,5 @@ export class NoticeService {
       }
     })
     return { success: true }
-  }
-
-  async createNotice(
-    userId: number,
-    noticeData: RequestNoticeDto
-  ): Promise<Notice> {
-    const group = await this.prisma.group.findUnique({
-      where: {
-        id: noticeData.group_id
-      }
-    })
-    if (!group) {
-      throw new EntityNotExistException('group')
-    }
-
-    const notice = await this.prisma.notice.create({
-      data: {
-        title: noticeData.title,
-        content: noticeData.content,
-        visible: noticeData.visible,
-        fixed: noticeData.fixed,
-        group: {
-          connect: { id: noticeData.group_id }
-        },
-        created_by: {
-          connect: { id: userId }
-        }
-      }
-    })
-
-    return notice
   }
 }
