@@ -18,15 +18,14 @@ enum Role {
 }
 
 model User {
-  id                    Int      @id @default(autoincrement())
-  username              String   @unique
-  password              String
-  role                  Role     @default(User)
-  email                 String   @unique
-  hasEmailAuthenticated Boolean  @default(false) @map("has_email_authenticated")
-  lastLogin             DateTime @map("last_login")
-  createTime            DateTime @default(now()) @map("create_time")
-  updateTime            DateTime @updatedAt @map("update_time")
+  id         Int      @id @default(autoincrement())
+  username   String   @unique
+  password   String
+  role       Role     @default(User)
+  email      String   @unique
+  lastLogin  DateTime @map("last_login")
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
 
   UserProfile    UserProfile?
   UserGroup      UserGroup[]
@@ -105,27 +104,27 @@ model Notice {
 }
 
 model Problem {
-  id                Int      @id @default(autoincrement())
-  createdBy         User     @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  createdById       Int      @map("created_by_id")
-  group             Group    @relation(fields: [groupId], references: [id])
-  groupId           Int      @map("group_id")
-  title             String
-  description       String
-  inputDescription  String   @map("input_description")
-  outputDescription String   @map("output_description")
-  hint              String
-  languages         Json
-  timeLimit         Int      @map("time_limit")
-  memoryLimit       Int      @map("memory_limit")
-  difficulty        String
-  source            Json
-  shared            Boolean  @default(false)
-  submissionNum     Int      @default(0) @map("submission_num")
-  acceptedNum       Int      @default(0) @map("accepted_num")
-  score             Int      @default(0)
-  createTime        DateTime @default(now()) @map("create_time")
-  updateTime        DateTime @updatedAt @map("update_time")
+  id                 Int      @id @default(autoincrement())
+  created_by         User     @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
+  created_by_id      Int
+  group              Group    @relation(fields: [group_id], references: [id])
+  group_id           Int
+  title              String
+  description        String
+  input_description  String
+  output_description String
+  hint               String
+  languages          Json
+  time_limit         Int
+  memory_limit       Int
+  difficulty         String
+  source             Json
+  shared             Boolean  @default(false)
+  submission_num     Int      @default(0)
+  accepted_num       Int      @default(0)
+  score              Int      @default(0)
+  create_time        DateTime @default(now())
+  update_time        DateTime @updatedAt
 
   ProblemTestcase ProblemTestcase[]
   ProblemTag      ProblemTag[]
