@@ -47,6 +47,7 @@ export class AuthController {
     try {
       const jwtTokens = await this.authService.issueJwtTokens(loginUserDto)
       this.setJwtResponse(res, jwtTokens)
+      await this.authService.updateLastLogin(loginUserDto.username)
       return
     } catch (error) {
       if (error instanceof InvalidUserException) {
