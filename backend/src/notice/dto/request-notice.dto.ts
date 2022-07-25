@@ -1,12 +1,7 @@
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsNumberString,
-  IsString
-} from 'class-validator'
+import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
 export class RequestNoticeDto {
-  @IsNumberString()
+  @IsNumber()
   @IsNotEmpty()
   group_id: number
 
