@@ -3,6 +3,7 @@ import {
   PublicNoticeController,
   GroupNoticeController
 } from './notice.controller'
+import { NoticeAdminController } from './notice-admin.controller'
 import { NoticeService } from './notice.service'
 
 describe('PublicNoticeController', () => {
@@ -32,6 +33,23 @@ describe('GroupNoticeController', () => {
     }).compile()
 
     controller = module.get<GroupNoticeController>(GroupNoticeController)
+  })
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined()
+  })
+})
+
+describe('GroupNoticeController', () => {
+  let controller: NoticeAdminController
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [NoticeAdminController],
+      providers: [{ provide: NoticeService, useValue: {} }]
+    }).compile()
+
+    controller = module.get<NoticeAdminController>(NoticeAdminController)
   })
 
   it('should be defined', () => {
