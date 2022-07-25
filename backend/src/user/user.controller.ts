@@ -86,4 +86,17 @@ export class UserController {
       throw new InternalServerErrorException('password reset failed')
     }
   }
+
+  @Post('/signup')
+  async signUp(@Body() signUpDto: SignUpDto) {
+    try {
+      await this.userService.signUp(signUpDto)
+      return
+    } catch (err) {
+      if (err instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(err.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
 }
