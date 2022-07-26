@@ -11,29 +11,23 @@ defineProps<{
 </script>
 
 <template>
-  <div class="mb-3 w-full max-w-[610px] rounded-lg p-5 shadow-xl">
-    <div class="flex w-full flex-col">
-      <div class="mb-3 flex w-full flex-row justify-between align-middle">
-        <div class="flex"><slot name="title"></slot></div>
-        <IconMenu class="cursor-pointer hover:opacity-50" />
-      </div>
-      <ul>
-        <li
-          v-for="item in items"
-          :key="item.title"
-          class="mt-2 flex flex-row align-middle"
-        >
-          <div class="mx-1">
-            <slot name="icon" :item="item.state"></slot>
-          </div>
-          <div class="w-2/3">
-            <a href="#">{{ item.title }}</a>
-          </div>
-          <div class="w-1/3 text-right">
-            <a href="#">{{ item.date }}</a>
-          </div>
-        </li>
-      </ul>
+  <section class="w-full rounded-lg p-5 shadow-xl">
+    <div class="mb-4 flex justify-between text-xl font-bold">
+      <span class="flex items-center">
+        <slot name="title" />
+      </span>
+      <IconMenu class="cursor-pointer hover:opacity-50 active:opacity-30" />
     </div>
-  </div>
+    <ul class="flex flex-col gap-1">
+      <li
+        v-for="item in items"
+        :key="item.title"
+        class="hover:bg-gray/25 active:bg-gray/50 flex cursor-pointer items-center rounded p-1"
+      >
+        <span><slot name="icon" :item="item.state" /></span>
+        <span class="ml-2 mr-auto">{{ item.title }}</span>
+        <span class="text-right">{{ item.date }}</span>
+      </li>
+    </ul>
+  </section>
 </template>

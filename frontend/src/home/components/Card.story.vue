@@ -39,10 +39,10 @@ const contestItems = [
 <template>
   <Story>
     <Variant title="Notices">
-      <Card :items="noticeItems">
+      <Card :items="noticeItems" class="max-w-2xl">
         <template #title>
           <IconInfo />
-          <span class="ml-2">Notice</span>
+          <h2 class="ml-2">Notice</h2>
         </template>
 
         <template #icon>
@@ -52,17 +52,15 @@ const contestItems = [
     </Variant>
 
     <Variant title="Contests">
-      <Card :items="contestItems">
+      <Card :items="contestItems" class="max-w-2xl">
         <template #title>
           <IconMedal />
-          <span class="ml-2">Current/Upcoming Contests</span>
+          <h2 class="ml-2">Current/Upcoming Contests</h2>
         </template>
 
         <template #icon="item">
-          <a href="#">
-            <IconEllipsis v-if="item.item === 'ongoing'" />
-            <IconCalendar v-else />
-          </a>
+          <IconEllipsis v-if="item.item === 'ongoing'" />
+          <IconCalendar v-else />
         </template>
       </Card>
     </Variant>
