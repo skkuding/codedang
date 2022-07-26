@@ -6,13 +6,7 @@ import IconMedal from '~icons/fa6-solid/medal'
 import IconEllipsis from '~icons/fa6-solid/ellipsis'
 import IconCalendar from '~icons/fa6-solid/calendar'
 
-interface data {
-  title: string
-  date: string
-  state?: string
-}
-
-const noticeitemlist: data[] = [
+const noticeItems = [
   {
     title: 'SKKU Coding Platform 모의대회 결과 및 솔루션',
     date: 'Jan 9,2021'
@@ -23,7 +17,7 @@ const noticeitemlist: data[] = [
   }
 ]
 
-const contestitemlist: data[] = [
+const contestItems = [
   {
     title: 'SKKU Coding Platform 모의대회',
     date: 'Jan 9,2021',
@@ -45,7 +39,7 @@ const contestitemlist: data[] = [
 <template>
   <Story>
     <Variant title="Notices">
-      <Card :carditemlist="noticeitemlist">
+      <Card :items="noticeItems">
         <template #title>
           <IconInfo />
           <span class="ml-2">Notice</span>
@@ -58,7 +52,7 @@ const contestitemlist: data[] = [
     </Variant>
 
     <Variant title="Contests">
-      <Card :carditemlist="contestitemlist">
+      <Card :items="contestItems">
         <template #title>
           <IconMedal />
           <span class="ml-2">Current/Upcoming Contests</span>

@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import IconMenu from '~icons/fa6-solid/bars'
 
-interface data {
-  title: string
-  date: string
-  state?: string
-}
-
 defineProps<{
-  carditemlist: data[]
+  items: {
+    title: string
+    date: string
+    state?: string
+  }[]
 }>()
 </script>
 
@@ -21,7 +19,7 @@ defineProps<{
       </div>
       <ul>
         <li
-          v-for="item in carditemlist"
+          v-for="item in items"
           :key="item.title"
           class="mt-2 flex flex-row align-middle"
         >
