@@ -3,10 +3,13 @@ import {
   Get,
   Query,
   Param,
-  ParseIntPipe
+  ParseIntPipe,
+  UseGuards
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
 import { Notice } from '@prisma/client'
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
+import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { UserNotice } from './interface/user-notice.interface'
 
 @Controller('notice')
@@ -27,6 +30,7 @@ export class PublicNoticeController {
 }
 
 @Controller('group/:group_id/notice')
+@UseGuards(JwtAuthGuard, GroupMemberGuard)
 export class GroupNoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
@@ -35,7 +39,6 @@ export class GroupNoticeController {
     @Param('group_id', ParseIntPipe) group_id: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
-    // TODO: check if the user has access to this group
     return await this.noticeService.getNoticesByGroupId(group_id, offset)
   }
 
@@ -43,8 +46,7 @@ export class GroupNoticeController {
   async getNotice(
     @Param('id', ParseIntPipe) id: number,
     @Param('group_id', ParseIntPipe) group_id: number
-  ): Promise<UserNoticePage> {
-    // TODO: check if the user has access to this group
+  ): Promise<UserNotice> {
     return await this.noticeService.getNotice(id, group_id)
   }
 }

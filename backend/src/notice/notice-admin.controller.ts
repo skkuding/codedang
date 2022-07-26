@@ -15,6 +15,7 @@ import {
 import { NoticeService } from './notice.service'
 import { Notice } from '@prisma/client'
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
+import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { RequestNoticeDto } from './dto/request-notice.dto'
 import {

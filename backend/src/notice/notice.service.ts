@@ -155,11 +155,7 @@ export class NoticeService {
     })
   }
 
-  async updateNotice(
-    id: number,
-    noticeData: RequestNoticeDto
-  ): Promise<Notice> {
-    //TODO: user authentication
+  async updateNotice(id: number, noticeDto: RequestNoticeDto): Promise<Notice> {
     const noticeExist = await this.prisma.notice.findUnique({
       where: {
         id: id
