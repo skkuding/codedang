@@ -25,10 +25,14 @@ import { LoginUserDto } from './dto/login-user.dto'
 import { JwtAuthGuard } from './guard/jwt-auth.guard'
 import { AuthenticatedRequest } from './interface/authenticated-request.interface'
 import { JwtTokens } from './interface/jwt.interface'
+import { UserService } from 'src/user/user.service'
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UserService
+  ) {}
 
   setJwtResponse = (res: Response, jwtTokens: JwtTokens) => {
     res.setHeader('authorization', `${AUTH_TYPE} ${jwtTokens.accessToken}`)
@@ -47,7 +51,7 @@ export class AuthController {
     try {
       const jwtTokens = await this.authService.issueJwtTokens(loginUserDto)
       this.setJwtResponse(res, jwtTokens)
-      await this.authService.updateLastLogin(loginUserDto.username)
+      await this.userService.updateLastLogin(loginUserDto.username)
       return
     } catch (error) {
       if (error instanceof InvalidUserException) {

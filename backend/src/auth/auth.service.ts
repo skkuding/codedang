@@ -18,12 +18,10 @@ import {
 } from './constants/jwt.constants'
 import { LoginUserDto } from './dto/login-user.dto'
 import { JwtObject, JwtPayload, JwtTokens } from './interface/jwt.interface'
-import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly prisma: PrismaService,
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
@@ -94,13 +92,6 @@ export class AuthService {
     })
 
     return { accessToken, refreshToken }
-  }
-
-  async updateLastLogin(username: string) {
-    await this.prisma.user.update({
-      where: { username },
-      data: { last_login: new Date() }
-    })
   }
 
   async deleteRefreshToken(userId: number) {
