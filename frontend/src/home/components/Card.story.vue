@@ -43,31 +43,33 @@ const contestitemlist: data[] = [
 
 <template>
   <Story>
-    <Card :carditemlist="noticeitemlist">
-      <template #title>
-        <GridiconsNoticeOutline class="text-text-title text-xl" />
-        <span class="ml-2">Notice</span>
-      </template>
+    <Variant title="Notices">
+      <Card :carditemlist="noticeitemlist">
+        <template #title>
+          <GridiconsNoticeOutline class="text-text-title text-xl" />
+          <span class="ml-2">Notice</span>
+        </template>
 
-      <template #icon>
-        <a href="#"><MdiDotsHorizontal /></a>
-      </template>
-    </Card>
+        <template #icon>
+          <a href="#"><MdiDotsHorizontal /></a>
+        </template>
+      </Card>
+    </Variant>
 
-    <h1 class="m-4 text-xl">Another Example</h1>
+    <Variant title="Contests">
+      <Card :carditemlist="contestitemlist">
+        <template #title>
+          <FaSolidMedal class="text-text-title text-xl" />
+          <span class="ml-2">Current/Upcoming Contests</span>
+        </template>
 
-    <Card :carditemlist="contestitemlist">
-      <template #title>
-        <FaSolidMedal class="text-text-title text-xl" />
-        <span class="ml-2">Current/Upcoming Contests</span>
-      </template>
-
-      <template #icon="item">
-        <a href="#">
-          <MdiDotsHorizontal v-if="item.item === 'ongoing'" />
-          <Fa6RegularCalendar v-else />
-        </a>
-      </template>
-    </Card>
+        <template #icon="item">
+          <a href="#">
+            <MdiDotsHorizontal v-if="item.item === 'ongoing'" />
+            <Fa6RegularCalendar v-else />
+          </a>
+        </template>
+      </Card>
+    </Variant>
   </Story>
 </template>
