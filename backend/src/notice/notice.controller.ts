@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   UseGuards,
+  NotFoundException,
   InternalServerErrorException
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
@@ -27,7 +28,14 @@ export class PublicNoticeController {
 
   @Get(':id')
   async getNotice(@Param('id', ParseIntPipe) id: number): Promise<UserNotice> {
-    return await this.noticeService.getNotice(id, 1)
+    try {
+      return await this.noticeService.getNotice(id, 1)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 }
 
@@ -51,9 +59,9 @@ export class GroupNoticeController {
   ): Promise<UserNotice> {
     try {
       return await this.noticeService.getNotice(id, group_id)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new EntityNotExistException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
       throw new InternalServerErrorException()
     }

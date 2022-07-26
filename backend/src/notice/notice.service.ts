@@ -111,6 +111,7 @@ export class NoticeService {
         title: true
       }
     })
+
     return notice
   }
 

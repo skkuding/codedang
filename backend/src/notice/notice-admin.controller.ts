@@ -10,7 +10,8 @@ import {
   Body,
   ParseIntPipe,
   UseGuards,
-  InternalServerErrorException
+  InternalServerErrorException,
+  NotFoundException
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
 import { Notice } from '@prisma/client'
@@ -35,9 +36,9 @@ export class NoticeAdminController {
   ): Promise<Notice> {
     try {
       return await this.noticeService.createNotice(req.user.id, noticeDto)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new EntityNotExistException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -57,9 +58,9 @@ export class NoticeAdminController {
   ): Promise<Partial<Notice>> {
     try {
       return await this.noticeService.getAdminNotice(id)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new EntityNotExistException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -72,12 +73,12 @@ export class NoticeAdminController {
   ): Promise<Notice> {
     try {
       return await this.noticeService.updateNotice(id, noticeDto)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new EntityNotExistException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
-      if (err instanceof UnprocessableDataException) {
-        throw new UnprocessableDataException(err.message)
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableDataException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -87,9 +88,9 @@ export class NoticeAdminController {
   async delete(@Param('id', ParseIntPipe) id: number) {
     try {
       await this.noticeService.deleteNotice(id)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new EntityNotExistException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
       throw new InternalServerErrorException()
     }
