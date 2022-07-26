@@ -1,4 +1,4 @@
-import { UserNoticePage } from './notice.interface'
+import { UserNotice } from './interface/user-notice.interface'
 import { Injectable } from '@nestjs/common'
 import { Notice } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
@@ -14,13 +14,11 @@ export class NoticeService {
 
   async createNotice(
     userId: number,
-    noticeData: RequestNoticeDto
+    noticeDto: RequestNoticeDto
   ): Promise<Notice> {
-    //TODO: user authentication
-
     const group = await this.prisma.group.findUnique({
       where: {
-        id: noticeData.group_id
+        id: noticeDto.group_id
       }
     })
     if (!group) {
@@ -29,12 +27,12 @@ export class NoticeService {
 
     const notice = await this.prisma.notice.create({
       data: {
-        title: noticeData.title,
-        content: noticeData.content,
-        visible: noticeData.visible,
-        fixed: noticeData.fixed,
+        title: noticeDto.title,
+        content: noticeDto.content,
+        visible: noticeDto.visible,
+        fixed: noticeDto.fixed,
         group: {
-          connect: { id: noticeData.group_id }
+          connect: { id: noticeDto.group_id }
         },
         created_by: {
           connect: { id: userId }
@@ -64,7 +62,7 @@ export class NoticeService {
     })
   }
 
-  async getNotice(id: number, group_id: number): Promise<UserNoticePage> {
+  async getNotice(id: number, group_id: number): Promise<UserNotice> {
     const current = await this.prisma.notice.findFirst({
       where: {
         id: id,
@@ -171,7 +169,7 @@ export class NoticeService {
     if (!noticeExist) {
       throw new EntityNotExistException('notice')
     }
-    if (noticeExist.group_id != noticeData.group_id) {
+    if (noticeExist.group_id != noticeDto.group_id) {
       throw new UnprocessableDataException('Group id must not be changed')
     }
 
@@ -180,17 +178,17 @@ export class NoticeService {
         id: id
       },
       data: {
-        title: noticeData.title,
-        content: noticeData.content,
-        visible: noticeData.visible,
-        fixed: noticeData.fixed
+        title: noticeDto.title,
+        content: noticeDto.content,
+        visible: noticeDto.visible,
+        fixed: noticeDto.fixed
       }
     })
 
     return notice
   }
 
-  async deleteNotice(id: number): Promise<{ success: boolean }> {
+  async deleteNotice(id: number) {
     await this.prisma.notice.findUnique({
       where: {
         id: id
@@ -203,6 +201,5 @@ export class NoticeService {
         id: id
       }
     })
-    return { success: true }
   }
 }

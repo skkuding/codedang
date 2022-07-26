@@ -1,6 +1,6 @@
 import { Notice } from '@prisma/client'
 
-export interface UserNoticePage {
+export interface UserNotice {
   current: Partial<Notice>
   prev?: {
     id: number

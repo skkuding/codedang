@@ -2,38 +2,38 @@ import {
   Controller,
   Get,
   Delete,
-  Query,
   Put,
   Post,
-  Body,
+  Req,
+  Query,
   Param,
+  Body,
   ParseIntPipe,
   UseGuards,
-  Req,
   InternalServerErrorException
 } from '@nestjs/common'
-import { RequestNoticeDto } from './dto/request-notice.dto'
 import { NoticeService } from './notice.service'
 import { Notice } from '@prisma/client'
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { RequestNoticeDto } from './dto/request-notice.dto'
 import {
   EntityNotExistException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 
-@Controller('admin/:user_id/notice')
-@UseGuards(JwtAuthGuard)
+@Controller('admin/notice')
+@UseGuards(JwtAuthGuard, GroupManagerGuard)
 export class NoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Post()
   async createNotice(
     @Req() req: AuthenticatedRequest,
-    @Body() NoticeData: RequestNoticeDto
+    @Body() noticeDto: RequestNoticeDto
   ): Promise<Notice> {
     try {
-      return await this.noticeService.createNotice(req.user.id, NoticeData)
+      return await this.noticeService.createNotice(req.user.id, noticeDto)
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new EntityNotExistException(err.message)
@@ -44,10 +44,10 @@ export class NoticeAdminController {
 
   @Get()
   async getAdminNotices(
-    @Param('user_id', ParseIntPipe) userId: number,
+    @Req() req: AuthenticatedRequest,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getAdminNotices(userId, offset)
+    return await this.noticeService.getAdminNotices(req.user.id, offset)
   }
 
   @Get(':id')
@@ -60,10 +60,10 @@ export class NoticeAdminController {
   @Put(':id')
   async updateNotice(
     @Param('id', ParseIntPipe) id: number,
-    @Body() NoticeData: RequestNoticeDto
+    @Body() noticeDto: RequestNoticeDto
   ): Promise<Notice> {
     try {
-      return await this.noticeService.updateNotice(id, NoticeData)
+      return await this.noticeService.updateNotice(id, noticeDto)
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new EntityNotExistException(err.message)
@@ -76,9 +76,7 @@ export class NoticeAdminController {
   }
 
   @Delete(':id')
-  async delete(
-    @Param('id', ParseIntPipe) id: number
-  ): Promise<{ success: boolean }> {
-    return await this.noticeService.deleteNotice(id)
+  async delete(@Param('id', ParseIntPipe) id: number) {
+    await this.noticeService.deleteNotice(id)
   }
 }

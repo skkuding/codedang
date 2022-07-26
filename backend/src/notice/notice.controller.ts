@@ -1,7 +1,13 @@
-import { Controller, Get, Query, Param, ParseIntPipe } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Query,
+  Param,
+  ParseIntPipe
+} from '@nestjs/common'
 import { NoticeService } from './notice.service'
-import { UserNoticePage } from './notice.interface'
 import { Notice } from '@prisma/client'
+import { UserNotice } from './interface/user-notice.interface'
 
 @Controller('notice')
 export class PublicNoticeController {
@@ -15,9 +21,7 @@ export class PublicNoticeController {
   }
 
   @Get(':id')
-  async getNotice(
-    @Param('id', ParseIntPipe) id: number
-  ): Promise<UserNoticePage> {
+  async getNotice(@Param('id', ParseIntPipe) id: number): Promise<UserNotice> {
     return await this.noticeService.getNotice(id, 1)
   }
 }
