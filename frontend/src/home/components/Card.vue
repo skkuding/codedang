@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import MaterialSymbolsMenu from '~icons/material-symbols/menu'
-import MaterialSymbolsArrowForwardIosRounded from '~icons/material-symbols/arrow-forward-ios-rounded'
-import { computed } from 'vue'
 
 interface data {
   title: string
@@ -9,7 +7,7 @@ interface data {
   state?: string
 }
 
-const props = defineProps<{
+defineProps<{
   carditemlist: data[]
 }>()
 </script>

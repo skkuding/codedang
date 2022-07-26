@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import Card from './Card.vue'
 import GridiconsNoticeOutline from '~icons/gridicons/notice-outline'
-import MaterialSymbolsArrowForwardIosRounded from '~icons/material-symbols/arrow-forward-ios-rounded'
 import MdiDotsHorizontal from '~icons/mdi/dots-horizontal'
 import Fa6RegularCalendar from '~icons/fa6-regular/calendar'
 import FaSolidMedal from '~icons/fa-solid/medal'
-import { computed } from 'vue'
+
 interface data {
   title: string
   date: string
   state?: string
 }
+
 const noticeitemlist: data[] = [
   {
     title: 'SKKU Coding Platform 모의대회 결과 및 솔루션',
@@ -21,6 +21,7 @@ const noticeitemlist: data[] = [
     date: 'Dec 31,2020'
   }
 ]
+
 const contestitemlist: data[] = [
   {
     title: 'SKKU Coding Platform 모의대회',
