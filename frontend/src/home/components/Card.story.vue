@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import Card from './Card.vue'
-import GridiconsNoticeOutline from '~icons/gridicons/notice-outline'
-import MdiDotsHorizontal from '~icons/mdi/dots-horizontal'
-import Fa6RegularCalendar from '~icons/fa6-regular/calendar'
-import FaSolidMedal from '~icons/fa-solid/medal'
+import IconInfo from '~icons/fa6-solid/circle-info'
+import IconAngleRight from '~icons/fa6-solid/angle-right'
+import IconMedal from '~icons/fa6-solid/medal'
+import IconEllipsis from '~icons/fa6-solid/ellipsis'
+import IconCalendar from '~icons/fa6-solid/calendar'
 
 interface data {
   title: string
@@ -46,12 +47,12 @@ const contestitemlist: data[] = [
     <Variant title="Notices">
       <Card :carditemlist="noticeitemlist">
         <template #title>
-          <GridiconsNoticeOutline class="text-text-title text-xl" />
+          <IconInfo />
           <span class="ml-2">Notice</span>
         </template>
 
         <template #icon>
-          <a href="#"><MdiDotsHorizontal /></a>
+          <IconAngleRight />
         </template>
       </Card>
     </Variant>
@@ -59,14 +60,14 @@ const contestitemlist: data[] = [
     <Variant title="Contests">
       <Card :carditemlist="contestitemlist">
         <template #title>
-          <FaSolidMedal class="text-text-title text-xl" />
+          <IconMedal />
           <span class="ml-2">Current/Upcoming Contests</span>
         </template>
 
         <template #icon="item">
           <a href="#">
-            <MdiDotsHorizontal v-if="item.item === 'ongoing'" />
-            <Fa6RegularCalendar v-else />
+            <IconEllipsis v-if="item.item === 'ongoing'" />
+            <IconCalendar v-else />
           </a>
         </template>
       </Card>

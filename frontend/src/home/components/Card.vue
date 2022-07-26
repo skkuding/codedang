@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import MaterialSymbolsMenu from '~icons/material-symbols/menu'
+import IconMenu from '~icons/fa6-solid/bars'
 
 interface data {
   title: string
@@ -17,7 +17,7 @@ defineProps<{
     <div class="flex w-full flex-col">
       <div class="mb-3 flex w-full flex-row justify-between align-middle">
         <div class="flex"><slot name="title"></slot></div>
-        <a href="#"><MaterialSymbolsMenu /></a>
+        <IconMenu class="cursor-pointer hover:opacity-50" />
       </div>
       <ul>
         <li
