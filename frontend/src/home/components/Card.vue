@@ -2,9 +2,11 @@
 import IconMenu from '~icons/fa6-solid/bars'
 
 defineProps<{
+  href: string
   items: {
     title: string
     date: string
+    href: string
     state?: string
   }[]
 }>()
@@ -16,18 +18,24 @@ defineProps<{
       <span class="flex items-center">
         <slot name="title" />
       </span>
-      <IconMenu class="cursor-pointer hover:opacity-50 active:opacity-30" />
+      <router-link
+        :to="href"
+        class="cursor-pointer hover:opacity-50 active:opacity-30"
+      >
+        <IconMenu />
+      </router-link>
     </div>
-    <ul class="flex flex-col gap-1">
-      <li
+    <div class="flex flex-col gap-1">
+      <router-link
         v-for="item in items"
         :key="item.title"
+        :to="item.href"
         class="hover:bg-gray/25 active:bg-gray/50 flex cursor-pointer items-center rounded p-1"
       >
         <span><slot name="icon" :item="item.state" /></span>
         <span class="ml-2 mr-auto">{{ item.title }}</span>
         <span class="text-right">{{ item.date }}</span>
-      </li>
-    </ul>
+      </router-link>
+    </div>
   </section>
 </template>

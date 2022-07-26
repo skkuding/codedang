@@ -9,11 +9,13 @@ import IconCalendar from '~icons/fa6-solid/calendar'
 const noticeItems = [
   {
     title: 'SKKU Coding Platform 모의대회 결과 및 솔루션',
-    date: 'Jan 9,2021'
+    date: 'Jan 9,2021',
+    href: '#'
   },
   {
     title: 'SKKU Coding Platform 모의대회 결과',
-    date: 'Dec 31,2020'
+    date: 'Dec 31,2020',
+    href: '#'
   }
 ]
 
@@ -21,16 +23,19 @@ const contestItems = [
   {
     title: 'SKKU Coding Platform 모의대회',
     date: 'Jan 9,2021',
+    href: '#',
     state: 'ongoing'
   },
   {
     title: 'SKKU Coding Platform 1차 대회',
     date: 'Dec 31,2020',
+    href: '#',
     state: 'prearranged'
   },
   {
     title: 'SKKU Coding Platform 2차 대회',
     date: 'Dec 31,2020',
+    href: '#',
     state: 'prearranged'
   }
 ]
@@ -39,7 +44,7 @@ const contestItems = [
 <template>
   <Story>
     <Variant title="Notices">
-      <Card :items="noticeItems" class="max-w-2xl">
+      <Card href="#" :items="noticeItems" class="max-w-2xl">
         <template #title>
           <IconInfo />
           <h2 class="ml-2">Notice</h2>
@@ -52,7 +57,7 @@ const contestItems = [
     </Variant>
 
     <Variant title="Contests">
-      <Card :items="contestItems" class="max-w-2xl">
+      <Card href="#" :items="contestItems" class="max-w-2xl">
         <template #title>
           <IconMedal />
           <h2 class="ml-2">Current/Upcoming Contests</h2>
