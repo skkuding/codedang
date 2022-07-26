@@ -29,12 +29,18 @@ import { ExtractJwt } from 'passport-jwt'
 import { ConfigService } from '@nestjs/config'
 import { PasswordResetJwtObject } from './interface/jwt.interface'
 import { SignUpDto } from './dto/sign-up.dto'
-import { UnprocessableDataException } from 'src/common/exception/business.exception'
+import {
+  EntityNotExistException,
+  InvalidUserException,
+  UnprocessableDataException
+} from 'src/common/exception/business.exception'
 import { User, UserProfile } from '@prisma/client'
 import { encrypt } from 'src/common/hash'
 import { UserProfileData } from './interface/user-profile-data.interface'
 import { GroupService } from 'src/group/group.service'
 import { UserGroupData } from 'src/group/interface/user-group-data.interface'
+import { WithdrawalDto } from './dto/withdrawal.dto'
+import { AuthService } from 'src/auth/auth.service'
 
 @Injectable()
 export class UserService {
@@ -45,7 +51,8 @@ export class UserService {
     private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
-    private readonly groupService: GroupService
+    private readonly groupService: GroupService,
+    private readonly authService: AuthService
   ) {}
 
   async getUserRole(userId: number) {
@@ -55,12 +62,6 @@ export class UserService {
         role: true
       },
       rejectOnNotFound: () => new UnauthorizedException()
-    })
-  }
-
-  async getUserCredential(username: string) {
-    return this.prisma.user.findUnique({
-      where: { username }
     })
   }
 
@@ -249,13 +250,47 @@ export class UserService {
     })
   }
 
-  async registerUserToPublicGroup(user_id: number) {
+  async registerUserToPublicGroup(userId: number) {
     const userGroupData: UserGroupData = {
-      user_id,
+      user_id: userId,
       group_id: 1,
       is_registerd: true,
       is_group_manager: false
     }
     await this.groupService.createUserGroup(userGroupData)
+  }
+
+  async withdrawal(username: string, withdrawalDto: WithdrawalDto) {
+    const user = await this.getUserCredential(username)
+
+    if (!(await this.authService.isValidUser(user, withdrawalDto.password))) {
+      throw new InvalidUserException('Incorrect password')
+    }
+
+    this.deleteUser(username)
+  }
+
+  async getUserCredential(username: string) {
+    return this.prisma.user.findUnique({
+      where: { username }
+    })
+  }
+
+  async deleteUser(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username
+      }
+    })
+
+    if (!user) {
+      throw new EntityNotExistException('User')
+    }
+
+    await this.prisma.user.delete({
+      where: {
+        username
+      }
+    })
   }
 }

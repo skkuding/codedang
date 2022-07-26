@@ -3,20 +3,28 @@ import {
   Controller,
   InternalServerErrorException,
   Patch,
+  NotFoundException,
   Post,
   Req,
   Res,
-  UnauthorizedException
+  UnauthorizedException,
+  UseGuards
 } from '@nestjs/common'
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
+import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import {
+  EntityNotExistException,
+  InvalidUserException,
+  UnprocessableDataException,
+  EmailTransmissionFailedException,
+  InvalidJwtTokenException,
+  InvalidPinException
+} from 'src/common/exception/business.exception'
+import { SignUpDto } from './dto/sign-up.dto'
+import { WithdrawalDto } from './dto/withdrawal.dto'
 import { UserService } from './user.service'
 import { UserEmailDto } from './dto/userEmail.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
-import {
-  EmailTransmissionFailedException,
-  InvalidJwtTokenException,
-  InvalidPinException,
-  InvalidUserException
-} from 'src/common/exception/business.exception'
 import { PasswordResetPinDto } from './dto/passwordResetPin.dto'
 import { Request, Response } from 'express'
 import { AUTH_TYPE } from './constants/jwt.constants'
@@ -92,10 +100,32 @@ export class UserController {
     try {
       await this.userService.signUp(signUpDto)
       return
-    } catch (err) {
-      if (err instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(err.message)
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
       }
+
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Post('/withdrawal')
+  @UseGuards(JwtAuthGuard)
+  async withdrawal(
+    @Req() req: AuthenticatedRequest,
+    @Body() withdrawalDto: WithdrawalDto
+  ) {
+    try {
+      await this.userService.withdrawal(req.user.username, withdrawalDto)
+      return
+    } catch (error) {
+      if (error instanceof InvalidUserException) {
+        throw new UnauthorizedException(error.message)
+      }
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+
       throw new InternalServerErrorException()
     }
   }
