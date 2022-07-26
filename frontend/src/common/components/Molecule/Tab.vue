@@ -47,5 +47,5 @@ const setHoverFalse = () => {
     </li>
   </ul>
 
-  <div class="m-4"><slot :name="`${activeItem}`"></slot></div>
+  <div class="m-4"><slot :name="activeItem" /></div>
 </template>
