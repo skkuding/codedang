@@ -155,7 +155,9 @@ describe('NoticeService', () => {
     })
 
     it('should throw error when the notice does not exist', async () => {
-      db.notice.findFirst.mockResolvedValue(null)
+      db.notice.findFirst.mockRejectedValue(
+        new EntityNotExistException('notice')
+      )
 
       await expect(service.getNotice(noticeId, group.id)).rejects.toThrow(
         EntityNotExistException
@@ -250,9 +252,7 @@ describe('NoticeService', () => {
     })
 
     it('should throw error when given notice does not exist', async () => {
-      db.notice.findUnique.mockRejectedValue(
-        new EntityNotExistException('notice')
-      )
+      db.notice.findUnique.mockResolvedValue(null)
       await expect(service.updateNotice(noticeId, noticeDto)).rejects.toThrow(
         EntityNotExistException
       )

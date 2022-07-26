@@ -5,6 +5,7 @@ import {
 } from './notice.controller'
 import { NoticeAdminController } from './notice-admin.controller'
 import { NoticeService } from './notice.service'
+import { GroupModule } from 'src/group/group.module'
 
 describe('PublicNoticeController', () => {
   let controller: PublicNoticeController
@@ -28,6 +29,7 @@ describe('GroupNoticeController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [GroupModule],
       controllers: [GroupNoticeController],
       providers: [{ provide: NoticeService, useValue: {} }]
     }).compile()
@@ -40,11 +42,12 @@ describe('GroupNoticeController', () => {
   })
 })
 
-describe('GroupNoticeController', () => {
+describe('NoticeAdminController', () => {
   let controller: NoticeAdminController
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [GroupModule],
       controllers: [NoticeAdminController],
       providers: [{ provide: NoticeService, useValue: {} }]
     }).compile()
