@@ -4,13 +4,15 @@ import {
   Query,
   Param,
   ParseIntPipe,
-  UseGuards
+  UseGuards,
+  InternalServerErrorException
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
 import { Notice } from '@prisma/client'
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { UserNotice } from './interface/user-notice.interface'
+import { EntityNotExistException } from 'src/common/exception/business.exception'
 
 @Controller('notice')
 export class PublicNoticeController {
@@ -47,6 +49,13 @@ export class GroupNoticeController {
     @Param('id', ParseIntPipe) id: number,
     @Param('group_id', ParseIntPipe) group_id: number
   ): Promise<UserNotice> {
-    return await this.noticeService.getNotice(id, group_id)
+    try {
+      return await this.noticeService.getNotice(id, group_id)
+    } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new EntityNotExistException(err.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 }

@@ -55,7 +55,14 @@ export class NoticeAdminController {
   async getAdminNotice(
     @Param('id', ParseIntPipe) id: number
   ): Promise<Partial<Notice>> {
-    return await this.noticeService.getAdminNotice(id)
+    try {
+      return await this.noticeService.getAdminNotice(id)
+    } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new EntityNotExistException(err.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 
   @Put(':id')
@@ -78,6 +85,13 @@ export class NoticeAdminController {
 
   @Delete(':id')
   async delete(@Param('id', ParseIntPipe) id: number) {
-    await this.noticeService.deleteNotice(id)
+    try {
+      await this.noticeService.deleteNotice(id)
+    } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new EntityNotExistException(err.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 }

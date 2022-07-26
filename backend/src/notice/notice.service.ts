@@ -74,7 +74,7 @@ export class NoticeService {
         create_time: true,
         update_time: true
       },
-      rejectOnNotFound: true
+      rejectOnNotFound: () => new EntityNotExistException('notice')
     })
     const notice = { current: current }
 
@@ -151,7 +151,7 @@ export class NoticeService {
         visible: true,
         fixed: true
       },
-      rejectOnNotFound: true
+      rejectOnNotFound: () => new EntityNotExistException('notice')
     })
   }
 
@@ -189,7 +189,7 @@ export class NoticeService {
       where: {
         id: id
       },
-      rejectOnNotFound: true
+      rejectOnNotFound: () => new EntityNotExistException('notice')
     })
 
     await this.prisma.notice.delete({
