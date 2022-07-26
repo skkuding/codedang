@@ -9,6 +9,8 @@ const props = defineProps<{
 const activeItem = ref(props.items[0])
 const hoverItem = ref()
 const tabcolor = props.color ? props.color : '#8DC63F'
+// TODO: use preset color
+// https://github.com/skkuding/next/pull/122#discussion_r928096433
 
 const activeStyle = (item: string) => {
   return item === activeItem.value
