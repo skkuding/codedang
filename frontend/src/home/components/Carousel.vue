@@ -43,17 +43,16 @@ onBeforeUnmount(() => {
         ></button>
       </div>
       <transition
-        v-for="(slide, index) in slides"
-        v-show="currentSlide === index"
-        :key="`item-${index}`"
         :name="direction === 'right' ? 'slide-out' : 'slide-in'"
         class="absolute inset-0"
         @mouseenter="pause"
         @mouseout="resume"
       >
-        <div>
-          <img :src="slide" class="h-full w-full" />
-        </div>
+        <img
+          :key="currentSlide"
+          class="h-full w-full"
+          :src="slides[currentSlide]"
+        />
       </transition>
     </div>
   </div>
