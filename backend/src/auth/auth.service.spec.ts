@@ -72,12 +72,16 @@ describe('AuthService', () => {
 
   describe('issueJwtTokens', () => {
     let getUserCredentialSpy
+    let updateLastLoginSpy
     const loginUserDto = { username: 'user', password: VALID_PASSWORD }
 
     beforeEach(() => {
       getUserCredentialSpy = jest
         .spyOn(userService, 'getUserCredential')
         .mockResolvedValue(user)
+      updateLastLoginSpy = jest
+        .spyOn(userService, 'updateLastLogin')
+        .mockResolvedValue()
     })
 
     it('should return new access token and refresh token when user validation succeed', async () => {
@@ -92,6 +96,7 @@ describe('AuthService', () => {
       //then
       expect(getUserCredentialSpy).toHaveBeenCalledWith(loginUserDto.username)
       expect(isValidUserSpy).toHaveBeenCalledWith(user, loginUserDto.password)
+      expect(updateLastLoginSpy).toHaveBeenCalledWith(user.username)
       expect(createJwtTokensSpy).toHaveBeenCalledTimes(1)
       expect(createJwtTokensSpy).toHaveBeenCalledWith(user.id, user.username)
       expect(result).toEqual({
