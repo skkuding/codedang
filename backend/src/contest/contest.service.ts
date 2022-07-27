@@ -3,6 +3,7 @@ import { Contest } from '@prisma/client'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
+  InvalidUserException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
@@ -82,7 +83,7 @@ export class ContestService {
       data: {
         title: contestDto.title,
         description: contestDto.description,
-        descriptionSummary: contestDto.description,
+        descriptionSummary: contestDto.descriptionSummary,
         startTime: contestDto.startTime,
         endTime: contestDto.endTime,
         visible: contestDto.visible,
@@ -235,5 +236,45 @@ export class ContestService {
       where: { groupId: groupId },
       select: { ...this.contestSelectOption, visible: true }
     })
+  }
+
+  // Todo: issue #90
+  async createContestRecord(
+    userId: number,
+    contestId: number
+  ): Promise<null | Error> {
+    //contest 존재 여부
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId },
+      select: { startTime: true, endTime: true, type: true }
+    })
+    if (!contest) {
+      throw new EntityNotExistException(`Contest ${contestId}`)
+    }
+
+    //중복 참여 확인 in contestRecord
+    const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
+      where: { userId, contestId },
+      select: { id: true }
+    })
+    if (isAlreadyRecord) {
+      throw new ForbiddenAccessException(
+        `User ${userId} is already participated in Contest ${contestId}`
+      )
+    }
+    //contest start 전 or contest end 후
+    const now = new Date()
+    if (now < contest.startTime || now >= contest.endTime) {
+      throw new ForbiddenAccessException(`Contest ${contestId} is not ongoing`)
+    }
+    //contest type ACM -> create contest rank acm record
+    if (contest.type === 'ACM') {
+      await this.prisma.contestRankACM.create({
+        data: { contestId, userId }
+      })
+    }
+    // Todo: other contest type -> create other contest record table
+
+    return
   }
 }
