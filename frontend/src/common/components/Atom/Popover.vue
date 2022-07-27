@@ -31,10 +31,10 @@ const setHoverFalse = () => {
     </span>
     <teleport v-if="mounted && open" :to="contentId">
       <span
-        class="border-t-gray absolute bottom-full ml-2 border-x-8 border-t-8 border-b-0 border-solid border-x-transparent"
+        class="border-t-gray absolute left-0 bottom-full ml-2 border-x-8 border-t-8 border-b-0 border-solid border-x-transparent"
       />
       <span
-        class="bg-gray absolute bottom-full my-2 whitespace-nowrap rounded px-2 py-1"
+        class="bg-gray text-text absolute left-0 bottom-full my-2 whitespace-nowrap rounded px-2 py-1"
       >
         {{ text }}
       </span>

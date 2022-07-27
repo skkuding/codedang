@@ -13,8 +13,7 @@ import Button from './Button.vue'
         class="my-12"
       >
         <template #content>
-          <div id="pop"></div>
-          <Button>Button</Button>
+          <Button id="pop">Button</Button>
         </template>
       </Popover>
     </Variant>
@@ -25,8 +24,7 @@ import Button from './Button.vue'
         class="my-12"
       >
         <template #content>
-          <div id="pop-click"></div>
-          <Button>Button</Button>
+          <Button id="pop-click">Button</Button>
         </template>
       </Popover>
     </Variant>
