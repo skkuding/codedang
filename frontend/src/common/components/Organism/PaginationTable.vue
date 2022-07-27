@@ -7,8 +7,11 @@ defineProps<{
   fields: {
     key: string
     label?: string
+    custom?: boolean
   }[]
-  numberOfItems: number
+  items: {
+    [key: string]: any
+  }[]
   placeholder?: string
   numberOfPages: number
   text?: string // show if there's no data in item
@@ -58,18 +61,19 @@ const capitalize = (key: string) => {
         </tr>
       </thead>
       <tbody>
-        <tr v-if="numberOfItems === 0">
+        <tr v-if="items.length === 0">
           <td class="p-2.5 pl-4">{{ text }}</td>
         </tr>
         <template v-else>
           <tr
-            v-for="index in numberOfItems"
+            v-for="(row, index) in items"
             :key="index"
             class="hover:bg-gray-light border-gray cursor-pointer border-y"
-            @click="$emit('row-clicked', index - 1)"
+            @click="$emit('row-clicked', row)"
           >
             <td v-for="(field, idx) in fields" :key="idx" class="p-2.5 pl-4">
-              <slot :name="field.key" :index="index - 1"></slot>
+              <div v-if="!field.custom">{{ row[field.key] }}</div>
+              <slot v-else :name="field.key" :row="row"></slot>
             </td>
           </tr>
         </template>

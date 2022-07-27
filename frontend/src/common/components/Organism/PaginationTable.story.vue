@@ -4,51 +4,75 @@ import PaginationTable from './PaginationTable.vue'
 
 const fields = [
   {
-    key: 'name'
+    key: 'name',
+    label: 'Object'
   },
-  { key: 'color', label: 'Colored' }
+  { key: 'color', custom: true }
 ]
+
+type itemType = {
+  name: string
+  color: string
+}
 
 // initial items
 const items = [
-  { name: 'Apple', color: 'red' },
-  { name: 'Banana', color: 'yellow' },
-  { name: 'Car', color: 'blue' },
-  { name: 'Dog', color: 'brown' },
-  { name: 'Elephant', color: 'gray' },
-  { name: 'Fox', color: 'orange' },
-  { name: 'Grape', color: 'purple' },
-  { name: 'Hamster', color: 'yellow' }
+  [
+    { name: 'Apple', color: 'red' },
+    { name: 'Banana', color: 'yellow' },
+    { name: 'Car', color: 'blue' }
+  ],
+  [
+    { name: 'Dog', color: 'brown' },
+    { name: 'Elephant', color: 'gray' },
+    { name: 'Fox', color: 'orange' }
+  ],
+  [
+    { name: 'Grape', color: 'purple' },
+    { name: 'Hamster', color: 'yellow' }
+  ]
 ]
 
 // new items of n pages
 const nitems = ref(items)
-const npage = ref(Math.floor((items.length + 2) / 3))
+const npage = ref(items.length)
 
 // items in current page
 const cur = ref(0)
-const curitems = ref(nitems.value.slice(cur.value * 3, cur.value * 3 + 3))
+const curitems = ref(nitems.value[0])
 
 const filter = (keyword: string) => {
-  nitems.value = items.filter((el) => {
-    if (el.name.includes(keyword) || el.color.includes(keyword)) return true
-    return false
-  })
-  npage.value = Math.floor((nitems.value.length + 2) / 3)
+  let total = []
+  let perPage = []
+  for (const item of items) {
+    for (const row of item) {
+      if (perPage.length === 3) {
+        total.push(perPage)
+        perPage = []
+      }
+      if (row.name.includes(keyword) || row.color.includes(keyword))
+        perPage.push(row)
+    }
+  }
+  if (perPage.length > 0) total.push(perPage)
+
+  nitems.value = total
+  npage.value = nitems.value.length
+
+  curitems.value = nitems.value[0]
   cur.value = 0
-  curitems.value = nitems.value.slice(cur.value * 3, cur.value * 3 + 3)
 }
 
 const changeItems = (page: number) => {
   cur.value = page - 1
-  curitems.value = nitems.value.slice(cur.value * 3, cur.value * 3 + 3)
+  curitems.value = nitems.value[cur.value]
 }
 
 // show name when click the row
 const selected = ref('')
 
-const clickRow = (idx: number) => {
-  selected.value = curitems.value[idx].name
+const clickRow = (row: itemType) => {
+  selected.value = row.name
 }
 </script>
 
@@ -56,7 +80,7 @@ const clickRow = (idx: number) => {
   <Story>
     <PaginationTable
       :fields="fields"
-      :number-of-items="curitems.length"
+      :items="curitems"
       placeholder="keywords"
       text="No data"
       :number-of-pages="npage"
@@ -64,11 +88,14 @@ const clickRow = (idx: number) => {
       @change-page="changeItems"
       @row-clicked="clickRow"
     >
-      <template #name="data">
-        {{ curitems[data.index].name }}
-      </template>
       <template #color="data">
-        {{ curitems[data.index].color }}
+        <div class="flex items-center">
+          <div
+            class="mr-2 h-5 w-5 rounded-full"
+            :style="'background:' + data.row.color"
+          ></div>
+          {{ data.row.color }}
+        </div>
       </template>
     </PaginationTable>
 
