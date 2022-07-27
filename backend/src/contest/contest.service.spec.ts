@@ -124,6 +124,9 @@ const mockPrismaService = {
   }
 }
 
+function returnTextIsNotAllowed(userId: number, contestId: number): string {
+  return `Contest ${contestId} is not allowed to User ${contestId}`
+}
 describe('ContestService', () => {
   let contestService: ContestService
   let groupService: GroupService
