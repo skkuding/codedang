@@ -1,6 +1,8 @@
 import {
   CACHE_MANAGER,
   Inject,
+  forwardRef,
+  Inject,
   Injectable,
   UnauthorizedException
 } from '@nestjs/common'
@@ -41,6 +43,7 @@ import { GroupService } from 'src/group/group.service'
 import { UserGroupData } from 'src/group/interface/user-group-data.interface'
 import { WithdrawalDto } from './dto/withdrawal.dto'
 import { AuthService } from 'src/auth/auth.service'
+import { GetUserProfileDto } from './dto/get-userprofile.dto'
 
 @Injectable()
 export class UserService {
@@ -52,6 +55,7 @@ export class UserService {
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
     private readonly groupService: GroupService,
+    @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService
   ) {}
 
@@ -290,5 +294,29 @@ export class UserService {
         username
       }
     })
+  }
+
+  async getUserProfile(username: string): Promise<GetUserProfileDto> {
+    const userProfile = await this.prisma.user.findUnique({
+      where: { username },
+      select: {
+        username: true,
+        role: true,
+        email: true,
+        last_login: true,
+        update_time: true,
+        UserProfile: {
+          select: {
+            real_name: true
+          }
+        }
+      }
+    })
+
+    if (!userProfile) {
+      throw new EntityNotExistException('User')
+    }
+
+    return userProfile
   }
 }
