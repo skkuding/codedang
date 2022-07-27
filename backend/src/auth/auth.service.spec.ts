@@ -16,6 +16,7 @@ import {
   InvalidJwtTokenException,
   InvalidUserException
 } from 'src/common/exception/business.exception'
+import { GroupService } from 'src/group/group.service'
 import { EmailService } from 'src/email/email.service'
 import { MailerService } from '@nestjs-modules/mailer'
 
@@ -33,7 +34,6 @@ describe('AuthService', () => {
     password: VALID_PASSWORD,
     role: 'User',
     email: '',
-    hasEmailAuthenticated: false,
     lastLogin: undefined,
     createTime: undefined,
     updateTime: undefined
@@ -45,6 +45,7 @@ describe('AuthService', () => {
         AuthService,
         UserService,
         EmailService,
+        { provide: GroupService, useValue: {} },
         { provide: PrismaService, useValue: {} },
         { provide: ConfigService, useValue: {} },
         { provide: JwtService, useValue: {} },
