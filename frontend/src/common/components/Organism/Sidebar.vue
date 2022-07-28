@@ -18,7 +18,7 @@ import Book from '~icons/bi/journals'
     </div>
     <div class="text-gray-dark">
       <router-link
-        class="border-gray flex justify-center border-y border-opacity-25 p-2 font-bold"
+        class="border-gray flex border-y border-opacity-25 p-2 pl-10 font-bold"
         to="/"
       >
         <BiHouse class="mr-2" />
@@ -26,7 +26,7 @@ import Book from '~icons/bi/journals'
       </router-link>
 
       <router-link
-        class="border-gray flex justify-center border-y border-opacity-25 p-2 font-bold"
+        class="border-gray flex border-y border-opacity-25 p-2 pl-10 font-bold"
         to="/notice"
       >
         <File class="mr-2" />
@@ -34,7 +34,7 @@ import Book from '~icons/bi/journals'
       </router-link>
 
       <router-link
-        class="border-gray flex justify-center border-y border-opacity-25 p-2 font-bold"
+        class="border-gray flex border-y border-opacity-25 p-2 pl-10 font-bold"
         to="/contest"
       >
         <Trophy class="mr-2" />
@@ -42,7 +42,7 @@ import Book from '~icons/bi/journals'
       </router-link>
 
       <router-link
-        class="border-gray flex justify-center border-y border-opacity-25 p-2 font-bold"
+        class="border-gray flex border-y border-opacity-25 p-2 pl-10 font-bold"
         to="/workbook"
       >
         <Book class="mr-2" />
@@ -50,7 +50,7 @@ import Book from '~icons/bi/journals'
       </router-link>
 
       <router-link
-        class="border-gray flex justify-center border-y border-opacity-25 p-2 font-bold"
+        class="border-gray flex border-y border-opacity-25 p-2 pl-10 font-bold"
         to="/problem"
       >
         <Brain class="mr-2" />
@@ -58,7 +58,7 @@ import Book from '~icons/bi/journals'
       </router-link>
 
       <router-link
-        class="border-gray flex justify-center border-y border-opacity-25 p-2 font-bold"
+        class="border-gray flex border-y border-opacity-25 p-2 pl-10 font-bold"
         to="/"
       >
         <Box class="mr-2" />
@@ -66,7 +66,7 @@ import Book from '~icons/bi/journals'
       </router-link>
 
       <router-link
-        class="border-gray flex justify-center border-y border-opacity-25 p-2 font-bold"
+        class="border-gray flex border-y border-opacity-25 p-2 pl-10 font-bold"
         to="/"
       >
         <User class="mr-2" />
@@ -74,7 +74,7 @@ import Book from '~icons/bi/journals'
       </router-link>
 
       <router-link
-        class="border-gray flex justify-center border-y border-opacity-25 p-2 font-bold"
+        class="border-gray flex border-y border-opacity-25 p-2 pl-10 font-bold"
         to="/"
       >
         <Code class="mr-2" />
