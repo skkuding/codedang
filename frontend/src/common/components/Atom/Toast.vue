@@ -29,6 +29,13 @@ const classMapper = {
   warn: 'bg-[#eab308] text-white',
   error: 'bg-[#ef4444] text-white'
 }
+
+const iconMapper = {
+  info: IconCircleInfo,
+  success: IconCircleCheck,
+  warn: IconTriangleExclamation,
+  error: IconCircleXmark
+}
 </script>
 
 <template>
@@ -43,10 +50,7 @@ const classMapper = {
         class="flex items-center gap-2 rounded px-4 py-1 shadow"
         :class="classMapper[item.type || 'default']"
       >
-        <IconCircleInfo v-if="item.type === 'info'" />
-        <IconCircleCheck v-else-if="item.type === 'success'" />
-        <IconTriangleExclamation v-else-if="item.type === 'warn'" />
-        <IconCircleXmark v-else-if="item.type === 'error'" />
+        <component :is="iconMapper[item.type]" v-if="item.type" />
         {{ item.message }}
       </output>
     </transition-group>
