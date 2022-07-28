@@ -2,7 +2,7 @@ import {
   Controller,
   Get,
   Delete,
-  Put,
+  Patch,
   Post,
   Req,
   Res,
@@ -51,7 +51,7 @@ export class NoticeAdminController {
     }
   }
 
-  @Put(':id')
+  @Patch(':id')
   async updateNotice(): Promise<void> {
     // TODO: visible 수정 기능 구현
   }
@@ -116,7 +116,7 @@ export class GroupNoticeAdminController {
   }
 
   // TODO: fixed/visible 수정하는 함수 추가 구현
-  @Put(':id')
+  @Patch(':id')
   async updateNotice(
     @Param('id', ParseIntPipe) id: number,
     @Body() noticeDto: RequestNoticeDto
