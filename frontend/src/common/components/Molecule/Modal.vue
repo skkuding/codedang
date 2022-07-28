@@ -1,22 +1,16 @@
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
+import { computed } from 'vue'
 import IconoirCancel from '~icons/iconoir/cancel'
-import { ref } from 'vue'
 
 const props = defineProps<{
   title: string
   titleColor?: string
 }>()
-const emit = defineEmits(['close'])
+defineEmits(['close'])
 
 const ModalStyle = computed(() => {
-  if (props.titleColor == 'green') {
-    return 'text-center text-xl text-green'
-  } else {
-    return 'text-center text-xl text-gray'
-  }
+  return props.titleColor === 'green' ? 'text-green' : 'text-gray'
 })
-const isModalVisible = ref(false)
 </script>
 
 <template>
@@ -26,17 +20,14 @@ const isModalVisible = ref(false)
     <div
       class="relative z-50 h-full w-full rounded-lg bg-white p-2 text-center"
     >
-      <div class="my-2 flex justify-center">
-        <slot name="modal-image"></slot>
-        <IconoirCancel
-          class="text-gray absolute right-0 cursor-pointer"
-          @click="$emit('close')"
-        />
-      </div>
-      <span :class="ModalStyle">{{ title }}</span>
-      <div>
-        <slot name="modal-content">default content</slot>
-      </div>
+      <IconoirCancel
+        class="text-gray absolute right-0 cursor-pointer"
+        @click="$emit('close')"
+      />
+    </div>
+    <span :class="ModalStyle">{{ title }}</span>
+    <div>
+      <slot name="modal-content">default content</slot>
     </div>
   </div>
 </template>
