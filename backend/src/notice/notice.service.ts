@@ -44,12 +44,12 @@ export class NoticeService {
   }
 
   async getNoticesByGroupId(
-    group_id: number,
+    groupId: number,
     offset: number
   ): Promise<Partial<Notice>[]> {
     return await this.prisma.notice.findMany({
       where: {
-        group_id: group_id,
+        group_id: groupId,
         visible: true
       },
       select: {
@@ -62,7 +62,7 @@ export class NoticeService {
     })
   }
 
-  async getNotice(id: number, group_id: number): Promise<UserNotice> {
+  async getNotice(id: number, groupId: number): Promise<UserNotice> {
     const current = await this.prisma.notice.findFirst({
       where: {
         id: id,
@@ -83,7 +83,7 @@ export class NoticeService {
         id: {
           lt: id
         },
-        group_id: group_id,
+        group_id: groupId,
         visible: true
       },
       orderBy: {
@@ -100,7 +100,7 @@ export class NoticeService {
         id: {
           gt: id
         },
-        group_id: group_id,
+        group_id: groupId,
         visible: true
       },
       orderBy: {
@@ -115,23 +115,35 @@ export class NoticeService {
     return notice
   }
 
-  async getAdminNotices(
-    id: number,
+  async getAdminNoticesByGroupId(
+    groupId: number,
     offset: number
   ): Promise<Partial<Notice>[]> {
     return await this.prisma.notice.findMany({
       where: {
-        created_by_id: id
+        group_id: groupId
       },
       select: {
         id: true,
-        group: true,
         title: true,
-        create_time: true,
+        update_time: true,
+        fixed: true,
         visible: true
       },
       skip: offset - 1,
       take: 5
+    })
+  }
+
+  async getGroup(id: number): Promise<Partial<Notice>> {
+    return await this.prisma.notice.findUnique({
+      where: {
+        id: id
+      },
+      select: {
+        group_id: true
+      },
+      rejectOnNotFound: () => new EntityNotExistException('notice')
     })
   }
 
@@ -143,7 +155,6 @@ export class NoticeService {
       select: {
         group: {
           select: {
-            id: true,
             group_name: true
           }
         },
@@ -153,6 +164,33 @@ export class NoticeService {
         fixed: true
       },
       rejectOnNotFound: () => new EntityNotExistException('notice')
+    })
+  }
+
+  async getAdminNotices(
+    // TODO: user가 admin으로 있는 group list 가져오는 기능 구현
+    //       id param에서 삭제할 것
+    id: number,
+    offset: number
+  ): Promise<Partial<Notice>[]> {
+    return await this.prisma.notice.findMany({
+      where: {
+        created_by_id: id
+      },
+      select: {
+        id: true,
+        group: {
+          select: {
+            id: true, // TODO: 리디렉션으로 구현할 경우 삭제
+            group_name: true
+          }
+        },
+        title: true,
+        update_time: true,
+        visible: true
+      },
+      skip: offset - 1,
+      take: 5
     })
   }
 

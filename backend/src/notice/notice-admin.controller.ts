@@ -5,6 +5,7 @@ import {
   Put,
   Post,
   Req,
+  Res,
   Query,
   Param,
   Body,
@@ -25,8 +26,59 @@ import {
 } from 'src/common/exception/business.exception'
 
 @Controller('admin/notice')
-@UseGuards(JwtAuthGuard, GroupManagerGuard)
+@UseGuards(JwtAuthGuard)
 export class NoticeAdminController {
+  constructor(private readonly noticeService: NoticeService) {}
+
+  @Get()
+  async getAdminNotices(
+    @Req() req: AuthenticatedRequest,
+    @Query('offset', ParseIntPipe) offset: number
+  ): Promise<Partial<Notice>[]> {
+    return await this.noticeService.getAdminNotices(req.user.id, offset)
+  }
+
+  @Get(':id')
+  async redirect(
+    @Res() res,
+    @Param('id', ParseIntPipe) id: number
+  ): Promise<Partial<Notice>> {
+    try {
+      const groupId = (await this.noticeService.getGroup(id)).group_id
+      return res.redirect('admin/group/' + groupId + 'notice/' + id)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Put(':id')
+  async updateNotice(): Promise<void> {
+    // TODO: visible 수정 기능 구현
+  }
+
+  @Delete(':group_id/:id')
+  @UseGuards(GroupManagerGuard)
+  async deleteNotice(
+    @Param('group_id') groupId: number,
+    @Param('id', ParseIntPipe) id: number
+  ) {
+    try {
+      await this.noticeService.deleteNotice(id)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new InternalServerErrorException('fail to delete')
+    }
+  }
+}
+
+@Controller('admin/group/:group_id/notice')
+@UseGuards(JwtAuthGuard, GroupManagerGuard)
+export class GroupNoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Post()
@@ -46,10 +98,10 @@ export class NoticeAdminController {
 
   @Get()
   async getAdminNotices(
-    @Req() req: AuthenticatedRequest,
+    @Param('group_id', ParseIntPipe) groupId: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getAdminNotices(req.user.id, offset)
+    return await this.noticeService.getAdminNoticesByGroupId(groupId, offset)
   }
 
   @Get(':id')
@@ -66,6 +118,7 @@ export class NoticeAdminController {
     }
   }
 
+  // TODO: fixed/visible 수정하는 함수 추가 구현
   @Put(':id')
   async updateNotice(
     @Param('id', ParseIntPipe) id: number,
@@ -92,7 +145,7 @@ export class NoticeAdminController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      throw new InternalServerErrorException()
+      throw new InternalServerErrorException('fail to delete')
     }
   }
 }

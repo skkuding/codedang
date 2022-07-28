@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { Group, Notice } from '@prisma/client'
 import { NoticeService } from './notice.service'
+import { GroupService } from 'src/group/group.service'
 import { RequestNoticeDto } from './dto/request-notice.dto'
 import {
   EntityNotExistException,
@@ -71,7 +72,11 @@ describe('NoticeService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [NoticeService, { provide: PrismaService, useValue: db }]
+      providers: [
+        NoticeService,
+        { provide: PrismaService, useValue: {} },
+        { provide: GroupService, useValue: {} }
+      ]
     }).compile()
 
     service = module.get<NoticeService>(NoticeService)

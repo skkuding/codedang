@@ -46,19 +46,19 @@ export class GroupNoticeController {
 
   @Get()
   async getNotices(
-    @Param('group_id', ParseIntPipe) group_id: number,
+    @Param('group_id', ParseIntPipe) groupId: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getNoticesByGroupId(group_id, offset)
+    return await this.noticeService.getNoticesByGroupId(groupId, offset)
   }
 
   @Get(':id')
   async getNotice(
     @Param('id', ParseIntPipe) id: number,
-    @Param('group_id', ParseIntPipe) group_id: number
+    @Param('group_id', ParseIntPipe) groupId: number
   ): Promise<UserNotice> {
     try {
-      return await this.noticeService.getNotice(id, group_id)
+      return await this.noticeService.getNotice(id, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
