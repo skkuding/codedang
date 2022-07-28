@@ -66,7 +66,7 @@ importers:
       ts-jest: ^27.1.5
       ts-loader: ^9.3.1
       ts-node: ^10.9.1
-      tsconfig-paths: ^3.14.1
+      tsconfig-paths: ^4.0.0
       typescript: ^4.7.4
     dependencies:
       '@nestjs/common': 8.4.7_mgy7w2bm3yhmntrbe3boyroj6m
@@ -106,7 +106,7 @@ importers:
       ts-jest: 27.1.5_rfopmdbkc33ztffdm5g3i32tqi
       ts-loader: 9.3.1_3o2jfq6vfqxns3sz6wn2nnc3ei
       ts-node: 10.9.1_kmhzd2ra25a2aeanupbqenugla
-      tsconfig-paths: 3.14.1
+      tsconfig-paths: 4.0.0
       typescript: 4.7.4
 
   frontend:
@@ -6847,6 +6847,14 @@ packages:
     dependencies:
       '@types/json5': 0.0.29
       json5: 1.0.1
+      minimist: 1.2.6
+      strip-bom: 3.0.0
+    dev: true
+
+  /tsconfig-paths/4.0.0:
+    resolution: {integrity: sha512-SLBg2GBKlR6bVtMgJJlud/o3waplKtL7skmLkExomIiaAtLGtVsoXIqP3SYdjbcH9lq/KVv7pMZeCBpLYOit6Q==}
+    dependencies:
+      json5: 2.2.1
       minimist: 1.2.6
       strip-bom: 3.0.0
     dev: true
