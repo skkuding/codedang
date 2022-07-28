@@ -85,7 +85,7 @@ export class NoticeAdminController {
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
+  async deleteNotice(@Param('id', ParseIntPipe) id: number) {
     try {
       await this.noticeService.deleteNotice(id)
     } catch (error) {
