@@ -18,7 +18,7 @@ function isClicked() {
     </div>
     <div v-show="click">
       <div
-        class="absolute right-0 mt-4 w-48 rounded-lg bg-white py-1 px-2 shadow-lg"
+        class="absolute right-0 w-max rounded-lg bg-white py-1 px-2 shadow-lg"
       >
         <div v-for="c in content" :key="c">
           <div
