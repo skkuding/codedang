@@ -10,7 +10,7 @@
     "story:build": "histoire build"
   },
   "dependencies": {
-    "@vueuse/core": "^8.9.4",
+    "@vueuse/core": "^9.0.0",
     "pinia": "^2.0.17",
     "vue": "^3.2.37",
     "vue-router": "^4.1.2"
