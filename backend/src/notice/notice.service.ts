@@ -16,14 +16,12 @@ export class NoticeService {
     userId: number,
     noticeDto: RequestNoticeDto
   ): Promise<Notice> {
-    const group = await this.prisma.group.findUnique({
+    await this.prisma.group.findUnique({
       where: {
         id: noticeDto.group_id
-      }
+      },
+      rejectOnNotFound: () => new EntityNotExistException('group')
     })
-    if (!group) {
-      throw new EntityNotExistException('group')
-    }
 
     const notice = await this.prisma.notice.create({
       data: {
@@ -199,12 +197,10 @@ export class NoticeService {
     const noticeExist = await this.prisma.notice.findUnique({
       where: {
         id: id
-      }
+      },
+      rejectOnNotFound: () => new EntityNotExistException('notice')
     })
 
-    if (!noticeExist) {
-      throw new EntityNotExistException('notice')
-    }
     if (noticeExist.group_id != noticeDto.group_id) {
       throw new UnprocessableDataException('Group id must not be changed')
     }
