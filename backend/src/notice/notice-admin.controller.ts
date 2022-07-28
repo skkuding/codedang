@@ -39,10 +39,7 @@ export class NoticeAdminController {
   }
 
   @Get(':id')
-  async redirect(
-    @Res() res,
-    @Param('id', ParseIntPipe) id: number
-  ): Promise<Partial<Notice>> {
+  async redirect(@Res() res, @Param('id', ParseIntPipe) id: number) {
     try {
       const groupId = (await this.noticeService.getGroup(id)).group_id
       return res.redirect('admin/group/' + groupId + 'notice/' + id)

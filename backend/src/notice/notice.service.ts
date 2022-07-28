@@ -187,6 +187,7 @@ export class NoticeService {
         },
         title: true,
         update_time: true,
+        created_by: true,
         visible: true
       },
       skip: offset - 1,

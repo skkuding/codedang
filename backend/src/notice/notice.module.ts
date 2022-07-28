@@ -8,8 +8,10 @@ import {
   GroupNoticeAdminController
 } from './notice-admin.controller'
 import { NoticeService } from './notice.service'
+import { GroupModule } from 'src/group/group.module'
 
 @Module({
+  imports: [GroupModule],
   controllers: [
     PublicNoticeController,
     GroupNoticeController,
