@@ -19,11 +19,9 @@ import { Notice } from '@prisma/client'
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
 import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
-import { RequestNoticeDto } from './dto/request-notice.dto'
-import {
-  EntityNotExistException,
-  UnprocessableDataException
-} from 'src/common/exception/business.exception'
+import { UpdateNoticeDto } from './dto/update-notice.dto'
+import { CreateNoticeDto } from './dto/create-notice.dto'
+import { EntityNotExistException } from 'src/common/exception/business.exception'
 
 @Controller('admin/notice')
 @UseGuards(JwtAuthGuard)
@@ -81,10 +79,10 @@ export class GroupNoticeAdminController {
   @Post()
   async createNotice(
     @Req() req: AuthenticatedRequest,
-    @Body() noticeDto: RequestNoticeDto
+    @Body() createNoticeDto: CreateNoticeDto
   ): Promise<Notice> {
     try {
-      return await this.noticeService.createNotice(req.user.id, noticeDto)
+      return await this.noticeService.createNotice(req.user.id, createNoticeDto)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -119,16 +117,13 @@ export class GroupNoticeAdminController {
   @Patch(':id')
   async updateNotice(
     @Param('id', ParseIntPipe) id: number,
-    @Body() noticeDto: RequestNoticeDto
+    @Body() updateNoticeDto: UpdateNoticeDto
   ): Promise<Notice> {
     try {
-      return await this.noticeService.updateNotice(id, noticeDto)
+      return await this.noticeService.updateNotice(id, updateNoticeDto)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      }
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableDataException(error.message)
       }
       throw new InternalServerErrorException()
     }

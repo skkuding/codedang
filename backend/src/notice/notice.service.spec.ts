@@ -2,17 +2,23 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { Group, Notice } from '@prisma/client'
 import { NoticeService } from './notice.service'
-import { RequestNoticeDto } from './dto/request-notice.dto'
-import {
-  EntityNotExistException,
-  UnprocessableDataException
-} from 'src/common/exception/business.exception'
+import { CreateNoticeDto } from './dto/create-notice.dto'
+import { UpdateNoticeDto } from './dto/update-notice.dto'
+import { EntityNotExistException } from 'src/common/exception/business.exception'
 
 const noticeId = 2
 const userId = 1
+const groupId = 1
 
-const noticeDto: RequestNoticeDto = {
-  group_id: 1,
+const createNoticeDto: CreateNoticeDto = {
+  group_id: groupId,
+  title: 'Title',
+  content: 'Content',
+  visible: true,
+  fixed: true
+}
+
+const updateNoticeDto: UpdateNoticeDto = {
   title: 'Title',
   content: 'Content',
   visible: true,
@@ -22,11 +28,11 @@ const noticeDto: RequestNoticeDto = {
 const notice: Notice = {
   id: noticeId,
   created_by_id: userId,
-  group_id: noticeDto.group_id,
-  title: noticeDto.title,
-  content: noticeDto.content,
-  visible: noticeDto.visible,
-  fixed: noticeDto.fixed,
+  group_id: groupId,
+  title: 'Title',
+  content: 'Content',
+  visible: true,
+  fixed: true,
   create_time: new Date(),
   update_time: new Date()
 }
@@ -42,7 +48,7 @@ const noticeNext: Notice = {
 }
 
 const group: Group = {
-  id: 1,
+  id: groupId,
   created_by_id: 1,
   group_name: 'group_name',
   private: true,
@@ -87,15 +93,15 @@ describe('NoticeService', () => {
     })
 
     it('should return new created notice data', async () => {
-      const createResult = await service.createNotice(userId, noticeDto)
+      const createResult = await service.createNotice(userId, createNoticeDto)
       expect(createResult).toEqual(notice)
     })
 
     it('should throw error when given group does not exist', async () => {
       db.group.findUnique.mockResolvedValue(null)
-      await expect(service.createNotice(userId, noticeDto)).rejects.toThrow(
-        EntityNotExistException
-      )
+      await expect(
+        service.createNotice(userId, createNoticeDto)
+      ).rejects.toThrow(EntityNotExistException)
     })
   })
 
@@ -233,29 +239,15 @@ describe('NoticeService', () => {
     })
 
     it('should return updated Notice', async () => {
-      const updateResult = await service.updateNotice(noticeId, noticeDto)
+      const updateResult = await service.updateNotice(noticeId, updateNoticeDto)
       expect(updateResult).toEqual(notice)
-    })
-
-    it('should throw error when group_id change', async () => {
-      const invalidnoticeDto: RequestNoticeDto = {
-        group_id: 2,
-        title: 'Title',
-        content: 'Content',
-        visible: true,
-        fixed: true
-      }
-
-      await expect(
-        service.updateNotice(noticeId, invalidnoticeDto)
-      ).rejects.toThrow(UnprocessableDataException)
     })
 
     it('should throw error when given notice does not exist', async () => {
       db.notice.findUnique.mockResolvedValue(null)
-      await expect(service.updateNotice(noticeId, noticeDto)).rejects.toThrow(
-        EntityNotExistException
-      )
+      await expect(
+        service.updateNotice(noticeId, updateNoticeDto)
+      ).rejects.toThrow(EntityNotExistException)
     })
   })
 

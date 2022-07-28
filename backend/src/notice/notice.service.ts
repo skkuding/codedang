@@ -2,11 +2,9 @@ import { UserNotice } from './interface/user-notice.interface'
 import { Injectable } from '@nestjs/common'
 import { Notice } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { RequestNoticeDto } from './dto/request-notice.dto'
-import {
-  EntityNotExistException,
-  UnprocessableDataException
-} from 'src/common/exception/business.exception'
+import { UpdateNoticeDto } from './dto/update-notice.dto'
+import { CreateNoticeDto } from './dto/create-notice.dto'
+import { EntityNotExistException } from 'src/common/exception/business.exception'
 
 @Injectable()
 export class NoticeService {
@@ -14,7 +12,7 @@ export class NoticeService {
 
   async createNotice(
     userId: number,
-    noticeDto: RequestNoticeDto
+    noticeDto: CreateNoticeDto
   ): Promise<Notice> {
     await this.prisma.group.findUnique({
       where: {
@@ -193,17 +191,13 @@ export class NoticeService {
     })
   }
 
-  async updateNotice(id: number, noticeDto: RequestNoticeDto): Promise<Notice> {
-    const noticeExist = await this.prisma.notice.findUnique({
+  async updateNotice(id: number, noticeDto: UpdateNoticeDto): Promise<Notice> {
+    await this.prisma.notice.findUnique({
       where: {
         id: id
       },
       rejectOnNotFound: () => new EntityNotExistException('notice')
     })
-
-    if (noticeExist.group_id != noticeDto.group_id) {
-      throw new UnprocessableDataException('Group id must not be changed')
-    }
 
     const notice = await this.prisma.notice.update({
       where: {

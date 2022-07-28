@@ -1,23 +1,23 @@
 import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
-export class RequestNoticeDto {
+export class CreateNoticeDto {
   @IsNumber()
   @IsNotEmpty()
-  group_id: number
+  readonly group_id: number
 
   @IsString()
   @IsNotEmpty()
-  title: string
+  readonly title: string
 
   @IsString()
   @IsNotEmpty()
-  content: string
+  readonly content: string
 
   @IsBoolean()
   @IsNotEmpty()
-  visible: boolean
+  readonly visible: boolean
 
   @IsBoolean()
   @IsNotEmpty()
-  fixed: boolean
+  readonly fixed: boolean
 }
