@@ -1,33 +1,29 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+
 defineProps<{
-  content: string[]
+  items: string[]
 }>()
 
-const click = ref(false)
-
-function isClicked() {
-  click.value = !click.value
-}
+const show = ref(false)
 </script>
 
 <template>
   <div class="relative inline-block">
-    <div class="hover:cursor-pointer" @click="isClicked">
-      <slot name="dropdown-icon"></slot>
-    </div>
-    <div v-show="click">
-      <div
-        class="absolute right-0 w-max rounded-lg bg-white py-1 px-2 shadow-lg"
+    <button class="cursor-pointer" @click="show = !show">
+      <slot name="dropdown-icon" />
+    </button>
+    <ul
+      v-show="show"
+      class="border-gray-light absolute right-0 flex w-max flex-col gap-1 rounded-lg border bg-white p-2 shadow-lg"
+    >
+      <li
+        v-for="item in items"
+        :key="item"
+        class="text-text-title hover:bg-gray/30 active:bg-gray/50 w-full cursor-pointer rounded-lg px-2 py-1 font-medium"
       >
-        <div v-for="c in content" :key="c">
-          <div
-            class="text-text-title hover:text-green my-1 flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-1 text-base font-medium hover:no-underline"
-          >
-            {{ c }}
-          </div>
-        </div>
-      </div>
-    </div>
+        {{ item }}
+      </li>
+    </ul>
   </div>
 </template>

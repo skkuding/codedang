@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Dropdown from '../Molecule/Dropdown.vue'
 import SignatureLogo from '../Atom/SignatureLogo.vue'
-import Fa6RegularUser from '~icons/fa6-regular/user'
+import IconUser from '~icons/fa6-regular/user'
 </script>
 
 <template>
@@ -28,9 +28,11 @@ import Fa6RegularUser from '~icons/fa6-regular/user'
           {{ name }}
         </router-link>
       </nav>
-      <Dropdown :content="['Management', 'Settings', 'Logout']">
+      <Dropdown :items="['Management', 'Settings', 'Logout']">
         <template #dropdown-icon>
-          <Fa6RegularUser class="text-text-title hover:text-green" />
+          <IconUser
+            class="text-text-title text-xl hover:opacity-60 active:opacity-40"
+          />
         </template>
       </Dropdown>
     </div>
