@@ -12,7 +12,6 @@ const userId = 1
 const groupId = 1
 
 const createNoticeDto: CreateNoticeDto = {
-  group_id: groupId,
   title: 'Title',
   content: 'Content',
   visible: true,
@@ -103,7 +102,11 @@ describe('NoticeService', () => {
     })
 
     it('should return new created notice data', async () => {
-      const createResult = await service.createNotice(userId, createNoticeDto)
+      const createResult = await service.createNotice(
+        userId,
+        groupId,
+        createNoticeDto
+      )
       expect(createResult).toEqual(notice)
     })
 
@@ -112,7 +115,7 @@ describe('NoticeService', () => {
         new EntityNotExistException('group')
       )
       await expect(
-        service.createNotice(userId, createNoticeDto)
+        service.createNotice(userId, groupId, createNoticeDto)
       ).rejects.toThrow(EntityNotExistException)
     })
   })

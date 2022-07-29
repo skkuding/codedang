@@ -16,11 +16,12 @@ export class NoticeService {
 
   async createNotice(
     userId: number,
+    groupId: number,
     noticeDto: CreateNoticeDto
   ): Promise<Notice> {
     await this.prisma.group.findUnique({
       where: {
-        id: noticeDto.group_id
+        id: groupId
       },
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
@@ -32,7 +33,7 @@ export class NoticeService {
         visible: noticeDto.visible,
         fixed: noticeDto.fixed,
         group: {
-          connect: { id: noticeDto.group_id }
+          connect: { id: groupId }
         },
         created_by: {
           connect: { id: userId }

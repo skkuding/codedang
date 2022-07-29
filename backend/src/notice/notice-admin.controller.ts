@@ -82,10 +82,15 @@ export class GroupNoticeAdminController {
   @Post()
   async createNotice(
     @Req() req: AuthenticatedRequest,
+    @Param('group_id', ParseIntPipe) groupId: number,
     @Body() createNoticeDto: CreateNoticeDto
   ): Promise<Notice> {
     try {
-      return await this.noticeService.createNotice(req.user.id, createNoticeDto)
+      return await this.noticeService.createNotice(
+        req.user.id,
+        groupId,
+        createNoticeDto
+      )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
