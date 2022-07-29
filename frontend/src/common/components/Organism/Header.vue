@@ -28,10 +28,12 @@ import IconUser from '~icons/fa6-regular/user'
           {{ name }}
         </router-link>
       </nav>
+      <!-- TODO: sign in & sign up button -->
       <Dropdown :items="['Management', 'Settings', 'Logout']">
         <template #dropdown-icon>
+          <!-- add left margin to center navigation -->
           <IconUser
-            class="text-text-title text-xl hover:opacity-60 active:opacity-40"
+            class="text-text-title ml-[8.75rem] text-xl hover:opacity-60 active:opacity-40"
           />
         </template>
       </Dropdown>
