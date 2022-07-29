@@ -1,19 +1,19 @@
 import { IsBoolean, IsNotEmpty, IsString } from 'class-validator'
 
 export class CreateNoticeDto {
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   readonly title: string
 
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   readonly content: string
 
-  @IsBoolean()
   @IsNotEmpty()
+  @IsBoolean()
   readonly visible: boolean
 
-  @IsBoolean()
   @IsNotEmpty()
+  @IsBoolean()
   readonly fixed: boolean
 }

@@ -1,19 +1,19 @@
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator'
+import { IsBoolean, IsOptional, IsString } from 'class-validator'
 
 export class UpdateNoticeDto {
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   readonly title: string
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   readonly content: string
 
+  @IsOptional()
   @IsBoolean()
-  @IsNotEmpty()
   readonly visible: boolean
 
+  @IsOptional()
   @IsBoolean()
-  @IsNotEmpty()
   readonly fixed: boolean
 }
