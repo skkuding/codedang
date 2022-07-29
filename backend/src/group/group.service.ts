@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { UserGroup } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
@@ -14,6 +15,19 @@ export class GroupService {
       select: {
         is_registered: true,
         is_group_manager: true
+      }
+    })
+  }
+
+  async getUserGroupManagerList(userId: number): Promise<Partial<UserGroup>[]> {
+    return await this.prisma.userGroup.findMany({
+      where: {
+        user_id: userId,
+        is_registered: true,
+        is_group_manager: true
+      },
+      select: {
+        group_id: true
       }
     })
   }
