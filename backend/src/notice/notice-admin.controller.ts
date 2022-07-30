@@ -51,9 +51,21 @@ export class NoticeAdminController {
     }
   }
 
-  @Patch(':id')
-  async updateNotice(): Promise<void> {
-    // TODO: visible 수정 기능 구현
+  @Patch(':group_id/:id')
+  @UseGuards(GroupManagerGuard)
+  async updateNotice(
+    @Param('group_id') groupId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateNoticeDto: UpdateNoticeDto
+  ): Promise<Notice> {
+    try {
+      return await this.noticeService.updateNotice(id, updateNoticeDto)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 
   @Delete(':group_id/:id')
