@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Dropdown from '../Molecule/Dropdown.vue'
+import ListItem from '../Atom/ListItem.vue'
 import SignatureLogo from '../Atom/SignatureLogo.vue'
 import IconUser from '~icons/fa6-regular/user'
 </script>
@@ -29,12 +30,17 @@ import IconUser from '~icons/fa6-regular/user'
         </router-link>
       </nav>
       <!-- TODO: sign in & sign up button -->
-      <Dropdown :items="['Management', 'Settings', 'Logout']">
-        <template #dropdown-icon>
+      <Dropdown>
+        <template #button>
           <!-- add left margin to center navigation -->
           <IconUser
             class="text-text-title ml-[8.75rem] text-xl hover:opacity-60 active:opacity-40"
           />
+        </template>
+        <template #items>
+          <ListItem>Management</ListItem>
+          <ListItem>Settings</ListItem>
+          <ListItem>Logout</ListItem>
         </template>
       </Dropdown>
     </div>
