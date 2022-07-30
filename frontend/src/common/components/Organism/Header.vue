@@ -48,9 +48,8 @@ const isMenuOpen = ref(false)
           enter-from-class="opacity-0"
           leave-to-class="opacity-0"
           mode="out-in"
-          class="hidden md:flex"
         >
-          <Dropdown v-if="auth">
+          <Dropdown v-if="auth" class="hidden md:inline-block">
             <template #button>
               <!-- add left margin to center navigation -->
               <IconUser
@@ -64,7 +63,7 @@ const isMenuOpen = ref(false)
               <!-- TODO: log out functionality -->
             </template>
           </Dropdown>
-          <div v-else class="ml-2 flex gap-2">
+          <div v-else class="ml-2 hidden gap-2 md:flex">
             <Button color="gray-dark" class="w-20">Sign Up</Button>
             <Button color="gray-dark" class="w-16" @click="auth = true">
               Log In
