@@ -2,13 +2,17 @@ import { UserNotice } from './interface/user-notice.interface'
 import { Injectable } from '@nestjs/common'
 import { Notice } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { GroupService } from 'src/group/group.service'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { CreateNoticeDto } from './dto/create-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 
 @Injectable()
 export class NoticeService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly group: GroupService
+  ) {}
 
   async createNotice(
     userId: number,
@@ -51,7 +55,8 @@ export class NoticeService {
       select: {
         id: true,
         title: true,
-        create_time: true
+        create_time: true,
+        fixed: true
       },
       skip: offset - 1,
       take: 10
@@ -123,8 +128,8 @@ export class NoticeService {
         id: true,
         title: true,
         update_time: true,
-        fixed: true,
-        visible: true
+        visible: true,
+        fixed: true
       },
       skip: offset - 1,
       take: 5
@@ -164,14 +169,16 @@ export class NoticeService {
   }
 
   async getAdminNotices(
-    // TODO: user가 admin으로 있는 group list 가져오는 기능 구현
-    //       id param에서 삭제할 것
-    id: number,
+    userId: number,
     offset: number
   ): Promise<Partial<Notice>[]> {
+    const groupIds = await this.group.getUserGroupManagerList(userId)
+
     return await this.prisma.notice.findMany({
       where: {
-        created_by_id: id
+        group_id: {
+          in: groupIds
+        }
       },
       select: {
         id: true,
