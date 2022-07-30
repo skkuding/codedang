@@ -5,6 +5,7 @@ import { NoticeService } from './notice.service'
 import { CreateNoticeDto } from './dto/create-notice.dto'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
+import { GroupService } from 'src/group/group.service'
 
 const noticeId = 2
 const userId = 1
@@ -69,18 +70,27 @@ const db = {
   },
   group: {
     findUnique: jest.fn().mockResolvedValue(group)
+  },
+  userGroup: {
+    findMany: jest.fn().mockResolvedValue([groupId])
   }
 }
 
 describe('NoticeService', () => {
   let service: NoticeService
+  let groupService: GroupService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [NoticeService, { provide: PrismaService, useValue: db }]
+      providers: [
+        NoticeService,
+        GroupService,
+        { provide: PrismaService, useValue: db }
+      ]
     }).compile()
 
     service = module.get<NoticeService>(NoticeService)
+    groupService = module.get<GroupService>(GroupService)
   })
 
   it('should be defined', () => {
@@ -112,17 +122,20 @@ describe('NoticeService', () => {
       {
         id: noticePrev.id,
         title: noticePrev.title,
-        create_time: noticePrev.create_time
+        create_time: noticePrev.create_time,
+        fixed: noticePrev.fixed
       },
       {
         id: notice.id,
         title: notice.title,
-        create_time: notice.create_time
+        create_time: notice.create_time,
+        fixed: notice.fixed
       },
       {
         id: noticeNext.id,
         title: noticeNext.title,
-        create_time: noticeNext.create_time
+        create_time: noticeNext.create_time,
+        fixed: noticeNext.fixed
       }
     ]
 
@@ -173,35 +186,35 @@ describe('NoticeService', () => {
     })
   })
 
-  describe('getAdminNotices', () => {
+  describe('getAdminNoticesByGroupId', () => {
     const noticeArray = [
       {
         id: noticePrev.id,
-        group: group,
         title: noticePrev.title,
-        create_time: noticePrev.create_time,
-        visible: noticePrev.visible
+        update_time: noticePrev.update_time,
+        visible: noticePrev.visible,
+        fixed: noticePrev.fixed
       },
       {
         id: notice.id,
-        group: group,
         title: notice.title,
-        create_time: notice.create_time,
-        visible: notice.visible
+        update_time: notice.update_time,
+        visible: notice.visible,
+        fixed: notice.fixed
       },
       {
         id: noticeNext.id,
-        group: group,
         title: noticeNext.title,
-        create_time: noticeNext.create_time,
-        visible: noticeNext.visible
+        update_time: noticeNext.update_time,
+        visible: noticeNext.visible,
+        fixed: noticeNext.fixed
       }
     ]
 
     it('should return notice list of the group', async () => {
       db.notice.findMany.mockResolvedValue(noticeArray)
 
-      const getNoticesByGroupId = await service.getAdminNotices(userId, 1)
+      const getNoticesByGroupId = await service.getAdminNotices(groupId, 1)
       expect(getNoticesByGroupId).toEqual(noticeArray)
     })
   })
@@ -209,7 +222,6 @@ describe('NoticeService', () => {
   describe('getAdminNotice', () => {
     const adminNotice = {
       group: {
-        id: group.id,
         group_name: group.group_name
       },
       title: notice.title,
@@ -217,6 +229,7 @@ describe('NoticeService', () => {
       visible: notice.visible,
       fixed: notice.fixed
     }
+
     it('should return a notice', async () => {
       db.notice.findUnique.mockResolvedValueOnce(adminNotice)
 
@@ -232,6 +245,53 @@ describe('NoticeService', () => {
       await expect(service.getAdminNotice(noticeId)).rejects.toThrow(
         EntityNotExistException
       )
+    })
+  })
+
+  describe('getAdminNotices', () => {
+    const noticeArray = [
+      {
+        id: noticePrev.id,
+        group: {
+          id: group.id,
+          group_name: group.group_name
+        },
+        title: noticePrev.title,
+        update_time: noticePrev.update_time,
+        visible: noticePrev.visible
+      },
+      {
+        id: notice.id,
+        group: {
+          id: group.id,
+          group_name: group.group_name
+        },
+        title: notice.title,
+        update_time: notice.update_time,
+        visible: notice.visible
+      },
+      {
+        id: noticeNext.id,
+        group: {
+          id: group.id,
+          group_name: group.group_name
+        },
+        title: noticeNext.title,
+        update_time: noticeNext.update_time,
+        visible: noticeNext.visible
+      }
+    ]
+
+    it('should return notice list of the group', async () => {
+      const getUserGroupManagerListSpy = jest.spyOn(
+        groupService,
+        'getUserGroupManagerList'
+      )
+      db.notice.findMany.mockResolvedValue(noticeArray)
+
+      const getNoticesByGroupId = await service.getAdminNotices(userId, 1)
+      expect(getUserGroupManagerListSpy).toBeCalledWith(userId)
+      expect(getNoticesByGroupId).toEqual(noticeArray)
     })
   })
 
