@@ -6,6 +6,7 @@ import {
 import { NoticeAdminController } from './notice-admin.controller'
 import { NoticeService } from './notice.service'
 import { GroupService } from 'src/group/group.service'
+import { UserService } from 'src/user/user.service'
 
 describe('PublicNoticeController', () => {
   let controller: PublicNoticeController
@@ -15,6 +16,7 @@ describe('PublicNoticeController', () => {
       controllers: [PublicNoticeController],
       providers: [
         { provide: NoticeService, useValue: {} },
+        { provide: UserService, useValue: {} },
         { provide: GroupService, useValue: {} }
       ]
     }).compile()
@@ -35,6 +37,7 @@ describe('GroupNoticeController', () => {
       controllers: [GroupNoticeController],
       providers: [
         { provide: NoticeService, useValue: {} },
+        { provide: UserService, useValue: {} },
         { provide: GroupService, useValue: {} }
       ]
     }).compile()
@@ -55,6 +58,28 @@ describe('NoticeAdminController', () => {
       controllers: [NoticeAdminController],
       providers: [
         { provide: NoticeService, useValue: {} },
+        { provide: UserService, useValue: {} },
+        { provide: GroupService, useValue: {} }
+      ]
+    }).compile()
+
+    controller = module.get<NoticeAdminController>(NoticeAdminController)
+  })
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined()
+  })
+})
+
+describe('GroupNoticeAdminController', () => {
+  let controller: NoticeAdminController
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [NoticeAdminController],
+      providers: [
+        { provide: NoticeService, useValue: {} },
+        { provide: UserService, useValue: {} },
         { provide: GroupService, useValue: {} }
       ]
     }).compile()

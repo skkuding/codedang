@@ -9,13 +9,16 @@ import {
   InternalServerErrorException
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
-import { Notice } from '@prisma/client'
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
+import { Notice, Role } from '@prisma/client'
+import { Public } from 'src/common/decorator/public.decorator'
+import { Roles } from 'src/common/decorator/roles.decorator'
+import { RolesGuard } from 'src/user/guard/roles.guard'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { UserNotice } from './interface/user-notice.interface'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 
 @Controller('notice')
+@Public()
 export class PublicNoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
@@ -40,7 +43,8 @@ export class PublicNoticeController {
 }
 
 @Controller('group/:group_id/notice')
-@UseGuards(JwtAuthGuard, GroupMemberGuard)
+@Roles(Role.User)
+@UseGuards(RolesGuard, GroupMemberGuard)
 export class GroupNoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
