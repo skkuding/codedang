@@ -121,7 +121,6 @@ export class GroupNoticeAdminController {
     }
   }
 
-  // TODO: fixed/visible 수정하는 함수 추가 구현
   @Patch(':id')
   async updateNotice(
     @Param('id', ParseIntPipe) id: number,

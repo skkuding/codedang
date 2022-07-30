@@ -212,10 +212,7 @@ export class NoticeService {
         id: id
       },
       data: {
-        title: noticeDto.title,
-        content: noticeDto.content,
-        visible: noticeDto.visible,
-        fixed: noticeDto.fixed
+        ...noticeDto
       }
     })
 
