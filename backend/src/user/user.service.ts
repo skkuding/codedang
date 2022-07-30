@@ -19,4 +19,11 @@ export class UserService {
       where: { username }
     })
   }
+
+  async updateLastLogin(username: string) {
+    await this.prisma.user.update({
+      where: { username },
+      data: { last_login: new Date() }
+    })
+  }
 }

@@ -14,6 +14,8 @@ import { SubmissionModule } from './submission/submission.module'
 import { UserModule } from './user/user.module'
 import { WorkbookModule } from './workbook/workbook.module'
 import { CacheConfigService } from './common/cache/cacheConfig.service'
+import { APP_GUARD } from '@nestjs/core'
+import { JwtAuthGuard } from './auth/guard/jwt-auth.guard'
 
 @Module({
   imports: [
@@ -33,6 +35,6 @@ import { CacheConfigService } from './common/cache/cacheConfig.service'
     WorkbookModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }]
 })
 export class AppModule {}
