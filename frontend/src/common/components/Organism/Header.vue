@@ -15,7 +15,7 @@ const auth = ref(false)
     <div class="flex w-full max-w-7xl items-center justify-between">
       <router-link to="/">
         <SignatureLogo
-          class="hidden w-40 hover:opacity-60 active:opacity-40 md:block"
+          class="hidden w-40 cursor-pointer hover:opacity-60 active:opacity-40 md:block"
         />
       </router-link>
       <nav class="text-text-title flex gap-4">
