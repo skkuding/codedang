@@ -51,10 +51,9 @@ export class NoticeAdminController {
     }
   }
 
-  @Patch(':group_id/:id')
+  @Patch(':id')
   @UseGuards(GroupManagerGuard)
   async updateNotice(
-    @Param('group_id') groupId: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateNoticeDto: UpdateNoticeDto
   ): Promise<Notice> {
