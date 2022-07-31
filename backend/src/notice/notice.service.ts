@@ -78,43 +78,34 @@ export class NoticeService {
       },
       rejectOnNotFound: () => new EntityNotExistException('notice')
     })
-    const notice = { current: current }
 
-    notice['prev'] = await this.prisma.notice.findFirst({
-      where: {
-        id: {
-          lt: id
+    const navigate = (pos: 'prev' | 'next') => {
+      type order = 'asc' | 'desc'
+      const options =
+        pos === 'prev'
+          ? { compare: { lt: id }, order: 'desc' as order }
+          : { compare: { gt: id }, order: 'asc' as order }
+      return {
+        where: {
+          id: options.compare,
+          group_id: groupId,
+          visible: true
         },
-        group_id: groupId,
-        visible: true
-      },
-      orderBy: {
-        id: 'desc'
-      },
-      select: {
-        id: true,
-        title: true
-      }
-    })
-
-    notice['next'] = await this.prisma.notice.findFirst({
-      where: {
-        id: {
-          gt: id
+        orderBy: {
+          id: options.order
         },
-        group_id: groupId,
-        visible: true
-      },
-      orderBy: {
-        id: 'asc'
-      },
-      select: {
-        id: true,
-        title: true
+        select: {
+          id: true,
+          title: true
+        }
       }
-    })
+    }
 
-    return notice
+    return {
+      current,
+      prev: await this.prisma.notice.findFirst(navigate('prev')),
+      next: await this.prisma.notice.findFirst(navigate('next'))
+    }
   }
 
   async getAdminNoticesByGroupId(
