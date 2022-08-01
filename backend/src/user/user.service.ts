@@ -45,6 +45,7 @@ import { WithdrawalDto } from './dto/withdrawal.dto'
 import { AuthService } from 'src/auth/auth.service'
 import { GetUserProfileDto } from './dto/get-userprofile.dto'
 import { UpdateUserRealNameDto } from './dto/update-user-realname.dto'
+import { UpdateUserEmailDto } from './dto/update-user-email.dto'
 
 @Injectable()
 export class UserService {
@@ -324,8 +325,19 @@ export class UserService {
     return userProfile
   }
 
-  //TODO: implement update email
-  async updateUserEmail(userId: number, updateUserEmailDto: UpdateUserEmai)
+  async updateUserEmail(
+    userId: number,
+    updateUserEmailDto: UpdateUserEmailDto
+  ): Promise<User> {
+    //TODO: authenticate email with code
+
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        email: updateUserEmailDto.email
+      }
+    })
+  }
 
   async updateUserRealName(
     userId: number,

@@ -11,7 +11,7 @@ import {
   UnauthorizedException,
   UseGuards
 } from '@nestjs/common'
-import { UserProfile } from '@prisma/client'
+import { UserProfile, User } from '@prisma/client'
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
@@ -31,6 +31,7 @@ import { UserEmailDto } from './dto/userEmail.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
 import { PasswordResetPinDto } from './dto/passwordResetPin.dto'
 import { Request, Response } from 'express'
+import { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import { AUTH_TYPE } from './constants/jwt.constants'
 import { Public } from '../common/decorator/public.decorator'
 
@@ -148,6 +149,22 @@ export class UserController {
       if (error instanceof EntityNotExistException) {
         throw new UnauthorizedException(error.message)
       }
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Patch()
+  @UseGuards(JwtAuthGuard)
+  async updateUserEmail(
+    @Req() req: AuthenticatedRequest,
+    @Body() updateUserEmail: UpdateUserEmailDto
+  ): Promise<User> {
+    try {
+      return await this.userService.updateUserEmail(
+        req.user.id,
+        updateUserEmail
+      )
+    } catch (error) {
       throw new InternalServerErrorException()
     }
   }
