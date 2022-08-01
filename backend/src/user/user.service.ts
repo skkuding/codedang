@@ -284,15 +284,12 @@ export class UserService {
   }
 
   async deleteUser(username: string) {
-    const user: User = await this.prisma.user.findUnique({
+    await this.prisma.user.findUnique({
       where: {
         username
-      }
+      },
+      rejectOnNotFound: () => new EntityNotExistException('User')
     })
-
-    if (!user) {
-      throw new EntityNotExistException('User')
-    }
 
     await this.prisma.user.delete({
       where: {
@@ -302,7 +299,7 @@ export class UserService {
   }
 
   async getUserProfile(username: string): Promise<GetUserProfileDto> {
-    const userProfile = await this.prisma.user.findUnique({
+    return await this.prisma.user.findUnique({
       where: { username },
       select: {
         username: true,
@@ -315,14 +312,9 @@ export class UserService {
             real_name: true
           }
         }
-      }
+      },
+      rejectOnNotFound: () => new EntityNotExistException('User')
     })
-
-    if (!userProfile) {
-      throw new EntityNotExistException('User')
-    }
-
-    return userProfile
   }
 
   async updateUserEmail(
@@ -343,13 +335,10 @@ export class UserService {
     userId: number,
     updateUserProfileRealNameDto: UpdateUserProfileRealNameDto
   ): Promise<UserProfile> {
-    const userProfile = await this.prisma.userProfile.findUnique({
-      where: { user_id: userId }
+    await this.prisma.userProfile.findUnique({
+      where: { user_id: userId },
+      rejectOnNotFound: () => new EntityNotExistException('UserProfile')
     })
-
-    if (!userProfile) {
-      throw new EntityNotExistException('UserProfile')
-    }
 
     return await this.prisma.userProfile.update({
       where: { user_id: userId },

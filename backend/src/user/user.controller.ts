@@ -178,7 +178,7 @@ export class UserController {
     try {
       return await this.userService.updateUserProfileRealName(
         req.user.id,
-        UpdateUserProfileRealNameDto
+        updateUserProfileRealNameDto
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
