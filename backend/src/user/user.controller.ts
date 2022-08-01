@@ -100,9 +100,12 @@ export class UserController {
   }
 
   @Post('/signup')
-  async signUp(@Body() signUpDto: SignUpDto) {
+  async signUp(@Req() req: Request, @Body() signUpDto: SignUpDto) {
+    const emailAuthToken = req.cookies['email_auth_token']
+    if (!emailAuthToken) throw new UnauthorizedException('Invalid Token')
+
     try {
-      await this.userService.signUp(signUpDto)
+      await this.userService.signUp(emailAuthToken, signUpDto)
       return
     } catch (error) {
       if (error instanceof UnprocessableDataException) {

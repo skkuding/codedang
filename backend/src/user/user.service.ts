@@ -203,15 +203,18 @@ export class UserService {
     return await this.jwtService.signAsync(payload, { expiresIn: ttl })
   }
 
-  async signUp(signUpDto: SignUpDto): Promise<User> {
-    // TODO: 인증된 Email인지 확인 Cache or JWT
+  async signUp(emailAuthToken: string, signUpDto: SignUpDto): Promise<User> {
+    //const { email } = await this.authService.verifyJwtToken(emailAuthToken)
+    const email = 'authenticated email by jwt'
+    if (email != signUpDto.email) {
+      throw new UnprocessableDataException('The email is not authenticated one')
+    }
 
     const duplicatedUser: User = await this.prisma.user.findUnique({
       where: {
         username: signUpDto.username
       }
     })
-
     if (duplicatedUser) {
       throw new UnprocessableDataException('Username already exists')
     }
