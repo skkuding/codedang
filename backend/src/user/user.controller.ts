@@ -23,7 +23,7 @@ import {
   InvalidPinException
 } from 'src/common/exception/business.exception'
 import { GetUserProfileDto } from './dto/get-userprofile.dto'
-import { SignUpDto } from './dto/sign-up.dto'
+import { SignUpDto } from './dto/signup.dto'
 import { UpdateUserRealNameDto } from './dto/update-user-realname.dto'
 import { WithdrawalDto } from './dto/withdrawal.dto'
 import { UserService } from './user.service'

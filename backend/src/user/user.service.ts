@@ -325,6 +325,7 @@ export class UserService {
   }
 
   //TODO: implement update email
+  async updateUserEmail(userId: number, updateUserEmailDto: UpdateUserEmai)
 
   async updateUserRealName(
     userId: number,

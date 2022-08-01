@@ -7,19 +7,19 @@ import {
 } from 'class-validator'
 
 export class SignUpDto {
-  @IsNotEmpty()
   @IsAlphanumeric()
+  @IsNotEmpty()
   readonly username: string
 
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
   readonly password: string
 
-  @IsNotEmpty()
   @IsEmail()
+  @IsNotEmpty()
   readonly email: string
 
-  @IsNotEmpty()
   @IsAlpha()
+  @IsNotEmpty()
   readonly real_name: string
 }
