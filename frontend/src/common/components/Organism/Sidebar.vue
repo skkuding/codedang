@@ -15,15 +15,15 @@ const props = defineProps<{
 
 const sidebarColor = computed(() => {
   if (props.color === 'blue') {
-    return 'border-l-blue border-l-8'
+    return 'border-l-blue border-l-8 !pl-8'
   } else if (props.color === 'gray') {
-    return 'border-l-gray border-l-8'
+    return 'border-l-gray border-l-8 !pl-8'
   } else if (props.color === 'gray-dark') {
-    return 'border-l-gray-dark border-l-8'
+    return 'border-l-gray-dark border-l-8 !pl-8'
   } else if (props.color === 'white') {
-    return 'border-l-white border-l-8'
+    return 'border-l-white border-l-8 !pl-8'
   } else {
-    return 'border-l-green border-l-8'
+    return 'border-l-green border-l-8 !pl-8'
   }
 })
 </script>
@@ -32,90 +32,90 @@ const sidebarColor = computed(() => {
   <div
     class="bg-gray-light fixed top-0 bottom-0 left-0 h-full w-[200px] overflow-auto"
   >
-    <div class="align-center flex justify-center">
+    <router-link to="/" class="align-center flex justify-center">
       <img src="@/../codingPlatformLogo.png" class="m-6 h-[77px] w-[155px]" />
-    </div>
+    </router-link>
     <div class="text-gray-dark">
       <hr class="bg-gray h-0.5 border-none opacity-25" />
       <router-link
-        class="flex p-2 pl-10 font-bold"
+        class="flex items-center p-2 pl-10 font-medium hover:shadow"
         :active-class="sidebarColor"
         to="/"
       >
-        <BiHouse class="mr-2" />
+        <BiHouse class="mr-2 h-4" />
         SKKUDING
       </router-link>
       <hr class="bg-gray h-0.5 border-none opacity-25" />
 
       <router-link
-        class="flex p-2 pl-10 font-bold"
+        class="flex items-center p-2 pl-10 font-medium hover:shadow"
         :active-class="sidebarColor"
         to="/notice"
       >
-        <File class="mr-2" />
+        <File class="mr-2 h-4" />
         Notice
       </router-link>
-      <hr class="bg-gray h-0.5 border-none opacity-25" />
+      <hr class="bg-gray h-px border-none opacity-25" />
 
       <router-link
-        class="flex p-2 pl-10 font-bold"
+        class="flex items-center p-2 pl-10 font-medium hover:shadow"
         :active-class="sidebarColor"
         to="/contest"
       >
-        <Trophy class="mr-2" />
+        <Trophy class="mr-2 h-4" />
         Contest
       </router-link>
-      <hr class="bg-gray h-0.5 border-none opacity-25" />
+      <hr class="bg-gray h-px border-none opacity-25" />
 
       <router-link
-        class="flex p-2 pl-10 font-bold"
+        class="flex items-center p-2 pl-10 font-medium hover:shadow"
         :active-class="sidebarColor"
         to="/workbook"
       >
-        <Book class="mr-2" />
+        <Book class="mr-2 h-4" />
         Workbook
       </router-link>
-      <hr class="bg-gray h-0.5 border-none opacity-25" />
+      <hr class="bg-gray h-px border-none opacity-25" />
 
       <router-link
-        class="flex p-2 pl-10 font-bold"
+        class="flex items-center p-2 pl-10 font-medium hover:shadow"
         :active-class="sidebarColor"
         to="/problem"
       >
-        <Brain class="mr-2" />
+        <Brain class="mr-2 h-4" />
         Problem
       </router-link>
-      <hr class="bg-gray h-0.5 border-none opacity-25" />
+      <hr class="bg-gray h-px border-none opacity-25" />
 
       <router-link
-        class="flex p-2 pl-10 font-bold"
+        class="flex items-center p-2 pl-10 font-medium hover:shadow"
         :active-class="sidebarColor"
         to="/"
       >
-        <Box class="mr-2" />
+        <Box class="mr-2 h-4" />
         Problem Pool
       </router-link>
-      <hr class="bg-gray h-0.5 border-none opacity-25" />
+      <hr class="bg-gray h-px border-none opacity-25" />
 
       <router-link
-        class="flex p-2 pl-10 font-bold"
+        class="flex items-center p-2 pl-10 font-medium hover:shadow"
         :active-class="sidebarColor"
         to="/"
       >
-        <User class="mr-2" />
+        <User class="mr-2 h-4" />
         Member
       </router-link>
-      <hr class="bg-gray h-0.5 border-none opacity-25" />
+      <hr class="bg-gray h-px border-none opacity-25" />
 
       <router-link
-        class="flex p-2 pl-10 font-bold"
+        class="flex items-center p-2 pl-10 font-medium hover:shadow"
         :active-class="sidebarColor"
         to="/"
       >
-        <Code class="mr-2" />
+        <Code class="mr-2 h-4" />
         Submission
       </router-link>
-      <hr class="bg-gray h-0.5 border-none opacity-25" />
+      <hr class="bg-gray h-px border-none opacity-25" />
     </div>
   </div>
 </template>
