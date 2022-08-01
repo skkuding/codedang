@@ -44,7 +44,7 @@ import { UserGroupData } from 'src/group/interface/user-group-data.interface'
 import { WithdrawalDto } from './dto/withdrawal.dto'
 import { AuthService } from 'src/auth/auth.service'
 import { GetUserProfileDto } from './dto/get-userprofile.dto'
-import { UpdateUserRealNameDto } from './dto/update-user-realname.dto'
+import { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
 
 @Injectable()
@@ -339,9 +339,9 @@ export class UserService {
     })
   }
 
-  async updateUserRealName(
+  async updateUserProfileRealName(
     userId: number,
-    updateUserRealNameDto: UpdateUserRealNameDto
+    updateUserProfileRealNameDto: UpdateUserProfileRealNameDto
   ): Promise<UserProfile> {
     const userProfile = await this.prisma.userProfile.findUnique({
       where: { user_id: userId }
@@ -354,7 +354,7 @@ export class UserService {
     return await this.prisma.userProfile.update({
       where: { user_id: userId },
       data: {
-        real_name: updateUserRealNameDto.real_name
+        real_name: updateUserProfileRealNameDto.real_name
       }
     })
   }

@@ -24,7 +24,7 @@ import {
 } from 'src/common/exception/business.exception'
 import { GetUserProfileDto } from './dto/get-userprofile.dto'
 import { SignUpDto } from './dto/signup.dto'
-import { UpdateUserRealNameDto } from './dto/update-user-realname.dto'
+import { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
 import { WithdrawalDto } from './dto/withdrawal.dto'
 import { UserService } from './user.service'
 import { UserEmailDto } from './dto/userEmail.dto'
@@ -153,7 +153,7 @@ export class UserController {
     }
   }
 
-  @Patch()
+  @Patch('/email')
   @UseGuards(JwtAuthGuard)
   async updateUserEmail(
     @Req() req: AuthenticatedRequest,
@@ -169,16 +169,16 @@ export class UserController {
     }
   }
 
-  @Patch()
+  @Patch('/realname')
   @UseGuards(JwtAuthGuard)
-  async updateUserRealName(
+  async updateUserProfileRealName(
     @Req() req: AuthenticatedRequest,
-    @Body() updateUserRealNameDto: UpdateUserRealNameDto
+    @Body() updateUserProfileRealNameDto: UpdateUserProfileRealNameDto
   ): Promise<UserProfile> {
     try {
-      return await this.userService.updateUserRealName(
+      return await this.userService.updateUserProfileRealName(
         req.user.id,
-        updateUserRealNameDto
+        UpdateUserProfileRealNameDto
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
