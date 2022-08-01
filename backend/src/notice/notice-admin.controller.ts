@@ -5,7 +5,6 @@ import {
   Patch,
   Post,
   Req,
-  Res,
   Query,
   Param,
   Body,
@@ -36,50 +35,6 @@ export class NoticeAdminController {
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
     return await this.noticeService.getAdminNotices(req.user.id, offset)
-  }
-
-  @Get(':id')
-  async redirect(@Res() res, @Param('id', ParseIntPipe) id: number) {
-    try {
-      const groupId = (await this.noticeService.getGroup(id)).group_id
-      return res.redirect('admin/group/' + groupId + 'notice/' + id)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Patch(':id')
-  async updateNotice(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateNoticeDto: UpdateNoticeDto
-  ): Promise<Notice> {
-    try {
-      return await this.noticeService.updateNotice(id, updateNoticeDto)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Delete(':group_id/:id')
-  @UseGuards(GroupManagerGuard)
-  async deleteNotice(
-    @Param('group_id') groupId: number,
-    @Param('id', ParseIntPipe) id: number
-  ) {
-    try {
-      await this.noticeService.deleteNotice(id)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-      throw new InternalServerErrorException('fail to delete')
-    }
   }
 }
 

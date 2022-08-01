@@ -108,6 +108,36 @@ export class NoticeService {
     }
   }
 
+  async getAdminNotices(
+    userId: number,
+    offset: number
+  ): Promise<Partial<Notice>[]> {
+    const groupIds = await this.group.getUserGroupManagerList(userId)
+
+    return await this.prisma.notice.findMany({
+      where: {
+        group_id: {
+          in: groupIds
+        }
+      },
+      select: {
+        id: true,
+        group: {
+          select: {
+            id: true,
+            group_name: true
+          }
+        },
+        title: true,
+        update_time: true,
+        created_by: true,
+        visible: true
+      },
+      skip: offset - 1,
+      take: 5
+    })
+  }
+
   async getAdminNoticesByGroupId(
     groupId: number,
     offset: number
@@ -128,18 +158,6 @@ export class NoticeService {
     })
   }
 
-  async getGroup(id: number): Promise<Partial<Notice>> {
-    return await this.prisma.notice.findUnique({
-      where: {
-        id: id
-      },
-      select: {
-        group_id: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('notice')
-    })
-  }
-
   async getAdminNotice(id: number): Promise<Partial<Notice>> {
     return await this.prisma.notice.findUnique({
       where: {
@@ -157,36 +175,6 @@ export class NoticeService {
         fixed: true
       },
       rejectOnNotFound: () => new EntityNotExistException('notice')
-    })
-  }
-
-  async getAdminNotices(
-    userId: number,
-    offset: number
-  ): Promise<Partial<Notice>[]> {
-    const groupIds = await this.group.getUserGroupManagerList(userId)
-
-    return await this.prisma.notice.findMany({
-      where: {
-        group_id: {
-          in: groupIds
-        }
-      },
-      select: {
-        id: true,
-        group: {
-          select: {
-            id: true, // TODO: 리디렉션으로 구현할 경우 삭제
-            group_name: true
-          }
-        },
-        title: true,
-        update_time: true,
-        created_by: true,
-        visible: true
-      },
-      skip: offset - 1,
-      take: 5
     })
   }
 
