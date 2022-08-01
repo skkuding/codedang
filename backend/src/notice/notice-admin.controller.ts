@@ -14,9 +14,7 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
-import { Notice, Role } from '@prisma/client'
-import { Roles } from 'src/common/decorator/roles.decorator'
-import { RolesGuard } from 'src/user/guard/roles.guard'
+import { Notice } from '@prisma/client'
 import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
@@ -24,8 +22,6 @@ import { CreateNoticeDto } from './dto/create-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 
 @Controller('admin/notice')
-@Roles(Role.GroupAdmin)
-@UseGuards(RolesGuard)
 export class NoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
@@ -39,8 +35,7 @@ export class NoticeAdminController {
 }
 
 @Controller('admin/group/:group_id/notice')
-@Roles(Role.GroupAdmin)
-@UseGuards(RolesGuard, GroupManagerGuard)
+@UseGuards(GroupManagerGuard)
 export class GroupNoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
