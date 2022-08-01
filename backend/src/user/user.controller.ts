@@ -11,7 +11,7 @@ import {
   UnauthorizedException,
   UseGuards
 } from '@nestjs/common'
-import { UserProfile, User, Role } from '@prisma/client'
+import { UserProfile, User } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
   EntityNotExistException,
