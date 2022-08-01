@@ -11,8 +11,7 @@ import {
   UnauthorizedException,
   UseGuards
 } from '@nestjs/common'
-import { UserProfile, User } from '@prisma/client'
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
+import { UserProfile, User, Role } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
   EntityNotExistException,
@@ -101,6 +100,7 @@ export class UserController {
   }
 
   @Post('/signup')
+  @Public()
   async signUp(@Req() req: Request, @Body() signUpDto: SignUpDto) {
     const emailAuthToken = req.cookies['email_auth_token']
     if (!emailAuthToken) throw new UnauthorizedException('Invalid Token')
@@ -118,7 +118,6 @@ export class UserController {
   }
 
   @Post('/withdrawal')
-  @UseGuards(JwtAuthGuard)
   async withdrawal(
     @Req() req: AuthenticatedRequest,
     @Body() withdrawalDto: WithdrawalDto
@@ -139,7 +138,6 @@ export class UserController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   async getUserProfile(
     @Req() req: AuthenticatedRequest
   ): Promise<GetUserProfileDto> {
@@ -154,7 +152,6 @@ export class UserController {
   }
 
   @Patch('/email')
-  @UseGuards(JwtAuthGuard)
   async updateUserEmail(
     @Req() req: AuthenticatedRequest,
     @Body() updateUserEmail: UpdateUserEmailDto
@@ -170,7 +167,6 @@ export class UserController {
   }
 
   @Patch('/realname')
-  @UseGuards(JwtAuthGuard)
   async updateUserProfileRealName(
     @Req() req: AuthenticatedRequest,
     @Body() updateUserProfileRealNameDto: UpdateUserProfileRealNameDto
