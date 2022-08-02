@@ -1,6 +1,5 @@
 import {
   Controller,
-  UseGuards,
   Body,
   Get,
   Post,
@@ -22,9 +21,9 @@ import {
   AUTH_TYPE
 } from './constants/jwt.constants'
 import { LoginUserDto } from './dto/login-user.dto'
-import { JwtAuthGuard } from './guard/jwt-auth.guard'
 import { AuthenticatedRequest } from './interface/authenticated-request.interface'
 import { JwtTokens } from './interface/jwt.interface'
+import { Public } from 'src/common/decorator/public.decorator'
 
 @Controller('auth')
 export class AuthController {
@@ -39,6 +38,7 @@ export class AuthController {
     )
   }
 
+  @Public()
   @Post('login')
   async login(
     @Body() loginUserDto: LoginUserDto,
@@ -56,7 +56,6 @@ export class AuthController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(
     @Req() req: AuthenticatedRequest,

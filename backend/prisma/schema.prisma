@@ -80,36 +80,27 @@ model Group {
   create_time     DateTime @default(now())
   update_time     DateTime @updatedAt
 
-  UserGroup   UserGroup[]
-  GroupNotice GroupNotice[]
-  Problem     Problem[]
-  Contest     Contest[]
-  Workbook    Workbook[]
+  UserGroup UserGroup[]
+  Notice    Notice[]
+  Problem   Problem[]
+  Contest   Contest[]
+  Workbook  Workbook[]
 
   @@map("group")
-}
-
-model GroupNotice {
-  id        Int    @id @default(autoincrement())
-  group     Group  @relation(fields: [group_id], references: [id])
-  group_id  Int
-  notice    Notice @relation(fields: [notice_id], references: [id])
-  notice_id Int
-
-  @@map("group_notice")
 }
 
 model Notice {
   id            Int      @id @default(autoincrement())
   created_by    User     @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
   created_by_id Int
+  group         Group    @relation(fields: [group_id], references: [id])
+  group_id      Int
+  title         String
   content       String
   visible       Boolean  @default(true)
-  top_fixed     Boolean  @default(false)
+  fixed         Boolean  @default(false)
   create_time   DateTime @default(now())
   update_time   DateTime @updatedAt
-
-  GroupNotice GroupNotice[]
 
   @@map("notice")
 }
@@ -184,20 +175,21 @@ model Tag {
 }
 
 model Contest {
-  id              Int      @id @default(autoincrement())
-  created_by      User     @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
-  created_by_id   Int
-  group           Group    @relation(fields: [group_id], references: [id])
-  group_id        Int
-  title           String
-  description     String
-  start_time      DateTime
-  end_time        DateTime
-  visible         Boolean  @default(true)
-  is_rank_visible Boolean  @default(true)
-  type            String   @default("ACM")
-  create_time     DateTime @default(now())
-  update_time     DateTime @updatedAt
+  id                  Int         @id @default(autoincrement())
+  created_by          User        @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
+  created_by_id       Int
+  group               Group       @relation(fields: [group_id], references: [id])
+  group_id            Int
+  title               String
+  description         String
+  description_summary String      @db.VarChar(1200)
+  start_time          DateTime
+  end_time            DateTime
+  visible             Boolean     @default(true)
+  is_rank_visible     Boolean     @default(true)
+  type                ContestType
+  create_time         DateTime    @default(now())
+  update_time         DateTime    @updatedAt
 
   ContestNotice  ContestNotice[]
   ContestProblem ContestProblem[]
@@ -328,4 +320,10 @@ model SubmissionResult {
   update_time   DateTime   @updatedAt
 
   @@map("submssion_result")
+}
+
+enum ContestType {
+  ACM
+  TotalScore
+  ProblemBank
 }
