@@ -1,59 +1,66 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { watch } from 'vue'
+import { useClamp } from '@vueuse/core'
 import Button from '../Atom/Button.vue'
-import AngelLeft from '~icons/fa6-solid/angle-left'
-import AngelRight from '~icons/fa6-solid/angle-right'
-import Ellipsis from '~icons/fa6-solid/ellipsis'
+import IconAngleLeft from '~icons/fa6-solid/angle-left'
+import IconAngleRight from '~icons/fa6-solid/angle-right'
+import IconEllipsis from '~icons/fa6-solid/ellipsis'
 
 const props = defineProps<{
   numberOfPages: number
+  modelValue: number
 }>()
 
-const emit = defineEmits(['change-page'])
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: number): void
+}>()
 
-defineExpose({
-  changePage
+const currentPage = useClamp(props.modelValue, 1, props.numberOfPages)
+
+watch(currentPage, (value) => {
+  emit('update:modelValue', value)
 })
-
-const currentPage = ref(1)
-
-function changePage(page: number): void {
-  if (1 <= page && page <= props.numberOfPages) {
-    currentPage.value = page
-    emit('change-page', currentPage.value)
-  }
-}
 </script>
 
 <template>
-  <div class="flex flex-row">
+  <div class="flex flex-row gap-1">
     <Button
       color="white"
-      :class="currentPage === 1 ? 'pointer-events-none' : ''"
-      class="mr-1 aspect-square rounded-lg"
-      @click="changePage(currentPage - 1)"
+      :class="{ 'pointer-events-none': currentPage === 1 }"
+      class="aspect-square rounded-lg"
+      @click="currentPage--"
     >
-      <AngelLeft />
+      <IconAngleLeft />
     </Button>
 
     <Button
       :color="currentPage === 1 ? 'gray-dark' : 'gray'"
-      :class="currentPage === 1 ? 'pointer-events-none' : ''"
-      class="mr-1 aspect-square w-9 rounded-lg"
-      @click="changePage(1)"
+      :class="{ 'pointer-events-none': currentPage === 1 }"
+      class="aspect-square w-9 rounded-lg"
+      @click="currentPage = 1"
     >
       1
     </Button>
 
-    <div v-if="currentPage - 1 > 2" class="text-gray-dark mr-1 px-2 py-2">
-      <Ellipsis />
+    <!-- edge case workaround -->
+    <Button
+      v-if="currentPage === 4 && numberOfPages === 4"
+      color="gray"
+      class="aspect-square w-9 rounded-lg"
+      @click="currentPage = 2"
+    >
+      2
+    </Button>
+
+    <div v-if="currentPage > 3 && numberOfPages > 4" class="text-gray-dark p-2">
+      <IconEllipsis />
     </div>
 
     <Button
       v-if="currentPage > 2"
       color="gray"
-      class="mr-1 aspect-square w-9 rounded-lg"
-      @click="changePage(currentPage - 1)"
+      class="aspect-square w-9 rounded-lg"
+      @click="currentPage--"
     >
       {{ currentPage - 1 }}
     </Button>
@@ -61,8 +68,7 @@ function changePage(page: number): void {
     <Button
       v-if="![1, numberOfPages].includes(currentPage)"
       color="gray-dark"
-      class="pointer-events-none mr-1 aspect-square w-9 rounded-lg"
-      @click="changePage(currentPage)"
+      class="pointer-events-none aspect-square w-9 rounded-lg"
     >
       {{ currentPage }}
     </Button>
@@ -70,36 +76,46 @@ function changePage(page: number): void {
     <Button
       v-if="currentPage + 1 < numberOfPages"
       color="gray"
-      class="mr-1 aspect-square w-9 rounded-lg"
-      @click="changePage(currentPage + 1)"
+      class="aspect-square w-9 rounded-lg"
+      @click="currentPage++"
     >
       {{ currentPage + 1 }}
     </Button>
 
     <div
-      v-if="numberOfPages - currentPage > 2"
-      class="text-gray-dark mr-1 px-2 py-2"
+      v-if="currentPage < numberOfPages - 2 && numberOfPages > 4"
+      class="text-gray-dark p-2"
     >
-      <Ellipsis />
+      <IconEllipsis />
     </div>
+
+    <!-- edge case workaround -->
+    <Button
+      v-if="currentPage === 1 && numberOfPages === 4"
+      color="gray"
+      class="aspect-square w-9 rounded-lg"
+      @click="currentPage = 3"
+    >
+      3
+    </Button>
 
     <Button
       v-if="numberOfPages > 1"
       :color="currentPage === numberOfPages ? 'gray-dark' : 'gray'"
-      :class="currentPage === numberOfPages ? 'pointer-events-none' : ''"
-      class="mr-1 aspect-square w-9 rounded-lg"
-      @click="changePage(numberOfPages)"
+      :class="{ 'pointer-events-none': currentPage === numberOfPages }"
+      class="aspect-square w-9 rounded-lg"
+      @click="currentPage = numberOfPages"
     >
       {{ numberOfPages }}
     </Button>
 
     <Button
       color="white"
-      :class="currentPage === numberOfPages ? 'pointer-events-none' : ''"
-      class="mr-1 aspect-square rounded-lg"
-      @click="changePage(currentPage + 1)"
+      :class="{ 'pointer-events-none': currentPage === numberOfPages }"
+      class="aspect-square rounded-lg"
+      @click="currentPage++"
     >
-      <AngelRight />
+      <IconAngleRight />
     </Button>
   </div>
 </template>

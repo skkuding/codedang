@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import SearchBar from '../Molecule/SearchBar.vue'
 import Pagination from '../Molecule/Pagination.vue'
-import { ref } from 'vue'
 
 defineProps<{
   fields: {
@@ -21,12 +21,16 @@ defineProps<{
 
 const emit = defineEmits(['row-clicked', 'change-page', 'search'])
 
-const pagination = ref()
+const currentPage = ref(1)
 
 const search = (inputData: string) => {
-  pagination.value.changePage(1)
+  currentPage.value = 1
   emit('search', inputData)
 }
+
+watch(currentPage, (value) => {
+  emit('change-page', value)
+})
 
 const capitalize = (key: string) => {
   return key.charAt(0).toUpperCase() + key.slice(1)
@@ -80,10 +84,9 @@ const capitalize = (key: string) => {
     <div class="flex justify-center">
       <Pagination
         v-if="!noPagination"
-        ref="pagination"
+        v-model="currentPage"
         class="mt-8"
         :number-of-pages="numberOfPages"
-        @change-page="(page) => $emit('change-page', page)"
       />
     </div>
   </div>
