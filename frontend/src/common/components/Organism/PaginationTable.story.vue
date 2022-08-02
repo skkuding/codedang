@@ -7,7 +7,7 @@ const fields = [
     key: 'name',
     label: 'Object'
   },
-  { key: 'color', custom: true }
+  { key: 'color' }
 ]
 
 type itemType = {

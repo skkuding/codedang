@@ -7,7 +7,6 @@ defineProps<{
   fields: {
     key: string
     label?: string
-    custom?: boolean
   }[]
   items: {
     [key: string]: any
@@ -72,8 +71,7 @@ const capitalize = (key: string) => {
             @click="$emit('row-clicked', row)"
           >
             <td v-for="(field, idx) in fields" :key="idx" class="p-2.5 pl-4">
-              <div v-if="!field.custom">{{ row[field.key] }}</div>
-              <slot v-else :name="field.key" :row="row"></slot>
+              <slot :name="field.key" :row="row">{{ row[field.key] }}</slot>
             </td>
           </tr>
         </template>
