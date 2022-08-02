@@ -33,12 +33,16 @@ export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  async getAdminContests(@Req() req: AuthenticatedRequest) {
+  async getAdminContests(
+    @Req() req: AuthenticatedRequest
+  ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminContests(req.user.id)
   }
 
   @Get('ongoing')
-  async getAdminOngoingContests(@Req() req: AuthenticatedRequest) {
+  async getAdminOngoingContests(
+    @Req() req: AuthenticatedRequest
+  ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminOngoingContests(req.user.id)
   }
 }

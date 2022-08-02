@@ -25,7 +25,11 @@ export class ContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  async getContests() {
+  async getContests(): Promise<{
+    ongoing: Partial<Contest>[]
+    upcoming: Partial<Contest>[]
+    finished: Partial<Contest>[]
+  }> {
     return await this.contestService.getContests()
   }
 
@@ -48,7 +52,9 @@ export class ContestController {
   }
 
   @UseGuards(GroupMemberGuard)
-  async getContestsByGroupId(@Param('group_id', ParseIntPipe) groupId: number) {
+  async getContestsByGroupId(
+    @Param('group_id', ParseIntPipe) groupId: number
+  ): Promise<Partial<Contest>[]> {
     return await this.contestService.getContestsByGroupId(groupId)
   }
 }

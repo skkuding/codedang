@@ -11,7 +11,7 @@ import { CreateContestDto } from './dto/create-contest.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
 
 function returnTextIsNotAllowed(user_id: number, contest_id: number): string {
-  return returnTextIsNotAllowed(user_id, contest_id)
+  return `Contest ${contest_id} is not allowed to User ${user_id}`
 }
 
 const contestSelectOption = {
@@ -125,32 +125,36 @@ export class ContestService {
     })
   }
 
-  filterOngoing(allContest) {
+  filterOngoing(contests: Partial<Contest>[]): Partial<Contest>[] {
     const now = new Date()
-    const ongoingContest = allContest.filter(
+    const ongoingContest = contests.filter(
       (contest) => contest.start_time <= now && contest.end_time > now
     )
     return ongoingContest
   }
-  filterUpcoming(allContest) {
-    const ongoingContest = allContest.filter(
+  filterUpcoming(contests: Partial<Contest>[]): Partial<Contest>[] {
+    const ongoingContest = contests.filter(
       (contest) => contest.start_time > new Date()
     )
     return ongoingContest
   }
-  filterFinished(allContest) {
-    const ongoingContest = allContest.filter(
+  filterFinished(contests: Partial<Contest>[]): Partial<Contest>[] {
+    const ongoingContest = contests.filter(
       (contest) => contest.end_time <= new Date()
     )
     return ongoingContest
   }
 
-  async getContests() {
-    const allContest = await this.prisma.contest.findMany(userContestsOption)
+  async getContests(): Promise<{
+    ongoing: Partial<Contest>[]
+    upcoming: Partial<Contest>[]
+    finished: Partial<Contest>[]
+  }> {
+    const contests = await this.prisma.contest.findMany(userContestsOption)
     return {
-      ongoing: this.filterOngoing(allContest),
-      upcoming: this.filterUpcoming(allContest),
-      finished: this.filterFinished(allContest)
+      ongoing: this.filterOngoing(contests),
+      upcoming: this.filterUpcoming(contests),
+      finished: this.filterFinished(contests)
     }
   }
 
@@ -180,14 +184,14 @@ export class ContestService {
     return contest
   }
 
-  async getContestsByGroupId(group_id: number) {
+  async getContestsByGroupId(group_id: number): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
       where: { group_id, visible: true },
       select: contestSelectOption
     })
   }
 
-  async getAdminContests(user_id: number) {
+  async getAdminContests(user_id: number): Promise<Partial<Contest>[]> {
     const groupIds = await this.group.getUserGroupManagerList(user_id)
     return await this.prisma.contest.findMany({
       where: {
@@ -197,7 +201,7 @@ export class ContestService {
     })
   }
 
-  async getAdminOngoingContests(user_id: number) {
+  async getAdminOngoingContests(user_id: number): Promise<Partial<Contest>[]> {
     const contests = await this.getAdminContests(user_id)
     return this.filterOngoing(contests)
   }
