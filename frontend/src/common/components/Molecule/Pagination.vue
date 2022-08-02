@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { watch } from 'vue'
-import { useClamp } from '@vueuse/core'
+import { useClamp } from '@vueuse/math'
 import Button from '../Atom/Button.vue'
 import IconAngleLeft from '~icons/fa6-solid/angle-left'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
