@@ -1,19 +1,19 @@
 import { IsBoolean, IsOptional, IsString } from 'class-validator'
 
 export class UpdateNoticeDto {
-  @IsOptional()
   @IsString()
+  @IsOptional()
   readonly title: string
 
-  @IsOptional()
   @IsString()
+  @IsOptional()
   readonly content: string
 
-  @IsOptional()
   @IsBoolean()
+  @IsOptional()
   readonly visible: boolean
 
-  @IsOptional()
   @IsBoolean()
+  @IsOptional()
   readonly fixed: boolean
 }
