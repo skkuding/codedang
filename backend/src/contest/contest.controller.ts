@@ -12,6 +12,7 @@ import { Contest } from '@prisma/client'
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
+import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { ContestService } from './contest.service'
 
 @Controller('group/:group_id/contest')
@@ -55,16 +56,13 @@ export class ContestController {
   }
 
   /* group */
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, GroupMemberGuard)
   async getContestsByGroupId(
     @Req() req: AuthenticatedRequest,
     @Param('group_id', ParseIntPipe) groupId: number
   ) {
     try {
-      const contests = await this.contestService.getContestsByGroupId(
-        req.user.id,
-        groupId
-      )
+      const contests = await this.contestService.getContestsByGroupId(groupId)
       return contests
     } catch (error) {
       if (error instanceof EntityNotExistException) {

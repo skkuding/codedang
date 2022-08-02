@@ -176,20 +176,12 @@ export class ContestService {
   }
 
   /* group */
-  async getContestsByGroupId(user_id: number, group_id: number) {
+  async getContestsByGroupId(group_id: number) {
     const group = await this.prisma.group.findUnique({
       where: { id: group_id }
     })
     if (!group) {
       throw new EntityNotExistException(`Group ${group_id}`)
-    }
-    const isUserInGroup = await this.prisma.userGroup.findFirst({
-      where: { user_id, group_id, is_registered: true }
-    })
-    if (!isUserInGroup) {
-      throw new InvalidUserException(
-        `User ${user_id} is not in Group ${group_id}`
-      )
     }
     return await this.prisma.contest.findMany({
       where: { group_id, visible: true },
