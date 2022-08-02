@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import PaginationTable from './PaginationTable.vue'
 
 const fields = [{ key: 'name', label: 'Object' }, { key: 'color' }]
@@ -10,7 +10,7 @@ interface Item {
 }
 
 // initial items
-const items = [
+const items: Item[][] = [
   [
     { name: 'Apple', color: 'red' },
     { name: 'Banana', color: 'yellow' },
@@ -27,39 +27,32 @@ const items = [
   ]
 ]
 
-// new items of n pages
-const nitems = ref(items)
-const npage = ref(items.length)
+const shownItems = ref(items)
+const shownPages = ref(items.length)
 
 // items in current page
-const cur = ref(0)
-const curitems = ref(nitems.value[0])
+const currentPage = ref(1)
+const currentItems = computed(() => shownItems.value[currentPage.value - 1])
 
 const filter = (keyword: string) => {
-  let total = []
-  let perPage = []
+  const total = []
   for (const item of items) {
-    for (const row of item) {
-      if (perPage.length === 3) {
-        total.push(perPage)
-        perPage = []
-      }
-      if (row.name.includes(keyword) || row.color.includes(keyword))
-        perPage.push(row)
-    }
+    total.push(
+      ...item.filter(
+        (value) => value.name.includes(keyword) || value.color.includes(keyword)
+      )
+    )
   }
-  if (perPage.length > 0) total.push(perPage)
-
-  nitems.value = total
-  npage.value = nitems.value.length
-
-  curitems.value = nitems.value[0]
-  cur.value = 0
+  shownItems.value.splice(0, shownItems.value.length)
+  while (total.length > 0) {
+    shownItems.value.push(total.splice(0, 3))
+  }
+  shownPages.value = shownItems.value.length
+  currentPage.value = 1
 }
 
 const changeItems = (page: number) => {
-  cur.value = page - 1
-  curitems.value = nitems.value[cur.value]
+  currentPage.value = page
 }
 
 // show name when click the row
@@ -75,9 +68,9 @@ const clickRow = (row: Item) => {
     <Variant title="Basic">
       <PaginationTable
         :fields="fields"
-        :items="curitems"
+        :items="currentItems"
         placeholder="keywords"
-        :number-of-pages="npage"
+        :number-of-pages="shownPages"
         @search="filter"
         @change-page="changeItems"
         @row-clicked="clickRow"

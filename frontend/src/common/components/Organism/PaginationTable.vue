@@ -9,7 +9,7 @@ defineProps<{
     label?: string
   }[]
   items: {
-    [key: string]: any
+    [key: string]: unknown
   }[]
   placeholder?: string
   numberOfPages: number
