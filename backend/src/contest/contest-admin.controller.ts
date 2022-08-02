@@ -11,13 +11,12 @@ import {
   Post,
   Req,
   UnprocessableEntityException,
-  UseGuards,
-  ForbiddenException
+  UseGuards
 } from '@nestjs/common'
 import { ContestService } from './contest.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
-import { Contest } from '@prisma/client'
+import { Contest, Role } from '@prisma/client'
 import {
   EntityNotExistException,
   UnprocessableDataException
@@ -25,10 +24,28 @@ import {
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
+import { Roles } from 'src/common/decorator/roles.decorator'
+
+@Controller('admin/contest')
+@UseGuards(RolesGuard)
+@Roles(Role.GroupAdmin)
+export class ContestAdminController {
+  constructor(private readonly contestService: ContestService) {}
+
+  @Get()
+  async getAdminContests(@Req() req: AuthenticatedRequest) {
+    return await this.contestService.getAdminContests(req.user.id)
+  }
+
+  @Get('ongoing')
+  async getAdminOngoingContests(@Req() req: AuthenticatedRequest) {
+    return await this.contestService.getAdminOngoingContests(req.user.id)
+  }
+}
 
 @Controller('admin/group/:group_id/contest')
 @UseGuards(RolesGuard, GroupManagerGuard)
-export class ContestAdminController {
+export class GroupContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
   @Post()
@@ -73,31 +90,6 @@ export class ContestAdminController {
         throw new NotFoundException(err.message)
       }
       throw new InternalServerErrorException()
-    }
-  }
-
-  /* group admin page */
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  async getAdminContests(@Req() req: AuthenticatedRequest) {
-    try {
-      const contests = await this.contestService.getAdminContests(req.user.id)
-      return contests
-    } catch (error) {
-      throw new ForbiddenException(error.message)
-    }
-  }
-
-  @Get('ongoing')
-  @UseGuards(JwtAuthGuard)
-  async getAdminOngoingContests(@Req() req: AuthenticatedRequest) {
-    try {
-      const contests = await this.contestService.getAdminOngoingContests(
-        req.user.id
-      )
-      return contests
-    } catch (error) {
-      throw new ForbiddenException(error.message)
     }
   }
 

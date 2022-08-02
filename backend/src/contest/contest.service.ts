@@ -5,6 +5,7 @@ import {
   InvalidUserException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
+import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
@@ -38,7 +39,10 @@ const userContestsOption = {
 
 @Injectable()
 export class ContestService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly group: GroupService
+  ) {}
 
   async createContest(
     userId: number,
@@ -193,31 +197,21 @@ export class ContestService {
 
   /* admin */
   async getAdminContests(user_id: number) {
-    const isUserGroupManager = await this.prisma.userGroup.findMany({
-      where: { user_id, is_group_manager: true },
-      select: { group_id: true }
-    })
-    if (!isUserGroupManager) {
-      throw new InvalidUserException(`User ${user_id} is not group manager`)
-    }
-    const groupIdList = isUserGroupManager.map((groupId) => groupId.group_id)
+    const groupIds = await this.group.getUserGroupManagerList(user_id)
     return await this.prisma.group.findMany({
       where: {
-        id: { in: groupIdList }
+        id: { in: groupIds }
       },
       select: {
         id: true,
         group_name: true,
-        Contest: true
+        Contest: { select: contestSelectOption }
       }
     })
   }
 
   async getAdminOngoingContests(user_id: number) {
     const result = await this.getAdminContests(user_id)
-    if (!result) {
-      throw new InvalidUserException(`User ${user_id} is not group manager`)
-    }
     for (const group of result) {
       group.Contest = this.filterOngoing(group.Contest)
     }
