@@ -189,23 +189,16 @@ export class ContestService {
 
   async getAdminContests(user_id: number) {
     const groupIds = await this.group.getUserGroupManagerList(user_id)
-    return await this.prisma.group.findMany({
+    return await this.prisma.contest.findMany({
       where: {
-        id: { in: groupIds }
+        group_id: { in: groupIds }
       },
-      select: {
-        id: true,
-        group_name: true,
-        Contest: { select: contestSelectOption }
-      }
+      select: contestSelectOption
     })
   }
 
   async getAdminOngoingContests(user_id: number) {
-    const result = await this.getAdminContests(user_id)
-    for (const group of result) {
-      group.Contest = this.filterOngoing(group.Contest)
-    }
-    return result
+    const contests = await this.getAdminContests(user_id)
+    return this.filterOngoing(contests)
   }
 }
