@@ -4,13 +4,14 @@ import IconEnvelope from '~icons/fa6-solid/envelope'
 import IconKakaoTalk from '~icons/ri/kakao-talk-fill'
 import IconLink from '~icons/fa6-solid/link'
 import { useClipboard } from '@vueuse/core'
+import { useToast } from '@/common/composables/toast'
 
 const { copy } = useClipboard()
+const openToast = useToast()
 
 const copyEmail = () => {
   copy('skkucodingplatform@gmail.com')
-  // TODO: use custom alert
-  alert('Email copied!')
+  openToast({ message: 'Email copied!', type: 'success' })
 }
 </script>
 
