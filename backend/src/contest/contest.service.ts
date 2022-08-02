@@ -13,19 +13,27 @@ function returnTextIsNotAllowed(user_id: number, contest_id: number): string {
   return returnTextIsNotAllowed(user_id, contest_id)
 }
 
-const contestListselectOption = {
+const contestSelectOption = {
   id: true,
   title: true,
   description: true,
   start_time: true,
   end_time: true,
-  visible: true,
   group_id: true,
-  type: true
+  visible: true,
+  type: true,
+  group: { select: { group_name: true } }
 }
-const userContestListPageOption = {
+const userContestsOption = {
   where: { visible: true },
-  select: contestListselectOption
+  select: {
+    id: true,
+    title: true,
+    start_time: true,
+    end_time: true,
+    type: true,
+    group: { select: { group_name: true } }
+  }
 }
 
 @Injectable()
@@ -123,16 +131,12 @@ export class ContestService {
 
   /* public */
   async getOngoingContests(): Promise<Partial<Contest>[]> {
-    const allContest = await this.prisma.contest.findMany(
-      userContestListPageOption
-    )
+    const allContest = await this.prisma.contest.findMany(userContestsOption)
     return this.filterOngoing(allContest)
   }
 
   async getUpcomingContests(): Promise<Partial<Contest>[]> {
-    const allContest = await this.prisma.contest.findMany(
-      userContestListPageOption
-    )
+    const allContest = await this.prisma.contest.findMany(userContestsOption)
     const returnContest = allContest.filter(
       (contest) => contest.start_time > new Date()
     )
@@ -140,9 +144,7 @@ export class ContestService {
   }
 
   async getFinishedContests(): Promise<Partial<Contest>[]> {
-    const allContest = await this.prisma.contest.findMany(
-      userContestListPageOption
-    )
+    const allContest = await this.prisma.contest.findMany(userContestsOption)
     const returnContest = allContest.filter(
       (contest) => contest.end_time <= new Date()
     )
@@ -155,7 +157,7 @@ export class ContestService {
   ): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contest_id },
-      select: contestListselectOption
+      select: contestSelectOption
     })
     if (!contest) {
       throw new EntityNotExistException(`Contest ${contest_id}`)
@@ -185,7 +187,7 @@ export class ContestService {
     }
     return await this.prisma.contest.findMany({
       where: { group_id, visible: true },
-      select: contestListselectOption
+      select: contestSelectOption
     })
   }
 
