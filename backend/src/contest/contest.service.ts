@@ -132,26 +132,26 @@ export class ContestService {
     )
     return ongoingContest
   }
-
-  async getOngoingContests(): Promise<Partial<Contest>[]> {
-    const allContest = await this.prisma.contest.findMany(userContestsOption)
-    return this.filterOngoing(allContest)
-  }
-
-  async getUpcomingContests(): Promise<Partial<Contest>[]> {
-    const allContest = await this.prisma.contest.findMany(userContestsOption)
-    const returnContest = allContest.filter(
+  filterUpcoming(allContest) {
+    const ongoingContest = allContest.filter(
       (contest) => contest.start_time > new Date()
     )
-    return returnContest
+    return ongoingContest
   }
-
-  async getFinishedContests(): Promise<Partial<Contest>[]> {
-    const allContest = await this.prisma.contest.findMany(userContestsOption)
-    const returnContest = allContest.filter(
+  filterFinished(allContest) {
+    const ongoingContest = allContest.filter(
       (contest) => contest.end_time <= new Date()
     )
-    return returnContest
+    return ongoingContest
+  }
+
+  async getContests() {
+    const allContest = await this.prisma.contest.findMany(userContestsOption)
+    return {
+      ongoing: this.filterOngoing(allContest),
+      upcoming: this.filterUpcoming(allContest),
+      finished: this.filterFinished(allContest)
+    }
   }
 
   async getContestById(

@@ -16,25 +16,15 @@ import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { ContestService } from './contest.service'
 
 @Controller('group/:group_id/contest')
+@UseGuards(JwtAuthGuard)
 export class ContestController {
   constructor(private readonly contestService: ContestService) {}
 
-  @Get('ongoing')
-  async getOngoingContests(): Promise<Partial<Contest>[]> {
-    return await this.contestService.getOngoingContests()
+  @Get()
+  async getContests() {
+    return await this.contestService.getContests()
   }
 
-  @Get('upcoming')
-  async getUpcomingContests(): Promise<Partial<Contest>[]> {
-    return await this.contestService.getUpcomingContests()
-  }
-
-  @Get('finished')
-  async getFinishedContests(): Promise<Partial<Contest>[]> {
-    return await this.contestService.getFinishedContests()
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getContestById(
     @Req() req: AuthenticatedRequest,
@@ -54,7 +44,7 @@ export class ContestController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, GroupMemberGuard)
+  @UseGuards(GroupMemberGuard)
   async getContestsByGroupId(
     @Req() req: AuthenticatedRequest,
     @Param('group_id', ParseIntPipe) groupId: number
