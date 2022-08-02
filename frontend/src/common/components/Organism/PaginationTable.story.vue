@@ -2,15 +2,9 @@
 import { ref } from 'vue'
 import PaginationTable from './PaginationTable.vue'
 
-const fields = [
-  {
-    key: 'name',
-    label: 'Object'
-  },
-  { key: 'color' }
-]
+const fields = [{ key: 'name', label: 'Object' }, { key: 'color' }]
 
-type itemType = {
+interface Item {
   name: string
   color: string
 }
@@ -71,34 +65,43 @@ const changeItems = (page: number) => {
 // show name when click the row
 const selected = ref('')
 
-const clickRow = (row: itemType) => {
+const clickRow = (row: Item) => {
   selected.value = row.name
 }
 </script>
 
 <template>
   <Story>
-    <PaginationTable
-      :fields="fields"
-      :items="curitems"
-      placeholder="keywords"
-      text="No data"
-      :number-of-pages="npage"
-      @search="filter"
-      @change-page="changeItems"
-      @row-clicked="clickRow"
-    >
-      <template #color="data">
-        <div class="flex items-center">
-          <div
-            class="mr-2 h-5 w-5 rounded-full"
-            :style="'background:' + data.row.color"
-          ></div>
-          {{ data.row.color }}
-        </div>
-      </template>
-    </PaginationTable>
+    <Variant title="Basic">
+      <PaginationTable
+        :fields="fields"
+        :items="curitems"
+        placeholder="keywords"
+        :number-of-pages="npage"
+        @search="filter"
+        @change-page="changeItems"
+        @row-clicked="clickRow"
+      >
+        <template #color="{ row }">
+          <div class="flex items-center gap-2">
+            <span
+              class="h-5 w-5 rounded-full"
+              :style="'background:' + row.color"
+            />
+            {{ row.color }}
+          </div>
+        </template>
+      </PaginationTable>
 
-    <div class="mt-10">Click item : {{ selected }}</div>
+      <div class="mt-10">Click item : {{ selected }}</div>
+    </Variant>
+    <Variant title="Empty">
+      <PaginationTable
+        :fields="[]"
+        :items="[]"
+        :number-of-pages="1"
+        text="No data"
+      />
+    </Variant>
   </Story>
 </template>
