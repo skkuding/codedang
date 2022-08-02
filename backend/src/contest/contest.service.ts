@@ -133,7 +133,6 @@ export class ContestService {
     return ongoingContest
   }
 
-  /* public */
   async getOngoingContests(): Promise<Partial<Contest>[]> {
     const allContest = await this.prisma.contest.findMany(userContestsOption)
     return this.filterOngoing(allContest)
@@ -181,7 +180,6 @@ export class ContestService {
     return contest
   }
 
-  /* group */
   async getContestsByGroupId(group_id: number) {
     const group = await this.prisma.group.findUnique({
       where: { id: group_id }
@@ -195,7 +193,6 @@ export class ContestService {
     })
   }
 
-  /* admin */
   async getAdminContests(user_id: number) {
     const groupIds = await this.group.getUserGroupManagerList(user_id)
     return await this.prisma.group.findMany({
@@ -217,70 +214,4 @@ export class ContestService {
     }
     return result
   }
-
-  // // Todo: check select option
-  // async getAdminContestById(
-  //   user_id: number,
-  //   contest_id: number
-  // ): Promise<Partial<Contest>> {
-  //   // 뒤에서 contest db 너무 들고오길래 처음에 contest id만 가져와서 확인하게 해둠
-  //   const contestGroupId = await this.prisma.contest.findUnique({
-  //     where: { id: contest_id },
-  //     select: { group_id: true }
-  //   })
-
-  //   if (!contestGroupId) {
-  //     throw new EntityNotExistException(`contest ${contest_id}`)
-  //   }
-  //   const isUserInGroup = await this.prisma.userGroup.findFirst({
-  //     where: {
-  //       user_id,
-  //       group_id: contestGroupId.group_id,
-  //       is_group_manager: true
-  //     },
-  //     select: { is_group_manager: true }
-  //   })
-  //   if (!isUserInGroup) {
-  //     throw new InvalidUserException(
-  //       returnTextIsNotAllowed(user_id, contest_id)
-  //     )
-  //   }
-
-  //   const contest = await this.prisma.contest.findUnique({
-  //     where: { id: contest_id },
-  //     select: {
-  //       title: true,
-  //       // Todo: notice list (add display id)
-  //       ContestNotice: {
-  //         select: {
-  //           id: true,
-  //           title: true,
-  //           update_time: true
-  //           //,display_id: true
-  //         }
-  //       },
-  //       // problem list
-  //       ContestProblem: {
-  //         select: {
-  //           problem: {
-  //             select: { title: true, difficulty: true, update_time: true }
-  //           }
-  //         }
-  //       },
-  //       // Todo: submission list (add student id)
-  //       Submission: {
-  //         select: {
-  //           create_time: true, // == submission time
-  //           user: true, // user : {select: {student_id:true}}
-  //           problem: {
-  //             select: { title: true, source: true }
-  //           },
-  //           language: true,
-  //           SubmissionResult: true
-  //         }
-  //       }
-  //     }
-  //   })
-  //   return contest
-  // }
 }

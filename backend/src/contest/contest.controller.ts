@@ -19,7 +19,6 @@ import { ContestService } from './contest.service'
 export class ContestController {
   constructor(private readonly contestService: ContestService) {}
 
-  /* public */
   @Get('ongoing')
   async getOngoingContests(): Promise<Partial<Contest>[]> {
     return await this.contestService.getOngoingContests()
@@ -55,7 +54,6 @@ export class ContestController {
     }
   }
 
-  /* group */
   @UseGuards(JwtAuthGuard, GroupMemberGuard)
   async getContestsByGroupId(
     @Req() req: AuthenticatedRequest,
