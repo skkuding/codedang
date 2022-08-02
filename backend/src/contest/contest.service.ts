@@ -181,12 +181,6 @@ export class ContestService {
   }
 
   async getContestsByGroupId(group_id: number) {
-    const group = await this.prisma.group.findUnique({
-      where: { id: group_id }
-    })
-    if (!group) {
-      throw new EntityNotExistException(`Group ${group_id}`)
-    }
     return await this.prisma.contest.findMany({
       where: { group_id, visible: true },
       select: contestSelectOption
