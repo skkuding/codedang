@@ -42,7 +42,13 @@ const iconMapper = {
   <section
     class="pointer-events-none fixed inset-x-0 top-0 z-10 grid justify-items-center gap-2 pt-4"
   >
-    <transition-group name="toast">
+    <transition-group
+      move-class="transition-all duration-300"
+      enter-active-class="transition-all duration-300"
+      leave-active-class="transition-all duration-300"
+      enter-from-class="opacity-0 -translate-y-6"
+      leave-to-class="opacity-0 -translate-y-6"
+    >
       <output
         v-for="item in toastItems"
         :key="item.id"
@@ -56,20 +62,3 @@ const iconMapper = {
     </transition-group>
   </section>
 </template>
-
-<style scoped>
-.toast-move,
-.toast-enter-active,
-.toast-leave-active {
-  transition: all 0.3s ease;
-}
-.toast-enter-from,
-.toast-leave-to {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-.toast-leave-active {
-  position: absolute;
-}
-</style>
