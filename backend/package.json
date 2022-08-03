@@ -77,8 +77,5 @@
       "node_modules",
       "."
     ]
-  },
-  "peerDependencies": {
-    "jest": "^27.0.0"
   }
 }

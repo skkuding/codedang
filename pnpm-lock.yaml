@@ -53,7 +53,7 @@ importers:
       class-transformer: ^0.5.1
       class-validator: ^0.13.2
       cookie-parser: ^1.4.6
-      jest: ^27.0.0
+      jest: ^27.5.1
       passport: ^0.6.0
       passport-jwt: ^4.0.0
       passport-local: ^1.0.0
@@ -310,7 +310,7 @@ packages:
       '@babel/compat-data': 7.17.7
       '@babel/core': 7.17.8
       '@babel/helper-validator-option': 7.16.7
-      browserslist: 4.21.3
+      browserslist: 4.21.1
       semver: 6.3.0
     dev: true
 
@@ -788,7 +788,7 @@ packages:
       jest-util: 27.5.1
       jest-validate: 27.5.1
       jest-watcher: 27.5.1
-      micromatch: 4.0.5
+      micromatch: 4.0.4
       rimraf: 3.0.2
       slash: 3.0.0
       strip-ansi: 6.0.1
@@ -914,7 +914,7 @@ packages:
       jest-haste-map: 27.5.1
       jest-regex-util: 27.5.1
       jest-util: 27.5.1
-      micromatch: 4.0.5
+      micromatch: 4.0.4
       pirates: 4.0.5
       slash: 3.0.0
       source-map: 0.6.1
@@ -4651,7 +4651,7 @@ packages:
       jest-runner: 27.5.1
       jest-util: 27.5.1
       jest-validate: 27.5.1
-      micromatch: 4.0.5
+      micromatch: 4.0.4
       parse-json: 5.2.0
       pretty-format: 27.5.1
       slash: 3.0.0
@@ -4741,7 +4741,7 @@ packages:
       jest-serializer: 27.5.1
       jest-util: 27.5.1
       jest-worker: 27.5.1
-      micromatch: 4.0.5
+      micromatch: 4.0.4
       walker: 1.0.8
     optionalDependencies:
       fsevents: 2.3.2
@@ -4799,7 +4799,7 @@ packages:
       '@types/stack-utils': 2.0.1
       chalk: 4.1.2
       graceful-fs: 4.2.9
-      micromatch: 4.0.5
+      micromatch: 4.0.4
       pretty-format: 27.5.1
       slash: 3.0.0
       stack-utils: 2.0.5
@@ -4852,7 +4852,7 @@ packages:
       jest-pnp-resolver: 1.2.2_jest-resolve@27.5.1
       jest-util: 27.5.1
       jest-validate: 27.5.1
-      resolve: 1.22.1
+      resolve: 1.22.0
       resolve.exports: 1.1.0
       slash: 3.0.0
     dev: true
@@ -5053,7 +5053,7 @@ packages:
         optional: true
     dependencies:
       abab: 2.0.5
-      acorn: 8.8.0
+      acorn: 8.7.1
       acorn-globals: 6.0.0
       cssom: 0.4.4
       cssstyle: 2.3.0
@@ -6158,7 +6158,7 @@ packages:
     resolution: {integrity: sha512-HFM8rkZ+i3zrV+4LQjwQ0W+ez98pApMGM3HUrN04j3CqzPOzl9nmP15Y8YXNm8QHGv/eacOVEjqhmWpkRV0NAw==}
     engines: {node: '>= 0.10'}
     dependencies:
-      resolve: 1.22.1
+      resolve: 1.22.0
     dev: true
 
   /redis-commands/1.7.0:
@@ -6753,7 +6753,7 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
-      acorn: 8.8.0
+      acorn: 8.7.1
       commander: 2.20.3
       source-map: 0.7.3
       source-map-support: 0.5.21
