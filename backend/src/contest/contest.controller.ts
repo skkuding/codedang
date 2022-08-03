@@ -1,24 +1,26 @@
 import {
   Controller,
-  ForbiddenException,
+  InternalServerErrorException,
   NotFoundException,
   Param,
   ParseIntPipe,
   Post,
   Req,
-  UseGuards,
   Get,
-  InternalServerErrorException
+  UnprocessableEntityException,
+  UseGuards,
+  ForbiddenException
 } from '@nestjs/common'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import {
+  EntityNotExistException,
+  UnprocessableDataException,
+  ForbiddenAccessException
+} from 'src/common/exception/business.exception'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { ContestService } from './contest.service'
 import { Contest } from '@prisma/client'
 import { Public } from 'src/common/decorator/public.decorator'
-import {
-  EntityNotExistException,
-  ForbiddenAccessException
-} from 'src/common/exception/business.exception'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 
 @Controller('contest')
@@ -84,17 +86,19 @@ export class GroupContestController {
   @UseGuards(RolesGuard, GroupMemberGuard)
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
-    @Param('id', ParseIntPipe) contestId: number,
-    @Param('groupId', ParseIntPipe) groupId: number
-  ): Promise<null | Error> {
+    @Param('id', ParseIntPipe) contestId: number
+  ): Promise<null> {
     try {
       this.contestService.createContestRecord(req.user.id, contestId)
       return
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
+    } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
       }
-      throw new ForbiddenException(error.message)
+      if (err instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(err.message)
+      }
+      throw new InternalServerErrorException()
     }
   }
 }

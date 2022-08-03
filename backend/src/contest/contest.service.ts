@@ -3,7 +3,6 @@ import { Contest } from '@prisma/client'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
-  InvalidUserException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
@@ -251,8 +250,6 @@ export class ContestService {
     if (!contest) {
       throw new EntityNotExistException(`Contest ${contestId}`)
     }
-
-    //중복 참여 확인 in contestRecord
     const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
       where: { userId, contestId },
       select: { id: true }
@@ -267,7 +264,6 @@ export class ContestService {
     if (now < contest.startTime || now >= contest.endTime) {
       throw new ForbiddenAccessException(`Contest ${contestId} is not ongoing`)
     }
-    //contest type ACM -> create contest rank acm record
     if (contest.type === 'ACM') {
       await this.prisma.contestRankACM.create({
         data: { contestId, userId }
