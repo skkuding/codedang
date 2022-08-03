@@ -63,13 +63,13 @@ const clickRow = (row: any) => {
 
 <template>
   <div class="my-16">
-    <WorkbookTitle text="CATS 대비 문제집 Level 1" color="red" />
-    <MyComponent msg="workbook problem list!" />
+    <WorkbookTitle text="CATS 대비 문제집 Level 1" color="red" class="mb-7" />
     <PaginationTable
       :fields="fields"
       :items="items"
       placeholder="keywords"
       :number-of-pages="1"
+      no-search-bar
       @row-clicked="clickRow"
     >
       <template #level="{ row }">
