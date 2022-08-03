@@ -621,9 +621,9 @@ packages:
   /@histoire/app/0.9.0:
     resolution: {integrity: sha512-AEctyDQRRj6GIDLenHWdPuFAlNS9UvtuwmHNFg2W9R8ubfshKiUM6XUQI/wxY3Dg0uccXOzNwgm3AlLOiQwHog==}
     dependencies:
-      '@histoire/controls': 0.9.0
-      '@histoire/shared': 0.9.0
-      '@histoire/vendors': 0.9.0
+      '@histoire/controls': 0.9.1
+      '@histoire/shared': 0.9.1
+      '@histoire/vendors': 0.9.1
       '@types/flexsearch': 0.7.3
       flexsearch: 0.7.21
       shiki: 0.10.1
@@ -651,7 +651,6 @@ packages:
   /@histoire/shared/0.9.1:
     resolution: {integrity: sha512-O4SLHELGKVIrxSxytQTR8r0GMtu6OBbIOFgYTW5bFf2OlM/inCsRWQvVNkBOKvfysIANufoZBkYWl3AWwm4TMA==}
     dev: true
-
 
   /@histoire/vendors/0.9.1:
     resolution: {integrity: sha512-vKajgDIVOrFNBxj6WP5WU0PZhPSjxqh7dlbdVRxQFDx7ccDWvv7znYs9gT/pXGHIvr1o5xUEz4DRomzMBw3eKQ==}
@@ -4101,9 +4100,9 @@ packages:
       vite: ^2.9.0
     dependencies:
       '@histoire/app': 0.9.0
-      '@histoire/controls': 0.9.0
-      '@histoire/shared': 0.9.0
-      '@histoire/vendors': 0.9.0
+      '@histoire/controls': 0.9.1
+      '@histoire/shared': 0.9.1
+      '@histoire/vendors': 0.9.1
       '@types/flexsearch': 0.7.3
       '@types/markdown-it': 12.2.3
       birpc: 0.1.1
