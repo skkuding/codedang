@@ -111,6 +111,7 @@ importers:
 
   frontend:
     specifiers:
+      '@histoire/plugin-vue': ^0.9.1
       '@iconify-json/fa6-brands': ^1.1.5
       '@iconify-json/fa6-regular': ^1.1.5
       '@iconify-json/fa6-solid': ^1.1.6
@@ -141,6 +142,7 @@ importers:
       vue: 3.2.37
       vue-router: 4.1.3_vue@3.2.37
     devDependencies:
+      '@histoire/plugin-vue': 0.9.1_histoire@0.9.0+vue@3.2.37
       '@iconify-json/fa6-brands': 1.1.5
       '@iconify-json/fa6-regular': 1.1.5
       '@iconify-json/fa6-solid': 1.1.6
@@ -627,18 +629,32 @@ packages:
       shiki: 0.10.1
     dev: true
 
-  /@histoire/controls/0.9.0:
-    resolution: {integrity: sha512-6DDIfckJSP18Dn9rQTlGyP/9zRSOlb9PjplV/4UUElOrCRq/UrFGNd/cvDCAIvzv+fo54LQ798arkaoWJvalTA==}
+  /@histoire/controls/0.9.1:
+    resolution: {integrity: sha512-9yyR6PiW8mXptQyQSyrxIzMdrZgA3yNXU5iQTD0x05KkDR/EVHvh8VYKznD0R8axHIwMiY95n0HCT+0+UQMHjw==}
     dependencies:
-      '@histoire/vendors': 0.9.0
+      '@histoire/vendors': 0.9.1
     dev: true
 
-  /@histoire/shared/0.9.0:
-    resolution: {integrity: sha512-//u1o0r4myZhuENkh6DOEsvmb0DLVxc/z/0L3szfz5zImCDxfTKj9L1h8iWOX6gt3M5eUUzi87gvo4P/BePrBQ==}
+  /@histoire/plugin-vue/0.9.1_histoire@0.9.0+vue@3.2.37:
+    resolution: {integrity: sha512-VQqu3eFm6+d5gTBc/IOQHgjZa8DnM1+9V/Z8WECK21pYHlIlPvNVFeUpvFGPx5dvIAf8OjZIFWILfNeU7IADog==}
+    peerDependencies:
+      histoire: ^0.9.1
+      vue: ^3.2.31
+    dependencies:
+      '@histoire/controls': 0.9.1
+      '@histoire/shared': 0.9.1
+      '@histoire/vendors': 0.9.1
+      histoire: 0.9.0_vite@2.9.14
+      vue: 3.2.37
     dev: true
 
-  /@histoire/vendors/0.9.0:
-    resolution: {integrity: sha512-A6QYrbNlQw9n19HanMtQ5/7fHRx0aTmkzK0IyYP2xgr11xGdadHd4JgGdl5+UPdftw0NJWSefl+/r749VP7KeA==}
+  /@histoire/shared/0.9.1:
+    resolution: {integrity: sha512-O4SLHELGKVIrxSxytQTR8r0GMtu6OBbIOFgYTW5bFf2OlM/inCsRWQvVNkBOKvfysIANufoZBkYWl3AWwm4TMA==}
+    dev: true
+
+
+  /@histoire/vendors/0.9.1:
+    resolution: {integrity: sha512-vKajgDIVOrFNBxj6WP5WU0PZhPSjxqh7dlbdVRxQFDx7ccDWvv7znYs9gT/pXGHIvr1o5xUEz4DRomzMBw3eKQ==}
     dev: true
 
   /@humanwhocodes/config-array/0.10.4:
