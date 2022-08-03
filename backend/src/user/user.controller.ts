@@ -6,16 +6,28 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  UnauthorizedException
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards
 } from '@nestjs/common'
 import { UserService } from './user.service'
 import { UserEmailDto } from './userEmail.dto'
 import { NewPasswordDto } from './newPassword.dto'
 import { InvalidUserException } from 'src/common/exception/business.exception'
+import { PasswordResetPinDto } from './dto/passwordResetPin.dto'
+import { Request, Response } from 'express'
+import { PASSWORD_RESET_COOKIE_OPTIONS } from './constants/jwt.constants'
+import { AuthGuard } from '@nestjs/passport'
+import { IGetRequestUserProp } from './interface/getRequestUserProp.interface'
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  setJwtTokenInCookie(res: Response, jwt, cookieName, COOKIE_OPTIONS) {
+    res.cookie(cookieName, jwt, COOKIE_OPTIONS)
+  }
 
   @Post('/password/reset/send-email')
   createPinAndSendEmail(@Body() userEmailDto: UserEmailDto): Promise<string> {
@@ -30,14 +42,37 @@ export class UserController {
     }
   }
 
-  @Patch('/:userId/password/reset/:resetToken')
+  @Post('password/reset/verify-pin')
+  verifyPinAndIssueJwtToken(
+    @Res({ passthrough: true }) res,
+    @Body() passwordResetPinDto: PasswordResetPinDto
+  ): Promise<void> {
+    try {
+      const jwt =
+        this.userService.verifyPinAndIssueJwtTokenForPasswordReset(
+          passwordResetPinDto
+        )
+
+      this.setJwtTokenInCookie(
+        res,
+        jwt,
+        'token_for_password_reset',
+        PASSWORD_RESET_COOKIE_OPTIONS
+      )
+      return
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Patch('/password/reset')
+  @UseGuards(AuthGuard('passwordReset'))
   updatePassword(
     @Body() newPasswordDto: NewPasswordDto,
-    @Param('userId', ParseIntPipe) userId: number,
-    @Param('resetToken') resetToken: string
+    @Req() req: IGetRequestUserProp
   ): Promise<string> {
     try {
-      return this.userService.updatePassword(userId, resetToken, newPasswordDto)
+      return this.userService.updatePassword(req, newPasswordDto)
     } catch (error) {
       throw new InternalServerErrorException('password reset failed')
     }

@@ -19,13 +19,17 @@ import {
   InvalidUserException
 } from 'src/common/exception/business.exception'
 import { EmailService } from 'src/email/email.service'
+import { PasswordResetPinDto } from './dto/passwordResetPin.dto'
+import { JwtService } from '@nestjs/jwt'
+import { IGetRequestUserProp } from './interface/getRequestUserProp.interface'
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly prisma: PrismaService,
-    private readonly emailService: EmailService
+    private readonly emailService: EmailService,
+    private readonly jwtService: JwtService
   ) {}
 
   async getUserRole(userId: number) {
@@ -69,7 +73,7 @@ export class UserService {
 
     await this.emailService.sendPasswordResetPin(email, pin)
 
-    await this.createPinInCache(passwordResetPinCacheKey(user.id), pin, 300)
+    await this.createPinInCache(passwordResetPinCacheKey(user.email), pin, 300)
 
     return 'Password reset link was sent to your email'
   }
@@ -89,21 +93,12 @@ export class UserService {
   }
 
   async updatePassword(
-    userId: number,
-    resetPin: string,
+    req: IGetRequestUserProp,
     { newPassword }: NewPasswordDto
   ): Promise<string> {
-    const storedResetPin: string = await this.getPinFromCache(
-      passwordResetPinCacheKey(userId)
-    )
+    await this.updateUserPasswordInPrisma(req.user.id, newPassword)
 
-    if (!storedResetPin || resetPin !== storedResetPin) {
-      throw new InvalidPinException('PIN not found or invalid PIN')
-    }
-
-    await this.updateUserPasswordInPrisma(userId, newPassword)
-
-    await this.deletePinFromCache(passwordResetPinCacheKey(userId))
+    await this.deletePinFromCache(passwordResetPinCacheKey(req.user.email))
 
     return 'Password Reset successfully'
   }
@@ -131,5 +126,37 @@ export class UserService {
     })
 
     return updatedUser
+  }
+
+  async verifyPinAndIssueJwtTokenForPasswordReset({
+    pin,
+    email
+  }: PasswordResetPinDto): Promise<string> {
+    const storedResetPin: string = await this.getPinFromCache(
+      passwordResetPinCacheKey(email)
+    )
+
+    if (!storedResetPin || pin !== storedResetPin) {
+      throw new InvalidPinException('PIN not found or invalid PIN')
+    }
+
+    const user = await this.getUserCredentialByEmail(email)
+
+    if (!user) {
+      throw new InvalidUserException(
+        `Cannot find a registered user whose email address is ${email}`
+      )
+    }
+
+    const token = await this.createJwtToken({
+      userId: user.id,
+      email: user.email
+    })
+
+    return token
+  }
+
+  async createJwtToken(payload: object): Promise<string> {
+    return await this.jwtService.signAsync(payload, { expiresIn: 300 })
   }
 }

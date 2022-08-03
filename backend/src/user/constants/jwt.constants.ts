@@ -1,0 +1,7 @@
+const PASSWORD_RESET_TOKEN_EXPIRATION_SEC = 600
+
+export const PASSWORD_RESET_COOKIE_OPTIONS = {
+  maxAge: PASSWORD_RESET_TOKEN_EXPIRATION_SEC,
+  httpOnly: true
+  // secure: true,
+}
