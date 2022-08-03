@@ -493,6 +493,20 @@ describe('ContestService', () => {
   })
 
   describe('getAdminContestById', () => {
+    beforeEach(() => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
+    })
+    afterEach(() => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
+    })
+    it('contest id에 해당하는 contest가 없다면 EntityNotExistException을 반환한다.', async () => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(null)
+      await expect(
+        contestService.getAdminContestById(contestId)
+      ).rejects.toThrowError(
+        new EntityNotExistException(`Contest ${contestId}`)
+      )
+    })
     it('contest id에 해당하는 대회를 반환한다.', async () => {
       expect(await contestService.getAdminContestById(contestId)).toEqual(
         contest
