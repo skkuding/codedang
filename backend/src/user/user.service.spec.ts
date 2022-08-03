@@ -3,14 +3,16 @@ import { CACHE_MANAGER } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { User } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { passwordResetTokenCacheKey } from 'src/common/cache/keys'
+import { passwordResetPinCacheKey } from 'src/common/cache/keys'
 import {
-  InvalidTokenException,
+  InvalidPinException,
   InvalidUserException
 } from 'src/common/exception/business.exception'
 import { EmailService } from 'src/email/email.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { UserService } from './user.service'
+import { Request } from 'express'
+import { JwtService } from '@nestjs/jwt'
 
 describe('UserService', () => {
   let userService: UserService
@@ -20,8 +22,8 @@ describe('UserService', () => {
 
   const USER_ID = 1
   const EMAIL_ADDRESS = 'email@email.com'
-  const PASSWORD_RESET_TOKEN_KEY = passwordResetTokenCacheKey(USER_ID)
-  const PASSWORD_RESET_TOKEN = 'thisIsPasswordResetToken'
+  const PASSWORD_RESET_PIN_KEY = passwordResetPinCacheKey(EMAIL_ADDRESS)
+  const PASSWORD_RESET_PIN = 'thisIsPasswordResetPin'
   const TIME_TO_LIVE = 300
   const NEW_PASSWORD = 'thisISNewPassword'
 
@@ -29,7 +31,7 @@ describe('UserService', () => {
     sendMail: jest.fn()
   }
   const cacheMock = {
-    get: jest.fn().mockReturnValueOnce(PASSWORD_RESET_TOKEN),
+    get: jest.fn().mockReturnValueOnce(PASSWORD_RESET_PIN),
     set: jest.fn(),
     del: jest.fn()
   }
@@ -55,12 +57,23 @@ describe('UserService', () => {
     envelope: { from: 'sender_email', to: [EMAIL_ADDRESS] },
     messageId: '6bd7-3d62-c84b-61865f06534b@gmail.com'
   }
+  class RequestIncludingUser {
+    user: { id: number; email: string }
+    constructor(user) {
+      this.user = user
+    }
+  }
+  const requestIncludingUser = new RequestIncludingUser({
+    id: USER_ID,
+    email: EMAIL_ADDRESS
+  })
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
         EmailService,
+        JwtService,
         { provide: PrismaService, useValue: {} },
         { provide: CACHE_MANAGER, useValue: cacheMock },
         { provide: MailerService, useValue: mailerMock }
@@ -78,45 +91,45 @@ describe('UserService', () => {
   })
 
   it('get token', async () => {
-    const ret = await userService.getTokenFromCache(PASSWORD_RESET_TOKEN_KEY)
+    const ret = await userService.getPinFromCache(PASSWORD_RESET_PIN_KEY)
 
-    expect(ret).toEqual(PASSWORD_RESET_TOKEN)
+    expect(ret).toEqual(PASSWORD_RESET_PIN)
   })
 
   it('set token', async () => {
     const spy = jest.spyOn(cache, 'set')
 
-    await userService.createTokenInCache(
-      PASSWORD_RESET_TOKEN_KEY,
-      PASSWORD_RESET_TOKEN,
+    await userService.createPinInCache(
+      PASSWORD_RESET_PIN_KEY,
+      PASSWORD_RESET_PIN,
       TIME_TO_LIVE
     )
 
     expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy.mock.calls[0][0]).toBe(PASSWORD_RESET_TOKEN_KEY)
-    expect(spy.mock.calls[0][1]).toBe(PASSWORD_RESET_TOKEN)
+    expect(spy.mock.calls[0][0]).toBe(PASSWORD_RESET_PIN_KEY)
+    expect(spy.mock.calls[0][1]).toBe(PASSWORD_RESET_PIN)
     expect(spy.mock.calls[0][2]).toEqual({ ttl: TIME_TO_LIVE })
   })
 
   it('delete token', async () => {
     const spy = jest.spyOn(cache, 'del')
 
-    await userService.deleteTokenFromCache(PASSWORD_RESET_TOKEN_KEY)
+    await userService.deletePinFromCache(PASSWORD_RESET_PIN_KEY)
 
     expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy.mock.calls[0][0]).toBe(PASSWORD_RESET_TOKEN_KEY)
+    expect(spy.mock.calls[0][0]).toBe(PASSWORD_RESET_PIN_KEY)
   })
 
   describe('create a password reset token and send it to given email', () => {
-    let sendPasswordResetLinkSpy
+    let sendPasswordResetPinSpy
 
     beforeEach(() => {
       userService.getUserCredentialByEmail = jest.fn().mockResolvedValue(user)
 
       mailer.sendMail = jest.fn().mockResolvedValue(expectedEmailInfo)
 
-      sendPasswordResetLinkSpy = jest
-        .spyOn(emailService, 'sendPasswordResetLink')
+      sendPasswordResetPinSpy = jest
+        .spyOn(emailService, 'sendPasswordResetPin')
         .mockResolvedValueOnce(expectedEmailInfo)
     })
 
@@ -125,19 +138,15 @@ describe('UserService', () => {
         .fn()
         .mockReturnValueOnce(Promise.resolve(null))
       expect(async () => {
-        await userService.createTokenAndSendEmail({ email: EMAIL_ADDRESS })
+        await userService.createPinAndSendEmail({ email: EMAIL_ADDRESS })
       }).rejects.toThrowError(InvalidUserException)
     })
 
     it('if user email exist, create token and send email', async () => {
-      const tokenGeneratorSpy = jest.spyOn(
-        userService,
-        'createBase64UrlEncodedTokenRandomly'
-      )
-      await userService.createTokenAndSendEmail({ email: EMAIL_ADDRESS })
-      expect(sendPasswordResetLinkSpy).toBeCalledTimes(1)
-      expect(sendPasswordResetLinkSpy.mock.calls[0][0]).toBe(EMAIL_ADDRESS)
-      expect(sendPasswordResetLinkSpy.mock.calls[0][1]).toBe(USER_ID)
+      const tokenGeneratorSpy = jest.spyOn(userService, 'createPinRandomly')
+      await userService.createPinAndSendEmail({ email: EMAIL_ADDRESS })
+      expect(sendPasswordResetPinSpy).toBeCalledTimes(1)
+      expect(sendPasswordResetPinSpy.mock.calls[0][0]).toBe(EMAIL_ADDRESS)
       expect(tokenGeneratorSpy).toHaveBeenCalledTimes(1)
     })
   })
@@ -145,49 +154,50 @@ describe('UserService', () => {
   describe('update user password if given token is valid', () => {
     beforeEach(() => {
       userService.updateUserPasswordInPrisma = jest.fn()
-      userService.getTokenFromCache = jest
+      userService.getPinFromCache = jest
         .fn()
-        .mockReturnValueOnce(Promise.resolve(PASSWORD_RESET_TOKEN))
+        .mockReturnValueOnce(Promise.resolve(PASSWORD_RESET_PIN))
+      userService.getUserCredentialByEmail = jest.fn().mockReturnValueOnce(user)
     })
 
-    it('token is valid', async () => {
-      const returnMessage = await userService.updatePassword(
-        1,
-        PASSWORD_RESET_TOKEN,
-        {
-          newPassword: NEW_PASSWORD
-        }
-      )
-      expect(returnMessage).toEqual('Password Reset successfully')
+    it('pin is valid', async () => {
+      userService.createJwtToken = jest.fn().mockReturnValueOnce('jwt')
+      const jwt = await userService.verifyPinAndIssueJwtTokenForPasswordReset({
+        pin: PASSWORD_RESET_PIN,
+        email: EMAIL_ADDRESS
+      })
+      expect(jwt).toEqual('jwt')
     })
 
-    it('token is invalid', async () => {
-      userService.getTokenFromCache = jest
+    it('pin is invalid', async () => {
+      userService.getPinFromCache = jest
         .fn()
         .mockReturnValueOnce('reset_token_invalid')
         .mockReturnValueOnce(null)
 
       expect(async () => {
-        await userService.updatePassword(USER_ID, PASSWORD_RESET_TOKEN, {
-          newPassword: NEW_PASSWORD
+        await userService.verifyPinAndIssueJwtTokenForPasswordReset({
+          pin: PASSWORD_RESET_PIN,
+          email: EMAIL_ADDRESS
         })
-      }).rejects.toThrowError(InvalidTokenException)
+      }).rejects.toThrowError(InvalidPinException)
 
       expect(async () => {
-        await userService.updatePassword(USER_ID, PASSWORD_RESET_TOKEN, {
-          newPassword: NEW_PASSWORD
+        await userService.verifyPinAndIssueJwtTokenForPasswordReset({
+          pin: PASSWORD_RESET_PIN,
+          email: EMAIL_ADDRESS
         })
-      }).rejects.toThrowError(InvalidTokenException)
+      }).rejects.toThrowError(InvalidPinException)
     })
 
     it('check if deleteToken function is called', async () => {
-      const deleteTokenSpy = jest.spyOn(userService, 'deleteTokenFromCache')
-      await userService.updatePassword(USER_ID, PASSWORD_RESET_TOKEN, {
+      const deleteTokenSpy = jest.spyOn(userService, 'deletePinFromCache')
+      await userService.updatePassword(requestIncludingUser, {
         newPassword: NEW_PASSWORD
       })
       expect(deleteTokenSpy).toHaveBeenCalledTimes(1)
       expect(deleteTokenSpy.mock.calls[0][0]).toBe(
-        passwordResetTokenCacheKey(USER_ID)
+        passwordResetPinCacheKey(EMAIL_ADDRESS)
       )
     })
 
@@ -196,7 +206,7 @@ describe('UserService', () => {
         userService,
         'updateUserPasswordInPrisma'
       )
-      await userService.updatePassword(USER_ID, PASSWORD_RESET_TOKEN, {
+      await userService.updatePassword(requestIncludingUser, {
         newPassword: NEW_PASSWORD
       })
       expect(updatePasswordInPrismaSpy).toHaveBeenCalledTimes(1)

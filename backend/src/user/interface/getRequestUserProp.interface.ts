@@ -1,6 +1,6 @@
 import { Request } from 'express'
 
-export interface IGetRequestUserProp extends Request {
+export interface IGetRequestUserProp {
   user: {
     id: number
     email: string
