@@ -180,6 +180,21 @@ export class ContestService {
     return contest
   }
 
+  async getModalContestById(contest_id: number): Promise<Partial<Contest>> {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contest_id },
+      select: {
+        id: true,
+        title: true,
+        description_summary: true
+      }
+    })
+    if (!contest) {
+      throw new EntityNotExistException(`Contest ${contest_id}`)
+    }
+    return contest
+  }
+
   async getContestsByGroupId(group_id: number): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
       where: { group_id, visible: true },

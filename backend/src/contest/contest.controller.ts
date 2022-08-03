@@ -51,6 +51,20 @@ export class ContestController {
     }
   }
 
+  @Get(':id/modal')
+  async getModalContestById(
+    @Param('id', ParseIntPipe) contestId: number
+  ): Promise<Partial<Contest>> {
+    try {
+      return await this.contestService.getModalContestById(contestId)
+    } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+
   @UseGuards(GroupMemberGuard)
   async getContestsByGroupId(
     @Param('group_id', ParseIntPipe) groupId: number
