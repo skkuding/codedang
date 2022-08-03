@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Contest } from '@prisma/client'
+import { Contest, ContestToPublicRequest, RequestStatus } from '@prisma/client'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
@@ -8,6 +8,7 @@ import {
 import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateContestDto } from './dto/create-contest.dto'
+import { RequestContestToPublicDto } from './dto/request-to-public.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
 
 @Injectable()
@@ -112,6 +113,54 @@ export class ContestService {
         id: contestId
       }
     })
+  }
+
+  async requestContestToPublic(
+    userId: number,
+    requestContestToPublicDto: RequestContestToPublicDto
+  ): Promise<ContestToPublicRequest> {
+    this.deleteExistingRequest(requestContestToPublicDto.contest_id)
+
+    return await this.prisma.contestToPublicRequest.create({
+      data: {
+        message: requestContestToPublicDto.message,
+        contest: {
+          connect: {
+            id: requestContestToPublicDto.contest_id
+          }
+        },
+        created_by: {
+          connect: {
+            id: userId
+          }
+        }
+      }
+    })
+  }
+
+  async deleteExistingRequest(contestId: number) {
+    const request = await this.prisma.contestToPublicRequest.findUnique({
+      where: {
+        contest_id: contestId
+      },
+      select: {
+        request_status: true
+      }
+    })
+
+    if (request.request_status == RequestStatus.Accept) {
+      throw new UnprocessableDataException(
+        'This contest is already accepted to be public'
+      )
+    }
+
+    if (request) {
+      await this.prisma.contestToPublicRequest.delete({
+        where: {
+          contest_id: contestId
+        }
+      })
+    }
   }
 
   async getContests(): Promise<{
