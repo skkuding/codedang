@@ -20,6 +20,7 @@ import { Request, Response } from 'express'
 import { PASSWORD_RESET_COOKIE_OPTIONS } from './constants/jwt.constants'
 import { AuthGuard } from '@nestjs/passport'
 import { IGetRequestUserProp } from './interface/getRequestUserProp.interface'
+import { Public } from '../common/decorator/public.decorator'
 
 @Controller('user')
 export class UserController {
@@ -30,6 +31,7 @@ export class UserController {
   }
 
   @Post('/password/reset/send-email')
+  @Public()
   createPinAndSendEmail(@Body() userEmailDto: UserEmailDto): Promise<string> {
     try {
       return this.userService.createPinAndSendEmail(userEmailDto)
@@ -43,13 +45,14 @@ export class UserController {
   }
 
   @Post('password/reset/verify-pin')
-  verifyPinAndIssueJwtToken(
+  @Public()
+  async verifyPinAndIssueJwtToken(
     @Res({ passthrough: true }) res,
     @Body() passwordResetPinDto: PasswordResetPinDto
   ): Promise<void> {
     try {
       const jwt =
-        this.userService.verifyPinAndIssueJwtTokenForPasswordReset(
+        await this.userService.verifyPinAndIssueJwtTokenForPasswordReset(
           passwordResetPinDto
         )
 
@@ -67,6 +70,7 @@ export class UserController {
 
   @Patch('/password/reset')
   @UseGuards(AuthGuard('passwordReset'))
+  @Public()
   updatePassword(
     @Body() newPasswordDto: NewPasswordDto,
     @Req() req: IGetRequestUserProp
