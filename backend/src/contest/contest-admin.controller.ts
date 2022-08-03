@@ -101,7 +101,14 @@ export class GroupContestAdminController {
   async getAdminContestById(
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
-    return await this.contestService.getAdminContestById(contestId)
+    try {
+      return await this.contestService.getAdminContestById(contestId)
+    } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get()

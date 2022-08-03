@@ -226,6 +226,9 @@ export class ContestService {
         is_rank_visible: true
       }
     })
+    if (!contest) {
+      throw new EntityNotExistException(`Contest ${contest_id}`)
+    }
     return contest
   }
 
