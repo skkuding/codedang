@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   InternalServerErrorException,
-  Param,
-  ParseIntPipe,
   Patch,
   Post,
   Req,
@@ -12,11 +10,11 @@ import {
   UseGuards
 } from '@nestjs/common'
 import { UserService } from './user.service'
-import { UserEmailDto } from './userEmail.dto'
-import { NewPasswordDto } from './newPassword.dto'
+import { UserEmailDto } from './dto/userEmail.dto'
+import { NewPasswordDto } from './dto/newPassword.dto'
 import { InvalidUserException } from 'src/common/exception/business.exception'
 import { PasswordResetPinDto } from './dto/passwordResetPin.dto'
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import { PASSWORD_RESET_COOKIE_OPTIONS } from './constants/jwt.constants'
 import { AuthGuard } from '@nestjs/passport'
 import { IGetRequestUserProp } from './interface/getRequestUserProp.interface'

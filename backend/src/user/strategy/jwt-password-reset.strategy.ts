@@ -5,7 +5,10 @@ import { ExtractJwt } from 'passport-jwt'
 import { Strategy } from 'passport-jwt'
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'passwordReset') {
+export class PasswordResetJwtStrategy extends PassportStrategy(
+  Strategy,
+  'passwordReset'
+) {
   constructor(private readonly config: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([

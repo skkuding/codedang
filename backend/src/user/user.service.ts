@@ -2,17 +2,15 @@ import {
   CACHE_MANAGER,
   Inject,
   Injectable,
-  UnauthorizedException,
-  InternalServerErrorException,
-  NotFoundException
+  UnauthorizedException
 } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { encrypt } from 'src/common/hash'
 import { passwordResetPinCacheKey } from 'src/common/cache/keys'
-import { UserEmailDto } from './userEmail.dto'
-import { NewPasswordDto } from './newPassword.dto'
+import { UserEmailDto } from './dto/userEmail.dto'
+import { NewPasswordDto } from './dto/newPassword.dto'
 import { User } from '@prisma/client'
 import {
   InvalidPinException,
