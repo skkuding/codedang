@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt'
 import { EmailModule } from 'src/email/email.module'
+import { JwtStrategy } from './strategy/jwt-password-reset.strategy'
 import { UserController } from './user.controller'
 import { UserService } from './user.service'
 
@@ -24,7 +25,7 @@ import { UserService } from './user.service'
     })
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, JwtStrategy],
   exports: [UserService]
 })
 export class UserModule {}
