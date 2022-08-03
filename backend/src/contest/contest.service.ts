@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { Contest } from '@prisma/client'
 import {
   EntityNotExistException,
-  InvalidUserException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
@@ -173,7 +172,7 @@ export class ContestService {
       (!isUserInGroup && contest.end_time > new Date()) ||
       (contest.visible == false && isUserInGroup.is_group_manager == false)
     ) {
-      throw new InvalidUserException(
+      throw new UnprocessableDataException(
         returnTextIsNotAllowed(user_id, contest_id)
       )
     }

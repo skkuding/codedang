@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { Contest, ContestType, Group, UserGroup } from '@prisma/client'
 import {
   EntityNotExistException,
-  InvalidUserException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
@@ -391,7 +390,7 @@ describe('ContestService', () => {
       )
     })
 
-    it('user가 contest가 속한 group의 멤버가 아니고, contest가 진행중인 상태면 InvalidUserException을 반환한다.', async () => {
+    it('user가 contest가 속한 group의 멤버가 아니고, contest가 진행중인 상태면 UnprocessableDataException을 반환한다.', async () => {
       mockPrismaService.userGroup.findFirst.mockResolvedValue(null)
       mockPrismaService.contest.findUnique.mockResolvedValue({
         ...contest,
@@ -401,11 +400,13 @@ describe('ContestService', () => {
       await expect(
         contestService.getContestById(userId, contestId)
       ).rejects.toThrowError(
-        new InvalidUserException(returnTextIsNotAllowed(userId, contestId))
+        new UnprocessableDataException(
+          returnTextIsNotAllowed(userId, contestId)
+        )
       )
     })
 
-    it('user가 contest가 속한 group의 멤버가 아니고, contest가 아직 시작되지 않은 상태면 InvalidUserException을 반환한다.', async () => {
+    it('user가 contest가 속한 group의 멤버가 아니고, contest가 아직 시작되지 않은 상태면 UnprocessableDataException을 반환한다.', async () => {
       mockPrismaService.userGroup.findFirst.mockResolvedValue(null)
       mockPrismaService.contest.findUnique.mockResolvedValue({
         ...contest,
@@ -414,7 +415,9 @@ describe('ContestService', () => {
       await expect(
         contestService.getContestById(userId, contestId)
       ).rejects.toThrowError(
-        new InvalidUserException(returnTextIsNotAllowed(userId, contestId))
+        new UnprocessableDataException(
+          returnTextIsNotAllowed(userId, contestId)
+        )
       )
     })
 
@@ -425,7 +428,7 @@ describe('ContestService', () => {
       )
     })
 
-    it('user가 contest가 속한 group의 멤버지만, visible==false 이고 user가 group manager가 아니라면 InvalidUserException을 반환한다.', async () => {
+    it('user가 contest가 속한 group의 멤버지만, visible==false 이고 user가 group manager가 아니라면 UnprocessableDataException을 반환한다.', async () => {
       mockPrismaService.contest.findUnique.mockResolvedValue({
         ...contest,
         visible: false
@@ -437,7 +440,9 @@ describe('ContestService', () => {
       await expect(
         contestService.getContestById(userId, contestId)
       ).rejects.toThrowError(
-        new InvalidUserException(returnTextIsNotAllowed(userId, contestId))
+        new UnprocessableDataException(
+          returnTextIsNotAllowed(userId, contestId)
+        )
       )
     })
 

@@ -1,6 +1,5 @@
 import {
   Controller,
-  ForbiddenException,
   Get,
   InternalServerErrorException,
   NotFoundException,
@@ -14,7 +13,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
   EntityNotExistException,
-  InvalidUserException
+  UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { ContestService } from './contest.service'
@@ -44,8 +43,8 @@ export class ContestController {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
-      if (err instanceof InvalidUserException) {
-        throw new ForbiddenException(err.message)
+      if (err instanceof UnprocessableDataException) {
+        throw new UnprocessableDataException(err.message)
       }
       throw new InternalServerErrorException()
     }
