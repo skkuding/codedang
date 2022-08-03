@@ -7,15 +7,15 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { Cache } from 'cache-manager'
-import { randomBytes } from 'crypto'
+import { randomInt } from 'crypto'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { encrypt } from 'src/common/hash'
-import { passwordResetTokenCacheKey } from 'src/common/cache/keys'
+import { passwordResetPinCacheKey } from 'src/common/cache/keys'
 import { UserEmailDto } from './userEmail.dto'
 import { NewPasswordDto } from './newPassword.dto'
 import { User } from '@prisma/client'
 import {
-  InvalidTokenException,
+  InvalidPinException,
   InvalidUserException
 } from 'src/common/exception/business.exception'
 import { EmailService } from 'src/email/email.service'
@@ -56,7 +56,7 @@ export class UserService {
     })
   }
 
-  async createTokenAndSendEmail({ email }: UserEmailDto): Promise<string> {
+  async createPinAndSendEmail({ email }: UserEmailDto): Promise<string> {
     const user = await this.getUserCredentialByEmail(email)
 
     if (!user) {
@@ -65,57 +65,55 @@ export class UserService {
       )
     }
 
-    const token = this.createBase64UrlEncodedTokenRandomly(24)
+    const pin = this.createPinRandomly(6)
 
-    await this.emailService.sendPasswordResetLink(email, user.id, token)
+    await this.emailService.sendPasswordResetPin(email, pin)
 
-    await this.createTokenInCache(
-      passwordResetTokenCacheKey(user.id),
-      token,
-      300
-    )
+    await this.createPinInCache(passwordResetPinCacheKey(user.id), pin, 300)
 
     return 'Password reset link was sent to your email'
   }
 
-  createBase64UrlEncodedTokenRandomly(bytes: number): string {
-    return randomBytes(bytes).toString('base64url')
+  createPinRandomly(numberOfDigits: number): string {
+    return randomInt(0, Number('1'.padEnd(numberOfDigits + 1, '0')))
+      .toString()
+      .padStart(numberOfDigits, '0')
   }
 
-  async createTokenInCache(
+  async createPinInCache(
     key: string,
-    token: string,
+    pin: string,
     timeToLive: number
   ): Promise<void> {
-    await this.cacheManager.set(key, token, { ttl: timeToLive })
+    await this.cacheManager.set(key, pin, { ttl: timeToLive })
   }
 
   async updatePassword(
     userId: number,
-    resetToken: string,
+    resetPin: string,
     { newPassword }: NewPasswordDto
   ): Promise<string> {
-    const storedResetToken: string = await this.getTokenFromCache(
-      passwordResetTokenCacheKey(userId)
+    const storedResetPin: string = await this.getPinFromCache(
+      passwordResetPinCacheKey(userId)
     )
 
-    if (!storedResetToken || resetToken !== storedResetToken) {
-      throw new InvalidTokenException('Token not found or invalid token')
+    if (!storedResetPin || resetPin !== storedResetPin) {
+      throw new InvalidPinException('PIN not found or invalid PIN')
     }
 
     await this.updateUserPasswordInPrisma(userId, newPassword)
 
-    await this.deleteTokenFromCache(passwordResetTokenCacheKey(userId))
+    await this.deletePinFromCache(passwordResetPinCacheKey(userId))
 
     return 'Password Reset successfully'
   }
 
-  async getTokenFromCache(key: string): Promise<string> {
-    const storedToken: string = await this.cacheManager.get(key)
-    return storedToken
+  async getPinFromCache(key: string): Promise<string> {
+    const storedPin: string = await this.cacheManager.get(key)
+    return storedPin
   }
 
-  async deleteTokenFromCache(key: string): Promise<void> {
+  async deletePinFromCache(key: string): Promise<void> {
     await this.cacheManager.del(key)
   }
 

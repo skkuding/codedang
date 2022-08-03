@@ -7,16 +7,15 @@ import { EmailTransmissionFailedException } from 'src/common/exception/business.
 export class EmailService {
   constructor(private readonly mailerService: MailerService) {}
 
-  async sendPasswordResetLink(
+  async sendPasswordResetPin(
     email: string,
-    userId: number,
-    token: string
+    pin: string
   ): Promise<SentMessageInfo> {
     const sentEmailInfo = await this.mailerService.sendMail({
       to: email,
       subject: `Reset your password`,
-      html: `<div>If you want to reset your password, Click the link.</div>
-      <div>http://localhost:5000/user/${userId}/password/reset/${token}</div>`
+      html: `<div>If you want to reset your password, Put the pin numbers below into the password reset page.</div>
+      <h2>${pin}</h2>`
     })
 
     if (sentEmailInfo.accepted.length === 0) {

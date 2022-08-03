@@ -17,10 +17,10 @@ import { InvalidUserException } from 'src/common/exception/business.exception'
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('/password/reset')
-  createTokenAndSendEmail(@Body() userEmailDto: UserEmailDto): Promise<string> {
+  @Post('/password/reset/send-email')
+  createPinAndSendEmail(@Body() userEmailDto: UserEmailDto): Promise<string> {
     try {
-      return this.userService.createTokenAndSendEmail(userEmailDto)
+      return this.userService.createPinAndSendEmail(userEmailDto)
     } catch (error) {
       if (error instanceof InvalidUserException) {
         throw new UnauthorizedException(error.message)
