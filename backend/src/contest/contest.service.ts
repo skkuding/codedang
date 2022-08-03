@@ -220,7 +220,11 @@ export class ContestService {
   async getAdminContestById(contest_id: number): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contest_id },
-      select: contestSelectOptionPartial
+      select: {
+        ...contestSelectOption,
+        description_summary: true,
+        is_rank_visible: true
+      }
     })
     return contest
   }
