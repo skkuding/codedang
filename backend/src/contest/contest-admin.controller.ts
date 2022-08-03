@@ -103,4 +103,11 @@ export class GroupContestAdminController {
   ): Promise<Partial<Contest>> {
     return await this.contestService.getAdminContestById(contestId)
   }
+
+  @Get()
+  async getAdminContestsByGroupId(
+    @Param('group_id', ParseIntPipe) groupId: number
+  ): Promise<Partial<Contest>[]> {
+    return await this.contestService.getAdminContestsByGroupId(groupId)
+  }
 }

@@ -209,4 +209,14 @@ export class ContestService {
     })
     return contest
   }
+
+  async getAdminContestsByGroupId(
+    group_id: number
+  ): Promise<Partial<Contest>[]> {
+    const contests = await this.prisma.contest.findMany({
+      where: { group_id },
+      select: contestSelectOptionPartial
+    })
+    return contests
+  }
 }
