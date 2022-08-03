@@ -28,16 +28,17 @@ model User {
   createTime            DateTime @default(now()) @map("create_time")
   updateTime            DateTime @updatedAt @map("update_time")
 
-  UserProfile    UserProfile?
-  UserGroup      UserGroup[]
-  Group          Group[]
-  Notice         Notice[]
-  Problem        Problem[]
-  Contest        Contest[]
-  ContestRecord  ContestRecord[]
-  ContestRankACM ContestRankACM[]
-  Workbook       Workbook[]
-  Submission     Submission[]
+  UserProfile            UserProfile?
+  UserGroup              UserGroup[]
+  Group                  Group[]
+  Notice                 Notice[]
+  Problem                Problem[]
+  Contest                Contest[]
+  ContestRecord          ContestRecord[]
+  ContestRankACM         ContestRankACM[]
+  Workbook               Workbook[]
+  Submission             Submission[]
+  ContestToPublicRequest ContestToPublicRequest[]
 
   @@map("user")
 }
@@ -186,15 +187,17 @@ model Contest {
   endTime            DateTime    @map("end_time")
   visible            Boolean     @default(true)
   isRankVisible      Boolean     @default(true) @map("is_rank_visible")
+  isPublic           Boolean     @default(false)
   type               ContestType
   createTime         DateTime    @default(now()) @map("create_time")
   updateTime         DateTime    @updatedAt @map("update_time")
 
-  ContestNotice  ContestNotice[]
-  ContestProblem ContestProblem[]
-  ContestRecord  ContestRecord[]
-  ContestRankACM ContestRankACM[]
-  Submission     Submission[]
+  ContestNotice          ContestNotice[]
+  ContestProblem         ContestProblem[]
+  ContestRecord          ContestRecord[]
+  ContestRankACM         ContestRankACM[]
+  Submission             Submission[]
+  ContestToPublicRequest ContestToPublicRequest?
 
   @@map("contest")
 }
@@ -210,6 +213,20 @@ model ContestNotice {
   updateTime  DateTime @updatedAt @map("update_time")
 
   @@map("contest_notice")
+}
+
+model ContestToPublicRequest {
+  id            Int           @id @default(autoincrement())
+  contest       Contest       @relation(fields: [contestId], references: [id])
+  contestId     Int           @unique @map("contest_id")
+  message       String
+  requestStatus RequestStatus @default(Pending) @map("request_status")
+  createdBy     User          @relation(fields: [createdById], references: [id])
+  createdById   Int           @map("created_by_id")
+  creaetTime    DateTime      @default(now()) @map("creaet_time")
+  updateTime    DateTime      @updatedAt @map("update_time")
+
+  @@map("contest_to_public_request")
 }
 
 model ContestProblem {
@@ -325,4 +342,10 @@ enum ContestType {
   ACM
   TotalScore
   ProblemBank
+}
+
+enum RequestStatus {
+  Pending
+  Accept
+  Reject
 }
