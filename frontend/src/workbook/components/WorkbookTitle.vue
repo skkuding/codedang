@@ -1,0 +1,35 @@
+<script setup lang="ts">
+defineProps<{
+  color?: string
+  text: string
+}>()
+
+const colorMapper = {
+  default: 'bg-black',
+  green: 'bg-green',
+  gray: 'bg-gray',
+  blue: 'bg-blue',
+  red: 'bg-red'
+}
+
+const textColorMapper = {
+  default: 'text-black',
+  green: 'text-green',
+  gray: 'text-gray',
+  blue: 'text-blue',
+  red: 'text-red'
+}
+</script>
+
+<template>
+  <div class="relative flex flex-row items-center">
+    <div
+      class="h-16 w-16 rounded-full"
+      :class="colorMapper[color || 'default']"
+    ></div>
+    <div class="-ml-8 h-8 w-10 rounded-full bg-white"></div>
+    <div class="-ml-8 text-2xl" :class="textColorMapper[color || 'default']">
+      {{ text }}
+    </div>
+  </div>
+</template>
