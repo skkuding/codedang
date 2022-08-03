@@ -14,27 +14,20 @@ function returnTextIsNotAllowed(user_id: number, contest_id: number): string {
   return `Contest ${contest_id} is not allowed to User ${user_id}`
 }
 
-const contestSelectOption = {
+const contestSelectOptionPartial = {
   id: true,
   title: true,
-  description: true,
   start_time: true,
   end_time: true,
-  group_id: true,
-  visible: true,
   type: true,
   group: { select: { group_name: true } }
 }
-const userContestsOption = {
-  where: { visible: true },
-  select: {
-    id: true,
-    title: true,
-    start_time: true,
-    end_time: true,
-    type: true,
-    group: { select: { group_name: true } }
-  }
+
+const contestSelectOption = {
+  ...contestSelectOptionPartial,
+  group_id: true,
+  description: true,
+  visible: true
 }
 
 @Injectable()
@@ -150,7 +143,10 @@ export class ContestService {
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    const contests = await this.prisma.contest.findMany(userContestsOption)
+    const contests = await this.prisma.contest.findMany({
+      where: { visible: true },
+      select: contestSelectOptionPartial
+    })
     return {
       ongoing: this.filterOngoing(contests),
       upcoming: this.filterUpcoming(contests),
@@ -204,5 +200,13 @@ export class ContestService {
   async getAdminOngoingContests(user_id: number): Promise<Partial<Contest>[]> {
     const contests = await this.getAdminContests(user_id)
     return this.filterOngoing(contests)
+  }
+
+  async getAdminContestById(contest_id: number): Promise<Partial<Contest>> {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contest_id },
+      select: contestSelectOptionPartial
+    })
+    return contest
   }
 }

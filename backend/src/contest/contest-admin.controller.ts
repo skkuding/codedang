@@ -96,4 +96,11 @@ export class GroupContestAdminController {
       throw new InternalServerErrorException()
     }
   }
+
+  @Get(':id')
+  async getAdminContestById(
+    @Param('id', ParseIntPipe) contestId: number
+  ): Promise<Partial<Contest>> {
+    return await this.contestService.getAdminContestById(contestId)
+  }
 }
