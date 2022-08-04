@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Contest, ContestToPublicRequest, RequestStatus } from '@prisma/client'
+import { request } from 'http'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
@@ -233,6 +234,48 @@ export class ContestService {
       },
       data: {
         request_status: respondContestToPublicRequestDto.request_status
+      }
+    })
+  }
+
+  async getPendingContestToPublicRequests(): Promise<
+    Partial<ContestToPublicRequest>[]
+  > {
+    return await this.getAdminContestToPublicRequests([RequestStatus.Pending])
+  }
+
+  async getRespondedContestToPublicRequests(): Promise<
+    Partial<ContestToPublicRequest>[]
+  > {
+    return await this.getAdminContestToPublicRequests([
+      RequestStatus.Accept,
+      RequestStatus.Reject
+    ])
+  }
+
+  async getAdminContestToPublicRequests(
+    whereOption: RequestStatus[]
+  ): Promise<Partial<ContestToPublicRequest>[]> {
+    return await this.prisma.contestToPublicRequest.findMany({
+      where: {
+        request_status: {
+          in: whereOption
+        }
+      },
+      select: {
+        id: true,
+        contest: {
+          select: {
+            title: true
+          }
+        },
+        created_by: {
+          select: {
+            username: true
+          }
+        },
+        request_status: true,
+        create_time: true
       }
     })
   }

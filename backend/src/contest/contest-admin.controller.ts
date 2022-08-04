@@ -66,6 +66,28 @@ export class ContestAdminController {
       throw new InternalServerErrorException()
     }
   }
+
+  @Get('/topublic/pending')
+  async getPendingContestToPublicRequests(): Promise<
+    Partial<ContestToPublicRequest>[]
+  > {
+    try {
+      return await this.contestService.getPendingContestToPublicRequests()
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('/topublic/responded')
+  async getRespondedContestToPublicRequests(): Promise<
+    Partial<ContestToPublicRequest>[]
+  > {
+    try {
+      return await this.contestService.getRespondedContestToPublicRequests()
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
 }
 
 @Controller('admin/group/:groupId/contest')
