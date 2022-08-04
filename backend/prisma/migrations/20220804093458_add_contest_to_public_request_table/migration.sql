@@ -8,7 +8,7 @@ CREATE TABLE "contest_to_public_request" (
     "message" TEXT NOT NULL,
     "request_status" "RequestStatus" NOT NULL DEFAULT E'Pending',
     "created_by_id" INTEGER NOT NULL,
-    "creaet_time" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "create_time" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "update_time" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "contest_to_public_request_pkey" PRIMARY KEY ("id")
