@@ -37,3 +37,9 @@ export class EmailTransmissionFailedException extends BusinessException {
     super(message)
   }
 }
+
+export class ActionNotAllowedException extends BusinessException {
+  constructor(action, entity) {
+    super(`${action} is not allowed to this ${entity}`)
+  }
+}
