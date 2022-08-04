@@ -9,6 +9,7 @@ import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { CreateContestToPublicRequestDto } from './dto/create-topublic-request.dto'
+import { ResponseContestToPublicRequestDto } from './dto/response-topublic-request.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
 
 @Injectable()
@@ -172,7 +173,7 @@ export class ContestService {
         request_status: true
       },
       rejectOnNotFound: () =>
-        new EntityNotExistException('contestToPublicRequest')
+        new EntityNotExistException('ContestToPublicRequest')
     })
 
     if (request.request_status == RequestStatus.Accept) {
@@ -188,8 +189,10 @@ export class ContestService {
     }
   }
 
-  async getContestToPublicRequest(contestId: number) {
-    return this.prisma.contestToPublicRequest.findUnique({
+  async getContestToPublicRequest(
+    contestId: number
+  ): Promise<Partial<ContestToPublicRequest>> {
+    return await this.prisma.contestToPublicRequest.findUnique({
       where: {
         contest_id: contestId
       },
@@ -203,7 +206,9 @@ export class ContestService {
           }
         },
         create_time: true
-      }
+      },
+      rejectOnNotFound: () =>
+        new EntityNotExistException('ContestToPublicRequest')
     })
   }
 

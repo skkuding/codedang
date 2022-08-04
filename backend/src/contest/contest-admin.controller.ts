@@ -16,7 +16,7 @@ import {
 import { ContestService } from './contest.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
-import { Contest, Role } from '@prisma/client'
+import { Contest, ContestToPublicRequest, Role } from '@prisma/client'
 import {
   EntityNotExistException,
   UnprocessableDataException
@@ -26,6 +26,7 @@ import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
 import { CreateContestToPublicRequestDto } from './dto/create-topublic-request.dto'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
+import { ResponseContestToPublicRequestDto } from './dto/response-topublic-request.dto'
 
 @Controller('admin/contest')
 @UseGuards(RolesGuard)
@@ -160,10 +161,14 @@ export class GroupContestAdminController {
   @Get('/:id/topublic')
   async getContestToPublicRequest(
     @Param('id', ParseIntPipe) contestId: number
-  ) {
+  ): Promise<Partial<ContestToPublicRequest>> {
     try {
       return await this.contestService.getContestToPublicRequest(contestId)
     } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+
       throw new InternalServerErrorException()
     }
   }
