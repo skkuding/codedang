@@ -26,6 +26,7 @@ const contest = {
   endTime: new Date('2021-12-07T18:34:23.999175+09:00'),
   visible: true,
   isRankVisible: true,
+  isPublic: false,
   type: ContestType.ACM,
   createTime: new Date('2021-11-01T18:34:23.999175+09:00'),
   updateTime: new Date('2021-11-01T18:34:23.999175+09:00'),
