@@ -26,7 +26,7 @@ import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
 import { CreateContestToPublicRequestDto } from './dto/create-topublic-request.dto'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
-import { ResponseContestToPublicRequestDto } from './dto/response-topublic-request.dto'
+import { RespondContestToPublicRequestDto } from './dto/respond-topublic-request.dto'
 
 @Controller('admin/contest')
 @UseGuards(RolesGuard)
@@ -46,6 +46,25 @@ export class ContestAdminController {
     @Req() req: AuthenticatedRequest
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminOngoingContests(req.user.id)
+  }
+
+  @Patch('/:id/topublic')
+  async respondContestToPublicRequest(
+    @Param('id', ParseIntPipe) contestId: number,
+    @Body() respondContestToPublicRequestDto: RespondContestToPublicRequestDto
+  ): Promise<ContestToPublicRequest> {
+    try {
+      return await this.contestService.respondContestToPublicRequest(
+        contestId,
+        respondContestToPublicRequestDto
+      )
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+
+      throw new InternalServerErrorException()
+    }
   }
 }
 
