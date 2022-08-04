@@ -21,12 +21,12 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Get(':group_id')
-  async getGroupById(
+  async getGroup(
     @Req() req: AuthenticatedRequest,
     @Param('group_id', ParseIntPipe) groupId: number
   ): Promise<Partial<Group>> {
     try {
-      return await this.groupService.getGroupById(req.user.id, groupId)
+      return await this.groupService.getGroup(req.user.id, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

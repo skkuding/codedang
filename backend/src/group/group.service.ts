@@ -15,7 +15,7 @@ function returnIsNotAllowed(userId: number, groupId: number): string {
 export class GroupService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getGroupById(userId: number, groupId: number) {
+  async getGroup(userId: number, groupId: number) {
     const group = await this.prisma.group.findUnique({
       where: {
         id: groupId
