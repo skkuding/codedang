@@ -8,6 +8,7 @@ import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
 import BoxTitle from '@/common/components/Atom/BoxTitle.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
+import Button from '@/common/components/Atom/Button.vue'
 
 defineProps<{
   id: number
@@ -72,35 +73,39 @@ const clickRow = (row: any) => {
       Find problems with problem set and filters, and solve it!
     </template>
   </BoxTitle>
-  <PageSubtitle text="All Problem" class="ml-28 mt-10 mb-7" />
 
-  <PaginationTable
-    :fields="fields"
-    :items="items"
-    placeholder="keywords"
-    :number-of-pages="1"
-    @row-clicked="clickRow"
-  >
-    <template #level="{ row }">
-      <div class="flex items-center gap-2">
-        <span class="h-5 w-5 rounded-full" :class="colorMapper[row.level]" />
-        Level {{ row.level }}
-      </div>
-    </template>
-  </PaginationTable>
-  <PageSubtitle text="Workbook" class="ml-28 mt-10 mb-7" />
-
-  <div class="mb-7 flex justify-end">
-    <Switch label="Tags" model-value />
-    <SearchBar class="ml-4" />
+  <div class="px-28">
+    <PageSubtitle text="All Problem" class="mt-10 mb-7" />
+    <PaginationTable
+      :fields="fields"
+      :items="items"
+      placeholder="keywords"
+      :number-of-pages="1"
+      @row-clicked="clickRow"
+    >
+      <template #level="{ row }">
+        <div class="flex items-center gap-2">
+          <span class="h-5 w-5 rounded-full" :class="colorMapper[row.level]" />
+          Level {{ row.level }}
+        </div>
+      </template>
+    </PaginationTable>
   </div>
-  <ProgressCard
-    title="SKKU 프로그래밍 대회 2021"
-    header="2022.05.07 updated"
-    description="description"
-    color="green"
-    :total="6"
-    :complete="2"
-  />
+  <div class="mb-28 px-28">
+    <PageSubtitle text="Workbook" class="mt-10 mb-7" />
+    <div class="mb-7 flex justify-end">
+      <Switch label="Tags" model-value />
+      <SearchBar class="ml-4" placeholder="keywords" />
+    </div>
+    <ProgressCard
+      title="SKKU 프로그래밍 대회 2021"
+      header="2022.05.07 updated"
+      description="description"
+      color="green"
+      :total="6"
+      :complete="2"
+    />
+    <Button class="w-full" color="white">More</Button>
+  </div>
   <Footer />
 </template>
