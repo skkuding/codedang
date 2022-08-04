@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { Contest, ContestToPublicRequest, RequestStatus } from '@prisma/client'
-import { request } from 'http'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
@@ -263,7 +262,7 @@ export class ContestService {
         }
       },
       select: {
-        id: true,
+        contest_id: true,
         contest: {
           select: {
             title: true
@@ -277,6 +276,39 @@ export class ContestService {
         request_status: true,
         create_time: true
       }
+    })
+  }
+
+  async getAdminContestToPublicRequest(
+    contestId: number
+  ): Promise<Partial<ContestToPublicRequest>> {
+    return await this.prisma.contestToPublicRequest.findUnique({
+      where: {
+        contest_id: contestId
+      },
+      select: {
+        contest_id: true,
+        contest: {
+          select: {
+            title: true,
+            group: {
+              select: {
+                group_name: true
+              }
+            }
+          }
+        },
+        created_by: {
+          select: {
+            username: true
+          }
+        },
+        message: true,
+        request_status: true,
+        create_time: true
+      },
+      rejectOnNotFound: () =>
+        new EntityNotExistException('ContestToPublicRequest')
     })
   }
 

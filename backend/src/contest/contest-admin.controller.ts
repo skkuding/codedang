@@ -30,11 +30,11 @@ import { RespondContestToPublicRequestDto } from './dto/respond-topublic-request
 
 @Controller('admin/contest')
 @UseGuards(RolesGuard)
-@Roles(Role.GroupAdmin)
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
+  @Roles(Role.GroupAdmin)
   async getAdminContests(
     @Req() req: AuthenticatedRequest
   ): Promise<Partial<Contest>[]> {
@@ -42,6 +42,7 @@ export class ContestAdminController {
   }
 
   @Get('ongoing')
+  @Roles(Role.GroupAdmin)
   async getAdminOngoingContests(
     @Req() req: AuthenticatedRequest
   ): Promise<Partial<Contest>[]> {
@@ -49,6 +50,7 @@ export class ContestAdminController {
   }
 
   @Patch('/:id/topublic')
+  @Roles(Role.SuperManager)
   async respondContestToPublicRequest(
     @Param('id', ParseIntPipe) contestId: number,
     @Body() respondContestToPublicRequestDto: RespondContestToPublicRequestDto
@@ -68,6 +70,7 @@ export class ContestAdminController {
   }
 
   @Get('/topublic/pending')
+  @Roles(Role.SuperManager)
   async getPendingContestToPublicRequests(): Promise<
     Partial<ContestToPublicRequest>[]
   > {
@@ -79,6 +82,7 @@ export class ContestAdminController {
   }
 
   @Get('/topublic/responded')
+  @Roles(Role.SuperManager)
   async getRespondedContestToPublicRequests(): Promise<
     Partial<ContestToPublicRequest>[]
   > {
