@@ -156,4 +156,15 @@ export class GroupContestAdminController {
       throw new InternalServerErrorException()
     }
   }
+
+  @Get('/:id/topublic')
+  async getContestToPublicRequest(
+    @Param('id', ParseIntPipe) contestId: number
+  ) {
+    try {
+      return await this.contestService.getContestToPublicRequest(contestId)
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
 }

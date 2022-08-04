@@ -188,6 +188,25 @@ export class ContestService {
     }
   }
 
+  async getContestToPublicRequest(contestId: number) {
+    return this.prisma.contestToPublicRequest.findUnique({
+      where: {
+        contest_id: contestId
+      },
+      select: {
+        contest_id: true,
+        message: true,
+        request_status: true,
+        created_by: {
+          select: {
+            username: true
+          }
+        },
+        create_time: true
+      }
+    })
+  }
+
   async getContests(): Promise<{
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
