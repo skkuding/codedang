@@ -148,13 +148,38 @@ export class ContestService {
       }
     })
 
-    if (request.request_status == RequestStatus.Accept) {
+    if (request && request.request_status == RequestStatus.Accept) {
       throw new UnprocessableDataException(
         'This contest is already accepted to be public'
       )
     }
 
     if (request) {
+      await this.prisma.contestToPublicRequest.delete({
+        where: {
+          contest_id: contestId
+        }
+      })
+    }
+  }
+
+  async deleteContestToPublicRequest(contestId: number) {
+    const request = await this.prisma.contestToPublicRequest.findUnique({
+      where: {
+        contest_id: contestId
+      },
+      select: {
+        request_status: true
+      },
+      rejectOnNotFound: () =>
+        new EntityNotExistException('contestToPublicRequest')
+    })
+
+    if (request.request_status == RequestStatus.Accept) {
+      throw new UnprocessableDataException(
+        'This contest is already accepted to be public'
+      )
+    } else {
       await this.prisma.contestToPublicRequest.delete({
         where: {
           contest_id: contestId

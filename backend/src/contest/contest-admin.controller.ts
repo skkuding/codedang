@@ -138,4 +138,22 @@ export class GroupContestAdminController {
       throw new InternalServerErrorException()
     }
   }
+
+  @Delete('/:id/topublic')
+  async deleteContestToPublicRequest(
+    @Param('id', ParseIntPipe) contestId: number
+  ) {
+    try {
+      await this.contestService.deleteContestToPublicRequest(contestId)
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      }
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+
+      throw new InternalServerErrorException()
+    }
+  }
 }
