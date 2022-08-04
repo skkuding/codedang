@@ -227,12 +227,31 @@ export class ContestService {
         new EntityNotExistException('ContestToPublicRequest')
     })
 
+    if (
+      respondContestToPublicRequestDto.request_status == RequestStatus.Accept
+    ) {
+      this.updateContestIsPublic(contestId, true)
+    } else {
+      this.updateContestIsPublic(contestId, false)
+    }
+
     return await this.prisma.contestToPublicRequest.update({
       where: {
         contest_id: contestId
       },
       data: {
         request_status: respondContestToPublicRequestDto.request_status
+      }
+    })
+  }
+
+  async updateContestIsPublic(id: number, isPublic: boolean) {
+    await this.prisma.contest.update({
+      where: {
+        id
+      },
+      data: {
+        is_public: isPublic
       }
     })
   }
