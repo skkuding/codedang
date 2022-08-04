@@ -8,7 +8,7 @@ import {
 import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateContestDto } from './dto/create-contest.dto'
-import { RequestContestToPublicDto } from './dto/request-to-public.dto'
+import { CreateContestToPublicRequestDto } from './dto/create-topublic-request.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
 
 @Injectable()
@@ -115,18 +115,18 @@ export class ContestService {
     })
   }
 
-  async requestContestToPublic(
+  async createContestToPublicRequest(
     userId: number,
-    requestContestToPublicDto: RequestContestToPublicDto
+    createContestToPublicRequestDto: CreateContestToPublicRequestDto
   ): Promise<ContestToPublicRequest> {
-    this.deleteExistingRequest(requestContestToPublicDto.contest_id)
+    this.deleteExistingRequest(createContestToPublicRequestDto.contest_id)
 
     return await this.prisma.contestToPublicRequest.create({
       data: {
-        message: requestContestToPublicDto.message,
+        message: createContestToPublicRequestDto.message,
         contest: {
           connect: {
-            id: requestContestToPublicDto.contest_id
+            id: createContestToPublicRequestDto.contest_id
           }
         },
         created_by: {

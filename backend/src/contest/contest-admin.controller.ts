@@ -23,9 +23,9 @@ import {
 } from 'src/common/exception/business.exception'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
+import { CreateContestToPublicRequestDto } from './dto/create-topublic-request.dto'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
-import { RequestContestToPublicDto } from './dto/request-to-public.dto'
 
 @Controller('admin/contest')
 @UseGuards(RolesGuard)
@@ -121,14 +121,14 @@ export class GroupContestAdminController {
   }
 
   @Post('/:id/topublic')
-  async requestContestToPublic(
+  async createContestToPublicRequest(
     @Req() req: AuthenticatedRequest,
-    @Body() requestContestToPublicDto: RequestContestToPublicDto
+    @Body() createContestToPublicRequestDto: CreateContestToPublicRequestDto
   ) {
     try {
-      return await this.contestService.requestContestToPublic(
+      return await this.contestService.createContestToPublicRequest(
         req.user.id,
-        requestContestToPublicDto
+        createContestToPublicRequestDto
       )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
