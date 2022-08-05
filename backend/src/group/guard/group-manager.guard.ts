@@ -9,7 +9,8 @@ export class GroupManagerGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: AuthenticatedRequest = context.switchToHttp().getRequest()
-    const userRole: string = request.userRole
+    const userRole: Role = request.user.role
+
     if (userRole == Role.SuperAdmin || userRole == Role.SuperManager) {
       return true
     }
