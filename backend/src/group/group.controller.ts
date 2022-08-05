@@ -49,6 +49,9 @@ export class GroupController {
     try {
       return await this.groupService.getGroupJoinById(req.user.id, groupId)
     } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
       throw new InternalServerErrorException()
     }
   }
@@ -65,6 +68,9 @@ export class GroupController {
         invitationCode
       )
     } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
       throw new InternalServerErrorException()
     }
   }
