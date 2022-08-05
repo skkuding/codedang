@@ -1,10 +1,12 @@
 import {
+  Body,
   Controller,
   Get,
   InternalServerErrorException,
   NotFoundException,
   Param,
   ParseIntPipe,
+  Post,
   Req,
   UnauthorizedException
 } from '@nestjs/common'
@@ -15,6 +17,7 @@ import {
   InvalidUserException
 } from 'src/common/exception/business.exception'
 import { GroupService } from './group.service'
+import { UserGroupInterface } from './interface/user-group.interface'
 
 @Controller('group')
 export class GroupController {
@@ -34,6 +37,34 @@ export class GroupController {
       if (error instanceof InvalidUserException) {
         throw new UnauthorizedException(error.message)
       }
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get(':group_id/join')
+  async getGroupJoinById(
+    @Req() req: AuthenticatedRequest,
+    @Param('group_id', ParseIntPipe) groupId: number
+  ): Promise<UserGroupInterface> {
+    try {
+      return await this.groupService.getGroupJoinById(req.user.id, groupId)
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Post('join')
+  async getGroupJoinByInvt(
+    @Req() req: AuthenticatedRequest,
+    @Param('group_id', ParseIntPipe) groupId: number,
+    @Body() invitationCode: string
+  ): Promise<UserGroupInterface> {
+    try {
+      return await this.groupService.getGroupJoinByInvt(
+        req.user.id,
+        invitationCode
+      )
+    } catch (error) {
       throw new InternalServerErrorException()
     }
   }

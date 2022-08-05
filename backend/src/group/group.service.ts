@@ -21,6 +21,7 @@ export class GroupService {
         id: groupId
       },
       select: {
+        id: true,
         group_name: true,
         description: true
       },
@@ -38,6 +39,60 @@ export class GroupService {
     })
 
     return group
+  }
+
+  async getGroupJoinById(userId: number, groupId: number) {
+    const group = await this.prisma.group.findFirst({
+      where: {
+        id: groupId,
+        private: false
+      },
+      select: {
+        id: true,
+        group_name: true,
+        description: true
+      },
+      rejectOnNotFound: () => new EntityNotExistException('group')
+    })
+
+    const groupMemberNum = await this.prisma.userGroup.count({
+      where: {
+        group_id: groupId,
+        is_registered: true
+      }
+    })
+
+    return {
+      ...group,
+      member_num: groupMemberNum
+    }
+  }
+
+  async getGroupJoinByInvt(userId: number, invitationCode: string) {
+    const group = await this.prisma.group.findFirst({
+      where: {
+        invitation_code: invitationCode,
+        private: true
+      },
+      select: {
+        id: true,
+        group_name: true,
+        description: true
+      },
+      rejectOnNotFound: () => new EntityNotExistException('group')
+    })
+
+    const groupMemberNum = await this.prisma.userGroup.count({
+      where: {
+        group_id: group.id,
+        is_registered: true
+      }
+    })
+
+    return {
+      ...group,
+      member_num: groupMemberNum
+    }
   }
 
   async getUserGroupMembershipInfo(userId: number, groupId: number) {
