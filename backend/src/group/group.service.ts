@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { Group } from '@prisma/client'
 import { UserGroup } from '@prisma/client'
 import {
   EntityNotExistException,
@@ -6,6 +7,7 @@ import {
 } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { UserGroupData } from './interface/user-group-data.interface'
+import { UserGroupInterface } from './interface/user-group.interface'
 
 function returnIsNotAllowed(userId: number, groupId: number): string {
   return `Group ${groupId} is not allowed to User ${userId}`
@@ -15,7 +17,7 @@ function returnIsNotAllowed(userId: number, groupId: number): string {
 export class GroupService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getGroup(userId: number, groupId: number) {
+  async getGroup(userId: number, groupId: number): Promise<Partial<Group>> {
     const group = await this.prisma.group.findUnique({
       where: {
         id: groupId
@@ -41,7 +43,10 @@ export class GroupService {
     return group
   }
 
-  async getGroupJoinById(userId: number, groupId: number) {
+  async getGroupJoinById(
+    userId: number,
+    groupId: number
+  ): Promise<UserGroupInterface> {
     const group = await this.prisma.group.findFirst({
       where: {
         id: groupId,
@@ -64,11 +69,14 @@ export class GroupService {
 
     return {
       ...group,
-      member_num: groupMemberNum
+      memberNum: groupMemberNum
     }
   }
 
-  async getGroupJoinByInvt(userId: number, invitationCode: string) {
+  async getGroupJoinByInvt(
+    userId: number,
+    invitationCode: string
+  ): Promise<UserGroupInterface> {
     const group = await this.prisma.group.findFirst({
       where: {
         invitation_code: invitationCode,
@@ -91,7 +99,7 @@ export class GroupService {
 
     return {
       ...group,
-      member_num: groupMemberNum
+      memberNum: groupMemberNum
     }
   }
 
