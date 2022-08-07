@@ -5,13 +5,14 @@ import {
   ContestAdminController,
   GroupContestAdminController
 } from './contest-admin.controller'
-import { ContestController } from './contest.controller'
+import { ContestController, GroupContestController } from './contest.controller'
 import { ContestService } from './contest.service'
 
 @Module({
   imports: [GroupModule],
   controllers: [
     ContestController,
+    GroupContestController,
     ContestAdminController,
     GroupContestAdminController
   ],

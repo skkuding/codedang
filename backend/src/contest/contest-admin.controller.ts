@@ -98,7 +98,7 @@ export class GroupContestAdminController {
   }
 
   @Get(':id')
-  async getAdminContestById(
+  async getAdminContest(
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     try {
@@ -112,7 +112,7 @@ export class GroupContestAdminController {
   }
 
   @Get()
-  async getAdminContestsByGroupId(
+  async getAdminContests(
     @Param('group_id', ParseIntPipe) groupId: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminContestsByGroupId(groupId)
