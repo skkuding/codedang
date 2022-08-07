@@ -33,7 +33,7 @@ const contestSelectOption = {
 export class ContestService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly group: GroupService
+    private readonly groupService: GroupService
   ) {}
 
   async createContest(
@@ -119,26 +119,6 @@ export class ContestService {
 
   ///////////////////////////////////////////////////////////////////////////////
 
-  filterOngoing(contests: Partial<Contest>[]): Partial<Contest>[] {
-    const now = new Date()
-    const ongoingContest = contests.filter(
-      (contest) => contest.start_time <= now && contest.end_time > now
-    )
-    return ongoingContest
-  }
-  filterUpcoming(contests: Partial<Contest>[]): Partial<Contest>[] {
-    const ongoingContest = contests.filter(
-      (contest) => contest.start_time > new Date()
-    )
-    return ongoingContest
-  }
-  filterFinished(contests: Partial<Contest>[]): Partial<Contest>[] {
-    const ongoingContest = contests.filter(
-      (contest) => contest.end_time <= new Date()
-    )
-    return ongoingContest
-  }
-
   async getContests(): Promise<{
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
@@ -153,6 +133,28 @@ export class ContestService {
       upcoming: this.filterUpcoming(contests),
       finished: this.filterFinished(contests)
     }
+  }
+
+  filterOngoing(contests: Partial<Contest>[]): Partial<Contest>[] {
+    const now = new Date()
+    const ongoingContest = contests.filter(
+      (contest) => contest.start_time <= now && contest.end_time > now
+    )
+    return ongoingContest
+  }
+
+  filterUpcoming(contests: Partial<Contest>[]): Partial<Contest>[] {
+    const now = new Date()
+    const ongoingContest = contests.filter(
+      (contest) => contest.start_time > now
+    )
+    return ongoingContest
+  }
+
+  filterFinished(contests: Partial<Contest>[]): Partial<Contest>[] {
+    const now = new Date()
+    const ongoingContest = contests.filter((contest) => contest.end_time <= now)
+    return ongoingContest
   }
 
   async getContestById(
@@ -203,19 +205,19 @@ export class ContestService {
 
   ///////////////////////////////////////////////////////////////////////////////////
 
+  async getAdminOngoingContests(user_id: number): Promise<Partial<Contest>[]> {
+    const contests = await this.getAdminContests(user_id)
+    return this.filterOngoing(contests)
+  }
+
   async getAdminContests(user_id: number): Promise<Partial<Contest>[]> {
-    const groupIds = await this.group.getUserGroupManagerList(user_id)
+    const groupIds = await this.groupService.getUserGroupManagerList(user_id)
     return await this.prisma.contest.findMany({
       where: {
         group_id: { in: groupIds }
       },
       select: contestSelectOption
     })
-  }
-
-  async getAdminOngoingContests(user_id: number): Promise<Partial<Contest>[]> {
-    const contests = await this.getAdminContests(user_id)
-    return this.filterOngoing(contests)
   }
 
   async getAdminContestById(contest_id: number): Promise<Partial<Contest>> {
