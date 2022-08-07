@@ -59,8 +59,8 @@ export class GroupContestAdminController {
   ): Promise<Contest> {
     try {
       return await this.contestService.createContest(req.user.id, contestDto)
-    } catch (err) {
-      if (err instanceof UnprocessableDataException) {
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(err.message)
       }
       throw new InternalServerErrorException()
@@ -74,12 +74,12 @@ export class GroupContestAdminController {
   ): Promise<Contest> {
     try {
       return await this.contestService.updateContest(id, contestDto)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
-      if (err instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(err.message)
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -89,9 +89,9 @@ export class GroupContestAdminController {
   async deleteContest(@Param('id', ParseIntPipe) id: number) {
     try {
       await this.contestService.deleteContest(id)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -103,9 +103,9 @@ export class GroupContestAdminController {
   ): Promise<Partial<Contest>> {
     try {
       return await this.contestService.getAdminContestById(contestId)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
       throw new InternalServerErrorException()
     }
