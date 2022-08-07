@@ -117,6 +117,8 @@ export class ContestService {
     })
   }
 
+  ///////////////////////////////////////////////////////////////////////////////
+
   filterOngoing(contests: Partial<Contest>[]): Partial<Contest>[] {
     const now = new Date()
     const ongoingContest = contests.filter(
@@ -159,11 +161,10 @@ export class ContestService {
   ): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contest_id },
-      select: contestSelectOption
+      select: contestSelectOption,
+      rejectOnNotFound: () => new EntityNotExistException('Contest')
     })
-    if (!contest) {
-      throw new EntityNotExistException(`Contest ${contest_id}`)
-    }
+
     const isUserInGroup = await this.prisma.userGroup.findFirst({
       where: { user_id, group_id: contest.group_id, is_registered: true },
       select: { is_group_manager: true }
@@ -186,11 +187,10 @@ export class ContestService {
         id: true,
         title: true,
         description_summary: true
-      }
+      },
+      rejectOnNotFound: () => new EntityNotExistException('Contest')
     })
-    if (!contest) {
-      throw new EntityNotExistException(`Contest ${contest_id}`)
-    }
+
     return contest
   }
 
@@ -200,6 +200,8 @@ export class ContestService {
       select: contestSelectOption
     })
   }
+
+  ///////////////////////////////////////////////////////////////////////////////////
 
   async getAdminContests(user_id: number): Promise<Partial<Contest>[]> {
     const groupIds = await this.group.getUserGroupManagerList(user_id)
@@ -223,11 +225,10 @@ export class ContestService {
         ...contestSelectOption,
         description_summary: true,
         is_rank_visible: true
-      }
+      },
+      rejectOnNotFound: () => new EntityNotExistException('Contest')
     })
-    if (!contest) {
-      throw new EntityNotExistException(`Contest ${contest_id}`)
-    }
+
     return contest
   }
 
