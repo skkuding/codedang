@@ -13,20 +13,13 @@ function returnTextIsNotAllowed(user_id: number, contest_id: number): string {
   return `Contest ${contest_id} is not allowed to User ${user_id}`
 }
 
-const contestSelectOptionPartial = {
+const contestSelectOption = {
   id: true,
   title: true,
   start_time: true,
   end_time: true,
   type: true,
-  group: { select: { group_name: true } }
-}
-
-const contestSelectOption = {
-  ...contestSelectOptionPartial,
-  group_id: true,
-  description: true,
-  visible: true
+  group: { select: { group_id: true, group_name: true } }
 }
 
 @Injectable()
@@ -117,8 +110,6 @@ export class ContestService {
     })
   }
 
-  ///////////////////////////////////////////////////////////////////////////////
-
   async getContests(): Promise<{
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
@@ -126,7 +117,7 @@ export class ContestService {
   }> {
     const contests = await this.prisma.contest.findMany({
       where: { visible: true },
-      select: contestSelectOptionPartial
+      select: contestSelectOption
     })
     return {
       ongoing: this.filterOngoing(contests),
@@ -163,12 +154,12 @@ export class ContestService {
   ): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contest_id },
-      select: contestSelectOption,
+      select: { ...contestSelectOption, description: true, visible: true },
       rejectOnNotFound: () => new EntityNotExistException('Contest')
     })
 
     const isUserInGroup = await this.prisma.userGroup.findFirst({
-      where: { user_id, group_id: contest.group_id, is_registered: true },
+      where: { user_id, group_id: contest.group.group_id, is_registered: true },
       select: { is_group_manager: true }
     })
     if (
@@ -203,8 +194,6 @@ export class ContestService {
     })
   }
 
-  ///////////////////////////////////////////////////////////////////////////////////
-
   async getAdminOngoingContests(user_id: number): Promise<Partial<Contest>[]> {
     const contests = await this.getAdminContests(user_id)
     return this.filterOngoing(contests)
@@ -216,7 +205,7 @@ export class ContestService {
       where: {
         group_id: { in: groupIds }
       },
-      select: contestSelectOption
+      select: { ...contestSelectOption, visible: true }
     })
   }
 
@@ -225,6 +214,8 @@ export class ContestService {
       where: { id: contest_id },
       select: {
         ...contestSelectOption,
+        visible: true,
+        description: true,
         description_summary: true,
         is_rank_visible: true
       },
@@ -239,7 +230,7 @@ export class ContestService {
   ): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
       where: { group_id },
-      select: contestSelectOptionPartial
+      select: { ...contestSelectOption, visible: true }
     })
   }
 }

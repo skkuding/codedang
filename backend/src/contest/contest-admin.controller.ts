@@ -61,7 +61,7 @@ export class GroupContestAdminController {
       return await this.contestService.createContest(req.user.id, contestDto)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(err.message)
+        throw new UnprocessableEntityException(error.message)
       }
       throw new InternalServerErrorException()
     }
