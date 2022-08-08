@@ -9,16 +9,15 @@ const props = defineProps<{
 const currentSlide = ref(0)
 const direction = ref('right')
 
-const { pause, resume } = useIntervalFn(() => {
-  currentSlide.value =
-    currentSlide.value + 1 < props.slides.length ? currentSlide.value + 1 : 0
-}, 3000)
-
 const switchSlide = (index: number) => {
   direction.value = index - currentSlide.value > 0 ? 'right' : 'left'
   currentSlide.value = index
   resume()
 }
+
+const { pause, resume } = useIntervalFn(() => {
+  switchSlide((currentSlide.value + 1) % props.slides.length)
+}, 3000)
 </script>
 
 <template>
