@@ -17,7 +17,7 @@ const switchSlide = (index: number) => {
 
 const { pause, resume } = useIntervalFn(() => {
   switchSlide((currentSlide.value + 1) % props.slides.length)
-}, 3000)
+}, 5000)
 </script>
 
 <template>
