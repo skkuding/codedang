@@ -9,15 +9,12 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common'
-import { Contest, Role } from '@prisma/client'
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
+import { Contest } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { Public } from 'src/common/decorator/public.decorator'
-import { Roles } from 'src/common/decorator/roles.decorator'
 import {
   EntityNotExistException,
-  ForbiddenAccessException,
-  UnprocessableDataException
+  ForbiddenAccessException
 } from 'src/common/exception/business.exception'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
