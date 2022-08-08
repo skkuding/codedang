@@ -13,9 +13,9 @@ describe('ContestController', () => {
       controllers: [ContestController],
       providers: [
         GroupService,
-        PrismaService,
         ConfigService,
-        { provide: ContestService, useValue: {} }
+        { provide: ContestService, useValue: {} },
+        { provide: PrismaService, useValue: {} }
       ]
     }).compile()
 
