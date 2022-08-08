@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { ref } from 'vue'
 import { useIntervalFn } from '@vueuse/core'
 
 const props = defineProps<{
@@ -17,17 +17,10 @@ const { pause, resume } = useIntervalFn(() => {
 const switchSlide = (index: number) => {
   direction.value = index - currentSlide.value > 0 ? 'right' : 'left'
   currentSlide.value = index
-  resume
+  resume()
 }
-
-onMounted(() => {
-  resume
-})
-
-onBeforeUnmount(() => {
-  pause
-})
 </script>
+
 <template>
   <div class="flex justify-center">
     <div class="relative h-[600px] w-full overflow-hidden">
