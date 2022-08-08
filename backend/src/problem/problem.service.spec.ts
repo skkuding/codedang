@@ -1,9 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { Problem } from '@prisma/client'
+import { plainToInstance } from 'class-transformer'
 import { PaginationDto } from 'src/common/dto/pagination.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { ContestService } from 'src/contest/contest.service'
 import { WorkbookService } from 'src/workbook/workbook.service'
+import { PublicProblemResponseDto } from './dto/public-problem.response.dto'
+import { PublicProblemsResponseDto } from './dto/public-problems.response.dto'
 import { Problems } from './mock/problem.mock'
 import { ProblemRepository } from './problem.repository'
 import { ProblemService } from './problem.service'
@@ -70,7 +73,9 @@ describe('ProblemService', () => {
       const result = await problemService.getPublicProblem(problemId)
 
       // then
-      expect(result).toEqual(publicProblem)
+      expect(result).toEqual(
+        plainToInstance(PublicProblemResponseDto, publicProblem)
+      )
     })
   })
 
@@ -89,7 +94,9 @@ describe('ProblemService', () => {
       const result = await problemService.getPublicProblems(paginationDto)
 
       // then
-      expect(result).toEqual(problems)
+      expect(result).toEqual(
+        plainToInstance(PublicProblemsResponseDto, problems)
+      )
     })
   })
 

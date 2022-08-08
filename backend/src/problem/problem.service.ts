@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { Problem } from '@prisma/client'
+import { plainToClass, plainToInstance } from 'class-transformer'
 import { PaginationDto } from 'src/common/dto/pagination.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { ContestService } from 'src/contest/contest.service'
 import { WorkbookService } from 'src/workbook/workbook.service'
 import { PublicProblemResponseDto } from './dto/public-problem.response.dto'
+import { PublicProblemsResponseDto } from './dto/public-problems.response.dto'
 import { ProblemRepository } from './problem.repository'
 
 /**
@@ -21,7 +23,8 @@ export class ProblemService {
 
   async getPublicProblem(problemId: number): Promise<Partial<Problem>> {
     // group_id=PUBLIC_GROUP_ID이고 problemd의 is_public=true 인 problem을 반환
-    return new PublicProblemResponseDto(
+    return plainToInstance(
+      PublicProblemResponseDto,
       await this.problemRepository.getPublicProblem(problemId)
     )
   }
@@ -30,7 +33,10 @@ export class ProblemService {
     paginationDto: PaginationDto
   ): Promise<Partial<Problem>[]> {
     // group_id=PUBLIC_GROUP_ID이고 problemd의 is_public=true 인 problem 배열을 반환
-    return await this.problemRepository.getPublicProblems(paginationDto)
+    return plainToInstance(
+      PublicProblemsResponseDto,
+      await this.problemRepository.getPublicProblems(paginationDto)
+    )
   }
 
   async getPublicContestProblem(
