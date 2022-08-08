@@ -29,10 +29,44 @@ const contest = {
   type: ContestType.ACM,
   create_time: new Date('2021-11-01T18:34:23.999175+09:00'),
   update_time: new Date('2021-11-01T18:34:23.999175+09:00'),
+  is_public: false,
   group: {
     group_id: groupId
   }
 }
+
+const ongoingContests: Partial<Contest>[] = [
+  {
+    ...contest,
+    id: contestId,
+    end_time: new Date('2022-11-07T18:34:23.999175+09:00'),
+    visible: false
+  }
+]
+
+const finishedContests: Partial<Contest>[] = [
+  {
+    ...contest,
+    id: contestId + 3,
+    visible: false
+  }
+]
+
+const upcomingContests: Partial<Contest>[] = [
+  {
+    ...contest,
+    id: contestId + 6,
+    start_time: new Date('2022-11-07T18:34:23.999175+09:00'),
+    end_time: new Date('2022-12-07T18:34:23.999175+09:00'),
+    visible: false
+  }
+]
+
+const contests: Partial<Contest>[] = [
+  ...ongoingContests,
+  ...finishedContests,
+  ...upcomingContests
+]
 
 const ongoingContests: Partial<Contest>[] = [
   {

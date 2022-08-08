@@ -16,6 +16,7 @@ import { ContestService } from './contest.service'
     ContestAdminController,
     GroupContestAdminController
   ],
-  providers: [ContestService]
+  providers: [ContestService],
+  exports: [ContestService]
 })
 export class ContestModule {}
