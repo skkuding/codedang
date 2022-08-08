@@ -4,6 +4,7 @@ import { PaginationDto } from 'src/common/dto/pagination.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { ContestService } from 'src/contest/contest.service'
 import { WorkbookService } from 'src/workbook/workbook.service'
+import { PublicProblemResponseDto } from './dto/public-problem.response.dto'
 import { ProblemRepository } from './problem.repository'
 
 /**
@@ -20,9 +21,9 @@ export class ProblemService {
 
   async getPublicProblem(problemId: number): Promise<Partial<Problem>> {
     // group_id=PUBLIC_GROUP_ID이고 problemd의 is_public=true 인 problem을 반환
-    return await this.problemRepository.getPublicProblem(problemId, {
-      id: true
-    })
+    return new PublicProblemResponseDto(
+      await this.problemRepository.getPublicProblem(problemId)
+    )
   }
 
   async getPublicProblems(
