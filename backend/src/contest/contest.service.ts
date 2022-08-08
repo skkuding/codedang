@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Contest } from '@prisma/client'
 import {
   EntityNotExistException,
+  ForbiddenAccessException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
@@ -9,25 +10,21 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
 
-function returnTextIsNotAllowed(user_id: number, contest_id: number): string {
-  return `Contest ${contest_id} is not allowed to User ${user_id}`
-}
-
-const contestSelectOption = {
-  id: true,
-  title: true,
-  start_time: true,
-  end_time: true,
-  type: true,
-  group: { select: { group_id: true, group_name: true } }
-}
-
 @Injectable()
 export class ContestService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly groupService: GroupService
   ) {}
+
+  private contestSelectOption = {
+    id: true,
+    title: true,
+    start_time: true,
+    end_time: true,
+    type: true,
+    group: { select: { group_id: true, group_name: true } }
+  }
 
   async createContest(
     userId: number,
@@ -117,7 +114,7 @@ export class ContestService {
   }> {
     const contests = await this.prisma.contest.findMany({
       where: { visible: true },
-      select: contestSelectOption
+      select: this.contestSelectOption
     })
     return {
       ongoing: this.filterOngoing(contests),
@@ -154,22 +151,23 @@ export class ContestService {
   ): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contest_id },
-      select: { ...contestSelectOption, description: true, visible: true },
+      select: { ...this.contestSelectOption, description: true, visible: true },
       rejectOnNotFound: () => new EntityNotExistException('Contest')
     })
 
-    const isUserInGroup = await this.prisma.userGroup.findFirst({
-      where: { user_id, group_id: contest.group.group_id, is_registered: true },
-      select: { is_group_manager: true }
-    })
-    if (
-      (!isUserInGroup && contest.end_time > new Date()) ||
-      (contest.visible == false && isUserInGroup.is_group_manager == false)
-    ) {
-      throw new UnprocessableDataException(
-        returnTextIsNotAllowed(user_id, contest_id)
+    const userGroup = await this.groupService.getUserGroupMembershipInfo(
+      user_id,
+      contest.group.group_id
+    )
+    const isUserGroupMember = userGroup && userGroup.is_registered
+    const now = new Date()
+
+    if (!isUserGroupMember && contest.end_time > now) {
+      throw new ForbiddenAccessException(
+        'Before the contest is ended, only group members can access'
       )
     }
+
     return contest
   }
 
@@ -190,7 +188,7 @@ export class ContestService {
   async getContestsByGroupId(group_id: number): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
       where: { group_id, visible: true },
-      select: contestSelectOption
+      select: this.contestSelectOption
     })
   }
 
@@ -205,7 +203,7 @@ export class ContestService {
       where: {
         group_id: { in: groupIds }
       },
-      select: { ...contestSelectOption, visible: true }
+      select: { ...this.contestSelectOption, visible: true }
     })
   }
 
@@ -213,7 +211,7 @@ export class ContestService {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contest_id },
       select: {
-        ...contestSelectOption,
+        ...this.contestSelectOption,
         visible: true,
         description: true,
         description_summary: true,
@@ -230,7 +228,7 @@ export class ContestService {
   ): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
       where: { group_id },
-      select: { ...contestSelectOption, visible: true }
+      select: { ...this.contestSelectOption, visible: true }
     })
   }
 }

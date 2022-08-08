@@ -1,5 +1,6 @@
 import {
   Controller,
+  ForbiddenException,
   Get,
   InternalServerErrorException,
   NotFoundException,
@@ -15,6 +16,7 @@ import { Public } from 'src/common/decorator/public.decorator'
 import { Roles } from 'src/common/decorator/roles.decorator'
 import {
   EntityNotExistException,
+  ForbiddenAccessException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
@@ -51,11 +53,11 @@ export class ContestController {
 }
 
 @Controller('group/:group_id/contest')
-@UseGuards(RolesGuard, GroupMemberGuard)
 export class GroupContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
+  @UseGuards(RolesGuard, GroupMemberGuard)
   async getContests(
     @Param('group_id', ParseIntPipe) groupId: number
   ): Promise<Partial<Contest>[]> {
@@ -73,8 +75,8 @@ export class GroupContestController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableDataException(error.message)
+      if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
       }
       throw new InternalServerErrorException()
     }
