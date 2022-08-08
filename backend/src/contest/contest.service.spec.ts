@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { Contest, ContestType, Group, UserGroup } from '@prisma/client'
+import { Contest, ContestType, UserGroup } from '@prisma/client'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
@@ -15,7 +15,7 @@ const contestId = 1
 const userId = 1
 const groupId = 1
 
-const contest: Contest = {
+const contest = {
   id: contestId,
   created_by_id: userId,
   group_id: groupId,
@@ -28,7 +28,10 @@ const contest: Contest = {
   is_rank_visible: true,
   type: ContestType.ACM,
   create_time: new Date('2021-11-01T18:34:23.999175+09:00'),
-  update_time: new Date('2021-11-01T18:34:23.999175+09:00')
+  update_time: new Date('2021-11-01T18:34:23.999175+09:00'),
+  group: {
+    group_id: groupId
+  }
 }
 
 const ongoingContests: Partial<Contest>[] = [
@@ -64,16 +67,6 @@ const contests: Partial<Contest>[] = [
   ...upcomingContests
 ]
 
-const userGroup: UserGroup = {
-  id: 1,
-  user_id: userId,
-  group_id: groupId,
-  is_registered: true,
-  is_group_manager: true,
-  create_time: new Date(),
-  update_time: new Date()
-}
-
 const mockPrismaService = {
   contest: {
     findUnique: jest.fn().mockResolvedValue(contest),
@@ -82,18 +75,12 @@ const mockPrismaService = {
     create: jest.fn().mockResolvedValue(contest),
     update: jest.fn().mockResolvedValue(contest),
     delete: jest.fn()
-  },
-  userGroup: {
-    findFirst: jest.fn().mockResolvedValue(userGroup)
   }
-}
-
-function returnTextIsNotAllowed(userId: number, contestId: number): string {
-  return `Contest ${contestId} is not allowed to User ${contestId}`
 }
 
 describe('ContestService', () => {
   let contestService: ContestService
+  let groupService: GroupService
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -103,6 +90,7 @@ describe('ContestService', () => {
       ]
     }).compile()
     contestService = module.get<ContestService>(ContestService)
+    groupService = module.get<GroupService>(GroupService)
   })
 
   it('should be defined', () => {
@@ -303,24 +291,49 @@ describe('ContestService', () => {
   describe('getContestById', () => {
     beforeEach(() => {
       mockPrismaService.contest.findUnique.mockResolvedValue(contest)
-      mockPrismaService.userGroup.findFirst.mockResolvedValue(userGroup)
     })
 
     it('contest id에 해당하는 contest가 없다면 EntityNotExistException을 반환한다.', async () => {
-      mockPrismaService.contest.findUnique.mockResolvedValue(null)
+      mockPrismaService.contest.findUnique.mockRejectedValue(
+        new EntityNotExistException('contest')
+      )
+
       await expect(
         contestService.getContestById(userId, contestId)
       ).rejects.toThrow(EntityNotExistException)
     })
 
+    it('user가 member가 아니고 contest가 종료되지 않았다면 에러 반환', async () => {
+      const now = new Date()
+      const notEndedContest = {
+        ...contest,
+        end_time: now.setFullYear(now.getFullYear() + 1)
+      }
+      mockPrismaService.contest.findUnique.mockResolvedValue(notEndedContest)
+      jest
+        .spyOn(groupService, 'getUserGroupMembershipInfo')
+        .mockResolvedValue(null)
+
+      await expect(
+        contestService.getContestById(userId, contestId)
+      ).rejects.toThrow(ForbiddenAccessException)
+    })
+
     it('user가 contest가 속한 group의 멤버가 아니고, contest가 끝난 상태면 contest id에 해당하는 contest를 반환한다.', async () => {
-      mockPrismaService.userGroup.findFirst.mockResolvedValue(null)
+      jest
+        .spyOn(groupService, 'getUserGroupMembershipInfo')
+        .mockResolvedValue(null)
+
       expect(await contestService.getContestById(userId, contestId)).toEqual(
         contest
       )
     })
 
     it('user가 contest가 속한 group의 멤버라면 주어진 contest id에 해당하는 대회를 반환한다.', async () => {
+      jest
+        .spyOn(groupService, 'getUserGroupMembershipInfo')
+        .mockResolvedValue({ is_registered: true, is_group_manager: false })
+
       expect(await contestService.getContestById(userId, contestId)).toEqual(
         contest
       )
@@ -329,11 +342,13 @@ describe('ContestService', () => {
 
   describe('getModalContestById', () => {
     it('contest id에 해당하는 contest가 없다면 EntityNotExistException을 반환한다.', async () => {
-      mockPrismaService.contest.findUnique.mockResolvedValue(null)
+      mockPrismaService.contest.findUnique.mockRejectedValue(
+        new EntityNotExistException('contest')
+      )
 
       await expect(
         contestService.getModalContestById(contestId)
-      ).rejects.toThrowError(new EntityNotExistException('Contest'))
+      ).rejects.toThrow(EntityNotExistException)
     })
 
     it('contest id에 해당하는 대회를 반환한다.', async () => {
@@ -355,12 +370,20 @@ describe('ContestService', () => {
 
   describe('getAdminContests', () => {
     it('user가 group manager인 group의 모든 대회 리스트를 반환한다.', async () => {
+      jest
+        .spyOn(groupService, 'getUserGroupManagerList')
+        .mockResolvedValue([groupId])
+
       expect(await contestService.getAdminContests(userId)).toEqual(contests)
     })
   })
 
   describe('getAdminOngoingContests', () => {
     it('user가 group manager인 group의 모든 진행중인 대회 리스트를 반환한다.', async () => {
+      jest
+        .spyOn(groupService, 'getUserGroupManagerList')
+        .mockResolvedValue([groupId])
+
       expect(await contestService.getAdminOngoingContests(userId)).toEqual(
         ongoingContests
       )
@@ -369,13 +392,13 @@ describe('ContestService', () => {
 
   describe('getAdminContestById', () => {
     it('contest id에 해당하는 contest가 없다면 EntityNotExistException을 반환한다.', async () => {
-      mockPrismaService.contest.findUnique.mockResolvedValue(null)
+      mockPrismaService.contest.findUnique.mockRejectedValue(
+        new EntityNotExistException('contest')
+      )
 
       await expect(
         contestService.getAdminContestById(contestId)
-      ).rejects.toThrowError(
-        new EntityNotExistException(`Contest ${contestId}`)
-      )
+      ).rejects.toThrow(EntityNotExistException)
     })
 
     it('contest id에 해당하는 대회를 반환한다.', async () => {
