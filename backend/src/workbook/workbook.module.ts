@@ -4,6 +4,7 @@ import { WorkbookService } from './workbook.service'
 
 @Module({
   controllers: [WorkbookController],
-  providers: [WorkbookService]
+  providers: [WorkbookService],
+  exports: [WorkbookService]
 })
 export class WorkbookModule {}
