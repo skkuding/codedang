@@ -21,7 +21,9 @@ const { pause, resume } = useIntervalFn(() => {
 </script>
 
 <template>
-  <div class="bg-gray/50 relative h-[600px] w-full overflow-hidden">
+  <div
+    class="bg-gray/50 relative h-80 w-full overflow-hidden md:h-96 lg:h-[36rem]"
+  >
     <div class="absolute left-1/2 bottom-5 z-10 flex -translate-x-1/2 gap-2">
       <button
         v-for="index in slides.length"
