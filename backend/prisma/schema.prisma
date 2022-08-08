@@ -80,13 +80,23 @@ model Group {
   create_time     DateTime @default(now())
   update_time     DateTime @updatedAt
 
-  UserGroup UserGroup[]
-  Notice    Notice[]
-  Problem   Problem[]
-  Contest   Contest[]
-  Workbook  Workbook[]
+  UserGroup    UserGroup[]
+  Notice       Notice[]
+  Contest      Contest[]
+  Workbook     Workbook[]
+  GroupProblem GroupProblem[]
 
   @@map("group")
+}
+
+model GroupProblem {
+  id         Int     @id @default(autoincrement())
+  group      Group   @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  group_id   Int
+  problem    Problem @relation(fields: [problem_id], references: [id], onDelete: Cascade)
+  problem_id Int
+
+  @@map("group_problem")
 }
 
 model Notice {
@@ -109,8 +119,7 @@ model Problem {
   id                 Int      @id @default(autoincrement())
   created_by         User     @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
   created_by_id      Int
-  group              Group    @relation(fields: [group_id], references: [id])
-  group_id           Int
+  is_public          Boolean
   title              String
   description        String
   input_description  String
@@ -128,12 +137,12 @@ model Problem {
   create_time        DateTime @default(now())
   update_time        DateTime @updatedAt
 
-
   ProblemTestcase ProblemTestcase[]
   ProblemTag      ProblemTag[]
   ContestProblem  ContestProblem[]
   WorkbookProblem WorkbookProblem[]
   Submission      Submission[]
+  GroupProblem    GroupProblem[]
 
   @@map("problem")
 }
@@ -187,6 +196,7 @@ model Contest {
   end_time            DateTime
   visible             Boolean     @default(true)
   is_rank_visible     Boolean     @default(true)
+  is_public           Boolean     @default(false)
   type                ContestType
   create_time         DateTime    @default(now())
   update_time         DateTime    @updatedAt
@@ -265,6 +275,7 @@ model Workbook {
   start_time    DateTime
   end_time      DateTime
   visible       Boolean  @default(true)
+  is_public     Boolean  @default(false)
   create_time   DateTime @default(now())
   update_time   DateTime @updatedAt
 
