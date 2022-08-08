@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
-import { Role } from '@prisma/client'
+import { AuthenticatedUser } from 'src/auth/class/authenticated-user.class'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { GroupService } from '../group.service'
 
@@ -9,9 +9,9 @@ export class GroupManagerGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: AuthenticatedRequest = context.switchToHttp().getRequest()
-    const userRole: Role = request.user.role
+    const user: AuthenticatedUser = request.user
 
-    if (userRole == Role.SuperAdmin || userRole == Role.SuperManager) {
+    if (user.isSuperAdmin() || user.isSuperManager()) {
       return true
     }
 
