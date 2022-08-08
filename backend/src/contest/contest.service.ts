@@ -237,12 +237,10 @@ export class ContestService {
     })
   }
 
-  // Todo: issue #90
   async createContestRecord(
     userId: number,
     contestId: number
   ): Promise<null | Error> {
-    //contest 존재 여부
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
       select: { startTime: true, endTime: true, type: true }
@@ -259,7 +257,6 @@ export class ContestService {
         `User ${userId} is already participated in Contest ${contestId}`
       )
     }
-    //contest start 전 or contest end 후
     const now = new Date()
     if (now < contest.startTime || now >= contest.endTime) {
       throw new ForbiddenAccessException(`Contest ${contestId} is not ongoing`)
@@ -270,7 +267,6 @@ export class ContestService {
       })
     }
     // Todo: other contest type -> create other contest record table
-
     return
   }
 }

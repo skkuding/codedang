@@ -7,14 +7,12 @@ import {
   Post,
   Req,
   Get,
-  UnprocessableEntityException,
   UseGuards,
   ForbiddenException
 } from '@nestjs/common'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
   EntityNotExistException,
-  UnprocessableDataException,
   ForbiddenAccessException
 } from 'src/common/exception/business.exception'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
@@ -95,8 +93,8 @@ export class GroupContestController {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
-      if (err instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(err.message)
+      if (err instanceof ForbiddenAccessException) {
+        throw new ForbiddenAccessException(err.message)
       }
       throw new InternalServerErrorException()
     }

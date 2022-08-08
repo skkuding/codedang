@@ -124,9 +124,6 @@ const mockPrismaService = {
   }
 }
 
-function returnTextIsNotAllowed(userId: number, contestId: number): string {
-  return `Contest ${contestId} is not allowed to User ${contestId}`
-}
 describe('ContestService', () => {
   let contestService: ContestService
   let groupService: GroupService
@@ -510,7 +507,7 @@ describe('ContestService', () => {
       await expect(
         contestService.createContestRecord(userId, contestId)
       ).rejects.toThrowError(
-        new UnauthorizedException(
+        new ForbiddenAccessException(
           `User ${userId} is already participated in Contest ${contestId}`
         )
       )
@@ -520,7 +517,7 @@ describe('ContestService', () => {
       await expect(
         contestService.createContestRecord(userId, contestId)
       ).rejects.toThrowError(
-        new UnauthorizedException(
+        new ForbiddenAccessException(
           `Contest ${contestId} is not allowed to User ${contestId}`
         )
       )
