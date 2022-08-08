@@ -19,10 +19,9 @@ export class PasswordResetJwtStrategy extends PassportStrategy(
     })
   }
 
-  async validate(payload: { userId: number; email: string }) {
+  async validate(payload: { userId: number }) {
     return {
-      id: payload.userId,
-      email: payload.email
+      id: payload.userId
     }
   }
 }

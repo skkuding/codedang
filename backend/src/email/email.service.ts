@@ -19,7 +19,7 @@ export class EmailService {
     })
 
     if (sentEmailInfo.accepted.length === 0) {
-      throw new EmailTransmissionFailedException('Email transmission failed')
+      throw new EmailTransmissionFailedException()
     }
 
     return sentEmailInfo

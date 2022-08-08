@@ -11,7 +11,6 @@ import {
 import { EmailService } from 'src/email/email.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { UserService } from './user.service'
-import { Request } from 'express'
 import { JwtService } from '@nestjs/jwt'
 
 describe('UserService', () => {
@@ -161,8 +160,8 @@ describe('UserService', () => {
     })
 
     it('pin is valid', async () => {
-      userService.createJwtToken = jest.fn().mockReturnValueOnce('jwt')
-      const jwt = await userService.verifyPinAndIssueJwtTokenForPasswordReset({
+      userService.createJwt = jest.fn().mockReturnValueOnce('jwt')
+      const jwt = await userService.verifyPinAndIssueJwtForPasswordReset({
         pin: PASSWORD_RESET_PIN,
         email: EMAIL_ADDRESS
       })
@@ -176,14 +175,14 @@ describe('UserService', () => {
         .mockReturnValueOnce(null)
 
       expect(async () => {
-        await userService.verifyPinAndIssueJwtTokenForPasswordReset({
+        await userService.verifyPinAndIssueJwtForPasswordReset({
           pin: PASSWORD_RESET_PIN,
           email: EMAIL_ADDRESS
         })
       }).rejects.toThrowError(InvalidPinException)
 
       expect(async () => {
-        await userService.verifyPinAndIssueJwtTokenForPasswordReset({
+        await userService.verifyPinAndIssueJwtForPasswordReset({
           pin: PASSWORD_RESET_PIN,
           email: EMAIL_ADDRESS
         })

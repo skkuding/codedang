@@ -12,9 +12,13 @@ import {
 import { UserService } from './user.service'
 import { UserEmailDto } from './dto/userEmail.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
-import { InvalidUserException } from 'src/common/exception/business.exception'
+import {
+  EmailTransmissionFailedException,
+  InvalidPinException,
+  InvalidUserException
+} from 'src/common/exception/business.exception'
 import { PasswordResetPinDto } from './dto/passwordResetPin.dto'
-import { Response } from 'express'
+import { CookieOptions, Response } from 'express'
 import { PASSWORD_RESET_COOKIE_OPTIONS } from './constants/jwt.constants'
 import { AuthGuard } from '@nestjs/passport'
 import { IGetRequestUserProp } from './interface/getRequestUserProp.interface'
@@ -24,7 +28,12 @@ import { Public } from '../common/decorator/public.decorator'
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  setJwtTokenInCookie(res: Response, jwt, cookieName, COOKIE_OPTIONS) {
+  setJwtInCookie(
+    res: Response,
+    jwt: string,
+    cookieName: string,
+    COOKIE_OPTIONS: CookieOptions
+  ) {
     res.cookie(cookieName, jwt, COOKIE_OPTIONS)
   }
 
@@ -36,25 +45,26 @@ export class UserController {
     } catch (error) {
       if (error instanceof InvalidUserException) {
         throw new UnauthorizedException(error.message)
+      } else if (error instanceof EmailTransmissionFailedException) {
+        throw new InternalServerErrorException(error.message)
       } else {
         throw new InternalServerErrorException()
       }
     }
   }
 
-  @Post('password/reset/verify-pin')
+  @Post('/password/reset/verify-pin')
   @Public()
-  async verifyPinAndIssueJwtToken(
+  async verifyPinAndIssueJwt(
     @Res({ passthrough: true }) res,
     @Body() passwordResetPinDto: PasswordResetPinDto
   ): Promise<void> {
     try {
-      const jwt =
-        await this.userService.verifyPinAndIssueJwtTokenForPasswordReset(
-          passwordResetPinDto
-        )
+      const jwt = await this.userService.verifyPinAndIssueJwtForPasswordReset(
+        passwordResetPinDto
+      )
 
-      this.setJwtTokenInCookie(
+      this.setJwtInCookie(
         res,
         jwt,
         'token_for_password_reset',
@@ -62,6 +72,11 @@ export class UserController {
       )
       return
     } catch (error) {
+      if (error instanceof InvalidUserException) {
+        throw new UnauthorizedException(error.message)
+      } else if (error instanceof InvalidPinException) {
+        throw new InternalServerErrorException(error.message)
+      }
       throw new InternalServerErrorException()
     }
   }
