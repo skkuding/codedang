@@ -278,6 +278,24 @@ describe('ContestService', () => {
     })
   })
 
+  describe('filterOngoing', () => {
+    it('should return ongoing contests of the group', async () => {
+      expect(contestService.filterOngoing(contests)).toEqual(ongoingContests)
+    })
+  })
+
+  describe('filterUpcoming', () => {
+    it('should return upcoming contests of the group', async () => {
+      expect(contestService.filterUpcoming(contests)).toEqual(upcomingContests)
+    })
+  })
+
+  describe('filterFinished', () => {
+    it('should return ongoing contests of the group', async () => {
+      expect(contestService.filterFinished(contests)).toEqual(finishedContests)
+    })
+  })
+
   describe('getContests', () => {
     it('should return ongoing, upcoming, finished contests', async () => {
       expect(await contestService.getContests()).toEqual({
