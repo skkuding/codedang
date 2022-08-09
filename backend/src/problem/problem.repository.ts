@@ -25,7 +25,7 @@ export class ProblemRepository {
       where: {
         id: problemId,
         is_public: true,
-        GroupProblem: { every: { group_id: PUBLIC_GROUP_ID } }
+        GroupProblem: { some: { group_id: PUBLIC_GROUP_ID } }
       },
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
@@ -38,7 +38,7 @@ export class ProblemRepository {
     return await this.prisma.problem.findFirst({
       where: {
         id: problemId,
-        ContestProblem: { every: { contest_id: contestId } }
+        ContestProblem: { some: { contest_id: contestId } }
       },
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
@@ -51,7 +51,7 @@ export class ProblemRepository {
     return await this.prisma.problem.findFirst({
       where: {
         id: problemId,
-        WorkbookProblem: { every: { workbook_id: workbookId } }
+        WorkbookProblem: { some: { workbook_id: workbookId } }
       },
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
@@ -65,7 +65,7 @@ export class ProblemRepository {
       take: paginationDto.limit,
       where: {
         is_public: true,
-        GroupProblem: { every: { group_id: PUBLIC_GROUP_ID } }
+        GroupProblem: { some: { group_id: PUBLIC_GROUP_ID } }
       }
     })
   }
@@ -77,7 +77,7 @@ export class ProblemRepository {
     return await this.prisma.problem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
-      where: { ContestProblem: { every: { contest_id: contestId } } }
+      where: { ContestProblem: { some: { contest_id: contestId } } }
     })
   }
 
@@ -88,7 +88,7 @@ export class ProblemRepository {
     return await this.prisma.problem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
-      where: { WorkbookProblem: { every: { workbook_id: workbookId } } }
+      where: { WorkbookProblem: { some: { workbook_id: workbookId } } }
     })
   }
 }
