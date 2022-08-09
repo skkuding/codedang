@@ -118,16 +118,30 @@ export class ContestService {
 
   async createContestToPublicRequest(
     userId: number,
-    createContestToPublicRequestDto: CreateContestToPublicRequestDto
+    { contest_id, message }: CreateContestToPublicRequestDto
   ): Promise<ContestToPublicRequest> {
-    this.deleteExistingRequest(createContestToPublicRequestDto.contest_id)
+    const request = await this.prisma.contestToPublicRequest.findUnique({
+      where: {
+        contest_id
+      },
+      select: {
+        request_status: true
+      }
+    })
+
+    if (request) {
+      await this.deleteUnaccepteContestToPublicRequest(
+        request.request_status,
+        contest_id
+      )
+    }
 
     return await this.prisma.contestToPublicRequest.create({
       data: {
-        message: createContestToPublicRequestDto.message,
+        message: message,
         contest: {
           connect: {
-            id: createContestToPublicRequestDto.contest_id
+            id: contest_id
           }
         },
         created_by: {
@@ -139,26 +153,18 @@ export class ContestService {
     })
   }
 
-  async deleteExistingRequest(contestId: number) {
-    const request = await this.prisma.contestToPublicRequest.findUnique({
-      where: {
-        contest_id: contestId
-      },
-      select: {
-        request_status: true
-      }
-    })
-
-    if (request && request.request_status == RequestStatus.Accept) {
+  async deleteUnaccepteContestToPublicRequest(
+    requestStatus: RequestStatus,
+    contest_id: number
+  ) {
+    if (requestStatus == RequestStatus.Accept) {
       throw new UnprocessableDataException(
         'This contest is already accepted to be public'
       )
-    }
-
-    if (request) {
+    } else {
       await this.prisma.contestToPublicRequest.delete({
         where: {
-          contest_id: contestId
+          contest_id
         }
       })
     }
@@ -176,17 +182,10 @@ export class ContestService {
         new EntityNotExistException('ContestToPublicRequest')
     })
 
-    if (request.request_status == RequestStatus.Accept) {
-      throw new UnprocessableDataException(
-        'This contest is already accepted to be public'
-      )
-    } else {
-      await this.prisma.contestToPublicRequest.delete({
-        where: {
-          contest_id: contestId
-        }
-      })
-    }
+    await this.deleteUnaccepteContestToPublicRequest(
+      request.request_status,
+      contestId
+    )
   }
 
   async getContestToPublicRequest(
