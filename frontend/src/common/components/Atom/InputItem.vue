@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { computed } from 'vue'
 
 type Size = 'small' | 'large'
@@ -8,10 +7,12 @@ const props = defineProps<{
   placeholder: string
   shadow: boolean
   size?: Size
+  modelValue: string
 }>()
 
-defineEmits(['update:data'])
-const data = ref('')
+defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
 
 const setShadow = computed(() => [
   props.shadow
@@ -29,11 +30,13 @@ const setRequired = computed(() => [
 
 <template>
   <input
-    v-model="data"
+    :value="modelValue"
     :placeholder="placeholder"
     :class="setShadow"
     class="w-full rounded-lg py-2.5 px-5 text-base font-bold focus:outline-none"
-    @input="$emit('update:data', data)"
+    @input="
+      $emit('update:modelValue', ($event.target as HTMLInputElement).value)
+    "
   />
   <div :class="setRequired" class="text-red pt-1 text-xs font-bold">
     {{ placeholder + ' is required' }}
