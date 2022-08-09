@@ -92,6 +92,22 @@ export class ContestAdminController {
       throw new InternalServerErrorException()
     }
   }
+
+  @Get('/:id/topublic')
+  @Roles(Role.SuperManager)
+  async getContestToPublicRequest(
+    @Param('id', ParseIntPipe) contestId: number
+  ): Promise<Partial<ContestToPublicRequest>> {
+    try {
+      return await this.contestService.getAdminContestToPublicRequest(contestId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+
+      throw new InternalServerErrorException()
+    }
+  }
 }
 
 @Controller('admin/group/:groupId/contest')
