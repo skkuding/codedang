@@ -9,39 +9,39 @@ import {
 } from 'class-validator'
 
 export class CreateContestDto {
-  @IsNotEmpty()
   @IsInt()
+  @IsNotEmpty()
   readonly group_id: number
 
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
   readonly title: string
 
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
   readonly description: string
 
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
   readonly description_summary: string
 
-  @IsNotEmpty()
   @IsDateString()
+  @IsNotEmpty()
   readonly start_time: Date
 
-  @IsNotEmpty()
   @IsDateString()
+  @IsNotEmpty()
   readonly end_time: Date
 
-  @IsNotEmpty()
   @IsBoolean()
+  @IsNotEmpty()
   readonly visible: boolean
 
-  @IsNotEmpty()
   @IsBoolean()
+  @IsNotEmpty()
   readonly is_rank_visible: boolean
 
-  @IsNotEmpty()
   @IsEnum(ContestType)
+  @IsNotEmpty()
   readonly type: ContestType
 }

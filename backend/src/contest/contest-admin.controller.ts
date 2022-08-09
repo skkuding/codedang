@@ -20,12 +20,12 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
+import { RolesGuard } from 'src/user/guard/roles.guard'
 
 @Controller('admin/group/:group_id/contest')
-@UseGuards(JwtAuthGuard, GroupManagerGuard)
+@UseGuards(RolesGuard, GroupManagerGuard)
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
