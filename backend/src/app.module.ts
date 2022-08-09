@@ -1,4 +1,4 @@
-import { CacheModule, Module } from '@nestjs/common'
+import { CacheModule, ClassSerializerInterceptor, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
 import { AppController } from './app.controller'
@@ -14,7 +14,7 @@ import { SubmissionModule } from './submission/submission.module'
 import { UserModule } from './user/user.module'
 import { WorkbookModule } from './workbook/workbook.module'
 import { CacheConfigService } from './common/cache/cacheConfig.service'
-import { APP_GUARD } from '@nestjs/core'
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { JwtAuthGuard } from './auth/guard/jwt-auth.guard'
 
 @Module({
@@ -35,6 +35,13 @@ import { JwtAuthGuard } from './auth/guard/jwt-auth.guard'
     WorkbookModule
   ],
   controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }]
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor
+    }
+  ]
 })
 export class AppModule {}
