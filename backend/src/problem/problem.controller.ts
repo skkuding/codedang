@@ -1,5 +1,4 @@
 import {
-  ClassSerializerInterceptor,
   Controller,
   Get,
   InternalServerErrorException,
@@ -7,8 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Query,
-  UseGuards,
-  UseInterceptors
+  UseGuards
 } from '@nestjs/common'
 import { Problem } from '@prisma/client'
 import { Public } from 'src/common/decorator/public.decorator'
@@ -29,9 +27,8 @@ export class PublicProblemController {
     try {
       return await this.problemService.getPublicProblem(id)
     } catch (err) {
-      console.log(err)
       if (err instanceof EntityNotExistException) {
-        new NotFoundException(err.message)
+        throw new NotFoundException(err.message)
       }
       throw new InternalServerErrorException()
     }
@@ -40,7 +37,7 @@ export class PublicProblemController {
   @Get('problems')
   async getPublicProblems(@Query() paginationDto: PaginationDto) {
     try {
-      return this.problemService.getPublicProblems(paginationDto)
+      return await this.problemService.getPublicProblems(paginationDto)
     } catch (err) {
       throw new InternalServerErrorException()
     }
@@ -58,10 +55,13 @@ export class PublicContestProblemController {
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {
-      return this.problemService.getPublicContestProblem(contestId, problemId)
+      return await this.problemService.getPublicContestProblem(
+        contestId,
+        problemId
+      )
     } catch (err) {
       if (err instanceof EntityNotExistException) {
-        new NotFoundException(err.message)
+        throw new NotFoundException(err.message)
       }
       throw new InternalServerErrorException()
     }
@@ -73,7 +73,7 @@ export class PublicContestProblemController {
     @Query() paginationDto: PaginationDto
   ) {
     try {
-      return this.problemService.getPublicContestProblems(
+      return await this.problemService.getPublicContestProblems(
         contestId,
         paginationDto
       )
@@ -94,10 +94,13 @@ export class PublicWorkbookProblemController {
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {
-      return this.problemService.getPublicWorkbookProblem(workbookId, problemId)
+      return await this.problemService.getPublicWorkbookProblem(
+        workbookId,
+        problemId
+      )
     } catch (err) {
       if (err instanceof EntityNotExistException) {
-        new NotFoundException(err.message)
+        throw new NotFoundException(err.message)
       }
       throw new InternalServerErrorException()
     }
@@ -109,7 +112,7 @@ export class PublicWorkbookProblemController {
     @Query() paginationDto: PaginationDto
   ) {
     try {
-      return this.problemService.getPublicWorkbookProblems(
+      return await this.problemService.getPublicWorkbookProblems(
         workbookId,
         paginationDto
       )
@@ -131,14 +134,14 @@ export class GroupContestProblemController {
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {
-      return this.problemService.getGroupContestProblem(
+      return await this.problemService.getGroupContestProblem(
         groupId,
         contestId,
         problemId
       )
     } catch (err) {
       if (err instanceof EntityNotExistException) {
-        new NotFoundException(err.message)
+        throw new NotFoundException(err.message)
       }
       throw new InternalServerErrorException()
     }
@@ -151,7 +154,7 @@ export class GroupContestProblemController {
     @Query() paginationDto: PaginationDto
   ) {
     try {
-      return this.problemService.getGroupContestProblems(
+      return await this.problemService.getGroupContestProblems(
         groupId,
         contestId,
         paginationDto
@@ -174,14 +177,14 @@ export class GroupWorkbookProblemController {
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {
-      return this.problemService.getGroupWorkbookProblem(
+      return await this.problemService.getGroupWorkbookProblem(
         groupId,
         workbookId,
         problemId
       )
     } catch (err) {
       if (err instanceof EntityNotExistException) {
-        new NotFoundException(err.message)
+        throw new NotFoundException(err.message)
       }
       throw new InternalServerErrorException()
     }
@@ -194,7 +197,7 @@ export class GroupWorkbookProblemController {
     @Query() paginationDto: PaginationDto
   ) {
     try {
-      return this.problemService.getGroupWorkbookProblems(
+      return await this.problemService.getGroupWorkbookProblems(
         groupId,
         workbookId,
         paginationDto
