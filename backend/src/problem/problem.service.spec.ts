@@ -1,12 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { Problem } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { PaginationDto } from 'src/common/dto/pagination.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { ContestService } from 'src/contest/contest.service'
 import { WorkbookService } from 'src/workbook/workbook.service'
+import { ContestProblemResponseDto } from './dto/contest-problem.response.dto'
+import { ContestProblemsResponseDto } from './dto/contest-problems.response.dto'
+import { PublicContestProblemResponseDto } from './dto/public-contest-problem.response.dto'
+import { PublicContestProblemsResponseDto } from './dto/public-contest-problems.response.dto'
 import { PublicProblemResponseDto } from './dto/public-problem.response.dto'
 import { PublicProblemsResponseDto } from './dto/public-problems.response.dto'
+import { PublicWorkbookProblemResponseDto } from './dto/public-workbook-problem.response.dto'
+import { PublicWorkbookProblemsResponseDto } from './dto/public-workbook-problems.response.dto'
+import { WorkbookProblemResponseDto } from './dto/workbook-problem.response.dto'
+import { WorkbookProblemsResponseDto } from './dto/workbook-problems.response.dto'
 import { Problems } from './mock/problem.mock'
 import { ProblemRepository } from './problem.repository'
 import { ProblemService } from './problem.service'
@@ -17,11 +24,28 @@ const contestId = ARBITRARY_VAL
 const workbookId = ARBITRARY_VAL
 const problemId = ARBITRARY_VAL
 
-const problems: Problem[] = Problems.map((problem) => {
+const problems = Problems.map((problem) => {
   return Object.assign({}, problem)
 })
 const publicProblem = Object.assign({}, problems[0])
-const baseProblem = Object.assign({}, problems[1])
+
+const contestProblem = Object.assign({}, problems[0])
+contestProblem['ContestProblem'] = [{ display_id: 'A' }]
+
+const contestProblems = Problems.map((problem) => {
+  const contestProblem = Object.assign({}, problem)
+  contestProblem['ContestProblem'] = [{ display_id: 'A' }]
+  return contestProblem
+})
+
+const workbookProblem = Object.assign({}, problems[0])
+workbookProblem['WorkbookProblem'] = [{ display_id: 'A' }]
+
+const workbookProblems = Problems.map((problem) => {
+  const workbookProblem = Object.assign({}, problem)
+  workbookProblem['WorkbookProblem'] = [{ display_id: 'A' }]
+  return workbookProblem
+})
 
 const paginationDto = new PaginationDto()
 paginationDto.offset = 0
@@ -109,7 +133,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getProblemOfContest')
-        .mockResolvedValueOnce(baseProblem)
+        .mockResolvedValueOnce(contestProblem)
       jest
         .spyOn(problemService as any, 'isPublicAndVisibleContest')
         .mockResolvedValueOnce(true)
@@ -121,7 +145,9 @@ describe('ProblemService', () => {
       )
 
       // then
-      expect(result).toBe(baseProblem)
+      expect(result).toEqual(
+        plainToInstance(PublicContestProblemResponseDto, contestProblem)
+      )
     })
 
     it('should throw error when the contest is not public or visible', async () => {
@@ -150,7 +176,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getProblemsOfContest')
-        .mockResolvedValueOnce(problems)
+        .mockResolvedValueOnce(contestProblems)
       jest
         .spyOn(problemService as any, 'isPublicAndVisibleContest')
         .mockResolvedValueOnce(true)
@@ -162,7 +188,9 @@ describe('ProblemService', () => {
       )
 
       // then
-      expect(result).toEqual(problems)
+      expect(result).toEqual(
+        plainToInstance(PublicContestProblemsResponseDto, contestProblems)
+      )
     })
 
     it('should throw error when the contest is not public or visible', async () => {
@@ -191,7 +219,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getProblemOfWorkbook')
-        .mockResolvedValueOnce(baseProblem)
+        .mockResolvedValueOnce(workbookProblem)
       jest
         .spyOn(problemService as any, 'isPublicAndVisibleWorkbook')
         .mockResolvedValueOnce(true)
@@ -203,7 +231,9 @@ describe('ProblemService', () => {
       )
 
       // then
-      expect(result).toBe(baseProblem)
+      expect(result).toEqual(
+        plainToInstance(PublicWorkbookProblemResponseDto, workbookProblem)
+      )
     })
 
     it('should throw error when the workbook is not public or visible', async () => {
@@ -232,7 +262,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getProblemsOfWorkbook')
-        .mockResolvedValueOnce(problems)
+        .mockResolvedValueOnce(workbookProblems)
       jest
         .spyOn(problemService as any, 'isPublicAndVisibleWorkbook')
         .mockResolvedValueOnce(true)
@@ -244,7 +274,9 @@ describe('ProblemService', () => {
       )
 
       // then
-      expect(result).toEqual(problems)
+      expect(result).toEqual(
+        plainToInstance(PublicWorkbookProblemsResponseDto, workbookProblems)
+      )
     })
 
     it('should throw error when the workbook is not public or visible', async () => {
@@ -272,7 +304,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getProblemOfContest')
-        .mockResolvedValueOnce(baseProblem)
+        .mockResolvedValueOnce(contestProblem)
       jest
         .spyOn(problemService as any, 'isVisibleContestOfGroup')
         .mockResolvedValue(true)
@@ -285,7 +317,9 @@ describe('ProblemService', () => {
       )
 
       // then
-      expect(result).toBe(baseProblem)
+      expect(result).toEqual(
+        plainToInstance(ContestProblemResponseDto, contestProblem)
+      )
     })
 
     it('should throw error when the contest is not visible or belongs to the group', async () => {
@@ -314,7 +348,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getProblemsOfContest')
-        .mockResolvedValueOnce(problems)
+        .mockResolvedValueOnce(contestProblems)
       jest
         .spyOn(problemService as any, 'isVisibleContestOfGroup')
         .mockResolvedValue(true)
@@ -327,7 +361,9 @@ describe('ProblemService', () => {
       )
 
       // then
-      expect(result).toBe(problems)
+      expect(result).toEqual(
+        plainToInstance(ContestProblemsResponseDto, contestProblems)
+      )
     })
 
     it('should throw error when the contest is not visible or belongs to the group', async () => {
@@ -356,7 +392,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getProblemOfWorkbook')
-        .mockResolvedValueOnce(baseProblem)
+        .mockResolvedValueOnce(workbookProblem)
       jest
         .spyOn(problemService as any, 'isVisibleWorkbookOfGroup')
         .mockResolvedValue(true)
@@ -369,7 +405,9 @@ describe('ProblemService', () => {
       )
 
       // then
-      expect(result).toBe(baseProblem)
+      expect(result).toEqual(
+        plainToInstance(WorkbookProblemResponseDto, workbookProblem)
+      )
     })
 
     it('should throw error when the workbook is not visible or belongs to the group', async () => {
@@ -398,7 +436,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getProblemsOfWorkbook')
-        .mockResolvedValueOnce(problems)
+        .mockResolvedValueOnce(workbookProblems)
       jest
         .spyOn(problemService as any, 'isVisibleWorkbookOfGroup')
         .mockResolvedValue(true)
@@ -411,7 +449,9 @@ describe('ProblemService', () => {
       )
 
       // then
-      expect(result).toBe(problems)
+      expect(result).toEqual(
+        plainToInstance(WorkbookProblemsResponseDto, workbookProblems)
+      )
     })
 
     it('should throw error when the workbook is not visible or belongs to the group', async () => {
