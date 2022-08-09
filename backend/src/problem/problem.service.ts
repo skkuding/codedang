@@ -21,7 +21,7 @@ export class ProblemService {
     private readonly workbookService: WorkbookService
   ) {}
 
-  async getPublicProblem(problemId: number): Promise<Partial<Problem>> {
+  async getPublicProblem(problemId: number): Promise<PublicProblemResponseDto> {
     // group_id=PUBLIC_GROUP_ID이고 problemd의 is_public=true 인 problem을 반환
     return plainToInstance(
       PublicProblemResponseDto,
