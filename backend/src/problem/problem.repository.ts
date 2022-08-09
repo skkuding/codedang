@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { ContestProblem, Problem, WorkbookProblem } from '@prisma/client'
+import { Problem } from '@prisma/client'
 import { PUBLIC_GROUP_ID } from 'src/common/contstants'
 import { PaginationDto } from 'src/common/dto/pagination.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
@@ -34,7 +34,7 @@ export class ProblemRepository {
   async getProblemOfContest(
     contestId: number,
     problemId: number
-  ): Promise<Partial<Problem & ContestProblem>> {
+  ): Promise<Partial<Problem & { ContestProblem: { display_id: string }[] }>> {
     return await this.prisma.problem.findFirst({
       where: {
         id: problemId,
@@ -50,7 +50,7 @@ export class ProblemRepository {
   async getProblemOfWorkbook(
     workbookId: number,
     problemId: number
-  ): Promise<Partial<Problem & WorkbookProblem>> {
+  ): Promise<Partial<Problem & { WorkbookProblem: { display_id: string }[] }>> {
     return await this.prisma.problem.findFirst({
       where: {
         id: problemId,
@@ -79,7 +79,9 @@ export class ProblemRepository {
   async getProblemsOfContest(
     contestId: number,
     paginationDto: PaginationDto
-  ): Promise<Partial<Problem & ContestProblem>[]> {
+  ): Promise<
+    Partial<Problem & { ContestProblem: { display_id: string }[] }>[]
+  > {
     return await this.prisma.problem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
@@ -93,7 +95,9 @@ export class ProblemRepository {
   async getProblemsOfWorkbook(
     workbookId: number,
     paginationDto: PaginationDto
-  ): Promise<Partial<Problem & WorkbookProblem>[]> {
+  ): Promise<
+    Partial<Problem & { WorkbookProblem: { display_id: string }[] }>[]
+  > {
     return await this.prisma.problem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
