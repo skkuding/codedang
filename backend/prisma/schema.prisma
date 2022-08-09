@@ -90,12 +90,15 @@ model Group {
 }
 
 model GroupProblem {
-  id         Int     @id @default(autoincrement())
-  group      Group   @relation(fields: [group_id], references: [id], onDelete: Cascade)
-  group_id   Int
-  problem    Problem @relation(fields: [problem_id], references: [id], onDelete: Cascade)
-  problem_id Int
+  id          Int      @id @default(autoincrement())
+  group       Group    @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  group_id    Int
+  problem     Problem  @relation(fields: [problem_id], references: [id], onDelete: Cascade)
+  problem_id  Int
+  create_time DateTime @default(now())
+  update_time DateTime @updatedAt
 
+  @@unique([group_id, problem_id], name: "GroupProblemUniqueConstraint")
   @@map("group_problem")
 }
 
@@ -225,6 +228,7 @@ model ContestNotice {
 
 model ContestProblem {
   id          Int      @id @default(autoincrement())
+  display_id  String   @unique
   contest     Contest  @relation(fields: [contest_id], references: [id])
   contest_id  Int
   problem     Problem  @relation(fields: [problem_id], references: [id])
@@ -233,6 +237,7 @@ model ContestProblem {
   create_time DateTime @default(now())
   update_time DateTime @updatedAt
 
+  @@unique([contest_id, problem_id], name: "ContestProblemUniqueConstraint")
   @@map("contest_problem")
 }
 
@@ -287,6 +292,7 @@ model Workbook {
 
 model WorkbookProblem {
   id          Int      @id @default(autoincrement())
+  display_id  String   @unique
   workbook    Workbook @relation(fields: [workbook_id], references: [id])
   workbook_id Int
   problem     Problem  @relation(fields: [problem_id], references: [id])
@@ -295,6 +301,7 @@ model WorkbookProblem {
   create_time DateTime @default(now())
   update_time DateTime @updatedAt
 
+  @@unique([workbook_id, problem_id], name: "WorkbookProblemUniqueConstraint")
   @@map("workbook_problem")
 }
 
