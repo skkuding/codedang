@@ -6,35 +6,28 @@ import {
   Post,
   Req,
   Res,
-  UnauthorizedException,
-  UseGuards
+  UnauthorizedException
 } from '@nestjs/common'
 import { UserService } from './user.service'
 import { UserEmailDto } from './dto/userEmail.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
 import {
   EmailTransmissionFailedException,
+  InvalidJwtTokenException,
   InvalidPinException,
   InvalidUserException
 } from 'src/common/exception/business.exception'
 import { PasswordResetPinDto } from './dto/passwordResetPin.dto'
-import { CookieOptions, Response } from 'express'
-import { PASSWORD_RESET_COOKIE_OPTIONS } from './constants/jwt.constants'
-import { AuthGuard } from '@nestjs/passport'
-import { IGetRequestUserProp } from './interface/getRequestUserProp.interface'
+import { Request, Response } from 'express'
+import { AUTH_TYPE } from './constants/jwt.constants'
 import { Public } from '../common/decorator/public.decorator'
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  setJwtInCookie(
-    res: Response,
-    jwt: string,
-    cookieName: string,
-    COOKIE_OPTIONS: CookieOptions
-  ) {
-    res.cookie(cookieName, jwt, COOKIE_OPTIONS)
+  setJwtInHeader(res: Response, jwt: string) {
+    res.setHeader('authorization', `${AUTH_TYPE} ${jwt}`)
   }
 
   @Post('/password/reset/send-email')
@@ -64,12 +57,7 @@ export class UserController {
         passwordResetPinDto
       )
 
-      this.setJwtInCookie(
-        res,
-        jwt,
-        'token_for_password_reset',
-        PASSWORD_RESET_COOKIE_OPTIONS
-      )
+      this.setJwtInHeader(res, jwt)
       return
     } catch (error) {
       if (error instanceof InvalidUserException) {
@@ -82,15 +70,17 @@ export class UserController {
   }
 
   @Patch('/password/reset')
-  @UseGuards(AuthGuard('passwordReset'))
   @Public()
   updatePassword(
     @Body() newPasswordDto: NewPasswordDto,
-    @Req() req: IGetRequestUserProp
+    @Req() req: Request
   ): Promise<string> {
     try {
-      return this.userService.updatePassword(req, newPasswordDto)
+      return this.userService.updatePassword(newPasswordDto, req)
     } catch (error) {
+      if (error instanceof InvalidJwtTokenException) {
+        throw new InternalServerErrorException(error.message)
+      }
       throw new InternalServerErrorException('password reset failed')
     }
   }

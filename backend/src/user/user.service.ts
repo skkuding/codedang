@@ -13,17 +13,21 @@ import { UserEmailDto } from './dto/userEmail.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
 import { User } from '@prisma/client'
 import {
+  InvalidJwtTokenException,
   InvalidPinException,
   InvalidUserException
 } from 'src/common/exception/business.exception'
 import { EmailService } from 'src/email/email.service'
 import { PasswordResetPinDto } from './dto/passwordResetPin.dto'
-import { JwtService } from '@nestjs/jwt'
-import { IGetRequestUserProp } from './interface/getRequestUserProp.interface'
+import { JwtService, JwtVerifyOptions } from '@nestjs/jwt'
 import {
   PASSWORD_RESET_PIN_EXPIRATION_SEC,
   PASSWORD_RESET_TOKEN_EXPIRATION_SEC
 } from './constants/jwt.constants'
+import { Request } from 'express'
+import { ExtractJwt } from 'passport-jwt'
+import { ConfigService } from '@nestjs/config'
+import { PasswordResetJwtObject } from './interface/jwt.interface'
 
 @Injectable()
 export class UserService {
@@ -31,7 +35,8 @@ export class UserService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly config: ConfigService
   ) {}
 
   async getUserRole(userId: number) {
@@ -97,12 +102,29 @@ export class UserService {
   }
 
   async updatePassword(
-    req: IGetRequestUserProp,
-    { newPassword }: NewPasswordDto
+    { newPassword }: NewPasswordDto,
+    req: Request
   ): Promise<string> {
-    await this.updateUserPasswordInPrisma(req.user.id, newPassword)
+    const { userId } = await this.verifyJwtFromRequestHeader(req)
+    await this.updateUserPasswordInPrisma(userId, newPassword)
 
     return 'Password Reset successfully'
+  }
+
+  async verifyJwtFromRequestHeader(
+    req: Request,
+    jwtVerifyOptions: JwtVerifyOptions = {}
+  ): Promise<PasswordResetJwtObject> {
+    const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req)
+    const options = {
+      secret: this.config.get('JWT_SECRET'),
+      ...jwtVerifyOptions
+    }
+    try {
+      return await this.jwtService.verifyAsync(token, options)
+    } catch (error) {
+      throw new InvalidJwtTokenException(error.message)
+    }
   }
 
   async getPinFromCache(key: string): Promise<string> {
@@ -134,7 +156,7 @@ export class UserService {
     pin,
     email
   }: PasswordResetPinDto): Promise<string> {
-    this.verifyPin(pin, email)
+    await this.verifyPin(pin, email)
 
     const user = await this.getUserCredentialByEmail(email)
 
