@@ -1,4 +1,4 @@
-import { Exclude, Expose } from 'class-transformer'
+import { Exclude, Expose, Transform } from 'class-transformer'
 
 @Exclude()
 export class PublicProblemsResponseDto {
@@ -9,10 +9,10 @@ export class PublicProblemsResponseDto {
   @Expose({ name: 'accepted_num' }) acceptedNum: number
 
   @Expose()
-  acRate() {
-    if (this.submissionNum === 0) {
-      return '0%'
-    }
-    return `${((this.acceptedNum * 100) / this.submissionNum).toFixed(2)}%`
-  }
+  @Transform(({ obj }) =>
+    obj.submission_num === 0
+      ? '0%'
+      : `${((obj.acceptedNum * 100) / obj.submissionNum).toFixed(2)}%`
+  )
+  acRate: string
 }

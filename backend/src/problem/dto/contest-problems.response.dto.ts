@@ -1,9 +1,18 @@
-import { Exclude, Expose } from 'class-transformer'
+import { Problem } from '@prisma/client'
+import { Exclude, Expose, Type } from 'class-transformer'
 
 @Exclude()
 export class ContestProblemsResponseDto {
+  @Expose({ name: 'display_id' })
+  displayId: string
+
+  @Expose()
+  @Type(() => ProblemProperty)
+  problem: Problem
+}
+
+@Exclude()
+class ProblemProperty {
   @Expose() id: number
   @Expose() title: string
-
-  @Expose() displayId: string
 }

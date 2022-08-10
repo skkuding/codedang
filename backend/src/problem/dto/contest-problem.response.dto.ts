@@ -1,8 +1,18 @@
-import { Prisma } from '@prisma/client'
-import { Exclude, Expose } from 'class-transformer'
+import { Prisma, Problem } from '@prisma/client'
+import { Exclude, Expose, Type } from 'class-transformer'
 
 @Exclude()
 export class ContestProblemResponseDto {
+  @Expose({ name: 'display_id' })
+  displayId: string
+
+  @Expose()
+  @Type(() => ProblemProperty)
+  problem: Problem
+}
+
+@Exclude()
+class ProblemProperty {
   @Expose() id: number
   @Expose() title: string
   @Expose() description: string
@@ -14,6 +24,4 @@ export class ContestProblemResponseDto {
   @Expose({ name: 'memory_limit' }) memoryLimit: number
   @Expose() difficulty: string
   @Expose() source: Prisma.JsonValue
-
-  @Expose() displayId: string
 }

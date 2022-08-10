@@ -1,7 +1,18 @@
-import { Exclude, Expose } from 'class-transformer'
+import { Problem } from '@prisma/client'
+import { Exclude, Expose, Transform, Type } from 'class-transformer'
 
 @Exclude()
 export class PublicWorkbookProblemsResponseDto {
+  @Expose({ name: 'display_id' })
+  displayId: string
+
+  @Expose()
+  @Type(() => ProblemProperty)
+  problem: Problem
+}
+
+@Exclude()
+class ProblemProperty {
   @Expose() id: number
   @Expose() title: string
   @Expose() difficulty: string
@@ -9,10 +20,10 @@ export class PublicWorkbookProblemsResponseDto {
   @Expose({ name: 'accepted_num' }) acceptedNum: number
 
   @Expose()
-  acRate() {
-    if (this.submissionNum === 0) {
-      return '0%'
-    }
-    return `${((this.acceptedNum * 100) / this.submissionNum).toFixed(2)}%`
-  }
+  @Transform(({ obj }) =>
+    obj.submission_num === 0
+      ? '0%'
+      : `${((obj.acceptedNum * 100) / obj.submissionNum).toFixed(2)}%`
+  )
+  acRate: string
 }
