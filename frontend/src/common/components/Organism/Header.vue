@@ -64,11 +64,15 @@ const isMenuOpen = ref(false)
             </template>
           </Dropdown>
           <div v-else class="ml-2 hidden gap-2 md:flex">
-            <Button color="gray-dark" class="w-20">Sign Up</Button>
-            <Button color="gray-dark" class="w-16" @click="auth = true">
-              Log In
-            </Button>
-            <!-- TODO: show log in page -->
+            <slot name="SignUp">
+              <Button color="gray-dark" class="w-20">Sign Up</Button>
+            </slot>
+            <slot name="LogIn">
+              <Button color="gray-dark" class="w-16" @click="auth = true">
+                Log In
+              </Button>
+              <!-- TODO: show log in page -->
+            </slot>
           </div>
         </transition>
         <IconBars
@@ -118,10 +122,14 @@ const isMenuOpen = ref(false)
               />
             </div>
             <div v-else class="flex gap-2">
-              <Button color="gray-dark" class="text-sm">Sign Up</Button>
-              <Button color="gray-dark" class="text-sm" @click="auth = true">
-                Log In
-              </Button>
+              <slot name="SignUp">
+                <Button color="gray-dark" class="text-sm">Sign Up</Button>
+              </slot>
+              <slot name="LogIn">
+                <Button color="gray-dark" class="text-sm" @click="auth = true">
+                  Log In
+                </Button>
+              </slot>
             </div>
           </transition>
         </div>
