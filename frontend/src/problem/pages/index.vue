@@ -3,12 +3,13 @@ import Header from '@/common/components/Organism/Header.vue'
 import Footer from '@/common/components/Organism/Footer.vue'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
-import Pagination from '@/common/components/Molecule/Pagination.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
 import BoxTitle from '@/common/components/Atom/BoxTitle.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import Button from '@/common/components/Atom/Button.vue'
+import { computed } from 'vue'
+import { ref } from 'vue'
 
 defineProps<{
   id: number
@@ -28,6 +29,81 @@ const colorMapper = {
   5: 'bg-level-5',
   6: 'bg-level-6',
   7: 'bg-level-7'
+}
+
+const cardItems = [
+  {
+    title: 'SKKU 프로그래밍 대회 2021',
+    header: '2022.05.07 updated',
+    description: 'description',
+    color: 'gray',
+    total: 6,
+    complete: 1
+  },
+  {
+    title: 'SKKU 프로그래밍 대회 2021',
+    header: '2022.05.07 updated',
+    description: 'description',
+    color: 'green',
+    total: 6,
+    complete: 2
+  },
+  {
+    title: 'SKKU 프로그래밍 대회 2021',
+    header: '2022.05.07 updated',
+    description: 'description',
+    color: 'red',
+    total: 6,
+    complete: 3
+  },
+  {
+    title: 'SKKU 프로그래밍 대회 2021',
+    header: '2022.05.07 updated',
+    description: 'description',
+    color: 'blue',
+    total: 6,
+    complete: 4
+  },
+  {
+    title: 'SKKU 프로그래밍 대회 2021',
+    header: '2022.05.07 updated',
+    description: 'description',
+    color: 'blue',
+    total: 6,
+    complete: 5
+  },
+  {
+    title: 'SKKU 프로그래밍 대회 2021',
+    header: '2022.05.07 updated',
+    description: 'description',
+    color: 'blue',
+    total: 6,
+    complete: 5
+  },
+  {
+    title: 'SKKU 프로그래밍 대회 2021',
+    header: '2022.05.07 updated',
+    description: 'description',
+    color: 'blue',
+    total: 6,
+    complete: 5
+  },
+  {
+    title: 'SKKU 프로그래밍 대회 2021',
+    header: '2022.05.07 updated',
+    description: 'description',
+    color: 'blue',
+    total: 6,
+    complete: 5
+  }
+]
+const step = ref(0)
+const visibleCardItems = computed(() => {
+  return cardItems.slice(0, 4 + step.value)
+})
+
+const clickMore = () => {
+  step.value += 4
 }
 
 const items = [
@@ -98,14 +174,18 @@ const clickRow = (row: any) => {
       <SearchBar class="ml-4" placeholder="keywords" />
     </div>
     <ProgressCard
-      title="SKKU 프로그래밍 대회 2021"
-      header="2022.05.07 updated"
-      description="description"
-      color="green"
-      :total="6"
-      :complete="2"
+      v-for="(item, index) in visibleCardItems"
+      :key="index"
+      :title="item.title"
+      :header="item.header"
+      :description="item.description"
+      :color="item.color"
+      :total="item.total"
+      :complete="item.complete"
+      class="inline-block !w-[48.5%]"
     />
-    <Button class="w-full" color="white">More</Button>
+
+    <Button class="mt-8 w-full" color="white" @click="clickMore">More</Button>
   </div>
   <Footer />
 </template>
