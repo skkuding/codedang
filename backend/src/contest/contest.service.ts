@@ -130,7 +130,7 @@ export class ContestService {
     })
 
     if (request) {
-      await this.deleteUnaccepteContestToPublicRequest(
+      await this.deleteUnacceptedContestToPublicRequest(
         request.request_status,
         contest_id
       )
@@ -153,7 +153,7 @@ export class ContestService {
     })
   }
 
-  async deleteUnaccepteContestToPublicRequest(
+  async deleteUnacceptedContestToPublicRequest(
     requestStatus: RequestStatus,
     contest_id: number
   ) {
@@ -182,7 +182,7 @@ export class ContestService {
         new EntityNotExistException('ContestToPublicRequest')
     })
 
-    await this.deleteUnaccepteContestToPublicRequest(
+    await this.deleteUnacceptedContestToPublicRequest(
       request.request_status,
       contestId
     )
@@ -213,7 +213,7 @@ export class ContestService {
 
   async respondContestToPublicRequest(
     contestId: number,
-    respondContestToPublicRequestDto: RespondContestToPublicRequestDto
+    { request_status }: RespondContestToPublicRequestDto
   ): Promise<ContestToPublicRequest> {
     await this.prisma.contestToPublicRequest.findUnique({
       where: {
@@ -226,9 +226,7 @@ export class ContestService {
         new EntityNotExistException('ContestToPublicRequest')
     })
 
-    if (
-      respondContestToPublicRequestDto.request_status == RequestStatus.Accept
-    ) {
+    if (request_status == RequestStatus.Accept) {
       this.updateContestIsPublic(contestId, true)
     } else {
       this.updateContestIsPublic(contestId, false)
@@ -239,7 +237,7 @@ export class ContestService {
         contest_id: contestId
       },
       data: {
-        request_status: respondContestToPublicRequestDto.request_status
+        request_status
       }
     })
   }
