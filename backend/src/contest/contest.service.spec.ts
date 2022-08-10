@@ -1,5 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { Contest, ContestType } from '@prisma/client'
+import {
+  Contest,
+  ContestToPublicRequest,
+  ContestType,
+  RequestStatus
+} from '@prisma/client'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
@@ -9,11 +14,14 @@ import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { ContestService } from './contest.service'
 import { CreateContestDto } from './dto/create-contest.dto'
+import { CreateContestToPublicRequestDto } from './dto/create-topublic-request.dto'
+import { RespondContestToPublicRequestDto } from './dto/respond-topublic-request.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
 
 const contestId = 1
 const userId = 1
 const groupId = 1
+const contestToPublicRequestId = 1
 
 const contest = {
   id: contestId,
@@ -68,6 +76,16 @@ const contests: Partial<Contest>[] = [
   ...upcomingContests
 ]
 
+const contestToPublicRequest: ContestToPublicRequest = {
+  id: contestToPublicRequestId,
+  contest_id: contestId,
+  message: 'This is contest to public request',
+  created_by_id: userId,
+  request_status: RequestStatus.Pending,
+  create_time: new Date('2022-12-07T18:34:23.999175+09:00'),
+  update_time: new Date('2022-12-07T18:34:23.999175+09:00')
+}
+
 const mockPrismaService = {
   contest: {
     findUnique: jest.fn().mockResolvedValue(contest),
@@ -75,6 +93,12 @@ const mockPrismaService = {
     findFirst: jest.fn().mockResolvedValue(contest),
     create: jest.fn().mockResolvedValue(contest),
     update: jest.fn().mockResolvedValue(contest),
+    delete: jest.fn()
+  },
+  contestToPublicRequest: {
+    findUnique: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
     delete: jest.fn()
   }
 }
@@ -434,6 +458,258 @@ describe('ContestService', () => {
       expect(await contestService.getAdminContestsByGroupId(groupId)).toEqual(
         contests
       )
+    })
+  })
+
+  describe('createContestToPublicRequest', () => {
+    const createContestToPublicRequestDto: CreateContestToPublicRequestDto = {
+      contest_id: contestId,
+      message: 'This is contest to public request'
+    }
+
+    afterEach(() => {
+      mockPrismaService.contestToPublicRequest.create.mockClear()
+    })
+
+    it('should return created request when contest does not have request', async () => {
+      //given
+      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+        null
+      )
+      mockPrismaService.contestToPublicRequest.create.mockResolvedValue(
+        contestToPublicRequest
+      )
+
+      //when
+      const result = await contestService.createContestToPublicRequest(
+        userId,
+        createContestToPublicRequestDto
+      )
+
+      //then
+      expect(mockPrismaService.contestToPublicRequest.create).toBeCalledTimes(1)
+      expect(result).toEqual(contestToPublicRequest)
+    })
+
+    it('should throw error when existing accepted request for the contest', async () => {
+      //given
+      const acceptedRequest: ContestToPublicRequest = {
+        ...contestToPublicRequest,
+        request_status: RequestStatus.Accept
+      }
+      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+        acceptedRequest
+      )
+
+      //when
+      const callCreateContestToPublicRequest = async () =>
+        await contestService.createContestToPublicRequest(
+          userId,
+          createContestToPublicRequestDto
+        )
+
+      //then
+      await expect(callCreateContestToPublicRequest).rejects.toThrow(
+        UnprocessableDataException
+      )
+    })
+
+    it('should delete existing unaccepted request and create request', async () => {
+      //given
+      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+        contestToPublicRequest
+      )
+
+      //when
+      await contestService.createContestToPublicRequest(
+        userId,
+        createContestToPublicRequestDto
+      )
+
+      //then
+      expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(1)
+      expect(mockPrismaService.contestToPublicRequest.create).toBeCalledTimes(1)
+    })
+  })
+
+  describe('deleteUnacceptedContestToPublicRequest', () => {
+    let requestStatus: RequestStatus
+
+    afterEach(() => {
+      mockPrismaService.contestToPublicRequest.delete.mockClear()
+    })
+
+    it('should throw error when request status is Accept', async () => {
+      //given
+      requestStatus = RequestStatus.Accept
+
+      //when
+      const callDeleteUnacceptedContestToPublicRequest = async () =>
+        await contestService.deleteUnacceptedContestToPublicRequest(
+          requestStatus,
+          contestId
+        )
+
+      //then
+      await expect(callDeleteUnacceptedContestToPublicRequest).rejects.toThrow(
+        UnprocessableDataException
+      )
+    })
+
+    it('should delete request for given contest id when request stauts is not Accept', async () => {
+      //given
+      requestStatus = RequestStatus.Pending
+
+      //when
+      await contestService.deleteUnacceptedContestToPublicRequest(
+        requestStatus,
+        contestId
+      )
+
+      //then
+      expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(1)
+    })
+  })
+
+  describe('deleteContestToPublicRequest', () => {
+    afterEach(() => {
+      mockPrismaService.contestToPublicRequest.delete.mockClear()
+    })
+
+    it('should throw error when request for the contest does not exist', async () => {
+      //given
+      mockPrismaService.contestToPublicRequest.findUnique.mockRejectedValue(
+        new EntityNotExistException('ContestToPublicRequest')
+      )
+
+      //when
+      const callDeleteContestToPublicRequest = async () =>
+        await contestService.deleteContestToPublicRequest(contestId)
+
+      //then
+      await expect(callDeleteContestToPublicRequest).rejects.toThrow(
+        EntityNotExistException
+      )
+      expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(0)
+    })
+
+    it('should throw error when request status is Accept', async () => {
+      //given
+      const acceptedRequest: ContestToPublicRequest = {
+        ...contestToPublicRequest,
+        request_status: RequestStatus.Accept
+      }
+      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+        acceptedRequest
+      )
+
+      //when
+      const callDeleteContestToPublicRequest = async () =>
+        await contestService.deleteContestToPublicRequest(contestId)
+
+      //then
+      await expect(callDeleteContestToPublicRequest).rejects.toThrow(
+        UnprocessableDataException
+      )
+      expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(0)
+    })
+
+    it('should delete request for given contest id when request stauts is not Accept', async () => {
+      //given
+      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+        contestToPublicRequest
+      )
+
+      //when
+      await contestService.deleteContestToPublicRequest(contestId)
+
+      //then
+      expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(1)
+    })
+  })
+
+  describe('respondContestToPublicRequest', () => {
+    let respondContestToPublicRequestDto: RespondContestToPublicRequestDto = {
+      request_status: RequestStatus.Accept
+    }
+
+    it('should update contest and request for the contest', async () => {
+      //given
+      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+        contestToPublicRequest
+      )
+
+      //when
+      await contestService.respondContestToPublicRequest(
+        contestId,
+        respondContestToPublicRequestDto
+      )
+
+      //then
+      expect(mockPrismaService.contest.update).toBeCalledTimes(1)
+      expect(mockPrismaService.contestToPublicRequest.update).toBeCalledTimes(1)
+    })
+
+    it('should throw error when request for the contest does not exist', async () => {
+      //given
+      mockPrismaService.contestToPublicRequest.findUnique.mockRejectedValue(
+        new EntityNotExistException('ContestToPublicRequest')
+      )
+
+      //when
+      const callRespondContestToPublicRequest = async () =>
+        await contestService.respondContestToPublicRequest(
+          contestId,
+          respondContestToPublicRequestDto
+        )
+
+      //then
+      await expect(callRespondContestToPublicRequest).rejects.toThrow(
+        EntityNotExistException
+      )
+    })
+
+    it('should update contest is_public as true when given request_status is Accept', async () => {
+      //given
+      const updateContestIsPublicSpy = jest.spyOn(
+        contestService,
+        'updateContestIsPublic'
+      )
+      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+        contestToPublicRequest
+      )
+
+      //when
+      await contestService.respondContestToPublicRequest(
+        contestId,
+        respondContestToPublicRequestDto
+      )
+
+      //then
+      expect(updateContestIsPublicSpy).toBeCalledWith(contestId, true)
+    })
+
+    it('should update contest is_public as false when given request_status is Reject', async () => {
+      //given
+      const updateContestIsPublicSpy = jest.spyOn(
+        contestService,
+        'updateContestIsPublic'
+      )
+      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+        contestToPublicRequest
+      )
+      respondContestToPublicRequestDto = {
+        request_status: RequestStatus.Reject
+      }
+
+      //when
+      await contestService.respondContestToPublicRequest(
+        contestId,
+        respondContestToPublicRequestDto
+      )
+
+      //then
+      expect(updateContestIsPublicSpy).toBeCalledWith(contestId, false)
     })
   })
 })
