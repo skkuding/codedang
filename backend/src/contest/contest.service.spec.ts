@@ -68,39 +68,6 @@ const contests: Partial<Contest>[] = [
   ...upcomingContests
 ]
 
-const ongoingContests: Partial<Contest>[] = [
-  {
-    ...contest,
-    id: contestId,
-    end_time: new Date('2022-11-07T18:34:23.999175+09:00'),
-    visible: false
-  }
-]
-
-const finishedContests: Partial<Contest>[] = [
-  {
-    ...contest,
-    id: contestId + 3,
-    visible: false
-  }
-]
-
-const upcomingContests: Partial<Contest>[] = [
-  {
-    ...contest,
-    id: contestId + 6,
-    start_time: new Date('2022-11-07T18:34:23.999175+09:00'),
-    end_time: new Date('2022-12-07T18:34:23.999175+09:00'),
-    visible: false
-  }
-]
-
-const contests: Partial<Contest>[] = [
-  ...ongoingContests,
-  ...finishedContests,
-  ...upcomingContests
-]
-
 const mockPrismaService = {
   contest: {
     findUnique: jest.fn().mockResolvedValue(contest),
