@@ -8,6 +8,7 @@ const props = defineProps<{
   placeholder: string
   shadow: boolean
   size?: Size
+  notice?: boolean
 }>()
 
 defineEmits(['update:data'])
@@ -35,7 +36,11 @@ const setRequired = computed(() => [
     class="w-full rounded-lg py-2.5 px-5 text-base font-bold focus:outline-none"
     @input="$emit('update:data', data)"
   />
-  <div :class="setRequired" class="text-red pt-1 text-xs font-bold">
+  <div
+    v-if="props.notice"
+    :class="setRequired"
+    class="text-red pt-1 text-xs font-bold"
+  >
     {{ placeholder + ' is required' }}
   </div>
 </template>
