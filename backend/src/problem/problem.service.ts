@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Problem } from '@prisma/client'
-import { plainToClass, plainToInstance } from 'class-transformer'
+import { plainToInstance } from 'class-transformer'
 import { PaginationDto } from 'src/common/dto/pagination.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { ContestService } from 'src/contest/contest.service'
@@ -58,10 +57,7 @@ export class ProblemService {
       contestId,
       problemId
     )
-    return plainToInstance(
-      PublicContestProblemResponseDto,
-      this.transformDisplayId(data, 'ContestProblem')
-    )
+    return plainToInstance(PublicContestProblemResponseDto, data)
   }
 
   private async isPublicAndVisibleContest(contestId: number): Promise<boolean> {
@@ -83,7 +79,7 @@ export class ProblemService {
   async getPublicContestProblems(
     contestId: number,
     paginationDto: PaginationDto
-  ): Promise<PublicContestProblemsResponseDto> {
+  ): Promise<PublicContestProblemsResponseDto[]> {
     // contest가 visible=false이거나 is_public=false 인 경우 throw error
     if (!(await this.isPublicAndVisibleContest(contestId))) {
       throw new EntityNotExistException('Contest')
@@ -93,10 +89,7 @@ export class ProblemService {
       contestId,
       paginationDto
     )
-    return plainToInstance(
-      PublicContestProblemsResponseDto,
-      this.transformDisplayIdFromArray(data, 'ContestProblem')
-    )
+    return plainToInstance(PublicContestProblemsResponseDto, data)
   }
 
   async getPublicWorkbookProblem(
@@ -112,10 +105,7 @@ export class ProblemService {
       workbookId,
       problemId
     )
-    return plainToInstance(
-      PublicWorkbookProblemResponseDto,
-      this.transformDisplayId(data, 'WorkbookProblem')
-    )
+    return plainToInstance(PublicWorkbookProblemResponseDto, data)
   }
 
   private async isPublicAndVisibleWorkbook(
@@ -127,7 +117,7 @@ export class ProblemService {
   async getPublicWorkbookProblems(
     workbookId: number,
     paginationDto: PaginationDto
-  ): Promise<PublicWorkbookProblemsResponseDto> {
+  ): Promise<PublicWorkbookProblemsResponseDto[]> {
     // workbook이 visible=false이거나 is_public=false 인 경우 throw error
     if (!(await this.isPublicAndVisibleWorkbook(workbookId))) {
       throw new EntityNotExistException('Contest')
@@ -137,10 +127,7 @@ export class ProblemService {
       workbookId,
       paginationDto
     )
-    return plainToInstance(
-      PublicWorkbookProblemsResponseDto,
-      this.transformDisplayIdFromArray(data, 'WorkbookProblem')
-    )
+    return plainToInstance(PublicWorkbookProblemsResponseDto, data)
   }
 
   async getGroupContestProblem(
@@ -174,7 +161,7 @@ export class ProblemService {
     groupId: number,
     contestId: number,
     paginationDto: PaginationDto
-  ): Promise<ContestProblemsResponseDto> {
+  ): Promise<ContestProblemsResponseDto[]> {
     // contest가 visible=false이거나 group의 contest가 아닌 경우 throw error
     if (!(await this.isVisibleContestOfGroup(groupId, contestId))) {
       throw new EntityNotExistException('Contest')
@@ -184,10 +171,7 @@ export class ProblemService {
       contestId,
       paginationDto
     )
-    return plainToInstance(
-      ContestProblemsResponseDto,
-      this.transformDisplayIdFromArray(data, 'ContestProblem')
-    )
+    return plainToInstance(ContestProblemsResponseDto, data)
   }
 
   async getGroupWorkbookProblem(
@@ -204,10 +188,7 @@ export class ProblemService {
       workbookId,
       problemId
     )
-    return plainToInstance(
-      WorkbookProblemResponseDto,
-      this.transformDisplayId(data, 'WorkbookProblem')
-    )
+    return plainToInstance(WorkbookProblemResponseDto, data)
   }
 
   private async isVisibleWorkbookOfGroup(
@@ -224,7 +205,7 @@ export class ProblemService {
     groupId: number,
     workbookId: number,
     paginationDto: PaginationDto
-  ): Promise<WorkbookProblemsResponseDto> {
+  ): Promise<WorkbookProblemsResponseDto[]> {
     // workbook이 visible=false이거나 group의 workbook이 아닌 경우 throw error
     if (!(await this.isVisibleWorkbookOfGroup(groupId, workbookId))) {
       throw new EntityNotExistException('Workbook')
@@ -234,9 +215,6 @@ export class ProblemService {
       workbookId,
       paginationDto
     )
-    return plainToInstance(
-      WorkbookProblemsResponseDto,
-      this.transformDisplayIdFromArray(data, 'WorkbookProblem')
-    )
+    return plainToInstance(WorkbookProblemsResponseDto, data)
   }
 }

@@ -82,7 +82,7 @@ export class PublicContestProblemController {
   async getPublicContestProblems(
     @Param('contestId', ParseIntPipe) contestId: number,
     @Query() paginationDto: PaginationDto
-  ): Promise<PublicContestProblemsResponseDto> {
+  ): Promise<PublicContestProblemsResponseDto[]> {
     try {
       return await this.problemService.getPublicContestProblems(
         contestId,
@@ -121,7 +121,7 @@ export class PublicWorkbookProblemController {
   async getPublicWorkbookProblems(
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Query() paginationDto: PaginationDto
-  ): Promise<PublicWorkbookProblemsResponseDto> {
+  ): Promise<PublicWorkbookProblemsResponseDto[]> {
     try {
       return await this.problemService.getPublicWorkbookProblems(
         workbookId,
@@ -163,7 +163,7 @@ export class GroupContestProblemController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
     @Query() paginationDto: PaginationDto
-  ): Promise<ContestProblemsResponseDto> {
+  ): Promise<ContestProblemsResponseDto[]> {
     try {
       return await this.problemService.getGroupContestProblems(
         groupId,
@@ -206,7 +206,7 @@ export class GroupWorkbookProblemController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Query() paginationDto: PaginationDto
-  ): Promise<WorkbookProblemsResponseDto> {
+  ): Promise<WorkbookProblemsResponseDto[]> {
     try {
       return await this.problemService.getGroupWorkbookProblems(
         groupId,
