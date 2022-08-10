@@ -31,7 +31,7 @@ export class ProblemRepository {
     })
   }
 
-  async getProblemOfContest(
+  async getContestProblem(
     contestId: number,
     problemId: number
   ): Promise<Partial<ContestProblem & { Problem: Problem }>> {
@@ -47,7 +47,7 @@ export class ProblemRepository {
     })
   }
 
-  async getProblemOfWorkbook(
+  async getWorkbookProblem(
     workbookId: number,
     problemId: number
   ): Promise<Partial<WorkbookProblem & { Problem: Problem }>> {
@@ -76,7 +76,7 @@ export class ProblemRepository {
     })
   }
 
-  async getProblemsOfContest(
+  async getContestProblems(
     contestId: number,
     paginationDto: PaginationDto
   ): Promise<Partial<ContestProblem & { Problem: Problem }>[]> {
@@ -88,7 +88,7 @@ export class ProblemRepository {
     })
   }
 
-  async getProblemsOfWorkbook(
+  async getWorkbookProblems(
     workbookId: number,
     paginationDto: PaginationDto
   ): Promise<Partial<WorkbookProblem & { Problem: Problem }>[]> {

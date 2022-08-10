@@ -53,11 +53,11 @@ paginationDto.limit = 10
 
 const mockProblemRepository = {
   getPublicProblem: jest.fn().mockResolvedValue(undefined),
-  getProblemOfContest: jest.fn().mockResolvedValue(undefined),
-  getProblemOfWorkbook: jest.fn().mockResolvedValue(undefined),
+  getContestProblem: jest.fn().mockResolvedValue(undefined),
+  getWorkbookProblem: jest.fn().mockResolvedValue(undefined),
   getPublicProblems: jest.fn().mockResolvedValue(undefined),
-  getProblemsOfContest: jest.fn().mockResolvedValue(undefined),
-  getProblemsOfWorkbook: jest.fn().mockResolvedValue(undefined)
+  getContestProblems: jest.fn().mockResolvedValue(undefined),
+  getWorkbookProblems: jest.fn().mockResolvedValue(undefined)
 }
 
 describe('ProblemService', () => {
@@ -126,13 +126,13 @@ describe('ProblemService', () => {
 
   describe('getPublicContestProblem', () => {
     afterEach(() => {
-      mockProblemRepository.getProblemOfContest.mockClear()
+      mockProblemRepository.getContestProblem.mockClear()
     })
 
     it('should return the public contest problem', async () => {
       // given
       jest
-        .spyOn(problemRepository, 'getProblemOfContest')
+        .spyOn(problemRepository, 'getContestProblem')
         .mockResolvedValueOnce(contestProblem)
       jest
         .spyOn(problemService as any, 'isPublicAndVisibleContest')
@@ -169,13 +169,13 @@ describe('ProblemService', () => {
 
   describe('getPublicContestProblems', () => {
     afterEach(() => {
-      mockProblemRepository.getProblemsOfContest.mockClear()
+      mockProblemRepository.getContestProblems.mockClear()
     })
 
     it('should return public contest problems', async () => {
       // given
       jest
-        .spyOn(problemRepository, 'getProblemsOfContest')
+        .spyOn(problemRepository, 'getContestProblems')
         .mockResolvedValueOnce(contestProblems)
       jest
         .spyOn(problemService as any, 'isPublicAndVisibleContest')
@@ -212,13 +212,13 @@ describe('ProblemService', () => {
 
   describe('getPublicWorkbookProblem', () => {
     afterEach(() => {
-      mockProblemRepository.getProblemOfWorkbook.mockClear()
+      mockProblemRepository.getWorkbookProblem.mockClear()
     })
 
     it('should return the public workbook problem', async () => {
       // given
       jest
-        .spyOn(problemRepository, 'getProblemOfWorkbook')
+        .spyOn(problemRepository, 'getWorkbookProblem')
         .mockResolvedValueOnce(workbookProblem)
       jest
         .spyOn(problemService as any, 'isPublicAndVisibleWorkbook')
@@ -255,13 +255,13 @@ describe('ProblemService', () => {
 
   describe('getPublicWorkbookProblms', () => {
     afterEach(() => {
-      mockProblemRepository.getProblemsOfWorkbook.mockClear()
+      mockProblemRepository.getWorkbookProblems.mockClear()
     })
 
     it('should return public workbook problems', async () => {
       // given
       jest
-        .spyOn(problemRepository, 'getProblemsOfWorkbook')
+        .spyOn(problemRepository, 'getWorkbookProblems')
         .mockResolvedValueOnce(workbookProblems)
       jest
         .spyOn(problemService as any, 'isPublicAndVisibleWorkbook')
@@ -303,7 +303,7 @@ describe('ProblemService', () => {
     it('should return group contest problem', async () => {
       // given
       jest
-        .spyOn(problemRepository, 'getProblemOfContest')
+        .spyOn(problemRepository, 'getContestProblem')
         .mockResolvedValueOnce(contestProblem)
       jest
         .spyOn(problemService as any, 'isVisibleContestOfGroup')
@@ -347,7 +347,7 @@ describe('ProblemService', () => {
     it('should return group contest problems', async () => {
       // given
       jest
-        .spyOn(problemRepository, 'getProblemsOfContest')
+        .spyOn(problemRepository, 'getContestProblems')
         .mockResolvedValueOnce(contestProblems)
       jest
         .spyOn(problemService as any, 'isVisibleContestOfGroup')
@@ -391,7 +391,7 @@ describe('ProblemService', () => {
     it('should return group workbook problem', async () => {
       // given
       jest
-        .spyOn(problemRepository, 'getProblemOfWorkbook')
+        .spyOn(problemRepository, 'getWorkbookProblem')
         .mockResolvedValueOnce(workbookProblem)
       jest
         .spyOn(problemService as any, 'isVisibleWorkbookOfGroup')
@@ -435,7 +435,7 @@ describe('ProblemService', () => {
     it('should return group workbook problems', async () => {
       // given
       jest
-        .spyOn(problemRepository, 'getProblemsOfWorkbook')
+        .spyOn(problemRepository, 'getWorkbookProblems')
         .mockResolvedValueOnce(workbookProblems)
       jest
         .spyOn(problemService as any, 'isVisibleWorkbookOfGroup')

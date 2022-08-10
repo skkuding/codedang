@@ -52,7 +52,7 @@ export class ProblemService {
       throw new EntityNotExistException('Contest')
     }
     // problem이 id=problemId이고, Contest에 등록된 problem을 반환
-    const data = await this.problemRepository.getProblemOfContest(
+    const data = await this.problemRepository.getContestProblem(
       contestId,
       problemId
     )
@@ -72,7 +72,7 @@ export class ProblemService {
       throw new EntityNotExistException('Contest')
     }
     // Contest에 등록된 problem들을 반환
-    const data = await this.problemRepository.getProblemsOfContest(
+    const data = await this.problemRepository.getContestProblems(
       contestId,
       paginationDto
     )
@@ -88,7 +88,7 @@ export class ProblemService {
       throw new EntityNotExistException('Workbook')
     }
     // problem이 id=problemId이고, Workbook에 등록된 problem을 반환
-    const data = await this.problemRepository.getProblemOfWorkbook(
+    const data = await this.problemRepository.getWorkbookProblem(
       workbookId,
       problemId
     )
@@ -110,7 +110,7 @@ export class ProblemService {
       throw new EntityNotExistException('Contest')
     }
     // Workbook에 등록된 problem들을 반환
-    const data = await this.problemRepository.getProblemsOfWorkbook(
+    const data = await this.problemRepository.getWorkbookProblems(
       workbookId,
       paginationDto
     )
@@ -127,7 +127,7 @@ export class ProblemService {
       throw new EntityNotExistException('Contest')
     }
     // problem이 id=problemId이고, Contest에 등록된 problem을 반환
-    const data = await this.problemRepository.getProblemOfContest(
+    const data = await this.problemRepository.getContestProblem(
       contestId,
       problemId
     )
@@ -151,7 +151,7 @@ export class ProblemService {
       throw new EntityNotExistException('Contest')
     }
     // Contest에 등록된 problem들을 반환
-    const data = await this.problemRepository.getProblemsOfContest(
+    const data = await this.problemRepository.getContestProblems(
       contestId,
       paginationDto
     )
@@ -168,7 +168,7 @@ export class ProblemService {
       throw new EntityNotExistException('Workbook')
     }
     // problem이 id=problemId이고, Workbook에 등록된 problem을 반환
-    const data = await this.problemRepository.getProblemOfWorkbook(
+    const data = await this.problemRepository.getWorkbookProblem(
       workbookId,
       problemId
     )
@@ -195,7 +195,7 @@ export class ProblemService {
       throw new EntityNotExistException('Workbook')
     }
     // Workbook에 등록된 problem들을 반환
-    const data = await this.problemRepository.getProblemsOfWorkbook(
+    const data = await this.problemRepository.getWorkbookProblems(
       workbookId,
       paginationDto
     )
