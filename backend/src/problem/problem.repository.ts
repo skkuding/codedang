@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Problem } from '@prisma/client'
+import { ContestProblem, Problem, WorkbookProblem } from '@prisma/client'
 import { PUBLIC_GROUP_ID } from 'src/common/contstants'
 import { PaginationDto } from 'src/common/dto/pagination.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
@@ -31,18 +31,19 @@ export class ProblemRepository {
     })
   }
 
+  // 이게 정답이지
   async getProblemOfContest(
     contestId: number,
     problemId: number
-  ): Promise<Partial<Problem & { ContestProblem: { display_id: string }[] }>> {
-    return await this.prisma.problem.findFirst({
+  ): Promise<Partial<ContestProblem & { Problem: Problem }>> {
+    return await this.prisma.contestProblem.findUnique({
       where: {
-        id: problemId,
-        ContestProblem: { some: { contest_id: contestId } }
+        ContestProblemUniqueConstraint: {
+          contest_id: contestId,
+          problem_id: problemId
+        }
       },
-      include: {
-        ContestProblem: { select: { display_id: true } }
-      },
+      include: { problem: {} },
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
   }
@@ -50,15 +51,15 @@ export class ProblemRepository {
   async getProblemOfWorkbook(
     workbookId: number,
     problemId: number
-  ): Promise<Partial<Problem & { WorkbookProblem: { display_id: string }[] }>> {
-    return await this.prisma.problem.findFirst({
+  ): Promise<Partial<WorkbookProblem & { Problem: Problem }>> {
+    return await this.prisma.workbookProblem.findUnique({
       where: {
-        id: problemId,
-        WorkbookProblem: { some: { workbook_id: workbookId } }
+        WorkbookProblemUniqueConstraint: {
+          workbook_id: workbookId,
+          problem_id: problemId
+        }
       },
-      include: {
-        WorkbookProblem: { select: { display_id: true } }
-      },
+      include: { problem: {} },
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
   }
@@ -79,32 +80,24 @@ export class ProblemRepository {
   async getProblemsOfContest(
     contestId: number,
     paginationDto: PaginationDto
-  ): Promise<
-    Partial<Problem & { ContestProblem: { display_id: string }[] }>[]
-  > {
-    return await this.prisma.problem.findMany({
+  ): Promise<Partial<ContestProblem & { Problem: Problem }>[]> {
+    return await this.prisma.contestProblem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
-      where: { ContestProblem: { some: { contest_id: contestId } } },
-      include: {
-        ContestProblem: { select: { display_id: true } }
-      }
+      where: { contest_id: contestId },
+      include: { problem: {} }
     })
   }
 
   async getProblemsOfWorkbook(
     workbookId: number,
     paginationDto: PaginationDto
-  ): Promise<
-    Partial<Problem & { WorkbookProblem: { display_id: string }[] }>[]
-  > {
-    return await this.prisma.problem.findMany({
+  ): Promise<Partial<WorkbookProblem & { Problem: Problem }>[]> {
+    return await this.prisma.workbookProblem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
-      where: { WorkbookProblem: { some: { workbook_id: workbookId } } },
-      include: {
-        WorkbookProblem: { select: { display_id: true } }
-      }
+      where: { workbook_id: workbookId },
+      include: { problem: {} }
     })
   }
 }
