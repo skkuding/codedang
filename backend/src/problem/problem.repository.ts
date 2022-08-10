@@ -31,7 +31,6 @@ export class ProblemRepository {
     })
   }
 
-  // 이게 정답이지
   async getProblemOfContest(
     contestId: number,
     problemId: number

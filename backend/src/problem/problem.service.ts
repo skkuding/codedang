@@ -17,7 +17,6 @@ import { WorkbookProblemsResponseDto } from './dto/workbook-problems.response.dt
 import { ProblemRepository } from './problem.repository'
 
 /**
- * TODO: ResponseDto를 정의하고 calss-transformer를 활용하여 필드를 선택하거나 변형하여 반환합니다
  * TODO: 사용하는 service별로 class를 분리합니다
  */
 @Injectable()
@@ -62,18 +61,6 @@ export class ProblemService {
 
   private async isPublicAndVisibleContest(contestId: number): Promise<boolean> {
     return await this.contestService.isPublicAndVisibleContest(contestId)
-  }
-
-  // TODO: 범용적으로 사용 가능하도록 수정. 복사해서 새로운 object 반환하는 형태로 수정
-  private transformDisplayId(entity: any, relationTable: string) {
-    entity['displayId'] = entity[relationTable][0].display_id
-    return entity
-  }
-
-  private transformDisplayIdFromArray(entities: any, relationTable: string) {
-    return entities.map((entity) =>
-      this.transformDisplayId(entity, relationTable)
-    )
   }
 
   async getPublicContestProblems(
@@ -144,10 +131,7 @@ export class ProblemService {
       contestId,
       problemId
     )
-    return plainToInstance(
-      ContestProblemResponseDto,
-      this.transformDisplayId(data, 'ContestProblem')
-    )
+    return plainToInstance(ContestProblemResponseDto, data)
   }
 
   private async isVisibleContestOfGroup(
