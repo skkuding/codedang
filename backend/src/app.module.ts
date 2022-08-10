@@ -35,13 +35,6 @@ import { JwtAuthGuard } from './auth/guard/jwt-auth.guard'
     WorkbookModule
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    { provide: APP_GUARD, useClass: JwtAuthGuard },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: ClassSerializerInterceptor
-    }
-  ]
+  providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }]
 })
 export class AppModule {}
