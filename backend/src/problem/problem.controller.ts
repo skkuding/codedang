@@ -128,6 +128,9 @@ export class PublicWorkbookProblemController {
         paginationDto
       )
     } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      }
       throw new InternalServerErrorException()
     }
   }

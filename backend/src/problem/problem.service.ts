@@ -107,7 +107,7 @@ export class ProblemService {
   ): Promise<PublicWorkbookProblemsResponseDto[]> {
     // workbook이 visible=false이거나 is_public=false 인 경우 throw error
     if (!(await this.isPublicAndVisibleWorkbook(workbookId))) {
-      throw new EntityNotExistException('Contest')
+      throw new EntityNotExistException('Workbook')
     }
     // Workbook에 등록된 problem들을 반환
     const data = await this.problemRepository.getWorkbookProblems(
