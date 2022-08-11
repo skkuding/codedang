@@ -30,11 +30,11 @@ import { RespondContestToPublicRequestDto } from './dto/respond-topublic-request
 
 @Controller('admin/contest')
 @UseGuards(RolesGuard)
+@Roles(Role.GroupAdmin)
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  @Roles(Role.GroupAdmin)
   async getAdminContests(
     @Req() req: AuthenticatedRequest
   ): Promise<Partial<Contest>[]> {
@@ -42,71 +42,10 @@ export class ContestAdminController {
   }
 
   @Get('ongoing')
-  @Roles(Role.GroupAdmin)
   async getAdminOngoingContests(
     @Req() req: AuthenticatedRequest
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminOngoingContests(req.user.id)
-  }
-
-  @Patch('/:id/topublic')
-  @Roles(Role.SuperManager)
-  async respondContestToPublicRequest(
-    @Param('id', ParseIntPipe) contestId: number,
-    @Body() respondContestToPublicRequestDto: RespondContestToPublicRequestDto
-  ): Promise<ContestToPublicRequest> {
-    try {
-      return await this.contestService.respondContestToPublicRequest(
-        contestId,
-        respondContestToPublicRequestDto
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get('/topublic/pending')
-  @Roles(Role.SuperManager)
-  async getPendingContestToPublicRequests(): Promise<
-    Partial<ContestToPublicRequest>[]
-  > {
-    try {
-      return await this.contestService.getPendingContestToPublicRequests()
-    } catch (error) {
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get('/topublic/responded')
-  @Roles(Role.SuperManager)
-  async getRespondedContestToPublicRequests(): Promise<
-    Partial<ContestToPublicRequest>[]
-  > {
-    try {
-      return await this.contestService.getRespondedContestToPublicRequests()
-    } catch (error) {
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get('/:id/topublic')
-  @Roles(Role.SuperManager)
-  async getContestToPublicRequest(
-    @Param('id', ParseIntPipe) contestId: number
-  ): Promise<Partial<ContestToPublicRequest>> {
-    try {
-      return await this.contestService.getAdminContestToPublicRequest(contestId)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-
-      throw new InternalServerErrorException()
-    }
   }
 }
 
@@ -181,6 +120,75 @@ export class GroupContestAdminController {
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminContestsByGroupId(groupId)
   }
+}
+
+@Controller('admin/contest')
+@UseGuards(RolesGuard)
+@Roles(Role.SuperManager)
+export class ContestToPublicRequestAdminController {
+  constructor(private readonly contestService: ContestService) {}
+
+  @Patch('/:id/topublic')
+  async respondContestToPublicRequest(
+    @Param('id', ParseIntPipe) contestId: number,
+    @Body() respondContestToPublicRequestDto: RespondContestToPublicRequestDto
+  ): Promise<ContestToPublicRequest> {
+    try {
+      return await this.contestService.respondContestToPublicRequest(
+        contestId,
+        respondContestToPublicRequestDto
+      )
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('/topublic/pending')
+  async getPendingContestToPublicRequests(): Promise<
+    Partial<ContestToPublicRequest>[]
+  > {
+    try {
+      return await this.contestService.getPendingContestToPublicRequests()
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('/topublic/responded')
+  async getRespondedContestToPublicRequests(): Promise<
+    Partial<ContestToPublicRequest>[]
+  > {
+    try {
+      return await this.contestService.getRespondedContestToPublicRequests()
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('/:id/topublic')
+  async getContestToPublicRequest(
+    @Param('id', ParseIntPipe) contestId: number
+  ): Promise<Partial<ContestToPublicRequest>> {
+    try {
+      return await this.contestService.getAdminContestToPublicRequest(contestId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+
+      throw new InternalServerErrorException()
+    }
+  }
+}
+
+@Controller('admin/group/:group_id/contest')
+@UseGuards(RolesGuard, GroupManagerGuard)
+export class ContestToPublicRequestController {
+  constructor(private readonly contestService: ContestService) {}
 
   @Post('/:id/topublic')
   async createContestToPublicRequest(
