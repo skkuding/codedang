@@ -55,7 +55,7 @@ const ongoingContests: Partial<Contest>[] = [
 const finishedContests: Partial<Contest>[] = [
   {
     ...contest,
-    id: contestId + 3,
+    id: contestId + 1,
     visible: false
   }
 ]
@@ -86,6 +86,10 @@ const contestToPublicRequest: ContestToPublicRequest = {
   update_time: new Date('2022-12-07T18:34:23.999175+09:00')
 }
 
+const contestToPublicRequests: ContestToPublicRequest[] = [
+  contestToPublicRequest
+]
+
 const mockPrismaService = {
   contest: {
     findUnique: jest.fn().mockResolvedValue(contest),
@@ -97,6 +101,7 @@ const mockPrismaService = {
   },
   contestToPublicRequest: {
     findUnique: jest.fn(),
+    findMany: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn()
@@ -590,7 +595,6 @@ describe('ContestService', () => {
       await expect(callDeleteContestToPublicRequest).rejects.toThrow(
         EntityNotExistException
       )
-      expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(0)
     })
 
     it('should throw error when request status is Accept', async () => {
@@ -611,7 +615,6 @@ describe('ContestService', () => {
       await expect(callDeleteContestToPublicRequest).rejects.toThrow(
         UnprocessableDataException
       )
-      expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(0)
     })
 
     it('should delete request for given contest id when request stauts is not Accept', async () => {
@@ -625,6 +628,37 @@ describe('ContestService', () => {
 
       //then
       expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(1)
+    })
+  })
+
+  describe('getContestToPublicRequest', () => {
+    it('should return request for given contest id', async () => {
+      //given
+      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+        contestToPublicRequest
+      )
+
+      //when
+      const result = await contestService.getContestToPublicRequest(contestId)
+
+      //then
+      expect(result).toEqual(contestToPublicRequest)
+    })
+
+    it('should throw error when request does not exist for given contest id', async () => {
+      //given
+      mockPrismaService.contestToPublicRequest.findUnique.mockRejectedValue(
+        new EntityNotExistException('ContestToPublicRequest')
+      )
+
+      //when
+      const callGetContestToPublicRequest = async () =>
+        await contestService.getAdminContestToPublicRequest(contestId)
+
+      //then
+      await expect(callGetContestToPublicRequest).rejects.toThrow(
+        EntityNotExistException
+      )
     })
   })
 
@@ -710,6 +744,57 @@ describe('ContestService', () => {
 
       //then
       expect(updateContestIsPublicSpy).toBeCalledWith(contestId, false)
+    })
+  })
+
+  describe('getAdminContestToPublicRequests', () => {
+    it('should return requests for given where option', async () => {
+      //given
+      const whereOption = [RequestStatus.Pending]
+      mockPrismaService.contestToPublicRequest.findMany.mockResolvedValue(
+        contestToPublicRequests
+      )
+
+      //when
+      const result = await contestService.getAdminContestToPublicRequests(
+        whereOption
+      )
+
+      //then
+      expect(result).toEqual(contestToPublicRequests)
+    })
+  })
+
+  describe('getAdminContestToPublicRequest', () => {
+    it('should return request for given contest id', async () => {
+      //given
+      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+        contestToPublicRequest
+      )
+
+      //when
+      const result = await contestService.getAdminContestToPublicRequest(
+        contestId
+      )
+
+      //then
+      expect(result).toEqual(contestToPublicRequest)
+    })
+
+    it('should throw error when request for given contest id does not exist', async () => {
+      //given
+      mockPrismaService.contestToPublicRequest.findUnique.mockRejectedValue(
+        new EntityNotExistException('ContestToPublicRequest')
+      )
+
+      //when
+      const callGetAdminContestToPublicRequest = async () =>
+        await contestService.getAdminContestToPublicRequest(contestId)
+
+      //then
+      await expect(callGetAdminContestToPublicRequest).rejects.toThrow(
+        EntityNotExistException
+      )
     })
   })
 })

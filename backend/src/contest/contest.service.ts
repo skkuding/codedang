@@ -116,6 +116,131 @@ export class ContestService {
     })
   }
 
+  async getContests(): Promise<{
+    ongoing: Partial<Contest>[]
+    upcoming: Partial<Contest>[]
+    finished: Partial<Contest>[]
+  }> {
+    const contests = await this.prisma.contest.findMany({
+      where: { visible: true },
+      select: this.contestSelectOption
+    })
+    return {
+      ongoing: this.filterOngoing(contests),
+      upcoming: this.filterUpcoming(contests),
+      finished: this.filterFinished(contests)
+    }
+  }
+
+  filterOngoing(contests: Partial<Contest>[]): Partial<Contest>[] {
+    const now = new Date()
+    const ongoingContest = contests.filter(
+      (contest) => contest.start_time <= now && contest.end_time > now
+    )
+    return ongoingContest
+  }
+
+  filterUpcoming(contests: Partial<Contest>[]): Partial<Contest>[] {
+    const now = new Date()
+    const ongoingContest = contests.filter(
+      (contest) => contest.start_time > now
+    )
+    return ongoingContest
+  }
+
+  filterFinished(contests: Partial<Contest>[]): Partial<Contest>[] {
+    const now = new Date()
+    const ongoingContest = contests.filter((contest) => contest.end_time <= now)
+    return ongoingContest
+  }
+
+  async getContestById(
+    user_id: number,
+    contest_id: number
+  ): Promise<Partial<Contest>> {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contest_id },
+      select: { ...this.contestSelectOption, description: true, visible: true },
+      rejectOnNotFound: () => new EntityNotExistException('Contest')
+    })
+
+    const userGroup = await this.groupService.getUserGroupMembershipInfo(
+      user_id,
+      contest.group.group_id
+    )
+    const isUserGroupMember = userGroup && userGroup.is_registered
+    const now = new Date()
+
+    if (!isUserGroupMember && contest.end_time > now) {
+      throw new ForbiddenAccessException(
+        'Before the contest is ended, only group members can access'
+      )
+    }
+
+    return contest
+  }
+
+  async getModalContestById(contest_id: number): Promise<Partial<Contest>> {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contest_id },
+      select: {
+        id: true,
+        title: true,
+        description_summary: true
+      },
+      rejectOnNotFound: () => new EntityNotExistException('Contest')
+    })
+
+    return contest
+  }
+
+  async getContestsByGroupId(group_id: number): Promise<Partial<Contest>[]> {
+    return await this.prisma.contest.findMany({
+      where: { group_id, visible: true },
+      select: this.contestSelectOption
+    })
+  }
+
+  async getAdminOngoingContests(user_id: number): Promise<Partial<Contest>[]> {
+    const contests = await this.getAdminContests(user_id)
+    return this.filterOngoing(contests)
+  }
+
+  async getAdminContests(user_id: number): Promise<Partial<Contest>[]> {
+    const groupIds = await this.groupService.getUserGroupManagerList(user_id)
+    return await this.prisma.contest.findMany({
+      where: {
+        group_id: { in: groupIds }
+      },
+      select: { ...this.contestSelectOption, visible: true }
+    })
+  }
+
+  async getAdminContestById(contest_id: number): Promise<Partial<Contest>> {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contest_id },
+      select: {
+        ...this.contestSelectOption,
+        visible: true,
+        description: true,
+        description_summary: true,
+        is_rank_visible: true
+      },
+      rejectOnNotFound: () => new EntityNotExistException('Contest')
+    })
+
+    return contest
+  }
+
+  async getAdminContestsByGroupId(
+    group_id: number
+  ): Promise<Partial<Contest>[]> {
+    return await this.prisma.contest.findMany({
+      where: { group_id },
+      select: { ...this.contestSelectOption, visible: true }
+    })
+  }
+
   async createContestToPublicRequest(
     userId: number,
     { contest_id, message }: CreateContestToPublicRequestDto
@@ -325,129 +450,6 @@ export class ContestService {
       },
       rejectOnNotFound: () =>
         new EntityNotExistException('ContestToPublicRequest')
-    })
-  }
-
-  async getContests(): Promise<{
-    ongoing: Partial<Contest>[]
-    upcoming: Partial<Contest>[]
-    finished: Partial<Contest>[]
-  }> {
-    const contests = await this.prisma.contest.findMany({
-      where: { visible: true },
-      select: this.contestSelectOption
-    })
-    return {
-      ongoing: this.filterOngoing(contests),
-      upcoming: this.filterUpcoming(contests),
-      finished: this.filterFinished(contests)
-    }
-  }
-
-  filterOngoing(contests: Partial<Contest>[]): Partial<Contest>[] {
-    const now = new Date()
-    const ongoingContest = contests.filter(
-      (contest) => contest.startTime <= now && contest.endTime > now
-    )
-    return ongoingContest
-  }
-
-  filterUpcoming(contests: Partial<Contest>[]): Partial<Contest>[] {
-    const now = new Date()
-    const ongoingContest = contests.filter((contest) => contest.startTime > now)
-    return ongoingContest
-  }
-
-  filterFinished(contests: Partial<Contest>[]): Partial<Contest>[] {
-    const now = new Date()
-    const ongoingContest = contests.filter((contest) => contest.endTime <= now)
-    return ongoingContest
-  }
-
-  async getContestById(
-    userId: number,
-    contestId: number
-  ): Promise<Partial<Contest>> {
-    const contest = await this.prisma.contest.findUnique({
-      where: { id: contestId },
-      select: { ...this.contestSelectOption, description: true, visible: true },
-      rejectOnNotFound: () => new EntityNotExistException('Contest')
-    })
-
-    const userGroup = await this.groupService.getUserGroupMembershipInfo(
-      userId,
-      contest.group.id
-    )
-    const isUserGroupMember = userGroup && userGroup.isRegistered
-    const now = new Date()
-
-    if (!isUserGroupMember && contest.endTime > now) {
-      throw new ForbiddenAccessException(
-        'Before the contest is ended, only group members can access'
-      )
-    }
-
-    return contest
-  }
-
-  async getModalContestById(contestId: number): Promise<Partial<Contest>> {
-    const contest = await this.prisma.contest.findUnique({
-      where: { id: contestId },
-      select: {
-        id: true,
-        title: true,
-        descriptionSummary: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('Contest')
-    })
-
-    return contest
-  }
-
-  async getContestsByGroupId(groupId: number): Promise<Partial<Contest>[]> {
-    return await this.prisma.contest.findMany({
-      where: { groupId: groupId, visible: true },
-      select: this.contestSelectOption
-    })
-  }
-
-  async getAdminOngoingContests(userId: number): Promise<Partial<Contest>[]> {
-    const contests = await this.getAdminContests(userId)
-    return this.filterOngoing(contests)
-  }
-
-  async getAdminContests(userId: number): Promise<Partial<Contest>[]> {
-    const groupIds = await this.groupService.getUserGroupManagerList(userId)
-    return await this.prisma.contest.findMany({
-      where: {
-        groupId: { in: groupIds }
-      },
-      select: { ...this.contestSelectOption, visible: true }
-    })
-  }
-
-  async getAdminContestById(contestId: number): Promise<Partial<Contest>> {
-    const contest = await this.prisma.contest.findUnique({
-      where: { id: contestId },
-      select: {
-        ...this.contestSelectOption,
-        visible: true,
-        description: true,
-        descriptionSummary: true,
-        isRankVisible: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('Contest')
-    })
-
-    return contest
-  }
-
-  async getAdminContestsByGroupId(
-    groupId: number
-  ): Promise<Partial<Contest>[]> {
-    return await this.prisma.contest.findMany({
-      where: { groupId: groupId },
-      select: { ...this.contestSelectOption, visible: true }
     })
   }
 }
