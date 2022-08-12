@@ -20,7 +20,7 @@ import { PrismaService } from 'src/prisma/prisma.service'
 export class ProblemRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getPublicProblem(problemId: number): Promise<Partial<Problem>> {
+  async getPublicProblem(problemId: number): Promise<Problem> {
     return await this.prisma.problem.findFirst({
       where: {
         id: problemId,
@@ -34,7 +34,7 @@ export class ProblemRepository {
   async getContestProblem(
     contestId: number,
     problemId: number
-  ): Promise<Partial<ContestProblem & { Problem: Problem }>> {
+  ): Promise<ContestProblem & { problem: Problem }> {
     return await this.prisma.contestProblem.findUnique({
       where: {
         ContestProblemUniqueConstraint: {
@@ -42,7 +42,7 @@ export class ProblemRepository {
           problem_id: problemId
         }
       },
-      include: { problem: {} },
+      include: { problem: true },
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
   }
@@ -50,7 +50,7 @@ export class ProblemRepository {
   async getWorkbookProblem(
     workbookId: number,
     problemId: number
-  ): Promise<Partial<WorkbookProblem & { Problem: Problem }>> {
+  ): Promise<WorkbookProblem & { problem: Problem }> {
     return await this.prisma.workbookProblem.findUnique({
       where: {
         WorkbookProblemUniqueConstraint: {
@@ -63,9 +63,7 @@ export class ProblemRepository {
     })
   }
 
-  async getPublicProblems(
-    paginationDto: PaginationDto
-  ): Promise<Partial<Problem>[]> {
+  async getPublicProblems(paginationDto: PaginationDto): Promise<Problem[]> {
     return await this.prisma.problem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
@@ -79,7 +77,7 @@ export class ProblemRepository {
   async getContestProblems(
     contestId: number,
     paginationDto: PaginationDto
-  ): Promise<Partial<ContestProblem & { Problem: Problem }>[]> {
+  ): Promise<(ContestProblem & { problem: Problem })[]> {
     return await this.prisma.contestProblem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
@@ -91,7 +89,7 @@ export class ProblemRepository {
   async getWorkbookProblems(
     workbookId: number,
     paginationDto: PaginationDto
-  ): Promise<Partial<WorkbookProblem & { Problem: Problem }>[]> {
+  ): Promise<(WorkbookProblem & { problem: Problem })[]> {
     return await this.prisma.workbookProblem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
