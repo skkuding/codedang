@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  color?: string
+  color?: 'green' | 'gray' | 'gray' | 'blue' | 'red'
   text: string
 }>()
 
