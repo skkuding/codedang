@@ -238,6 +238,7 @@ model ContestProblem {
   update_time DateTime @updatedAt
 
   @@unique([contest_id, problem_id], name: "ContestProblemUniqueConstraint")
+  @@unique([contest_id, display_id], name: "ContestProblemDisplayIdUniqueConstraint")
   @@map("contest_problem")
 }
 
@@ -302,6 +303,7 @@ model WorkbookProblem {
   update_time DateTime @updatedAt
 
   @@unique([workbook_id, problem_id], name: "WorkbookProblemUniqueConstraint")
+  @@unique([workbook_id, display_id], name: "WorkbookProblemDisplayIdUniqueConstraint")
   @@map("workbook_problem")
 }
 
