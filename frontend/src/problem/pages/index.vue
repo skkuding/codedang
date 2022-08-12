@@ -19,7 +19,8 @@ const fields = [
   { key: 'title' },
   { key: 'level' },
   { key: 'submissions' },
-  { key: 'rate', label: 'AC Rate' }
+  { key: 'rate', label: 'AC Rate' },
+  { key: 'tag' }
 ]
 const colorMapper = {
   1: 'bg-level-1',
@@ -109,8 +110,15 @@ const clickMore = () => {
   step.value += step.value
 }
 
-const items = [
-  { id: 1, title: '가파른 경사', level: 1, submissions: 132, rate: '92.14%' },
+const problemList = [
+  {
+    id: 1,
+    title: '가파른 경사',
+    level: 1,
+    submissions: 132,
+    rate: '92.14%',
+    tag: 'A'
+  },
   {
     id: 1006,
     title: '습격자 호루라기',
@@ -142,7 +150,6 @@ const items = [
 const clickRow = (row: any) => {
   window.location.href = '/problem/' + row.id
 }
-
 </script>
 
 <template>
@@ -154,20 +161,18 @@ const clickRow = (row: any) => {
     </template>
   </BoxTitle>
 
-  <div class="px-28">
+  <div class="mx-40 mb-28">
     <PageSubtitle text="All Problem" class="mt-10 mb-7" />
-    <div class="mb-7 flex justify-end">
-      <Switch label="Tags" model-value />
-      <SearchBar class="ml-4" placeholder="keywords" />
-    </div>
     <PaginationTable
       :fields="fields"
-      :items="items"
+      :items="problemList"
       placeholder="keywords"
       :number-of-pages="1"
-      no-search-bar
       @row-clicked="clickRow"
     >
+      <template #option>
+        <Switch label="Tags" model-value />
+      </template>
       <template #level="{ row }">
         <div class="flex items-center gap-2">
           <span class="h-5 w-5 rounded-full" :class="colorMapper[row.level]" />
@@ -175,24 +180,30 @@ const clickRow = (row: any) => {
         </div>
       </template>
     </PaginationTable>
-  </div>
-  <div class="mb-28 px-28">
+
     <PageSubtitle text="Workbook" class="mt-10 mb-7" />
+
     <div class="flex justify-end">
       <SearchBar class="ml-4" placeholder="keywords" />
     </div>
-    <ProgressCard
-      v-for="(item, index) in visibleCardItems"
-      :key="index"
-      :title="item.title"
-      :header="item.header"
-      :description="item.description"
-      :color="item.color"
-      :total="item.total"
-      :complete="item.complete"
-      class="inline-block w-full md:w-[48.5%]"
-    />
-    <Button class="mt-8 w-full" color="white" @click="clickMore">More</Button>
+
+    <div class="grid grid-cols-1 md:grid-cols-2">
+      <ProgressCard
+        v-for="(item, index) in visibleCardItems"
+        :key="index"
+        :title="item.title"
+        :header="item.header"
+        :description="item.description"
+        :color="item.color"
+        :total="item.total"
+        :complete="item.complete"
+      />
+    </div>
+
+    <Button class="text-gray-dark mt-8 w-full" color="white" @click="clickMore">
+      More
+    </Button>
   </div>
+
   <Footer />
 </template>
