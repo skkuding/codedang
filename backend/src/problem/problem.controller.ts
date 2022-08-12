@@ -11,6 +11,7 @@ import {
 import { Public } from 'src/common/decorator/public.decorator'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
+import { RolesGuard } from 'src/user/guard/roles.guard'
 import { PaginationDto } from '../common/dto/pagination.dto'
 import { ContestProblemResponseDto } from './dto/contest-problem.response.dto'
 import { ContestProblemsResponseDto } from './dto/contest-problems.response.dto'
@@ -136,7 +137,7 @@ export class PublicWorkbookProblemController {
   }
 }
 
-@UseGuards(GroupMemberGuard)
+@UseGuards(RolesGuard, GroupMemberGuard)
 @Controller('group')
 export class GroupContestProblemController {
   constructor(private readonly problemService: ProblemService) {}
@@ -179,7 +180,7 @@ export class GroupContestProblemController {
   }
 }
 
-@UseGuards(GroupMemberGuard)
+@UseGuards(RolesGuard, GroupMemberGuard)
 @Controller('group')
 export class GroupWorkbookProblemController {
   constructor(private readonly problemService: ProblemService) {}
