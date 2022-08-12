@@ -97,13 +97,16 @@ const cardItems = [
     complete: 5
   }
 ]
-const step = ref(0)
+const step = ref(4)
+
 const visibleCardItems = computed(() => {
-  return cardItems.slice(0, 4 + step.value)
+  return window.innerWidth < 768
+    ? cardItems.slice(0, step.value / 2) // 작은 화면일때 반으로 나누기 4개면 / 2개
+    : cardItems.slice(0, step.value) // 큰 화면일때 정상
 })
 
 const clickMore = () => {
-  step.value += 4
+  step.value += step.value
 }
 
 const items = [
@@ -139,6 +142,7 @@ const items = [
 const clickRow = (row: any) => {
   window.location.href = '/problem/' + row.id
 }
+
 </script>
 
 <template>
@@ -152,11 +156,16 @@ const clickRow = (row: any) => {
 
   <div class="px-28">
     <PageSubtitle text="All Problem" class="mt-10 mb-7" />
+    <div class="mb-7 flex justify-end">
+      <Switch label="Tags" model-value />
+      <SearchBar class="ml-4" placeholder="keywords" />
+    </div>
     <PaginationTable
       :fields="fields"
       :items="items"
       placeholder="keywords"
       :number-of-pages="1"
+      no-search-bar
       @row-clicked="clickRow"
     >
       <template #level="{ row }">
@@ -169,8 +178,7 @@ const clickRow = (row: any) => {
   </div>
   <div class="mb-28 px-28">
     <PageSubtitle text="Workbook" class="mt-10 mb-7" />
-    <div class="mb-7 flex justify-end">
-      <Switch label="Tags" model-value />
+    <div class="flex justify-end">
       <SearchBar class="ml-4" placeholder="keywords" />
     </div>
     <ProgressCard
@@ -182,9 +190,8 @@ const clickRow = (row: any) => {
       :color="item.color"
       :total="item.total"
       :complete="item.complete"
-      class="inline-block !w-[48.5%]"
+      class="inline-block w-full md:w-[48.5%]"
     />
-
     <Button class="mt-8 w-full" color="white" @click="clickMore">More</Button>
   </div>
   <Footer />
