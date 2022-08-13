@@ -24,8 +24,8 @@ import { Roles } from 'src/common/decorator/roles.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 
 @Controller('admin/notice')
-@Roles(Role.GroupAdmin)
 @UseGuards(RolesGuard)
+@Roles(Role.GroupAdmin)
 export class NoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
@@ -39,7 +39,7 @@ export class NoticeAdminController {
 }
 
 @Controller('admin/group/:group_id/notice')
-@UseGuards(GroupManagerGuard)
+@UseGuards(RolesGuard, GroupManagerGuard)
 export class GroupNoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
