@@ -10,29 +10,30 @@
     "story:build": "histoire build"
   },
   "dependencies": {
-    "@vueuse/core": "^8.9.4",
-    "pinia": "^2.0.16",
+    "@vueuse/components": "^9.1.0",
+    "@vueuse/core": "^9.1.0",
+    "@vueuse/math": "^9.1.0",
+    "pinia": "^2.0.17",
     "vue": "^3.2.37",
-    "vue-router": "^4.1.2"
+    "vue-router": "^4.1.3"
   },
   "devDependencies": {
-    "@iconify-json/bi": "^1.1.6",
-    "@iconify-json/fa6-brands": "^1.1.4",
-    "@iconify-json/fa6-regular": "^1.1.4",
-    "@iconify-json/fa6-solid": "^1.1.5",
-    "@iconify-json/fluent": "^1.1.14",
+    "@histoire/plugin-vue": "^0.9.1",
+    "@iconify-json/fa6-brands": "^1.1.5",
+    "@iconify-json/fa6-regular": "^1.1.5",
+    "@iconify-json/fa6-solid": "^1.1.6",
     "@iconify-json/ri": "^1.1.3",
-    "@types/node": "^16.11.45",
+    "@types/node": "^16.11.47",
     "@vitejs/plugin-vue": "^2.3.3",
     "@vue/tsconfig": "^0.1.3",
-    "autoprefixer": "^10.4.7",
-    "histoire": "^0.8.1",
-    "postcss": "^8.4.14",
-    "tailwindcss": "^3.1.6",
+    "autoprefixer": "^10.4.8",
+    "histoire": "^0.9.1",
+    "postcss": "^8.4.16",
+    "tailwindcss": "^3.1.8",
     "typescript": "^4.7.4",
-    "unplugin-icons": "^0.14.7",
+    "unplugin-icons": "^0.14.8",
     "vite": "^2.9.14",
     "vite-plugin-pages": "^0.25.0",
-    "vue-tsc": "^0.38.9"
+    "vue-tsc": "^0.39.5"
   }
 }
