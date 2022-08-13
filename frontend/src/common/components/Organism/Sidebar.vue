@@ -12,7 +12,7 @@ import { onBeforeMount } from 'vue'
 // TODO: get group name and color
 const props = defineProps<{
   group?: boolean
-  color?: string
+  color?: 'blue' | 'gray' | 'white'
 }>()
 
 const colorMapper = {
