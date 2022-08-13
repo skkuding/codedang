@@ -24,7 +24,7 @@
     "@iconify-json/fa6-solid": "^1.1.6",
     "@iconify-json/ri": "^1.1.3",
     "@types/node": "^16.11.48",
-    "@vitejs/plugin-vue": "^2.3.4",
+    "@vitejs/plugin-vue": "^3.0.3",
     "@vue/tsconfig": "^0.1.3",
     "autoprefixer": "^10.4.8",
     "histoire": "^0.10.1",
