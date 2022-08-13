@@ -1,121 +1,65 @@
 <script setup lang="ts">
-import BiHouse from '~icons/bi/house'
-import File from '~icons/bi/file-text'
-import Trophy from '~icons/bi/trophy'
-import User from '~icons/fa6-regular/user'
-import Brain from '~icons/fluent/brain-circuit-24-regular'
-import Box from '~icons/bi/box'
-import Code from '~icons/bi/code-square'
-import Book from '~icons/bi/journals'
-import { computed } from 'vue'
+import IconBiHouse from '~icons/bi/house'
+import IconFile from '~icons/bi/file-text'
+import IconTrophy from '~icons/bi/trophy'
+import IconUser from '~icons/fa6-regular/user'
+import IconBrain from '~icons/fluent/brain-circuit-24-regular'
+import IconBox from '~icons/bi/box'
+import IconCode from '~icons/bi/code-square'
+import IconBook from '~icons/bi/journals'
+import { onBeforeMount } from 'vue'
 
+// TODO: get group name and color
 const props = defineProps<{
+  group?: boolean
   color?: string
 }>()
 
-const sidebarColor = computed(() => {
-  if (props.color === 'blue') {
-    return 'border-l-blue border-l-8 !pl-8'
-  } else if (props.color === 'gray') {
-    return 'border-l-gray border-l-8 !pl-8'
-  } else if (props.color === 'gray-dark') {
-    return 'border-l-gray-dark border-l-8 !pl-8'
-  } else if (props.color === 'white') {
-    return 'border-l-white border-l-8 !pl-8'
-  } else {
-    return 'border-l-green border-l-8 !pl-8'
+const colorMapper = {
+  blue: 'border-l-blue',
+  gray: 'border-l-gray',
+  white: 'border-l-white',
+  default: 'border-l-green'
+}
+
+let items = [
+  { to: '/notice', name: 'Notice', icon: IconFile },
+  { to: '/contest', name: 'Contest', icon: IconTrophy },
+  { to: '/workbook', name: 'Workbook', icon: IconBook },
+  { to: '/problem', name: 'Problem', icon: IconBrain },
+  { to: '/pool', name: 'Problem Pool', icon: IconBox }
+]
+
+onBeforeMount(() => {
+  if (props.group) {
+    items.unshift({ to: '/', name: 'SKKUDING', icon: IconBiHouse })
+    items.push(
+      { to: '/member', name: 'Member', icon: IconUser },
+      { to: '/submission', name: 'Submission', icon: IconCode }
+    )
   }
 })
 </script>
 
 <template>
   <div
-    class="bg-gray-light fixed top-0 bottom-0 left-0 h-full w-[200px] overflow-auto"
+    class="bg-gray-light text-gray-dark fixed top-0 bottom-0 left-0 h-full w-[200px] overflow-auto"
   >
     <router-link to="/" class="align-center flex justify-center">
       <img src="@/../codingPlatformLogo.png" class="m-6 h-[77px] w-[155px]" />
     </router-link>
-    <div class="text-gray-dark">
+
+    <hr class="bg-gray h-0.5 border-none opacity-25" />
+    <div v-for="{ to, name, icon } in items" :key="name">
+      <router-link
+        class="flex items-center p-2 pl-10 font-medium hover:shadow"
+        :active-class="colorMapper[color || 'default'] + ' border-l-8 !pl-8'"
+        :to="to"
+      >
+        <component :is="icon" class="mr-2 h-4" />
+        {{ name }}
+      </router-link>
       <hr class="bg-gray h-0.5 border-none opacity-25" />
-      <router-link
-        class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        :active-class="sidebarColor"
-        to="/"
-      >
-        <BiHouse class="mr-2 h-4" />
-        SKKUDING
-      </router-link>
-      <hr class="bg-gray h-0.5 border-none opacity-25" />
-
-      <router-link
-        class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        :active-class="sidebarColor"
-        to="/notice"
-      >
-        <File class="mr-2 h-4" />
-        Notice
-      </router-link>
-      <hr class="bg-gray h-px border-none opacity-25" />
-
-      <router-link
-        class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        :active-class="sidebarColor"
-        to="/contest"
-      >
-        <Trophy class="mr-2 h-4" />
-        Contest
-      </router-link>
-      <hr class="bg-gray h-px border-none opacity-25" />
-
-      <router-link
-        class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        :active-class="sidebarColor"
-        to="/workbook"
-      >
-        <Book class="mr-2 h-4" />
-        Workbook
-      </router-link>
-      <hr class="bg-gray h-px border-none opacity-25" />
-
-      <router-link
-        class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        :active-class="sidebarColor"
-        to="/problem"
-      >
-        <Brain class="mr-2 h-4" />
-        Problem
-      </router-link>
-      <hr class="bg-gray h-px border-none opacity-25" />
-
-      <router-link
-        class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        :active-class="sidebarColor"
-        to="/"
-      >
-        <Box class="mr-2 h-4" />
-        Problem Pool
-      </router-link>
-      <hr class="bg-gray h-px border-none opacity-25" />
-
-      <router-link
-        class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        :active-class="sidebarColor"
-        to="/"
-      >
-        <User class="mr-2 h-4" />
-        Member
-      </router-link>
-      <hr class="bg-gray h-px border-none opacity-25" />
-
-      <router-link
-        class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        :active-class="sidebarColor"
-        to="/"
-      >
-        <Code class="mr-2 h-4" />
-        Submission
-      </router-link>
-      <hr class="bg-gray h-px border-none opacity-25" />
     </div>
   </div>
 </template>
