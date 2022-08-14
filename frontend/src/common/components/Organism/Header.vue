@@ -12,24 +12,37 @@ import IconArrowRightFromBracket from '~icons/fa6-solid/arrow-right-from-bracket
 import Button from '../Atom/Button.vue'
 import SignUpModal from './SignUpModal.vue'
 import LogInModal from './LogInModal.vue'
-import PasswordFindModalStory from './PasswordFindModal.story.vue'
+import PasswordFindModal from './PasswordFindModal.vue'
 // TODO: define composable
 const auth = ref(false)
 
 const isMenuOpen = ref(false)
 const isSignUpModalVisible = ref(false)
 const isLogInModalVisible = ref(false)
+const isPasswordFindModalVisible = ref(false)
 const SignUpModalClose = () => {
   isSignUpModalVisible.value = false
+  console.log(isSignUpModalVisible.value)
 }
 const LogInModalClose = () => {
   isLogInModalVisible.value = false
+  console.log(isLogInModalVisible.value)
 }
 const SignUpModalOpen = () => {
   isSignUpModalVisible.value = true
+  console.log(isSignUpModalVisible.value)
 }
 const LogInModalOpen = () => {
   isLogInModalVisible.value = true
+  console.log(isLogInModalVisible.value)
+}
+const PasswordFindModalOpen = () => {
+  isPasswordFindModalVisible.value = true
+  console.log(isPasswordFindModalVisible.value)
+}
+const PasswordFindModalClose = () => {
+  isPasswordFindModalVisible.value = false
+  console.log(isPasswordFindModalVisible.value)
 }
 const getAuth = () => {
   auth.value = true
@@ -83,27 +96,15 @@ const getAuth = () => {
             </template>
           </Dropdown>
           <div v-else class="ml-2 hidden gap-2 md:flex">
-            <slot name="SignUp">
-              <Button color="gray-dark" class="w-20" @click="SignUpModalOpen">
-                Sign Up
-              </Button>
-              <SignUpModal
-                v-if="isSignUpModalVisible"
-                class="text-green h-[687px] w-[360px]"
-                @close="SignUpModalClose"
-              ></SignUpModal>
-            </slot>
-            <slot name="LogIn">
-              <Button color="gray-dark" class="w-16" @click="LogInModalOpen">
-                Log In
-              </Button>
-              <LogInModal
-                v-if="isLogInModalVisible"
-                class="text-green h-[537px] w-[360px]"
-                @close="LogInModalClose"
-              ></LogInModal>
-              <!-- TODO: show log in page -->
-            </slot>
+            <Button color="gray-dark" class="w-20" @click="SignUpModalOpen">
+              Sign Up
+            </Button>
+
+            <Button color="gray-dark" class="w-16" @click="LogInModalOpen">
+              Log In
+            </Button>
+
+            <!-- TODO: show log in page -->
           </div>
         </transition>
         <IconBars
@@ -111,6 +112,25 @@ const getAuth = () => {
           @click="isMenuOpen = !isMenuOpen"
         />
       </div>
+      <!-- FIXME: x 버튼 안먹힘 -->
+      <SignUpModal
+        :visible="isSignUpModalVisible"
+        @close="SignUpModalClose"
+        @login="SignUpModalClose(), LogInModalOpen()"
+        @signup="LogInModalClose(), SignUpModalOpen()"
+      ></SignUpModal>
+      <LogInModal
+        :visible="isLogInModalVisible"
+        @close="LogInModalClose"
+        @signup="LogInModalClose(), SignUpModalOpen()"
+        @password="LogInModalClose(), PasswordFindModalOpen()"
+        @auth="LogInModalClose(), getAuth()"
+      ></LogInModal>
+      <PasswordFindModal
+        :visible="isPasswordFindModalVisible"
+        @login="PasswordFindModalClose(), LogInModalOpen()"
+        @close="PasswordFindModalClose"
+      ></PasswordFindModal>
       <transition
         enter-active-class="transition-opacity duration-300"
         leave-active-class="transition-opacity duration-300"
@@ -153,14 +173,17 @@ const getAuth = () => {
               />
             </div>
             <div v-else class="flex gap-2">
-              <slot name="SignUp">
-                <Button color="gray-dark" class="text-sm">Sign Up</Button>
-              </slot>
-              <slot name="LogIn">
-                <Button color="gray-dark" class="text-sm" @click="auth = true">
-                  Log In
-                </Button>
-              </slot>
+              <Button
+                color="gray-dark"
+                class="text-sm"
+                @click="SignUpModalOpen"
+              >
+                Sign Up
+              </Button>
+
+              <Button color="gray-dark" class="text-sm" @click="LogInModalOpen">
+                Log In
+              </Button>
             </div>
           </transition>
         </div>
