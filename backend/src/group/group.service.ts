@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Group } from '@prisma/client'
-import { UserGroup } from '@prisma/client'
+import { Group, UserGroup } from '@prisma/client'
 import {
   EntityNotExistException,
   InvalidUserException
@@ -101,6 +100,36 @@ export class GroupService {
       ...group,
       memberNum: groupMemberNum
     }
+  }
+
+  async getNonPrivateGroups(): Promise<UserGroupInterface[]> {
+    return []
+  }
+
+  async getMyGroups(userId: number): Promise<Partial<UserGroup>[]> {
+    //TODO: update number of members
+    const groups = await this.prisma.userGroup.findMany({
+      where: {
+        user_id: userId,
+        is_registered: true
+      },
+      select: {
+        id: true,
+        group: {
+          select: {
+            created_by: {
+              select: {
+                username: true
+              }
+            },
+            group_name: true,
+            description: true
+          }
+        }
+      }
+    })
+
+    return groups
   }
 
   async getUserGroupMembershipInfo(userId: number, groupId: number) {
