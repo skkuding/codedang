@@ -7,12 +7,15 @@ import MajesticonsSend from '~icons/majesticons/send'
 import Fa6SolidCheck from '~icons/fa6-solid/check'
 
 defineEmits<{
-  (e: 'open: SignUpModal', value: string): boolean
+  (e: 'signup', value: string): boolean
+  (e: 'login', value: string): boolean
+  (e: 'password', value: string): boolean
 }>()
+const props = defineProps<{ visible?: boolean }>()
 </script>
 
 <template>
-  <Modal>
+  <Modal v-if="props.visible" class="text-green h-[687px] w-[360px]">
     <template #modal-title>
       <div class="text-green text-2xl font-semibold">
         <div>Welcome to</div>
@@ -60,7 +63,7 @@ defineEmits<{
       <!-- TODO: 아래 border -->
       <button
         class="border-b-1 text-gray-dark border-black"
-        @click="$emit('open: SignUpModal', true)"
+        @click="$emit('login', true)"
       >
         Sign in
       </button>
