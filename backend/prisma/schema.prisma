@@ -119,8 +119,8 @@ model Notice {
 }
 
 model Problem {
-  id                 Int      @id @default(autoincrement())
-  created_by         User     @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
+  id                 Int               @id @default(autoincrement())
+  created_by         User              @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
   created_by_id      Int
   is_public          Boolean
   title              String
@@ -131,14 +131,14 @@ model Problem {
   languages          Json
   time_limit         Int
   memory_limit       Int
-  difficulty         String
+  difficulty         ProblemDifficulty
   source             Json
-  shared             Boolean  @default(false)
-  submission_num     Int      @default(0)
-  accepted_num       Int      @default(0)
-  score              Int      @default(0)
-  create_time        DateTime @default(now())
-  update_time        DateTime @updatedAt
+  shared             Boolean           @default(false)
+  submission_num     Int               @default(0)
+  accepted_num       Int               @default(0)
+  score              Int               @default(0)
+  create_time        DateTime          @default(now())
+  update_time        DateTime          @updatedAt
 
   ProblemTestcase ProblemTestcase[]
   ProblemTag      ProblemTag[]
@@ -148,6 +148,16 @@ model Problem {
   GroupProblem    GroupProblem[]
 
   @@map("problem")
+}
+
+enum ProblemDifficulty {
+  Level1
+  Level2
+  Level3
+  Level4
+  Level5
+  Level6
+  Level7
 }
 
 model ProblemTestcase {
@@ -228,7 +238,7 @@ model ContestNotice {
 
 model ContestProblem {
   id          Int      @id @default(autoincrement())
-  display_id  String   @unique
+  display_id  String
   contest     Contest  @relation(fields: [contest_id], references: [id])
   contest_id  Int
   problem     Problem  @relation(fields: [problem_id], references: [id])
@@ -293,7 +303,7 @@ model Workbook {
 
 model WorkbookProblem {
   id          Int      @id @default(autoincrement())
-  display_id  String   @unique
+  display_id  String
   workbook    Workbook @relation(fields: [workbook_id], references: [id])
   workbook_id Int
   problem     Problem  @relation(fields: [problem_id], references: [id])
