@@ -5,12 +5,15 @@ import Button from '../Atom/Button.vue'
 import MajesticonsSend from '~icons/majesticons/send'
 import Fa6SolidCheck from '~icons/fa6-solid/check'
 defineEmits<{
-  (e: 'open: logInModal', value: string): boolean
+  (e: 'signup', value: string): boolean
+  (e: 'login', value: string): boolean
+  (e: 'password', value: string): boolean
 }>()
+const props = defineProps<{ visible?: boolean }>()
 </script>
 
 <template>
-  <Modal>
+  <Modal v-if="props.visible" class="text-green h-[401px] w-[360px]">
     <template #modal-title>
       <div class="text-green text-2xl font-semibold">PassWord Recovery</div>
     </template>
@@ -46,7 +49,7 @@ defineEmits<{
       <div>
         <button
           class="border-b-1 text-gray-dark border-black"
-          @click="$emit('open: logInModal', true)"
+          @click="$emit('login', true)"
         >
           Back to Sign in
         </button>
