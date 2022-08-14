@@ -14,7 +14,11 @@ import { PublicWorkbookProblemResponseDto } from './dto/public-workbook-problem.
 import { PublicWorkbookProblemsResponseDto } from './dto/public-workbook-problems.response.dto'
 import { WorkbookProblemResponseDto } from './dto/workbook-problem.response.dto'
 import { WorkbookProblemsResponseDto } from './dto/workbook-problems.response.dto'
-import { Problems } from './mock/problem.mock'
+import {
+  ContestProblems,
+  Problems,
+  WorkbookProblems
+} from './mock/problem.mock'
 import { ProblemRepository } from './problem.repository'
 import { ProblemService } from './problem.service'
 
@@ -24,27 +28,27 @@ const contestId = ARBITRARY_VAL
 const workbookId = ARBITRARY_VAL
 const problemId = ARBITRARY_VAL
 
-const problems = Problems.map((problem) => {
+const mockProblems = Problems.map((problem) => {
   return Object.assign({}, problem)
 })
-const publicProblem = Object.assign({}, problems[0])
+const mockPublicProblem = Object.assign({}, mockProblems[0])
 
-const contestProblem = Object.assign({}, problems[0])
-contestProblem['ContestProblem'] = [{ display_id: 'A' }]
+const mockContestProblem = {
+  ...Object.assign({}, ContestProblems[0]),
+  problem: Object.assign({}, mockProblems[0])
+}
 
-const contestProblems = Problems.map((problem) => {
-  const contestProblem = Object.assign({}, problem)
-  contestProblem['ContestProblem'] = [{ display_id: 'A' }]
-  return contestProblem
+const mockContestProblems = ContestProblems.map((contestProblem) => {
+  return { ...contestProblem, problem: Object.assign({}, mockProblems[0]) }
 })
 
-const workbookProblem = Object.assign({}, problems[0])
-workbookProblem['WorkbookProblem'] = [{ display_id: 'A' }]
+const mockWorkbookProblem = {
+  ...Object.assign({}, WorkbookProblems[0]),
+  problem: Object.assign({}, mockProblems[0])
+}
 
-const workbookProblems = Problems.map((problem) => {
-  const workbookProblem = Object.assign({}, problem)
-  workbookProblem['WorkbookProblem'] = [{ display_id: 'A' }]
-  return workbookProblem
+const mockWorkbookProblems = WorkbookProblems.map((workbookProblem) => {
+  return { ...workbookProblem, problem: Object.assign({}, mockProblems[0]) }
 })
 
 const paginationDto = new PaginationDto()
@@ -91,14 +95,14 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getPublicProblem')
-        .mockResolvedValueOnce(publicProblem)
+        .mockResolvedValueOnce(mockPublicProblem)
 
       // when
       const result = await problemService.getPublicProblem(problemId)
 
       // then
       expect(result).toEqual(
-        plainToInstance(PublicProblemResponseDto, publicProblem)
+        plainToInstance(PublicProblemResponseDto, mockPublicProblem)
       )
     })
   })
@@ -112,14 +116,14 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getPublicProblems')
-        .mockResolvedValueOnce(problems)
+        .mockResolvedValueOnce(mockProblems)
 
       // when
       const result = await problemService.getPublicProblems(paginationDto)
 
       // then
       expect(result).toEqual(
-        plainToInstance(PublicProblemsResponseDto, problems)
+        plainToInstance(PublicProblemsResponseDto, mockProblems)
       )
     })
   })
@@ -133,7 +137,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getContestProblem')
-        .mockResolvedValueOnce(contestProblem)
+        .mockResolvedValueOnce(mockContestProblem)
       jest
         .spyOn(problemService as any, 'isPublicAndVisibleContest')
         .mockResolvedValueOnce(true)
@@ -146,7 +150,7 @@ describe('ProblemService', () => {
 
       // then
       expect(result).toEqual(
-        plainToInstance(PublicContestProblemResponseDto, contestProblem)
+        plainToInstance(PublicContestProblemResponseDto, mockContestProblem)
       )
     })
 
@@ -176,7 +180,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getContestProblems')
-        .mockResolvedValueOnce(contestProblems)
+        .mockResolvedValueOnce(mockContestProblems)
       jest
         .spyOn(problemService as any, 'isPublicAndVisibleContest')
         .mockResolvedValueOnce(true)
@@ -189,7 +193,7 @@ describe('ProblemService', () => {
 
       // then
       expect(result).toEqual(
-        plainToInstance(PublicContestProblemsResponseDto, contestProblems)
+        plainToInstance(PublicContestProblemsResponseDto, mockContestProblems)
       )
     })
 
@@ -219,7 +223,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getWorkbookProblem')
-        .mockResolvedValueOnce(workbookProblem)
+        .mockResolvedValueOnce(mockWorkbookProblem)
       jest
         .spyOn(problemService as any, 'isPublicAndVisibleWorkbook')
         .mockResolvedValueOnce(true)
@@ -232,7 +236,7 @@ describe('ProblemService', () => {
 
       // then
       expect(result).toEqual(
-        plainToInstance(PublicWorkbookProblemResponseDto, workbookProblem)
+        plainToInstance(PublicWorkbookProblemResponseDto, mockWorkbookProblem)
       )
     })
 
@@ -262,7 +266,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getWorkbookProblems')
-        .mockResolvedValueOnce(workbookProblems)
+        .mockResolvedValueOnce(mockWorkbookProblems)
       jest
         .spyOn(problemService as any, 'isPublicAndVisibleWorkbook')
         .mockResolvedValueOnce(true)
@@ -275,7 +279,7 @@ describe('ProblemService', () => {
 
       // then
       expect(result).toEqual(
-        plainToInstance(PublicWorkbookProblemsResponseDto, workbookProblems)
+        plainToInstance(PublicWorkbookProblemsResponseDto, mockWorkbookProblems)
       )
     })
 
@@ -304,7 +308,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getContestProblem')
-        .mockResolvedValueOnce(contestProblem)
+        .mockResolvedValueOnce(mockContestProblem)
       jest
         .spyOn(problemService as any, 'isVisibleContestOfGroup')
         .mockResolvedValue(true)
@@ -318,7 +322,7 @@ describe('ProblemService', () => {
 
       // then
       expect(result).toEqual(
-        plainToInstance(ContestProblemResponseDto, contestProblem)
+        plainToInstance(ContestProblemResponseDto, mockContestProblem)
       )
     })
 
@@ -348,7 +352,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getContestProblems')
-        .mockResolvedValueOnce(contestProblems)
+        .mockResolvedValueOnce(mockContestProblems)
       jest
         .spyOn(problemService as any, 'isVisibleContestOfGroup')
         .mockResolvedValue(true)
@@ -362,7 +366,7 @@ describe('ProblemService', () => {
 
       // then
       expect(result).toEqual(
-        plainToInstance(ContestProblemsResponseDto, contestProblems)
+        plainToInstance(ContestProblemsResponseDto, mockContestProblems)
       )
     })
 
@@ -392,7 +396,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getWorkbookProblem')
-        .mockResolvedValueOnce(workbookProblem)
+        .mockResolvedValueOnce(mockWorkbookProblem)
       jest
         .spyOn(problemService as any, 'isVisibleWorkbookOfGroup')
         .mockResolvedValue(true)
@@ -406,7 +410,7 @@ describe('ProblemService', () => {
 
       // then
       expect(result).toEqual(
-        plainToInstance(WorkbookProblemResponseDto, workbookProblem)
+        plainToInstance(WorkbookProblemResponseDto, mockWorkbookProblem)
       )
     })
 
@@ -436,7 +440,7 @@ describe('ProblemService', () => {
       // given
       jest
         .spyOn(problemRepository, 'getWorkbookProblems')
-        .mockResolvedValueOnce(workbookProblems)
+        .mockResolvedValueOnce(mockWorkbookProblems)
       jest
         .spyOn(problemService as any, 'isVisibleWorkbookOfGroup')
         .mockResolvedValue(true)
@@ -450,7 +454,7 @@ describe('ProblemService', () => {
 
       // then
       expect(result).toEqual(
-        plainToInstance(WorkbookProblemsResponseDto, workbookProblems)
+        plainToInstance(WorkbookProblemsResponseDto, mockWorkbookProblems)
       )
     })
 
