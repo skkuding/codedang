@@ -103,7 +103,26 @@ export class GroupService {
   }
 
   async getNonPrivateGroups(): Promise<UserGroupInterface[]> {
-    return []
+    //TODO: update number of members
+    const groups = await (
+      await this.prisma.group.findMany({
+        where: {
+          private: false
+        },
+        select: {
+          created_by: {
+            select: {
+              username: true
+            }
+          },
+          id: true,
+          group_name: true,
+          description: true
+        }
+      })
+    ).filter((group) => group.id != 1)
+
+    return groups
   }
 
   async getMyGroups(userId: number): Promise<Partial<UserGroup>[]> {
