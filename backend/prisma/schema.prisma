@@ -128,7 +128,6 @@ model Problem {
   create_time        DateTime @default(now())
   update_time        DateTime @updatedAt
 
-
   ProblemTestcase ProblemTestcase[]
   ProblemTag      ProblemTag[]
   ContestProblem  ContestProblem[]
@@ -255,18 +254,19 @@ model ContestRankACM {
 }
 
 model Workbook {
-  id            Int      @id @default(autoincrement())
-  created_by    User     @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
-  created_by_id Int
-  group         Group    @relation(fields: [group_id], references: [id])
-  group_id      Int
-  title         String
-  description   String
-  start_time    DateTime
-  end_time      DateTime
-  visible       Boolean  @default(true)
-  create_time   DateTime @default(now())
-  update_time   DateTime @updatedAt
+  id                  Int      @id @default(autoincrement())
+  created_by          User     @relation(fields: [created_by_id], references: [id], onDelete: SetNull)
+  created_by_id       Int
+  group               Group    @relation(fields: [group_id], references: [id])
+  group_id            Int
+  title               String
+  description         String
+  start_time          DateTime
+  end_time            DateTime
+  visible             Boolean  @default(true)
+  create_time         DateTime @default(now())
+  update_time         DateTime @updatedAt
+  allow_partial_score Boolean  @default(true)
 
   WorkbookProblem WorkbookProblem[]
   Submission      Submission[]
