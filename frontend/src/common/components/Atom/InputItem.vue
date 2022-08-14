@@ -29,18 +29,22 @@ const setRequired = computed(() => [
 </script>
 
 <template>
-  <input
-    v-model="data"
-    :placeholder="placeholder"
-    :class="setShadow"
-    class="w-full rounded-lg py-2.5 px-5 text-base font-bold focus:outline-none"
-    @input="$emit('update:data', data)"
-  />
-  <div
-    v-if="props.notice"
-    :class="setRequired"
-    class="text-red pt-1 text-xs font-bold"
-  >
-    {{ placeholder + ' is required' }}
+  <!-- 넓이 간격 먹히기 위해 상단 div 태그 추가 -->
+  <div>
+    <input
+      v-model="data"
+      :placeholder="placeholder"
+      :class="setShadow"
+      class="w-full rounded-lg py-2.5 px-5 text-base font-bold focus:outline-none"
+      @input="$emit('update:data', data)"
+    />
+
+    <div
+      v-if="props.notice"
+      :class="setRequired"
+      class="text-red pt-1 text-xs font-bold"
+    >
+      {{ placeholder + ' is required' }}
+    </div>
   </div>
 </template>

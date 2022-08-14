@@ -14,11 +14,14 @@ function close() {
     <Button @click="isModalVisible = true">showmodal</Button>
     <Modal
       v-if="isModalVisible"
-      title="Skku coding platform"
       title-color="green"
-      class="h-80 w-72"
+      class="h-[767px] w-[367px]"
       @close="close"
     >
+      <template #modal-title>
+        <div>Welcome to</div>
+        <div>SKKU CODING PLATFORM</div>
+      </template>
       <template #modal-image>
         <img src="@/common/assets/logo.svg" class="w-20" alt="" />
       </template>

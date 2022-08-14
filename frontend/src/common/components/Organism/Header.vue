@@ -10,11 +10,30 @@ import IconUserGear from '~icons/fa6-solid/user-gear'
 import IconSliders from '~icons/fa6-solid/sliders'
 import IconArrowRightFromBracket from '~icons/fa6-solid/arrow-right-from-bracket'
 import Button from '../Atom/Button.vue'
-
+import SignUpModal from './SignUpModal.vue'
+import LogInModal from './LogInModal.vue'
+import PasswordFindModalStory from './PasswordFindModal.story.vue'
 // TODO: define composable
 const auth = ref(false)
 
 const isMenuOpen = ref(false)
+const isSignUpModalVisible = ref(false)
+const isLogInModalVisible = ref(false)
+const SignUpModalClose = () => {
+  isSignUpModalVisible.value = false
+}
+const LogInModalClose = () => {
+  isLogInModalVisible.value = false
+}
+const SignUpModalOpen = () => {
+  isSignUpModalVisible.value = true
+}
+const LogInModalOpen = () => {
+  isLogInModalVisible.value = true
+}
+const getAuth = () => {
+  auth.value = true
+}
 </script>
 
 <template>
@@ -65,12 +84,24 @@ const isMenuOpen = ref(false)
           </Dropdown>
           <div v-else class="ml-2 hidden gap-2 md:flex">
             <slot name="SignUp">
-              <Button color="gray-dark" class="w-20">Sign Up</Button>
+              <Button color="gray-dark" class="w-20" @click="SignUpModalOpen">
+                Sign Up
+              </Button>
+              <SignUpModal
+                v-if="isSignUpModalVisible"
+                class="text-green h-[687px] w-[360px]"
+                @close="SignUpModalClose"
+              ></SignUpModal>
             </slot>
             <slot name="LogIn">
-              <Button color="gray-dark" class="w-16" @click="auth = true">
+              <Button color="gray-dark" class="w-16" @click="LogInModalOpen">
                 Log In
               </Button>
+              <LogInModal
+                v-if="isLogInModalVisible"
+                class="text-green h-[537px] w-[360px]"
+                @close="LogInModalClose"
+              ></LogInModal>
               <!-- TODO: show log in page -->
             </slot>
           </div>
