@@ -58,7 +58,7 @@ export class ProblemRepository {
           problem_id: problemId
         }
       },
-      include: { problem: {} },
+      include: { problem: true },
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
   }
@@ -82,7 +82,7 @@ export class ProblemRepository {
       skip: paginationDto.offset,
       take: paginationDto.limit,
       where: { contest_id: contestId },
-      include: { problem: {} }
+      include: { problem: true }
     })
   }
 
@@ -94,7 +94,7 @@ export class ProblemRepository {
       skip: paginationDto.offset,
       take: paginationDto.limit,
       where: { workbook_id: workbookId },
-      include: { problem: {} }
+      include: { problem: true }
     })
   }
 }
