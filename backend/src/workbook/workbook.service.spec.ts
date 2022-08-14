@@ -1,60 +1,85 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { WorkbookService } from './workbook.service'
 
+const DATETIME = new Date(2022, 8, 8)
+const DATETIME_TOMORROW = new Date()
+DATETIME_TOMORROW.setDate(DATETIME.getDate() + 1)
 const workbookArray = [
   {
+    id: 1,
     created_by_id: 1,
     group_id: 1,
     title: 'thisistitle1',
     description: 'thisisdescription1',
-    start_time: Date.now(),
-    end_time: Date.now() + 3600
+    start_time: DATETIME,
+    end_time: DATETIME_TOMORROW,
+    allow_partial_score: true,
+    visible: true
   },
   {
+    id: 2,
     created_by_id: 1,
     group_id: 1,
     title: 'thisistitle2',
     description: 'thisisdescription2',
-    start_time: Date.now(),
-    end_time: Date.now() + 3600
+    start_time: DATETIME,
+    end_time: DATETIME_TOMORROW,
+    allow_partial_score: true,
+    visible: false
   },
   {
+    id: 3,
     created_by_id: 1,
     group_id: 2,
     title: 'thisistitle3',
     description: 'thisisdescription3',
-    start_time: Date.now(),
-    end_time: Date.now() + 3600
+    start_time: DATETIME,
+    end_time: DATETIME_TOMORROW,
+    allow_partial_score: true,
+    visible: true
   },
   {
+    id: 4,
     created_by_id: 1,
     group_id: 2,
     title: 'thisistitle4',
     description: 'thisisdescription4',
-    start_time: Date.now(),
-    end_time: Date.now() + 3600
+    start_time: DATETIME,
+    end_time: DATETIME_TOMORROW,
+    allow_partial_score: true,
+    visible: false
   }
 ]
 
-const workbookProblemArray = [
-  {
-    workbook_id: 1,
-    problem_id: 1,
-    score: 10,
-    display_id: 1
-  },
-  {
-    workbook_id: 1,
-    problem_id: 2,
-    score: 10,
-    display_id: 2
-  }
-]
+const createWorkbookDto = {
+  title: 'createworkbook',
+  description: 'description',
+  start_time: DATETIME,
+  end_time: DATETIME_TOMORROW,
+  visible: false,
+  allow_partial_score: false,
+  group_id: 2,
+  created_by_id: 1
+}
 
-const oneWorkbook = workbookArray[0]
+const updateWorkbookDto = {
+  title: 'updateworkbook',
+  description: 'description',
+  start_time: DATETIME,
+  end_time: DATETIME_TOMORROW,
+  visible: false,
+  allow_partial_score: false
+}
+
 const publicWorkbooks = [workbookArray[0], workbookArray[1]]
+const visiblePublicWorkbooks = [workbookArray[0]]
 const groupWorkbooks = [workbookArray[2], workbookArray[3]]
+const onePublicWorkbook = publicWorkbooks[0]
+const oneGroupWorkbook = groupWorkbooks[0]
+const PUBLIC_GROUP_ID = 1
+const PRIVATE_GROUP_ID = 2
 
 const db = {
   workbook: {
@@ -69,7 +94,7 @@ const db = {
 }
 
 describe('WorkbookService', () => {
-  let service: WorkbookService
+  let workbookService: WorkbookService
   let prisma: PrismaService
 
   beforeEach(async () => {
@@ -77,54 +102,82 @@ describe('WorkbookService', () => {
       providers: [WorkbookService, { provide: PrismaService, useValue: db }]
     }).compile()
 
-    service = module.get<WorkbookService>(WorkbookService)
+    workbookService = module.get<WorkbookService>(WorkbookService)
     prisma = module.get<PrismaService>(PrismaService)
   })
 
   it('should be defined', () => {
-    expect(service).toBeDefined()
+    expect(workbookService).toBeDefined()
   })
 
-  it('get a list of public workbooks', () => {
+  it('get a list of public workbooks', async () => {
     prisma.workbook.findMany = jest.fn().mockReturnValueOnce(publicWorkbooks)
-    const returnedPublicWorkbooks = service.getPublicWorkbooks()
-    expect(returnedPublicWorkbooks).toBe(publicWorkbooks)
+    const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
+      PUBLIC_GROUP_ID,
+      false
+    )
+    expect(returnedPublicWorkbooks).toEqual(publicWorkbooks)
   })
 
-  it('get a list of private group workbooks', () => {
-    prisma.workbook.findMany = jest.fn().mockReturnValueOnce(groupWorkbooks)
-    const returnedGroupWorkbooks = service.getGroupWorkbooks()
-    expect(returnedGroupWorkbooks).toBe(groupWorkbooks)
-  })
-
-  it('get details of a workbook', () => {
-    prisma.workbook.findUnique = jest.fn().mockReturnValueOnce(oneWorkbook)
-    const returnedWorkbook = service.getWorkbookInfo()
-    expect(returnedWorkbook).toBe(oneWorkbook)
-  })
-
-  it('get problems in a workbook', () => {
+  it('get a list of public workbooks(admin)', async () => {
     prisma.workbook.findMany = jest
       .fn()
-      .mockReturnValueOnce(workbookProblemArray)
-    const returnedWorkbookProblemArray = service.getWorkbookProblems()
-    expect(returnedWorkbookProblemArray).toBe(workbookProblemArray)
+      .mockReturnValueOnce(visiblePublicWorkbooks)
+    const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
+      PUBLIC_GROUP_ID,
+      false
+    )
+    expect(returnedPublicWorkbooks).toEqual(visiblePublicWorkbooks)
   })
 
-  it('make a workbook', () => {
-    // TODO: insert mock
-    const createdWorkbook = service.createWorkbook()
-    expect(createdWorkbook).toBe(oneWorkbook)
+  it('get a list of private group workbooks', async () => {
+    prisma.workbook.findMany = jest.fn().mockReturnValueOnce(groupWorkbooks)
+    const returnedGroupWorkbooks = await workbookService.getWorkbooksByGroupId(
+      PRIVATE_GROUP_ID,
+      false
+    )
+    expect(returnedGroupWorkbooks).toEqual(groupWorkbooks)
   })
 
-  it('update details of a workbook', () => {
-    // TODO: update mock
-    const updatedWorkbook = service.updateWorkbook()
-    expect(updatedWorkbook).toBe(oneWorkbook)
+  it('get details of a workbook', async () => {
+    prisma.workbook.findFirst = jest
+      .fn()
+      .mockReturnValueOnce(onePublicWorkbook)
+      .mockRejectedValueOnce(new EntityNotExistException('workbook'))
+    const workbookId = 1
+    const returnedWorkbook = await workbookService.getWorkbookById(
+      workbookId,
+      false
+    )
+    expect(returnedWorkbook).toEqual(onePublicWorkbook)
+    await expect(
+      workbookService.getWorkbookById(workbookId, false)
+    ).rejects.toThrow(EntityNotExistException)
   })
-  it('delete a workbook', () => {
-    // TODO: delete mock
-    const deletedWorkbook = service.deleteWorkbook()
-    expect(deletedWorkbook).toBe(oneWorkbook)
+
+  it('make a workbook', async () => {
+    prisma.workbook.create = jest.fn().mockReturnValueOnce(oneGroupWorkbook)
+    const createdWorkbook = await workbookService.createWorkbook(
+      PRIVATE_GROUP_ID,
+      createWorkbookDto
+    )
+    expect(createdWorkbook).toEqual(oneGroupWorkbook)
+  })
+
+  it('update details of a workbook', async () => {
+    const workbookId = 4
+    prisma.workbook.update = jest.fn().mockReturnValueOnce(oneGroupWorkbook)
+    const updatedWorkbook = await workbookService.updateWorkbook(
+      workbookId,
+      updateWorkbookDto
+    )
+    expect(updatedWorkbook).toEqual(oneGroupWorkbook)
+  })
+
+  it('delete a workbook', async () => {
+    const workbookId = 4
+    prisma.workbook.delete = jest.fn().mockReturnValueOnce(oneGroupWorkbook)
+    const deletedWorkbook = await workbookService.deleteWorkbook(workbookId)
+    expect(deletedWorkbook).toEqual(oneGroupWorkbook)
   })
 })
