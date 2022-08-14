@@ -4,7 +4,7 @@ import Header from '@/common/components/Organism/Header.vue'
 import Card from '../components/Card.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import Button from '@/common/components/Atom/Button.vue'
-import Carousel from '../components/Carousel.vue'
+
 import InputItem from '@/common/components/Atom/InputItem.vue'
 import { ref } from 'vue'
 import IconInfo from '~icons/fa6-solid/circle-info'
@@ -47,14 +47,7 @@ const contestItems = [
     state: 'prearranged'
   }
 ]
-const slides = [
-  'https://picsum.photos/id/1032/900/400',
-  'https://picsum.photos/id/1033/900/400',
-  'https://picsum.photos/id/1037/900/400',
-  'https://picsum.photos/id/1035/900/400',
-  'https://picsum.photos/id/1036/900/400'
-]
-
+const auth = ref(false)
 const isSignUpModalVisible = ref(false)
 const isLogInModalVisible = ref(false)
 const isPasswordFindModalVisible = ref(false)
