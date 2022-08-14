@@ -2,15 +2,31 @@
 import Modal from '@/common/components/Molecule/Modal.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import InputItem from '../Atom/InputItem.vue'
+import { ref } from 'vue'
+import PasswordFindModal from './PasswordFindModal.vue'
 defineEmits<{
-  (e: 'open: logInModal', value: string): boolean
-  (e: 'open: SignUpModal', value: string): boolean
-  (e: 'open: PasswordFindModal', value: string): boolean
+  (e: 'signup', value: string): boolean
+  (e: 'login', value: string): boolean
+  (e: 'password', value: string): boolean
+  (e: 'auth', value: string): boolean
 }>()
+const isPasswordFindModalVisible = ref(false)
+const isLogInModalVisible = ref(false)
+const props = defineProps<{ visible?: boolean }>()
+
+const PasswordFindModalClose = () => {
+  isPasswordFindModalVisible.value = false
+  console.log(isPasswordFindModalVisible.value)
+}
+
+const LogInModalOpen = () => {
+  isLogInModalVisible.value = true
+  console.log(isLogInModalVisible.value)
+}
 </script>
 
 <template>
-  <Modal>
+  <Modal v-if="props.visible" class="text-green h-[537px] w-[360px]">
     <template #modal-title>
       <div class="text-green text-2xl font-semibold">
         <div>SKKU</div>
@@ -26,20 +42,25 @@ defineEmits<{
         <InputItem shadow placeholder="Password" />
       </ul>
       <!-- TODO: sign in 눌렀을 경우 아이콘으로 바뀌기-->
-      <Button color="green">Sign In</Button>
+      <Button color="green" @click="$emit('auth', true)">Sign In</Button>
       <div class="bottom-0 mt-8 flex justify-around">
         <button
           class="border-b-1 text-gray-dark border-black"
-          @click="$emit('open: SignUpModal', true)"
+          @click="$emit('signup', true)"
         >
           Register now
         </button>
         <button
           class="border-b-1 text-gray-dark border-black"
-          @click="$emit('open: PasswordFindModal', true)"
+          @click="$emit('password', true)"
         >
           Forgot Password?
         </button>
+        <PasswordFindModal
+          :visible="isPasswordFindModalVisible"
+          @close="PasswordFindModalClose"
+          @login="LogInModalOpen"
+        ></PasswordFindModal>
       </div>
     </template>
   </Modal>
