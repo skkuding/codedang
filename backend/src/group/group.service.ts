@@ -151,6 +151,51 @@ export class GroupService {
     return groups
   }
 
+  async joinGroupByInvt(
+    userId: number,
+    groupId: number,
+    invitationCode: string
+  ) {
+    await this.prisma.group.findFirst({
+      where: {
+        id: groupId,
+        invitation_code: invitationCode
+      },
+      rejectOnNotFound: () => new EntityNotExistException('group')
+    })
+
+    await this.prisma.userGroup.create({
+      data: {
+        user: {
+          connect: { id: userId }
+        },
+        group: {
+          connect: { id: groupId }
+        }
+      }
+    })
+  }
+
+  async joinGroupById(userId: number, groupId: number) {
+    await this.prisma.group.findUnique({
+      where: {
+        id: groupId
+      },
+      rejectOnNotFound: () => new EntityNotExistException('group')
+    })
+
+    await this.prisma.userGroup.create({
+      data: {
+        user: {
+          connect: { id: userId }
+        },
+        group: {
+          connect: { id: groupId }
+        }
+      }
+    })
+  }
+
   async getUserGroupMembershipInfo(userId: number, groupId: number) {
     return await this.prisma.userGroup.findFirst({
       where: {
