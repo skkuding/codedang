@@ -2,18 +2,15 @@
 import Footer from '@/common/components/Organism/Footer.vue'
 import Header from '@/common/components/Organism/Header.vue'
 import Card from '../components/Card.vue'
-import Modal from '@/common/components/Molecule/Modal.vue'
-import Button from '@/common/components/Atom/Button.vue'
+
 import Carousel from '../components/Carousel.vue'
-import InputItem from '@/common/components/Atom/InputItem.vue'
-import { ref } from 'vue'
+
 import IconInfo from '~icons/fa6-solid/circle-info'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
 import IconMedal from '~icons/fa6-solid/medal'
 import IconEllipsis from '~icons/fa6-solid/ellipsis'
 import IconCalendar from '~icons/fa6-solid/calendar'
-import MajesticonsSend from '~icons/majesticons/send'
-import Fa6SolidCheck from '~icons/fa6-solid/check'
+
 const noticeItems = [
   {
     title: 'SKKU Coding Platform 모의대회 결과 및 솔루션',
