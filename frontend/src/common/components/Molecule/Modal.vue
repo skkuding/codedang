@@ -14,7 +14,6 @@ const titleStyle = computed(() => {
 </script>
 
 <template>
-  <!-- FIXME: 모달 누적시 배경 진해지는 문제 고치기 -->
   <div
     class="fixed top-0 left-0 right-0 bottom-0 z-50 m-auto flex items-center justify-center"
   >
