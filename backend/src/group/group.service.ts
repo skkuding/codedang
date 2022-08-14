@@ -176,6 +176,26 @@ export class GroupService {
     })
   }
 
+  async leaveGroup(userId: number, groupId: number) {
+    const membershipId = await this.prisma.userGroup.findFirst({
+      where: {
+        user_id: userId,
+        group_id: groupId,
+        is_registered: true
+      },
+      select: {
+        id: true
+      },
+      rejectOnNotFound: () => new EntityNotExistException('membership')
+    })
+
+    await this.prisma.userGroup.delete({
+      where: {
+        id: membershipId.id
+      }
+    })
+  }
+
   async joinGroupById(userId: number, groupId: number) {
     await this.prisma.group.findUnique({
       where: {
