@@ -4373,6 +4373,7 @@ packages:
       - sass
       - stylus
       - supports-color
+      - terser
     dev: true
 
   /hosted-git-info/2.8.9:
@@ -6531,7 +6532,7 @@ packages:
     resolution: {integrity: sha512-HFM8rkZ+i3zrV+4LQjwQ0W+ez98pApMGM3HUrN04j3CqzPOzl9nmP15Y8YXNm8QHGv/eacOVEjqhmWpkRV0NAw==}
     engines: {node: '>= 0.10'}
     dependencies:
-      resolve: 1.22.0
+      resolve: 1.22.1
     dev: true
 
   /redent/3.0.0:
