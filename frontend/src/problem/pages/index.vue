@@ -25,14 +25,25 @@ const fields = [
   { key: 'tag' }
 ]
 
-const colorMapper = {
-  1: 'bg-level-1',
-  2: 'bg-level-2',
-  3: 'bg-level-3',
-  4: 'bg-level-4',
-  5: 'bg-level-5',
-  6: 'bg-level-6',
-  7: 'bg-level-7'
+const colorMapper = (level: number) => {
+  switch (level) {
+    case 1:
+      return 'bg-level-1'
+    case 2:
+      return 'bg-level-2'
+    case 3:
+      return 'bg-level-3'
+    case 4:
+      return 'bg-level-4'
+    case 5:
+      return 'bg-level-5'
+    case 6:
+      return 'bg-level-6'
+    case 7:
+      return 'bg-level-7'
+    default:
+      return 'bg-gray'
+  }
 }
 
 const problemListWithoutTag: any = []
@@ -262,7 +273,7 @@ const clickMore = () => {
       </template>
       <template #level="{ row }">
         <div class="flex items-center gap-2">
-          <span class="h-5 w-5 rounded-full" :class="colorMapper[row.level]" />
+          <span class="h-5 w-5 rounded-full" :class="colorMapper(row.level)" />
           Level {{ row.level }}
         </div>
       </template>
@@ -284,7 +295,7 @@ const clickMore = () => {
       </template>
       <template #level="{ row }">
         <div class="flex items-center gap-2">
-          <span class="h-5 w-5 rounded-full" :class="colorMapper[row.level]" />
+          <span class="h-5 w-5 rounded-full" :class="colorMapper(row.level)" />
           Level {{ row.level }}
         </div>
       </template>
