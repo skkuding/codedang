@@ -11,6 +11,7 @@ import Button from '@/common/components/Atom/Button.vue'
 import { computed } from 'vue'
 import { ref } from 'vue'
 import { onMounted } from 'vue'
+import { onUpdated } from 'vue'
 
 defineProps<{
   id: number
@@ -130,6 +131,10 @@ const clickRow = (row: any) => {
   window.location.href = '/problem/' + row.id
 }
 
+const clickCard = (index: number) => {
+  window.location.href = '/contest/' + (index + 1)
+}
+
 const connectSwitchData = (data: any) => {
   isSwitchOn.value = data.value
 }
@@ -202,6 +207,10 @@ const cardItems = [
     complete: 3
   }
 ]
+
+onUpdated(() => {
+  visibleCardItems
+})
 const bigScreen = ref(4)
 const smallScreen = ref(2)
 
@@ -297,7 +306,8 @@ const clickMore = () => {
         :color="item.color"
         :total="item.total"
         :complete="item.complete"
-        class="!w-[95%]"
+        class="!w-[95%] cursor-pointer"
+        @card-clicked="clickCard(index)"
       />
     </div>
     <Button class="text-gray-dark mt-8 w-full" color="white" @click="clickMore">

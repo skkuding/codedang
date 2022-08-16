@@ -11,6 +11,10 @@ const props = defineProps<{
   progressText?: string
 }>()
 
+const emit = defineEmits<{
+  (e: 'card-clicked', data: any): void
+}>()
+
 const width = computed(() => (props.complete / props.total) * 100)
 
 // TODO: define available color set
@@ -28,7 +32,11 @@ const progressWidth = computed(() => {
 </script>
 
 <template>
-  <div class="m-4 w-1/2 min-w-min rounded-lg p-12" :style="shadowColor">
+  <div
+    class="m-4 w-1/2 min-w-min rounded-lg p-12"
+    :style="shadowColor"
+    @click="$emit('card-clicked')"
+  >
     <div class="text-text-title text-xs">{{ header }}</div>
     <div class="text-text-title mb-2 text-2xl">{{ title }}</div>
     <div class="mb-4">{{ description }}</div>
