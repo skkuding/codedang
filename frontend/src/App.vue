@@ -1,3 +1,12 @@
+<script setup lang="ts">
+import Footer from './common/components/Organism/Footer.vue'
+import Header from './common/components/Organism/Header.vue'
+</script>
+
 <template>
-  <router-view />
+  <Header />
+  <div class="mx-40">
+    <router-view />
+  </div>
+  <Footer />
 </template>
