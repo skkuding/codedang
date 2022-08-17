@@ -3,7 +3,7 @@ import { IsBoolean, IsInt, IsNotEmpty } from 'class-validator'
 export class CreateMemberDto {
   @IsInt()
   @IsNotEmpty()
-  readonly user_id: number
+  readonly student_id: string
 
   @IsBoolean()
   @IsNotEmpty()

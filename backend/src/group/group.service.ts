@@ -212,9 +212,9 @@ export class GroupService {
   ): Promise<UserGroup[]> {
     const members = memberDtos.map(async (memberDto) => {
       const id = (
-        await this.prisma.userProfile.findUnique({
+        await this.prisma.user.findUnique({
           where: {
-            user_id: memberDto.user_id
+            student_id: memberDto.student_id
           },
           select: {
             id: true
@@ -249,10 +249,10 @@ export class GroupService {
         user: {
           select: {
             username: true,
+            student_id: true,
             email: true,
             UserProfile: {
               select: {
-                user_id: true,
                 real_name: true
               }
             }
@@ -273,10 +273,10 @@ export class GroupService {
         user: {
           select: {
             username: true,
+            student_id: true,
             email: true,
             UserProfile: {
               select: {
-                user_id: true,
                 real_name: true
               }
             }
@@ -303,10 +303,10 @@ export class GroupService {
         user: {
           select: {
             username: true,
+            student_id: true,
             email: true,
             UserProfile: {
               select: {
-                user_id: true,
                 real_name: true
               }
             }

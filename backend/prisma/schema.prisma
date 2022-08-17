@@ -22,6 +22,7 @@ model User {
   username              String   @unique
   password              String
   role                  Role     @default(User)
+  studentId             String   @unique @map("student_id")
   email                 String   @unique
   hasEmailAuthenticated Boolean  @default(false) @map("has_email_authenticated")
   lastLogin             DateTime @map("last_login")
@@ -65,7 +66,7 @@ model UserGroup {
   createTime     DateTime @default(now()) @map("create_time")
   updateTime     DateTime @updatedAt @map("update_time")
 
-  @@unique([user_id, group_id])
+  @@unique([userId, groupId])
   @@map("user_group")
 }
 
