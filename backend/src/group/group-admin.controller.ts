@@ -27,7 +27,7 @@ import {
   EntityNotExistException
 } from 'src/common/exception/business.exception'
 import { RequestGroupDto } from './dto/request-group.dto'
-import { Membership } from './interface/membership'
+import { Membership } from './interface/membership.interface'
 import { CreateMemberDto } from './dto/create-member.dto'
 
 @Controller('admin/group')

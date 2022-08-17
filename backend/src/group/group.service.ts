@@ -8,7 +8,7 @@ import {
   EntityNotExistException
 } from 'src/common/exception/business.exception'
 import { AdminGroup } from './interface/admin-group.interface'
-import { Membership } from './interface/membership'
+import { Membership } from './interface/membership.interface'
 import { CreateMemberDto } from './dto/create-member.dto'
 
 // TODO: group id 확정 필요
