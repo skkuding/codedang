@@ -16,10 +16,10 @@ const copyEmail = () => {
 
 <template>
   <footer
-    class="bg-gray-light text-gray-dark fixed bottom-0 flex w-full flex-col items-center gap-y-2 py-4"
+    class="bg-gray-light text-gray-dark flex w-full flex-col items-center gap-y-2 py-4"
   >
     <div
-      class="[&>a:hover]:text-gray [&>a:active]:text-gray-light flex flex-row gap-x-4 text-xl [&>a]:cursor-pointer [&>a]:transition"
+      class="[&>a:hover]:text-gray [&>a:active]:text-gray-light [&>a]:cursor-pointer [&>a]:transition flex flex-row gap-x-4 text-xl"
     >
       <a href="https://github.com/skkuding/skku-coding-platform">
         <IconGithub />
