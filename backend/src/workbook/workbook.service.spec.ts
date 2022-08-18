@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { WorkbookService } from './workbook.service'
@@ -144,40 +145,68 @@ describe('WorkbookService', () => {
       .fn()
       .mockReturnValueOnce(onePublicWorkbook)
       .mockRejectedValueOnce(new EntityNotExistException('workbook'))
-    const workbookId = 1
+    let workbookId = 1
     const returnedWorkbook = await workbookService.getWorkbookById(
       workbookId,
       false
     )
     expect(returnedWorkbook).toEqual(onePublicWorkbook)
+    workbookId = 9999999
     await expect(
       workbookService.getWorkbookById(workbookId, false)
     ).rejects.toThrow(EntityNotExistException)
   })
 
   it('make a workbook', async () => {
-    prisma.workbook.create = jest.fn().mockReturnValueOnce(oneGroupWorkbook)
+    prisma.workbook.create = jest
+      .fn()
+      .mockReturnValueOnce(oneGroupWorkbook)
+      .mockRejectedValueOnce(
+        new PrismaClientKnownRequestError('message', 'code', 'clientVersion')
+      )
     const createdWorkbook = await workbookService.createWorkbook(
       PRIVATE_GROUP_ID,
       createWorkbookDto
     )
     expect(createdWorkbook).toEqual(oneGroupWorkbook)
+    const WRONG_GROUP_ID = 9999999
+    await expect(
+      workbookService.createWorkbook(WRONG_GROUP_ID, createWorkbookDto)
+    ).rejects.toThrow(PrismaClientKnownRequestError)
   })
 
   it('update details of a workbook', async () => {
-    const workbookId = 4
-    prisma.workbook.update = jest.fn().mockReturnValueOnce(oneGroupWorkbook)
+    let workbookId = 4
+    prisma.workbook.update = jest
+      .fn()
+      .mockReturnValueOnce(oneGroupWorkbook)
+      .mockRejectedValueOnce(
+        new PrismaClientKnownRequestError('message', 'code', 'clientVersion')
+      )
     const updatedWorkbook = await workbookService.updateWorkbook(
       workbookId,
       updateWorkbookDto
     )
     expect(updatedWorkbook).toEqual(oneGroupWorkbook)
+    workbookId = 9999999
+    await expect(
+      workbookService.updateWorkbook(workbookId, updateWorkbookDto)
+    ).rejects.toThrow(PrismaClientKnownRequestError)
   })
 
   it('delete a workbook', async () => {
-    const workbookId = 4
-    prisma.workbook.delete = jest.fn().mockReturnValueOnce(oneGroupWorkbook)
+    let workbookId = 4
+    prisma.workbook.delete = jest
+      .fn()
+      .mockReturnValueOnce(oneGroupWorkbook)
+      .mockRejectedValueOnce(
+        new PrismaClientKnownRequestError('message', 'code', 'clientVersion')
+      )
     const deletedWorkbook = await workbookService.deleteWorkbook(workbookId)
     expect(deletedWorkbook).toEqual(oneGroupWorkbook)
+    workbookId = 9999999
+    await expect(workbookService.deleteWorkbook(workbookId)).rejects.toThrow(
+      PrismaClientKnownRequestError
+    )
   })
 })
