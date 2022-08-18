@@ -88,7 +88,6 @@ const db = {
     findUnique: jest.fn(),
     findFirst: jest.fn(),
     create: jest.fn(),
-    save: jest.fn(),
     update: jest.fn(),
     delete: jest.fn()
   }
@@ -113,6 +112,7 @@ describe('WorkbookService', () => {
 
   it('get a list of public workbooks', async () => {
     prisma.workbook.findMany = jest.fn().mockReturnValueOnce(publicWorkbooks)
+
     const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
       PUBLIC_GROUP_ID,
       false
@@ -124,6 +124,7 @@ describe('WorkbookService', () => {
     prisma.workbook.findMany = jest
       .fn()
       .mockReturnValueOnce(visiblePublicWorkbooks)
+
     const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
       PUBLIC_GROUP_ID,
       false
@@ -133,6 +134,7 @@ describe('WorkbookService', () => {
 
   it('get a list of private group workbooks', async () => {
     prisma.workbook.findMany = jest.fn().mockReturnValueOnce(groupWorkbooks)
+
     const returnedGroupWorkbooks = await workbookService.getWorkbooksByGroupId(
       PRIVATE_GROUP_ID,
       false
@@ -141,16 +143,18 @@ describe('WorkbookService', () => {
   })
 
   it('get details of a workbook', async () => {
+    let workbookId = 1
     prisma.workbook.findFirst = jest
       .fn()
       .mockReturnValueOnce(onePublicWorkbook)
       .mockRejectedValueOnce(new EntityNotExistException('workbook'))
-    let workbookId = 1
+
     const returnedWorkbook = await workbookService.getWorkbookById(
       workbookId,
       false
     )
     expect(returnedWorkbook).toEqual(onePublicWorkbook)
+
     workbookId = 9999999
     await expect(
       workbookService.getWorkbookById(workbookId, false)
@@ -164,11 +168,13 @@ describe('WorkbookService', () => {
       .mockRejectedValueOnce(
         new PrismaClientKnownRequestError('message', 'code', 'clientVersion')
       )
+
     const createdWorkbook = await workbookService.createWorkbook(
       PRIVATE_GROUP_ID,
       createWorkbookDto
     )
     expect(createdWorkbook).toEqual(oneGroupWorkbook)
+
     const WRONG_GROUP_ID = 9999999
     await expect(
       workbookService.createWorkbook(WRONG_GROUP_ID, createWorkbookDto)
@@ -183,11 +189,13 @@ describe('WorkbookService', () => {
       .mockRejectedValueOnce(
         new PrismaClientKnownRequestError('message', 'code', 'clientVersion')
       )
+
     const updatedWorkbook = await workbookService.updateWorkbook(
       workbookId,
       updateWorkbookDto
     )
     expect(updatedWorkbook).toEqual(oneGroupWorkbook)
+
     workbookId = 9999999
     await expect(
       workbookService.updateWorkbook(workbookId, updateWorkbookDto)
@@ -202,8 +210,10 @@ describe('WorkbookService', () => {
       .mockRejectedValueOnce(
         new PrismaClientKnownRequestError('message', 'code', 'clientVersion')
       )
+
     const deletedWorkbook = await workbookService.deleteWorkbook(workbookId)
     expect(deletedWorkbook).toEqual(oneGroupWorkbook)
+
     workbookId = 9999999
     await expect(workbookService.deleteWorkbook(workbookId)).rejects.toThrow(
       PrismaClientKnownRequestError

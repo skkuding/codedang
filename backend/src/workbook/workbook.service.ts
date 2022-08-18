@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { Workbook } from '@prisma/client'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateWorkbookDto } from './dto/create-workbook.dto'
@@ -8,10 +9,13 @@ import { UpdateWorkbookDto } from './dto/update-workbook.dto'
 export class WorkbookService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private prismaFindWhereOption: object = { visible: true }
+  private prismaAdminFindWhereOption: object = { visible: true }
 
-  async getWorkbooksByGroupId(groupId: number, isAdmin: boolean) {
-    const whereOption = isAdmin ? {} : this.prismaFindWhereOption
+  async getWorkbooksByGroupId(
+    groupId: number,
+    isAdmin: boolean
+  ): Promise<Workbook[]> {
+    const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
     const workbooks = await this.prisma.workbook.findMany({
       where: {
         group_id: groupId,
@@ -21,8 +25,11 @@ export class WorkbookService {
     return workbooks
   }
 
-  async getWorkbookById(workbookId: number, isAdmin: boolean) {
-    const whereOption = isAdmin ? {} : this.prismaFindWhereOption
+  async getWorkbookById(
+    workbookId: number,
+    isAdmin: boolean
+  ): Promise<Workbook> {
+    const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
     const workbook = await this.prisma.workbook.findFirst({
       where: { id: workbookId, ...whereOption },
       rejectOnNotFound: () => new EntityNotExistException('workbook')
@@ -30,7 +37,10 @@ export class WorkbookService {
     return workbook
   }
 
-  async createWorkbook(groupId: number, createWorkbookDto: CreateWorkbookDto) {
+  async createWorkbook(
+    groupId: number,
+    createWorkbookDto: CreateWorkbookDto
+  ): Promise<Workbook> {
     const newWorkbook = await this.prisma.workbook.create({
       data: {
         group_id: groupId,
@@ -43,7 +53,7 @@ export class WorkbookService {
   async updateWorkbook(
     workbookId: number,
     updateWorkbookDto: UpdateWorkbookDto
-  ) {
+  ): Promise<Workbook> {
     const updatedWorkbook = await this.prisma.workbook.update({
       where: {
         id: workbookId
@@ -55,7 +65,7 @@ export class WorkbookService {
     return updatedWorkbook
   }
 
-  async deleteWorkbook(workbookId: number) {
+  async deleteWorkbook(workbookId: number): Promise<Workbook> {
     const deletedWorkbook = await this.prisma.workbook.delete({
       where: {
         id: workbookId
