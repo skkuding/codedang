@@ -32,9 +32,11 @@ export class UserController {
 
   @Post('/password/reset/send-email')
   @Public()
-  createPinAndSendEmail(@Body() userEmailDto: UserEmailDto): Promise<string> {
+  async createPinAndSendEmail(
+    @Body() userEmailDto: UserEmailDto
+  ): Promise<string> {
     try {
-      return this.userService.createPinAndSendEmail(userEmailDto)
+      return await this.userService.createPinAndSendEmail(userEmailDto)
     } catch (error) {
       if (error instanceof InvalidUserException) {
         throw new UnauthorizedException(error.message)
@@ -71,12 +73,12 @@ export class UserController {
 
   @Patch('/password/reset')
   @Public()
-  updatePassword(
+  async updatePassword(
     @Body() newPasswordDto: NewPasswordDto,
     @Req() req: Request
   ): Promise<string> {
     try {
-      return this.userService.updatePassword(newPasswordDto, req)
+      return await this.userService.updatePassword(newPasswordDto, req)
     } catch (error) {
       if (error instanceof InvalidJwtTokenException) {
         throw new InternalServerErrorException(error.message)
