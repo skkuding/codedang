@@ -49,24 +49,31 @@ export class ContestProblemAdminController {
   constructor(private readonly problemAdminService: ProblemAdminService) {}
 
   @Get('problem/:problemId')
-  async getContestProblem(
+  async getGruopContestProblem(
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {
-      await this.problemAdminService.getContestProblem(contestId, problemId)
+      await this.problemAdminService.getGroupContestProblem(
+        groupId,
+        contestId,
+        problemId
+      )
     } catch (err) {
       throw new InternalServerErrorException()
     }
   }
 
   @Get('problems')
-  async getContestProblems(
+  async getGroupContestProblems(
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
     @Query() paginationDto: PaginationDto
   ) {
     try {
-      await this.problemAdminService.getContestProblems(
+      await this.problemAdminService.getGroupContestProblems(
+        groupId,
         contestId,
         paginationDto
       )
@@ -82,24 +89,31 @@ export class WorkbookProblemAdminController {
   constructor(private readonly problemAdminService: ProblemAdminService) {}
 
   @Get('problem/:problemId')
-  async getWorkbookProblem(
+  async getGroupWorkbookProblem(
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {
-      await this.problemAdminService.getWorkbookProblem(workbookId, problemId)
+      await this.problemAdminService.getGroupWorkbookProblem(
+        groupId,
+        workbookId,
+        problemId
+      )
     } catch (err) {
       throw new InternalServerErrorException()
     }
   }
 
   @Get('problems')
-  async getWorkbookProblems(
+  async getGroupWorkbookProblems(
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Query() paginationDto: PaginationDto
   ) {
     try {
-      await this.problemAdminService.getWorkbookProblems(
+      await this.problemAdminService.getGroupWorkbookProblems(
+        groupId,
         workbookId,
         paginationDto
       )
