@@ -1,4 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { GroupService } from 'src/group/group.service'
+import { UserService } from 'src/user/user.service'
 import { WorkbookController } from './workbook.controller'
 import { WorkbookService } from './workbook.service'
 
@@ -8,7 +10,11 @@ describe('WorkbookController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [WorkbookController],
-      providers: [{ provide: WorkbookService, useValue: {} }]
+      providers: [
+        { provide: WorkbookService, useValue: {} },
+        { provide: UserService, useValue: {} },
+        { provide: GroupService, useValue: {} }
+      ]
     }).compile()
 
     controller = module.get<WorkbookController>(WorkbookController)
