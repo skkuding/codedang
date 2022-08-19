@@ -286,13 +286,13 @@ export class ContestService {
       throw new UnprocessableDataException(
         'This contest is already accepted to be public'
       )
-    } else {
-      await this.prisma.contestToPublicRequest.delete({
-        where: {
-          contest_id
-        }
-      })
     }
+
+    await this.prisma.contestToPublicRequest.delete({
+      where: {
+        contest_id
+      }
+    })
   }
 
   async deleteContestToPublicRequest(contestId: number) {
