@@ -202,6 +202,12 @@ model Contest {
   @@map("contest")
 }
 
+enum ContestType {
+  ACM
+  TotalScore
+  ProblemBank
+}
+
 model ContestNotice {
   id          Int      @id @default(autoincrement())
   contest     Contest  @relation(fields: [contestId], references: [id])
@@ -227,6 +233,12 @@ model ContestToPublicRequest {
   updateTime    DateTime      @updatedAt @map("update_time")
 
   @@map("contest_to_public_request")
+}
+
+enum RequestStatus {
+  Pending
+  Accepted
+  Rejected
 }
 
 model ContestProblem {
@@ -336,16 +348,4 @@ model SubmissionResult {
   updateTime   DateTime   @updatedAt @map("update_time")
 
   @@map("submssion_result")
-}
-
-enum ContestType {
-  ACM
-  TotalScore
-  ProblemBank
-}
-
-enum RequestStatus {
-  Pending
-  Accept
-  Reject
 }
