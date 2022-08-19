@@ -500,7 +500,7 @@ describe('ContestService', () => {
       //given
       const acceptedRequest: ContestToPublicRequest = {
         ...contestToPublicRequest,
-        request_status: RequestStatus.Accept
+        request_status: RequestStatus.Accepted
       }
       mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
         acceptedRequest
@@ -546,7 +546,7 @@ describe('ContestService', () => {
 
     it('should throw error when request status is Accept', async () => {
       //given
-      requestStatus = RequestStatus.Accept
+      requestStatus = RequestStatus.Accepted
 
       //when
       const callDeleteUnacceptedContestToPublicRequest = async () =>
@@ -601,7 +601,7 @@ describe('ContestService', () => {
       //given
       const acceptedRequest: ContestToPublicRequest = {
         ...contestToPublicRequest,
-        request_status: RequestStatus.Accept
+        request_status: RequestStatus.Accepted
       }
       mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
         acceptedRequest
@@ -664,7 +664,7 @@ describe('ContestService', () => {
 
   describe('respondContestToPublicRequest', () => {
     let respondContestToPublicRequestDto: RespondContestToPublicRequestDto = {
-      request_status: RequestStatus.Accept
+      request_status: RequestStatus.Accepted
     }
 
     it('should update contest and request for the contest', async () => {
@@ -733,7 +733,7 @@ describe('ContestService', () => {
         contestToPublicRequest
       )
       respondContestToPublicRequestDto = {
-        request_status: RequestStatus.Reject
+        request_status: RequestStatus.Rejected
       }
 
       //when

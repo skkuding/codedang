@@ -282,7 +282,7 @@ export class ContestService {
     requestStatus: RequestStatus,
     contest_id: number
   ) {
-    if (requestStatus == RequestStatus.Accept) {
+    if (requestStatus == RequestStatus.Accepted) {
       throw new UnprocessableDataException(
         'This contest is already accepted to be public'
       )
@@ -351,7 +351,7 @@ export class ContestService {
         new EntityNotExistException('ContestToPublicRequest')
     })
 
-    if (request_status == RequestStatus.Accept) {
+    if (request_status == RequestStatus.Accepted) {
       this.updateContestIsPublic(contestId, true)
     } else {
       this.updateContestIsPublic(contestId, false)
@@ -388,8 +388,8 @@ export class ContestService {
     Partial<ContestToPublicRequest>[]
   > {
     return await this.getAdminContestToPublicRequests([
-      RequestStatus.Accept,
-      RequestStatus.Reject
+      RequestStatus.Accepted,
+      RequestStatus.Rejected
     ])
   }
 
