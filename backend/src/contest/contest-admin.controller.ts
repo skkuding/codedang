@@ -169,7 +169,7 @@ export class ContestToPublicRequestAdminController {
     }
   }
 
-  @Get('/:id/topublic')
+  @Get('/:id/to-public')
   async getContestToPublicRequest(
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<ContestToPublicRequest>> {

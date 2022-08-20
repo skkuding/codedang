@@ -344,17 +344,14 @@ export class ContestService {
       where: {
         contest_id: contestId
       },
-      select: {
-        request_status: true
-      },
       rejectOnNotFound: () =>
         new EntityNotExistException('ContestToPublicRequest')
     })
 
     if (request_status == RequestStatus.Accepted) {
-      this.updateContestIsPublic(contestId, true)
+      await this.updateContestIsPublic(contestId, true)
     } else {
-      this.updateContestIsPublic(contestId, false)
+      await this.updateContestIsPublic(contestId, false)
     }
 
     return await this.prisma.contestToPublicRequest.update({
