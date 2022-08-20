@@ -30,7 +30,7 @@ export class ContestService {
     userId: number,
     contestDto: CreateContestDto
   ): Promise<Contest> {
-    if (!this.isValidPeriod(contestDto.start_time, contestDto.end_time)) {
+    if (!this.isValidPeriod(contestDto.startTime, contestDto.endTime)) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
@@ -40,14 +40,14 @@ export class ContestService {
       data: {
         title: contestDto.title,
         description: contestDto.description,
-        description_summary: contestDto.description_summary,
-        start_time: contestDto.start_time,
-        end_time: contestDto.end_time,
+        description_summary: contestDto.descriptionSummary,
+        start_time: contestDto.startTime,
+        end_time: contestDto.endTime,
         visible: contestDto.visible,
-        is_rank_visible: contestDto.is_rank_visible,
+        is_rank_visible: contestDto.isRankVisible,
         type: contestDto.type,
         group: {
-          connect: { id: contestDto.group_id }
+          connect: { id: contestDto.groupId }
         },
         created_by: {
           connect: { id: userId }
@@ -69,7 +69,7 @@ export class ContestService {
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
-    if (!this.isValidPeriod(contestDto.start_time, contestDto.end_time)) {
+    if (!this.isValidPeriod(contestDto.startTime, contestDto.endTime)) {
       throw new UnprocessableDataException(
         'start time must be earlier than end time'
       )
@@ -80,7 +80,14 @@ export class ContestService {
         id: contestId
       },
       data: {
-        ...contestDto
+        title: contestDto.title,
+        description: contestDto.description,
+        description_summary: contestDto.description,
+        start_time: contestDto.startTime,
+        end_time: contestDto.endTime,
+        visible: contestDto.visible,
+        is_rank_visible: contestDto.isRankVisible,
+        type: contestDto.type
       }
     })
   }

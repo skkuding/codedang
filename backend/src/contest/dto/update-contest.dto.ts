@@ -18,15 +18,15 @@ export class UpdateContestDto {
 
   @IsString()
   @IsNotEmpty()
-  readonly description_summary: string
+  readonly descriptionSummary: string
 
   @IsDateString()
   @IsNotEmpty()
-  readonly start_time: Date
+  readonly startTime: Date
 
   @IsDateString()
   @IsNotEmpty()
-  readonly end_time: Date
+  readonly endTime: Date
 
   @IsBoolean()
   @IsNotEmpty()
@@ -34,7 +34,7 @@ export class UpdateContestDto {
 
   @IsBoolean()
   @IsNotEmpty()
-  readonly is_rank_visible: boolean
+  readonly isRankVisible: boolean
 
   @IsEnum(ContestType)
   @IsNotEmpty()

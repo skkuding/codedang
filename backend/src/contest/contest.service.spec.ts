@@ -99,14 +99,14 @@ describe('ContestService', () => {
 
   describe('createContest', () => {
     const createContestDto: CreateContestDto = {
-      group_id: contest.group_id,
+      groupId: contest.group_id,
       title: contest.title,
       description: contest.description,
-      description_summary: contest.description_summary,
-      start_time: contest.start_time,
-      end_time: contest.end_time,
+      descriptionSummary: contest.description_summary,
+      startTime: contest.start_time,
+      endTime: contest.end_time,
       visible: contest.visible,
-      is_rank_visible: contest.is_rank_visible,
+      isRankVisible: contest.is_rank_visible,
       type: contest.type
     }
 
@@ -153,11 +153,11 @@ describe('ContestService', () => {
     const updateContestDto: UpdateContestDto = {
       title: contest.title,
       description: contest.description,
-      description_summary: contest.description_summary,
-      start_time: contest.start_time,
-      end_time: contest.end_time,
+      descriptionSummary: contest.description_summary,
+      startTime: contest.start_time,
+      endTime: contest.end_time,
       visible: contest.visible,
-      is_rank_visible: contest.is_rank_visible,
+      isRankVisible: contest.is_rank_visible,
       type: contest.type
     }
 
