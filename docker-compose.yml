@@ -33,3 +33,13 @@ services:
     image: redis:7-alpine
     ports:
       - 6380:6379
+  dev-mq:
+    image: rabbitmq:3-management-alpine
+    container_name: skkuding-dev-mq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_ERLANG_COOKIE: RabbitMQ-My-Cookies
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: 1234
