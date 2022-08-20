@@ -11,15 +11,15 @@ export class GroupMemberGuard implements CanActivate {
     const request: AuthenticatedRequest = context.switchToHttp().getRequest()
     const user: AuthenticatedUser = request.user
 
-    if (user.isSuperAdmin || user.isSuperManager) {
+    if (user.isSuperAdmin() || user.isSuperManager()) {
       return true
     }
 
-    const group_id: number = parseInt(request.params.group_id)
-    const user_id: number = request.user.id
+    const groupId: number = parseInt(request.params.groupId)
+    const userId: number = request.user.id
 
     const userGroupMemberShipInfo =
-      await this.groupService.getUserGroupMembershipInfo(user_id, group_id)
+      await this.groupService.getUserGroupMembershipInfo(userId, groupId)
 
     const isGroupMember: boolean =
       userGroupMemberShipInfo && userGroupMemberShipInfo.is_registered

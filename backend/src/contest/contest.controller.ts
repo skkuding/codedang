@@ -49,14 +49,14 @@ export class ContestController {
   }
 }
 
-@Controller('group/:group_id/contest')
+@Controller('group/:groupId/contest')
 export class GroupContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
   @UseGuards(RolesGuard, GroupMemberGuard)
   async getContests(
-    @Param('group_id', ParseIntPipe) groupId: number
+    @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getContestsByGroupId(groupId)
   }

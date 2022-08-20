@@ -47,7 +47,7 @@ export class ContestAdminController {
   }
 }
 
-@Controller('admin/group/:group_id/contest')
+@Controller('admin/group/:groupId/contest')
 @UseGuards(RolesGuard, GroupManagerGuard)
 export class GroupContestAdminController {
   constructor(private readonly contestService: ContestService) {}
@@ -113,7 +113,7 @@ export class GroupContestAdminController {
 
   @Get()
   async getAdminContests(
-    @Param('group_id', ParseIntPipe) groupId: number
+    @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminContestsByGroupId(groupId)
   }
