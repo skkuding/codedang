@@ -197,7 +197,7 @@ model Contest {
   ContestRecord          ContestRecord[]
   ContestRankACM         ContestRankACM[]
   Submission             Submission[]
-  ContestToPublicRequest ContestToPublicRequest?
+  ContestToPublicRequest ContestToPublicRequest[]
 
   @@map("contest")
 }
@@ -224,7 +224,7 @@ model ContestNotice {
 model ContestToPublicRequest {
   id            Int           @id @default(autoincrement())
   contest       Contest       @relation(fields: [contestId], references: [id])
-  contestId     Int           @unique @map("contest_id")
+  contestId     Int           @map("contest_id")
   message       String
   requestStatus RequestStatus @default(Pending) @map("request_status")
   createdBy     User          @relation(fields: [createdById], references: [id])
