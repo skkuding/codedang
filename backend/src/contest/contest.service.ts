@@ -146,17 +146,17 @@ export class ContestService {
   }
 
   async getContestById(
-    user_id: number,
-    contest_id: number
+    userId: number,
+    contestId: number
   ): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findUnique({
-      where: { id: contest_id },
+      where: { id: contestId },
       select: { ...this.contestSelectOption, description: true, visible: true },
       rejectOnNotFound: () => new EntityNotExistException('Contest')
     })
 
     const userGroup = await this.groupService.getUserGroupMembershipInfo(
-      user_id,
+      userId,
       contest.group.group_id
     )
     const isUserGroupMember = userGroup && userGroup.is_registered
@@ -171,9 +171,9 @@ export class ContestService {
     return contest
   }
 
-  async getModalContestById(contest_id: number): Promise<Partial<Contest>> {
+  async getModalContestById(contestId: number): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findUnique({
-      where: { id: contest_id },
+      where: { id: contestId },
       select: {
         id: true,
         title: true,
@@ -185,20 +185,20 @@ export class ContestService {
     return contest
   }
 
-  async getContestsByGroupId(group_id: number): Promise<Partial<Contest>[]> {
+  async getContestsByGroupId(groupId: number): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
-      where: { group_id, visible: true },
+      where: { group_id: groupId, visible: true },
       select: this.contestSelectOption
     })
   }
 
-  async getAdminOngoingContests(user_id: number): Promise<Partial<Contest>[]> {
-    const contests = await this.getAdminContests(user_id)
+  async getAdminOngoingContests(userId: number): Promise<Partial<Contest>[]> {
+    const contests = await this.getAdminContests(userId)
     return this.filterOngoing(contests)
   }
 
-  async getAdminContests(user_id: number): Promise<Partial<Contest>[]> {
-    const groupIds = await this.groupService.getUserGroupManagerList(user_id)
+  async getAdminContests(userId: number): Promise<Partial<Contest>[]> {
+    const groupIds = await this.groupService.getUserGroupManagerList(userId)
     return await this.prisma.contest.findMany({
       where: {
         group_id: { in: groupIds }
@@ -207,9 +207,9 @@ export class ContestService {
     })
   }
 
-  async getAdminContestById(contest_id: number): Promise<Partial<Contest>> {
+  async getAdminContestById(contestId: number): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findUnique({
-      where: { id: contest_id },
+      where: { id: contestId },
       select: {
         ...this.contestSelectOption,
         visible: true,
@@ -224,10 +224,10 @@ export class ContestService {
   }
 
   async getAdminContestsByGroupId(
-    group_id: number
+    groupId: number
   ): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
-      where: { group_id },
+      where: { group_id: groupId },
       select: { ...this.contestSelectOption, visible: true }
     })
   }

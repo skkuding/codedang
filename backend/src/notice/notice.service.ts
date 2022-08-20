@@ -80,11 +80,11 @@ export class NoticeService {
     })
 
     const navigate = (pos: 'prev' | 'next') => {
-      type order = 'asc' | 'desc'
+      type Order = 'asc' | 'desc'
       const options =
         pos === 'prev'
-          ? { compare: { lt: id }, order: 'desc' as order }
-          : { compare: { gt: id }, order: 'asc' as order }
+          ? { compare: { lt: id }, order: 'desc' as Order }
+          : { compare: { gt: id }, order: 'asc' as Order }
       return {
         where: {
           id: options.compare,
