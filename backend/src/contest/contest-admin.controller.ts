@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   InternalServerErrorException,
+  MethodNotAllowedException,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -18,6 +19,7 @@ import { CreateContestDto } from './dto/create-contest.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
 import { Contest, ContestToPublicRequest, Role } from '@prisma/client'
 import {
+  ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
@@ -201,8 +203,8 @@ export class ContestToPublicRequestController {
         createContestToPublicRequestDto
       )
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+      if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
       }
 
       throw new InternalServerErrorException()

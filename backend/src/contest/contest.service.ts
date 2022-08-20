@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Contest, ContestToPublicRequest, RequestStatus } from '@prisma/client'
 import {
+  ActionNotAllowedException,
   EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
@@ -283,7 +284,7 @@ export class ContestService {
     contest_id: number
   ) {
     if (requestStatus == RequestStatus.Accepted) {
-      throw new UnprocessableDataException(
+      throw new ActionNotAllowedException(
         'This contest is already accepted to be public'
       )
     }
