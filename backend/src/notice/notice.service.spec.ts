@@ -125,19 +125,19 @@ describe('NoticeService', () => {
       {
         id: noticePrev.id,
         title: noticePrev.title,
-        createTime: noticePrev.create_time,
+        createTime: noticePrev.createTime,
         fixed: noticePrev.fixed
       },
       {
         id: notice.id,
         title: notice.title,
-        createTime: notice.create_time,
+        createTime: notice.createTime,
         fixed: notice.fixed
       },
       {
         id: noticeNext.id,
         title: noticeNext.title,
-        createTime: noticeNext.create_time,
+        createTime: noticeNext.createTime,
         fixed: noticeNext.fixed
       }
     ]
@@ -155,8 +155,8 @@ describe('NoticeService', () => {
       current: {
         title: notice.title,
         content: notice.content,
-        createTime: notice.create_time,
-        updateTime: notice.update_time
+        createTime: notice.createTime,
+        updateTime: notice.updateTime
       },
       prev: {
         id: noticePrev.id,
@@ -194,21 +194,21 @@ describe('NoticeService', () => {
       {
         id: noticePrev.id,
         title: noticePrev.title,
-        updateTime: noticePrev.update_time,
+        updateTime: noticePrev.updateTime,
         visible: noticePrev.visible,
         fixed: noticePrev.fixed
       },
       {
         id: notice.id,
         title: notice.title,
-        updateTime: notice.update_time,
+        updateTime: notice.updateTime,
         visible: notice.visible,
         fixed: notice.fixed
       },
       {
         id: noticeNext.id,
         title: noticeNext.title,
-        updateTime: noticeNext.update_time,
+        updateTime: noticeNext.updateTime,
         visible: noticeNext.visible,
         fixed: noticeNext.fixed
       }
@@ -225,7 +225,7 @@ describe('NoticeService', () => {
   describe('getAdminNotice', () => {
     const adminNotice = {
       group: {
-        groupName: group.group_name
+        groupName: group.groupName
       },
       title: notice.title,
       content: notice.content,
@@ -257,30 +257,30 @@ describe('NoticeService', () => {
         id: noticePrev.id,
         group: {
           id: group.id,
-          groupName: group.group_name
+          groupName: group.groupName
         },
         title: noticePrev.title,
-        updateTime: noticePrev.update_time,
+        updateTime: noticePrev.updateTime,
         visible: noticePrev.visible
       },
       {
         id: notice.id,
         group: {
           id: group.id,
-          groupName: group.group_name
+          groupName: group.groupName
         },
         title: notice.title,
-        updateTime: notice.update_time,
+        updateTime: notice.updateTime,
         visible: notice.visible
       },
       {
         id: noticeNext.id,
         group: {
           id: group.id,
-          groupName: group.group_name
+          groupName: group.groupName
         },
         title: noticeNext.title,
-        updateTime: noticeNext.update_time,
+        updateTime: noticeNext.updateTime,
         visible: noticeNext.visible
       }
     ]
