@@ -130,7 +130,7 @@ export class GroupContestAdminController {
 export class ContestToPublicRequestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
-  @Patch('/:id/topublic')
+  @Patch('/:id/to-public')
   async respondContestToPublicRequest(
     @Param('id', ParseIntPipe) contestId: number,
     @Body() respondContestToPublicRequestDto: RespondContestToPublicRequestDto
@@ -149,7 +149,7 @@ export class ContestToPublicRequestAdminController {
     }
   }
 
-  @Get('/topublic/pending')
+  @Get('/to-public/pending')
   async getPendingContestToPublicRequests(): Promise<
     Partial<ContestToPublicRequest>[]
   > {
@@ -160,7 +160,7 @@ export class ContestToPublicRequestAdminController {
     }
   }
 
-  @Get('/topublic/responded')
+  @Get('/to-public/responded')
   async getRespondedContestToPublicRequests(): Promise<
     Partial<ContestToPublicRequest>[]
   > {
@@ -192,7 +192,7 @@ export class ContestToPublicRequestAdminController {
 export class ContestToPublicRequestController {
   constructor(private readonly contestService: ContestService) {}
 
-  @Post('/:id/topublic')
+  @Post('/:id/to-public')
   async createContestToPublicRequest(
     @Req() req: AuthenticatedRequest,
     @Body() createContestToPublicRequestDto: CreateContestToPublicRequestDto
@@ -211,7 +211,7 @@ export class ContestToPublicRequestController {
     }
   }
 
-  @Delete('/:id/topublic')
+  @Delete('/:id/to-public')
   async deleteContestToPublicRequest(
     @Param('id', ParseIntPipe) contestId: number
   ) {
@@ -229,7 +229,7 @@ export class ContestToPublicRequestController {
     }
   }
 
-  @Get('/:id/topublic')
+  @Get('/:id/to-public')
   async getContestToPublicRequest(
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<ContestToPublicRequest>> {
