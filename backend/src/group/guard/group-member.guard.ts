@@ -22,7 +22,7 @@ export class GroupMemberGuard implements CanActivate {
       await this.groupService.getUserGroupMembershipInfo(userId, groupId)
 
     const isGroupMember: boolean =
-      userGroupMemberShipInfo && userGroupMemberShipInfo.is_registered
+      userGroupMemberShipInfo && userGroupMemberShipInfo.isRegistered
 
     if (isGroupMember) {
       return true

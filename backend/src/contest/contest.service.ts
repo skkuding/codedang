@@ -20,10 +20,10 @@ export class ContestService {
   private contestSelectOption = {
     id: true,
     title: true,
-    start_time: true,
-    end_time: true,
+    startTime: true,
+    endTime: true,
     type: true,
-    group: { select: { group_id: true, group_name: true } }
+    group: { select: { id: true, groupName: true } }
   }
 
   async createContest(
@@ -40,16 +40,16 @@ export class ContestService {
       data: {
         title: contestDto.title,
         description: contestDto.description,
-        description_summary: contestDto.descriptionSummary,
-        start_time: contestDto.startTime,
-        end_time: contestDto.endTime,
+        descriptionSummary: contestDto.descriptionSummary,
+        startTime: contestDto.startTime,
+        endTime: contestDto.endTime,
         visible: contestDto.visible,
-        is_rank_visible: contestDto.isRankVisible,
+        isRankVisible: contestDto.isRankVisible,
         type: contestDto.type,
         group: {
           connect: { id: contestDto.groupId }
         },
-        created_by: {
+        createdBy: {
           connect: { id: userId }
         }
       }
@@ -82,11 +82,11 @@ export class ContestService {
       data: {
         title: contestDto.title,
         description: contestDto.description,
-        description_summary: contestDto.description,
-        start_time: contestDto.startTime,
-        end_time: contestDto.endTime,
+        descriptionSummary: contestDto.description,
+        startTime: contestDto.startTime,
+        endTime: contestDto.endTime,
         visible: contestDto.visible,
-        is_rank_visible: contestDto.isRankVisible,
+        isRankVisible: contestDto.isRankVisible,
         type: contestDto.type
       }
     })
@@ -133,22 +133,20 @@ export class ContestService {
   filterOngoing(contests: Partial<Contest>[]): Partial<Contest>[] {
     const now = new Date()
     const ongoingContest = contests.filter(
-      (contest) => contest.start_time <= now && contest.end_time > now
+      (contest) => contest.startTime <= now && contest.endTime > now
     )
     return ongoingContest
   }
 
   filterUpcoming(contests: Partial<Contest>[]): Partial<Contest>[] {
     const now = new Date()
-    const ongoingContest = contests.filter(
-      (contest) => contest.start_time > now
-    )
+    const ongoingContest = contests.filter((contest) => contest.startTime > now)
     return ongoingContest
   }
 
   filterFinished(contests: Partial<Contest>[]): Partial<Contest>[] {
     const now = new Date()
-    const ongoingContest = contests.filter((contest) => contest.end_time <= now)
+    const ongoingContest = contests.filter((contest) => contest.endTime <= now)
     return ongoingContest
   }
 
@@ -164,12 +162,12 @@ export class ContestService {
 
     const userGroup = await this.groupService.getUserGroupMembershipInfo(
       userId,
-      contest.group.group_id
+      contest.group.id
     )
-    const isUserGroupMember = userGroup && userGroup.is_registered
+    const isUserGroupMember = userGroup && userGroup.isRegistered
     const now = new Date()
 
-    if (!isUserGroupMember && contest.end_time > now) {
+    if (!isUserGroupMember && contest.endTime > now) {
       throw new ForbiddenAccessException(
         'Before the contest is ended, only group members can access'
       )
@@ -184,7 +182,7 @@ export class ContestService {
       select: {
         id: true,
         title: true,
-        description_summary: true
+        descriptionSummary: true
       },
       rejectOnNotFound: () => new EntityNotExistException('Contest')
     })
@@ -194,7 +192,7 @@ export class ContestService {
 
   async getContestsByGroupId(groupId: number): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
-      where: { group_id: groupId, visible: true },
+      where: { groupId: groupId, visible: true },
       select: this.contestSelectOption
     })
   }
@@ -208,7 +206,7 @@ export class ContestService {
     const groupIds = await this.groupService.getUserGroupManagerList(userId)
     return await this.prisma.contest.findMany({
       where: {
-        group_id: { in: groupIds }
+        groupId: { in: groupIds }
       },
       select: { ...this.contestSelectOption, visible: true }
     })
@@ -221,8 +219,8 @@ export class ContestService {
         ...this.contestSelectOption,
         visible: true,
         description: true,
-        description_summary: true,
-        is_rank_visible: true
+        descriptionSummary: true,
+        isRankVisible: true
       },
       rejectOnNotFound: () => new EntityNotExistException('Contest')
     })
@@ -234,7 +232,7 @@ export class ContestService {
     groupId: number
   ): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
-      where: { group_id: groupId },
+      where: { groupId: groupId },
       select: { ...this.contestSelectOption, visible: true }
     })
   }

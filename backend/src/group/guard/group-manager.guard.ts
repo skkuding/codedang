@@ -23,8 +23,8 @@ export class GroupManagerGuard implements CanActivate {
 
     const isGroupManager: boolean =
       userGroupMemberShipInfo &&
-      userGroupMemberShipInfo.is_registered &&
-      userGroupMemberShipInfo.is_group_manager
+      userGroupMemberShipInfo.isRegistered &&
+      userGroupMemberShipInfo.isGroupManager
 
     if (isGroupManager) {
       return true
