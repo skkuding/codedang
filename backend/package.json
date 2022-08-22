@@ -16,6 +16,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@golevelup/nestjs-rabbitmq": "^3.2.0",
     "@nestjs/common": "^8.4.7",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.4.7",

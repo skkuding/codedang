@@ -26,6 +26,14 @@ else
   echo "CACHE_DATABASE_PORT=6379" >> backend/.env
 fi
 
+# Save rabbitMQ server URI to dotenv file
+if [ -z $DEVCONTAINER ]
+then
+  echo "AMQP_URI=\""amqp://rabbitmq:1234@localhost:5672/%2f"\"" >> backend/.env
+else
+  echo "AMQP_URI=\""amqp://rabbitmq:1234@dev-mq:5672/%2f"\"" >> backend/.env
+fi
+
 # Use docker-compose profile
 if [ -z $DEVCONTAINER ]
 then
