@@ -1,11 +1,16 @@
+import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq'
 import { Injectable } from '@nestjs/common'
+import { Submission } from '@prisma/client'
 import { UnprocessableDataException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreatePublicProblemSubmissionDto } from './dto/createPublicProblemSubmission.dto'
 
 @Injectable()
 export class SubmissionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly amqpConnection: AmqpConnection
+  ) {}
 
   async createPublicProblemSubmission(
     userId: number,
@@ -24,7 +29,7 @@ export class SubmissionService {
       )
     }
 
-    const submission = this.prisma.submission.create({
+    const submission: Submission = await this.prisma.submission.create({
       data: {
         user: {
           connect: { id: userId }
@@ -37,6 +42,13 @@ export class SubmissionService {
         ip_addr: ip
       }
     })
+
+    this.amqpConnection.publish(
+      'submission-exchange',
+      'submission',
+      submission,
+      { persistent: true }
+    )
 
     return submission
   }
