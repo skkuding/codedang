@@ -130,17 +130,20 @@ export class GroupContestAdminController {
 export class ContestToPublicRequestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
-  @Patch('/:id/to-public')
+  @Patch('/:contestId/to-public/:requestId')
   async respondContestToPublicRequest(
-    @Param('id', ParseIntPipe) contestId: number,
+    @Param('requestId', ParseIntPipe) requestId: number,
     @Body() respondContestToPublicRequestDto: RespondContestToPublicRequestDto
   ): Promise<ContestToPublicRequest> {
     try {
       return await this.contestService.respondContestToPublicRequest(
-        contestId,
+        requestId,
         respondContestToPublicRequestDto
       )
     } catch (error) {
+      if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
+      }
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
@@ -171,12 +174,12 @@ export class ContestToPublicRequestAdminController {
     }
   }
 
-  @Get('/:id/to-public')
+  @Get('/:contestId/to-public/:requestId')
   async getContestToPublicRequest(
-    @Param('id', ParseIntPipe) contestId: number
+    @Param('requestId', ParseIntPipe) requestId: number
   ): Promise<Partial<ContestToPublicRequest>> {
     try {
-      return await this.contestService.getAdminContestToPublicRequest(contestId)
+      return await this.contestService.getAdminContestToPublicRequest(requestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

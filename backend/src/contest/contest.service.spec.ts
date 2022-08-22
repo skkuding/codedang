@@ -546,7 +546,7 @@ describe('ContestService', () => {
 
     it('should throw error when request for the contest does not exist', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findUnique.mockRejectedValue(
+      mockPrismaService.contestToPublicRequest.findFirst.mockRejectedValue(
         new EntityNotExistException('ContestToPublicRequest')
       )
 
@@ -569,7 +569,7 @@ describe('ContestService', () => {
         ...contestToPublicRequest,
         request_status: RequestStatus.Accepted
       }
-      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
         acceptedRequest
       )
 
@@ -592,7 +592,7 @@ describe('ContestService', () => {
         ...contestToPublicRequest,
         request_status: RequestStatus.Rejected
       }
-      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
         rejectedRequest
       )
 
@@ -611,7 +611,7 @@ describe('ContestService', () => {
 
     it('should delete request for given contest id when request stauts is Pending', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
         contestToPublicRequest
       )
 
@@ -700,7 +700,7 @@ describe('ContestService', () => {
   describe('getContestToPublicRequest', () => {
     it('should return request for given id', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
         contestToPublicRequest
       )
 
@@ -716,7 +716,7 @@ describe('ContestService', () => {
 
     it('should throw error when request does not exist', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findUnique.mockRejectedValue(
+      mockPrismaService.contestToPublicRequest.findFirst.mockRejectedValue(
         new EntityNotExistException('ContestToPublicRequest')
       )
 
@@ -736,10 +736,10 @@ describe('ContestService', () => {
 
   describe('respondContestToPublicRequest', () => {
     let respondContestToPublicRequestDto: RespondContestToPublicRequestDto = {
-      request_status: RequestStatus.Accepted
+      requestStatus: RequestStatus.Accepted
     }
 
-    it('should update contest and request for the contest', async () => {
+    it('should update contest and request', async () => {
       //given
       mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
         contestToPublicRequest
@@ -747,7 +747,7 @@ describe('ContestService', () => {
 
       //when
       await contestService.respondContestToPublicRequest(
-        contestId,
+        contestToPublicRequestId,
         respondContestToPublicRequestDto
       )
 
@@ -765,7 +765,7 @@ describe('ContestService', () => {
       //when
       const callRespondContestToPublicRequest = async () =>
         await contestService.respondContestToPublicRequest(
-          contestId,
+          contestToPublicRequestId,
           respondContestToPublicRequestDto
         )
 
@@ -775,7 +775,7 @@ describe('ContestService', () => {
       )
     })
 
-    it('should update contest is_public as true when given request_status is Accept', async () => {
+    it('should update contest is_public as true when given request_status is Accepted', async () => {
       //given
       const updateContestIsPublicSpy = jest.spyOn(
         contestService,
@@ -787,7 +787,7 @@ describe('ContestService', () => {
 
       //when
       await contestService.respondContestToPublicRequest(
-        contestId,
+        contestToPublicRequestId,
         respondContestToPublicRequestDto
       )
 
@@ -805,12 +805,12 @@ describe('ContestService', () => {
         contestToPublicRequest
       )
       respondContestToPublicRequestDto = {
-        request_status: RequestStatus.Rejected
+        requestStatus: RequestStatus.Rejected
       }
 
       //when
       await contestService.respondContestToPublicRequest(
-        contestId,
+        contestToPublicRequestId,
         respondContestToPublicRequestDto
       )
 
@@ -846,7 +846,7 @@ describe('ContestService', () => {
 
       //when
       const result = await contestService.getAdminContestToPublicRequest(
-        contestId
+        contestToPublicRequestId
       )
 
       //then
@@ -861,7 +861,9 @@ describe('ContestService', () => {
 
       //when
       const callGetAdminContestToPublicRequest = async () =>
-        await contestService.getAdminContestToPublicRequest(contestId)
+        await contestService.getAdminContestToPublicRequest(
+          contestToPublicRequestId
+        )
 
       //then
       await expect(callGetAdminContestToPublicRequest).rejects.toThrow(

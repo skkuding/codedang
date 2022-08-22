@@ -358,29 +358,37 @@ export class ContestService {
   }
 
   async respondContestToPublicRequest(
-    contestId: number,
-    { request_status }: RespondContestToPublicRequestDto
+    requestId: number,
+    respondDto: RespondContestToPublicRequestDto
   ): Promise<ContestToPublicRequest> {
-    await this.prisma.contestToPublicRequest.findUnique({
+    const request = await this.prisma.contestToPublicRequest.findUnique({
       where: {
-        contest_id: contestId
+        id: requestId
+      },
+      select: {
+        request_status: true,
+        contest_id: true
       },
       rejectOnNotFound: () =>
         new EntityNotExistException('ContestToPublicRequest')
     })
 
-    if (request_status == RequestStatus.Accepted) {
-      await this.updateContestIsPublic(contestId, true)
-    } else {
-      await this.updateContestIsPublic(contestId, false)
+    if (request.request_status != RequestStatus.Pending) {
+      throw new ActionNotAllowedException('This request is already responded')
+    }
+
+    if (respondDto.requestStatus == RequestStatus.Accepted) {
+      await this.updateContestIsPublic(request.contest_id, true)
+    } else if (respondDto.requestStatus == RequestStatus.Rejected) {
+      await this.updateContestIsPublic(request.contest_id, false)
     }
 
     return await this.prisma.contestToPublicRequest.update({
       where: {
-        contest_id: contestId
+        id: requestId
       },
       data: {
-        request_status
+        request_status: respondDto.requestStatus
       }
     })
   }
@@ -421,6 +429,7 @@ export class ContestService {
         }
       },
       select: {
+        id: true,
         contest_id: true,
         contest: {
           select: {
@@ -439,11 +448,11 @@ export class ContestService {
   }
 
   async getAdminContestToPublicRequest(
-    contestId: number
+    id: number
   ): Promise<Partial<ContestToPublicRequest>> {
     return await this.prisma.contestToPublicRequest.findUnique({
       where: {
-        contest_id: contestId
+        id
       },
       select: {
         contest_id: true,
