@@ -6,6 +6,7 @@ import {
   RequestStatus
 } from '@prisma/client'
 import {
+  ActionNotAllowedException,
   EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
@@ -101,6 +102,7 @@ const mockPrismaService = {
   },
   contestToPublicRequest: {
     findUnique: jest.fn(),
+    findFirst: jest.fn(),
     findMany: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
@@ -468,7 +470,7 @@ describe('ContestService', () => {
 
   describe('createContestToPublicRequest', () => {
     const createContestToPublicRequestDto: CreateContestToPublicRequestDto = {
-      contest_id: contestId,
+      contestId: contestId,
       message: 'This is contest to public request'
     }
 
@@ -476,11 +478,9 @@ describe('ContestService', () => {
       mockPrismaService.contestToPublicRequest.create.mockClear()
     })
 
-    it('should return created request when contest does not have request', async () => {
+    it('should return created request when contest does not have accepted or pending request', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
-        null
-      )
+      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(null)
       mockPrismaService.contestToPublicRequest.create.mockResolvedValue(
         contestToPublicRequest
       )
@@ -502,7 +502,7 @@ describe('ContestService', () => {
         ...contestToPublicRequest,
         request_status: RequestStatus.Accepted
       }
-      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
         acceptedRequest
       )
 
@@ -515,64 +515,27 @@ describe('ContestService', () => {
 
       //then
       await expect(callCreateContestToPublicRequest).rejects.toThrow(
-        UnprocessableDataException
+        ActionNotAllowedException
       )
     })
 
-    it('should delete existing unaccepted request and create request', async () => {
+    it('should throw error when existing pending request for the contest', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
         contestToPublicRequest
       )
 
       //when
-      await contestService.createContestToPublicRequest(
-        userId,
-        createContestToPublicRequestDto
-      )
-
-      //then
-      expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(1)
-      expect(mockPrismaService.contestToPublicRequest.create).toBeCalledTimes(1)
-    })
-  })
-
-  describe('deleteUnacceptedContestToPublicRequest', () => {
-    let requestStatus: RequestStatus
-
-    afterEach(() => {
-      mockPrismaService.contestToPublicRequest.delete.mockClear()
-    })
-
-    it('should throw error when request status is Accept', async () => {
-      //given
-      requestStatus = RequestStatus.Accepted
-
-      //when
-      const callDeleteUnacceptedContestToPublicRequest = async () =>
-        await contestService.deleteUnacceptedContestToPublicRequest(
-          requestStatus,
-          contestId
+      const callCreateContestToPublicRequest = async () =>
+        await contestService.createContestToPublicRequest(
+          userId,
+          createContestToPublicRequestDto
         )
 
       //then
-      await expect(callDeleteUnacceptedContestToPublicRequest).rejects.toThrow(
-        UnprocessableDataException
+      await expect(callCreateContestToPublicRequest).rejects.toThrow(
+        ActionNotAllowedException
       )
-    })
-
-    it('should delete request for given contest id when request stauts is not Accept', async () => {
-      //given
-      requestStatus = RequestStatus.Pending
-
-      //when
-      await contestService.deleteUnacceptedContestToPublicRequest(
-        requestStatus,
-        contestId
-      )
-
-      //then
-      expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(1)
     })
   })
 
@@ -589,7 +552,10 @@ describe('ContestService', () => {
 
       //when
       const callDeleteContestToPublicRequest = async () =>
-        await contestService.deleteContestToPublicRequest(contestId)
+        await contestService.deleteContestToPublicRequest(
+          contestId,
+          contestToPublicRequestId
+        )
 
       //then
       await expect(callDeleteContestToPublicRequest).rejects.toThrow(
@@ -597,7 +563,7 @@ describe('ContestService', () => {
       )
     })
 
-    it('should throw error when request status is Accept', async () => {
+    it('should throw error when request status is Accepted', async () => {
       //given
       const acceptedRequest: ContestToPublicRequest = {
         ...contestToPublicRequest,
@@ -609,43 +575,146 @@ describe('ContestService', () => {
 
       //when
       const callDeleteContestToPublicRequest = async () =>
-        await contestService.deleteContestToPublicRequest(contestId)
+        await contestService.deleteContestToPublicRequest(
+          contestId,
+          contestToPublicRequestId
+        )
 
       //then
       await expect(callDeleteContestToPublicRequest).rejects.toThrow(
-        UnprocessableDataException
+        ActionNotAllowedException
       )
     })
 
-    it('should delete request for given contest id when request stauts is not Accept', async () => {
+    it('should throw error when request status is Rejected', async () => {
+      //given
+      const rejectedRequest: ContestToPublicRequest = {
+        ...contestToPublicRequest,
+        request_status: RequestStatus.Rejected
+      }
+      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
+        rejectedRequest
+      )
+
+      //when
+      const callDeleteContestToPublicRequest = async () =>
+        await contestService.deleteContestToPublicRequest(
+          contestId,
+          contestToPublicRequestId
+        )
+
+      //then
+      await expect(callDeleteContestToPublicRequest).rejects.toThrow(
+        ActionNotAllowedException
+      )
+    })
+
+    it('should delete request for given contest id when request stauts is Pending', async () => {
       //given
       mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
         contestToPublicRequest
       )
 
       //when
-      await contestService.deleteContestToPublicRequest(contestId)
+      await contestService.deleteContestToPublicRequest(
+        contestId,
+        contestToPublicRequestId
+      )
 
       //then
       expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(1)
     })
   })
 
+  describe('deletePendingContestToPublicRequest', () => {
+    let requestStatus: RequestStatus
+
+    afterEach(() => {
+      mockPrismaService.contestToPublicRequest.delete.mockClear()
+    })
+
+    it('should throw error when request status is Accepted', async () => {
+      //given
+      requestStatus = RequestStatus.Accepted
+
+      //when
+      const callDeletePendingContestToPublicRequest = async () =>
+        await contestService.deletePendingContestToPublicRequest(
+          requestStatus,
+          contestToPublicRequestId
+        )
+
+      //then
+      await expect(callDeletePendingContestToPublicRequest).rejects.toThrow(
+        ActionNotAllowedException
+      )
+    })
+
+    it('should throw error when request status is Rejected', async () => {
+      //given
+      requestStatus = RequestStatus.Rejected
+
+      //when
+      const callDeletePendingContestToPublicRequest = async () =>
+        await contestService.deletePendingContestToPublicRequest(
+          requestStatus,
+          contestToPublicRequestId
+        )
+
+      //then
+      await expect(callDeletePendingContestToPublicRequest).rejects.toThrow(
+        ActionNotAllowedException
+      )
+    })
+
+    it('should delete request when request stauts is Pending', async () => {
+      //given
+      requestStatus = RequestStatus.Pending
+
+      //when
+      await contestService.deletePendingContestToPublicRequest(
+        requestStatus,
+        contestToPublicRequestId
+      )
+
+      //then
+      expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(1)
+    })
+  })
+
+  describe('getContestToPublicRequests', () => {
+    it('should return requests for given contestId', async () => {
+      //given
+      mockPrismaService.contestToPublicRequest.findMany.mockResolvedValue(
+        contestToPublicRequests
+      )
+
+      //when
+      const result = await contestService.getContestToPublicRequests(contestId)
+
+      //then
+      expect(result).toEqual(contestToPublicRequests)
+    })
+  })
+
   describe('getContestToPublicRequest', () => {
-    it('should return request for given contest id', async () => {
+    it('should return request for given id', async () => {
       //given
       mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
         contestToPublicRequest
       )
 
       //when
-      const result = await contestService.getContestToPublicRequest(contestId)
+      const result = await contestService.getContestToPublicRequest(
+        contestId,
+        contestToPublicRequestId
+      )
 
       //then
       expect(result).toEqual(contestToPublicRequest)
     })
 
-    it('should throw error when request does not exist for given contest id', async () => {
+    it('should throw error when request does not exist', async () => {
       //given
       mockPrismaService.contestToPublicRequest.findUnique.mockRejectedValue(
         new EntityNotExistException('ContestToPublicRequest')
@@ -653,7 +722,10 @@ describe('ContestService', () => {
 
       //when
       const callGetContestToPublicRequest = async () =>
-        await contestService.getAdminContestToPublicRequest(contestId)
+        await contestService.getContestToPublicRequest(
+          contestId,
+          contestToPublicRequestId
+        )
 
       //then
       await expect(callGetContestToPublicRequest).rejects.toThrow(

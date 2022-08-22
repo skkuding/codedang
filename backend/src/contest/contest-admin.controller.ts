@@ -187,12 +187,12 @@ export class ContestToPublicRequestAdminController {
   }
 }
 
-@Controller('admin/group/:group_id/contest')
+@Controller('admin/group/:groupId/contest/:contestId/to-public')
 @UseGuards(RolesGuard, GroupManagerGuard)
 export class ContestToPublicRequestController {
   constructor(private readonly contestService: ContestService) {}
 
-  @Post('/:id/to-public')
+  @Post()
   async createContestToPublicRequest(
     @Req() req: AuthenticatedRequest,
     @Body() createContestToPublicRequestDto: CreateContestToPublicRequestDto
@@ -211,15 +211,19 @@ export class ContestToPublicRequestController {
     }
   }
 
-  @Delete('/:id/to-public')
+  @Delete('/:id')
   async deleteContestToPublicRequest(
-    @Param('id', ParseIntPipe) contestId: number
+    @Param('contestId', ParseIntPipe) contestId: number,
+    @Param('id', ParseIntPipe) requestId: number
   ) {
     try {
-      await this.contestService.deleteContestToPublicRequest(contestId)
+      await this.contestService.deleteContestToPublicRequest(
+        contestId,
+        requestId
+      )
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+      if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
       }
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -229,12 +233,27 @@ export class ContestToPublicRequestController {
     }
   }
 
-  @Get('/:id/to-public')
+  @Get()
+  async getContestToPublicRequests(
+    @Param('contestId', ParseIntPipe) contestId: number
+  ): Promise<Partial<ContestToPublicRequest>[]> {
+    try {
+      return await this.contestService.getContestToPublicRequests(contestId)
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('/:id')
   async getContestToPublicRequest(
-    @Param('id', ParseIntPipe) contestId: number
+    @Param('contestId', ParseIntPipe) contestId: number,
+    @Param('id', ParseIntPipe) requestId: number
   ): Promise<Partial<ContestToPublicRequest>> {
     try {
-      return await this.contestService.getContestToPublicRequest(contestId)
+      return await this.contestService.getContestToPublicRequest(
+        contestId,
+        requestId
+      )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

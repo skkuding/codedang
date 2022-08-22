@@ -3,7 +3,7 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator'
 export class CreateContestToPublicRequestDto {
   @IsNumber()
   @IsNotEmpty()
-  readonly contest_id: number
+  readonly contestId: number
 
   @IsString()
   @IsNotEmpty()

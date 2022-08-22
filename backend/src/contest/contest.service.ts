@@ -244,21 +244,18 @@ export class ContestService {
 
   async createContestToPublicRequest(
     userId: number,
-    { contest_id, message }: CreateContestToPublicRequestDto
+    { contestId, message }: CreateContestToPublicRequestDto
   ): Promise<ContestToPublicRequest> {
-    const request = await this.prisma.contestToPublicRequest.findUnique({
+    const request = await this.prisma.contestToPublicRequest.findFirst({
       where: {
-        contest_id
-      },
-      select: {
-        request_status: true
+        contest_id: contestId,
+        request_status: { in: [RequestStatus.Accepted, RequestStatus.Pending] }
       }
     })
 
     if (request) {
-      await this.deleteUnacceptedContestToPublicRequest(
-        request.request_status,
-        contest_id
+      throw new ActionNotAllowedException(
+        'This contest is already accepted or waits response'
       )
     }
 
@@ -267,7 +264,7 @@ export class ContestService {
         message: message,
         contest: {
           connect: {
-            id: contest_id
+            id: contestId
           }
         },
         created_by: {
@@ -279,26 +276,10 @@ export class ContestService {
     })
   }
 
-  async deleteUnacceptedContestToPublicRequest(
-    requestStatus: RequestStatus,
-    contest_id: number
-  ) {
-    if (requestStatus == RequestStatus.Accepted) {
-      throw new ActionNotAllowedException(
-        'This contest is already accepted to be public'
-      )
-    }
-
-    await this.prisma.contestToPublicRequest.delete({
+  async deleteContestToPublicRequest(contestId: number, requestId: number) {
+    const request = await this.prisma.contestToPublicRequest.findFirst({
       where: {
-        contest_id
-      }
-    })
-  }
-
-  async deleteContestToPublicRequest(contestId: number) {
-    const request = await this.prisma.contestToPublicRequest.findUnique({
-      where: {
+        id: requestId,
         contest_id: contestId
       },
       select: {
@@ -308,21 +289,60 @@ export class ContestService {
         new EntityNotExistException('ContestToPublicRequest')
     })
 
-    await this.deleteUnacceptedContestToPublicRequest(
+    await this.deletePendingContestToPublicRequest(
       request.request_status,
-      contestId
+      requestId
     )
   }
 
-  async getContestToPublicRequest(
+  async deletePendingContestToPublicRequest(
+    requestStatus: RequestStatus,
+    requestId: number
+  ) {
+    if (requestStatus != RequestStatus.Pending) {
+      throw new ActionNotAllowedException(
+        'Already responded request cannot be removed'
+      )
+    }
+
+    await this.prisma.contestToPublicRequest.delete({
+      where: {
+        id: requestId
+      }
+    })
+  }
+
+  async getContestToPublicRequests(
     contestId: number
-  ): Promise<Partial<ContestToPublicRequest>> {
-    return await this.prisma.contestToPublicRequest.findUnique({
+  ): Promise<Partial<ContestToPublicRequest>[]> {
+    return await this.prisma.contestToPublicRequest.findMany({
       where: {
         contest_id: contestId
       },
       select: {
-        contest_id: true,
+        id: true,
+        request_status: true,
+        created_by: {
+          select: {
+            username: true
+          }
+        },
+        create_time: true
+      }
+    })
+  }
+
+  async getContestToPublicRequest(
+    contestId: number,
+    requestId: number
+  ): Promise<Partial<ContestToPublicRequest>> {
+    return await this.prisma.contestToPublicRequest.findFirst({
+      where: {
+        id: requestId,
+        contest_id: contestId
+      },
+      select: {
+        id: true,
         message: true,
         request_status: true,
         created_by: {
