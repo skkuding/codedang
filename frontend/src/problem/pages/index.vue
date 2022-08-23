@@ -10,7 +10,6 @@ import Switch from '@/common/components/Molecule/Switch.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import { computed } from 'vue'
 import { ref } from 'vue'
-import { onMounted } from 'vue'
 import { onUpdated } from 'vue'
 
 defineProps<{
@@ -45,8 +44,6 @@ const colorMapper = (level: number) => {
       return 'bg-gray'
   }
 }
-
-const problemListWithoutTag: any = []
 
 const problemList = [
   {
@@ -130,14 +127,6 @@ const problemList = [
     tag: 'J'
   }
 ]
-
-onMounted(() => {
-  for (let i = 0; i < problemList.length; i++) {
-    const { tag, ...other } = problemList[i]
-    problemListWithoutTag.push(other)
-  }
-})
-
 const clickRow = (row: any) => {
   window.location.href = '/problem/' + row.id
 }
@@ -147,7 +136,7 @@ const clickCard = (index: number) => {
 }
 
 const connectSwitchData = (data: any) => {
-  isSwitchOn.value = data.value
+  isSwitchOn.value = data
 }
 
 const isSwitchOn = ref(true)
@@ -254,7 +243,7 @@ const clickMore = () => {
       Find problems with problem set and filters, and solve it!
     </template>
   </BoxTitle>
-  <div class="mx-40 mb-28">
+  <div class="overflow-x scroll mx-auto mb-28 w-11/12">
     <PageSubtitle text="All Problem" class="mt-10 mb-7" />
     <PaginationTable
       v-if="isSwitchOn"
@@ -268,7 +257,7 @@ const clickMore = () => {
         <Switch
           label="Tags"
           :model-value="isSwitchOn"
-          @switchdata="connectSwitchData"
+          @update:model-value="connectSwitchData"
         />
       </template>
       <template #level="{ row }">
@@ -281,7 +270,7 @@ const clickMore = () => {
     <PaginationTable
       v-else
       :fields="fields.slice(0, -1)"
-      :items="problemListWithoutTag"
+      :items="problemList"
       placeholder="keywords"
       :number-of-pages="1"
       @row-clicked="clickRow"
@@ -290,7 +279,7 @@ const clickMore = () => {
         <Switch
           label="Tags"
           :model-value="isSwitchOn"
-          @switchdata="connectSwitchData"
+          @update:model-value="connectSwitchData"
         />
       </template>
       <template #level="{ row }">
@@ -318,7 +307,7 @@ const clickMore = () => {
         :total="item.total"
         :complete="item.complete"
         class="!w-[95%] cursor-pointer"
-        @card-clicked="clickCard(index)"
+        @click="clickCard(index)"
       />
     </div>
     <Button class="text-gray-dark mt-8 w-full" color="white" @click="clickMore">

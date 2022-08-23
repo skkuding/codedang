@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-
 const props = defineProps<{
   title?: string
   header?: string
@@ -10,33 +9,21 @@ const props = defineProps<{
   complete: number
   progressText?: string
 }>()
-
-const emit = defineEmits<{
-  (e: 'card-clicked', data: any): void
-}>()
-
 const width = computed(() => (props.complete / props.total) * 100)
-
 // TODO: define available color set
 const shadowColor = computed(
   () => `box-shadow: 0 4px 8px 4px ${props.color || '#7a7c7b'};`
 )
-
 const progressColor = computed(
   () => `background-color: ${props.color || '#7a7c7b'};`
 )
-
 const progressWidth = computed(() => {
   return `width: ${width.value}%;`
 })
 </script>
 
 <template>
-  <div
-    class="m-4 w-1/2 min-w-min rounded-lg p-12"
-    :style="shadowColor"
-    @click="$emit('card-clicked')"
-  >
+  <div class="m-4 w-1/2 min-w-min rounded-lg p-12" :style="shadowColor">
     <div class="text-text-title text-xs">{{ header }}</div>
     <div class="text-text-title mb-2 text-2xl">{{ title }}</div>
     <div class="mb-4">{{ description }}</div>

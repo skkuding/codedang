@@ -6,11 +6,9 @@ const props = defineProps<{
   modelValue: boolean
 }>()
 
-const emit = defineEmits(['switchdata'])
-
-const sendSwitchData = () => {
-  emit('switchdata', data)
-}
+defineEmits<{
+  (e: 'update:modelValue', value: boolean): void
+}>()
 
 const data = ref(props.modelValue)
 </script>
@@ -23,7 +21,7 @@ const data = ref(props.modelValue)
       type="checkbox"
       role="switch"
       class="border-gray before:bg-gray checked:before:bg-green checked:border-green grid h-6 w-12 cursor-pointer appearance-none rounded-full border px-1 before:my-auto before:h-4 before:w-4 before:rounded-full before:transition checked:before:translate-x-5"
-      @change="sendSwitchData()"
+      @change="$emit('update:modelValue', data)"
     />
   </label>
 </template>
