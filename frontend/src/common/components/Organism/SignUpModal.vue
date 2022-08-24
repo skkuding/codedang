@@ -16,7 +16,7 @@ const props = defineProps<{ visible?: boolean }>()
 
 <template>
   <!-- TODO: tailwindcss 크기 표현으로 큰 px(h-96 w-96이상) 표현하기-->
-  <Modal v-if="props.visible" class="h-[687px] w-96">
+  <Modal v-if="props.visible" class="h-[684px] w-96">
     <template #modal-title>
       <div class="text-green text-2xl font-semibold">
         <div>Welcome to</div>
