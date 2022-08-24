@@ -6,6 +6,7 @@ import {
 } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { UserGroupData } from './interface/user-group-data.interface'
+import { Membership } from './interface/membership.interface'
 import { UserGroupInterface } from './interface/user-group.interface'
 
 function returnIsNotAllowed(userId: number, groupId: number): string {
@@ -46,6 +47,7 @@ export class GroupService {
     userId: number,
     groupId: number
   ): Promise<UserGroupInterface> {
+    //TODO: Update Group Manager, Admin
     const group = await this.prisma.group.findFirst({
       where: {
         id: groupId,
@@ -76,6 +78,7 @@ export class GroupService {
     userId: number,
     invitationCode: string
   ): Promise<UserGroupInterface> {
+    //TODO: Update Group Manager, Admin
     const group = await this.prisma.group.findFirst({
       where: {
         invitation_code: invitationCode,
@@ -100,6 +103,83 @@ export class GroupService {
       ...group,
       memberNum: groupMemberNum
     }
+  }
+
+  async getGroupManagers(
+    userId: number,
+    groupId: number
+  ): Promise<Membership[]> {
+    // TODO: filter student_id
+    await this.prisma.userGroup.findFirst({
+      where: {
+        user_id: userId,
+        group_id: groupId,
+        is_registered: true
+      },
+      rejectOnNotFound: () =>
+        new InvalidUserException(returnIsNotAllowed(userId, groupId))
+    })
+
+    const managers = await this.prisma.userGroup.findMany({
+      where: {
+        group_id: groupId,
+        is_registered: true
+      },
+      select: {
+        id: true,
+        user: {
+          select: {
+            student_id: true,
+            UserProfile: {
+              select: {
+                real_name: true
+              }
+            }
+          }
+        },
+        is_group_manager: true
+      }
+    })
+
+    return managers
+  }
+
+  async getGroupMembers(
+    userId: number,
+    groupId: number
+  ): Promise<Membership[]> {
+    await this.prisma.userGroup.findFirst({
+      where: {
+        user_id: userId,
+        group_id: groupId,
+        is_registered: true
+      },
+      rejectOnNotFound: () =>
+        new InvalidUserException(returnIsNotAllowed(userId, groupId))
+    })
+
+    const members = await this.prisma.userGroup.findMany({
+      where: {
+        group_id: groupId,
+        is_registered: true
+      },
+      select: {
+        id: true,
+        user: {
+          select: {
+            student_id: true,
+            UserProfile: {
+              select: {
+                real_name: true
+              }
+            }
+          }
+        },
+        is_group_manager: false
+      }
+    })
+
+    return members
   }
 
   async getNonPrivateGroups(): Promise<UserGroupInterface[]> {
@@ -176,26 +256,6 @@ export class GroupService {
     })
   }
 
-  async leaveGroup(userId: number, groupId: number) {
-    const membershipId = await this.prisma.userGroup.findFirst({
-      where: {
-        user_id: userId,
-        group_id: groupId,
-        is_registered: true
-      },
-      select: {
-        id: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('membership')
-    })
-
-    await this.prisma.userGroup.delete({
-      where: {
-        id: membershipId.id
-      }
-    })
-  }
-
   async joinGroupById(userId: number, groupId: number) {
     await this.prisma.group.findUnique({
       where: {
@@ -212,6 +272,26 @@ export class GroupService {
         group: {
           connect: { id: groupId }
         }
+      }
+    })
+  }
+
+  async leaveGroup(userId: number, groupId: number) {
+    const membershipId = await this.prisma.userGroup.findFirst({
+      where: {
+        user_id: userId,
+        group_id: groupId,
+        is_registered: true
+      },
+      select: {
+        id: true
+      },
+      rejectOnNotFound: () => new EntityNotExistException('membership')
+    })
+
+    await this.prisma.userGroup.delete({
+      where: {
+        id: membershipId.id
       }
     })
   }
