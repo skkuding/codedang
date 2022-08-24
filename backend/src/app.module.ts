@@ -14,6 +14,11 @@ import { SubmissionModule } from './submission/submission.module'
 import { UserModule } from './user/user.module'
 import { WorkbookModule } from './workbook/workbook.module'
 import { CacheConfigService } from './common/cache/cacheConfig.service'
+import { APP_GUARD } from '@nestjs/core'
+import { JwtAuthGuard } from './auth/guard/jwt-auth.guard'
+import { MailerModule } from '@nestjs-modules/mailer'
+import { MailerConfigService } from './email/mailerConfig.service'
+import { EmailModule } from './email/email.module'
 
 @Module({
   imports: [
@@ -21,6 +26,9 @@ import { CacheConfigService } from './common/cache/cacheConfig.service'
     CacheModule.registerAsync({
       isGlobal: true,
       useClass: CacheConfigService
+    }),
+    MailerModule.forRootAsync({
+      useClass: MailerConfigService
     }),
     PrismaModule,
     AuthModule,
@@ -30,9 +38,10 @@ import { CacheConfigService } from './common/cache/cacheConfig.service'
     ProblemModule,
     SubmissionModule,
     UserModule,
-    WorkbookModule
+    WorkbookModule,
+    EmailModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }]
 })
 export class AppModule {}
