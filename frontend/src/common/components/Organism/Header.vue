@@ -112,25 +112,7 @@ const getAuth = () => {
           @click="isMenuOpen = !isMenuOpen"
         />
       </div>
-      <!-- FIXME: x 버튼 안먹힘 -->
-      <SignUpModal
-        :visible="isSignUpModalVisible"
-        @close="SignUpModalClose"
-        @login="SignUpModalClose(), LogInModalOpen()"
-        @signup="LogInModalClose(), SignUpModalOpen()"
-      ></SignUpModal>
-      <LogInModal
-        :visible="isLogInModalVisible"
-        @close="LogInModalClose"
-        @signup="LogInModalClose(), SignUpModalOpen()"
-        @password="LogInModalClose(), PasswordFindModalOpen()"
-        @auth="LogInModalClose(), getAuth()"
-      ></LogInModal>
-      <PasswordFindModal
-        :visible="isPasswordFindModalVisible"
-        @login="PasswordFindModalClose(), LogInModalOpen()"
-        @close="PasswordFindModalClose"
-      ></PasswordFindModal>
+
       <transition
         enter-active-class="transition-opacity duration-300"
         leave-active-class="transition-opacity duration-300"
@@ -189,5 +171,24 @@ const getAuth = () => {
         </div>
       </transition>
     </header>
+    <SignUpModal
+      :visible="isSignUpModalVisible"
+      @close="SignUpModalClose"
+      @login="SignUpModalClose(), LogInModalOpen()"
+      @signup="LogInModalClose(), SignUpModalOpen()"
+    ></SignUpModal>
+
+    <LogInModal
+      :visible="isLogInModalVisible"
+      @close="LogInModalClose"
+      @signup="LogInModalClose(), SignUpModalOpen()"
+      @password="LogInModalClose(), PasswordFindModalOpen()"
+      @auth="LogInModalClose(), getAuth()"
+    ></LogInModal>
+    <PasswordFindModal
+      :visible="isPasswordFindModalVisible"
+      @login="PasswordFindModalClose(), LogInModalOpen()"
+      @close="PasswordFindModalClose"
+    ></PasswordFindModal>
   </OnClickOutside>
 </template>
