@@ -13,36 +13,33 @@ const props = defineProps<{ visible?: boolean }>()
 </script>
 
 <template>
-  <Modal v-if="props.visible" class="text-green h-[401px] w-[360px]">
+  <Modal v-if="props.visible" class="h-96 w-96">
     <template #modal-title>
       <div class="text-green text-2xl font-semibold">PassWord Recovery</div>
     </template>
     <template #modal-content>
-      <ul class="m-9 space-y-4 p-2">
-        <div class="flex justify-between">
+      <ul class="m-5 space-y-4 p-2">
+        <!-- FIXME: space-x-1 적용안됨, SignupModal은 적용됨 -->
+        <div class="flex justify-between space-x-1">
           <InputItem
             :notice="false"
             shadow
             placeholder="Email Address"
-            class="h-[36px] w-[240px]"
+            class="h-9 w-60"
           />
-          <Button color="green" c>
-            <MajesticonsSend />
+          <Button color="green" class="mt-1">
+            <MajesticonsSend class="h-7 w-5" />
           </Button>
         </div>
 
-        <div class="flex justify-between">
-          <InputItem
-            shadow
-            placeholder="Vertification code"
-            class="h-[36px] w-[240px]"
-          />
-          <Button color="green">
-            <Fa6SolidCheck />
+        <div class="flex justify-between space-x-1">
+          <InputItem shadow placeholder="Vertification code" class="h-9 w-60" />
+          <Button color="green" class="mt-1">
+            <Fa6SolidCheck class="h-7 w-5" />
           </Button>
         </div>
 
-        <InputItem shadow placeholder="Captcha" class="h-[36px] w-[130px]" />
+        <InputItem shadow placeholder="Captcha" class="w-34 h-9" />
       </ul>
 
       <Button color="green" class="mb-2">Send Password Reset Email</Button>

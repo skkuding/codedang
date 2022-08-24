@@ -26,7 +26,8 @@ const LogInModalOpen = () => {
 </script>
 
 <template>
-  <Modal v-if="props.visible" class="text-green h-[537px] w-[360px]">
+  <!-- TODO: tailwindcss 크기 표현으로 큰 px(h-96 w-96이상) 표현하기-->
+  <Modal v-if="props.visible" class="h-[537px] w-96">
     <template #modal-title>
       <div class="text-green text-2xl font-semibold">
         <div>SKKU</div>
@@ -37,12 +38,14 @@ const LogInModalOpen = () => {
       <img src="@/common/assets/logo.svg" class="w-20" alt="" />
     </template>
     <template #modal-content>
-      <ul class="m-9 space-y-4 p-2">
-        <InputItem shadow placeholder="User ID" />
-        <InputItem shadow placeholder="Password" />
+      <ul class="m-5 space-y-4 p-2">
+        <InputItem shadow placeholder="User ID" class="w-64" />
+        <InputItem shadow placeholder="Password" class="w-64" />
       </ul>
-      <!-- TODO: sign in 눌렀을 경우 아이콘으로 바뀌기-->
-      <Button color="green" @click="$emit('auth', true)">Sign In</Button>
+
+      <Button color="green" class="mx-auto" @click="$emit('auth', true)">
+        Sign In
+      </Button>
       <div class="bottom-0 mt-8 flex justify-around">
         <button
           class="border-b-1 text-gray-dark border-black"
