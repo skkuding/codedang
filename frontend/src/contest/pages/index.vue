@@ -15,6 +15,7 @@ import { ref } from 'vue'
 // Icon이랑 색감 BoxTitle 색감 어떻게 줄까
 const onGoingList = [
   {
+    id: 0,
     img: '@/../skku.svg',
     title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회0',
     additionalText: 'Member: 23',
@@ -26,6 +27,7 @@ const onGoingList = [
 
 const registerNowList = [
   {
+    id: 1,
     img: '@/../skku.svg',
     title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회0',
     additionalText: 'Member: 23',
@@ -34,6 +36,7 @@ const registerNowList = [
     coloredTextShort: 'By 하설빙'
   },
   {
+    id: 2,
     img: '@/../skku.svg',
     title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회1',
     additionalText: 'Member: 23',
@@ -42,6 +45,7 @@ const registerNowList = [
     coloredTextShort: 'By 하설빙'
   },
   {
+    id: 3,
     img: '@/../skku.svg',
     title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회2',
     additionalText: 'Member: 23',
@@ -53,6 +57,7 @@ const registerNowList = [
 
 const upComingList = [
   {
+    id: 4,
     img: '@/../skku.svg',
     title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회0',
     additionalText: 'Member: 23',
@@ -61,6 +66,7 @@ const upComingList = [
     coloredTextShort: 'By 하설빙'
   },
   {
+    id: 5,
     img: '@/../skku.svg',
     title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회1',
     additionalText: 'Member: 23',
@@ -69,6 +75,7 @@ const upComingList = [
     coloredTextShort: 'By 하설빙'
   },
   {
+    id: 6,
     img: '@/../skku.svg',
     title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회2',
     additionalText: 'Member: 23',
@@ -77,6 +84,7 @@ const upComingList = [
     coloredTextShort: 'By 하설빙'
   },
   {
+    id: 7,
     img: '@/../skku.svg',
     title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회3',
     additionalText: 'Member: 23',
@@ -88,6 +96,7 @@ const upComingList = [
 
 const finishedList = [
   {
+    id: 8,
     borderColor: 'red',
     img: '@/../skku.svg',
     title: '2021 Summer SKKU 프로그래밍 대회 - 참여중 대회0',
@@ -97,6 +106,7 @@ const finishedList = [
     coloredTextShort: 'By 하설빙'
   },
   {
+    id: 9,
     borderColor: 'red',
     img: '@/../skku.svg',
     title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회1',
@@ -107,16 +117,24 @@ const finishedList = [
   }
 ]
 
-const modalIndex = ref(0)
+const modalId = ref(0)
 const isModalVisible = ref(false)
-const closeModal = (index: any) => {
-  modalIndex.value = index
+const isListVisible = ref(true)
+const closeModal = (id: any) => {
+  modalId.value = id
   isModalVisible.value = false
 }
-const popModal = (index: any) => {
-  console.log(index)
-  modalIndex.value = index
+const popModal = (id: any) => {
+  modalId.value = id
   isModalVisible.value = true
+}
+
+const listVisible = () => {
+  if (isListVisible.value == true) {
+    isListVisible.value = false
+  } else {
+    isListVisible.value = true
+  }
 }
 </script>
 
@@ -141,14 +159,14 @@ const popModal = (index: any) => {
         :colored-text="items.coloredText"
         :colored-text-short="items.coloredTextShort"
         class="mb-4"
-        @click="popModal(index)"
+        @click="popModal(items.id)"
       />
       <Modal
-        v-if="isModalVisible && modalIndex === index"
+        v-if="isModalVisible && modalId === items.id"
         :key="index"
         :title="items.title"
         class="h-40"
-        @close="closeModal(index)"
+        @close="closeModal(items.id)"
       />
     </div>
     <PageSubtitle text="Register Now > >" class="mt-8 mb-4" />
@@ -161,14 +179,14 @@ const popModal = (index: any) => {
         :colored-text="items.coloredText"
         :colored-text-short="items.coloredTextShort"
         class="mb-4"
-        @click="popModal(index)"
+        @click="popModal(items.id)"
       />
       <Modal
-        v-if="isModalVisible && modalIndex === index"
+        v-if="isModalVisible && modalId === items.id"
         :key="index"
         :title="items.title"
         class="h-40"
-        @close="closeModal(index)"
+        @close="closeModal(items.id)"
       />
     </div>
     <PageSubtitle text="Upcoming Contests > >" class="mt-8 mb-4" />
@@ -180,40 +198,44 @@ const popModal = (index: any) => {
         :additional-text="items.additionalText"
         :colored-text="items.coloredText"
         :colored-text-short="items.coloredTextShort"
-        @click="popModal(index)"
         class="mb-4"
+        @click="popModal(items.id)"
       />
       <Modal
-        v-if="isModalVisible && modalIndex === index"
+        v-if="isModalVisible && modalId === items.id"
         :key="index"
         :title="items.title"
         class="h-40"
-        @close="closeModal(index)"
+        @close="closeModal(items.id)"
       />
     </div>
-    <div class="mt-8 flex">
-      <PageSubtitle text="Finished Contests" class="!text-red mb-4" />
-      <Button class="bg-red"></Button>
-    </div>
-    <div v-for="(items, index) in finishedList" :key="index">
-      <CardItem
-        border-color="gray"
-        :img="items.img"
-        :title="items.title"
-        :description="items.description"
-        :additional-text="items.additionalText"
-        :colored-text="items.coloredText"
-        :colored-text-short="items.coloredTextShort"
-        class="mb-4"
-        @click="popModal(index)"
-      />
-      <Modal
-        v-if="isModalVisible && modalIndex === index"
-        :key="index"
-        :title="items.title"
-        class="h-40"
-        @close="closeModal(index)"
-      />
+    <div class="h-80">
+      <div class="mt-8 flex">
+        <PageSubtitle text="Finished Contests" class="!text-red mb-4" />
+        <Button class="!bg-red" @click="listVisible"></Button>
+      </div>
+      <div v-show="isListVisible">
+        <div v-for="(items, index) in finishedList" :key="index">
+          <CardItem
+            border-color="gray"
+            :img="items.img"
+            :title="items.title"
+            :description="items.description"
+            :additional-text="items.additionalText"
+            :colored-text="items.coloredText"
+            :colored-text-short="items.coloredTextShort"
+            class="mb-4"
+            @click="popModal(items.id)"
+          />
+          <Modal
+            v-if="isModalVisible && modalId === items.id"
+            :key="index"
+            :title="items.title"
+            class="h-40"
+            @close="closeModal(items.id)"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
