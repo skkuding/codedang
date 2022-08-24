@@ -58,7 +58,7 @@ const slides = [
   <body class="h-screen">
     <Carousel :slides="slides" class="z-10 mt-[56px]"></Carousel>
     <div
-      class="inline-flex-col relative z-10 mx-auto w-full lg:flex lg:justify-around"
+      class="inline-flex-col relative z-10 mx-auto mt-1 w-full lg:flex lg:justify-around"
     >
       <Card href="#" :items="noticeItems" class="mx-auto max-w-xl">
         <template #title>
