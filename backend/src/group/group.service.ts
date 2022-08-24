@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { Group, UserGroup } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { RequestGroupDto } from './dto/request-group.dto'
-import { encrypt } from 'src/common/hash'
 import {
   ActionNotAllowedException,
   EntityNotExistException
@@ -10,8 +9,8 @@ import {
 import { AdminGroup } from './interface/admin-group.interface'
 import { Membership } from './interface/membership.interface'
 import { CreateMemberDto } from './dto/create-member.dto'
+import { randomBytes } from 'crypto'
 
-// TODO: group id 확정 필요
 const DEPRECATED = 0
 
 @Injectable()
@@ -50,19 +49,21 @@ export class GroupService {
   }
 
   async createGroup(userId: number, groupDto: RequestGroupDto): Promise<Group> {
-    const code = (await encrypt(userId + groupDto.group_name)).split('$')[5]
-
     return await this.prisma.group.create({
       data: {
         group_name: groupDto.group_name,
         private: groupDto.private,
-        invitation_code: code,
+        invitation_code: this.createCode(),
         description: groupDto.description,
         created_by: {
           connect: { id: userId }
         }
       }
     })
+  }
+
+  createCode(): string {
+    return randomBytes(6).toString('base64').padStart(8, 'A')
   }
 
   async getAdminGroups(userId: number): Promise<AdminGroup[]> {
@@ -221,7 +222,7 @@ export class GroupService {
           }
         })
       ).id
-      return await this.prisma.userGroup.create({
+      return this.prisma.userGroup.create({
         data: {
           user: {
             connect: { id: id }

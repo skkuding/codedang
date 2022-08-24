@@ -42,7 +42,7 @@ export class GroupAdminController {
     @Body() groupDto: RequestGroupDto
   ): Promise<Group> {
     return await this.groupService.createGroup(req.user.id, groupDto)
-  } // TODO: 사용자로 UserGroup 생성
+  }
 
   @Get()
   async getGroups(@Req() req: AuthenticatedRequest): Promise<Partial<Group>[]> {

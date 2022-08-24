@@ -4,15 +4,15 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { RequestGroupDto } from './dto/request-group.dto'
 import { CreateMemberDto } from './dto/create-member.dto'
 import { GroupService } from './group.service'
-import * as hash from '../common/hash'
 import { Membership } from './interface/membership.interface'
 import {
   ActionNotAllowedException,
   EntityNotExistException
 } from 'src/common/exception/business.exception'
+import { randomBytes } from 'crypto'
 
 const userId = 1
-const groupId = 3
+const groupId = 2
 const membershipId = 1
 
 const group: Group = {
@@ -20,7 +20,7 @@ const group: Group = {
   created_by_id: userId,
   group_name: 'group_name',
   private: true,
-  invitation_code: '',
+  invitation_code: randomBytes(6).toString('base64').padStart(8, 'A'),
   description: 'description',
   create_time: new Date(),
   update_time: new Date()
@@ -102,11 +102,7 @@ describe('GroupService', () => {
     service = module.get<GroupService>(GroupService)
   })
 
-  beforeAll(async () => {
-    group.invitation_code = (
-      await hash.encrypt(userId + group.group_name)
-    ).split('$')[5]
-  })
+  //beforeAll(() => {})
 
   it('should be defined', () => {
     expect(service).toBeDefined()
@@ -140,10 +136,10 @@ describe('GroupService', () => {
 
   describe('createGroup', () => {
     it('should return newly created group', async () => {
-      const encryptSpy = jest.spyOn(hash, 'encrypt')
+      const encryptSpy = jest.spyOn(service, 'createCode')
       const createGroup = await service.createGroup(userId, requestGroupDto)
       expect(createGroup).toEqual(group)
-      expect(encryptSpy).toBeCalledWith(userId + group.group_name)
+      expect(encryptSpy).toBeCalledTimes(1)
     })
   })
 
