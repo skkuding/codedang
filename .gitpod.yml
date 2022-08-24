@@ -2,8 +2,6 @@ gitConfig:
   pull.rebase: 'true'
 
 ports:
-  - port: 3000 # Vite
-    onOpen: open-browser
   - port: 5000 # Nest.js
     onOpen: ignore
     visibility: public
