@@ -203,7 +203,7 @@ export class ContestService {
   }
 
   async getAdminContests(userId: number): Promise<Partial<Contest>[]> {
-    const groupIds = await this.groupService.getUserGroupManagerList(userId)
+    const groupIds = await this.groupService.getManagingGroupIds(userId)
     return await this.prisma.contest.findMany({
       where: {
         groupId: { in: groupIds }

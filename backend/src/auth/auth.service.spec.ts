@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
 
 import { Cache } from 'cache-manager'
-import { User } from '@prisma/client'
+import { Submission, User, UserProfile } from '@prisma/client'
 
 import { AuthService } from './auth.service'
 import { UserService } from 'src/user/user.service'
@@ -32,6 +32,7 @@ describe('AuthService', () => {
     username: 'user',
     password: VALID_PASSWORD,
     role: 'User',
+    studentId: null,
     email: '',
     hasEmailAuthenticated: false,
     lastLogin: undefined,

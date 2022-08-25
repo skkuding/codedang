@@ -38,6 +38,7 @@ describe('UserService', () => {
     username: 'user',
     password: 'password',
     role: 'User',
+    studentId: null,
     email: EMAIL_ADDRESS,
     hasEmailAuthenticated: false,
     lastLogin: undefined,

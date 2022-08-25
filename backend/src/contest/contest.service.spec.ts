@@ -389,7 +389,7 @@ describe('ContestService', () => {
   describe('getAdminContests', () => {
     it('should return contests in groups whose user is group manager', async () => {
       jest
-        .spyOn(groupService, 'getUserGroupManagerList')
+        .spyOn(groupService, 'getManagingGroupIds')
         .mockResolvedValue([groupId])
 
       expect(await contestService.getAdminContests(userId)).toEqual(contests)
@@ -399,7 +399,7 @@ describe('ContestService', () => {
   describe('getAdminOngoingContests', () => {
     it('should return ongoing contests in groups whose user is group manager', async () => {
       jest
-        .spyOn(groupService, 'getUserGroupManagerList')
+        .spyOn(groupService, 'getManagingGroupIds')
         .mockResolvedValue([groupId])
 
       expect(await contestService.getAdminOngoingContests(userId)).toEqual(
