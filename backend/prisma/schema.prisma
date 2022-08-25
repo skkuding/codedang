@@ -22,7 +22,7 @@ model User {
   username              String   @unique
   password              String
   role                  Role     @default(User)
-  studentId             String   @unique @map("student_id")
+  studentId             String?  @unique @map("student_id")
   email                 String   @unique
   hasEmailAuthenticated Boolean  @default(false) @map("has_email_authenticated")
   lastLogin             DateTime @map("last_login")
