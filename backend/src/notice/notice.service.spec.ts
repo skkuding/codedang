@@ -288,7 +288,7 @@ describe('NoticeService', () => {
     it('should return notice list of the group', async () => {
       const getUserGroupManagerListSpy = jest.spyOn(
         groupService,
-        'getUserGroupManagerList'
+        'getManagingGroupIds'
       )
       db.notice.findMany.mockResolvedValue(noticeArray)
 
