@@ -6,6 +6,6 @@ export interface AdminGroup {
   description: string
   create_time?: Date
   update_time?: Date
-  UserGroup: number
-  ManagerGroup?: string[]
+  total_member: number
+  managers?: string[]
 }

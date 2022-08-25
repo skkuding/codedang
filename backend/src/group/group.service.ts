@@ -87,7 +87,8 @@ export class GroupService {
     ).map((group) => {
       return {
         ...group,
-        UserGroup: group.UserGroup.length
+        total_member: group.UserGroup.filter((member) => member.is_registered)
+          .length
       }
     })
   }
@@ -112,8 +113,9 @@ export class GroupService {
 
     return {
       ...group,
-      UserGroup: group.UserGroup.length,
-      ManagerGroup: (await this.getAdminManagers(id)).map(
+      total_member: group.UserGroup.filter((member) => member.is_registered)
+        .length,
+      managers: (await this.getAdminManagers(id)).map(
         (manager) => manager.user.username
       )
     }
@@ -235,7 +237,7 @@ export class GroupService {
       })
     })
 
-    return Promise.all(members)
+    return await Promise.all(members)
   }
 
   async getAdminManagers(groupId: number): Promise<Membership[]> {
