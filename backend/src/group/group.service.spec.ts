@@ -17,46 +17,46 @@ const membershipId = 1
 
 const group: Group = {
   id: groupId,
-  created_by_id: userId,
-  group_name: 'group_name',
+  createdById: userId,
+  groupName: 'groupName',
   private: true,
-  invitation_code: randomBytes(6).toString('base64').padStart(8, 'A'),
+  invitationCode: randomBytes(6).toString('base64').padStart(8, 'A'),
   description: 'description',
-  create_time: new Date(),
-  update_time: new Date()
+  createTime: new Date(),
+  updateTime: new Date()
 }
 
 const userGroup: UserGroup = {
   id: membershipId,
-  user_id: userId,
-  group_id: groupId,
-  is_registered: true,
-  is_group_manager: true,
-  create_time: new Date(),
-  update_time: new Date()
+  userId: userId,
+  groupId: groupId,
+  isRegistered: true,
+  isGroupManager: true,
+  createTime: new Date(),
+  updateTime: new Date()
 }
 
 const membership: Membership = {
   id: userGroup.id,
   user: {
     username: 'example',
-    student_id: '2020710000',
+    studentId: '2020710000',
     email: 'example@skku.edu',
     UserProfile: {
-      real_name: 'Hong Gildong'
+      realName: 'Hong Gildong'
     }
   }
 }
 
 const requestGroupDto: RequestGroupDto = {
-  group_name: group.group_name,
+  groupName: group.groupName,
   private: group.private,
   description: group.description
 }
 
 const createMemberDto: CreateMemberDto = {
-  student_id: '2020310000',
-  is_group_manager: false
+  studentId: '2020310000',
+  isGroupManager: false
 }
 
 const db = {
@@ -110,8 +110,8 @@ describe('GroupService', () => {
 
   describe('getUserGroupMembershipInfo', () => {
     const membership = {
-      is_registered: userGroup.is_registered,
-      is_group_manager: userGroup.is_group_manager
+      isRegistered: userGroup.isRegistered,
+      isGroupManager: userGroup.isGroupManager
     }
 
     it('should return specified membership', async () => {
@@ -126,7 +126,7 @@ describe('GroupService', () => {
   })
 
   describe('getManagingGroupIds', () => {
-    db.userGroup.findMany.mockResolvedValueOnce([{ group_id: groupId }])
+    db.userGroup.findMany.mockResolvedValueOnce([{ groupId: groupId }])
 
     it('should return all managing group ids', async () => {
       const getIds = await service.getManagingGroupIds(userId)
@@ -146,7 +146,7 @@ describe('GroupService', () => {
   describe('getAdminGroups', () => {
     const adminGroup = {
       id: group.id,
-      group_name: group.group_name,
+      groupName: group.groupName,
       private: group.private,
       description: group.private,
       UserGroup: [userGroup]
@@ -163,12 +163,12 @@ describe('GroupService', () => {
   describe('getAdminGroup', () => {
     const adminGroup = {
       id: group.id,
-      group_name: group.group_name,
+      groupName: group.groupName,
       private: group.private,
-      invitation_code: group.invitation_code,
+      invitationCode: group.invitationCode,
       description: group.private,
-      create_time: group.create_time,
-      update_time: group.update_time,
+      createTime: group.createTime,
+      updateTime: group.updateTime,
       UserGroup: [userGroup]
     }
 
@@ -284,7 +284,7 @@ describe('GroupService', () => {
   describe('getAdminMembers', () => {
     const memberMembership = {
       ...membership,
-      is_group_manager: userGroup.is_group_manager
+      isGroupManager: userGroup.isGroupManager
     }
 
     it('should return members of the group', async () => {
@@ -316,7 +316,7 @@ describe('GroupService', () => {
 
     const memberUserGroup = {
       ...userGroup,
-      is_group_manager: false
+      isGroupManager: false
     }
 
     it('should successfully grade selected member', async () => {

@@ -2,11 +2,11 @@ export interface Membership {
   id: number
   user: {
     username: string
-    student_id: string
+    studentId: string
     email: string
     UserProfile: {
-      real_name: string
+      realName: string
     }
   }
-  is_group_manager?: boolean
+  isGroupManager?: boolean
 }

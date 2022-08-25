@@ -49,10 +49,10 @@ export class GroupAdminController {
     return await this.groupService.getAdminGroups(req.user.id)
   }
 
-  @Get(':group_id')
+  @Get(':groupId')
   @UseGuards(GroupManagerGuard)
   async getGroup(
-    @Param('group_id', ParseIntPipe) id: number
+    @Param('groupId', ParseIntPipe) id: number
   ): Promise<Partial<Group>> {
     try {
       return await this.groupService.getAdminGroup(id)
@@ -64,10 +64,10 @@ export class GroupAdminController {
     }
   }
 
-  @Patch(':group_id')
+  @Patch(':groupId')
   @UseGuards(GroupManagerGuard)
   async updateGroup(
-    @Param('group_id', ParseIntPipe) id: number,
+    @Param('groupId', ParseIntPipe) id: number,
     @Body() groupDto: RequestGroupDto
   ): Promise<Group> {
     try {
@@ -80,9 +80,9 @@ export class GroupAdminController {
     }
   }
 
-  @Delete(':group_id')
+  @Delete(':groupId')
   @UseGuards(GroupManagerGuard)
-  async deleteGroup(@Param('group_id', ParseIntPipe) id: number) {
+  async deleteGroup(@Param('groupId', ParseIntPipe) id: number) {
     try {
       return await this.groupService.deleteGroup(id)
     } catch (error) {
@@ -94,14 +94,14 @@ export class GroupAdminController {
   }
 }
 
-@Controller('admin/group/:group_id/member')
+@Controller('admin/group/:groupId/member')
 @UseGuards(GroupManagerGuard)
 export class GroupMemberController {
   constructor(private readonly groupService: GroupService) {}
 
   @Post()
   async createMembers(
-    @Param('group_id', ParseIntPipe) groupId: number,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Body() memberDto: CreateMemberDto[]
   ) {
     return await this.groupService.createMembers(groupId, memberDto)
@@ -109,7 +109,7 @@ export class GroupMemberController {
 
   @Get()
   async getMembers(
-    @Param('group_id', ParseIntPipe) groupId: number,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Membership[]> {
     return await this.groupService.getAdminMembers(groupId, offset - 1)
@@ -117,14 +117,14 @@ export class GroupMemberController {
 
   @Get('manager')
   async getManagers(
-    @Param('group_id', ParseIntPipe) groupId: number
+    @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Membership[]> {
     return await this.groupService.getAdminManagers(groupId)
   }
 
   @Get('pending')
   async getPendingMembers(
-    @Param('group_id', ParseIntPipe) groupId: number,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Membership[]> {
     return await this.groupService.getAdminPendingMembers(groupId, offset - 1)
@@ -140,7 +140,7 @@ export class GroupMemberController {
   @Patch(':id')
   async gradeMember(
     @Param('id', ParseIntPipe) id: number,
-    @Body('is_group_manager', ParseBoolPipe) role: boolean
+    @Body('isGroupManager', ParseBoolPipe) role: boolean
   ): Promise<UserGroup> {
     try {
       return await this.groupService.gradeMember(id, role)

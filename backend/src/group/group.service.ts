@@ -51,11 +51,11 @@ export class GroupService {
   async createGroup(userId: number, groupDto: RequestGroupDto): Promise<Group> {
     return await this.prisma.group.create({
       data: {
-        group_name: groupDto.group_name,
+        groupName: groupDto.groupName,
         private: groupDto.private,
-        invitation_code: this.createCode(),
+        invitationCode: this.createCode(),
         description: groupDto.description,
-        created_by: {
+        createdBy: {
           connect: { id: userId }
         }
       }
@@ -78,7 +78,7 @@ export class GroupService {
         },
         select: {
           id: true,
-          group_name: true,
+          groupName: true,
           private: true,
           description: true,
           UserGroup: true
@@ -87,7 +87,7 @@ export class GroupService {
     ).map((group) => {
       return {
         ...group,
-        total_member: group.UserGroup.filter((member) => member.is_registered)
+        totalMember: group.UserGroup.filter((member) => member.isRegistered)
           .length
       }
     })
@@ -100,12 +100,12 @@ export class GroupService {
       },
       select: {
         id: true,
-        group_name: true,
+        groupName: true,
         private: true,
-        invitation_code: true,
+        invitationCode: true,
         description: true,
-        create_time: true,
-        update_time: true,
+        createTime: true,
+        updateTime: true,
         UserGroup: true
       },
       rejectOnNotFound: () => new EntityNotExistException('group')
@@ -113,7 +113,7 @@ export class GroupService {
 
     return {
       ...group,
-      total_member: group.UserGroup.filter((member) => member.is_registered)
+      totalMember: group.UserGroup.filter((member) => member.isRegistered)
         .length,
       managers: (await this.getAdminManagers(id)).map(
         (manager) => manager.user.username
@@ -172,7 +172,7 @@ export class GroupService {
 
     await this.prisma.userGroup.deleteMany({
       where: {
-        group_id: id
+        groupId: id
       }
     })
 
@@ -217,7 +217,7 @@ export class GroupService {
       const id = (
         await this.prisma.user.findUnique({
           where: {
-            student_id: memberDto.student_id
+            studentId: memberDto.studentId
           },
           select: {
             id: true
@@ -232,7 +232,7 @@ export class GroupService {
           group: {
             connect: { id: groupId }
           },
-          is_group_manager: memberDto.is_group_manager
+          isGroupManager: memberDto.isGroupManager
         }
       })
     })
@@ -243,20 +243,20 @@ export class GroupService {
   async getAdminManagers(groupId: number): Promise<Membership[]> {
     return await this.prisma.userGroup.findMany({
       where: {
-        group_id: groupId,
-        is_registered: true,
-        is_group_manager: true
+        groupId: groupId,
+        isRegistered: true,
+        isGroupManager: true
       },
       select: {
         id: true,
         user: {
           select: {
             username: true,
-            student_id: true,
+            studentId: true,
             email: true,
             UserProfile: {
               select: {
-                real_name: true
+                realName: true
               }
             }
           }
@@ -268,24 +268,24 @@ export class GroupService {
   async getAdminMembers(groupId: number, skip: number): Promise<Membership[]> {
     return await this.prisma.userGroup.findMany({
       where: {
-        group_id: groupId,
-        is_registered: true
+        groupId: groupId,
+        isRegistered: true
       },
       select: {
         id: true,
         user: {
           select: {
             username: true,
-            student_id: true,
+            studentId: true,
             email: true,
             UserProfile: {
               select: {
-                real_name: true
+                realName: true
               }
             }
           }
         },
-        is_group_manager: true
+        isGroupManager: true
       },
       skip: skip,
       take: 10
@@ -298,19 +298,19 @@ export class GroupService {
   ): Promise<Membership[]> {
     return await this.prisma.userGroup.findMany({
       where: {
-        group_id: groupId,
-        is_registered: false
+        groupId: groupId,
+        isRegistered: false
       },
       select: {
         id: true,
         user: {
           select: {
             username: true,
-            student_id: true,
+            studentId: true,
             email: true,
             UserProfile: {
               select: {
-                real_name: true
+                realName: true
               }
             }
           }
@@ -328,11 +328,11 @@ export class GroupService {
           id: id
         },
         select: {
-          is_group_manager: true
+          isGroupManager: true
         },
         rejectOnNotFound: () => new EntityNotExistException('membership')
       })
-    ).is_group_manager
+    ).isGroupManager
 
     if (currentRole === role) {
       if (role) throw new ActionNotAllowedException('upgrade', 'manager')
@@ -344,7 +344,7 @@ export class GroupService {
         id: id
       },
       data: {
-        is_group_manager: role
+        isGroupManager: role
       }
     })
   }
@@ -357,7 +357,7 @@ export class GroupService {
         }
       },
       data: {
-        is_registered: true
+        isRegistered: true
       }
     })
   }

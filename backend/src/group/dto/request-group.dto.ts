@@ -3,7 +3,7 @@ import { IsBoolean, IsNotEmpty, IsString } from 'class-validator'
 export class RequestGroupDto {
   @IsString()
   @IsNotEmpty()
-  readonly group_name: string
+  readonly groupName: string
 
   @IsBoolean()
   @IsNotEmpty()
