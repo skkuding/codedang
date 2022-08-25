@@ -156,7 +156,7 @@ describe('GroupService', () => {
       db.group.findMany.mockResolvedValueOnce([adminGroup])
 
       const getGroups = await service.getAdminGroups(userId)
-      expect(getGroups).toEqual([{ ...adminGroup, UserGroup: 1 }])
+      expect(getGroups).toEqual([{ ...adminGroup, totalMember: 1 }])
     })
   })
 
@@ -178,8 +178,8 @@ describe('GroupService', () => {
       const getGroup = await service.getAdminGroup(groupId)
       expect(getGroup).toEqual({
         ...adminGroup,
-        UserGroup: 1,
-        ManagerGroup: ['example']
+        totalMember: 1,
+        managers: ['example']
       })
     })
 
