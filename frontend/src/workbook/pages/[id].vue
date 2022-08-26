@@ -4,6 +4,16 @@ import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import IconCheck from '~icons/fa6-regular/circle-check'
 import { onBeforeMount, ref } from 'vue'
 
+// TODO: define interface in separte file
+interface Problem {
+  id: number
+  title: string
+  level: number
+  submissions: number
+  rate: string
+  result: string
+}
+
 defineProps<{
   id: number
 }>()
@@ -37,7 +47,7 @@ const colorMapper = (level: number) => {
   }
 }
 
-const workbookProblemList = ref()
+const workbookProblemList = ref<Problem[]>([])
 
 // TODO: use API to get workbook-problem list of initial page
 onBeforeMount(() => {
@@ -127,7 +137,7 @@ onBeforeMount(() => {
 
 // TODO: implement change-page function to reset workbookProblemList using API when click pagination buttons
 
-const clickRow = (row: any) => {
+const clickRow = (row: Problem) => {
   window.location.href = '/problem/' + row.id
 }
 </script>
