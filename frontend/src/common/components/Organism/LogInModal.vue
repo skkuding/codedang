@@ -16,17 +16,14 @@ const props = defineProps<{ visible?: boolean }>()
 
 const PasswordFindModalClose = () => {
   isPasswordFindModalVisible.value = false
-  console.log(isPasswordFindModalVisible.value)
 }
 
 const LogInModalOpen = () => {
   isLogInModalVisible.value = true
-  console.log(isLogInModalVisible.value)
 }
 </script>
 
 <template>
-  <!-- TODO: tailwindcss 크기 표현으로 큰 px(h-96 w-96이상) 표현하기-->
   <Modal v-if="props.visible" class="h-[536px] w-96">
     <template #modal-title>
       <div class="text-green text-2xl font-semibold">
@@ -48,13 +45,13 @@ const LogInModalOpen = () => {
       </Button>
       <div class="bottom-0 mt-8 flex justify-around">
         <button
-          class="border-b-1 text-gray-dark border-black"
+          class="border-b-1 text-gray-dark border-black underline underline-offset-1"
           @click="$emit('signup', true)"
         >
           Register now
         </button>
         <button
-          class="border-b-1 text-gray-dark border-black"
+          class="border-b-1 text-gray-dark border-black underline underline-offset-1"
           @click="$emit('password', true)"
         >
           Forgot Password?
