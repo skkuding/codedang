@@ -121,6 +121,8 @@ importers:
       '@iconify-json/fa6-brands': ^1.1.5
       '@iconify-json/fa6-regular': ^1.1.5
       '@iconify-json/fa6-solid': ^1.1.6
+      '@iconify-json/fluent': ^1.1.16
+      '@iconify-json/iconoir': ^1.1.8
       '@iconify-json/ri': ^1.1.3
       '@types/node': ^18.7.13
       '@vitejs/plugin-vue': ^3.0.3
@@ -152,6 +154,8 @@ importers:
       '@iconify-json/fa6-brands': 1.1.5
       '@iconify-json/fa6-regular': 1.1.5
       '@iconify-json/fa6-solid': 1.1.6
+      '@iconify-json/fluent': 1.1.16
+      '@iconify-json/iconoir': 1.1.8
       '@iconify-json/ri': 1.1.3
       '@types/node': 18.7.13
       '@vitejs/plugin-vue': 3.0.3_vite@3.0.9+vue@3.2.37
@@ -691,27 +695,30 @@ packages:
 
   /@iconify-json/fa6-brands/1.1.5:
     resolution: {integrity: sha512-OjA1I8mVekC1i3iI8i7QwFhXr0eKnOW+hAjrMzrvrfM+Px1baTYQSH7mK3h9IR9oLh7c2KgYGcPJHo/Rb1xHlg==}
-
     dependencies:
       '@iconify/types': 1.1.0
     dev: true
 
   /@iconify-json/fa6-regular/1.1.5:
     resolution: {integrity: sha512-u+BiFEHj9J3FfT4h7bxEkkCXE/B60UFz/M1JJhf7fwL3zSjqhptM6tH+35DWuNis+UEDZvV3x00yMaWrGke0iA==}
-
     dependencies:
       '@iconify/types': 1.1.0
     dev: true
 
   /@iconify-json/fa6-solid/1.1.6:
     resolution: {integrity: sha512-y5eAxaM5iG+2pUzTMec48/EX4Oo9SmXcdLjNvTrqsaNXs7VLsWIeVHBqbtvmCmPjfvUEJRcslzOBxOUg6Cmh7A==}
-
     dependencies:
       '@iconify/types': 1.1.0
     dev: true
 
-  /@iconify-json/fluent/1.1.14:
-    resolution: {integrity: sha512-KAleuMC8j1f/bi6iPIrYF+QgliZrr+9/9d6xjK21S/mpJ0dX8+sMNN//iWYLlilcAMQ0ig96QJ9P4WdHA5omtA==}
+  /@iconify-json/fluent/1.1.16:
+    resolution: {integrity: sha512-8pc7JBRh4nvtnx9IxNnW7IrkgVkFilShaspYs+iQekbRUMB/qsB9tcmKEHUnNiWgyoNSXRnKyQezdDfqn7jY4g==}
+    dependencies:
+      '@iconify/types': 1.1.0
+    dev: true
+
+  /@iconify-json/iconoir/1.1.8:
+    resolution: {integrity: sha512-bW9N0XCh5bSJIGZvuRFX39mqX23u2nhfsf3GTlnWusQ20z/uOxy544XVKIpPpZJkPOApC9dpZoch9qZLGfu9qA==}
     dependencies:
       '@iconify/types': 1.1.0
     dev: true

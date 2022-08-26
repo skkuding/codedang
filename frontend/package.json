@@ -22,6 +22,8 @@
     "@iconify-json/fa6-brands": "^1.1.5",
     "@iconify-json/fa6-regular": "^1.1.5",
     "@iconify-json/fa6-solid": "^1.1.6",
+    "@iconify-json/fluent": "^1.1.16",
+    "@iconify-json/iconoir": "^1.1.8",
     "@iconify-json/ri": "^1.1.3",
     "@types/node": "^18.7.13",
     "@vitejs/plugin-vue": "^3.0.3",
