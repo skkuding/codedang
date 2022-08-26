@@ -8,6 +8,7 @@ import IconBox from '~icons/bi/box'
 import IconCode from '~icons/bi/code-square'
 import IconBook from '~icons/bi/journals'
 import { onBeforeMount } from 'vue'
+import CodingPlatformLogo from '../Atom/CodingPlatformLogo.vue'
 
 // TODO: get group name and color
 const props = defineProps<{
@@ -42,11 +43,9 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div
-    class="bg-gray-light text-gray-dark fixed top-0 bottom-0 left-0 h-full w-[200px] overflow-auto"
-  >
+  <div class="bg-gray-light text-gray-dark h-screen w-48 overflow-auto">
     <router-link to="/" class="align-center flex justify-center">
-      <img src="@/../codingPlatformLogo.png" class="m-6 h-[77px] w-[155px]" />
+      <CodingPlatformLogo class="my-8 w-32" />
     </router-link>
 
     <hr class="bg-gray h-0.5 border-none opacity-25" />
