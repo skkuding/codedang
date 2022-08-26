@@ -32,7 +32,7 @@ const props = defineProps<{ visible?: boolean }>()
         <InputItem shadow placeholder="PassWord Again" class="h-9 w-72" />
         <div class="flex justify-between space-x-1">
           <InputItem
-            :notice="false"
+            :required="false"
             shadow
             placeholder="Email Address"
             class="h-9 w-60"
@@ -53,9 +53,9 @@ const props = defineProps<{ visible?: boolean }>()
       </ul>
       <Button color="green" class="mb-2">Register</Button>
       <p class="text-gray-dark">Already have account?</p>
-      <!-- TODO: 아래 border 적용안됨 -->
+
       <button
-        class="border-b-gray-dark text-gray-dark border-black"
+        class="text-gray-dark underline underline-offset-2"
         @click="$emit('login', true)"
       >
         Sign in

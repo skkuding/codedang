@@ -22,7 +22,7 @@ const props = defineProps<{ visible?: boolean }>()
         <!-- FIXME: space-x-1 적용안됨, SignupModal은 적용됨 -->
         <div class="flex justify-between space-x-1">
           <InputItem
-            :notice="false"
+            :required="false"
             shadow
             placeholder="Email Address"
             class="h-9 w-60"
@@ -45,7 +45,7 @@ const props = defineProps<{ visible?: boolean }>()
       <Button color="green" class="mb-2">Send Password Reset Email</Button>
       <div>
         <button
-          class="border-b-1 text-gray-dark border-black"
+          class="text-gray-dark underline underline-offset-1"
           @click="$emit('login', true)"
         >
           Back to Sign in
