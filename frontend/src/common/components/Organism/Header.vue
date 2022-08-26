@@ -22,27 +22,21 @@ const isLogInModalVisible = ref(false)
 const isPasswordFindModalVisible = ref(false)
 const SignUpModalClose = () => {
   isSignUpModalVisible.value = false
-  console.log(isSignUpModalVisible.value)
 }
 const LogInModalClose = () => {
   isLogInModalVisible.value = false
-  console.log(isLogInModalVisible.value)
 }
 const SignUpModalOpen = () => {
   isSignUpModalVisible.value = true
-  console.log(isSignUpModalVisible.value)
 }
 const LogInModalOpen = () => {
   isLogInModalVisible.value = true
-  console.log(isLogInModalVisible.value)
 }
 const PasswordFindModalOpen = () => {
   isPasswordFindModalVisible.value = true
-  console.log(isPasswordFindModalVisible.value)
 }
 const PasswordFindModalClose = () => {
   isPasswordFindModalVisible.value = false
-  console.log(isPasswordFindModalVisible.value)
 }
 const getAuth = () => {
   auth.value = true
