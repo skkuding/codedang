@@ -39,10 +39,10 @@ describe('UserService', () => {
     password: 'password',
     role: 'User',
     email: EMAIL_ADDRESS,
-    has_email_authenticated: false,
-    last_login: undefined,
-    create_time: undefined,
-    update_time: undefined
+    hasEmailAuthenticated: false,
+    lastLogin: undefined,
+    createTime: undefined,
+    updateTime: undefined
   }
   const expectedEmailInfo = {
     accepted: [EMAIL_ADDRESS],
