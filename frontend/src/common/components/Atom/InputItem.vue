@@ -8,7 +8,7 @@ const props = defineProps<{
   placeholder: string
   shadow: boolean
   size?: Size
-  notice?: boolean
+  required?: boolean
 }>()
 
 defineEmits(['update:data'])
@@ -40,7 +40,7 @@ const setRequired = computed(() => [
     />
 
     <div
-      v-if="props.notice"
+      v-if="props.required"
       :class="setRequired"
       class="text-red pt-1 text-xs font-bold"
     >
