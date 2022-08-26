@@ -57,10 +57,8 @@ const slides = [
   <Header class="fixed top-0 z-40 w-full"></Header>
   <body class="h-screen">
     <Carousel :slides="slides" class="z-10 mt-[56px]"></Carousel>
-    <div
-      class="inline-flex-col relative z-10 mx-auto mt-1 w-full lg:flex lg:justify-around"
-    >
-      <Card href="#" :items="noticeItems" class="mx-auto max-w-xl">
+    <div class="inline-flex-col relative z-10 mt-1 lg:flex">
+      <Card href="#" :items="noticeItems" class="mx-auto w-5/12">
         <template #title>
           <IconInfo />
           <h2 class="ml-2">Notice</h2>
@@ -70,7 +68,7 @@ const slides = [
           <IconAngleRight />
         </template>
       </Card>
-      <Card href="#" :items="contestItems" class="mx-auto max-w-xl">
+      <Card href="#" :items="contestItems" class="mx-auto w-5/12">
         <template #title>
           <IconMedal />
           <h2 class="ml-2">Current/Upcoming Contests</h2>
