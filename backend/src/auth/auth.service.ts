@@ -33,6 +33,8 @@ export class AuthService {
     if (!(await this.isValidUser(user, loginUserDto.password))) {
       throw new InvalidUserException('Incorrect username or password')
     }
+    await this.userService.updateLastLogin(user.username)
+
     return await this.createJwtTokens(user.id, user.username)
   }
 

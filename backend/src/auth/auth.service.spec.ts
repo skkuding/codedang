@@ -16,6 +16,8 @@ import {
   InvalidJwtTokenException,
   InvalidUserException
 } from 'src/common/exception/business.exception'
+import { EmailService } from 'src/email/email.service'
+import { MailerService } from '@nestjs-modules/mailer'
 
 describe('AuthService', () => {
   let service: AuthService
@@ -31,10 +33,10 @@ describe('AuthService', () => {
     password: VALID_PASSWORD,
     role: 'User',
     email: '',
-    has_email_authenticated: false,
-    last_login: undefined,
-    create_time: undefined,
-    update_time: undefined
+    hasEmailAuthenticated: false,
+    lastLogin: undefined,
+    createTime: undefined,
+    updateTime: undefined
   }
 
   beforeEach(async () => {
@@ -42,9 +44,11 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         UserService,
+        EmailService,
         { provide: PrismaService, useValue: {} },
         { provide: ConfigService, useValue: {} },
         { provide: JwtService, useValue: {} },
+        { provide: MailerService, useValue: {} },
         {
           provide: CACHE_MANAGER,
           useFactory: () => ({
@@ -72,12 +76,16 @@ describe('AuthService', () => {
 
   describe('issueJwtTokens', () => {
     let getUserCredentialSpy
+    let updateLastLoginSpy
     const loginUserDto = { username: 'user', password: VALID_PASSWORD }
 
     beforeEach(() => {
       getUserCredentialSpy = jest
         .spyOn(userService, 'getUserCredential')
         .mockResolvedValue(user)
+      updateLastLoginSpy = jest
+        .spyOn(userService, 'updateLastLogin')
+        .mockResolvedValue()
     })
 
     it('should return new access token and refresh token when user validation succeed', async () => {
@@ -92,6 +100,7 @@ describe('AuthService', () => {
       //then
       expect(getUserCredentialSpy).toHaveBeenCalledWith(loginUserDto.username)
       expect(isValidUserSpy).toHaveBeenCalledWith(user, loginUserDto.password)
+      expect(updateLastLoginSpy).toHaveBeenCalledWith(user.username)
       expect(createJwtTokensSpy).toHaveBeenCalledTimes(1)
       expect(createJwtTokensSpy).toHaveBeenCalledWith(user.id, user.username)
       expect(result).toEqual({
