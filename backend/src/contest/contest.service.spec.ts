@@ -79,12 +79,12 @@ const contests: Partial<Contest>[] = [
 
 const contestToPublicRequest: ContestToPublicRequest = {
   id: contestToPublicRequestId,
-  contest_id: contestId,
+  contestId: contestId,
   message: 'This is contest to public request',
-  created_by_id: userId,
-  request_status: RequestStatus.Pending,
-  create_time: new Date('2022-12-07T18:34:23.999175+09:00'),
-  update_time: new Date('2022-12-07T18:34:23.999175+09:00')
+  createdById: userId,
+  requestStatus: RequestStatus.Pending,
+  createTime: new Date('2022-12-07T18:34:23.999175+09:00'),
+  updateTime: new Date('2022-12-07T18:34:23.999175+09:00')
 }
 
 const contestToPublicRequests: ContestToPublicRequest[] = [
@@ -500,7 +500,7 @@ describe('ContestService', () => {
       //given
       const acceptedRequest: ContestToPublicRequest = {
         ...contestToPublicRequest,
-        request_status: RequestStatus.Accepted
+        requestStatus: RequestStatus.Accepted
       }
       mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
         acceptedRequest
@@ -567,7 +567,7 @@ describe('ContestService', () => {
       //given
       const acceptedRequest: ContestToPublicRequest = {
         ...contestToPublicRequest,
-        request_status: RequestStatus.Accepted
+        requestStatus: RequestStatus.Accepted
       }
       mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
         acceptedRequest
@@ -590,7 +590,7 @@ describe('ContestService', () => {
       //given
       const rejectedRequest: ContestToPublicRequest = {
         ...contestToPublicRequest,
-        request_status: RequestStatus.Rejected
+        requestStatus: RequestStatus.Rejected
       }
       mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
         rejectedRequest

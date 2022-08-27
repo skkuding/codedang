@@ -229,7 +229,7 @@ model ContestToPublicRequest {
   requestStatus RequestStatus @default(Pending) @map("request_status")
   createdBy     User          @relation(fields: [createdById], references: [id])
   createdById   Int           @map("created_by_id")
-  creaetTime    DateTime      @default(now()) @map("creaet_time")
+  createTime    DateTime      @default(now()) @map("create_time")
   updateTime    DateTime      @updatedAt @map("update_time")
 
   @@map("contest_to_public_request")
