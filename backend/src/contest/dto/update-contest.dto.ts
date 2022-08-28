@@ -8,35 +8,35 @@ import {
 } from 'class-validator'
 
 export class UpdateContestDto {
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
   readonly title: string
 
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
   readonly description: string
 
-  @IsNotEmpty()
   @IsString()
-  readonly description_summary: string
-
   @IsNotEmpty()
+  readonly descriptionSummary: string
+
   @IsDateString()
-  readonly start_time: Date
-
   @IsNotEmpty()
+  readonly startTime: Date
+
   @IsDateString()
-  readonly end_time: Date
-
   @IsNotEmpty()
+  readonly endTime: Date
+
   @IsBoolean()
+  @IsNotEmpty()
   readonly visible: boolean
 
-  @IsNotEmpty()
   @IsBoolean()
-  readonly is_rank_visible: boolean
-
   @IsNotEmpty()
+  readonly isRankVisible: boolean
+
   @IsEnum(ContestType)
+  @IsNotEmpty()
   readonly type: ContestType
 }

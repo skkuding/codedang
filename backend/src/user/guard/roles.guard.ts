@@ -19,19 +19,20 @@ export class RolesGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const role = this.reflector.getAllAndOverride<Role>(ROLES_KEY, [
+    let role = this.reflector.getAllAndOverride<Role>(ROLES_KEY, [
       context.getHandler(),
       context.getClass()
     ])
 
     if (!role) {
-      return true
+      role = Role.User
     }
 
     const request: AuthenticatedRequest = context.switchToHttp().getRequest()
     const userRole = await this.userService.getUserRole(request.user.id)
 
     if (this.#rolesHierarchy[userRole.role] >= this.#rolesHierarchy[role]) {
+      request.user.role = userRole.role
       return true
     }
     return false
