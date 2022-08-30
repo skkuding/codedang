@@ -8,8 +8,7 @@ import {
   Post,
   Req,
   Res,
-  UnauthorizedException,
-  UseGuards
+  UnauthorizedException
 } from '@nestjs/common'
 import { UserProfile, User } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
@@ -44,11 +43,11 @@ export class UserController {
 
   @Post('/password/reset/send-email')
   @Public()
-  async createPinAndSendEmail(
+  async sendPinForPasswordReset(
     @Body() userEmailDto: UserEmailDto
   ): Promise<string> {
     try {
-      return await this.userService.createPinAndSendEmail(userEmailDto)
+      return await this.userService.sendPinForPasswordReset(userEmailDto)
     } catch (error) {
       if (error instanceof InvalidUserException) {
         throw new UnauthorizedException(error.message)
@@ -99,7 +98,20 @@ export class UserController {
     }
   }
 
-  @Post('/signup')
+  @Post('/sign-up/send-email')
+  @Public()
+  async sendPinForSignUp(@Body() userEmailDto: UserEmailDto): Promise<string> {
+    try {
+      return await this.userService.sendPinForSignUp(userEmailDto)
+    } catch (error) {
+      if (error instanceof EmailTransmissionFailedException) {
+        throw new InternalServerErrorException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Post('/sign-up')
   @Public()
   async signUp(@Req() req: Request, @Body() signUpDto: SignUpDto) {
     const emailAuthToken = req.cookies['email_auth_token']

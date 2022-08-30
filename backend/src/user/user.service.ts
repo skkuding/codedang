@@ -9,7 +9,7 @@ import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { encrypt } from 'src/common/hash'
-import { passwordResetPinCacheKey } from 'src/common/cache/keys'
+import { emailAuthenticationPinCacheKey } from 'src/common/cache/keys'
 import { UserEmailDto } from './dto/userEmail.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
 import { User, UserProfile } from '@prisma/client'
@@ -24,7 +24,7 @@ import { EmailService } from 'src/email/email.service'
 import { PasswordResetPinDto } from './dto/passwordResetPin.dto'
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt'
 import {
-  PASSWORD_RESET_PIN_EXPIRATION_SEC,
+  EMAIL_AUTH_PIN_EXPIRATION_SEC,
   PASSWORD_RESET_TOKEN_EXPIRATION_SEC
 } from './constants/jwt.constants'
 import { Request } from 'express'
@@ -71,6 +71,30 @@ export class UserService {
       data: { lastLogin: new Date() }
     })
   }
+
+  async sendPinForPasswordReset({ email }: UserEmailDto): Promise<string> {
+    const user = await this.getUserCredentialByEmail(email)
+    return this.createPinAndSendEmail(user.email)
+  }
+
+  async sendPinForSignUp({ email }: UserEmailDto): Promise<string> {
+    return this.createPinAndSendEmail(email)
+  }
+
+  async createPinAndSendEmail(email: string): Promise<string> {
+    const pin = this.createPinRandomly(6)
+
+    await this.emailService.sendEmailAuthenticationPin(email, pin)
+
+    await this.createPinInCache(
+      emailAuthenticationPinCacheKey(email),
+      pin,
+      EMAIL_AUTH_PIN_EXPIRATION_SEC
+    )
+
+    return 'Email authentication pin is sent to your email address'
+  }
+
   async getUserCredentialByEmail(email: string): Promise<User> {
     return await this.prisma.user.findUnique({
       where: { email },
@@ -79,22 +103,6 @@ export class UserService {
           `Cannot find a registered user whose email address is ${email}`
         )
     })
-  }
-
-  async createPinAndSendEmail({ email }: UserEmailDto): Promise<string> {
-    const user = await this.getUserCredentialByEmail(email)
-
-    const pin = this.createPinRandomly(6)
-
-    await this.emailService.sendPasswordResetPin(email, pin)
-
-    await this.createPinInCache(
-      passwordResetPinCacheKey(user.email),
-      pin,
-      PASSWORD_RESET_PIN_EXPIRATION_SEC
-    )
-
-    return 'Password reset link was sent to your email'
   }
 
   createPinRandomly(numberOfDigits: number): string {
@@ -170,7 +178,7 @@ export class UserService {
 
     const user = await this.getUserCredentialByEmail(email)
 
-    await this.deletePinFromCache(passwordResetPinCacheKey(email))
+    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
     const token = await this.createJwt(
       {
@@ -184,7 +192,7 @@ export class UserService {
 
   async verifyPin(pin: string, email: string): Promise<boolean> | never {
     const storedResetPin: string = await this.getPinFromCache(
-      passwordResetPinCacheKey(email)
+      emailAuthenticationPinCacheKey(email)
     )
 
     if (!storedResetPin || pin !== storedResetPin) {
