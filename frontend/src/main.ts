@@ -5,6 +5,7 @@ import NProgress from 'nprogress'
 import routes from 'virtual:generated-pages'
 import App from './App.vue'
 
+import 'nprogress/nprogress.css'
 import './common/styles/style.css'
 
 const app = createApp(App)
