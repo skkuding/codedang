@@ -5,7 +5,7 @@ import Header from './common/components/Organism/Header.vue'
 
 <template>
   <Header />
-  <div class="mx-40">
+  <div class="mx-auto w-4/5">
     <router-view />
   </div>
   <Footer />
