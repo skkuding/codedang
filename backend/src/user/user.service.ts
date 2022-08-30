@@ -32,7 +32,7 @@ import { ExtractJwt } from 'passport-jwt'
 import { ConfigService } from '@nestjs/config'
 import {
   EmailAuthJwtPayload,
-  PasswordResetJwtObject
+  EmailAuthJwtObject
 } from './interface/jwt.interface'
 import { CreateUserProfileData } from './interface/create-userprofile.interface'
 import { GroupService } from 'src/group/group.service'
@@ -135,7 +135,7 @@ export class UserService {
   async verifyJwtFromRequestHeader(
     req: Request,
     jwtVerifyOptions: JwtVerifyOptions = {}
-  ): Promise<PasswordResetJwtObject> {
+  ): Promise<EmailAuthJwtObject> {
     const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req)
     const options = {
       secret: this.config.get('JWT_SECRET'),
@@ -205,9 +205,8 @@ export class UserService {
     })
   }
 
-  async signUp(emailAuthToken: string, signUpDto: SignUpDto): Promise<User> {
-    //const { email } = await this.authService.verifyJwtToken(emailAuthToken)
-    const email = 'authenticated email by jwt'
+  async signUp(signUpDto: SignUpDto, req: Request): Promise<User> {
+    const { email } = await this.verifyJwtFromRequestHeader(req)
     if (email != signUpDto.email) {
       throw new UnprocessableDataException('The email is not authenticated one')
     }
