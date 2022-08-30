@@ -39,7 +39,6 @@ describe('UserService', () => {
     password: 'password',
     role: 'User',
     email: EMAIL_ADDRESS,
-    hasEmailAuthenticated: false,
     lastLogin: undefined,
     createTime: undefined,
     updateTime: undefined
