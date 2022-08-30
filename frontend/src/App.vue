@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Toast from '@/common/components/Atom/Toast.vue'
 import Footer from './common/components/Organism/Footer.vue'
 import Header from './common/components/Organism/Header.vue'
 </script>
@@ -7,6 +8,7 @@ import Header from './common/components/Organism/Header.vue'
   <Header />
   <div class="mx-auto w-4/5">
     <router-view />
+    <Toast />
   </div>
   <Footer />
 </template>
