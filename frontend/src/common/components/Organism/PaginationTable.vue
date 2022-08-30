@@ -2,11 +2,13 @@
 import { ref, watch } from 'vue'
 import SearchBar from '../Molecule/SearchBar.vue'
 import Pagination from '../Molecule/Pagination.vue'
+import IconSort from '~icons/fa6-solid/sort'
 
 defineProps<{
   fields: {
     key: string
     label?: string
+    sortable?: boolean
   }[]
   items: {
     [key: string]: unknown
@@ -55,6 +57,7 @@ const capitalize = (key: string) => {
             v-for="(field, index) in fields"
             :key="index"
             class="p-2.5 pl-4 text-left"
+            :class="index > 2 ? 'hidden md:block' : ''"
           >
             <span v-if="Object.keys(field).includes('label')">
               {{ field.label }}
@@ -74,7 +77,12 @@ const capitalize = (key: string) => {
             class="hover:bg-gray-light border-gray cursor-pointer border-y"
             @click="$emit('row-clicked', row)"
           >
-            <td v-for="(field, idx) in fields" :key="idx" class="p-2.5 pl-4">
+            <td
+              v-for="(field, idx) in fields"
+              :key="idx"
+              class="p-2.5 pl-4"
+              :class="idx > 2 ? 'hidden md:block' : ''"
+            >
               <slot :name="field.key" :row="row">{{ row[field.key] }}</slot>
             </td>
           </tr>
