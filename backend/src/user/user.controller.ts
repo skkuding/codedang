@@ -1,6 +1,5 @@
 import {
   Body,
-  Controller,
   Get,
   InternalServerErrorException,
   Patch,
@@ -8,7 +7,8 @@ import {
   Post,
   Req,
   Res,
-  UnauthorizedException
+  UnauthorizedException,
+  Controller
 } from '@nestjs/common'
 import { UserProfile, User } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
@@ -27,7 +27,7 @@ import { WithdrawalDto } from './dto/withdrawal.dto'
 import { UserService } from './user.service'
 import { UserEmailDto } from './dto/userEmail.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
-import { PasswordResetPinDto } from './dto/passwordResetPin.dto'
+import { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
 import { Request, Response } from 'express'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import { AUTH_TYPE } from './constants/jwt.constants'
@@ -37,52 +37,7 @@ import { Public } from '../common/decorator/public.decorator'
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  setJwtInHeader(res: Response, jwt: string) {
-    res.setHeader('authorization', `${AUTH_TYPE} ${jwt}`)
-  }
-
-  @Post('/password/reset/send-email')
-  @Public()
-  async sendPinForPasswordReset(
-    @Body() userEmailDto: UserEmailDto
-  ): Promise<string> {
-    try {
-      return await this.userService.sendPinForPasswordReset(userEmailDto)
-    } catch (error) {
-      if (error instanceof InvalidUserException) {
-        throw new UnauthorizedException(error.message)
-      } else if (error instanceof EmailTransmissionFailedException) {
-        throw new InternalServerErrorException(error.message)
-      } else {
-        throw new InternalServerErrorException()
-      }
-    }
-  }
-
-  @Post('/password/reset/verify-pin')
-  @Public()
-  async verifyPinAndIssueJwt(
-    @Res({ passthrough: true }) res,
-    @Body() passwordResetPinDto: PasswordResetPinDto
-  ): Promise<void> {
-    try {
-      const jwt = await this.userService.verifyPinAndIssueJwtForPasswordReset(
-        passwordResetPinDto
-      )
-
-      this.setJwtInHeader(res, jwt)
-      return
-    } catch (error) {
-      if (error instanceof InvalidUserException) {
-        throw new UnauthorizedException(error.message)
-      } else if (error instanceof InvalidPinException) {
-        throw new InternalServerErrorException(error.message)
-      }
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Patch('/password/reset')
+  @Patch('/password-reset')
   @Public()
   async updatePassword(
     @Body() newPasswordDto: NewPasswordDto,
@@ -95,19 +50,6 @@ export class UserController {
         throw new InternalServerErrorException(error.message)
       }
       throw new InternalServerErrorException('password reset failed')
-    }
-  }
-
-  @Post('/sign-up/send-email')
-  @Public()
-  async sendPinForSignUp(@Body() userEmailDto: UserEmailDto): Promise<string> {
-    try {
-      return await this.userService.sendPinForSignUp(userEmailDto)
-    } catch (error) {
-      if (error instanceof EmailTransmissionFailedException) {
-        throw new InternalServerErrorException(error.message)
-      }
-      throw new InternalServerErrorException()
     }
   }
 
@@ -191,6 +133,64 @@ export class UserController {
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new UnauthorizedException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+}
+
+@Controller('email-auth')
+@Public()
+export class EmailAuthenticationController {
+  constructor(private readonly userService: UserService) {}
+
+  setJwtInHeader(res: Response, jwt: string) {
+    res.setHeader('authorization', `${AUTH_TYPE} ${jwt}`)
+  }
+
+  @Post('/send-email/password-reset')
+  async sendPinForPasswordReset(
+    @Body() userEmailDto: UserEmailDto
+  ): Promise<string> {
+    try {
+      return await this.userService.sendPinForPasswordReset(userEmailDto)
+    } catch (error) {
+      if (error instanceof InvalidUserException) {
+        throw new UnauthorizedException(error.message)
+      } else if (error instanceof EmailTransmissionFailedException) {
+        throw new InternalServerErrorException(error.message)
+      } else {
+        throw new InternalServerErrorException()
+      }
+    }
+  }
+
+  @Post('/send-email/sign-up')
+  async sendPinForSignUp(@Body() userEmailDto: UserEmailDto): Promise<string> {
+    try {
+      return await this.userService.sendPinForSignUp(userEmailDto)
+    } catch (error) {
+      if (error instanceof EmailTransmissionFailedException) {
+        throw new InternalServerErrorException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Post('/verify-pin')
+  async verifyPinAndIssueJwt(
+    @Res({ passthrough: true }) res,
+    @Body() emailAuthenticationpinDto: EmailAuthensticationPinDto
+  ): Promise<void> {
+    try {
+      const jwt = await this.userService.verifyPinAndIssueJwt(
+        emailAuthenticationpinDto
+      )
+      this.setJwtInHeader(res, jwt)
+      return
+    } catch (error) {
+      if (error instanceof InvalidPinException) {
+        throw new InternalServerErrorException(error.message)
       }
       throw new InternalServerErrorException()
     }

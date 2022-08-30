@@ -4,7 +4,10 @@ import { JwtModule, JwtModuleOptions } from '@nestjs/jwt'
 import { EmailModule } from 'src/email/email.module'
 import { AuthModule } from 'src/auth/auth.module'
 import { GroupModule } from 'src/group/group.module'
-import { UserController } from './user.controller'
+import {
+  UserController,
+  EmailAuthenticationController
+} from './user.controller'
 import { UserService } from './user.service'
 
 @Module({
@@ -28,7 +31,7 @@ import { UserService } from './user.service'
     GroupModule,
     EmailModule
   ],
-  controllers: [UserController],
+  controllers: [UserController, EmailAuthenticationController],
   providers: [UserService],
   exports: [UserService]
 })

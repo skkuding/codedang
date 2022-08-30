@@ -21,16 +21,19 @@ import {
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { EmailService } from 'src/email/email.service'
-import { PasswordResetPinDto } from './dto/passwordResetPin.dto'
+import { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt'
 import {
   EMAIL_AUTH_PIN_EXPIRATION_SEC,
-  PASSWORD_RESET_TOKEN_EXPIRATION_SEC
+  EMAIL_AUTH_TOKEN_EXPIRATION_SEC
 } from './constants/jwt.constants'
 import { Request } from 'express'
 import { ExtractJwt } from 'passport-jwt'
 import { ConfigService } from '@nestjs/config'
-import { PasswordResetJwtObject } from './interface/jwt.interface'
+import {
+  EmailAuthJwtPayload,
+  PasswordResetJwtObject
+} from './interface/jwt.interface'
 import { CreateUserProfileData } from './interface/create-userprofile.interface'
 import { GroupService } from 'src/group/group.service'
 import { UserGroupData } from 'src/group/interface/user-group-data.interface'
@@ -123,8 +126,8 @@ export class UserService {
     { newPassword }: NewPasswordDto,
     req: Request
   ): Promise<string> {
-    const { userId } = await this.verifyJwtFromRequestHeader(req)
-    await this.updateUserPasswordInPrisma(userId, newPassword)
+    const { email } = await this.verifyJwtFromRequestHeader(req)
+    await this.updateUserPasswordInPrisma(email, newPassword)
 
     return 'Password Reset successfully'
   }
@@ -145,22 +148,13 @@ export class UserService {
     }
   }
 
-  async getPinFromCache(key: string): Promise<string> {
-    const storedPin: string = await this.cacheManager.get(key)
-    return storedPin
-  }
-
-  async deletePinFromCache(key: string): Promise<void> {
-    await this.cacheManager.del(key)
-  }
-
   async updateUserPasswordInPrisma(
-    userId: number,
+    email: string,
     newPassword: string
   ): Promise<User> {
     const updatedUser = await this.prisma.user.update({
       where: {
-        id: userId
+        email
       },
       data: {
         password: await encrypt(newPassword)
@@ -170,22 +164,15 @@ export class UserService {
     return updatedUser
   }
 
-  async verifyPinAndIssueJwtForPasswordReset({
+  async verifyPinAndIssueJwt({
     pin,
     email
-  }: PasswordResetPinDto): Promise<string> {
+  }: EmailAuthensticationPinDto): Promise<string> {
     await this.verifyPin(pin, email)
-
-    const user = await this.getUserCredentialByEmail(email)
-
     await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
-    const token = await this.createJwt(
-      {
-        userId: user.id
-      },
-      PASSWORD_RESET_TOKEN_EXPIRATION_SEC
-    )
+    const payload: EmailAuthJwtPayload = { email }
+    const token = await this.createJwt(payload)
 
     return token
   }
@@ -202,8 +189,20 @@ export class UserService {
     return true
   }
 
-  async createJwt(payload: object, ttl: number): Promise<string> {
-    return await this.jwtService.signAsync(payload, { expiresIn: ttl })
+  async getPinFromCache(key: string): Promise<string> {
+    const storedPin: string = await this.cacheManager.get(key)
+    return storedPin
+  }
+
+  async deletePinFromCache(key: string): Promise<void> {
+    await this.cacheManager.del(key)
+  }
+
+  async createJwt(payload: EmailAuthJwtPayload): Promise<string> {
+    return await this.jwtService.signAsync({
+      ...payload,
+      expiresIn: EMAIL_AUTH_TOKEN_EXPIRATION_SEC
+    })
   }
 
   async signUp(emailAuthToken: string, signUpDto: SignUpDto): Promise<User> {
