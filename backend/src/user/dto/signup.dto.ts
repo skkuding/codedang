@@ -21,5 +21,5 @@ export class SignUpDto {
 
   @IsAlpha()
   @IsNotEmpty()
-  readonly real_name: string
+  readonly realName: string
 }

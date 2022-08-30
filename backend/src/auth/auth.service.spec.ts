@@ -2,16 +2,12 @@ import { CACHE_MANAGER } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
-
 import { Cache } from 'cache-manager'
 import { User } from '@prisma/client'
-
 import { AuthService } from './auth.service'
 import { UserService } from 'src/user/user.service'
 import { PrismaService } from 'src/prisma/prisma.service'
-
 import * as hash from '../common/hash'
-
 import {
   InvalidJwtTokenException,
   InvalidUserException

@@ -1,6 +1,5 @@
 import {
   CACHE_MANAGER,
-  Inject,
   forwardRef,
   Inject,
   Injectable,
@@ -13,11 +12,13 @@ import { encrypt } from 'src/common/hash'
 import { passwordResetPinCacheKey } from 'src/common/cache/keys'
 import { UserEmailDto } from './dto/userEmail.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
-import { User } from '@prisma/client'
+import { User, UserProfile } from '@prisma/client'
 import {
+  EntityNotExistException,
   InvalidJwtTokenException,
   InvalidPinException,
-  InvalidUserException
+  InvalidUserException,
+  UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { EmailService } from 'src/email/email.service'
 import { PasswordResetPinDto } from './dto/passwordResetPin.dto'
@@ -30,14 +31,6 @@ import { Request } from 'express'
 import { ExtractJwt } from 'passport-jwt'
 import { ConfigService } from '@nestjs/config'
 import { PasswordResetJwtObject } from './interface/jwt.interface'
-import { SignUpDto } from './dto/sign-up.dto'
-import {
-  EntityNotExistException,
-  InvalidUserException,
-  UnprocessableDataException
-} from 'src/common/exception/business.exception'
-import { User, UserProfile } from '@prisma/client'
-import { encrypt } from 'src/common/hash'
 import { CreateUserProfileData } from './interface/create-userprofile.interface'
 import { GroupService } from 'src/group/group.service'
 import { UserGroupData } from 'src/group/interface/user-group-data.interface'
@@ -46,6 +39,7 @@ import { AuthService } from 'src/auth/auth.service'
 import { GetUserProfileDto } from './dto/get-userprofile.dto'
 import { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
+import { SignUpDto } from './dto/signup.dto'
 
 @Injectable()
 export class UserService {
@@ -222,8 +216,8 @@ export class UserService {
 
     const user: User = await this.createUser(signUpDto)
     const CreateUserProfileData: CreateUserProfileData = {
-      user_id: user.id,
-      real_name: signUpDto.real_name
+      userId: user.id,
+      realName: signUpDto.realName
     }
     await this.createUserProfile(CreateUserProfileData)
     await this.registerUserToPublicGroup(user.id)
@@ -239,19 +233,19 @@ export class UserService {
         username: signUpDto.username,
         password: encryptedPassword,
         email: signUpDto.email,
-        last_login: null
+        lastLogin: null
       }
     })
   }
 
   async createUserProfile(
-    CreateUserProfileData: CreateUserProfileData
+    createUserProfileData: CreateUserProfileData
   ): Promise<UserProfile> {
     return await this.prisma.userProfile.create({
       data: {
-        real_name: CreateUserProfileData.real_name,
+        realName: createUserProfileData.realName,
         user: {
-          connect: { id: CreateUserProfileData.user_id }
+          connect: { id: createUserProfileData.userId }
         }
       }
     })
@@ -259,10 +253,10 @@ export class UserService {
 
   async registerUserToPublicGroup(userId: number) {
     const userGroupData: UserGroupData = {
-      user_id: userId,
-      group_id: 1,
-      is_registerd: true,
-      is_group_manager: false
+      userId,
+      groupId: 1,
+      isRegisterd: true,
+      isGroupManager: false
     }
     await this.groupService.createUserGroup(userGroupData)
   }
@@ -305,11 +299,11 @@ export class UserService {
         username: true,
         role: true,
         email: true,
-        last_login: true,
-        update_time: true,
+        lastLogin: true,
+        updateTime: true,
         UserProfile: {
           select: {
-            real_name: true
+            realName: true
           }
         }
       },
@@ -336,14 +330,14 @@ export class UserService {
     updateUserProfileRealNameDto: UpdateUserProfileRealNameDto
   ): Promise<UserProfile> {
     await this.prisma.userProfile.findUnique({
-      where: { user_id: userId },
+      where: { userId },
       rejectOnNotFound: () => new EntityNotExistException('UserProfile')
     })
 
     return await this.prisma.userProfile.update({
-      where: { user_id: userId },
+      where: { userId },
       data: {
-        real_name: updateUserProfileRealNameDto.real_name
+        realName: updateUserProfileRealNameDto.realName
       }
     })
   }

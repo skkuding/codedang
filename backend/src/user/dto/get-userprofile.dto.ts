@@ -5,9 +5,9 @@ export class GetUserProfileDto {
 
   readonly email: string
 
-  readonly last_login: Date
+  readonly lastLogin: Date
 
-  readonly update_time: Date
+  readonly updateTime: Date
 
-  readonly UserProfile: { real_name: string }
+  readonly UserProfile: { realName: string }
 }

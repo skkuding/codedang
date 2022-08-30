@@ -39,13 +39,13 @@ export class GroupService {
     return await this.prisma.userGroup.create({
       data: {
         user: {
-          connect: { id: userGroupData.user_id }
+          connect: { id: userGroupData.userId }
         },
         group: {
-          connect: { id: userGroupData.group_id }
+          connect: { id: userGroupData.groupId }
         },
-        is_registered: userGroupData.is_registerd,
-        is_group_manager: userGroupData.is_group_manager
+        isRegistered: userGroupData.isRegisterd,
+        isGroupManager: userGroupData.isGroupManager
       }
     })
   }
