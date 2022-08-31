@@ -160,7 +160,9 @@ export class EmailAuthenticationController {
   }
 
   @Post('/send-email/register-new')
-  async sendPinForSignUp(@Body() userEmailDto: UserEmailDto): Promise<string> {
+  async sendPinForRegisterNewEmail(
+    @Body() userEmailDto: UserEmailDto
+  ): Promise<string> {
     try {
       return await this.userService.sendPinForRegisterNewEmail(userEmailDto)
     } catch (error) {
