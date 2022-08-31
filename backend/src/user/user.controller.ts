@@ -108,10 +108,7 @@ export class UserController {
     @Body() updateUserEmail: UpdateUserEmailDto
   ): Promise<User> {
     try {
-      return await this.userService.updateUserEmail(
-        req.user.id,
-        updateUserEmail
-      )
+      return await this.userService.updateUserEmail(req, updateUserEmail)
     } catch (error) {
       throw new InternalServerErrorException()
     }
@@ -162,13 +159,15 @@ export class EmailAuthenticationController {
     }
   }
 
-  @Post('/send-email/sign-up')
+  @Post('/send-email/register-new')
   async sendPinForSignUp(@Body() userEmailDto: UserEmailDto): Promise<string> {
     try {
-      return await this.userService.sendPinForSignUp(userEmailDto)
+      return await this.userService.sendPinForRegisterNewEmail(userEmailDto)
     } catch (error) {
       if (error instanceof EmailTransmissionFailedException) {
         throw new InternalServerErrorException(error.message)
+      } else if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
       }
       throw new InternalServerErrorException()
     }

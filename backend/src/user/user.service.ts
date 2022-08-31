@@ -43,6 +43,7 @@ import { GetUserProfileDto } from './dto/get-userprofile.dto'
 import { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import { SignUpDto } from './dto/signup.dto'
+import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 
 @Injectable()
 export class UserService {
@@ -77,10 +78,21 @@ export class UserService {
 
   async sendPinForPasswordReset({ email }: UserEmailDto): Promise<string> {
     const user = await this.getUserCredentialByEmail(email)
+    if (!user) {
+      throw new InvalidUserException(
+        `Cannot find a registered user whose email address is ${email}`
+      )
+    }
+
     return this.createPinAndSendEmail(user.email)
   }
 
-  async sendPinForSignUp({ email }: UserEmailDto): Promise<string> {
+  async sendPinForRegisterNewEmail({ email }: UserEmailDto): Promise<string> {
+    const duplicatedUser = await this.getUserCredentialByEmail(email)
+    if (duplicatedUser) {
+      throw new UnprocessableDataException('This email is already used')
+    }
+
     return this.createPinAndSendEmail(email)
   }
 
@@ -100,11 +112,7 @@ export class UserService {
 
   async getUserCredentialByEmail(email: string): Promise<User> {
     return await this.prisma.user.findUnique({
-      where: { email },
-      rejectOnNotFound: () =>
-        new InvalidUserException(
-          `Cannot find a registered user whose email address is ${email}`
-        )
+      where: { email }
     })
   }
 
@@ -318,13 +326,16 @@ export class UserService {
   }
 
   async updateUserEmail(
-    userId: number,
+    req: AuthenticatedRequest,
     updateUserEmailDto: UpdateUserEmailDto
   ): Promise<User> {
-    //TODO: authenticate email with code
+    const { email } = await this.verifyJwtFromRequestHeader(req)
+    if (email != updateUserEmailDto.email) {
+      throw new UnprocessableDataException('The email is not authenticated one')
+    }
 
     return await this.prisma.user.update({
-      where: { id: userId },
+      where: { id: req.user.id },
       data: {
         email: updateUserEmailDto.email
       }
