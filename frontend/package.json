@@ -13,6 +13,7 @@
     "@vueuse/components": "^9.1.1",
     "@vueuse/core": "^9.1.1",
     "@vueuse/math": "^9.1.1",
+    "axios": "^0.27.2",
     "nprogress": "0.2.0",
     "pinia": "^2.0.21",
     "vue": "^3.2.37",
