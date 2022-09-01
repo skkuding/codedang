@@ -22,14 +22,13 @@ const textColorMapper = {
 </script>
 
 <template>
-  <div class="relative flex flex-row items-center">
+  <div class="flex items-center">
     <div
-      class="aspect-square h-16 w-16 rounded-full"
+      class="aspect-square h-16 rounded-full"
       :class="colorMapper[color || 'default']"
-    ></div>
-    <div class="-ml-8 aspect-[2/1] h-8 w-10 rounded-full bg-white"></div>
+    />
     <div
-      class="-ml-8 truncate text-2xl"
+      class="-ml-8 truncate rounded-full bg-white px-2 text-2xl"
       :class="textColorMapper[color || 'default']"
     >
       {{ text }}
