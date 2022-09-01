@@ -6,7 +6,7 @@ import Header from './common/components/Organism/Header.vue'
 
 <template>
   <Header />
-  <div class="mx-auto w-4/5">
+  <div class="mx-auto w-4/5 max-w-7xl">
     <router-view />
     <Toast />
   </div>
