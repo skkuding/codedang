@@ -22,6 +22,7 @@ export const useAuthStore = defineStore('auth', {
 
     async logout() {
       await axios.post('/api/auth/logout')
+      delete axios.defaults.headers.common.authorization
       this.isLoggedIn = false
     },
 
