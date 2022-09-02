@@ -1,11 +1,44 @@
 <script setup lang="ts">
-import MyComponent from '../../components/MyComponent.vue'
+import RadioButton from '@/common/components/Molecule/RadioButton.vue'
+import SearchBar from '@/common/components/Molecule/SearchBar.vue'
+import CardItem from '@/common/components/Molecule/CardItem.vue'
+import { ref } from 'vue'
+
 defineProps<{
-  groupId: number
+  id: number
 }>()
+
+const texts = ['Latest', 'Ongoing']
+const selected = ref()
+const setSelected = (index: number) => {
+  selected.value = index
+}
 </script>
 
 <template>
-  <div>This is group contest page : id = {{ groupId }}</div>
-  <MyComponent msg="group contest!" />
+  <div class="mb-16 flex justify-end">
+    <RadioButton class="mr-8" :texts="texts" @selected="setSelected" />
+    <SearchBar placeholder="keywords" />
+  </div>
+
+  <div class="flex flex-col items-center gap-4">
+    <CardItem
+      class="w-[640px]"
+      title="Lorem Ipsum"
+      img="https://www.skku.edu/_res/skku/img/skku_s.png"
+      description="Lorem Ipsum is simply dummy text"
+      additional-text="Status: Ongoing"
+      colored-text="Created by skkuding"
+      colored-text-short="By skkuding"
+    />
+    <CardItem
+      class="w-[640px]"
+      title="Lorem Ipsum"
+      img="https://www.skku.edu/_res/skku/img/skku_s.png"
+      description="Lorem Ipsum is simply dummy text"
+      additional-text="Status: Ongoing"
+      colored-text="Created by skkuding"
+      colored-text-short="By skkuding"
+    />
+  </div>
 </template>
