@@ -103,7 +103,7 @@ export class GroupMemberController {
   async createMembers(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Body() memberDto: CreateMemberDto[]
-  ) {
+  ): Promise<number[]> {
     return await this.groupService.createMembers(groupId, memberDto)
   }
 

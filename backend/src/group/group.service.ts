@@ -212,32 +212,39 @@ export class GroupService {
   async createMembers(
     groupId: number,
     memberDtos: CreateMemberDto[]
-  ): Promise<UserGroup[]> {
-    const members = memberDtos.map(async (memberDto) => {
-      const id = (
-        await this.prisma.user.findUnique({
-          where: {
-            studentId: memberDto.studentId
-          },
-          select: {
-            id: true
-          }
-        })
-      ).id
-      return this.prisma.userGroup.create({
-        data: {
-          user: {
-            connect: { id: id }
-          },
-          group: {
-            connect: { id: groupId }
-          },
-          isGroupManager: memberDto.isGroupManager
+  ): Promise<number[]> {
+    const members = []
+    const failed = []
+
+    memberDtos.forEach(async (memberDto, i) => {
+      const member = await this.prisma.user.findUnique({
+        where: {
+          studentId: memberDto.studentId
+        },
+        select: {
+          id: true
         }
       })
+      if (member === null) failed.push(i)
+      else {
+        members.push(
+          this.prisma.userGroup.create({
+            data: {
+              user: {
+                connect: { id: member.id }
+              },
+              group: {
+                connect: { id: groupId }
+              },
+              isGroupManager: memberDto.isGroupManager
+            }
+          })
+        )
+      }
     })
+    await Promise.all(members)
 
-    return await Promise.all(members)
+    return failed
   }
 
   async getAdminManagers(groupId: number): Promise<Membership[]> {
