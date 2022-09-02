@@ -54,10 +54,16 @@ const requestGroupDto: RequestGroupDto = {
   description: group.description
 }
 
-const createMemberDto: CreateMemberDto = {
-  studentId: '2020310000',
-  isGroupManager: false
-}
+const createMemberDtos: CreateMemberDto[] = [
+  {
+    studentId: '0000000000',
+    isGroupManager: false
+  },
+  {
+    studentId: '2020310000',
+    isGroupManager: false
+  }
+]
 
 const db = {
   group: {
@@ -266,11 +272,11 @@ describe('GroupService', () => {
   })
 
   describe('createMembers', () => {
-    it('should return newly created group', async () => {
-      const createMembers = await service.createMembers(groupId, [
-        createMemberDto
-      ])
-      expect(createMembers).toEqual([userGroup])
+    it('should return not invited member ids', async () => {
+      db.user.findUnique.mockResolvedValueOnce(null)
+
+      const failedIds = await service.createMembers(groupId, createMemberDtos)
+      expect(failedIds).toEqual([0])
     })
   })
 

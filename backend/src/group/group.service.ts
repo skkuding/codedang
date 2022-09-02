@@ -213,33 +213,30 @@ export class GroupService {
     groupId: number,
     memberDtos: CreateMemberDto[]
   ): Promise<number[]> {
-    const members = []
     const failed = []
 
-    memberDtos.forEach(async (memberDto, i) => {
-      const member = await this.prisma.user.findUnique({
+    const members = memberDtos.map(async (dto, index) => {
+      const student = await this.prisma.user.findUnique({
         where: {
-          studentId: memberDto.studentId
+          studentId: dto.studentId
         },
         select: {
           id: true
         }
       })
-      if (member === null) failed.push(i)
+      if (student === null) failed.push(index)
       else {
-        members.push(
-          this.prisma.userGroup.create({
-            data: {
-              user: {
-                connect: { id: member.id }
-              },
-              group: {
-                connect: { id: groupId }
-              },
-              isGroupManager: memberDto.isGroupManager
-            }
-          })
-        )
+        return this.prisma.userGroup.create({
+          data: {
+            user: {
+              connect: { id: student.id }
+            },
+            group: {
+              connect: { id: groupId }
+            },
+            isGroupManager: dto.isGroupManager
+          }
+        })
       }
     })
     await Promise.all(members)
