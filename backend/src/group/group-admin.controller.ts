@@ -157,7 +157,7 @@ export class GroupMemberController {
   @Delete(':id')
   async deleteMember(@Param('id', ParseIntPipe) id: number) {
     try {
-      return await this.groupService.deleteGroup(id)
+      return await this.groupService.deleteMember(id)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
