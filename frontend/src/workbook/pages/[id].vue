@@ -3,6 +3,7 @@ import WorkbookTitle from '../components/WorkbookTitle.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import IconCheck from '~icons/fa6-regular/circle-check'
 import { onBeforeMount, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 // TODO: define interface in separte file
 interface Problem {
@@ -137,8 +138,9 @@ onBeforeMount(() => {
 
 // TODO: implement change-page function to reset workbookProblemList using API when click pagination buttons
 
+const router = useRouter()
 const clickRow = (row: Problem) => {
-  window.location.href = '/problem/' + row.id
+  router.push('/problem/' + row.id)
 }
 </script>
 
