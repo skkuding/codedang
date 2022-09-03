@@ -17,13 +17,19 @@ export const useAuthStore = defineStore('auth', {
         openToast({ message: 'Login succeed!', type: 'success' })
       } catch (e) {
         openToast({ message: 'Login failed!', type: 'error' })
+        throw new Error('Login failed')
       }
     },
 
     async logout() {
-      await axios.post('/api/auth/logout')
-      delete axios.defaults.headers.common.authorization
-      this.isLoggedIn = false
+      try {
+        await axios.post('/api/auth/logout')
+        delete axios.defaults.headers.common.authorization
+        this.isLoggedIn = false
+      } catch (e) {
+        openToast({ message: 'Logout failed!', type: 'error' })
+        throw new Error('Logout failed')
+      }
     },
 
     async reissue() {
