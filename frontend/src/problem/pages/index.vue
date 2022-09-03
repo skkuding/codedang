@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import Header from '@/common/components/Organism/Header.vue'
-import Footer from '@/common/components/Organism/Footer.vue'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
@@ -236,7 +234,6 @@ const clickMore = () => {
 </script>
 
 <template>
-  <Header />
   <BoxTitle>
     <template #title>Problem</template>
     <template #subtitle>
@@ -314,5 +311,4 @@ const clickMore = () => {
       More
     </Button>
   </div>
-  <Footer />
 </template>
