@@ -3,7 +3,7 @@ import WorkbookTitle from '../components/WorkbookTitle.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import IconCheck from '~icons/fa6-regular/circle-check'
-import { onBeforeMount, ref } from 'vue'
+import { computed, ref } from 'vue'
 
 // TODO: define interface in separte file
 interface Problem {
@@ -17,7 +17,12 @@ defineProps<{
   id: number
 }>()
 
-const fields = ref([{ key: 'id', label: '#' }, { key: 'title' }])
+const showTags = ref(false)
+const fields = computed(() =>
+  showTags.value
+    ? [{ key: 'id', label: '#' }, { key: 'title' }, { key: 'tags' }]
+    : [{ key: 'id', label: '#' }, { key: 'title' }]
+)
 
 const workbookProblemList = ref<Problem[]>([])
 
@@ -86,8 +91,6 @@ workbookProblemList.value = [
   }
 ]
 
-const showTag = ref(false)
-
 // TODO: implement change-page function to reset workbookProblemList using API when click pagination buttons
 </script>
 
@@ -102,13 +105,7 @@ const showTag = ref(false)
       @row-clicked="({ id }) => $router.push('/problem/' + id)"
     >
       <template #option>
-        <Switch
-          v-model="showTag"
-          label="Tags"
-          @update:model-value="
-            (value) => (value ? fields.push({ key: 'tags' }) : fields.pop())
-          "
-        />
+        <Switch v-model="showTags" label="Tags" />
       </template>
 
       <template #title="{ row }">
