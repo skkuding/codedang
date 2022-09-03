@@ -6,6 +6,15 @@
   html {
     @apply text-text;
   }
+
+  html,
+  body {
+    @apply h-full;
+  }
+
+  #app {
+    @apply flex min-h-full flex-col;
+  }
 }
 
 #nprogress {
