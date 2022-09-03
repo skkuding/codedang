@@ -2,13 +2,12 @@
 import { ref, watch } from 'vue'
 import SearchBar from '../Molecule/SearchBar.vue'
 import Pagination from '../Molecule/Pagination.vue'
-import IconSort from '~icons/fa6-solid/sort'
 
 defineProps<{
   fields: {
     key: string
     label?: string
-    sortable?: boolean
+    width?: string
   }[]
   items: {
     [key: string]: unknown
@@ -50,7 +49,10 @@ const capitalize = (key: string) => {
         @search="search"
       ></SearchBar>
     </div>
-    <table class="w-full table-auto" :class="!noSearchBar ? 'mt-5' : ''">
+    <table
+      class="w-full table-fixed break-all"
+      :class="!noSearchBar ? 'mt-5' : ''"
+    >
       <thead v-if="!noHeader">
         <tr class="text-text-title border-gray border-b-2 bg-[#F9F9F9]">
           <th
@@ -58,6 +60,7 @@ const capitalize = (key: string) => {
             :key="index"
             class="p-2.5 pl-4 text-left"
             :class="index > 2 ? 'hidden md:block' : ''"
+            :style="field.width ? 'width:' + field.width : ''"
           >
             <span v-if="Object.keys(field).includes('label')">
               {{ field.label }}
