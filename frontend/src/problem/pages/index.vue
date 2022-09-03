@@ -6,9 +6,7 @@ import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
 import BoxTitle from '@/common/components/Atom/BoxTitle.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import Button from '@/common/components/Atom/Button.vue'
-import { computed } from 'vue'
-import { ref } from 'vue'
-import { onUpdated } from 'vue'
+import { ref, computed, onUpdated } from 'vue'
 
 defineProps<{
   id: number
