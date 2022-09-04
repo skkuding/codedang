@@ -6,19 +6,16 @@ import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
 import BoxTitle from '@/common/components/Atom/BoxTitle.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import Button from '@/common/components/Atom/Button.vue'
-import { ref, computed, onUpdated } from 'vue'
+import { ref, computed } from 'vue'
 
-defineProps<{
+interface Problem {
   id: number
-}>()
-const fields = [
-  { key: 'id', label: '#' },
-  { key: 'title' },
-  { key: 'level' },
-  { key: 'submissions' },
-  { key: 'rate', label: 'AC Rate' },
-  { key: 'tag' }
-]
+  title: string
+  level: number
+  submissions: number
+  rate: string
+  tags: string
+}
 
 const colorMapper = (level: number) => {
   switch (level) {
@@ -41,14 +38,35 @@ const colorMapper = (level: number) => {
   }
 }
 
-const problemList = [
+const showTags = ref(false)
+const fields = computed(() =>
+  showTags.value
+    ? [
+        { key: 'id', label: '#' },
+        { key: 'title' },
+        { key: 'level' },
+        { key: 'submissions' },
+        { key: 'rate', label: 'AC Rate' },
+        { key: 'tags' }
+      ]
+    : [
+        { key: 'id', label: '#' },
+        { key: 'title' },
+        { key: 'level' },
+        { key: 'submissions' },
+        { key: 'rate', label: 'AC Rate' }
+      ]
+)
+
+const problemList = ref<Problem[]>([])
+problemList.value = [
   {
     id: 1,
     title: '가파른 경사',
     level: 1,
     submissions: 132,
     rate: '92.14%',
-    tag: 'A'
+    tags: 'A'
   },
   {
     id: 1006,
@@ -56,7 +74,7 @@ const problemList = [
     level: 2,
     submissions: 561,
     rate: '70%',
-    tag: 'B'
+    tags: 'B'
   },
   {
     id: 10,
@@ -64,7 +82,7 @@ const problemList = [
     level: 1,
     submissions: 100,
     rate: '90%',
-    tag: 'E'
+    tags: 'E'
   },
   {
     id: 11,
@@ -72,7 +90,7 @@ const problemList = [
     level: 2,
     submissions: 100,
     rate: '83%',
-    tag: 'C'
+    tags: 'C'
   },
   {
     id: 12,
@@ -80,7 +98,7 @@ const problemList = [
     level: 3,
     submissions: 100,
     rate: '72%',
-    tag: 'D'
+    tags: 'D'
   },
   {
     id: 13,
@@ -88,7 +106,7 @@ const problemList = [
     level: 4,
     submissions: 100,
     rate: '65%',
-    tag: 'F'
+    tags: 'F'
   },
   {
     id: 14,
@@ -96,7 +114,7 @@ const problemList = [
     level: 5,
     submissions: 100,
     rate: '52%',
-    tag: 'G'
+    tags: 'G'
   },
   {
     id: 15,
@@ -104,7 +122,7 @@ const problemList = [
     level: 6,
     submissions: 100,
     rate: '1%',
-    tag: 'H'
+    tags: 'H'
   },
   {
     id: 16,
@@ -112,7 +130,7 @@ const problemList = [
     level: 7,
     submissions: 100,
     rate: '1%',
-    tag: 'I'
+    tags: 'I'
   },
   {
     id: 17,
@@ -120,27 +138,14 @@ const problemList = [
     level: 7,
     submissions: 100,
     rate: '1%',
-    tag: 'J'
+    tags: 'J'
   }
 ]
-const clickRow = (row: any) => {
-  window.location.href = '/problem/' + row.id
-}
-
-const clickCard = (index: number) => {
-  window.location.href = '/contest/' + (index + 1)
-}
-
-const connectSwitchData = (data: any) => {
-  isSwitchOn.value = data
-}
-
-const isSwitchOn = ref(true)
 
 const cardItems = [
   {
     title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
+    header: '2022.03.07 updated',
     description: 'description',
     color: 'gray',
     total: 6,
@@ -204,30 +209,17 @@ const cardItems = [
   }
 ]
 
-onUpdated(() => {
-  visibleCardItems
-})
-const bigScreen = ref(4)
-const smallScreen = ref(2)
-
-const visibleCardItems = computed(() => {
-  {
-    if (window.innerWidth < 768) {
-      return cardItems.slice(0, smallScreen.value)
-    } else {
-      return cardItems.slice(0, bigScreen.value)
-    }
-  }
-})
-
+const numberOfCards = ref(4)
 const clickMore = () => {
-  {
-    if (window.innerWidth < 768) {
-      smallScreen.value += 2
-    } else {
-      bigScreen.value += 4
-    }
-  }
+  window.innerWidth < 768
+    ? (numberOfCards.value = Math.min(
+        numberOfCards.value + 2,
+        cardItems.length
+      ))
+    : (numberOfCards.value = Math.min(
+        numberOfCards.value + 4,
+        cardItems.length
+      ))
 }
 </script>
 
@@ -238,75 +230,48 @@ const clickMore = () => {
       Find problems with problem set and filters, and solve it!
     </template>
   </BoxTitle>
-  <div class="overflow-x scroll mx-auto mb-28 w-11/12">
-    <PageSubtitle text="All Problem" class="mt-10 mb-7" />
-    <PaginationTable
-      v-if="isSwitchOn"
-      :fields="fields"
-      :items="problemList"
-      placeholder="keywords"
-      :number-of-pages="1"
-      @row-clicked="clickRow"
-    >
-      <template #option>
-        <Switch
-          label="Tags"
-          :model-value="isSwitchOn"
-          @update:model-value="connectSwitchData"
-        />
-      </template>
-      <template #level="{ row }">
-        <div class="flex items-center gap-2">
-          <span class="h-5 w-5 rounded-full" :class="colorMapper(row.level)" />
-          Level {{ row.level }}
-        </div>
-      </template>
-    </PaginationTable>
-    <PaginationTable
-      v-else
-      :fields="fields.slice(0, -1)"
-      :items="problemList"
-      placeholder="keywords"
-      :number-of-pages="1"
-      @row-clicked="clickRow"
-    >
-      <template #option>
-        <Switch
-          label="Tags"
-          :model-value="isSwitchOn"
-          @update:model-value="connectSwitchData"
-        />
-      </template>
-      <template #level="{ row }">
-        <div class="flex items-center gap-2">
-          <span class="h-5 w-5 rounded-full" :class="colorMapper(row.level)" />
-          Level {{ row.level }}
-        </div>
-      </template>
-    </PaginationTable>
+  <PageSubtitle text="All Problem" class="mt-10 mb-2" />
+  <PaginationTable
+    :fields="fields"
+    :items="problemList"
+    placeholder="keywords"
+    :number-of-pages="1"
+    @row-clicked="({ id }) => $router.push('/problem/' + id)"
+  >
+    <template #option>
+      <Switch v-model="showTags" label="Tags" />
+    </template>
+    <template #level="{ row }">
+      <div class="flex items-center gap-2">
+        <span class="h-5 w-5 rounded-full" :class="colorMapper(row.level)" />
+        Level {{ row.level }}
+      </div>
+    </template>
+  </PaginationTable>
 
-    <PageSubtitle text="Workbook" class="mt-10 mb-7" />
-
-    <div class="flex justify-end">
-      <SearchBar class="ml-4" placeholder="keywords" />
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2">
-      <ProgressCard
-        v-for="(item, index) in visibleCardItems"
-        :key="index"
-        :title="item.title"
-        :header="item.header"
-        :description="item.description"
-        :color="item.color"
-        :total="item.total"
-        :complete="item.complete"
-        class="!w-[95%] cursor-pointer"
-        @click="clickCard(index)"
-      />
-    </div>
-    <Button class="text-gray-dark mt-8 w-full" color="white" @click="clickMore">
-      More
-    </Button>
+  <PageSubtitle text="Workbook" class="mt-10 mb-2" />
+  <div class="flex justify-end">
+    <SearchBar class="mb-5" placeholder="keywords" />
   </div>
+  <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+    <ProgressCard
+      v-for="index in numberOfCards"
+      :key="index"
+      :title="cardItems[index - 1].title"
+      :header="cardItems[index - 1].header"
+      :description="cardItems[index - 1].description"
+      :color="cardItems[index - 1].color"
+      :total="cardItems[index - 1].total"
+      :complete="cardItems[index - 1].complete"
+      @click="() => $router.push('/workbook/' + index)"
+    />
+  </div>
+  <Button
+    v-if="numberOfCards < cardItems.length"
+    class="mt-8 mb-20 w-full"
+    color="white"
+    @click="clickMore"
+  >
+    More
+  </Button>
 </template>
