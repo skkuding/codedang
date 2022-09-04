@@ -4,6 +4,11 @@ import Sidebar from './Sidebar.vue'
 
 <template>
   <Story>
-    <Sidebar />
+    <Variant title="Basic">
+      <Sidebar />
+    </Variant>
+    <Variant title="Group">
+      <Sidebar group color="blue" />
+    </Variant>
   </Story>
 </template>
