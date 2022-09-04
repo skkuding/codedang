@@ -30,9 +30,9 @@ importers:
 
   backend:
     specifiers:
-      '@nestjs/cli': ^9.0.0
-      '@nestjs/common': ^9.0.9
-      '@nestjs-modules/mailer': ^1.7.1
+      '@nestjs-modules/mailer': ^1.8.1
+      '@nestjs/cli': ^9.1.1
+      '@nestjs/common': ^9.0.11
       '@nestjs/config': ^2.2.0
       '@nestjs/core': ^9.0.11
       '@nestjs/jwt': ^9.0.0
@@ -80,11 +80,7 @@ importers:
       '@nestjs/passport': 9.0.0_qmmxbt2dwte7f4tgsyyoa7ob5i
       '@nestjs/platform-express': 9.0.11_khr6mt6ojlxbw7bo55fknouh34
       '@prisma/client': 4.2.1_prisma@4.2.1
-<<<<<<< HEAD
       argon2: 0.29.1
-=======
-      argon2: 0.28.7
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
       cache-manager: 4.1.0
       cache-manager-redis-store: 2.0.0
       class-transformer: 0.5.1
@@ -104,11 +100,7 @@ importers:
       '@types/cache-manager': 4.0.1
       '@types/express': 4.17.13
       '@types/jest': 27.5.2
-<<<<<<< HEAD
       '@types/node': 18.7.13
-=======
-      '@types/node': 16.11.56
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
       '@types/nodemailer': 6.4.5
       '@types/passport-jwt': 3.0.6
       '@types/passport-local': 1.0.34
@@ -119,11 +111,7 @@ importers:
       supertest: 6.2.4
       ts-jest: 27.1.5_mnilp3rljfhuyknsyc4i72drhi
       ts-loader: 9.3.1_vxwqrucgsi6fv2vqgtti3vbvaa
-<<<<<<< HEAD
       ts-node: 10.9.1_hwinnrf7y5nyyzygpj45jmvjia
-=======
-      ts-node: 10.9.1_o7liyg2j45tnaks7f56gkfbn7y
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
       tsconfig-paths: 4.1.0
       typescript: 4.8.2
 
@@ -136,15 +124,11 @@ importers:
       '@iconify-json/ic': ^1.1.9
       '@iconify-json/iconoir': ^1.1.8
       '@iconify-json/ri': ^1.1.3
-<<<<<<< HEAD
       '@tailwindcss/forms': ^0.5.2
-      '@types/node': ^18.7.13
-      '@types/nprogress': ^0.2.0
-=======
       '@tiptap/starter-kit': 2.0.0-beta.192
       '@tiptap/vue-3': 2.0.0-beta.97
-      '@types/node': ^16.11.48
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
+      '@types/node': ^18.7.13
+      '@types/nprogress': ^0.2.0
       '@vitejs/plugin-vue': ^3.0.3
       '@vue/tsconfig': ^0.1.3
       '@vueuse/components': ^9.1.1
@@ -164,18 +148,12 @@ importers:
       vue-router: ^4.1.5
       vue-tsc: ^0.40.4
     dependencies:
-<<<<<<< HEAD
-      '@vueuse/components': 9.1.1_vue@3.2.37
-      '@vueuse/core': 9.1.1_vue@3.2.37
-      '@vueuse/math': 9.1.1_vue@3.2.37
-      nprogress: 0.2.0
-=======
       '@tiptap/starter-kit': 2.0.0-beta.192
       '@tiptap/vue-3': 2.0.0-beta.97_yb3oqwtgg7ibmc3ephmklosy3m
       '@vueuse/components': 9.1.1_vue@3.2.37
       '@vueuse/core': 9.1.1_vue@3.2.37
       '@vueuse/math': 9.1.1_vue@3.2.37
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
+      nprogress: 0.2.0
       pinia: 2.0.21_bw4xur2vyhvhfd4whxbr7emp4u
       vue: 3.2.37
       vue-router: 4.1.5_vue@3.2.37
@@ -187,13 +165,9 @@ importers:
       '@iconify-json/ic': 1.1.9
       '@iconify-json/iconoir': 1.1.8
       '@iconify-json/ri': 1.1.3
-<<<<<<< HEAD
-      '@tailwindcss/forms': 0.5.2_tailwindcss@3.1.8
+      '@tailwindcss/forms': 0.5.3_tailwindcss@3.1.8
       '@types/node': 18.7.13
       '@types/nprogress': 0.2.0
-=======
-      '@types/node': 16.11.56
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
       '@vitejs/plugin-vue': 3.0.3_vite@3.0.9+vue@3.2.37
       '@vue/tsconfig': 0.1.3
       autoprefixer: 10.4.8_postcss@8.4.16
@@ -670,26 +644,6 @@ packages:
       - supports-color
     dev: true
 
-<<<<<<< HEAD
-  /@eslint/eslintrc/1.3.1:
-    resolution: {integrity: sha512-OhSY22oQQdw3zgPOOwdoj01l/Dzl1Z+xyUP33tkSN+aqyEhymJCcPHyXt+ylW8FSe0TfRC2VG+ROQOapD0aZSQ==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    dependencies:
-      ajv: 6.12.6
-      debug: 4.3.4
-      espree: 9.4.0
-      globals: 13.15.0
-      ignore: 5.2.0
-      import-fresh: 3.3.0
-      js-yaml: 4.1.0
-      minimatch: 3.1.2
-      strip-json-comments: 3.1.1
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
-=======
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
   /@evilmartians/lefthook/1.1.1:
     resolution: {integrity: sha512-5C/AD937A6jz4mdBLAKXIeYVkxvLmPWxlv1YWfuHcIwZ2wp4W3z1Htjjtp+7gtO41CoCycIJcaxLfwaAsbS6qA==}
     cpu: [x64, arm64, ia32]
@@ -1386,16 +1340,15 @@ packages:
       '@sinonjs/commons': 1.8.3
     dev: true
 
-<<<<<<< HEAD
-  /@tailwindcss/forms/0.5.2_tailwindcss@3.1.8:
-    resolution: {integrity: sha512-pSrFeJB6Bg1Mrg9CdQW3+hqZXAKsBrSG9MAfFLKy1pVA4Mb4W7C0k7mEhlmS2Dfo/otxrQOET7NJiJ9RrS563w==}
+  /@tailwindcss/forms/0.5.3_tailwindcss@3.1.8:
+    resolution: {integrity: sha512-y5mb86JUoiUgBjY/o6FJSFZSEttfb3Q5gllE4xoKjAAD+vBrnIhE4dViwUuow3va8mpH4s9jyUbUbrRGoRdc2Q==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1'
     dependencies:
       mini-svg-data-uri: 1.4.4
       tailwindcss: 3.1.8_postcss@8.4.16
     dev: true
-=======
+
   /@tiptap/core/2.0.0-beta.183:
     resolution: {integrity: sha512-lbGgIpAVxqcC4mhdA3qdUC1lOpV4N/9FtAk3ZQkN+iwuRx554VZeJeazWMuEXpNE/b4AdYTjX5TG3dxg37ES4A==}
     dependencies:
@@ -1616,7 +1569,6 @@ packages:
       prosemirror-view: 1.26.2
       vue: 3.2.37
     dev: false
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
 
   /@tootallnate/once/1.1.2:
     resolution: {integrity: sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==}
@@ -1825,13 +1777,6 @@ packages:
     resolution: {integrity: sha512-GZ7bu5A6+4DtG7q9GsoHXy3ALcgeIHP4NnL0Vv2wu0uUB/yQex26v0tf6/na1mm0+bS9Uw+0DFex7aaKr2qawQ==}
     dev: true
 
-<<<<<<< HEAD
-=======
-  /@types/node/16.11.56:
-    resolution: {integrity: sha512-aFcUkv7EddxxOa/9f74DINReQ/celqH8DiB3fRYgVDM2Xm5QJL8sl80QKuAnGvwAsMn+H3IFA6WCrQh1CY7m1A==}
-    dev: true
-
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
   /@types/node/18.7.13:
     resolution: {integrity: sha512-46yIhxSe5xEaJZXWdIBP7GU4HDTG8/eo0qd9atdiL+lFpA03y8KS+lkTN834TWJj5767GbWv4n/P6efyTFt1Dw==}
 
@@ -1843,13 +1788,10 @@ packages:
     resolution: {integrity: sha512-zuP3nBRQHI6M2PkXnGGy1Ww4VB+MyYHGgnfV2T+JR9KLkeWqPJuyVUgLpKXuFnA/b7pZaIDFh2sV4759B7jK1g==}
     dependencies:
       '@types/node': 18.7.13
-<<<<<<< HEAD
     dev: true
 
   /@types/nprogress/0.2.0:
     resolution: {integrity: sha512-1cYJrqq9GezNFPsWTZpFut/d4CjpZqA0vhqDUPFWYKF1oIyBz5qnoYMzR+0C/T96t3ebLAC1SSnwrVOm5/j74A==}
-=======
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
     dev: true
 
   /@types/parse-json/4.0.0:
@@ -4090,15 +4032,6 @@ packages:
       eslint-visitor-keys: 3.3.0
     dev: true
 
-  /espree/9.4.0:
-    resolution: {integrity: sha512-DQmnRpLj7f6TgN/NYb0MTzJXL+vJF9h3pHy4JhCIs3zwcgez8xmGg3sXHcEO97BrmO2OSvCwMdfdlyl+E9KjOw==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    dependencies:
-      acorn: 8.8.0
-      acorn-jsx: 5.3.2_acorn@8.8.0
-      eslint-visitor-keys: 3.3.0
-    dev: true
-
   /esprima-extract-comments/1.1.0:
     resolution: {integrity: sha512-sBQUnvJwpeE9QnPrxh7dpI/dp67erYG4WXEAreAMoelPRpMR7NWb4YtwRPn9b+H1uLQKl/qS8WYmyaljTpjIsw==}
     engines: {node: '>=4'}
@@ -5444,11 +5377,7 @@ packages:
       pretty-format: 27.5.1
       slash: 3.0.0
       strip-json-comments: 3.1.1
-<<<<<<< HEAD
       ts-node: 10.9.1_hwinnrf7y5nyyzygpj45jmvjia
-=======
-      ts-node: 10.9.1_o7liyg2j45tnaks7f56gkfbn7y
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -6939,13 +6868,10 @@ packages:
       set-blocking: 2.0.0
     dev: false
 
-<<<<<<< HEAD
   /nprogress/0.2.0:
     resolution: {integrity: sha512-I19aIingLgR1fmhftnbWWO3dXc0hSxqHQHQb3H8m+K3TnEn/iSeTZZOyvKXWqQESMwuUVnatlCnZdLBZZt2VSA==}
     dev: false
 
-=======
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
   /nth-check/2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
     dependencies:
@@ -7307,7 +7233,7 @@ packages:
   /pkg-types/0.3.3:
     resolution: {integrity: sha512-6AJcCMnjUQPQv/Wk960w0TOmjhdjbeaQJoSKWRQv9N3rgkessCu6J0Ydsog/nw1MbpnxHuPzYbfOn2KmlZO1FA==}
     dependencies:
-      jsonc-parser: 3.0.0
+      jsonc-parser: 3.1.0
       mlly: 0.5.12
       pathe: 0.3.4
     dev: true
@@ -8101,7 +8027,7 @@ packages:
   /shiki/0.10.1:
     resolution: {integrity: sha512-VsY7QJVzU51j5o1+DguUd+6vmCmZ5v/6gYu4vyYAhzjuNQU6P/vmSy4uQaOhvje031qQMiW0d2BwgMH52vqMng==}
     dependencies:
-      jsonc-parser: 3.0.0
+      jsonc-parser: 3.1.0
       vscode-oniguruma: 1.6.2
       vscode-textmate: 5.2.0
     dev: true
@@ -8688,11 +8614,7 @@ packages:
       webpack: 5.73.0
     dev: true
 
-<<<<<<< HEAD
   /ts-node/10.9.1_hwinnrf7y5nyyzygpj45jmvjia:
-=======
-  /ts-node/10.9.1_o7liyg2j45tnaks7f56gkfbn7y:
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -8711,11 +8633,7 @@ packages:
       '@tsconfig/node12': 1.0.9
       '@tsconfig/node14': 1.0.1
       '@tsconfig/node16': 1.0.2
-<<<<<<< HEAD
       '@types/node': 18.7.13
-=======
-      '@types/node': 16.11.56
->>>>>>> e793baa (chore: add tiptap, more iconify pkg)
       acorn: 8.7.1
       acorn-walk: 8.2.0
       arg: 4.1.3
