@@ -115,7 +115,7 @@ const getAuth = () => {
       >
         <div
           v-show="isMenuOpen"
-          class="fixed inset-x-0 top-14 flex w-full flex-col items-center justify-center gap-6 overflow-hidden bg-white/30 py-8 shadow-lg backdrop-blur"
+          class="fixed inset-x-0 top-14 z-30 flex w-full flex-col items-center justify-center gap-6 overflow-hidden bg-white/30 py-8 shadow-lg backdrop-blur"
         >
           <nav class="text-text-title flex flex-col items-center gap-2">
             <router-link

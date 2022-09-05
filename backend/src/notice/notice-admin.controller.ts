@@ -38,7 +38,7 @@ export class NoticeAdminController {
   }
 }
 
-@Controller('admin/group/:group_id/notice')
+@Controller('admin/group/:groupId/notice')
 @UseGuards(RolesGuard, GroupManagerGuard)
 export class GroupNoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
@@ -46,7 +46,7 @@ export class GroupNoticeAdminController {
   @Post()
   async createNotice(
     @Req() req: AuthenticatedRequest,
-    @Param('group_id', ParseIntPipe) groupId: number,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Body() createNoticeDto: CreateNoticeDto
   ): Promise<Notice> {
     try {
@@ -65,7 +65,7 @@ export class GroupNoticeAdminController {
 
   @Get()
   async getAdminNotices(
-    @Param('group_id', ParseIntPipe) groupId: number,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
     return await this.noticeService.getAdminNoticesByGroupId(groupId, offset)
