@@ -11,12 +11,12 @@ const noticeItems = [
   {
     title: 'SKKU Coding Platform 모의대회 결과 및 솔루션',
     date: 'Jan 9,2021',
-    href: '#'
+    href: '/'
   },
   {
     title: 'SKKU Coding Platform 모의대회 결과',
     date: 'Dec 31,2020',
-    href: '#'
+    href: '/'
   }
 ]
 
@@ -24,19 +24,19 @@ const contestItems = [
   {
     title: 'SKKU Coding Platform 모의대회',
     date: 'Jan 9,2021',
-    href: '#',
+    href: '/',
     state: 'ongoing'
   },
   {
     title: 'SKKU Coding Platform 1차 대회',
     date: 'Dec 31,2020',
-    href: '#',
+    href: '/',
     state: 'prearranged'
   },
   {
     title: 'SKKU Coding Platform 2차 대회',
     date: 'Dec 31,2020',
-    href: '#',
+    href: '/',
     state: 'prearranged'
   }
 ]
@@ -54,7 +54,7 @@ const slides = [
   <main>
     <Carousel :slides="slides" />
     <div class="my-20 lg:flex">
-      <Card href="#" :items="noticeItems" class="mx-auto w-5/12">
+      <Card href="/notice" :items="noticeItems" class="mx-auto w-5/12">
         <template #title>
           <IconInfo />
           <h2 class="ml-2">Notice</h2>
@@ -64,7 +64,7 @@ const slides = [
           <IconAngleRight />
         </template>
       </Card>
-      <Card href="#" :items="contestItems" class="mx-auto w-5/12">
+      <Card href="/contest" :items="contestItems" class="mx-auto w-5/12">
         <template #title>
           <IconMedal />
           <h2 class="ml-2">Current/Upcoming Contests</h2>
