@@ -118,6 +118,7 @@ importers:
   frontend:
     specifiers:
       '@histoire/plugin-vue': ^0.10.7
+      '@iconify-json/bi': ^1.1.7
       '@iconify-json/fa6-brands': ^1.1.6
       '@iconify-json/fa6-regular': ^1.1.6
       '@iconify-json/fa6-solid': ^1.1.7
@@ -155,6 +156,7 @@ importers:
       vue-router: 4.1.5_vue@3.2.38
     devDependencies:
       '@histoire/plugin-vue': 0.10.7_6f4nerxxho2ntp6usscfxg4z5y
+      '@iconify-json/bi': 1.1.7
       '@iconify-json/fa6-brands': 1.1.6
       '@iconify-json/fa6-regular': 1.1.6
       '@iconify-json/fa6-solid': 1.1.7
@@ -749,6 +751,12 @@ packages:
 
   /@humanwhocodes/object-schema/1.2.1:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
+    dev: true
+
+  /@iconify-json/bi/1.1.7:
+    resolution: {integrity: sha512-yHoRAbLsUKUa489xkBFgoHZUMFYuDLMsTbSn0ndE2iIkm/zyju/IXNJ/VyPTbVd6ulm6wMk7NDAOUQ4okw/Mlg==}
+    dependencies:
+      '@iconify/types': 1.1.0
     dev: true
 
   /@iconify-json/fa6-brands/1.1.6:

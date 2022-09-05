@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@histoire/plugin-vue": "^0.10.7",
+    "@iconify-json/bi": "^1.1.7",
     "@iconify-json/fa6-brands": "^1.1.6",
     "@iconify-json/fa6-regular": "^1.1.6",
     "@iconify-json/fa6-solid": "^1.1.7",
