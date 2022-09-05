@@ -5,8 +5,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "types": ["unplugin-icons/types/vue", "vite-plugin-pages/client"]
+    }
   },
 
   "references": [
