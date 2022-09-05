@@ -2,30 +2,18 @@
 import Modal from './Modal.vue'
 import Button from '../Atom/Button.vue'
 import { ref } from 'vue'
-const isModalVisible = ref(false)
-function close() {
-  isModalVisible.value = false
-}
+
+const show = ref(false)
 </script>
 
 <template>
   <Story>
-    <div>Click the button, and it shows modal!</div>
-    <Button @click="isModalVisible = true">showmodal</Button>
-    <Modal
-      v-if="isModalVisible"
-      title-color="green"
-      class="h-[767px] w-[367px]"
-      @close="close"
-    >
-      <template #modal-title>
-        <div>Welcome to</div>
-        <div>SKKU CODING PLATFORM</div>
-      </template>
-      <template #modal-image>
-        <img src="@/common/assets/logo.svg" class="w-20" alt="" />
-      </template>
-      <template #modal-content>this is modal</template>
-    </Modal>
+    <main class="h-screen w-screen">
+      <div>Click the button, and it shows modal!</div>
+      <Button @click="show = true">Show</Button>
+      <Modal v-model="show" class="flex items-center justify-center font-bold">
+        Modal opened!
+      </Modal>
+    </main>
   </Story>
 </template>
