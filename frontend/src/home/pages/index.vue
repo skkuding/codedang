@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import Footer from '@/common/components/Organism/Footer.vue'
-import Header from '@/common/components/Organism/Header.vue'
 import Card from '../components/Card.vue'
-
 import Carousel from '../components/Carousel.vue'
-
 import IconInfo from '~icons/fa6-solid/circle-info'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
 import IconMedal from '~icons/fa6-solid/medal'
@@ -44,6 +40,7 @@ const contestItems = [
     state: 'prearranged'
   }
 ]
+
 const slides = [
   'https://picsum.photos/id/1032/900/400',
   'https://picsum.photos/id/1033/900/400',
@@ -54,10 +51,9 @@ const slides = [
 </script>
 
 <template>
-  <Header class="fixed top-0 z-40 w-full"></Header>
-  <body class="h-screen">
-    <Carousel :slides="slides" class="z-10 mt-[56px]"></Carousel>
-    <div class="inline-flex-col relative z-10 mt-1 lg:flex">
+  <main>
+    <Carousel :slides="slides" />
+    <div class="my-20 lg:flex">
       <Card href="#" :items="noticeItems" class="mx-auto w-5/12">
         <template #title>
           <IconInfo />
@@ -80,6 +76,5 @@ const slides = [
         </template>
       </Card>
     </div>
-  </body>
-  <Footer class="fixed bottom-0 z-30" />
+  </main>
 </template>
