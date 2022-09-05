@@ -59,7 +59,7 @@ const capitalize = (key: string) => {
             v-for="(field, index) in fields"
             :key="index"
             class="p-2.5 pl-4 text-left"
-            :class="index > 2 ? 'hidden md:block' : ''"
+            :class="index > 2 ? 'hidden md:table-cell' : ''"
             :style="field.width ? 'width:' + field.width : ''"
           >
             <span v-if="Object.keys(field).includes('label')">
@@ -84,7 +84,7 @@ const capitalize = (key: string) => {
               v-for="(field, idx) in fields"
               :key="idx"
               class="p-2.5 pl-4"
-              :class="idx > 2 ? 'hidden md:block' : ''"
+              :class="idx > 2 ? 'hidden md:table-cell' : ''"
             >
               <slot :name="field.key" :row="row">{{ row[field.key] }}</slot>
             </td>
