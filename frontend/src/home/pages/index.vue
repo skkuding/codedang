@@ -53,8 +53,10 @@ const slides = [
 <template>
   <main>
     <Carousel :slides="slides" />
-    <div class="my-20 lg:flex">
-      <Card href="/notice" :items="noticeItems" class="mx-auto w-5/12">
+    <div
+      class="my-20 flex flex-col items-center justify-center gap-12 lg:flex-row"
+    >
+      <Card href="/notice" :items="noticeItems" class="w-[36rem] max-w-full">
         <template #title>
           <IconInfo />
           <h2 class="ml-2">Notice</h2>
@@ -64,7 +66,7 @@ const slides = [
           <IconAngleRight />
         </template>
       </Card>
-      <Card href="/contest" :items="contestItems" class="mx-auto w-5/12">
+      <Card href="/contest" :items="contestItems" class="w-[36rem] max-w-full">
         <template #title>
           <IconMedal />
           <h2 class="ml-2">Current/Upcoming Contests</h2>
