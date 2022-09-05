@@ -21,9 +21,10 @@ const shadowClass = computed(() =>
 
 <template>
   <input
+    v-bind="$attrs"
     :value="modelValue"
     :placeholder="placeholder"
-    :class="[shadowClass, $attrs.class]"
+    :class="shadowClass"
     class="rounded py-1 px-3 outline-none"
     @input="
       $emit('update:modelValue', ($event.target as HTMLInputElement).value)
