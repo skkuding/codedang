@@ -36,7 +36,7 @@ export default defineComponent({
       @click="$emit('update:modelValue', false)"
     >
       <section
-        class="relative h-40 w-40 overflow-hidden rounded-lg bg-white"
+        class="relative h-fit w-fit overflow-hidden rounded-lg bg-white"
         :class="$attrs.class"
       >
         <IconClose
