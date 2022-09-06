@@ -3,6 +3,8 @@ import { ref } from 'vue'
 import Modal from '../Molecule/Modal.vue'
 import InputItem from '../Atom/InputItem.vue'
 import Button from '../Atom/Button.vue'
+import IconPaperPlane from '~icons/fa-solid/paper-plane'
+import IconCheck from '~icons/fa-solid/check'
 
 defineProps<{
   modelValue: boolean
@@ -19,7 +21,7 @@ const content = ref<'login' | 'signup' | 'password'>('login')
 const height = {
   login: 'h-[30rem]',
   signup: 'h-[36rem]',
-  password: 'h-[10rem]'
+  password: 'h-[24rem]'
 }
 
 const username = ref('')
@@ -31,6 +33,11 @@ const studentId = ref('')
 const realName = ref('')
 const passwordNew = ref('')
 const passwordNewAgain = ref('')
+
+const emailForPasswordReset = ref('')
+const verificationCodeForPasswordReset = ref('')
+const passwordToReset = ref('')
+const passwordToResetAgain = ref('')
 </script>
 
 <template>
@@ -155,13 +162,51 @@ const passwordNewAgain = ref('')
       </div>
 
       <!-- Password Reset Page -->
-      <div v-else>
+      <div v-else class="flex flex-col items-center justify-center">
+        <h1 class="text-green my-6 text-xl font-bold">Password Recovery</h1>
+        <form class="flex w-60 flex-col gap-3" @submit.prevent>
+          <div class="flex gap-2">
+            <InputItem
+              v-model="emailForPasswordReset"
+              type="email"
+              placeholder="Email Address"
+              class="min-w-0 rounded-md"
+            />
+            <Button class="aspect-square h-[34px] rounded-md">
+              <IconPaperPlane />
+            </Button>
+          </div>
+          <div class="flex gap-2">
+            <InputItem
+              v-model="verificationCodeForPasswordReset"
+              type="number"
+              placeholder="Verification Code"
+              class="min-w-0 rounded-md"
+            />
+            <Button class="aspect-square h-[34px] rounded-md">
+              <IconCheck />
+            </Button>
+          </div>
+          <InputItem
+            v-model="passwordToReset"
+            type="password"
+            placeholder="New Password"
+            class="rounded-md"
+          />
+          <InputItem
+            v-model="passwordToResetAgain"
+            type="password"
+            placeholder="New Password Again"
+            class="rounded-md"
+          />
+          <Button type="submit" class="rounded-md">Reset Password</Button>
+        </form>
         <Button
-          class="bottom underline"
+          class="bottom mt-4 text-sm underline"
           color="white"
           @click="content = 'login'"
         >
-          Sign In
+          Back to Sign In
         </Button>
       </div>
     </transition>
