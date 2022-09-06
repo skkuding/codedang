@@ -18,12 +18,19 @@ const content = ref<'login' | 'signup' | 'password'>('login')
    since `transition` cannot trigger `fit-content` */
 const height = {
   login: 'h-[30rem]',
-  signup: 'h-[40rem]',
+  signup: 'h-[36rem]',
   password: 'h-[10rem]'
 }
 
 const username = ref('')
 const password = ref('')
+
+const usernameNew = ref('')
+const email = ref('')
+const studentId = ref('')
+const realName = ref('')
+const passwordNew = ref('')
+const passwordNewAgain = ref('')
 </script>
 
 <template>
@@ -85,14 +92,66 @@ const password = ref('')
       </div>
 
       <!-- Sign Up Page -->
-      <div v-else-if="content === 'signup'">
-        <Button
-          class="bottom underline"
-          color="white"
-          @click="content = 'login'"
-        >
-          Sign In
-        </Button>
+      <div
+        v-else-if="content === 'signup'"
+        class="flex flex-col items-center justify-center"
+      >
+        <h1 class="text-green mb-8 w-60 text-center text-xl font-bold">
+          Welcome to
+          <br />
+          SKKU Coding Platform
+        </h1>
+        <form class="flex w-60 flex-col gap-3" @submit.prevent>
+          <InputItem
+            v-model="usernameNew"
+            placeholder="Username"
+            class="rounded-md"
+          />
+          <InputItem
+            v-model="email"
+            type="email"
+            placeholder="Email Address"
+            class="rounded-md"
+          />
+          <InputItem
+            v-model="studentId"
+            type="number"
+            placeholder="Student ID"
+            class="rounded-md"
+          />
+          <InputItem
+            v-model="realName"
+            placeholder="Real Name"
+            class="rounded-md"
+          />
+          <InputItem
+            v-model="passwordNew"
+            type="password"
+            placeholder="Password"
+            class="rounded-md"
+          />
+          <InputItem
+            v-model="passwordNewAgain"
+            type="password"
+            placeholder="Password Again"
+            class="rounded-md"
+          />
+          <Button type="submit" class="rounded-md">Register</Button>
+        </form>
+        <!-- TODO: form validation -->
+        <!-- TODO: email verification -->
+        <!-- TODO: captcha -->
+        <div class="text-gray-dark mt-6 flex flex-col text-sm">
+          Already have an account?
+          <!-- TODO: non-outlined button style -->
+          <Button
+            class="bottom underline"
+            color="white"
+            @click="content = 'login'"
+          >
+            Sign In
+          </Button>
+        </div>
       </div>
 
       <!-- Password Reset Page -->
