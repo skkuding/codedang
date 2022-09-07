@@ -32,7 +32,7 @@ export default defineComponent({
   >
     <div
       v-show="modelValue"
-      class="fixed inset-0 flex h-full w-full items-center justify-center bg-black/25 backdrop-blur"
+      class="fixed inset-0 z-40 flex h-full w-full items-center justify-center bg-black/25 backdrop-blur"
       @click.self="$emit('update:modelValue', false)"
     >
       <section
