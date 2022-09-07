@@ -10,37 +10,12 @@ import IconUserGear from '~icons/fa6-solid/user-gear'
 import IconSliders from '~icons/fa6-solid/sliders'
 import IconArrowRightFromBracket from '~icons/fa6-solid/arrow-right-from-bracket'
 import Button from '../Atom/Button.vue'
-import SignUpModal from './SignUpModal.vue'
-import LogInModal from './LogInModal.vue'
-import PasswordFindModal from './PasswordFindModal.vue'
+import AuthModal from './AuthModal.vue'
+
 // TODO: define composable
 const auth = ref(false)
-
 const isMenuOpen = ref(false)
-const isSignUpModalVisible = ref(false)
-const isLogInModalVisible = ref(false)
-const isPasswordFindModalVisible = ref(false)
-const SignUpModalClose = () => {
-  isSignUpModalVisible.value = false
-}
-const LogInModalClose = () => {
-  isLogInModalVisible.value = false
-}
-const SignUpModalOpen = () => {
-  isSignUpModalVisible.value = true
-}
-const LogInModalOpen = () => {
-  isLogInModalVisible.value = true
-}
-const PasswordFindModalOpen = () => {
-  isPasswordFindModalVisible.value = true
-}
-const PasswordFindModalClose = () => {
-  isPasswordFindModalVisible.value = false
-}
-const getAuth = () => {
-  auth.value = true
-}
+const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 </script>
 
 <template>
@@ -90,15 +65,20 @@ const getAuth = () => {
             </template>
           </Dropdown>
           <div v-else class="ml-2 hidden gap-2 md:flex">
-            <Button color="gray-dark" class="w-20" @click="SignUpModalOpen">
+            <Button
+              color="gray-dark"
+              class="w-20"
+              @click="modalContent = 'signup'"
+            >
               Sign Up
             </Button>
-
-            <Button color="gray-dark" class="w-16" @click="LogInModalOpen">
+            <Button
+              color="gray-dark"
+              class="w-16"
+              @click="modalContent = 'login'"
+            >
               Log In
             </Button>
-
-            <!-- TODO: show log in page -->
           </div>
         </transition>
         <IconBars
@@ -106,7 +86,6 @@ const getAuth = () => {
           @click="isMenuOpen = !isMenuOpen"
         />
       </div>
-
       <transition
         enter-active-class="transition-opacity duration-300"
         leave-active-class="transition-opacity duration-300"
@@ -152,12 +131,15 @@ const getAuth = () => {
               <Button
                 color="gray-dark"
                 class="text-sm"
-                @click="SignUpModalOpen"
+                @click="modalContent = 'signup'"
               >
                 Sign Up
               </Button>
-
-              <Button color="gray-dark" class="text-sm" @click="LogInModalOpen">
+              <Button
+                color="gray-dark"
+                class="text-sm"
+                @click="modalContent = 'login'"
+              >
                 Log In
               </Button>
             </div>
@@ -165,24 +147,6 @@ const getAuth = () => {
         </div>
       </transition>
     </header>
-    <SignUpModal
-      :visible="isSignUpModalVisible"
-      @close="SignUpModalClose"
-      @login="SignUpModalClose(), LogInModalOpen()"
-      @signup="LogInModalClose(), SignUpModalOpen()"
-    ></SignUpModal>
-
-    <LogInModal
-      :visible="isLogInModalVisible"
-      @close="LogInModalClose"
-      @signup="LogInModalClose(), SignUpModalOpen()"
-      @password="LogInModalClose(), PasswordFindModalOpen()"
-      @auth="LogInModalClose(), getAuth()"
-    ></LogInModal>
-    <PasswordFindModal
-      :visible="isPasswordFindModalVisible"
-      @login="PasswordFindModalClose(), LogInModalOpen()"
-      @close="PasswordFindModalClose"
-    ></PasswordFindModal>
   </OnClickOutside>
+  <AuthModal v-model="modalContent" />
 </template>

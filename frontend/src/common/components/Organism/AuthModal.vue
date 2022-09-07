@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from 'vue'
+import { defineAsyncComponent } from 'vue'
 import Modal from '../Molecule/Modal.vue'
 
 defineProps<{
-  modelValue: boolean
+  modelValue: 'login' | 'signup' | 'password' | 'close'
 }>()
 
 defineEmits<{
   (e: 'update:modelValue', value: boolean): void
 }>()
 
-const content = ref<'login' | 'signup' | 'password'>('login')
-
 /* define exact height value of modal for animation
    since `transition` cannot trigger `fit-content` */
 const height = {
   login: 'h-[30rem]',
   signup: 'h-[36rem]',
-  password: 'h-[24rem]'
+  password: 'h-[24rem]',
+  close: 'h-[18rem]' // set non-zero height for closing animation
 }
 
 const Login = defineAsyncComponent(() => import('./Login.vue'))
@@ -28,9 +27,9 @@ const PasswordReset = defineAsyncComponent(() => import('./PasswordReset.vue'))
 <template>
   <Modal
     class="flex w-80 justify-center transition-all"
-    :class="height[content]"
-    :model-value="modelValue"
-    @update:model-value="(value) => $emit('update:modelValue', value)"
+    :class="height[modelValue]"
+    :model-value="modelValue !== 'close'"
+    @update:model-value="$emit('update:modelValue', 'close')"
   >
     <transition
       enter-active-class="transition-opacity"
@@ -39,14 +38,17 @@ const PasswordReset = defineAsyncComponent(() => import('./PasswordReset.vue'))
       leave-to-class="opacity-0"
       mode="out-in"
     >
-      <Login v-if="content === 'login'" @to="(value) => (content = value)" />
+      <Login
+        v-if="modelValue === 'login'"
+        @to="(value) => $emit('update:modelValue', value)"
+      />
       <Signup
-        v-else-if="content === 'signup'"
-        @to="(value) => (content = value)"
+        v-else-if="modelValue === 'signup'"
+        @to="(value) => $emit('update:modelValue', value)"
       />
       <PasswordReset
-        v-else-if="content === 'password'"
-        @to="(value) => (content = value)"
+        v-else-if="modelValue === 'password'"
+        @to="(value) => $emit('update:modelValue', value)"
       />
     </transition>
   </Modal>
