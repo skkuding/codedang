@@ -1,241 +1,185 @@
 <script setup lang="ts">
 import BoxTitle from '../../common/components/Atom/BoxTitle.vue'
-import Button from '../../common/components/Atom/Button.vue'
 import PageSubtitle from '../../common/components/Atom/PageSubtitle.vue'
 import CardItem from '../../common/components/Molecule/CardItem.vue'
-import Footer from '../../common/components/Organism/Footer.vue'
 import Modal from '../../common/components/Molecule/Modal.vue'
-import Header from '../../common/components/Organism/Header.vue'
 import Trophy from '~icons/fxemoji/trophy'
+import IconAngleRight from '~icons/fa6-solid/angle-right'
+import IconCaretDown from '~icons/fa6-solid/caret-down'
+import IconCaretUp from '~icons/fa6-solid/caret-up'
+import { useTimeAgo } from '@vueuse/core'
+
 import { ref } from 'vue'
 
-// ongoing contest, register now, upcoming contests, finished contest 별로 array
-// 선언하고 splice 형태로 각 특성 분류
-
-// Icon이랑 색감 BoxTitle 색감 어떻게 줄까
-const onGoingList = [
-  {
-    id: 0,
-    img: '@/../skku.svg',
-    title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회0',
-    additionalText: 'Member: 23',
-    description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
-    coloredText: 'Created by 하설빙',
-    coloredTextShort: 'By 하설빙'
-  }
-]
-
-const registerNowList = [
-  {
-    id: 1,
-    img: '@/../skku.svg',
-    title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회0',
-    additionalText: 'Member: 23',
-    description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
-    coloredText: 'Created by 하설빙',
-    coloredTextShort: 'By 하설빙'
-  },
-  {
-    id: 2,
-    img: '@/../skku.svg',
-    title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회1',
-    additionalText: 'Member: 23',
-    description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
-    coloredText: 'Created by 하설빙',
-    coloredTextShort: 'By 하설빙'
-  },
-  {
-    id: 3,
-    img: '@/../skku.svg',
-    title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회2',
-    additionalText: 'Member: 23',
-    description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
-    coloredText: 'Created by 하설빙',
-    coloredTextShort: 'By 하설빙'
-  }
-]
-
-const upComingList = [
-  {
-    id: 4,
-    img: '@/../skku.svg',
-    title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회0',
-    additionalText: 'Member: 23',
-    description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
-    coloredText: 'Created by 하설빙',
-    coloredTextShort: 'By 하설빙'
-  },
-  {
-    id: 5,
-    img: '@/../skku.svg',
-    title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회1',
-    additionalText: 'Member: 23',
-    description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
-    coloredText: 'Created by 하설빙',
-    coloredTextShort: 'By 하설빙'
-  },
-  {
-    id: 6,
-    img: '@/../skku.svg',
-    title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회2',
-    additionalText: 'Member: 23',
-    description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
-    coloredText: 'Created by 하설빙',
-    coloredTextShort: 'By 하설빙'
-  },
-  {
-    id: 7,
-    img: '@/../skku.svg',
-    title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회3',
-    additionalText: 'Member: 23',
-    description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
-    coloredText: 'Created by 하설빙',
-    coloredTextShort: 'By 하설빙'
-  }
-]
-
-const finishedList = [
-  {
-    id: 8,
-    borderColor: 'red',
-    img: '@/../skku.svg',
-    title: '2021 Summer SKKU 프로그래밍 대회 - 참여중 대회0',
-    additionalText: 'Member: 23',
-    description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
-    coloredText: 'Created by 하설빙',
-    coloredTextShort: 'By 하설빙'
-  },
-  {
-    id: 9,
-    borderColor: 'red',
-    img: '@/../skku.svg',
-    title: '2021 Spring SKKU 프로그래밍 대회 - 참여중 대회1',
-    additionalText: 'Member: 23',
-    description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
-    coloredText: 'Created by 하설빙',
-    coloredTextShort: 'By 하설빙'
-  }
-]
-
-const modalId = ref(0)
-const isModalVisible = ref(false)
-const isListVisible = ref(true)
-const closeModal = (id: any) => {
-  modalId.value = id
-  isModalVisible.value = false
-}
-const popModal = (id: any) => {
-  modalId.value = id
-  isModalVisible.value = true
+interface Contest {
+  id: number
+  img: string
+  title: string
+  description: string
+  startTime: Date
+  endTime: Date
 }
 
-const listVisible = () => {
-  if (isListVisible.value == true) {
-    isListVisible.value = false
+const items: { [key: string]: Contest[] } = {
+  ongoing: [
+    {
+      id: 0,
+      img: '@/../skku.svg',
+      title: '2021 Spring SKKU 프로그래밍 대회',
+      description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
+      startTime: new Date('2022-01-17T00:24:00'),
+      endTime: new Date('2022-12-17T03:24:00')
+    }
+  ],
+  registerNow: [
+    {
+      id: 1,
+      img: '@/../skku.svg',
+      title: '2021 Summer SKKU 프로그래밍 대회',
+      description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
+      startTime: new Date('2022-08-17T00:00:00'),
+      endTime: new Date('2022-12-18T11:59:00')
+    },
+    {
+      id: 2,
+      img: '@/../skku.svg',
+      title: '2021 Fall SKKU 프로그래밍 대회',
+      description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
+      startTime: new Date('2022-09-01T00:00:00'),
+      endTime: new Date('2022-09-17T11:59:00')
+    }
+  ],
+  upcoming: [
+    {
+      id: 3,
+      img: '@/../skku.svg',
+      title: '2021 Summer SKKU 프로그래밍 대회',
+      description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
+      startTime: new Date('2022-09-20T00:00:00'),
+      endTime: new Date('2022-12-17T11:59:00')
+    },
+    {
+      id: 4,
+      img: '@/../skku.svg',
+      title: '2021 Fall SKKU 프로그래밍 대회',
+      description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
+      startTime: new Date('2022-09-21T00:00:00'),
+      endTime: new Date('2022-12-20T11:59:00')
+    },
+    {
+      id: 5,
+      img: '@/../skku.svg',
+      title: '2021 Summer SKKU 프로그래밍 대회',
+      description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
+      startTime: new Date('2022-09-22T00:00:00'),
+      endTime: new Date('2022-12-15T11:59:00')
+    }
+  ],
+  finished: [
+    {
+      id: 6,
+      img: '@/../skku.svg',
+      title: '2021 Summer SKKU 프로그래밍 대회',
+      description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
+      startTime: new Date('2020-09-22T00:00:00'),
+      endTime: new Date('2020-12-15T11:59:00')
+    },
+    {
+      id: 7,
+      img: '@/../skku.svg',
+      title: '2021 Fall SKKU 프로그래밍 대회',
+      description: 'SKKU 코딩 플랫폼 개발 동아리입니다.',
+      startTime: new Date('2020-09-22T00:00:00'),
+      endTime: new Date('2021-12-15T11:59:00')
+    }
+  ]
+}
+
+const coloredText = (id: string, item: Contest) => {
+  if (id === 'ongoing' || id === 'registerNow') {
+    return 'Started ' + useTimeAgo(item.startTime).value
+  } else if (id === 'upcoming') {
+    return 'Start ' + useTimeAgo(item.startTime).value
   } else {
-    isListVisible.value = true
+    return 'Finished ' + useTimeAgo(item.endTime).value
   }
+}
+
+const coloredTextShort = (id: string, item: Contest) => {
+  if (id === 'ongoing' || id === 'registerNow' || id === 'upcoming') {
+    return useTimeAgo(item.startTime).value
+  } else {
+    return useTimeAgo(item.endTime).value
+  }
+}
+
+const showFinished = ref(false)
+
+const isModalVisible = ref(false)
+const modalTitle = ref('')
+const popModal = (item: Contest) => {
+  isModalVisible.value = true
+  modalTitle.value = item.title
 }
 </script>
 
 <template>
-  <Header />
   <BoxTitle>
     <template #title>
       <Trophy class="mr-4 inline-block" />
       SKKU Coding Platform
-      <span class="!text-blue">Contests</span>
+      <span class="!text-[#FEB144]">Contests</span>
     </template>
     <template #subtitle>Compete with schoolmates & win the prizes!</template>
   </BoxTitle>
-  <div class="mx-auto grid w-11/12">
-    <PageSubtitle text="Ongoing Contest > >" class="mt-8 mb-4" />
-    <div v-for="(items, index) in onGoingList" :key="index">
-      <CardItem
-        :img="items.img"
-        :title="items.title"
-        :description="items.description"
-        :additional-text="items.additionalText"
-        :colored-text="items.coloredText"
-        :colored-text-short="items.coloredTextShort"
-        class="mb-4"
-        @click="popModal(items.id)"
+
+  <div
+    v-for="({ title, id }, index) in [
+      { title: 'Ongoing Contests', id: 'ongoing' },
+      { title: 'Register Now Contests', id: 'registerNow' },
+      { title: 'Upcoming Contests', id: 'upcoming' },
+      { title: 'Finished Contests', id: 'finished' }
+    ]"
+    :key="index"
+  >
+    <div v-if="id !== 'finished'" class="mt-8 mb-4 flex flex-row items-center">
+      <PageSubtitle :text="title" />
+      <IconAngleRight class="ml-2" />
+      <IconAngleRight />
+    </div>
+    <div v-else class="mt-8 mb-4 flex flex-row items-center">
+      <PageSubtitle text="Finished Contests" class="!text-red" />
+      <IconCaretDown
+        v-if="showFinished"
+        class="text-red ml-2 cursor-pointer"
+        @click="showFinished = !showFinished"
       />
-      <Modal
-        v-if="isModalVisible && modalId === items.id"
-        :key="index"
-        :title="items.title"
-        class="h-40"
-        @close="closeModal(items.id)"
+      <IconCaretUp
+        v-else
+        class="text-red ml-2 cursor-pointer"
+        @click="showFinished = !showFinished"
       />
     </div>
-    <PageSubtitle text="Register Now > >" class="mt-8 mb-4" />
-    <div v-for="(items, index) in registerNowList" :key="index">
+
+    <div v-for="(item, idx) in items[id]" :key="idx">
       <CardItem
-        :img="items.img"
-        :title="items.title"
-        :description="items.description"
-        :additional-text="items.additionalText"
-        :colored-text="items.coloredText"
-        :colored-text-short="items.coloredTextShort"
-        class="mb-4"
-        @click="popModal(items.id)"
+        v-if="id !== 'finished' || (id === 'finished' && showFinished)"
+        :img="item.img"
+        :title="item.title"
+        :description="item.description"
+        :colored-text="coloredText(id, item)"
+        :colored-text-short="coloredTextShort(id, item)"
+        class="mt-4"
+        :border-color="id === 'finished' ? 'gray' : 'green'"
+        @click="popModal(item)"
       />
-      <Modal
-        v-if="isModalVisible && modalId === items.id"
-        :key="index"
-        :title="items.title"
-        class="h-40"
-        @close="closeModal(items.id)"
-      />
-    </div>
-    <PageSubtitle text="Upcoming Contests > >" class="mt-8 mb-4" />
-    <div v-for="(items, index) in upComingList" :key="index">
-      <CardItem
-        :img="items.img"
-        :title="items.title"
-        :description="items.description"
-        :additional-text="items.additionalText"
-        :colored-text="items.coloredText"
-        :colored-text-short="items.coloredTextShort"
-        class="mb-4"
-        @click="popModal(items.id)"
-      />
-      <Modal
-        v-if="isModalVisible && modalId === items.id"
-        :key="index"
-        :title="items.title"
-        class="h-40"
-        @close="closeModal(items.id)"
-      />
-    </div>
-    <div class="h-80">
-      <div class="mt-8 flex">
-        <PageSubtitle text="Finished Contests" class="!text-red mb-4" />
-        <Button class="!bg-red" @click="listVisible"></Button>
-      </div>
-      <div v-show="isListVisible">
-        <div v-for="(items, index) in finishedList" :key="index">
-          <CardItem
-            border-color="gray"
-            :img="items.img"
-            :title="items.title"
-            :description="items.description"
-            :additional-text="items.additionalText"
-            :colored-text="items.coloredText"
-            :colored-text-short="items.coloredTextShort"
-            class="mb-4"
-            @click="popModal(items.id)"
-          />
-          <Modal
-            v-if="isModalVisible && modalId === items.id"
-            :key="index"
-            :title="items.title"
-            class="h-40"
-            @close="closeModal(items.id)"
-          />
-        </div>
-      </div>
     </div>
   </div>
+
+  <Modal
+    v-if="isModalVisible"
+    :title="modalTitle"
+    class="h-40"
+    @close="isModalVisible = false"
+  />
 </template>
