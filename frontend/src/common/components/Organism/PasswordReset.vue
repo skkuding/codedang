@@ -17,7 +17,7 @@ const passwordAgain = ref('')
 
 <template>
   <div class="flex flex-col items-center justify-center">
-    <h1 class="text-green my-6 text-xl font-bold">Password Recovery</h1>
+    <h1 class="text-green mb-6 text-xl font-bold">Password Recovery</h1>
     <form class="flex w-60 flex-col gap-3" @submit.prevent>
       <div class="flex gap-2">
         <InputItem
