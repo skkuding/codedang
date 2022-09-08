@@ -66,6 +66,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
           </Dropdown>
           <div v-else class="ml-2 hidden gap-2 md:flex">
             <Button
+              outline
               color="gray-dark"
               class="w-20"
               @click="modalContent = 'signup'"
@@ -73,6 +74,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
               Sign Up
             </Button>
             <Button
+              outline
               color="gray-dark"
               class="w-16"
               @click="modalContent = 'login'"

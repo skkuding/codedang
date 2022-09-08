@@ -2,31 +2,36 @@
 import { computed } from 'vue'
 
 const props = defineProps<{
-  color?: string
-  rounded?: boolean
+  color?: 'green' | 'blue' | 'gray' | 'gray-dark'
+  outline?: boolean
 }>()
 
-const borderRadius = computed(() => {
-  return props.rounded ? 'rounded-full' : 'rounded'
-})
+const colorMapper = {
+  green: 'text-green hover:bg-green/20 active:bg-green/40',
+  blue: 'text-blue hover:bg-blue/20 active:bg-blue/40',
+  gray: 'text-gray hover:bg-gray/20 active:bg-gray/40',
+  'gray-dark': 'text-gray-dark hover:bg-gray-dark/20 active:bg-gray-dark/40' // eslint-disable-line @typescript-eslint/naming-convention
+}
 
-const backgroundColor = computed(() => {
-  if (props.color === 'blue') {
-    return 'bg-blue hover:bg-blue-dark text-white'
-  } else if (props.color === 'gray') {
-    return 'bg-gray hover:bg-gray-dark text-white'
-  } else if (props.color === 'gray-dark') {
-    return 'bg-gray-dark hover:bg-gray text-white'
-  } else if (props.color === 'white') {
-    return 'bg-white hover:bg-gray-light border-gray-dark border text-gray-dark'
-  } else {
-    return 'bg-green hover:bg-green-dark text-white'
-  }
-})
+const backgroundColorMapper = {
+  green: 'text-white bg-green hover:bg-green/80 active:bg-green/60',
+  blue: 'text-white bg-blue hover:bg-blue/80 active:bg-blue/60',
+  gray: 'text-default bg-gray hover:bg-gray/80 active:bg-gray/60',
+  // eslint-disable-next-line
+  'gray-dark':
+    'text-white bg-gray-dark hover:bg-gray-dark/80 active:bg-gray-dark/60'
+}
+
+const classNames = computed(() =>
+  props.outline
+    ? colorMapper[props.color || 'green'] +
+      ' border border-current bg-transparent'
+    : backgroundColorMapper[props.color || 'green'] + ' text-white'
+)
 </script>
 
 <template>
-  <button class="px-2 py-1" :class="[borderRadius, backgroundColor]">
+  <button class="rounded px-2 py-1 font-semibold" :class="classNames">
     <slot />
   </button>
 </template>
