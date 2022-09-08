@@ -55,12 +55,11 @@ const passwordAgain = ref('')
       />
       <Button type="submit" class="rounded-md">Reset Password</Button>
     </form>
-    <Button
-      class="bottom mt-4 text-sm underline"
-      color="white"
+    <a
+      class="text-gray-dark hover:text-gray-dark/80 active:text-gray-dark/60 mt-4 cursor-pointer text-sm underline"
       @click="$emit('to', 'login')"
     >
       Back to Sign In
-    </Button>
+    </a>
   </div>
 </template>

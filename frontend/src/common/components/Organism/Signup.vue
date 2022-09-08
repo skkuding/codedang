@@ -58,16 +58,14 @@ const passwordAgain = ref('')
     <!-- TODO: form validation -->
     <!-- TODO: email verification -->
     <!-- TODO: captcha -->
-    <div class="text-gray-dark mt-6 flex flex-col text-sm">
+    <div class="text-gray-dark mt-6 flex flex-col items-center text-sm">
       Already have an account?
-      <!-- TODO: non-outlined button style -->
-      <Button
-        class="bottom underline"
-        color="white"
+      <a
+        class="text-gray-dark hover:text-gray-dark/80 active:text-gray-dark/60 w-fit cursor-pointer text-sm underline"
         @click="$emit('to', 'login')"
       >
         Sign In
-      </Button>
+      </a>
     </div>
   </div>
 </template>
