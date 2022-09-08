@@ -268,8 +268,9 @@ const clickMore = () => {
   </div>
   <Button
     v-if="numberOfCards < cardItems.length"
+    outline
+    color="gray-dark"
     class="mt-8 mb-20 w-full"
-    color="white"
     @click="clickMore"
   >
     More
