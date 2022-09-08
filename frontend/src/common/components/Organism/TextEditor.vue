@@ -22,102 +22,127 @@ import IconArrowClockwise from '~icons/bi/arrow-clockwise'
 
 const editor = useEditor({
   content: '<p>I’m running Tiptap with Vue.js. 🎉</p>',
-  extensions: [StarterKit]
+  extensions: [StarterKit],
+  editorProps: {
+    attributes: {
+      class:
+        'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl ring-gray p-5 outline-none ring-1 focus:outline-none focus:ring'
+    }
+  }
 })
 </script>
 
 <template>
-  <ButtonGroup class="mr-2">
-    <Button
-      :pressed="editor?.isActive('bold')"
-      @click="editor?.chain().focus().toggleBold().run()"
-    >
-      <IconBold />
-    </Button>
-    <Button
-      :pressed="editor?.isActive('italic')"
-      @click="editor?.chain().focus().toggleItalic().run()"
-    >
-      <IconItalic />
-    </Button>
-    <Button
-      :pressed="editor?.isActive('strike')"
-      @click="editor?.chain().focus().toggleStrike().run()"
-    >
-      <IconStrikethrough />
-    </Button>
-    <Button
-      :pressed="editor?.isActive('code')"
-      @click="editor?.chain().focus().toggleCode().run()"
-    >
-      <IconCode />
-    </Button>
-    <Button @click="editor?.chain().focus().unsetAllMarks().run()">
-      <IconTextSlash />
-    </Button>
-  </ButtonGroup>
-  <ButtonGroup class="mx-2">
-    <Button
-      :pressed="editor?.isActive('heading', { level: 3 })"
-      @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()"
-    >
-      <IconH1 />
-    </Button>
-    <Button
-      :pressed="editor?.isActive('heading', { level: 4 })"
-      @click="editor?.chain().focus().toggleHeading({ level: 4 }).run()"
-    >
-      <IconH2 />
-    </Button>
-    <Button
-      :pressed="editor?.isActive('paragraph')"
-      @click="editor?.chain().focus().setParagraph().run()"
-    >
-      <IconParagraph />
-    </Button>
-    <Button
-      :pressed="editor?.isActive('bulletList')"
-      @click="editor?.chain().focus().toggleBulletList().run()"
-    >
-      <IconListUl />
-    </Button>
-    <Button
-      :pressed="editor?.isActive('orderedList')"
-      @click="editor?.chain().focus().toggleOrderedList().run()"
-    >
-      <IconList />
-    </Button>
-    <Button
-      :pressed="editor?.isActive('codeBlock')"
-      @click="editor?.chain().focus().toggleCodeBlock().run()"
-    >
-      <IconCodeSquare />
-    </Button>
-  </ButtonGroup>
-  <div class="divider"></div>
-  <ButtonGroup class="mx-2">
-    <Button @click="editor?.chain().focus().setHardBreak().run()">
-      <IconReturn />
-    </Button>
-    <Button
-      :pressed="editor?.isActive('blockquote')"
-      @click="editor?.chain().focus().toggleBlockquote().run()"
-    >
-      <IconRoundBlockQuote />
-    </Button>
-    <Button @click="editor?.chain().focus().setHorizontalRule().run()">
-      <IconHr />
-    </Button>
-  </ButtonGroup>
-  <div class="divider"></div>
-  <ButtonGroup class="mx-2">
-    <Button @click="editor?.chain().focus().undo().run()">
-      <IconArrowCounterClockwise />
-    </Button>
-    <Button @click="editor?.chain().focus().redo().run()">
-      <IconArrowClockwise />
-    </Button>
-  </ButtonGroup>
-  <div class="divider"></div>
-  <editor-content :editor="editor" />
+  <div class="ring-gray w-fit rounded ring-1">
+    <ButtonGroup class="mr-4 inline-block">
+      <Button
+        :pressed="editor?.isActive('bold')"
+        color="white"
+        @click="editor?.chain().focus().toggleBold().run()"
+      >
+        <IconBold />
+      </Button>
+      <Button
+        :pressed="editor?.isActive('italic')"
+        color="white"
+        @click="editor?.chain().focus().toggleItalic().run()"
+      >
+        <IconItalic />
+      </Button>
+      <Button
+        :pressed="editor?.isActive('strike')"
+        color="white"
+        @click="editor?.chain().focus().toggleStrike().run()"
+      >
+        <IconStrikethrough />
+      </Button>
+      <Button
+        :pressed="editor?.isActive('code')"
+        color="white"
+        @click="editor?.chain().focus().toggleCode().run()"
+      >
+        <IconCode />
+      </Button>
+      <Button
+        color="white"
+        @click="editor?.chain().focus().unsetAllMarks().run()"
+      >
+        <IconTextSlash />
+      </Button>
+    </ButtonGroup>
+    <ButtonGroup class="mr-4 inline-block">
+      <Button
+        :pressed="editor?.isActive('heading', { level: 3 })"
+        color="white"
+        @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()"
+      >
+        <IconH1 />
+      </Button>
+      <Button
+        :pressed="editor?.isActive('heading', { level: 4 })"
+        color="white"
+        @click="editor?.chain().focus().toggleHeading({ level: 4 }).run()"
+      >
+        <IconH2 />
+      </Button>
+      <Button
+        :pressed="editor?.isActive('paragraph')"
+        color="white"
+        @click="editor?.chain().focus().setParagraph().run()"
+      >
+        <IconParagraph />
+      </Button>
+      <Button
+        :pressed="editor?.isActive('bulletList')"
+        color="white"
+        @click="editor?.chain().focus().toggleBulletList().run()"
+      >
+        <IconListUl />
+      </Button>
+      <Button
+        :pressed="editor?.isActive('orderedList')"
+        color="white"
+        @click="editor?.chain().focus().toggleOrderedList().run()"
+      >
+        <IconList />
+      </Button>
+      <Button
+        :pressed="editor?.isActive('codeBlock')"
+        color="white"
+        @click="editor?.chain().focus().toggleCodeBlock().run()"
+      >
+        <IconCodeSquare />
+      </Button>
+    </ButtonGroup>
+    <ButtonGroup class="mr-4 inline-block">
+      <Button
+        color="white"
+        @click="editor?.chain().focus().setHardBreak().run()"
+      >
+        <IconReturn />
+      </Button>
+      <Button
+        :pressed="editor?.isActive('blockquote')"
+        color="white"
+        @click="editor?.chain().focus().toggleBlockquote().run()"
+      >
+        <IconRoundBlockQuote />
+      </Button>
+      <Button
+        color="white"
+        @click="editor?.chain().focus().setHorizontalRule().run()"
+      >
+        <IconHr />
+      </Button>
+    </ButtonGroup>
+    <ButtonGroup class="mr-4 inline-block">
+      <Button color="white" @click="editor?.chain().focus().undo().run()">
+        <IconArrowCounterClockwise />
+      </Button>
+      <Button color="white" @click="editor?.chain().focus().redo().run()">
+        <IconArrowClockwise />
+      </Button>
+    </ButtonGroup>
+    <editor-content :editor="editor" />
+  </div>
 </template>

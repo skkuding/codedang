@@ -26,8 +26,8 @@ const backgroundColor = computed(() => {
       : 'bg-gray-dark hover:bg-gray text-white'
   } else if (props.color === 'white') {
     return props.pressed
-      ? 'bg-gray-light border-gray border text-gray'
-      : 'bg-white hover:bg-gray-light border-gray border text-gray'
+      ? 'bg-gray-dark text-white'
+      : 'bg-white hover:bg-gray-dark text-gray-dark hover:text-white'
   } else {
     return props.pressed
       ? 'bg-green-dark disabled:bg-green text-white'
