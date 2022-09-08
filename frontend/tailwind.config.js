@@ -60,6 +60,24 @@ module.exports = {
       spacing: {
         page: '156px',
         'page-sm': '80px'
+      },
+      typography: {
+        DEFAULT: {
+          css: {
+            'code::before': {
+              content: ''
+            },
+            'code::after': {
+              content: ''
+            },
+            'blockquote p:last-of-type::after': {
+              content: ''
+            },
+            'blockquote p:first-of-type::before': {
+              content: ''
+            }
+          }
+        }
       }
     }
   },
