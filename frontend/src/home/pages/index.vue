@@ -54,7 +54,7 @@ const slides = [
   <main>
     <Carousel :slides="slides" />
     <div
-      class="my-20 flex flex-col items-center justify-center gap-12 lg:flex-row"
+      class="my-20 flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
     >
       <Card href="/notice" :items="noticeItems" class="w-[36rem] max-w-full">
         <template #title>
