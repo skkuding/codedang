@@ -21,12 +21,12 @@ import IconArrowCounterClockwise from '~icons/bi/arrow-counterclockwise'
 import IconArrowClockwise from '~icons/bi/arrow-clockwise'
 
 const editor = useEditor({
-  content: '<p>I’m running Tiptap with Vue.js. 🎉</p>',
+  content: '',
   extensions: [StarterKit],
   editorProps: {
     attributes: {
       class:
-        'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl ring-gray p-5 outline-none ring-1 focus:outline-none focus:ring'
+        'prose prose-sm md:prose-base ring-gray p-5 outline-none ring-1 focus:outline-none focus:ring'
     }
   }
 })
@@ -34,8 +34,8 @@ const editor = useEditor({
 
 <template>
   <div class="ring-gray w-fit rounded ring-1">
-    <div class="text-center">
-      <ButtonGroup class="mx-2 inline-block">
+    <div class="pb-2 text-center">
+      <ButtonGroup class="mx-2 mt-2 inline-block">
         <Button
           :pressed="editor?.isActive('bold')"
           color="white"
@@ -72,7 +72,7 @@ const editor = useEditor({
           <IconTextSlash />
         </Button>
       </ButtonGroup>
-      <ButtonGroup class="mx-2 inline-block">
+      <ButtonGroup class="mx-2 mt-2 inline-block">
         <Button
           :pressed="editor?.isActive('heading', { level: 1 })"
           color="white"
@@ -116,7 +116,7 @@ const editor = useEditor({
           <IconCodeSquare />
         </Button>
       </ButtonGroup>
-      <ButtonGroup class="mx-2 inline-block">
+      <ButtonGroup class="mx-2 mt-2 inline-block">
         <Button
           color="white"
           @click="editor?.chain().focus().setHardBreak().run()"
@@ -137,7 +137,7 @@ const editor = useEditor({
           <IconHr />
         </Button>
       </ButtonGroup>
-      <ButtonGroup class="mx-2 inline-block">
+      <ButtonGroup class="mx-2 mt-2 inline-block">
         <Button color="white" @click="editor?.chain().focus().undo().run()">
           <IconArrowCounterClockwise />
         </Button>
