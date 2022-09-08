@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import SymbolLogo from '../Atom/SymbolLogo.vue'
 import Button from '../Atom/Button.vue'
 import InputItem from '../Atom/InputItem.vue'
 
@@ -13,7 +14,7 @@ const password = ref('')
 
 <template>
   <div class="flex flex-col items-center justify-center">
-    <img src="@/common/assets/logo.svg" width="100" />
+    <SymbolLogo class="h-28" />
     <h1 class="text-green my-6 w-40 text-center text-xl font-bold">
       SKKU
       <br />
