@@ -4,6 +4,7 @@ import { computed } from 'vue'
 const props = defineProps<{
   color?: string
   rounded?: boolean
+  pressed?: boolean
 }>()
 
 const borderRadius = computed(() => {
@@ -12,15 +13,25 @@ const borderRadius = computed(() => {
 
 const backgroundColor = computed(() => {
   if (props.color === 'blue') {
-    return 'bg-blue hover:bg-blue-dark text-white'
+    return props.pressed
+      ? 'bg-blue-dark text-white'
+      : 'bg-blue hover:bg-blue-dark text-white'
   } else if (props.color === 'gray') {
-    return 'bg-gray hover:bg-gray-dark text-white'
+    return props.pressed
+      ? 'bg-gray-dark text-white'
+      : 'bg-gray hover:bg-gray-dark text-white'
   } else if (props.color === 'gray-dark') {
-    return 'bg-gray-dark hover:bg-gray text-white'
+    return props.pressed
+      ? 'bg-gray text-white'
+      : 'bg-gray-dark hover:bg-gray text-white'
   } else if (props.color === 'white') {
-    return 'bg-white hover:bg-gray-light border-gray border text-gray'
+    return props.pressed
+      ? 'bg-gray-light border-gray border text-gray'
+      : 'bg-white hover:bg-gray-light border-gray border text-gray'
   } else {
-    return 'bg-green hover:bg-green-dark text-white'
+    return props.pressed
+      ? 'bg-green-dark disabled:bg-green text-white'
+      : 'bg-green hover:bg-green-dark disabled:bg-green text-white'
   }
 })
 </script>
