@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import Button from '../Atom/Button.vue'
 import InputItem from '../Atom/InputItem.vue'
+import IconPaperPlane from '~icons/fa-solid/paper-plane'
+import IconCheck from '~icons/fa-solid/check'
 
 defineEmits<{
   (e: 'to', value: 'login' | 'signup' | 'password'): void
@@ -9,6 +11,7 @@ defineEmits<{
 
 const username = ref('')
 const email = ref('')
+const verificationCode = ref('')
 const studentId = ref('')
 const realName = ref('')
 const password = ref('')
@@ -24,12 +27,28 @@ const passwordAgain = ref('')
     </h1>
     <form class="flex w-60 flex-col gap-3" @submit.prevent>
       <InputItem v-model="username" placeholder="Username" class="rounded-md" />
-      <InputItem
-        v-model="email"
-        type="email"
-        placeholder="Email Address"
-        class="rounded-md"
-      />
+      <div class="flex gap-2">
+        <InputItem
+          v-model="email"
+          type="email"
+          placeholder="Email Address"
+          class="min-w-0 rounded-md"
+        />
+        <Button class="aspect-square h-[34px] rounded-md">
+          <IconPaperPlane />
+        </Button>
+      </div>
+      <div class="flex gap-2">
+        <InputItem
+          v-model="verificationCode"
+          type="number"
+          placeholder="Verification Code"
+          class="min-w-0 rounded-md"
+        />
+        <Button class="aspect-square h-[34px] rounded-md">
+          <IconCheck />
+        </Button>
+      </div>
       <InputItem
         v-model="studentId"
         type="number"
@@ -56,7 +75,6 @@ const passwordAgain = ref('')
       <Button type="submit" class="rounded-md">Register</Button>
     </form>
     <!-- TODO: form validation -->
-    <!-- TODO: email verification -->
     <!-- TODO: captcha -->
     <div class="text-gray-dark mt-6 flex flex-col items-center text-sm">
       Already have an account?
