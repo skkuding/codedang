@@ -29,22 +29,19 @@ const password = ref('')
       />
       <Button type="submit" class="rounded-md">Sign In</Button>
     </form>
-    <div class="absolute inset-x-0 bottom-0 flex w-full justify-between">
-      <!-- TODO: non-outlined button style -->
-      <Button
-        class="bottom underline"
-        color="white"
+    <div class="absolute inset-x-0 bottom-0 flex w-full justify-between p-3">
+      <a
+        class="text-gray-dark hover:text-gray-dark/80 active:text-gray-dark/60 cursor-pointer text-sm underline"
         @click="$emit('to', 'signup')"
       >
         Register now
-      </Button>
-      <Button
-        class="bottom underline"
-        color="white"
+      </a>
+      <a
+        class="text-gray-dark hover:text-gray-dark/80 active:text-gray-dark/60 cursor-pointer text-sm underline"
         @click="$emit('to', 'password')"
       >
         Forgot password?
-      </Button>
+      </a>
     </div>
   </div>
 </template>
