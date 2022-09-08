@@ -24,12 +24,12 @@ interface Contest {
 const items: { [key: string]: Contest[] } = {
   ongoing: [
     {
-      id: 0,
+      id: 1,
       img: '@/../skku.svg',
-      title: '2021 Spring SKKU 프로그래밍 대회',
-      description: '2021년 1학기 SKKU 프로그래밍 대회입니다.',
-      startTime: new Date('2022-01-17T00:24:00'),
-      endTime: new Date('2022-12-17T03:24:00')
+      title: '2021 Summer SKKU 프로그래밍 대회',
+      description: '2021년 여름학기 SKKU 프로그래밍 대회입니다.',
+      startTime: new Date('2022-08-17T00:00:00'),
+      endTime: new Date('2022-12-18T11:59:00')
     }
   ],
   registerNow: [
@@ -97,13 +97,10 @@ const items: { [key: string]: Contest[] } = {
 }
 
 const coloredText = (id: string, item: Contest) => {
-  if (id === 'ongoing' || id === 'registerNow') {
+  if (id === 'ongoing' || id === 'registerNow')
     return 'Started ' + useTimeAgo(item.startTime).value
-  } else if (id === 'upcoming') {
-    return 'Start ' + useTimeAgo(item.startTime).value
-  } else {
-    return 'Finished ' + useTimeAgo(item.endTime).value
-  }
+  else if (id === 'upcoming') return 'Start ' + useTimeAgo(item.startTime).value
+  else return 'Finished ' + useTimeAgo(item.endTime).value
 }
 
 const coloredTextShort = (id: string, item: Contest) => {
@@ -168,18 +165,23 @@ const popModal = (item: Contest) => {
       />
     </div>
 
-    <div v-for="(item, idx) in items[id]" :key="idx">
-      <CardItem
-        v-if="id !== 'finished' || (id === 'finished' && showFinished)"
-        :img="item.img"
-        :title="item.title"
-        :description="item.description"
-        :colored-text="coloredText(id, item)"
-        :colored-text-short="coloredTextShort(id, item)"
-        class="mt-4"
-        :border-color="id === 'finished' ? 'gray' : 'green'"
-        @click="popModal(item)"
-      />
+    <div v-if="items[id].length === 0" class="text-gray-dark p-2.5 pl-4">
+      No Contest
+    </div>
+    <div v-else>
+      <div v-for="(item, idx) in items[id]" :key="idx">
+        <CardItem
+          v-if="id !== 'finished' || (id === 'finished' && showFinished)"
+          :img="item.img"
+          :title="item.title"
+          :description="item.description"
+          :colored-text="coloredText(id, item)"
+          :colored-text-short="coloredTextShort(id, item)"
+          class="mt-4"
+          :border-color="id === 'finished' ? 'gray' : 'green'"
+          @click="popModal(item)"
+        />
+      </div>
     </div>
   </div>
 
