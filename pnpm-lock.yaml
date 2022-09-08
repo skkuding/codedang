@@ -144,6 +144,7 @@ importers:
       vite: ^3.0.9
       vite-plugin-pages: ^0.26.0
       vue: ^3.2.38
+      vue-dompurify-html: ^3.1.1
       vue-router: ^4.1.5
       vue-tsc: ^0.40.7
     dependencies:
@@ -153,6 +154,7 @@ importers:
       nprogress: 0.2.0
       pinia: 2.0.21_pj7ch6rmow6odq73xb5hfvge3q
       vue: 3.2.38
+      vue-dompurify-html: 3.1.1_vue@3.2.38
       vue-router: 4.1.5_vue@3.2.38
     devDependencies:
       '@histoire/plugin-vue': 0.10.7_6f4nerxxho2ntp6usscfxg4z5y
@@ -171,7 +173,7 @@ importers:
       autoprefixer: 10.4.8_postcss@8.4.16
       histoire: 0.10.7_vite@3.0.9
       postcss: 8.4.16
-      tailwindcss: 3.1.8_postcss@8.4.16
+      tailwindcss: 3.1.8
       typescript: 4.8.2
       unplugin-icons: 0.14.9_vite@3.0.9
       vite: 3.0.9
@@ -1363,7 +1365,7 @@ packages:
       tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1'
     dependencies:
       mini-svg-data-uri: 1.4.4
-      tailwindcss: 3.1.8_postcss@8.4.16
+      tailwindcss: 3.1.8
     dev: true
 
   /@tootallnate/once/1.1.2:
@@ -2003,7 +2005,7 @@ packages:
   /@vueuse/shared/9.1.1_vue@3.2.38:
     resolution: {integrity: sha512-c+IfcOYmHiHqoEa3ED1Tbpue5GHmoUmTp8PtO4YbczthtY155Rt6DmWhjxMLXBF1Bcidagxljmp/7xtAzEHXLw==}
     dependencies:
-      vue-demi: 0.12.5_vue@3.2.38
+      vue-demi: 0.13.11_vue@3.2.38
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -3244,6 +3246,10 @@ packages:
     engines: {node: '>= 4'}
     dependencies:
       domelementtype: 2.3.0
+    dev: false
+
+  /dompurify/2.4.0:
+    resolution: {integrity: sha512-Be9tbQMZds4a3C6xTmz68NlMfeONA//4dOavl/1rNw50E+/QO0KVpbcU0PcaW0nsQxurXls9ZocqFxk8R2mWEA==}
     dev: false
 
   /domutils/2.8.0:
@@ -8097,12 +8103,10 @@ packages:
       get-port: 3.2.0
     dev: true
 
-  /tailwindcss/3.1.8_postcss@8.4.16:
+  /tailwindcss/3.1.8:
     resolution: {integrity: sha512-YSneUCZSFDYMwk+TGq8qYFdCA3yfBRdBlS7txSq0LUmzyeqRe3a8fBQzbz9M3WS/iFT4BNf/nmw9mEzrnSaC0g==}
     engines: {node: '>=12.13.0'}
     hasBin: true
-    peerDependencies:
-      postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
       chokidar: 3.5.3
@@ -8730,6 +8734,33 @@ packages:
         optional: true
     dependencies:
       vue: 3.2.38
+    dev: false
+
+  /vue-demi/0.13.11_vue@3.2.38:
+    resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}
+    engines: {node: '>=12'}
+    hasBin: true
+    requiresBuild: true
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.1
+      vue: ^3.0.0-0 || ^2.6.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      vue: 3.2.38
+    dev: false
+
+  /vue-dompurify-html/3.1.1_vue@3.2.38:
+    resolution: {integrity: sha512-6ozMTqVlLdfVKh/FIdKT6e7yrwo4NlOKNr/7rTrNsLbjzhNjY3YvRKn2o65LpnghcdUbIETWlkMlvzJbwP+SQw==}
+    peerDependencies:
+      vue: ^2.7.0 || ^3.0.0
+    dependencies:
+      dompurify: 2.4.0
+      vue: 3.2.38
+      vue-demi: 0.13.11_vue@3.2.38
+    transitivePeerDependencies:
+      - '@vue/composition-api'
     dev: false
 
   /vue-eslint-parser/9.0.3_eslint@8.23.0:
