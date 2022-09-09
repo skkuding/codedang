@@ -17,8 +17,8 @@ export default defineConfig({
         { dir: 'src/user/problem/pages', baseRoute: 'problem' },
         { dir: 'src/user/contest/pages', baseRoute: 'contest' },
         { dir: 'src/user/group/pages', baseRoute: 'group' },
-        { dir: 'src/manager/pages', baseRoute: 'manager' },
-        { dir: 'src/workbook/pages', baseRoute: 'workbook' }
+        { dir: 'src/user/workbook/pages', baseRoute: 'workbook' },
+        { dir: 'src/manager/pages', baseRoute: 'manager' }
       ]
     })
   ],
