@@ -4,6 +4,6 @@ import TextEditor from './TextEditor.vue'
 
 <template>
   <Story>
-    <TextEditor />
+    <TextEditor class="m-3" />
   </Story>
 </template>
