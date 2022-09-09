@@ -28,7 +28,7 @@ const password = ref('')
         class="rounded-md"
         type="password"
       />
-      <Button type="submit" class="rounded-md">Sign In</Button>
+      <Button type="submit" class="rounded-md">Log In</Button>
     </form>
     <div class="absolute inset-x-0 bottom-0 flex w-full justify-between p-3">
       <a
