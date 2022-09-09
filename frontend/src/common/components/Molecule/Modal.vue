@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import IconClose from '~icons/fa-solid/times'
+import IconClose from '~icons/fa6-solid/times'
 
 defineProps<{
   modelValue: boolean
