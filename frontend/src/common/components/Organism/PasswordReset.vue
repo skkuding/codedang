@@ -2,8 +2,8 @@
 import { ref } from 'vue'
 import Button from '../Atom/Button.vue'
 import InputItem from '../Atom/InputItem.vue'
-import IconPaperPlane from '~icons/fa-solid/paper-plane'
-import IconCheck from '~icons/fa-solid/check'
+import IconPaperPlane from '~icons/fa-solid6/paper-plane'
+import IconCheck from '~icons/fa-solid6/check'
 
 defineEmits<{
   (e: 'to', value: 'login' | 'signup' | 'password'): void
