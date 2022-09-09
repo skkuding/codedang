@@ -3,12 +3,19 @@ import Button from './Button.vue'
 </script>
 
 <template>
-  <Story>
-    <Button color="green">Button</Button>
-    <Button color="blue">Button</Button>
-    <Button color="gray">Button</Button>
-    <Button color="gray-dark">Button</Button>
-    <Button color="white">Button</Button>
-    <Button color="green" rounded>Button</Button>
+  <Story :layout="{ type: 'grid' }">
+    <Variant title="Color">
+      <Button color="green">Button</Button>
+      <Button color="blue">Button</Button>
+      <Button color="gray">Button</Button>
+      <Button color="gray-dark">Button</Button>
+      <Button color="white">Button</Button>
+    </Variant>
+    <Variant title="Rounded">
+      <Button rounded>Button</Button>
+    </Variant>
+    <Variant title="Pressed">
+      <Button pressed>Button</Button>
+    </Variant>
   </Story>
 </template>
