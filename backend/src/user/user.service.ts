@@ -58,7 +58,7 @@ export class UserService {
   async updateLastLogin(username: string) {
     await this.prisma.user.update({
       where: { username },
-      data: { last_login: new Date() }
+      data: { lastLogin: new Date() }
     })
   }
   async getUserCredentialByEmail(email: string): Promise<User> {

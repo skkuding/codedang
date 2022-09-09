@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { fileURLToPath, URL } from 'url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -16,7 +17,8 @@ export default defineConfig({
         { dir: 'src/user/problem/pages', baseRoute: 'problem' },
         { dir: 'src/user/contest/pages', baseRoute: 'contest' },
         { dir: 'src/user/group/pages', baseRoute: 'group' },
-        { dir: 'src/manager/pages', baseRoute: 'manager' }
+        { dir: 'src/manager/pages', baseRoute: 'manager' },
+        { dir: 'src/workbook/pages', baseRoute: 'workbook' }
       ]
     })
   ],
