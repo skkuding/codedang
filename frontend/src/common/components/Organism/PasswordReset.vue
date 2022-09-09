@@ -59,7 +59,7 @@ const passwordAgain = ref('')
       class="text-gray-dark hover:text-gray-dark/80 active:text-gray-dark/60 mt-4 cursor-pointer text-sm underline"
       @click="$emit('to', 'login')"
     >
-      Back to Sign In
+      Back to Log In
     </a>
   </div>
 </template>
