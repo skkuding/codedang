@@ -34,7 +34,7 @@ const editor = useEditor({
 
 <template>
   <div class="ring-gray w-fit rounded ring-1">
-    <div class="pb-2 text-center">
+    <div class="pb-2 text-center sm:max-w-[34rem] md:w-fit md:max-w-none">
       <ButtonGroup class="mx-2 mt-2 inline-block">
         <Button
           :pressed="editor?.isActive('bold')"
