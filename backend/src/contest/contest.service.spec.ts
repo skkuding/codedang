@@ -1,6 +1,11 @@
-import { UnauthorizedException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { Contest, ContestType, UserGroup } from '@prisma/client'
+import {
+  Contest,
+  ContestRankACM,
+  ContestRecord,
+  ContestType,
+  UserGroup
+} from '@prisma/client'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
@@ -87,27 +92,28 @@ const userGroups: UserGroup[] = [
     groupId: userGroup.groupId + 1
   }
 ]
-const record = {
+const record: ContestRecord = {
   id: 1,
-  contest_id: contestId,
-  user_id: userId,
+  contestId: contestId,
+  userId: userId,
   rank: 1,
-  create_time: new Date(),
-  update_time: new Date()
+  createTime: new Date(),
+  updateTime: new Date()
 }
-const contestRankACM = {
+const contestRankACM: ContestRankACM = {
   id: 1,
-  contest_id: contestId,
-  user_id: userId,
-  accepted_problem_num: 0,
-  total_penalty: 0,
-  submission_info: {},
-  create_time: new Date(),
-  update_time: new Date()
+  contestId: contestId,
+  userId: userId,
+  acceptedProblemNum: 0,
+  totalPenalty: 0,
+  submissionInfo: {},
+  createTime: new Date(),
+  updateTime: new Date()
 }
 const mockPrismaService = {
   contest: {
     findUnique: jest.fn().mockResolvedValue(contest),
+    findMany: jest.fn().mockResolvedValue(contests),
     create: jest.fn().mockResolvedValue(contest),
     update: jest.fn().mockResolvedValue(contest),
     delete: jest.fn()
@@ -517,9 +523,7 @@ describe('ContestService', () => {
       await expect(
         contestService.createContestRecord(userId, contestId)
       ).rejects.toThrowError(
-        new ForbiddenAccessException(
-          `Contest ${contestId} is not allowed to User ${contestId}`
-        )
+        new ForbiddenAccessException(`Contest ${contestId} is not ongoing`)
       )
     })
     it('should successfully create contestRankACM', async () => {
