@@ -23,6 +23,7 @@
     "@nestjs/jwt": "^9.0.0",
     "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "^9.0.11",
+    "@nestjs/swagger": "^6.1.2",
     "@prisma/client": "^4.3.1",
     "argon2": "^0.29.1",
     "cache-manager": "^4.1.0",
@@ -36,7 +37,8 @@
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.5.6"
+    "rxjs": "^7.5.6",
+    "swagger-ui-express": "^4.5.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.1.2",
