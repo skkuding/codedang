@@ -22,7 +22,13 @@ axios.interceptors.response.use(undefined, async (error: AxiosError) => {
   await useAuthStore().reissue()
 
   /* to retry only once, use custom header `retry` as a flag */
-  return axios({ ...error.config, headers: { retry: 'retry' } })
+  return axios({
+    headers: {
+      retry: 'retry',
+      ...error.config.headers
+    },
+    ...error.config
+  })
 })
 
 const app = createApp(App)
