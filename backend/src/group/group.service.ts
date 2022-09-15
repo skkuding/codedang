@@ -18,6 +18,16 @@ export class GroupService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getGroup(userId: number, groupId: number): Promise<Partial<Group>> {
+    await this.prisma.userGroup.findFirst({
+      where: {
+        user_id: userId,
+        group_id: groupId,
+        is_registered: true
+      },
+      rejectOnNotFound: () =>
+        new InvalidUserException(returnIsNotAllowed(userId, groupId))
+    })
+
     const group = await this.prisma.group.findUnique({
       where: {
         id: groupId
@@ -28,16 +38,6 @@ export class GroupService {
         description: true
       },
       rejectOnNotFound: () => new EntityNotExistException('group')
-    })
-
-    await this.prisma.userGroup.findFirst({
-      where: {
-        user_id: userId,
-        group_id: groupId,
-        is_registered: true
-      },
-      rejectOnNotFound: () =>
-        new InvalidUserException(returnIsNotAllowed(userId, groupId))
     })
 
     return group
@@ -183,8 +183,7 @@ export class GroupService {
   }
 
   async getNonPrivateGroups(): Promise<UserGroupInterface[]> {
-    //TODO: update number of members
-    const groups = await (
+    const groups = (
       await this.prisma.group.findMany({
         where: {
           private: false
@@ -197,34 +196,60 @@ export class GroupService {
           },
           id: true,
           group_name: true,
-          description: true
+          description: true,
+          UserGroup: true
         }
       })
-    ).filter((group) => group.id != 1)
+    )
+      .filter((group) => group.id != 1)
+      .map((group) => {
+        return {
+          ...group,
+          memberNum: group.UserGroup.filter((member) => member.is_registered)
+            .length
+        }
+      })
 
     return groups
   }
 
   async getMyGroups(userId: number): Promise<Partial<UserGroup>[]> {
-    //TODO: update number of members
-    const groups = await this.prisma.userGroup.findMany({
-      where: {
-        user_id: userId,
-        is_registered: true
-      },
-      select: {
-        id: true,
-        group: {
-          select: {
-            created_by: {
-              select: {
-                username: true
-              }
-            },
-            group_name: true,
-            description: true
-          }
+    const groupIds = (
+      await this.prisma.userGroup.findMany({
+        where: {
+          user_id: userId,
+          is_registered: true
+        },
+        select: {
+          group_id: true
         }
+      })
+    ).map((group) => group.group_id)
+
+    const groups = (
+      await this.prisma.group.findMany({
+        where: {
+          id: {
+            in: groupIds
+          }
+        },
+        select: {
+          created_by: {
+            select: {
+              username: true
+            }
+          },
+          id: true,
+          group_name: true,
+          description: true,
+          UserGroup: true
+        }
+      })
+    ).map((group) => {
+      return {
+        ...group,
+        memberNum: group.UserGroup.filter((member) => member.is_registered)
+          .length
       }
     })
 

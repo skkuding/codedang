@@ -3,4 +3,7 @@ export interface UserGroupInterface {
   group_name: string
   description: string
   memberNum?: number
+  created_by?: {
+    username: string
+  }
 }
