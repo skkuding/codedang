@@ -1,21 +1,27 @@
 <script setup lang="ts">
 import Header from '@/common/components/Organism/Header.vue'
+import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import FaSolidBars from '~icons/fa-solid/bars'
 import Fa6SolidAngleUp from '~icons/fa6-solid/angle-up'
 import Fa6SolidAngleDown from '~icons/fa6-solid/angle-down'
 import { useRouter } from 'vue-router'
-
-defineProps<{
+import { onBeforeUpdate } from 'vue'
+const props = defineProps<{
   id: string
 }>()
 const router = useRouter()
-const noticeItem = {
+let noticeItem = {
   title: '1111',
   date: '2022-04-01',
   content: 'this is notice',
   update: '2022-04-11',
-  id: router.currentRoute.value.params.id
+  id: props.id
 }
+onBeforeUpdate(
+  () =>
+    // call api
+    (noticeItem.id = router.currentRoute.value.params.id[0])
+)
 const preNotice = {
   title: '0000',
   date: '2022-04-012',
@@ -48,7 +54,6 @@ const goDetail = (nextId: string) => {
       class="bg-gray-light border-gray mt-4 flex h-12 w-full items-center border-y-[1px]"
     >
       <div class="ml-4 mr-auto">
-        {{ noticeItem.id }}
         {{ noticeItem.title }}
       </div>
       <div class="mr-4 hidden text-right sm:block">
@@ -58,7 +63,7 @@ const goDetail = (nextId: string) => {
     <div class="mt-2 hidden w-full justify-end pr-4 text-right md:block">
       Last update: {{ noticeItem.update }}
     </div>
-    <div class="mx-4 mt-2 h-96 w-full max-w-full break-all">
+    <div class="my-4 h-min min-h-[400px] w-full max-w-full break-all px-4">
       {{ noticeItem.content }}
     </div>
     <div class="w-full">
