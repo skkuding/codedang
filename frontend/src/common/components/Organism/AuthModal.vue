@@ -2,12 +2,14 @@
 import { defineAsyncComponent } from 'vue'
 import Modal from '../Molecule/Modal.vue'
 
+type ModalStatus = 'close' | 'login' | 'signup' | 'password'
+
 defineProps<{
-  modelValue: 'login' | 'signup' | 'password' | 'close'
+  modelValue: ModalStatus
 }>()
 
 defineEmits<{
-  (e: 'update:modelValue', value: boolean): void
+  (e: 'update:modelValue', value: ModalStatus): void
 }>()
 
 /* define exact height value of modal for animation
