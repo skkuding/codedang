@@ -120,24 +120,32 @@ export class GroupService {
         new InvalidUserException(returnIsNotAllowed(userId, groupId))
     })
 
-    const managers = await this.prisma.userGroup.findMany({
-      where: {
-        group_id: groupId,
-        is_registered: true
-      },
-      select: {
-        id: true,
-        user: {
-          select: {
-            student_id: true,
-            UserProfile: {
-              select: {
-                real_name: true
+    const managers = (
+      await this.prisma.userGroup.findMany({
+        where: {
+          group_id: groupId,
+          is_registered: true,
+          is_group_manager: true
+        },
+        select: {
+          id: true,
+          user: {
+            select: {
+              student_id: true,
+              UserProfile: {
+                select: {
+                  real_name: true
+                }
               }
             }
-          }
-        },
-        is_group_manager: true
+          },
+          is_group_manager: true
+        }
+      })
+    ).map((manager) => {
+      return {
+        ...manager,
+        student_id: manager.user.student_id.substring(0, 6)
       }
     })
 
@@ -158,24 +166,32 @@ export class GroupService {
         new InvalidUserException(returnIsNotAllowed(userId, groupId))
     })
 
-    const members = await this.prisma.userGroup.findMany({
-      where: {
-        group_id: groupId,
-        is_registered: true
-      },
-      select: {
-        id: true,
-        user: {
-          select: {
-            student_id: true,
-            UserProfile: {
-              select: {
-                real_name: true
+    const members = (
+      await this.prisma.userGroup.findMany({
+        where: {
+          group_id: groupId,
+          is_registered: true,
+          is_group_manager: false
+        },
+        select: {
+          id: true,
+          user: {
+            select: {
+              student_id: true,
+              UserProfile: {
+                select: {
+                  real_name: true
+                }
               }
             }
-          }
-        },
-        is_group_manager: false
+          },
+          is_group_manager: true
+        }
+      })
+    ).map((member) => {
+      return {
+        ...member,
+        student_id: member.user.student_id.substring(0, 6)
       }
     })
 
