@@ -43,11 +43,7 @@ export class GroupService {
     return group
   }
 
-  async getGroupJoinById(
-    userId: number,
-    groupId: number
-  ): Promise<UserGroupInterface> {
-    //TODO: Update Group Manager, Admin
+  async getGroupJoinById(groupId: number): Promise<UserGroupInterface> {
     const group = await this.prisma.group.findFirst({
       where: {
         id: groupId,
@@ -57,6 +53,7 @@ export class GroupService {
         id: true,
         group_name: true,
         description: true,
+        UserGroup: true,
         created_by: {
           select: {
             UserProfile: {
@@ -70,24 +67,38 @@ export class GroupService {
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
 
-    const groupMemberNum = await this.prisma.userGroup.count({
-      where: {
-        group_id: groupId,
-        is_registered: true
-      }
-    })
+    const groupManagers = (
+      await this.prisma.userGroup.findMany({
+        where: {
+          group_id: groupId,
+          is_registered: true,
+          is_group_manager: true
+        },
+        select: {
+          user: {
+            select: {
+              UserProfile: {
+                select: {
+                  real_name: true
+                }
+              }
+            }
+          }
+        }
+      })
+    ).map((manager) => manager.user.UserProfile.real_name)
 
     return {
       ...group,
-      memberNum: groupMemberNum
+      memberNum: group.UserGroup.filter((member) => member.is_registered)
+        .length,
+      managers: groupManagers
     }
   }
 
   async getGroupJoinByInvt(
-    userId: number,
     invitationCode: string
   ): Promise<UserGroupInterface> {
-    //TODO: Update Group Manager, Admin
     const group = await this.prisma.group.findFirst({
       where: {
         invitation_code: invitationCode,
@@ -97,6 +108,7 @@ export class GroupService {
         id: true,
         group_name: true,
         description: true,
+        UserGroup: true,
         created_by: {
           select: {
             UserProfile: {
@@ -110,16 +122,32 @@ export class GroupService {
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
 
-    const groupMemberNum = await this.prisma.userGroup.count({
-      where: {
-        group_id: group.id,
-        is_registered: true
-      }
-    })
+    const groupManagers = (
+      await this.prisma.userGroup.findMany({
+        where: {
+          group_id: group.id,
+          is_registered: true,
+          is_group_manager: true
+        },
+        select: {
+          user: {
+            select: {
+              UserProfile: {
+                select: {
+                  real_name: true
+                }
+              }
+            }
+          }
+        }
+      })
+    ).map((manager) => manager.user.UserProfile.real_name)
 
     return {
       ...group,
-      memberNum: groupMemberNum
+      memberNum: group.UserGroup.filter((member) => member.is_registered)
+        .length,
+      managers: groupManagers
     }
   }
 
