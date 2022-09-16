@@ -56,7 +56,16 @@ export class GroupService {
       select: {
         id: true,
         group_name: true,
-        description: true
+        description: true,
+        created_by: {
+          select: {
+            UserProfile: {
+              select: {
+                real_name: true
+              }
+            }
+          }
+        }
       },
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
@@ -87,7 +96,16 @@ export class GroupService {
       select: {
         id: true,
         group_name: true,
-        description: true
+        description: true,
+        created_by: {
+          select: {
+            UserProfile: {
+              select: {
+                real_name: true
+              }
+            }
+          }
+        }
       },
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
@@ -109,7 +127,6 @@ export class GroupService {
     userId: number,
     groupId: number
   ): Promise<Membership[]> {
-    // TODO: filter student_id
     await this.prisma.userGroup.findFirst({
       where: {
         user_id: userId,
@@ -207,7 +224,11 @@ export class GroupService {
         select: {
           created_by: {
             select: {
-              username: true
+              UserProfile: {
+                select: {
+                  real_name: true
+                }
+              }
             }
           },
           id: true,
@@ -252,7 +273,11 @@ export class GroupService {
         select: {
           created_by: {
             select: {
-              username: true
+              UserProfile: {
+                select: {
+                  real_name: true
+                }
+              }
             }
           },
           id: true,

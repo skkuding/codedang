@@ -4,6 +4,8 @@ export interface UserGroupInterface {
   description: string
   memberNum?: number
   created_by?: {
-    username: string
+    UserProfile: {
+      real_name: string
+    }
   }
 }
