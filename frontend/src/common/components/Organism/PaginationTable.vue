@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import SearchBar from '../Molecule/SearchBar.vue'
 import Pagination from '../Molecule/Pagination.vue'
 
@@ -18,9 +18,22 @@ defineProps<{
   noHeader?: boolean
   noSearchBar?: boolean
   noPagination?: boolean
+  mode?: 'light' | 'secondary' | 'dark'
 }>()
 
 const emit = defineEmits(['row-clicked', 'change-page', 'search'])
+
+const headerColor = {
+  light: 'text-text-title bg-[#F9F9F9]',
+  secondary: 'bg-transparent text-white',
+  dark: 'bg-transparent text-white'
+}
+
+const rowColor = {
+  light: 'hover:bg-gray-light',
+  secondary: 'hover:bg-[#204A60] text-white',
+  dark: 'hover:bg-[#212529] text-white'
+}
 
 const currentPage = ref(1)
 
@@ -32,10 +45,6 @@ const search = (inputData: string) => {
 watch(currentPage, (value) => {
   emit('change-page', value)
 })
-
-const capitalize = (key: string) => {
-  return key.charAt(0).toUpperCase() + key.slice(1)
-}
 </script>
 
 <template>
@@ -46,6 +55,7 @@ const capitalize = (key: string) => {
         v-if="!noSearchBar"
         :placeholder="placeholder"
         class="ml-5"
+        :class="!mode || mode === 'light' ? '' : 'text-white'"
         @search="search"
       ></SearchBar>
     </div>
@@ -54,7 +64,10 @@ const capitalize = (key: string) => {
       :class="!noSearchBar ? 'mt-5' : ''"
     >
       <thead v-if="!noHeader">
-        <tr class="text-text-title border-gray border-b-2 bg-[#F9F9F9]">
+        <tr
+          class="border-gray border-b-2"
+          :class="headerColor[mode || 'light']"
+        >
           <th
             v-for="(field, index) in fields"
             :key="index"
@@ -65,7 +78,9 @@ const capitalize = (key: string) => {
             <span v-if="Object.keys(field).includes('label')">
               {{ field.label }}
             </span>
-            <span v-else>{{ capitalize(field.key) }}</span>
+            <span v-else>
+              {{ field.key.charAt(0).toUpperCase() + field.key.slice(1) }}
+            </span>
           </th>
         </tr>
       </thead>
@@ -77,7 +92,8 @@ const capitalize = (key: string) => {
           <tr
             v-for="(row, index) in items"
             :key="index"
-            class="hover:bg-gray-light border-gray cursor-pointer border-y"
+            class="border-gray cursor-pointer border-y"
+            :class="rowColor[mode || 'light']"
             @click="$emit('row-clicked', row)"
           >
             <td
@@ -98,6 +114,7 @@ const capitalize = (key: string) => {
         v-model="currentPage"
         class="mt-8"
         :number-of-pages="numberOfPages"
+        :mode="mode"
       />
     </div>
   </div>

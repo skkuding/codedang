@@ -18,7 +18,7 @@ const data = ref('')
   <div class="flex w-fit">
     <input
       v-model="data"
-      class="border-gray-dark h-9 rounded-l-lg border-2 px-2 focus:outline-0"
+      class="border-gray-dark h-9 rounded-l-lg border-2 bg-transparent px-2 focus:outline-0"
       type="text"
       :placeholder="placeholder"
       @keyup.enter="$emit('search', data)"
