@@ -15,6 +15,14 @@ const colorMapper = {
   'gray-dark': 'text-gray-dark hover:bg-gray-dark/20 active:bg-gray-dark/40'
 }
 
+const pressedColorMapper = {
+  green: 'text-green bg-green/40',
+  blue: 'text-blue bg-blue/40',
+  gray: 'text-gray bg-gray/40',
+  // eslint-disable-next-line
+  'gray-dark': 'text-gray-dark bg-gray-dark/40'
+}
+
 const backgroundColorMapper = {
   green: 'text-white bg-green hover:bg-green/80 active:bg-green/60',
   blue: 'text-white bg-blue hover:bg-blue/80 active:bg-blue/60',
@@ -34,7 +42,9 @@ const pressedBackgroundColorMapper = {
 
 const classNames = computed(() =>
   props.outline
-    ? colorMapper[props.color || 'green'] +
+    ? (props.pressed
+        ? pressedColorMapper[props.color || 'green']
+        : colorMapper[props.color || 'green']) +
       ' border border-current bg-transparent'
     : props.pressed
     ? pressedBackgroundColorMapper[props.color || 'green']
