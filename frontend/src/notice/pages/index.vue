@@ -106,7 +106,7 @@ const changeItems = (page: number) => {
 
 <template>
   <Header></Header>
-  <div class="mx-auto w-[70%]">
+  <div class="mx-auto mt-10 w-[70%]">
     <PageTitle text="Notice" />
     <PaginationTable
       :fields="noticeField"
