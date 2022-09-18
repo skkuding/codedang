@@ -26,11 +26,7 @@ let noticeItem = {
   update: '2022-04-11',
   id: props.id
 }
-onBeforeUpdate(
-  () =>
-    // call api
-    (noticeItem.id = router.currentRoute.value.params.id[0])
-)
+onBeforeUpdate(() => (noticeItem.id = router.currentRoute.value.params.id[0]))
 const preNotice = {
   title: '0000',
   date: '2022-04-012',
@@ -45,9 +41,6 @@ const nextNotice = {
   update: '2022-04-13',
   id: '3'
 }
-// const goDetail = (nextId: string) => {
-//   return '/notice/' + nextId
-// }
 const goDetail = (item: any) => {
   router.push({
     name: 'notice-id',
@@ -57,15 +50,9 @@ const goDetail = (item: any) => {
 let show = true
 const numberOfPages = 1
 const paginationField: field[] = [
-  {
-    key: 'icon'
-  },
-  {
-    key: 'name'
-  },
-  {
-    key: 'title'
-  }
+  { key: 'icon' },
+  { key: 'name' },
+  { key: 'title' }
 ]
 let paginationItem: item[] = []
 if (preNotice.id) {
@@ -111,26 +98,6 @@ if (nextNotice.id) {
     <div class="my-4 h-min min-h-[400px] w-full max-w-full break-all px-4">
       {{ noticeItem.content }}
     </div>
-    <!-- <div class="w-full">
-      <router-link
-        v-if="preNotice"
-        class="border-gray flex h-12 items-center border-y-[1px]"
-        :to="goDetail(preNotice.id)"
-      >
-        <Fa6SolidAngleUp class="ml-2" />
-        <div class="ml-4 hidden w-20 sm:block">Previous</div>
-        <div class="ml-2">{{ preNotice.title }}</div>
-      </router-link>
-      <router-link
-        v-if="nextNotice"
-        class="border-gray flex h-12 items-center border-b-[1px]"
-        :to="goDetail(nextNotice.id)"
-      >
-        <Fa6SolidAngleDown class="ml-2" />
-        <div class="ml-4 hidden w-20 sm:block">Next</div>
-        <div class="ml-2">{{ nextNotice.title }}</div>
-      </router-link>
-    </div> -->
     <PaginationTable
       :no-header="show"
       :no-pagination="show"

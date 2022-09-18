@@ -20,14 +20,7 @@ const goDetail = (item: any) => {
     params: { id: item.id }
   })
 }
-const noticeField: field[] = [
-  {
-    key: 'title'
-  },
-  {
-    key: 'date'
-  }
-]
+const noticeField: field[] = [{ key: 'title' }, { key: 'date' }]
 const noticeItem: item[] = [
   {
     title: '111111',
