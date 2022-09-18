@@ -44,8 +44,8 @@ const classNames = computed(() =>
   props.outline
     ? (props.pressed
         ? pressedColorMapper[props.color || 'green']
-        : colorMapper[props.color || 'green']) +
-      ' border border-current bg-transparent'
+        : colorMapper[props.color || 'green'] + ' bg-transparent') +
+      ' border border-current'
     : props.pressed
     ? pressedBackgroundColorMapper[props.color || 'green']
     : backgroundColorMapper[props.color || 'green']
