@@ -22,12 +22,10 @@ const goDetail = (item: any) => {
 }
 const noticeField: field[] = [
   {
-    key: 'title',
-    label: 'Title'
+    key: 'title'
   },
   {
-    key: 'date',
-    label: 'Date'
+    key: 'date'
   }
 ]
 const noticeItem: item[] = [

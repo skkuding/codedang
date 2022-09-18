@@ -6,9 +6,18 @@ import Fa6SolidAngleUp from '~icons/fa6-solid/angle-up'
 import Fa6SolidAngleDown from '~icons/fa6-solid/angle-down'
 import { useRouter } from 'vue-router'
 import { onBeforeUpdate } from 'vue'
+
 const props = defineProps<{
   id: string
 }>()
+interface field {
+  key: string
+  label?: string
+  custom?: boolean
+}
+interface item {
+  [key: string]: any
+}
 const router = useRouter()
 let noticeItem = {
   title: '1111',
@@ -36,14 +45,50 @@ const nextNotice = {
   update: '2022-04-13',
   id: '3'
 }
-const goDetail = (nextId: string) => {
-  return '/notice/' + nextId
+// const goDetail = (nextId: string) => {
+//   return '/notice/' + nextId
+// }
+const goDetail = (item: any) => {
+  router.push({
+    name: 'notice-id',
+    params: { id: item.id }
+  })
+}
+let show = true
+const numberOfPages = 1
+const paginationField: field[] = [
+  {
+    key: 'icon'
+  },
+  {
+    key: 'name'
+  },
+  {
+    key: 'title'
+  }
+]
+let paginationItem: item[] = []
+if (preNotice.id) {
+  paginationItem.push({
+    icon: Fa6SolidAngleUp,
+    name: 'Previous',
+    title: preNotice.title,
+    id: preNotice.id
+  })
+}
+if (nextNotice.id) {
+  paginationItem.push({
+    icon: Fa6SolidAngleDown,
+    name: 'Next',
+    title: nextNotice.title,
+    id: nextNotice.id
+  })
 }
 </script>
 
 <template>
   <Header></Header>
-  <div :key="router.currentRoute.value.fullPath" class="mx-auto mt-10 w-[70%]">
+  <div class="mx-auto mt-10 w-[70%]">
     <div class="flex items-center justify-end">
       <router-link to="/notice">
         <FaSolidBars />
@@ -66,7 +111,7 @@ const goDetail = (nextId: string) => {
     <div class="my-4 h-min min-h-[400px] w-full max-w-full break-all px-4">
       {{ noticeItem.content }}
     </div>
-    <div class="w-full">
+    <!-- <div class="w-full">
       <router-link
         v-if="preNotice"
         class="border-gray flex h-12 items-center border-y-[1px]"
@@ -85,6 +130,19 @@ const goDetail = (nextId: string) => {
         <div class="ml-4 hidden w-20 sm:block">Next</div>
         <div class="ml-2">{{ nextNotice.title }}</div>
       </router-link>
-    </div>
+    </div> -->
+    <PaginationTable
+      :no-header="show"
+      :no-pagination="show"
+      :no-search-bar="show"
+      :number-of-pages="numberOfPages"
+      :fields="paginationField"
+      :items="paginationItem"
+      @row-clicked="goDetail"
+    >
+      <template #icon="{ row }">
+        <component :is="row.icon" />
+      </template>
+    </PaginationTable>
   </div>
 </template>
