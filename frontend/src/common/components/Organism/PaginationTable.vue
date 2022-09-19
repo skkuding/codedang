@@ -139,7 +139,11 @@ watch(currentPage, (value) => {
         </thead>
         <tbody>
           <tr v-if="items.length === 0">
-            <td class="p-2.5 pl-4" :class="{ 'text-white': mode !== 'light' }">
+            <td
+              :colspan="entries.length"
+              class="p-2.5 pl-4"
+              :class="{ 'text-white': mode !== 'light' }"
+            >
               {{ text || 'No Data' }}
             </td>
           </tr>
