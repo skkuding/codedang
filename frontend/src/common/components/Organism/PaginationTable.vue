@@ -3,18 +3,18 @@ import { computed, ref, watch } from 'vue'
 import SearchBar from '../Molecule/SearchBar.vue'
 import Pagination from '../Molecule/Pagination.vue'
 
-type subfieldType = {
+type SubfieldType = {
   key: string
   label?: string
 }
 
-type fieldType = subfieldType & {
+type FieldType = SubfieldType & {
   width?: string
-  subfields?: subfieldType[]
+  subfields?: SubfieldType[]
 }
 
 const props = defineProps<{
-  fields: fieldType[]
+  fields: FieldType[]
   items: {
     [key: string]: unknown
   }[]
@@ -30,14 +30,14 @@ const props = defineProps<{
 const emit = defineEmits(['row-clicked', 'change-page', 'search'])
 
 const subhead = computed(() => {
-  return props.fields.reduce((prev: subfieldType[], cur: fieldType) => {
+  return props.fields.reduce((prev: SubfieldType[], cur: FieldType) => {
     return prev.concat(cur.subfields || [])
   }, [])
 })
 
 const entries = computed(() => {
   return props.fields.reduce(
-    (prev: (subfieldType | fieldType)[], cur: fieldType) => {
+    (prev: (SubfieldType | FieldType)[], cur: FieldType) => {
       return prev.concat(cur.subfields || cur)
     },
     []
