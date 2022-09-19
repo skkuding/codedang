@@ -17,6 +17,10 @@ const emit = defineEmits<{
 }>()
 
 const currentPage = useClamp(props.modelValue, 1, props.numberOfPages)
+watch(
+  () => props.modelValue,
+  (modelValue) => (currentPage.value = modelValue)
+)
 
 const currentPageColor = (page: number) => {
   if (!props.mode || props.mode === 'light')
