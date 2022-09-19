@@ -24,8 +24,8 @@ import { Roles } from 'src/common/decorator/roles.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 
 @Controller('admin/notice')
-@Roles(Role.GroupAdmin)
 @UseGuards(RolesGuard)
+@Roles(Role.GroupAdmin)
 export class NoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
@@ -38,15 +38,15 @@ export class NoticeAdminController {
   }
 }
 
-@Controller('admin/group/:group_id/notice')
-@UseGuards(GroupManagerGuard)
+@Controller('admin/group/:groupId/notice')
+@UseGuards(RolesGuard, GroupManagerGuard)
 export class GroupNoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Post()
   async createNotice(
     @Req() req: AuthenticatedRequest,
-    @Param('group_id', ParseIntPipe) groupId: number,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Body() createNoticeDto: CreateNoticeDto
   ): Promise<Notice> {
     try {
@@ -65,7 +65,7 @@ export class GroupNoticeAdminController {
 
   @Get()
   async getAdminNotices(
-    @Param('group_id', ParseIntPipe) groupId: number,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
     return await this.noticeService.getAdminNoticesByGroupId(groupId, offset)

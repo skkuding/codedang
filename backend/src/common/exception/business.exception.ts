@@ -21,3 +21,19 @@ export class EntityNotExistException extends BusinessException {
 }
 
 export class UnprocessableDataException extends BusinessException {}
+
+export class ForbiddenAccessException extends BusinessException {}
+
+export class InvalidMailTransporterException extends BusinessException {}
+
+export class InvalidPinException extends BusinessException {
+  constructor(message = 'PIN not found or invalid PIN') {
+    super(message)
+  }
+}
+
+export class EmailTransmissionFailedException extends BusinessException {
+  constructor(message = 'Email transmission failed') {
+    super(message)
+  }
+}

@@ -8,12 +8,12 @@ export class GroupService {
   async getUserGroupMembershipInfo(userId: number, groupId: number) {
     return await this.prisma.userGroup.findFirst({
       where: {
-        user_id: userId,
-        group_id: groupId
+        userId: userId,
+        groupId: groupId
       },
       select: {
-        is_registered: true,
-        is_group_manager: true
+        isRegistered: true,
+        isGroupManager: true
       }
     })
   }
@@ -22,14 +22,14 @@ export class GroupService {
     return (
       await this.prisma.userGroup.findMany({
         where: {
-          user_id: userId,
-          is_registered: true,
-          is_group_manager: true
+          userId: userId,
+          isRegistered: true,
+          isGroupManager: true
         },
         select: {
-          group_id: true
+          groupId: true
         }
       })
-    ).map((group) => group.group_id)
+    ).map((group) => group.groupId)
   }
 }
