@@ -78,7 +78,7 @@ watch(currentPage, (value) => {
 
 <template>
   <div>
-    <div class="flex justify-end">
+    <div class="mb-5 flex justify-end">
       <slot name="option"></slot>
       <SearchBar
         v-if="!noSearchBar"

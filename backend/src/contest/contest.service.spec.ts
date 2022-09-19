@@ -17,20 +17,20 @@ const groupId = 1
 
 const contest = {
   id: contestId,
-  created_by_id: userId,
-  group_id: groupId,
+  createdById: userId,
+  groupId: groupId,
   title: 'title',
   description: 'description',
-  description_summary: 'description summary',
-  start_time: new Date('2021-11-07T18:34:23.999175+09:00'),
-  end_time: new Date('2021-12-07T18:34:23.999175+09:00'),
+  descriptionSummary: 'description summary',
+  startTime: new Date('2021-11-07T18:34:23.999175+09:00'),
+  endTime: new Date('2021-12-07T18:34:23.999175+09:00'),
   visible: true,
-  is_rank_visible: true,
+  isRankVisible: true,
   type: ContestType.ACM,
-  create_time: new Date('2021-11-01T18:34:23.999175+09:00'),
-  update_time: new Date('2021-11-01T18:34:23.999175+09:00'),
+  createTime: new Date('2021-11-01T18:34:23.999175+09:00'),
+  updateTime: new Date('2021-11-01T18:34:23.999175+09:00'),
   group: {
-    group_id: groupId
+    groupId: groupId
   }
 }
 
@@ -38,7 +38,7 @@ const ongoingContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId,
-    end_time: new Date('2022-11-07T18:34:23.999175+09:00'),
+    endTime: new Date('2022-11-07T18:34:23.999175+09:00'),
     visible: false
   }
 ]
@@ -55,8 +55,8 @@ const upcomingContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId + 6,
-    start_time: new Date('2022-11-07T18:34:23.999175+09:00'),
-    end_time: new Date('2022-12-07T18:34:23.999175+09:00'),
+    startTime: new Date('2022-11-07T18:34:23.999175+09:00'),
+    endTime: new Date('2022-12-07T18:34:23.999175+09:00'),
     visible: false
   }
 ]
@@ -99,14 +99,14 @@ describe('ContestService', () => {
 
   describe('createContest', () => {
     const createContestDto: CreateContestDto = {
-      group_id: contest.group_id,
+      groupId: contest.groupId,
       title: contest.title,
       description: contest.description,
-      description_summary: contest.description_summary,
-      start_time: contest.start_time,
-      end_time: contest.end_time,
+      descriptionSummary: contest.descriptionSummary,
+      startTime: contest.startTime,
+      endTime: contest.endTime,
       visible: contest.visible,
-      is_rank_visible: contest.is_rank_visible,
+      isRankVisible: contest.isRankVisible,
       type: contest.type
     }
 
@@ -153,11 +153,11 @@ describe('ContestService', () => {
     const updateContestDto: UpdateContestDto = {
       title: contest.title,
       description: contest.description,
-      description_summary: contest.description_summary,
-      start_time: contest.start_time,
-      end_time: contest.end_time,
+      descriptionSummary: contest.descriptionSummary,
+      startTime: contest.startTime,
+      endTime: contest.endTime,
       visible: contest.visible,
-      is_rank_visible: contest.is_rank_visible,
+      isRankVisible: contest.isRankVisible,
       type: contest.type
     }
 
@@ -325,7 +325,7 @@ describe('ContestService', () => {
       const now = new Date()
       const notEndedContest = {
         ...contest,
-        end_time: now.setFullYear(now.getFullYear() + 1)
+        endTime: now.setFullYear(now.getFullYear() + 1)
       }
       mockPrismaService.contest.findUnique.mockResolvedValue(notEndedContest)
       jest
@@ -350,7 +350,7 @@ describe('ContestService', () => {
     it('should return contest of the group', async () => {
       jest
         .spyOn(groupService, 'getUserGroupMembershipInfo')
-        .mockResolvedValue({ is_registered: true, is_group_manager: false })
+        .mockResolvedValue({ isRegistered: true, isGroupManager: false })
 
       expect(await contestService.getContestById(userId, contestId)).toEqual(
         contest
