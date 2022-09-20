@@ -1,6 +1,7 @@
 import { MailerOptions, MailerOptionsFactory } from '@nestjs-modules/mailer'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
 
 @Injectable()
 export class MailerConfigService implements MailerOptionsFactory {
@@ -17,6 +18,12 @@ export class MailerConfigService implements MailerOptionsFactory {
       },
       defaults: {
         from: `"SKKU CODING PLATFORM" <${this.config.get('NODEMAILER_USER')}>`
+      },
+      template: {
+        adapter: new HandlebarsAdapter(),
+        options: {
+          strict: true
+        }
       }
     }
   }
