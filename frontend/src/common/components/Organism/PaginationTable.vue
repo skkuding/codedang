@@ -60,10 +60,6 @@ const responsiveStyle = (index: number) => {
   return subhead.value.length > 0 ? '' : index > 2 ? 'hidden md:table-cell' : ''
 }
 
-const capitalize = (key: string) => {
-  return key.charAt(0).toUpperCase() + key.slice(1)
-}
-
 const currentPage = ref(1)
 
 const search = (inputData: string) => {
@@ -112,8 +108,8 @@ watch(currentPage, (value) => {
               <span v-if="Object.keys(field).includes('label')">
                 {{ field.label }}
               </span>
-              <span v-else>
-                {{ capitalize(field.key) }}
+              <span v-else class="capitalize">
+                {{ field.key }}
               </span>
             </th>
           </tr>
@@ -131,8 +127,8 @@ watch(currentPage, (value) => {
               <span v-if="Object.keys(subfield).includes('label')">
                 {{ subfield.label }}
               </span>
-              <span v-else>
-                {{ capitalize(subfield.key) }}
+              <span v-else class="capitalize">
+                {{ subfield.key }}
               </span>
             </th>
           </tr>
