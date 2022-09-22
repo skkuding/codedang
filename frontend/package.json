@@ -44,6 +44,7 @@
     "unplugin-icons": "^0.14.10",
     "vite": "^3.1.2",
     "vite-plugin-pages": "^0.26.0",
+    "vite-plugin-vue-layouts": "^0.7.0",
     "vue-tsc": "^0.40.13"
   }
 }
