@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import Button from '@/common/components/Atom/Button.vue'
-import Card from '@/user/home/components/Card.vue'
-import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import Sidebar from '@/admin/component/Sidebar.vue'
 import { computed, ref } from 'vue'
 
