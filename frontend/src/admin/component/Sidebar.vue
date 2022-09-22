@@ -8,7 +8,7 @@ import IconBox from '~icons/bi/box'
 import IconCode from '~icons/bi/code-square'
 import IconBook from '~icons/bi/journals'
 import { onBeforeMount } from 'vue'
-import CodingPlatformLogo from '../Atom/CodingPlatformLogo.vue'
+import CodingPlatformLogo from '@/common/components/Atom/CodingPlatformLogo.vue'
 
 // TODO: get group name and color
 const props = defineProps<{
