@@ -20,6 +20,8 @@ const Carousel = defineAsyncComponent(
       'https://picsum.photos/id/1036/900/400'
     ]"
   />
-  <router-view class="mx-auto w-4/5 max-w-7xl" />
+  <main class="mx-auto w-4/5 max-w-7xl">
+    <router-view />
+  </main>
   <Footer />
 </template>

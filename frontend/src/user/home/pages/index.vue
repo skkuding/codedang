@@ -42,33 +42,31 @@ const contestItems = [
 </script>
 
 <template>
-  <main>
-    <div
-      class="my-20 flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
-    >
-      <Card href="/notice" :items="noticeItems" class="w-[36rem] max-w-full">
-        <template #title>
-          <IconInfo />
-          <h2 class="ml-2">Notice</h2>
-        </template>
+  <div
+    class="my-20 flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
+  >
+    <Card href="/notice" :items="noticeItems" class="w-[36rem] max-w-full">
+      <template #title>
+        <IconInfo />
+        <h2 class="ml-2">Notice</h2>
+      </template>
 
-        <template #icon>
-          <IconAngleRight />
-        </template>
-      </Card>
-      <Card href="/contest" :items="contestItems" class="w-[36rem] max-w-full">
-        <template #title>
-          <IconMedal />
-          <h2 class="ml-2">Current/Upcoming Contests</h2>
-        </template>
+      <template #icon>
+        <IconAngleRight />
+      </template>
+    </Card>
+    <Card href="/contest" :items="contestItems" class="w-[36rem] max-w-full">
+      <template #title>
+        <IconMedal />
+        <h2 class="ml-2">Current/Upcoming Contests</h2>
+      </template>
 
-        <template #icon="item">
-          <IconEllipsis v-if="item.item === 'ongoing'" />
-          <IconCalendar v-else />
-        </template>
-      </Card>
-    </div>
-  </main>
+      <template #icon="item">
+        <IconEllipsis v-if="item.item === 'ongoing'" />
+        <IconCalendar v-else />
+      </template>
+    </Card>
+  </div>
 </template>
 
 <route lang="yaml">
