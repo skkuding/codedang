@@ -6,6 +6,10 @@ import { defineAsyncComponent } from 'vue'
 const Carousel = defineAsyncComponent(
   () => import('@/user/home/components/Carousel.vue')
 )
+
+const BoxTitle = defineAsyncComponent(
+  () => import('@/common/components/Atom/BoxTitle.vue')
+)
 </script>
 
 <template>
@@ -20,6 +24,12 @@ const Carousel = defineAsyncComponent(
       'https://picsum.photos/id/1036/900/400'
     ]"
   />
+  <BoxTitle v-if="$router.currentRoute.value.meta.title">
+    <template #title>{{ $router.currentRoute.value.meta.title }}</template>
+    <template #subtitle>
+      {{ $router.currentRoute.value.meta.subtitle }}
+    </template>
+  </BoxTitle>
   <main class="mx-auto w-4/5 max-w-7xl">
     <router-view />
   </main>
