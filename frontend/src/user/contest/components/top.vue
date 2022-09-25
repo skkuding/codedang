@@ -8,5 +8,5 @@ const text =
 </script>
 
 <template>
-  <div v-dompurify-html="text" class="mt-10"></div>
+  <div v-dompurify-html="text" class="prose lg:prose-xl mt-10"></div>
 </template>
