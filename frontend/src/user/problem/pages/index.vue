@@ -3,7 +3,6 @@ import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
-import BoxTitle from '@/common/components/Atom/BoxTitle.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import { ref, computed } from 'vue'
@@ -224,12 +223,6 @@ const clickMore = () => {
 </script>
 
 <template>
-  <BoxTitle>
-    <template #title>Problem</template>
-    <template #subtitle>
-      Find problems with problem set and filters, and solve it!
-    </template>
-  </BoxTitle>
   <PageSubtitle text="All Problem" class="mt-10 mb-2" />
   <PaginationTable
     :fields="fields"
@@ -276,3 +269,9 @@ const clickMore = () => {
     More
   </Button>
 </template>
+
+<route lang="yaml">
+meta:
+  title: Problem
+  subtitle: Find problems with problem set and filters, and solve it!
+</route>

@@ -4,7 +4,8 @@ import { createPinia } from 'pinia'
 import { useAuthStore } from '@/common/store/auth'
 import axios, { AxiosError } from 'axios'
 import NProgress from 'nprogress'
-import routes from 'virtual:generated-pages'
+import { setupLayouts } from 'virtual:generated-layouts'
+import generatedRoutes from 'virtual:generated-pages'
 import App from './App.vue'
 import VueDOMPurifyHTML from 'vue-dompurify-html'
 
@@ -35,7 +36,7 @@ axios.interceptors.response.use(undefined, async (error: AxiosError) => {
 const app = createApp(App)
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes
+  routes: setupLayouts(generatedRoutes)
 })
 
 router.beforeEach(() => {
