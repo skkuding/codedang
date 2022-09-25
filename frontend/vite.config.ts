@@ -12,18 +12,28 @@ export default defineConfig({
     icons({ autoInstall: true }),
     pages({
       pagesDir: [
-        { dir: 'src/home/pages', baseRoute: '' },
-        { dir: 'src/notice/pages', baseRoute: 'notice' },
-        { dir: 'src/problem/pages', baseRoute: 'problem' },
-        { dir: 'src/workbook/pages', baseRoute: 'workbook' },
-        { dir: 'src/contest/pages', baseRoute: 'contest' },
-        { dir: 'src/group/pages', baseRoute: 'group' }
+        { dir: 'src/user/home/pages', baseRoute: '' },
+        { dir: 'src/user/notice/pages', baseRoute: 'notice' },
+        { dir: 'src/user/problem/pages', baseRoute: 'problem' },
+        { dir: 'src/user/contest/pages', baseRoute: 'contest' },
+        { dir: 'src/user/group/pages', baseRoute: 'group' },
+        { dir: 'src/user/workbook/pages', baseRoute: 'workbook' },
+        { dir: 'src/manager/pages', baseRoute: 'manager' }
       ]
     })
   ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
     }
   }
 })
