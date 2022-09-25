@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import PageTitle from '../../../common/components/Atom/PageTitle.vue'
+import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import { ref } from 'vue'
-import Badge from '../../../common/components/Molecule/Badge.vue'
-import Tab from '../../../common/components/Molecule/Tab.vue'
+import Badge from '@/common/components/Molecule/Badge.vue'
+import Tab from '@/common/components/Molecule/Tab.vue'
 import top from '../../components/top.vue'
 import problem from '../../components/problem.vue'
 import ranking from '../../components/ranking.vue'
