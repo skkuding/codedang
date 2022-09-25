@@ -7,7 +7,7 @@ import IconBrain from '~icons/fluent/brain-circuit-24-regular'
 import IconBox from '~icons/bi/box'
 import IconCode from '~icons/bi/code-square'
 import IconBook from '~icons/bi/journals'
-import { onBeforeMount } from 'vue'
+import { computed } from 'vue'
 import CodingPlatformLogo from '../Atom/CodingPlatformLogo.vue'
 
 // TODO: get group name and color
@@ -23,7 +23,7 @@ const colorMapper = {
   default: 'border-l-green'
 }
 
-let items = [
+const commonItems = [
   { to: '/notice', name: 'Notice', icon: IconFile },
   { to: '/contest', name: 'Contest', icon: IconTrophy },
   { to: '/workbook', name: 'Workbook', icon: IconBook },
@@ -31,15 +31,16 @@ let items = [
   { to: '/pool', name: 'Problem Pool', icon: IconBox }
 ]
 
-onBeforeMount(() => {
-  if (props.group) {
-    items.unshift({ to: '/', name: 'SKKUDING', icon: IconBiHouse })
-    items.push(
-      { to: '/member', name: 'Member', icon: IconUser },
-      { to: '/submission', name: 'Submission', icon: IconCode }
-    )
-  }
-})
+const items = computed(() =>
+  props.group
+    ? [
+        { to: '/', name: 'SKKUDING', icon: IconBiHouse },
+        ...commonItems,
+        { to: '/member', name: 'Member', icon: IconUser },
+        { to: '/submission', name: 'Submission', icon: IconCode }
+      ]
+    : commonItems
+)
 </script>
 
 <template>
