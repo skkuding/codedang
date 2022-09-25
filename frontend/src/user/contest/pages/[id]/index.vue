@@ -14,7 +14,7 @@ const time = useDateFormat(useNow(), formatter)
 </script>
 
 <template>
-  <div class="mx-auto mt-10">
+  <div class="mt-10">
     <div class="mb-5 flex justify-between">
       <PageTitle text="SKKU Coding Platform 2차 모의대회" class="mb-14" />
       <Badge color="green">{{ time }}</Badge>
