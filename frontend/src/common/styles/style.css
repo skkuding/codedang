@@ -3,7 +3,24 @@
 @tailwind utilities;
 
 @layer base {
-  * {
+  html {
     @apply text-text;
   }
+
+  html,
+  body {
+    @apply h-full;
+  }
+
+  #app {
+    @apply flex min-h-full flex-col;
+  }
+}
+
+#nprogress {
+  @apply pointer-events-none;
+}
+
+#nprogress .bar {
+  @apply bg-green fixed top-0 left-0 h-[2px] w-full;
 }

@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { fileURLToPath, URL } from 'url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import icons from 'unplugin-icons/vite'
 import pages from 'vite-plugin-pages'
+import layouts from 'vite-plugin-vue-layouts'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,12 +13,17 @@ export default defineConfig({
     icons({ autoInstall: true }),
     pages({
       pagesDir: [
-        { dir: 'src/home/pages', baseRoute: '' },
-        { dir: 'src/notice/pages', baseRoute: 'notice' },
-        { dir: 'src/problem/pages', baseRoute: 'problem' },
-        { dir: 'src/contest/pages', baseRoute: 'contest' },
-        { dir: 'src/group/pages', baseRoute: 'group' }
+        { dir: 'src/user/home/pages', baseRoute: '' },
+        { dir: 'src/user/notice/pages', baseRoute: 'notice' },
+        { dir: 'src/user/problem/pages', baseRoute: 'problem' },
+        { dir: 'src/user/contest/pages', baseRoute: 'contest' },
+        { dir: 'src/user/group/pages', baseRoute: 'group' },
+        { dir: 'src/user/workbook/pages', baseRoute: 'workbook' },
+        { dir: 'src/manager/pages', baseRoute: 'manager' }
       ]
+    }),
+    layouts({
+      layoutsDirs: 'src/common/layouts'
     })
   ],
   resolve: {
@@ -26,14 +32,12 @@ export default defineConfig({
     }
   },
   server: {
-    // configure vite for HMR with Gitpod
-    hmr: process.env.GITPOD_HOST
-      ? {
-          // removes the protocol and replaces it with the port we're connecting to
-          host: process.env.GITPOD_WORKSPACE_URL?.replace('https://', '3000-'),
-          protocol: 'wss',
-          clientPort: 443
-        }
-      : true
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   }
 })
