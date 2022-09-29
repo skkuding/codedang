@@ -2,9 +2,11 @@
 import { ref } from 'vue'
 import Button from '@/common/components/Atom/Button.vue'
 import Dropdown from '../../common/components/Molecule/Dropdown.vue'
+import ListItem from '../../common/components/Atom/ListItem.vue'
 import IconDown from '~icons/fa6-solid/angle-down'
-import IconRefresh from '~icons/ep/refresh-right'
 import Fa6SolidCaretDown from '~icons/fa6-solid/caret-down'
+import IconRefresh from '~icons/fa6-solid/arrow-rotate-right'
+import IconRun from '~icons/la/caret-right'
 
 const items = ['Editor', 'Standings', 'Submissions']
 
@@ -16,7 +18,7 @@ const activeStyle = (item: string) => {
 </script>
 
 <template>
-  <div class="flex h-14 w-full flex-row items-center bg-slate-700 px-6">
+  <nav class="flex h-14 w-full flex-row items-center bg-slate-700 px-6">
     <div class="flex h-full w-full items-center justify-start gap-x-4">
       <Dropdown class="pr-3">
         <template #button>
@@ -45,8 +47,15 @@ const activeStyle = (item: string) => {
       <Button color="gray-dark" class="h-9">
         <IconRefresh />
       </Button>
-      <Button color="green" class="h-9">Run</Button>
-      <Button color="blue" class="h-9">Submit</Button>
+      <Button color="green" class="h-9">
+        <div class="item-center flex flex-row">
+          <IconRun class="h-6 w-6" />
+          <span class="px-1">Run</span>
+        </div>
+      </Button>
+      <Button color="blue" class="h-9">
+        <span class="px-1">Submit</span>
+      </Button>
       <Dropdown>
         <template #button>
           <div
@@ -63,5 +72,5 @@ const activeStyle = (item: string) => {
         </template>
       </Dropdown>
     </div>
-  </div>
+  </nav>
 </template>
