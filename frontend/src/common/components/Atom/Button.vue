@@ -2,50 +2,62 @@
 import { computed } from 'vue'
 
 const props = defineProps<{
-  color?: string
-  rounded?: boolean
+  color?: 'green' | 'blue' | 'indigo' | 'gray' | 'gray-dark'
+  outline?: boolean
   pressed?: boolean
 }>()
 
-const borderRadius = computed(() => {
-  return props.rounded ? 'rounded-full' : 'rounded'
-})
+const colorMapper = {
+  green: 'text-green hover:bg-green/20 active:bg-green/40',
+  blue: 'text-blue hover:bg-blue/20 active:bg-blue/40',
+  indigo: 'text-white hover:bg-[#334155] active:bg-[#1F2937]',
+  gray: 'text-gray hover:bg-gray/20 active:bg-gray/40',
+  // eslint-disable-next-line
+  'gray-dark': 'text-gray-dark hover:bg-gray-dark/20 active:bg-gray-dark/40'
+}
 
-const backgroundColor = computed(() => {
-  if (props.color === 'blue') {
-    return props.pressed
-      ? 'bg-blue-dark text-white'
-      : 'bg-blue hover:bg-blue-dark text-white'
-  } else if (props.color === 'gray') {
-    return props.pressed
-      ? 'bg-gray-dark text-white'
-      : 'bg-gray hover:bg-gray-dark text-white'
-  } else if (props.color === 'gray-dark') {
-    return props.pressed
-      ? 'bg-gray text-white'
-      : 'bg-gray-dark hover:bg-gray text-white'
-  } else if (props.color === 'white') {
-    return props.pressed
-      ? 'bg-gray-dark text-white'
-      : 'bg-white hover:bg-gray-dark text-gray-dark hover:text-white border-gray border'
-  } else if (props.color === 'secondary-white') {
-    return 'bg-transparent hover:bg-[#204A60] border-white border text-white'
-  } else if (props.color === 'dark-white') {
-    return 'bg-transparent hover:bg-[#212529] border-white border text-white'
-  } else if (props.color === 'page') {
-    return 'bg-[#1F2937] hover:bg-[#334155] text-white'
-  } else if (props.color === 'current-page') {
-    return 'bg-[#6B7280] text-white'
-  } else {
-    return props.pressed
-      ? 'bg-green-dark disabled:bg-green text-white'
-      : 'bg-green hover:bg-green-dark disabled:bg-green text-white'
-  }
-})
+const pressedColorMapper = {
+  green: 'text-green bg-green/40',
+  blue: 'text-blue bg-blue/40',
+  indigo: 'text-white hover:bg-[#334155]/40',
+  gray: 'text-gray bg-gray/40',
+  // eslint-disable-next-line
+  'gray-dark': 'text-gray-dark bg-gray-dark/40'
+}
+
+const backgroundColorMapper = {
+  green: 'text-white bg-green hover:bg-green/80 active:bg-green/60',
+  blue: 'text-white bg-blue hover:bg-blue/80 active:bg-blue/60',
+  indigo: 'text-white hover:bg-[#334155]/80 active:bg-[#1F2937]/60',
+  gray: 'text-default bg-gray hover:bg-gray/80 active:bg-gray/60',
+  // eslint-disable-next-line
+  'gray-dark':
+    'text-white bg-gray-dark hover:bg-gray-dark/80 active:bg-gray-dark/60'
+}
+
+const pressedBackgroundColorMapper = {
+  green: 'text-white bg-green/60',
+  blue: 'text-white bg-blue/60',
+  indigo: 'text-white bg-[#1F2937]/60',
+  gray: 'text-default bg-gray/60',
+  // eslint-disable-next-line
+  'gray-dark': 'text-white bg-gray-dark/60'
+}
+
+const classNames = computed(() =>
+  props.outline
+    ? (props.pressed
+        ? pressedColorMapper[props.color || 'green']
+        : colorMapper[props.color || 'green'] + ' bg-transparent') +
+      ' border border-current'
+    : props.pressed
+    ? pressedBackgroundColorMapper[props.color || 'green']
+    : backgroundColorMapper[props.color || 'green']
+)
 </script>
 
 <template>
-  <button class="px-2 py-1" :class="[borderRadius, backgroundColor]">
+  <button class="rounded px-2 py-1 font-semibold" :class="classNames">
     <slot />
   </button>
 </template>
