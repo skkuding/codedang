@@ -28,7 +28,7 @@ import { Roles } from 'src/common/decorator/roles.decorator'
 
 @Controller('admin/contest')
 @UseGuards(RolesGuard)
-@Roles(Role.GroupAdmin)
+@Roles(Role.Manager)
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 

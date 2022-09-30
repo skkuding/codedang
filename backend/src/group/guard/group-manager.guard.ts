@@ -11,7 +11,7 @@ export class GroupManagerGuard implements CanActivate {
     const request: AuthenticatedRequest = context.switchToHttp().getRequest()
     const user: AuthenticatedUser = request.user
 
-    if (user.isSuperAdmin() || user.isSuperManager()) {
+    if (user.isAdmin() || user.isSuperAdmin()) {
       return true
     }
 

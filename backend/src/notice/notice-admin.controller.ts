@@ -25,7 +25,7 @@ import { RolesGuard } from 'src/user/guard/roles.guard'
 
 @Controller('admin/notice')
 @UseGuards(RolesGuard)
-@Roles(Role.GroupAdmin)
+@Roles(Role.Manager)
 export class NoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 

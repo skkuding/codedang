@@ -12,8 +12,8 @@ datasource db {
 
 enum Role {
   User
-  GroupAdmin
-  SuperManager
+  Manager
+  Admin
   SuperAdmin
 }
 
