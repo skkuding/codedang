@@ -22,7 +22,7 @@ import {
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
-import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
+import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
 
@@ -48,7 +48,7 @@ export class ContestAdminController {
 }
 
 @Controller('admin/group/:groupId/contest')
-@UseGuards(RolesGuard, GroupManagerGuard)
+@UseGuards(RolesGuard, GroupLeaderGuard)
 export class GroupContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 

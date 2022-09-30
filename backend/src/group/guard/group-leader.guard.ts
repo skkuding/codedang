@@ -4,7 +4,7 @@ import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.i
 import { GroupService } from '../group.service'
 
 @Injectable()
-export class GroupManagerGuard implements CanActivate {
+export class GroupLeaderGuard implements CanActivate {
   constructor(private readonly groupService: GroupService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -18,15 +18,15 @@ export class GroupManagerGuard implements CanActivate {
     const groupId: number = parseInt(request.params.groupId)
     const userId: number = request.user.id
 
-    const userGroupMemberShipInfo =
+    const userGroupMembershipInfo =
       await this.groupService.getUserGroupMembershipInfo(userId, groupId)
 
-    const isGroupManager: boolean =
-      userGroupMemberShipInfo &&
-      userGroupMemberShipInfo.isRegistered &&
-      userGroupMemberShipInfo.isGroupManager
+    const isGroupLeader: boolean =
+      userGroupMembershipInfo &&
+      userGroupMembershipInfo.isRegistered &&
+      userGroupMembershipInfo.isGroupLeader
 
-    if (isGroupManager) {
+    if (isGroupLeader) {
       return true
     }
     return false
