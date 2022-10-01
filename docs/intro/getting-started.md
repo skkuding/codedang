@@ -48,7 +48,7 @@ WSL에 clone 받는 방법은 아래 설명을 참고해주세요.
 
 ![Git Clone in VSCode](git-clone.png)
 
-### 4-1. WSL에 Clone 받기 (Windows만)
+#### 4-1. WSL에 Clone 받기 (Windows만)
 
 3번처럼 'Extensions' 탭을 열어 "remote wsl"을 검색창에 입력합니다.
 'Remote - WSL'을 선택하고 'Install' 버튼을 눌러 설치합니다.
@@ -75,7 +75,7 @@ Repository가 열리면 좌측 하단의 `><` 모양 아이콘을 누르고, "Re
 
 Container 세팅이 완료되면, 터미널을 열어(단축키 Ctrl+\`, ⌃\`) 명령어를 입력해 개발용 preview server를 시작합니다.
 
-#### Frontend
+#### 6-1. Frontend
 
 ```sh
 cd frontend
@@ -86,7 +86,7 @@ Story(component 문서)를 보고 싶으면, `pnpm story` 명령어를 입력해
 
 ![Frontend Preview](frontend-preview.png)
 
-#### Backend
+#### 6-2. Backend
 
 ```sh
 cd backend
@@ -144,6 +144,21 @@ GitPod이 자동으로 세팅을 마치면 [위의 Visual Studio Code와 같은 
 꼭 필요한 경우에만 사용해주세요!
 :::
 
-::: warning Work in Progress 🚧
-아직 작성 중입니다. 조금만 기다려주세요! 🙏
-:::
+### 1. 기본 도구 설치 (Git, WSL2(Windows), Docker)
+
+[위의 Visual Studio Code와 같은 방법](#_1-기본-도구-설치-git-wsl2-windows-docker)으로 기본 도구들을 설치해주세요.
+
+### 2. Node.js 설치
+
+```sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
+```
+
+```sh
+nvm install node
+nvm use node
+```
+
+### 3. setup script 실행
+
+### 4. Visual Studio Code 확장
