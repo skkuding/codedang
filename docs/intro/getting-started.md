@@ -43,12 +43,12 @@ GitHub에서 [skkuding/next](https://github.com/skkuding/next) repository를 clo
 ::: warning Windows 유저라면...
 Windows file system에 clone 받는 것보다 WSL file system에 clone 받는 것을 권장합니다.
 [파일 저장 시 인식하지 못하는 문제](https://github.com/microsoft/WSL/issues/4739)를 비롯한 여러 문제가 있습니다.
-WSL에 clone 받는 방법은 아래 셜명을 참고해주세요.
+WSL에 clone 받는 방법은 아래 설명을 참고해주세요.
 :::
 
 ![Git Clone in VSCode](git-clone.png)
 
-### 4-1. WSL에 Clone 받기
+### 4-1. WSL에 Clone 받기 (Windows만)
 
 3번처럼 'Extensions' 탭을 열어 "remote wsl"을 검색창에 입력합니다.
 'Remote - WSL'을 선택하고 'Install' 버튼을 눌러 설치합니다.
