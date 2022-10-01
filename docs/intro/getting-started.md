@@ -1,6 +1,11 @@
 # Getting Started!
 
 스꾸딩 팀과 함께 SKKU Coding Platform 개발을 시작하려면 아래 가이드를 따라주세요.
+가능한 개발 환경은 크게 세 가지가 있습니다.
+
+1. Visual Studio Code + Container
+2. GitPod
+3. Manual
 
 가장 권장하는 개발 환경은 Container 내에서 개발하는 Visual Studio Code이지만, 어려울 경우에는 GitPod을 이용하거나 직접 세팅할 수도 있습니다. 
 
@@ -94,9 +99,43 @@ pnpm start:dev
 
 ## GitPod
 
-::: warning Work in Progress 🚧
-아직 작성 중입니다. 조금만 기다려주세요! 🙏
+컴퓨터의 사양이 부족하거나 로컬 개발 환경이 제한적인 경우 브라우저로 원격 개발을 하는 GitPod이 좋습니다.
+한 달에 50시간까지 무료고, 학생 인증을 하면 한 달에 9달러로 제한 없이 사용할 수 있습니다.
+아래 버튼을 눌러 바로 시작하거나 아래 설명을 따르면 됩니다.
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/skkuding/next)
+
+### 1. GitHub Repository 열기
+
+브라우저에서 [skkuding/next](https://github.com/skkuding/next) repository를 엽니다.
+
+> TODO: img
+
+### 2. URL 입력
+
+GitHub 전체 URL의 앞에 `gitpod.io/#`을 입력하고 해당 주소로 접속합니다.  
+예: `gitpod.io/#https://github.com/skkuding/next`
+
+::: tip
+GitPod은 branch, pull request, commit 등의 context 별로 workspace를 생성하는 것도 가능합니다!
+
+- Branch `123-feat-name`의 코드로 workspace를 생성하려면: `gitpod.io/#https://github.com/skkuding/next/tree/123-feat-name`
+- PR #123의 코드로 workspace를 생성하려면: `gitpod.io/#https://github.com/skkuding/next/pull/123`
+
+더 자세한 내용은 [공식 문서](https://www.gitpod.io/docs/introduction/learn-gitpod/context-url)에서 확인해주세요.
 :::
+
+> TODO: img
+
+### 3. GitHub 계정 연결
+
+화면에 나오는 대로 GitHub 계정을 GitPod에 연결합니다.
+
+> TODO: img
+
+### 4. Preview server 열기
+
+GitPod이 자동으로 세팅을 마치면 [위의 Visual Studio Code와 같은 방법](#_6-preview-server-열기)으로 preview server를 열 수 있습니다.
 
 ## Manually
 
