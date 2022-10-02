@@ -5,5 +5,6 @@ import PageSubtitle from './PageSubtitle.vue'
 <template>
   <Story>
     <PageSubtitle text="Lorem Ipsum is simply dummy text" />
+    <PageSubtitle color="white" text="White Lorem Ipsum is simply dummy text" />
   </Story>
 </template>

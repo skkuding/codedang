@@ -1,9 +1,11 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   text: string
+  color?: string
 }>()
+const className = props.color == 'white' ? 'text-white' : 'text-text-subtitle'
 </script>
 
 <template>
-  <div class="text-text-subtitle text-xl font-bold">{{ text }}</div>
+  <div :class="className" class="text-xl font-bold">{{ text }}</div>
 </template>
