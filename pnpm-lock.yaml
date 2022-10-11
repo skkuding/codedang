@@ -143,7 +143,7 @@ importers:
       '@vueuse/core': ^9.3.0
       '@vueuse/math': ^9.3.0
       autoprefixer: ^10.4.12
-      axios: ^0.27.2
+      axios: ^1.1.2
       histoire: ^0.10.7
       nprogress: 0.2.0
       pinia: ^2.0.22
@@ -163,7 +163,7 @@ importers:
       '@vueuse/components': 9.3.0_vue@3.2.39
       '@vueuse/core': 9.3.0_vue@3.2.39
       '@vueuse/math': 9.3.0_vue@3.2.39
-      axios: 0.27.2
+      axios: 1.1.2
       nprogress: 0.2.0
       pinia: 2.0.22_arz4dztosvwy2ghjrlh2wdhejm
       vue: 3.2.39
@@ -2719,11 +2719,12 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /axios/0.27.2:
-    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
+  /axios/1.1.2:
+    resolution: {integrity: sha512-bznQyETwElsXl2RK7HLLwb5GPpOLlycxHCtrpDR/4RqqBzjARaOTo3jz4IgtntWUYee7Ne4S8UHd92VCuzPaWA==}
     dependencies:
       follow-redirects: 1.15.1
       form-data: 4.0.0
+      proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
     dev: false
