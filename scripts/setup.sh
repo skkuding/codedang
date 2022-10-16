@@ -39,10 +39,14 @@ fi
 jwt_secret=$(echo -n head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum)
 echo "JWT_SECRET=$jwt_secret" >> backend/.env
 
-# Install pnpm
-pnpm --version || sudo corepack enable
-corepack prepare pnpm@7.2.1 --activate
-pnpm install
+# Install pnpm if not installed
+pnpm --version || curl -fsSL https://get.pnpm.io/install.sh | bash -
+
+# Install Node.js v18
+bash -i -c 'pnpm env use --global 18'
+
+# Install Node.js packages
+bash -i -c 'pnpm install'
 
 # Install lefthook for git hook
 npx lefthook install
