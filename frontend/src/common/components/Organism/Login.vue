@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useAuthStore } from '@/common/store/auth'
 import SymbolLogo from '../Atom/SymbolLogo.vue'
 import Button from '../Atom/Button.vue'
 import InputItem from '../Atom/InputItem.vue'
 
-defineEmits<{
-  (e: 'to', value: 'login' | 'signup' | 'password'): void
+const emit = defineEmits<{
+  (e: 'to', value: 'login' | 'signup' | 'password' | 'close'): void
 }>()
 
 const username = ref('')
 const password = ref('')
+
+const auth = useAuthStore()
+const login = async () => {
+  await auth.login(username.value, password.value)
+  emit('to', 'close')
+}
 </script>
 
 <template>
@@ -20,7 +27,7 @@ const password = ref('')
       <br />
       Coding Platform
     </h1>
-    <form class="mb-8 flex w-60 flex-col gap-4" @submit.prevent>
+    <form class="mb-8 flex w-60 flex-col gap-4" @submit.prevent="login">
       <InputItem v-model="username" placeholder="Username" class="rounded-md" />
       <InputItem
         v-model="password"
