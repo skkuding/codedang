@@ -14,6 +14,8 @@ const { x, y, style } = useDraggable(el, {
   initialValue: { x: 500, y: 60 }
 })
 
+const from = ref({ x: 0, y: 0 })
+
 const noticeList: object[] = [
   {
     title:
@@ -49,7 +51,19 @@ const date = new Date().toLocaleString()
     ref="el"
     :style="style"
     class="item bg-gray-dark fixed z-10 h-[54px] w-[54px] rounded-full shadow-lg"
-    @click="visible = !visible"
+    @pointerdown="
+      (e) => {
+        from.x = e.pageX
+        from.y = e.pageY
+      }
+    "
+    @pointerup="
+      (e) => {
+        if (from.x === e.pageX && from.y === e.pageY) {
+          visible = !visible
+        }
+      }
+    "
   >
     <div
       class="bg-red absolute top-0.5 right-0.5 h-[15px] w-[15px] rounded-full text-xs font-bold text-white"
@@ -60,7 +74,7 @@ const date = new Date().toLocaleString()
       <IconSoundFilled class="hover:text-red text-xl text-white" />
     </div>
   </button>
-  //창
+
   <div
     v-if="visible"
     class="bg-white-light border-gray fixed m-auto h-96 w-1/2 overflow-auto rounded-md border border-solid py-2 px-6"
