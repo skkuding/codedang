@@ -5,9 +5,18 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Backend (Nest.js)",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "start:debug"],
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal"
+    },
+    {
       "type": "chrome",
       "request": "launch",
-      "name": "Launch Chrome (Vue.js)",
+      "name": "Frontend (Vue.js)",
       "url": "http://localhost:5173",
       "webRoot": "${workspaceFolder}/frontend/src"
     }
