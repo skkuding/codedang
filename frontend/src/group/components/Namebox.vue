@@ -20,12 +20,14 @@ const isCreator = (id: number) => {
 </script>
 
 <template>
-  <PageSubtitle :text="title" />
-  <div
-    class="border-gray grid grid-cols-3 gap-y-3.5 rounded-md border p-6 lg:grid-cols-5"
-  >
-    <div v-for="user in userList" :key="user.id" :class="isCreator(user.id)">
-      {{ user.username + '(' + user.studentId + ')' }}
+  <div>
+    <PageSubtitle :text="title" />
+    <div
+      class="border-gray grid grid-cols-1 gap-y-3.5 rounded-md border p-6 text-center sm:grid-cols-3 lg:grid-cols-5"
+    >
+      <div v-for="user in userList" :key="user.id" :class="isCreator(user.id)">
+        {{ user.username + '(' + user.studentId + ')' }}
+      </div>
     </div>
   </div>
 </template>
