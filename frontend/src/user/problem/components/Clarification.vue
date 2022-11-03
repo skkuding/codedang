@@ -4,15 +4,25 @@ import IconSoundFilled from '~icons/ant-design/sound-filled'
 import { useDraggable } from '@vueuse/core'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import Button from '@/common/components/Atom/Button.vue'
+import { useWindowSize } from '@vueuse/core'
 
-const visible = ref<boolean>(false)
 const el = ref<HTMLElement | null>(null)
 
-const { style } = useDraggable(el, {
-  initialValue: { x: 500, y: 60 }
-})
+const date = new Date().toLocaleString()
+
+const visible = ref<boolean>(false)
 
 const from = ref({ x: 0, y: 0 })
+
+const { width, height } = useWindowSize()
+const window = {
+  width: width,
+  height: height
+}
+
+const { x, y, style } = useDraggable(el, {
+  initialValue: { x: 500, y: 60 }
+})
 
 const noticeList = [
   {
@@ -40,8 +50,6 @@ const noticeList = [
       '무슨무슨무슨 버그가 발견되었으니 이렇게 저렇게 고쳐서 어떻게 해결하시길 바랍니다.'
   }
 ]
-
-const date = new Date().toLocaleString()
 </script>
 
 <template>
@@ -60,6 +68,18 @@ const date = new Date().toLocaleString()
         if (from.x === e.pageX && from.y === e.pageY) {
           visible = !visible
         }
+        if (x > window.width.value - 54) {
+          x = window.width.value - 54
+        }
+        if (x < 0) {
+          x = 0
+        }
+        if (y > window.height.value - 54) {
+          y = window.height.value - 54
+        }
+        if (y < 0) {
+          y = 0
+        }
       }
     "
   >
@@ -72,7 +92,6 @@ const date = new Date().toLocaleString()
       <IconSoundFilled class="hover:text-red text-xl text-white" />
     </div>
   </button>
-
   <div
     v-if="visible"
     class="bg-white-light border-gray fixed m-auto h-96 w-1/2 overflow-auto rounded-md border border-solid py-2 px-6"
