@@ -1,15 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import Sidebar from '../components/Organism/Sidebar.vue'
-
-const group = ref(false)
+import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 </script>
 
 <template>
   <div class="flex w-full">
-    <Sidebar :group="group" class="flex-none" />
-    <main class="h-screen flex-1 overflow-auto">
-      <router-view @toggle-group="(value: boolean) => (group = value)" />
+    <Sidebar
+      :group="$router.currentRoute.value.meta.group as string"
+      class="flex-none"
+    />
+    <main class="h-screen flex-1 overflow-auto p-20">
+      <div v-if="$router.currentRoute.value.meta.group">
+        <PageSubtitle
+          class="text-end uppercase"
+          :text="$router.currentRoute.value.meta.group as string"
+        />
+        <hr class="mt-2 mb-10" />
+      </div>
+      <router-view />
     </main>
   </div>
 </template>

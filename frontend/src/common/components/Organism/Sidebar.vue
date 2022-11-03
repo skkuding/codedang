@@ -12,7 +12,7 @@ import CodingPlatformLogo from '../Atom/CodingPlatformLogo.vue'
 
 // TODO: get group name and color
 const props = defineProps<{
-  group?: boolean
+  group?: string
   color?: 'blue' | 'gray' | 'white'
 }>()
 
@@ -24,20 +24,20 @@ const colorMapper = {
 }
 
 const commonItems = [
-  { to: '/notice', name: 'Notice', icon: IconFile },
-  { to: '/contest', name: 'Contest', icon: IconTrophy },
-  { to: '/workbook', name: 'Workbook', icon: IconBook },
-  { to: '/problem', name: 'Problem', icon: IconBrain },
-  { to: '/pool', name: 'Problem Pool', icon: IconBox }
+  { to: 'notice', name: 'Notice', icon: IconFile },
+  { to: 'contest', name: 'Contest', icon: IconTrophy },
+  { to: 'workbook', name: 'Workbook', icon: IconBook },
+  { to: 'problem', name: 'Problem', icon: IconBrain },
+  { to: 'pool', name: 'Problem Pool', icon: IconBox }
 ]
 
 const items = computed(() =>
   props.group
     ? [
-        { to: '/', name: 'SKKUDING', icon: IconBiHouse },
+        { to: 'home', name: props.group.toUpperCase(), icon: IconBiHouse },
         ...commonItems,
-        { to: '/member', name: 'Member', icon: IconUser },
-        { to: '/submission', name: 'Submission', icon: IconCode }
+        { to: 'member', name: 'Member', icon: IconUser },
+        { to: 'submission', name: 'Submission', icon: IconCode }
       ]
     : commonItems
 )
@@ -55,6 +55,7 @@ const items = computed(() =>
         class="flex items-center p-2 pl-10 font-medium hover:shadow"
         :active-class="colorMapper[color || 'default'] + ' border-l-8 !pl-8'"
         :to="to"
+        append
       >
         <component :is="icon" class="mr-2 h-4" />
         {{ name }}

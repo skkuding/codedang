@@ -8,7 +8,7 @@ import Sidebar from './Sidebar.vue'
       <Sidebar />
     </Variant>
     <Variant title="Group">
-      <Sidebar group color="blue" />
+      <Sidebar group="SKKUDING" color="blue" />
     </Variant>
   </Story>
 </template>
