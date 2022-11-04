@@ -5,6 +5,7 @@ import { useDraggable } from '@vueuse/core'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import { useWindowSize } from '@vueuse/core'
+import { watch } from 'vue'
 
 const el = ref<HTMLElement | null>(null)
 
@@ -23,6 +24,32 @@ const window = {
 const { x, y, style } = useDraggable(el, {
   initialValue: { x: 500, y: 60 }
 })
+
+watch([x, y], () => {
+  if (x.value > window.width.value - 54) {
+    x.value = window.width.value - 54
+  }
+  if (window.width.value - 54 < x.value) {
+    x.value = window.width.value - 54
+  }
+  if (x.value < 0) {
+    x.value = 0
+  }
+  if (y.value > window.height.value - 54) {
+    y.value = window.height.value - 54
+  }
+  if (y.value < 0) {
+    y.value = 0
+  }
+})
+
+// (vue) watch
+
+// (vueuse) useWindowSize
+// https://vueuse.org/core/usewindowsize/
+
+// (vueuse/math) useClamp
+// https://vueuse.org/math/useClamp/
 
 const noticeList = [
   {
@@ -53,6 +80,9 @@ const noticeList = [
 </script>
 
 <template>
+  {{ yo }}
+  {{ x }}
+  {{ window.width }}
   <button
     ref="el"
     :style="style"
@@ -67,18 +97,6 @@ const noticeList = [
       (e) => {
         if (from.x === e.pageX && from.y === e.pageY) {
           visible = !visible
-        }
-        if (x > window.width.value - 54) {
-          x = window.width.value - 54
-        }
-        if (x < 0) {
-          x = 0
-        }
-        if (y > window.height.value - 54) {
-          y = window.height.value - 54
-        }
-        if (y < 0) {
-          y = 0
         }
       }
     "
