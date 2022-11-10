@@ -38,34 +38,39 @@ const editor = useEditor({
       <ButtonGroup class="mx-2 mt-2 inline-block">
         <Button
           :pressed="editor?.isActive('bold')"
-          color="white"
+          outline
+          color="gray-dark"
           @click="editor?.chain().focus().toggleBold().run()"
         >
           <IconBold />
         </Button>
         <Button
           :pressed="editor?.isActive('italic')"
-          color="white"
+          outline
+          color="gray-dark"
           @click="editor?.chain().focus().toggleItalic().run()"
         >
           <IconItalic />
         </Button>
         <Button
           :pressed="editor?.isActive('strike')"
-          color="white"
+          outline
+          color="gray-dark"
           @click="editor?.chain().focus().toggleStrike().run()"
         >
           <IconStrikethrough />
         </Button>
         <Button
           :pressed="editor?.isActive('code')"
-          color="white"
+          outline
+          color="gray-dark"
           @click="editor?.chain().focus().toggleCode().run()"
         >
           <IconCode />
         </Button>
         <Button
-          color="white"
+          outline
+          color="gray-dark"
           class="p-0.5"
           @click="editor?.chain().focus().unsetAllMarks().run()"
         >
@@ -75,42 +80,48 @@ const editor = useEditor({
       <ButtonGroup class="mx-2 mt-2 inline-block">
         <Button
           :pressed="editor?.isActive('heading', { level: 1 })"
-          color="white"
+          outline
+          color="gray-dark"
           @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"
         >
           <IconH1 />
         </Button>
         <Button
           :pressed="editor?.isActive('heading', { level: 2 })"
-          color="white"
+          outline
+          color="gray-dark"
           @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
         >
           <IconH2 />
         </Button>
         <Button
           :pressed="editor?.isActive('paragraph')"
-          color="white"
+          outline
+          color="gray-dark"
           @click="editor?.chain().focus().setParagraph().run()"
         >
           <IconParagraph />
         </Button>
         <Button
           :pressed="editor?.isActive('bulletList')"
-          color="white"
+          outline
+          color="gray-dark"
           @click="editor?.chain().focus().toggleBulletList().run()"
         >
           <IconListUl />
         </Button>
         <Button
           :pressed="editor?.isActive('orderedList')"
-          color="white"
+          outline
+          color="gray-dark"
           @click="editor?.chain().focus().toggleOrderedList().run()"
         >
           <IconList />
         </Button>
         <Button
           :pressed="editor?.isActive('codeBlock')"
-          color="white"
+          outline
+          color="gray-dark"
           @click="editor?.chain().focus().toggleCodeBlock().run()"
         >
           <IconCodeSquare />
@@ -118,30 +129,41 @@ const editor = useEditor({
       </ButtonGroup>
       <ButtonGroup class="mx-2 mt-2 inline-block">
         <Button
-          color="white"
+          outline
+          color="gray-dark"
           @click="editor?.chain().focus().setHardBreak().run()"
         >
           <IconReturn />
         </Button>
         <Button
           :pressed="editor?.isActive('blockquote')"
-          color="white"
+          outline
+          color="gray-dark"
           @click="editor?.chain().focus().toggleBlockquote().run()"
         >
           <IconRoundBlockQuote />
         </Button>
         <Button
-          color="white"
+          outline
+          color="gray-dark"
           @click="editor?.chain().focus().setHorizontalRule().run()"
         >
           <IconHr />
         </Button>
       </ButtonGroup>
       <ButtonGroup class="mx-2 mt-2 inline-block">
-        <Button color="white" @click="editor?.chain().focus().undo().run()">
+        <Button
+          outline
+          color="gray-dark"
+          @click="editor?.chain().focus().undo().run()"
+        >
           <IconArrowCounterClockwise />
         </Button>
-        <Button color="white" @click="editor?.chain().focus().redo().run()">
+        <Button
+          outline
+          color="gray-dark"
+          @click="editor?.chain().focus().redo().run()"
+        >
           <IconArrowClockwise />
         </Button>
       </ButtonGroup>
