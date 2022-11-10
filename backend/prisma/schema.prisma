@@ -72,7 +72,7 @@ model Group {
   id             Int      @id @default(autoincrement())
   createdBy      User     @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById    Int      @map("created_by_id")
-  groupName      String   @map("group_name")
+  groupName      String   @unique @map("group_name")
   private        Boolean  @default(false)
   // 생성시 자동 발급
   invitationCode String   @map("invitation_code")

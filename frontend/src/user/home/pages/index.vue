@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import Card from '@/common/components/Molecule/Card.vue'
-import Carousel from '../components/Carousel.vue'
 import IconInfo from '~icons/fa6-solid/circle-info'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
 import IconMedal from '~icons/fa6-solid/medal'
 import IconEllipsis from '~icons/fa6-solid/ellipsis'
 import IconCalendar from '~icons/fa6-solid/calendar'
-import IconMenu from '~icons/fa6-solid/bars'
 
 const noticeItems = [
   {
@@ -41,45 +39,37 @@ const contestItems = [
     state: 'prearranged'
   }
 ]
-
-const slides = [
-  'https://picsum.photos/id/1032/900/400',
-  'https://picsum.photos/id/1033/900/400',
-  'https://picsum.photos/id/1037/900/400',
-  'https://picsum.photos/id/1035/900/400',
-  'https://picsum.photos/id/1036/900/400'
-]
 </script>
 
 <template>
-  <main>
-    <Carousel :slides="slides" />
-    <div
-      class="my-20 flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
-    >
-      <Card href="/notice" :items="noticeItems" class="w-[36rem] max-w-full">
-        <template #title>
-          <IconInfo />
-          <h2 class="ml-2">Notice</h2>
-        </template>
+  <div
+    class="my-20 flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
+  >
+    <Card href="/notice" :items="noticeItems" class="w-[36rem] max-w-full">
+      <template #title>
+        <IconInfo />
+        <h2 class="ml-2">Notice</h2>
+      </template>
 
-        <template #icon>
-          <IconAngleRight />
-        </template>
-      </Card>
-      <Card href="/contest" :items="contestItems" class="w-[36rem] max-w-full">
-        <template #title>
-          <IconMedal />
-          <h2 class="ml-2">Current/Upcoming Contests</h2>
-        </template>
-        <template #titleIcon>
-          <IconMenu />
-        </template>
-        <template #icon="item">
-          <IconEllipsis v-if="item.item === 'ongoing'" />
-          <IconCalendar v-else />
-        </template>
-      </Card>
-    </div>
-  </main>
+      <template #icon>
+        <IconAngleRight />
+      </template>
+    </Card>
+    <Card href="/contest" :items="contestItems" class="w-[36rem] max-w-full">
+      <template #title>
+        <IconMedal />
+        <h2 class="ml-2">Current/Upcoming Contests</h2>
+      </template>
+
+      <template #icon="item">
+        <IconEllipsis v-if="item.item === 'ongoing'" />
+        <IconCalendar v-else />
+      </template>
+    </Card>
+  </div>
 </template>
+
+<route lang="yaml">
+meta:
+  home: true
+</route>
