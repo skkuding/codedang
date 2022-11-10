@@ -3,8 +3,6 @@ import Toast from '@/common/components/Atom/Toast.vue'
 </script>
 
 <template>
-  <div>
-    <router-view />
-    <Toast />
-  </div>
+  <router-view />
+  <Toast />
 </template>
