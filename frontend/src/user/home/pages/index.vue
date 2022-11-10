@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import Card from '../components/Card.vue'
+import Card from '@/common/components/Molecule/Card.vue'
 import Carousel from '../components/Carousel.vue'
 import IconInfo from '~icons/fa6-solid/circle-info'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
 import IconMedal from '~icons/fa6-solid/medal'
 import IconEllipsis from '~icons/fa6-solid/ellipsis'
 import IconCalendar from '~icons/fa6-solid/calendar'
+import IconMenu from '~icons/fa6-solid/bars'
 
 const noticeItems = [
   {
@@ -71,7 +72,9 @@ const slides = [
           <IconMedal />
           <h2 class="ml-2">Current/Upcoming Contests</h2>
         </template>
-
+        <template #titleIcon>
+          <IconMenu />
+        </template>
         <template #icon="item">
           <IconEllipsis v-if="item.item === 'ongoing'" />
           <IconCalendar v-else />

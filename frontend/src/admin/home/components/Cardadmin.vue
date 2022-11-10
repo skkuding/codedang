@@ -11,11 +11,11 @@ defineProps<{
 
 <template>
   <section class="border-gray/25 w-full rounded-lg border-2 p-5 shadow-xl">
-    <div class="mb-4 flex justify-between text-xl">
-      <span class="flex items-center">
+    <div class="mb-4 flex justify-between">
+      <span class="flex items-center text-xl">
         <slot name="title" />
       </span>
-      <div class="flex">
+      <div class="flex items-center">
         <BiLock class="text-black" />
         private
       </div>

@@ -1,39 +1,67 @@
 <script setup lang="ts">
+import Card from '@/common/components/Molecule/Card.vue'
 import Button from '@/common/components/Atom/Button.vue'
-import Sidebar from '@/admin/component/Sidebar.vue'
+import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { computed, ref } from 'vue'
+import PageTitle from '@/common/components/Atom/PageTitle.vue'
+import IconPlus from '~icons/fa6-solid/plus'
+import Sidebar from '../../component/Sidebar.vue'
 
-const groupItems1 = [
+interface Field {
+  key: string
+  label?: string
+}
+interface CardProps {
+  title: string
+  date?: string
+  href: string
+  state?: string
+}
+interface GroupItem {
+  href: string
+  title: string
+  items: CardProps[]
+}
+type Type = Record<string, string>
+const groupItems: GroupItem[] = [
   {
-    title: 'npc 초급반 학생들이 있는 곳',
-    href: '/'
+    href: '/',
+    title: '초급반',
+    items: [
+      {
+        title: 'npc 초급반 학생들이 있는 곳',
+        state: 'IconAngleRight',
+        href: '/'
+      },
+      { title: '20', state: 'IconAngleRight', href: '/' }
+    ]
   },
   {
-    title: 'member: 20명',
-    href: '/'
-  }
-]
-const groupItems2 = [
-  {
-    title: 'npc 중급반 학생들이 있는 곳',
-    href: '/'
+    href: '/',
+    title: '중급반',
+    items: [
+      {
+        title: 'npc 중급반 학생들이 있는 곳',
+        state: 'IconAngleRight',
+        href: '/'
+      },
+      { title: '20', state: 'IconAngleRight', href: '/' }
+    ]
   },
   {
-    title: 'member: 23명',
-    href: '/'
+    href: '/',
+    title: '고급반',
+    items: [
+      {
+        title: 'npc 고급반 학생들이 있는 곳',
+        state: 'IconAngleRight',
+        href: '/'
+      },
+      { title: '20', state: 'IconAngleRight', href: '/' }
+    ]
   }
 ]
-const groupItems3 = [
-  {
-    title: 'npc 고급반 학생들이 있는 곳',
-    href: '/'
-  },
-  {
-    title: 'member: 20명',
-    href: '/'
-  }
-]
-const contestFields = [
+const contestFields: Field[] = [
   { key: 'index', label: '#' },
   { key: 'title' },
   { key: 'group' },
@@ -75,13 +103,13 @@ const contestItems = [
     type: 'ACM'
   }
 ]
-const workBookFields = [
+const workBookFields: Field[] = [
   { key: 'index', label: '#' },
   { key: 'title' },
   { key: 'group' },
   { key: 'period' }
 ]
-const workBookItems = [
+const workBookItems: Type[] = [
   {
     id: '1',
     index: '1',
@@ -126,13 +154,13 @@ const showContest = ref(contestItems)
 const showWorkBook = ref(workBookItems)
 const currentContestP = ref(1)
 const currentWorkBookP = ref(1)
-let curContestItems = computed(() =>
+const curContestItems = computed(() =>
   showContest.value.slice(
     (currentContestP.value - 1) * perPage,
     currentContestP.value * perPage
   )
 )
-let curWorkBookItems = computed(() =>
+const curWorkBookItems = computed(() =>
   showWorkBook.value.slice(
     (currentWorkBookP.value - 1) * perPage,
     currentWorkBookP.value * perPage
@@ -147,32 +175,46 @@ const changeWorkBook = (page: number) => {
 </script>
 
 <template>
-  <Sidebar class="fixed left-0"></Sidebar>
-  <!-- <Card href="#" :items="groupItems1" class="ml-20 w-1/3">
-    <template #title>NPC 초급반</template>
-  </Card>
-
-  <Card href="#" :items="groupItems2" class="ml-80 w-1/3">
-    <template #title>NPC 중급반</template>
-  </Card>
-
-  <Card href="#" :items="groupItems3" class="ml-20 w-1/3">
-    <template #title>NPC 고급반</template>
-  </Card> -->
+  <Sidebar />
+  <div class="mt-10 mb-4 flex justify-between">
+    <PageTitle text="Group List" />
+    <Button
+      class="flex items-center gap-1"
+      color="green"
+      @click="
+        () => {
+          $router.push('/')
+        }
+      "
+    >
+      <IconPlus />
+      Create
+    </Button>
+  </div>
+  <div class="flex flex-wrap justify-between gap-8">
+    <div v-for="group in groupItems" :key="group.title">
+      <Card :items="group.items" href="/group" class="w-full md:w-[48.5%]">
+        <template #title>{{ group.title }}</template>
+      </Card>
+    </div>
+  </div>
+  <PageTitle text="Ongoing Contest" class="mt-10 mb-4" />
   <PaginationTable
-    noSearchBar
+    no-search-bar
     :fields="contestFields"
     :items="curContestItems"
     :number-of-pages="pageNumContest"
-    @row-clicked="(data) => $router.push('contest/' + data.id)"
+    @row-clicked="(data: Type) => $router.push('/contest/' + data.id)"
     @change-page="changeContest"
   ></PaginationTable>
+  <PageTitle text="Ongoing Workbook" class="mt-10 mb-4" />
   <PaginationTable
-    noSearchBar
+    class="mb-4"
+    no-search-bar
     :fields="workBookFields"
     :items="curWorkBookItems"
     :number-of-pages="pageNumWorkBook"
-    @row-clicked="(data) => $router.push('workbook/' + data.id)"
+    @row-clicked="(data: Type) => $router.push('workbook/' + data.id)"
     @change-page="changeWorkBook"
   ></PaginationTable>
 </template>

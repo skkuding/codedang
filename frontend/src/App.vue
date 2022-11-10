@@ -5,10 +5,8 @@ import Header from './common/components/Organism/Header.vue'
 </script>
 
 <template>
-  <Header />
   <div class="mx-auto w-4/5 max-w-7xl">
     <router-view />
     <Toast />
   </div>
-  <Footer />
 </template>

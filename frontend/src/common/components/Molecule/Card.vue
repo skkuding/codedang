@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import IconMenu from '~icons/fa6-solid/bars'
-
 defineProps<{
   href: string
   items: {
     title: string
-    date: string
+    date?: string
     href: string
     state?: string
   }[]
@@ -22,7 +20,7 @@ defineProps<{
         :to="href"
         class="cursor-pointer hover:opacity-50 active:opacity-30"
       >
-        <IconMenu />
+        <slot name="titleIcon" />
       </router-link>
     </div>
     <div class="flex flex-col gap-1">
