@@ -40,7 +40,7 @@ const iconMapper = {
 
 <template>
   <section
-    class="pointer-events-none fixed inset-x-0 top-0 z-10 grid justify-items-center gap-2 pt-4"
+    class="pointer-events-none fixed inset-x-0 top-0 z-50 grid justify-items-center gap-2 pt-4"
   >
     <transition-group
       move-class="transition-all duration-300"
