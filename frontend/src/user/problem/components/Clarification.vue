@@ -105,6 +105,8 @@ const noticeList = [
       <div class="mr-auto w-72">{{ item.title }}</div>
       <div class="m-auto hidden md:inline-block">{{ date }}</div>
     </div>
-    <Button class="w-full" color="white" @click="visible = false">Close</Button>
+    <Button class="w-full" outline color="gray-dark" @click="visible = false">
+      Close
+    </Button>
   </div>
 </template>
