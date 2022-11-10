@@ -7,6 +7,10 @@ import IconSolidPenToSquare from '~icons/fa6-solid/pen-to-square'
 import IconTrashCan from '~icons/fa6-solid/trash-can'
 import IconCheck from '~icons/fa6-solid/check'
 import { ref } from 'vue'
+import { Chart, registerables } from 'chart.js'
+import { Bar, Radar } from 'vue-chartjs'
+
+Chart.register(...registerables)
 
 const colorMapper = (level: number) => {
   switch (level) {
@@ -101,6 +105,72 @@ const sharedGroup = ref([
   }
 ])
 
+const radarData = {
+  labels: [
+    'DFS',
+    'Hash',
+    'Sorting',
+    'BFS',
+    'Greedy',
+    'Brute-Force',
+    'Dynamic Programming'
+  ],
+  datasets: [
+    {
+      label: 'tags',
+      borderColor: '#8DC63F',
+      data: [65, 20, 57, 55, 80, 91, 59]
+    }
+  ]
+}
+
+const radarOptions = {
+  plugins: {
+    legend: {
+      display: false
+    }
+  }
+}
+
+const filterByLevel = (level: number) => {
+  return problems.value.filter((x) => x.level === level).length
+}
+
+const barData = {
+  labels: Array.from({ length: 7 }, (v, i) => 'Level' + (i + 1)),
+  datasets: [
+    {
+      data: Array.from({ length: 7 }, (v, i) => filterByLevel(i + 1)),
+      backgroundColor: [
+        '#CC99C9',
+        '#115A81',
+        '#9EC1CF',
+        '#B6EB8D',
+        '#F3EC53',
+        '#FEB144',
+        '#FF6663'
+      ]
+    }
+  ]
+}
+
+const barOptions = {
+  scales: {
+    y: {
+      min: 0,
+      max: problems.value.length,
+      ticks: {
+        stepSize: 1
+      }
+    }
+  },
+  plugins: {
+    legend: {
+      display: false
+    }
+  }
+}
+
 const title = ref('그래프 문제 set')
 const editTitle = ref(false)
 </script>
@@ -125,7 +195,15 @@ const editTitle = ref(false)
       <IconCheck />
     </Button>
   </div>
-  <div class="h-80 w-full"></div>
+
+  <div class="flex items-center justify-center">
+    <div class="w-1/2">
+      <Radar :chart-data="radarData" :chart-options="radarOptions" />
+    </div>
+    <div class="w-1/2">
+      <Bar :chart-data="barData" :chart-options="barOptions" />
+    </div>
+  </div>
 
   <div class="mt-10 flex">
     <PageTitle text="Problem List" />
