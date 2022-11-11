@@ -21,6 +21,7 @@ const dialog = useDialog()
       Success
     </Button>
     <Button
+      color="gray-dark"
       @click="
         dialog.confirm({
           title: 'Continue?',
@@ -29,11 +30,11 @@ const dialog = useDialog()
           no: 'Not really'
         })
       "
-      color="gray-dark"
     >
       Confirm
     </Button>
     <Button
+      color="red"
       @click="
         dialog.error({
           title: '이런! Oh no!',
@@ -42,7 +43,6 @@ const dialog = useDialog()
           yes: 'What?'
         })
       "
-      color="red"
     >
       Error
     </Button>

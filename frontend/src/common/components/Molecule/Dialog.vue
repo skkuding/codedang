@@ -37,10 +37,10 @@ const handler = (action: 'yes' | 'no') => {
         <div class="my-4">{{ dialogInfo?.content }}</div>
         <div class="mt-8 flex justify-end gap-2">
           <template v-if="dialogInfo?.type === 'confirm'">
-            <Button @click="handler('yes')" color="gray-dark">
+            <Button color="gray-dark" @click="handler('yes')">
               {{ dialogInfo?.yes || 'OK' }}
             </Button>
-            <Button @click="handler('no')" color="gray-dark">
+            <Button color="gray-dark" @click="handler('no')">
               {{ dialogInfo?.no || 'Cancel' }}
             </Button>
           </template>
@@ -50,7 +50,7 @@ const handler = (action: 'yes' | 'no') => {
             </Button>
           </template>
           <template v-else-if="dialogInfo?.type === 'error'">
-            <Button @click="handler('yes')" color="red">
+            <Button color="red" @click="handler('yes')">
               {{ dialogInfo?.yes || 'OK' }}
             </Button>
           </template>
