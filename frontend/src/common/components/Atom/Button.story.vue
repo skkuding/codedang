@@ -9,13 +9,22 @@ import Button from './Button.vue'
       <Button color="blue">Button</Button>
       <Button color="gray">Button</Button>
       <Button color="gray-dark">Button</Button>
-      <Button color="white">Button</Button>
     </Variant>
-    <Variant title="Rounded">
-      <Button rounded>Button</Button>
+    <Variant title="Outline">
+      <Button outline color="green">Button</Button>
+      <Button outline color="blue">Button</Button>
+      <Button outline color="gray">Button</Button>
+      <Button outline color="gray-dark">Button</Button>
     </Variant>
     <Variant title="Pressed">
-      <Button pressed>Button</Button>
+      <Button pressed color="green">Button</Button>
+      <Button pressed color="blue">Button</Button>
+      <Button pressed color="gray">Button</Button>
+      <Button pressed color="gray-dark">Button</Button>
+      <Button pressed outline color="green">Button</Button>
+      <Button pressed outline color="blue">Button</Button>
+      <Button pressed outline color="gray">Button</Button>
+      <Button pressed outline color="gray-dark">Button</Button>
     </Variant>
   </Story>
 </template>

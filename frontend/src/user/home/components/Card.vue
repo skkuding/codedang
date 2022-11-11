@@ -13,7 +13,7 @@ defineProps<{
 </script>
 
 <template>
-  <section class="w-full rounded-lg p-5 shadow-xl">
+  <section class="border-gray/25 w-full rounded-lg border-2 p-5 shadow-xl">
     <div class="mb-4 flex justify-between text-xl font-bold">
       <span class="flex items-center">
         <slot name="title" />

@@ -10,11 +10,13 @@ import IconUserGear from '~icons/fa6-solid/user-gear'
 import IconSliders from '~icons/fa6-solid/sliders'
 import IconArrowRightFromBracket from '~icons/fa6-solid/arrow-right-from-bracket'
 import Button from '../Atom/Button.vue'
+import AuthModal from './AuthModal.vue'
 import { useAuthStore } from '@/common/store/auth'
 
 const auth = useAuthStore()
 
 const isMenuOpen = ref(false)
+const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 </script>
 
 <template>
@@ -63,9 +65,20 @@ const isMenuOpen = ref(false)
             </template>
           </Dropdown>
           <div v-else class="ml-2 hidden gap-2 md:flex">
-            <Button color="gray-dark" class="w-20">Sign Up</Button>
-            <Button color="gray-dark" class="w-16">
-              <!-- TODO: show log in page on click -->
+            <Button
+              outline
+              color="gray-dark"
+              class="w-20"
+              @click="modalContent = 'signup'"
+            >
+              Sign Up
+            </Button>
+            <Button
+              outline
+              color="gray-dark"
+              class="w-16"
+              @click="modalContent = 'login'"
+            >
               Log In
             </Button>
           </div>
@@ -83,7 +96,7 @@ const isMenuOpen = ref(false)
       >
         <div
           v-show="isMenuOpen"
-          class="fixed inset-x-0 top-14 z-30 flex w-full flex-col items-center justify-center gap-6 overflow-hidden bg-white/30 py-8 shadow-lg backdrop-blur"
+          class="fixed inset-x-0 top-14 z-30 flex w-full flex-col items-center justify-center gap-6 overflow-hidden bg-white/75 py-8 shadow-lg backdrop-blur md:hidden"
         >
           <nav class="text-text-title flex flex-col items-center gap-2">
             <router-link
@@ -120,9 +133,18 @@ const isMenuOpen = ref(false)
               />
             </div>
             <div v-else class="flex gap-2">
-              <Button color="gray-dark" class="text-sm">Sign Up</Button>
-              <Button color="gray-dark" class="text-sm">
-                <!-- TODO: show log in page on click -->
+              <Button
+                color="gray-dark"
+                class="text-sm"
+                @click="modalContent = 'signup'"
+              >
+                Sign Up
+              </Button>
+              <Button
+                color="gray-dark"
+                class="text-sm"
+                @click="modalContent = 'login'"
+              >
                 Log In
               </Button>
             </div>
@@ -131,4 +153,5 @@ const isMenuOpen = ref(false)
       </transition>
     </header>
   </OnClickOutside>
+  <AuthModal v-model="modalContent" />
 </template>

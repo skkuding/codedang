@@ -28,8 +28,8 @@ const contest = {
   title: 'title',
   description: 'description',
   descriptionSummary: 'description summary',
-  startTime: new Date('2021-11-07T18:34:23.999175+09:00'),
-  endTime: new Date('2021-12-07T18:34:23.999175+09:00'),
+  startTime: new Date('2021-12-01T14:00:00.000+09:00'),
+  endTime: new Date('2021-12-01T15:00:00.000+09:00'),
   visible: true,
   isRankVisible: true,
   type: ContestType.ACM,
@@ -44,7 +44,7 @@ const ongoingContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId,
-    endTime: new Date('2022-11-07T18:34:23.999175+09:00'),
+    endTime: new Date('2999-12-01T12:00:00.000+09:00'),
     visible: false
   }
 ]
@@ -61,8 +61,8 @@ const upcomingContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId + 6,
-    startTime: new Date('2022-11-07T18:34:23.999175+09:00'),
-    endTime: new Date('2022-12-07T18:34:23.999175+09:00'),
+    startTime: new Date('2999-12-01T12:00:00.000+09:00'),
+    endTime: new Date('2999-12-01T15:00:00.000+09:00'),
     visible: false
   }
 ]

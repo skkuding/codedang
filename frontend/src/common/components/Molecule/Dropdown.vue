@@ -13,7 +13,7 @@ const show = ref(false)
     <OnClickOutside @trigger="show = false">
       <ul
         v-show="show"
-        class="border-gray-light absolute right-0 flex w-max flex-col gap-1 rounded-lg border bg-white p-2 shadow-lg"
+        class="border-gray-light absolute right-0 z-30 flex w-max flex-col gap-1 rounded-lg border bg-white p-2 shadow-lg"
       >
         <slot name="items" />
       </ul>

@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import icons from 'unplugin-icons/vite'
 import pages from 'vite-plugin-pages'
+import layouts from 'vite-plugin-vue-layouts'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -20,6 +21,9 @@ export default defineConfig({
         { dir: 'src/user/workbook/pages', baseRoute: 'workbook' },
         { dir: 'src/manager/pages', baseRoute: 'manager' }
       ]
+    }),
+    layouts({
+      layoutsDirs: 'src/common/layouts'
     })
   ],
   resolve: {
