@@ -11,7 +11,7 @@ const colorMapper = {
   green: 'text-green hover:bg-green/20 active:bg-green/40',
   blue: 'text-blue hover:bg-blue/20 active:bg-blue/40',
   gray: 'text-gray hover:bg-gray/20 active:bg-gray/40',
-  red: '',
+  red: 'text-red hover:bg-red/20 active:bg-red/40',
   // eslint-disable-next-line
   'gray-dark': 'text-gray-dark hover:bg-gray-dark/20 active:bg-gray-dark/40'
 }
@@ -20,7 +20,7 @@ const pressedColorMapper = {
   green: 'text-green bg-green/40',
   blue: 'text-blue bg-blue/40',
   gray: 'text-gray bg-gray/40',
-  red: '',
+  red: 'text-red bg-red/40',
   // eslint-disable-next-line
   'gray-dark': 'text-gray-dark bg-gray-dark/40'
 }
@@ -39,7 +39,7 @@ const pressedBackgroundColorMapper = {
   green: 'text-white bg-green/60',
   blue: 'text-white bg-blue/60',
   gray: 'text-default bg-gray/60',
-  red: '',
+  red: 'text-white bg-red/60',
   // eslint-disable-next-line
   'gray-dark': 'text-white bg-gray-dark/60'
 }
