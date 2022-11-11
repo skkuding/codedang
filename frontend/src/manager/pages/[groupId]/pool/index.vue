@@ -4,12 +4,11 @@ import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import InputItem from '@/common/components/Atom/InputItem.vue'
-import SearchBar from '@/common/components/Molecule/SearchBar.vue'
-import CardItem from '@/common/components/Molecule/CardItem.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
+import SharePoolModal from '@/manager/components/SharePoolModal.vue'
 import IconTrashCan from '~icons/fa6-solid/trash-can'
 import IconPaperPlane from '~icons/fa6-solid/paper-plane'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -31,7 +30,7 @@ const items = ref([
     problems: 20,
     createdtime: '2021-12-31 18:20:29',
     createdby: '하솔비',
-    sharedgroup: ['skkuding', 'npc'],
+    sharedgroup: [{ name: 'skkuding' }, { name: 'dingco' }],
     authority: { share: true, delete: true }
   },
   {
@@ -40,7 +39,7 @@ const items = ref([
     problems: 20,
     createdtime: '2021-12-31 18:20:29',
     createdby: '박민서',
-    sharedgroup: ['skkuding', 'npc'],
+    sharedgroup: [{ name: 'skkuding' }, { name: 'npc' }],
     authority: { share: true, delete: false }
   },
   {
@@ -49,7 +48,7 @@ const items = ref([
     problems: 20,
     createdtime: '2021-12-31 18:20:29',
     createdby: '구성현',
-    sharedgroup: ['skkuding', 'npc'],
+    sharedgroup: [{ name: 'npc' }],
     authority: { share: true, delete: false }
   },
   {
@@ -58,7 +57,7 @@ const items = ref([
     problems: 20,
     createdtime: '2021-12-31 18:20:29',
     createdby: '김학산',
-    sharedgroup: ['skkuding', 'npc'],
+    sharedgroup: [],
     authority: { share: true, delete: true }
   }
 ])
@@ -76,30 +75,21 @@ const createPool = () => {
 
 // for share problem pool modal
 const showSharingModal = ref<boolean>(false)
-const showCheckSharing = ref<boolean>(false)
-const inviteGroup = ref()
-const sharedGroupField = [{ key: 'name' }, { key: 'delete' }]
-const sharedGroup = ref([{ name: 'NPC 중급반' }])
+const rowId = ref()
+const sharedGroup = ref()
 
-const findGroup = (code: string) => {
-  if (code.length === 0) {
-    inviteGroup.value = undefined
-    return
-  }
-  inviteGroup.value = {
-    name: 'mini SKKUDING',
-    description: 'small version of skkuding',
-    creator: '홍길동',
-    img: 'https://www.skku.edu/_res/skku/img/skku_s.png'
-  }
+const sharePool = (id: number) => {
+  rowId.value = id
+  sharedGroup.value = items.value.find((x) => x.id === id)?.sharedgroup
+  showSharingModal.value = true
 }
 
-const appendSharedGroup = () => {
-  if (!sharedGroup.value.find((x) => x.name === inviteGroup.value.name))
-    sharedGroup.value.push(inviteGroup.value)
-  showCheckSharing.value = false
-  inviteGroup.value = undefined
-}
+watch(sharedGroup, (newSharedGroup) => {
+  items.value = items.value.map((x) => {
+    if (x.id === rowId.value) x.sharedgroup = newSharedGroup
+    return x
+  })
+})
 </script>
 
 <template>
@@ -120,9 +110,9 @@ const appendSharedGroup = () => {
         <div
           v-for="(group, index) in row.sharedgroup"
           :key="index"
-          class="border-gray mr-2 rounded border p-2"
+          class="border-gray mr-2 h-fit rounded border p-1"
         >
-          {{ group }}
+          {{ group.name }}
         </div>
       </div>
     </template>
@@ -143,7 +133,7 @@ const appendSharedGroup = () => {
         class="aspect-square rounded-lg"
         outline
         color="gray-dark"
-        @click="showSharingModal = true"
+        @click="sharePool(row.id)"
       >
         <IconPaperPlane />
       </Button>
@@ -151,7 +141,7 @@ const appendSharedGroup = () => {
   </PaginationTable>
 
   <!-- Create Problem Pool Modal -->
-  <Modal v-model="showCreateModal" class="h-[16rem] w-[45rem] p-10">
+  <Modal v-model="showCreateModal" class="h-[16rem] w-[720px] p-10">
     <PageSubtitle class="text-center" text="Create Problem Pool" />
     <div class="my-6 flex flex-col gap-y-2 px-6">
       <div class="text-lg font-bold">Problem Pool Name</div>
@@ -170,68 +160,12 @@ const appendSharedGroup = () => {
   </Modal>
 
   <!-- Share Problem Pool Modal -->
-  <Modal v-model="showSharingModal" class="w-[45rem] p-10">
-    <PageSubtitle class="text-center" text="Share Problem Pool" />
-    <div class="text-green my-4 text-center text-base">그래프 문제 set</div>
-    <div v-if="!showCheckSharing" class="my-6 flex flex-col gap-y-2 px-6">
-      <div class="text-lg font-bold">Invitation code of shared group</div>
-      <SearchBar
-        id="search-group"
-        placeholder="Invitation Code"
-        class="place-self-end"
-        @search="findGroup"
-      />
-      <CardItem
-        v-if="inviteGroup !== undefined"
-        :title="inviteGroup.name"
-        :img="inviteGroup.img"
-        :description="inviteGroup.description"
-        :colored-text="inviteGroup.creator"
-        @click="showCheckSharing = true"
-      />
-      <div v-else class="py-10 text-center">No Group Found</div>
-      <div class="mt-6 text-lg font-bold">Shared Group</div>
-      <PaginationTable
-        :fields="sharedGroupField"
-        :items="sharedGroup"
-        :number-of-pages="1"
-        text="No data"
-        no-header
-        no-search-bar
-      >
-        <template #delete="{ row }">
-          <Button
-            outline
-            color="gray-dark"
-            class="aspect-square rounded-lg"
-            @click="
-              () =>
-                (sharedGroup = sharedGroup.filter((x) => x.name !== row.name))
-            "
-          >
-            <IconTrashCan />
-          </Button>
-        </template>
-      </PaginationTable>
-      <Button
-        class="absolute bottom-6 right-6"
-        @click="showSharingModal = false"
-      >
-        Save
-      </Button>
-    </div>
-    <div v-else class="my-6 flex flex-col items-center justify-center gap-y-4">
-      <div class="my-6">
-        Do you really want to share
-        <span class="font-bold">{{ inviteGroup.name }}</span>
-        ?
-      </div>
-      <div class="flex gap-x-10">
-        <Button class="h-10 w-20" @click="appendSharedGroup">Yes</Button>
-        <Button class="h-10 w-20" @click="showCheckSharing = false">No</Button>
-      </div>
-    </div>
-  </Modal>
+  <SharePoolModal
+    v-if="showSharingModal"
+    v-model:show-modal="showSharingModal"
+    v-model:shared-group="sharedGroup"
+    @update:shared-group="(value) => (sharedGroup = value)"
+  />
 </template>
 
 <route lang="yaml">
