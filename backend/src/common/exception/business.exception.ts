@@ -7,6 +7,7 @@ export class BusinessException extends Error {
   }
 }
 
+/** Throw when a user cannot be found with wrong usernmae or password. */
 export class InvalidUserException extends BusinessException {}
 export class InvalidJwtTokenException extends BusinessException {
   constructor(message) {
@@ -20,8 +21,10 @@ export class EntityNotExistException extends BusinessException {
   }
 }
 
+/** Throw when data is invalid or processing logic is missing. */
 export class UnprocessableDataException extends BusinessException {}
 
+/** Throw when a user should not access due to lack of permission */
 export class ForbiddenAccessException extends BusinessException {}
 
 export class InvalidMailTransporterException extends BusinessException {}
