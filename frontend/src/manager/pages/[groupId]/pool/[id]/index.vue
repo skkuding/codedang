@@ -3,6 +3,7 @@ import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import InputItem from '@/common/components/Atom/InputItem.vue'
 import Button from '@/common/components/Atom/Button.vue'
+import SharePoolModal from '@/manager/components/SharePoolModal.vue'
 import IconSolidPenToSquare from '~icons/fa6-solid/pen-to-square'
 import IconTrashCan from '~icons/fa6-solid/trash-can'
 import IconCheck from '~icons/fa6-solid/check'
@@ -11,6 +12,11 @@ import { Chart, registerables } from 'chart.js'
 import { Bar, Radar } from 'vue-chartjs'
 
 Chart.register(...registerables)
+
+defineProps<{
+  groupId: number
+  id: number
+}>()
 
 const colorMapper = (level: number) => {
   switch (level) {
@@ -84,7 +90,14 @@ const sharedGroupField = [
   { key: 'delete' }
 ]
 
-const sharedGroup = ref([
+type GroupInfos = {
+  id?: number
+  name: string
+  manager?: string
+  authority?: boolean
+}[]
+
+const sharedGroup = ref<GroupInfos>([
   {
     id: 1,
     name: 'NPC 초급반',
@@ -98,7 +111,7 @@ const sharedGroup = ref([
     authority: true
   },
   {
-    id: 1,
+    id: 3,
     name: 'SKKUDING',
     manager: '김영훈',
     authority: false
@@ -173,6 +186,8 @@ const barOptions = {
 
 const title = ref('그래프 문제 set')
 const editTitle = ref(false)
+
+const showSharingModal = ref<boolean>(false)
 </script>
 
 <template>
@@ -207,7 +222,12 @@ const editTitle = ref(false)
 
   <div class="mt-10 flex">
     <PageTitle text="Problem List" />
-    <Button class="ml-4">+ Create</Button>
+    <Button
+      class="ml-4"
+      @click="() => $router.push('/manager/' + groupId + '/problem/create')"
+    >
+      + Create
+    </Button>
     <Button class="ml-4">Import</Button>
   </div>
   <PaginationTable
@@ -229,6 +249,7 @@ const editTitle = ref(false)
         class="mr-1 aspect-square rounded-lg"
         outline
         color="gray-dark"
+        @click="() => (problems = problems.filter((x) => x.id !== row.id))"
       >
         <IconTrashCan />
       </Button>
@@ -237,7 +258,7 @@ const editTitle = ref(false)
 
   <div class="mt-10 flex">
     <PageTitle text="Shared Group" />
-    <Button class="ml-4">Export</Button>
+    <Button class="ml-4" @click="showSharingModal = true">Export</Button>
   </div>
   <PaginationTable
     :fields="sharedGroupField"
@@ -252,11 +273,21 @@ const editTitle = ref(false)
         class="mr-1 aspect-square rounded-lg"
         outline
         color="gray-dark"
+        @click="
+          () => (sharedGroup = sharedGroup.filter((x) => x.id !== row.id))
+        "
       >
         <IconTrashCan />
       </Button>
     </template>
   </PaginationTable>
+
+  <!-- Share Problem Pool Modal -->
+  <SharePoolModal
+    v-model:show-modal="showSharingModal"
+    v-model:shared-group="sharedGroup"
+    @update:shared-group="(value) => (sharedGroup = value)"
+  />
 </template>
 
 <route lang="yaml">
