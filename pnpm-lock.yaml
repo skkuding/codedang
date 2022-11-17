@@ -103,7 +103,7 @@ importers:
       swagger-ui-express: 4.6.0_express@4.18.2
     devDependencies:
       '@nestjs/cli': 9.1.5
-      '@nestjs/schematics': 9.0.3_typescript@4.9.3
+      '@nestjs/schematics': 9.0.3_xhlmm4lxgqnqqbpfgbp6dlerku
       '@nestjs/testing': 9.2.0_3jiwpo56qab566j5kwfezyelg4
       '@types/cache-manager': 4.0.2
       '@types/express': 4.17.14
@@ -127,6 +127,7 @@ importers:
     specifiers:
       '@histoire/plugin-vue': ^0.11.7
       '@iconify-json/bi': ^1.1.12
+      '@iconify-json/fa-solid': ^1.1.2
       '@iconify-json/fa6-brands': ^1.1.7
       '@iconify-json/fa6-regular': ^1.1.7
       '@iconify-json/fa6-solid': ^1.1.8
@@ -177,6 +178,7 @@ importers:
     devDependencies:
       '@histoire/plugin-vue': 0.11.7_7hdtplvh7fqm5qxbwoti4y5ldu
       '@iconify-json/bi': 1.1.12
+      '@iconify-json/fa-solid': 1.1.2
       '@iconify-json/fa6-brands': 1.1.7
       '@iconify-json/fa6-regular': 1.1.7
       '@iconify-json/fa6-solid': 1.1.8
@@ -192,7 +194,7 @@ importers:
       autoprefixer: 10.4.13_postcss@8.4.19
       histoire: 0.11.7_yjpjyfpoxl7fu52icl7tfzkuhe
       postcss: 8.4.19
-      tailwindcss: 3.2.4_postcss@8.4.19
+      tailwindcss: 3.2.4
       typescript: 4.9.3
       unplugin-icons: 0.14.13
       vite: 3.2.4_@types+node@18.11.9
@@ -320,22 +322,6 @@ packages:
       '@jridgewell/trace-mapping': 0.3.15
     dev: true
 
-  /@angular-devkit/core/14.2.1:
-    resolution: {integrity: sha512-lW8oNGuJqr4r31FWBjfWQYkSXdiOHBGOThIEtHvUVBKfPF/oVrupLueCUgBPel+NvxENXdo93uPsqHN7bZbmsQ==}
-    engines: {node: ^14.15.0 || >=16.10.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
-    peerDependencies:
-      chokidar: ^3.5.2
-    peerDependenciesMeta:
-      chokidar:
-        optional: true
-    dependencies:
-      ajv: 8.11.0
-      ajv-formats: 2.1.1_ajv@8.11.0
-      jsonc-parser: 3.1.0
-      rxjs: 6.6.7
-      source-map: 0.7.4
-    dev: true
-
   /@angular-devkit/core/14.2.1_chokidar@3.5.3:
     resolution: {integrity: sha512-lW8oNGuJqr4r31FWBjfWQYkSXdiOHBGOThIEtHvUVBKfPF/oVrupLueCUgBPel+NvxENXdo93uPsqHN7bZbmsQ==}
     engines: {node: ^14.15.0 || >=16.10.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
@@ -346,7 +332,7 @@ packages:
         optional: true
     dependencies:
       ajv: 8.11.0
-      ajv-formats: 2.1.1_ajv@8.11.0
+      ajv-formats: 2.1.1
       chokidar: 3.5.3
       jsonc-parser: 3.1.0
       rxjs: 6.6.7
@@ -363,7 +349,7 @@ packages:
         optional: true
     dependencies:
       ajv: 8.11.0
-      ajv-formats: 2.1.1_ajv@8.11.0
+      ajv-formats: 2.1.1
       chokidar: 3.5.3
       jsonc-parser: 3.1.0
       rxjs: 6.6.7
@@ -381,19 +367,6 @@ packages:
       inquirer: 8.2.4
       symbol-observable: 4.0.0
       yargs-parser: 21.1.1
-    transitivePeerDependencies:
-      - chokidar
-    dev: true
-
-  /@angular-devkit/schematics/14.2.1:
-    resolution: {integrity: sha512-0U18FwDYt4zROBPrvewH6iBTkf2ozVHN4/gxUb9jWrqVw8mPU5AWc/iYxQLHBSinkr2Egjo1H/i9aBqgJSeh3g==}
-    engines: {node: ^14.15.0 || >=16.10.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
-    dependencies:
-      '@angular-devkit/core': 14.2.1
-      jsonc-parser: 3.1.0
-      magic-string: 0.26.2
-      ora: 5.4.1
-      rxjs: 6.6.7
     transitivePeerDependencies:
       - chokidar
     dev: true
@@ -1033,6 +1006,12 @@ packages:
       '@iconify/types': 2.0.0
     dev: true
 
+  /@iconify-json/fa-solid/1.1.2:
+    resolution: {integrity: sha512-dJTmbcHh104VWMrNDBxIIy9o26CN1nrT9euWfEleU0CYJNMhk8RIM6inquctAP1+QoS/J1y3bO+8YblwhdzCrQ==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
   /@iconify-json/fa6-brands/1.1.7:
     resolution: {integrity: sha512-VoH4SU+2TmTcX0AHollvB6OA3yWYst8/dlkdbSYbkWsZXvhQhJmqg7UvJI/0F+SjwzuLg0+Y4upv5HPlmLbcRA==}
     dependencies:
@@ -1597,13 +1576,13 @@ packages:
       - chokidar
     dev: true
 
-  /@nestjs/schematics/9.0.3_typescript@4.9.3:
+  /@nestjs/schematics/9.0.3_xhlmm4lxgqnqqbpfgbp6dlerku:
     resolution: {integrity: sha512-kZrU/lrpVd2cnK8I3ibDb3Wi1ppl3wX3U3lVWoL+DzRRoezWKkh8upEL4q0koKmuXnsmLiu3UPxFeMOrJV7TSA==}
     peerDependencies:
       typescript: ^4.3.5
     dependencies:
-      '@angular-devkit/core': 14.2.1
-      '@angular-devkit/schematics': 14.2.1
+      '@angular-devkit/core': 14.2.1_chokidar@3.5.3
+      '@angular-devkit/schematics': 14.2.1_chokidar@3.5.3
       fs-extra: 10.1.0
       jsonc-parser: 3.2.0
       pluralize: 8.0.0
@@ -1751,7 +1730,7 @@ packages:
       tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1'
     dependencies:
       mini-svg-data-uri: 1.4.4
-      tailwindcss: 3.2.4_postcss@8.4.19
+      tailwindcss: 3.2.4
     dev: true
 
   /@tailwindcss/typography/0.5.8_tailwindcss@3.2.4:
@@ -1763,7 +1742,7 @@ packages:
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 3.2.4_postcss@8.4.19
+      tailwindcss: 3.2.4
     dev: true
 
   /@tiptap/core/2.0.0-beta.202:
@@ -2908,10 +2887,8 @@ packages:
       - supports-color
     dev: false
 
-  /ajv-formats/2.1.1_ajv@8.11.0:
+  /ajv-formats/2.1.1:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
-    peerDependencies:
-      ajv: ^8.0.0
     peerDependenciesMeta:
       ajv:
         optional: true
@@ -9019,12 +8996,10 @@ packages:
       get-port: 3.2.0
     dev: true
 
-  /tailwindcss/3.2.4_postcss@8.4.19:
+  /tailwindcss/3.2.4:
     resolution: {integrity: sha512-AhwtHCKMtR71JgeYDaswmZXhPcW9iuI9Sp2LvZPo9upDZ7231ZJ7eA9RaURbhpXGVlrjX4cFNlB4ieTetEb7hQ==}
     engines: {node: '>=12.13.0'}
     hasBin: true
-    peerDependencies:
-      postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
       chokidar: 3.5.3
