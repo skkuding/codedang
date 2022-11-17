@@ -8,7 +8,12 @@ import Button from '@/common/components/Atom/Button.vue'
 import IconTrashCan from '~icons/fa6-solid/trash-can'
 import { ref } from 'vue'
 
-type GroupInfos = { name: string }[]
+type GroupInfos = {
+  id?: number
+  name: string
+  manager?: string
+  authority?: boolean
+}[]
 
 const props = defineProps<{
   showModal: boolean
@@ -49,8 +54,6 @@ const appendSharedGroup = () => {
 
 const deleteSharedGroup = (name: string) => {
   items.value = items.value.filter((x) => x.name !== name)
-  console.log('in modal')
-  console.log(items.value)
   emit('update:sharedGroup', items.value)
 }
 </script>
@@ -58,7 +61,7 @@ const deleteSharedGroup = (name: string) => {
 <template>
   <Modal
     :model-value="showModal"
-    class="w-[720px] p-10"
+    class="!w-[720px] p-10"
     @update:model-value="$emit('update:showModal', false)"
   >
     <PageSubtitle class="text-center" text="Share Problem Pool" />
@@ -85,7 +88,7 @@ const deleteSharedGroup = (name: string) => {
         :fields="sharedGroupField"
         :items="items"
         :number-of-pages="1"
-        text="No data"
+        text="No Group"
         no-header
         no-search-bar
       >

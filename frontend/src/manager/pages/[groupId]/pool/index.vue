@@ -141,7 +141,7 @@ watch(sharedGroup, (newSharedGroup) => {
   </PaginationTable>
 
   <!-- Create Problem Pool Modal -->
-  <Modal v-model="showCreateModal" class="h-[16rem] w-[720px] p-10">
+  <Modal v-model="showCreateModal" class="!h-[16rem] !w-[720px] p-10">
     <PageSubtitle class="text-center" text="Create Problem Pool" />
     <div class="my-6 flex flex-col gap-y-2 px-6">
       <div class="text-lg font-bold">Problem Pool Name</div>
