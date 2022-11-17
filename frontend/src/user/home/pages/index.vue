@@ -5,6 +5,7 @@ import IconAngleRight from '~icons/fa6-solid/angle-right'
 import IconMedal from '~icons/fa6-solid/medal'
 import IconEllipsis from '~icons/fa6-solid/ellipsis'
 import IconCalendar from '~icons/fa6-solid/calendar'
+import IconBars from '~icons/fa-solid/bars'
 
 const noticeItems = [
   {
@@ -60,7 +61,14 @@ const contestItems = [
         <IconMedal />
         <h2 class="ml-2">Current/Upcoming Contests</h2>
       </template>
-
+      <template #titleIcon>
+        <router-link
+          to="/"
+          class="cursor-pointer hover:opacity-50 active:opacity-30"
+        >
+          <IconBars />
+        </router-link>
+      </template>
       <template #icon="item">
         <IconEllipsis v-if="item.item === 'ongoing'" />
         <IconCalendar v-else />

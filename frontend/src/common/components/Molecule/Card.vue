@@ -16,12 +16,7 @@ defineProps<{
       <span class="flex items-center">
         <slot name="title" />
       </span>
-      <router-link
-        :to="href"
-        class="cursor-pointer hover:opacity-50 active:opacity-30"
-      >
-        <slot name="titleIcon" />
-      </router-link>
+      <slot name="titleIcon" />
     </div>
     <div class="flex flex-col gap-1">
       <router-link

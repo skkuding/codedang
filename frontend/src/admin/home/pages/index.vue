@@ -2,10 +2,12 @@
 import Card from '@/common/components/Molecule/Card.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
-import { computed, ref } from 'vue'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import IconPlus from '~icons/fa6-solid/plus'
-import Sidebar from '../../component/Sidebar.vue'
+import IconLock from '~icons/bi/lock'
+import IconUnlock from '~icons/bi/unlock'
+import IconAngleRight from '~icons/fa-solid/angle-right'
+import { ref, computed } from 'vue'
 
 interface Field {
   key: string
@@ -21,43 +23,50 @@ interface GroupItem {
   href: string
   title: string
   items: CardProps[]
+  scope: string
 }
 type Type = Record<string, string>
 const groupItems: GroupItem[] = [
   {
     href: '/',
     title: '초급반',
+    scope: 'private',
     items: [
       {
         title: 'npc 초급반 학생들이 있는 곳',
-        state: 'IconAngleRight',
         href: '/'
       },
-      { title: '20', state: 'IconAngleRight', href: '/' }
+      {
+        title: 'member: 20',
+        href: '/'
+      }
     ]
   },
   {
     href: '/',
     title: '중급반',
+    scope: 'public',
     items: [
       {
         title: 'npc 중급반 학생들이 있는 곳',
-        state: 'IconAngleRight',
         href: '/'
       },
-      { title: '20', state: 'IconAngleRight', href: '/' }
+      {
+        title: '20',
+        href: '/'
+      }
     ]
   },
   {
     href: '/',
     title: '고급반',
+    scope: 'private',
     items: [
       {
         title: 'npc 고급반 학생들이 있는 곳',
-        state: 'IconAngleRight',
         href: '/'
       },
-      { title: '20', state: 'IconAngleRight', href: '/' }
+      { title: '20', href: '/' }
     ]
   }
 ]
@@ -175,7 +184,6 @@ const changeWorkBook = (page: number) => {
 </script>
 
 <template>
-  <Sidebar />
   <div class="mt-10 mb-4 flex justify-between">
     <PageTitle text="Group List" />
     <Button
@@ -191,10 +199,30 @@ const changeWorkBook = (page: number) => {
       Create
     </Button>
   </div>
-  <div class="flex flex-wrap justify-between gap-8">
+  <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
     <div v-for="group in groupItems" :key="group.title">
-      <Card :items="group.items" href="/group" class="w-full md:w-[48.5%]">
-        <template #title>{{ group.title }}</template>
+      <Card :items="group.items" href="/group">
+        <template #title>
+          <router-link
+            :to="group.href"
+            class="cursor-pointer hover:opacity-50 active:opacity-30"
+          >
+            {{ group.title }}
+          </router-link>
+        </template>
+        <template #titleIcon>
+          <div v-if="group.scope === 'private'" class="ml-auto flex">
+            <IconLock />
+            <span>Private</span>
+          </div>
+          <div v-if="group.scope === 'public'" class="flex">
+            <IconUnlock />
+            <span>Public</span>
+          </div>
+        </template>
+        <template #icon>
+          <IconAngleRight />
+        </template>
       </Card>
     </div>
   </div>
@@ -218,3 +246,7 @@ const changeWorkBook = (page: number) => {
     @change-page="changeWorkBook"
   ></PaginationTable>
 </template>
+<route lang="yaml">
+meta:
+  layout: admin
+</route>
