@@ -11,7 +11,7 @@ services:
       DEVCONTAINER: 1
   dev-db:
     container_name: skkuding-dev-db
-    image: postgres:14-alpine
+    image: postgres:15-alpine
     ports:
       - 5433:5432
     environment:
@@ -21,7 +21,7 @@ services:
   test-db:
     profiles: ['test']
     container_name: skkuding-test-db
-    image: postgres:14-alpine
+    image: postgres:15-alpine
     ports:
       - 5434:5432
     environment:
