@@ -17,6 +17,7 @@ defineProps<{
         <slot name="title" />
       </span>
       <slot name="titleIcon" />
+      <slot name="cardStatus" />
     </div>
     <div class="flex flex-col gap-1">
       <router-link

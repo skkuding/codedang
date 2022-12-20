@@ -19,8 +19,7 @@ export default defineConfig({
         { dir: 'src/user/contest/pages', baseRoute: 'contest' },
         { dir: 'src/user/group/pages', baseRoute: 'group' },
         { dir: 'src/user/workbook/pages', baseRoute: 'workbook' },
-        { dir: 'src/manager/pages', baseRoute: 'manager' },
-        { dir: 'src/admin/home/pages', baseRoute: 'admin' }
+        { dir: 'src/admin/pages', baseRoute: 'admin' }
       ]
     }),
     layouts({
