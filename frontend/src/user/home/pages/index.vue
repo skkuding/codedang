@@ -5,7 +5,7 @@ import IconAngleRight from '~icons/fa6-solid/angle-right'
 import IconMedal from '~icons/fa6-solid/medal'
 import IconEllipsis from '~icons/fa6-solid/ellipsis'
 import IconCalendar from '~icons/fa6-solid/calendar'
-import IconBars from '~icons/fa-solid/bars'
+import IconBars from '~icons/fa6-solid/bars'
 
 const noticeItems = [
   {
