@@ -6,7 +6,7 @@ import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import IconPlus from '~icons/fa6-solid/plus'
 import IconLock from '~icons/bi/lock'
 import IconUnlock from '~icons/bi/unlock'
-import IconAngleRight from '~icons/fa-solid/angle-right'
+import IconAngleRight from '~icons/fa6-solid/angle-right'
 import { ref, computed } from 'vue'
 
 interface Field {
