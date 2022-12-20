@@ -103,7 +103,7 @@ importers:
       swagger-ui-express: 4.6.0_express@4.18.2
     devDependencies:
       '@nestjs/cli': 9.1.5
-      '@nestjs/schematics': 9.0.3_typescript@4.9.4
+      '@nestjs/schematics': 9.0.3_bpd7edbl7imd2lxcmdt57tn7ne
       '@nestjs/testing': 9.2.1_wdbvfsxfdwzlwdfiyh2gynjl4m
       '@types/cache-manager': 4.0.2
       '@types/express': 4.17.14
@@ -163,7 +163,7 @@ importers:
       vue-tsc: ^1.0.13
     dependencies:
       '@tiptap/starter-kit': 2.0.0-beta.207_abnlhagdy6u44isuyzyni4aaei
-      '@tiptap/vue-3': 2.0.0-beta.207_rpffrm7metjir5u7qyagvs6yfm
+      '@tiptap/vue-3': 2.0.0-beta.207_7lquielyyuhhm44ylxneibjsjy
       '@vueuse/components': 9.6.0_vue@3.2.45
       '@vueuse/core': 9.6.0_vue@3.2.45
       '@vueuse/math': 9.6.0_vue@3.2.45
@@ -192,7 +192,7 @@ importers:
       autoprefixer: 10.4.13_postcss@8.4.20
       histoire: 0.11.9_n6ei63cpe43beiimwe7zv3fimy
       postcss: 8.4.20
-      tailwindcss: 3.2.4_postcss@8.4.20
+      tailwindcss: 3.2.4
       typescript: 4.9.4
       unplugin-icons: 0.14.15
       vite: 3.2.5_@types+node@18.11.14
@@ -1202,8 +1202,8 @@ packages:
       '@iconify/types': 2.0.0
     dev: true
 
-  /@iconify-json/fa6-brands/1.1.7:
-    resolution: {integrity: sha512-VoH4SU+2TmTcX0AHollvB6OA3yWYst8/dlkdbSYbkWsZXvhQhJmqg7UvJI/0F+SjwzuLg0+Y4upv5HPlmLbcRA==}
+  /@iconify-json/fa6-brands/1.1.8:
+    resolution: {integrity: sha512-ndwmH8/fITnc2t8EsKpHjxiDSviyORLz91urwZju1MtTrheamJvTUp8wui7+WSzzzJ2Dva4jn26J37vKD3eolg==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true
@@ -1755,7 +1755,7 @@ packages:
       - chokidar
     dev: true
 
-  /@nestjs/schematics/9.0.3_typescript@4.9.3:
+  /@nestjs/schematics/9.0.3_bpd7edbl7imd2lxcmdt57tn7ne:
     resolution: {integrity: sha512-kZrU/lrpVd2cnK8I3ibDb3Wi1ppl3wX3U3lVWoL+DzRRoezWKkh8upEL4q0koKmuXnsmLiu3UPxFeMOrJV7TSA==}
     peerDependencies:
       typescript: ^4.3.5
@@ -1914,7 +1914,7 @@ packages:
       tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1'
     dependencies:
       mini-svg-data-uri: 1.4.4
-      tailwindcss: 3.2.4_postcss@8.4.19
+      tailwindcss: 3.2.4
     dev: true
 
   /@tailwindcss/typography/0.5.8_tailwindcss@3.2.4:
@@ -1926,7 +1926,7 @@ packages:
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 3.2.4_postcss@8.4.19
+      tailwindcss: 3.2.4
     dev: true
 
   /@tiptap/core/2.0.0-beta.207_xf6vrbde4aaztseepsc2w7fjwu:
@@ -1965,18 +1965,20 @@ packages:
       '@tiptap/core': 2.0.0-beta.207_xf6vrbde4aaztseepsc2w7fjwu
     dev: false
 
-  /@tiptap/extension-bubble-menu/2.0.0-beta.207_go7dl3evndwr4nm2ycopdmhooe:
+  /@tiptap/extension-bubble-menu/2.0.0-beta.207_jeu4ouigj7ewrtcth6npa4rbbm:
     resolution: {integrity: sha512-Lo+mO71CJaWAvDuPmxGCGS6XGyH6gt2hTVkGAQKR3PRmctnutBvaJF/BOY5wb20/wtkK39UHVc75enn0svdYmg==}
-    peerDependencies:
-      '@tiptap/core': ^2.0.0-beta.193
-      prosemirror-state: ^1.4.1
-      prosemirror-view: ^1.28.2
     dependencies:
       '@tiptap/core': 2.0.0-beta.207_xf6vrbde4aaztseepsc2w7fjwu
       lodash: 4.17.21
       prosemirror-state: 1.4.1
       prosemirror-view: 1.29.0
       tippy.js: 6.3.7
+    transitivePeerDependencies:
+      - prosemirror-commands
+      - prosemirror-keymap
+      - prosemirror-model
+      - prosemirror-schema-list
+      - prosemirror-transform
     dev: false
 
   /@tiptap/extension-bullet-list/2.0.0-beta.207_xzobyxekojg7s63egj2c4mbq34:
@@ -2165,7 +2167,7 @@ packages:
       - prosemirror-view
     dev: false
 
-  /@tiptap/vue-3/2.0.0-beta.207_rpffrm7metjir5u7qyagvs6yfm:
+  /@tiptap/vue-3/2.0.0-beta.207_7lquielyyuhhm44ylxneibjsjy:
     resolution: {integrity: sha512-tJ3Yv9I77R60jMUhy893JpfsLPIJ2G6/yzLpG4ZDliNNPoOIKCTCk6+wDm1DpVls6ovyalOrTWyXzpf00q0/XQ==}
     peerDependencies:
       '@tiptap/core': ^2.0.0-beta.193
@@ -2174,11 +2176,17 @@ packages:
       vue: ^3.0.0
     dependencies:
       '@tiptap/core': 2.0.0-beta.207_xf6vrbde4aaztseepsc2w7fjwu
-      '@tiptap/extension-bubble-menu': 2.0.0-beta.207_go7dl3evndwr4nm2ycopdmhooe
+      '@tiptap/extension-bubble-menu': 2.0.0-beta.207_jeu4ouigj7ewrtcth6npa4rbbm
       '@tiptap/extension-floating-menu': 2.0.0-beta.207_go7dl3evndwr4nm2ycopdmhooe
       prosemirror-state: 1.4.1
       prosemirror-view: 1.29.0
       vue: 3.2.45
+    transitivePeerDependencies:
+      - prosemirror-commands
+      - prosemirror-keymap
+      - prosemirror-model
+      - prosemirror-schema-list
+      - prosemirror-transform
     dev: false
 
   /@tootallnate/once/1.1.2:
@@ -9165,13 +9173,7 @@ packages:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
     dev: true
 
-  /sync-rpc/1.3.6:
-    resolution: {integrity: sha512-J8jTXuZzRlvU7HemDgHi3pGnh/rkoqR/OZSjhTyyZrEkkYQbk7Z33AXp37mkPfPpfdOuj7Ex3H/TJM1z48uPQw==}
-    dependencies:
-      get-port: 3.2.0
-    dev: true
-
-  /tailwindcss/3.2.4_postcss@8.4.19:
+  /tailwindcss/3.2.4:
     resolution: {integrity: sha512-AhwtHCKMtR71JgeYDaswmZXhPcW9iuI9Sp2LvZPo9upDZ7231ZJ7eA9RaURbhpXGVlrjX4cFNlB4ieTetEb7hQ==}
     engines: {node: '>=12.13.0'}
     hasBin: true
