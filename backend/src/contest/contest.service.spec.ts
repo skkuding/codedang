@@ -7,6 +7,7 @@ import {
   UserGroup
 } from '@prisma/client'
 import {
+  ActionNotAllowedException,
   EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
@@ -503,9 +504,7 @@ describe('ContestService', () => {
       mockPrismaService.contest.findUnique.mockResolvedValue(null)
       await expect(
         contestService.createContestRecord(userId, contestId)
-      ).rejects.toThrowError(
-        new EntityNotExistException(`Contest ${contestId}`)
-      )
+      ).rejects.toThrowError(new EntityNotExistException('contest'))
     })
 
     it('should throw error when user is participated in contest again', async () => {
@@ -513,9 +512,7 @@ describe('ContestService', () => {
       await expect(
         contestService.createContestRecord(userId, contestId)
       ).rejects.toThrowError(
-        new ForbiddenAccessException(
-          `User ${userId} is already participated in Contest ${contestId}`
-        )
+        new ActionNotAllowedException('repetitive participation', 'contest')
       )
     })
     it('should throw error when contest is not ongoing', async () => {
@@ -523,7 +520,7 @@ describe('ContestService', () => {
       await expect(
         contestService.createContestRecord(userId, contestId)
       ).rejects.toThrowError(
-        new ForbiddenAccessException(`Contest ${contestId} is not ongoing`)
+        new ActionNotAllowedException('participation', 'ended contest')
       )
     })
     it('should successfully create contestRankACM', async () => {

@@ -8,10 +8,11 @@ import {
   Req,
   Get,
   UseGuards,
-  ForbiddenException
+  MethodNotAllowedException
 } from '@nestjs/common'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
+  ActionNotAllowedException,
   EntityNotExistException,
   ForbiddenAccessException
 } from 'src/common/exception/business.exception'
@@ -73,8 +74,8 @@ export class GroupContestController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+      if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -93,8 +94,8 @@ export class GroupContestController {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
-      if (err instanceof ForbiddenAccessException) {
-        throw new ForbiddenAccessException(err.message)
+      if (err instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(err.message)
       }
       throw new InternalServerErrorException()
     }

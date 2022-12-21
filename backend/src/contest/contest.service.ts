@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Contest } from '@prisma/client'
 import {
+  ActionNotAllowedException,
   EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
@@ -157,7 +158,7 @@ export class ContestService {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
       select: { ...this.contestSelectOption, description: true, visible: true },
-      rejectOnNotFound: () => new EntityNotExistException('Contest')
+      rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
     const userGroup = await this.groupService.getUserGroupMembershipInfo(
@@ -184,7 +185,7 @@ export class ContestService {
         title: true,
         descriptionSummary: true
       },
-      rejectOnNotFound: () => new EntityNotExistException('Contest')
+      rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
     return contest
@@ -222,7 +223,7 @@ export class ContestService {
         descriptionSummary: true,
         isRankVisible: true
       },
-      rejectOnNotFound: () => new EntityNotExistException('Contest')
+      rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
     return contest
@@ -240,27 +241,27 @@ export class ContestService {
   async createContestRecord(
     userId: number,
     contestId: number
-  ): Promise<null | Error> {
+  ): Promise<undefined> {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
       select: { startTime: true, endTime: true, type: true }
     })
     if (!contest) {
-      throw new EntityNotExistException(`Contest ${contestId}`)
+      throw new EntityNotExistException('contest')
     }
+
     const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
       where: { userId, contestId },
       select: { id: true }
     })
     if (isAlreadyRecord) {
-      throw new ForbiddenAccessException(
-        `User ${userId} is already participated in Contest ${contestId}`
-      )
+      throw new ActionNotAllowedException('repetitive participation', 'contest')
     }
     const now = new Date()
     if (now < contest.startTime || now >= contest.endTime) {
-      throw new ForbiddenAccessException(`Contest ${contestId} is not ongoing`)
+      throw new ActionNotAllowedException('participation', 'ended contest')
     }
+
     if (contest.type === 'ACM') {
       await this.prisma.contestRankACM.create({
         data: { contestId, userId }
