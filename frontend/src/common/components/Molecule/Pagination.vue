@@ -25,7 +25,7 @@ watch(
 const currentPageColor = (page: number) => {
   if (!props.mode || props.mode === 'light')
     return currentPage.value === page ? 'gray-dark' : 'gray'
-  else return currentPage.value === page ? 'indigo' : 'gray'
+  else return currentPage.value === page ? 'gray' : 'indigo'
 }
 
 watch(currentPage, (value) => {
@@ -37,7 +37,7 @@ watch(currentPage, (value) => {
   <div class="flex flex-row gap-1">
     <Button
       outline
-      color="gray-dark"
+      :color="!mode || mode === 'light' ? 'gray-dark' : 'white'"
       :class="{ 'pointer-events-none': currentPage === 1 }"
       class="aspect-square rounded-lg bg-transparent"
       @click="currentPage--"
@@ -128,7 +128,7 @@ watch(currentPage, (value) => {
 
     <Button
       outline
-      color="gray-dark"
+      :color="!mode || mode === 'light' ? 'gray-dark' : 'white'"
       :class="{ 'pointer-events-none': currentPage === numberOfPages }"
       class="aspect-square rounded-lg bg-transparent"
       @click="currentPage++"
