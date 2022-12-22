@@ -13,6 +13,59 @@ const selected = ref()
 const setSelected = (index: number) => {
   selected.value = index
 }
+
+const cardItems = [
+  {
+    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
+    title: 'SKKU 프로그래밍 대회 2023',
+    description: 'description',
+    coloredTextShort: 'Started Before 00:07:05'
+  },
+  {
+    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
+    title: 'SKKU 프로그래밍 대회 2023',
+    header: '2022.05.07 updated',
+    description: 'description',
+    coloredTextShort: 'Started Before 00:07:05'
+  },
+  {
+    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
+    title: 'SKKU 프로그래밍 대회 2023',
+    description: 'description',
+    coloredTextShort: 'Started Before 00:07:05'
+  },
+  {
+    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
+    title: 'SKKU 프로그래밍 대회 2023',
+    header: '2022.05.07 updated',
+    description: 'description',
+    coloredTextShort: 'Started Before 00:07:05'
+  },
+  {
+    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
+    title: 'SKKU 프로그래밍 대회 2023',
+    description: 'description',
+    coloredTextShort: 'Started Before 00:07:05'
+  },
+  {
+    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
+    title: 'SKKU 프로그래밍 대회 2023',
+    description: 'description',
+    coloredTextShort: 'Started Before 00:07:05'
+  },
+  {
+    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
+    title: 'SKKU 프로그래밍 대회 2023',
+    description: 'description',
+    coloredTextShort: 'Started Before 00:07:05'
+  },
+  {
+    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
+    title: 'SKKU 프로그래밍 대회 2023',
+    description: 'description',
+    coloredTextShort: 'Started Before 00:07:05'
+  }
+]
 </script>
 
 <template>
@@ -21,27 +74,17 @@ const setSelected = (index: number) => {
       <RadioButton class="mr-8" :texts="texts" @selected="setSelected" />
       <SearchBar placeholder="keywords" />
     </div>
-    <div class="flex flex-col items-center gap-4">
-      <!--<CardItem
-        v-for=""
-        class="w-full"
-        title="Lorem Ipsum"
-        img="https://www.skku.edu/_res/skku/img/skku_s.png"
-        description="Lorem Ipsum is simply dummy text"
-        additional-text="Status: Ongoing"
-        colored-text="Created by skkuding"
-        colored-text-short="By skkuding"
-      />
+    <div class="flex flex-col justify-center gap-4">
       <CardItem
-        class="w-full"
-        title="Lorem Ipsum"
-        img="https://www.skku.edu/_res/skku/img/skku_s.png"
-        description="Lorem Ipsum is simply dummy text"
-        additional-text="Status: Ongoing"
-        colored-text="Created by skkuding"
-        colored-text-short="By skkuding"
+        v-for="(item, index) in cardItems"
+        :key="index"
+        :img="item.img"
+        :title="item.title"
+        :description="item.description"
+        :colored-text="item.coloredTextShort"
+        border-color="gray"
+        class="w-full drop-shadow-md"
       />
-      !-->
     </div>
   </div>
 </template>

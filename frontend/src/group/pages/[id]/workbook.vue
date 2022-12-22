@@ -97,29 +97,8 @@ const cardItems = [
         :description="item.description"
         :total="item.total"
         :complete="item.complete"
-        class="m-6 cursor-pointer"
+        class="m-4 cursor-pointer"
         @click="clickCard(index)"
-      />
-      <ProgressCard
-        title="프로그래밍대회"
-        header="updated 3.30"
-        description="프로그래밍대회 기출문제 입니다."
-        :total="10"
-        :complete="6"
-      />
-      <ProgressCard
-        title="프로그래밍대회"
-        header="updated 3.30"
-        description="프로그래밍대회 기출문제 입니다."
-        :total="10"
-        :complete="6"
-      />
-      <ProgressCard
-        title="프로그래밍대회"
-        header="updated 3.30"
-        description="프로그래밍대회 기출문제 입니다."
-        :total="10"
-        :complete="6"
       />
     </div>
   </div>
