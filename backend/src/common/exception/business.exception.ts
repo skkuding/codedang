@@ -20,6 +20,12 @@ export class EntityNotExistException extends BusinessException {
   }
 }
 
+export class ActionNotAllowedException extends BusinessException {
+  constructor(action, entity) {
+    super(`${action} is not allowed to this ${entity}`)
+  }
+}
+
 export class UnprocessableDataException extends BusinessException {}
 
 export class ForbiddenAccessException extends BusinessException {}
