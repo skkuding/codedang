@@ -16,7 +16,7 @@ type FieldType = SubfieldType & {
 const props = defineProps<{
   fields: FieldType[]
   items: {
-    [key: string]: unknown
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any
   }[]
   placeholder?: string
   numberOfPages: number
