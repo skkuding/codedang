@@ -322,7 +322,7 @@ export class UserService {
       where: {
         username
       },
-      rejectOnNotFound: () => new EntityNotExistException('User')
+      rejectOnNotFound: () => new EntityNotExistException('user')
     })
 
     await this.prisma.user.delete({
@@ -347,7 +347,7 @@ export class UserService {
           }
         }
       },
-      rejectOnNotFound: () => new EntityNotExistException('User')
+      rejectOnNotFound: () => new EntityNotExistException('user')
     })
   }
 
@@ -359,6 +359,11 @@ export class UserService {
     if (email != updateUserEmailDto.email) {
       throw new UnprocessableDataException('The email is not authenticated one')
     }
+
+    await this.prisma.user.findUnique({
+      where: { id: req.user.id },
+      rejectOnNotFound: () => new EntityNotExistException('user')
+    })
 
     return await this.prisma.user.update({
       where: { id: req.user.id },
@@ -374,7 +379,7 @@ export class UserService {
   ): Promise<UserProfile> {
     await this.prisma.userProfile.findUnique({
       where: { userId },
-      rejectOnNotFound: () => new EntityNotExistException('UserProfile')
+      rejectOnNotFound: () => new EntityNotExistException('user profile')
     })
 
     return await this.prisma.userProfile.update({
