@@ -840,9 +840,9 @@ describe('ContestService', () => {
 
     it('should update contest is_public as true when given request_status is Accepted', async () => {
       //given
-      const updateContestIsPublicSpy = jest.spyOn(
+      const updateContestToPublicSpy = jest.spyOn(
         contestService,
-        'updateContestIsPublic'
+        'updateContestToPublic'
       )
       mockPrismaService.contestPublicizingRequest.findUnique.mockResolvedValue(
         contestPublicizingRequest
@@ -855,14 +855,14 @@ describe('ContestService', () => {
       )
 
       //then
-      expect(updateContestIsPublicSpy).toBeCalledWith(contestId, true)
+      expect(updateContestToPublicSpy).toBeCalledWith(contestId, true)
     })
 
     it('should update contest is_public as false when given request_status is Reject', async () => {
       //given
-      const updateContestIsPublicSpy = jest.spyOn(
+      const updateContestToPublicSpy = jest.spyOn(
         contestService,
-        'updateContestIsPublic'
+        'updateContestToPublic'
       )
       mockPrismaService.contestPublicizingRequest.findUnique.mockResolvedValue(
         contestPublicizingRequest
@@ -878,7 +878,7 @@ describe('ContestService', () => {
       )
 
       //then
-      expect(updateContestIsPublicSpy).toBeCalledWith(contestId, false)
+      expect(updateContestToPublicSpy).toBeCalledWith(contestId, false)
     })
   })
 

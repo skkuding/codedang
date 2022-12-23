@@ -385,9 +385,9 @@ export class ContestService {
     }
 
     if (respondDto.requestStatus == RequestStatus.Accepted) {
-      await this.updateContestIsPublic(request.contestId, true)
+      await this.updateContestToPublic(request.contestId, true)
     } else if (respondDto.requestStatus == RequestStatus.Rejected) {
-      await this.updateContestIsPublic(request.contestId, false)
+      await this.updateContestToPublic(request.contestId, false)
     }
 
     return await this.prisma.contestPublicizingRequest.update({
@@ -400,7 +400,7 @@ export class ContestService {
     })
   }
 
-  async updateContestIsPublic(id: number, isPublic: boolean) {
+  async updateContestToPublic(id: number, isPublic: boolean) {
     await this.prisma.contest.update({
       where: {
         id
