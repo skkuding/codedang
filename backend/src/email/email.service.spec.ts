@@ -53,7 +53,7 @@ describe('EmailService', () => {
 
   it('Email transmission success', async () => {
     MailerMock.sendMail.mockReturnValueOnce(expectedEmailInfo)
-    await service.sendPasswordResetPin(recipient, 'PIN')
+    await service.sendEmailAuthenticationPin(recipient, 'PIN')
 
     expect(MailerMock.sendMail.mock.calls.length).toBe(1)
   })
@@ -63,7 +63,7 @@ describe('EmailService', () => {
     MailerMock.sendMail.mockReturnValueOnce(Promise.resolve(expectedEmailInfo))
 
     await expect(async () => {
-      await service.sendPasswordResetPin(recipient, 'PIN')
+      await service.sendEmailAuthenticationPin(recipient, 'PIN')
     }).rejects.toThrowError(EmailTransmissionFailedException)
   })
 })
