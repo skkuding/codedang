@@ -8,7 +8,8 @@ import {
   Req,
   Res,
   UnauthorizedException,
-  Controller
+  Controller,
+  NotFoundException
 } from '@nestjs/common'
 import { UserProfile, User } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
@@ -47,7 +48,7 @@ export class UserController {
       return await this.userService.updatePassword(newPasswordDto, req)
     } catch (error) {
       if (error instanceof InvalidJwtTokenException) {
-        throw new InternalServerErrorException(error.message)
+        throw new UnauthorizedException(error.message)
       }
       throw new InternalServerErrorException('password reset failed')
     }
@@ -58,12 +59,12 @@ export class UserController {
   async signUp(@Body() signUpDto: SignUpDto, @Req() req: Request) {
     try {
       await this.userService.signUp(signUpDto, req)
-      return
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof InvalidJwtTokenException) {
+        throw new UnauthorizedException(error.message)
       }
-
       throw new InternalServerErrorException()
     }
   }
@@ -75,7 +76,6 @@ export class UserController {
   ) {
     try {
       await this.userService.withdrawal(req.user.username, withdrawalDto)
-      return
     } catch (error) {
       if (
         error instanceof InvalidUserException ||
@@ -110,6 +110,13 @@ export class UserController {
     try {
       return await this.userService.updateUserEmail(req, updateUserEmail)
     } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof InvalidJwtTokenException) {
+        throw new UnauthorizedException(error.message)
+      } else if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
       throw new InternalServerErrorException()
     }
   }
