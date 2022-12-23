@@ -3,7 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { User } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { passwordResetPinCacheKey } from 'src/common/cache/keys'
+import { emailAuthenticationPinCacheKey } from 'src/common/cache/keys'
 import { InvalidPinException } from 'src/common/exception/business.exception'
 import { EmailService } from 'src/email/email.service'
 import { PrismaService } from 'src/prisma/prisma.service'
@@ -11,16 +11,20 @@ import { UserService } from './user.service'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { Request } from 'express'
+import { GroupService } from 'src/group/group.service'
+import { AuthService } from 'src/auth/auth.service'
 
 describe('UserService', () => {
   let userService: UserService
+  let authService: AuthService
   let cache: Cache
   let emailService: EmailService
+  let groupService: GroupService
   let mailer: MailerService
 
   const USER_ID = 1
   const EMAIL_ADDRESS = 'email@email.com'
-  const PASSWORD_RESET_PIN_KEY = passwordResetPinCacheKey(EMAIL_ADDRESS)
+  const PASSWORD_RESET_PIN_KEY = emailAuthenticationPinCacheKey(EMAIL_ADDRESS)
   const PASSWORD_RESET_PIN = 'thisIsPasswordResetPin'
   const TIME_TO_LIVE = 300
   const NEW_PASSWORD = 'thisISNewPassword'
@@ -36,7 +40,7 @@ describe('UserService', () => {
   const user: User = {
     id: USER_ID,
     username: 'user',
-    password: 'password',
+    password: 'thisISpassword',
     role: 'User',
     email: EMAIL_ADDRESS,
     lastLogin: undefined,
@@ -55,8 +59,8 @@ describe('UserService', () => {
     messageId: '6bd7-3d62-c84b-61865f06534b@gmail.com'
   }
 
-  const passwordResetJwtPayload = {
-    userId: USER_ID
+  const emailAuthJwtPayload = {
+    email: EMAIL_ADDRESS
   }
 
   const RequestObject = {} as Request
@@ -65,7 +69,9 @@ describe('UserService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
+        AuthService,
         EmailService,
+        GroupService,
         JwtService,
         ConfigService,
         { provide: PrismaService, useValue: {} },
@@ -75,7 +81,9 @@ describe('UserService', () => {
     }).compile()
 
     userService = module.get<UserService>(UserService)
+    authService = module.get<AuthService>(AuthService)
     emailService = module.get<EmailService>(EmailService)
+    groupService = module.get<GroupService>(GroupService)
     mailer = module.get<MailerService>(MailerService)
     cache = module.get(CACHE_MANAGER)
   })
@@ -123,13 +131,13 @@ describe('UserService', () => {
       mailer.sendMail = jest.fn().mockResolvedValue(expectedEmailInfo)
 
       sendPasswordResetPinSpy = jest
-        .spyOn(emailService, 'sendPasswordResetPin')
+        .spyOn(emailService, 'sendEmailAuthenticationPin')
         .mockResolvedValueOnce(expectedEmailInfo)
     })
 
     it('if user email exist, create token and send email', async () => {
       const tokenGeneratorSpy = jest.spyOn(userService, 'createPinRandomly')
-      await userService.createPinAndSendEmail({ email: EMAIL_ADDRESS })
+      await userService.createPinAndSendEmail(EMAIL_ADDRESS)
       expect(sendPasswordResetPinSpy).toBeCalledTimes(1)
       expect(sendPasswordResetPinSpy.mock.calls[0][0]).toBe(EMAIL_ADDRESS)
       expect(tokenGeneratorSpy).toHaveBeenCalledTimes(1)
@@ -145,7 +153,7 @@ describe('UserService', () => {
       userService.getUserCredentialByEmail = jest.fn().mockReturnValue(user)
       userService.verifyJwtFromRequestHeader = jest
         .fn()
-        .mockReturnValue(passwordResetJwtPayload)
+        .mockReturnValue(emailAuthJwtPayload)
       userService.createJwt = jest.fn().mockReturnValue('jwt')
     })
 
@@ -156,14 +164,14 @@ describe('UserService', () => {
         .mockReturnValueOnce(null)
 
       await expect(
-        userService.verifyPinAndIssueJwtForPasswordReset({
+        userService.verifyPinAndIssueJwt({
           pin: PASSWORD_RESET_PIN,
           email: EMAIL_ADDRESS
         })
       ).rejects.toThrow(InvalidPinException)
 
       await expect(
-        userService.verifyPinAndIssueJwtForPasswordReset({
+        userService.verifyPinAndIssueJwt({
           pin: PASSWORD_RESET_PIN,
           email: EMAIL_ADDRESS
         })
@@ -171,7 +179,7 @@ describe('UserService', () => {
     })
 
     it('pin is valid', async () => {
-      const jwt = await userService.verifyPinAndIssueJwtForPasswordReset({
+      const jwt = await userService.verifyPinAndIssueJwt({
         pin: PASSWORD_RESET_PIN,
         email: EMAIL_ADDRESS
       })
@@ -181,13 +189,13 @@ describe('UserService', () => {
     it('check if deletePin function is called', async () => {
       userService.verifyPin = jest.fn().mockReturnValueOnce(true)
       const deleteTokenSpy = jest.spyOn(userService, 'deletePinFromCache')
-      await userService.verifyPinAndIssueJwtForPasswordReset({
+      await userService.verifyPinAndIssueJwt({
         pin: PASSWORD_RESET_PIN,
         email: EMAIL_ADDRESS
       })
       expect(deleteTokenSpy).toHaveBeenCalledTimes(1)
       expect(deleteTokenSpy.mock.calls[0][0]).toBe(
-        passwordResetPinCacheKey(EMAIL_ADDRESS)
+        emailAuthenticationPinCacheKey(EMAIL_ADDRESS)
       )
     })
 
@@ -196,15 +204,16 @@ describe('UserService', () => {
         userService,
         'updateUserPasswordInPrisma'
       )
-      await userService.updatePassword(
+      const result = await userService.updatePassword(
         {
           newPassword: NEW_PASSWORD
         },
         RequestObject
       )
       expect(updatePasswordInPrismaSpy).toHaveBeenCalledTimes(1)
-      expect(updatePasswordInPrismaSpy.mock.calls[0][0]).toBe(USER_ID)
+      expect(updatePasswordInPrismaSpy.mock.calls[0][0]).toBe(EMAIL_ADDRESS)
       expect(updatePasswordInPrismaSpy.mock.calls[0][1]).toBe(NEW_PASSWORD)
+      expect(result).toBe('Password Reset successfully')
     })
   })
 })
