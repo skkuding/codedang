@@ -49,6 +49,8 @@ export class UserController {
     } catch (error) {
       if (error instanceof InvalidJwtTokenException) {
         throw new UnauthorizedException(error.message)
+      } else if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
       }
       throw new InternalServerErrorException('password reset failed')
     }
