@@ -21,6 +21,15 @@ export class EntityNotExistException extends BusinessException {
   }
 }
 
+/** Throw when invalid action is attemped, such as joining ended contest.
+ * This exception may be thrown if a trial by an user is invalid.
+ */
+export class ActionNotAllowedException extends BusinessException {
+  constructor(action, entity) {
+    super(`${action} is not allowed to this ${entity}`)
+  }
+}
+
 /** Throw when data is invalid or processing logic is missing. */
 export class UnprocessableDataException extends BusinessException {}
 
