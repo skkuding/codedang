@@ -71,9 +71,9 @@ model UserGroup {
 
 model Group {
   id             Int      @id @default(autoincrement())
-  createdBy      User     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy      User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
   createdById    Int      @map("created_by_id")
-  groupName      String   @map("group_name")
+  groupName      String   @unique @map("group_name")
   private        Boolean  @default(false)
   // 생성시 자동 발급
   invitationCode String   @map("invitation_code")
@@ -92,7 +92,7 @@ model Group {
 
 model Notice {
   id          Int      @id @default(autoincrement())
-  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
   createdById Int      @map("created_by_id")
   group       Group    @relation(fields: [groupId], references: [id])
   groupId     Int      @map("group_id")
@@ -108,7 +108,7 @@ model Notice {
 
 model Problem {
   id                Int      @id @default(autoincrement())
-  createdBy         User     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy         User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
   createdById       Int      @map("created_by_id")
   group             Group    @relation(fields: [groupId], references: [id])
   groupId           Int      @map("group_id")
@@ -176,7 +176,7 @@ model Tag {
 
 model Contest {
   id                 Int         @id @default(autoincrement())
-  createdBy          User        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy          User        @relation(fields: [createdById], references: [id], onDelete: Restrict)
   createdById        Int         @map("created_by_id")
   group              Group       @relation(fields: [groupId], references: [id])
   groupId            Int         @map("group_id")
@@ -284,7 +284,7 @@ model ContestRankACM {
 
 model Workbook {
   id          Int      @id @default(autoincrement())
-  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
   createdById Int      @map("created_by_id")
   group       Group    @relation(fields: [groupId], references: [id])
   groupId     Int      @map("group_id")

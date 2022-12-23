@@ -85,7 +85,7 @@ export class ContestService {
       data: {
         title: contestDto.title,
         description: contestDto.description,
-        descriptionSummary: contestDto.description,
+        descriptionSummary: contestDto.descriptionSummary,
         startTime: contestDto.startTime,
         endTime: contestDto.endTime,
         visible: contestDto.visible,
@@ -160,7 +160,7 @@ export class ContestService {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
       select: { ...this.contestSelectOption, description: true, visible: true },
-      rejectOnNotFound: () => new EntityNotExistException('Contest')
+      rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
     const userGroup = await this.groupService.getUserGroupMembershipInfo(
@@ -187,7 +187,7 @@ export class ContestService {
         title: true,
         descriptionSummary: true
       },
-      rejectOnNotFound: () => new EntityNotExistException('Contest')
+      rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
     return contest
@@ -225,7 +225,7 @@ export class ContestService {
         descriptionSummary: true,
         isRankVisible: true
       },
-      rejectOnNotFound: () => new EntityNotExistException('Contest')
+      rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
     return contest
@@ -253,7 +253,8 @@ export class ContestService {
 
     if (request) {
       throw new ActionNotAllowedException(
-        'This contest is already accepted or waits response'
+        'duplicated request',
+        'request converting contest to be public'
       )
     }
 
@@ -299,7 +300,8 @@ export class ContestService {
   ) {
     if (requestStatus != RequestStatus.Pending) {
       throw new ActionNotAllowedException(
-        'Already responded request cannot be removed'
+        'deleting processed one',
+        'request converting contest to be public'
       )
     }
 
@@ -372,7 +374,10 @@ export class ContestService {
     })
 
     if (request.requestStatus != RequestStatus.Pending) {
-      throw new ActionNotAllowedException('This request is already responded')
+      throw new ActionNotAllowedException(
+        'responding to processed one',
+        'request converting contest to be public'
+      )
     }
 
     if (respondDto.requestStatus == RequestStatus.Accepted) {
@@ -476,5 +481,38 @@ export class ContestService {
       rejectOnNotFound: () =>
         new EntityNotExistException('ContestToPublicRequest')
     })
+  }
+
+  async createContestRecord(
+    userId: number,
+    contestId: number
+  ): Promise<undefined> {
+    const contest = await this.prisma.contest.findUnique({
+      where: { id: contestId },
+      select: { startTime: true, endTime: true, type: true }
+    })
+    if (!contest) {
+      throw new EntityNotExistException('contest')
+    }
+
+    const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
+      where: { userId, contestId },
+      select: { id: true }
+    })
+    if (isAlreadyRecord) {
+      throw new ActionNotAllowedException('repetitive participation', 'contest')
+    }
+    const now = new Date()
+    if (now < contest.startTime || now >= contest.endTime) {
+      throw new ActionNotAllowedException('participation', 'ended contest')
+    }
+
+    if (contest.type === 'ACM') {
+      await this.prisma.contestRankACM.create({
+        data: { contestId, userId }
+      })
+    }
+    // Todo: other contest type -> create other contest record table
+    return
   }
 }
