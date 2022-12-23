@@ -134,6 +134,10 @@ export class UserService {
     { newPassword }: NewPasswordDto,
     req: Request
   ): Promise<string> {
+    if (!this.isValidPassword(newPassword)) {
+      throw new UnprocessableDataException('Bad password')
+    }
+
     const { email } = await this.verifyJwtFromRequestHeader(req)
     await this.updateUserPasswordInPrisma(email, newPassword)
 
@@ -228,6 +232,12 @@ export class UserService {
       throw new UnprocessableDataException('Username already exists')
     }
 
+    if (!this.isValidUsername(signUpDto.username)) {
+      throw new UnprocessableDataException('Bad username')
+    } else if (!this.isValidPassword(signUpDto.password)) {
+      throw new UnprocessableDataException('Bad password')
+    }
+
     const user: User = await this.createUser(signUpDto)
     const CreateUserProfileData: CreateUserProfileData = {
       userId: user.id,
@@ -237,6 +247,22 @@ export class UserService {
     await this.registerUserToPublicGroup(user.id)
 
     return user
+  }
+
+  isValidUsername(username: string): boolean {
+    const validUsername = /^[a-z0-9]{3,10}$/
+    if (!validUsername.test(username)) {
+      return false
+    }
+    return true
+  }
+
+  isValidPassword(password: string): boolean {
+    const invalidPassword = /^(.{0,7}|[a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
+    if (invalidPassword.test(password)) {
+      return false
+    }
+    return true
   }
 
   async createUser(signUpDto: SignUpDto): Promise<User> {
