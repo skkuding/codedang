@@ -23,6 +23,7 @@ export class EmailService {
           path: path.join(__dirname, 'templates/logo.png'),
           cid: 'logo'
         }
+      ]
     })
 
     if (sentEmailInfo.accepted.length === 0) {
