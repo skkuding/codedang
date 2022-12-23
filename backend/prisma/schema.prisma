@@ -28,17 +28,17 @@ model User {
   createTime            DateTime @default(now()) @map("create_time")
   updateTime            DateTime @updatedAt @map("update_time")
 
-  UserProfile            UserProfile?
-  UserGroup              UserGroup[]
-  Group                  Group[]
-  Notice                 Notice[]
-  Problem                Problem[]
-  Contest                Contest[]
-  ContestRecord          ContestRecord[]
-  ContestRankACM         ContestRankACM[]
-  Workbook               Workbook[]
-  Submission             Submission[]
-  ContestToPublicRequest ContestToPublicRequest[]
+  UserProfile               UserProfile?
+  UserGroup                 UserGroup[]
+  Group                     Group[]
+  Notice                    Notice[]
+  Problem                   Problem[]
+  Contest                   Contest[]
+  ContestRecord             ContestRecord[]
+  ContestRankACM            ContestRankACM[]
+  Workbook                  Workbook[]
+  Submission                Submission[]
+  ContestPublicizingRequest ContestPublicizingRequest[]
 
   @@map("user")
 }
@@ -192,12 +192,12 @@ model Contest {
   createTime         DateTime    @default(now()) @map("create_time")
   updateTime         DateTime    @updatedAt @map("update_time")
 
-  ContestNotice          ContestNotice[]
-  ContestProblem         ContestProblem[]
-  ContestRecord          ContestRecord[]
-  ContestRankACM         ContestRankACM[]
-  Submission             Submission[]
-  ContestToPublicRequest ContestToPublicRequest[]
+  ContestNotice             ContestNotice[]
+  ContestProblem            ContestProblem[]
+  ContestRecord             ContestRecord[]
+  ContestRankACM            ContestRankACM[]
+  Submission                Submission[]
+  ContestPublicizingRequest ContestPublicizingRequest[]
 
   @@map("contest")
 }
@@ -221,7 +221,7 @@ model ContestNotice {
   @@map("contest_notice")
 }
 
-model ContestToPublicRequest {
+model ContestPublicizingRequest {
   id            Int           @id @default(autoincrement())
   contest       Contest       @relation(fields: [contestId], references: [id])
   contestId     Int           @map("contest_id")
@@ -232,7 +232,7 @@ model ContestToPublicRequest {
   createTime    DateTime      @default(now()) @map("create_time")
   updateTime    DateTime      @updatedAt @map("update_time")
 
-  @@map("contest_to_public_request")
+  @@map("contest_publicizing_request")
 }
 
 enum RequestStatus {

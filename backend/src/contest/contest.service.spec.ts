@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import {
   Contest,
-  ContestToPublicRequest,
+  ContestPublicizingRequest,
   ContestType,
   RequestStatus,
   ContestRankACM,
@@ -18,14 +18,14 @@ import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { ContestService } from './contest.service'
 import { CreateContestDto } from './dto/create-contest.dto'
-import { CreateContestToPublicRequestDto } from './dto/create-topublic-request.dto'
-import { RespondContestToPublicRequestDto } from './dto/respond-topublic-request.dto'
+import { CreateContestPublicizingRequestDto } from './dto/create-publicizing-request.dto'
+import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
 
 const contestId = 1
 const userId = 1
 const groupId = 1
-const contestToPublicRequestId = 1
+const contestPublicizeRequestId = 1
 
 const contest = {
   id: contestId,
@@ -80,8 +80,8 @@ const contests: Partial<Contest>[] = [
   ...upcomingContests
 ]
 
-const contestToPublicRequest: ContestToPublicRequest = {
-  id: contestToPublicRequestId,
+const contestPublicizingRequest: ContestPublicizingRequest = {
+  id: contestPublicizeRequestId,
   contestId: contestId,
   message: 'This is contest to public request',
   createdById: userId,
@@ -90,8 +90,8 @@ const contestToPublicRequest: ContestToPublicRequest = {
   updateTime: new Date('2022-12-07T18:34:23.999175+09:00')
 }
 
-const contestToPublicRequests: ContestToPublicRequest[] = [
-  contestToPublicRequest
+const contestPublicizingRequests: ContestPublicizingRequest[] = [
+  contestPublicizingRequest
 ]
 
 const ongoingContest: Partial<Contest> = ongoingContests[0]
@@ -139,7 +139,7 @@ const mockPrismaService = {
     update: jest.fn().mockResolvedValue(contest),
     delete: jest.fn()
   },
-  contestToPublicRequest: {
+  contestPublicizingRequest: {
     findUnique: jest.fn(),
     findFirst: jest.fn(),
     findMany: jest.fn(),
@@ -517,169 +517,176 @@ describe('ContestService', () => {
     })
   })
 
-  describe('createContestToPublicRequest', () => {
-    const createContestToPublicRequestDto: CreateContestToPublicRequestDto = {
-      contestId: contestId,
-      message: 'This is contest to public request'
-    }
+  describe('createContestPublicizingRequest', () => {
+    const createContestPublicizingRequestDto: CreateContestPublicizingRequestDto =
+      {
+        contestId: contestId,
+        message: 'This is contest to public request'
+      }
 
     afterEach(() => {
-      mockPrismaService.contestToPublicRequest.create.mockClear()
+      mockPrismaService.contestPublicizingRequest.create.mockClear()
     })
 
     it('should return created request when contest does not have accepted or pending request', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(null)
-      mockPrismaService.contestToPublicRequest.create.mockResolvedValue(
-        contestToPublicRequest
+      mockPrismaService.contestPublicizingRequest.findFirst.mockResolvedValue(
+        null
+      )
+      mockPrismaService.contestPublicizingRequest.create.mockResolvedValue(
+        contestPublicizingRequest
       )
 
       //when
-      const result = await contestService.createContestToPublicRequest(
+      const result = await contestService.createContestPublicizingRequest(
         userId,
-        createContestToPublicRequestDto
+        createContestPublicizingRequestDto
       )
 
       //then
-      expect(mockPrismaService.contestToPublicRequest.create).toBeCalledTimes(1)
-      expect(result).toEqual(contestToPublicRequest)
+      expect(
+        mockPrismaService.contestPublicizingRequest.create
+      ).toBeCalledTimes(1)
+      expect(result).toEqual(contestPublicizingRequest)
     })
 
     it('should throw error when existing accepted request for the contest', async () => {
       //given
-      const acceptedRequest: ContestToPublicRequest = {
-        ...contestToPublicRequest,
+      const acceptedRequest: ContestPublicizingRequest = {
+        ...contestPublicizingRequest,
         requestStatus: RequestStatus.Accepted
       }
-      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
+      mockPrismaService.contestPublicizingRequest.findFirst.mockResolvedValue(
         acceptedRequest
       )
 
       //when
-      const callCreateContestToPublicRequest = async () =>
-        await contestService.createContestToPublicRequest(
+      const callCreateContestPublicizingRequest = async () =>
+        await contestService.createContestPublicizingRequest(
           userId,
-          createContestToPublicRequestDto
+          createContestPublicizingRequestDto
         )
 
       //then
-      await expect(callCreateContestToPublicRequest).rejects.toThrow(
+      await expect(callCreateContestPublicizingRequest).rejects.toThrow(
         ActionNotAllowedException
       )
     })
 
     it('should throw error when existing pending request for the contest', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
-        contestToPublicRequest
+      mockPrismaService.contestPublicizingRequest.findFirst.mockResolvedValue(
+        contestPublicizingRequest
       )
 
       //when
-      const callCreateContestToPublicRequest = async () =>
-        await contestService.createContestToPublicRequest(
+      const callCreateContestPublicizingRequest = async () =>
+        await contestService.createContestPublicizingRequest(
           userId,
-          createContestToPublicRequestDto
+          createContestPublicizingRequestDto
         )
 
       //then
-      await expect(callCreateContestToPublicRequest).rejects.toThrow(
+      await expect(callCreateContestPublicizingRequest).rejects.toThrow(
         ActionNotAllowedException
       )
     })
   })
 
-  describe('deleteContestToPublicRequest', () => {
+  describe('deleteContestPublicizingRequest', () => {
     afterEach(() => {
-      mockPrismaService.contestToPublicRequest.delete.mockClear()
+      mockPrismaService.contestPublicizingRequest.delete.mockClear()
     })
 
     it('should throw error when request for the contest does not exist', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findFirst.mockRejectedValue(
-        new EntityNotExistException('ContestToPublicRequest')
+      mockPrismaService.contestPublicizingRequest.findFirst.mockRejectedValue(
+        new EntityNotExistException('ContestPublicizingRequest')
       )
 
       //when
-      const callDeleteContestToPublicRequest = async () =>
-        await contestService.deleteContestToPublicRequest(
+      const callDeleteContestPublicizingRequest = async () =>
+        await contestService.deleteContestPublicizingRequest(
           contestId,
-          contestToPublicRequestId
+          contestPublicizeRequestId
         )
 
       //then
-      await expect(callDeleteContestToPublicRequest).rejects.toThrow(
+      await expect(callDeleteContestPublicizingRequest).rejects.toThrow(
         EntityNotExistException
       )
     })
 
     it('should throw error when request status is Accepted', async () => {
       //given
-      const acceptedRequest: ContestToPublicRequest = {
-        ...contestToPublicRequest,
+      const acceptedRequest: ContestPublicizingRequest = {
+        ...contestPublicizingRequest,
         requestStatus: RequestStatus.Accepted
       }
-      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
+      mockPrismaService.contestPublicizingRequest.findFirst.mockResolvedValue(
         acceptedRequest
       )
 
       //when
-      const callDeleteContestToPublicRequest = async () =>
-        await contestService.deleteContestToPublicRequest(
+      const callDeleteContestPublicizingRequest = async () =>
+        await contestService.deleteContestPublicizingRequest(
           contestId,
-          contestToPublicRequestId
+          contestPublicizeRequestId
         )
 
       //then
-      await expect(callDeleteContestToPublicRequest).rejects.toThrow(
+      await expect(callDeleteContestPublicizingRequest).rejects.toThrow(
         ActionNotAllowedException
       )
     })
 
     it('should throw error when request status is Rejected', async () => {
       //given
-      const rejectedRequest: ContestToPublicRequest = {
-        ...contestToPublicRequest,
+      const rejectedRequest: ContestPublicizingRequest = {
+        ...contestPublicizingRequest,
         requestStatus: RequestStatus.Rejected
       }
-      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
+      mockPrismaService.contestPublicizingRequest.findFirst.mockResolvedValue(
         rejectedRequest
       )
 
       //when
-      const callDeleteContestToPublicRequest = async () =>
-        await contestService.deleteContestToPublicRequest(
+      const callDeleteContestPublicizingRequest = async () =>
+        await contestService.deleteContestPublicizingRequest(
           contestId,
-          contestToPublicRequestId
+          contestPublicizeRequestId
         )
 
       //then
-      await expect(callDeleteContestToPublicRequest).rejects.toThrow(
+      await expect(callDeleteContestPublicizingRequest).rejects.toThrow(
         ActionNotAllowedException
       )
     })
 
     it('should delete request for given contest id when request stauts is Pending', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
-        contestToPublicRequest
+      mockPrismaService.contestPublicizingRequest.findFirst.mockResolvedValue(
+        contestPublicizingRequest
       )
 
       //when
-      await contestService.deleteContestToPublicRequest(
+      await contestService.deleteContestPublicizingRequest(
         contestId,
-        contestToPublicRequestId
+        contestPublicizeRequestId
       )
 
       //then
-      expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(1)
+      expect(
+        mockPrismaService.contestPublicizingRequest.delete
+      ).toBeCalledTimes(1)
     })
   })
 
-  describe('deletePendingContestToPublicRequest', () => {
+  describe('deletePendingContestPublicizingRequest', () => {
     let requestStatus: RequestStatus
 
     afterEach(() => {
-      mockPrismaService.contestToPublicRequest.delete.mockClear()
+      mockPrismaService.contestPublicizingRequest.delete.mockClear()
     })
 
     it('should throw error when request status is Accepted', async () => {
@@ -687,14 +694,14 @@ describe('ContestService', () => {
       requestStatus = RequestStatus.Accepted
 
       //when
-      const callDeletePendingContestToPublicRequest = async () =>
-        await contestService.deletePendingContestToPublicRequest(
+      const callDeletePendingContestPublicizingRequest = async () =>
+        await contestService.deletePendingContestPublicizingRequest(
           requestStatus,
-          contestToPublicRequestId
+          contestPublicizeRequestId
         )
 
       //then
-      await expect(callDeletePendingContestToPublicRequest).rejects.toThrow(
+      await expect(callDeletePendingContestPublicizingRequest).rejects.toThrow(
         ActionNotAllowedException
       )
     })
@@ -704,14 +711,14 @@ describe('ContestService', () => {
       requestStatus = RequestStatus.Rejected
 
       //when
-      const callDeletePendingContestToPublicRequest = async () =>
-        await contestService.deletePendingContestToPublicRequest(
+      const callDeletePendingContestPublicizingRequest = async () =>
+        await contestService.deletePendingContestPublicizingRequest(
           requestStatus,
-          contestToPublicRequestId
+          contestPublicizeRequestId
         )
 
       //then
-      await expect(callDeletePendingContestToPublicRequest).rejects.toThrow(
+      await expect(callDeletePendingContestPublicizingRequest).rejects.toThrow(
         ActionNotAllowedException
       )
     })
@@ -721,105 +728,112 @@ describe('ContestService', () => {
       requestStatus = RequestStatus.Pending
 
       //when
-      await contestService.deletePendingContestToPublicRequest(
+      await contestService.deletePendingContestPublicizingRequest(
         requestStatus,
-        contestToPublicRequestId
+        contestPublicizeRequestId
       )
 
       //then
-      expect(mockPrismaService.contestToPublicRequest.delete).toBeCalledTimes(1)
+      expect(
+        mockPrismaService.contestPublicizingRequest.delete
+      ).toBeCalledTimes(1)
     })
   })
 
-  describe('getContestToPublicRequests', () => {
+  describe('getContestPublicizingRequests', () => {
     it('should return requests for given contestId', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findMany.mockResolvedValue(
-        contestToPublicRequests
+      mockPrismaService.contestPublicizingRequest.findMany.mockResolvedValue(
+        contestPublicizingRequests
       )
 
       //when
-      const result = await contestService.getContestToPublicRequests(contestId)
+      const result = await contestService.getContestPublicizingRequests(
+        contestId
+      )
 
       //then
-      expect(result).toEqual(contestToPublicRequests)
+      expect(result).toEqual(contestPublicizingRequests)
     })
   })
 
-  describe('getContestToPublicRequest', () => {
+  describe('getContestPublicizingRequest', () => {
     it('should return request for given id', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findFirst.mockResolvedValue(
-        contestToPublicRequest
+      mockPrismaService.contestPublicizingRequest.findFirst.mockResolvedValue(
+        contestPublicizingRequest
       )
 
       //when
-      const result = await contestService.getContestToPublicRequest(
+      const result = await contestService.getContestPublicizingRequest(
         contestId,
-        contestToPublicRequestId
+        contestPublicizeRequestId
       )
 
       //then
-      expect(result).toEqual(contestToPublicRequest)
+      expect(result).toEqual(contestPublicizingRequest)
     })
 
     it('should throw error when request does not exist', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findFirst.mockRejectedValue(
-        new EntityNotExistException('ContestToPublicRequest')
+      mockPrismaService.contestPublicizingRequest.findFirst.mockRejectedValue(
+        new EntityNotExistException('ContestPublicizingRequest')
       )
 
       //when
-      const callGetContestToPublicRequest = async () =>
-        await contestService.getContestToPublicRequest(
+      const callGetContestPublicizingRequest = async () =>
+        await contestService.getContestPublicizingRequest(
           contestId,
-          contestToPublicRequestId
+          contestPublicizeRequestId
         )
 
       //then
-      await expect(callGetContestToPublicRequest).rejects.toThrow(
+      await expect(callGetContestPublicizingRequest).rejects.toThrow(
         EntityNotExistException
       )
     })
   })
 
-  describe('respondContestToPublicRequest', () => {
-    let respondContestToPublicRequestDto: RespondContestToPublicRequestDto = {
-      requestStatus: RequestStatus.Accepted
-    }
+  describe('respondContestPublicizingRequest', () => {
+    let respondContestPublicizingRequestDto: RespondContestPublicizingRequestDto =
+      {
+        requestStatus: RequestStatus.Accepted
+      }
 
     it('should update contest and request', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
-        contestToPublicRequest
+      mockPrismaService.contestPublicizingRequest.findUnique.mockResolvedValue(
+        contestPublicizingRequest
       )
 
       //when
-      await contestService.respondContestToPublicRequest(
-        contestToPublicRequestId,
-        respondContestToPublicRequestDto
+      await contestService.respondContestPublicizingRequest(
+        contestPublicizeRequestId,
+        respondContestPublicizingRequestDto
       )
 
       //then
       expect(mockPrismaService.contest.update).toBeCalledTimes(1)
-      expect(mockPrismaService.contestToPublicRequest.update).toBeCalledTimes(1)
+      expect(
+        mockPrismaService.contestPublicizingRequest.update
+      ).toBeCalledTimes(1)
     })
 
     it('should throw error when request for the contest does not exist', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findUnique.mockRejectedValue(
-        new EntityNotExistException('ContestToPublicRequest')
+      mockPrismaService.contestPublicizingRequest.findUnique.mockRejectedValue(
+        new EntityNotExistException('ContestPublicizingRequest')
       )
 
       //when
-      const callRespondContestToPublicRequest = async () =>
-        await contestService.respondContestToPublicRequest(
-          contestToPublicRequestId,
-          respondContestToPublicRequestDto
+      const callRespondContestPublicizingRequest = async () =>
+        await contestService.respondContestPublicizingRequest(
+          contestPublicizeRequestId,
+          respondContestPublicizingRequestDto
         )
 
       //then
-      await expect(callRespondContestToPublicRequest).rejects.toThrow(
+      await expect(callRespondContestPublicizingRequest).rejects.toThrow(
         EntityNotExistException
       )
     })
@@ -830,14 +844,14 @@ describe('ContestService', () => {
         contestService,
         'updateContestIsPublic'
       )
-      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
-        contestToPublicRequest
+      mockPrismaService.contestPublicizingRequest.findUnique.mockResolvedValue(
+        contestPublicizingRequest
       )
 
       //when
-      await contestService.respondContestToPublicRequest(
-        contestToPublicRequestId,
-        respondContestToPublicRequestDto
+      await contestService.respondContestPublicizingRequest(
+        contestPublicizeRequestId,
+        respondContestPublicizingRequestDto
       )
 
       //then
@@ -850,17 +864,17 @@ describe('ContestService', () => {
         contestService,
         'updateContestIsPublic'
       )
-      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
-        contestToPublicRequest
+      mockPrismaService.contestPublicizingRequest.findUnique.mockResolvedValue(
+        contestPublicizingRequest
       )
-      respondContestToPublicRequestDto = {
+      respondContestPublicizingRequestDto = {
         requestStatus: RequestStatus.Rejected
       }
 
       //when
-      await contestService.respondContestToPublicRequest(
-        contestToPublicRequestId,
-        respondContestToPublicRequestDto
+      await contestService.respondContestPublicizingRequest(
+        contestPublicizeRequestId,
+        respondContestPublicizingRequestDto
       )
 
       //then
@@ -868,54 +882,54 @@ describe('ContestService', () => {
     })
   })
 
-  describe('getAdminContestToPublicRequests', () => {
+  describe('getAdminContestPublicizingRequests', () => {
     it('should return requests for given where option', async () => {
       //given
       const whereOption = [RequestStatus.Pending]
-      mockPrismaService.contestToPublicRequest.findMany.mockResolvedValue(
-        contestToPublicRequests
+      mockPrismaService.contestPublicizingRequest.findMany.mockResolvedValue(
+        contestPublicizingRequests
       )
 
       //when
-      const result = await contestService.getAdminContestToPublicRequests(
+      const result = await contestService.getAdminContestPublicizingRequests(
         whereOption
       )
 
       //then
-      expect(result).toEqual(contestToPublicRequests)
+      expect(result).toEqual(contestPublicizingRequests)
     })
   })
 
-  describe('getAdminContestToPublicRequest', () => {
+  describe('getAdminContestPublicizingRequest', () => {
     it('should return request for given contest id', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findUnique.mockResolvedValue(
-        contestToPublicRequest
+      mockPrismaService.contestPublicizingRequest.findUnique.mockResolvedValue(
+        contestPublicizingRequest
       )
 
       //when
-      const result = await contestService.getAdminContestToPublicRequest(
-        contestToPublicRequestId
+      const result = await contestService.getAdminContestPublicizingRequest(
+        contestPublicizeRequestId
       )
 
       //then
-      expect(result).toEqual(contestToPublicRequest)
+      expect(result).toEqual(contestPublicizingRequest)
     })
 
     it('should throw error when request for given contest id does not exist', async () => {
       //given
-      mockPrismaService.contestToPublicRequest.findUnique.mockRejectedValue(
-        new EntityNotExistException('ContestToPublicRequest')
+      mockPrismaService.contestPublicizingRequest.findUnique.mockRejectedValue(
+        new EntityNotExistException('ContestPublicizingRequest')
       )
 
       //when
-      const callGetAdminContestToPublicRequest = async () =>
-        await contestService.getAdminContestToPublicRequest(
-          contestToPublicRequestId
+      const callGetAdminContestPublicizingRequest = async () =>
+        await contestService.getAdminContestPublicizingRequest(
+          contestPublicizeRequestId
         )
 
       //then
-      await expect(callGetAdminContestToPublicRequest).rejects.toThrow(
+      await expect(callGetAdminContestPublicizingRequest).rejects.toThrow(
         EntityNotExistException
       )
     })

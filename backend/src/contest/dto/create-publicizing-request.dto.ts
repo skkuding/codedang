@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
-export class CreateContestToPublicRequestDto {
+export class CreateContestPublicizingRequestDto {
   @IsNumber()
   @IsNotEmpty()
   readonly contestId: number

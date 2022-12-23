@@ -17,7 +17,7 @@ import {
 import { ContestService } from './contest.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
-import { Contest, ContestToPublicRequest, Role } from '@prisma/client'
+import { Contest, ContestPublicizingRequest, Role } from '@prisma/client'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
@@ -25,10 +25,10 @@ import {
 } from 'src/common/exception/business.exception'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
-import { CreateContestToPublicRequestDto } from './dto/create-topublic-request.dto'
+import { CreateContestPublicizingRequestDto } from './dto/create-publicizing-request.dto'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
-import { RespondContestToPublicRequestDto } from './dto/respond-topublic-request.dto'
+import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 
 @Controller('admin/contest')
 @UseGuards(RolesGuard)
@@ -127,18 +127,19 @@ export class GroupContestAdminController {
 @Controller('admin/contest')
 @UseGuards(RolesGuard)
 @Roles(Role.SuperManager)
-export class ContestToPublicRequestAdminController {
+export class ContestPublicizingRequestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
   @Patch('/:contestId/to-public/:requestId')
-  async respondContestToPublicRequest(
+  async respondContestPublicizingRequest(
     @Param('requestId', ParseIntPipe) requestId: number,
-    @Body() respondContestToPublicRequestDto: RespondContestToPublicRequestDto
-  ): Promise<ContestToPublicRequest> {
+    @Body()
+    respondContestPublicizingRequestDto: RespondContestPublicizingRequestDto
+  ): Promise<ContestPublicizingRequest> {
     try {
-      return await this.contestService.respondContestToPublicRequest(
+      return await this.contestService.respondContestPublicizingRequest(
         requestId,
-        respondContestToPublicRequestDto
+        respondContestPublicizingRequestDto
       )
     } catch (error) {
       if (error instanceof ActionNotAllowedException) {
@@ -153,33 +154,35 @@ export class ContestToPublicRequestAdminController {
   }
 
   @Get('/to-public/pending')
-  async getPendingContestToPublicRequests(): Promise<
-    Partial<ContestToPublicRequest>[]
+  async getPendingContestPublicizingRequests(): Promise<
+    Partial<ContestPublicizingRequest>[]
   > {
     try {
-      return await this.contestService.getPendingContestToPublicRequests()
+      return await this.contestService.getPendingContestPublicizingRequests()
     } catch (error) {
       throw new InternalServerErrorException()
     }
   }
 
   @Get('/to-public/responded')
-  async getRespondedContestToPublicRequests(): Promise<
-    Partial<ContestToPublicRequest>[]
+  async getRespondedContestPublicizingRequests(): Promise<
+    Partial<ContestPublicizingRequest>[]
   > {
     try {
-      return await this.contestService.getRespondedContestToPublicRequests()
+      return await this.contestService.getRespondedContestPublicizingRequests()
     } catch (error) {
       throw new InternalServerErrorException()
     }
   }
 
   @Get('/:contestId/to-public/:requestId')
-  async getContestToPublicRequest(
+  async getContestPublicizingRequest(
     @Param('requestId', ParseIntPipe) requestId: number
-  ): Promise<Partial<ContestToPublicRequest>> {
+  ): Promise<Partial<ContestPublicizingRequest>> {
     try {
-      return await this.contestService.getAdminContestToPublicRequest(requestId)
+      return await this.contestService.getAdminContestPublicizingRequest(
+        requestId
+      )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -192,18 +195,19 @@ export class ContestToPublicRequestAdminController {
 
 @Controller('admin/group/:groupId/contest/:contestId/to-public')
 @UseGuards(RolesGuard, GroupManagerGuard)
-export class ContestToPublicRequestController {
+export class ContestPublicizingRequestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Post()
-  async createContestToPublicRequest(
+  async createContestPublicizingRequest(
     @Req() req: AuthenticatedRequest,
-    @Body() createContestToPublicRequestDto: CreateContestToPublicRequestDto
+    @Body()
+    createContestPublicizingRequestDto: CreateContestPublicizingRequestDto
   ) {
     try {
-      return await this.contestService.createContestToPublicRequest(
+      return await this.contestService.createContestPublicizingRequest(
         req.user.id,
-        createContestToPublicRequestDto
+        createContestPublicizingRequestDto
       )
     } catch (error) {
       if (error instanceof ActionNotAllowedException) {
@@ -215,12 +219,12 @@ export class ContestToPublicRequestController {
   }
 
   @Delete('/:id')
-  async deleteContestToPublicRequest(
+  async deleteContestPublicizingRequest(
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('id', ParseIntPipe) requestId: number
   ) {
     try {
-      await this.contestService.deleteContestToPublicRequest(
+      await this.contestService.deleteContestPublicizingRequest(
         contestId,
         requestId
       )
@@ -237,23 +241,23 @@ export class ContestToPublicRequestController {
   }
 
   @Get()
-  async getContestToPublicRequests(
+  async getContestPublicizingRequests(
     @Param('contestId', ParseIntPipe) contestId: number
-  ): Promise<Partial<ContestToPublicRequest>[]> {
+  ): Promise<Partial<ContestPublicizingRequest>[]> {
     try {
-      return await this.contestService.getContestToPublicRequests(contestId)
+      return await this.contestService.getContestPublicizingRequests(contestId)
     } catch (error) {
       throw new InternalServerErrorException()
     }
   }
 
   @Get('/:id')
-  async getContestToPublicRequest(
+  async getContestPublicizingRequest(
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('id', ParseIntPipe) requestId: number
-  ): Promise<Partial<ContestToPublicRequest>> {
+  ): Promise<Partial<ContestPublicizingRequest>> {
     try {
-      return await this.contestService.getContestToPublicRequest(
+      return await this.contestService.getContestPublicizingRequest(
         contestId,
         requestId
       )
