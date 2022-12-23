@@ -1,6 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { Contest, ContestType } from '@prisma/client'
 import {
+  Contest,
+  ContestRankACM,
+  ContestRecord,
+  ContestType,
+  UserGroup
+} from '@prisma/client'
+import {
+  ActionNotAllowedException,
   EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
@@ -67,14 +74,60 @@ const contests: Partial<Contest>[] = [
   ...upcomingContests
 ]
 
+const ongoingContest: Partial<Contest> = ongoingContests[0]
+
+const userGroup: UserGroup = {
+  id: 1,
+  userId: userId,
+  groupId: groupId,
+  isRegistered: true,
+  isGroupManager: true,
+  createTime: new Date(),
+  updateTime: new Date()
+}
+const userGroups: UserGroup[] = [
+  userGroup,
+  {
+    ...userGroup,
+    id: userGroup.id + 1,
+    groupId: userGroup.groupId + 1
+  }
+]
+const record: ContestRecord = {
+  id: 1,
+  contestId: contestId,
+  userId: userId,
+  rank: 1,
+  createTime: new Date(),
+  updateTime: new Date()
+}
+const contestRankACM: ContestRankACM = {
+  id: 1,
+  contestId: contestId,
+  userId: userId,
+  acceptedProblemNum: 0,
+  totalPenalty: 0,
+  submissionInfo: {},
+  createTime: new Date(),
+  updateTime: new Date()
+}
 const mockPrismaService = {
   contest: {
     findUnique: jest.fn().mockResolvedValue(contest),
     findMany: jest.fn().mockResolvedValue(contests),
-    findFirst: jest.fn().mockResolvedValue(contest),
     create: jest.fn().mockResolvedValue(contest),
     update: jest.fn().mockResolvedValue(contest),
     delete: jest.fn()
+  },
+  contestRecord: {
+    findFirst: jest.fn().mockResolvedValue(null)
+  },
+  userGroup: {
+    findFirst: jest.fn().mockResolvedValue(userGroup),
+    findMany: jest.fn().mockResolvedValue(userGroups)
+  },
+  contestRankACM: {
+    create: jest.fn().mockResolvedValue(contestRankACM)
   }
 }
 
@@ -434,5 +487,46 @@ describe('ContestService', () => {
         contests
       )
     })
+  })
+
+  describe('createContestRecord', () => {
+    beforeEach(() => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(ongoingContest)
+      mockPrismaService.contestRecord.findFirst.mockResolvedValue(null)
+    })
+    afterEach(() => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
+      mockPrismaService.contestRecord.findFirst.mockResolvedValue(null)
+      mockPrismaService.contestRankACM.create.mockClear()
+    })
+
+    it('should throw error when the contest does not exist', async () => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(null)
+      await expect(
+        contestService.createContestRecord(userId, contestId)
+      ).rejects.toThrowError(new EntityNotExistException('contest'))
+    })
+
+    it('should throw error when user is participated in contest again', async () => {
+      mockPrismaService.contestRecord.findFirst.mockResolvedValue(record)
+      await expect(
+        contestService.createContestRecord(userId, contestId)
+      ).rejects.toThrowError(
+        new ActionNotAllowedException('repetitive participation', 'contest')
+      )
+    })
+    it('should throw error when contest is not ongoing', async () => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
+      await expect(
+        contestService.createContestRecord(userId, contestId)
+      ).rejects.toThrowError(
+        new ActionNotAllowedException('participation', 'ended contest')
+      )
+    })
+    it('should successfully create contestRankACM', async () => {
+      await contestService.createContestRecord(userId, contestId)
+      expect(mockPrismaService.contestRankACM.create).toBeCalledTimes(1)
+    })
+    // Todo: test other contest type -> create other contest record table
   })
 })
