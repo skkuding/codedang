@@ -106,7 +106,7 @@ jobs:
         run: |
           pnpm --filter backend exec prisma migrate diff \
             --from-migrations ./prisma/migrations \
-            --to-schema-datasource ./prisma/schema.prisma \
+            --to-schema-datamodel ./prisma/schema.prisma \
             --shadow-database-url postgresql://postgres:1234@127.0.0.1:5432/skkuding?schema=public \
             --exit-code
 
