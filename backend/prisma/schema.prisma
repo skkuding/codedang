@@ -296,6 +296,7 @@ model Submission {
   contestId  Int?      @map("contest_id")
   workbook   Workbook? @relation(fields: [workbookId], references: [id])
   workbookId Int?      @map("workbook_id")
+  code       String
   language   String
   shared     Boolean   @default(false)
   ipAddr     String    @map("ip_addr")
