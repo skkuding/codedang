@@ -11,7 +11,7 @@
     "dbaeumer.vscode-eslint",
     "editorconfig.editorconfig",
     "esbenp.prettier-vscode",
-    "Orta.vscode-jest",
+    "hbenl.vscode-mocha-test-adapter",
     "prisma.prisma",
     "rangav.vscode-thunder-client",
     "Vue.volar",
