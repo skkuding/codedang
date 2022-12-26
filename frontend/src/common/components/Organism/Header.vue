@@ -10,11 +10,13 @@ import IconUserGear from '~icons/fa6-solid/user-gear'
 import IconSliders from '~icons/fa6-solid/sliders'
 import IconArrowRightFromBracket from '~icons/fa6-solid/arrow-right-from-bracket'
 import Button from '../Atom/Button.vue'
+import AuthModal from './AuthModal.vue'
+import { useAuthStore } from '@/common/store/auth'
 
-// TODO: define composable
-const auth = ref(false)
+const auth = useAuthStore()
 
 const isMenuOpen = ref(false)
+const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 </script>
 
 <template>
@@ -49,7 +51,7 @@ const isMenuOpen = ref(false)
           leave-to-class="opacity-0"
           mode="out-in"
         >
-          <Dropdown v-if="auth" class="hidden md:inline-block">
+          <Dropdown v-if="auth.isLoggedIn" class="hidden md:inline-block">
             <template #button>
               <!-- add left margin to center navigation -->
               <IconUser
@@ -59,16 +61,26 @@ const isMenuOpen = ref(false)
             <template #items>
               <ListItem>Management</ListItem>
               <ListItem>Settings</ListItem>
-              <ListItem @click="auth = false">Logout</ListItem>
-              <!-- TODO: log out functionality -->
+              <ListItem @click="auth.logout()">Logout</ListItem>
             </template>
           </Dropdown>
           <div v-else class="ml-2 hidden gap-2 md:flex">
-            <Button color="gray-dark" class="w-20">Sign Up</Button>
-            <Button color="gray-dark" class="w-16" @click="auth = true">
+            <Button
+              outline
+              color="gray-dark"
+              class="w-20"
+              @click="modalContent = 'signup'"
+            >
+              Sign Up
+            </Button>
+            <Button
+              outline
+              color="gray-dark"
+              class="w-16"
+              @click="modalContent = 'login'"
+            >
               Log In
             </Button>
-            <!-- TODO: show log in page -->
           </div>
         </transition>
         <IconBars
@@ -84,7 +96,7 @@ const isMenuOpen = ref(false)
       >
         <div
           v-show="isMenuOpen"
-          class="fixed inset-x-0 top-14 flex w-full flex-col items-center justify-center gap-6 overflow-hidden bg-white/30 py-8 shadow-lg backdrop-blur"
+          class="fixed inset-x-0 top-14 z-30 flex w-full flex-col items-center justify-center gap-6 overflow-hidden bg-white/75 py-8 shadow-lg backdrop-blur md:hidden"
         >
           <nav class="text-text-title flex flex-col items-center gap-2">
             <router-link
@@ -109,17 +121,30 @@ const isMenuOpen = ref(false)
             leave-to-class="opacity-0"
             mode="out-in"
           >
-            <div v-if="auth" class="text-text-title flex gap-4 text-lg">
+            <div
+              v-if="auth.isLoggedIn"
+              class="text-text-title flex gap-4 text-lg"
+            >
               <IconUserGear class="active:opacity-60" />
               <IconSliders class="active:opacity-60" />
               <IconArrowRightFromBracket
                 class="active:opacity-60"
-                @click="auth = false"
+                @click="auth.logout()"
               />
             </div>
             <div v-else class="flex gap-2">
-              <Button color="gray-dark" class="text-sm">Sign Up</Button>
-              <Button color="gray-dark" class="text-sm" @click="auth = true">
+              <Button
+                color="gray-dark"
+                class="text-sm"
+                @click="modalContent = 'signup'"
+              >
+                Sign Up
+              </Button>
+              <Button
+                color="gray-dark"
+                class="text-sm"
+                @click="modalContent = 'login'"
+              >
                 Log In
               </Button>
             </div>
@@ -128,4 +153,5 @@ const isMenuOpen = ref(false)
       </transition>
     </header>
   </OnClickOutside>
+  <AuthModal v-model="modalContent" />
 </template>

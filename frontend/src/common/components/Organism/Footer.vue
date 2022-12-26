@@ -4,19 +4,20 @@ import IconEnvelope from '~icons/fa6-solid/envelope'
 import IconKakaoTalk from '~icons/ri/kakao-talk-fill'
 import IconLink from '~icons/fa6-solid/link'
 import { useClipboard } from '@vueuse/core'
+import { useToast } from '@/common/composables/toast'
 
 const { copy } = useClipboard()
+const openToast = useToast()
 
 const copyEmail = () => {
   copy('skkucodingplatform@gmail.com')
-  // TODO: use custom alert
-  alert('Email copied!')
+  openToast({ message: 'Email copied!', type: 'success' })
 }
 </script>
 
 <template>
   <footer
-    class="bg-gray-light text-gray-dark fixed bottom-0 flex w-full flex-col items-center gap-y-2 py-4"
+    class="bg-gray-light text-gray-dark mt-auto flex w-full flex-col items-center gap-y-2 py-4"
   >
     <div
       class="[&>a:hover]:text-gray [&>a:active]:text-gray-light flex flex-row gap-x-4 text-xl [&>a]:cursor-pointer [&>a]:transition"

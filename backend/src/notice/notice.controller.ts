@@ -41,14 +41,14 @@ export class PublicNoticeController {
   }
 }
 
-@Controller('group/:group_id/notice')
+@Controller('group/:groupId/notice')
 @UseGuards(RolesGuard, GroupMemberGuard)
 export class GroupNoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Get()
   async getNotices(
-    @Param('group_id', ParseIntPipe) groupId: number,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
     return await this.noticeService.getNoticesByGroupId(groupId, offset)
@@ -57,7 +57,7 @@ export class GroupNoticeController {
   @Get(':id')
   async getNotice(
     @Param('id', ParseIntPipe) id: number,
-    @Param('group_id', ParseIntPipe) groupId: number
+    @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<UserNotice> {
     try {
       return await this.noticeService.getNotice(id, groupId)

@@ -15,16 +15,16 @@ export class GroupManagerGuard implements CanActivate {
       return true
     }
 
-    const group_id: number = parseInt(request.params.group_id)
-    const user_id: number = request.user.id
+    const groupId: number = parseInt(request.params.groupId)
+    const userId: number = request.user.id
 
     const userGroupMemberShipInfo =
-      await this.groupService.getUserGroupMembershipInfo(user_id, group_id)
+      await this.groupService.getUserGroupMembershipInfo(userId, groupId)
 
     const isGroupManager: boolean =
       userGroupMemberShipInfo &&
-      userGroupMemberShipInfo.is_registered &&
-      userGroupMemberShipInfo.is_group_manager
+      userGroupMemberShipInfo.isRegistered &&
+      userGroupMemberShipInfo.isGroupManager
 
     if (isGroupManager) {
       return true

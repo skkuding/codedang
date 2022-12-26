@@ -1,6 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { Contest, ContestType } from '@prisma/client'
 import {
+  Contest,
+  ContestRankACM,
+  ContestRecord,
+  ContestType,
+  UserGroup
+} from '@prisma/client'
+import {
+  ActionNotAllowedException,
   EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
@@ -17,21 +24,21 @@ const groupId = 1
 
 const contest = {
   id: contestId,
-  created_by_id: userId,
-  group_id: groupId,
+  createdById: userId,
+  groupId: groupId,
   title: 'title',
   description: 'description',
-  description_summary: 'description summary',
-  start_time: new Date('2021-11-07T18:34:23.999175+09:00'),
-  end_time: new Date('2021-12-07T18:34:23.999175+09:00'),
+  descriptionSummary: 'description summary',
+  startTime: new Date('2021-12-01T14:00:00.000+09:00'),
+  endTime: new Date('2021-12-01T15:00:00.000+09:00'),
   visible: true,
-  is_rank_visible: true,
+  isRankVisible: true,
   type: ContestType.ACM,
-  create_time: new Date('2021-11-01T18:34:23.999175+09:00'),
-  update_time: new Date('2021-11-01T18:34:23.999175+09:00'),
-  is_public: false,
+  createTime: new Date('2021-11-01T18:34:23.999175+09:00'),
+  updateTime: new Date('2021-11-01T18:34:23.999175+09:00'),
+  isPublic: false,
   group: {
-    group_id: groupId
+    groupId: groupId
   }
 }
 
@@ -39,7 +46,7 @@ const ongoingContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId,
-    end_time: new Date('2022-11-07T18:34:23.999175+09:00'),
+    endTime: new Date('2999-12-01T12:00:00.000+09:00'),
     visible: false
   }
 ]
@@ -56,8 +63,8 @@ const upcomingContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId + 6,
-    start_time: new Date('2022-11-07T18:34:23.999175+09:00'),
-    end_time: new Date('2022-12-07T18:34:23.999175+09:00'),
+    startTime: new Date('2999-12-01T12:00:00.000+09:00'),
+    endTime: new Date('2999-12-01T15:00:00.000+09:00'),
     visible: false
   }
 ]
@@ -68,14 +75,60 @@ const contests: Partial<Contest>[] = [
   ...upcomingContests
 ]
 
+const ongoingContest: Partial<Contest> = ongoingContests[0]
+
+const userGroup: UserGroup = {
+  id: 1,
+  userId: userId,
+  groupId: groupId,
+  isRegistered: true,
+  isGroupManager: true,
+  createTime: new Date(),
+  updateTime: new Date()
+}
+const userGroups: UserGroup[] = [
+  userGroup,
+  {
+    ...userGroup,
+    id: userGroup.id + 1,
+    groupId: userGroup.groupId + 1
+  }
+]
+const record: ContestRecord = {
+  id: 1,
+  contestId: contestId,
+  userId: userId,
+  rank: 1,
+  createTime: new Date(),
+  updateTime: new Date()
+}
+const contestRankACM: ContestRankACM = {
+  id: 1,
+  contestId: contestId,
+  userId: userId,
+  acceptedProblemNum: 0,
+  totalPenalty: 0,
+  submissionInfo: {},
+  createTime: new Date(),
+  updateTime: new Date()
+}
 const mockPrismaService = {
   contest: {
     findUnique: jest.fn().mockResolvedValue(contest),
     findMany: jest.fn().mockResolvedValue(contests),
-    findFirst: jest.fn().mockResolvedValue(contest),
     create: jest.fn().mockResolvedValue(contest),
     update: jest.fn().mockResolvedValue(contest),
     delete: jest.fn()
+  },
+  contestRecord: {
+    findFirst: jest.fn().mockResolvedValue(null)
+  },
+  userGroup: {
+    findFirst: jest.fn().mockResolvedValue(userGroup),
+    findMany: jest.fn().mockResolvedValue(userGroups)
+  },
+  contestRankACM: {
+    create: jest.fn().mockResolvedValue(contestRankACM)
   }
 }
 
@@ -100,14 +153,14 @@ describe('ContestService', () => {
 
   describe('createContest', () => {
     const createContestDto: CreateContestDto = {
-      group_id: contest.group_id,
+      groupId: contest.groupId,
       title: contest.title,
       description: contest.description,
-      description_summary: contest.description_summary,
-      start_time: contest.start_time,
-      end_time: contest.end_time,
+      descriptionSummary: contest.descriptionSummary,
+      startTime: contest.startTime,
+      endTime: contest.endTime,
       visible: contest.visible,
-      is_rank_visible: contest.is_rank_visible,
+      isRankVisible: contest.isRankVisible,
       type: contest.type
     }
 
@@ -154,11 +207,11 @@ describe('ContestService', () => {
     const updateContestDto: UpdateContestDto = {
       title: contest.title,
       description: contest.description,
-      description_summary: contest.description_summary,
-      start_time: contest.start_time,
-      end_time: contest.end_time,
+      descriptionSummary: contest.descriptionSummary,
+      startTime: contest.startTime,
+      endTime: contest.endTime,
       visible: contest.visible,
-      is_rank_visible: contest.is_rank_visible,
+      isRankVisible: contest.isRankVisible,
       type: contest.type
     }
 
@@ -326,7 +379,7 @@ describe('ContestService', () => {
       const now = new Date()
       const notEndedContest = {
         ...contest,
-        end_time: now.setFullYear(now.getFullYear() + 1)
+        endTime: now.setFullYear(now.getFullYear() + 1)
       }
       mockPrismaService.contest.findUnique.mockResolvedValue(notEndedContest)
       jest
@@ -351,7 +404,7 @@ describe('ContestService', () => {
     it('should return contest of the group', async () => {
       jest
         .spyOn(groupService, 'getUserGroupMembershipInfo')
-        .mockResolvedValue({ is_registered: true, is_group_manager: false })
+        .mockResolvedValue({ isRegistered: true, isGroupManager: false })
 
       expect(await contestService.getContestById(userId, contestId)).toEqual(
         contest
@@ -435,5 +488,46 @@ describe('ContestService', () => {
         contests
       )
     })
+  })
+
+  describe('createContestRecord', () => {
+    beforeEach(() => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(ongoingContest)
+      mockPrismaService.contestRecord.findFirst.mockResolvedValue(null)
+    })
+    afterEach(() => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
+      mockPrismaService.contestRecord.findFirst.mockResolvedValue(null)
+      mockPrismaService.contestRankACM.create.mockClear()
+    })
+
+    it('should throw error when the contest does not exist', async () => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(null)
+      await expect(
+        contestService.createContestRecord(userId, contestId)
+      ).rejects.toThrowError(new EntityNotExistException('contest'))
+    })
+
+    it('should throw error when user is participated in contest again', async () => {
+      mockPrismaService.contestRecord.findFirst.mockResolvedValue(record)
+      await expect(
+        contestService.createContestRecord(userId, contestId)
+      ).rejects.toThrowError(
+        new ActionNotAllowedException('repetitive participation', 'contest')
+      )
+    })
+    it('should throw error when contest is not ongoing', async () => {
+      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
+      await expect(
+        contestService.createContestRecord(userId, contestId)
+      ).rejects.toThrowError(
+        new ActionNotAllowedException('participation', 'ended contest')
+      )
+    })
+    it('should successfully create contestRankACM', async () => {
+      await contestService.createContestRecord(userId, contestId)
+      expect(mockPrismaService.contestRankACM.create).toBeCalledTimes(1)
+    })
+    // Todo: test other contest type -> create other contest record table
   })
 })
