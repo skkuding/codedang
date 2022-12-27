@@ -1,4 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { expect, use } from 'chai'
+import { stub } from 'sinon'
+import * as chaiAsPromised from 'chai-as-promised'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { Group, Notice } from '@prisma/client'
 import { NoticeService } from './notice.service'
@@ -6,6 +9,8 @@ import { CreateNoticeDto } from './dto/create-notice.dto'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
+
+use(chaiAsPromised)
 
 const noticeId = 2
 const userId = 1
@@ -60,18 +65,18 @@ const group: Group = {
 
 const db = {
   notice: {
-    findMany: jest.fn(),
-    findUnique: jest.fn().mockResolvedValue(notice),
-    findFirst: jest.fn(),
-    create: jest.fn().mockResolvedValue(notice),
-    update: jest.fn().mockResolvedValue(notice),
-    delete: jest.fn()
+    findMany: stub(),
+    findUnique: stub().resolves(notice),
+    findFirst: stub(),
+    create: stub().resolves(notice),
+    update: stub().resolves(notice),
+    delete: stub()
   },
   group: {
-    findUnique: jest.fn().mockResolvedValue(group)
+    findUnique: stub().resolves(group)
   },
   userGroup: {
-    findMany: jest.fn().mockResolvedValue([groupId])
+    findMany: stub().resolves([groupId])
   }
 }
 
@@ -93,12 +98,12 @@ describe('NoticeService', () => {
   })
 
   it('should be defined', () => {
-    expect(service).toBeDefined()
+    expect(service).to.be.ok
   })
 
   describe('createNotice', () => {
     beforeEach(() => {
-      db.group.findUnique.mockResolvedValue(group)
+      db.group.findUnique.resolves(group)
     })
 
     it('should return new created notice data', async () => {
@@ -107,16 +112,14 @@ describe('NoticeService', () => {
         groupId,
         createNoticeDto
       )
-      expect(createResult).toEqual(notice)
+      expect(createResult).to.deep.equal(notice)
     })
 
     it('should throw error when given group does not exist', async () => {
-      db.group.findUnique.mockRejectedValue(
-        new EntityNotExistException('group')
-      )
+      db.group.findUnique.rejects(new EntityNotExistException('group'))
       await expect(
         service.createNotice(userId, groupId, createNoticeDto)
-      ).rejects.toThrow(EntityNotExistException)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 
@@ -143,10 +146,10 @@ describe('NoticeService', () => {
     ]
 
     it('should return notice list of the group', async () => {
-      db.notice.findMany.mockResolvedValue(noticeArray)
+      db.notice.findMany.resolves(noticeArray)
 
       const getNoticesByGroupId = await service.getNoticesByGroupId(group.id, 1)
-      expect(getNoticesByGroupId).toEqual(noticeArray)
+      expect(getNoticesByGroupId).to.deep.equal(noticeArray)
     })
   })
 
@@ -170,20 +173,21 @@ describe('NoticeService', () => {
 
     it('should return a notice and previews', async () => {
       db.notice.findFirst
-        .mockResolvedValueOnce(userNotice.current)
-        .mockResolvedValueOnce(userNotice.prev)
-        .mockResolvedValueOnce(userNotice.next)
+        .onFirstCall()
+        .resolves(userNotice.current)
+        .onSecondCall()
+        .resolves(userNotice.prev)
+        .onThirdCall()
+        .resolves(userNotice.next)
 
       const getNotice = await service.getNotice(noticeId, group.id)
-      expect(getNotice).toEqual(userNotice)
+      expect(getNotice).to.deep.equal(userNotice)
     })
 
     it('should throw error when the notice does not exist', async () => {
-      db.notice.findFirst.mockRejectedValue(
-        new EntityNotExistException('notice')
-      )
+      db.notice.findFirst.rejects(new EntityNotExistException('notice'))
 
-      await expect(service.getNotice(noticeId, group.id)).rejects.toThrow(
+      await expect(service.getNotice(noticeId, group.id)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
@@ -215,10 +219,10 @@ describe('NoticeService', () => {
     ]
 
     it('should return notice list of the group', async () => {
-      db.notice.findMany.mockResolvedValue(noticeArray)
+      db.notice.findMany.resolves(noticeArray)
 
       const getNoticesByGroupId = await service.getAdminNotices(groupId, 1)
-      expect(getNoticesByGroupId).toEqual(noticeArray)
+      expect(getNoticesByGroupId).to.deep.equal(noticeArray)
     })
   })
 
@@ -234,20 +238,22 @@ describe('NoticeService', () => {
     }
 
     it('should return a notice', async () => {
-      db.notice.findUnique.mockResolvedValueOnce(adminNotice)
+      db.notice.findUnique.onFirstCall().resolves(adminNotice)
 
       const getNotice = await service.getAdminNotice(noticeId)
-      expect(getNotice).toEqual(adminNotice)
+      expect(getNotice).to.deep.equal(adminNotice)
+      db.notice.findUnique.reset()
     })
 
     it('should throw error when given notice does not exist', async () => {
-      db.notice.findUnique.mockRejectedValueOnce(
-        new EntityNotExistException('notice')
-      )
+      db.notice.findUnique
+        .onFirstCall()
+        .rejects(new EntityNotExistException('notice'))
 
-      await expect(service.getAdminNotice(noticeId)).rejects.toThrow(
+      await expect(service.getAdminNotice(noticeId)).to.be.rejectedWith(
         EntityNotExistException
       )
+      db.notice.findUnique.reset()
     })
   })
 
@@ -286,57 +292,53 @@ describe('NoticeService', () => {
     ]
 
     it('should return notice list of the group', async () => {
-      const getUserGroupManagerListSpy = jest.spyOn(
+      const getUserGroupManagerListSpy = stub(
         groupService,
         'getUserGroupManagerList'
       )
-      db.notice.findMany.mockResolvedValue(noticeArray)
+      db.notice.findMany.resolves(noticeArray)
 
       const getNoticesByGroupId = await service.getAdminNotices(userId, 1)
-      expect(getUserGroupManagerListSpy).toBeCalledWith(userId)
-      expect(getNoticesByGroupId).toEqual(noticeArray)
+      expect(getUserGroupManagerListSpy.calledWith(userId)).to.be.true
+      expect(getNoticesByGroupId).to.deep.equal(noticeArray)
     })
   })
 
   describe('updateNotice', () => {
     afterEach(() => {
-      db.notice.findUnique.mockResolvedValue(notice)
+      db.notice.findUnique.resolves(notice)
     })
 
     it('should return updated Notice', async () => {
       const updateResult = await service.updateNotice(noticeId, updateNoticeDto)
-      expect(updateResult).toEqual(notice)
+      expect(updateResult).to.deep.equal(notice)
     })
 
     it('should throw error when given notice does not exist', async () => {
-      db.notice.findUnique.mockRejectedValue(
-        new EntityNotExistException('notice')
-      )
+      db.notice.findUnique.rejects(new EntityNotExistException('notice'))
       await expect(
         service.updateNotice(noticeId, updateNoticeDto)
-      ).rejects.toThrow(EntityNotExistException)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 
   describe('deleteContest', () => {
     afterEach(() => {
-      db.notice.delete.mockClear()
+      db.notice.delete.reset()
     })
 
     it('should successfully delete given notice', async () => {
       await service.deleteNotice(noticeId)
-      expect(db.notice.delete).toBeCalledTimes(1)
+      expect(db.notice.delete.calledOnce).to.be.true
     })
 
     it('should throw error when given notice does not exist', async () => {
-      db.notice.findUnique.mockRejectedValue(
-        new EntityNotExistException('notice')
-      )
+      db.notice.findUnique.rejects(new EntityNotExistException('notice'))
 
-      await expect(service.deleteNotice(noticeId)).rejects.toThrow(
+      await expect(service.deleteNotice(noticeId)).to.be.rejectedWith(
         EntityNotExistException
       )
-      expect(db.notice.delete).toBeCalledTimes(0)
+      expect(db.notice.delete.called).to.be.false
     })
   })
 })

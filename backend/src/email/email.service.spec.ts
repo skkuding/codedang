@@ -1,7 +1,12 @@
 import { MailerService } from '@nestjs-modules/mailer'
 import { Test, TestingModule } from '@nestjs/testing'
+import { expect, use } from 'chai'
+import * as chaiAsPromised from 'chai-as-promised'
+import { stub } from 'sinon'
 import { EmailTransmissionFailedException } from 'src/common/exception/business.exception'
 import { EmailService } from './email.service'
+
+use(chaiAsPromised)
 
 describe('EmailService', () => {
   let service: EmailService
@@ -19,7 +24,7 @@ describe('EmailService', () => {
   }
 
   const MailerMock = {
-    sendMail: jest.fn()
+    sendMail: stub()
   }
 
   beforeEach(async () => {
@@ -48,22 +53,22 @@ describe('EmailService', () => {
   })
 
   it('should be defined', () => {
-    expect(service).toBeDefined()
+    expect(service).to.be.ok
   })
 
   it('Email transmission success', async () => {
-    MailerMock.sendMail.mockReturnValueOnce(expectedEmailInfo)
+    MailerMock.sendMail.resolves(expectedEmailInfo)
     await service.sendPasswordResetPin(recipient, 'PIN')
 
-    expect(MailerMock.sendMail.mock.calls.length).toBe(1)
+    expect(MailerMock.sendMail.calledOnce).to.be.true
   })
 
   it('Email transmission failure', async () => {
     expectedEmailInfo['accepted'] = []
-    MailerMock.sendMail.mockReturnValueOnce(Promise.resolve(expectedEmailInfo))
+    MailerMock.sendMail.resolves(Promise.resolve(expectedEmailInfo))
 
-    await expect(async () => {
-      await service.sendPasswordResetPin(recipient, 'PIN')
-    }).rejects.toThrowError(EmailTransmissionFailedException)
+    await expect(
+      service.sendPasswordResetPin(recipient, 'PIN')
+    ).to.be.rejectedWith(EmailTransmissionFailedException)
   })
 })
