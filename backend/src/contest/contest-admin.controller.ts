@@ -218,10 +218,10 @@ export class ContestPublicizingRequestController {
     }
   }
 
-  @Delete('/:id')
+  @Delete('/:requestId')
   async deleteContestPublicizingRequest(
     @Param('contestId', ParseIntPipe) contestId: number,
-    @Param('id', ParseIntPipe) requestId: number
+    @Param('requestId', ParseIntPipe) requestId: number
   ) {
     try {
       await this.contestService.deleteContestPublicizingRequest(
@@ -251,10 +251,10 @@ export class ContestPublicizingRequestController {
     }
   }
 
-  @Get('/:id')
+  @Get('/:requestId')
   async getContestPublicizingRequest(
     @Param('contestId', ParseIntPipe) contestId: number,
-    @Param('id', ParseIntPipe) requestId: number
+    @Param('requestId', ParseIntPipe) requestId: number
   ): Promise<Partial<ContestPublicizingRequest>> {
     try {
       return await this.contestService.getContestPublicizingRequest(
