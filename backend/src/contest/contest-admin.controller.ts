@@ -130,7 +130,7 @@ export class GroupContestAdminController {
 export class ContestPublicizingRequestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
-  @Patch('/:contestId/publicizing-request/:requestId')
+  @Patch('/publicizing-request/:requestId')
   async respondContestPublicizingRequest(
     @Param('requestId', ParseIntPipe) requestId: number,
     @Body()
@@ -175,7 +175,7 @@ export class ContestPublicizingRequestAdminController {
     }
   }
 
-  @Get('/:contestId/publicizing-request/:requestId')
+  @Get('/publicizing-request/:requestId')
   async getContestPublicizingRequest(
     @Param('requestId', ParseIntPipe) requestId: number
   ): Promise<Partial<ContestPublicizingRequest>> {
