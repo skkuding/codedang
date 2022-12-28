@@ -1,12 +1,10 @@
 import {
-  Body,
   Controller,
   Get,
   InternalServerErrorException,
   NotFoundException,
   Param,
   ParseIntPipe,
-  Post,
   Req,
   UnauthorizedException
 } from '@nestjs/common'
@@ -56,11 +54,10 @@ export class GroupController {
     }
   }
 
-  @Post('join')
+  @Get(':invitation_code/join')
   async getGroupJoinByInvt(
     @Req() req: AuthenticatedRequest,
-    @Param('group_id', ParseIntPipe) groupId: number,
-    @Body() invitationCode: string
+    @Param('invitation_code') invitationCode: string
   ): Promise<UserGroupInterface> {
     try {
       return await this.groupService.getGroupJoinByInvt(

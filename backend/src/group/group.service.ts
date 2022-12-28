@@ -43,7 +43,10 @@ export class GroupService {
     return group
   }
 
-  async getGroupJoinById(groupId: number): Promise<UserGroupInterface> {
+  async getGroupJoinById(
+    userId: number,
+    groupId: number
+  ): Promise<UserGroupInterface> {
     const group = await this.prisma.group.findFirst({
       where: {
         id: groupId,
@@ -97,6 +100,7 @@ export class GroupService {
   }
 
   async getGroupJoinByInvt(
+    userId: number,
     invitationCode: string
   ): Promise<UserGroupInterface> {
     const group = await this.prisma.group.findFirst({
