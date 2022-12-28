@@ -220,14 +220,10 @@ export class ContestPublicizingRequestController {
 
   @Delete('/:requestId')
   async deleteContestPublicizingRequest(
-    @Param('contestId', ParseIntPipe) contestId: number,
     @Param('requestId', ParseIntPipe) requestId: number
   ) {
     try {
-      await this.contestService.deleteContestPublicizingRequest(
-        contestId,
-        requestId
-      )
+      await this.contestService.deleteContestPublicizingRequest(requestId)
     } catch (error) {
       if (error instanceof ActionNotAllowedException) {
         throw new MethodNotAllowedException(error.message)
@@ -253,14 +249,10 @@ export class ContestPublicizingRequestController {
 
   @Get('/:requestId')
   async getContestPublicizingRequest(
-    @Param('contestId', ParseIntPipe) contestId: number,
     @Param('requestId', ParseIntPipe) requestId: number
   ): Promise<Partial<ContestPublicizingRequest>> {
     try {
-      return await this.contestService.getContestPublicizingRequest(
-        contestId,
-        requestId
-      )
+      return await this.contestService.getContestPublicizingRequest(requestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

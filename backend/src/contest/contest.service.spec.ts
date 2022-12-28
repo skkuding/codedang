@@ -607,7 +607,6 @@ describe('ContestService', () => {
       //when
       const callDeleteContestPublicizingRequest = async () =>
         await contestService.deleteContestPublicizingRequest(
-          contestId,
           contestPublicizeRequestId
         )
 
@@ -630,7 +629,6 @@ describe('ContestService', () => {
       //when
       const callDeleteContestPublicizingRequest = async () =>
         await contestService.deleteContestPublicizingRequest(
-          contestId,
           contestPublicizeRequestId
         )
 
@@ -653,7 +651,6 @@ describe('ContestService', () => {
       //when
       const callDeleteContestPublicizingRequest = async () =>
         await contestService.deleteContestPublicizingRequest(
-          contestId,
           contestPublicizeRequestId
         )
 
@@ -671,7 +668,6 @@ describe('ContestService', () => {
 
       //when
       await contestService.deleteContestPublicizingRequest(
-        contestId,
         contestPublicizeRequestId
       )
 
@@ -766,7 +762,6 @@ describe('ContestService', () => {
 
       //when
       const result = await contestService.getContestPublicizingRequest(
-        contestId,
         contestPublicizeRequestId
       )
 
@@ -783,7 +778,6 @@ describe('ContestService', () => {
       //when
       const callGetContestPublicizingRequest = async () =>
         await contestService.getContestPublicizingRequest(
-          contestId,
           contestPublicizeRequestId
         )
 

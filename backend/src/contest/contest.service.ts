@@ -279,11 +279,10 @@ export class ContestService {
     })
   }
 
-  async deleteContestPublicizingRequest(contestId: number, requestId: number) {
+  async deleteContestPublicizingRequest(requestId: number) {
     const request = await this.prisma.contestPublicizingRequest.findFirst({
       where: {
-        id: requestId,
-        contestId
+        id: requestId
       },
       select: {
         requestStatus: true
@@ -337,13 +336,11 @@ export class ContestService {
   }
 
   async getContestPublicizingRequest(
-    contestId: number,
     requestId: number
   ): Promise<Partial<ContestPublicizingRequest>> {
     return await this.prisma.contestPublicizingRequest.findFirst({
       where: {
-        id: requestId,
-        contestId
+        id: requestId
       },
       select: {
         id: true,
