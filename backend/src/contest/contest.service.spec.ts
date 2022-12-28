@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { expect, use } from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
-import { fake, stub } from 'sinon'
+import { stub } from 'sinon'
 import {
   Contest,
   ContestRankACM,
