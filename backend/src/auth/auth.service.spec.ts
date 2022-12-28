@@ -22,7 +22,7 @@ import {
 import { EmailService } from 'src/email/email.service'
 import { MailerService } from '@nestjs-modules/mailer'
 
-// TODO: move to this common fixture
+// TODO: move this to common fixture
 use(chaiAsPromised)
 
 describe('AuthService', () => {
