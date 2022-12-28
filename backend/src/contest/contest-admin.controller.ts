@@ -124,13 +124,13 @@ export class GroupContestAdminController {
   }
 }
 
-@Controller('admin/contest')
+@Controller('admin/contest/publicizing-request')
 @UseGuards(RolesGuard)
 @Roles(Role.SuperManager)
 export class ContestPublicizingRequestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
-  @Patch('/publicizing-request/:requestId')
+  @Patch('/:requestId')
   async respondContestPublicizingRequest(
     @Param('requestId', ParseIntPipe) requestId: number,
     @Body()
@@ -153,7 +153,7 @@ export class ContestPublicizingRequestAdminController {
     }
   }
 
-  @Get('/publicizing-request/pending')
+  @Get('/pending')
   async getPendingContestPublicizingRequests(): Promise<
     Partial<ContestPublicizingRequest>[]
   > {
@@ -164,7 +164,7 @@ export class ContestPublicizingRequestAdminController {
     }
   }
 
-  @Get('/publicizing-request/responded')
+  @Get('/responded')
   async getRespondedContestPublicizingRequests(): Promise<
     Partial<ContestPublicizingRequest>[]
   > {
@@ -175,7 +175,7 @@ export class ContestPublicizingRequestAdminController {
     }
   }
 
-  @Get('/publicizing-request/:requestId')
+  @Get('/:requestId')
   async getContestPublicizingRequest(
     @Param('requestId', ParseIntPipe) requestId: number
   ): Promise<Partial<ContestPublicizingRequest>> {
