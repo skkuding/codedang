@@ -6,7 +6,7 @@ import ListItem from '@/common/components/Atom/ListItem.vue'
 import IconDown from '~icons/fa6-solid/angle-down'
 import Fa6SolidCaretDown from '~icons/fa6-solid/caret-down'
 import IconRefresh from '~icons/fa6-solid/arrow-rotate-right'
-import IconRun from '~icons/la/caret-right'
+import IconRun from '~icons/bi/play'
 
 const items = ['Editor', 'Standings', 'Submissions']
 
