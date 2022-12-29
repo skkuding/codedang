@@ -190,7 +190,7 @@ const clickRow = (row: Item) => {
         <PaginationTable
           :fields="fields"
           :items="items[0]"
-          mode="secondary"
+          mode="dark"
           placeholder="keywords"
           :number-of-pages="5"
         >
