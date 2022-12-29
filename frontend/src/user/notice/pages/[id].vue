@@ -5,23 +5,14 @@ import Fa6SolidAngleUp from '~icons/fa6-solid/angle-up'
 import Fa6SolidAngleDown from '~icons/fa6-solid/angle-down'
 import { useRouter } from 'vue-router'
 import { onBeforeUpdate, type Component } from 'vue'
-
+import type { Item, Field } from '../composables/notice'
 const props = defineProps<{
   id: string
 }>()
-interface Field {
-  key: string
-  label?: string
-  custom?: boolean
-}
+
 // use type alias instead of interface
 // https://github.com/microsoft/TypeScript/issues/15300
-type Item = {
-  icon: Component
-  title: string
-  name: string
-  id: string
-}
+
 const router = useRouter()
 let noticeItem = {
   title: '1111',
@@ -51,7 +42,6 @@ const goDetail = ({ id }: Item) => {
     params: { id }
   })
 }
-let show = true
 const numberOfPages = 1
 const paginationField: Field[] = [
   { key: 'icon' },
@@ -102,9 +92,9 @@ if (nextNotice.id) {
       {{ noticeItem.content }}
     </div>
     <PaginationTable
-      :no-header="show"
-      :no-pagination="show"
-      :no-search-bar="show"
+      no-header
+      no-pagination
+      no-search-bar
       :number-of-pages="numberOfPages"
       :fields="paginationField"
       :items="paginationItem"
