@@ -35,7 +35,7 @@ const activeStyle = (item: string) => {
       <div
         v-for="item in items"
         :key="item"
-        class="flex h-full cursor-pointer items-center px-3 text-white"
+        class="flex h-full cursor-pointer items-center px-3 text-lg text-white"
         :class="activeStyle(item)"
         @click="activeItem = item"
       >
