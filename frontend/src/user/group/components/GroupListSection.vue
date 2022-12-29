@@ -56,7 +56,7 @@ const belongGroup = ref(true)
 
 const goGroup = (id: number) => {
   // 사용자가 해당 group에 소속되어 있으면
-  if (belongGroup.value) router.push('/group/' + id + '/detail')
+  if (belongGroup.value) router.push('/group/' + id)
   // 소속 되어 있지 않으면
   else groupDescModalVisible.value = true
 }
@@ -80,7 +80,7 @@ const goGroup = (id: number) => {
       @click="goGroup(group.id)"
     />
     <div v-if="pagination" class="flex w-full justify-end">
-      <Pagination :value="currentPage" :number-of-pages="3" />
+      <Pagination :modelvalue="currentPage" :numberOfPages="3" />
     </div>
   </div>
   <Modal

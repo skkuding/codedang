@@ -70,8 +70,14 @@ const cardItems = [
 
 <template>
   <div>
-    <div class="mb-16 flex justify-end">
-      <RadioButton class="mr-8" :texts="texts" @selected="setSelected" />
+    <div
+      class="mb-16 flex flex-col items-end justify-end lg:flex-row lg:justify-end"
+    >
+      <RadioButton
+        class="mb-2 lg:mb-0 lg:mr-8"
+        :texts="texts"
+        @selected="setSelected"
+      />
       <SearchBar placeholder="keywords" />
     </div>
     <div class="flex flex-col justify-center gap-4">

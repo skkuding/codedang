@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import Header from '@/common/components/Organism/Header.vue'
-import Footer from '@/common/components/Organism/Footer.vue'
 import Profile from '../../../home/components/Profile.vue'
 import Tab from '@/common/components/Molecule/Tab.vue'
 import contest from '../[id]/contest.vue'
@@ -21,8 +19,6 @@ const group = {
 </script>
 
 <template>
-  <Header />
-
   <div class="px-20 pt-20 md:px-40">
     <Profile
       class="pb-7"

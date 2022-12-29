@@ -127,11 +127,14 @@ importers:
     specifiers:
       '@histoire/plugin-vue': ^0.11.9
       '@iconify-json/bi': ^1.1.12
+      '@iconify-json/carbon': ^1.1.11
       '@iconify-json/fa6-brands': ^1.1.8
       '@iconify-json/fa6-regular': ^1.1.8
       '@iconify-json/fa6-solid': ^1.1.9
       '@iconify-json/fluent': ^1.1.17
+      '@iconify-json/ic': ^1.1.10
       '@iconify-json/iconoir': ^1.1.15
+      '@iconify-json/ph': ^1.1.3
       '@iconify-json/ri': ^1.1.4
       '@tailwindcss/forms': ^0.5.3
       '@tailwindcss/typography': ^0.5.8
@@ -163,7 +166,7 @@ importers:
       vue-tsc: ^1.0.13
     dependencies:
       '@tiptap/starter-kit': 2.0.0-beta.207_abnlhagdy6u44isuyzyni4aaei
-      '@tiptap/vue-3': 2.0.0-beta.207_rpffrm7metjir5u7qyagvs6yfm
+      '@tiptap/vue-3': 2.0.0-beta.207_7lquielyyuhhm44ylxneibjsjy
       '@vueuse/components': 9.6.0_vue@3.2.45
       '@vueuse/core': 9.6.0_vue@3.2.45
       '@vueuse/math': 9.6.0_vue@3.2.45
@@ -177,11 +180,14 @@ importers:
     devDependencies:
       '@histoire/plugin-vue': 0.11.9_vgxee6juai2ux6n5oucjlvgv4a
       '@iconify-json/bi': 1.1.12
+      '@iconify-json/carbon': 1.1.11
       '@iconify-json/fa6-brands': 1.1.8
       '@iconify-json/fa6-regular': 1.1.8
       '@iconify-json/fa6-solid': 1.1.9
       '@iconify-json/fluent': 1.1.17
+      '@iconify-json/ic': 1.1.10
       '@iconify-json/iconoir': 1.1.15
+      '@iconify-json/ph': 1.1.3
       '@iconify-json/ri': 1.1.4
       '@tailwindcss/forms': 0.5.3_tailwindcss@3.2.4
       '@tailwindcss/typography': 0.5.8_tailwindcss@3.2.4
@@ -192,7 +198,7 @@ importers:
       autoprefixer: 10.4.13_postcss@8.4.20
       histoire: 0.11.9_n6ei63cpe43beiimwe7zv3fimy
       postcss: 8.4.20
-      tailwindcss: 3.2.4_postcss@8.4.20
+      tailwindcss: 3.2.4
       typescript: 4.9.4
       unplugin-icons: 0.14.15
       vite: 3.2.5_@types+node@18.11.14
@@ -1231,6 +1237,12 @@ packages:
       '@iconify/types': 2.0.0
     dev: true
 
+  /@iconify-json/carbon/1.1.11:
+    resolution: {integrity: sha512-IHkHSNmTM6q6b8DuKSzd+AEMYPZywSxcb+37kZU7ywtcwsGen3aVEvWFykopIWjjwj3xdZ/5UdwJRqhZDQMlNg==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
   /@iconify-json/fa6-brands/1.1.8:
     resolution: {integrity: sha512-ndwmH8/fITnc2t8EsKpHjxiDSviyORLz91urwZju1MtTrheamJvTUp8wui7+WSzzzJ2Dva4jn26J37vKD3eolg==}
     dependencies:
@@ -1255,8 +1267,20 @@ packages:
       '@iconify/types': 2.0.0
     dev: true
 
+  /@iconify-json/ic/1.1.10:
+    resolution: {integrity: sha512-EmyoOv/MHYEZcpRtvU/+PTSd3vGv81bpdaUiLzym3XI7Y8kLMWVGr/rnztgb12Mzwi/hHkwfRq1GgdbyNSVPPQ==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
   /@iconify-json/iconoir/1.1.15:
     resolution: {integrity: sha512-JdN9Q9pSxSNTBzTXu6uHOs8hEMvn3pri2G7QTmYm3PYb+u+sESETY8HbFumh0dBJp9exZz9i0GD92dsKai5ITA==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
+  /@iconify-json/ph/1.1.3:
+    resolution: {integrity: sha512-QSzWMGF8GiBPW89RpQ3bEwEjuRWTv/xxskStUpK7tsXlz3qoPTEM5CQxDUpzUmc9luAWViqD/shIUiuNhUeolw==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true
@@ -1943,7 +1967,7 @@ packages:
       tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1'
     dependencies:
       mini-svg-data-uri: 1.4.4
-      tailwindcss: 3.2.4_postcss@8.4.20
+      tailwindcss: 3.2.4
     dev: true
 
   /@tailwindcss/typography/0.5.8_tailwindcss@3.2.4:
@@ -1955,7 +1979,7 @@ packages:
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 3.2.4_postcss@8.4.20
+      tailwindcss: 3.2.4
     dev: true
 
   /@tiptap/core/2.0.0-beta.207_xf6vrbde4aaztseepsc2w7fjwu:
@@ -1994,18 +2018,20 @@ packages:
       '@tiptap/core': 2.0.0-beta.207_xf6vrbde4aaztseepsc2w7fjwu
     dev: false
 
-  /@tiptap/extension-bubble-menu/2.0.0-beta.207_go7dl3evndwr4nm2ycopdmhooe:
+  /@tiptap/extension-bubble-menu/2.0.0-beta.207_jeu4ouigj7ewrtcth6npa4rbbm:
     resolution: {integrity: sha512-Lo+mO71CJaWAvDuPmxGCGS6XGyH6gt2hTVkGAQKR3PRmctnutBvaJF/BOY5wb20/wtkK39UHVc75enn0svdYmg==}
-    peerDependencies:
-      '@tiptap/core': ^2.0.0-beta.193
-      prosemirror-state: ^1.4.1
-      prosemirror-view: ^1.28.2
     dependencies:
       '@tiptap/core': 2.0.0-beta.207_xf6vrbde4aaztseepsc2w7fjwu
       lodash: 4.17.21
       prosemirror-state: 1.4.1
       prosemirror-view: 1.29.0
       tippy.js: 6.3.7
+    transitivePeerDependencies:
+      - prosemirror-commands
+      - prosemirror-keymap
+      - prosemirror-model
+      - prosemirror-schema-list
+      - prosemirror-transform
     dev: false
 
   /@tiptap/extension-bullet-list/2.0.0-beta.207_xzobyxekojg7s63egj2c4mbq34:
@@ -2194,7 +2220,7 @@ packages:
       - prosemirror-view
     dev: false
 
-  /@tiptap/vue-3/2.0.0-beta.207_rpffrm7metjir5u7qyagvs6yfm:
+  /@tiptap/vue-3/2.0.0-beta.207_7lquielyyuhhm44ylxneibjsjy:
     resolution: {integrity: sha512-tJ3Yv9I77R60jMUhy893JpfsLPIJ2G6/yzLpG4ZDliNNPoOIKCTCk6+wDm1DpVls6ovyalOrTWyXzpf00q0/XQ==}
     peerDependencies:
       '@tiptap/core': ^2.0.0-beta.193
@@ -2203,11 +2229,17 @@ packages:
       vue: ^3.0.0
     dependencies:
       '@tiptap/core': 2.0.0-beta.207_xf6vrbde4aaztseepsc2w7fjwu
-      '@tiptap/extension-bubble-menu': 2.0.0-beta.207_go7dl3evndwr4nm2ycopdmhooe
+      '@tiptap/extension-bubble-menu': 2.0.0-beta.207_jeu4ouigj7ewrtcth6npa4rbbm
       '@tiptap/extension-floating-menu': 2.0.0-beta.207_go7dl3evndwr4nm2ycopdmhooe
       prosemirror-state: 1.4.1
       prosemirror-view: 1.29.0
       vue: 3.2.45
+    transitivePeerDependencies:
+      - prosemirror-commands
+      - prosemirror-keymap
+      - prosemirror-model
+      - prosemirror-schema-list
+      - prosemirror-transform
     dev: false
 
   /@tootallnate/once/1.1.2:
@@ -9196,12 +9228,10 @@ packages:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
     dev: true
 
-  /tailwindcss/3.2.4_postcss@8.4.20:
+  /tailwindcss/3.2.4:
     resolution: {integrity: sha512-AhwtHCKMtR71JgeYDaswmZXhPcW9iuI9Sp2LvZPo9upDZ7231ZJ7eA9RaURbhpXGVlrjX4cFNlB4ieTetEb7hQ==}
     engines: {node: '>=12.13.0'}
     hasBin: true
-    peerDependencies:
-      postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
       chokidar: 3.5.3
