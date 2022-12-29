@@ -24,7 +24,7 @@ const props = defineProps<{
   noHeader?: boolean
   noSearchBar?: boolean
   noPagination?: boolean
-  mode?: 'light' | 'secondary' | 'dark'
+  mode?: 'light' | 'dark'
 }>()
 
 const emit = defineEmits(['row-clicked', 'change-page', 'search'])
@@ -46,14 +46,12 @@ const entries = computed(() => {
 
 const headerColor = {
   light: 'text-text-title bg-[#F9F9F9]',
-  secondary: 'bg-transparent text-white',
   dark: 'bg-transparent text-white'
 }
 
 const rowColor = {
   light: 'hover:bg-gray-light',
-  secondary: 'hover:bg-[#204A60] text-white',
-  dark: 'hover:bg-[#212529] text-white'
+  dark: 'hover:bg-white/20 hover: text-white'
 }
 
 const responsiveStyle = (index: number) => {
