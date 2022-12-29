@@ -25,7 +25,7 @@ interface GroupItem {
   items: CardProps[]
   scope: string
 }
-type Type = Record<string, string>
+type WorkBookItem = Record<string, string>
 const groupItems: GroupItem[] = [
   {
     href: '/',
@@ -118,7 +118,7 @@ const workBookFields: Field[] = [
   { key: 'group' },
   { key: 'period' }
 ]
-const workBookItems: Type[] = [
+const workBookItems: WorkBookItem[] = [
   {
     id: '1',
     index: '1',
@@ -232,7 +232,7 @@ const changeWorkBook = (page: number) => {
     :fields="contestFields"
     :items="curContestItems"
     :number-of-pages="pageNumContest"
-    @row-clicked="(data: Type) => $router.push('/contest/' + data.id)"
+    @row-clicked="(data: WorkBookItem) => $router.push('/contest/' + data.id)"
     @change-page="changeContest"
   ></PaginationTable>
   <PageTitle text="Ongoing Workbook" class="mt-10 mb-4" />
@@ -242,7 +242,7 @@ const changeWorkBook = (page: number) => {
     :fields="workBookFields"
     :items="curWorkBookItems"
     :number-of-pages="pageNumWorkBook"
-    @row-clicked="(data: Type) => $router.push('workbook/' + data.id)"
+    @row-clicked="(data: WorkBookItem) => $router.push('workbook/' + data.id)"
     @change-page="changeWorkBook"
   ></PaginationTable>
 </template>
