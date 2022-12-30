@@ -13,18 +13,18 @@ export class GroupService {
       },
       select: {
         isRegistered: true,
-        isGroupManager: true
+        isGroupLeader: true
       }
     })
   }
 
-  async getUserGroupManagerList(userId: number): Promise<number[]> {
+  async getUserGroupLeaderList(userId: number): Promise<number[]> {
     return (
       await this.prisma.userGroup.findMany({
         where: {
           userId: userId,
           isRegistered: true,
-          isGroupManager: true
+          isGroupLeader: true
         },
         select: {
           groupId: true

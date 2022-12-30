@@ -292,14 +292,14 @@ describe('NoticeService', () => {
     ]
 
     it('should return notice list of the group', async () => {
-      const getUserGroupManagerListSpy = stub(
+      const getUserGroupLeaderListSpy = stub(
         groupService,
-        'getUserGroupManagerList'
+        'getUserGroupLeaderList'
       )
       db.notice.findMany.resolves(noticeArray)
 
       const getNoticesByGroupId = await service.getAdminNotices(userId, 1)
-      expect(getUserGroupManagerListSpy.calledWith(userId)).to.be.true
+      expect(getUserGroupLeaderListSpy.calledWith(userId)).to.be.true
       expect(getNoticesByGroupId).to.deep.equal(noticeArray)
     })
   })
