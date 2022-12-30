@@ -1,12 +1,9 @@
 import { MailerService } from '@nestjs-modules/mailer'
 import { Test, TestingModule } from '@nestjs/testing'
-import { expect, use } from 'chai'
-import * as chaiAsPromised from 'chai-as-promised'
+import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EmailTransmissionFailedException } from 'src/common/exception/business.exception'
 import { EmailService } from './email.service'
-
-use(chaiAsPromised)
 
 describe('EmailService', () => {
   let service: EmailService

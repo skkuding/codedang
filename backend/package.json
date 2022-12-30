@@ -9,7 +9,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "mocha --require @swc/register */**/*.spec.ts"
+    "test": "mocha --require @swc/register --require mocha-fixture.ts */**/*.spec.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^1.8.1",

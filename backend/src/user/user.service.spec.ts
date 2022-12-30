@@ -1,8 +1,7 @@
 import { MailerService } from '@nestjs-modules/mailer'
 import { CACHE_MANAGER } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { use, expect } from 'chai'
-import * as chaiAsPromised from 'chai-as-promised'
+import { expect } from 'chai'
 import Sinon, { stub, spy, fake } from 'sinon'
 import { User } from '@prisma/client'
 import { Cache } from 'cache-manager'
@@ -14,8 +13,6 @@ import { UserService } from './user.service'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { Request } from 'express'
-
-use(chaiAsPromised)
 
 describe('UserService', () => {
   let userService: UserService

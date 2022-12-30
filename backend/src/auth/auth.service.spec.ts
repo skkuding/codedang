@@ -2,8 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
-import { use, expect } from 'chai'
-import * as chaiAsPromised from 'chai-as-promised'
+import { expect } from 'chai'
 import Sinon, { stub } from 'sinon'
 import * as proxyquire from 'proxyquire'
 
@@ -19,9 +18,6 @@ import {
 } from 'src/common/exception/business.exception'
 import { EmailService } from 'src/email/email.service'
 import { MailerService } from '@nestjs-modules/mailer'
-
-// TODO: move this to common fixture
-use(chaiAsPromised)
 
 describe('AuthService', () => {
   let service

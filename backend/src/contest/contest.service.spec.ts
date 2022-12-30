@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { expect, use } from 'chai'
-import * as chaiAsPromised from 'chai-as-promised'
+import { expect } from 'chai'
 import { stub, spy } from 'sinon'
 import {
   Contest,
@@ -24,8 +23,6 @@ import { CreateContestDto } from './dto/create-contest.dto'
 import { CreateContestPublicizingRequestDto } from './dto/create-publicizing-request.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
-
-use(chaiAsPromised)
 
 const contestId = 1
 const userId = 1
@@ -225,7 +222,6 @@ describe('ContestService', () => {
         await contestService.createContest(userId, createContestDto)
 
       //then
-      use(chaiAsPromised)
       await expect(callContestCreate()).to.be.rejectedWith(
         UnprocessableDataException
       )

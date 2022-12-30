@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { expect, use } from 'chai'
+import { expect } from 'chai'
 import { stub } from 'sinon'
-import * as chaiAsPromised from 'chai-as-promised'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { Group, Notice } from '@prisma/client'
 import { NoticeService } from './notice.service'
@@ -9,8 +8,6 @@ import { CreateNoticeDto } from './dto/create-notice.dto'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
-
-use(chaiAsPromised)
 
 const noticeId = 2
 const userId = 1
