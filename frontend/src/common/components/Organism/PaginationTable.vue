@@ -55,7 +55,7 @@ const rowColor = {
 }
 
 const responsiveStyle = (index: number) => {
-  return subhead.value.length > 0 ? '' : index > 2 ? 'hidden md:table-cell' : ''
+  return subhead.value.length === 0 && index > 2 ? 'hidden md:table-cell' : ''
 }
 
 const currentPage = ref(1)
