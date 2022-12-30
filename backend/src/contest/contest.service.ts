@@ -5,6 +5,7 @@ import {
   RequestStatus
 } from '@prisma/client'
 import {
+  ActionNotAllowedException,
   EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
@@ -88,7 +89,7 @@ export class ContestService {
       data: {
         title: contestDto.title,
         description: contestDto.description,
-        descriptionSummary: contestDto.description,
+        descriptionSummary: contestDto.descriptionSummary,
         startTime: contestDto.startTime,
         endTime: contestDto.endTime,
         visible: contestDto.visible,
@@ -163,7 +164,7 @@ export class ContestService {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
       select: { ...this.contestSelectOption, description: true, visible: true },
-      rejectOnNotFound: () => new EntityNotExistException('Contest')
+      rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
     const userGroup = await this.groupService.getUserGroupMembershipInfo(
@@ -190,7 +191,7 @@ export class ContestService {
         title: true,
         descriptionSummary: true
       },
-      rejectOnNotFound: () => new EntityNotExistException('Contest')
+      rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
     return contest
@@ -228,7 +229,7 @@ export class ContestService {
         descriptionSummary: true,
         isRankVisible: true
       },
-      rejectOnNotFound: () => new EntityNotExistException('Contest')
+      rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
     return contest

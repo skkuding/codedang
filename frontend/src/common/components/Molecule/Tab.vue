@@ -33,7 +33,7 @@ const setHoverFalse = () => {
 </script>
 
 <template>
-  <ul class="border-gray flex w-full justify-center border-y">
+  <ul v-bind="$attrs" class="border-gray flex w-full justify-center border-y">
     <li
       v-for="item in items"
       :key="item"

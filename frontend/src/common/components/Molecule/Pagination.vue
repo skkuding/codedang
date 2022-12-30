@@ -25,7 +25,8 @@ watch(currentPage, (value) => {
 <template>
   <div class="flex flex-row gap-1">
     <Button
-      color="white"
+      outline
+      color="gray-dark"
       :class="{ 'pointer-events-none': currentPage === 1 }"
       class="aspect-square rounded-lg"
       @click="currentPage--"
@@ -110,7 +111,8 @@ watch(currentPage, (value) => {
     </Button>
 
     <Button
-      color="white"
+      outline
+      color="gray-dark"
       :class="{ 'pointer-events-none': currentPage === numberOfPages }"
       class="aspect-square rounded-lg"
       @click="currentPage++"
