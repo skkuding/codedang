@@ -138,9 +138,8 @@ const clickRow = (row: Item) => {
 
 <template>
   <Story>
-    <Variant title="Light">
+    <Variant title="Default">
       <div class="p-10">
-        <h2 class="text-lg">Default</h2>
         <PaginationTable
           :fields="fields"
           :items="currentItems"
@@ -163,10 +162,10 @@ const clickRow = (row: Item) => {
         <div class="text-gray-dark mt-10 text-sm">
           Click item : {{ selected }}
         </div>
-
-        <hr class="my-10" />
-        <h2 class="mb-5 text-lg">With Subheading</h2>
-
+      </div>
+    </Variant>
+    <Variant title="Subheading">
+      <div class="p-10">
         <PaginationTable
           :fields="withSubfields"
           :items="items[0]"
