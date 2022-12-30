@@ -51,7 +51,7 @@ const headerColor = {
 
 const rowColor = {
   light: 'hover:bg-gray-light',
-  dark: 'hover:bg-white/20 hover: text-white'
+  dark: 'hover:bg-white/20 text-white'
 }
 
 const responsiveStyle = (index: number) => {
