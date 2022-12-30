@@ -291,7 +291,7 @@ describe('NoticeService', () => {
     it('should return notice list of the group', async () => {
       const getUserGroupLeaderListSpy = stub(
         groupService,
-        'getUserGroupManagerList'
+        'getUserGroupLeaderList'
       )
       db.notice.findMany.resolves(noticeArray)
 
