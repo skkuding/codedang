@@ -27,6 +27,7 @@ import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.i
 import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
+import { CreateContestPublicizingRequestDto } from './dto/create-publicizing-request.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 
 @Controller('admin/contest')
@@ -125,7 +126,7 @@ export class GroupContestAdminController {
 
 @Controller('admin/contest/publicizing-request')
 @UseGuards(RolesGuard)
-@Roles(Role.SuperManager)
+@Roles(Role.Admin)
 export class ContestPublicizingRequestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
@@ -193,7 +194,7 @@ export class ContestPublicizingRequestAdminController {
 }
 
 @Controller('admin/group/:groupId/contest/:contestId/publicizing-request')
-@UseGuards(RolesGuard, GroupManagerGuard)
+@UseGuards(RolesGuard, GroupLeaderGuard)
 export class ContestPublicizingRequestController {
   constructor(private readonly contestService: ContestService) {}
 
