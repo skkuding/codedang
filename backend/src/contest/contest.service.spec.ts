@@ -101,7 +101,7 @@ const userGroup: UserGroup = {
   userId: userId,
   groupId: groupId,
   isRegistered: true,
-  isGroupManager: true,
+  isGroupLeader: true,
   createTime: new Date(),
   updateTime: new Date()
 }
@@ -431,7 +431,7 @@ describe('ContestService', () => {
     it('should return contest of the group', async () => {
       jest
         .spyOn(groupService, 'getUserGroupMembershipInfo')
-        .mockResolvedValue({ isRegistered: true, isGroupManager: false })
+        .mockResolvedValue({ isRegistered: true, isGroupLeader: false })
 
       expect(await contestService.getContestById(userId, contestId)).toEqual(
         contest
@@ -468,9 +468,9 @@ describe('ContestService', () => {
   })
 
   describe('getAdminContests', () => {
-    it('should return contests in groups whose user is group manager', async () => {
+    it('should return contests in groups whose user is group leader', async () => {
       jest
-        .spyOn(groupService, 'getUserGroupManagerList')
+        .spyOn(groupService, 'getUserGroupLeaderList')
         .mockResolvedValue([groupId])
 
       expect(await contestService.getAdminContests(userId)).toEqual(contests)
@@ -478,9 +478,9 @@ describe('ContestService', () => {
   })
 
   describe('getAdminOngoingContests', () => {
-    it('should return ongoing contests in groups whose user is group manager', async () => {
+    it('should return ongoing contests in groups whose user is group leader', async () => {
       jest
-        .spyOn(groupService, 'getUserGroupManagerList')
+        .spyOn(groupService, 'getUserGroupLeaderList')
         .mockResolvedValue([groupId])
 
       expect(await contestService.getAdminOngoingContests(userId)).toEqual(

@@ -24,15 +24,15 @@ import {
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
-import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
-import { CreateContestPublicizingRequestDto } from './dto/create-publicizing-request.dto'
+import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
+import { CreateContestPublicizingRequestDto } from './dto/create-publicizing-request.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 
 @Controller('admin/contest')
 @UseGuards(RolesGuard)
-@Roles(Role.GroupAdmin)
+@Roles(Role.Manager)
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
@@ -52,7 +52,7 @@ export class ContestAdminController {
 }
 
 @Controller('admin/group/:groupId/contest')
-@UseGuards(RolesGuard, GroupManagerGuard)
+@UseGuards(RolesGuard, GroupLeaderGuard)
 export class GroupContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
@@ -126,7 +126,7 @@ export class GroupContestAdminController {
 
 @Controller('admin/contest/publicizing-request')
 @UseGuards(RolesGuard)
-@Roles(Role.SuperManager)
+@Roles(Role.Admin)
 export class ContestPublicizingRequestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
@@ -194,7 +194,7 @@ export class ContestPublicizingRequestAdminController {
 }
 
 @Controller('admin/group/:groupId/contest/:contestId/publicizing-request')
-@UseGuards(RolesGuard, GroupManagerGuard)
+@UseGuards(RolesGuard, GroupLeaderGuard)
 export class ContestPublicizingRequestController {
   constructor(private readonly contestService: ContestService) {}
 

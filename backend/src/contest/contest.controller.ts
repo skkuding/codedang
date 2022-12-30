@@ -13,8 +13,7 @@ import {
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
   ActionNotAllowedException,
-  EntityNotExistException,
-  ForbiddenAccessException
+  EntityNotExistException
 } from 'src/common/exception/business.exception'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { ContestService } from './contest.service'
