@@ -5,15 +5,13 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { use, expect } from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
 import Sinon, { stub } from 'sinon'
+import * as proxyquire from 'proxyquire'
 
 import { Cache } from 'cache-manager'
 import { User } from '@prisma/client'
 
-import { AuthService } from './auth.service'
 import { UserService } from 'src/user/user.service'
 import { PrismaService } from 'src/prisma/prisma.service'
-
-import * as hash from '../common/hash'
 
 import {
   InvalidJwtTokenException,
@@ -26,7 +24,7 @@ import { MailerService } from '@nestjs-modules/mailer'
 use(chaiAsPromised)
 
 describe('AuthService', () => {
-  let service: AuthService
+  let service
   let userService: UserService
   let cache: Cache
   let createJwtTokensSpy: Sinon.SinonStub
@@ -46,6 +44,14 @@ describe('AuthService', () => {
   }
 
   beforeEach(async () => {
+    const { AuthService } = proxyquire('./auth.service', {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      '../common/hash': {
+        validate: async (passwordFromDB, passwordFromUserInput) =>
+          passwordFromDB === passwordFromUserInput
+      }
+    })
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -66,7 +72,7 @@ describe('AuthService', () => {
     }).compile()
 
     userService = module.get<UserService>(UserService)
-    service = module.get<AuthService>(AuthService)
+    service = module.get(AuthService)
     cache = module.get<Cache>(CACHE_MANAGER)
     createJwtTokensSpy = stub(service, 'createJwtTokens').resolves({
       accessToken: ACCESS_TOKEN,
@@ -124,13 +130,7 @@ describe('AuthService', () => {
     })
   })
 
-  /*
   describe('isValidUser', () => {
-    stub(hash, 'validate').callsFake(
-      async (passwordFromDB, passwordFromUserInput) =>
-        passwordFromDB === passwordFromUserInput
-    )
-
     it("should return true when the given password match with the user's password", async () => {
       //when
       const result = await service.isValidUser(user, VALID_PASSWORD)
@@ -153,7 +153,6 @@ describe('AuthService', () => {
       expect(result).to.equal(false)
     })
   })
-  */
 
   describe('updateJwtTokens', () => {
     const refreshToken = REFRESH_TOKEN
