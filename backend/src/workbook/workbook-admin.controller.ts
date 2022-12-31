@@ -16,12 +16,12 @@ import { CreateWorkbookDto } from './dto/create-workbook.dto'
 import { UpdateWorkbookDto } from './dto/update-workbook.dto'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
-import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
+import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Workbook } from '@prisma/client'
 
 @Controller('admin/group/:groupId/workbook')
-@UseGuards(RolesGuard, GroupManagerGuard)
+@UseGuards(RolesGuard, GroupLeaderGuard)
 export class WorkbookAdminController {
   constructor(private readonly workbookService: WorkbookService) {}
 

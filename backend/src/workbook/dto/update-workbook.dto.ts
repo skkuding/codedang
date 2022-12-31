@@ -10,15 +10,15 @@ export class UpdateWorkbookDto {
 
   @IsDate()
   @Type(() => Date)
-  start_time: Date
+  startTime: Date
 
   @IsDate()
   @Type(() => Date)
-  end_time: Date
+  endTime: Date
 
   @IsBoolean()
   visible: boolean
 
   @IsBoolean()
-  allow_partial_score: boolean
+  allowPartialScore: boolean
 }

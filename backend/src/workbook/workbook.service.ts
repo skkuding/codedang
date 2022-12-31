@@ -18,7 +18,7 @@ export class WorkbookService {
     const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
     const workbooks = await this.prisma.workbook.findMany({
       where: {
-        group_id: groupId,
+        groupId,
         ...whereOption
       }
     })
@@ -43,7 +43,7 @@ export class WorkbookService {
   ): Promise<Workbook> {
     const newWorkbook = await this.prisma.workbook.create({
       data: {
-        group_id: groupId,
+        groupId,
         ...createWorkbookDto
       }
     })
