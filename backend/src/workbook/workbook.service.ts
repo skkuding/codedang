@@ -4,6 +4,7 @@ import { EntityNotExistException } from 'src/common/exception/business.exception
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateWorkbookDto } from './dto/create-workbook.dto'
 import { UpdateWorkbookDto } from './dto/update-workbook.dto'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 
 @Injectable()
 export class WorkbookService {
@@ -54,23 +55,45 @@ export class WorkbookService {
     workbookId: number,
     updateWorkbookDto: UpdateWorkbookDto
   ): Promise<Workbook> {
-    const updatedWorkbook = await this.prisma.workbook.update({
-      where: {
-        id: workbookId
-      },
-      data: {
-        ...updateWorkbookDto
+    try {
+      const updatedWorkbook = await this.prisma.workbook.update({
+        where: {
+          id: workbookId
+        },
+        data: {
+          ...updateWorkbookDto
+        }
+      })
+      return updatedWorkbook
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('workbook')
+      } else {
+        throw error
       }
-    })
-    return updatedWorkbook
+    }
   }
 
   async deleteWorkbook(workbookId: number): Promise<Workbook> {
-    const deletedWorkbook = await this.prisma.workbook.delete({
-      where: {
-        id: workbookId
+    try {
+      const deletedWorkbook = await this.prisma.workbook.delete({
+        where: {
+          id: workbookId
+        }
+      })
+      return deletedWorkbook
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('workbook')
+      } else {
+        throw error
       }
-    })
-    return deletedWorkbook
+    }
   }
 }

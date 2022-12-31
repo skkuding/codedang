@@ -14,7 +14,6 @@ import {
 import { WorkbookService } from './workbook.service'
 import { CreateWorkbookDto } from './dto/create-workbook.dto'
 import { UpdateWorkbookDto } from './dto/update-workbook.dto'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
@@ -77,11 +76,8 @@ export class WorkbookAdminController {
         updateWorkbookDto
       )
     } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException('Workbook does not exist')
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       } else {
         throw new InternalServerErrorException()
       }
@@ -95,11 +91,8 @@ export class WorkbookAdminController {
     try {
       return await this.workbookService.deleteWorkbook(workbookId)
     } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException('Workbook does not exist')
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       } else {
         throw new InternalServerErrorException()
       }
