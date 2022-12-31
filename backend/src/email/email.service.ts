@@ -1,3 +1,4 @@
+import * as path from 'path'
 import { MailerService } from '@nestjs-modules/mailer'
 import { Injectable } from '@nestjs/common'
 import { SentMessageInfo } from 'nodemailer'
@@ -14,8 +15,15 @@ export class EmailService {
     const sentEmailInfo = await this.mailerService.sendMail({
       to: email,
       subject: `Reset your password`,
-      html: `<div>If you want to reset your password, Put the pin numbers below into the password reset page.</div>
-      <h2>${pin}</h2>`
+      template: path.join(__dirname, 'templates/reset-password'),
+      context: { pin },
+      attachments: [
+        {
+          filename: 'logo.png',
+          path: path.join(__dirname, 'templates/logo.png'),
+          cid: 'logo'
+        }
+      ]
     })
 
     if (sentEmailInfo.accepted.length === 0) {

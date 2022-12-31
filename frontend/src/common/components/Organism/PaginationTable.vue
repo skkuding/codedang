@@ -9,7 +9,7 @@ defineProps<{
     label?: string
   }[]
   items: {
-    [key: string]: unknown
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any
   }[]
   placeholder?: string
   numberOfPages: number
@@ -39,7 +39,7 @@ const capitalize = (key: string) => {
 
 <template>
   <div>
-    <div class="flex justify-end">
+    <div class="mb-5 flex justify-end">
       <slot name="option"></slot>
       <SearchBar
         v-if="!noSearchBar"
@@ -48,7 +48,7 @@ const capitalize = (key: string) => {
         @search="search"
       ></SearchBar>
     </div>
-    <table class="w-full table-auto" :class="!noSearchBar ? 'mt-5' : ''">
+    <table class="w-full table-auto">
       <thead v-if="!noHeader">
         <tr class="text-text-title border-gray border-b-2 bg-[#F9F9F9]">
           <th

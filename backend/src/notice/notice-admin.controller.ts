@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
 import { Notice, Role } from '@prisma/client'
-import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
+import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { CreateNoticeDto } from './dto/create-notice.dto'
@@ -25,7 +25,7 @@ import { RolesGuard } from 'src/user/guard/roles.guard'
 
 @Controller('admin/notice')
 @UseGuards(RolesGuard)
-@Roles(Role.GroupAdmin)
+@Roles(Role.Manager)
 export class NoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
@@ -38,15 +38,15 @@ export class NoticeAdminController {
   }
 }
 
-@Controller('admin/group/:group_id/notice')
-@UseGuards(RolesGuard, GroupManagerGuard)
+@Controller('admin/group/:groupId/notice')
+@UseGuards(RolesGuard, GroupLeaderGuard)
 export class GroupNoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Post()
   async createNotice(
     @Req() req: AuthenticatedRequest,
-    @Param('group_id', ParseIntPipe) groupId: number,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Body() createNoticeDto: CreateNoticeDto
   ): Promise<Notice> {
     try {
@@ -65,7 +65,7 @@ export class GroupNoticeAdminController {
 
   @Get()
   async getAdminNotices(
-    @Param('group_id', ParseIntPipe) groupId: number,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
     return await this.noticeService.getAdminNoticesByGroupId(groupId, offset)

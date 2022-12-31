@@ -35,7 +35,7 @@ export class NoticeService {
         group: {
           connect: { id: groupId }
         },
-        created_by: {
+        createdBy: {
           connect: { id: userId }
         }
       }
@@ -50,13 +50,13 @@ export class NoticeService {
   ): Promise<Partial<Notice>[]> {
     return await this.prisma.notice.findMany({
       where: {
-        group_id: groupId,
+        groupId: groupId,
         visible: true
       },
       select: {
         id: true,
         title: true,
-        create_time: true,
+        createTime: true,
         fixed: true
       },
       skip: offset - 1,
@@ -73,22 +73,22 @@ export class NoticeService {
       select: {
         title: true,
         content: true,
-        create_time: true,
-        update_time: true
+        createTime: true,
+        updateTime: true
       },
       rejectOnNotFound: () => new EntityNotExistException('notice')
     })
 
     const navigate = (pos: 'prev' | 'next') => {
-      type order = 'asc' | 'desc'
+      type Order = 'asc' | 'desc'
       const options =
         pos === 'prev'
-          ? { compare: { lt: id }, order: 'desc' as order }
-          : { compare: { gt: id }, order: 'asc' as order }
+          ? { compare: { lt: id }, order: 'desc' as Order }
+          : { compare: { gt: id }, order: 'asc' as Order }
       return {
         where: {
           id: options.compare,
-          group_id: groupId,
+          groupId: groupId,
           visible: true
         },
         orderBy: {
@@ -112,11 +112,11 @@ export class NoticeService {
     userId: number,
     offset: number
   ): Promise<Partial<Notice>[]> {
-    const groupIds = await this.group.getUserGroupManagerList(userId)
+    const groupIds = await this.group.getUserGroupLeaderList(userId)
 
     return await this.prisma.notice.findMany({
       where: {
-        group_id: {
+        groupId: {
           in: groupIds
         }
       },
@@ -125,12 +125,12 @@ export class NoticeService {
         group: {
           select: {
             id: true,
-            group_name: true
+            groupName: true
           }
         },
         title: true,
-        update_time: true,
-        created_by: true,
+        updateTime: true,
+        createdBy: true,
         visible: true
       },
       skip: offset - 1,
@@ -144,12 +144,12 @@ export class NoticeService {
   ): Promise<Partial<Notice>[]> {
     return await this.prisma.notice.findMany({
       where: {
-        group_id: groupId
+        groupId: groupId
       },
       select: {
         id: true,
         title: true,
-        update_time: true,
+        updateTime: true,
         visible: true,
         fixed: true
       },
@@ -166,7 +166,7 @@ export class NoticeService {
       select: {
         group: {
           select: {
-            group_name: true
+            groupName: true
           }
         },
         title: true,

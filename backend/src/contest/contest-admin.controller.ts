@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   InternalServerErrorException,
+  MethodNotAllowedException,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -16,19 +17,22 @@ import {
 import { ContestService } from './contest.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
-import { Contest, Role } from '@prisma/client'
+import { Contest, ContestPublicizingRequest, Role } from '@prisma/client'
 import {
+  ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
-import { GroupManagerGuard } from 'src/group/guard/group-manager.guard'
+import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
+import { CreateContestPublicizingRequestDto } from './dto/create-publicizing-request.dto'
+import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 
 @Controller('admin/contest')
 @UseGuards(RolesGuard)
-@Roles(Role.GroupAdmin)
+@Roles(Role.Manager)
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
@@ -47,8 +51,8 @@ export class ContestAdminController {
   }
 }
 
-@Controller('admin/group/:group_id/contest')
-@UseGuards(RolesGuard, GroupManagerGuard)
+@Controller('admin/group/:groupId/contest')
+@UseGuards(RolesGuard, GroupLeaderGuard)
 export class GroupContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
@@ -107,14 +111,154 @@ export class GroupContestAdminController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+
       throw new InternalServerErrorException()
     }
   }
 
   @Get()
   async getAdminContests(
-    @Param('group_id', ParseIntPipe) groupId: number
+    @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminContestsByGroupId(groupId)
+  }
+}
+
+@Controller('admin/contest/publicizing-request')
+@UseGuards(RolesGuard)
+@Roles(Role.Admin)
+export class ContestPublicizingRequestAdminController {
+  constructor(private readonly contestService: ContestService) {}
+
+  @Patch('/:requestId')
+  async respondContestPublicizingRequest(
+    @Param('requestId', ParseIntPipe) requestId: number,
+    @Body()
+    respondContestPublicizingRequestDto: RespondContestPublicizingRequestDto
+  ): Promise<ContestPublicizingRequest> {
+    try {
+      return await this.contestService.respondContestPublicizingRequest(
+        requestId,
+        respondContestPublicizingRequestDto
+      )
+    } catch (error) {
+      if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
+      }
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('/pending')
+  async getPendingContestPublicizingRequests(): Promise<
+    Partial<ContestPublicizingRequest>[]
+  > {
+    try {
+      return await this.contestService.getPendingContestPublicizingRequests()
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('/responded')
+  async getRespondedContestPublicizingRequests(): Promise<
+    Partial<ContestPublicizingRequest>[]
+  > {
+    try {
+      return await this.contestService.getRespondedContestPublicizingRequests()
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('/:requestId')
+  async getContestPublicizingRequest(
+    @Param('requestId', ParseIntPipe) requestId: number
+  ): Promise<Partial<ContestPublicizingRequest>> {
+    try {
+      return await this.contestService.getAdminContestPublicizingRequest(
+        requestId
+      )
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+
+      throw new InternalServerErrorException()
+    }
+  }
+}
+
+@Controller('admin/group/:groupId/contest/:contestId/publicizing-request')
+@UseGuards(RolesGuard, GroupLeaderGuard)
+export class ContestPublicizingRequestController {
+  constructor(private readonly contestService: ContestService) {}
+
+  @Post()
+  async createContestPublicizingRequest(
+    @Req() req: AuthenticatedRequest,
+    @Body()
+    createContestPublicizingRequestDto: CreateContestPublicizingRequestDto
+  ) {
+    try {
+      return await this.contestService.createContestPublicizingRequest(
+        req.user.id,
+        createContestPublicizingRequestDto
+      )
+    } catch (error) {
+      if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
+      }
+
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Delete('/:requestId')
+  async deleteContestPublicizingRequest(
+    @Param('requestId', ParseIntPipe) requestId: number
+  ) {
+    try {
+      await this.contestService.deleteContestPublicizingRequest(requestId)
+    } catch (error) {
+      if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
+      }
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get()
+  async getContestPublicizingRequests(
+    @Param('contestId', ParseIntPipe) contestId: number
+  ): Promise<Partial<ContestPublicizingRequest>[]> {
+    try {
+      return await this.contestService.getContestPublicizingRequests(contestId)
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('/:requestId')
+  async getContestPublicizingRequest(
+    @Param('requestId', ParseIntPipe) requestId: number
+  ): Promise<Partial<ContestPublicizingRequest>> {
+    try {
+      return await this.contestService.getContestPublicizingRequest(requestId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+
+      throw new InternalServerErrorException()
+    }
   }
 }
