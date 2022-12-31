@@ -44,7 +44,7 @@ export class WorkbookAdminController {
       return await this.workbookService.getWorkbookById(workbookId, true)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
-        throw new NotFoundException('Cannot find requested workbooks')
+        throw new NotFoundException(error.message)
       } else {
         throw new InternalServerErrorException()
       }
@@ -62,11 +62,7 @@ export class WorkbookAdminController {
         createWorkbookDto
       )
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        throw new NotFoundException('Cannot find related fields')
-      } else {
-        throw new InternalServerErrorException()
-      }
+      throw new InternalServerErrorException()
     }
   }
 
@@ -81,8 +77,11 @@ export class WorkbookAdminController {
         updateWorkbookDto
       )
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        throw new NotFoundException('Cannot find the ID')
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Workbook does not exist')
       } else {
         throw new InternalServerErrorException()
       }
@@ -96,8 +95,11 @@ export class WorkbookAdminController {
     try {
       return await this.workbookService.deleteWorkbook(workbookId)
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        throw new NotFoundException('Cannot find the ID')
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Workbook does not exist')
       } else {
         throw new InternalServerErrorException()
       }

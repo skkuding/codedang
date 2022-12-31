@@ -37,7 +37,7 @@ export class WorkbookController {
       return await this.workbookService.getWorkbookById(workbookId, false)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
-        throw new NotFoundException('Cannot find requested workbooks')
+        throw new NotFoundException(error.message)
       } else {
         throw new InternalServerErrorException()
       }
