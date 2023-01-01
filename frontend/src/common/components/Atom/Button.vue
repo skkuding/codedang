@@ -14,7 +14,7 @@ const colorMapper = {
   gray: 'text-gray hover:bg-gray/20 active:bg-gray/40',
   // eslint-disable-next-line
   'gray-dark': 'text-gray-dark hover:bg-gray-dark/20 active:bg-gray-dark/40',
-  white: 'text-default hover:bg-gray/20 active:bg-gray/40'
+  white: 'text-white hover:bg-white/20 active:bg-white/40'
 }
 
 const pressedColorMapper = {
@@ -24,7 +24,7 @@ const pressedColorMapper = {
   gray: 'text-gray bg-gray/40',
   // eslint-disable-next-line
   'gray-dark': 'text-gray-dark bg-gray-dark/40',
-  white: 'text-default bg-gray/40'
+  white: 'text-white bg-white/40'
 }
 
 const backgroundColorMapper = {
@@ -36,7 +36,7 @@ const backgroundColorMapper = {
   // eslint-disable-next-line
   'gray-dark':
     'text-white bg-gray-dark hover:bg-gray-dark/80 active:bg-gray-dark/60',
-  white: 'text-default bg-white hover:bg-gray/20 active:bg-gray/40'
+  white: 'text-default bg-white hover:bg-white/80 active:bg-white/60'
 }
 
 const pressedBackgroundColorMapper = {
@@ -46,7 +46,7 @@ const pressedBackgroundColorMapper = {
   gray: 'text-default bg-gray/60',
   // eslint-disable-next-line
   'gray-dark': 'text-white bg-gray-dark/60',
-  white: 'text-default bg-gray/40'
+  white: 'text-default bg-white/60'
 }
 
 const classNames = computed(() =>
