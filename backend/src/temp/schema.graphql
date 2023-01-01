@@ -1,0 +1,9 @@
+type Temp {
+  id: Int!
+  name: String
+}
+
+type Query {
+  getTemp: Temp
+  getTempList: [Temp]
+}
