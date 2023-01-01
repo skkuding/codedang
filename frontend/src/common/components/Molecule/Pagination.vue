@@ -9,7 +9,7 @@ import IconEllipsis from '~icons/fa6-solid/ellipsis'
 const props = defineProps<{
   numberOfPages: number
   modelValue: number
-  mode?: 'light' | 'secondary' | 'dark'
+  mode?: 'light' | 'dark'
 }>()
 
 const emit = defineEmits<{
