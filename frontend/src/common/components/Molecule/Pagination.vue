@@ -39,7 +39,7 @@ watch(currentPage, (value) => {
       outline
       :color="!mode || mode === 'light' ? 'gray-dark' : 'white'"
       :class="{ 'pointer-events-none': currentPage === 1 }"
-      class="aspect-square rounded-lg bg-transparent"
+      class="aspect-square rounded-lg"
       @click="currentPage--"
     >
       <IconAngleLeft />
@@ -130,7 +130,7 @@ watch(currentPage, (value) => {
       outline
       :color="!mode || mode === 'light' ? 'gray-dark' : 'white'"
       :class="{ 'pointer-events-none': currentPage === numberOfPages }"
-      class="aspect-square rounded-lg bg-transparent"
+      class="aspect-square rounded-lg"
       @click="currentPage++"
     >
       <IconAngleRight />
