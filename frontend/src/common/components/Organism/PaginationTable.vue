@@ -9,7 +9,7 @@ defineProps<{
     label?: string
   }[]
   items: {
-    [key: string]: unknown
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any
   }[]
   placeholder?: string
   numberOfPages: number

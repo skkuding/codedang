@@ -2,34 +2,27 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { createPinia } from 'pinia'
 import { useAuthStore } from '@/common/store/auth'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
+import axiosRetry from 'axios-retry'
 import NProgress from 'nprogress'
 import { setupLayouts } from 'virtual:generated-layouts'
 import generatedRoutes from 'virtual:generated-pages'
 import App from './App.vue'
+import VueDOMPurifyHTML from 'vue-dompurify-html'
 
 import 'nprogress/nprogress.css'
 import './common/styles/style.css'
 
-axios.interceptors.response.use(undefined, async (error: AxiosError) => {
-  if (
-    error.response?.status !== 401 ||
-    error.config.url === '/api/auth/reissue' ||
-    error.config.headers?.retry
-  ) {
-    throw error
+// Retry 401 failed request to reissue access token
+// since access token expiresin short time.
+// Refresh token is stored in cookie, which expires after long time.
+axiosRetry(axios, {
+  retries: 1,
+  retryCondition: (error) =>
+    error.response?.status === 401 && error.config?.url !== '/api/auth/reissue',
+  onRetry: async () => {
+    await useAuthStore().reissue()
   }
-
-  await useAuthStore().reissue()
-
-  /* to retry only once, use custom header `retry` as a flag */
-  return axios({
-    headers: {
-      retry: 'retry',
-      ...error.config.headers
-    },
-    ...error.config
-  })
 })
 
 const app = createApp(App)
@@ -47,4 +40,5 @@ router.afterEach(() => {
 
 app.use(router)
 app.use(createPinia())
+app.use(VueDOMPurifyHTML)
 app.mount('#app')
