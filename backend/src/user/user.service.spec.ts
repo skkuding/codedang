@@ -106,7 +106,7 @@ describe('UserService', () => {
     expect(cacheSpy.firstCall.args).to.deep.equal([
       PASSWORD_RESET_PIN_KEY,
       PASSWORD_RESET_PIN,
-      { ttl: TIME_TO_LIVE }
+      TIME_TO_LIVE
     ])
   })
 

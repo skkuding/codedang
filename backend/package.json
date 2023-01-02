@@ -23,7 +23,7 @@
     "@nestjs/swagger": "^6.1.4",
     "@prisma/client": "^4.8.0",
     "argon2": "^0.30.2",
-    "cache-manager": "^4.1.0",
+    "cache-manager": "^5.1.4",
     "cache-manager-redis-store": "^2.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
