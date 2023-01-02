@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { expect } from 'chai'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { WorkbookService } from './workbook.service'
 
@@ -14,6 +15,6 @@ describe('WorkbookService', () => {
   })
 
   it('should be defined', () => {
-    expect(service).toBeDefined()
+    expect(service).to.be.ok
   })
 })

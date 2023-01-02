@@ -1,0 +1,21 @@
+{
+  "test": ".*.ts$",
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "decorators": true,
+      "importMeta": true
+    },
+    "transform": {
+      "legacyDecorator": true,
+      "decoratorMetadata": true
+    },
+    "paths": {
+      "src/*": ["./src/*"]
+    }
+  },
+  "module": {
+    "type": "commonjs",
+    "noInterop": true
+  }
+}

@@ -6,7 +6,7 @@ Coding Platform은 Frontend, Backend, DevOps 세 팀으로 나누어 프로젝�
 |:--------:|-------------|
 | 공통 | Visual Studio Code, GitHub, pnpm, Typescript, ESLint, Prettier, Lefthook |
 | Frontend | Vue.js,  Vite, Tailwind CSS, Pinia, Histoire |
-| Backend | Node.js, Nest.js,  Express, Jest, Prisma, PostgreSQL, Redis |
+| Backend | Node.js, Nest.js,  Express, Mocha, Prisma, PostgreSQL, Redis |
 | DevOps | Docker, AWS |
 
 ## 공통
@@ -129,10 +129,10 @@ Python의 Django와 달리 Node.js에는 그동안 구조가 정해진 backend f
 우리 프로젝트에서는 직접 Express를 쓰는 대신 NestJS가 Express를 감싸고 있습니다.
 지금은 관련 자료가 풍부하다는 이유로 Express를 사용하고 있지만, 추후 성능 개선이 필요한 시점이 오면 [Fastify](https://www.fastify.io/)로 대체할 수 있습니다.
 
-### Jest
+### Mocha
 
-[Jest](https://jestjs.io/)는 Node.js 생태계에서 가장 많이 쓰이는 testing framework입니다.
-NestJS의 [testing module](https://docs.nestjs.com/fundamentals/testing)이 기본으로 지원하기 때문에 NestJS와 쓰기 좋습니다.
+일반적으로 Node.js 생태계에서 testing framework로 [Jest](https://jestjs.io/)가 가장 많이 쓰이지만, Jest의 성능 문제로 우리 프로젝트에서는 [Mocha](https://mochajs.org)를 대신 사용합니다. (관련 issue: [#299](https://github.com/skkuding/next/issues/299))
+Mocha와 함께 assertion 기능을 제공하는 [Chai](https://www.chaijs.com), mocking과 fake 함수 기능을 제공하는 [Sinon](https://sinonjs.org)을 사용합니다.
 
 ### Prisma
 
