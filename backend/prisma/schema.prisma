@@ -12,8 +12,8 @@ datasource db {
 
 enum Role {
   User
-  GroupAdmin
-  SuperManager
+  Manager
+  Admin
   SuperAdmin
 }
 
@@ -28,16 +28,17 @@ model User {
   createTime            DateTime @default(now()) @map("create_time")
   updateTime            DateTime @updatedAt @map("update_time")
 
-  UserProfile    UserProfile?
-  UserGroup      UserGroup[]
-  Group          Group[]
-  Notice         Notice[]
-  Problem        Problem[]
-  Contest        Contest[]
-  ContestRecord  ContestRecord[]
-  ContestRankACM ContestRankACM[]
-  Workbook       Workbook[]
-  Submission     Submission[]
+  UserProfile               UserProfile?
+  UserGroup                 UserGroup[]
+  Group                     Group[]
+  Notice                    Notice[]
+  Problem                   Problem[]
+  Contest                   Contest[]
+  ContestRecord             ContestRecord[]
+  ContestRankACM            ContestRankACM[]
+  Workbook                  Workbook[]
+  Submission                Submission[]
+  ContestPublicizingRequest ContestPublicizingRequest[]
 
   @@map("user")
 }
@@ -55,24 +56,24 @@ model UserProfile {
 }
 
 model UserGroup {
-  id             Int      @id @default(autoincrement())
-  user           User     @relation(fields: [userId], references: [id])
-  userId         Int      @map("user_id")
-  group          Group    @relation(fields: [groupId], references: [id])
-  groupId        Int      @map("group_id")
-  isRegistered   Boolean  @default(false) @map("is_registered")
-  isGroupManager Boolean  @default(false) @map("is_group_manager")
-  createTime     DateTime @default(now()) @map("create_time")
-  updateTime     DateTime @updatedAt @map("update_time")
+  id            Int      @id @default(autoincrement())
+  user          User     @relation(fields: [userId], references: [id])
+  userId        Int      @map("user_id")
+  group         Group    @relation(fields: [groupId], references: [id])
+  groupId       Int      @map("group_id")
+  isRegistered  Boolean  @default(false) @map("is_registered")
+  isGroupLeader Boolean  @default(false) @map("is_group_leader")
+  createTime    DateTime @default(now()) @map("create_time")
+  updateTime    DateTime @updatedAt @map("update_time")
 
   @@map("user_group")
 }
 
 model Group {
   id             Int      @id @default(autoincrement())
-  createdBy      User     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy      User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
   createdById    Int      @map("created_by_id")
-  groupName      String   @map("group_name")
+  groupName      String   @unique @map("group_name")
   private        Boolean  @default(false)
   // 생성시 자동 발급
   invitationCode String   @map("invitation_code")
@@ -91,7 +92,7 @@ model Group {
 
 model Notice {
   id          Int      @id @default(autoincrement())
-  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
   createdById Int      @map("created_by_id")
   group       Group    @relation(fields: [groupId], references: [id])
   groupId     Int      @map("group_id")
@@ -107,7 +108,7 @@ model Notice {
 
 model Problem {
   id                Int      @id @default(autoincrement())
-  createdBy         User     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy         User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
   createdById       Int      @map("created_by_id")
   group             Group    @relation(fields: [groupId], references: [id])
   groupId           Int      @map("group_id")
@@ -175,7 +176,7 @@ model Tag {
 
 model Contest {
   id                 Int         @id @default(autoincrement())
-  createdBy          User        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy          User        @relation(fields: [createdById], references: [id], onDelete: Restrict)
   createdById        Int         @map("created_by_id")
   group              Group       @relation(fields: [groupId], references: [id])
   groupId            Int         @map("group_id")
@@ -186,17 +187,25 @@ model Contest {
   endTime            DateTime    @map("end_time")
   visible            Boolean     @default(true)
   isRankVisible      Boolean     @default(true) @map("is_rank_visible")
+  isPublic           Boolean     @default(false)
   type               ContestType
   createTime         DateTime    @default(now()) @map("create_time")
   updateTime         DateTime    @updatedAt @map("update_time")
 
-  ContestNotice  ContestNotice[]
-  ContestProblem ContestProblem[]
-  ContestRecord  ContestRecord[]
-  ContestRankACM ContestRankACM[]
-  Submission     Submission[]
+  ContestNotice             ContestNotice[]
+  ContestProblem            ContestProblem[]
+  ContestRecord             ContestRecord[]
+  ContestRankACM            ContestRankACM[]
+  Submission                Submission[]
+  ContestPublicizingRequest ContestPublicizingRequest[]
 
   @@map("contest")
+}
+
+enum ContestType {
+  ACM
+  TotalScore
+  ProblemBank
 }
 
 model ContestNotice {
@@ -210,6 +219,26 @@ model ContestNotice {
   updateTime  DateTime @updatedAt @map("update_time")
 
   @@map("contest_notice")
+}
+
+model ContestPublicizingRequest {
+  id            Int           @id @default(autoincrement())
+  contest       Contest       @relation(fields: [contestId], references: [id])
+  contestId     Int           @map("contest_id")
+  message       String
+  requestStatus RequestStatus @default(Pending) @map("request_status")
+  createdBy     User          @relation(fields: [createdById], references: [id])
+  createdById   Int           @map("created_by_id")
+  createTime    DateTime      @default(now()) @map("create_time")
+  updateTime    DateTime      @updatedAt @map("update_time")
+
+  @@map("contest_publicizing_request")
+}
+
+enum RequestStatus {
+  Pending
+  Accepted
+  Rejected
 }
 
 model ContestProblem {
@@ -255,7 +284,7 @@ model ContestRankACM {
 
 model Workbook {
   id          Int      @id @default(autoincrement())
-  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
   createdById Int      @map("created_by_id")
   group       Group    @relation(fields: [groupId], references: [id])
   groupId     Int      @map("group_id")
@@ -319,10 +348,4 @@ model SubmissionResult {
   updateTime   DateTime   @updatedAt @map("update_time")
 
   @@map("submssion_result")
-}
-
-enum ContestType {
-  ACM
-  TotalScore
-  ProblemBank
 }
