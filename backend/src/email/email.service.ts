@@ -15,8 +15,8 @@ export class EmailService {
     const sentEmailInfo = await this.mailerService.sendMail({
       to: email,
       subject: `SKKU Coding Platform Email Authentication`,
-      html: `<div>If you want to authenticate your email, Put the pin numbers.</div>
-      <h2>${pin}</h2>`,
+      template: path.join(__dirname, 'templates/email-auth'),
+      context: { pin },
       attachments: [
         {
           filename: 'logo.png',
