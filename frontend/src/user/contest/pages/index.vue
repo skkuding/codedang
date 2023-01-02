@@ -138,20 +138,18 @@ const showFinished = ref(false)
     <div v-if="items[id].length === 0" class="text-gray-dark p-2.5 pl-4">
       No Contest
     </div>
-    <div v-else>
-      <div v-if="id !== 'finished' || showFinished">
-        <div v-for="(item, idx) in items[id]" :key="idx">
-          <CardItem
-            :img="item.img"
-            :title="item.title"
-            :description="item.description"
-            :colored-text="coloredText(id, item)"
-            :colored-text-short="coloredTextShort(id, item)"
-            class="mt-4"
-            :border-color="id === 'finished' ? 'gray' : 'green'"
-            @click="$router.push('/contest/' + item.id)"
-          />
-        </div>
+    <div v-else-if="id !== 'finished' || showFinished">
+      <div v-for="(item, idx) in items[id]" :key="idx">
+        <CardItem
+          :img="item.img"
+          :title="item.title"
+          :description="item.description"
+          :colored-text="coloredText(id, item)"
+          :colored-text-short="coloredTextShort(id, item)"
+          class="mt-4"
+          :border-color="id === 'finished' ? 'gray' : 'green'"
+          @click="$router.push('/contest/' + item.id)"
+        />
       </div>
     </div>
   </div>
