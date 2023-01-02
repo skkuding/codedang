@@ -64,7 +64,7 @@ importers:
       chai: ^4.3.7
       chai-as-promised: ^7.1.1
       class-transformer: ^0.5.1
-      class-validator: ^0.14.0
+      class-validator: ^0.13.2
       cookie-parser: ^1.4.6
       handlebars: ^4.7.7
       mocha: ^10.2.0
@@ -87,19 +87,19 @@ importers:
       typescript: ^4.9.4
     dependencies:
       '@nestjs-modules/mailer': 1.8.1_vvz225xiahix464fwzuua3bovm
-      '@nestjs/common': 9.2.1_uisgqpdqsnlcxoqiidaahrhoi4
+      '@nestjs/common': 9.2.1_t3livvr4rnphsnpp4otxjboi6u
       '@nestjs/config': 2.2.0_b4pxbpa7chblgbyake5iz5rdmu
       '@nestjs/core': 9.2.1_e6la6qvsclaae2becwjnmfvsuq
       '@nestjs/jwt': 10.0.1_@nestjs+common@9.2.1
       '@nestjs/passport': 9.0.0_6o47igfla2pj7yzh7agpvpttka
       '@nestjs/platform-express': 9.2.1_hjcqpoaebdr7gdo5hgc22hthbe
-      '@nestjs/swagger': 6.1.4_4fhhxyztwhblafku3krlstrun4
+      '@nestjs/swagger': 6.1.4_zvabycmw733xee3ikaxv4c7mny
       '@prisma/client': 4.8.0_prisma@4.8.0
       argon2: 0.30.2
       cache-manager: 4.1.0
       cache-manager-redis-store: 2.0.0
       class-transformer: 0.5.1
-      class-validator: 0.14.0
+      class-validator: 0.13.2
       cookie-parser: 1.4.6
       handlebars: 4.7.7
       nodemailer: 6.8.0
@@ -112,7 +112,7 @@ importers:
       swagger-ui-express: 4.6.0_express@4.18.2
     devDependencies:
       '@nestjs/cli': 9.1.8_@swc+core@1.3.24
-      '@nestjs/schematics': 9.0.4_typescript@4.9.4
+      '@nestjs/schematics': 9.0.4_bpd7edbl7imd2lxcmdt57tn7ne
       '@nestjs/testing': 9.2.1_wdbvfsxfdwzlwdfiyh2gynjl4m
       '@swc/core': 1.3.24
       '@swc/register': 0.1.10_@swc+core@1.3.24
@@ -181,7 +181,7 @@ importers:
       vue-tsc: ^1.0.19
     dependencies:
       '@tiptap/starter-kit': 2.0.0-beta.209_abnlhagdy6u44isuyzyni4aaei
-      '@tiptap/vue-3': 2.0.0-beta.209_bg7tl5ashwhqbujig4qwlgx6lu
+      '@tiptap/vue-3': 2.0.0-beta.209_nysk3ttsy4zmouxoe5f435v374
       '@vueuse/components': 9.9.0_vue@3.2.45
       '@vueuse/core': 9.9.0_vue@3.2.45
       '@vueuse/math': 9.9.0_vue@3.2.45
@@ -210,7 +210,7 @@ importers:
       autoprefixer: 10.4.13_postcss@8.4.20
       histoire: 0.12.4_olpw4qxmxw3gu2g5e2gxcovo5e
       postcss: 8.4.20
-      tailwindcss: 3.2.4_postcss@8.4.20
+      tailwindcss: 3.2.4
       typescript: 4.9.4
       unplugin-icons: 0.14.15
       vite: 3.2.5_@types+node@18.11.18
@@ -331,22 +331,6 @@ packages:
       '@algolia/requester-common': 4.14.2
     dev: true
 
-  /@angular-devkit/core/15.0.4:
-    resolution: {integrity: sha512-4ITpRAevd652SxB+qNesIQ9qfbm7wT5UBU5kJOPPwGL77I21g8CQpkmV1n5VSacPvC9Zbz90feOWexf7w7JzcA==}
-    engines: {node: ^14.20.0 || ^16.13.0 || >=18.10.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
-    peerDependencies:
-      chokidar: ^3.5.2
-    peerDependenciesMeta:
-      chokidar:
-        optional: true
-    dependencies:
-      ajv: 8.11.0
-      ajv-formats: 2.1.1_ajv@8.11.0
-      jsonc-parser: 3.2.0
-      rxjs: 6.6.7
-      source-map: 0.7.4
-    dev: true
-
   /@angular-devkit/core/15.0.4_chokidar@3.5.3:
     resolution: {integrity: sha512-4ITpRAevd652SxB+qNesIQ9qfbm7wT5UBU5kJOPPwGL77I21g8CQpkmV1n5VSacPvC9Zbz90feOWexf7w7JzcA==}
     engines: {node: ^14.20.0 || ^16.13.0 || >=18.10.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
@@ -357,7 +341,7 @@ packages:
         optional: true
     dependencies:
       ajv: 8.11.0
-      ajv-formats: 2.1.1_ajv@8.11.0
+      ajv-formats: 2.1.1
       chokidar: 3.5.3
       jsonc-parser: 3.2.0
       rxjs: 6.6.7
@@ -375,19 +359,6 @@ packages:
       inquirer: 8.2.4
       symbol-observable: 4.0.0
       yargs-parser: 21.1.1
-    transitivePeerDependencies:
-      - chokidar
-    dev: true
-
-  /@angular-devkit/schematics/15.0.4:
-    resolution: {integrity: sha512-/gXiLFS0+xFdx6wPoBpe/c6/K9I5edMpaASqPf4XheKtrsSvL+qTlIi3nsbfItzOiDXbaBmlbxGfkMHz/yg0Ig==}
-    engines: {node: ^14.20.0 || ^16.13.0 || >=18.10.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
-    dependencies:
-      '@angular-devkit/core': 15.0.4
-      jsonc-parser: 3.2.0
-      magic-string: 0.26.7
-      ora: 5.4.1
-      rxjs: 6.6.7
     transitivePeerDependencies:
       - chokidar
     dev: true
@@ -1035,7 +1006,7 @@ packages:
       '@nestjs/core': ^7.0.9 || ^8.0.0 || ^9.0.0
       nodemailer: ^6.4.6
     dependencies:
-      '@nestjs/common': 9.2.1_uisgqpdqsnlcxoqiidaahrhoi4
+      '@nestjs/common': 9.2.1_t3livvr4rnphsnpp4otxjboi6u
       '@nestjs/core': 9.2.1_e6la6qvsclaae2becwjnmfvsuq
       glob: 8.0.3
       inline-css: 4.0.1
@@ -1088,7 +1059,7 @@ packages:
       - webpack-cli
     dev: true
 
-  /@nestjs/common/9.2.1_uisgqpdqsnlcxoqiidaahrhoi4:
+  /@nestjs/common/9.2.1_t3livvr4rnphsnpp4otxjboi6u:
     resolution: {integrity: sha512-nZuo3oDsSSlC5mti/M2aCWTEIfHPGDXmBwWgPeCpRbrNz3IWd109rkajll+yxgidVjznAdBS9y00JkAVJblNYw==}
     peerDependencies:
       cache-manager: <=5
@@ -1106,7 +1077,7 @@ packages:
     dependencies:
       cache-manager: 4.1.0
       class-transformer: 0.5.1
-      class-validator: 0.14.0
+      class-validator: 0.13.2
       iterare: 1.2.1
       reflect-metadata: 0.1.13
       rxjs: 7.8.0
@@ -1120,7 +1091,7 @@ packages:
       reflect-metadata: ^0.1.13
       rxjs: ^6.0.0 || ^7.2.0
     dependencies:
-      '@nestjs/common': 9.2.1_uisgqpdqsnlcxoqiidaahrhoi4
+      '@nestjs/common': 9.2.1_t3livvr4rnphsnpp4otxjboi6u
       dotenv: 16.0.1
       dotenv-expand: 8.0.3
       lodash: 4.17.21
@@ -1147,7 +1118,7 @@ packages:
       '@nestjs/websockets':
         optional: true
     dependencies:
-      '@nestjs/common': 9.2.1_uisgqpdqsnlcxoqiidaahrhoi4
+      '@nestjs/common': 9.2.1_t3livvr4rnphsnpp4otxjboi6u
       '@nestjs/platform-express': 9.2.1_hjcqpoaebdr7gdo5hgc22hthbe
       '@nuxtjs/opencollective': 0.3.2
       fast-safe-stringify: 2.1.1
@@ -1166,12 +1137,12 @@ packages:
     peerDependencies:
       '@nestjs/common': ^8.0.0 || ^9.0.0
     dependencies:
-      '@nestjs/common': 9.2.1_uisgqpdqsnlcxoqiidaahrhoi4
+      '@nestjs/common': 9.2.1_t3livvr4rnphsnpp4otxjboi6u
       '@types/jsonwebtoken': 8.5.9
       jsonwebtoken: 9.0.0
     dev: false
 
-  /@nestjs/mapped-types/1.2.0_ejjx6q7ue32bc24a7sespjpcyu:
+  /@nestjs/mapped-types/1.2.0_uooigj5zjqahwxoh46ti3f33my:
     resolution: {integrity: sha512-NTFwPZkQWsArQH8QSyFWGZvJ08gR+R4TofglqZoihn/vU+ktHEJjMqsIsADwb7XD97DhiD+TVv5ac+jG33BHrg==}
     peerDependencies:
       '@nestjs/common': ^7.0.8 || ^8.0.0 || ^9.0.0
@@ -1184,9 +1155,9 @@ packages:
       class-validator:
         optional: true
     dependencies:
-      '@nestjs/common': 9.2.1_uisgqpdqsnlcxoqiidaahrhoi4
+      '@nestjs/common': 9.2.1_t3livvr4rnphsnpp4otxjboi6u
       class-transformer: 0.5.1
-      class-validator: 0.14.0
+      class-validator: 0.13.2
       reflect-metadata: 0.1.13
     dev: false
 
@@ -1196,7 +1167,7 @@ packages:
       '@nestjs/common': ^8.0.0 || ^9.0.0
       passport: ^0.4.0 || ^0.5.0 || ^0.6.0
     dependencies:
-      '@nestjs/common': 9.2.1_uisgqpdqsnlcxoqiidaahrhoi4
+      '@nestjs/common': 9.2.1_t3livvr4rnphsnpp4otxjboi6u
       passport: 0.6.0
     dev: false
 
@@ -1206,7 +1177,7 @@ packages:
       '@nestjs/common': ^9.0.0
       '@nestjs/core': ^9.0.0
     dependencies:
-      '@nestjs/common': 9.2.1_uisgqpdqsnlcxoqiidaahrhoi4
+      '@nestjs/common': 9.2.1_t3livvr4rnphsnpp4otxjboi6u
       '@nestjs/core': 9.2.1_e6la6qvsclaae2becwjnmfvsuq
       body-parser: 1.20.1
       cors: 2.8.5
@@ -1231,22 +1202,7 @@ packages:
       - chokidar
     dev: true
 
-  /@nestjs/schematics/9.0.4_typescript@4.9.4:
-    resolution: {integrity: sha512-egurCfAc4e5i1r2TmeAF0UrOKejFmT5oTdv4b7HcOVPupc3QGU7CbEfGleL3mkM5AjrixTQeMxU9bJ00ttAbGg==}
-    peerDependencies:
-      typescript: ^4.3.5
-    dependencies:
-      '@angular-devkit/core': 15.0.4
-      '@angular-devkit/schematics': 15.0.4
-      fs-extra: 11.1.0
-      jsonc-parser: 3.2.0
-      pluralize: 8.0.0
-      typescript: 4.9.4
-    transitivePeerDependencies:
-      - chokidar
-    dev: true
-
-  /@nestjs/swagger/6.1.4_4fhhxyztwhblafku3krlstrun4:
+  /@nestjs/swagger/6.1.4_zvabycmw733xee3ikaxv4c7mny:
     resolution: {integrity: sha512-kE8VjR+NaoKqxg8XqM/YYfALScPh4AcoR8Wywga8/OxHsTHY+MKxqvTpWp7IhCUWSA6xT8nQUpcC9Rt7C+r7Hw==}
     peerDependencies:
       '@fastify/static': ^6.0.0
@@ -1263,11 +1219,11 @@ packages:
       class-validator:
         optional: true
     dependencies:
-      '@nestjs/common': 9.2.1_uisgqpdqsnlcxoqiidaahrhoi4
+      '@nestjs/common': 9.2.1_t3livvr4rnphsnpp4otxjboi6u
       '@nestjs/core': 9.2.1_e6la6qvsclaae2becwjnmfvsuq
-      '@nestjs/mapped-types': 1.2.0_ejjx6q7ue32bc24a7sespjpcyu
+      '@nestjs/mapped-types': 1.2.0_uooigj5zjqahwxoh46ti3f33my
       class-transformer: 0.5.1
-      class-validator: 0.14.0
+      class-validator: 0.13.2
       js-yaml: 4.1.0
       lodash: 4.17.21
       path-to-regexp: 3.2.0
@@ -1288,7 +1244,7 @@ packages:
       '@nestjs/platform-express':
         optional: true
     dependencies:
-      '@nestjs/common': 9.2.1_uisgqpdqsnlcxoqiidaahrhoi4
+      '@nestjs/common': 9.2.1_t3livvr4rnphsnpp4otxjboi6u
       '@nestjs/core': 9.2.1_e6la6qvsclaae2becwjnmfvsuq
       '@nestjs/platform-express': 9.2.1_hjcqpoaebdr7gdo5hgc22hthbe
       tslib: 2.4.1
@@ -1518,7 +1474,7 @@ packages:
       tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1'
     dependencies:
       mini-svg-data-uri: 1.4.4
-      tailwindcss: 3.2.4_postcss@8.4.20
+      tailwindcss: 3.2.4
     dev: true
 
   /@tailwindcss/typography/0.5.8_tailwindcss@3.2.4:
@@ -1530,7 +1486,7 @@ packages:
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 3.2.4_postcss@8.4.20
+      tailwindcss: 3.2.4
     dev: true
 
   /@tiptap/core/2.0.0-beta.209_xf6vrbde4aaztseepsc2w7fjwu:
@@ -1569,18 +1525,20 @@ packages:
       '@tiptap/core': 2.0.0-beta.209_xf6vrbde4aaztseepsc2w7fjwu
     dev: false
 
-  /@tiptap/extension-bubble-menu/2.0.0-beta.209_gggtkz4424gx75osy6lrhjpoqy:
+  /@tiptap/extension-bubble-menu/2.0.0-beta.209_jeu4ouigj7ewrtcth6npa4rbbm:
     resolution: {integrity: sha512-tceZAuDpy3J96uGyCzpJFD3fHABJDTJTq5E0hm+TRQT+eVGVqZI0PE3/4yVFgkCshioTuJq8veMDFcqNsSkKsQ==}
-    peerDependencies:
-      '@tiptap/core': ^2.0.0-beta.193
-      prosemirror-state: ^1.4.1
-      prosemirror-view: ^1.28.2
     dependencies:
       '@tiptap/core': 2.0.0-beta.209_xf6vrbde4aaztseepsc2w7fjwu
       lodash: 4.17.21
       prosemirror-state: 1.4.1
       prosemirror-view: 1.29.0
       tippy.js: 6.3.7
+    transitivePeerDependencies:
+      - prosemirror-commands
+      - prosemirror-keymap
+      - prosemirror-model
+      - prosemirror-schema-list
+      - prosemirror-transform
     dev: false
 
   /@tiptap/extension-bullet-list/2.0.0-beta.209_f4ffqkgz5d3wev7su7t7l2rrua:
@@ -1769,7 +1727,7 @@ packages:
       - prosemirror-view
     dev: false
 
-  /@tiptap/vue-3/2.0.0-beta.209_bg7tl5ashwhqbujig4qwlgx6lu:
+  /@tiptap/vue-3/2.0.0-beta.209_nysk3ttsy4zmouxoe5f435v374:
     resolution: {integrity: sha512-v0GUO6mcRgDfT6bNX3fHJds9QIpYqFBiGaanvTDVlOhErOSgrOx2+QuEieG0F9nUQ1az9h0kj5NZxvP9CeTlcQ==}
     peerDependencies:
       '@tiptap/core': ^2.0.0-beta.193
@@ -1778,11 +1736,17 @@ packages:
       vue: ^3.0.0
     dependencies:
       '@tiptap/core': 2.0.0-beta.209_xf6vrbde4aaztseepsc2w7fjwu
-      '@tiptap/extension-bubble-menu': 2.0.0-beta.209_gggtkz4424gx75osy6lrhjpoqy
+      '@tiptap/extension-bubble-menu': 2.0.0-beta.209_jeu4ouigj7ewrtcth6npa4rbbm
       '@tiptap/extension-floating-menu': 2.0.0-beta.209_gggtkz4424gx75osy6lrhjpoqy
       prosemirror-state: 1.4.1
       prosemirror-view: 1.29.0
       vue: 3.2.45
+    transitivePeerDependencies:
+      - prosemirror-commands
+      - prosemirror-keymap
+      - prosemirror-model
+      - prosemirror-schema-list
+      - prosemirror-transform
     dev: false
 
   /@tootallnate/once/1.1.2:
@@ -2041,9 +2005,6 @@ packages:
     dependencies:
       '@types/superagent': 4.1.15
     dev: true
-
-  /@types/validator/13.7.10:
-    resolution: {integrity: sha512-t1yxFAR2n0+VO6hd/FJ9F2uezAZVWHLmpmlJzm1eX03+H7+HsuTAp7L8QJs+2pQCfWkP1+EXsGK9Z9v7o/qPVQ==}
 
   /@types/web-bluetooth/0.0.16:
     resolution: {integrity: sha512-oh8q2Zc32S6gd/j50GowEjKLoOVOwHP/bWVjKJInBwQqdOYMdPrf1oVlelTlyfFK3CKxL1uahMDAr+vy8T7yMQ==}
@@ -2611,10 +2572,8 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ajv-formats/2.1.1_ajv@8.11.0:
+  /ajv-formats/2.1.1:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
-    peerDependencies:
-      ajv: ^8.0.0
     peerDependenciesMeta:
       ajv:
         optional: true
@@ -3126,10 +3085,9 @@ packages:
   /class-transformer/0.5.1:
     resolution: {integrity: sha512-SQa1Ws6hUbfC98vKGxZH3KFY0Y1lm5Zm0SY8XX9zbK7FJCyVEac3ATW0RIpwzW+oOfmHE5PMPufDG9hCfoEOMw==}
 
-  /class-validator/0.14.0:
-    resolution: {integrity: sha512-ct3ltplN8I9fOwUd8GrP8UQixwff129BkEtuWDKL5W45cQuLd19xqmTLu5ge78YDm/fdje6FMt0hGOhl0lii3A==}
+  /class-validator/0.13.2:
+    resolution: {integrity: sha512-yBUcQy07FPlGzUjoLuUfIOXzgynnQPPruyK1Ge2B74k9ROwnle1E+NxLWnUv5OLU8hA/qL5leAE9XnXq3byaBw==}
     dependencies:
-      '@types/validator': 13.7.10
       libphonenumber-js: 1.10.15
       validator: 13.7.0
 
@@ -8092,12 +8050,10 @@ packages:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
     dev: true
 
-  /tailwindcss/3.2.4_postcss@8.4.20:
+  /tailwindcss/3.2.4:
     resolution: {integrity: sha512-AhwtHCKMtR71JgeYDaswmZXhPcW9iuI9Sp2LvZPo9upDZ7231ZJ7eA9RaURbhpXGVlrjX4cFNlB4ieTetEb7hQ==}
     engines: {node: '>=12.13.0'}
     hasBin: true
-    peerDependencies:
-      postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
       chokidar: 3.5.3
