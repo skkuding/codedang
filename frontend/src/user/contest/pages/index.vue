@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import CardItem from '@/common/components/Molecule/CardItem.vue'
-import Modal from '@/common/components/Molecule/Modal.vue'
-import Button from '@/common/components/Atom/Button.vue'
 import IconAnglesRight from '~icons/fa6-solid/angles-right'
 import IconCaretDown from '~icons/fa6-solid/caret-down'
 import IconCaretUp from '~icons/fa6-solid/caret-up'
@@ -108,21 +106,6 @@ const coloredTextShort = (id: string, item: Contest) => {
 }
 
 const showFinished = ref(false)
-
-const isModalVisible = ref(false)
-const modalItem = ref<{ id: number; title: string; description: string }>({
-  id: 0,
-  title: '',
-  description: ''
-})
-const popModal = (item: Contest) => {
-  isModalVisible.value = true
-  modalItem.value = {
-    id: item.id,
-    title: item.title,
-    description: item.description
-  }
-}
 </script>
 
 <template>
@@ -135,54 +118,43 @@ const popModal = (item: Contest) => {
     ]"
     :key="index"
   >
-    <div v-if="id !== 'finished'" class="mt-8 mb-4 flex flex-row items-center">
-      <PageSubtitle :text="title" />
-      <IconAnglesRight class="ml-2" />
-    </div>
-    <div v-else class="mt-8 mb-4 flex flex-row items-center">
-      <PageSubtitle text="Finished Contests" class="!text-red" />
-      <IconCaretDown
-        v-if="showFinished"
-        class="text-red ml-2 cursor-pointer"
-        @click="showFinished = !showFinished"
-      />
-      <IconCaretUp
-        v-else
-        class="text-red ml-2 cursor-pointer"
-        @click="showFinished = !showFinished"
-      />
+    <div class="mt-8 mb-4 flex flex-row items-center">
+      <PageSubtitle :text="title" :class="{ '!text-red': id === 'finished' }" />
+      <IconAnglesRight v-if="id !== 'finished'" class="ml-2" />
+      <div v-else>
+        <IconCaretDown
+          v-if="showFinished"
+          class="text-red ml-2 cursor-pointer"
+          @click="showFinished = !showFinished"
+        />
+        <IconCaretUp
+          v-else
+          class="text-red ml-2 cursor-pointer"
+          @click="showFinished = !showFinished"
+        />
+      </div>
     </div>
 
     <div v-if="items[id].length === 0" class="text-gray-dark p-2.5 pl-4">
       No Contest
     </div>
     <div v-else>
-      <div v-for="(item, idx) in items[id]" :key="idx">
-        <CardItem
-          v-if="id !== 'finished' || (id === 'finished' && showFinished)"
-          :img="item.img"
-          :title="item.title"
-          :description="item.description"
-          :colored-text="coloredText(id, item)"
-          :colored-text-short="coloredTextShort(id, item)"
-          class="mt-4"
-          :border-color="id === 'finished' ? 'gray' : 'green'"
-          @click="popModal(item)"
-        />
+      <div v-if="id !== 'finished' || showFinished">
+        <div v-for="(item, idx) in items[id]" :key="idx">
+          <CardItem
+            :img="item.img"
+            :title="item.title"
+            :description="item.description"
+            :colored-text="coloredText(id, item)"
+            :colored-text-short="coloredTextShort(id, item)"
+            class="mt-4"
+            :border-color="id === 'finished' ? 'gray' : 'green'"
+            @click="$router.push('/contest/' + item.id)"
+          />
+        </div>
       </div>
     </div>
   </div>
-  <Modal v-model="isModalVisible" class="h-96 w-[50rem] p-12">
-    <PageSubtitle :text="modalItem.title" class="mb-5 text-center" />
-    <div class="mb-2 font-semibold">Description</div>
-    <div>{{ modalItem.description }}</div>
-    <Button
-      class="absolute bottom-10 right-10 rounded-full"
-      @click="$router.push('/contest/' + modalItem.id)"
-    >
-      Enter
-    </Button>
-  </Modal>
 </template>
 
 <route lang="yaml">
