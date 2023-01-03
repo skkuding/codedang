@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { expect } from 'chai'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
@@ -10,46 +11,46 @@ DATETIME_TOMORROW.setDate(DATETIME.getDate() + 1)
 const workbookArray = [
   {
     id: 1,
-    created_by_id: 1,
-    group_id: 1,
+    createdById: 1,
+    groupId: 1,
     title: 'thisistitle1',
     description: 'thisisdescription1',
-    start_time: DATETIME,
-    end_time: DATETIME_TOMORROW,
-    allow_partial_score: true,
+    startTime: DATETIME,
+    endTime: DATETIME_TOMORROW,
+    allowPartialScore: true,
     visible: true
   },
   {
     id: 2,
-    created_by_id: 1,
-    group_id: 1,
+    createdById: 1,
+    groupId: 1,
     title: 'thisistitle2',
     description: 'thisisdescription2',
-    start_time: DATETIME,
-    end_time: DATETIME_TOMORROW,
-    allow_partial_score: true,
+    startTime: DATETIME,
+    endTime: DATETIME_TOMORROW,
+    allowPartialScore: true,
     visible: false
   },
   {
     id: 3,
-    created_by_id: 1,
-    group_id: 2,
+    createdById: 1,
+    groupId: 2,
     title: 'thisistitle3',
     description: 'thisisdescription3',
-    start_time: DATETIME,
-    end_time: DATETIME_TOMORROW,
-    allow_partial_score: true,
+    startTime: DATETIME,
+    endTime: DATETIME_TOMORROW,
+    allowPartialScore: true,
     visible: true
   },
   {
     id: 4,
-    created_by_id: 1,
-    group_id: 2,
+    createdById: 1,
+    groupId: 2,
     title: 'thisistitle4',
     description: 'thisisdescription4',
-    start_time: DATETIME,
-    end_time: DATETIME_TOMORROW,
-    allow_partial_score: true,
+    startTime: DATETIME,
+    endTime: DATETIME_TOMORROW,
+    allowPartialScore: true,
     visible: false
   }
 ]
@@ -57,21 +58,21 @@ const workbookArray = [
 const createWorkbookDto = {
   title: 'createworkbook',
   description: 'description',
-  start_time: DATETIME,
-  end_time: DATETIME_TOMORROW,
+  startTime: DATETIME,
+  endTime: DATETIME_TOMORROW,
   visible: false,
-  allow_partial_score: false,
-  group_id: 2,
-  created_by_id: 1
+  allowPartialScore: false,
+  groupId: 2,
+  createdById: 1
 }
 
 const updateWorkbookDto = {
   title: 'updateworkbook',
   description: 'description',
-  start_time: DATETIME,
-  end_time: DATETIME_TOMORROW,
+  startTime: DATETIME,
+  endTime: DATETIME_TOMORROW,
   visible: false,
-  allow_partial_score: false
+  allowPartialScore: false
 }
 
 const publicWorkbooks = [workbookArray[0], workbookArray[1]]
@@ -107,7 +108,7 @@ describe('WorkbookService', () => {
   })
 
   it('should be defined', () => {
-    expect(workbookService).toBeDefined()
+    expect(workbookService).to.be.ok
   })
 
   it('get a list of public workbooks', async () => {
