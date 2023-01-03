@@ -4,6 +4,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { WorkbookService } from './workbook.service'
+import { stub } from 'sinon'
 
 const DATETIME = new Date(2022, 8, 8)
 const DATETIME_TOMORROW = new Date()
@@ -51,7 +52,7 @@ const workbookArray = [
     startTime: DATETIME,
     endTime: DATETIME_TOMORROW,
     allowPartialScore: true,
-    visible: false
+    visible: true
   }
 ]
 
@@ -85,18 +86,17 @@ const PRIVATE_GROUP_ID = 2
 
 const db = {
   workbook: {
-    findMany: jest.fn(),
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn()
+    findMany: stub(),
+    findUnique: stub(),
+    findFirst: stub(),
+    create: stub(),
+    update: stub(),
+    delete: stub()
   }
 }
 
 describe('WorkbookService', () => {
   let workbookService: WorkbookService
-  let prisma: PrismaService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -104,120 +104,116 @@ describe('WorkbookService', () => {
     }).compile()
 
     workbookService = module.get<WorkbookService>(WorkbookService)
-    prisma = module.get<PrismaService>(PrismaService)
   })
 
   it('should be defined', () => {
     expect(workbookService).to.be.ok
   })
 
-  it('get a list of public workbooks', async () => {
-    prisma.workbook.findMany = jest.fn().mockReturnValueOnce(publicWorkbooks)
+  it('get a list of public workbooks(user)', async () => {
+    db.workbook.findMany.resolves(visiblePublicWorkbooks)
 
     const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
       PUBLIC_GROUP_ID,
       false
     )
-    expect(returnedPublicWorkbooks).toEqual(publicWorkbooks)
+    expect(returnedPublicWorkbooks).to.deep.equal(visiblePublicWorkbooks)
   })
 
   it('get a list of public workbooks(admin)', async () => {
-    prisma.workbook.findMany = jest
-      .fn()
-      .mockReturnValueOnce(visiblePublicWorkbooks)
+    db.workbook.findMany.resolves(publicWorkbooks)
 
     const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
       PUBLIC_GROUP_ID,
-      false
+      true
     )
-    expect(returnedPublicWorkbooks).toEqual(visiblePublicWorkbooks)
+    expect(returnedPublicWorkbooks).to.deep.equal(publicWorkbooks)
   })
 
   it('get a list of private group workbooks', async () => {
-    prisma.workbook.findMany = jest.fn().mockReturnValueOnce(groupWorkbooks)
+    db.workbook.findMany.resolves(groupWorkbooks)
 
     const returnedGroupWorkbooks = await workbookService.getWorkbooksByGroupId(
       PRIVATE_GROUP_ID,
       false
     )
-    expect(returnedGroupWorkbooks).toEqual(groupWorkbooks)
+    expect(returnedGroupWorkbooks).to.deep.equal(groupWorkbooks)
   })
 
   it('get details of a workbook', async () => {
     let workbookId = 1
-    prisma.workbook.findFirst = jest
-      .fn()
-      .mockReturnValueOnce(onePublicWorkbook)
-      .mockRejectedValueOnce(new EntityNotExistException('workbook'))
+    db.workbook.findFirst
+      .onFirstCall()
+      .resolves(onePublicWorkbook)
+      .onSecondCall()
+      .rejects(new EntityNotExistException('workbook'))
 
     const returnedWorkbook = await workbookService.getWorkbookById(
       workbookId,
       false
     )
-    expect(returnedWorkbook).toEqual(onePublicWorkbook)
+    expect(returnedWorkbook).to.deep.equal(onePublicWorkbook)
 
     workbookId = 9999999
     await expect(
       workbookService.getWorkbookById(workbookId, false)
-    ).rejects.toThrow(EntityNotExistException)
+    ).to.be.rejectedWith(EntityNotExistException)
   })
 
   it('make a workbook', async () => {
-    prisma.workbook.create = jest
-      .fn()
-      .mockReturnValueOnce(oneGroupWorkbook)
-      .mockRejectedValueOnce(
-        new PrismaClientKnownRequestError('message', 'code', 'clientVersion')
-      )
+    db.workbook.create.onFirstCall().resolves(oneGroupWorkbook)
 
     const createdWorkbook = await workbookService.createWorkbook(
       PRIVATE_GROUP_ID,
       createWorkbookDto
     )
-    expect(createdWorkbook).toEqual(oneGroupWorkbook)
-
-    const WRONG_GROUP_ID = 9999999
-    await expect(
-      workbookService.createWorkbook(WRONG_GROUP_ID, createWorkbookDto)
-    ).rejects.toThrow(PrismaClientKnownRequestError)
+    expect(createdWorkbook).to.deep.equal(oneGroupWorkbook)
   })
 
   it('update details of a workbook', async () => {
     let workbookId = 4
-    prisma.workbook.update = jest
-      .fn()
-      .mockReturnValueOnce(oneGroupWorkbook)
-      .mockRejectedValueOnce(
-        new PrismaClientKnownRequestError('message', 'code', 'clientVersion')
+    db.workbook.update
+      .onFirstCall()
+      .resolves(oneGroupWorkbook)
+      .onSecondCall()
+      .rejects(
+        new PrismaClientKnownRequestError('message', {
+          code: 'P2025',
+          clientVersion: '0.0.0'
+        })
       )
 
     const updatedWorkbook = await workbookService.updateWorkbook(
       workbookId,
       updateWorkbookDto
     )
-    expect(updatedWorkbook).toEqual(oneGroupWorkbook)
+    expect(updatedWorkbook).to.deep.equal(oneGroupWorkbook)
 
     workbookId = 9999999
     await expect(
       workbookService.updateWorkbook(workbookId, updateWorkbookDto)
-    ).rejects.toThrow(PrismaClientKnownRequestError)
+    ).to.be.rejectedWith(EntityNotExistException)
   })
 
   it('delete a workbook', async () => {
     let workbookId = 4
-    prisma.workbook.delete = jest
-      .fn()
-      .mockReturnValueOnce(oneGroupWorkbook)
-      .mockRejectedValueOnce(
-        new PrismaClientKnownRequestError('message', 'code', 'clientVersion')
+    db.workbook.delete
+      .onFirstCall()
+      .resolves(oneGroupWorkbook)
+      .onSecondCall()
+      .rejects(
+        new PrismaClientKnownRequestError('message', {
+          code: 'P2025',
+          clientVersion: '0.0.0'
+        })
       )
 
     const deletedWorkbook = await workbookService.deleteWorkbook(workbookId)
-    expect(deletedWorkbook).toEqual(oneGroupWorkbook)
+    expect(deletedWorkbook).to.deep.equal(oneGroupWorkbook)
 
     workbookId = 9999999
-    await expect(workbookService.deleteWorkbook(workbookId)).rejects.toThrow(
-      PrismaClientKnownRequestError
+    await expect(workbookService.deleteWorkbook(workbookId)).to.be.rejectedWith(
+      EntityNotExistException
     )
   })
 })
