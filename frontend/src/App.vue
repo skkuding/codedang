@@ -7,8 +7,6 @@ await useAuthStore().reissue()
 </script>
 
 <template>
-  <div>
-    <router-view />
-    <Toast />
-  </div>
+  <router-view />
+  <Toast />
 </template>

@@ -8,6 +8,7 @@ import NProgress from 'nprogress'
 import { setupLayouts } from 'virtual:generated-layouts'
 import generatedRoutes from 'virtual:generated-pages'
 import App from './App.vue'
+import VueDOMPurifyHTML from 'vue-dompurify-html'
 
 import 'nprogress/nprogress.css'
 import './common/styles/style.css'
@@ -39,4 +40,5 @@ router.afterEach(() => {
 
 app.use(router)
 app.use(createPinia())
+app.use(VueDOMPurifyHTML)
 app.mount('#app')
