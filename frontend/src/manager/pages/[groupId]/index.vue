@@ -13,10 +13,13 @@ defineProps<{
 
 <template>
   <div>
-    <div class="flex flex-row items-center mt-14">
+    <div class="mt-14 flex flex-row items-center">
       <PageTitle class="mr-4" text="SKKUDING" />
       <IconEdit
-        class="cursor-pointer" width="30" height="30" color="#7c7a7b"
+        class="cursor-pointer"
+        width="30"
+        height="30"
+        color="#7c7a7b"
         @click="
           () => {
             $router.push('/')
@@ -24,17 +27,17 @@ defineProps<{
         "
       />
     </div>
-    <div class="w-7/12 h-0 mt-2 border-solid border-t-[11px] border-green" />
-    <div class="w-full h-0 border-solid border-t border-gray-dark" />
-    <div class="flex flex-row justify-between items-center h-[30rem] mt-6">
-      <div class="flex flex-col justify-between w-[46.5%] h-[28rem]">
+    <div class="border-green mt-2 h-0 w-7/12 border-t-[11px] border-solid" />
+    <div class="border-gray-dark h-0 w-full border-t border-solid" />
+    <div class="mt-6 flex h-[30rem] flex-row items-center justify-between">
+      <div class="flex h-[28rem] w-[46.5%] flex-col justify-between">
         <div>
           <PageSubtitle text="Description" />
           <div class="mt-2">SKKU 개발동아리입니다.</div>
         </div>
         <div>
           <PageSubtitle text="Public / Private" />
-          <div class="flex flex-row gap-6 mt-2">
+          <div class="mt-2 flex flex-row gap-6">
             <div class="flex flex-row gap-2">
               <IconUnlock />
               <span>Public</span>
@@ -54,8 +57,8 @@ defineProps<{
           <div class="mt-2">2022.06.24 10:15:45</div>
         </div>
       </div>
-      <div class="w-0 h-full border-solid border-x border-gray-dark" />
-      <div class="flex flex-col justify-between w-[46.5%] h-[28rem]">
+      <div class="border-gray-dark h-full w-0 border-x border-solid" />
+      <div class="flex h-[28rem] w-[46.5%] flex-col justify-between">
         <div>
           <PageSubtitle text="Group Image & Color" />
           <div class="mt-2">SKKU 개발동아리입니다.</div>
@@ -66,7 +69,7 @@ defineProps<{
         </div>
         <div>
           <PageSubtitle text="Group Managers" />
-          <div class="flex flex-row gap-6 mt-2">
+          <div class="mt-2 flex flex-row gap-6">
             <span>홍길동</span>
             <span>하설빙</span>
             <span>방미서</span>
@@ -78,7 +81,7 @@ defineProps<{
         </div>
       </div>
     </div>
-    <div class="flex flex-row justify-end w-full mt-10">
+    <div class="mt-10 flex w-full flex-row justify-end">
       <Button
         class="flex flex-row items-center gap-1"
         color="green"
@@ -93,5 +96,4 @@ defineProps<{
       </Button>
     </div>
   </div>
-
 </template>
