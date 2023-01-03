@@ -157,6 +157,7 @@ const showFinished = ref(false)
 
 <route lang="yaml">
 meta:
-  title: SKKU Coding Platform Contests
+  title: 🏆 SKKU Coding Platform
+  coloredTitle: Contests
   subtitle: Compete with schoolmates & win the prizes!
 </route>
