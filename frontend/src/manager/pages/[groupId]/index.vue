@@ -1,99 +1,99 @@
 <script setup lang="ts">
-import PageTitle from '@/common/components/Atom/PageTitle.vue'
-import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
-import IconEdit from '~icons/mdi/square-edit-outline'
+import { ref } from 'vue'
+import { useDateFormat } from '@vueuse/core'
+import IconPenToSquare from '~icons/fa6-solid/pen-to-square'
 import IconLock from '~icons/bi/lock'
 import IconUnlock from '~icons/bi/unlock'
+import IconTrashCan from '~icons/fa6-solid/trash-can'
+import groupImage from '@/common/assets/logo.png'
 import Button from '@/common/components/Atom/Button.vue'
-import IconTrash from '~icons/bi/trash'
-defineProps<{
-  groupId: number
-}>()
+
+const groupName = ref('SKKUDING')
+const description = ref('SKKU 개발동아리입니다.')
+const members = ref(16)
+const invitationCode = ref('ABCDEF')
+const groupMangers = ref(['홍길동', '하설빙', '방미서'])
+
+const groupCreateTime = ref('2022-03-02 12:00:00')
+const groupCreateTimeFormat = useDateFormat(
+  groupCreateTime,
+  'YYYY.MM.DD HH:mm:ss'
+)
+
+const groupUpdateTime = ref('2022-09-02 12:00:00')
+const groupUpdateTimeFormat = useDateFormat(
+  groupUpdateTime,
+  'YYYY.MM.DD HH:mm:ss'
+)
 </script>
 
 <template>
-  <div>
-    <div class="mt-14 flex flex-row items-center">
-      <PageTitle class="mr-4" text="SKKUDING" />
-      <IconEdit
-        class="cursor-pointer"
-        width="30"
-        height="30"
-        color="#7c7a7b"
-        @click="
-          () => {
-            $router.push('/')
-          }
-        "
+  <!-- TODO: mobile responsive -->
+  <main class="p-16">
+    <h1
+      class="text-text-title border-green flex w-2/3 items-center border-b-8 pb-4 text-3xl font-extrabold"
+    >
+      {{ groupName }}
+      <IconPenToSquare
+        class="ml-6 cursor-pointer text-xl hover:opacity-60 active:opacity-40"
       />
-    </div>
-    <div class="border-green mt-2 h-0 w-7/12 border-t-[11px] border-solid" />
-    <div class="border-gray-dark h-0 w-full border-t border-solid" />
-    <div class="mt-6 flex h-[30rem] flex-row items-center justify-between">
-      <div class="flex h-[28rem] w-[46.5%] flex-col justify-between">
-        <div>
-          <PageSubtitle text="Description" />
-          <div class="mt-2">SKKU 개발동아리입니다.</div>
+    </h1>
+    <hr class="text-gray mt-[-1px] w-full" />
+    <article class="flex w-full py-12">
+      <div class="border-r-gray flex-1 justify-between border-r">
+        <h2 class="text-text-subtitle text-xl font-bold">Description</h2>
+        <p>{{ description }}</p>
+        <h2 class="text-text-subtitle mt-12 text-xl font-bold">
+          Public / Private
+        </h2>
+        <div class="flex flex-row items-center gap-2">
+          <IconUnlock />
+          Public
+          <IconLock class="ml-4" />
+          Private
         </div>
-        <div>
-          <PageSubtitle text="Public / Private" />
-          <div class="mt-2 flex flex-row gap-6">
-            <div class="flex flex-row gap-2">
-              <IconUnlock />
-              <span>Public</span>
-            </div>
-            <div class="flex flex-row gap-2">
-              <IconLock />
-              <span>Private</span>
-            </div>
-          </div>
-        </div>
-        <div>
-          <PageSubtitle text="Total Members" />
-          <div class="mt-2">16</div>
-        </div>
-        <div>
-          <PageSubtitle text="Group Create Time" />
-          <div class="mt-2">2022.06.24 10:15:45</div>
-        </div>
+        <h2 class="text-text-subtitle mt-12 text-xl font-bold">
+          Total Members
+        </h2>
+        <p>{{ members }}</p>
+        <h2 class="text-text-subtitle mt-12 text-xl font-bold">
+          Group Create Time
+        </h2>
+        <p>{{ groupCreateTimeFormat }}</p>
       </div>
-      <div class="border-gray-dark h-full w-0 border-x border-solid" />
-      <div class="flex h-[28rem] w-[46.5%] flex-col justify-between">
-        <div>
-          <PageSubtitle text="Group Image & Color" />
-          <div class="mt-2">SKKU 개발동아리입니다.</div>
-        </div>
-        <div>
-          <PageSubtitle text="Invitation Code" />
-          <div class="mt-2">ABCDEF</div>
-        </div>
-        <div>
-          <PageSubtitle text="Group Managers" />
-          <div class="mt-2 flex flex-row gap-6">
-            <span>홍길동</span>
-            <span>하설빙</span>
-            <span>방미서</span>
-          </div>
-        </div>
-        <div>
-          <PageSubtitle text="Group Update Time" />
-          <div class="mt-2">2022.06.24 10:15:45</div>
-        </div>
+      <div class="ml-8 flex-1">
+        <h2 class="text-text-subtitle text-xl font-bold">
+          Group Image & Color
+        </h2>
+        <img
+          :src="groupImage"
+          class="aspect-square h-24 rounded-lg object-contain p-2 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+        />
+        <h2 class="text-text-subtitle mt-12 text-xl font-bold">
+          Invitation Code
+        </h2>
+        <p>{{ invitationCode }}</p>
+        <h2 class="text-text-subtitle mt-12 text-xl font-bold">
+          Group Managers
+        </h2>
+        <ul>
+          <li v-for="name in groupMangers" :key="name">{{ name }}</li>
+        </ul>
+        <h2 class="text-text-subtitle mt-12 text-xl font-bold">
+          Group Update Time
+        </h2>
+        <p>{{ groupUpdateTimeFormat }}</p>
       </div>
-    </div>
-    <div class="mt-10 flex w-full flex-row justify-end">
-      <Button
-        class="flex flex-row items-center gap-1"
-        color="green"
-        @click="
-          () => {
-            $router.push('/')
-          }
-        "
-      >
-        <IconTrash color="white" inline="true" />
-        Delete
-      </Button>
-    </div>
-  </div>
+    </article>
+    <!-- TODO: dialog verifying group deletion -->
+    <Button class="ml-auto flex items-center">
+      <IconTrashCan class="mr-2" />
+      Delete
+    </Button>
+  </main>
 </template>
+
+<route lang="yaml">
+meta:
+  layout: admin
+</route>
