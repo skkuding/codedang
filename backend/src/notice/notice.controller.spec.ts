@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { expect } from 'chai'
 import {
   PublicNoticeController,
   GroupNoticeController
@@ -28,7 +29,7 @@ describe('PublicNoticeController', () => {
   })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined()
+    expect(controller).to.be.ok
   })
 })
 
@@ -49,7 +50,7 @@ describe('GroupNoticeController', () => {
   })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined()
+    expect(controller).to.be.ok
   })
 })
 
@@ -69,7 +70,7 @@ describe('NoticeAdminController', () => {
   })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined()
+    expect(controller).to.be.ok
   })
 })
 
@@ -92,6 +93,6 @@ describe('GroupNoticeAdminController', () => {
   })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined()
+    expect(controller).to.be.ok
   })
 })

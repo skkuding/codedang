@@ -12,8 +12,8 @@ datasource db {
 
 enum Role {
   User
-  GroupAdmin
-  SuperManager
+  Manager
+  Admin
   SuperAdmin
 }
 
@@ -56,15 +56,15 @@ model UserProfile {
 }
 
 model UserGroup {
-  id             Int      @id @default(autoincrement())
-  user           User     @relation(fields: [userId], references: [id])
-  userId         Int      @map("user_id")
-  group          Group    @relation(fields: [groupId], references: [id])
-  groupId        Int      @map("group_id")
-  isRegistered   Boolean  @default(false) @map("is_registered")
-  isGroupManager Boolean  @default(false) @map("is_group_manager")
-  createTime     DateTime @default(now()) @map("create_time")
-  updateTime     DateTime @updatedAt @map("update_time")
+  id            Int      @id @default(autoincrement())
+  user          User     @relation(fields: [userId], references: [id])
+  userId        Int      @map("user_id")
+  group         Group    @relation(fields: [groupId], references: [id])
+  groupId       Int      @map("group_id")
+  isRegistered  Boolean  @default(false) @map("is_registered")
+  isGroupLeader Boolean  @default(false) @map("is_group_leader")
+  createTime    DateTime @default(now()) @map("create_time")
+  updateTime    DateTime @updatedAt @map("update_time")
 
   @@map("user_group")
 }
