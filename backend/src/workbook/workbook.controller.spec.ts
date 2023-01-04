@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { expect } from 'chai'
 import { WorkbookController } from './workbook.controller'
 import { WorkbookService } from './workbook.service'
 
@@ -15,6 +16,6 @@ describe('WorkbookController', () => {
   })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined()
+    expect(controller).to.be.ok
   })
 })

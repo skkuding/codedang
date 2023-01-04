@@ -22,7 +22,7 @@ const { pause, resume } = useIntervalFn(() => {
 
 <template>
   <div
-    class="bg-gray/50 relative h-80 w-full overflow-hidden md:h-96 lg:h-[36rem]"
+    class="bg-gray/50 relative h-80 w-full overflow-hidden md:h-96 lg:h-[30rem]"
   >
     <div class="absolute left-1/2 bottom-5 z-10 flex -translate-x-1/2 gap-2">
       <button
