@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowRef, watch, onMounted } from 'vue'
+import { ref, shallowRef, computed, watch, onMounted } from 'vue'
 import {
   EditorView,
   highlightActiveLine,
@@ -10,11 +10,18 @@ import { EditorState, type Transaction } from '@codemirror/state'
 import { defaultKeymap } from '@codemirror/commands'
 import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
 import { cpp } from '@codemirror/lang-cpp'
+import { python } from '@codemirror/lang-python'
+import { javascript } from '@codemirror/lang-javascript'
+import { java } from '@codemirror/lang-java'
 import { oneDark } from '@codemirror/theme-one-dark'
 
-const props = defineProps<{
-  modelValue: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: string
+    lang?: 'cpp' | 'python' | 'javascript' | 'java'
+  }>(),
+  { lang: 'cpp' }
+)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
@@ -30,17 +37,26 @@ const font = EditorView.theme({
   }
 })
 
+const languageExtensions = {
+  cpp: cpp(),
+  python: python(),
+  javascript: javascript(),
+  java: java()
+}
+
+const extensions = computed(() => [
+  keymap.of(defaultKeymap),
+  oneDark,
+  font,
+  languageExtensions[props.lang],
+  lineNumbers(),
+  highlightActiveLine(),
+  syntaxHighlighting(defaultHighlightStyle)
+])
+
 const state = EditorState.create({
   doc: props.modelValue,
-  extensions: [
-    keymap.of(defaultKeymap),
-    oneDark,
-    font,
-    cpp(),
-    lineNumbers(),
-    highlightActiveLine(),
-    syntaxHighlighting(defaultHighlightStyle)
-  ]
+  extensions: extensions.value
 })
 
 watch(
