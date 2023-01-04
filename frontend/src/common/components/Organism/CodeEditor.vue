@@ -7,7 +7,7 @@ import {
   lineNumbers
 } from '@codemirror/view'
 import { EditorState, type Transaction } from '@codemirror/state'
-import { defaultKeymap } from '@codemirror/commands'
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { closeBrackets } from '@codemirror/autocomplete'
 import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
 import { cpp } from '@codemirror/lang-cpp'
@@ -46,10 +46,11 @@ const languageExtensions = {
 }
 
 const extensions = computed(() => [
-  keymap.of(defaultKeymap),
+  keymap.of([...defaultKeymap, ...historyKeymap]),
   oneDark,
   font,
   languageExtensions[props.lang],
+  history(),
   lineNumbers(),
   highlightActiveLine(),
   closeBrackets(),
