@@ -2,7 +2,7 @@ gitConfig:
   pull.rebase: 'true'
 
 ports:
-  - port: 5000 # Nest.js
+  - port: 4000 # Nest.js
     onOpen: ignore
     visibility: public
 
