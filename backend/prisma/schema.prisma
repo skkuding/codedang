@@ -291,7 +291,7 @@ model Workbook {
   startTime   DateTime @map("start_time")
   endTime     DateTime @map("end_time")
   visible     Boolean  @default(true)
-  isPlubic    Boolean  @default(false) @map("is_public")
+  isPublic    Boolean  @default(false) @map("is_public")
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
