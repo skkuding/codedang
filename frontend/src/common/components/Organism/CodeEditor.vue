@@ -14,7 +14,11 @@ import {
   indentWithTab
 } from '@codemirror/commands'
 import { closeBrackets } from '@codemirror/autocomplete'
-import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
+import {
+  syntaxHighlighting,
+  defaultHighlightStyle,
+  indentOnInput
+} from '@codemirror/language'
 import { cpp } from '@codemirror/lang-cpp'
 import { python } from '@codemirror/lang-python'
 import { javascript } from '@codemirror/lang-javascript'
@@ -59,7 +63,8 @@ const extensions = computed(() => [
   lineNumbers(),
   highlightActiveLine(),
   closeBrackets(),
-  syntaxHighlighting(defaultHighlightStyle)
+  syntaxHighlighting(defaultHighlightStyle),
+  indentOnInput()
 ])
 
 const state = EditorState.create({
