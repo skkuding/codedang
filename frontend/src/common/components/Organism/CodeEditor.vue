@@ -7,7 +7,12 @@ import {
   lineNumbers
 } from '@codemirror/view'
 import { EditorState, type Transaction } from '@codemirror/state'
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
+import {
+  defaultKeymap,
+  history,
+  historyKeymap,
+  indentWithTab
+} from '@codemirror/commands'
 import { closeBrackets } from '@codemirror/autocomplete'
 import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
 import { cpp } from '@codemirror/lang-cpp'
@@ -46,7 +51,7 @@ const languageExtensions = {
 }
 
 const extensions = computed(() => [
-  keymap.of([...defaultKeymap, ...historyKeymap]),
+  keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
   oneDark,
   font,
   languageExtensions[props.lang],
