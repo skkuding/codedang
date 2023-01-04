@@ -4,7 +4,8 @@ import {
   EditorView,
   highlightActiveLine,
   keymap,
-  lineNumbers
+  lineNumbers,
+  drawSelection
 } from '@codemirror/view'
 import { EditorState, type Transaction } from '@codemirror/state'
 import {
@@ -62,6 +63,7 @@ const extensions = computed(() => [
   history(),
   lineNumbers(),
   highlightActiveLine(),
+  drawSelection(),
   closeBrackets(),
   syntaxHighlighting(defaultHighlightStyle),
   indentOnInput()
