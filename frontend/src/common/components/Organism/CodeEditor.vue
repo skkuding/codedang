@@ -8,6 +8,7 @@ import {
 } from '@codemirror/view'
 import { EditorState, type Transaction } from '@codemirror/state'
 import { defaultKeymap } from '@codemirror/commands'
+import { closeBrackets } from '@codemirror/autocomplete'
 import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
 import { cpp } from '@codemirror/lang-cpp'
 import { python } from '@codemirror/lang-python'
@@ -51,6 +52,7 @@ const extensions = computed(() => [
   languageExtensions[props.lang],
   lineNumbers(),
   highlightActiveLine(),
+  closeBrackets(),
   syntaxHighlighting(defaultHighlightStyle)
 ])
 
