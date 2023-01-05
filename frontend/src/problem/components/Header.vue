@@ -3,12 +3,20 @@ import Dropdown from '@/common/components/Molecule/Dropdown.vue'
 import { OnClickOutside } from '@vueuse/components'
 import SymbolLogo from '@/common/components/Atom/SymbolLogo.vue'
 import IconUser from '~icons/fa6-regular/user'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+
 import AuthModal from '@/common/components/Organism/AuthModal.vue'
 import Button from '@/common/components/Atom/Button.vue'
+import Fa6SolidAngleRight from '~icons/fa6-solid/angle-right'
+const props = defineProps<{
+  click?: boolean
+}>()
 const isMenuOpen = ref(false)
 const auth = ref(true)
 const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
+// const clickColor = computed(() =>
+//   props.click ? 'text-white' : 'text-text-title'
+// )
 </script>
 
 <template>
@@ -18,18 +26,24 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
     >
       <div class="flex h-14 w-full max-w-7xl items-center justify-between">
         <div class="flex h-14 items-center">
-          <SymbolLogo class="m-4 h-10 w-10 fill-white" />
-          <p class="text-white">
-            Contents > SKKU 코딩 플랫폼 대회 > 가파른 경사
+          <SymbolLogo class="h-10 w-10 fill-white" />
+          <p class="hidden text-sm text-white md:inline">
+            <a href="/notice">Contents</a>
+          </p>
+          <Fa6SolidAngleRight class="hidden text-white md:inline" />
+          <p class="hidden text-sm text-white md:inline">
+            <a href="/notice">SKKU 코딩 플랫폼 대회</a>
+          </p>
+          <Fa6SolidAngleRight class="hidden text-white md:inline" />
+          <p class="text-sm text-white md:inline">
+            <a href="/notice">가파른 경사</a>
           </p>
         </div>
         <!-- TODO: md 이하일때 유저 아이콘 안 없어짐 -->
-        <div v-if="auth" class="hidden md:inline-block">
+        <div v-if="auth" class="md:inline-block">
           <Dropdown class="bg-slate-500 text-white">
             <template #button>
-              <IconUser
-                class="text-text-title ml-[8.5rem] text-xl hover:opacity-60 active:opacity-40"
-              />
+              <IconUser class="ml-[8.5rem] text-xl text-white" />
             </template>
             <template #items>
               <ListItem>Management</ListItem>
@@ -38,21 +52,11 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
             </template>
           </Dropdown>
         </div>
-        <div v-else class="ml-2 hidden gap-2 md:flex">
-          <Button
-            outline
-            color="white"
-            class="w-20"
-            @click="modalContent = 'signup'"
-          >
+        <div v-else class="inline-flex gap-2">
+          <Button color="white" class="w-20" @click="modalContent = 'signup'">
             Sign Up
           </Button>
-          <Button
-            outline
-            color="white"
-            class="w-16"
-            @click="modalContent = 'login'"
-          >
+          <Button color="white" class="w-16" @click="modalContent = 'login'">
             Log In
           </Button>
         </div>
