@@ -56,7 +56,7 @@ const activeStyle = (item: string) => {
       <Button color="blue" class="h-9">
         <span class="px-1">Submit</span>
       </Button>
-      <Dropdown>
+      <Dropdown color="slate">
         <template #button>
           <div
             class="flex h-9 w-fit flex-row items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white"
@@ -66,9 +66,9 @@ const activeStyle = (item: string) => {
           </div>
         </template>
         <template #items>
-          <ListItem class="bg-slate-500">C++</ListItem>
-          <ListItem>Python3</ListItem>
-          <ListItem>Java</ListItem>
+          <ListItem color="slate">C++</ListItem>
+          <ListItem color="slate">Python3</ListItem>
+          <ListItem color="slate">Java</ListItem>
         </template>
       </Dropdown>
     </div>

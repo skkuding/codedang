@@ -3,6 +3,15 @@ import { ref } from 'vue'
 import { OnClickOutside } from '@vueuse/components'
 
 const show = ref(false)
+
+defineProps<{
+  color?: 'white' | 'slate'
+}>()
+
+const colorMapper = {
+  white: 'bg-white border-gray-light border',
+  slate: 'bg-slate-500 border-slate-600 border'
+}
 </script>
 
 <template>
@@ -13,7 +22,8 @@ const show = ref(false)
     <OnClickOutside @trigger="show = false">
       <ul
         v-show="show"
-        class="border-gray-light absolute right-0 z-30 flex w-max flex-col gap-1 rounded-lg border bg-white p-2 shadow-lg"
+        :class="colorMapper[color || 'white']"
+        class="absolute right-0 z-30 flex w-max flex-col gap-1 rounded-lg p-2 shadow-lg"
       >
         <slot name="items" />
       </ul>
