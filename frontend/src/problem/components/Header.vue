@@ -4,7 +4,7 @@ import { OnClickOutside } from '@vueuse/components'
 import SymbolLogo from '@/common/components/Atom/SymbolLogo.vue'
 import IconUser from '~icons/fa6-regular/user'
 import { computed, ref } from 'vue'
-
+import ListItem from '@/common/components/Atom/ListItem.vue'
 import AuthModal from '@/common/components/Organism/AuthModal.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import Fa6SolidAngleRight from '~icons/fa6-solid/angle-right'
@@ -26,17 +26,23 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
     >
       <div class="flex h-14 w-full max-w-7xl items-center justify-between">
         <div class="flex h-14 items-center">
-          <SymbolLogo class="h-10 w-10 fill-white" />
-          <p class="hidden text-sm text-white md:inline">
-            <a href="/notice">Contents</a>
+          <SymbolLogo class="mr-4 h-10 w-10 fill-white" />
+          <p>
+            <a class="text-text-title hidden text-sm md:inline" href="/notice">
+              Contents
+            </a>
           </p>
           <Fa6SolidAngleRight class="hidden text-white md:inline" />
-          <p class="hidden text-sm text-white md:inline">
-            <a href="/notice">SKKU 코딩 플랫폼 대회</a>
+          <p>
+            <a class="text-text-title hidden text-sm md:inline" href="/notice">
+              SKKU 코딩 플랫폼 대회
+            </a>
           </p>
           <Fa6SolidAngleRight class="hidden text-white md:inline" />
-          <p class="text-sm text-white md:inline">
-            <a href="/notice">가파른 경사</a>
+          <p>
+            <a class="text-sm text-white md:inline" href="/notice">
+              가파른 경사
+            </a>
           </p>
         </div>
         <!-- TODO: md 이하일때 유저 아이콘 안 없어짐 -->
