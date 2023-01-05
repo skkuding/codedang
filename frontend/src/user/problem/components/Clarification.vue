@@ -90,7 +90,7 @@ const noticeList = [
   </button>
   <div
     v-if="visible"
-    class="bg-white-light border-gray fixed m-auto h-96 w-1/2 overflow-auto rounded-md border border-solid py-2 px-6"
+    class="border-gray fixed z-50 m-auto h-96 w-1/2 overflow-auto rounded-md border border-solid bg-white py-2 px-6"
   >
     <div class="mb-3">
       <PageSubtitle text="Notice" class="ml-12" />
