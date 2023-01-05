@@ -3,6 +3,7 @@ import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import Button from '@/common/components/Atom/Button.vue'
+import IconTrashCan from '~icons/fa6-solid/trash-can'
 import { ref } from 'vue'
 
 const fields = [
@@ -61,8 +62,20 @@ const items = ref([
     :fields="fields"
     :items="items"
     :number-of-pages="5"
+    no-search-bar
     text="No data"
-  ></PaginationTable>
+  >
+    <template #delete="{ row }">
+      <Button
+        class="mr-1 aspect-square rounded-lg"
+        outline
+        color="gray-dark"
+        @click="() => (items = items.filter((x) => x.id !== row.id))"
+      >
+        <IconTrashCan />
+      </Button>
+    </template>
+  </PaginationTable>
 </template>
 
 <route lang="yaml">
