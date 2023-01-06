@@ -7,3 +7,8 @@ pre-commit:
     prettier:
       glob: '*.{js,ts,vue,css,yaml,yml}'
       run: pnpm prettier --check {staged_files}
+
+post-checkout:
+  commands:
+    setup:
+      run: ./scripts/setup.sh
