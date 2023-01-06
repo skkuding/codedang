@@ -10,7 +10,6 @@ import 'vue-router'
 
 declare module 'vue-router' {
   interface RouteMeta {
-    group?: string
     home?: boolean
     title?: string
     subtitle?: string

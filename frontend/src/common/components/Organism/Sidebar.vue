@@ -7,12 +7,18 @@ import IconBrain from '~icons/fluent/brain-circuit-24-regular'
 import IconBox from '~icons/bi/box'
 import IconCode from '~icons/bi/code-square'
 import IconBook from '~icons/bi/journals'
-import { computed } from 'vue'
+import { shallowRef, watchEffect } from 'vue'
 import CodingPlatformLogo from '../Atom/CodingPlatformLogo.vue'
+
+type Group = {
+  id: number
+  name: string
+  color: 'blue' | 'gray' | 'white'
+}
 
 // TODO: get group name and color
 const props = defineProps<{
-  group?: string
+  group: Group
   color?: 'blue' | 'gray' | 'white'
 }>()
 
@@ -31,15 +37,23 @@ const commonItems = [
   { to: 'pool', name: 'Problem Pool', icon: IconBox }
 ]
 
-const items = computed(() =>
-  props.group
-    ? [
-        { to: 'home', name: props.group.toUpperCase(), icon: IconBiHouse },
-        ...commonItems,
-        { to: 'member', name: 'Member', icon: IconUser },
-        { to: 'submission', name: 'Submission', icon: IconCode }
-      ]
-    : commonItems
+const items = shallowRef()
+
+watchEffect(
+  () =>
+    (items.value =
+      props.group.id > 0
+        ? [
+            {
+              to: `manager/${props.group.id}`,
+              name: props.group.name.toUpperCase(),
+              icon: IconBiHouse
+            },
+            ...commonItems,
+            { to: 'member', name: 'Member', icon: IconUser },
+            { to: 'submission', name: 'Submission', icon: IconCode }
+          ]
+        : commonItems)
 )
 </script>
 
