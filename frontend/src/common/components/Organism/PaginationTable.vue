@@ -44,6 +44,12 @@ const entries = computed(() => {
   )
 })
 
+const entryStyle = (key: string) => {
+  let field = props.fields.find((x) => x.key === key)
+  if (field && field.width) return 'width: ' + field.width
+  else return ''
+}
+
 const headerColor = {
   light: 'text-text-title bg-[#F9F9F9]',
   dark: 'bg-transparent text-white'
@@ -154,6 +160,7 @@ watch(currentPage, (value) => {
                 :key="idx"
                 class="p-2.5 pl-4"
                 :class="responsiveStyle(idx)"
+                :style="entryStyle(entry.key)"
               >
                 <slot :name="entry.key" :row="row">{{ row[entry.key] }}</slot>
               </td>

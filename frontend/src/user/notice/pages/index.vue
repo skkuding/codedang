@@ -8,7 +8,7 @@ const { goDetail, noticeField, currentItems, shownPages, search, changeItems } =
 </script>
 
 <template>
-  <div class="mx-auto mt-10 w-[70%]">
+  <div class="mt-10">
     <PageTitle text="Notice" />
     <PaginationTable
       :fields="noticeField"

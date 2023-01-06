@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
-import Fa6SolidBars from '~icons/fa6-solid/bars'
-import Fa6SolidAngleUp from '~icons/fa6-solid/angle-up'
-import Fa6SolidAngleDown from '~icons/fa6-solid/angle-down'
+import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
+import IconBars from '~icons/fa6-solid/bars'
+import IconAngleUp from '~icons/fa6-solid/angle-up'
+import IconAngleDown from '~icons/fa6-solid/angle-down'
 import { useRouter } from 'vue-router'
-import { onBeforeUpdate, type Component } from 'vue'
+import { onBeforeUpdate } from 'vue'
 import type { Item, Field } from '../composables/notice'
 const props = defineProps<{
   id: string
@@ -15,7 +16,7 @@ const props = defineProps<{
 
 const router = useRouter()
 let noticeItem = {
-  title: '1111',
+  title: 'SKKUDING 모의대회',
   date: '2022-04-01',
   content: 'this is notice',
   update: '2022-04-11',
@@ -23,7 +24,7 @@ let noticeItem = {
 }
 onBeforeUpdate(() => (noticeItem.id = router.currentRoute.value.params.id[0]))
 const preNotice = {
-  title: '0000',
+  title: 'SKKU Coding Platform 모의대회 결과 및 솔루션',
   date: '2022-04-012',
   content: 'this is preNotice',
   update: '2022-04-12',
@@ -44,14 +45,14 @@ const goDetail = ({ id }: Item) => {
 }
 const numberOfPages = 1
 const paginationField: Field[] = [
-  { key: 'icon' },
-  { key: 'name' },
+  { key: 'icon', width: '5%' },
+  { key: 'name', width: '20%' },
   { key: 'title' }
 ]
 let paginationItem: Item[] = []
 if (preNotice.id) {
   paginationItem.push({
-    icon: Fa6SolidAngleUp,
+    icon: IconAngleUp,
     name: 'Previous',
     title: preNotice.title,
     id: preNotice.id
@@ -59,7 +60,7 @@ if (preNotice.id) {
 }
 if (nextNotice.id) {
   paginationItem.push({
-    icon: Fa6SolidAngleDown,
+    icon: IconAngleDown,
     name: 'Next',
     title: nextNotice.title,
     id: nextNotice.id
@@ -68,27 +69,25 @@ if (nextNotice.id) {
 </script>
 
 <template>
-  <div class="mx-auto mt-10 w-[70%]">
-    <div class="flex items-center justify-end">
-      <router-link to="/notice">
-        <Fa6SolidBars />
+  <div class="mt-10">
+    <div class="mb-4 flex justify-end">
+      <router-link to="/notice" class="flex items-center">
+        <IconBars />
+        <div class="ml-2 hidden sm:block">List</div>
       </router-link>
-      <router-link to="/notice" class="ml-2 hidden sm:block">List</router-link>
     </div>
     <div
-      class="bg-gray-light border-gray mt-4 flex h-12 w-full items-center border-y-[1px]"
+      class="bg-gray-light border-gray flex w-full justify-between border-y p-4"
     >
-      <div class="ml-4 mr-auto">
-        {{ noticeItem.title }}
-      </div>
-      <div class="mr-4 hidden text-right sm:block">
+      <PageSubtitle :text="noticeItem.title" class="!text-text-title" />
+      <div class="hidden sm:block">
         {{ noticeItem.date }}
       </div>
     </div>
-    <div class="mt-2 hidden w-full justify-end pr-4 text-right md:block">
+    <div class="mt-2 mr-4 hidden text-right text-sm md:block">
       Last update: {{ noticeItem.update }}
     </div>
-    <div class="my-4 h-min min-h-[400px] w-full max-w-full break-all px-4">
+    <div class="h-min min-h-[400px] w-full max-w-full break-all p-4">
       {{ noticeItem.content }}
     </div>
     <PaginationTable

@@ -4,6 +4,7 @@ import { ref, computed } from 'vue'
 
 export interface Field {
   key: string
+  width?: string
   label?: string
   custom?: boolean
 }
@@ -26,7 +27,7 @@ export const useNoticeList = () => {
     })
   }
 
-  const noticeField: Field[] = [{ key: 'title' }, { key: 'date' }]
+  const noticeField: Field[] = [{ key: 'title', width: '70%' }, { key: 'date' }]
   const noticeItem: Item[] = [
     {
       title: '111111',
