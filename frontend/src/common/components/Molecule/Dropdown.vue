@@ -8,7 +8,7 @@ const show = ref(false)
 <script lang="ts">
 import { defineComponent } from 'vue'
 export default defineComponent({
-  /* inherit class attribute only to modal itself
+  /* inherit class attribute only to dropdown itself
    * `inheritAttrs` option does not support `<script setup>`
    * https://vuejs.org/guide/extras/composition-api-faq.html#does-composition-api-cover-all-use-cases
    */
