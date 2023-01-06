@@ -3,8 +3,5 @@
   "editor.formatOnSave": true,
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
-  },
-  "jest.autoRun": "off",
-  "jest.jestCommandLine": "pnpm test:watch",
-  "jest.rootPath": "./backend/src"
+  }
 }

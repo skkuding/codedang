@@ -71,3 +71,6 @@ dist/
 
 # pnpm store
 .pnpm-store
+
+# Vitepress
+docs/.vitepress/cache/
