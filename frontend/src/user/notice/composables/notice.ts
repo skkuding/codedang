@@ -1,114 +1,114 @@
-import type { Component } from 'vue'
 import { useRouter } from 'vue-router'
-import { ref, computed } from 'vue'
+import { ref, shallowRef, type Component } from 'vue'
+import IconAngleUp from '~icons/fa6-solid/angle-up'
+import IconAngleDown from '~icons/fa6-solid/angle-down'
 
 export interface Field {
   key: string
   width?: string
   label?: string
-  custom?: boolean
 }
 
 export interface Item {
   icon?: Component
+  name?: 'prev' | 'next'
+  id: number
   title: string
   date?: string
-  name?: string
-  id: number | string
+  update?: string
+  content?: string
 }
 
-export const useNoticeList = () => {
-  const router = useRouter()
+export const useNotice = () => {
+  const notices: Item[] = [
+    {
+      id: 1,
+      title: '111111',
+      date: '2022-05-06'
+    },
+    {
+      id: 2,
+      title: '222222',
+      date: '2022-05-07'
+    },
+    {
+      id: 3,
+      title: '333333',
+      date: '2022-05-07'
+    },
+    {
+      id: 4,
+      title: '444444',
+      date: '2022-05-07'
+    },
+    {
+      id: 5,
+      title: '555555',
+      date: '2022-05-07'
+    },
+    {
+      id: 6,
+      title: '666666',
+      date: '2022-05-07'
+    },
+    {
+      id: 7,
+      title: '777777',
+      date: '2022-05-07'
+    },
+    {
+      id: 8,
+      title: '888888',
+      date: '2022-05-07'
+    },
+    {
+      id: 9,
+      title: '999999',
+      date: '2022-05-07'
+    }
+  ]
 
-  const goDetail = ({ id }: Item) => {
+  const currentNotice = ref<Item>({
+    id: -1,
+    title: 'Invalid Notice'
+  })
+  const adjacentNotices = shallowRef<Item[]>([])
+
+  const router = useRouter()
+  function goDetail({ id }: Item) {
     router.push({
       name: 'notice-id',
       params: { id }
     })
   }
 
-  const noticeField: Field[] = [{ key: 'title', width: '70%' }, { key: 'date' }]
-  const noticeItem: Item[] = [
-    {
-      title: '111111',
-      date: '2022-05-06',
-      id: 1
-    },
-    {
-      title: '222222',
-      date: '2022-05-07',
-      id: 2
-    },
-    {
-      title: '222222',
-      date: '2022-05-07',
-      id: 3
-    },
-    {
-      title: '222222',
-      date: '2022-05-07',
-      id: 4
-    },
-    {
-      title: '222222',
-      date: '2022-05-07',
-      id: 5
-    },
-    {
-      title: '222222',
-      date: '2022-05-07',
-      id: 6
-    },
-    {
-      title: '222222',
-      date: '2022-05-07',
-      id: 7
-    },
-    {
-      title: '222222',
-      date: '2022-05-07',
-      id: 8
-    },
-    {
-      title: '222222',
-      date: '2022-05-07',
-      id: 9
+  function getNotice(id: number) {
+    currentNotice.value = notices.find((x: Item) => x.id === id) || {
+      id: -1,
+      title: 'Invalid Notice'
     }
-  ]
+    currentNotice.value.update = '2023-01-01'
+    currentNotice.value.content = 'this is a notice hahaha'
 
-  const perPage = 5
-  const shownPages = ref(
-    noticeItem.length % perPage === 0
-      ? noticeItem.length / perPage
-      : Math.floor(noticeItem.length / perPage) + 1
-  )
-  const shownItems = ref(noticeItem)
-  const currentPage = ref(1)
-
-  const currentItems = computed(() =>
-    shownItems.value.slice(
-      (currentPage.value - 1) * perPage,
-      currentPage.value * perPage
+    adjacentNotices.value = notices.filter(
+      (x: Item) => x.id === id - 1 || x.id === id + 1
     )
-  )
-
-  const search = (keyword: string) => {
-    const total = noticeItem.filter((i) => i.title.includes(keyword))
-    shownItems.value = total
-    shownPages.value = shownItems.value.length / perPage
-    currentPage.value = 1
-  }
-
-  const changeItems = (page: number) => {
-    currentPage.value = page
+    adjacentNotices.value.map((x: Item) => {
+      if (x.id === id - 1) {
+        x.icon = IconAngleUp
+        x.name = 'prev'
+      } else {
+        x.icon = IconAngleDown
+        x.name = 'next'
+      }
+    })
   }
 
   return {
+    notices,
+    currentNotice,
+    adjacentNotices,
     goDetail,
-    noticeField,
-    currentItems,
-    shownPages,
-    search,
-    changeItems
+    getNotice
   }
 }

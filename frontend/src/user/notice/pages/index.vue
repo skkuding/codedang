@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
-import { useNoticeList } from '../composables/notice'
+import { useNotice, type Field } from '../composables/notice'
 
-const { goDetail, noticeField, currentItems, shownPages, search, changeItems } =
-  useNoticeList()
+const field: Field[] = [{ key: 'title', width: '70%' }, { key: 'date' }]
+const { notices, goDetail } = useNotice()
+
+// TODO: 페이지네이션, 검색 기능 추가
 </script>
 
 <template>
   <div class="mt-10">
     <PageTitle text="Notice" />
     <PaginationTable
-      :fields="noticeField"
-      :items="currentItems"
+      :fields="field"
+      :items="notices"
       text="No Notice"
-      :number-of-pages="shownPages"
-      @search="search"
-      @change-page="changeItems"
+      :number-of-pages="1"
       @row-clicked="goDetail"
     />
   </div>
