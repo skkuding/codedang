@@ -17,8 +17,8 @@ vscode:
     - dbaeumer.vscode-eslint
     - editorconfig.editorconfig
     - esbenp.prettier-vscode
-    - Vue.volar
+    - hbenl.vscode-mocha-test-adapter
     - johnsoncodehk.vscode-typescript-vue-plugin
-    - Orta.vscode-jest
     - prisma.prisma
     - rangav.vscode-thunder-client
+    - Vue.volar
