@@ -2,9 +2,9 @@ name: Update Documentation
 
 on:
   push:
-    branches: [329-cd-pipeline] # FIXME: for testing
-    # branches: [main]
-    # paths: ['docs/**']
+    branches: [main]
+    paths: ['docs/**']
+  pull_request: # FIXME: for testing
 
 jobs:
   deploy:
