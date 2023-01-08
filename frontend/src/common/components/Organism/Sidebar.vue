@@ -19,7 +19,6 @@ type Group = {
 // TODO: get group name and color
 const props = defineProps<{
   group: Group
-  color?: 'blue' | 'gray' | 'white'
 }>()
 
 const colorMapper = {
@@ -30,11 +29,11 @@ const colorMapper = {
 }
 
 const commonItems = [
-  { to: 'notice', name: 'Notice', icon: IconFile },
-  { to: 'contest', name: 'Contest', icon: IconTrophy },
-  { to: 'workbook', name: 'Workbook', icon: IconBook },
-  { to: 'problem', name: 'Problem', icon: IconBrain },
-  { to: 'pool', name: 'Problem Pool', icon: IconBox }
+  { to: { name: 'manager-notice' }, name: 'Notice', icon: IconFile },
+  { to: { name: 'manager-contest' }, name: 'Contest', icon: IconTrophy },
+  { to: { name: 'manager-workbook' }, name: 'Workbook', icon: IconBook },
+  { to: { name: 'manager-problem' }, name: 'Problem', icon: IconBrain },
+  { to: { name: 'manager-pool' }, name: 'Problem Pool', icon: IconBox }
 ]
 
 const items = shallowRef()
@@ -45,11 +44,54 @@ watchEffect(
       props.group.id > 0
         ? [
             {
-              to: `manager/${props.group.id}`,
+              to: {
+                name: 'manager-groupId',
+                params: { groupId: props.group.id }
+              },
               name: props.group.name.toUpperCase(),
               icon: IconBiHouse
             },
-            ...commonItems,
+
+            {
+              to: {
+                name: 'manager-groupId-notice',
+                params: { groupId: props.group.id }
+              },
+              name: 'Notice',
+              icon: IconFile
+            },
+            {
+              to: {
+                name: 'manager-groupId-contest',
+                params: { groupId: props.group.id }
+              },
+              name: 'Contest',
+              icon: IconTrophy
+            },
+            {
+              to: {
+                name: 'manager-groupId-workbook',
+                params: { groupId: props.group.id }
+              },
+              name: 'Workbook',
+              icon: IconBook
+            },
+            {
+              to: {
+                name: 'manager-groupId-problem',
+                params: { groupId: props.group.id }
+              },
+              name: 'Problem',
+              icon: IconBrain
+            },
+            {
+              to: {
+                name: 'manager-groupId-pool',
+                params: { groupId: props.group.id }
+              },
+              name: 'Problem Pool',
+              icon: IconBox
+            },
             { to: 'member', name: 'Member', icon: IconUser },
             { to: 'submission', name: 'Submission', icon: IconCode }
           ]
@@ -67,9 +109,10 @@ watchEffect(
     <div v-for="{ to, name, icon } in items" :key="name">
       <router-link
         class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        :active-class="colorMapper[color || 'default'] + ' border-l-8 !pl-8'"
+        :active-class="
+          colorMapper[group.color || 'default'] + ' border-l-8 !pl-8'
+        "
         :to="to"
-        append
       >
         <component :is="icon" class="mr-2 h-4" />
         {{ name }}
