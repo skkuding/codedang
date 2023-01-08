@@ -5,10 +5,22 @@ import Sidebar from './Sidebar.vue'
 <template>
   <Story>
     <Variant title="Basic">
-      <Sidebar />
+      <Sidebar
+        :group="{
+          id: -1,
+          name: '',
+          color: 'white'
+        }"
+      />
     </Variant>
     <Variant title="Group">
-      <Sidebar group="SKKUDING" color="blue" />
+      <Sidebar
+        :group="{
+          id: 1,
+          name: 'skkuding',
+          color: 'blue'
+        }"
+      />
     </Variant>
   </Story>
 </template>
