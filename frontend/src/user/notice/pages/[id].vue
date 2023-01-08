@@ -2,8 +2,10 @@
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import IconBars from '~icons/fa6-solid/bars'
+import IconAngleUp from '~icons/fa6-solid/angle-up'
+import IconAngleDown from '~icons/fa6-solid/angle-down'
 import { watchEffect } from 'vue'
-import { useNotice, type Field } from '../composables/notice'
+import { useNotice, type Field, type Item } from '../composables/notice'
 
 const props = defineProps<{
   id: string
@@ -11,7 +13,18 @@ const props = defineProps<{
 
 const { currentNotice, adjacentNotices, getNotice, goDetail } = useNotice()
 
-watchEffect(() => getNotice(parseInt(props.id)))
+watchEffect(() => {
+  getNotice(parseInt(props.id))
+  adjacentNotices.value.map((x: Item) => {
+    if (x.id === currentNotice.value.id - 1) {
+      x.icon = IconAngleUp
+      x.name = 'prev'
+    } else {
+      x.icon = IconAngleDown
+      x.name = 'next'
+    }
+  })
+})
 
 const field: Field[] = [
   { key: 'icon', width: '5%' },

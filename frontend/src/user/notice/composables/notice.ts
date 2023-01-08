@@ -1,7 +1,5 @@
 import { useRouter } from 'vue-router'
 import { ref, shallowRef, type Component } from 'vue'
-import IconAngleUp from '~icons/fa6-solid/angle-up'
-import IconAngleDown from '~icons/fa6-solid/angle-down'
 
 export interface Field {
   key: string
@@ -93,15 +91,6 @@ export const useNotice = () => {
     adjacentNotices.value = notices.filter(
       (x: Item) => x.id === id - 1 || x.id === id + 1
     )
-    adjacentNotices.value.map((x: Item) => {
-      if (x.id === id - 1) {
-        x.icon = IconAngleUp
-        x.name = 'prev'
-      } else {
-        x.icon = IconAngleDown
-        x.name = 'next'
-      }
-    })
   }
 
   return {
