@@ -14,7 +14,7 @@ const password = ref('')
 
 <template>
   <div class="flex flex-col items-center justify-center">
-    <SymbolLogo class="h-28" />
+    <SymbolLogo class="fill-green h-28" />
     <h1 class="text-green my-6 w-40 text-center text-xl font-bold">
       SKKU
       <br />

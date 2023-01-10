@@ -20,13 +20,21 @@ const colorMapper = {
       <slot name="button" />
     </button>
     <OnClickOutside @trigger="show = false">
-      <ul
-        v-show="show"
-        :class="colorMapper[color || 'white']"
-        class="absolute right-0 z-30 flex w-max flex-col gap-1 rounded-lg p-2 shadow-lg"
+      <Transition
+        enter-active-class="transition-opacity duration-200"
+        leave-active-class="transition-opacity duration-200"
+        enter-from-class="opacity-0"
+        leave-to-class="opacity-0"
+        mode="out-in"
       >
-        <slot name="items" />
-      </ul>
+        <ul
+          v-show="show"
+          :class="colorMapper[color || 'white']"
+          class="absolute right-0 z-30 flex w-max flex-col gap-1 rounded-lg p-2 shadow-lg"
+        >
+          <slot name="items" />
+        </ul>
+      </Transition>
     </OnClickOutside>
   </div>
 </template>
