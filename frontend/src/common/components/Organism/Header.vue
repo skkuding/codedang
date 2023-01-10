@@ -12,9 +12,10 @@ import IconArrowRightFromBracket from '~icons/fa6-solid/arrow-right-from-bracket
 import Button from '../Atom/Button.vue'
 import AuthModal from './AuthModal.vue'
 import { useAuthStore } from '@/common/store/auth'
+import { useRouter } from 'vue-router'
 
 const auth = useAuthStore()
-
+const router = useRouter()
 const isMenuOpen = ref(false)
 const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 </script>
@@ -29,7 +30,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
           />
         </router-link>
         <nav class="text-text-title hidden gap-4 md:flex">
-          <router-link
+          <div
             v-for="{ to, name } in [
               { to: '/notice', name: 'Notice' },
               { to: '/contest', name: 'Contest' },
@@ -37,12 +38,18 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
               { to: '/group', name: 'Group' }
             ]"
             :key="name"
-            class="cursor-pointer text-lg font-semibold hover:opacity-60 active:opacity-40"
-            active-class="text-green hover:opacity-70 active:opacity-50"
-            :to="to"
           >
-            {{ name }}
-          </router-link>
+            <router-link
+              class="cursor-pointer text-lg font-semibold hover:opacity-60 active:opacity-40"
+              :to="to"
+              :class="{
+                'text-green hover:opacity-70 active:opacity-50':
+                  router.currentRoute.value.fullPath.includes(to)
+              }"
+            >
+              {{ name }}
+            </router-link>
+          </div>
         </nav>
         <transition
           enter-active-class="transition-opacity duration-300"
