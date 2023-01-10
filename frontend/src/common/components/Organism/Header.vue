@@ -30,7 +30,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
           />
         </router-link>
         <nav class="text-text-title hidden gap-4 md:flex">
-          <div
+          <router-link
             v-for="{ to, name } in [
               { to: '/notice', name: 'Notice' },
               { to: '/contest', name: 'Contest' },
@@ -38,18 +38,15 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
               { to: '/group', name: 'Group' }
             ]"
             :key="name"
+            class="cursor-pointer text-lg font-semibold hover:opacity-60 active:opacity-40"
+            :to="to"
+            :class="{
+              'text-green hover:opacity-70 active:opacity-50':
+                router.currentRoute.value.fullPath.includes(to)
+            }"
           >
-            <router-link
-              class="cursor-pointer text-lg font-semibold hover:opacity-60 active:opacity-40"
-              :to="to"
-              :class="{
-                'text-green hover:opacity-70 active:opacity-50':
-                  router.currentRoute.value.fullPath.includes(to)
-              }"
-            >
-              {{ name }}
-            </router-link>
-          </div>
+            {{ name }}
+          </router-link>
         </nav>
         <transition
           enter-active-class="transition-opacity duration-300"
