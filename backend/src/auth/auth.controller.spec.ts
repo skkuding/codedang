@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { expect } from 'chai'
 import { UserService } from 'src/user/user.service'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
@@ -18,6 +19,6 @@ describe('AuthController', () => {
   })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined()
+    expect(controller).to.be.ok
   })
 })

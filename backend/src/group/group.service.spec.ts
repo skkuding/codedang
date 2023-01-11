@@ -1,10 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { expect } from 'chai'
+import { fake } from 'sinon'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { GroupService } from './group.service'
 
 const mockPrismaService = {
   userGroup: {
-    findFirst: jest.fn()
+    findFirst: fake()
   }
 }
 
@@ -23,6 +25,6 @@ describe('GroupService', () => {
   })
 
   it('should be defined', () => {
-    expect(service).toBeDefined()
+    expect(service).to.be.ok
   })
 })

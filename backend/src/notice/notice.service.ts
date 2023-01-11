@@ -112,7 +112,7 @@ export class NoticeService {
     userId: number,
     offset: number
   ): Promise<Partial<Notice>[]> {
-    const groupIds = await this.group.getUserGroupManagerList(userId)
+    const groupIds = await this.group.getUserGroupLeaderList(userId)
 
     return await this.prisma.notice.findMany({
       where: {

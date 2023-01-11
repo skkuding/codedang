@@ -20,7 +20,8 @@ import {
   WorkbookProblems
 } from './mock/problem.mock'
 import { ProblemRepository } from './problem.repository'
-import { ProblemService } from './problem.service'
+import { expect } from 'chai'
+import { PrismaService } from 'src/prisma/prisma.service'
 
 const ARBITRARY_VAL = 1
 const groupId = ARBITRARY_VAL
@@ -477,5 +478,6 @@ describe('ProblemService', () => {
         EntityNotExistException
       )
     })
+    // expect(service).to.be.ok
   })
 })

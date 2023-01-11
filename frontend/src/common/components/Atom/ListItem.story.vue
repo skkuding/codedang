@@ -4,10 +4,19 @@ import ListItem from './ListItem.vue'
 
 <template>
   <Story>
-    <ul>
-      <ListItem>Hover mouse on me!</ListItem>
-      <ListItem>Hover mouse on me!</ListItem>
-      <ListItem>Hover mouse on me!</ListItem>
-    </ul>
+    <Variant title="White">
+      <ul>
+        <ListItem color="white">Hover mouse on me!</ListItem>
+        <ListItem color="white">Hover mouse on me!</ListItem>
+        <ListItem color="white">Hover mouse on me!</ListItem>
+      </ul>
+    </Variant>
+    <Variant title="Slate">
+      <ul>
+        <ListItem color="slate">Hover mouse on me!</ListItem>
+        <ListItem color="slate">Hover mouse on me!</ListItem>
+        <ListItem color="slate">Hover mouse on me!</ListItem>
+      </ul>
+    </Variant>
   </Story>
 </template>
