@@ -2,15 +2,19 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { GroupService } from 'src/group/group.service'
 import { UserService } from 'src/user/user.service'
-import { WorkbookController } from './workbook.controller'
+import {
+  PublicWorkbookController,
+  GroupWorkbookController
+} from './workbook.controller'
 import { WorkbookService } from './workbook.service'
 
 describe('WorkbookController', () => {
-  let controller: WorkbookController
+  let publicController: PublicWorkbookController
+  let groupController: GroupWorkbookController
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [WorkbookController],
+      controllers: [PublicWorkbookController, GroupWorkbookController],
       providers: [
         { provide: WorkbookService, useValue: {} },
         { provide: UserService, useValue: {} },
@@ -18,10 +22,18 @@ describe('WorkbookController', () => {
       ]
     }).compile()
 
-    controller = module.get<WorkbookController>(WorkbookController)
+    publicController = module.get<PublicWorkbookController>(
+      PublicWorkbookController
+    )
+    groupController = module.get<GroupWorkbookController>(
+      GroupWorkbookController
+    )
   })
 
-  it('should be defined', () => {
-    expect(controller).to.be.ok
+  it('public controller should be defined', () => {
+    expect(publicController).to.be.ok
+  })
+  it('group controller should be defined', () => {
+    expect(groupController).to.be.ok
   })
 })
