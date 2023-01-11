@@ -81,27 +81,13 @@ model Group {
   createTime     DateTime @default(now()) @map("create_time")
   updateTime     DateTime @updatedAt @map("update_time")
 
-  userGroup    UserGroup[]
-  notice       Notice[]
-  problem      Problem[]
-  contest      Contest[]
-  workbook     Workbook[]
-  groupProblem GroupProblem[]
+  userGroup UserGroup[]
+  notice    Notice[]
+  problem   Problem[]
+  contest   Contest[]
+  workbook  Workbook[]
 
   @@map("group")
-}
-
-model GroupProblem {
-  id         Int      @id @default(autoincrement())
-  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId    Int
-  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId  Int
-  createTime DateTime @default(now())
-  updateTime DateTime @updatedAt
-
-  @@unique([groupId, problemId], name: "GroupProblemUniqueConstraint")
-  @@map("group_problem")
 }
 
 model Notice {
@@ -147,7 +133,6 @@ model Problem {
   contestProblem  ContestProblem[]
   workbookProblem WorkbookProblem[]
   submission      Submission[]
-  groupProblem    GroupProblem[]
   Group           Group?            @relation(fields: [groupId], references: [id])
   groupId         Int?
 
@@ -278,8 +263,8 @@ model ContestProblem {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  @@unique([contestId, problemId], name: "ContestProblemUniqueConstraint")
-  @@unique([contestId, displayId], name: "ContestProblemDisplayIdUniqueConstraint")
+  @@unique([contestId, problemId], name: "contestProblemUniqueConstraint")
+  @@unique([contestId, displayId], name: "contestProblemDisplayIdUniqueConstraint")
   @@map("contest_problem")
 }
 
@@ -343,8 +328,8 @@ model WorkbookProblem {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  @@unique([workbookId, problemId], name: "WorkbookProblemUniqueConstraint")
-  @@unique([workbookId, displayId], name: "WorkbookProblemDisplayIdUniqueConstraint")
+  @@unique([workbookId, problemId], name: "workbookProblemUniqueConstraint")
+  @@unique([workbookId, displayId], name: "workbookProblemDisplayIdUniqueConstraint")
   @@map("workbook_problem")
 }
 
