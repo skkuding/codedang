@@ -12,10 +12,11 @@ import { EntityNotExistException } from 'src/common/exception/business.exception
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { GroupMemberGuard } from '../group/guard/group-member.guard'
 import { Workbook } from '@prisma/client'
+import { Public } from 'src/common/decorator/public.decorator'
 
 @Controller('group/:groupId/workbook')
 @UseGuards(RolesGuard, GroupMemberGuard)
-export class WorkbookController {
+export class GroupWorkbookController {
   constructor(private readonly workbookService: WorkbookService) {}
 
   @Get()
@@ -30,7 +31,7 @@ export class WorkbookController {
   }
 
   @Get('/:workbookId')
-  async getWorkbook(
+  async getGroupWorkbook(
     @Param('workbookId', ParseIntPipe) workbookId
   ): Promise<Workbook> {
     try {
@@ -41,6 +42,21 @@ export class WorkbookController {
       } else {
         throw new InternalServerErrorException()
       }
+    }
+  }
+}
+
+@Controller('workbook')
+@Public()
+export class PublicWorkbookController {
+  constructor(private readonly workbookService: WorkbookService) {}
+
+  @Get()
+  async getPublicWorkbooks(): Promise<Workbook[]> {
+    try {
+      return await this.workbookService.getWorkbooksByGroupId(1, false)
+    } catch (error) {
+      throw new InternalServerErrorException()
     }
   }
 }
