@@ -24,8 +24,8 @@ export class ProblemRepository {
     return await this.prisma.problem.findFirst({
       where: {
         id: problemId,
-        is_public: true,
-        GroupProblem: { some: { group_id: PUBLIC_GROUP_ID } }
+        isPublic: true,
+        groupProblem: { some: { groupId: PUBLIC_GROUP_ID } }
       },
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
@@ -37,9 +37,10 @@ export class ProblemRepository {
   ): Promise<ContestProblem & { problem: Problem }> {
     return await this.prisma.contestProblem.findUnique({
       where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         ContestProblemUniqueConstraint: {
-          contest_id: contestId,
-          problem_id: problemId
+          contestId: contestId,
+          problemId: problemId
         }
       },
       include: { problem: true },
@@ -53,9 +54,10 @@ export class ProblemRepository {
   ): Promise<WorkbookProblem & { problem: Problem }> {
     return await this.prisma.workbookProblem.findUnique({
       where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         WorkbookProblemUniqueConstraint: {
-          workbook_id: workbookId,
-          problem_id: problemId
+          workbookId: workbookId,
+          problemId: problemId
         }
       },
       include: { problem: true },
@@ -68,8 +70,8 @@ export class ProblemRepository {
       skip: paginationDto.offset,
       take: paginationDto.limit,
       where: {
-        is_public: true,
-        GroupProblem: { some: { group_id: PUBLIC_GROUP_ID } }
+        isPublic: true,
+        groupProblem: { some: { groupId: PUBLIC_GROUP_ID } }
       }
     })
   }
@@ -81,7 +83,7 @@ export class ProblemRepository {
     return await this.prisma.contestProblem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
-      where: { contest_id: contestId },
+      where: { contestId: contestId },
       include: { problem: true }
     })
   }
@@ -93,7 +95,7 @@ export class ProblemRepository {
     return await this.prisma.workbookProblem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
-      where: { workbook_id: workbookId },
+      where: { workbookId: workbookId },
       include: { problem: true }
     })
   }

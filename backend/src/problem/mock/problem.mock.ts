@@ -1,88 +1,90 @@
-import { ContestProblem, Problem, ProblemDifficulty } from '@prisma/client'
+import { Problem, ProblemDifficulty } from '@prisma/client'
 
 export const Problems: Problem[] = [
   {
     id: 1,
-    created_by_id: 1,
-    is_public: true,
+    createdById: 1,
+    isPublic: true,
     title: 'public problem',
     description: '',
-    input_description: '',
-    output_description: '',
+    inputDescription: '',
+    outputDescription: '',
     hint: '',
     languages: '',
-    time_limit: 0,
-    memory_limit: 0,
+    timeLimit: 0,
+    memoryLimit: 0,
     difficulty: ProblemDifficulty.Level1,
     source: '',
     shared: false,
-    submission_num: 1,
-    accepted_num: 1,
+    submissionNum: 1,
+    acceptedNum: 1,
     score: 0,
-    create_time: undefined,
-    update_time: undefined
+    createTime: undefined,
+    updateTime: undefined,
+    groupId: 1
   },
   {
     id: 2,
-    created_by_id: 1,
-    is_public: false,
+    createdById: 1,
+    isPublic: false,
     title: 'problem',
     description: '',
-    input_description: '',
-    output_description: '',
+    inputDescription: '',
+    outputDescription: '',
     hint: '',
     languages: '',
-    time_limit: 0,
-    memory_limit: 0,
+    timeLimit: 0,
+    memoryLimit: 0,
     difficulty: ProblemDifficulty.Level2,
     source: '',
     shared: false,
-    submission_num: 1,
-    accepted_num: 1,
+    submissionNum: 1,
+    acceptedNum: 1,
     score: 0,
-    create_time: undefined,
-    update_time: undefined
+    createTime: undefined,
+    updateTime: undefined,
+    groupId: 1
   }
 ]
 
 export const ContestProblems = [
   {
     id: 1,
-    display_id: 'A',
-    contest_id: 1,
-    problem_id: 1,
+    displayId: 'A',
+    contestId: 1,
+    problemId: 1,
     score: 0,
-    create_time: undefined,
-    update_time: undefined
+    createTime: undefined,
+    updateTime: undefined
   },
   {
     id: 2,
-    display_id: 'B',
-    contest_id: 1,
-    problem_id: 2,
+    displayId: 'B',
+    contestId: 1,
+    problemId: 2,
     score: 0,
-    create_time: undefined,
-    update_time: undefined
+    createTime: undefined,
+    updateTime: undefined
   }
 ]
 
 export const WorkbookProblems = [
   {
     id: 1,
-    display_id: 'A',
-    workbook_id: 1,
-    problem_id: 1,
+    displayId: 'A',
+    workbookId: 1,
+    problemId: 1,
     score: 0,
-    create_time: undefined,
-    update_time: undefined
+    createTime: undefined,
+    updateTime: undefined
   },
   {
     id: 2,
-    display_id: 'B',
-    workbook_id: 1,
-    problem_id: 2,
+    displayId: 'B',
+    workbookId: 1,
+    problemId: 2,
     score: 0,
-    create_time: undefined,
-    update_time: undefined
+    createTime: undefined,
+    updateTime: undefined
   }
 ]

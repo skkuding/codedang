@@ -11,7 +11,7 @@ export class WorkbookService {
       where: {
         id: workbookId,
         visible: true,
-        is_public: true
+        isPublic: true
       }
     }))
   }
@@ -24,7 +24,7 @@ export class WorkbookService {
       where: {
         id: workbookId,
         visible: true,
-        group_id: groupId
+        groupId: groupId
       }
     }))
   }

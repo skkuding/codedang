@@ -81,26 +81,26 @@ model Group {
   createTime     DateTime @default(now()) @map("create_time")
   updateTime     DateTime @updatedAt @map("update_time")
 
-  userGroup UserGroup[]
-  notice    Notice[]
-  problem   Problem[]
-  contest   Contest[]
-  workbook  Workbook[]
+  userGroup    UserGroup[]
+  notice       Notice[]
+  problem      Problem[]
+  contest      Contest[]
+  workbook     Workbook[]
   groupProblem GroupProblem[]
 
   @@map("group")
 }
 
 model GroupProblem {
-  id          Int      @id @default(autoincrement())
-  group       Group    @relation(fields: [group_id], references: [id], onDelete: Cascade)
-  group_id    Int
-  problem     Problem  @relation(fields: [problem_id], references: [id], onDelete: Cascade)
-  problem_id  Int
-  create_time DateTime @default(now())
-  update_time DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId    Int
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId  Int
+  createTime DateTime @default(now())
+  updateTime DateTime @updatedAt
 
-  @@unique([group_id, problem_id], name: "GroupProblemUniqueConstraint")
+  @@unique([groupId, problemId], name: "GroupProblemUniqueConstraint")
   @@map("group_problem")
 }
 
@@ -148,7 +148,8 @@ model Problem {
   workbookProblem WorkbookProblem[]
   submission      Submission[]
   groupProblem    GroupProblem[]
-
+  Group           Group?            @relation(fields: [groupId], references: [id])
+  groupId         Int?
 
   @@map("problem")
 }
