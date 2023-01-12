@@ -25,10 +25,10 @@ const textColorStyle = computed(() => {
     class="flex cursor-pointer border p-3 hover:border-2"
     :class="borderColorStyle"
   >
-    <img v-if="img" :src="img" class="aspect-square w-16" />
+    <img v-if="img" :src="img" class="h-16 w-16" />
     <div class="w-full pl-2">
       <div class="flex flex-row pl-2">
-        <div class="text-text-subtitle w-2/3 text-xl font-bold">
+        <div class="text-text-subtitle w-full text-xl font-bold md:w-2/3">
           {{ title }}
         </div>
         <div class="hidden w-1/3 text-right md:block">
