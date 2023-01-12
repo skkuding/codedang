@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Profile from '../../../home/components/Profile.vue'
 import Tab from '@/common/components/Molecule/Tab.vue'
-import contest from '../../components/contest.vue'
-import member from '../../components/member.vue'
-import notice from '../../components/notice.vue'
-import workbook from '../../components/workbook.vue'
+import contest from '../../components/Contest.vue'
+import member from '../../components/Member.vue'
+import notice from '../../components/Notice.vue'
+import workbook from '../../components/Workbook.vue'
 defineProps<{
   id: number
 }>()
