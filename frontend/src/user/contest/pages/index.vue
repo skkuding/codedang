@@ -5,8 +5,6 @@ import IconAnglesRight from '~icons/fa6-solid/angles-right'
 import IconCaretDown from '~icons/fa6-solid/caret-down'
 import IconCaretUp from '~icons/fa6-solid/caret-up'
 import { useTimeAgo } from '@vueuse/core'
-import { onMounted } from 'vue'
-import axios from 'axios'
 
 import { ref } from 'vue'
 
@@ -19,7 +17,7 @@ interface Contest {
   endTime: Date
 }
 
-let items: { [key: string]: Contest[] } = {
+const items: { [key: string]: Contest[] } = {
   ongoing: [
     {
       id: 1,
@@ -93,14 +91,7 @@ let items: { [key: string]: Contest[] } = {
     }
   ]
 }
-onMounted(async () => {
-  try {
-    const response = await axios.get('/api/contest')
-    items = response.data
-  } catch (err) {
-    console.log('Error: ', err)
-  }
-})
+
 const coloredText = (id: string, item: Contest) => {
   if (id === 'ongoing' || id === 'registerNow')
     return 'Started ' + useTimeAgo(item.startTime).value
@@ -116,6 +107,7 @@ const coloredTextShort = (id: string, item: Contest) => {
 
 const showFinished = ref(false)
 </script>
+
 <template>
   <div
     v-for="({ title, id }, index) in [
