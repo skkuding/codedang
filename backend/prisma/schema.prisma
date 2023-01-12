@@ -12,8 +12,8 @@ datasource db {
 
 enum Role {
   User
-  GroupAdmin
-  SuperManager
+  Manager
+  Admin
   SuperAdmin
 }
 
@@ -28,16 +28,17 @@ model User {
   createTime            DateTime @default(now()) @map("create_time")
   updateTime            DateTime @updatedAt @map("update_time")
 
-  UserProfile    UserProfile?
-  UserGroup      UserGroup[]
-  Group          Group[]
-  Notice         Notice[]
-  Problem        Problem[]
-  Contest        Contest[]
-  ContestRecord  ContestRecord[]
-  ContestRankACM ContestRankACM[]
-  Workbook       Workbook[]
-  Submission     Submission[]
+  userProfile               UserProfile?
+  userGroup                 UserGroup[]
+  group                     Group[]
+  notice                    Notice[]
+  problem                   Problem[]
+  contest                   Contest[]
+  contestRecord             ContestRecord[]
+  contestRankACM            ContestRankACM[]
+  workbook                  Workbook[]
+  submission                Submission[]
+  contestPublicizingRequest ContestPublicizingRequest[]
 
   @@map("user")
 }
@@ -55,15 +56,15 @@ model UserProfile {
 }
 
 model UserGroup {
-  id             Int      @id @default(autoincrement())
-  user           User     @relation(fields: [userId], references: [id])
-  userId         Int      @map("user_id")
-  group          Group    @relation(fields: [groupId], references: [id])
-  groupId        Int      @map("group_id")
-  isRegistered   Boolean  @default(false) @map("is_registered")
-  isGroupManager Boolean  @default(false) @map("is_group_manager")
-  createTime     DateTime @default(now()) @map("create_time")
-  updateTime     DateTime @updatedAt @map("update_time")
+  id            Int      @id @default(autoincrement())
+  user          User     @relation(fields: [userId], references: [id])
+  userId        Int      @map("user_id")
+  group         Group    @relation(fields: [groupId], references: [id])
+  groupId       Int      @map("group_id")
+  isRegistered  Boolean  @default(false) @map("is_registered")
+  isGroupLeader Boolean  @default(false) @map("is_group_leader")
+  createTime    DateTime @default(now()) @map("create_time")
+  updateTime    DateTime @updatedAt @map("update_time")
 
   @@map("user_group")
 }
@@ -80,11 +81,11 @@ model Group {
   createTime     DateTime @default(now()) @map("create_time")
   updateTime     DateTime @updatedAt @map("update_time")
 
-  UserGroup UserGroup[]
-  Notice    Notice[]
-  Problem   Problem[]
-  Contest   Contest[]
-  Workbook  Workbook[]
+  userGroup UserGroup[]
+  notice    Notice[]
+  problem   Problem[]
+  contest   Contest[]
+  workbook  Workbook[]
 
   @@map("group")
 }
@@ -128,11 +129,11 @@ model Problem {
   createTime        DateTime @default(now()) @map("create_time")
   updateTime        DateTime @updatedAt @map("update_time")
 
-  ProblemTestcase ProblemTestcase[]
-  ProblemTag      ProblemTag[]
-  ContestProblem  ContestProblem[]
-  WorkbookProblem WorkbookProblem[]
-  Submission      Submission[]
+  problemTestcase ProblemTestcase[]
+  problemTag      ProblemTag[]
+  contestProblem  ContestProblem[]
+  workbookProblem WorkbookProblem[]
+  submission      Submission[]
 
   @@map("problem")
 }
@@ -168,7 +169,7 @@ model Tag {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  ProblemTag ProblemTag[]
+  problemTag ProblemTag[]
 
   @@map("tag")
 }
@@ -186,17 +187,25 @@ model Contest {
   endTime            DateTime    @map("end_time")
   visible            Boolean     @default(true)
   isRankVisible      Boolean     @default(true) @map("is_rank_visible")
+  isPublic           Boolean     @default(false)
   type               ContestType
   createTime         DateTime    @default(now()) @map("create_time")
   updateTime         DateTime    @updatedAt @map("update_time")
 
-  ContestNotice  ContestNotice[]
-  ContestProblem ContestProblem[]
-  ContestRecord  ContestRecord[]
-  ContestRankACM ContestRankACM[]
-  Submission     Submission[]
+  contestNotice             ContestNotice[]
+  contestProblem            ContestProblem[]
+  contestRecord             ContestRecord[]
+  contestRankACM            ContestRankACM[]
+  submission                Submission[]
+  contestPublicizingRequest ContestPublicizingRequest[]
 
   @@map("contest")
+}
+
+enum ContestType {
+  ACM
+  TotalScore
+  ProblemBank
 }
 
 model ContestNotice {
@@ -210,6 +219,26 @@ model ContestNotice {
   updateTime  DateTime @updatedAt @map("update_time")
 
   @@map("contest_notice")
+}
+
+model ContestPublicizingRequest {
+  id            Int           @id @default(autoincrement())
+  contest       Contest       @relation(fields: [contestId], references: [id])
+  contestId     Int           @map("contest_id")
+  message       String
+  requestStatus RequestStatus @default(Pending) @map("request_status")
+  createdBy     User          @relation(fields: [createdById], references: [id])
+  createdById   Int           @map("created_by_id")
+  createTime    DateTime      @default(now()) @map("create_time")
+  updateTime    DateTime      @updatedAt @map("update_time")
+
+  @@map("contest_publicizing_request")
+}
+
+enum RequestStatus {
+  Pending
+  Accepted
+  Rejected
 }
 
 model ContestProblem {
@@ -267,8 +296,8 @@ model Workbook {
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
-  WorkbookProblem WorkbookProblem[]
-  Submission      Submission[]
+  workbookProblem WorkbookProblem[]
+  submission      Submission[]
 
   @@map("workbook")
 }
@@ -303,7 +332,7 @@ model Submission {
   createTime DateTime  @default(now()) @map("create_time")
   updateTime DateTime  @updatedAt @map("update_time")
 
-  SubmissionResult SubmissionResult[]
+  submissionResult SubmissionResult[]
 
   @@map("submission")
 }
@@ -319,10 +348,4 @@ model SubmissionResult {
   updateTime   DateTime   @updatedAt @map("update_time")
 
   @@map("submssion_result")
-}
-
-enum ContestType {
-  ACM
-  TotalScore
-  ProblemBank
 }
