@@ -104,7 +104,7 @@ const cardItems = [
         :total="item.total"
         :complete="item.complete"
         class="m-4 cursor-pointer"
-        @click="clickCard(index)"
+        @click="$router.push('/workbook/' + index)"
       />
     </div>
   </div>

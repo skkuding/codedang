@@ -7,13 +7,10 @@ import Modal from '@/common/components/Molecule/Modal.vue'
 
 import { ref } from 'vue'
 
-const currentPage = ref(1)
 //TODO: invitation 검색 API 연결 후 noInvitation 값을 변경하는 function 구현 필요
 const noInvitationCode = ref(false)
 const joinModalVisible = ref(false)
-const closeJoinModal = () => {
-  joinModalVisible.value = false
-}
+const invitationCode = ref(' ')
 
 type Group = {
   id: number
@@ -82,20 +79,19 @@ const groupList: Group[] = [
     </div>
 
     <GroupListSection :group-list="myGroupList" title="My Group" />
-    <GroupListSection
-      :group-list="groupList"
-      title="All Group"
-      pagination
-      :current-page="currentPage"
-    />
+    <GroupListSection :group-list="groupList" title="All Group" pagination />
   </div>
 
-  <Modal v-if="joinModalVisible" class="h-72 w-[400px]" @close="closeJoinModal">
+  <Modal v-model="joinModalVisible" class="h-72 w-[400px]">
     <template #modal-title>Join Modal by Invitation Code</template>
     <template #modal-content>
       <div class="flex flex-col justify-center">
         <div class="mx-auto flex items-center">
-          <InputItem placeholder="Invitation Code" class="mr-2" />
+          <InputItem
+            v-model="invitationCode"
+            placeholder="Invitation Code"
+            class="mr-2"
+          />
           <Button class="py-2"><SendIcon /></Button>
         </div>
         <div v-if="noInvitationCode" class="text-red text-sm">

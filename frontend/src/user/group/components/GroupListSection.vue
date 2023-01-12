@@ -26,7 +26,6 @@ defineProps<{
   title: string
   groupList: Group[]
   pagination?: boolean
-  currentPage?: number
 }>()
 
 const selectedGroup: Group = {
@@ -42,15 +41,10 @@ const selectedGroup: Group = {
 
 const router = useRouter()
 
+const currentPage = ref(1)
 const groupDescModalVisible = ref(false)
-const closeGroupDescModal = () => {
-  groupDescModalVisible.value = false
-}
 
 const infoModalVisible = ref(false)
-const closeInfoModal = () => {
-  infoModalVisible.value = false
-}
 
 const belongGroup = ref(true)
 
@@ -80,14 +74,10 @@ const goGroup = (id: number) => {
       @click="goGroup(group.id)"
     />
     <div v-if="pagination" class="flex w-full justify-end">
-      <Pagination :modelvalue="currentPage" :numberOfPages="3" />
+      <Pagination v-model="currentPage" :number-of-pages="3" />
     </div>
   </div>
-  <Modal
-    v-if="groupDescModalVisible"
-    class="h-96 w-[600px]"
-    @close="closeGroupDescModal"
-  >
+  <Modal v-model="groupDescModalVisible" class="h-96 w-[600px]">
     <template #modal-title>{{ selectedGroup.groupName }}</template>
     <template #modal-content>
       <div class="mt-4 mb-8 flex">
@@ -116,7 +106,7 @@ const goGroup = (id: number) => {
       </Button>
     </template>
   </Modal>
-  <Modal v-if="infoModalVisible" class="h-48 w-96" @close="closeInfoModal">
+  <Modal v-model="infoModalVisible" class="h-48 w-96">
     <template #modal-content>
       Invitation succesfully requested!
       <br />

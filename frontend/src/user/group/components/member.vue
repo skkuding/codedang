@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Namebox from '../../components/Namebox.vue'
+import Namebox from './Namebox.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import { ref } from 'vue'
@@ -51,11 +51,10 @@ const groupMember = [
       Leave Group
     </Button>
     <Modal
-      v-if="isModalVisible"
+      v-model="isModalVisible"
       title="Skku coding platform"
       title-color="green"
       class="h-48 w-80"
-      @close="close"
     >
       <template #modal-title>Leave Group</template>
       <template #modal-content>
