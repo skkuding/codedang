@@ -65,7 +65,7 @@ export class UserService {
       select: {
         role: true
       },
-      rejectOnNotFound: () => new UnauthorizedException()
+      rejectOnNotFound: () => new EntityNotExistException('notice')
     })
   }
 
@@ -74,6 +74,15 @@ export class UserService {
       where: { username },
       data: { lastLogin: new Date() }
     })
+  }
+
+  async sendPinForRegisterNewEmail({ email }: UserEmailDto): Promise<string> {
+    const duplicatedUser = await this.getUserCredentialByEmail(email)
+    if (duplicatedUser) {
+      throw new UnprocessableDataException('This email is already used')
+    }
+
+    return this.createPinAndSendEmail(email)
   }
 
   async sendPinForPasswordReset({ email }: UserEmailDto): Promise<string> {
@@ -87,13 +96,10 @@ export class UserService {
     return this.createPinAndSendEmail(user.email)
   }
 
-  async sendPinForRegisterNewEmail({ email }: UserEmailDto): Promise<string> {
-    const duplicatedUser = await this.getUserCredentialByEmail(email)
-    if (duplicatedUser) {
-      throw new UnprocessableDataException('This email is already used')
-    }
-
-    return this.createPinAndSendEmail(email)
+  async getUserCredentialByEmail(email: string): Promise<User> {
+    return await this.prisma.user.findUnique({
+      where: { email }
+    })
   }
 
   async createPinAndSendEmail(email: string): Promise<string> {
@@ -108,12 +114,6 @@ export class UserService {
     )
 
     return 'Email authentication pin is sent to your email address'
-  }
-
-  async getUserCredentialByEmail(email: string): Promise<User> {
-    return await this.prisma.user.findUnique({
-      where: { email }
-    })
   }
 
   createPinRandomly(numberOfDigits: number): string {
@@ -164,7 +164,7 @@ export class UserService {
     email: string,
     newPassword: string
   ): Promise<User> {
-    const updatedUser = await this.prisma.user.update({
+    return await this.prisma.user.update({
       where: {
         email
       },
@@ -172,8 +172,6 @@ export class UserService {
         password: await encrypt(newPassword)
       }
     })
-
-    return updatedUser
   }
 
   async verifyPinAndIssueJwt({
@@ -197,7 +195,6 @@ export class UserService {
     if (!storedResetPin || pin !== storedResetPin) {
       throw new InvalidPinException()
     }
-
     return true
   }
 
@@ -217,7 +214,7 @@ export class UserService {
     })
   }
 
-  async signUp(signUpDto: SignUpDto, req: Request): Promise<User> {
+  async signUp(req: Request, signUpDto: SignUpDto): Promise<User> {
     const { email } = await this.verifyJwtFromRequestHeader(req)
     if (email != signUpDto.email) {
       throw new UnprocessableDataException('The email is not authenticated one')
@@ -296,7 +293,7 @@ export class UserService {
       userId,
       groupId: 1,
       isRegisterd: true,
-      isGroupManager: false
+      isGroupLeader: false
     }
     await this.groupService.createUserGroup(userGroupData)
   }
