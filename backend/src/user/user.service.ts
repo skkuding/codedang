@@ -127,7 +127,7 @@ export class UserService {
     pin: string,
     timeToLive: number
   ): Promise<void> {
-    await this.cacheManager.set(key, pin, { ttl: timeToLive })
+    await this.cacheManager.set(key, pin, timeToLive)
   }
 
   async updatePassword(
@@ -341,7 +341,7 @@ export class UserService {
         email: true,
         lastLogin: true,
         updateTime: true,
-        UserProfile: {
+        userProfile: {
           select: {
             realName: true
           }

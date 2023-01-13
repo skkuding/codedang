@@ -136,13 +136,13 @@ describe('UserService', () => {
 
       sendPasswordResetPinSpy = stub(
         emailService,
-        'sendPasswordResetPin'
+        'sendEmailAuthenticationPin'
       ).resolves(expectedEmailInfo)
     })
 
     it('if user email exist, create token and send email', async () => {
       const tokenGeneratorSpy = spy(userService, 'createPinRandomly')
-      await userService.createPinAndSendEmail({ email: EMAIL_ADDRESS })
+      await userService.createPinAndSendEmail(EMAIL_ADDRESS)
       expect(sendPasswordResetPinSpy.calledOnce).to.be.true
       expect(sendPasswordResetPinSpy.firstCall.firstArg).to.equal(EMAIL_ADDRESS)
       expect(tokenGeneratorSpy.calledOnce).to.be.true
@@ -154,7 +154,7 @@ describe('UserService', () => {
       userService.getPinFromCache = fake.resolves(PASSWORD_RESET_PIN)
       userService.getUserCredentialByEmail = fake.resolves(user)
       userService.verifyJwtFromRequestHeader = fake.resolves({
-        ...passwordResetJwtPayload,
+        ...emailAuthJwtPayload,
         iat: 0,
         exp: 0,
         iss: ''
@@ -195,13 +195,13 @@ describe('UserService', () => {
     it('check if deletePin function is called', async () => {
       userService.verifyPin = stub().onFirstCall().resolves(true)
       const deleteTokenSpy = spy(userService, 'deletePinFromCache')
-      await userService.verifyPinAndIssueJwtForPasswordReset({
+      await userService.verifyPinAndIssueJwt({
         pin: PASSWORD_RESET_PIN,
         email: EMAIL_ADDRESS
       })
       expect(deleteTokenSpy.calledOnce).to.be.true
       expect(deleteTokenSpy.firstCall.firstArg).to.equal(
-        passwordResetPinCacheKey(EMAIL_ADDRESS)
+        emailAuthenticationPinCacheKey(EMAIL_ADDRESS)
       )
     })
 

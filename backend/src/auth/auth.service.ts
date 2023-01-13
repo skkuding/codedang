@@ -90,9 +90,11 @@ export class AuthService {
       expiresIn: REFRESH_TOKEN_EXPIRATION_SEC
     })
 
-    await this.cacheManager.set(refreshTokenCacheKey(userId), refreshToken, {
-      ttl: REFRESH_TOKEN_EXPIRATION_SEC
-    })
+    await this.cacheManager.set(
+      refreshTokenCacheKey(userId),
+      refreshToken,
+      REFRESH_TOKEN_EXPIRATION_SEC
+    )
 
     return { accessToken, refreshToken }
   }

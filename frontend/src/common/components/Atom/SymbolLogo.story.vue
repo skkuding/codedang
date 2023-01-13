@@ -4,11 +4,11 @@ import SymbolLogo from './SymbolLogo.vue'
 
 <template>
   <Story :layout="{ type: 'grid', width: '100%' }">
-    <Variant title="default">
-      <SymbolLogo />
-    </Variant>
-    <Variant title="sizing">
+    <Variant title="Sizing">
       <SymbolLogo class="w-32" />
+    </Variant>
+    <Variant title="Color">
+      <SymbolLogo class="fill-green w-32" />
     </Variant>
   </Story>
 </template>
