@@ -16,13 +16,12 @@ import {
   InvalidJwtTokenException,
   InvalidUserException
 } from 'src/common/exception/business.exception'
-import { GroupService } from 'src/group/group.service'
 import { EmailService } from 'src/email/email.service'
 import { MailerService } from '@nestjs-modules/mailer'
+import { GroupService } from 'src/group/group.service'
 
 describe('AuthService', () => {
   let service
-  let userService: UserService
   let cache: Cache
   let createJwtTokensSpy: Sinon.SinonStub
   const ACCESS_TOKEN = 'access_token'
@@ -38,6 +37,10 @@ describe('AuthService', () => {
     createTime: undefined,
     updateTime: undefined
   }
+  const userMock = {
+    getUserCredential: stub().resolves(user),
+    updateLastLogin: stub().resolves()
+  }
 
   beforeEach(async () => {
     const { AuthService } = proxyquire('./auth.service', {
@@ -51,13 +54,16 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        UserService,
         EmailService,
-        { provide: GroupService, useValue: {} },
+        {
+          provide: UserService,
+          useValue: userMock
+        },
         { provide: PrismaService, useValue: {} },
         { provide: ConfigService, useValue: {} },
         { provide: JwtService, useValue: {} },
         { provide: MailerService, useValue: {} },
+        { provide: GroupService, useValue: {} },
         {
           provide: CACHE_MANAGER,
           useFactory: () => ({
@@ -68,7 +74,6 @@ describe('AuthService', () => {
       ]
     }).compile()
 
-    userService = module.get<UserService>(UserService)
     service = module.get(AuthService)
     cache = module.get<Cache>(CACHE_MANAGER)
     createJwtTokensSpy = stub(service, 'createJwtTokens').resolves({
@@ -82,16 +87,7 @@ describe('AuthService', () => {
   })
 
   describe('issueJwtTokens', () => {
-    let getUserCredentialSpy: Sinon.SinonStub
-    let updateLastLoginSpy: Sinon.SinonStub
     const loginUserDto = { username: 'user', password: VALID_PASSWORD }
-
-    beforeEach(() => {
-      getUserCredentialSpy = stub(userService, 'getUserCredential').resolves(
-        user
-      )
-      updateLastLoginSpy = stub(userService, 'updateLastLogin').resolves()
-    })
 
     it('should return new access token and refresh token when user validation succeed', async () => {
       //given
@@ -101,9 +97,10 @@ describe('AuthService', () => {
       const result = await service.issueJwtTokens(loginUserDto)
 
       //then
-      expect(getUserCredentialSpy.calledWith(loginUserDto.username)).to.be.true
+      expect(userMock.getUserCredential.calledWith(loginUserDto.username)).to.be
+        .true
       expect(isValidUserSpy.calledWith(user, loginUserDto.password)).to.be.true
-      expect(updateLastLoginSpy.calledWith(user.username)).to.be.true
+      expect(userMock.updateLastLogin.calledWith(user.username)).to.be.true
       expect(createJwtTokensSpy.calledOnce).to.be.true
       expect(createJwtTokensSpy.calledWith(user.id, user.username)).to.be.true
       expect(result).to.deep.equal({
@@ -122,7 +119,8 @@ describe('AuthService', () => {
       )
 
       //then
-      expect(getUserCredentialSpy.calledWith(loginUserDto.username)).to.be.true
+      expect(userMock.getUserCredential.calledWith(loginUserDto.username)).to.be
+        .true
       expect(isValidUserSpy.calledWith(user, loginUserDto.password)).to.be.true
     })
   })
