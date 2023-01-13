@@ -98,7 +98,6 @@ describe('UserService', () => {
   let jwtService: JwtService
   let groupService: GroupService
   let authService: AuthService
-  let cache: Cache
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -120,7 +119,6 @@ describe('UserService', () => {
     jwtService = module.get<JwtService>(JwtService)
     groupService = module.get<GroupService>(GroupService)
     authService = module.get<AuthService>(AuthService)
-    cache = module.get(CACHE_MANAGER)
   })
 
   it('should be defined', () => {
