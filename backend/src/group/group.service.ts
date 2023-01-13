@@ -45,7 +45,7 @@ export class GroupService {
           connect: { id: userGroupData.groupId }
         },
         isRegistered: userGroupData.isRegisterd,
-        isGroupManager: userGroupData.isGroupManager
+        isGroupLeader: userGroupData.isGroupLeader
       }
     })
   }

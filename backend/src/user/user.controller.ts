@@ -60,7 +60,7 @@ export class UserController {
   @Public()
   async signUp(@Body() signUpDto: SignUpDto, @Req() req: Request) {
     try {
-      await this.userService.signUp(signUpDto, req)
+      await this.userService.signUp(req, signUpDto)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
