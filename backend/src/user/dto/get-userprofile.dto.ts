@@ -9,5 +9,5 @@ export class GetUserProfileDto {
 
   readonly updateTime: Date
 
-  readonly UserProfile: { realName: string }
+  readonly userProfile: { realName: string }
 }
