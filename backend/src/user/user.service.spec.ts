@@ -4,7 +4,6 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub, spy, fake, SinonStub, SinonSpy } from 'sinon'
 import { User, UserProfile } from '@prisma/client'
-import { Cache } from 'cache-manager'
 import { emailAuthenticationPinCacheKey } from 'src/common/cache/keys'
 import {
   EntityNotExistException,
