@@ -4,14 +4,18 @@ import { GroupModule } from 'src/group/group.module'
 import { UserModule } from 'src/user/user.module'
 import { WorkbookModule } from 'src/workbook/workbook.module'
 import {
-  PublicProblemController,
-  PublicContestProblemController,
-  PublicWorkbookProblemController,
   GroupContestProblemController,
-  GroupWorkbookProblemController
+  GroupWorkbookProblemController,
+  PublicContestProblemController,
+  PublicProblemController,
+  PublicWorkbookProblemController
 } from './problem.controller'
 import { ProblemRepository } from './problem.repository'
-import { ProblemService } from './problem.service'
+import {
+  ContestProblemService,
+  ProblemService,
+  WorkbookProblemService
+} from './problem.service'
 
 @Module({
   imports: [GroupModule, UserModule, ContestModule, WorkbookModule],
@@ -22,6 +26,11 @@ import { ProblemService } from './problem.service'
     GroupContestProblemController,
     GroupWorkbookProblemController
   ],
-  providers: [ProblemService, ProblemRepository]
+  providers: [
+    ProblemService,
+    ContestProblemService,
+    WorkbookProblemService,
+    ProblemRepository
+  ]
 })
 export class ProblemModule {}

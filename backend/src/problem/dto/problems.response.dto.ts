@@ -1,16 +1,16 @@
 import { Exclude, Expose, Transform } from 'class-transformer'
 
 @Exclude()
-export class PublicProblemsResponseDto {
+export class ProblemsResponseDto {
   @Expose() id: number
   @Expose() title: string
   @Expose() difficulty: string
-  @Expose({ name: 'submission_num' }) submissionNum: number
-  @Expose({ name: 'accepted_num' }) acceptedNum: number
+  @Expose() submissionNum: number
+  @Expose() acceptedNum: number
 
   @Expose()
   @Transform(({ obj }) =>
-    obj.submission_num === 0
+    obj.submissionNum === 0
       ? '0%'
       : `${((obj.acceptedNum * 100) / obj.submissionNum).toFixed(2)}%`
   )

@@ -15,42 +15,42 @@ import { RolesGuard } from 'src/user/guard/roles.guard'
 import { PaginationDto } from '../common/dto/pagination.dto'
 import { ContestProblemResponseDto } from './dto/contest-problem.response.dto'
 import { ContestProblemsResponseDto } from './dto/contest-problems.response.dto'
-import { PublicContestProblemResponseDto } from './dto/public-contest-problem.response.dto'
-import { PublicContestProblemsResponseDto } from './dto/public-contest-problems.response.dto'
-import { PublicProblemResponseDto } from './dto/public-problem.response.dto'
-import { PublicProblemsResponseDto } from './dto/public-problems.response.dto'
-import { PublicWorkbookProblemResponseDto } from './dto/public-workbook-problem.response.dto'
-import { PublicWorkbookProblemsResponseDto } from './dto/public-workbook-problems.response.dto'
+import { ProblemResponseDto } from './dto/problem.response.dto'
+import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { WorkbookProblemResponseDto } from './dto/workbook-problem.response.dto'
 import { WorkbookProblemsResponseDto } from './dto/workbook-problems.response.dto'
-import { ProblemService } from './problem.service'
+import {
+  ContestProblemService,
+  ProblemService,
+  WorkbookProblemService
+} from './problem.service'
 
 @Public()
-@Controller()
+@Controller('problem')
 export class PublicProblemController {
   constructor(private readonly problemService: ProblemService) {}
 
-  @Get('problem/:id')
-  async getPublicProblem(
-    @Param('id', ParseIntPipe) id: number
-  ): Promise<PublicProblemResponseDto> {
+  @Get()
+  async getPublicProblems(
+    @Query() paginationDto: PaginationDto
+  ): Promise<ProblemsResponseDto[]> {
     try {
-      return await this.problemService.getPublicProblem(id)
+      return await this.problemService.getProblems(paginationDto)
     } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      }
       throw new InternalServerErrorException()
     }
   }
 
-  @Get('problems')
-  async getPublicProblems(
-    @Query() paginationDto: PaginationDto
-  ): Promise<PublicProblemsResponseDto[]> {
+  @Get(':problemId')
+  async getPublicProblem(
+    @Param('problemId', ParseIntPipe) problemId: number
+  ): Promise<ProblemResponseDto> {
     try {
-      return await this.problemService.getPublicProblems(paginationDto)
+      return await this.problemService.getProblem(problemId)
     } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      }
       throw new InternalServerErrorException()
     }
   }
@@ -59,15 +59,30 @@ export class PublicProblemController {
 @Public()
 @Controller('contest')
 export class PublicContestProblemController {
-  constructor(private readonly problemService: ProblemService) {}
+  constructor(private readonly contestProblemService: ContestProblemService) {}
+
+  @Get(':contestId/problem')
+  async getPublicContestProblems(
+    @Param('contestId', ParseIntPipe) contestId: number,
+    @Query() paginationDto: PaginationDto
+  ): Promise<ContestProblemsResponseDto[]> {
+    try {
+      return await this.contestProblemService.getContestProblems(
+        contestId,
+        paginationDto
+      )
+    } catch (err) {
+      throw new InternalServerErrorException()
+    }
+  }
 
   @Get(':contestId/problem/:problemId')
   async getPublicContestProblem(
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<PublicContestProblemResponseDto> {
+  ): Promise<ContestProblemResponseDto> {
     try {
-      return await this.problemService.getPublicContestProblem(
+      return await this.contestProblemService.getContestProblem(
         contestId,
         problemId
       )
@@ -75,21 +90,6 @@ export class PublicContestProblemController {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get(':contestId/problems')
-  async getPublicContestProblems(
-    @Param('contestId', ParseIntPipe) contestId: number,
-    @Query() paginationDto: PaginationDto
-  ): Promise<PublicContestProblemsResponseDto[]> {
-    try {
-      return await this.problemService.getPublicContestProblems(
-        contestId,
-        paginationDto
-      )
-    } catch (err) {
       throw new InternalServerErrorException()
     }
   }
@@ -98,17 +98,19 @@ export class PublicContestProblemController {
 @Public()
 @Controller('workbook')
 export class PublicWorkbookProblemController {
-  constructor(private readonly problemService: ProblemService) {}
+  constructor(
+    private readonly workbookProblemService: WorkbookProblemService
+  ) {}
 
-  @Get(':workbookId/problem/:problemId')
-  async getPublicWorkbookProblem(
+  @Get(':workbookId/problem')
+  async getPublicWorkbookProblems(
     @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<PublicWorkbookProblemResponseDto> {
+    @Query() paginationDto: PaginationDto
+  ): Promise<WorkbookProblemsResponseDto[]> {
     try {
-      return await this.problemService.getPublicWorkbookProblem(
+      return await this.workbookProblemService.getWorkbookProblems(
         workbookId,
-        problemId
+        paginationDto
       )
     } catch (err) {
       if (err instanceof EntityNotExistException) {
@@ -118,15 +120,15 @@ export class PublicWorkbookProblemController {
     }
   }
 
-  @Get(':workbookId/problems')
-  async getPublicWorkbookProblems(
+  @Get(':workbookId/problem/:problemId')
+  async getPublicWorkbookProblem(
     @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Query() paginationDto: PaginationDto
-  ): Promise<PublicWorkbookProblemsResponseDto[]> {
+    @Param('problemId', ParseIntPipe) problemId: number
+  ): Promise<WorkbookProblemResponseDto> {
     try {
-      return await this.problemService.getPublicWorkbookProblems(
+      return await this.workbookProblemService.getWorkbookProblem(
         workbookId,
-        paginationDto
+        problemId
       )
     } catch (err) {
       if (err instanceof EntityNotExistException) {
@@ -140,7 +142,24 @@ export class PublicWorkbookProblemController {
 @UseGuards(RolesGuard, GroupMemberGuard)
 @Controller('group')
 export class GroupContestProblemController {
-  constructor(private readonly problemService: ProblemService) {}
+  constructor(private readonly contestProblemService: ContestProblemService) {}
+
+  @Get(':groupId/contest/:contestId/problem')
+  async getGroupContestProblems(
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Param('contestId', ParseIntPipe) contestId: number,
+    @Query() paginationDto: PaginationDto
+  ): Promise<ContestProblemsResponseDto[]> {
+    try {
+      return await this.contestProblemService.getContestProblems(
+        contestId,
+        paginationDto,
+        groupId
+      )
+    } catch (err) {
+      throw new InternalServerErrorException()
+    }
+  }
 
   @Get(':groupId/contest/:contestId/problem/:problemId')
   async getGroupContestProblem(
@@ -149,32 +168,15 @@ export class GroupContestProblemController {
     @Param('problemId', ParseIntPipe) problemId: number
   ): Promise<ContestProblemResponseDto> {
     try {
-      return await this.problemService.getGroupContestProblem(
-        groupId,
+      return await this.contestProblemService.getContestProblem(
         contestId,
-        problemId
+        problemId,
+        groupId
       )
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get(':groupId/contest/:contestId/problems')
-  async getGroupContestProblems(
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('contestId', ParseIntPipe) contestId: number,
-    @Query() paginationDto: PaginationDto
-  ): Promise<ContestProblemsResponseDto[]> {
-    try {
-      return await this.problemService.getGroupContestProblems(
-        groupId,
-        contestId,
-        paginationDto
-      )
-    } catch (err) {
       throw new InternalServerErrorException()
     }
   }
@@ -183,7 +185,26 @@ export class GroupContestProblemController {
 @UseGuards(RolesGuard, GroupMemberGuard)
 @Controller('group')
 export class GroupWorkbookProblemController {
-  constructor(private readonly problemService: ProblemService) {}
+  constructor(
+    private readonly workbookProblemService: WorkbookProblemService
+  ) {}
+
+  @Get(':groupId/workbook/:workbookId/problem')
+  async getGroupWorkbookProblems(
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Param('workbookId', ParseIntPipe) workbookId: number,
+    @Query() paginationDto: PaginationDto
+  ): Promise<WorkbookProblemsResponseDto[]> {
+    try {
+      return await this.workbookProblemService.getWorkbookProblems(
+        workbookId,
+        paginationDto,
+        groupId
+      )
+    } catch (err) {
+      throw new InternalServerErrorException()
+    }
+  }
 
   @Get(':groupId/workbook/:workbookId/problem/:problemId')
   async getGroupWorkbookProblem(
@@ -192,32 +213,15 @@ export class GroupWorkbookProblemController {
     @Param('problemId', ParseIntPipe) problemId: number
   ): Promise<WorkbookProblemResponseDto> {
     try {
-      return await this.problemService.getGroupWorkbookProblem(
-        groupId,
+      return await this.workbookProblemService.getWorkbookProblem(
         workbookId,
-        problemId
+        problemId,
+        groupId
       )
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get(':groupId/workbook/:workbookId/problems')
-  async getGroupWorkbookProblems(
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Query() paginationDto: PaginationDto
-  ): Promise<WorkbookProblemsResponseDto[]> {
-    try {
-      return await this.problemService.getGroupWorkbookProblems(
-        groupId,
-        workbookId,
-        paginationDto
-      )
-    } catch (err) {
       throw new InternalServerErrorException()
     }
   }

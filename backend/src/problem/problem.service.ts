@@ -1,17 +1,14 @@
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
+import { PUBLIC_GROUP_ID } from 'src/common/contstants'
 import { PaginationDto } from 'src/common/dto/pagination.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { ContestService } from 'src/contest/contest.service'
 import { WorkbookService } from 'src/workbook/workbook.service'
 import { ContestProblemResponseDto } from './dto/contest-problem.response.dto'
 import { ContestProblemsResponseDto } from './dto/contest-problems.response.dto'
-import { PublicContestProblemResponseDto } from './dto/public-contest-problem.response.dto'
-import { PublicContestProblemsResponseDto } from './dto/public-contest-problems.response.dto'
-import { PublicProblemResponseDto } from './dto/public-problem.response.dto'
-import { PublicProblemsResponseDto } from './dto/public-problems.response.dto'
-import { PublicWorkbookProblemResponseDto } from './dto/public-workbook-problem.response.dto'
-import { PublicWorkbookProblemsResponseDto } from './dto/public-workbook-problems.response.dto'
+import { ProblemResponseDto } from './dto/problem.response.dto'
+import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { WorkbookProblemResponseDto } from './dto/workbook-problem.response.dto'
 import { WorkbookProblemsResponseDto } from './dto/workbook-problems.response.dto'
 import { ProblemRepository } from './problem.repository'
@@ -22,135 +19,51 @@ import { ProblemRepository } from './problem.repository'
 @Injectable()
 export class ProblemService {
   constructor(
-    private readonly problemRepository: ProblemRepository,
-    private readonly contestService: ContestService,
-    private readonly workbookService: WorkbookService
+    private readonly problemRepository: ProblemRepository //, private readonly contestService: ContestService, // private readonly workbookService: WorkbookService
   ) {}
 
-  async getPublicProblem(problemId: number): Promise<PublicProblemResponseDto> {
-    // group_id=PUBLIC_GROUP_ID이고 problem의 is_public=true 인 problem을 반환
-    return plainToInstance(
-      PublicProblemResponseDto,
-      await this.problemRepository.getPublicProblem(problemId)
-    )
+  async getProblem(problemId: number): Promise<ProblemResponseDto> {
+    const data = await this.problemRepository.getProblem(problemId)
+    console.log(data)
+    return plainToInstance(ProblemResponseDto, data)
   }
 
-  async getPublicProblems(
+  async getProblems(
     paginationDto: PaginationDto
-  ): Promise<PublicProblemsResponseDto[]> {
-    // group_id=PUBLIC_GROUP_ID이고 problemd의 is_public=true 인 problem 배열을 반환
-    const data = await this.problemRepository.getPublicProblems(paginationDto)
-    return plainToInstance(PublicProblemsResponseDto, data)
+  ): Promise<ProblemsResponseDto[]> {
+    const data = await this.problemRepository.getProblems(paginationDto)
+    return plainToInstance(ProblemsResponseDto, data)
   }
+}
 
-  async getPublicContestProblem(
+@Injectable()
+export class ContestProblemService {
+  constructor(
+    private readonly problemRepository: ProblemRepository,
+    private readonly contestService: ContestService
+  ) {}
+
+  private async isVisibleContest(
     contestId: number,
-    problemId: number
-  ): Promise<PublicContestProblemResponseDto> {
-    // contest가 visible=false이거나 is_public=false 인 경우 throw error
-    if (!(await this.isPublicAndVisibleContest(contestId))) {
-      throw new EntityNotExistException('Contest')
-    }
-    // problem이 id=problemId이고, Contest에 등록된 problem을 반환
-    const data = await this.problemRepository.getContestProblem(
-      contestId,
-      problemId
-    )
-    return plainToInstance(PublicContestProblemResponseDto, data)
-  }
-
-  private async isPublicAndVisibleContest(contestId: number): Promise<boolean> {
-    return await this.contestService.isPublicAndVisibleContest(contestId)
-  }
-
-  async getPublicContestProblems(
-    contestId: number,
-    paginationDto: PaginationDto
-  ): Promise<PublicContestProblemsResponseDto[]> {
-    // contest가 visible=false이거나 is_public=false 인 경우 throw error
-    if (!(await this.isPublicAndVisibleContest(contestId))) {
-      throw new EntityNotExistException('Contest')
-    }
-    // Contest에 등록된 problem들을 반환
-    const data = await this.problemRepository.getContestProblems(
-      contestId,
-      paginationDto
-    )
-    return plainToInstance(PublicContestProblemsResponseDto, data)
-  }
-
-  async getPublicWorkbookProblem(
-    workbookId: number,
-    problemId: number
-  ): Promise<PublicWorkbookProblemResponseDto> {
-    // workbook이 visible=false이거나 is_public=false 인 경우 throw error
-    if (!(await this.isPublicAndVisibleWorkbook(workbookId))) {
-      throw new EntityNotExistException('Workbook')
-    }
-    // problem이 id=problemId이고, Workbook에 등록된 problem을 반환
-    const data = await this.problemRepository.getWorkbookProblem(
-      workbookId,
-      problemId
-    )
-    return plainToInstance(PublicWorkbookProblemResponseDto, data)
-  }
-
-  private async isPublicAndVisibleWorkbook(
-    workbookId: number
+    groupId?: number
   ): Promise<boolean> {
-    return await this.workbookService.isPublicAndVisibleWorkbook(workbookId)
+    if (groupId === PUBLIC_GROUP_ID)
+      return await this.contestService.isPublicAndVisibleContest(contestId)
+    else
+      return await this.contestService.isVisibleContestOfGroup(
+        groupId,
+        contestId
+      )
   }
 
-  async getPublicWorkbookProblems(
-    workbookId: number,
-    paginationDto: PaginationDto
-  ): Promise<PublicWorkbookProblemsResponseDto[]> {
-    // workbook이 visible=false이거나 is_public=false 인 경우 throw error
-    if (!(await this.isPublicAndVisibleWorkbook(workbookId))) {
-      throw new EntityNotExistException('Workbook')
-    }
-    // Workbook에 등록된 problem들을 반환
-    const data = await this.problemRepository.getWorkbookProblems(
-      workbookId,
-      paginationDto
-    )
-    return plainToInstance(PublicWorkbookProblemsResponseDto, data)
-  }
-
-  async getGroupContestProblem(
-    groupId: number,
+  async getContestProblems(
     contestId: number,
-    problemId: number
-  ): Promise<ContestProblemResponseDto> {
-    // contest가 visible=false이거나 group의 contest가 아닌 경우 throw error
-    if (!(await this.isVisibleContestOfGroup(groupId, contestId))) {
-      throw new EntityNotExistException('Contest')
-    }
-    // problem이 id=problemId이고, Contest에 등록된 problem을 반환
-    const data = await this.problemRepository.getContestProblem(
-      contestId,
-      problemId
-    )
-    return plainToInstance(ContestProblemResponseDto, data)
-  }
-
-  private async isVisibleContestOfGroup(
-    groupId: number,
-    contestId: number
-  ): Promise<boolean> {
-    return await this.contestService.isVisibleContestOfGroup(groupId, contestId)
-  }
-
-  async getGroupContestProblems(
-    groupId: number,
-    contestId: number,
-    paginationDto: PaginationDto
+    paginationDto: PaginationDto,
+    groupId = PUBLIC_GROUP_ID
   ): Promise<ContestProblemsResponseDto[]> {
-    // contest가 visible=false이거나 group의 contest가 아닌 경우 throw error
-    if (!(await this.isVisibleContestOfGroup(groupId, contestId))) {
+    if (!(await this.isVisibleContest(contestId, groupId))) {
       throw new EntityNotExistException('Contest')
     }
-    // Contest에 등록된 problem들을 반환
     const data = await this.problemRepository.getContestProblems(
       contestId,
       paginationDto
@@ -158,47 +71,69 @@ export class ProblemService {
     return plainToInstance(ContestProblemsResponseDto, data)
   }
 
-  async getGroupWorkbookProblem(
-    groupId: number,
-    workbookId: number,
-    problemId: number
-  ): Promise<WorkbookProblemResponseDto> {
-    // workbook이 visible=false이거나 group의 workbook이 아닌 경우 throw error
-    if (!(await this.isVisibleWorkbookOfGroup(groupId, workbookId))) {
-      throw new EntityNotExistException('Workbook')
+  async getContestProblem(
+    contestId: number,
+    problemId: number,
+    groupId = PUBLIC_GROUP_ID
+  ): Promise<ContestProblemResponseDto> {
+    if (!(await this.isVisibleContest(contestId, groupId))) {
+      throw new EntityNotExistException('Contest')
     }
-    // problem이 id=problemId이고, Workbook에 등록된 problem을 반환
-    const data = await this.problemRepository.getWorkbookProblem(
-      workbookId,
+    const data = await this.problemRepository.getContestProblem(
+      contestId,
       problemId
     )
-    return plainToInstance(WorkbookProblemResponseDto, data)
+    return plainToInstance(ContestProblemResponseDto, data)
   }
+}
 
-  private async isVisibleWorkbookOfGroup(
-    groupId: number,
-    contestId: number
-  ): Promise<boolean> {
-    return await this.workbookService.isVisibleWorkbookOfGroup(
-      groupId,
-      contestId
-    )
-  }
+@Injectable()
+export class WorkbookProblemService {
+  constructor(
+    private readonly problemRepository: ProblemRepository,
+    private readonly workbookService: WorkbookService
+  ) {}
 
-  async getGroupWorkbookProblems(
-    groupId: number,
+  private async isVisibleWorkbook(
     workbookId: number,
-    paginationDto: PaginationDto
-  ): Promise<WorkbookProblemsResponseDto[]> {
-    // workbook이 visible=false이거나 group의 workbook이 아닌 경우 throw error
-    if (!(await this.isVisibleWorkbookOfGroup(groupId, workbookId))) {
+    groupId: number
+  ): Promise<boolean> {
+    if (groupId === PUBLIC_GROUP_ID)
+      return await this.workbookService.isPublicAndVisibleWorkbook(workbookId)
+    else
+      return await this.workbookService.isVisibleWorkbookOfGroup(
+        groupId,
+        workbookId
+      )
+  }
+
+  async getWorkbookProblems(
+    workbookId: number,
+    paginationDto: PaginationDto,
+    groupId = PUBLIC_GROUP_ID
+  ): Promise<WorkbookProblemResponseDto[]> {
+    if (!(await this.isVisibleWorkbook(workbookId, groupId))) {
       throw new EntityNotExistException('Workbook')
     }
-    // Workbook에 등록된 problem들을 반환
     const data = await this.problemRepository.getWorkbookProblems(
       workbookId,
       paginationDto
     )
     return plainToInstance(WorkbookProblemsResponseDto, data)
+  }
+
+  async getWorkbookProblem(
+    workbookId: number,
+    problemId: number,
+    groupId = PUBLIC_GROUP_ID
+  ): Promise<WorkbookProblemResponseDto> {
+    if (!(await this.isVisibleWorkbook(workbookId, groupId))) {
+      throw new EntityNotExistException('Workbook')
+    }
+    const data = await this.problemRepository.getWorkbookProblem(
+      workbookId,
+      problemId
+    )
+    return plainToInstance(WorkbookProblemResponseDto, data)
   }
 }

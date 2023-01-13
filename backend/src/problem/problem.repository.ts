@@ -20,59 +20,25 @@ import { PrismaService } from 'src/prisma/prisma.service'
 export class ProblemRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getPublicProblem(problemId: number): Promise<Problem> {
-    return await this.prisma.problem.findFirst({
-      where: {
-        id: problemId,
-        isPublic: true,
-        groupProblem: { some: { groupId: PUBLIC_GROUP_ID } }
-      },
-      rejectOnNotFound: () => new EntityNotExistException('Problem')
-    })
-  }
-
-  async getContestProblem(
-    contestId: number,
-    problemId: number
-  ): Promise<ContestProblem & { problem: Problem }> {
-    return await this.prisma.contestProblem.findUnique({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        ContestProblemUniqueConstraint: {
-          contestId: contestId,
-          problemId: problemId
-        }
-      },
-      include: { problem: true },
-      rejectOnNotFound: () => new EntityNotExistException('Problem')
-    })
-  }
-
-  async getWorkbookProblem(
-    workbookId: number,
-    problemId: number
-  ): Promise<WorkbookProblem & { problem: Problem }> {
-    return await this.prisma.workbookProblem.findUnique({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        WorkbookProblemUniqueConstraint: {
-          workbookId: workbookId,
-          problemId: problemId
-        }
-      },
-      include: { problem: true },
-      rejectOnNotFound: () => new EntityNotExistException('Problem')
-    })
-  }
-
-  async getPublicProblems(paginationDto: PaginationDto): Promise<Problem[]> {
+  async getProblems(paginationDto: PaginationDto): Promise<Problem[]> {
     return await this.prisma.problem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
       where: {
         isPublic: true,
-        groupProblem: { some: { groupId: PUBLIC_GROUP_ID } }
+        groupId: PUBLIC_GROUP_ID
       }
+    })
+  }
+
+  async getProblem(problemId: number): Promise<Problem> {
+    return await this.prisma.problem.findFirst({
+      where: {
+        id: problemId,
+        isPublic: true,
+        groupId: PUBLIC_GROUP_ID
+      },
+      rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
   }
 
@@ -88,6 +54,22 @@ export class ProblemRepository {
     })
   }
 
+  async getContestProblem(
+    contestId: number,
+    problemId: number
+  ): Promise<ContestProblem & { problem: Problem }> {
+    return await this.prisma.contestProblem.findUnique({
+      where: {
+        contestProblemUniqueConstraint: {
+          contestId: contestId,
+          problemId: problemId
+        }
+      },
+      include: { problem: true },
+      rejectOnNotFound: () => new EntityNotExistException('Problem')
+    })
+  }
+
   async getWorkbookProblems(
     workbookId: number,
     paginationDto: PaginationDto
@@ -97,6 +79,22 @@ export class ProblemRepository {
       take: paginationDto.limit,
       where: { workbookId: workbookId },
       include: { problem: true }
+    })
+  }
+
+  async getWorkbookProblem(
+    workbookId: number,
+    problemId: number
+  ): Promise<WorkbookProblem & { problem: Problem }> {
+    return await this.prisma.workbookProblem.findUnique({
+      where: {
+        workbookProblemUniqueConstraint: {
+          workbookId: workbookId,
+          problemId: problemId
+        }
+      },
+      include: { problem: true },
+      rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
   }
 }
