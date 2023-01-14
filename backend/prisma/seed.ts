@@ -120,18 +120,31 @@ const createGroups = async () => {
   })
 
   // add users to group
-  // user05, user10 => not registered
-  // user01, user06 => group leader
   for (const [index, user] of users.entries()) {
-    const groupToJoin = index < 5 ? publicGroup : privateGroup
+    // public group
+    // group leader: user01
     prisma.userGroup.create({
       data: {
         userId: user.id,
-        groupId: groupToJoin.id,
-        isRegistered: index % 5 === 4, // index 4, 9
-        isGroupLeader: index % 5 === 0 // index 0, 5
+        groupId: publicGroup.id,
+        isRegistered: true,
+        isGroupLeader: index === 0
       }
     })
+
+    if (index < 5) {
+      // private group
+      // group leader: user01
+      // registered: user01, user03, user05
+      prisma.userGroup.create({
+        data: {
+          userId: user.id,
+          groupId: privateGroup.id,
+          isRegistered: index % 2 === 0,
+          isGroupLeader: index === 0
+        }
+      })
+    }
   }
 }
 
