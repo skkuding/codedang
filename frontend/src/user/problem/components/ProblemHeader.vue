@@ -47,9 +47,9 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
         mode="out-in"
       >
         <div v-if="auth">
-          <Dropdown class="bg-slate-500 text-white">
+          <Dropdown>
             <template #button>
-              <IconUser class="text-xl text-white" />
+              <IconUser class="text-xl" color="white" />
             </template>
             <template #items>
               <!-- TODO: change text color after PR #316 -->
