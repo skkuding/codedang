@@ -82,9 +82,7 @@ const createUsers = async () => {
       hasEmailAuthenticated: false
     }
   })
-}
 
-const createUserProfiles = async () => {
   // create super admin user's profile
   await prisma.userProfile.create({
     data: {
@@ -6392,7 +6390,6 @@ const createWorkbooks = async () => {
 
 const main = async () => {
   await createUsers()
-  await createUserProfiles()
   await createGroups()
   await createNotices()
   await createProblems()
