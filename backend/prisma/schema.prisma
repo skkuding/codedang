@@ -118,8 +118,8 @@ model Problem {
   outputDescription String   @map("output_description")
   hint              String
   languages         Json
-  timeLimit         Int      @map("time_limit")
-  memoryLimit       Int      @map("memory_limit")
+  timeLimit         Int      @map("time_limit") // unit: MilliSeconds
+  memoryLimit       Int      @map("memory_limit") // unit: MegaBytes
   difficulty        String
   source            Json
   shared            Boolean  @default(false)
@@ -128,6 +128,7 @@ model Problem {
   score             Int      @default(0)
   createTime        DateTime @default(now()) @map("create_time")
   updateTime        DateTime @updatedAt @map("update_time")
+  // TODO: example input, output
 
   problemTestcase ProblemTestcase[]
   problemTag      ProblemTag[]
@@ -142,7 +143,7 @@ model ProblemTestcase {
   id         Int      @id @default(autoincrement())
   problem    Problem  @relation(fields: [problemId], references: [id])
   problemId  Int      @map("problem_id")
-  input      String
+  input      String // TODO: save I/O data in file (since it's very large!)
   output     String
   score      Int      @default(0)
   createTime DateTime @default(now()) @map("create_time")
@@ -164,7 +165,7 @@ model ProblemTag {
 model Tag {
   id         Int      @id @default(autoincrement())
   name       String
-  type       String
+  type       String // TODO: 무슨 용도인가요?
   visible    Boolean  @default(true)
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
@@ -214,7 +215,7 @@ model ContestNotice {
   contestId   Int      @map("contest_id")
   title       String
   description String
-  problemId   String   @map("problem_id")
+  problemId   String   @map("problem_id") // TODO: 왜 string type인가요?
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
@@ -290,7 +291,7 @@ model Workbook {
   groupId     Int      @map("group_id")
   title       String
   description String
-  startTime   DateTime @map("start_time")
+  startTime   DateTime @map("start_time") // TODO: startTime, endTime이 필요한가요?
   endTime     DateTime @map("end_time")
   visible     Boolean  @default(true)
   createTime  DateTime @default(now()) @map("create_time")
