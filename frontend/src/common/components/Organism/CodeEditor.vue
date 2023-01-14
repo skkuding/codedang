@@ -77,6 +77,9 @@ const state = EditorState.create({
 watch(
   () => props.modelValue,
   (value) => {
+    if (view.value.state.doc.toString() === value) {
+      return
+    }
     view.value.dispatch({
       changes: { from: 0, to: view.value.state.doc.length, insert: value },
       selection: view.value.state.selection
