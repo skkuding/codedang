@@ -14,7 +14,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 
 <template>
   <header
-    class="border-b-gray bg-text-subtitle grid h-14 place-items-center border-b px-8"
+    class="border-b-gray bg-text-subtitle grid h-14 place-items-center px-8"
   >
     <div class="flex h-14 w-full max-w-7xl items-center justify-between">
       <div class="flex h-14 items-center">
