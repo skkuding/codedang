@@ -99,5 +99,5 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="editor" class="h-80 w-full" />
+  <div ref="editor" class="w-full" />
 </template>
