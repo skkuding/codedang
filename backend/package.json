@@ -2,8 +2,7 @@
   "name": "backend",
   "private": true,
   "scripts": {
-    "prebuild": "rimraf dist",
-    "build": "nest build",
+    "build": "rimraf dist && nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
