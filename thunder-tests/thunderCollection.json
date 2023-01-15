@@ -81,6 +81,13 @@
         "containerId": "9e5e3dea-82d6-4ea7-913b-e3888664742b",
         "created": "2023-01-15T14:43:21.836Z",
         "sortNum": 110000
+      },
+      {
+        "_id": "f62cde80-bbf3-4652-a40a-eb8e1878e747",
+        "name": "Reissue Token",
+        "containerId": "9e5e3dea-82d6-4ea7-913b-e3888664742b",
+        "created": "2023-01-15T15:09:46.603Z",
+        "sortNum": 120000
       }
     ],
     "settings": {
@@ -92,16 +99,6 @@
       "tests": [],
       "options": {
         "baseUrl": "http://localhost:4000"
-      },
-      "preReq": {
-        "runRequests": [
-          {
-            "reqId": "caf44ce8-e6cc-4ca8-84bc-512b0fea903c",
-            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-            "triggerCondition": "run-always",
-            "triggerValue": ""
-          }
-        ]
       }
     }
   }

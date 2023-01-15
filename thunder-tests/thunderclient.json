@@ -97,13 +97,13 @@
   {
     "_id": "caf44ce8-e6cc-4ca8-84bc-512b0fea903c",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "9e5e3dea-82d6-4ea7-913b-e3888664742b",
-    "name": "Reissue token",
+    "containerId": "f62cde80-bbf3-4652-a40a-eb8e1878e747",
+    "name": "Succeed",
     "url": "/auth/reissue",
     "method": "GET",
-    "sortNum": 30000,
+    "sortNum": 10000,
     "created": "2023-01-04T03:36:45.663Z",
-    "modified": "2023-01-15T12:52:01.211Z",
+    "modified": "2023-01-15T15:27:59.153Z",
     "headers": [
       {
         "name": "Set-Cookie",
@@ -130,7 +130,18 @@
         "action": "setto",
         "value": "{{bearer_token}}"
       }
-    ]
+    ],
+    "docs": "# Reissue Token\n\nRefresh token을 이용해 access token을 재발급합니다.",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-var-empty",
+          "triggerValue": "{{refresh_token}}"
+        }
+      ]
+    }
   },
   {
     "_id": "8a6129e2-e8bc-4852-8e6e-568e89f08990",
@@ -315,6 +326,42 @@
     "created": "2023-01-15T14:58:53.478Z",
     "modified": "2023-01-15T15:00:31.793Z",
     "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "401"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "c5ccfac6-5e94-4b03-aecb-e357db6157b9",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "c71d18b9-d4d3-43f8-afde-bec6c695c7c9",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "f62cde80-bbf3-4652-a40a-eb8e1878e747",
+    "name": "401: Invalid Token",
+    "url": "/auth/reissue",
+    "method": "GET",
+    "sortNum": 20000,
+    "created": "2023-01-15T15:25:15.488Z",
+    "modified": "2023-01-15T15:26:15.226Z",
+    "headers": [
+      {
+        "name": "Set-Cookie",
+        "value": "refresh_token={{refresh_token}}"
+      }
+    ],
     "params": [],
     "tests": [
       {
