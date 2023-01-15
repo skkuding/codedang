@@ -85,7 +85,7 @@ const showFinished = ref(false)
           :img="'https://www.skku.edu/_res/skku/img/skku_s.png'"
           :title="item.title"
           :colored-text="coloredText(status, item)"
-          :description="item.group.groupName"
+          :description="'For ' + item.group.groupName"
           :colored-text-short="coloredTextShort(status, item)"
           class="mt-4"
           :border-color="status === 'finished' ? 'gray' : 'green'"
