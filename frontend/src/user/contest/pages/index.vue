@@ -34,8 +34,7 @@ onMounted(async () => {
   items.value = response.data
 })
 const coloredText = (id: string, item: Contest) => {
-  if (id === 'ongoing' || id === 'registerNow')
-    return 'Started ' + useTimeAgo(item.startTime).value
+  if (id === 'ongoing') return 'Started ' + useTimeAgo(item.startTime).value
   else if (id === 'upcoming') return 'Start ' + useTimeAgo(item.startTime).value
   else return 'Finished ' + useTimeAgo(item.endTime).value
 }
@@ -51,16 +50,19 @@ const showFinished = ref(false)
 
 <template>
   <div
-    v-for="({ title, id }, index) in [
-      { title: 'Ongoing Contests', id: 'ongoing' },
-      { title: 'Upcoming Contests', id: 'upcoming' },
-      { title: 'Finished Contests', id: 'finished' }
+    v-for="({ title, status }, index) in [
+      { title: 'Ongoing Contests', status: 'ongoing' },
+      { title: 'Upcoming Contests', status: 'upcoming' },
+      { title: 'Finished Contests', status: 'finished' }
     ]"
     :key="index"
   >
     <div class="mt-8 mb-4 flex flex-row items-center">
-      <PageSubtitle :text="title" :class="{ '!text-red': id === 'finished' }" />
-      <IconAnglesRight v-if="id !== 'finished'" class="ml-2" />
+      <PageSubtitle
+        :text="title"
+        :class="{ '!text-red': status === 'finished' }"
+      />
+      <IconAnglesRight v-if="status !== 'finished'" class="ml-2" />
       <div v-else>
         <IconCaretDown
           v-if="showFinished"
@@ -74,18 +76,19 @@ const showFinished = ref(false)
         />
       </div>
     </div>
-    <div v-if="items[id]?.length === 0" class="text-gray-dark p-2.5 pl-4">
+    <div v-if="items[status]?.length === 0" class="text-gray-dark p-2.5 pl-4">
       No Contest
     </div>
-    <div v-else-if="id !== 'finished' || showFinished">
-      <div v-for="(item, idx) in items[id]" :key="idx">
+    <div v-else-if="status !== 'finished' || showFinished">
+      <div v-for="(item, idx) in items[status]" :key="idx">
         <CardItem
           :img="'https://www.skku.edu/_res/skku/img/skku_s.png'"
           :title="item.title"
-          :colored-text="coloredText(id, item)"
-          :colored-text-short="coloredTextShort(id, item)"
+          :colored-text="coloredText(status, item)"
+          :description="item.description"
+          :colored-text-short="coloredTextShort(status, item)"
           class="mt-4"
-          :border-color="id === 'finished' ? 'gray' : 'green'"
+          :border-color="status === 'finished' ? 'gray' : 'green'"
           @click="$router.push('/contest/' + item.id)"
         />
       </div>
