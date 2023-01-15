@@ -70,10 +70,17 @@
       },
       {
         "_id": "8308536f-48e2-4946-bde2-e3b08d89a3aa",
-        "name": "Login",
+        "name": "Log In",
         "containerId": "9e5e3dea-82d6-4ea7-913b-e3888664742b",
         "created": "2023-01-15T14:00:38.067Z",
         "sortNum": 100000
+      },
+      {
+        "_id": "cc8fc31f-2302-4a24-82d6-c8e105e4fb56",
+        "name": "Log Out",
+        "containerId": "9e5e3dea-82d6-4ea7-913b-e3888664742b",
+        "created": "2023-01-15T14:43:21.836Z",
+        "sortNum": 110000
       }
     ],
     "settings": {

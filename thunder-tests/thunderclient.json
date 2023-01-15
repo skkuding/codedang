@@ -53,13 +53,13 @@
   {
     "_id": "c5ccfac6-5e94-4b03-aecb-e357db6157b9",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "9e5e3dea-82d6-4ea7-913b-e3888664742b",
-    "name": "Logout",
+    "containerId": "cc8fc31f-2302-4a24-82d6-c8e105e4fb56",
+    "name": "Succeed",
     "url": "/auth/logout",
     "method": "POST",
-    "sortNum": 20000,
+    "sortNum": 10000,
     "created": "2023-01-04T03:36:13.805Z",
-    "modified": "2023-01-15T12:51:37.435Z",
+    "modified": "2023-01-15T15:08:25.492Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -74,8 +74,25 @@
         "custom": "cookie.refresh_token",
         "action": "setto",
         "value": "{{refresh_token}}"
+      },
+      {
+        "type": "set-env-var",
+        "custom": "null",
+        "action": "setto",
+        "value": "{{bearer_token}}"
       }
-    ]
+    ],
+    "docs": "# Log Out\n\nRefresh Token을 무효화하고 cookie에서 삭제합니다.  \nAccess Token은 만료되기 전까지 유효하며, client에서 직접 삭제해야합니다.",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
   },
   {
     "_id": "caf44ce8-e6cc-4ca8-84bc-512b0fea903c",
@@ -286,5 +303,36 @@
         "value": "Incorrect username or password"
       }
     ]
+  },
+  {
+    "_id": "f8dde72c-4f3b-4252-bfb7-bc481736dc07",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "cc8fc31f-2302-4a24-82d6-c8e105e4fb56",
+    "name": "401: Invalid Token",
+    "url": "/auth/logout",
+    "method": "POST",
+    "sortNum": 20000,
+    "created": "2023-01-15T14:58:53.478Z",
+    "modified": "2023-01-15T15:00:31.793Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "401"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "c5ccfac6-5e94-4b03-aecb-e357db6157b9",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
   }
 ]
