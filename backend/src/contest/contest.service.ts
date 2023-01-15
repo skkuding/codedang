@@ -498,6 +498,8 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
+    // FIXME: 확인은 contestRecord, 생성은 contestRankACM이 됩니다
+    // 확인 후 API 문서에 예외 경우도 추가 부탁드릴게요!
     const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
       where: { userId, contestId },
       select: { id: true }

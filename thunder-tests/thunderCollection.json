@@ -88,6 +88,41 @@
         "containerId": "9e5e3dea-82d6-4ea7-913b-e3888664742b",
         "created": "2023-01-15T15:09:46.603Z",
         "sortNum": 120000
+      },
+      {
+        "_id": "d39772e1-109e-4fba-924e-6ab90a3e5277",
+        "name": "Get all contests",
+        "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+        "created": "2023-01-15T15:31:49.190Z",
+        "sortNum": 130000
+      },
+      {
+        "_id": "05ffbb82-5894-4752-9025-0ac933930903",
+        "name": "Get modal contest by ID",
+        "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+        "created": "2023-01-15T15:35:34.279Z",
+        "sortNum": 140000
+      },
+      {
+        "_id": "5c0a9108-1d33-407e-91bc-ae25b89bcfe7",
+        "name": "Get group's all contests",
+        "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+        "created": "2023-01-15T15:35:57.785Z",
+        "sortNum": 150000
+      },
+      {
+        "_id": "4b515a9e-2c7f-46c3-aef5-809b6f2c322f",
+        "name": "Get group's contest by ID",
+        "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+        "created": "2023-01-15T15:36:07.930Z",
+        "sortNum": 160000
+      },
+      {
+        "_id": "fee4c6ed-cf6b-45c1-830b-ae840a325a19",
+        "name": "Participate group's contest",
+        "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+        "created": "2023-01-15T15:36:19.697Z",
+        "sortNum": 170000
       }
     ],
     "settings": {
