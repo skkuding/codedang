@@ -1,0 +1,94 @@
+[
+  {
+    "_id": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "colName": "Coding Platform API",
+    "created": "2023-01-04T03:24:30.216Z",
+    "sortNum": 10000,
+    "folders": [
+      {
+        "_id": "9e5e3dea-82d6-4ea7-913b-e3888664742b",
+        "name": "Auth",
+        "containerId": "",
+        "created": "2023-01-04T03:24:35.116Z",
+        "sortNum": 10000
+      },
+      {
+        "_id": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+        "name": "Contest",
+        "containerId": "",
+        "created": "2023-01-04T03:24:47.480Z",
+        "sortNum": 20000
+      },
+      {
+        "_id": "32c3b5cf-9c8d-4141-a6b4-c52a716a9543",
+        "name": "Email",
+        "containerId": "",
+        "created": "2023-01-04T03:24:51.622Z",
+        "sortNum": 30000
+      },
+      {
+        "_id": "a9aa5ec4-bc54-44ba-adf1-f2cb4ee6876a",
+        "name": "Group",
+        "containerId": "",
+        "created": "2023-01-04T03:24:55.095Z",
+        "sortNum": 40000
+      },
+      {
+        "_id": "1974437e-c319-43a2-a67f-c7bf6c7fb000",
+        "name": "Notice",
+        "containerId": "",
+        "created": "2023-01-04T03:24:58.835Z",
+        "sortNum": 50000
+      },
+      {
+        "_id": "589c8657-8198-4b4f-96f0-b90f5c6af633",
+        "name": "Problem",
+        "containerId": "",
+        "created": "2023-01-04T03:25:06.086Z",
+        "sortNum": 60000
+      },
+      {
+        "_id": "6dae5743-bac8-4ce4-a198-1ddf8d324346",
+        "name": "Submission",
+        "containerId": "",
+        "created": "2023-01-04T03:25:09.431Z",
+        "sortNum": 70000
+      },
+      {
+        "_id": "49663314-46e5-45f0-8e80-dc67b077d3c4",
+        "name": "User",
+        "containerId": "",
+        "created": "2023-01-04T03:25:13.930Z",
+        "sortNum": 80000
+      },
+      {
+        "_id": "b31b0cce-32af-4db8-b281-76478bf9e920",
+        "name": "Workbook",
+        "containerId": "",
+        "created": "2023-01-04T03:25:17.530Z",
+        "sortNum": 90000
+      }
+    ],
+    "settings": {
+      "headers": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{bearer_token}}"
+      },
+      "tests": [],
+      "options": {
+        "baseUrl": "http://localhost:4000"
+      },
+      "preReq": {
+        "runRequests": [
+          {
+            "reqId": "caf44ce8-e6cc-4ca8-84bc-512b0fea903c",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "triggerCondition": "run-always",
+            "triggerValue": ""
+          }
+        ]
+      }
+    }
+  }
+]

@@ -1,0 +1,187 @@
+[
+  {
+    "_id": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "9e5e3dea-82d6-4ea7-913b-e3888664742b",
+    "name": "Login",
+    "url": "/auth/login",
+    "method": "POST",
+    "sortNum": 10000,
+    "created": "2023-01-04T03:25:24.818Z",
+    "modified": "2023-01-15T12:51:25.347Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"adminadmin\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "201"
+      },
+      {
+        "type": "custom-header",
+        "custom": "Authorization",
+        "action": "contains",
+        "value": "Bearer"
+      },
+      {
+        "type": "custom-header",
+        "custom": "Set-Cookie",
+        "action": "contains",
+        "value": "refresh_token"
+      },
+      {
+        "type": "set-env-var",
+        "custom": "header.authorization",
+        "action": "setto",
+        "value": "{{bearer_token}}"
+      },
+      {
+        "type": "set-env-var",
+        "custom": "cookie.refresh_token",
+        "action": "setto",
+        "value": "{{refresh_token}}"
+      }
+    ]
+  },
+  {
+    "_id": "c5ccfac6-5e94-4b03-aecb-e357db6157b9",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "9e5e3dea-82d6-4ea7-913b-e3888664742b",
+    "name": "Logout",
+    "url": "/auth/logout",
+    "method": "POST",
+    "sortNum": 20000,
+    "created": "2023-01-04T03:36:13.805Z",
+    "modified": "2023-01-15T12:51:37.435Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "201"
+      },
+      {
+        "type": "set-env-var",
+        "custom": "cookie.refresh_token",
+        "action": "setto",
+        "value": "{{refresh_token}}"
+      }
+    ]
+  },
+  {
+    "_id": "caf44ce8-e6cc-4ca8-84bc-512b0fea903c",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "9e5e3dea-82d6-4ea7-913b-e3888664742b",
+    "name": "Reissue token",
+    "url": "/auth/reissue",
+    "method": "GET",
+    "sortNum": 30000,
+    "created": "2023-01-04T03:36:45.663Z",
+    "modified": "2023-01-15T12:52:01.211Z",
+    "headers": [
+      {
+        "name": "Set-Cookie",
+        "value": "refresh_token={{refresh_token}}"
+      }
+    ],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "custom-header",
+        "custom": "Authorization",
+        "action": "contains",
+        "value": "Bearer"
+      },
+      {
+        "type": "set-env-var",
+        "custom": "header.authorization",
+        "action": "setto",
+        "value": "{{bearer_token}}"
+      }
+    ]
+  },
+  {
+    "_id": "8a6129e2-e8bc-4852-8e6e-568e89f08990",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+    "name": "Get all contests",
+    "url": "/contest",
+    "method": "GET",
+    "sortNum": 40000,
+    "created": "2023-01-04T03:41:11.804Z",
+    "modified": "2023-01-15T12:39:42.923Z",
+    "headers": [],
+    "params": [],
+    "tests": []
+  },
+  {
+    "_id": "cae53d1e-c7c4-4825-a7f5-96a61a478d70",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+    "name": "Get modal contest by ID",
+    "url": "/contest/1/modal",
+    "method": "GET",
+    "sortNum": 50000,
+    "created": "2023-01-04T03:43:05.492Z",
+    "modified": "2023-01-15T13:14:25.973Z",
+    "headers": [],
+    "params": [],
+    "tests": []
+  },
+  {
+    "_id": "df4f680f-9ae5-4f1d-9169-08a9a62b8bcd",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+    "name": "Get group's all contests",
+    "url": "/group/1/contest",
+    "method": "GET",
+    "sortNum": 60000,
+    "created": "2023-01-04T03:44:08.324Z",
+    "modified": "2023-01-15T12:40:20.258Z",
+    "headers": [],
+    "params": [],
+    "tests": []
+  },
+  {
+    "_id": "af8a1447-ee6c-4e13-bf24-7617ffde6f25",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+    "name": "Get group's contest by ID",
+    "url": "/group/1/contest/2",
+    "method": "GET",
+    "sortNum": 70000,
+    "created": "2023-01-04T03:44:47.207Z",
+    "modified": "2023-01-15T13:07:09.631Z",
+    "headers": [],
+    "params": [],
+    "tests": []
+  },
+  {
+    "_id": "989c4ce8-2ca8-4b07-847f-4fb37eac729c",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+    "name": "Participate group's contest",
+    "url": "/group/1/contest/1/participation",
+    "method": "POST",
+    "sortNum": 80000,
+    "created": "2023-01-04T03:45:44.318Z",
+    "modified": "2023-01-15T13:14:15.310Z",
+    "headers": [],
+    "params": [],
+    "tests": []
+  }
+]
