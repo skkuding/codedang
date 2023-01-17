@@ -39,8 +39,7 @@ const coloredText = (id: string, item: Contest) => {
 }
 
 const coloredTextShort = (id: string, item: Contest) => {
-  if (id in ['ongoing', 'registerNow', 'upcoming'])
-    return useTimeAgo(item.startTime).value
+  if (id in ['ongoing', 'upcoming']) return useTimeAgo(item.startTime).value
   else return useTimeAgo(item.endTime).value
 }
 
