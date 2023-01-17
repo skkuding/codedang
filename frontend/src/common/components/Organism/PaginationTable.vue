@@ -60,10 +60,6 @@ const rowColor = {
   dark: 'hover:bg-white/20 active:bg-white/40 text-white'
 }
 
-const responsiveStyle = (index: number) => {
-  return subhead.value.length === 0 && index > 2 ? 'hidden md:table-cell' : ''
-}
-
 const currentPage = ref(1)
 
 const search = (inputData: string) => {
@@ -103,8 +99,7 @@ watch(currentPage, (value) => {
             <th
               v-for="(field, index) in fields"
               :key="index"
-              class="p-2.5 pl-4 text-left"
-              :class="responsiveStyle(index)"
+              class="table-cell p-2.5 pl-4 text-left"
               :rowspan="field.subfields ? undefined : 2"
               :colspan="field.subfields ? field.subfields.length : undefined"
               :style="field.width ? 'width:' + field.width : ''"
@@ -158,9 +153,7 @@ watch(currentPage, (value) => {
               <td
                 v-for="(entry, idx) in entries"
                 :key="idx"
-                class="p-2.5 pl-4"
-                :class="responsiveStyle(idx)"
-                :style="entryStyle(entry.key)"
+                class="table-cell p-2.5 pl-4"
               >
                 <slot :name="entry.key" :row="row">{{ row[entry.key] }}</slot>
               </td>
