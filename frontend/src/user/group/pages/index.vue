@@ -73,7 +73,7 @@ const groupList: Group[] = [
 </script>
 
 <template>
-  <div class="px-20 pt-20 md:px-40">
+  <div class="px-20 pt-20">
     <div class="mb-4 flex justify-end">
       <Button @click="joinModalVisible = true">Join Group</Button>
     </div>
