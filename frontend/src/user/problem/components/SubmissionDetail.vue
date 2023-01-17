@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import CodeEditor from '@/common/components/Organism/CodeEditor.vue'
 
 defineProps<{
-  lang: 'cpp' | 'python' | 'javascript' | 'java'
+  lang?: 'cpp' | 'python' | 'javascript' | 'java'
 }>()
 const code = ref('ee')
 </script>

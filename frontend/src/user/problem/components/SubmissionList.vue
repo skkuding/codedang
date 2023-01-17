@@ -8,6 +8,10 @@ import ListItem from '@/common/components/Atom/ListItem.vue'
 import IconDown from '~icons/fa6-solid/angle-down'
 import { ref, watch } from 'vue'
 
+defineEmits<{
+  (e: 'selectSubmission', value: number): void
+}>()
+
 const showOnlyMine = true
 
 interface Submission {
