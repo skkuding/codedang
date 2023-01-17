@@ -88,7 +88,7 @@ watch(currentPage, (value) => {
         @search="search"
       ></SearchBar>
     </div>
-    <div class="min-w-full overflow-x-scroll">
+    <div class="min-w-full overflow-x-scroll md:overflow-x-auto">
       <table
         class="table-fixed break-normal md:w-full md:break-all"
         :class="!noSearchBar ? 'mt-5' : ''"
