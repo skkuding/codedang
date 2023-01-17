@@ -74,10 +74,16 @@ const showFinished = ref(false)
         />
       </div>
     </div>
-    <div v-if="items[status]?.length === 0" class="text-gray-dark p-2.5 pl-4">
+    <div
+      v-if="items[status]?.length === 0 && title != 'Finished Contests'"
+      class="text-gray-dark p-2.5 pl-4"
+    >
       No Contest
     </div>
     <div v-else-if="status !== 'finished' || showFinished">
+      <div v-if="items[status]?.length === 0" class="text-gray-dark p-2.5 pl-4">
+        No Contest
+      </div>
       <div v-for="(item, idx) in items[status]" :key="idx">
         <CardItem
           :img="'https://www.skku.edu/_res/skku/img/skku_s.png'"
