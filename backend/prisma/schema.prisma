@@ -28,17 +28,17 @@ model User {
   createTime            DateTime @default(now()) @map("create_time")
   updateTime            DateTime @updatedAt @map("update_time")
 
-  UserProfile               UserProfile?
-  UserGroup                 UserGroup[]
-  Group                     Group[]
-  Notice                    Notice[]
-  Problem                   Problem[]
-  Contest                   Contest[]
-  ContestRecord             ContestRecord[]
-  ContestRankACM            ContestRankACM[]
-  Workbook                  Workbook[]
-  Submission                Submission[]
-  ContestPublicizingRequest ContestPublicizingRequest[]
+  userProfile               UserProfile?
+  userGroup                 UserGroup[]
+  group                     Group[]
+  notice                    Notice[]
+  problem                   Problem[]
+  contest                   Contest[]
+  contestRecord             ContestRecord[]
+  contestRankACM            ContestRankACM[]
+  workbook                  Workbook[]
+  submission                Submission[]
+  contestPublicizingRequest ContestPublicizingRequest[]
 
   @@map("user")
 }
@@ -81,11 +81,11 @@ model Group {
   createTime     DateTime @default(now()) @map("create_time")
   updateTime     DateTime @updatedAt @map("update_time")
 
-  UserGroup UserGroup[]
-  Notice    Notice[]
-  Problem   Problem[]
-  Contest   Contest[]
-  Workbook  Workbook[]
+  userGroup UserGroup[]
+  notice    Notice[]
+  problem   Problem[]
+  contest   Contest[]
+  workbook  Workbook[]
 
   @@map("group")
 }
@@ -129,11 +129,11 @@ model Problem {
   createTime        DateTime @default(now()) @map("create_time")
   updateTime        DateTime @updatedAt @map("update_time")
 
-  ProblemTestcase ProblemTestcase[]
-  ProblemTag      ProblemTag[]
-  ContestProblem  ContestProblem[]
-  WorkbookProblem WorkbookProblem[]
-  Submission      Submission[]
+  problemTestcase ProblemTestcase[]
+  problemTag      ProblemTag[]
+  contestProblem  ContestProblem[]
+  workbookProblem WorkbookProblem[]
+  submission      Submission[]
 
   @@map("problem")
 }
@@ -169,7 +169,7 @@ model Tag {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  ProblemTag ProblemTag[]
+  problemTag ProblemTag[]
 
   @@map("tag")
 }
@@ -192,12 +192,12 @@ model Contest {
   createTime         DateTime    @default(now()) @map("create_time")
   updateTime         DateTime    @updatedAt @map("update_time")
 
-  ContestNotice             ContestNotice[]
-  ContestProblem            ContestProblem[]
-  ContestRecord             ContestRecord[]
-  ContestRankACM            ContestRankACM[]
-  Submission                Submission[]
-  ContestPublicizingRequest ContestPublicizingRequest[]
+  contestNotice             ContestNotice[]
+  contestProblem            ContestProblem[]
+  contestRecord             ContestRecord[]
+  contestRankACM            ContestRankACM[]
+  submission                Submission[]
+  contestPublicizingRequest ContestPublicizingRequest[]
 
   @@map("contest")
 }
@@ -296,8 +296,8 @@ model Workbook {
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
-  WorkbookProblem WorkbookProblem[]
-  Submission      Submission[]
+  workbookProblem WorkbookProblem[]
+  submission      Submission[]
 
   @@map("workbook")
 }
@@ -332,7 +332,7 @@ model Submission {
   createTime DateTime  @default(now()) @map("create_time")
   updateTime DateTime  @updatedAt @map("update_time")
 
-  SubmissionResult SubmissionResult[]
+  submissionResult SubmissionResult[]
 
   @@map("submission")
 }
