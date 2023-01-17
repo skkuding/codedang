@@ -5,9 +5,8 @@ import IconAnglesRight from '~icons/fa6-solid/angles-right'
 import IconCaretDown from '~icons/fa6-solid/caret-down'
 import IconCaretUp from '~icons/fa6-solid/caret-up'
 import { useTimeAgo } from '@vueuse/core'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import axios from 'axios'
-import { ref } from 'vue'
 
 interface Group {
   id: number
