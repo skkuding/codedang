@@ -66,10 +66,7 @@ export const useNotice = () => {
     }
   ]
 
-  const currentNotice = ref<Item>({
-    id: -1,
-    title: 'Invalid Notice'
-  })
+  const currentNotice = ref<Item | object>({})
   const adjacentNotices = shallowRef<Item[]>([])
 
   const router = useRouter()
@@ -81,13 +78,11 @@ export const useNotice = () => {
   }
 
   function getNotice(id: number) {
-    currentNotice.value = notices.find((x: Item) => x.id === id) || {
-      id: -1,
-      title: 'Invalid Notice'
+    currentNotice.value = notices.find((x: Item) => x.id === id) || {}
+    if (Object.keys(currentNotice.value).length === 0) {
+      router.push('/404')
+      return
     }
-    currentNotice.value.update = '2023-01-01'
-    currentNotice.value.content = 'this is a notice hahaha'
-
     adjacentNotices.value = notices.filter(
       (x: Item) => x.id === id - 1 || x.id === id + 1
     )
