@@ -1,5 +1,7 @@
 import { useRouter } from 'vue-router'
-import { ref, shallowRef, type Component } from 'vue'
+import { ref, markRaw, type Component } from 'vue'
+import IconAngleUp from '~icons/fa6-solid/angle-up'
+import IconAngleDown from '~icons/fa6-solid/angle-down'
 
 export interface Field {
   key: string
@@ -66,10 +68,11 @@ export const useNotice = () => {
     }
   ]
 
-  const currentNotice = ref<Item | object>({})
-  const adjacentNotices = shallowRef<Item[]>([])
+  const currentNotice = ref<Item>()
+  const adjacentNotices = ref<Item[]>([])
 
   const router = useRouter()
+
   function goDetail({ id }: Item) {
     router.push({
       name: 'notice-id',
@@ -78,14 +81,19 @@ export const useNotice = () => {
   }
 
   function getNotice(id: number) {
-    currentNotice.value = notices.find((x: Item) => x.id === id) || {}
-    if (Object.keys(currentNotice.value).length === 0) {
-      router.push('/404')
-      return
+    currentNotice.value = notices.find((x) => x.id === id)
+    const previousNotice = notices.find((x) => x.id === id - 1)
+    const nextNotice = notices.find((x) => x.id === id + 1)
+    if (previousNotice) {
+      previousNotice.icon = IconAngleUp
+      previousNotice.name = 'prev'
+      adjacentNotices.value.push(markRaw(previousNotice))
     }
-    adjacentNotices.value = notices.filter(
-      (x: Item) => x.id === id - 1 || x.id === id + 1
-    )
+    if (nextNotice) {
+      nextNotice.icon = IconAngleDown
+      nextNotice.name = 'next'
+      adjacentNotices.value.push(markRaw(nextNotice))
+    }
   }
 
   return {

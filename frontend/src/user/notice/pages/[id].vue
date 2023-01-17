@@ -2,28 +2,25 @@
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import IconBars from '~icons/fa6-solid/bars'
-import IconAngleUp from '~icons/fa6-solid/angle-up'
-import IconAngleDown from '~icons/fa6-solid/angle-down'
-import { onMounted, type Ref } from 'vue'
-import { useNotice, type Field, type Item } from '../composables/notice'
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useNotice, type Field } from '../composables/notice'
 
 const props = defineProps<{
   id: string
 }>()
+
+const router = useRouter()
+
 const { currentNotice, adjacentNotices, getNotice, goDetail } = useNotice()
-const notice = currentNotice as Ref<Item>
 
 onMounted(() => {
   getNotice(parseInt(props.id))
-  adjacentNotices.value.map((x: Item) => {
-    if (x.id === notice.value.id - 1) {
-      x.icon = IconAngleUp
-      x.name = 'prev'
-    } else {
-      x.icon = IconAngleDown
-      x.name = 'next'
-    }
-  })
+
+  if (!currentNotice.value) {
+    router.replace('/404')
+    return
+  }
 })
 
 const field: Field[] = [
@@ -44,14 +41,19 @@ const field: Field[] = [
     <div
       class="bg-gray-light border-gray flex w-full justify-between border-y p-4"
     >
-      <PageSubtitle :text="notice.title || ''" class="!text-text-title" />
+      <PageSubtitle
+        :text="currentNotice?.title || ''"
+        class="!text-text-title"
+      />
       <div class="hidden sm:block">
-        {{ notice.date }}
+        {{ currentNotice?.date }}
       </div>
     </div>
-    <div class="m-4 text-right text-sm">Last update: {{ notice.update }}</div>
+    <div class="m-4 text-right text-sm">
+      Last update: {{ currentNotice?.update }}
+    </div>
     <div class="min-h-[400px] w-full max-w-full break-all p-4">
-      {{ notice.content }}
+      {{ currentNotice?.content }}
     </div>
     <PaginationTable
       no-header
