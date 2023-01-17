@@ -42,7 +42,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
             :to="to"
             :class="{
               'text-green hover:opacity-70 active:opacity-50':
-                router.currentRoute.value.fullPath.includes(to)
+                router.currentRoute.value.fullPath.startsWith(to)
             }"
           >
             {{ name }}
