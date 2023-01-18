@@ -293,8 +293,6 @@ model Workbook {
   groupId     Int      @map("group_id")
   title       String
   description String
-  startTime   DateTime @map("start_time") // TODO: startTime, endTime이 필요한가요?
-  endTime     DateTime @map("end_time")
   visible     Boolean  @default(true)
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
