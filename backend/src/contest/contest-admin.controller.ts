@@ -32,22 +32,18 @@ import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-r
 
 @Controller('admin/contest')
 @UseGuards(RolesGuard)
-@Roles(Role.Manager)
+@Roles(Role.Admin)
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  async getAdminContests(
-    @Req() req: AuthenticatedRequest
-  ): Promise<Partial<Contest>[]> {
-    return await this.contestService.getAdminContests(req.user.id)
+  async getAdminContests(): Promise<Partial<Contest>[]> {
+    return await this.contestService.getAdminContests()
   }
 
   @Get('ongoing')
-  async getAdminOngoingContests(
-    @Req() req: AuthenticatedRequest
-  ): Promise<Partial<Contest>[]> {
-    return await this.contestService.getAdminOngoingContests(req.user.id)
+  async getAdminOngoingContests(): Promise<Partial<Contest>[]> {
+    return await this.contestService.getAdminOngoingContests()
   }
 }
 
