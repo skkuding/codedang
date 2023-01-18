@@ -13,12 +13,11 @@ import { EntityNotExistException } from 'src/common/exception/business.exception
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { PaginationDto } from '../common/dto/pagination.dto'
-import { ContestProblemResponseDto } from './dto/contest-problem.response.dto'
-import { ContestProblemsResponseDto } from './dto/contest-problems.response.dto'
+import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
+import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
-import { WorkbookProblemResponseDto } from './dto/workbook-problem.response.dto'
-import { WorkbookProblemsResponseDto } from './dto/workbook-problems.response.dto'
+
 import {
   ContestProblemService,
   ProblemService,
@@ -65,7 +64,7 @@ export class PublicContestProblemController {
   async getPublicContestProblems(
     @Param('contestId', ParseIntPipe) contestId: number,
     @Query() paginationDto: PaginationDto
-  ): Promise<ContestProblemsResponseDto[]> {
+  ): Promise<RelatedProblemsResponseDto[]> {
     try {
       return await this.contestProblemService.getContestProblems(
         contestId,
@@ -80,7 +79,7 @@ export class PublicContestProblemController {
   async getPublicContestProblem(
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<ContestProblemResponseDto> {
+  ): Promise<RelatedProblemResponseDto> {
     try {
       return await this.contestProblemService.getContestProblem(
         contestId,
@@ -106,7 +105,7 @@ export class PublicWorkbookProblemController {
   async getPublicWorkbookProblems(
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Query() paginationDto: PaginationDto
-  ): Promise<WorkbookProblemsResponseDto[]> {
+  ): Promise<RelatedProblemsResponseDto[]> {
     try {
       return await this.workbookProblemService.getWorkbookProblems(
         workbookId,
@@ -124,7 +123,7 @@ export class PublicWorkbookProblemController {
   async getPublicWorkbookProblem(
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<WorkbookProblemResponseDto> {
+  ): Promise<RelatedProblemResponseDto> {
     try {
       return await this.workbookProblemService.getWorkbookProblem(
         workbookId,
@@ -149,7 +148,7 @@ export class GroupContestProblemController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
     @Query() paginationDto: PaginationDto
-  ): Promise<ContestProblemsResponseDto[]> {
+  ): Promise<RelatedProblemsResponseDto[]> {
     try {
       return await this.contestProblemService.getContestProblems(
         contestId,
@@ -166,7 +165,7 @@ export class GroupContestProblemController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<ContestProblemResponseDto> {
+  ): Promise<RelatedProblemResponseDto> {
     try {
       return await this.contestProblemService.getContestProblem(
         contestId,
@@ -194,7 +193,7 @@ export class GroupWorkbookProblemController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Query() paginationDto: PaginationDto
-  ): Promise<WorkbookProblemsResponseDto[]> {
+  ): Promise<RelatedProblemsResponseDto[]> {
     try {
       return await this.workbookProblemService.getWorkbookProblems(
         workbookId,
@@ -211,7 +210,7 @@ export class GroupWorkbookProblemController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<WorkbookProblemResponseDto> {
+  ): Promise<RelatedProblemResponseDto> {
     try {
       return await this.workbookProblemService.getWorkbookProblem(
         workbookId,

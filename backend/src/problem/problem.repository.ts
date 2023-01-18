@@ -16,28 +16,69 @@ import { PrismaService } from 'src/prisma/prisma.service'
  * https://dev.to/harryhorton/how-to-wrap-a-prisma-method-and-reuse-types-271a
  */
 
+const problemsSelectOption = {
+  id: true,
+  title: true
+}
+
+const problemSelectOption = {
+  ...problemsSelectOption,
+  difficulty: true,
+  submissionNum: true,
+  acceptedNum: true,
+  description: true,
+  inputDescription: true,
+  outputDescription: true,
+  hint: true,
+  languages: true,
+  timeLimit: true,
+  memoryLimit: true,
+  source: true
+}
+
+const relatedProblemSelectOption = {
+  displayId: true,
+  problem: {
+    select: problemSelectOption
+  }
+}
+
+const relatedProblemsSelectOption = {
+  displayId: true,
+  problem: {
+    select: problemsSelectOption
+  }
+}
+
 @Injectable()
 export class ProblemRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getProblems(paginationDto: PaginationDto): Promise<Problem[]> {
+  async getProblems(paginationDto: PaginationDto): Promise<Partial<Problem>[]> {
     return await this.prisma.problem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
       where: {
         isPublic: true,
         groupId: PUBLIC_GROUP_ID
+      },
+      select: {
+        ...problemsSelectOption,
+        difficulty: true,
+        submissionNum: true,
+        acceptedNum: true
       }
     })
   }
 
-  async getProblem(problemId: number): Promise<Problem> {
+  async getProblem(problemId: number): Promise<Partial<Problem>> {
     return await this.prisma.problem.findFirst({
       where: {
         id: problemId,
         isPublic: true,
         groupId: PUBLIC_GROUP_ID
       },
+      select: problemSelectOption,
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
   }
@@ -45,19 +86,19 @@ export class ProblemRepository {
   async getContestProblems(
     contestId: number,
     paginationDto: PaginationDto
-  ): Promise<(ContestProblem & { problem: Problem })[]> {
+  ): Promise<Partial<ContestProblem> & { problem: Partial<Problem> }[]> {
     return await this.prisma.contestProblem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
       where: { contestId: contestId },
-      include: { problem: true }
+      select: relatedProblemsSelectOption
     })
   }
 
   async getContestProblem(
     contestId: number,
     problemId: number
-  ): Promise<ContestProblem & { problem: Problem }> {
+  ): Promise<Partial<ContestProblem> & { problem: Partial<Problem> }> {
     return await this.prisma.contestProblem.findUnique({
       where: {
         contestProblemUniqueConstraint: {
@@ -65,7 +106,7 @@ export class ProblemRepository {
           problemId: problemId
         }
       },
-      include: { problem: true },
+      select: relatedProblemSelectOption,
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
   }
@@ -73,19 +114,19 @@ export class ProblemRepository {
   async getWorkbookProblems(
     workbookId: number,
     paginationDto: PaginationDto
-  ): Promise<(WorkbookProblem & { problem: Problem })[]> {
+  ): Promise<(Partial<WorkbookProblem> & { problem: Partial<Problem> })[]> {
     return await this.prisma.workbookProblem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
       where: { workbookId: workbookId },
-      include: { problem: true }
+      select: relatedProblemsSelectOption
     })
   }
 
   async getWorkbookProblem(
     workbookId: number,
     problemId: number
-  ): Promise<WorkbookProblem & { problem: Problem }> {
+  ): Promise<Partial<WorkbookProblem> & { problem: Partial<Problem> }> {
     return await this.prisma.workbookProblem.findUnique({
       where: {
         workbookProblemUniqueConstraint: {
@@ -93,7 +134,7 @@ export class ProblemRepository {
           problemId: problemId
         }
       },
-      include: { problem: true },
+      select: relatedProblemSelectOption,
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
   }

@@ -5,12 +5,10 @@ import { PaginationDto } from 'src/common/dto/pagination.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { ContestService } from 'src/contest/contest.service'
 import { WorkbookService } from 'src/workbook/workbook.service'
-import { ContestProblemResponseDto } from './dto/contest-problem.response.dto'
-import { ContestProblemsResponseDto } from './dto/contest-problems.response.dto'
+import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
+import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
-import { WorkbookProblemResponseDto } from './dto/workbook-problem.response.dto'
-import { WorkbookProblemsResponseDto } from './dto/workbook-problems.response.dto'
 import { ProblemRepository } from './problem.repository'
 
 /**
@@ -18,13 +16,10 @@ import { ProblemRepository } from './problem.repository'
  */
 @Injectable()
 export class ProblemService {
-  constructor(
-    private readonly problemRepository: ProblemRepository //, private readonly contestService: ContestService, // private readonly workbookService: WorkbookService
-  ) {}
+  constructor(private readonly problemRepository: ProblemRepository) {}
 
   async getProblem(problemId: number): Promise<ProblemResponseDto> {
     const data = await this.problemRepository.getProblem(problemId)
-    console.log(data)
     return plainToInstance(ProblemResponseDto, data)
   }
 
@@ -60,7 +55,7 @@ export class ContestProblemService {
     contestId: number,
     paginationDto: PaginationDto,
     groupId = PUBLIC_GROUP_ID
-  ): Promise<ContestProblemsResponseDto[]> {
+  ): Promise<RelatedProblemsResponseDto[]> {
     if (!(await this.isVisibleContest(contestId, groupId))) {
       throw new EntityNotExistException('Contest')
     }
@@ -68,14 +63,14 @@ export class ContestProblemService {
       contestId,
       paginationDto
     )
-    return plainToInstance(ContestProblemsResponseDto, data)
+    return plainToInstance(RelatedProblemsResponseDto, data)
   }
 
   async getContestProblem(
     contestId: number,
     problemId: number,
     groupId = PUBLIC_GROUP_ID
-  ): Promise<ContestProblemResponseDto> {
+  ): Promise<RelatedProblemResponseDto> {
     if (!(await this.isVisibleContest(contestId, groupId))) {
       throw new EntityNotExistException('Contest')
     }
@@ -83,7 +78,7 @@ export class ContestProblemService {
       contestId,
       problemId
     )
-    return plainToInstance(ContestProblemResponseDto, data)
+    return plainToInstance(RelatedProblemResponseDto, data)
   }
 }
 
@@ -111,7 +106,7 @@ export class WorkbookProblemService {
     workbookId: number,
     paginationDto: PaginationDto,
     groupId = PUBLIC_GROUP_ID
-  ): Promise<WorkbookProblemResponseDto[]> {
+  ): Promise<RelatedProblemsResponseDto[]> {
     if (!(await this.isVisibleWorkbook(workbookId, groupId))) {
       throw new EntityNotExistException('Workbook')
     }
@@ -119,14 +114,14 @@ export class WorkbookProblemService {
       workbookId,
       paginationDto
     )
-    return plainToInstance(WorkbookProblemsResponseDto, data)
+    return plainToInstance(RelatedProblemsResponseDto, data)
   }
 
   async getWorkbookProblem(
     workbookId: number,
     problemId: number,
     groupId = PUBLIC_GROUP_ID
-  ): Promise<WorkbookProblemResponseDto> {
+  ): Promise<RelatedProblemResponseDto> {
     if (!(await this.isVisibleWorkbook(workbookId, groupId))) {
       throw new EntityNotExistException('Workbook')
     }
@@ -134,6 +129,6 @@ export class WorkbookProblemService {
       workbookId,
       problemId
     )
-    return plainToInstance(WorkbookProblemResponseDto, data)
+    return plainToInstance(RelatedProblemResponseDto, data)
   }
 }
