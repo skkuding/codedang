@@ -17,8 +17,6 @@ const workbookArray = [
     groupId: 1,
     title: 'thisistitle1',
     description: 'thisisdescription1',
-    startTime: DATETIME,
-    endTime: DATETIME_TOMORROW,
     visible: true,
     createTime: DATETIME,
     updateTime: DATETIME
@@ -29,8 +27,6 @@ const workbookArray = [
     groupId: 1,
     title: 'thisistitle2',
     description: 'thisisdescription2',
-    startTime: DATETIME,
-    endTime: DATETIME_TOMORROW,
     visible: false,
     createTime: DATETIME,
     updateTime: DATETIME
@@ -41,8 +37,6 @@ const workbookArray = [
     groupId: 2,
     title: 'thisistitle3',
     description: 'thisisdescription3',
-    startTime: DATETIME,
-    endTime: DATETIME_TOMORROW,
     visible: true,
     createTime: DATETIME,
     updateTime: DATETIME
@@ -53,8 +47,6 @@ const workbookArray = [
     groupId: 2,
     title: 'thisistitle4',
     description: 'thisisdescription4',
-    startTime: DATETIME,
-    endTime: DATETIME_TOMORROW,
     visible: true,
     createTime: DATETIME,
     updateTime: DATETIME
@@ -64,16 +56,12 @@ const workbookArray = [
 const createWorkbookDto = {
   title: 'createworkbook',
   description: 'description',
-  startTime: DATETIME,
-  endTime: DATETIME_TOMORROW,
   visible: false
 }
 
 const updateWorkbookDto = {
   title: 'updateworkbook',
   description: 'description',
-  startTime: DATETIME,
-  endTime: DATETIME_TOMORROW,
   visible: false
 }
 
