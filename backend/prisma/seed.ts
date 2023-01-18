@@ -6385,8 +6385,6 @@ const createWorkbooks = async () => {
     data: {
       title: '모의대회 문제집',
       description: '<p>모의대회 문제들을 모아뒀습니다!</p>',
-      startTime: dayjs().add(-30, 'day').toDate(),
-      endTime: dayjs().add(30, 'day').toDate(),
       createdById: superAdminUser.id,
       groupId: publicGroup.id
     }
