@@ -5,6 +5,7 @@ import { EntityNotExistException } from 'src/common/exception/business.exception
 import { PrismaService } from 'src/prisma/prisma.service'
 import { WorkbookService } from './workbook.service'
 import { stub } from 'sinon'
+import { Workbook } from '@prisma/client'
 
 const DATETIME = new Date(2022, 8, 8)
 const DATETIME_TOMORROW = new Date()
@@ -18,7 +19,9 @@ const workbookArray = [
     description: 'thisisdescription1',
     startTime: DATETIME,
     endTime: DATETIME_TOMORROW,
-    visible: true
+    visible: true,
+    createTime: DATETIME,
+    updateTime: DATETIME
   },
   {
     id: 2,
@@ -28,7 +31,9 @@ const workbookArray = [
     description: 'thisisdescription2',
     startTime: DATETIME,
     endTime: DATETIME_TOMORROW,
-    visible: false
+    visible: false,
+    createTime: DATETIME,
+    updateTime: DATETIME
   },
   {
     id: 3,
@@ -38,7 +43,9 @@ const workbookArray = [
     description: 'thisisdescription3',
     startTime: DATETIME,
     endTime: DATETIME_TOMORROW,
-    visible: true
+    visible: true,
+    createTime: DATETIME,
+    updateTime: DATETIME
   },
   {
     id: 4,
@@ -48,7 +55,9 @@ const workbookArray = [
     description: 'thisisdescription4',
     startTime: DATETIME,
     endTime: DATETIME_TOMORROW,
-    visible: true
+    visible: true,
+    createTime: DATETIME,
+    updateTime: DATETIME
   }
 ]
 
@@ -68,11 +77,29 @@ const updateWorkbookDto = {
   visible: false
 }
 
-const publicWorkbooks = [workbookArray[0], workbookArray[1]]
-const visiblePublicWorkbooks = [workbookArray[0]]
-const groupWorkbooks = [workbookArray[2], workbookArray[3]]
-const onePublicWorkbook = publicWorkbooks[0]
-const oneGroupWorkbook = groupWorkbooks[0]
+const showTitleDescriptionUpdatedTime = ({
+  title,
+  description,
+  updateTime
+}: Workbook) => ({
+  title,
+  description,
+  updateTime
+})
+
+const publicWorkbooks = [
+  showTitleDescriptionUpdatedTime(workbookArray[0]),
+  showTitleDescriptionUpdatedTime(workbookArray[1])
+]
+const visiblePublicWorkbooks = [
+  showTitleDescriptionUpdatedTime(workbookArray[0])
+]
+const groupWorkbooks = [
+  showTitleDescriptionUpdatedTime(workbookArray[2]),
+  showTitleDescriptionUpdatedTime(workbookArray[3])
+]
+const onePublicWorkbook = workbookArray[0]
+const oneGroupWorkbook = workbookArray[2]
 const PUBLIC_GROUP_ID = 1
 const PRIVATE_GROUP_ID = 2
 const CREATE_BY_ID = 1

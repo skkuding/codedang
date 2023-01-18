@@ -29,7 +29,7 @@ export class WorkbookAdminController {
   @Get()
   async getGroupWorkbooks(
     @Param('groupId', ParseIntPipe) groupId
-  ): Promise<Workbook[]> {
+  ): Promise<Partial<Workbook>[]> {
     try {
       return await this.workbookService.getWorkbooksByGroupId(groupId, true)
     } catch (error) {

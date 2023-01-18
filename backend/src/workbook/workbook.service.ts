@@ -15,13 +15,14 @@ export class WorkbookService {
   async getWorkbooksByGroupId(
     groupId: number,
     isAdmin: boolean
-  ): Promise<Workbook[]> {
+  ): Promise<Partial<Workbook>[]> {
     const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
     const workbooks = await this.prisma.workbook.findMany({
       where: {
         groupId,
         ...whereOption
-      }
+      },
+      select: { title: true, description: true, updateTime: true }
     })
     return workbooks
   }

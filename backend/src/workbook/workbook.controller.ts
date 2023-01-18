@@ -22,7 +22,7 @@ export class GroupWorkbookController {
   @Get()
   async getGroupWorkbooks(
     @Param('groupId', ParseIntPipe) groupId
-  ): Promise<Workbook[]> {
+  ): Promise<Partial<Workbook>[]> {
     try {
       return await this.workbookService.getWorkbooksByGroupId(groupId, false)
     } catch (error) {
@@ -52,7 +52,7 @@ export class PublicWorkbookController {
   constructor(private readonly workbookService: WorkbookService) {}
 
   @Get()
-  async getPublicWorkbooks(): Promise<Workbook[]> {
+  async getPublicWorkbooks(): Promise<Partial<Workbook>[]> {
     try {
       return await this.workbookService.getWorkbooksByGroupId(1, false)
     } catch (error) {
