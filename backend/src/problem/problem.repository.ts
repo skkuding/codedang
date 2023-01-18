@@ -16,43 +16,43 @@ import { PrismaService } from 'src/prisma/prisma.service'
  * https://dev.to/harryhorton/how-to-wrap-a-prisma-method-and-reuse-types-271a
  */
 
-const problemsSelectOption = {
-  id: true,
-  title: true
-}
-
-const problemSelectOption = {
-  ...problemsSelectOption,
-  difficulty: true,
-  submissionNum: true,
-  acceptedNum: true,
-  description: true,
-  inputDescription: true,
-  outputDescription: true,
-  hint: true,
-  languages: true,
-  timeLimit: true,
-  memoryLimit: true,
-  source: true
-}
-
-const relatedProblemSelectOption = {
-  displayId: true,
-  problem: {
-    select: problemSelectOption
-  }
-}
-
-const relatedProblemsSelectOption = {
-  displayId: true,
-  problem: {
-    select: problemsSelectOption
-  }
-}
-
 @Injectable()
 export class ProblemRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  private readonly problemsSelectOption = {
+    id: true,
+    title: true
+  }
+
+  private readonly problemSelectOption = {
+    ...this.problemsSelectOption,
+    difficulty: true,
+    submissionNum: true,
+    acceptedNum: true,
+    description: true,
+    inputDescription: true,
+    outputDescription: true,
+    hint: true,
+    languages: true,
+    timeLimit: true,
+    memoryLimit: true,
+    source: true
+  }
+
+  private readonly relatedProblemSelectOption = {
+    displayId: true,
+    problem: {
+      select: this.problemSelectOption
+    }
+  }
+
+  private readonly relatedProblemsSelectOption = {
+    displayId: true,
+    problem: {
+      select: this.problemsSelectOption
+    }
+  }
 
   async getProblems(paginationDto: PaginationDto): Promise<Partial<Problem>[]> {
     return await this.prisma.problem.findMany({
@@ -63,7 +63,7 @@ export class ProblemRepository {
         groupId: PUBLIC_GROUP_ID
       },
       select: {
-        ...problemsSelectOption,
+        ...this.problemsSelectOption,
         difficulty: true,
         submissionNum: true,
         acceptedNum: true
@@ -78,7 +78,7 @@ export class ProblemRepository {
         isPublic: true,
         groupId: PUBLIC_GROUP_ID
       },
-      select: problemSelectOption,
+      select: this.problemSelectOption,
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
   }
@@ -91,7 +91,7 @@ export class ProblemRepository {
       skip: paginationDto.offset,
       take: paginationDto.limit,
       where: { contestId: contestId },
-      select: relatedProblemsSelectOption
+      select: this.relatedProblemsSelectOption
     })
   }
 
@@ -106,7 +106,7 @@ export class ProblemRepository {
           problemId: problemId
         }
       },
-      select: relatedProblemSelectOption,
+      select: this.relatedProblemSelectOption,
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
   }
@@ -119,7 +119,7 @@ export class ProblemRepository {
       skip: paginationDto.offset,
       take: paginationDto.limit,
       where: { workbookId: workbookId },
-      select: relatedProblemsSelectOption
+      select: this.relatedProblemsSelectOption
     })
   }
 
@@ -134,7 +134,7 @@ export class ProblemRepository {
           problemId: problemId
         }
       },
-      select: relatedProblemSelectOption,
+      select: this.relatedProblemSelectOption,
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
   }
