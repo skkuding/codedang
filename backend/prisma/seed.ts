@@ -6353,7 +6353,7 @@ const createContests = async () => {
       title: '1번 문제 수정 안내',
       description: '<p>1번 문제가 blah blah 수정되었습니다.</p>',
       contestId: contest.id,
-      problemId: '' // TODO: 뭐가 들어가야될지 모르겠어요
+      problemId: problems[0].id
     }
   })
 

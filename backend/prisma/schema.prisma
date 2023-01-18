@@ -135,6 +135,7 @@ model Problem {
   contestProblem  ContestProblem[]
   workbookProblem WorkbookProblem[]
   submission      Submission[]
+  contestNotice   ContestNotice[]
 
   @@map("problem")
 }
@@ -215,7 +216,8 @@ model ContestNotice {
   contestId   Int      @map("contest_id")
   title       String
   description String
-  problemId   String   @map("problem_id") // TODO: 왜 string type인가요?
+  problem     Problem  @relation(fields: [problemId], references: [id])
+  problemId   Int      @map("problem_id")
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
