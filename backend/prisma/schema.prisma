@@ -283,19 +283,18 @@ model ContestRankACM {
 }
 
 model Workbook {
-  id                Int      @id @default(autoincrement())
-  createdBy         User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById       Int      @map("created_by_id")
-  group             Group    @relation(fields: [groupId], references: [id])
-  groupId           Int      @map("group_id")
-  title             String
-  description       String
-  startTime         DateTime @map("start_time")
-  endTime           DateTime @map("end_time")
-  visible           Boolean  @default(true)
-  createTime        DateTime @default(now()) @map("create_time")
-  updateTime        DateTime @updatedAt @map("update_time")
-  allowPartialScore Boolean  @default(true) @map("allow_partial_score")
+  id          Int      @id @default(autoincrement())
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdById Int      @map("created_by_id")
+  group       Group    @relation(fields: [groupId], references: [id])
+  groupId     Int      @map("group_id")
+  title       String
+  description String
+  startTime   DateTime @map("start_time")
+  endTime     DateTime @map("end_time")
+  visible     Boolean  @default(true)
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
 
   WorkbookProblem WorkbookProblem[]
   Submission      Submission[]

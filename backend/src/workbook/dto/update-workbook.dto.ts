@@ -23,8 +23,4 @@ export class UpdateWorkbookDto {
   @IsBoolean()
   @IsNotEmpty()
   visible: boolean
-
-  @IsBoolean()
-  @IsNotEmpty()
-  allowPartialScore: boolean
 }

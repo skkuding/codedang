@@ -18,7 +18,6 @@ const workbookArray = [
     description: 'thisisdescription1',
     startTime: DATETIME,
     endTime: DATETIME_TOMORROW,
-    allowPartialScore: true,
     visible: true
   },
   {
@@ -29,7 +28,6 @@ const workbookArray = [
     description: 'thisisdescription2',
     startTime: DATETIME,
     endTime: DATETIME_TOMORROW,
-    allowPartialScore: true,
     visible: false
   },
   {
@@ -40,7 +38,6 @@ const workbookArray = [
     description: 'thisisdescription3',
     startTime: DATETIME,
     endTime: DATETIME_TOMORROW,
-    allowPartialScore: true,
     visible: true
   },
   {
@@ -51,7 +48,6 @@ const workbookArray = [
     description: 'thisisdescription4',
     startTime: DATETIME,
     endTime: DATETIME_TOMORROW,
-    allowPartialScore: true,
     visible: true
   }
 ]
@@ -61,8 +57,7 @@ const createWorkbookDto = {
   description: 'description',
   startTime: DATETIME,
   endTime: DATETIME_TOMORROW,
-  visible: false,
-  allowPartialScore: false
+  visible: false
 }
 
 const updateWorkbookDto = {
@@ -70,8 +65,7 @@ const updateWorkbookDto = {
   description: 'description',
   startTime: DATETIME,
   endTime: DATETIME_TOMORROW,
-  visible: false,
-  allowPartialScore: false
+  visible: false
 }
 
 const publicWorkbooks = [workbookArray[0], workbookArray[1]]
