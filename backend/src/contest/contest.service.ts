@@ -486,10 +486,7 @@ export class ContestService {
     })
   }
 
-  async createContestRecord(
-    userId: number,
-    contestId: number
-  ): Promise<undefined> {
+  async createContestRecord(userId: number, contestId: number) {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
       select: { startTime: true, endTime: true, type: true }
@@ -498,8 +495,6 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
-    // FIXME: 확인은 contestRecord, 생성은 contestRankACM이 됩니다
-    // 확인 후 API 문서에 예외 경우도 추가 부탁드릴게요!
     const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
       where: { userId, contestId },
       select: { id: true }
@@ -512,12 +507,17 @@ export class ContestService {
       throw new ActionNotAllowedException('participation', 'ended contest')
     }
 
-    if (contest.type === 'ACM') {
-      await this.prisma.contestRankACM.create({
-        data: { contestId, userId }
-      })
-    }
-    // Todo: other contest type -> create other contest record table
-    return
+    // TODO: support other contest type (TotalScore, ProblemBank)
+    const rank = await this.prisma.contestRankACM.create({
+      data: { contestId, userId }
+    })
+
+    await this.prisma.contestRecord.create({
+      data: {
+        userId,
+        contestId,
+        rankId: rank.id
+      }
+    })
   }
 }

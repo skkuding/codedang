@@ -86,10 +86,9 @@ export class GroupContestController {
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
     @Param('id', ParseIntPipe) contestId: number
-  ): Promise<null> {
+  ) {
     try {
-      this.contestService.createContestRecord(req.user.id, contestId)
-      return
+      await this.contestService.createContestRecord(req.user.id, contestId)
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)

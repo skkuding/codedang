@@ -256,14 +256,16 @@ model ContestProblem {
 }
 
 model ContestRecord {
-  id         Int      @id @default(autoincrement())
-  contest    Contest  @relation(fields: [contestId], references: [id])
-  contestId  Int      @map("contest_id")
-  user       User     @relation(fields: [userId], references: [id])
-  userId     Int      @map("user_id")
-  rank       Int
-  createTime DateTime @default(now()) @map("create_time")
-  updateTime DateTime @updatedAt @map("update_time")
+  id         Int            @id @default(autoincrement())
+  contest    Contest        @relation(fields: [contestId], references: [id])
+  contestId  Int            @map("contest_id")
+  user       User           @relation(fields: [userId], references: [id])
+  userId     Int            @map("user_id")
+  // TODO: support other rank type (TotalScore & ProblemBank)
+  rank       ContestRankACM @relation(fields: [rankId], references: [id])
+  rankId     Int
+  createTime DateTime       @default(now()) @map("create_time")
+  updateTime DateTime       @updatedAt @map("update_time")
 
   @@map("contest_record")
 }
@@ -279,6 +281,8 @@ model ContestRankACM {
   submissionInfo     Json?    @map("submission_info")
   createTime         DateTime @default(now()) @map("create_time")
   updateTime         DateTime @updatedAt @map("update_time")
+
+  ContestRecord ContestRecord[]
 
   @@map("contest_rank_acm")
 }

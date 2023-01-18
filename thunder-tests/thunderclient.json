@@ -630,5 +630,110 @@
         }
       ]
     }
+  },
+  {
+    "_id": "8526d2dc-b8f5-4dc6-873f-09f411e6ca31",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "fee4c6ed-cf6b-45c1-830b-ae840a325a19",
+    "name": "403: Already participated",
+    "url": "/group/1/contest/1/participation",
+    "method": "POST",
+    "sortNum": 20000,
+    "created": "2023-01-18T07:58:25.651Z",
+    "modified": "2023-01-18T07:59:04.723Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "403"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "60733561-b015-4851-8acd-e9684940a30e",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "fee4c6ed-cf6b-45c1-830b-ae840a325a19",
+    "name": "404: Nonexistent contest",
+    "url": "/group/1/contest/0/participation",
+    "method": "POST",
+    "sortNum": 30000,
+    "created": "2023-01-18T07:59:40.454Z",
+    "modified": "2023-01-18T08:00:15.661Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "404"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "contest does not exist"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "6614b869-9477-48ac-89e3-610433d1d510",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "fee4c6ed-cf6b-45c1-830b-ae840a325a19",
+    "name": "403: Ended contest",
+    "url": "/group/1/contest/2/participation",
+    "method": "POST",
+    "sortNum": 25000,
+    "created": "2023-01-18T08:00:24.978Z",
+    "modified": "2023-01-18T08:00:52.224Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "403"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "ended contest"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
   }
 ]
