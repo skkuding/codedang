@@ -6258,8 +6258,7 @@ const createProblems = async () => {
     tags.push(
       await prisma.tag.create({
         data: {
-          name,
-          type: name
+          name
         }
       })
     )
