@@ -119,32 +119,33 @@ const createGroups = async () => {
     }
   })
 
-  // add users to group
-  for (const [index, user] of users.entries()) {
-    // public group
-    // group leader: user01
+  const allUsers = await prisma.user.findMany()
+
+  // add users to public group
+  // group leader: user01
+  for (const user of allUsers) {
     prisma.userGroup.create({
       data: {
         userId: user.id,
         groupId: publicGroup.id,
         isRegistered: true,
-        isGroupLeader: index === 0
+        isGroupLeader: user.username === 'user01'
       }
     })
+  }
 
-    if (index < 5) {
-      // private group
-      // group leader: user01
-      // registered: user01, user03, user05
-      prisma.userGroup.create({
-        data: {
-          userId: user.id,
-          groupId: privateGroup.id,
-          isRegistered: index % 2 === 0,
-          isGroupLeader: index === 0
-        }
-      })
-    }
+  // add users to private group
+  // group leader: user01
+  // registered: user01, user03, user05, user07, user09
+  for (const [index, user] of users.entries()) {
+    prisma.userGroup.create({
+      data: {
+        userId: user.id,
+        groupId: privateGroup.id,
+        isRegistered: index % 2 === 0,
+        isGroupLeader: user.username === 'user01'
+      }
+    })
   }
 }
 
