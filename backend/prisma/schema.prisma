@@ -165,8 +165,7 @@ model ProblemTag {
 
 model Tag {
   id         Int      @id @default(autoincrement())
-  name       String
-  type       String // TODO: 무슨 용도인가요?
+  name       String   @unique
   visible    Boolean  @default(true)
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
