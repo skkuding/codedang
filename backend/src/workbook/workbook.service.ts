@@ -39,12 +39,14 @@ export class WorkbookService {
   }
 
   async createWorkbook(
+    userId: number,
     groupId: number,
     createWorkbookDto: CreateWorkbookDto
   ): Promise<Workbook> {
     const newWorkbook = await this.prisma.workbook.create({
       data: {
         groupId,
+        createdById: userId,
         ...createWorkbookDto
       }
     })

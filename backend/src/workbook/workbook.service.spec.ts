@@ -62,9 +62,7 @@ const createWorkbookDto = {
   startTime: DATETIME,
   endTime: DATETIME_TOMORROW,
   visible: false,
-  allowPartialScore: false,
-  groupId: 2,
-  createdById: 1
+  allowPartialScore: false
 }
 
 const updateWorkbookDto = {
@@ -83,6 +81,7 @@ const onePublicWorkbook = publicWorkbooks[0]
 const oneGroupWorkbook = groupWorkbooks[0]
 const PUBLIC_GROUP_ID = 1
 const PRIVATE_GROUP_ID = 2
+const CREATE_BY_ID = 1
 
 const db = {
   workbook: {
@@ -164,6 +163,7 @@ describe('WorkbookService', () => {
     db.workbook.create.onFirstCall().resolves(oneGroupWorkbook)
 
     const createdWorkbook = await workbookService.createWorkbook(
+      CREATE_BY_ID,
       PRIVATE_GROUP_ID,
       createWorkbookDto
     )

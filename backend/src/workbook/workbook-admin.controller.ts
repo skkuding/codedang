@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Req,
   UseGuards
 } from '@nestjs/common'
 import { WorkbookService } from './workbook.service'
@@ -18,6 +19,7 @@ import { EntityNotExistException } from 'src/common/exception/business.exception
 import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Workbook } from '@prisma/client'
+import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 
 @Controller('admin/group/:groupId/workbook')
 @UseGuards(RolesGuard, GroupLeaderGuard)
@@ -53,10 +55,12 @@ export class WorkbookAdminController {
   @Post()
   async createWorkbook(
     @Param('groupId', ParseIntPipe) groupId,
-    @Body() createWorkbookDto: CreateWorkbookDto
+    @Body() createWorkbookDto: CreateWorkbookDto,
+    @Req() req: AuthenticatedRequest
   ): Promise<Workbook> {
     try {
       return await this.workbookService.createWorkbook(
+        req.user.id,
         groupId,
         createWorkbookDto
       )
