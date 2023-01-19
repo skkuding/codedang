@@ -86,7 +86,7 @@ importers:
       tsconfig-paths: ^4.1.2
       typescript: ^4.9.4
     dependencies:
-      '@nestjs-modules/mailer': 1.8.1_vvz225xiahix464fwzuua3bovm
+      '@nestjs-modules/mailer': 1.8.1_b727kkpcxgsrlvci5dkht2i2xa
       '@nestjs/common': 9.2.1_ejiytz4fx4ylq3bdj4qtav6mje
       '@nestjs/config': 2.2.0_b4pxbpa7chblgbyake5iz5rdmu
       '@nestjs/core': 9.2.1_e6la6qvsclaae2becwjnmfvsuq
