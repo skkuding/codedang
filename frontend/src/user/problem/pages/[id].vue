@@ -1,9 +1,15 @@
 <script setup lang="ts">
+import Editor from '../components/Editor.vue'
 defineProps<{
   id: number
 }>()
 </script>
 
 <template>
-  <div>This is problem detail page : id = {{ id }}</div>
+  <Editor />
 </template>
+
+<route lang="yaml">
+meta:
+  layout: empty
+</route>
