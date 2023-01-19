@@ -119,32 +119,33 @@ const createGroups = async () => {
     }
   })
 
-  // add users to group
-  for (const [index, user] of users.entries()) {
-    // public group
-    // group leader: user01
+  const allUsers = await prisma.user.findMany()
+
+  // add users to public group
+  // group leader: user01
+  for (const user of allUsers) {
     prisma.userGroup.create({
       data: {
         userId: user.id,
         groupId: publicGroup.id,
         isRegistered: true,
-        isGroupLeader: index === 0
+        isGroupLeader: user.username === 'user01'
       }
     })
+  }
 
-    if (index < 5) {
-      // private group
-      // group leader: user01
-      // registered: user01, user03, user05
-      prisma.userGroup.create({
-        data: {
-          userId: user.id,
-          groupId: privateGroup.id,
-          isRegistered: index % 2 === 0,
-          isGroupLeader: index === 0
-        }
-      })
-    }
+  // add users to private group
+  // group leader: user01
+  // registered: user01, user03, user05, user07, user09
+  for (const [index, user] of users.entries()) {
+    prisma.userGroup.create({
+      data: {
+        userId: user.id,
+        groupId: privateGroup.id,
+        isRegistered: index % 2 === 0,
+        isGroupLeader: user.username === 'user01'
+      }
+    })
   }
 }
 
@@ -6257,8 +6258,7 @@ const createProblems = async () => {
     tags.push(
       await prisma.tag.create({
         data: {
-          name,
-          type: name
+          name
         }
       })
     )
@@ -6353,7 +6353,7 @@ const createContests = async () => {
       title: '1번 문제 수정 안내',
       description: '<p>1번 문제가 blah blah 수정되었습니다.</p>',
       contestId: contest.id,
-      problemId: '' // TODO: 뭐가 들어가야될지 모르겠어요
+      problemId: problems[0].id
     }
   })
 
@@ -6384,8 +6384,6 @@ const createWorkbooks = async () => {
     data: {
       title: '모의대회 문제집',
       description: '<p>모의대회 문제들을 모아뒀습니다!</p>',
-      startTime: dayjs().add(-30, 'day').toDate(),
-      endTime: dayjs().add(30, 'day').toDate(),
       createdById: superAdminUser.id,
       groupId: publicGroup.id
     }

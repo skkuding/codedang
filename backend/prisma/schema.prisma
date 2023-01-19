@@ -135,6 +135,7 @@ model Problem {
   contestProblem  ContestProblem[]
   workbookProblem WorkbookProblem[]
   submission      Submission[]
+  contestNotice   ContestNotice[]
 
   @@map("problem")
 }
@@ -164,8 +165,7 @@ model ProblemTag {
 
 model Tag {
   id         Int      @id @default(autoincrement())
-  name       String
-  type       String // TODO: 무슨 용도인가요?
+  name       String   @unique
   visible    Boolean  @default(true)
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
@@ -215,7 +215,8 @@ model ContestNotice {
   contestId   Int      @map("contest_id")
   title       String
   description String
-  problemId   String   @map("problem_id") // TODO: 왜 string type인가요?
+  problem     Problem  @relation(fields: [problemId], references: [id])
+  problemId   Int      @map("problem_id")
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
@@ -295,8 +296,6 @@ model Workbook {
   groupId     Int      @map("group_id")
   title       String
   description String
-  startTime   DateTime @map("start_time") // TODO: startTime, endTime이 필요한가요?
-  endTime     DateTime @map("end_time")
   visible     Boolean  @default(true)
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")

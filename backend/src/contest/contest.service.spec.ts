@@ -476,22 +476,20 @@ describe('ContestService', () => {
   })
 
   describe('getAdminContests', () => {
-    it('should return contests in groups whose user is group manager', async () => {
+    it('should return contests in open space', async () => {
       stub(groupService, 'getUserGroupLeaderList').resolves([groupId])
 
-      expect(await contestService.getAdminContests(userId)).to.deep.equal(
-        contests
-      )
+      expect(await contestService.getAdminContests()).to.deep.equal(contests)
     })
   })
 
   describe('getAdminOngoingContests', () => {
-    it('should return ongoing contests in groups whose user is group manager', async () => {
+    it('should return ongoing contests in open space', async () => {
       stub(groupService, 'getUserGroupLeaderList').resolves([groupId])
 
-      expect(
-        await contestService.getAdminOngoingContests(userId)
-      ).to.deep.equal(ongoingContests)
+      expect(await contestService.getAdminOngoingContests()).to.deep.equal(
+        ongoingContests
+      )
     })
   })
 
