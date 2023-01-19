@@ -11,7 +11,7 @@ find $BASEDIR/backend/prisma/migrations -empty -type d -delete
 # load database url
 source $BASEDIR/backend/.env
 
-if ! pnpm --filter backend exec prisma migrate diff \
+if ! pnpm --filter backend --silent exec prisma migrate diff \
   --from-url $DATABASE_URL \
   --to-migrations prisma/migrations \
   --shadow-database-url $DATABASE_URL \
