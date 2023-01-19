@@ -13,7 +13,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 </script>
 
 <template>
-  <header class="bg-text-subtitle grid h-14 place-items-center px-6">
+  <header class="grid h-14 place-items-center bg-slate-900 px-6">
     <div class="flex h-14 w-full items-center justify-between">
       <div class="flex h-14 items-center">
         <RouterLink class="mr-4" to="/">
