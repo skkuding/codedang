@@ -26,6 +26,7 @@ import { UpdateContestDto } from './dto/update-contest.dto'
 
 const contestId = 1
 const userId = 1
+const rankId = 1
 const groupId = 1
 const contestPublicizeRequestId = 1
 
@@ -119,12 +120,12 @@ const record: ContestRecord = {
   id: 1,
   contestId: contestId,
   userId: userId,
-  rank: 1,
+  rankId: rankId,
   createTime: new Date(),
   updateTime: new Date()
 }
 const contestRankACM: ContestRankACM = {
-  id: 1,
+  id: rankId,
   contestId: contestId,
   userId: userId,
   acceptedProblemNum: 0,
@@ -150,6 +151,7 @@ const mockPrismaService = {
     delete: stub()
   },
   contestRecord: {
+    create: stub(),
     findFirst: stub().resolves(null)
   },
   userGroup: {
@@ -935,7 +937,7 @@ describe('ContestService', () => {
     afterEach(() => {
       mockPrismaService.contest.findUnique.resolves(contest)
       mockPrismaService.contestRecord.findFirst.resolves(null)
-      mockPrismaService.contestRankACM.create.reset()
+      mockPrismaService.contestRankACM.create.resetHistory()
     })
 
     it('should throw error when the contest does not exist', async () => {
