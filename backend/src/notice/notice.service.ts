@@ -108,17 +108,10 @@ export class NoticeService {
     }
   }
 
-  async getAdminNotices(
-    userId: number,
-    offset: number
-  ): Promise<Partial<Notice>[]> {
-    const groupIds = await this.group.getUserGroupLeaderList(userId)
-
+  async getAdminNotices(offset: number): Promise<Partial<Notice>[]> {
     return await this.prisma.notice.findMany({
       where: {
-        groupId: {
-          in: groupIds
-        }
+        groupId: 1
       },
       select: {
         id: true,

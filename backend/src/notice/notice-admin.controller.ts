@@ -25,16 +25,15 @@ import { RolesGuard } from 'src/user/guard/roles.guard'
 
 @Controller('admin/notice')
 @UseGuards(RolesGuard)
-@Roles(Role.Manager)
+@Roles(Role.Admin)
 export class NoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Get()
   async getAdminNotices(
-    @Req() req: AuthenticatedRequest,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getAdminNotices(req.user.id, offset)
+    return await this.noticeService.getAdminNotices(offset)
   }
 }
 

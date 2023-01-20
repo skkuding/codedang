@@ -204,16 +204,15 @@ export class ContestService {
     })
   }
 
-  async getAdminOngoingContests(userId: number): Promise<Partial<Contest>[]> {
-    const contests = await this.getAdminContests(userId)
+  async getAdminOngoingContests(): Promise<Partial<Contest>[]> {
+    const contests = await this.getAdminContests()
     return this.filterOngoing(contests)
   }
 
-  async getAdminContests(userId: number): Promise<Partial<Contest>[]> {
-    const groupIds = await this.groupService.getUserGroupLeaderList(userId)
+  async getAdminContests(): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
       where: {
-        groupId: { in: groupIds }
+        groupId: 1
       },
       select: { ...this.contestSelectOption, visible: true }
     })
