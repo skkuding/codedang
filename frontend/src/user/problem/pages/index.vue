@@ -7,8 +7,8 @@ import Switch from '@/common/components/Molecule/Switch.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useDateFormat } from '@vueuse/core'
-import { useToast } from '@/common/composables/toast'
-import axios from 'axios'
+import { useWorkbook } from '../composables/workbook'
+import { useWindowSize } from '@vueuse/core'
 
 interface Problem {
   id: number
@@ -144,111 +144,14 @@ problemList.value = [
   }
 ]
 
-type Workbook = {
-  id: number
-  title: string
-  description: string
-  updateTime: string
-}
+const { workbookList, getWorkbooks, getMoreWorkbooks } = useWorkbook()
 
-const workbookList = ref<Workbook[]>([])
-
-// const res = await axios.get('api/workbook')
-// workbookList.value = res.data
-
-const openToast = useToast()
+// TODO: 모든 workbook 개수 가져오기
+const MAX_WORKBOOK = 6
 
 onMounted(async () => {
-  await axios
-    .get('api/workbook')
-    .then((res) => {
-      workbookList.value = res.data
-    })
-    .catch((err) => {
-      openToast({ message: err.message, type: 'error' })
-    })
+  getWorkbooks()
 })
-
-const cardItems = [
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.03.07 updated',
-    description: 'description',
-    color: 'gray',
-    total: 6,
-    complete: 1
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'green',
-    total: 6,
-    complete: 2
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'red',
-    total: 6,
-    complete: 3
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'blue',
-    total: 6,
-    complete: 4
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'blue',
-    total: 6,
-    complete: 5
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'gray',
-    total: 6,
-    complete: 1
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'green',
-    total: 6,
-    complete: 2
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'red',
-    total: 6,
-    complete: 3
-  }
-]
-
-const numberOfCards = ref(4)
-const clickMore = () => {
-  window.innerWidth < 768
-    ? (numberOfCards.value = Math.min(
-        numberOfCards.value + 2,
-        cardItems.length
-      ))
-    : (numberOfCards.value = Math.min(
-        numberOfCards.value + 4,
-        cardItems.length
-      ))
-  // TODO: workbook 요청 개수만큼 추가로 받아오기
-}
 </script>
 
 <template>
@@ -288,15 +191,19 @@ const clickMore = () => {
       color="#94D0AD"
       :total="6"
       :complete="1"
-      @click="() => $router.push('/workbook/' + workbook.id)"
+      @click="$router.push('/workbook/' + workbook.id)"
     />
   </div>
   <Button
-    v-if="numberOfCards < cardItems.length"
+    v-if="workbookList.length < MAX_WORKBOOK"
     outline
     color="gray-dark"
     class="mt-8 mb-20 w-full"
-    @click="clickMore"
+    @click="
+      useWindowSize().width.value < 768
+        ? getMoreWorkbooks(workbookList.length, 2)
+        : getMoreWorkbooks(workbookList.length, 4)
+    "
   >
     More
   </Button>
