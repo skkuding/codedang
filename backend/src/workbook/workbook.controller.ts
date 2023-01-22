@@ -59,4 +59,19 @@ export class PublicWorkbookController {
       throw new InternalServerErrorException()
     }
   }
+
+  @Get('/:workbookId')
+  async getGroupWorkbook(
+    @Param('workbookId', ParseIntPipe) workbookId
+  ): Promise<Workbook> {
+    try {
+      return await this.workbookService.getWorkbookById(workbookId, false)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      } else {
+        throw new InternalServerErrorException()
+      }
+    }
+  }
 }
