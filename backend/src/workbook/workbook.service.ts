@@ -22,7 +22,7 @@ export class WorkbookService {
         groupId,
         ...whereOption
       },
-      select: { title: true, description: true, updateTime: true }
+      select: { id: true, title: true, description: true, updateTime: true }
     })
     return workbooks
   }
