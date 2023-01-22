@@ -7,6 +7,7 @@ import Switch from '@/common/components/Molecule/Switch.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useDateFormat } from '@vueuse/core'
+import { useToast } from '@/common/composables/toast'
 import axios from 'axios'
 
 interface Problem {
@@ -144,6 +145,7 @@ problemList.value = [
 ]
 
 type Workbook = {
+  id: number
   title: string
   description: string
   updateTime: string
@@ -154,9 +156,17 @@ const workbookList = ref<Workbook[]>([])
 // const res = await axios.get('api/workbook')
 // workbookList.value = res.data
 
+const openToast = useToast()
+
 onMounted(async () => {
-  const res = await axios.get('api/workbook')
-  workbookList.value = res.data
+  await axios
+    .get('api/workbook')
+    .then((res) => {
+      workbookList.value = res.data
+    })
+    .catch((err) => {
+      openToast({ message: err.message, type: 'error' })
+    })
 })
 
 const cardItems = [
@@ -237,7 +247,7 @@ const clickMore = () => {
         numberOfCards.value + 4,
         cardItems.length
       ))
-  // TODO: workbook 요청 개수만큼 받아오기
+  // TODO: workbook 요청 개수만큼 추가로 받아오기
 }
 </script>
 
@@ -265,8 +275,8 @@ const clickMore = () => {
   <div class="flex justify-end">
     <SearchBar class="mb-5" placeholder="keywords" />
   </div>
+  <div v-if="workbookList.length === 0">No Workbook</div>
   <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-    <!-- workbook id 값 받아오기 -->
     <ProgressCard
       v-for="(workbook, index) in workbookList"
       :key="index"
@@ -278,7 +288,7 @@ const clickMore = () => {
       color="#94D0AD"
       :total="6"
       :complete="1"
-      @click="() => $router.push('/workbook/' + index)"
+      @click="() => $router.push('/workbook/' + workbook.id)"
     />
   </div>
   <Button
