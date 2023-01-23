@@ -150,7 +150,7 @@ const clickRow = (row: Submission) => {
 </script>
 
 <template>
-  <div class="bg-slate-700">
+  <div class="bg-slate-700 p-5">
     <PaginationTable
       :fields="fields"
       :items="currentSubmissionList"
@@ -162,7 +162,7 @@ const clickRow = (row: Submission) => {
       @row-clicked="clickRow"
     >
       <template #option>
-        <div class="block space-x-3 space-y-3 md:flex md:items-baseline">
+        <div class="block space-x-3 space-y-3 lg:flex lg:items-baseline">
           <Switch
             v-model="showOnlyMine"
             label="Only Mine"
@@ -172,7 +172,7 @@ const clickRow = (row: Submission) => {
           <Dropdown color="white">
             <template #button>
               <div
-                class="flex h-9 w-fit flex-row items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white"
+                class="flex h-9 w-40 flex-row items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white"
               >
                 <span>All Languages</span>
                 <IconDown class="h-4 w-4" />
@@ -186,7 +186,7 @@ const clickRow = (row: Submission) => {
           <Dropdown color="white">
             <template #button>
               <div
-                class="mr-3 flex h-9 w-fit flex-row items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white"
+                class="mr-3 flex h-9 w-32 flex-row items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white"
               >
                 <span>All Result</span>
                 <IconDown class="h-4 w-4" />
