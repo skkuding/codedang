@@ -19,7 +19,11 @@ const code = ref('')
       class="w-1/2"
       @select-submission="selectSubmission"
     ></SubmissionList>
-    <SubmissionDetail v-model="code" class="w-1/2"></SubmissionDetail>
+    <SubmissionDetail
+      v-model="code"
+      :submission-id="1"
+      class="w-1/2"
+    ></SubmissionDetail>
   </div>
 </template>
 

@@ -1,11 +1,93 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import CodeEditor from '@/common/components/Organism/CodeEditor.vue'
+import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
+import PageTitle from '@/common/components/Atom/PageTitle.vue'
+import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 
 const code = ref('')
+
+const infoFields = [
+  {
+    key: 'problem',
+    label: 'Problem'
+  },
+  {
+    key: 'submissionTime',
+    label: 'submission Time'
+  },
+  {
+    key: 'user',
+    label: 'User'
+  },
+  {
+    key: 'language',
+    label: 'Language'
+  },
+  {
+    key: 'result',
+    label: 'Result'
+  }
+]
+const infoItems = [
+  {
+    problem: 'A. 가파른 경사',
+    submissionTime: '2021-01-05 10:30:21',
+    user: 'root',
+    language: 'C++',
+    result: 'Wrong Answer'
+  }
+]
+
+const detailFields = [
+  {
+    key: 'number',
+    label: '#'
+  },
+  {
+    key: 'result',
+    label: 'Result'
+  },
+  {
+    key: 'execTime',
+    label: 'Exec Time'
+  },
+  {
+    key: 'memory',
+    label: 'Memory'
+  }
+]
+
+const detailItems = [
+  {
+    number: '1',
+    result: 'Accepted',
+    execTime: '36ms',
+    momory: '29468KB'
+  },
+  {
+    number: '2',
+    result: 'Accepted',
+    execTime: '36ms',
+    momory: '29468KB'
+  },
+  {
+    number: '3',
+    result: 'Wrong Answer',
+    execTime: '36ms',
+    momory: '29468KB'
+  },
+  {
+    number: '4',
+    result: 'Wrong Answer',
+    execTime: '36ms',
+    momory: '29468KB'
+  }
+]
 defineProps<{
   modelValue: string
   lang?: 'cpp' | 'python' | 'javascript' | 'java'
+  submissionId: number
 }>()
 const emit = defineEmits(['update:modelValue'])
 
@@ -15,8 +97,34 @@ watch(code, (value) => {
 </script>
 
 <template>
-  <div>
-    <CodeEditor v-model="code" :lang="lang"></CodeEditor>
+  <div class="bg-[#282c34] p-5">
+    <PageTitle :text="'Submission #' + submissionId" color="white"></PageTitle>
+    <PaginationTable
+      :fields="infoFields"
+      :items="infoItems"
+      :number-of-pages="1"
+      mode="dark"
+      no-search-bar
+      no-pagination
+    ></PaginationTable>
+    <PageSubtitle
+      text="Source Code (612 Bytes)"
+      class="pt-5"
+      color="white"
+    ></PageSubtitle>
+    <CodeEditor
+      v-model="code"
+      class="max-h-52 overflow-y-scroll"
+      :lang="lang"
+    ></CodeEditor>
+    <PaginationTable
+      :fields="detailFields"
+      :items="detailItems"
+      :number-of-pages="1"
+      mode="dark"
+      no-search-bar
+      no-pagination
+    ></PaginationTable>
   </div>
 </template>
 
