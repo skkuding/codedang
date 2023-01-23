@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'

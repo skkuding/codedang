@@ -10,6 +10,7 @@ const submissionSelected = ref<number>()
 const selectSubmission = (submissionId: number) => {
   submissionSelected.value = submissionId
 }
+const code = ref('')
 </script>
 
 <template>
@@ -18,7 +19,7 @@ const selectSubmission = (submissionId: number) => {
       class="w-1/2"
       @select-submission="selectSubmission"
     ></SubmissionList>
-    <SubmissionDetail class="w-1/2"></SubmissionDetail>
+    <SubmissionDetail v-model="code" class="w-1/2"></SubmissionDetail>
   </div>
 </template>
 
