@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, withDefaults } from 'vue'
 import CodeEditor from '@/common/components/Organism/CodeEditor.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 
-const code = ref('')
+const code = ref(`#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Hello, world!" << endl;
+    return 0;
+}
+`)
 
 const infoFields = [
   {
@@ -35,7 +42,7 @@ const infoItems = [
     submissionTime: '2021-01-05 10:30:21',
     user: 'root',
     language: 'C++',
-    result: 'Wrong Answer'
+    result: '-1'
   }
 ]
 
@@ -84,6 +91,90 @@ const detailItems = [
     momory: '29468KB'
   }
 ]
+
+const judgeResult = {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  '-2': {
+    name: 'Compile Error',
+    short: 'CE',
+    color: 'yellow',
+    type: 'warning'
+  },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  '-1': {
+    name: 'Wrong Answer',
+    short: 'WA',
+    color: 'red',
+    type: 'error'
+  },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  '0': {
+    name: 'Accepted',
+    short: 'AC',
+    color: 'green',
+    type: 'success'
+  },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  '1': {
+    name: 'Time Limit Exceeded',
+    short: 'TLE',
+    color: 'red',
+    type: 'error'
+  },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  '2': {
+    name: 'Time Limit Exceeded',
+    short: 'TLE',
+    color: 'red',
+    type: 'error'
+  },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  '3': {
+    name: 'Memory Limit Exceeded',
+    short: 'MLE',
+    color: 'red',
+    type: 'error'
+  },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  '4': {
+    name: 'Runtime Error',
+    short: 'RE',
+    color: 'red',
+    type: 'error'
+  },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  '5': {
+    name: 'System Error',
+    short: 'SE',
+    color: 'red',
+    type: 'error'
+  },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  '6': {
+    name: 'Pending',
+    color: 'yellow',
+    type: 'warning'
+  },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  '7': {
+    name: 'Judging',
+    color: 'blue',
+    type: 'info'
+  },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  8: {
+    name: 'Partial Accepted',
+    short: 'PAC',
+    color: 'blue',
+    type: 'info'
+  },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  9: {
+    name: 'Submitting',
+    color: 'yellow',
+    type: 'warning'
+  }
+}
 defineProps<{
   modelValue: string
   lang?: 'cpp' | 'python' | 'javascript' | 'java'
@@ -106,7 +197,12 @@ watch(code, (value) => {
       mode="dark"
       no-search-bar
       no-pagination
-    ></PaginationTable>
+    >
+      <template #result="{ row }">
+        {{ judgeResult['-1'].color }}
+        {{ row.result }}
+      </template>
+    </PaginationTable>
     <PageSubtitle
       text="Source Code (612 Bytes)"
       class="pt-5"
