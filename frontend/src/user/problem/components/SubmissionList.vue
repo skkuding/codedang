@@ -162,13 +162,13 @@ const clickRow = (row: Submission) => {
       @row-clicked="clickRow"
     >
       <template #option>
-        <div class="block space-x-3 space-y-3 lg:flex lg:items-baseline">
+        <div class="flex flex-wrap items-baseline space-x-3 space-y-3">
           <Switch
             v-model="showOnlyMine"
             label="Only Mine"
             class="ml-3"
           ></Switch>
-          <SearchBar placeholder="User"></SearchBar>
+          <SearchBar placeholder="User" short></SearchBar>
           <Dropdown color="white">
             <template #button>
               <div
