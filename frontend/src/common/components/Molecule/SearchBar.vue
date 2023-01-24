@@ -3,14 +3,16 @@ import { ref } from 'vue'
 import Button from '../Atom/Button.vue'
 import IconMagnifyingGlass from '~icons/fa6-solid/magnifying-glass'
 
-defineProps<{
+const props = defineProps<{
   placeholder?: string
+  short?: boolean
 }>()
 
 defineEmits<{
   (e: 'search', value: string): void
 }>()
 
+const className = props.short ? 'w-32' : ''
 const data = ref('')
 </script>
 
@@ -19,8 +21,9 @@ const data = ref('')
     <input
       v-model="data"
       class="border-gray-dark text-gray-dark focus:border-green focus:text-green h-9 rounded-l-lg border-2 bg-transparent px-2 focus:ring-0"
+      :class="className"
       type="text"
-      :placeholder="placeholder"
+      :placeholder="props.placeholder"
       @keyup.enter="$emit('search', data)"
     />
     <Button
