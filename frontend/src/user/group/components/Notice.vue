@@ -6,7 +6,7 @@ defineProps<{
   id: number
 }>()
 
-const fields = [{ key: 'name', label: 'Title' }, { key: 'Date' }]
+const fields = [{ key: 'name', label: 'Title', width: '80%' }, { key: 'date' }]
 
 interface Item {
   name: string
@@ -16,18 +16,18 @@ interface Item {
 // initial items
 const items: Item[][] = [
   [
-    { name: 'Apple', date: 'red' },
-    { name: 'Banana', date: 'yellow' },
-    { name: 'Car', date: 'blue' }
+    { name: 'Coding Platform 모의대회입니당', date: '2023-12-31' },
+    { name: 'Coding Platform 모의대회', date: '2023-12-31' },
+    { name: 'Coding Platform 모의대회', date: '2023-12-31' }
   ],
   [
-    { name: 'Dog', date: 'brown' },
-    { name: 'Elephant', date: 'gray' },
-    { name: 'Fox', date: 'orange' }
+    { name: 'Coding Platform 모의대회', date: '2023-12-31' },
+    { name: 'Coding Platform 모의대회', date: '2023-12-31' },
+    { name: 'Coding Platform 모의대회', date: '2023-12-31' }
   ],
   [
-    { name: 'Grape', date: 'purple' },
-    { name: 'Hamster', date: 'yellow' }
+    { name: 'Coding Platform 모의대회', date: '2023-12-31' },
+    { name: 'Coding Platform 모의대회', date: '2023-12-31' }
   ]
 ]
 

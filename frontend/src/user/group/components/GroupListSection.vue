@@ -8,7 +8,7 @@ import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import BaselineArrowForward from '~icons/ic/baseline-arrow-forward'
 
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 type Group = {
@@ -42,17 +42,21 @@ const selectedGroup: Group = {
 const router = useRouter()
 
 const currentPage = ref(1)
-const groupDescModalVisible = ref(false)
+const ModalVisible = ref(false)
 
-const infoModalVisible = ref(false)
-
-const belongGroup = ref(true)
+const belongGroup = ref(false)
+const modalswitch = ref('desc')
+watch(ModalVisible, () => {
+  if (!ModalVisible.value) modalswitch.value = 'desc'
+})
 
 const goGroup = (id: number) => {
   // 사용자가 해당 group에 소속되어 있으면
   if (belongGroup.value) router.push('/group/' + id)
   // 소속 되어 있지 않으면
-  else groupDescModalVisible.value = true
+  else {
+    ModalVisible.value = true
+  }
 }
 </script>
 
@@ -61,56 +65,70 @@ const goGroup = (id: number) => {
     <PageTitle :text="title" />
     <div class="mb-4 flex w-full justify-end"><SearchBar /></div>
     <div v-if="groupList.length === 0" class="text-center">No Group</div>
-    <CardItem
-      v-for="group in groupList"
-      v-else
-      :key="group.id"
-      :title="group.groupName"
-      :description="group.description"
-      :additional-text="'Member: ' + group.member"
-      :colored-text="'Created By ' + group.createdUser"
-      border-color="gray"
-      class="mb-4"
-      @click="goGroup(group.id)"
-    />
+    <div v-else>
+      <CardItem
+        v-for="group in groupList"
+        :key="group.id"
+        :title="group.groupName"
+        :description="group.description"
+        :additional-text="'Member: ' + group.member"
+        :colored-text="'Created By ' + group.createdUser"
+        border-color="gray"
+        class="mb-4"
+        @click="goGroup(group.id)"
+      />
+    </div>
     <div v-if="pagination" class="flex w-full justify-end">
       <Pagination v-model="currentPage" :number-of-pages="3" />
     </div>
   </div>
-  <Modal v-model="groupDescModalVisible" class="h-96 w-[600px]">
-    <template #modal-title>{{ selectedGroup.groupName }}</template>
-    <template #modal-content>
-      <div class="mt-4 mb-8 flex">
-        <div class="border-green mr-8 border-l-2 pl-6 text-left">
-          <PageSubtitle text="Description" />
-          {{ selectedGroup.description }}
+
+  <Modal v-model="ModalVisible">
+    <transition
+      enter-active-class="transition-opacity"
+      leave-active-class="transition-opacity"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+      mode="out-in"
+    >
+      <div v-if="modalswitch === 'desc'" class="h-96 w-[600px] p-14">
+        <PageTitle :text="selectedGroup.groupName" />
+        <div class="mt-4 mb-8 flex">
+          <div class="border-green mr-8 border-l-2 pl-6 text-left">
+            <PageSubtitle text="Description" />
+            {{ selectedGroup.description }}
+          </div>
+          <div class="border-green mr-8 space-y-4 border-l-2 pl-6 text-left">
+            <div>
+              <PageSubtitle text="Member" />
+              {{ selectedGroup.member }}
+            </div>
+            <div>
+              <PageSubtitle text="Group Admin" />
+              {{ selectedGroup.member }}
+            </div>
+            <div>
+              <PageSubtitle text="Group Manager" />
+              {{ selectedGroup.member }}
+            </div>
+          </div>
         </div>
-        <div class="border-green mr-8 space-y-4 border-l-2 pl-6 text-left">
-          <div>
-            <PageSubtitle text="Member" />
-            {{ selectedGroup.member }}
-          </div>
-          <div>
-            <PageSubtitle text="Group Admin" />
-            {{ selectedGroup.member }}
-          </div>
-          <div>
-            <PageSubtitle text="Group Manager" />
-            {{ selectedGroup.member }}
-          </div>
+        <Button class="absolute right-10" @click="modalswitch = 'info'">
+          Join {{ selectedGroup.groupName }}
+          <BaselineArrowForward class="inline" />
+        </Button>
+      </div>
+
+      <div
+        v-else-if="modalswitch === 'info'"
+        class="flex h-48 w-96 items-center justify-center"
+      >
+        <div>
+          Invitation succesfully requested!
+          <br />
+          Please wait for group manager’s approval :)
         </div>
       </div>
-      <Button class="absolute right-0" @click="infoModalVisible = true">
-        Join {{ selectedGroup.groupName }}
-        <BaselineArrowForward class="inline" />
-      </Button>
-    </template>
-  </Modal>
-  <Modal v-model="infoModalVisible" class="h-48 w-96">
-    <template #modal-content>
-      Invitation succesfully requested!
-      <br />
-      Please wait for group manager’s approval :)
-    </template>
+    </transition>
   </Modal>
 </template>
