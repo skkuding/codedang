@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Injectable } from '@nestjs/common'
 import { Group, UserGroup } from '@prisma/client'
 import {
@@ -20,9 +21,9 @@ export class GroupService {
   async getGroup(userId: number, groupId: number): Promise<Partial<Group>> {
     await this.prisma.userGroup.findFirst({
       where: {
-        user_id: userId,
-        group_id: groupId,
-        is_registered: true
+        userId: userId,
+        groupId: groupId,
+        isRegistered: true
       },
       rejectOnNotFound: () =>
         new InvalidUserException(returnIsNotAllowed(userId, groupId))
@@ -34,7 +35,7 @@ export class GroupService {
       },
       select: {
         id: true,
-        group_name: true,
+        groupName: true,
         description: true
       },
       rejectOnNotFound: () => new EntityNotExistException('group')
@@ -54,14 +55,14 @@ export class GroupService {
       },
       select: {
         id: true,
-        group_name: true,
+        groupName: true,
         description: true,
         UserGroup: true,
-        created_by: {
+        createdBy: {
           select: {
             UserProfile: {
               select: {
-                real_name: true
+                realName: true
               }
             }
           }
@@ -73,28 +74,27 @@ export class GroupService {
     const groupManagers = (
       await this.prisma.userGroup.findMany({
         where: {
-          group_id: groupId,
-          is_registered: true,
-          is_group_manager: true
+          groupId: groupId,
+          isRegistered: true,
+          isGroupLeader: true
         },
         select: {
           user: {
             select: {
               UserProfile: {
                 select: {
-                  real_name: true
+                  realName: true
                 }
               }
             }
           }
         }
       })
-    ).map((manager) => manager.user.UserProfile.real_name)
+    ).map((manager) => manager.user.UserProfile.realName)
 
     return {
       ...group,
-      memberNum: group.UserGroup.filter((member) => member.is_registered)
-        .length,
+      memberNum: group.UserGroup.filter((member) => member.isRegistered).length,
       managers: groupManagers
     }
   }
@@ -105,19 +105,19 @@ export class GroupService {
   ): Promise<UserGroupInterface> {
     const group = await this.prisma.group.findFirst({
       where: {
-        invitation_code: invitationCode,
+        invitationCode: invitationCode,
         private: true
       },
       select: {
         id: true,
-        group_name: true,
+        groupName: true,
         description: true,
         UserGroup: true,
-        created_by: {
+        createdBy: {
           select: {
             UserProfile: {
               select: {
-                real_name: true
+                realName: true
               }
             }
           }
@@ -129,28 +129,27 @@ export class GroupService {
     const groupManagers = (
       await this.prisma.userGroup.findMany({
         where: {
-          group_id: group.id,
-          is_registered: true,
-          is_group_manager: true
+          groupId: group.id,
+          isRegistered: true,
+          isGroupLeader: true
         },
         select: {
           user: {
             select: {
               UserProfile: {
                 select: {
-                  real_name: true
+                  realName: true
                 }
               }
             }
           }
         }
       })
-    ).map((manager) => manager.user.UserProfile.real_name)
+    ).map((manager) => manager.user.UserProfile.realName)
 
     return {
       ...group,
-      memberNum: group.UserGroup.filter((member) => member.is_registered)
-        .length,
+      memberNum: group.UserGroup.filter((member) => member.isRegistered).length,
       managers: groupManagers
     }
   }
@@ -161,9 +160,9 @@ export class GroupService {
   ): Promise<Membership[]> {
     await this.prisma.userGroup.findFirst({
       where: {
-        user_id: userId,
-        group_id: groupId,
-        is_registered: true
+        userId: userId,
+        groupId: groupId,
+        isRegistered: true
       },
       rejectOnNotFound: () =>
         new InvalidUserException(returnIsNotAllowed(userId, groupId))
@@ -172,9 +171,9 @@ export class GroupService {
     const managers = (
       await this.prisma.userGroup.findMany({
         where: {
-          group_id: groupId,
-          is_registered: true,
-          is_group_manager: true
+          groupId: groupId,
+          isRegistered: true,
+          isGroupLeader: true
         },
         select: {
           id: true,
@@ -183,12 +182,12 @@ export class GroupService {
               student_id: true,
               UserProfile: {
                 select: {
-                  real_name: true
+                  realName: true
                 }
               }
             }
           },
-          is_group_manager: true
+          isGroupLeader: true
         }
       })
     ).map((manager) => {
@@ -207,9 +206,9 @@ export class GroupService {
   ): Promise<Membership[]> {
     await this.prisma.userGroup.findFirst({
       where: {
-        user_id: userId,
-        group_id: groupId,
-        is_registered: true
+        userId: userId,
+        groupId: groupId,
+        isRegistered: true
       },
       rejectOnNotFound: () =>
         new InvalidUserException(returnIsNotAllowed(userId, groupId))
@@ -218,9 +217,9 @@ export class GroupService {
     const members = (
       await this.prisma.userGroup.findMany({
         where: {
-          group_id: groupId,
-          is_registered: true,
-          is_group_manager: false
+          groupId: groupId,
+          isRegistered: true,
+          isGroupLeader: false
         },
         select: {
           id: true,
@@ -229,12 +228,12 @@ export class GroupService {
               student_id: true,
               UserProfile: {
                 select: {
-                  real_name: true
+                  realName: true
                 }
               }
             }
           },
-          is_group_manager: true
+          isGroupLeader: true
         }
       })
     ).map((member) => {
@@ -254,17 +253,17 @@ export class GroupService {
           private: false
         },
         select: {
-          created_by: {
+          createdBy: {
             select: {
               UserProfile: {
                 select: {
-                  real_name: true
+                  realName: true
                 }
               }
             }
           },
           id: true,
-          group_name: true,
+          groupName: true,
           description: true,
           UserGroup: true
         }
@@ -274,7 +273,7 @@ export class GroupService {
       .map((group) => {
         return {
           ...group,
-          memberNum: group.UserGroup.filter((member) => member.is_registered)
+          memberNum: group.UserGroup.filter((member) => member.isRegistered)
             .length
         }
       })
@@ -286,14 +285,14 @@ export class GroupService {
     const groupIds = (
       await this.prisma.userGroup.findMany({
         where: {
-          user_id: userId,
-          is_registered: true
+          userId: userId,
+          isRegistered: true
         },
         select: {
-          group_id: true
+          groupId: true
         }
       })
-    ).map((group) => group.group_id)
+    ).map((group) => group.groupId)
 
     const groups = (
       await this.prisma.group.findMany({
@@ -303,17 +302,17 @@ export class GroupService {
           }
         },
         select: {
-          created_by: {
+          createdBy: {
             select: {
               UserProfile: {
                 select: {
-                  real_name: true
+                  realName: true
                 }
               }
             }
           },
           id: true,
-          group_name: true,
+          groupName: true,
           description: true,
           UserGroup: true
         }
@@ -321,7 +320,7 @@ export class GroupService {
     ).map((group) => {
       return {
         ...group,
-        memberNum: group.UserGroup.filter((member) => member.is_registered)
+        memberNum: group.UserGroup.filter((member) => member.isRegistered)
           .length
       }
     })
@@ -337,7 +336,7 @@ export class GroupService {
     await this.prisma.group.findFirst({
       where: {
         id: groupId,
-        invitation_code: invitationCode
+        invitationCode: invitationCode
       },
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
@@ -377,9 +376,9 @@ export class GroupService {
   async leaveGroup(userId: number, groupId: number) {
     const membershipId = await this.prisma.userGroup.findFirst({
       where: {
-        user_id: userId,
-        group_id: groupId,
-        is_registered: true
+        userId: userId,
+        groupId: groupId,
+        isRegistered: true
       },
       select: {
         id: true

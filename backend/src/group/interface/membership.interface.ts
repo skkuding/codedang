@@ -1,3 +1,4 @@
+/* eslint-disable */
 export interface Membership {
   id: number
   user: {
@@ -5,8 +6,8 @@ export interface Membership {
     student_id: string
     email?: string
     UserProfile: {
-      real_name: string
+      realName: string
     }
   }
-  is_group_manager?: boolean
+  isGroupLeader?: boolean
 }

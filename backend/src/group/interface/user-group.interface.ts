@@ -1,12 +1,13 @@
+/* eslint-disable */
 export interface UserGroupInterface {
   id: number
-  group_name: string
+  groupName: string
   description: string
   memberNum?: number
   managers?: string[]
-  created_by?: {
+  createdBy?: {
     UserProfile: {
-      real_name: string
+      realName: string
     }
   }
 }
