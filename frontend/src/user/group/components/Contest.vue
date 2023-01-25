@@ -8,62 +8,76 @@ defineProps<{
   id: number
 }>()
 
-const texts = ['Latest', 'Ongoing']
+const status = ['Latest', 'Ongoing']
 const selected = ref()
-const setSelected = (index: number) => {
+const changeSelected = (index: number) => {
   selected.value = index
 }
 
-const cardItems = [
+interface Item {
+  img: string
+  title: string
+  description: string
+  coloredText: string
+  color: 'gray' | 'green'
+}
+
+const cardItems: Item[] = [
   {
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
-    coloredTextShort: 'Started Before 00:07:05'
-  },
-  {
-    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
-    title: 'SKKU 프로그래밍 대회 2023',
-    header: '2022.05.07 updated',
-    description: 'description',
-    coloredTextShort: 'Started Before 00:07:05'
-  },
-  {
-    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
-    title: 'SKKU 프로그래밍 대회 2023',
-    description: 'description',
-    coloredTextShort: 'Started Before 00:07:05'
-  },
-  {
-    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
-    title: 'SKKU 프로그래밍 대회 2023',
-    header: '2022.05.07 updated',
-    description: 'description',
-    coloredTextShort: 'Started Before 00:07:05'
+    coloredText: 'Started Before 00:07:05',
+    color: 'green'
   },
   {
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
-    coloredTextShort: 'Started Before 00:07:05'
+    coloredText: 'Started Before 00:07:05',
+    color: 'green'
   },
   {
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
-    coloredTextShort: 'Started Before 00:07:05'
+    coloredText: 'Started Before 00:07:05',
+    color: 'green'
   },
   {
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
-    coloredTextShort: 'Started Before 00:07:05'
+    coloredText: 'Started Before 00:07:05',
+    color: 'gray'
   },
   {
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
-    coloredTextShort: 'Started Before 00:07:05'
+    coloredText: 'Started Before 00:07:05',
+    color: 'gray'
+  },
+  {
+    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
+    title: 'SKKU 프로그래밍 대회 2023',
+    description: 'description',
+    coloredText: 'Started Before 00:07:05',
+    color: 'gray'
+  },
+  {
+    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
+    title: 'SKKU 프로그래밍 대회 2023',
+    description: 'description',
+    coloredText: 'Started Before 00:07:05',
+    color: 'gray'
+  },
+  {
+    img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
+    title: 'SKKU 프로그래밍 대회 2023',
+    description: 'description',
+    coloredText: 'Started Before 00:07:05',
+    color: 'gray'
   }
 ]
 </script>
@@ -75,8 +89,8 @@ const cardItems = [
     >
       <RadioButton
         class="mb-2 lg:mb-0 lg:mr-8"
-        :texts="texts"
-        @selected="setSelected"
+        :texts="status"
+        @selected="changeSelected"
       />
       <SearchBar placeholder="keywords" />
     </div>
@@ -87,8 +101,8 @@ const cardItems = [
         :img="item.img"
         :title="item.title"
         :description="item.description"
-        :colored-text="item.coloredTextShort"
-        border-color="gray"
+        :colored-text="item.coloredText"
+        :border-color="item.color"
         class="w-full drop-shadow-md"
       />
     </div>

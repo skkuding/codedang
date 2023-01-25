@@ -56,12 +56,9 @@ const groupMember = [
       title-color="green"
       class="h-48 w-80"
     >
-      <template #modal-title>Leave Group</template>
-      <template #modal-content>
-        Do you really want to leave group?
-        <Button class="m-4 mt-6 w-20" @click="close">Yes</Button>
-        <Button class="m-4 mt-6 w-20" @click="close">No</Button>
-      </template>
+      Leave Group Do you really want to leave group?
+      <Button class="m-4 mt-6 w-20" @click="close">Yes</Button>
+      <Button class="m-4 mt-6 w-20" @click="close">No</Button>
     </Modal>
   </div>
 </template>

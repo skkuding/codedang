@@ -6,28 +6,28 @@ defineProps<{
   id: number
 }>()
 
-const fields = [{ key: 'name', label: 'Object' }, { key: 'color' }]
+const fields = [{ key: 'name', label: 'Title' }, { key: 'Date' }]
 
 interface Item {
   name: string
-  color: string
+  date: string
 }
 
 // initial items
 const items: Item[][] = [
   [
-    { name: 'Apple', color: 'red' },
-    { name: 'Banana', color: 'yellow' },
-    { name: 'Car', color: 'blue' }
+    { name: 'Apple', date: 'red' },
+    { name: 'Banana', date: 'yellow' },
+    { name: 'Car', date: 'blue' }
   ],
   [
-    { name: 'Dog', color: 'brown' },
-    { name: 'Elephant', color: 'gray' },
-    { name: 'Fox', color: 'orange' }
+    { name: 'Dog', date: 'brown' },
+    { name: 'Elephant', date: 'gray' },
+    { name: 'Fox', date: 'orange' }
   ],
   [
-    { name: 'Grape', color: 'purple' },
-    { name: 'Hamster', color: 'yellow' }
+    { name: 'Grape', date: 'purple' },
+    { name: 'Hamster', date: 'yellow' }
   ]
 ]
 
@@ -43,7 +43,7 @@ const filter = (keyword: string) => {
   for (const item of items) {
     total.push(
       ...item.filter(
-        (value) => value.name.includes(keyword) || value.color.includes(keyword)
+        (value) => value.name.includes(keyword) || value.date.includes(keyword)
       )
     )
   }
@@ -77,16 +77,6 @@ const clickRow = (row: Item) => {
       @search="filter"
       @change-page="changeItems"
       @row-clicked="clickRow"
-    >
-      <template #color="{ row }">
-        <div class="flex items-center gap-2">
-          <span
-            class="h-5 w-5 rounded-full"
-            :style="'background:' + row.color"
-          />
-          {{ row.color }}
-        </div>
-      </template>
-    </PaginationTable>
+    ></PaginationTable>
   </div>
 </template>

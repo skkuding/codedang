@@ -19,7 +19,7 @@ const group = {
 </script>
 
 <template>
-  <div class="px-20 pt-20">
+  <div class="pt-20">
     <Profile
       class="pb-7"
       :group-name="group.groupName"
