@@ -24,19 +24,13 @@ export interface Item {
 export const useNotice = () => {
   const notices = ref<Item[]>([])
   async function getNoticeList(currentPage: number) {
-    await axios
-      .get('/api/notice', {
-        params: { offset: (currentPage - 1) * 10 + 1 }
-      })
-      .then((res) => {
-        notices.value = res.data
-        notices.value.map((notice) => {
-          notice.createTime = useDateFormat(
-            notice.createTime,
-            'YYYY-MM-DD'
-          ).value
-        })
-      })
+    const res = await axios.get('/api/notice', {
+      params: { offset: (currentPage - 1) * 10 + 1 }
+    })
+    notices.value = res.data
+    notices.value.map((notice) => {
+      notice.createTime = useDateFormat(notice.createTime, 'YYYY-MM-DD').value
+    })
   }
   // TODO: number of pages api로 받아오기
   const numberOfPages = 2
