@@ -26,8 +26,7 @@ const createUsers = async () => {
       password: await encrypt('supersuper'),
       email: 'skkucodingplatform@gmail.com',
       lastLogin: new Date(),
-      role: Role.SuperAdmin,
-      hasEmailAuthenticated: true
+      role: Role.SuperAdmin
     }
   })
 
@@ -38,8 +37,7 @@ const createUsers = async () => {
       password: await encrypt('adminadmin'),
       email: 'admin@example.com',
       lastLogin: new Date(),
-      role: Role.Admin,
-      hasEmailAuthenticated: true
+      role: Role.Admin
     }
   })
 
@@ -50,8 +48,7 @@ const createUsers = async () => {
       password: await encrypt('manager'),
       email: 'manager@example.com',
       lastLogin: new Date(),
-      role: Role.Manager,
-      hasEmailAuthenticated: true
+      role: Role.Manager
     }
   })
 
@@ -64,8 +61,7 @@ const createUsers = async () => {
         password: await encrypt('useruser'),
         email: `user${specifier}@example.com`,
         lastLogin: new Date(),
-        role: Role.User,
-        hasEmailAuthenticated: true
+        role: Role.User
       }
     })
     users.push(user)
@@ -78,8 +74,7 @@ const createUsers = async () => {
       password: await encrypt('useruser'),
       email: 'unauthenticated@example.com',
       lastLogin: new Date(),
-      role: Role.User,
-      hasEmailAuthenticated: false
+      role: Role.User
     }
   })
 
@@ -87,7 +82,6 @@ const createUsers = async () => {
   await prisma.userProfile.create({
     data: {
       userId: superAdminUser.id,
-      major: 'Computer Science and Engineering',
       realName: 'Yuljeon Kim'
     }
   })

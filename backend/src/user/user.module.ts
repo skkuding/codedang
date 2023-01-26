@@ -1,8 +1,13 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt'
 import { EmailModule } from 'src/email/email.module'
-import { UserController } from './user.controller'
+import { AuthModule } from 'src/auth/auth.module'
+import { GroupModule } from 'src/group/group.module'
+import {
+  UserController,
+  EmailAuthenticationController
+} from './user.controller'
 import { UserService } from './user.service'
 
 @Module({
@@ -21,9 +26,12 @@ import { UserService } from './user.service'
         return options
       },
       inject: [ConfigService]
-    })
+    }),
+    forwardRef(() => AuthModule),
+    GroupModule,
+    EmailModule
   ],
-  controllers: [UserController],
+  controllers: [UserController, EmailAuthenticationController],
   providers: [UserService],
   exports: [UserService]
 })
