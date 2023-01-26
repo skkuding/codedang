@@ -8,6 +8,7 @@ import problem from '../../components/problem.vue'
 import ranking from '../../components/ranking.vue'
 import notice from '../../components/notice.vue'
 import { useNow, useDateFormat } from '@vueuse/core'
+import { Axios } from 'axios'
 
 const formatter = ref('YYYY-MM-DD HH:mm:ss')
 const time = useDateFormat(useNow(), formatter)
