@@ -3,8 +3,7 @@ import { ref, markRaw, type Component } from 'vue'
 import IconAngleUp from '~icons/fa6-solid/angle-up'
 import IconAngleDown from '~icons/fa6-solid/angle-down'
 import axios from 'axios'
-import { findColumn } from '@codemirror/state'
-import { useDateFormat, useNow } from '@vueuse/core'
+import { useDateFormat } from '@vueuse/core'
 
 export interface Field {
   key: string
