@@ -2,7 +2,7 @@
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import IconBars from '~icons/fa6-solid/bars'
-import { onMounted } from 'vue'
+import { onBeforeMount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNotice, type Field } from '../composables/notice'
 
@@ -11,16 +11,15 @@ const props = defineProps<{
 }>()
 
 const router = useRouter()
-
 const { currentNotice, adjacentNotices, getNotice, goDetail } = useNotice()
 
-onMounted(() => {
-  getNotice(parseInt(props.id))
-
-  // if (!currentNotice.value) {
-  //   router.replace('/404')
-  //   return
-  // }
+onMounted(async () => {
+  try {
+    await getNotice(parseInt(props.id))
+  } catch (err) {
+    router.replace('/404')
+    return
+  }
 })
 
 const field: Field[] = [

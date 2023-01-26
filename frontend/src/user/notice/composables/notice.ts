@@ -1,5 +1,5 @@
 import { useRouter } from 'vue-router'
-import { ref, markRaw, type Component } from 'vue'
+import { ref, shallowRef, markRaw, type Component } from 'vue'
 import IconAngleUp from '~icons/fa6-solid/angle-up'
 import IconAngleDown from '~icons/fa6-solid/angle-down'
 import axios from 'axios'
@@ -24,9 +24,9 @@ export interface Item {
 export const useNotice = () => {
   const notices = ref<Item[]>([])
 
-  const currentNotice = ref<Item>()
-  const previousNotice = ref<Item>()
-  const nextNotice = ref<Item>()
+  const currentNotice = shallowRef<Item>()
+  const previousNotice = shallowRef<Item>()
+  const nextNotice = shallowRef<Item>()
   const adjacentNotices = ref<Item[]>([])
 
   const router = useRouter()
@@ -40,7 +40,6 @@ export const useNotice = () => {
 
   async function getNotice(id: number) {
     await axios.get('/api/notice/' + id).then((res) => {
-      console.log(res.data)
       currentNotice.value = res.data.current
       currentNotice.value.createTime = useDateFormat(
         currentNotice.value.createTime,
@@ -53,6 +52,7 @@ export const useNotice = () => {
       previousNotice.value = res.data.prev
       nextNotice.value = res.data.next
     })
+    console.log(currentNotice)
     if (previousNotice.value) {
       previousNotice.value.icon = IconAngleUp
       previousNotice.value.name = 'prev'
