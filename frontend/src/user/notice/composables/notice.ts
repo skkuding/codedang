@@ -2,6 +2,8 @@ import { useRouter } from 'vue-router'
 import { ref, markRaw, type Component } from 'vue'
 import IconAngleUp from '~icons/fa6-solid/angle-up'
 import IconAngleDown from '~icons/fa6-solid/angle-down'
+import axios from 'axios'
+import { useDateFormat } from '@vueuse/core'
 
 export interface Field {
   key: string
@@ -14,61 +16,17 @@ export interface Item {
   name?: 'prev' | 'next'
   id: number
   title: string
-  date?: string
-  update?: string
+  createTime?: string
+  updateTime?: string
   content?: string
 }
 
 export const useNotice = () => {
-  const notices: Item[] = [
-    {
-      id: 1,
-      title: '111111',
-      date: '2022-05-06'
-    },
-    {
-      id: 2,
-      title: '222222',
-      date: '2022-05-07'
-    },
-    {
-      id: 3,
-      title: '333333',
-      date: '2022-05-07'
-    },
-    {
-      id: 4,
-      title: '444444',
-      date: '2022-05-07'
-    },
-    {
-      id: 5,
-      title: '555555',
-      date: '2022-05-07'
-    },
-    {
-      id: 6,
-      title: '666666',
-      date: '2022-05-07'
-    },
-    {
-      id: 7,
-      title: '777777',
-      date: '2022-05-07'
-    },
-    {
-      id: 8,
-      title: '888888',
-      date: '2022-05-07'
-    },
-    {
-      id: 9,
-      title: '999999',
-      date: '2022-05-07'
-    }
-  ]
+  const notices = ref<Item[]>([])
 
   const currentNotice = ref<Item>()
+  const previousNotice = ref<Item>()
+  const nextNotice = ref<Item>()
   const adjacentNotices = ref<Item[]>([])
 
   const router = useRouter()
@@ -80,19 +38,30 @@ export const useNotice = () => {
     })
   }
 
-  function getNotice(id: number) {
-    currentNotice.value = notices.find((x) => x.id === id)
-    const previousNotice = notices.find((x) => x.id === id - 1)
-    const nextNotice = notices.find((x) => x.id === id + 1)
-    if (previousNotice) {
-      previousNotice.icon = IconAngleUp
-      previousNotice.name = 'prev'
-      adjacentNotices.value.push(markRaw(previousNotice))
+  async function getNotice(id: number) {
+    await axios.get('/api/notice/' + id).then((res) => {
+      console.log(res.data)
+      currentNotice.value = res.data.current
+      currentNotice.value.createTime = useDateFormat(
+        currentNotice.value.createTime,
+        'YYYY-MM-DD'
+      ).value
+      currentNotice.value.updateTime = useDateFormat(
+        currentNotice.value.updateTime,
+        'YYYY-MM-DD'
+      ).value
+      previousNotice.value = res.data.prev
+      nextNotice.value = res.data.next
+    })
+    if (previousNotice.value) {
+      previousNotice.value.icon = IconAngleUp
+      previousNotice.value.name = 'prev'
+      adjacentNotices.value.push(markRaw(previousNotice.value))
     }
-    if (nextNotice) {
-      nextNotice.icon = IconAngleDown
-      nextNotice.name = 'next'
-      adjacentNotices.value.push(markRaw(nextNotice))
+    if (nextNotice.value) {
+      nextNotice.value.icon = IconAngleDown
+      nextNotice.value.name = 'next'
+      adjacentNotices.value.push(markRaw(nextNotice.value))
     }
   }
 
