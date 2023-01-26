@@ -52,7 +52,7 @@ export const useNotice = () => {
       previousNotice.value = res.data.prev
       nextNotice.value = res.data.next
     })
-    console.log(currentNotice)
+
     if (previousNotice.value) {
       previousNotice.value.icon = IconAngleUp
       previousNotice.value.name = 'prev'
