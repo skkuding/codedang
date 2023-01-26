@@ -95,7 +95,7 @@ importers:
       '@nestjs/passport': 9.0.0_6o47igfla2pj7yzh7agpvpttka
       '@nestjs/platform-express': 9.2.1_hjcqpoaebdr7gdo5hgc22hthbe
       '@nestjs/swagger': 6.1.4_zvabycmw733xee3ikaxv4c7mny
-      '@prisma/client': 4.8.1_prisma@4.8.1
+      '@prisma/client': 4.9.0_prisma@4.9.0
       argon2: 0.30.3
       cache-manager: 5.1.4
       cache-manager-redis-store: 2.0.0
