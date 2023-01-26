@@ -18,7 +18,6 @@ onMounted(async () => {
     await getNotice(parseInt(props.id))
   } catch (err) {
     router.replace('/404')
-    return
   }
 })
 
