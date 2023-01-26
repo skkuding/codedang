@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, withDefaults } from 'vue'
+import { ref, watch } from 'vue'
 import CodeEditor from '@/common/components/Organism/CodeEditor.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
@@ -21,7 +21,7 @@ const infoFields = [
   },
   {
     key: 'submissionTime',
-    label: 'submission Time'
+    label: 'Submission Time'
   },
   {
     key: 'user',
@@ -36,13 +36,34 @@ const infoFields = [
     label: 'Result'
   }
 ]
-const infoItems = [
+
+type JudgeResult =
+  | 'compile error'
+  | 'wrong answer'
+  | 'accepted'
+  | 'time limit exceeded'
+  | 'memory limit exceeded'
+  | 'runtime error'
+  | 'system error'
+  | 'pending'
+  | 'judging'
+  | 'partial accepted'
+  | 'submitting'
+
+interface InfoItem {
+  problem: string
+  submissionTime: string
+  user: string
+  language: string
+  result: JudgeResult
+}
+const infoItems: InfoItem[] = [
   {
     problem: 'A. 가파른 경사',
     submissionTime: '2021-01-05 10:30:21',
     user: 'root',
     language: 'C++',
-    result: '-1'
+    result: 'compile error'
   }
 ]
 
@@ -65,114 +86,91 @@ const detailFields = [
   }
 ]
 
-const detailItems = [
+interface DetailItem {
+  number: number
+  result: JudgeResult
+  execTime: string
+  memory: string
+}
+
+const detailItems: DetailItem[] = [
   {
-    number: '1',
-    result: 'Accepted',
+    number: 1,
+    result: 'accepted',
     execTime: '36ms',
-    momory: '29468KB'
+    memory: '29468KB'
   },
   {
-    number: '2',
-    result: 'Accepted',
+    number: 2,
+    result: 'accepted',
     execTime: '36ms',
-    momory: '29468KB'
+    memory: '29468KB'
   },
   {
-    number: '3',
-    result: 'Wrong Answer',
+    number: 3,
+    result: 'wrong answer',
     execTime: '36ms',
-    momory: '29468KB'
+    memory: '29468KB'
   },
   {
-    number: '4',
-    result: 'Wrong Answer',
+    number: 4,
+    result: 'wrong answer',
     execTime: '36ms',
-    momory: '29468KB'
+    memory: '29468KB'
   }
 ]
 
-const judgeResult = {
+const judgeResultInfo = {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  '-2': {
-    name: 'Compile Error',
+  'compile error': {
     short: 'CE',
-    color: 'yellow',
-    type: 'warning'
+    color: 'text-level-5'
   },
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  '-1': {
-    name: 'Wrong Answer',
+  'wrong answer': {
     short: 'WA',
-    color: 'red',
-    type: 'error'
+    color: 'text-red'
   },
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  '0': {
-    name: 'Accepted',
+  accepted: {
     short: 'AC',
-    color: 'green',
-    type: 'success'
+    color: 'text-green'
   },
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  '1': {
-    name: 'Time Limit Exceeded',
+  'time limit exceeded': {
     short: 'TLE',
-    color: 'red',
-    type: 'error'
+    color: 'text-red'
   },
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  '2': {
-    name: 'Time Limit Exceeded',
-    short: 'TLE',
-    color: 'red',
-    type: 'error'
-  },
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  '3': {
-    name: 'Memory Limit Exceeded',
+  'memory limit exceeded': {
     short: 'MLE',
-    color: 'red',
-    type: 'error'
+    color: 'text-red'
   },
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  '4': {
-    name: 'Runtime Error',
+  'runtime error': {
     short: 'RE',
-    color: 'red',
-    type: 'error'
+    color: 'text-red'
   },
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  '5': {
-    name: 'System Error',
+  'system error': {
     short: 'SE',
-    color: 'red',
-    type: 'error'
+    color: 'text-red'
   },
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  '6': {
+  pending: {
     name: 'Pending',
-    color: 'yellow',
-    type: 'warning'
+    color: 'text-level-5'
   },
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  '7': {
+  judging: {
     name: 'Judging',
-    color: 'blue',
-    type: 'info'
+    color: 'text-blue'
   },
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  8: {
-    name: 'Partial Accepted',
+  'partial accepted': {
     short: 'PAC',
-    color: 'blue',
-    type: 'info'
+    color: 'text-blue'
   },
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  9: {
-    name: 'Submitting',
-    color: 'yellow',
-    type: 'warning'
+  submitting: {
+    short: 'ING',
+    color: 'text-level-5'
   }
 }
 defineProps<{
@@ -199,13 +197,14 @@ watch(code, (value) => {
       no-pagination
     >
       <template #result="{ row }">
-        {{ judgeResult['-1'].color }}
-        {{ row.result }}
+        <span :class="judgeResultInfo[row.result as JudgeResult].color">
+          {{ row.result }}
+        </span>
       </template>
     </PaginationTable>
     <PageSubtitle
       text="Source Code (612 Bytes)"
-      class="pt-5"
+      class="pt-10 pb-4"
       color="white"
     ></PageSubtitle>
     <CodeEditor
@@ -220,7 +219,13 @@ watch(code, (value) => {
       mode="dark"
       no-search-bar
       no-pagination
-    ></PaginationTable>
+    >
+      <template #result="{ row }">
+        <span :class="judgeResultInfo[row.result as JudgeResult].color">
+          {{ row.result }}
+        </span>
+      </template>
+    </PaginationTable>
   </div>
 </template>
 
