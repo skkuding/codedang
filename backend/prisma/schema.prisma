@@ -68,16 +68,21 @@ model UserGroup {
 }
 
 model Group {
-  id             Int      @id @default(autoincrement())
-  createdBy      User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById    Int      @map("created_by_id")
-  groupName      String   @unique @map("group_name")
-  private        Boolean  @default(false)
-  // 생성시 자동 발급
-  invitationCode String   @map("invitation_code")
-  description    String
-  createTime     DateTime @default(now()) @map("create_time")
-  updateTime     DateTime @updatedAt @map("update_time")
+  id          Int      @id @default(autoincrement())
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdById Int      @map("created_by_id")
+  groupName   String   @unique @map("group_name")
+  description String
+  /// config default value
+  /// {
+  ///   "showOnList": true,          // show on 'all groups' list
+  ///   "allowJoinFromSearch": true, // can join from 'all groups' list. set to false if `showOnList` is false
+  ///   "allowJoinWithURL": false,
+  ///   "requireApprovalBeforeJoin": true
+  /// }
+  config      Json?
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
 
   userGroup UserGroup[]
   notice    Notice[]
