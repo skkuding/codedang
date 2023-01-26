@@ -1,6 +1,6 @@
 export interface UserGroupData {
   userId: number
   groupId: number
-  isRegisterd: boolean
+  isRegistered: boolean
   isGroupLeader: boolean
 }
