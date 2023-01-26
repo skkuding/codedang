@@ -30,8 +30,9 @@ const props = withDefaults(
   defineProps<{
     modelValue: string
     lang?: 'cpp' | 'python' | 'javascript' | 'java'
+    editable?: boolean
   }>(),
-  { lang: 'cpp' }
+  { lang: 'cpp', editable: true }
 )
 
 const emit = defineEmits<{
@@ -71,7 +72,7 @@ const extensions = computed(() => [
 
 const state = EditorState.create({
   doc: props.modelValue,
-  extensions: extensions.value
+  extensions: [extensions.value, EditorView.editable.of(props.editable)]
 })
 
 watch(
