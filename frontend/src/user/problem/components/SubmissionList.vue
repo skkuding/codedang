@@ -6,7 +6,7 @@ import Dropdown from '@/common/components/Molecule/Dropdown.vue'
 import ListItem from '@/common/components/Atom/ListItem.vue'
 import IconDown from '~icons/fa6-solid/angle-down'
 import { ref, watch } from 'vue'
-
+import PageTitle from '@/common/components/Atom/PageTitle.vue'
 defineEmits<{
   (e: 'selectSubmission', value: number): void
 }>()
@@ -151,6 +151,7 @@ const clickRow = (row: Submission) => {
 
 <template>
   <div class="bg-slate-700 p-5">
+    <PageTitle color="white" text="Submissions of A. 가파른 경사"></PageTitle>
     <PaginationTable
       :fields="fields"
       :items="currentSubmissionList"
