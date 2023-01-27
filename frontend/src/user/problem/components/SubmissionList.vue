@@ -11,7 +11,7 @@ defineEmits<{
   (e: 'selectSubmission', value: number): void
 }>()
 
-const showOnlyMine = true
+const showOnlyMine = ref(true)
 
 interface Submission {
   id: number
