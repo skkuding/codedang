@@ -50,8 +50,8 @@ export class ContestService {
         descriptionSummary: contestDto.descriptionSummary,
         startTime: contestDto.startTime,
         endTime: contestDto.endTime,
-        visible: contestDto.visible,
-        isRankVisible: contestDto.isRankVisible,
+        isVisible: contestDto.isVisible,
+        isRankisVisible: contestDto.isRankisVisible,
         type: contestDto.type,
         group: {
           connect: { id: contestDto.groupId }
@@ -92,8 +92,8 @@ export class ContestService {
         descriptionSummary: contestDto.descriptionSummary,
         startTime: contestDto.startTime,
         endTime: contestDto.endTime,
-        visible: contestDto.visible,
-        isRankVisible: contestDto.isRankVisible,
+        isVisible: contestDto.isVisible,
+        isRankisVisible: contestDto.isRankisVisible,
         type: contestDto.type
       }
     })
@@ -127,7 +127,7 @@ export class ContestService {
     finished: Partial<Contest>[]
   }> {
     const contests = await this.prisma.contest.findMany({
-      where: { visible: true },
+      where: { isVisible: true },
       select: this.contestSelectOption
     })
     return {
@@ -163,7 +163,11 @@ export class ContestService {
   ): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
-      select: { ...this.contestSelectOption, description: true, visible: true },
+      select: {
+        ...this.contestSelectOption,
+        description: true,
+        isVisible: true
+      },
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
@@ -199,7 +203,7 @@ export class ContestService {
 
   async getContestsByGroupId(groupId: number): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
-      where: { groupId, visible: true },
+      where: { groupId, isVisible: true },
       select: this.contestSelectOption
     })
   }
@@ -214,7 +218,7 @@ export class ContestService {
       where: {
         groupId: 1
       },
-      select: { ...this.contestSelectOption, visible: true }
+      select: { ...this.contestSelectOption, isVisible: true }
     })
   }
 
@@ -223,10 +227,10 @@ export class ContestService {
       where: { id: contestId },
       select: {
         ...this.contestSelectOption,
-        visible: true,
+        isVisible: true,
         description: true,
         descriptionSummary: true,
-        isRankVisible: true
+        isRankisVisible: true
       },
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
@@ -239,7 +243,7 @@ export class ContestService {
   ): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
       where: { groupId },
-      select: { ...this.contestSelectOption, visible: true }
+      select: { ...this.contestSelectOption, isVisible: true }
     })
   }
 

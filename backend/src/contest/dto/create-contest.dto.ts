@@ -35,11 +35,11 @@ export class CreateContestDto {
 
   @IsBoolean()
   @IsNotEmpty()
-  readonly visible: boolean
+  readonly isVisible: boolean
 
   @IsBoolean()
   @IsNotEmpty()
-  readonly isRankVisible: boolean
+  readonly isRankisVisible: boolean
 
   @IsEnum(ContestType)
   @IsNotEmpty()

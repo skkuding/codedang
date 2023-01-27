@@ -14,7 +14,6 @@ export class GroupService {
         groupId: groupId
       },
       select: {
-        isRegistered: true,
         isGroupLeader: true
       }
     })
@@ -25,7 +24,6 @@ export class GroupService {
       await this.prisma.userGroup.findMany({
         where: {
           userId: userId,
-          isRegistered: true,
           isGroupLeader: true
         },
         select: {
@@ -44,7 +42,6 @@ export class GroupService {
         group: {
           connect: { id: userGroupData.groupId }
         },
-        isRegistered: userGroupData.isRegistered,
         isGroupLeader: userGroupData.isGroupLeader
       }
     })

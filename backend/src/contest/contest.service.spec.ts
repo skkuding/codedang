@@ -38,8 +38,8 @@ const contest = {
   descriptionSummary: 'description summary',
   startTime: new Date('2021-12-01T14:00:00.000+09:00'),
   endTime: new Date('2021-12-01T15:00:00.000+09:00'),
-  visible: true,
-  isRankVisible: true,
+  isVisible: true,
+  isRankisVisible: true,
   isPublic: false,
   type: ContestType.ACM,
   createTime: new Date('2021-11-01T18:34:23.999175+09:00'),
@@ -54,7 +54,7 @@ const ongoingContests: Partial<Contest>[] = [
     ...contest,
     id: contestId,
     endTime: new Date('2999-12-01T12:00:00.000+09:00'),
-    visible: false
+    isVisible: false
   }
 ]
 
@@ -62,7 +62,7 @@ const finishedContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId + 1,
-    visible: false
+    isVisible: false
   }
 ]
 
@@ -72,7 +72,7 @@ const upcomingContests: Partial<Contest>[] = [
     id: contestId + 6,
     startTime: new Date('2999-12-01T12:00:00.000+09:00'),
     endTime: new Date('2999-12-01T15:00:00.000+09:00'),
-    visible: false
+    isVisible: false
   }
 ]
 
@@ -188,8 +188,8 @@ describe('ContestService', () => {
       descriptionSummary: contest.descriptionSummary,
       startTime: contest.startTime,
       endTime: contest.endTime,
-      visible: contest.visible,
-      isRankVisible: contest.isRankVisible,
+      isVisible: contest.isVisible,
+      isRankisVisible: contest.isRankisVisible,
       type: contest.type
     }
 
@@ -239,8 +239,8 @@ describe('ContestService', () => {
       descriptionSummary: contest.descriptionSummary,
       startTime: contest.startTime,
       endTime: contest.endTime,
-      visible: contest.visible,
-      isRankVisible: contest.isRankVisible,
+      isVisible: contest.isVisible,
+      isRankisVisible: contest.isRankisVisible,
       type: contest.type
     }
 

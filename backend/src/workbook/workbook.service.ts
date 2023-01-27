@@ -10,7 +10,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 export class WorkbookService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private prismaAdminFindWhereOption: object = { visible: true }
+  private prismaAdminFindWhereOption: object = { isVisible: true }
 
   async getWorkbooksByGroupId(
     groupId: number,
