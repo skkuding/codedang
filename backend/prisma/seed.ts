@@ -105,7 +105,13 @@ const createGroups = async () => {
       groupName: 'Example Group',
       description:
         'This is an example group just for testing. This group should not be shown on production environment.',
-      createdById: managerUser.id
+      createdById: managerUser.id,
+      config: {
+        showOnList: false,
+        allowJoinFromSearch: false,
+        allowJoinWithURL: false,
+        requireApprovalBeforeJoin: false
+      }
     }
   })
 
@@ -115,7 +121,13 @@ const createGroups = async () => {
       groupName: 'Example Private Group',
       description:
         'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
-      createdById: managerUser.id
+      createdById: managerUser.id,
+      config: {
+        showOnList: true,
+        allowJoinFromSearch: true,
+        allowJoinWithURL: false,
+        requireApprovalBeforeJoin: true
+      }
     }
   })
 
