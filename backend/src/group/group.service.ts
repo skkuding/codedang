@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common'
+import { UserGroup } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { UserGroupData } from './interface/user-group-data.interface'
 
 @Injectable()
 export class GroupService {
@@ -31,5 +33,20 @@ export class GroupService {
         }
       })
     ).map((group) => group.groupId)
+  }
+
+  async createUserGroup(userGroupData: UserGroupData): Promise<UserGroup> {
+    return await this.prisma.userGroup.create({
+      data: {
+        user: {
+          connect: { id: userGroupData.userId }
+        },
+        group: {
+          connect: { id: userGroupData.groupId }
+        },
+        isRegistered: userGroupData.isRegistered,
+        isGroupLeader: userGroupData.isGroupLeader
+      }
+    })
   }
 }

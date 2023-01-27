@@ -71,7 +71,6 @@ const createUsers = async () => {
   await prisma.userProfile.create({
     data: {
       userId: superAdminUser.id,
-      major: 'Computer Science and Engineering',
       realName: 'Yuljeon Kim'
     }
   })
@@ -85,9 +84,7 @@ const createGroups = async () => {
       groupName: 'Example Group',
       description:
         'This is an example group just for testing. This group should not be shown on production environment.',
-      invitationCode: '123456',
-      createdById: managerUser.id,
-      private: false
+      createdById: managerUser.id
     }
   })
 
@@ -97,9 +94,7 @@ const createGroups = async () => {
       groupName: 'Example Private Group',
       description:
         'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
-      invitationCode: '123456',
-      createdById: managerUser.id,
-      private: true
+      createdById: managerUser.id
     }
   })
 

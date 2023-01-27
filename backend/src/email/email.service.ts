@@ -8,14 +8,14 @@ import { EmailTransmissionFailedException } from 'src/common/exception/business.
 export class EmailService {
   constructor(private readonly mailerService: MailerService) {}
 
-  async sendPasswordResetPin(
+  async sendEmailAuthenticationPin(
     email: string,
     pin: string
   ): Promise<SentMessageInfo> {
     const sentEmailInfo = await this.mailerService.sendMail({
       to: email,
-      subject: `Reset your password`,
-      template: path.join(__dirname, 'templates/reset-password'),
+      subject: `SKKU Coding Platform Email Authentication`,
+      template: path.join(__dirname, 'templates/email-auth'),
       context: { pin },
       attachments: [
         {
