@@ -20,13 +20,6 @@
         "sortNum": 20000
       },
       {
-        "_id": "32c3b5cf-9c8d-4141-a6b4-c52a716a9543",
-        "name": "Email",
-        "containerId": "",
-        "created": "2023-01-04T03:24:51.622Z",
-        "sortNum": 30000
-      },
-      {
         "_id": "a9aa5ec4-bc54-44ba-adf1-f2cb4ee6876a",
         "name": "Group",
         "containerId": "",
