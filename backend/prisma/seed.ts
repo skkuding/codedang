@@ -6422,7 +6422,7 @@ int main(void) {
   await prisma.submissionResult.create({
     data: {
       submissionId: submissions[0].id,
-      problemTestCaseId: problemTestcases[0].id,
+      problemTestcaseId: problemTestcases[0].id,
       result: ResultStatus.Accepted
     }
   })
@@ -6446,7 +6446,7 @@ int main(void) {
   await prisma.submissionResult.create({
     data: {
       submissionId: submissions[1].id,
-      problemTestCaseId: problemTestcases[1].id,
+      problemTestcaseId: problemTestcases[1].id,
       result: ResultStatus.WrongAnswer
     }
   })
@@ -6470,7 +6470,7 @@ int main(void) {
   await prisma.submissionResult.create({
     data: {
       submissionId: submissions[2].id,
-      problemTestCaseId: problemTestcases[2].id,
+      problemTestcaseId: problemTestcases[2].id,
       result: ResultStatus.CompileError
     }
   })
@@ -6490,7 +6490,7 @@ int main(void) {
   await prisma.submissionResult.create({
     data: {
       submissionId: submissions[3].id,
-      problemTestCaseId: problemTestcases[3].id,
+      problemTestcaseId: problemTestcases[3].id,
       result: ResultStatus.RuntimeError
     }
   })
@@ -6514,7 +6514,7 @@ int main(void) {
   await prisma.submissionResult.create({
     data: {
       submissionId: submissions[4].id,
-      problemTestCaseId: problemTestcases[4].id,
+      problemTestcaseId: problemTestcases[4].id,
       result: ResultStatus.TimeLimitExceeded
     }
   })
@@ -6538,7 +6538,7 @@ int main(void) {
   await prisma.submissionResult.create({
     data: {
       submissionId: submissions[5].id,
-      problemTestCaseId: problemTestcases[5].id,
+      problemTestcaseId: problemTestcases[5].id,
       result: ResultStatus.MemoryLimitExceeded
     }
   })
@@ -6558,7 +6558,7 @@ int main(void) {
   await prisma.submissionResult.create({
     data: {
       submissionId: submissions[6].id,
-      problemTestCaseId: problemTestcases[6].id,
+      problemTestcaseId: problemTestcases[6].id,
       result: ResultStatus.OutputLimitExceeded
     }
   })
