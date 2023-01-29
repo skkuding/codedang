@@ -15,16 +15,17 @@ import {
   InvalidUserException
 } from 'src/common/exception/business.exception'
 import { GroupService } from './group.service'
+import { Membership } from './interface/membership.interface'
 import { UserGroupInterface } from './interface/user-group.interface'
 
 @Controller('group')
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
-  @Get(':group_id')
+  @Get(':groupId')
   async getGroup(
     @Req() req: AuthenticatedRequest,
-    @Param('group_id', ParseIntPipe) groupId: number
+    @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Partial<Group>> {
     try {
       return await this.groupService.getGroup(req.user.id, groupId)
@@ -39,10 +40,10 @@ export class GroupController {
     }
   }
 
-  @Get(':group_id/join')
+  @Get(':groupId/join')
   async getGroupJoinById(
     @Req() req: AuthenticatedRequest,
-    @Param('group_id', ParseIntPipe) groupId: number
+    @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<UserGroupInterface> {
     try {
       return await this.groupService.getGroupJoinById(req.user.id, groupId)
@@ -54,16 +55,46 @@ export class GroupController {
     }
   }
 
-  @Get(':invitation_code/join')
+  @Get(':invitationCode/join')
   async getGroupJoinByInvt(
     @Req() req: AuthenticatedRequest,
-    @Param('invitation_code') invitationCode: string
+    @Param('invitationCode') invitationCode: string
   ): Promise<UserGroupInterface> {
     try {
       return await this.groupService.getGroupJoinByInvt(
         req.user.id,
         invitationCode
       )
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get(':groupId/managers')
+  async getGroupManagers(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', ParseIntPipe) groupId: number
+  ): Promise<Membership[]> {
+    try {
+      return await this.groupService.getGroupManagers(req.user.id, groupId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get(':groupId/members')
+  async getGroupMembers(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', ParseIntPipe) groupId: number
+  ): Promise<Membership[]> {
+    try {
+      return await this.groupService.getGroupMembers(req.user.id, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
