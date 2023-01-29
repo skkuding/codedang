@@ -242,7 +242,7 @@ export class GroupService {
     return members
   }
 
-  async getNonPrivateGroups(): Promise<UserGroupInterface[]> {
+  async getAllGroups(): Promise<UserGroupInterface[]> {
     const groups = (
       await this.prisma.group.findMany({
         where: {
@@ -277,7 +277,7 @@ export class GroupService {
     return groups
   }
 
-  async getMyGroups(userId: number): Promise<Partial<UserGroup>[]> {
+  async getMyGroups(userId: number): Promise<UserGroupInterface[]> {
     const groupIds = (
       await this.prisma.userGroup.findMany({
         where: {

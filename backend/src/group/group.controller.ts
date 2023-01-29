@@ -40,6 +40,32 @@ export class GroupController {
     }
   }
 
+  @Get('all')
+  async getAllGroups(): Promise<UserGroupInterface[]> {
+    try {
+      return await this.groupService.getAllGroups()
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('my')
+  async getMyGroups(
+    @Req() req: AuthenticatedRequest
+  ): Promise<UserGroupInterface[]> {
+    try {
+      return await this.groupService.getMyGroups(req.user.id)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+
   @Get(':groupId/join')
   async getGroupJoinById(
     @Req() req: AuthenticatedRequest,
@@ -84,6 +110,9 @@ export class GroupController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+      if (error instanceof InvalidUserException) {
+        throw new UnauthorizedException(error.message)
+      }
       throw new InternalServerErrorException()
     }
   }
@@ -98,6 +127,9 @@ export class GroupController {
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
+      }
+      if (error instanceof InvalidUserException) {
+        throw new UnauthorizedException(error.message)
       }
       throw new InternalServerErrorException()
     }
