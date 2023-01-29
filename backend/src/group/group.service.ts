@@ -242,7 +242,7 @@ export class GroupService {
     return members
   }
 
-  async getAllGroups(): Promise<UserGroupInterface[]> {
+  async getGroups(): Promise<UserGroupInterface[]> {
     const groups = (
       await this.prisma.group.findMany({
         where: {

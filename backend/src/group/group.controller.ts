@@ -22,6 +22,18 @@ import { UserGroupInterface } from './interface/user-group.interface'
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
+  @Get()
+  async getGroups(): Promise<UserGroupInterface[]> {
+    try {
+      return await this.groupService.getGroups()
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+
   @Get(':groupId')
   async getGroup(
     @Req() req: AuthenticatedRequest,
@@ -35,18 +47,6 @@ export class GroupController {
       }
       if (error instanceof InvalidUserException) {
         throw new UnauthorizedException(error.message)
-      }
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get('all')
-  async getAllGroups(): Promise<UserGroupInterface[]> {
-    try {
-      return await this.groupService.getAllGroups()
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
       }
       throw new InternalServerErrorException()
     }
