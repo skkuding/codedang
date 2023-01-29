@@ -22,7 +22,6 @@ model User {
   username   String   @unique
   password   String
   role       Role     @default(User)
-  student_id String   @unique
   email      String   @unique
   lastLogin  DateTime @map("last_login")
   createTime DateTime @default(now()) @map("create_time")

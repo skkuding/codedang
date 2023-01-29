@@ -6,7 +6,7 @@ export interface UserGroupInterface {
   memberNum?: number
   managers?: string[]
   createdBy?: {
-    UserProfile: {
+    userProfile: {
       realName: string
     }
   }

@@ -57,10 +57,10 @@ export class GroupService {
         id: true,
         groupName: true,
         description: true,
-        UserGroup: true,
+        userGroup: true,
         createdBy: {
           select: {
-            UserProfile: {
+            userProfile: {
               select: {
                 realName: true
               }
@@ -81,7 +81,7 @@ export class GroupService {
         select: {
           user: {
             select: {
-              UserProfile: {
+              userProfile: {
                 select: {
                   realName: true
                 }
@@ -90,11 +90,11 @@ export class GroupService {
           }
         }
       })
-    ).map((manager) => manager.user.UserProfile.realName)
+    ).map((manager) => manager.user.userProfile.realName)
 
     return {
       ...group,
-      memberNum: group.UserGroup.filter((member) => member.isRegistered).length,
+      memberNum: group.userGroup.filter((member) => member.isRegistered).length,
       managers: groupManagers
     }
   }
@@ -112,10 +112,10 @@ export class GroupService {
         id: true,
         groupName: true,
         description: true,
-        UserGroup: true,
+        userGroup: true,
         createdBy: {
           select: {
-            UserProfile: {
+            userProfile: {
               select: {
                 realName: true
               }
@@ -136,7 +136,7 @@ export class GroupService {
         select: {
           user: {
             select: {
-              UserProfile: {
+              userProfile: {
                 select: {
                   realName: true
                 }
@@ -145,11 +145,11 @@ export class GroupService {
           }
         }
       })
-    ).map((manager) => manager.user.UserProfile.realName)
+    ).map((manager) => manager.user.userProfile.realName)
 
     return {
       ...group,
-      memberNum: group.UserGroup.filter((member) => member.isRegistered).length,
+      memberNum: group.userGroup.filter((member) => member.isRegistered).length,
       managers: groupManagers
     }
   }
@@ -179,8 +179,7 @@ export class GroupService {
           id: true,
           user: {
             select: {
-              student_id: true,
-              UserProfile: {
+              userProfile: {
                 select: {
                   realName: true
                 }
@@ -192,8 +191,7 @@ export class GroupService {
       })
     ).map((manager) => {
       return {
-        ...manager,
-        student_id: manager.user.student_id.substring(0, 6)
+        ...manager
       }
     })
 
@@ -225,8 +223,7 @@ export class GroupService {
           id: true,
           user: {
             select: {
-              student_id: true,
-              UserProfile: {
+              userProfile: {
                 select: {
                   realName: true
                 }
@@ -238,8 +235,7 @@ export class GroupService {
       })
     ).map((member) => {
       return {
-        ...member,
-        student_id: member.user.student_id.substring(0, 6)
+        ...member
       }
     })
 
@@ -255,7 +251,7 @@ export class GroupService {
         select: {
           createdBy: {
             select: {
-              UserProfile: {
+              userProfile: {
                 select: {
                   realName: true
                 }
@@ -265,7 +261,7 @@ export class GroupService {
           id: true,
           groupName: true,
           description: true,
-          UserGroup: true
+          userGroup: true
         }
       })
     )
@@ -273,7 +269,7 @@ export class GroupService {
       .map((group) => {
         return {
           ...group,
-          memberNum: group.UserGroup.filter((member) => member.isRegistered)
+          memberNum: group.userGroup.filter((member) => member.isRegistered)
             .length
         }
       })
@@ -304,7 +300,7 @@ export class GroupService {
         select: {
           createdBy: {
             select: {
-              UserProfile: {
+              userProfile: {
                 select: {
                   realName: true
                 }
@@ -314,13 +310,13 @@ export class GroupService {
           id: true,
           groupName: true,
           description: true,
-          UserGroup: true
+          userGroup: true
         }
       })
     ).map((group) => {
       return {
         ...group,
-        memberNum: group.UserGroup.filter((member) => member.isRegistered)
+        memberNum: group.userGroup.filter((member) => member.isRegistered)
           .length
       }
     })
