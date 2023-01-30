@@ -81,24 +81,6 @@ export class GroupController {
     }
   }
 
-  @Get(':invitationCode/join')
-  async getGroupJoinByInvt(
-    @Req() req: AuthenticatedRequest,
-    @Param('invitationCode') invitationCode: string
-  ): Promise<UserGroupInterface> {
-    try {
-      return await this.groupService.getGroupJoinByInvt(
-        req.user.id,
-        invitationCode
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-      throw new InternalServerErrorException()
-    }
-  }
-
   @Get(':groupId/managers')
   async getGroupManagers(
     @Req() req: AuthenticatedRequest,

@@ -51,7 +51,10 @@ export class GroupService {
     const group = await this.prisma.group.findFirst({
       where: {
         id: groupId,
-        private: false
+        config: {
+          path: ['allowJoinFromSearch'],
+          equals: true
+        }
       },
       select: {
         id: true,
@@ -75,61 +78,6 @@ export class GroupService {
       await this.prisma.userGroup.findMany({
         where: {
           groupId: groupId,
-          isRegistered: true,
-          isGroupLeader: true
-        },
-        select: {
-          user: {
-            select: {
-              userProfile: {
-                select: {
-                  realName: true
-                }
-              }
-            }
-          }
-        }
-      })
-    ).map((manager) => manager.user.userProfile.realName)
-
-    return {
-      ...group,
-      memberNum: group.userGroup.filter((member) => member.isRegistered).length,
-      managers: groupManagers
-    }
-  }
-
-  async getGroupJoinByInvt(
-    userId: number,
-    invitationCode: string
-  ): Promise<UserGroupInterface> {
-    const group = await this.prisma.group.findFirst({
-      where: {
-        invitationCode: invitationCode,
-        private: true
-      },
-      select: {
-        id: true,
-        groupName: true,
-        description: true,
-        userGroup: true,
-        createdBy: {
-          select: {
-            userProfile: {
-              select: {
-                realName: true
-              }
-            }
-          }
-        }
-      },
-      rejectOnNotFound: () => new EntityNotExistException('group')
-    })
-
-    const groupManagers = (
-      await this.prisma.userGroup.findMany({
-        where: {
-          groupId: group.id,
           isRegistered: true,
           isGroupLeader: true
         },
@@ -246,7 +194,10 @@ export class GroupService {
     const groups = (
       await this.prisma.group.findMany({
         where: {
-          private: false
+          config: {
+            path: ['showOnList'],
+            equals: true
+          }
         },
         select: {
           createdBy: {
@@ -322,31 +273,6 @@ export class GroupService {
     })
 
     return groups
-  }
-
-  async joinGroupByInvt(
-    userId: number,
-    groupId: number,
-    invitationCode: string
-  ) {
-    await this.prisma.group.findFirst({
-      where: {
-        id: groupId,
-        invitationCode: invitationCode
-      },
-      rejectOnNotFound: () => new EntityNotExistException('group')
-    })
-
-    await this.prisma.userGroup.create({
-      data: {
-        user: {
-          connect: { id: userId }
-        },
-        group: {
-          connect: { id: groupId }
-        }
-      }
-    })
   }
 
   async joinGroupById(userId: number, groupId: number) {
