@@ -5,6 +5,7 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
+  Post,
   Req,
   UnauthorizedException
 } from '@nestjs/common'
@@ -73,6 +74,36 @@ export class GroupController {
   ): Promise<UserGroupInterface> {
     try {
       return await this.groupService.getGroupJoinById(req.user.id, groupId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Post(':groupId/join')
+  async joinGroupById(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', ParseIntPipe) groupId: number
+  ) {
+    try {
+      return await this.groupService.joinGroupById(req.user.id, groupId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Post(':groupId/leave')
+  async leaveGroup(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', ParseIntPipe) groupId: number
+  ) {
+    try {
+      return await this.groupService.leaveGroup(req.user.id, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
