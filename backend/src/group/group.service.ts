@@ -276,23 +276,25 @@ export class GroupService {
   }
 
   async joinGroupById(userId: number, groupId: number) {
-    await this.prisma.group.findUnique({
+    const group = await this.prisma.group.findFirst({
       where: {
-        id: groupId
+        id: groupId,
+        config: {
+          path: ['allowJoinFromSearch'],
+          equals: true
+        }
       },
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
 
-    await this.prisma.userGroup.create({
-      data: {
-        user: {
-          connect: { id: userId }
-        },
-        group: {
-          connect: { id: groupId }
-        }
-      }
-    })
+    const userGroupData: UserGroupData = {
+      userId,
+      groupId,
+      isRegistered: group.config['requireAprrovalBeforeJoin'] ? false : true,
+      isGroupLeader: false
+    }
+
+    await this.createUserGroup(userGroupData)
   }
 
   async leaveGroup(userId: number, groupId: number) {
