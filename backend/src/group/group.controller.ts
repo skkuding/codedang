@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   InternalServerErrorException,
   NotFoundException,
@@ -97,7 +98,7 @@ export class GroupController {
     }
   }
 
-  @Post(':groupId/leave')
+  @Delete(':groupId/leave')
   async leaveGroup(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
