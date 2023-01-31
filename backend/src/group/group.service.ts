@@ -74,7 +74,7 @@ export class GroupService {
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
 
-    const groupManagers = (
+    const groupLeaders = (
       await this.prisma.userGroup.findMany({
         where: {
           groupId: groupId,
@@ -93,12 +93,12 @@ export class GroupService {
           }
         }
       })
-    ).map((manager) => manager.user.userProfile.realName)
+    ).map((leader) => leader.user.userProfile.realName)
 
     return {
       ...group,
       memberNum: group.userGroup.filter((member) => member.isRegistered).length,
-      managers: groupManagers
+      leaders: groupLeaders
     }
   }
 

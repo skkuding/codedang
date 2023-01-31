@@ -4,7 +4,7 @@ export interface UserGroupInterface {
   groupName: string
   description: string
   memberNum?: number
-  managers?: string[]
+  leaders?: string[]
   createdBy?: {
     userProfile: {
       realName: string
