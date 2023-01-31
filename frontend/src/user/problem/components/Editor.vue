@@ -10,7 +10,7 @@ defineProps<{
 <template>
   <Header />
   <Navigator />
-  <div class="flex h-[calc(100vh-113px)] border-t-[1px] border-slate-400">
+  <div class="flex h-[calc(100vh-112px)] border-t-[1px] border-slate-400">
     <div
       class="flex w-[600px] flex-col gap-4 overflow-scroll border-r-[1px] border-slate-400 bg-slate-700 p-8 text-white"
     >
