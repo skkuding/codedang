@@ -27,12 +27,14 @@ export class ContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  async getContests(): Promise<{
+  async getContests(@Req() req: AuthenticatedRequest): Promise<{
+    registeredOngoing: Partial<Contest>[]
+    registeredUpcoming: Partial<Contest>[]
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests()
+    return await this.contestService.getContests(req.user.id)
   }
 
   @Get(':id/modal')
