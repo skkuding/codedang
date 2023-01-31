@@ -113,13 +113,13 @@ export class GroupController {
     }
   }
 
-  @Get(':groupId/managers')
-  async getGroupManagers(
+  @Get(':groupId/leaders')
+  async getGroupLeaders(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Membership[]> {
     try {
-      return await this.groupService.getGroupManagers(req.user.id, groupId)
+      return await this.groupService.getGroupLeaders(req.user.id, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

@@ -102,7 +102,7 @@ export class GroupService {
     }
   }
 
-  async getGroupManagers(
+  async getGroupLeaders(
     userId: number,
     groupId: number
   ): Promise<Membership[]> {
@@ -116,7 +116,7 @@ export class GroupService {
         new InvalidUserException(returnIsNotAllowed(userId, groupId))
     })
 
-    const managers = await this.prisma.userGroup.findMany({
+    const leaders = await this.prisma.userGroup.findMany({
       where: {
         groupId: groupId,
         isRegistered: true,
@@ -137,7 +137,7 @@ export class GroupService {
       }
     })
 
-    return managers
+    return leaders
   }
 
   async getGroupMembers(
