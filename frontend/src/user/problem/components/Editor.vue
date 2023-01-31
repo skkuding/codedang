@@ -1,16 +1,29 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import Header from './Header.vue'
 import Navigator from './Navigator.vue'
+import Clarification from './Clarification.vue'
 import IconCopy from '~icons/fa-regular/copy'
+import CodeEditor from '@/common/components/Organism/CodeEditor.vue'
 defineProps<{
   id?: number
 }>()
+
+const cppCode = ref(`#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Hello, world!" << endl;
+    return 0;
+}
+`)
 </script>
 
 <template>
   <Header />
   <Navigator />
   <div class="flex h-[calc(100vh-112px)] border-t-[1px] border-slate-400">
+    <Clarification />
     <div
       class="flex w-[600px] flex-col gap-4 overflow-scroll border-r-[1px] border-slate-400 bg-slate-700 p-8 text-white"
     >
@@ -67,6 +80,8 @@ defineProps<{
       </div>
       <div class="bg-default w-full rounded p-3">1 2 3</div>
     </div>
-    <div class="grow bg-slate-900 text-white">code editor</div>
+    <div class="grow overflow-scroll bg-[#292c33]">
+      <CodeEditor v-model="cppCode" lang="cpp" />
+    </div>
   </div>
 </template>

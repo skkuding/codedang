@@ -18,7 +18,7 @@ const from = ref({ x: 0, y: 0 })
 const window = useWindowSize()
 
 const { x, y, style } = useDraggable(el, {
-  initialValue: { x: 500, y: 60 }
+  initialValue: { x: 520, y: 130 }
 })
 
 const ELEMENT_WIDTH = 54
