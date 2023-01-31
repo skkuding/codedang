@@ -116,30 +116,24 @@ export class GroupService {
         new InvalidUserException(returnIsNotAllowed(userId, groupId))
     })
 
-    const managers = (
-      await this.prisma.userGroup.findMany({
-        where: {
-          groupId: groupId,
-          isRegistered: true,
-          isGroupLeader: true
-        },
-        select: {
-          id: true,
-          user: {
-            select: {
-              userProfile: {
-                select: {
-                  realName: true
-                }
+    const managers = await this.prisma.userGroup.findMany({
+      where: {
+        groupId: groupId,
+        isRegistered: true,
+        isGroupLeader: true
+      },
+      select: {
+        id: true,
+        user: {
+          select: {
+            userProfile: {
+              select: {
+                realName: true
               }
             }
-          },
-          isGroupLeader: true
-        }
-      })
-    ).map((manager) => {
-      return {
-        ...manager
+          }
+        },
+        isGroupLeader: true
       }
     })
 
@@ -160,30 +154,24 @@ export class GroupService {
         new InvalidUserException(returnIsNotAllowed(userId, groupId))
     })
 
-    const members = (
-      await this.prisma.userGroup.findMany({
-        where: {
-          groupId: groupId,
-          isRegistered: true,
-          isGroupLeader: false
-        },
-        select: {
-          id: true,
-          user: {
-            select: {
-              userProfile: {
-                select: {
-                  realName: true
-                }
+    const members = await this.prisma.userGroup.findMany({
+      where: {
+        groupId: groupId,
+        isRegistered: true,
+        isGroupLeader: false
+      },
+      select: {
+        id: true,
+        user: {
+          select: {
+            userProfile: {
+              select: {
+                realName: true
               }
             }
-          },
-          isGroupLeader: true
-        }
-      })
-    ).map((member) => {
-      return {
-        ...member
+          }
+        },
+        isGroupLeader: true
       }
     })
 
