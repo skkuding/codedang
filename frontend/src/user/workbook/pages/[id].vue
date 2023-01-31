@@ -3,7 +3,8 @@ import WorkbookTitle from '../components/WorkbookTitle.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import IconCheck from '~icons/fa6-regular/circle-check'
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
+import { axios } from 'axios'
 
 // TODO: define interface in separte file
 interface Problem {
@@ -27,69 +28,10 @@ const fields = computed(() =>
 const workbookProblemList = ref<Problem[]>([])
 
 // TODO: use API to get workbook-problem list of initial page
-
-workbookProblemList.value = [
-  {
-    id: 1,
-    title: '가파른 경사',
-    tags: 'if-statement',
-    result: 'accepted'
-  },
-  {
-    id: 1006,
-    title: '습격자 호루라기',
-    tags: 'dfs',
-    result: 'accepted'
-  },
-  {
-    id: 10,
-    title: '아싸 홍삼',
-    tags: 'dynamic programming',
-    result: 'wrong answer'
-  },
-  {
-    id: 11,
-    title: '에브리바디 홍상',
-    tags: 'for-loop',
-    result: 'wrong answer'
-  },
-  {
-    id: 12,
-    title: '나는 토깽이',
-    tags: 'greedy',
-    result: ''
-  },
-  {
-    id: 13,
-    title: '나는 거부깅',
-    tags: 'brute force',
-    result: ''
-  },
-  {
-    id: 14,
-    title: '토깽이 둘',
-    tags: 'binary tree',
-    result: ''
-  },
-  {
-    id: 15,
-    title: '토깽이 토깽이',
-    tags: 'bfs',
-    result: 'accepted'
-  },
-  {
-    id: 16,
-    title: '아싸 토깽 에브리바디 토깽',
-    tags: 'dfs',
-    result: ''
-  },
-  {
-    id: 17,
-    title: '토깽이 토깽이',
-    tags: 'if-statement',
-    result: ''
-  }
-]
+onMounted(async () => {
+  const response = await axios.get('/api/workbook/')
+  workbookProblemList.value = response.data
+})
 
 // TODO: implement change-page function to reset workbookProblemList using API when click pagination buttons
 </script>
