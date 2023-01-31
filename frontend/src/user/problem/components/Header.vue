@@ -67,6 +67,6 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
         </div>
       </Transition>
     </div>
+    <AuthModal v-model="modalContent" />
   </header>
-  <AuthModal v-model="modalContent" />
 </template>

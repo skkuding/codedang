@@ -10,11 +10,23 @@ defineProps<{
 <template>
   <Header />
   <Navigator />
-  <div class="border-gray flex flex-none grow items-stretch border-t-[1px]">
+  <div class="flex h-[calc(100vh-113px)] border-t-[1px] border-slate-400">
     <div
-      class="flex h-[888px] w-[600px] flex-col gap-4 overflow-scroll bg-slate-700 p-8 text-white"
+      class="flex w-[600px] flex-col gap-4 overflow-scroll border-r-[1px] border-slate-400 bg-slate-700 p-8 text-white"
     >
       <h1 class="text-xl">습격자 초라기</h1>
+      <p>
+        처음으로 인사캠을 방문한 율전이는 너무나 가파른 오르막길에 놀랐다. 이를
+        본 율전이는 인사캠의 경사가 얼마나 심한지 알기 위해 네 지점의 높이를
+        측정하기로 마음먹었다. 이때 율전이는 측정한 높이를 다음과 같이 네 가지
+        경우로 나누려고 한다. (단, 측정한 순서는 유지한다)
+      </p>
+      <p>
+        처음으로 인사캠을 방문한 율전이는 너무나 가파른 오르막길에 놀랐다. 이를
+        본 율전이는 인사캠의 경사가 얼마나 심한지 알기 위해 네 지점의 높이를
+        측정하기로 마음먹었다. 이때 율전이는 측정한 높이를 다음과 같이 네 가지
+        경우로 나누려고 한다. (단, 측정한 순서는 유지한다)
+      </p>
       <p>
         처음으로 인사캠을 방문한 율전이는 너무나 가파른 오르막길에 놀랐다. 이를
         본 율전이는 인사캠의 경사가 얼마나 심한지 알기 위해 네 지점의 높이를
@@ -55,6 +67,6 @@ defineProps<{
       </div>
       <div class="bg-default w-full rounded p-3">1 2 3</div>
     </div>
-    <div>bbb</div>
+    <div class="grow bg-slate-900 text-white">code editor</div>
   </div>
 </template>
