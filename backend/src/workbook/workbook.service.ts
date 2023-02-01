@@ -14,10 +14,19 @@ export class WorkbookService {
 
   async getWorkbooksByGroupId(
     groupId: number,
-    isAdmin: boolean
+    isAdmin: boolean,
+    myCursor: number,
+    offset: number
   ): Promise<Partial<Workbook>[]> {
     const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
+    let skipNum = 1
+    if (!myCursor) (skipNum = 0), (myCursor = 1)
     const workbooks = await this.prisma.workbook.findMany({
+      skip: skipNum,
+      take: offset,
+      cursor: {
+        id: myCursor
+      },
       where: {
         groupId,
         ...whereOption
