@@ -137,25 +137,29 @@ export class ContestService {
       }
     })
 
-    let registered: string[]
+    let registeredContestTitles: string[]
 
     registeredContests.contest.forEach((contest) => {
-      registered.push(contest.title)
+      registeredContestTitles.push(contest.title)
     })
 
     const contests = await this.prisma.contest.findMany({
       where: {
         visible: true,
         title: {
-          notIn: registered
+          notIn: registeredContestTitles
         }
       },
       select: this.contestSelectOption
     })
 
     return {
-      registeredOngoing: this.registeredOngoing(registeredContests.contest),
-      registeredUpcoming: this.registeredUpcoming(registeredContests.contest),
+      registeredOngoing: this.filterRegisteredOngoing(
+        registeredContests.contest
+      ),
+      registeredUpcoming: this.filterRegisteredUpcoming(
+        registeredContests.contest
+      ),
       ongoing: this.filterOngoing(contests),
       upcoming: this.filterUpcoming(contests),
       finished: this.filterFinished(contests)
@@ -172,7 +176,7 @@ export class ContestService {
     return 0
   }
 
-  endTImeCompare(a: Contest, b: Contest) {
+  endTimeCompare(a: Contest, b: Contest) {
     if (a.endTime < b.endTime) {
       return -1
     }
@@ -182,16 +186,16 @@ export class ContestService {
     return 0
   }
 
-  registeredOngoing(
+  filterRegisteredOngoing(
     registeredContests: Partial<Contest>[]
   ): Partial<Contest>[] {
-    registeredContests.sort(this.endTImeCompare)
+    registeredContests.sort(this.endTimeCompare)
     const registeredOngoing = this.filterOngoing(registeredContests)
 
     return registeredOngoing
   }
 
-  registeredUpcoming(
+  filterRegisteredUpcoming(
     registeredContests: Partial<Contest>[]
   ): Partial<Contest>[] {
     registeredContests.sort(this.startTimeCompare)
@@ -200,31 +204,9 @@ export class ContestService {
     return registeredUpcoming
   }
 
-  filterRegisteredOn(
-    registeredContests: Partial<Contest>[]
-  ): Partial<Contest>[] {
-    const now = new Date()
-    const registeredOngoing = registeredContests.filter(
-      (contest) => contest.startTime <= now && contest.endTime > now
-    )
-
-    return registeredOngoing
-  }
-
-  filterRegisteredUp(
-    registeredContests: Partial<Contest>[]
-  ): Partial<Contest>[] {
-    const now = new Date()
-    const registeredUpcoming = registeredContests.filter(
-      (contest) => contest.startTime > now
-    )
-
-    return registeredUpcoming
-  }
-
   filterOngoing(contests: Partial<Contest>[]): Partial<Contest>[] {
     const now = new Date()
-    contests.sort(this.endTImeCompare)
+    contests.sort(this.endTimeCompare)
     const ongoingContest = contests.filter(
       (contest) => contest.startTime <= now && contest.endTime > now
     )
@@ -242,7 +224,7 @@ export class ContestService {
 
   filterFinished(contests: Partial<Contest>[]): Partial<Contest>[] {
     const now = new Date()
-    contests.sort(this.endTImeCompare)
+    contests.sort(this.endTimeCompare)
     const finishedContest = contests.filter((contest) => contest.endTime <= now)
     return finishedContest
   }
@@ -273,14 +255,10 @@ export class ContestService {
     return contest
   }
 
-  async getModalContestById(contestId: number): Promise<Partial<Contest>> {
+  async getContestDetailById(contestId: number): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
-      select: {
-        id: true,
-        title: true,
-        descriptionSummary: true
-      },
+      select: { ...this.contestSelectOption, description: true, visible: true },
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
