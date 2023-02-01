@@ -53,9 +53,13 @@ const group: Group = {
   id: groupId,
   createdById: 1,
   groupName: 'group_name',
-  private: true,
-  invitationCode: '1',
   description: 'description',
+  config: {
+    showOnList: true,
+    allowJoinFromSearch: true,
+    allowJoinWithURL: false,
+    reequireApprovalBeforeJoin: true
+  },
   createTime: new Date(),
   updateTime: new Date()
 }
@@ -79,7 +83,6 @@ const db = {
 
 describe('NoticeService', () => {
   let service: NoticeService
-  let groupService: GroupService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -91,7 +94,6 @@ describe('NoticeService', () => {
     }).compile()
 
     service = module.get<NoticeService>(NoticeService)
-    groupService = module.get<GroupService>(GroupService)
   })
 
   it('should be defined', () => {
