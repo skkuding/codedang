@@ -16,6 +16,7 @@ let superAdminUser: User
 let managerUser: User
 const users: User[] = []
 let publicGroup: Group
+let privateGroup: Group
 const problems: Problem[] = []
 
 const createUsers = async () => {
@@ -89,7 +90,7 @@ const createGroups = async () => {
   })
 
   // create private group
-  const privateGroup = await prisma.group.create({
+  privateGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group',
       description:
@@ -6359,7 +6360,7 @@ const createContests = async () => {
 }
 
 const createWorkbooks = async () => {
-  const workbook = await prisma.workbook.create({
+  const publicWorkbook = await prisma.workbook.create({
     data: {
       title: '모의대회 문제집',
       description: '<p>모의대회 문제들을 모아뒀습니다!</p>',
@@ -6367,11 +6368,19 @@ const createWorkbooks = async () => {
       groupId: publicGroup.id
     }
   })
+  const privateWorkbook = await prisma.workbook.create({
+    data: {
+      title: '모의대회 문제집',
+      description: '<p>모의대회 문제들을 모아뒀습니다!</p>',
+      createdById: superAdminUser.id,
+      groupId: privateGroup.id
+    }
+  })
 
   for (const problem of problems) {
     await prisma.workbookProblem.create({
       data: {
-        workbookId: workbook.id,
+        workbookId: publicWorkbook.id,
         problemId: problem.id
       }
     })
