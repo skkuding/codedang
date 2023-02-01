@@ -153,8 +153,6 @@ export class ContestService {
       select: this.contestSelectOption
     })
 
-    //await this.registered(registeredContests.contest)
-
     return {
       registeredOngoing: this.registeredOngoing(registeredContests.contest),
       registeredUpcoming: this.registeredUpcoming(registeredContests.contest),
@@ -163,17 +161,6 @@ export class ContestService {
       finished: this.filterFinished(contests)
     }
   }
-
-  // async registered(registeredContests: Partial<Contest>[]) {
-  //   await this.prisma.contestRecord.updateMany({
-  //     where: {
-  //       contest: {}
-  //     },
-  //     data: {
-  //       isRegistered: true
-  //     }
-  //   })
-  // }
 
   startTimeCompare(a: Contest, b: Contest) {
     if (a.startTime < b.startTime) {
