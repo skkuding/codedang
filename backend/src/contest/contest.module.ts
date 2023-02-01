@@ -7,13 +7,16 @@ import {
   ContestPublicizingRequestController,
   GroupContestAdminController
 } from './contest-admin.controller'
-import { ContestController, GroupContestController } from './contest.controller'
+import {
+  PublicContestController,
+  GroupContestController
+} from './contest.controller'
 import { ContestService } from './contest.service'
 
 @Module({
   imports: [GroupModule, UserModule],
   controllers: [
-    ContestController,
+    PublicContestController,
     GroupContestController,
     ContestAdminController,
     GroupContestAdminController,
