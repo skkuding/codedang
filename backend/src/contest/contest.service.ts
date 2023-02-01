@@ -154,12 +154,8 @@ export class ContestService {
     })
 
     return {
-      registeredOngoing: this.filterRegisteredOngoing(
-        registeredContests.contest
-      ),
-      registeredUpcoming: this.filterRegisteredUpcoming(
-        registeredContests.contest
-      ),
+      registeredOngoing: this.filterOngoing(registeredContests.contest),
+      registeredUpcoming: this.filterUpcoming(registeredContests.contest),
       ongoing: this.filterOngoing(contests),
       upcoming: this.filterUpcoming(contests),
       finished: this.filterFinished(contests)
@@ -184,24 +180,6 @@ export class ContestService {
       return 1
     }
     return 0
-  }
-
-  filterRegisteredOngoing(
-    registeredContests: Partial<Contest>[]
-  ): Partial<Contest>[] {
-    registeredContests.sort(this.endTimeCompare)
-    const registeredOngoing = this.filterOngoing(registeredContests)
-
-    return registeredOngoing
-  }
-
-  filterRegisteredUpcoming(
-    registeredContests: Partial<Contest>[]
-  ): Partial<Contest>[] {
-    registeredContests.sort(this.startTimeCompare)
-    const registeredUpcoming = this.filterUpcoming(registeredContests)
-
-    return registeredUpcoming
   }
 
   filterOngoing(contests: Partial<Contest>[]): Partial<Contest>[] {
