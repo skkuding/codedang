@@ -44,12 +44,12 @@ export class ContestController {
     }
   }
 
-  @Get(':id/modal')
-  async getModalContest(
-    @Param('id', ParseIntPipe) contestId: number
+  @Get(':contestId')
+  async getContest(
+    @Param('contestId', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     try {
-      return await this.contestService.getModalContestById(contestId)
+      return await this.contestService.getContestDetailById(contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
