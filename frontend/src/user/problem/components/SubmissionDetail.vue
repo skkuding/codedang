@@ -16,24 +16,20 @@ int main() {
 
 const infoFields = [
   {
-    key: 'problem',
-    label: 'Problem'
+    key: 'problem'
   },
   {
     key: 'submissionTime',
     label: 'Submission Time'
   },
   {
-    key: 'user',
-    label: 'User'
+    key: 'user'
   },
   {
-    key: 'language',
-    label: 'Language'
+    key: 'language'
   },
   {
-    key: 'result',
-    label: 'Result'
+    key: 'result'
   }
 ]
 
@@ -178,7 +174,9 @@ defineProps<{
   lang?: 'cpp' | 'python' | 'javascript' | 'java'
   submissionId: number
 }>()
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
 
 watch(code, (value) => {
   emit('update:modelValue', value)

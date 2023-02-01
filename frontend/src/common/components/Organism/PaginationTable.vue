@@ -154,6 +154,7 @@ watch(currentPage, (value) => {
                 v-for="(entry, idx) in entries"
                 :key="idx"
                 class="table-cell p-2.5 pl-4"
+                :style="entryStyle(entry.key)"
               >
                 <slot :name="entry.key" :row="row">{{ row[entry.key] }}</slot>
               </td>

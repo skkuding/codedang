@@ -69,7 +69,7 @@ const submissionList: Submission[][] = [
       id: 19712,
       user: 'jimin',
       userId: 123,
-      code: 'print("abc")',
+      code: "print('abc')",
       language: 'C++',
       result: 'Wrong Answer'
     },
