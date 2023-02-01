@@ -34,7 +34,14 @@ export class ContestController {
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests(req.user.id)
+    try {
+      return await this.contestService.getContests(req.user.id)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get(':id/modal')
