@@ -6384,6 +6384,12 @@ const createWorkbooks = async () => {
         problemId: problem.id
       }
     })
+    await prisma.workbookProblem.create({
+      data: {
+        workbookId: privateWorkbook.id,
+        problemId: problem.id
+      }
+    })
   }
 }
 
