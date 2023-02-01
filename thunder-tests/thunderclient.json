@@ -737,221 +737,6 @@
     }
   },
   {
-    "_id": "c954a87c-4915-4fad-bd02-7898fcfd50b5",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "df830ccf-ea06-40c9-9dec-69679e90a91a",
-    "name": "Succeed",
-    "url": "/notice?offset=1",
-    "method": "GET",
-    "sortNum": 60000,
-    "created": "2023-02-01T07:02:36.251Z",
-    "modified": "2023-02-01T07:10:35.248Z",
-    "headers": [],
-    "params": [
-      {
-        "name": "offset",
-        "value": "1",
-        "isPath": false
-      }
-    ],
-    "tests": [
-      {
-        "type": "res-code",
-        "custom": "",
-        "action": "equal",
-        "value": "200"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"id\": 1"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"id\": 2"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"id\": 3"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"id\": 4"
-      }
-    ],
-    "docs": "# Get all notices\n\nOpen space의 공지사항을 불러옵니다.\n\n## Query\n\n- `offset`: 몇 번째 item부터 가져올지 정합니다."
-  },
-  {
-    "_id": "521880e4-c1ef-411d-b45d-3813f868df6d",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "dd6c1845-45b9-42a0-baab-d32bbf753f0f",
-    "name": "Succeed",
-    "url": "/notice/2",
-    "method": "GET",
-    "sortNum": 70000,
-    "created": "2023-02-01T07:10:51.588Z",
-    "modified": "2023-02-01T07:13:09.203Z",
-    "headers": [],
-    "params": [],
-    "tests": [
-      {
-        "type": "res-code",
-        "custom": "",
-        "action": "equal",
-        "value": "200"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"title\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"content\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"prev\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"next\""
-      }
-    ],
-    "docs": "# Get notice by ID\n\n공지사항 하나의 자세한 정보를 불러옵니다."
-  },
-  {
-    "_id": "3180d03d-eda4-4e5c-8f90-813b04678fa8",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "dd6c1845-45b9-42a0-baab-d32bbf753f0f",
-    "name": "404: Nonexistent notice",
-    "url": "/notice/0",
-    "method": "GET",
-    "sortNum": 80000,
-    "created": "2023-02-01T07:13:30.858Z",
-    "modified": "2023-02-01T07:13:49.639Z",
-    "headers": [],
-    "params": [],
-    "tests": [
-      {
-        "type": "res-code",
-        "custom": "",
-        "action": "equal",
-        "value": "404"
-      }
-    ]
-  },
-  {
-    "_id": "29e89972-fd6e-411b-af6d-0cb1b910b306",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "162021f9-d9b8-4acb-880a-fac122d0fadf",
-    "name": "Succeed",
-    "url": "/group/1/notice?offset=1",
-    "method": "GET",
-    "sortNum": 90000,
-    "created": "2023-02-01T07:13:58.376Z",
-    "modified": "2023-02-01T07:19:11.799Z",
-    "headers": [],
-    "params": [
-      {
-        "name": "offset",
-        "value": "1",
-        "isPath": false
-      }
-    ],
-    "tests": [
-      {
-        "type": "res-code",
-        "custom": "",
-        "action": "equal",
-        "value": "200"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"id\": 1"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"id\": 2"
-      }
-    ],
-    "docs": "# Get group's all notices\n\n한 group의 모든 공지사항을 불러옵니다.\n\n## Query\n\n- `offset`: 몇 번째 item부터 가져올지 정합니다.",
-    "preReq": {
-      "runRequests": [
-        {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
-          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-          "triggerCondition": "run-always",
-          "triggerValue": ""
-        }
-      ]
-    }
-  },
-  {
-    "_id": "1af21194-f768-4f41-a382-80c28db2bcce",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "314f4a3d-0379-44c7-b253-caaeddca2bb8",
-    "name": "Succeed",
-    "url": "/group/1/notice/2",
-    "method": "GET",
-    "sortNum": 100000,
-    "created": "2023-02-01T07:16:58.009Z",
-    "modified": "2023-02-01T07:19:48.673Z",
-    "headers": [],
-    "params": [],
-    "tests": [
-      {
-        "type": "res-code",
-        "custom": "",
-        "action": "equal",
-        "value": "200"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"title\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"content\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"prev\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"next"
-      }
-    ],
-    "docs": "# Get group's notice by ID\n\nGroup의 공지사항의 자세한 정보를 가져옵니다."
-  },
-  {
     "_id": "64abbcae-5508-4ad6-bb13-6ee21ba34ad4",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "ecac38fa-17f6-43e7-a6f3-1ddc4de2ed11",
@@ -1119,6 +904,58 @@
     }
   },
   {
+    "_id": "c954a87c-4915-4fad-bd02-7898fcfd50b5",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "df830ccf-ea06-40c9-9dec-69679e90a91a",
+    "name": "Succeed",
+    "url": "/notice?offset=1",
+    "method": "GET",
+    "sortNum": 60000,
+    "created": "2023-02-01T07:02:36.251Z",
+    "modified": "2023-02-01T07:10:35.248Z",
+    "headers": [],
+    "params": [
+      {
+        "name": "offset",
+        "value": "1",
+        "isPath": false
+      }
+    ],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"id\": 1"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"id\": 2"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"id\": 3"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"id\": 4"
+      }
+    ],
+    "docs": "# Get all notices\n\nOpen space의 공지사항을 불러옵니다.\n\n## Query\n\n- `offset`: 몇 번째 item부터 가져올지 정합니다."
+  },
+  {
     "_id": "f4c615bd-92ae-424a-8bc5-4d5e74a0f3d5",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "f8458b9c-c963-421d-9b18-5d2c187f6924",
@@ -1256,6 +1093,52 @@
     }
   },
   {
+    "_id": "521880e4-c1ef-411d-b45d-3813f868df6d",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "dd6c1845-45b9-42a0-baab-d32bbf753f0f",
+    "name": "Succeed",
+    "url": "/notice/2",
+    "method": "GET",
+    "sortNum": 70000,
+    "created": "2023-02-01T07:10:51.588Z",
+    "modified": "2023-02-01T07:13:09.203Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"title\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"content\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"prev\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"next\""
+      }
+    ],
+    "docs": "# Get notice by ID\n\n공지사항 하나의 자세한 정보를 불러옵니다."
+  },
+  {
     "_id": "9906591a-fce6-4cde-b6e2-7abd74138990",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "8a42bead-603a-4667-a09a-8e351f983f7c",
@@ -1292,15 +1175,132 @@
     }
   },
   {
+    "_id": "3180d03d-eda4-4e5c-8f90-813b04678fa8",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "dd6c1845-45b9-42a0-baab-d32bbf753f0f",
+    "name": "404: Nonexistent notice",
+    "url": "/notice/0",
+    "method": "GET",
+    "sortNum": 80000,
+    "created": "2023-02-01T07:13:30.858Z",
+    "modified": "2023-02-01T07:13:49.639Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "404"
+      }
+    ]
+  },
+  {
+    "_id": "29e89972-fd6e-411b-af6d-0cb1b910b306",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "162021f9-d9b8-4acb-880a-fac122d0fadf",
+    "name": "Succeed",
+    "url": "/group/1/notice?offset=1",
+    "method": "GET",
+    "sortNum": 90000,
+    "created": "2023-02-01T07:13:58.376Z",
+    "modified": "2023-02-01T07:19:11.799Z",
+    "headers": [],
+    "params": [
+      {
+        "name": "offset",
+        "value": "1",
+        "isPath": false
+      }
+    ],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"id\": 1"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"id\": 2"
+      }
+    ],
+    "docs": "# Get group's all notices\n\n한 group의 모든 공지사항을 불러옵니다.\n\n## Query\n\n- `offset`: 몇 번째 item부터 가져올지 정합니다.",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "1af21194-f768-4f41-a382-80c28db2bcce",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "314f4a3d-0379-44c7-b253-caaeddca2bb8",
+    "name": "Succeed",
+    "url": "/group/1/notice/2",
+    "method": "GET",
+    "sortNum": 100000,
+    "created": "2023-02-01T07:16:58.009Z",
+    "modified": "2023-02-01T07:19:48.673Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"title\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"content\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"prev\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"next"
+      }
+    ],
+    "docs": "# Get group's notice by ID\n\nGroup의 공지사항의 자세한 정보를 가져옵니다."
+  },
+  {
     "_id": "576ee68b-a00a-4686-9ef6-96b31a97a8ae",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "8800f872-5218-45ef-83ce-676626c54cce",
     "name": "404: Not Found",
-    "url": "/admin/group/2/workbook/1298",
+    "url": "/admin/group/2/workbook/0",
     "method": "DELETE",
     "sortNum": 100000,
     "created": "2023-02-01T07:22:42.587Z",
-    "modified": "2023-02-01T07:25:30.080Z",
+    "modified": "2023-02-01T07:47:38.377Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -1328,11 +1328,11 @@
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "8a42bead-603a-4667-a09a-8e351f983f7c",
     "name": "404: Not Found",
-    "url": "/admin/group/2/workbook/48872",
+    "url": "/admin/group/2/workbook/0",
     "method": "PUT",
     "sortNum": 110000,
     "created": "2023-02-01T07:22:57.836Z",
-    "modified": "2023-02-01T07:25:44.566Z",
+    "modified": "2023-02-01T07:47:33.785Z",
     "headers": [],
     "params": [],
     "body": {
