@@ -11,7 +11,9 @@ const props = defineProps<{
 }>()
 
 const router = useRouter()
-const { currentNotice, adjacentNotices, getNotice, goDetail } = useNotice()
+
+const { currentNotice, adjacentNotices, numberOfPages, getNotice, goDetail } =
+  useNotice()
 
 onMounted(async () => {
   try {
@@ -57,7 +59,7 @@ const field: Field[] = [
       no-header
       no-pagination
       no-search-bar
-      :number-of-pages="1"
+      :number-of-pages="numberOfPages"
       :fields="field"
       :items="adjacentNotices"
       @row-clicked="goDetail"

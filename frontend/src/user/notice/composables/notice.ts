@@ -23,7 +23,18 @@ export interface Item {
 
 export const useNotice = () => {
   const notices = ref<Item[]>([])
-
+  async function getNoticeList(currentPage: number) {
+    const res = await axios.get('/api/notice', {
+      params: { offset: (currentPage - 1) * 10 + 1 }
+    })
+    notices.value = res.data
+    notices.value.map((notice) => {
+      notice.createTime = useDateFormat(notice.createTime, 'YYYY-MM-DD').value
+    })
+  }
+  console.log(notices.value)
+  // TODO: number of pages api로 받아오기
+  const numberOfPages = 2
   const currentNotice = ref<Item>()
   const previousNotice = ref<Item>()
   const nextNotice = ref<Item>()
@@ -67,8 +78,10 @@ export const useNotice = () => {
 
   return {
     notices,
+    numberOfPages,
     currentNotice,
     adjacentNotices,
+    getNoticeList,
     goDetail,
     getNotice
   }
