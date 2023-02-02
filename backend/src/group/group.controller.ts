@@ -8,16 +8,12 @@ import {
   ParseIntPipe,
   Post,
   Req,
-  UnauthorizedException,
   UseGuards
 } from '@nestjs/common'
 import { Group, Role } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { Roles } from 'src/common/decorator/roles.decorator'
-import {
-  EntityNotExistException,
-  InvalidUserException
-} from 'src/common/exception/business.exception'
+import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupService } from './group.service'
 import { GroupMemberGuard } from './guard/group-member.guard'
 import { Membership } from './interface/membership.interface'
@@ -61,13 +57,10 @@ export class GroupController {
     @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Partial<Group>> {
     try {
-      return await this.groupService.getGroup(req.user.id, groupId)
+      return await this.groupService.getGroup(groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      }
-      if (error instanceof InvalidUserException) {
-        throw new UnauthorizedException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -75,11 +68,10 @@ export class GroupController {
 
   @Get(':groupId/join')
   async getGroupJoinById(
-    @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<UserGroupInterface> {
     try {
-      return await this.groupService.getGroupJoinById(req.user.id, groupId)
+      return await this.groupService.getGroupJoinById(groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -122,17 +114,13 @@ export class GroupController {
   @Get(':groupId/leaders')
   @UseGuards(GroupMemberGuard)
   async getGroupLeaders(
-    @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Membership[]> {
     try {
-      return await this.groupService.getGroupLeaders(req.user.id, groupId)
+      return await this.groupService.getGroupLeaders(groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      }
-      if (error instanceof InvalidUserException) {
-        throw new UnauthorizedException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -140,17 +128,13 @@ export class GroupController {
 
   @Get(':groupId/members')
   async getGroupMembers(
-    @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Membership[]> {
     try {
-      return await this.groupService.getGroupMembers(req.user.id, groupId)
+      return await this.groupService.getGroupMembers(groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      }
-      if (error instanceof InvalidUserException) {
-        throw new UnauthorizedException(error.message)
       }
       throw new InternalServerErrorException()
     }

@@ -10,25 +10,11 @@ import { UserGroupData } from './interface/user-group-data.interface'
 import { Membership } from './interface/membership.interface'
 import { UserGroupInterface } from './interface/user-group.interface'
 
-function returnIsNotAllowed(userId: number, groupId: number): string {
-  return `Group ${groupId} is not allowed to User ${userId}`
-}
-
 @Injectable()
 export class GroupService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getGroup(userId: number, groupId: number): Promise<Partial<Group>> {
-    await this.prisma.userGroup.findFirst({
-      where: {
-        userId: userId,
-        groupId: groupId,
-        isRegistered: true
-      },
-      rejectOnNotFound: () =>
-        new InvalidUserException(returnIsNotAllowed(userId, groupId))
-    })
-
+  async getGroup(groupId: number): Promise<Partial<Group>> {
     const group = await this.prisma.group.findUnique({
       where: {
         id: groupId
@@ -44,10 +30,7 @@ export class GroupService {
     return group
   }
 
-  async getGroupJoinById(
-    userId: number,
-    groupId: number
-  ): Promise<UserGroupInterface> {
+  async getGroupJoinById(groupId: number): Promise<UserGroupInterface> {
     const group = await this.prisma.group.findFirst({
       where: {
         id: groupId,
@@ -102,20 +85,7 @@ export class GroupService {
     }
   }
 
-  async getGroupLeaders(
-    userId: number,
-    groupId: number
-  ): Promise<Membership[]> {
-    await this.prisma.userGroup.findFirst({
-      where: {
-        userId: userId,
-        groupId: groupId,
-        isRegistered: true
-      },
-      rejectOnNotFound: () =>
-        new InvalidUserException(returnIsNotAllowed(userId, groupId))
-    })
-
+  async getGroupLeaders(groupId: number): Promise<Membership[]> {
     const leaders = await this.prisma.userGroup.findMany({
       where: {
         groupId: groupId,
@@ -140,20 +110,7 @@ export class GroupService {
     return leaders
   }
 
-  async getGroupMembers(
-    userId: number,
-    groupId: number
-  ): Promise<Membership[]> {
-    await this.prisma.userGroup.findFirst({
-      where: {
-        userId: userId,
-        groupId: groupId,
-        isRegistered: true
-      },
-      rejectOnNotFound: () =>
-        new InvalidUserException(returnIsNotAllowed(userId, groupId))
-    })
-
+  async getGroupMembers(groupId: number): Promise<Membership[]> {
     const members = await this.prisma.userGroup.findMany({
       where: {
         groupId: groupId,
