@@ -12,7 +12,8 @@ const props = defineProps<{
 
 const router = useRouter()
 
-const { currentNotice, adjacentNotices, getNotice, goDetail } = useNotice()
+const { currentNotice, adjacentNotices, numberOfPages, getNotice, goDetail } =
+  useNotice()
 
 onMounted(() => {
   getNotice(parseInt(props.id))
@@ -46,7 +47,7 @@ const field: Field[] = [
         class="!text-text-title"
       />
       <div class="hidden sm:block">
-        {{ currentNotice?.date }}
+        {{ currentNotice?.createTime }}
       </div>
     </div>
     <div class="m-4 text-right text-sm">
@@ -59,7 +60,7 @@ const field: Field[] = [
       no-header
       no-pagination
       no-search-bar
-      :number-of-pages="1"
+      :number-of-pages="numberOfPages"
       :fields="field"
       :items="adjacentNotices"
       @row-clicked="goDetail"
