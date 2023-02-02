@@ -133,7 +133,9 @@ export class ContestService {
         id: userId
       },
       select: {
-        contest: true
+        contest: {
+          select: this.contestSelectOption
+        }
       }
     })
 
