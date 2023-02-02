@@ -52,9 +52,10 @@ const field: Field[] = [
     <div class="m-4 hidden text-right text-sm md:block">
       Last update: {{ currentNotice?.updateTime }}
     </div>
-    <div class="min-h-[400px] w-full max-w-full break-all p-4">
-      {{ currentNotice?.content }}
-    </div>
+    <div
+      v-dompurify-html="currentNotice?.content"
+      class="min-h-[400px] w-full max-w-full break-all p-4"
+    ></div>
     <PaginationTable
       no-header
       no-pagination
