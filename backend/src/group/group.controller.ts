@@ -10,8 +10,9 @@ import {
   Req,
   UnauthorizedException
 } from '@nestjs/common'
-import { Group } from '@prisma/client'
+import { Group, Role } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { Roles } from 'src/common/decorator/roles.decorator'
 import {
   EntityNotExistException,
   InvalidUserException
@@ -21,6 +22,7 @@ import { Membership } from './interface/membership.interface'
 import { UserGroupInterface } from './interface/user-group.interface'
 
 @Controller('group')
+@Roles(Role.User)
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
