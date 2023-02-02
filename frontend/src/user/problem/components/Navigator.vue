@@ -10,7 +10,20 @@ import IconRun from '~icons/bi/play'
 
 const items = ['Editor', 'Standings', 'Submissions']
 
+const langs = [
+  { lang: 'cpp', name: 'Cpp' },
+  { lang: 'python', name: 'Python' },
+  { lang: 'javascript', name: 'JavaScript' },
+  { lang: 'java', name: 'Java' }
+]
+
 const activeItem = ref(items[0])
+
+defineProps<{
+  modelValue: string
+}>()
+
+defineEmits(['update:modelValue'])
 
 const activeStyle = (item: string) => {
   return item === activeItem.value ? `border-t-[3px] border-white pb-[3px]` : ''
@@ -61,14 +74,19 @@ const activeStyle = (item: string) => {
           <div
             class="flex h-9 w-fit flex-row items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white"
           >
-            <span>C++</span>
+            <span>{{ langs.find((x) => x.lang === modelValue)?.name }}</span>
             <IconDown class="h-4 w-4" />
           </div>
         </template>
         <template #items>
-          <ListItem color="slate">C++</ListItem>
-          <ListItem color="slate">Python3</ListItem>
-          <ListItem color="slate">Java</ListItem>
+          <ListItem
+            v-for="{ lang, name } in langs"
+            :key="lang"
+            color="slate"
+            @click="$emit('update:modelValue', lang)"
+          >
+            {{ name }}
+          </ListItem>
         </template>
       </Dropdown>
     </div>
