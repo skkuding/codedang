@@ -32,7 +32,6 @@ export const useNotice = () => {
       notice.createTime = useDateFormat(notice.createTime, 'YYYY-MM-DD').value
     })
   }
-  console.log(notices.value)
   // TODO: number of pages api로 받아오기
   const numberOfPages = 2
   const currentNotice = ref<Item>()
