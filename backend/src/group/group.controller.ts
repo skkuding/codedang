@@ -8,7 +8,8 @@ import {
   ParseIntPipe,
   Post,
   Req,
-  UnauthorizedException
+  UnauthorizedException,
+  UseGuards
 } from '@nestjs/common'
 import { Group, Role } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
@@ -18,6 +19,7 @@ import {
   InvalidUserException
 } from 'src/common/exception/business.exception'
 import { GroupService } from './group.service'
+import { GroupMemberGuard } from './guard/group-member.guard'
 import { Membership } from './interface/membership.interface'
 import { UserGroupInterface } from './interface/user-group.interface'
 
@@ -39,6 +41,7 @@ export class GroupController {
   }
 
   @Get(':groupId')
+  @UseGuards(GroupMemberGuard)
   async getGroup(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
@@ -101,6 +104,7 @@ export class GroupController {
   }
 
   @Delete(':groupId/leave')
+  @UseGuards(GroupMemberGuard)
   async leaveGroup(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
@@ -116,6 +120,7 @@ export class GroupController {
   }
 
   @Get(':groupId/leaders')
+  @UseGuards(GroupMemberGuard)
   async getGroupLeaders(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
