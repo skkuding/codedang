@@ -24,8 +24,7 @@ import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.i
 import { Public } from 'src/common/decorator/public.decorator'
 
 @Controller('admin/group/:groupId/workbook')
-@Public()
-//@UseGuards(RolesGuard, GroupLeaderGuard)
+@UseGuards(RolesGuard, GroupLeaderGuard)
 export class WorkbookAdminController {
   constructor(private readonly workbookService: WorkbookService) {}
 

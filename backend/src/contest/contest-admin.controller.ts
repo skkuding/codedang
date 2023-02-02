@@ -33,8 +33,7 @@ import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-r
 import { Public } from 'src/common/decorator/public.decorator'
 
 @Controller('admin/contest')
-@Public()
-//@UseGuards(RolesGuard)
+@UseGuards(RolesGuard)
 @Roles(Role.Admin)
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}

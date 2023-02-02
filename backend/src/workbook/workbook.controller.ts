@@ -16,8 +16,7 @@ import { Workbook } from '@prisma/client'
 import { Public } from 'src/common/decorator/public.decorator'
 
 @Controller('group/:groupId/workbook')
-@Public()
-//@UseGuards(RolesGuard, GroupMemberGuard)
+@UseGuards(RolesGuard, GroupMemberGuard)
 export class GroupWorkbookController {
   constructor(private readonly workbookService: WorkbookService) {}
 
