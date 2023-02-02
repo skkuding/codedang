@@ -54,12 +54,12 @@ export class GroupController {
     }
   }
 
-  @Get('my')
-  async getMyGroups(
+  @Get('joined')
+  async getJoinedGroups(
     @Req() req: AuthenticatedRequest
   ): Promise<UserGroupInterface[]> {
     try {
-      return await this.groupService.getMyGroups(req.user.id)
+      return await this.groupService.getJoinedGroups(req.user.id)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
