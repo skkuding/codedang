@@ -17,7 +17,7 @@ export interface Item {
   id: number
   title: string
   createTime?: string
-  update?: string
+  updateTime?: string
   content?: string
 }
 
@@ -35,6 +35,8 @@ export const useNotice = () => {
   // TODO: number of pages api로 받아오기
   const numberOfPages = 2
   const currentNotice = ref<Item>()
+  const previousNotice = ref<Item>()
+  const nextNotice = ref<Item>()
   const adjacentNotices = ref<Item[]>([])
 
   const router = useRouter()
@@ -45,20 +47,31 @@ export const useNotice = () => {
       params: { id }
     })
   }
-  // TODO: api 연결
-  function getNotice(id: number) {
-    currentNotice.value = notices.value.find((x) => x.id === id)
-    const previousNotice = notices.value.find((x) => x.id === id - 1)
-    const nextNotice = notices.value.find((x) => x.id === id + 1)
-    if (previousNotice) {
-      previousNotice.icon = IconAngleUp
-      previousNotice.name = 'prev'
-      adjacentNotices.value.push(markRaw(previousNotice))
+
+  async function getNotice(id: number) {
+    const res = await axios.get('/api/notice/' + id)
+
+    res.data.current.createTime = useDateFormat(
+      res.data.current.createTime,
+      'YYYY-MM-DD'
+    ).value
+    res.data.current.updateTime = useDateFormat(
+      res.data.current.updateTime,
+      'YYYY-MM-DD'
+    ).value
+    currentNotice.value = res.data.current
+    previousNotice.value = res.data.prev
+    nextNotice.value = res.data.next
+
+    if (previousNotice.value) {
+      previousNotice.value.icon = markRaw(IconAngleUp)
+      previousNotice.value.name = 'prev'
+      adjacentNotices.value.push(markRaw(previousNotice.value))
     }
-    if (nextNotice) {
-      nextNotice.icon = IconAngleDown
-      nextNotice.name = 'next'
-      adjacentNotices.value.push(markRaw(nextNotice))
+    if (nextNotice.value) {
+      nextNotice.value.icon = markRaw(IconAngleDown)
+      nextNotice.value.name = 'next'
+      adjacentNotices.value.push(markRaw(nextNotice.value))
     }
   }
 
