@@ -167,11 +167,11 @@ export class ContestService {
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
-    const userGroup = await this.groupService.getUserGroupMembershipInfo(
-      userId,
-      contest.group.id
-    )
-    const isUserGroupMember = userGroup && userGroup.isRegistered
+    const isUserGroupMember =
+      await this.groupService.getUserGroupMembershipInfo(
+        userId,
+        contest.group.id
+      )
     const now = new Date()
 
     if (!isUserGroupMember && contest.endTime > now) {

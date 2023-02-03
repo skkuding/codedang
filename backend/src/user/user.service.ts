@@ -286,7 +286,6 @@ export class UserService {
     const userGroupData: UserGroupData = {
       userId,
       groupId: 1,
-      isRegistered: true,
       isGroupLeader: false
     }
     await this.groupService.createUserGroup(userGroupData)

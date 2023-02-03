@@ -99,10 +99,8 @@ const contestPublicizingRequests: ContestPublicizingRequest[] = [
 const ongoingContest: Partial<Contest> = ongoingContests[0]
 
 const userGroup: UserGroup = {
-  id: 1,
   userId: userId,
   groupId: groupId,
-  isRegistered: true,
   isGroupLeader: true,
   createTime: new Date(),
   updateTime: new Date()
@@ -111,7 +109,6 @@ const userGroups: UserGroup[] = [
   userGroup,
   {
     ...userGroup,
-    id: userGroup.id + 1,
     groupId: userGroup.groupId + 1
   }
 ]
@@ -437,7 +434,6 @@ describe('ContestService', () => {
 
     it('should return contest of the group', async () => {
       stub(groupService, 'getUserGroupMembershipInfo').resolves({
-        isRegistered: true,
         isGroupLeader: false
       })
 

@@ -118,7 +118,6 @@ const createGroups = async () => {
       data: {
         userId: user.id,
         groupId: publicGroup.id,
-        isRegistered: true,
         isGroupLeader: user.username === 'user01'
       }
     })
@@ -127,12 +126,11 @@ const createGroups = async () => {
   // add users to private group
   // group leader: user01
   // registered: user01, user03, user05, user07, user09
-  for (const [index, user] of users.entries()) {
+  for (const [_, user] of users.entries()) {
     prisma.userGroup.create({
       data: {
         userId: user.id,
         groupId: privateGroup.id,
-        isRegistered: index % 2 === 0,
         isGroupLeader: user.username === 'user01'
       }
     })

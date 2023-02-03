@@ -22,9 +22,7 @@ export class GroupLeaderGuard implements CanActivate {
       await this.groupService.getUserGroupMembershipInfo(userId, groupId)
 
     const isGroupLeader: boolean =
-      userGroupMembershipInfo &&
-      userGroupMembershipInfo.isRegistered &&
-      userGroupMembershipInfo.isGroupLeader
+      userGroupMembershipInfo && userGroupMembershipInfo.isGroupLeader
 
     if (isGroupLeader) {
       return true
