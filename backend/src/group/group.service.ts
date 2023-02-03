@@ -91,7 +91,8 @@ export class GroupService {
         isGroupLeader: true
       },
       select: {
-        id: true,
+        userId: true,
+        groupId: true,
         user: {
           select: {
             userProfile: {
@@ -115,7 +116,8 @@ export class GroupService {
         isGroupLeader: false
       },
       select: {
-        id: true,
+        userId: true,
+        groupId: true,
         user: {
           select: {
             userProfile: {
@@ -236,21 +238,12 @@ export class GroupService {
   }
 
   async leaveGroup(userId: number, groupId: number) {
-    const membershipId = await this.prisma.userGroup.findFirst({
-      where: {
-        userId: userId,
-        groupId: groupId,
-        isRegistered: true
-      },
-      select: {
-        id: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('membership')
-    })
-
     await this.prisma.userGroup.delete({
       where: {
-        id: membershipId.id
+        userId_groupId: {
+          userId: userId,
+          groupId: groupId
+        }
       }
     })
   }

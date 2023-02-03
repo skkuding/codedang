@@ -1,6 +1,7 @@
 /* eslint-disable */
 export interface Membership {
-  id: number
+  userId: number
+  groupId: number
   user: {
     username?: string
     email?: string
