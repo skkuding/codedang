@@ -17,12 +17,10 @@ export class GroupMemberGuard implements CanActivate {
 
     const groupId: number = parseInt(request.params.groupId)
     const userId: number = request.user.id
-
-    const userGroupMembershipInfo =
-      await this.groupService.getUserGroupMembershipInfo(userId, groupId)
-
-    const isGroupMember: boolean =
-      userGroupMembershipInfo && userGroupMembershipInfo.isRegistered
+    const isGroupMember = await this.groupService.getUserGroupMembershipInfo(
+      userId,
+      groupId
+    )
 
     if (isGroupMember) {
       return true
