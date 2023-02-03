@@ -121,38 +121,60 @@ export class ContestService {
     })
   }
 
-  async getContests(userId: number): Promise<{
-    registeredOngoing: Partial<Contest>[]
-    registeredUpcoming: Partial<Contest>[]
+ async getContests(user: AuthenticatedUser): Promise<{
+    registeredOngoing?: Partial<Contest>[]
+    registeredUpcoming?: Partial<Contest>[]
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
+    if (user === undefined) {
+      const contests = await this.prisma.contest.findMany({
+        where: {
+          visible: true
+        },
+        select: this.contestSelectOption,
+        orderBy: {
+          endTime: 'asc'
+        }
+      })
+
+      return {
+        ongoing: this.filterOngoing(contests),
+        upcoming: this.filterUpcoming(contests),
+        finished: this.filterFinished(contests)
+      }
+    }
+
     const registeredContests = await this.prisma.user.findUnique({
       where: {
-        id: userId
+        id: user.id
       },
       select: {
         contest: {
-          select: this.contestSelectOption
+          select: this.contestSelectOption,
+          orderBy: {
+            endTime: 'asc'
+          }
         }
       }
     })
 
-    let registeredContestTitles: string[]
-
-    registeredContests.contest.forEach((contest) => {
-      registeredContestTitles.push(contest.title)
-    })
+    const registeredContestTitles = registeredContests.contest.map(
+      (contest) => contest.id
+    )
 
     const contests = await this.prisma.contest.findMany({
       where: {
         visible: true,
-        title: {
+        id: {
           notIn: registeredContestTitles
         }
       },
-      select: this.contestSelectOption
+      select: this.contestSelectOption,
+      orderBy: {
+        endTime: 'asc'
+      }
     })
 
     return {
@@ -174,24 +196,13 @@ export class ContestService {
     return 0
   }
 
-  endTimeCompare(a: Contest, b: Contest) {
-    if (a.endTime < b.endTime) {
-      return -1
-    }
-    if (a.endTime > b.endTime) {
-      return 1
-    }
-    return 0
-  }
-
   filterOngoing(contests: Partial<Contest>[]): Partial<Contest>[] {
     const now = new Date()
-    contests.sort(this.endTimeCompare)
     const ongoingContest = contests.filter(
       (contest) => contest.startTime <= now && contest.endTime > now
     )
     return ongoingContest
-  }
+  } 
 
   filterUpcoming(contests: Partial<Contest>[]): Partial<Contest>[] {
     const now = new Date()
@@ -204,7 +215,6 @@ export class ContestService {
 
   filterFinished(contests: Partial<Contest>[]): Partial<Contest>[] {
     const now = new Date()
-    contests.sort(this.endTimeCompare)
     const finishedContest = contests.filter((contest) => contest.endTime <= now)
     return finishedContest
   }
