@@ -23,7 +23,7 @@ import { RolesGuard } from 'src/user/guard/roles.guard'
 
 @Controller('contest')
 @Public()
-export class ContestController {
+export class PublicContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
