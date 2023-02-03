@@ -9,7 +9,8 @@ import {
   Get,
   UseGuards,
   MethodNotAllowedException,
-  Query
+  Query,
+  DefaultValuePipe
 } from '@nestjs/common'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
@@ -60,7 +61,7 @@ export class GroupContestController {
   //@UseGuards(RolesGuard, GroupMemberGuard)
   async getContests(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', ParseIntPipe) cursor: number,
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
     @Query('take', ParseIntPipe) offset: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getContestsByGroupId(

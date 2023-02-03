@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   InternalServerErrorException,
@@ -33,14 +34,15 @@ import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-r
 import { Public } from 'src/common/decorator/public.decorator'
 
 @Controller('admin/contest')
-@UseGuards(RolesGuard)
+@Public()
+//@UseGuards(RolesGuard)
 @Roles(Role.Admin)
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
   async getAdminContests(
-    @Query('cursor', ParseIntPipe) cursor: number,
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminContests(cursor, take)
@@ -48,7 +50,7 @@ export class ContestAdminController {
 
   @Get('ongoing')
   async getAdminOngoingContests(
-    @Query('cursor', ParseIntPipe) cursor: number,
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminOngoingContests(cursor, take)
@@ -123,7 +125,7 @@ export class GroupContestAdminController {
   @Get()
   async getAdminContests(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', ParseIntPipe) cursor: number,
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminContestsByGroupId(

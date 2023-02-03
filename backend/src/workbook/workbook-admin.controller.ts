@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   InternalServerErrorException,
@@ -31,7 +32,7 @@ export class WorkbookAdminController {
   @Get()
   async getGroupWorkbooks(
     @Param('groupId', ParseIntPipe) groupId,
-    @Query('cursor', ParseIntPipe) cursor: number,
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {

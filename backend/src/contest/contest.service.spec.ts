@@ -469,9 +469,9 @@ describe('ContestService', () => {
 
   describe('getContestsByGroupId', () => {
     it('should return contests of the group', async () => {
-      expect(await contestService.getContestsByGroupId(groupId)).to.deep.equal(
-        contests
-      )
+      expect(
+        await contestService.getContestsByGroupId(groupId, 0, 3)
+      ).to.deep.equal(contests)
     })
   })
 
@@ -479,7 +479,9 @@ describe('ContestService', () => {
     it('should return contests in open space', async () => {
       stub(groupService, 'getUserGroupLeaderList').resolves([groupId])
 
-      expect(await contestService.getAdminContests()).to.deep.equal(contests)
+      expect(await contestService.getAdminContests(0, 3)).to.deep.equal(
+        contests
+      )
     })
   })
 
@@ -487,7 +489,7 @@ describe('ContestService', () => {
     it('should return ongoing contests in open space', async () => {
       stub(groupService, 'getUserGroupLeaderList').resolves([groupId])
 
-      expect(await contestService.getAdminOngoingContests()).to.deep.equal(
+      expect(await contestService.getAdminOngoingContests(0, 1)).to.deep.equal(
         ongoingContests
       )
     })
@@ -516,7 +518,7 @@ describe('ContestService', () => {
   describe('getAdminContestsByGroupId', () => {
     it('should return contests of the group', async () => {
       expect(
-        await contestService.getAdminContestsByGroupId(groupId)
+        await contestService.getAdminContestsByGroupId(groupId, 0, 3)
       ).to.deep.equal(contests)
     })
   })

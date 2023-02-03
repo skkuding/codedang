@@ -237,14 +237,48 @@ export class ContestService {
       }
     }
     return result
+
+    /*
+    const now = new Date(Date.now())
+    let skipNum = 1
+    if (!myCursor) (skipNum = 0), (myCursor = 1)
+    return await this.prisma.contest.findMany({
+      skip: skipNum,
+      take: offset,
+      cursor: {
+        id: myCursor
+      },
+      where: {
+        AND: [
+          {
+            groupId: 1
+          },
+          {
+            startTime: {
+              lt: now
+            }
+          },
+          {
+            endTime: {
+              gt: now
+            }
+          }
+        ]
+      },
+      select: { ...this.contestSelectOption, visible: true }
+    })*/
   }
 
   async getAdminContests(
     myCursor: number,
     offset: number
   ): Promise<Partial<Contest>[]> {
+    //커서를 안보낸다. ==> default 설정
     let skipNum = 1
-    if (!myCursor) (skipNum = 0), (myCursor = 1)
+    if (!myCursor) {
+      skipNum = 0
+      myCursor = 1
+    }
     return await this.prisma.contest.findMany({
       skip: skipNum,
       take: offset,
