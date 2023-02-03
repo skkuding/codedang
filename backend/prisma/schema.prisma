@@ -59,7 +59,6 @@ model UserGroup {
   userId        Int      @map("user_id")
   group         Group    @relation(fields: [groupId], references: [id])
   groupId       Int      @map("group_id")
-  isRegistered  Boolean  @default(false) @map("is_registered")
   isGroupLeader Boolean  @default(false) @map("is_group_leader")
   createTime    DateTime @default(now()) @map("create_time")
   updateTime    DateTime @updatedAt @map("update_time")
