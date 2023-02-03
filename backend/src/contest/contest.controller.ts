@@ -28,13 +28,13 @@ export class ContestController {
 
   @Get()
   async getContests(@Req() req: AuthenticatedRequest): Promise<{
-    registeredOngoing: Partial<Contest>[]
-    registeredUpcoming: Partial<Contest>[]
+    registeredOngoing?: Partial<Contest>[]
+    registeredUpcoming?: Partial<Contest>[]
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests(req.user.id)
+    return await this.contestService.getContests(req.user)
   }
 
   @Get(':contestId')
