@@ -390,7 +390,7 @@ describe('ContestService', () => {
 
   describe('getContests', () => {
     it('should return ongoing, upcoming, finished contests', async () => {
-      expect(await contestService.getContests()).to.deep.equal({
+      expect(await contestService.getContests(user)).to.deep.equal({
         ongoing: ongoingContests,
         upcoming: upcomingContests,
         finished: finishedContests
@@ -447,23 +447,23 @@ describe('ContestService', () => {
     })
   })
 
-  describe('getModalContestById', () => {
+  describe('getContestDetailById', () => {
     it('should throw error when contest does not exist', async () => {
       mockPrismaService.contest.findUnique.rejects(
         new EntityNotExistException('contest')
       )
 
       await expect(
-        contestService.getModalContestById(contestId)
+        contestService.getContestDetailById(contestId)
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
     it('should return contest', async () => {
       mockPrismaService.contest.findUnique.resolves(contest)
 
-      expect(await contestService.getModalContestById(contestId)).to.deep.equal(
-        contest
-      )
+      expect(
+        await contestService.getContestDetailById(contestId)
+      ).to.deep.equal(contest)
     })
   })
 
