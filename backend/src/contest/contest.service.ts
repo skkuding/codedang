@@ -219,32 +219,10 @@ export class ContestService {
     myCursor: number,
     offset: number
   ): Promise<Partial<Contest>[]> {
-    let rest = 0
-    let contestsNum = 0
-    let contests: Partial<Contest>[] = []
-    const result: Partial<Contest>[] = []
-    while (rest < offset) {
-      contests = await this.getAdminContests(myCursor, offset)
-      contests = this.filterOngoing(contests)
-      contestsNum = contests.length
-      if (!contestsNum) break
-      for (
-        let i = 0;
-        i < contestsNum && rest < offset;
-        ++i, ++rest, ++myCursor
-      ) {
-        result.push(contests[i])
-      }
-    }
-    return result
-
-    /*
     const now = new Date(Date.now())
-    let skipNum = 1
-    if (!myCursor) (skipNum = 0), (myCursor = 1)
-    return await this.prisma.contest.findMany({
-      skip: skipNum,
-      take: offset,
+    if (!myCursor) myCursor = 1
+    let results = await this.prisma.contest.findMany({
+      take: offset + 1,
       cursor: {
         id: myCursor
       },
@@ -266,7 +244,13 @@ export class ContestService {
         ]
       },
       select: { ...this.contestSelectOption, visible: true }
-    })*/
+    })
+    if (results[0].id == myCursor) {
+      results = results.slice(1)
+    } else if (results.length > offset) {
+      results.pop()
+    }
+    return results
   }
 
   async getAdminContests(
