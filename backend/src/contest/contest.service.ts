@@ -153,6 +153,11 @@ export class ContestService {
       },
       select: {
         contest: {
+          where: {
+            endTime: {
+              gt: now
+            }
+          },
           select: this.contestSelectOption,
           orderBy: {
             endTime: 'asc'
