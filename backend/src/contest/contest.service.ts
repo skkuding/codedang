@@ -166,7 +166,7 @@ export class ContestService {
       }
     })
 
-    const registeredContestTitles = registeredContests.contest.map(
+    const registeredContestId = registeredContests.contest.map(
       (contest) => contest.id
     )
 
@@ -174,7 +174,7 @@ export class ContestService {
       where: {
         visible: true,
         id: {
-          notIn: registeredContestTitles
+          notIn: registeredContestId
         }
       },
       select: this.contestSelectOption,
