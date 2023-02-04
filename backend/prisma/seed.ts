@@ -24,7 +24,7 @@ const createUsers = async () => {
   superAdminUser = await prisma.user.create({
     data: {
       username: 'super',
-      password: await encrypt('supersuper'),
+      password: await encrypt('Supersuper'),
       email: 'skkucodingplatform@gmail.com',
       lastLogin: new Date(),
       role: Role.SuperAdmin
@@ -35,7 +35,7 @@ const createUsers = async () => {
   await prisma.user.create({
     data: {
       username: 'admin',
-      password: await encrypt('adminadmin'),
+      password: await encrypt('Adminadmin'),
       email: 'admin@example.com',
       lastLogin: new Date(),
       role: Role.Admin
@@ -46,7 +46,7 @@ const createUsers = async () => {
   managerUser = await prisma.user.create({
     data: {
       username: 'manager',
-      password: await encrypt('manager'),
+      password: await encrypt('Manager'),
       email: 'manager@example.com',
       lastLogin: new Date(),
       role: Role.Manager
@@ -59,7 +59,7 @@ const createUsers = async () => {
     const user = await prisma.user.create({
       data: {
         username: `user${specifier}`,
-        password: await encrypt('useruser'),
+        password: await encrypt('Useruser'),
         email: `user${specifier}@example.com`,
         lastLogin: new Date(),
         role: Role.User
