@@ -3,3 +3,6 @@ export const refreshTokenCacheKey = (userId: number) =>
 
 export const emailAuthenticationPinCacheKey = (email: string) =>
   `email-auth:${email}`
+
+export const joinGroupCacheKey = (userId: number, groupId: number) =>
+  `group:${groupId}`

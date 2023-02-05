@@ -1,0 +1,1 @@
+export const JOIN_GROUP_REQUEST_EXPIRATION_SEC = 604800 // 1week

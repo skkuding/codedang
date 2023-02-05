@@ -49,3 +49,9 @@ export class EmailTransmissionFailedException extends BusinessException {
     super(message)
   }
 }
+
+export class JoinGroupRequestAlreadyExistException extends BusinessException {
+  constructor(message = 'Join group request already exists') {
+    super(message)
+  }
+}

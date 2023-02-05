@@ -1,14 +1,23 @@
 /* eslint-disable */
-import { Injectable } from '@nestjs/common'
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
 import { Group, UserGroup } from '@prisma/client'
-import { EntityNotExistException } from 'src/common/exception/business.exception'
+import {
+  EntityNotExistException,
+  JoinGroupRequestAlreadyExistException
+} from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { UserGroupData } from './interface/user-group-data.interface'
 import { GroupData } from './interface/group-data.interface'
+import { JOIN_GROUP_REQUEST_EXPIRATION_SEC } from './constants/pending.constants'
+import { joinGroupCacheKey } from 'src/common/cache/keys'
+import { Cache } from 'cache-manager'
 
 @Injectable()
 export class GroupService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+  ) {}
 
   async getGroup(groupId: number): Promise<Partial<Group>> {
     const group = await this.prisma.group.findUnique({
@@ -208,16 +217,35 @@ export class GroupService {
           equals: true
         }
       },
+      select: {
+        config: true
+      },
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
 
-    const userGroupData: UserGroupData = {
-      userId,
-      groupId,
-      isGroupLeader: false
-    }
+    if (group.config['requireApprovalBeforeJoin']) {
+      const joinGroupRequest = await this.cacheManager.get(
+        joinGroupCacheKey(userId, groupId)
+      )
 
-    await this.createUserGroup(userGroupData)
+      if (joinGroupRequest) {
+        throw new JoinGroupRequestAlreadyExistException()
+      }
+
+      const userGroupValue = `user:${userId}:group:${groupId}`
+      await this.cacheManager.set(
+        joinGroupCacheKey(userId, groupId),
+        userGroupValue,
+        JOIN_GROUP_REQUEST_EXPIRATION_SEC
+      )
+    } else {
+      const userGroupData: UserGroupData = {
+        userId,
+        groupId,
+        isGroupLeader: false
+      }
+      await this.createUserGroup(userGroupData)
+    }
   }
 
   async leaveGroup(userId: number, groupId: number) {
