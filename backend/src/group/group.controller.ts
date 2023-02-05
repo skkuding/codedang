@@ -10,16 +10,14 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common'
-import { Group, Role } from '@prisma/client'
+import { Group } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
-import { Roles } from 'src/common/decorator/roles.decorator'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupService } from './group.service'
 import { GroupMemberGuard } from './guard/group-member.guard'
 import { GroupData } from './interface/group-data.interface'
 
 @Controller('group')
-@Roles(Role.User)
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
@@ -110,7 +108,6 @@ export class GroupController {
   }
 
   @Get(':groupId/leaders')
-  @UseGuards(GroupMemberGuard)
   async getGroupLeaders(
     @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<string[]> {
