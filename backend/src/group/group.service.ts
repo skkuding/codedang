@@ -4,7 +4,7 @@ import { Group, UserGroup } from '@prisma/client'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { UserGroupData } from './interface/user-group-data.interface'
-import { UserGroupInterface } from './interface/user-group.interface'
+import { GroupData } from './interface/group-data.interface'
 import { GroupLeaderGuard } from './guard/group-leader.guard'
 
 @Injectable()
@@ -27,7 +27,7 @@ export class GroupService {
     return group
   }
 
-  async getGroupJoinById(groupId: number): Promise<UserGroupInterface> {
+  async getGroupJoinById(groupId: number): Promise<GroupData> {
     const group = await this.prisma.group.findFirst({
       where: {
         id: groupId,
@@ -129,7 +129,7 @@ export class GroupService {
     return members
   }
 
-  async getGroups(): Promise<UserGroupInterface[]> {
+  async getGroups(): Promise<GroupData[]> {
     const groups = (
       await this.prisma.group.findMany({
         where: {
@@ -166,7 +166,7 @@ export class GroupService {
     return groups
   }
 
-  async getJoinedGroups(userId: number): Promise<UserGroupInterface[]> {
+  async getJoinedGroups(userId: number): Promise<GroupData[]> {
     const groupIds = (
       await this.prisma.userGroup.findMany({
         where: {

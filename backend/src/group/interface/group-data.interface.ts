@@ -1,5 +1,5 @@
 /* eslint-disable */
-export interface UserGroupInterface {
+export interface GroupData {
   id: number
   groupName: string
   description: string
