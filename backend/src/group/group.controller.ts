@@ -16,7 +16,6 @@ import { Roles } from 'src/common/decorator/roles.decorator'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupService } from './group.service'
 import { GroupMemberGuard } from './guard/group-member.guard'
-import { Membership } from './interface/membership.interface'
 import { UserGroupInterface } from './interface/user-group.interface'
 
 @Controller('group')
@@ -115,7 +114,7 @@ export class GroupController {
   @UseGuards(GroupMemberGuard)
   async getGroupLeaders(
     @Param('groupId', ParseIntPipe) groupId: number
-  ): Promise<Membership[]> {
+  ): Promise<string[]> {
     try {
       return await this.groupService.getGroupLeaders(groupId)
     } catch (error) {
@@ -129,7 +128,7 @@ export class GroupController {
   @Get(':groupId/members')
   async getGroupMembers(
     @Param('groupId', ParseIntPipe) groupId: number
-  ): Promise<Membership[]> {
+  ): Promise<string[]> {
     try {
       return await this.groupService.getGroupMembers(groupId)
     } catch (error) {

@@ -1,14 +1,11 @@
 /* eslint-disable */
 import { Injectable } from '@nestjs/common'
 import { Group, UserGroup } from '@prisma/client'
-import {
-  EntityNotExistException,
-  InvalidUserException
-} from 'src/common/exception/business.exception'
+import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { UserGroupData } from './interface/user-group-data.interface'
-import { Membership } from './interface/membership.interface'
 import { UserGroupInterface } from './interface/user-group.interface'
+import { GroupLeaderGuard } from './guard/group-leader.guard'
 
 @Injectable()
 export class GroupService {
@@ -84,52 +81,50 @@ export class GroupService {
     }
   }
 
-  async getGroupLeaders(groupId: number): Promise<Membership[]> {
-    const leaders = await this.prisma.userGroup.findMany({
-      where: {
-        groupId: groupId,
-        isGroupLeader: true
-      },
-      select: {
-        userId: true,
-        groupId: true,
-        user: {
-          select: {
-            userProfile: {
-              select: {
-                realName: true
+  async getGroupLeaders(groupId: number): Promise<string[]> {
+    const leaders = (
+      await this.prisma.userGroup.findMany({
+        where: {
+          groupId: groupId,
+          isGroupLeader: true
+        },
+        select: {
+          user: {
+            select: {
+              userProfile: {
+                select: {
+                  realName: true
+                }
               }
             }
           }
-        },
-        isGroupLeader: true
-      }
-    })
+        }
+      })
+    ).map((leader) => leader.user.userProfile.realName)
 
     return leaders
   }
 
-  async getGroupMembers(groupId: number): Promise<Membership[]> {
-    const members = await this.prisma.userGroup.findMany({
-      where: {
-        groupId: groupId,
-        isGroupLeader: false
-      },
-      select: {
-        userId: true,
-        groupId: true,
-        user: {
-          select: {
-            userProfile: {
-              select: {
-                realName: true
+  async getGroupMembers(groupId: number): Promise<string[]> {
+    const members = (
+      await this.prisma.userGroup.findMany({
+        where: {
+          groupId: groupId,
+          isGroupLeader: false
+        },
+        select: {
+          user: {
+            select: {
+              userProfile: {
+                select: {
+                  realName: true
+                }
               }
             }
           }
-        },
-        isGroupLeader: true
-      }
-    })
+        }
+      })
+    ).map((member) => member.user.userProfile.realName)
 
     return members
   }
