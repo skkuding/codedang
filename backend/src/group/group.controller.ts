@@ -16,7 +16,7 @@ import { Roles } from 'src/common/decorator/roles.decorator'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupService } from './group.service'
 import { GroupMemberGuard } from './guard/group-member.guard'
-import { GroupData } from './interface/user-group.interface'
+import { GroupData } from './interface/group-data.interface'
 
 @Controller('group')
 @Roles(Role.User)
@@ -52,7 +52,6 @@ export class GroupController {
   @Get(':groupId')
   @UseGuards(GroupMemberGuard)
   async getGroup(
-    @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Partial<Group>> {
     try {

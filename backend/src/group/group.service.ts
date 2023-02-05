@@ -5,7 +5,6 @@ import { EntityNotExistException } from 'src/common/exception/business.exception
 import { PrismaService } from 'src/prisma/prisma.service'
 import { UserGroupData } from './interface/user-group-data.interface'
 import { GroupData } from './interface/group-data.interface'
-import { GroupLeaderGuard } from './guard/group-leader.guard'
 
 @Injectable()
 export class GroupService {
@@ -54,30 +53,13 @@ export class GroupService {
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
 
-    const groupLeaders = (
-      await this.prisma.userGroup.findMany({
-        where: {
-          groupId: groupId,
-          isGroupLeader: true
-        },
-        select: {
-          user: {
-            select: {
-              userProfile: {
-                select: {
-                  realName: true
-                }
-              }
-            }
-          }
-        }
-      })
-    ).map((leader) => leader.user.userProfile.realName)
-
     return {
-      ...group,
+      id: group.id,
+      groupName: group.groupName,
+      description: group.description,
+      createdBy: group.createdBy.userProfile.realName,
       memberNum: group.userGroup.length,
-      leaders: groupLeaders
+      leaders: await this.getGroupLeaders(groupId)
     }
   }
 
@@ -158,7 +140,10 @@ export class GroupService {
       .filter((group) => group.id != 1)
       .map((group) => {
         return {
-          ...group,
+          id: group.id,
+          groupName: group.groupName,
+          description: group.description,
+          createdBy: group.createdBy.userProfile.realName,
           memberNum: group.userGroup.length
         }
       })
@@ -203,7 +188,10 @@ export class GroupService {
       })
     ).map((group) => {
       return {
-        ...group,
+        id: group.id,
+        groupName: group.groupName,
+        description: group.description,
+        createdBy: group.createdBy.userProfile.realName,
         memberNum: group.userGroup.length
       }
     })
