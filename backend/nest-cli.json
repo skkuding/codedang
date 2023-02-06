@@ -2,7 +2,7 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "assets": [{ "include": "email/templates/**/*", "outDir": "dist/src" }],
+    "assets": [{ "include": "email/templates/**/*" }],
     "watchAssets": true,
     "plugins": ["@nestjs/swagger"]
   }
