@@ -5,6 +5,7 @@ import vue from '@vitejs/plugin-vue'
 import icons from 'unplugin-icons/vite'
 import pages from 'vite-plugin-pages'
 import layouts from 'vite-plugin-vue-layouts'
+import checker from 'vite-plugin-checker'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -24,6 +25,10 @@ export default defineConfig({
     }),
     layouts({
       layoutsDirs: 'src/common/layouts'
+    }),
+    checker({
+      eslint: { lintCommand: 'eslint "./src/**/*.{ts,vue}"' },
+      vueTsc: true
     })
   ],
   resolve: {
