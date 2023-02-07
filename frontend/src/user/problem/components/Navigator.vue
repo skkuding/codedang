@@ -11,7 +11,7 @@ import IconRun from '~icons/bi/play'
 const items = ['Editor', 'Standings', 'Submissions']
 
 const langs = [
-  { lang: 'cpp', name: 'Cpp' },
+  { lang: 'cpp', name: 'C++' },
   { lang: 'python', name: 'Python' },
   { lang: 'javascript', name: 'JavaScript' },
   { lang: 'java', name: 'Java' }
