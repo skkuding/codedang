@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useToggle } from '@vueuse/core'
 import { OnClickOutside } from '@vueuse/components'
 
-const show = ref(false)
+const [show, toggle] = useToggle()
 
 defineProps<{
   color?: 'white' | 'slate'
@@ -16,10 +16,10 @@ const colorMapper = {
 
 <template>
   <div class="relative inline-block">
-    <button class="cursor-pointer" @click="show = true">
-      <slot name="button" />
-    </button>
     <OnClickOutside @trigger="show = false">
+      <button class="cursor-pointer" @click="toggle()">
+        <slot name="button" />
+      </button>
       <Transition
         enter-active-class="transition-opacity duration-200"
         leave-active-class="transition-opacity duration-200"
