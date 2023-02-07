@@ -74,7 +74,9 @@ const activeStyle = (item: string) => {
           <div
             class="flex h-9 w-fit flex-row items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white"
           >
-            <span>{{ langs.find((x) => x.lang === modelValue)?.name }}</span>
+            <span class="font-semibold">
+              {{ langs.find((x) => x.lang === modelValue)?.name }}
+            </span>
             <IconDown class="h-4 w-4" />
           </div>
         </template>
