@@ -17,10 +17,10 @@ const currLang = ref<'cpp' | 'python' | 'javascript' | 'java'>('cpp')
 <template>
   <Header />
   <Navigator v-model="currLang" />
-  <div class="flex h-[calc(100vh-112px)] border-t-[1px] border-slate-400">
+  <div class="flex h-[calc(100vh-112px)] border-t border-slate-400">
     <Clarification />
     <div
-      class="flex w-[600px] flex-col gap-4 overflow-scroll border-r-[1px] border-slate-400 bg-slate-700 p-8 text-white"
+      class="flex w-[600px] min-w-[400px] resize-x flex-col gap-4 overflow-scroll border-r border-slate-400 bg-slate-700 p-8 text-white"
     >
       <h1 class="text-xl">습격자 초라기</h1>
       <p>
@@ -76,8 +76,41 @@ const currLang = ref<'cpp' | 'python' | 'javascript' | 'java'>('cpp')
       </div>
       <div class="bg-default w-full rounded p-3">1 2 3</div>
     </div>
-    <div class="grow overflow-scroll bg-[#292c33]">
+    <div
+      class="flex grow flex-col justify-between overflow-scroll bg-[#292c33]"
+    >
       <CodeEditor v-model="cppCode" :lang="currLang" />
+      <div class="grid grid-cols-2 grid-rows-[36px_200px]">
+        <div
+          class="flex items-center border-y border-r border-slate-400 px-4 text-white"
+        >
+          Input
+        </div>
+        <div
+          class="flex items-center border-y border-slate-400 px-4 text-white"
+        >
+          Output
+        </div>
+        <div class="overflow-scroll border-r border-slate-400 p-4 text-white">
+          <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+          </pre>
+        </div>
+        <div class="overflow-scroll p-4 text-white">
+          <pre>
+3
+2
+4
+          </pre>
+        </div>
+      </div>
     </div>
   </div>
 </template>
