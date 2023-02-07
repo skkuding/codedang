@@ -5,18 +5,18 @@ import Navigator from '../components/Navigator.vue'
 import Clarification from '../components/Clarification.vue'
 import IconCopy from '~icons/fa6-regular/copy'
 import CodeEditor from '@/common/components/Organism/CodeEditor.vue'
+
 defineProps<{
   id?: number
 }>()
 
-const cppCode = ref(``)
-
-const currLang = ref<'cpp' | 'python' | 'javascript' | 'java'>('cpp')
+const code = ref('')
+const language = ref<'cpp' | 'python' | 'javascript' | 'java'>('cpp')
 </script>
 
 <template>
   <Header />
-  <Navigator v-model="currLang" />
+  <Navigator v-model="language" />
   <div class="flex h-[calc(100vh-112px)] border-t border-slate-400">
     <Clarification />
     <div
@@ -79,7 +79,7 @@ const currLang = ref<'cpp' | 'python' | 'javascript' | 'java'>('cpp')
     <div
       class="flex grow flex-col justify-between overflow-scroll bg-[#292c33]"
     >
-      <CodeEditor v-model="cppCode" :lang="currLang" />
+      <CodeEditor v-model="code" :lang="language" />
       <div class="grid grid-cols-2 grid-rows-[36px_200px]">
         <div
           class="flex items-center border-y border-r border-slate-400 px-4 text-white"
