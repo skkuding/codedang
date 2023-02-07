@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import Header from '../components/Header.vue'
 import Navigator from '../components/Navigator.vue'
 import Clarification from '../components/Clarification.vue'
-import IconCopy from '~icons/fa-regular/copy'
+import IconCopy from '~icons/fa6-regular/copy'
 import CodeEditor from '@/common/components/Organism/CodeEditor.vue'
 defineProps<{
   id?: number
