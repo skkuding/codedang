@@ -7,7 +7,7 @@ import { UserGroupData } from './interface/user-group-data.interface'
 export class GroupService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getUserGroupMembershipInfo(userId: number, groupId: number) {
+  async getUserGroup(userId: number, groupId: number) {
     return await this.prisma.userGroup.findFirst({
       where: {
         userId: userId,
