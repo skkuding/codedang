@@ -273,7 +273,10 @@ export class ContestService {
   async getContestPublicizingRequests() {
     const keys = await this.cacheManager.store.keys()
     const filteredKeys = keys.filter((key) => key.includes(':publicize'))
-    return filteredKeys.map(async (key) => await this.cacheManager.get(key))
+    const requests = filteredKeys.map(
+      async (key) => await this.cacheManager.get(key)
+    )
+    return Promise.all(requests)
   }
 
   async respondContestPublicizingRequest(

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub, spy } from 'sinon'
-import { Contest, ContestRecord, UserGroup } from '@prisma/client'
+import { Contest, ContestRecord, Group, UserGroup } from '@prisma/client'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
@@ -12,7 +12,6 @@ import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { ContestService } from './contest.service'
 import { CreateContestDto } from './dto/create-contest.dto'
-import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
 import { Cache } from 'cache-manager'
 import { CACHE_MANAGER } from '@nestjs/common'
@@ -36,8 +35,12 @@ const contest = {
     isRankVisible: true
   },
   createTime: new Date('2021-11-01T18:34:23.999175+09:00'),
-  updateTime: new Date('2021-11-01T18:34:23.999175+09:00')
-} satisfies Contest
+  updateTime: new Date('2021-11-01T18:34:23.999175+09:00'),
+  group: {
+    id: groupId,
+    groupName: 'group'
+  }
+} satisfies Contest & { group: Partial<Group> }
 
 const ongoingContests: Partial<Contest>[] = [
   {
@@ -128,7 +131,7 @@ const mockPrismaService = {
   }
 }
 
-describe('service', () => {
+describe('ContestService', () => {
   let service: ContestService
   let groupService: GroupService
   let cache: Cache
@@ -498,11 +501,15 @@ describe('service', () => {
       stub(cache, 'get').resolves(contestPublicizingRequest)
 
       const res = await service.getContestPublicizingRequests()
-      expect(res).to.equal([contestPublicizingRequest])
+      expect(res).to.deep.equal([contestPublicizingRequest])
     })
   })
 
   describe('respondContestPublicizingRequest', () => {
+    afterEach(() => {
+      mockPrismaService.contest.update.reset()
+    })
+
     it('should update contest and request', async () => {
       stub(cache, 'get').resolves(contestPublicizingRequest)
       const delSpy = stub(cache, 'del').resolves()
