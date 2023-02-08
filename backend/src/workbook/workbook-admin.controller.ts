@@ -22,7 +22,6 @@ import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Workbook } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
-import { Public } from 'src/common/decorator/public.decorator'
 
 @Controller('admin/group/:groupId/workbook')
 @UseGuards(RolesGuard, GroupLeaderGuard)

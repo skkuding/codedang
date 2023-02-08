@@ -220,31 +220,26 @@ export class ContestService {
     offset: number
   ): Promise<Partial<Contest>[]> {
     const now = new Date(Date.now())
-    if (!myCursor) myCursor = 1
-    let results = await this.prisma.contest.findMany({
-      take: offset + 1,
+    let realCursor = myCursor
+    let realOffset = offset
+    if (!myCursor) realCursor = 1
+    if (realOffset < 0) realOffset -= 1
+    else realOffset += 1
+    const contets = await this.prisma.contest.findMany({
+      take: realOffset,
       cursor: {
-        id: myCursor
+        id: realCursor
       },
       where: {
         AND: [
-          {
-            groupId: 1
-          },
-          {
-            startTime: {
-              lt: now
-            }
-          },
-          {
-            endTime: {
-              gt: now
-            }
-          }
+          { groupId: 1 },
+          { startTime: { lte: now } },
+          { endTime: { gte: now } }
         ]
       },
-      select: { ...this.contestSelectOption, visible: true }
+      select: this.contestSelectOption
     })
+    let results = contets
     if (results[0].id == myCursor) {
       results = results.slice(1)
     } else if (results.length > offset) {

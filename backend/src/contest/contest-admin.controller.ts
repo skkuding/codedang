@@ -31,10 +31,11 @@ import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
 import { CreateContestPublicizingRequestDto } from './dto/create-publicizing-request.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
-import { Public } from 'src/common/decorator/public.decorator'
+import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 
 @Controller('admin/contest')
-@UseGuards(RolesGuard)
+@AuthNotNeeded()
+//@UseGuards(RolesGuard)
 @Roles(Role.Admin)
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}

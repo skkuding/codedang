@@ -57,7 +57,7 @@ export class GroupContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  @Public() //delete
+  @AuthNotNeeded() //delete
   //@UseGuards(RolesGuard, GroupMemberGuard)
   async getContests(
     @Param('groupId', ParseIntPipe) groupId: number,
