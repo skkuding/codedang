@@ -14,6 +14,7 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
+import { StoredPublicizingRequest } from './interface/publicizing-request.interface'
 
 @Injectable()
 export class ContestService {
@@ -274,7 +275,7 @@ export class ContestService {
     const keys = await this.cacheManager.store.keys()
     const filteredKeys = keys.filter((key) => key.includes(':publicize'))
     const requests = filteredKeys.map(
-      async (key) => await this.cacheManager.get(key)
+      async (key) => await this.cacheManager.get<StoredPublicizingRequest>(key)
     )
     return Promise.all(requests)
   }
