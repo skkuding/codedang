@@ -17,7 +17,7 @@ import {
 import { ContestService } from './contest.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
-import { Contest, ContestPublicizingRequest, Role } from '@prisma/client'
+import { Contest, Role } from '@prisma/client'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
@@ -39,11 +39,6 @@ export class ContestAdminController {
   @Get()
   async getAdminContests(): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminContests()
-  }
-
-  @Get('ongoing')
-  async getAdminOngoingContests(): Promise<Partial<Contest>[]> {
-    return await this.contestService.getAdminOngoingContests()
   }
 }
 
@@ -77,8 +72,7 @@ export class GroupContestAdminController {
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      }
-      if (error instanceof UnprocessableDataException) {
+      } else if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
       }
       throw new InternalServerErrorException()
@@ -107,7 +101,6 @@ export class GroupContestAdminController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-
       throw new InternalServerErrorException()
     }
   }
@@ -131,59 +124,25 @@ export class ContestPublicizingRequestAdminController {
     @Param('requestId', ParseIntPipe) requestId: number,
     @Body()
     respondContestPublicizingRequestDto: RespondContestPublicizingRequestDto
-  ): Promise<ContestPublicizingRequest> {
+  ) {
     try {
-      return await this.contestService.respondContestPublicizingRequest(
+      await this.contestService.respondContestPublicizingRequest(
         requestId,
         respondContestPublicizingRequestDto
       )
     } catch (error) {
-      if (error instanceof ActionNotAllowedException) {
-        throw new MethodNotAllowedException(error.message)
-      }
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-
       throw new InternalServerErrorException()
     }
   }
 
-  @Get('/pending')
-  async getPendingContestPublicizingRequests(): Promise<
-    Partial<ContestPublicizingRequest>[]
-  > {
+  @Get()
+  async getContestPublicizingRequests() {
     try {
-      return await this.contestService.getPendingContestPublicizingRequests()
+      return await this.contestService.getContestPublicizingRequests()
     } catch (error) {
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get('/responded')
-  async getRespondedContestPublicizingRequests(): Promise<
-    Partial<ContestPublicizingRequest>[]
-  > {
-    try {
-      return await this.contestService.getRespondedContestPublicizingRequests()
-    } catch (error) {
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get('/:requestId')
-  async getContestPublicizingRequest(
-    @Param('requestId', ParseIntPipe) requestId: number
-  ): Promise<Partial<ContestPublicizingRequest>> {
-    try {
-      return await this.contestService.getAdminContestPublicizingRequest(
-        requestId
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-
       throw new InternalServerErrorException()
     }
   }
@@ -209,51 +168,6 @@ export class ContestPublicizingRequestController {
       if (error instanceof ActionNotAllowedException) {
         throw new MethodNotAllowedException(error.message)
       }
-
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Delete('/:requestId')
-  async deleteContestPublicizingRequest(
-    @Param('requestId', ParseIntPipe) requestId: number
-  ) {
-    try {
-      await this.contestService.deleteContestPublicizingRequest(requestId)
-    } catch (error) {
-      if (error instanceof ActionNotAllowedException) {
-        throw new MethodNotAllowedException(error.message)
-      }
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get()
-  async getContestPublicizingRequests(
-    @Param('contestId', ParseIntPipe) contestId: number
-  ): Promise<Partial<ContestPublicizingRequest>[]> {
-    try {
-      return await this.contestService.getContestPublicizingRequests(contestId)
-    } catch (error) {
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get('/:requestId')
-  async getContestPublicizingRequest(
-    @Param('requestId', ParseIntPipe) requestId: number
-  ): Promise<Partial<ContestPublicizingRequest>> {
-    try {
-      return await this.contestService.getContestPublicizingRequest(requestId)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-
       throw new InternalServerErrorException()
     }
   }

@@ -1,15 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub, spy } from 'sinon'
-import {
-  Contest,
-  ContestPublicizingRequest,
-  ContestType,
-  RequestStatus,
-  ContestRankACM,
-  ContestRecord,
-  UserGroup
-} from '@prisma/client'
+import { Contest, ContestRecord, UserGroup } from '@prisma/client'
 import {
   ActionNotAllowedException,
   EntityNotExistException,

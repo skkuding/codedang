@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common'
-import {
-  Contest,
-  ContestPublicizingRequest,
-  RequestStatus
-} from '@prisma/client'
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
+import { Contest } from '@prisma/client'
+import { Cache } from 'cache-manager'
+import { contestPublicizingRequestKey } from 'src/common/cache/keys'
+import { PUBLICIZING_REQUEST_EXPIRE_TIME } from 'src/common/constants'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
@@ -21,7 +20,8 @@ import { UpdateContestDto } from './dto/update-contest.dto'
 export class ContestService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly groupService: GroupService
+    private readonly groupService: GroupService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   private contestSelectOption = {
@@ -47,12 +47,12 @@ export class ContestService {
       data: {
         title: contestDto.title,
         description: contestDto.description,
-        descriptionSummary: contestDto.descriptionSummary,
         startTime: contestDto.startTime,
         endTime: contestDto.endTime,
-        isVisible: contestDto.isVisible,
-        isRankisVisible: contestDto.isRankisVisible,
-        type: contestDto.type,
+        config: {
+          isVisible: contestDto.isVisible,
+          isRankVisible: contestDto.isRankVisible
+        },
         group: {
           connect: { id: contestDto.groupId }
         },
@@ -89,12 +89,12 @@ export class ContestService {
       data: {
         title: contestDto.title,
         description: contestDto.description,
-        descriptionSummary: contestDto.descriptionSummary,
         startTime: contestDto.startTime,
         endTime: contestDto.endTime,
-        isVisible: contestDto.isVisible,
-        isRankisVisible: contestDto.isRankisVisible,
-        type: contestDto.type
+        config: {
+          isVisible: contestDto.isVisible,
+          isRankVisible: contestDto.isRankVisible
+        }
       }
     })
   }
@@ -127,7 +127,12 @@ export class ContestService {
     finished: Partial<Contest>[]
   }> {
     const contests = await this.prisma.contest.findMany({
-      where: { isVisible: true },
+      where: {
+        config: {
+          path: ['isVisible'],
+          equals: true
+        }
+      },
       select: this.contestSelectOption
     })
     return {
@@ -166,19 +171,18 @@ export class ContestService {
       select: {
         ...this.contestSelectOption,
         description: true,
-        isVisible: true
+        config: true
       },
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
-    const userGroup = await this.groupService.getUserGroupMembershipInfo(
+    const userGroup = await this.groupService.getUserGroup(
       userId,
       contest.group.id
     )
-    const isUserGroupMember = userGroup && userGroup.isRegistered
     const now = new Date()
 
-    if (!isUserGroupMember && contest.endTime > now) {
+    if (!userGroup && contest.endTime > now) {
       throw new ForbiddenAccessException(
         'Before the contest is ended, only group members can access'
       )
@@ -192,8 +196,7 @@ export class ContestService {
       where: { id: contestId },
       select: {
         id: true,
-        title: true,
-        descriptionSummary: true
+        title: true
       },
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
@@ -203,14 +206,15 @@ export class ContestService {
 
   async getContestsByGroupId(groupId: number): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
-      where: { groupId, isVisible: true },
+      where: {
+        groupId,
+        config: {
+          path: ['isVisible'],
+          equals: true
+        }
+      },
       select: this.contestSelectOption
     })
-  }
-
-  async getAdminOngoingContests(): Promise<Partial<Contest>[]> {
-    const contests = await this.getAdminContests()
-    return this.filterOngoing(contests)
   }
 
   async getAdminContests(): Promise<Partial<Contest>[]> {
@@ -218,7 +222,7 @@ export class ContestService {
       where: {
         groupId: 1
       },
-      select: { ...this.contestSelectOption, isVisible: true }
+      select: { ...this.contestSelectOption, config: true }
     })
   }
 
@@ -227,10 +231,8 @@ export class ContestService {
       where: { id: contestId },
       select: {
         ...this.contestSelectOption,
-        isVisible: true,
-        description: true,
-        descriptionSummary: true,
-        isRankisVisible: true
+        config: true,
+        description: true
       },
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
@@ -243,259 +245,71 @@ export class ContestService {
   ): Promise<Partial<Contest>[]> {
     return await this.prisma.contest.findMany({
       where: { groupId },
-      select: { ...this.contestSelectOption, isVisible: true }
+      select: { ...this.contestSelectOption, config: true }
     })
   }
 
   async createContestPublicizingRequest(
     userId: number,
-    { contestId, message }: CreateContestPublicizingRequestDto
-  ): Promise<ContestPublicizingRequest> {
-    const request = await this.prisma.contestPublicizingRequest.findFirst({
-      where: {
-        contestId,
-        requestStatus: { in: [RequestStatus.Accepted, RequestStatus.Pending] }
-      }
-    })
-
-    if (request) {
+    { contestId }: CreateContestPublicizingRequestDto
+  ) {
+    const duplicateRequest = await this.cacheManager.get(
+      contestPublicizingRequestKey(contestId)
+    )
+    if (duplicateRequest) {
       throw new ActionNotAllowedException(
         'duplicated request',
         'request converting contest to be public'
       )
     }
 
-    return await this.prisma.contestPublicizingRequest.create({
-      data: {
-        message: message,
-        contest: {
-          connect: {
-            id: contestId
-          }
-        },
-        createdBy: {
-          connect: {
-            id: userId
-          }
-        }
-      }
-    })
-  }
-
-  async deleteContestPublicizingRequest(requestId: number) {
-    const request = await this.prisma.contestPublicizingRequest.findFirst({
-      where: {
-        id: requestId
+    await this.cacheManager.set(
+      contestPublicizingRequestKey(contestId),
+      {
+        contest: contestId,
+        user: userId,
+        createTime: new Date()
       },
-      select: {
-        requestStatus: true
-      },
-      rejectOnNotFound: () =>
-        new EntityNotExistException('ContestPublicizingRequest')
-    })
-
-    await this.deletePendingContestPublicizingRequest(
-      request.requestStatus,
-      requestId
+      1000 * PUBLICIZING_REQUEST_EXPIRE_TIME
     )
   }
 
-  async deletePendingContestPublicizingRequest(
-    requestStatus: RequestStatus,
-    requestId: number
-  ) {
-    if (requestStatus != RequestStatus.Pending) {
-      throw new ActionNotAllowedException(
-        'deleting processed one',
-        'request converting contest to be public'
-      )
-    }
-
-    await this.prisma.contestPublicizingRequest.delete({
-      where: {
-        id: requestId
-      }
-    })
-  }
-
-  async getContestPublicizingRequests(
-    contestId: number
-  ): Promise<Partial<ContestPublicizingRequest>[]> {
-    return await this.prisma.contestPublicizingRequest.findMany({
-      where: {
-        contestId
-      },
-      select: {
-        id: true,
-        requestStatus: true,
-        createdBy: {
-          select: {
-            username: true
-          }
-        },
-        createTime: true
-      }
-    })
-  }
-
-  async getContestPublicizingRequest(
-    requestId: number
-  ): Promise<Partial<ContestPublicizingRequest>> {
-    return await this.prisma.contestPublicizingRequest.findFirst({
-      where: {
-        id: requestId
-      },
-      select: {
-        id: true,
-        message: true,
-        requestStatus: true,
-        createdBy: {
-          select: {
-            username: true
-          }
-        },
-        createTime: true
-      },
-      rejectOnNotFound: () =>
-        new EntityNotExistException('ContestPublicizingRequest')
-    })
+  async getContestPublicizingRequests() {
+    const keys = await this.cacheManager.store.keys()
+    const filteredKeys = keys.filter((key) => key.includes(':publicize'))
+    return filteredKeys.map(async (key) => await this.cacheManager.get(key))
   }
 
   async respondContestPublicizingRequest(
-    requestId: number,
-    respondDto: RespondContestPublicizingRequestDto
-  ): Promise<ContestPublicizingRequest> {
-    const request = await this.prisma.contestPublicizingRequest.findUnique({
-      where: {
-        id: requestId
-      },
-      select: {
-        requestStatus: true,
-        contestId: true
-      },
-      rejectOnNotFound: () =>
-        new EntityNotExistException('ContestPublicizingRequest')
-    })
-
-    if (request.requestStatus != RequestStatus.Pending) {
-      throw new ActionNotAllowedException(
-        'responding to processed one',
-        'request converting contest to be public'
-      )
+    contestId: number,
+    respondContestPublicizingRequestDto: RespondContestPublicizingRequestDto
+  ) {
+    const requestKey = contestPublicizingRequestKey(contestId)
+    if (!(await this.cacheManager.get(requestKey))) {
+      throw new EntityNotExistException('ContestPublicizingRequest')
     }
 
-    if (respondDto.requestStatus == RequestStatus.Accepted) {
-      await this.updateContestToPublic(request.contestId, true)
-    } else if (respondDto.requestStatus == RequestStatus.Rejected) {
-      await this.updateContestToPublic(request.contestId, false)
+    if (respondContestPublicizingRequestDto.accepted) {
+      await this.updateContestToPublic(contestId)
     }
-
-    return await this.prisma.contestPublicizingRequest.update({
-      where: {
-        id: requestId
-      },
-      data: {
-        requestStatus: respondDto.requestStatus
-      }
-    })
+    await this.cacheManager.del(contestPublicizingRequestKey(contestId))
   }
 
-  async updateContestToPublic(id: number, isPublic: boolean) {
+  async updateContestToPublic(id: number) {
     await this.prisma.contest.update({
       where: {
         id
       },
       data: {
-        isPublic
+        groupId: 1
       }
     })
   }
 
-  async getPendingContestPublicizingRequests(): Promise<
-    Partial<ContestPublicizingRequest>[]
-  > {
-    return await this.getAdminContestPublicizingRequests([
-      RequestStatus.Pending
-    ])
-  }
-
-  async getRespondedContestPublicizingRequests(): Promise<
-    Partial<ContestPublicizingRequest>[]
-  > {
-    return await this.getAdminContestPublicizingRequests([
-      RequestStatus.Accepted,
-      RequestStatus.Rejected
-    ])
-  }
-
-  async getAdminContestPublicizingRequests(
-    whereOption: RequestStatus[]
-  ): Promise<Partial<ContestPublicizingRequest>[]> {
-    return await this.prisma.contestPublicizingRequest.findMany({
-      where: {
-        requestStatus: {
-          in: whereOption
-        }
-      },
-      select: {
-        id: true,
-        contestId: true,
-        contest: {
-          select: {
-            title: true
-          }
-        },
-        createdBy: {
-          select: {
-            username: true
-          }
-        },
-        requestStatus: true,
-        createTime: true
-      }
-    })
-  }
-
-  async getAdminContestPublicizingRequest(
-    id: number
-  ): Promise<Partial<ContestPublicizingRequest>> {
-    return await this.prisma.contestPublicizingRequest.findUnique({
-      where: {
-        id
-      },
-      select: {
-        contestId: true,
-        contest: {
-          select: {
-            title: true,
-            group: {
-              select: {
-                groupName: true
-              }
-            }
-          }
-        },
-        createdBy: {
-          select: {
-            username: true
-          }
-        },
-        message: true,
-        requestStatus: true,
-        createTime: true
-      },
-      rejectOnNotFound: () =>
-        new EntityNotExistException('ContestPublicizingRequest')
-    })
-  }
-
-  async createContestRecord(
-    userId: number,
-    contestId: number
-  ): Promise<undefined> {
+  async createContestRecord(userId: number, contestId: number) {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
-      select: { startTime: true, endTime: true, type: true }
+      select: { startTime: true, endTime: true }
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
@@ -513,12 +327,8 @@ export class ContestService {
       throw new ActionNotAllowedException('participation', 'ended contest')
     }
 
-    if (contest.type === 'ACM') {
-      await this.prisma.contestRankACM.create({
-        data: { contestId, userId }
-      })
-    }
-    // Todo: other contest type -> create other contest record table
-    return
+    return await this.prisma.contestRecord.create({
+      data: { contestId, userId }
+    })
   }
 }

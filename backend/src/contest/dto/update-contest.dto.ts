@@ -1,4 +1,3 @@
-import { ContestType } from '@prisma/client'
 import {
   IsNotEmpty,
   IsBoolean,
@@ -34,9 +33,5 @@ export class UpdateContestDto {
 
   @IsBoolean()
   @IsNotEmpty()
-  readonly isRankisVisible: boolean
-
-  @IsEnum(ContestType)
-  @IsNotEmpty()
-  readonly type: ContestType
+  readonly isRankVisible: boolean
 }
