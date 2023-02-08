@@ -20,7 +20,7 @@ import { REFRESH_TOKEN_COOKIE_OPTIONS, AUTH_TYPE } from '../common/constants'
 import { LoginUserDto } from './dto/login-user.dto'
 import { AuthenticatedRequest } from './interface/authenticated-request.interface'
 import { JwtTokens } from './interface/jwt.interface'
-import { Public } from 'src/common/decorator/public.decorator'
+import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 
 @Controller('auth')
 export class AuthController {
@@ -35,7 +35,7 @@ export class AuthController {
     )
   }
 
-  @Public()
+  @AuthNotNeeded()
   @Post('login')
   async login(
     @Body() loginUserDto: LoginUserDto,
@@ -67,7 +67,7 @@ export class AuthController {
     }
   }
 
-  @Public()
+  @AuthNotNeeded()
   @Get('reissue')
   async reIssueJwtTokens(
     @Req() req: Request,
