@@ -1,7 +1,6 @@
 import {
   IsBoolean,
   IsDateString,
-  IsEnum,
   IsInt,
   IsNotEmpty,
   IsString
@@ -19,10 +18,6 @@ export class CreateContestDto {
   @IsString()
   @IsNotEmpty()
   readonly description: string
-
-  @IsString()
-  @IsNotEmpty()
-  readonly descriptionSummary: string
 
   @IsDateString()
   @IsNotEmpty()

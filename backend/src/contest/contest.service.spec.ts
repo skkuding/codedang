@@ -15,6 +15,8 @@ import { CreateContestDto } from './dto/create-contest.dto'
 import { CreateContestPublicizingRequestDto } from './dto/create-publicizing-request.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
+import { Cache } from 'cache-manager'
+import { CACHE_MANAGER } from '@nestjs/common'
 
 const contestId = 1
 const userId = 1
@@ -27,74 +29,60 @@ const contest = {
   groupId: groupId,
   title: 'title',
   description: 'description',
-  descriptionSummary: 'description summary',
   startTime: new Date('2021-12-01T14:00:00.000+09:00'),
   endTime: new Date('2021-12-01T15:00:00.000+09:00'),
-  isVisible: true,
-  isRankisVisible: true,
-  isPublic: false,
-  type: ContestType.ACM,
+  config: {
+    isVisible: true,
+    isRankVisible: true
+  },
   createTime: new Date('2021-11-01T18:34:23.999175+09:00'),
-  updateTime: new Date('2021-11-01T18:34:23.999175+09:00'),
-  group: {
-    groupId: groupId
-  }
-}
+  updateTime: new Date('2021-11-01T18:34:23.999175+09:00')
+} satisfies Contest
 
 const ongoingContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId,
     endTime: new Date('2999-12-01T12:00:00.000+09:00'),
-    isVisible: false
+    config: {
+      isVisible: false,
+      isRankisVisible: true
+    }
   }
 ]
-
 const finishedContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId + 1,
-    isVisible: false
+    config: {
+      isVisible: false,
+      isRankisVisible: true
+    }
   }
 ]
-
 const upcomingContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId + 6,
     startTime: new Date('2999-12-01T12:00:00.000+09:00'),
     endTime: new Date('2999-12-01T15:00:00.000+09:00'),
-    isVisible: false
+    config: {
+      isVisible: false,
+      isRankisVisible: true
+    }
   }
 ]
-
 const contests: Partial<Contest>[] = [
   ...ongoingContests,
   ...finishedContests,
   ...upcomingContests
 ]
-
-const contestPublicizingRequest: ContestPublicizingRequest = {
-  id: contestPublicizeRequestId,
-  contestId: contestId,
-  message: 'This is contest to public request',
-  createdById: userId,
-  requestStatus: RequestStatus.Pending,
-  createTime: new Date('2022-12-07T18:34:23.999175+09:00'),
-  updateTime: new Date('2022-12-07T18:34:23.999175+09:00')
-}
-
-const contestPublicizingRequests: ContestPublicizingRequest[] = [
-  contestPublicizingRequest
-]
-
 const ongoingContest: Partial<Contest> = ongoingContests[0]
 
 const userGroup: UserGroup = {
   id: 1,
   userId: userId,
   groupId: groupId,
-  isRegistered: true,
   isGroupLeader: true,
   createTime: new Date(),
   updateTime: new Date()
@@ -111,17 +99,8 @@ const record: ContestRecord = {
   id: 1,
   contestId: contestId,
   userId: userId,
-  rank: 1,
-  createTime: new Date(),
-  updateTime: new Date()
-}
-const contestRankACM: ContestRankACM = {
-  id: 1,
-  contestId: contestId,
-  userId: userId,
   acceptedProblemNum: 0,
   totalPenalty: 0,
-  submissionInfo: {},
   createTime: new Date(),
   updateTime: new Date()
 }
@@ -133,23 +112,12 @@ const mockPrismaService = {
     update: stub().resolves(contest),
     delete: stub()
   },
-  contestPublicizingRequest: {
-    findUnique: stub(),
-    findFirst: stub(),
-    findMany: stub(),
-    create: stub(),
-    update: stub(),
-    delete: stub()
-  },
   contestRecord: {
     findFirst: stub().resolves(null)
   },
   userGroup: {
     findFirst: stub().resolves(userGroup),
     findMany: stub().resolves(userGroups)
-  },
-  contestRankACM: {
-    create: stub().resolves(contestRankACM)
   }
 }
 
@@ -162,7 +130,14 @@ describe('service', () => {
       providers: [
         ContestService,
         GroupService,
-        { provide: PrismaService, useValue: mockPrismaService }
+        { provide: PrismaService, useValue: mockPrismaService },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => []
+          })
+        }
       ]
     }).compile()
     service = module.get<ContestService>(ContestService)
@@ -179,12 +154,10 @@ describe('service', () => {
       groupId: contest.groupId,
       title: contest.title,
       description: contest.description,
-      descriptionSummary: contest.descriptionSummary,
       startTime: contest.startTime,
       endTime: contest.endTime,
-      isVisible: contest.isVisible,
-      isRankisVisible: contest.isRankisVisible,
-      type: contest.type
+      isVisible: contest.config.isVisible,
+      isRankVisible: contest.config.isRankVisible
     }
 
     afterEach(() => {
@@ -225,12 +198,10 @@ describe('service', () => {
     const updateContestDto: UpdateContestDto = {
       title: contest.title,
       description: contest.description,
-      descriptionSummary: contest.descriptionSummary,
       startTime: contest.startTime,
       endTime: contest.endTime,
-      isVisible: contest.isVisible,
-      isRankisVisible: contest.isRankisVisible,
-      type: contest.type
+      isVisible: contest.config.isVisible,
+      isRankVisible: contest.config.isRankVisible
     }
 
     beforeEach(() => {
@@ -398,7 +369,7 @@ describe('service', () => {
         endTime: now.setFullYear(now.getFullYear() + 1)
       }
       mockPrismaService.contest.findUnique.resolves(notEndedContest)
-      stub(groupService, 'getUserGroupMembershipInfo').resolves(null)
+      stub(groupService, 'getUserGroup').resolves(null)
 
       await expect(
         service.getContestById(userId, contestId)
@@ -406,7 +377,7 @@ describe('service', () => {
     })
 
     it('should return contest when user is not a group member and contest is finished', async () => {
-      stub(groupService, 'getUserGroupMembershipInfo').resolves(null)
+      stub(groupService, 'getUserGroup').resolves(null)
 
       expect(await service.getContestById(userId, contestId)).to.deep.equal(
         contest
@@ -414,8 +385,7 @@ describe('service', () => {
     })
 
     it('should return contest of the group', async () => {
-      stub(groupService, 'getUserGroupMembershipInfo').resolves({
-        isRegistered: true,
+      stub(groupService, 'getUserGroup').resolves({
         isGroupLeader: false
       })
 
@@ -458,16 +428,6 @@ describe('service', () => {
       stub(groupService, 'getUserGroupLeaderList').resolves([groupId])
 
       expect(await service.getAdminContests()).to.deep.equal(contests)
-    })
-  })
-
-  describe('getAdminOngoingContests', () => {
-    it('should return ongoing contests in open space', async () => {
-      stub(groupService, 'getUserGroupLeaderList').resolves([groupId])
-
-      expect(await service.getAdminOngoingContests()).to.deep.equal(
-        ongoingContests
-      )
     })
   })
 

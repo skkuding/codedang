@@ -1,10 +1,4 @@
-import {
-  IsNotEmpty,
-  IsBoolean,
-  IsDateString,
-  IsEnum,
-  IsString
-} from 'class-validator'
+import { IsNotEmpty, IsBoolean, IsDateString, IsString } from 'class-validator'
 
 export class UpdateContestDto {
   @IsString()
@@ -14,10 +8,6 @@ export class UpdateContestDto {
   @IsString()
   @IsNotEmpty()
   readonly description: string
-
-  @IsString()
-  @IsNotEmpty()
-  readonly descriptionSummary: string
 
   @IsDateString()
   @IsNotEmpty()
