@@ -16,10 +16,7 @@ import {
   InvalidUserException
 } from '../common/exception/business.exception'
 
-import {
-  REFRESH_TOKEN_COOKIE_OPTIONS,
-  AUTH_TYPE
-} from './constants/jwt.constants'
+import { REFRESH_TOKEN_COOKIE_OPTIONS, AUTH_TYPE } from '../common/constants'
 import { LoginUserDto } from './dto/login-user.dto'
 import { AuthenticatedRequest } from './interface/authenticated-request.interface'
 import { JwtTokens } from './interface/jwt.interface'

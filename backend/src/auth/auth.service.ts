@@ -13,9 +13,9 @@ import {
 import { validate } from '../common/hash'
 
 import {
-  ACCESS_TOKEN_EXPIRATION_SEC,
-  REFRESH_TOKEN_EXPIRATION_SEC
-} from './constants/jwt.constants'
+  ACCESS_TOKEN_EXPIRE_TIME,
+  REFRESH_TOKEN_EXPIRE_TIME
+} from '../common/constants'
 import { LoginUserDto } from './dto/login-user.dto'
 import { JwtObject, JwtPayload, JwtTokens } from './interface/jwt.interface'
 
@@ -83,17 +83,17 @@ export class AuthService {
     const payload: JwtPayload = { userId, username }
     const accessToken = await this.jwtService.signAsync({
       ...payload,
-      expiresIn: ACCESS_TOKEN_EXPIRATION_SEC
+      expiresIn: ACCESS_TOKEN_EXPIRE_TIME
     })
     const refreshToken = await this.jwtService.signAsync({
       ...payload,
-      expiresIn: REFRESH_TOKEN_EXPIRATION_SEC
+      expiresIn: REFRESH_TOKEN_EXPIRE_TIME
     })
 
     await this.cacheManager.set(
       refreshTokenCacheKey(userId),
       refreshToken,
-      REFRESH_TOKEN_EXPIRATION_SEC
+      REFRESH_TOKEN_EXPIRE_TIME
     )
 
     return { accessToken, refreshToken }

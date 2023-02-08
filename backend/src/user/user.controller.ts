@@ -31,7 +31,7 @@ import { NewPasswordDto } from './dto/newPassword.dto'
 import { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
 import { Request, Response } from 'express'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
-import { AUTH_TYPE } from './constants/jwt.constants'
+import { AUTH_TYPE } from '../common/constants'
 import { Public } from '../common/decorator/public.decorator'
 
 @Controller('user')
