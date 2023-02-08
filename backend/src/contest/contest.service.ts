@@ -146,7 +146,8 @@ export class ContestService {
         finished: this.filterFinished(contests)
       }
     }
-
+    
+    const now = new Date()
     const registeredContests = await this.prisma.user.findUnique({
       where: {
         id: user.id
