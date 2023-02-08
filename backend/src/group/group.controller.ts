@@ -10,7 +10,8 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common'
-import { Group } from '@prisma/client'
+import { Group, UserGroup } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupService } from './group.service'
@@ -96,11 +97,11 @@ export class GroupController {
   async leaveGroup(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
-  ) {
+  ): Promise<UserGroup> {
     try {
       return await this.groupService.leaveGroup(req.user.id, groupId)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (error instanceof PrismaClientKnownRequestError) {
         throw new NotFoundException(error.message)
       }
       throw new InternalServerErrorException()

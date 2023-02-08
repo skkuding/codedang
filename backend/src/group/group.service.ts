@@ -248,8 +248,8 @@ export class GroupService {
     }
   }
 
-  async leaveGroup(userId: number, groupId: number) {
-    await this.prisma.userGroup.delete({
+  async leaveGroup(userId: number, groupId: number): Promise<UserGroup> {
+    return await this.prisma.userGroup.delete({
       where: {
         userId_groupId: {
           userId: userId,
