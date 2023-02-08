@@ -119,15 +119,15 @@ export class GroupContestAdminController {
 export class ContestPublicizingRequestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
-  @Patch('/:requestId')
+  @Patch('/:contestId')
   async respondContestPublicizingRequest(
-    @Param('requestId', ParseIntPipe) requestId: number,
+    @Param('contestId', ParseIntPipe) contestId: number,
     @Body()
     respondContestPublicizingRequestDto: RespondContestPublicizingRequestDto
   ) {
     try {
       await this.contestService.respondContestPublicizingRequest(
-        requestId,
+        contestId,
         respondContestPublicizingRequestDto
       )
     } catch (error) {
@@ -156,13 +156,12 @@ export class ContestPublicizingRequestController {
   @Post()
   async createContestPublicizingRequest(
     @Req() req: AuthenticatedRequest,
-    @Body()
-    createContestPublicizingRequestDto: CreateContestPublicizingRequestDto
+    @Param() contestId: number
   ) {
     try {
       return await this.contestService.createContestPublicizingRequest(
         req.user.id,
-        createContestPublicizingRequestDto
+        contestId
       )
     } catch (error) {
       if (error instanceof ActionNotAllowedException) {

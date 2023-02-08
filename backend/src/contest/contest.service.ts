@@ -249,10 +249,7 @@ export class ContestService {
     })
   }
 
-  async createContestPublicizingRequest(
-    userId: number,
-    { contestId }: CreateContestPublicizingRequestDto
-  ) {
+  async createContestPublicizingRequest(userId: number, contestId: number) {
     const duplicateRequest = await this.cacheManager.get(
       contestPublicizingRequestKey(contestId)
     )
@@ -282,14 +279,14 @@ export class ContestService {
 
   async respondContestPublicizingRequest(
     contestId: number,
-    respondContestPublicizingRequestDto: RespondContestPublicizingRequestDto
+    { accepted }: RespondContestPublicizingRequestDto
   ) {
     const requestKey = contestPublicizingRequestKey(contestId)
     if (!(await this.cacheManager.get(requestKey))) {
       throw new EntityNotExistException('ContestPublicizingRequest')
     }
 
-    if (respondContestPublicizingRequestDto.accepted) {
+    if (accepted) {
       await this.updateContestToPublic(contestId)
     }
     await this.cacheManager.del(contestPublicizingRequestKey(contestId))
