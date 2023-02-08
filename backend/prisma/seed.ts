@@ -4,8 +4,14 @@ import {
   Role,
   User,
   Problem,
+  Level,
   Tag,
-  ContestType
+  Language,
+  Contest,
+  Workbook,
+  ResultStatus,
+  Submission,
+  ProblemTestcase
 } from '@prisma/client'
 import { encrypt } from 'src/common/hash'
 import * as dayjs from 'dayjs'
@@ -17,6 +23,10 @@ let managerUser: User
 const users: User[] = []
 let publicGroup: Group
 const problems: Problem[] = []
+const problemTestcases: ProblemTestcase[] = []
+let contest: Contest
+let workbook: Workbook
+const submissions: Submission[] = []
 
 const createUsers = async () => {
   // create super admin user
@@ -95,7 +105,13 @@ const createGroups = async () => {
       groupName: 'Example Group',
       description:
         'This is an example group just for testing. This group should not be shown on production environment.',
-      createdById: managerUser.id
+      createdById: managerUser.id,
+      config: {
+        showOnList: false,
+        allowJoinFromSearch: false,
+        allowJoinWithURL: false,
+        requireApprovalBeforeJoin: false
+      }
     }
   })
 
@@ -105,7 +121,13 @@ const createGroups = async () => {
       groupName: 'Example Private Group',
       description:
         'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
-      createdById: managerUser.id
+      createdById: managerUser.id,
+      config: {
+        showOnList: true,
+        allowJoinFromSearch: true,
+        allowJoinWithURL: false,
+        requireApprovalBeforeJoin: true
+      }
     }
   })
 
@@ -118,7 +140,6 @@ const createGroups = async () => {
       data: {
         userId: user.id,
         groupId: publicGroup.id,
-        isRegistered: true,
         isGroupLeader: user.username === 'user01'
       }
     })
@@ -127,12 +148,11 @@ const createGroups = async () => {
   // add users to private group
   // group leader: user01
   // registered: user01, user03, user05, user07, user09
-  for (const [index, user] of users.entries()) {
+  for (const [_, user] of users.entries()) {
     prisma.userGroup.create({
       data: {
         userId: user.id,
         groupId: privateGroup.id,
-        isRegistered: index % 2 === 0,
         isGroupLeader: user.username === 'user01'
       }
     })
@@ -237,7 +257,7 @@ const createProblems = async () => {
   <li><p>위 경우 중 어느 것에도 속하지 않는 경우 ("Unknown")</p></li>
 </ol>
 <p>율전이가 측정한 높이가 주어졌을 때, 어떤 경우에 속하는지 출력하라.</p>`,
-        difficulty: 'Level 1', // TODO: use enum
+        difficulty: Level.Level1, // TODO: use enum
         inputDescription: `<p>
   네 줄에 걸쳐 높이
   <span>
@@ -395,7 +415,7 @@ const createProblems = async () => {
   <code>Unknown</code>
   을 출력한다.
 </p>`,
-        languages: {}, // TODO: 언어 정보에 뭐가 들어갈까요...?
+        languages: [Language.C],
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
@@ -419,7 +439,7 @@ const createProblems = async () => {
   단어를 보고, 그 단어가 회전 표지판에 사용될 수 있는지를 결정하는 프로그램을
   작성하라.
 </p>`,
-        difficulty: 'Level 2',
+        difficulty: Level.Level1,
         inputDescription: `<p>
   <span style="color: rgb(51, 51, 51)">
     공백 없이 알파벳 대문자로만 이루어진 하나의 문자열
@@ -484,7 +504,7 @@ const createProblems = async () => {
   </span>
   <br />
 </p>`,
-        languages: {},
+        languages: [Language.Cpp],
         hint: '',
         timeLimit: 1000,
         memoryLimit: 128,
@@ -593,7 +613,7 @@ const createProblems = async () => {
   붕어빵을 사려고 하는 사람들이 연속된 구간 중 가장 긴 것의 길이가 최대가 되는지
   구하는 프로그램을 작성하라.
 </p>`,
-        difficulty: 'Level 3',
+        difficulty: Level.Level2,
         inputDescription: `<p>
   첫째 줄에 손님 수
   <span>
@@ -920,7 +940,7 @@ const createProblems = async () => {
   성균이가 만들 수 있는 같은 개수의 붕어빵을 원하는 손님들의 연속된 구간 중,
   가장 긴 것의 길이를 출력한다.
 </p>`,
-        languages: {},
+        languages: [Language.Java],
         hint: `<p>
   줄에 서 있는 9명의 손님들이 사려고 하는 붕어빵의 개수는 2, 7, 3, 7, 7, 3, 7,
   5, 7이다.
@@ -949,7 +969,7 @@ const createProblems = async () => {
   있다. 다음 학기 활동 전에는 모든 사람의 빚을 없애야 정상적인 활동이
   가능하기에, 빚을 없애는 것이 가능한지 확인하려고 한다.
 </p>`,
-        difficulty: 'Level 4',
+        difficulty: Level.Level2,
         inputDescription: `<p>
   첫째 줄에는 각각 동아리 부원 수, 친분 관계의 수를 나타내는 두 개의 정수
   <span>
@@ -1415,7 +1435,7 @@ const createProblems = async () => {
   <code>IMPOSSIBLE</code>
   을 출력한다.
 </p>`,
-        languages: {},
+        languages: [Language.Python3],
         hint: '',
         timeLimit: 1000,
         memoryLimit: 128,
@@ -1860,7 +1880,7 @@ const createProblems = async () => {
   </span>
   이 되도록 타일 교환을 하는 데에 필요한 최소 비용을 구하는 프로그램을 작성하라.
 </p>`,
-        difficulty: 'Level 5',
+        difficulty: Level.Level3,
         inputDescription: `<p>
   첫째 줄에
   <span>
@@ -2193,7 +2213,7 @@ const createProblems = async () => {
   </span>
   이 될 수 없는 경우는 -1을 출력한다.
 </p>`,
-        languages: {},
+        languages: [Language.C, Language.Java],
         hint: `<p>
   3개의 타일이 있고, 두 개의 타일은 길이가 3인 정사각형이고, 한 개의 타일은
   길이가 1인 정사각형이다. 이것들을 총면적이 6이 되도록 교환하려 한다.
@@ -2312,7 +2332,7 @@ const createProblems = async () => {
   이때, 지환이가 몇 번째 수정본에서 클라이언트가 만족하는 디자인을 만들 수
   있을지를 출력하라.
 </p>`,
-        difficulty: 'Level 6',
+        difficulty: Level.Level3,
         inputDescription: `<p>
   첫째 줄에는 알파벳 소문자로 이루어진
   <span>
@@ -2898,7 +2918,7 @@ const createProblems = async () => {
   몇 번째 수정본에서 클라이언트가 만족하는 디자인을 만들 수 있을지 0 이상의
   정수로 출력한다.
 </p>`,
-        languages: {},
+        languages: [Language.Cpp, Language.Python3],
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
@@ -4383,7 +4403,7 @@ const createProblems = async () => {
   주어지면, 가장 비용이 낮은 사이클 분할을 찾고, 그 비용을 출력하는 프로그램을
   작성하라.
 </p>`,
-        difficulty: 'Level 7',
+        difficulty: Level.Level3,
         inputDescription: `<p>
   첫째 줄에 정점의 개수
   <span>
@@ -4802,7 +4822,7 @@ const createProblems = async () => {
         outputDescription: `<p>
   첫째 줄에 그래프에 대한 '사이클 분할의 비용'의 최솟값을 하나의 정수로 출력한다.
 </p>`,
-        languages: {},
+        languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
         hint: `<p>
   예제에서 입력되는 순서대로 간선에 번호를 매겨보자.
   <span>
@@ -6222,13 +6242,15 @@ const createProblems = async () => {
 
   // add simple testcases
   for (const problem of problems) {
-    await prisma.problemTestcase.create({
-      data: {
-        problemId: problem.id,
-        input: '1 2',
-        output: '3'
-      }
-    })
+    problemTestcases.push(
+      await prisma.problemTestcase.create({
+        data: {
+          problemId: problem.id,
+          input: 'input.in',
+          output: 'output.out'
+        }
+      })
+    )
   }
 
   const tagNames = [
@@ -6267,7 +6289,7 @@ const createProblems = async () => {
 
 const createContests = async () => {
   // add ongoing contenst
-  const contest = await prisma.contest.create({
+  contest = await prisma.contest.create({
     data: {
       title: 'SKKU Coding Platform 모의대회',
       description: `<p>
@@ -6300,12 +6322,14 @@ const createContests = async () => {
   체포·구속·압수·수색 또는 심문을 받지 아니하며, 법률과 적법한 절차에 의하지
   아니하고는 처벌·보안처분 또는 강제노역을 받지 아니한다.
 </p>`,
-      descriptionSummary: '참여만 해도 스타벅스 기프티콘이 내 손 안에!',
       createdById: superAdminUser.id,
       groupId: publicGroup.id,
       startTime: dayjs().add(-30, 'day').toDate(),
       endTime: dayjs().add(30, 'day').toDate(),
-      type: ContestType.ACM
+      config: {
+        isVisible: true,
+        isRankVisible: true
+      }
     }
   })
 
@@ -6314,12 +6338,14 @@ const createContests = async () => {
     data: {
       title: 'Long Time Ago Contest',
       description: '<p>이 대회는 오래 전에 끝났어요</p>',
-      descriptionSummary: '오래 전 대회',
       createdById: superAdminUser.id,
       groupId: publicGroup.id,
       startTime: dayjs().add(-1, 'hour').add(-1, 'year').toDate(),
       endTime: dayjs().add(2, 'hour').add(-1, 'year').toDate(),
-      type: ContestType.ACM
+      config: {
+        isVisible: true,
+        isRankVisible: false
+      }
     }
   })
 
@@ -6328,12 +6354,14 @@ const createContests = async () => {
     data: {
       title: 'Future Contest',
       description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
-      descriptionSummary: '미래 대회',
       createdById: superAdminUser.id,
       groupId: publicGroup.id,
       startTime: dayjs().add(-1, 'hour').add(1, 'year').toDate(),
       endTime: dayjs().add(2, 'hour').add(1, 'year').toDate(),
-      type: ContestType.ACM
+      config: {
+        isVisible: true,
+        isRankVisible: true
+      }
     }
   })
 
@@ -6344,15 +6372,6 @@ const createContests = async () => {
       description: '<p>1번 문제가 blah blah 수정되었습니다.</p>',
       contestId: contest.id,
       problemId: problems[0].id
-    }
-  })
-
-  // add contest publicizing request
-  await prisma.contestPublicizingRequest.create({
-    data: {
-      message: 'This contest sholud be open to public!',
-      contestId: contest.id,
-      createdById: superAdminUser.id
     }
   })
 
@@ -6370,7 +6389,7 @@ const createContests = async () => {
 }
 
 const createWorkbooks = async () => {
-  const workbook = await prisma.workbook.create({
+  workbook = await prisma.workbook.create({
     data: {
       title: '모의대회 문제집',
       description: '<p>모의대회 문제들을 모아뒀습니다!</p>',
@@ -6389,6 +6408,174 @@ const createWorkbooks = async () => {
   }
 }
 
+const createSubmissions = async () => {
+  const generateHash = () => {
+    return Math.floor(Math.random() * 16777215)
+      .toString(16)
+      .padStart(6, '0')
+  }
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        hash: generateHash(),
+        userId: users[0].id,
+        problemId: problems[0].id,
+        contestId: contest.id,
+        code: `#include <stdio.h>
+int main(void) {
+    printf("Hello, World!\n");
+    return 0;
+}`,
+        language: Language.C
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[0].id,
+      problemTestcaseId: problemTestcases[0].id,
+      result: ResultStatus.Accepted
+    }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        hash: generateHash(),
+        userId: users[1].id,
+        problemId: problems[1].id,
+        contestId: contest.id,
+        code: `#include <iostream>
+int main(void) {
+    std::cout << "Hello, World!" << endl;
+    return 0;
+}`,
+        language: Language.Cpp
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[1].id,
+      problemTestcaseId: problemTestcases[1].id,
+      result: ResultStatus.WrongAnswer
+    }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        hash: generateHash(),
+        userId: users[2].id,
+        problemId: problems[2].id,
+        contestId: contest.id,
+        code: `class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}`,
+        language: Language.Java
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[2].id,
+      problemTestcaseId: problemTestcases[2].id,
+      result: ResultStatus.CompileError
+    }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        hash: generateHash(),
+        userId: users[3].id,
+        problemId: problems[3].id,
+        contestId: contest.id,
+        code: `print("Hello, World!")`,
+        language: Language.Python3
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[3].id,
+      problemTestcaseId: problemTestcases[3].id,
+      result: ResultStatus.RuntimeError
+    }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        hash: generateHash(),
+        userId: users[4].id,
+        problemId: problems[4].id,
+        contestId: contest.id,
+        code: `#include <stdio.h>
+int main(void) {
+    printf("Hello, World!\n");
+    return 0;
+}`,
+        language: Language.C
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[4].id,
+      problemTestcaseId: problemTestcases[4].id,
+      result: ResultStatus.TimeLimitExceeded
+    }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        hash: generateHash(),
+        userId: users[5].id,
+        problemId: problems[5].id,
+        contestId: workbook.id,
+        code: `#include <iostream>
+int main(void) {
+    std::cout << "Hello, World!" << endl;
+    return 0;
+}`,
+        language: Language.Cpp
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[5].id,
+      problemTestcaseId: problemTestcases[5].id,
+      result: ResultStatus.MemoryLimitExceeded
+    }
+  })
+
+  submissions.push(
+    await prisma.submission.create({
+      data: {
+        hash: generateHash(),
+        userId: users[6].id,
+        problemId: problems[6].id,
+        contestId: workbook.id,
+        code: `print("Hello, World!")`,
+        language: Language.Python3
+      }
+    })
+  )
+  await prisma.submissionResult.create({
+    data: {
+      submissionId: submissions[6].id,
+      problemTestcaseId: problemTestcases[6].id,
+      result: ResultStatus.OutputLimitExceeded
+    }
+  })
+}
+
 const main = async () => {
   await createUsers()
   await createGroups()
@@ -6396,7 +6583,7 @@ const main = async () => {
   await createProblems()
   await createContests()
   await createWorkbooks()
-  // TODO: create submissions
+  await createSubmissions()
 }
 
 main()
