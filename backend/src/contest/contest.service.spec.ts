@@ -123,7 +123,8 @@ const mockPrismaService = {
     delete: stub()
   },
   contestRecord: {
-    findFirst: stub().resolves(null)
+    findFirst: stub().resolves(null),
+    create: stub().resolves(null)
   },
   userGroup: {
     findFirst: stub().resolves(userGroup),
@@ -555,7 +556,6 @@ describe('ContestService', () => {
     afterEach(() => {
       mockPrismaService.contest.findUnique.resolves(contest)
       mockPrismaService.contestRecord.findFirst.resolves(null)
-      mockPrismaService.contestRankACM.create.reset()
     })
 
     it('should throw error when the contest does not exist', async () => {
@@ -582,8 +582,7 @@ describe('ContestService', () => {
     })
     it('should successfully create contestRankACM', async () => {
       await service.createContestRecord(userId, contestId)
-      expect(mockPrismaService.contestRankACM.create.calledOnce).to.be.true
+      expect(mockPrismaService.contestRecord.create.calledOnce).to.be.true
     })
-    // Todo: test other contest type -> create other contest record table
   })
 })
