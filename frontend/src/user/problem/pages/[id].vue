@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useClipboard } from '@vueuse/core'
+import { useToast } from '@/common/composables/toast'
 import Header from '../components/Header.vue'
 import Navigator from '../components/Navigator.vue'
 import Clarification from '../components/Clarification.vue'
@@ -12,6 +14,18 @@ defineProps<{
 
 const code = ref('')
 const language = ref<'cpp' | 'python' | 'javascript' | 'java'>('cpp')
+
+const sample = ref([{ input: '1 2 3', output: '1 2 3' }])
+
+const { copy } = useClipboard()
+const openToast = useToast()
+const copySample = (index: number, type: 'input' | 'output') => {
+  copy(sample.value[index][type])
+  openToast({
+    message: `${type === 'input' ? 'Input' : 'Output'} copied!`,
+    type: 'success'
+  })
+}
 </script>
 
 <template>
@@ -65,16 +79,26 @@ const language = ref<'cpp' | 'python' | 'javascript' | 'java'>('cpp')
         일정하다면 “Flat Land”를 출력하고, 어느 경우에도 속하지 않으면
         “Unknown”을 출력한다.
       </p>
-      <div class="flex justify-between">
-        <h2>Sample Input1</h2>
-        <IconCopy class="cursor-pointer" />
+      <div class="flex items-end justify-between">
+        <h2 class="mt-4 text-lg font-bold">Sample Input 1</h2>
+        <IconCopy
+          class="cursor-pointer hover:text-white/75 active:text-white/50"
+          @click="copySample(0, 'input')"
+        />
       </div>
-      <div class="bg-default w-full rounded p-3">1 2 3</div>
-      <div class="flex justify-between">
-        <h2>Sample Output1</h2>
-        <IconCopy class="cursor-pointer" />
+      <div class="bg-default w-full rounded-lg p-3 font-mono">
+        {{ sample[0].input }}
       </div>
-      <div class="bg-default w-full rounded p-3">1 2 3</div>
+      <div class="flex items-end justify-between">
+        <h2 class="mt-4 text-lg font-bold">Sample Output 1</h2>
+        <IconCopy
+          class="cursor-pointer hover:text-white/75 active:text-white/50"
+          @click="copySample(0, 'output')"
+        />
+      </div>
+      <div class="bg-default w-full rounded-lg p-3 font-mono">
+        {{ sample[0].output }}
+      </div>
     </div>
     <div
       class="flex grow flex-col justify-between overflow-scroll bg-[#292c33]"
