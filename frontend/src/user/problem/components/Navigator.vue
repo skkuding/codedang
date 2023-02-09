@@ -23,10 +23,14 @@ defineProps<{
   modelValue: string
 }>()
 
-defineEmits(['update:modelValue'])
+defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
 
 const activeStyle = (item: string) => {
-  return item === activeItem.value ? `border-t-[3px] border-white pb-[3px]` : ''
+  return item === activeItem.value
+    ? 'border-white cursor-default'
+    : 'border-transparent active:bg-white/40 cursor-pointer' // use transparent border for color transition effect
 }
 </script>
 
@@ -35,7 +39,9 @@ const activeStyle = (item: string) => {
     <div class="flex h-full w-full items-center justify-start gap-x-4">
       <Dropdown class="pr-3">
         <template #button>
-          <div class="flex h-9 w-fit flex-row items-center gap-x-2 text-white">
+          <div
+            class="flex h-9 w-fit select-none flex-row items-center gap-x-2 rounded px-2 text-white transition hover:bg-white/20 active:bg-white/40"
+          >
             <Fa6SolidCaretDown class="h-4 w-4" />
             <span>가파른 경사</span>
           </div>
@@ -48,7 +54,7 @@ const activeStyle = (item: string) => {
       <div
         v-for="item in items"
         :key="item"
-        class="flex h-full cursor-pointer items-center px-3 text-lg text-white"
+        class="flex h-full select-none items-center border-t-2 px-3 text-lg font-semibold text-white transition hover:bg-white/20"
         :class="activeStyle(item)"
         @click="activeItem = item"
       >
@@ -72,7 +78,7 @@ const activeStyle = (item: string) => {
       <Dropdown color="slate">
         <template #button>
           <div
-            class="flex h-9 w-fit flex-row items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white"
+            class="flex h-9 w-fit flex-row items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white hover:bg-slate-500/80 active:bg-slate-500/60"
           >
             <span class="font-semibold">
               {{ langs.find((x) => x.lang === modelValue)?.name }}
