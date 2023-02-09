@@ -22,7 +22,7 @@ const language = ref<'cpp' | 'python' | 'javascript' | 'java'>('cpp')
     <div
       class="flex w-[600px] min-w-[400px] resize-x flex-col gap-4 overflow-scroll border-r border-slate-400 bg-slate-700 p-8 text-white"
     >
-      <h1 class="text-xl">습격자 초라기</h1>
+      <h1 class="text-xl font-bold">습격자 초라기</h1>
       <p>
         처음으로 인사캠을 방문한 율전이는 너무나 가파른 오르막길에 놀랐다. 이를
         본 율전이는 인사캠의 경사가 얼마나 심한지 알기 위해 네 지점의 높이를
@@ -56,9 +56,9 @@ const language = ref<'cpp' | 'python' | 'javascript' | 'java'>('cpp')
           높이가 주어졌을 때, 어떤 경우에 속하는지 출력하라.
         </li>
       </ol>
-      <h2>Input</h2>
+      <h2 class="mt-4 text-lg font-bold">Input</h2>
       <p>네 줄에 걸쳐 높이 h가 주어진다. (0 &lt; h &le; 1000)</p>
-      <h2>Output</h2>
+      <h2 class="mt-4 text-lg font-bold">Output</h2>
       <p>
         만약 네 개의 높이가 증가(strictly increasing)하면 “Uphill”,
         감소(strictly decreasing)하면 “Downhill”을 출력한다. 또한 높이가
