@@ -399,7 +399,7 @@
 //         .spyOn(problemRepository, 'getWorkbookProblem')
 //         .mockResolvedValueOnce(mockWorkbookProblem)
 //       jest
-//         .spyOn(problemService as any, 'isVisibleWorkbookOfGroup')
+//         .spyOn(problemService as any, 'isVisible')
 //         .mockResolvedValue(true)
 
 //       // when
@@ -418,7 +418,7 @@
 //     it('should throw error when the workbook is not visible or belongs to the group', async () => {
 //       // given
 //       jest
-//         .spyOn(problemService as any, 'isVisibleWorkbookOfGroup')
+//         .spyOn(problemService as any, 'isVisible')
 //         .mockResolvedValueOnce(false)
 
 //       // when
@@ -443,7 +443,7 @@
 //         .spyOn(problemRepository, 'getWorkbookProblems')
 //         .mockResolvedValueOnce(mockWorkbookProblems)
 //       jest
-//         .spyOn(problemService as any, 'isVisibleWorkbookOfGroup')
+//         .spyOn(problemService as any, 'isVisible')
 //         .mockResolvedValue(true)
 
 //       // when
@@ -462,7 +462,7 @@
 //     it('should throw error when the workbook is not visible or belongs to the group', async () => {
 //       // given
 //       jest
-//         .spyOn(problemService as any, 'isVisibleWorkbookOfGroup')
+//         .spyOn(problemService as any, 'isVisible')
 //         .mockResolvedValueOnce(false)
 
 //       // when

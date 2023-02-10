@@ -38,25 +38,12 @@ export class ContestProblemService {
     private readonly contestService: ContestService
   ) {}
 
-  private async isVisibleContest(
-    contestId: number,
-    groupId?: number
-  ): Promise<boolean> {
-    if (groupId === PUBLIC_GROUP_ID)
-      return await this.contestService.isPublicAndVisibleContest(contestId)
-    else
-      return await this.contestService.isVisibleContestOfGroup(
-        groupId,
-        contestId
-      )
-  }
-
   async getContestProblems(
     contestId: number,
     paginationDto: PaginationDto,
     groupId = PUBLIC_GROUP_ID
   ): Promise<RelatedProblemsResponseDto[]> {
-    if (!(await this.isVisibleContest(contestId, groupId))) {
+    if (!(await this.contestService.isVisible(contestId, groupId))) {
       throw new EntityNotExistException('Contest')
     }
     const data = await this.problemRepository.getContestProblems(
@@ -71,7 +58,7 @@ export class ContestProblemService {
     problemId: number,
     groupId = PUBLIC_GROUP_ID
   ): Promise<RelatedProblemResponseDto> {
-    if (!(await this.isVisibleContest(contestId, groupId))) {
+    if (!(await this.contestService.isVisible(contestId, groupId))) {
       throw new EntityNotExistException('Contest')
     }
     const data = await this.problemRepository.getContestProblem(
@@ -89,25 +76,12 @@ export class WorkbookProblemService {
     private readonly workbookService: WorkbookService
   ) {}
 
-  private async isVisibleWorkbook(
-    workbookId: number,
-    groupId: number
-  ): Promise<boolean> {
-    if (groupId === PUBLIC_GROUP_ID)
-      return await this.workbookService.isPublicAndVisibleWorkbook(workbookId)
-    else
-      return await this.workbookService.isVisibleWorkbookOfGroup(
-        groupId,
-        workbookId
-      )
-  }
-
   async getWorkbookProblems(
     workbookId: number,
     paginationDto: PaginationDto,
     groupId = PUBLIC_GROUP_ID
   ): Promise<RelatedProblemsResponseDto[]> {
-    if (!(await this.isVisibleWorkbook(workbookId, groupId))) {
+    if (!(await this.workbookService.isVisible(workbookId, groupId))) {
       throw new EntityNotExistException('Workbook')
     }
     const data = await this.problemRepository.getWorkbookProblems(
@@ -122,7 +96,7 @@ export class WorkbookProblemService {
     problemId: number,
     groupId = PUBLIC_GROUP_ID
   ): Promise<RelatedProblemResponseDto> {
-    if (!(await this.isVisibleWorkbook(workbookId, groupId))) {
+    if (!(await this.workbookService.isVisible(workbookId, groupId))) {
       throw new EntityNotExistException('Workbook')
     }
     const data = await this.problemRepository.getWorkbookProblem(

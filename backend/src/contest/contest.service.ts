@@ -336,20 +336,23 @@ export class ContestService {
     return !!(await this.prisma.contest.count({
       where: {
         id: contestId,
-        visible: true,
-        isPublic: true
+        config: {
+          path: ['isVisible'],
+          equals: true
+        },
+        groupId: 1
       }
     }))
   }
 
-  async isVisibleContestOfGroup(
-    groupId: number,
-    contestId: number
-  ): Promise<boolean> {
+  async isVisible(contestId: number, groupId: number): Promise<boolean> {
     return !!(await this.prisma.contest.count({
       where: {
         id: contestId,
-        visible: true,
+        config: {
+          path: ['isVisible'],
+          equals: true
+        },
         groupId: groupId
       }
     }))

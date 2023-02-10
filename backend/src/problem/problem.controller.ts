@@ -8,7 +8,7 @@ import {
   Query,
   UseGuards
 } from '@nestjs/common'
-import { Public } from 'src/common/decorator/public.decorator'
+import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
@@ -24,7 +24,7 @@ import {
   WorkbookProblemService
 } from './problem.service'
 
-@Public()
+@AuthNotNeeded()
 @Controller('problem')
 export class PublicProblemController {
   constructor(private readonly problemService: ProblemService) {}
@@ -55,7 +55,7 @@ export class PublicProblemController {
   }
 }
 
-@Public()
+@AuthNotNeeded()
 @Controller('contest')
 export class PublicContestProblemController {
   constructor(private readonly contestProblemService: ContestProblemService) {}
@@ -94,7 +94,7 @@ export class PublicContestProblemController {
   }
 }
 
-@Public()
+@AuthNotNeeded()
 @Controller('workbook')
 export class PublicWorkbookProblemController {
   constructor(

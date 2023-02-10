@@ -59,14 +59,11 @@ export class ProblemRepository {
       skip: paginationDto.offset,
       take: paginationDto.limit,
       where: {
-        isPublic: true,
         groupId: PUBLIC_GROUP_ID
       },
       select: {
         ...this.problemsSelectOption,
-        difficulty: true,
-        submissionNum: true,
-        acceptedNum: true
+        difficulty: true
       }
     })
   }
@@ -75,7 +72,6 @@ export class ProblemRepository {
     return await this.prisma.problem.findFirst({
       where: {
         id: problemId,
-        isPublic: true,
         groupId: PUBLIC_GROUP_ID
       },
       select: this.problemSelectOption,
@@ -101,7 +97,8 @@ export class ProblemRepository {
   ): Promise<Partial<ContestProblem> & { problem: Partial<Problem> }> {
     return await this.prisma.contestProblem.findUnique({
       where: {
-        contestProblemUniqueConstraint: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_problemId: {
           contestId: contestId,
           problemId: problemId
         }
@@ -123,13 +120,11 @@ export class ProblemRepository {
     })
   }
 
-  async getWorkbookProblem(
-    workbookId: number,
-    problemId: number
-  ): Promise<Partial<WorkbookProblem> & { problem: Partial<Problem> }> {
+  async getWorkbookProblem(workbookId: number, problemId: number) {
     return await this.prisma.workbookProblem.findUnique({
       where: {
-        workbookProblemUniqueConstraint: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        workbookId_problemId: {
           workbookId: workbookId,
           problemId: problemId
         }

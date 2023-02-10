@@ -1,56 +1,49 @@
-import { Problem, ProblemDifficulty } from '@prisma/client'
+import { Problem, Language, Level } from '@prisma/client'
 
 export const Problems: Problem[] = [
   {
     id: 1,
     createdById: 1,
-    isPublic: true,
+    groupId: 1,
     title: 'public problem',
     description: '',
     inputDescription: '',
     outputDescription: '',
     hint: '',
-    languages: '',
+    languages: [Language.C],
     timeLimit: 0,
     memoryLimit: 0,
-    difficulty: ProblemDifficulty.Level1,
+    difficulty: Level.Level1,
     source: '',
-    shared: false,
-    submissionNum: 1,
-    acceptedNum: 1,
-    score: 0,
     createTime: undefined,
     updateTime: undefined,
-    groupId: 1
+    inputExamples: [],
+    outputExamples: []
   },
   {
     id: 2,
     createdById: 1,
-    isPublic: false,
+    groupId: 1,
     title: 'problem',
     description: '',
     inputDescription: '',
     outputDescription: '',
     hint: '',
-    languages: '',
+    languages: [Language.Cpp],
     timeLimit: 0,
     memoryLimit: 0,
-    difficulty: ProblemDifficulty.Level2,
+    difficulty: Level.Level2,
     source: '',
-    shared: false,
-    submissionNum: 1,
-    acceptedNum: 1,
-    score: 0,
     createTime: undefined,
     updateTime: undefined,
-    groupId: 1
+    inputExamples: [],
+    outputExamples: []
   }
 ]
 
 export const ContestProblems = [
   {
-    id: 1,
-    displayId: 'A',
+    id: 'A',
     contestId: 1,
     problemId: 1,
     score: 0,
@@ -58,8 +51,7 @@ export const ContestProblems = [
     updateTime: undefined
   },
   {
-    id: 2,
-    displayId: 'B',
+    id: 'B',
     contestId: 1,
     problemId: 2,
     score: 0,
@@ -70,8 +62,7 @@ export const ContestProblems = [
 
 export const WorkbookProblems = [
   {
-    id: 1,
-    displayId: 'A',
+    id: 'A',
     workbookId: 1,
     problemId: 1,
     score: 0,
@@ -79,8 +70,7 @@ export const WorkbookProblems = [
     updateTime: undefined
   },
   {
-    id: 2,
-    displayId: 'B',
+    id: 'B',
     workbookId: 1,
     problemId: 2,
     score: 0,

@@ -36,7 +36,6 @@ const contest = {
   },
   createTime: new Date('2021-11-01T18:34:23.999175+09:00'),
   updateTime: new Date('2021-11-01T18:34:23.999175+09:00'),
-  isPublic: false,
   group: {
     id: groupId,
     groupName: 'group'
