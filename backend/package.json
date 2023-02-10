@@ -20,7 +20,7 @@
     "@nestjs/jwt": "^10.0.1",
     "@nestjs/passport": "^9.0.1",
     "@nestjs/platform-express": "^9.3.2",
-    "@nestjs/swagger": "^6.1.4",
+    "@nestjs/swagger": "^6.2.1",
     "@prisma/client": "^4.9.0",
     "argon2": "^0.30.3",
     "cache-manager": "^5.1.5",
