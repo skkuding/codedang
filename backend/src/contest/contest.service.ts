@@ -213,10 +213,10 @@ export class ContestService {
 
   filterUpcoming(contests: Partial<Contest>[]): Partial<Contest>[] {
     const now = new Date()
-    contests.sort(this.startTimeCompare)
-    const upcomingContest = contests.filter(
+    let upcomingContest = contests.filter(
       (contest) => contest.startTime > now
     )
+    upcomingContest.sort(this.startTimeCompare)
     return upcomingContest
   }
 
