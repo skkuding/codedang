@@ -112,6 +112,9 @@ export class GroupService {
     const groups = (
       await this.prisma.group.findMany({
         where: {
+          NOT: {
+            id: 1
+          },
           config: {
             path: ['showOnList'],
             equals: true
@@ -148,6 +151,9 @@ export class GroupService {
     const groupIds = (
       await this.prisma.userGroup.findMany({
         where: {
+          NOT: {
+            groupId: 1
+          },
           userId: userId
         },
         select: {
