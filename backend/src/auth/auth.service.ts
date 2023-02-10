@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
+import { CACHE_MANAGER, forwardRef, Inject, Injectable } from '@nestjs/common'
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { User } from '@prisma/client'
@@ -13,18 +13,19 @@ import {
 import { validate } from '../common/hash'
 
 import {
-  ACCESS_TOKEN_EXPIRATION_SEC,
-  REFRESH_TOKEN_EXPIRATION_SEC
-} from './constants/jwt.constants'
+  ACCESS_TOKEN_EXPIRE_TIME,
+  REFRESH_TOKEN_EXPIRE_TIME
+} from '../common/constants'
 import { LoginUserDto } from './dto/login-user.dto'
 import { JwtObject, JwtPayload, JwtTokens } from './interface/jwt.interface'
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -82,17 +83,17 @@ export class AuthService {
     const payload: JwtPayload = { userId, username }
     const accessToken = await this.jwtService.signAsync({
       ...payload,
-      expiresIn: ACCESS_TOKEN_EXPIRATION_SEC
+      expiresIn: ACCESS_TOKEN_EXPIRE_TIME
     })
     const refreshToken = await this.jwtService.signAsync({
       ...payload,
-      expiresIn: REFRESH_TOKEN_EXPIRATION_SEC
+      expiresIn: REFRESH_TOKEN_EXPIRE_TIME
     })
 
     await this.cacheManager.set(
       refreshTokenCacheKey(userId),
       refreshToken,
-      REFRESH_TOKEN_EXPIRATION_SEC
+      REFRESH_TOKEN_EXPIRE_TIME
     )
 
     return { accessToken, refreshToken }

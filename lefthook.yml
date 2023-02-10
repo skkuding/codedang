@@ -11,4 +11,5 @@ pre-commit:
 post-checkout:
   commands:
     setup:
-      run: ./scripts/setup.sh
+      interactive: true
+      run: ./scripts/post-checkout.sh

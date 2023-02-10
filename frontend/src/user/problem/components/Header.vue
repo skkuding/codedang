@@ -13,9 +13,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 </script>
 
 <template>
-  <header
-    class="border-b-gray bg-text-subtitle grid h-14 place-items-center border-b px-8"
-  >
+  <header class="bg-text-subtitle grid h-14 place-items-center px-8">
     <div class="flex h-14 w-full max-w-7xl items-center justify-between">
       <div class="flex h-14 items-center">
         <RouterLink class="mr-4" to="/">
@@ -47,7 +45,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
         mode="out-in"
       >
         <div v-if="auth">
-          <Dropdown class="bg-slate-500 text-white">
+          <Dropdown>
             <template #button>
               <IconUser class="text-xl text-white" />
             </template>
