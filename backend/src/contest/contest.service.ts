@@ -148,7 +148,7 @@ export class ContestService {
     }
     
     const now = new Date()
-    const registeredContests = await this.prisma.user.findUnique({
+    const registeredContests = (await this.prisma.user.findUnique({
       where: {
         id: user.id
       },
@@ -165,9 +165,9 @@ export class ContestService {
           }
         }
       }
-    })
+    })).contest
 
-    const registeredContestId = registeredContests.contest.map(
+    const registeredContestId = registeredContests.map(
       (contest) => contest.id
     )
 
@@ -185,8 +185,8 @@ export class ContestService {
     })
 
     return {
-      registeredOngoing: this.filterOngoing(registeredContests.contest),
-      registeredUpcoming: this.filterUpcoming(registeredContests.contest),
+      registeredOngoing: this.filterOngoing(registeredContests),
+      registeredUpcoming: this.filterUpcoming(registeredContests),
       ongoing: this.filterOngoing(contests),
       upcoming: this.filterUpcoming(contests),
       finished: this.filterFinished(contests)
