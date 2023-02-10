@@ -12,3 +12,9 @@ commit-msg:
   commands:
     commitlint:
       run: pnpm commitlint --edit
+
+post-checkout:
+  commands:
+    setup:
+      interactive: true
+      run: ./scripts/post-checkout.sh

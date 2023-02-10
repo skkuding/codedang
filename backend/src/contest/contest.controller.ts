@@ -1,27 +1,28 @@
 import {
   Controller,
-  ForbiddenException,
-  Get,
   InternalServerErrorException,
   NotFoundException,
   Param,
   ParseIntPipe,
+  Post,
   Req,
-  UseGuards
+  Get,
+  UseGuards,
+  MethodNotAllowedException
 } from '@nestjs/common'
-import { Contest } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
-import { Public } from 'src/common/decorator/public.decorator'
 import {
-  EntityNotExistException,
-  ForbiddenAccessException
+  ActionNotAllowedException,
+  EntityNotExistException
 } from 'src/common/exception/business.exception'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
-import { RolesGuard } from 'src/user/guard/roles.guard'
 import { ContestService } from './contest.service'
+import { Contest } from '@prisma/client'
+import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
+import { RolesGuard } from 'src/user/guard/roles.guard'
 
 @Controller('contest')
-@Public()
+@AuthNotNeeded()
 export class ContestController {
   constructor(private readonly contestService: ContestService) {}
 
@@ -49,14 +50,14 @@ export class ContestController {
   }
 }
 
-@Controller('group/:group_id/contest')
+@Controller('group/:groupId/contest')
 export class GroupContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
   @UseGuards(RolesGuard, GroupMemberGuard)
   async getContests(
-    @Param('group_id', ParseIntPipe) groupId: number
+    @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getContestsByGroupId(groupId)
   }
@@ -72,8 +73,28 @@ export class GroupContestController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+      if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Post(':id/participation')
+  @UseGuards(RolesGuard, GroupMemberGuard)
+  async createContestRecord(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseIntPipe) contestId: number
+  ): Promise<null> {
+    try {
+      this.contestService.createContestRecord(req.user.id, contestId)
+      return
+    } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      }
+      if (err instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(err.message)
       }
       throw new InternalServerErrorException()
     }

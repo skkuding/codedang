@@ -1,11 +1,4 @@
-import { ContestType } from '@prisma/client'
-import {
-  IsNotEmpty,
-  IsBoolean,
-  IsDateString,
-  IsEnum,
-  IsString
-} from 'class-validator'
+import { IsNotEmpty, IsBoolean, IsDateString, IsString } from 'class-validator'
 
 export class UpdateContestDto {
   @IsString()
@@ -16,27 +9,19 @@ export class UpdateContestDto {
   @IsNotEmpty()
   readonly description: string
 
-  @IsString()
+  @IsDateString()
   @IsNotEmpty()
-  readonly description_summary: string
+  readonly startTime: Date
 
   @IsDateString()
   @IsNotEmpty()
-  readonly start_time: Date
-
-  @IsDateString()
-  @IsNotEmpty()
-  readonly end_time: Date
+  readonly endTime: Date
 
   @IsBoolean()
   @IsNotEmpty()
-  readonly visible: boolean
+  readonly isVisible: boolean
 
   @IsBoolean()
   @IsNotEmpty()
-  readonly is_rank_visible: boolean
-
-  @IsEnum(ContestType)
-  @IsNotEmpty()
-  readonly type: ContestType
+  readonly isRankVisible: boolean
 }

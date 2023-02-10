@@ -2,17 +2,13 @@ import { UserNotice } from './interface/user-notice.interface'
 import { Injectable } from '@nestjs/common'
 import { Notice } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { GroupService } from 'src/group/group.service'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { CreateNoticeDto } from './dto/create-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 
 @Injectable()
 export class NoticeService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly group: GroupService
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createNotice(
     userId: number,
@@ -30,12 +26,12 @@ export class NoticeService {
       data: {
         title: noticeDto.title,
         content: noticeDto.content,
-        visible: noticeDto.visible,
-        fixed: noticeDto.fixed,
+        isVisible: noticeDto.isVisible,
+        isFixed: noticeDto.isFixed,
         group: {
           connect: { id: groupId }
         },
-        created_by: {
+        createdBy: {
           connect: { id: userId }
         }
       }
@@ -50,14 +46,14 @@ export class NoticeService {
   ): Promise<Partial<Notice>[]> {
     return await this.prisma.notice.findMany({
       where: {
-        group_id: groupId,
-        visible: true
+        groupId: groupId,
+        isVisible: true
       },
       select: {
         id: true,
         title: true,
-        create_time: true,
-        fixed: true
+        createTime: true,
+        isFixed: true
       },
       skip: offset - 1,
       take: 10
@@ -68,28 +64,28 @@ export class NoticeService {
     const current = await this.prisma.notice.findFirst({
       where: {
         id: id,
-        visible: true
+        isVisible: true
       },
       select: {
         title: true,
         content: true,
-        create_time: true,
-        update_time: true
+        createTime: true,
+        updateTime: true
       },
       rejectOnNotFound: () => new EntityNotExistException('notice')
     })
 
     const navigate = (pos: 'prev' | 'next') => {
-      type order = 'asc' | 'desc'
+      type Order = 'asc' | 'desc'
       const options =
         pos === 'prev'
-          ? { compare: { lt: id }, order: 'desc' as order }
-          : { compare: { gt: id }, order: 'asc' as order }
+          ? { compare: { lt: id }, order: 'desc' as Order }
+          : { compare: { gt: id }, order: 'asc' as Order }
       return {
         where: {
           id: options.compare,
-          group_id: groupId,
-          visible: true
+          groupId: groupId,
+          isVisible: true
         },
         orderBy: {
           id: options.order
@@ -108,30 +104,23 @@ export class NoticeService {
     }
   }
 
-  async getAdminNotices(
-    userId: number,
-    offset: number
-  ): Promise<Partial<Notice>[]> {
-    const groupIds = await this.group.getUserGroupManagerList(userId)
-
+  async getAdminNotices(offset: number): Promise<Partial<Notice>[]> {
     return await this.prisma.notice.findMany({
       where: {
-        group_id: {
-          in: groupIds
-        }
+        groupId: 1
       },
       select: {
         id: true,
         group: {
           select: {
             id: true,
-            group_name: true
+            groupName: true
           }
         },
         title: true,
-        update_time: true,
-        created_by: true,
-        visible: true
+        updateTime: true,
+        createdBy: true,
+        isVisible: true
       },
       skip: offset - 1,
       take: 5
@@ -144,14 +133,14 @@ export class NoticeService {
   ): Promise<Partial<Notice>[]> {
     return await this.prisma.notice.findMany({
       where: {
-        group_id: groupId
+        groupId: groupId
       },
       select: {
         id: true,
         title: true,
-        update_time: true,
-        visible: true,
-        fixed: true
+        updateTime: true,
+        isVisible: true,
+        isFixed: true
       },
       skip: offset - 1,
       take: 5
@@ -166,13 +155,13 @@ export class NoticeService {
       select: {
         group: {
           select: {
-            group_name: true
+            groupName: true
           }
         },
         title: true,
         content: true,
-        visible: true,
-        fixed: true
+        isVisible: true,
+        isFixed: true
       },
       rejectOnNotFound: () => new EntityNotExistException('notice')
     })

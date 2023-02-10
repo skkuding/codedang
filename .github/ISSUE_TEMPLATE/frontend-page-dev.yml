@@ -1,0 +1,36 @@
+name: 📕 [Frontend] New page development
+description: 새로운 page를 개발합니다
+title: '[Feature] page-name 페이지 구현'
+labels: ['feat: frontend']
+body:
+  - type: input
+    attributes:
+      label: 🏡 URL for the page
+      description: 구현하려는 page의 URL을 적어주세요.
+      placeholder: ex. /contest
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: 🎨 Page Image
+      description: 구현하려는 page의 Image를 첨부해주세요.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: ✏️ Describe the feature
+      description: 구현하려는 page를 자세하게 설명해주세요.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🏷 Required APIs
+      description: 해당 page를 구현할 때 필요한 api list에 대해 설명해주세요. (없다면 작성하지 않으셔도 됩니다.)
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: 🏷 Required Components
+      description: 해당 page를 구현할 때 필요한 component list를 작성해주세요. (없다면 작성하지 않으셔도 됩니다.)
+    validations:
+      required: false

@@ -26,14 +26,17 @@ else
   echo "CACHE_DATABASE_PORT=6379" >> backend/.env
 fi
 
+# Save user account and password to dotenv file for nodemailer
+echo "NODEMAILER_USER=\"\"" >> backend/.env
+echo "NODEMAILER_PASS=\"\"" >> backend/.env
+
 # Use docker-compose profile
 if [ -z $DEVCONTAINER ]
 then
   docker-compose up -d
 fi
 
-jwt_secret=$(echo -n head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum)
-echo "JWT_SECRET=$jwt_secret" >> backend/.env
+echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum | head -c 64)" >> backend/.env
 
 # Install pnpm
 pnpm --version || sudo corepack enable
