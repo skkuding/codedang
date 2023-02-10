@@ -51,11 +51,7 @@ export class GroupService {
         userGroup: true,
         createdBy: {
           select: {
-            userProfile: {
-              select: {
-                realName: true
-              }
-            }
+            username: true
           }
         }
       },
@@ -66,7 +62,7 @@ export class GroupService {
       id: group.id,
       groupName: group.groupName,
       description: group.description,
-      createdBy: group.createdBy.userProfile.realName,
+      createdBy: group.createdBy.username,
       memberNum: group.userGroup.length,
       leaders: await this.getGroupLeaders(groupId)
     }
@@ -82,16 +78,12 @@ export class GroupService {
         select: {
           user: {
             select: {
-              userProfile: {
-                select: {
-                  realName: true
-                }
-              }
+              username: true
             }
           }
         }
       })
-    ).map((leader) => leader.user.userProfile.realName)
+    ).map((leader) => leader.user.username)
 
     return leaders
   }
@@ -106,16 +98,12 @@ export class GroupService {
         select: {
           user: {
             select: {
-              userProfile: {
-                select: {
-                  realName: true
-                }
-              }
+              username: true
             }
           }
         }
       })
-    ).map((member) => member.user.userProfile.realName)
+    ).map((member) => member.user.username)
 
     return members
   }
@@ -132,11 +120,7 @@ export class GroupService {
         select: {
           createdBy: {
             select: {
-              userProfile: {
-                select: {
-                  realName: true
-                }
-              }
+              username: true
             }
           },
           id: true,
@@ -152,7 +136,7 @@ export class GroupService {
           id: group.id,
           groupName: group.groupName,
           description: group.description,
-          createdBy: group.createdBy.userProfile.realName,
+          createdBy: group.createdBy.username,
           memberNum: group.userGroup.length
         }
       })
@@ -182,11 +166,7 @@ export class GroupService {
         select: {
           createdBy: {
             select: {
-              userProfile: {
-                select: {
-                  realName: true
-                }
-              }
+              username: true
             }
           },
           id: true,
@@ -200,7 +180,7 @@ export class GroupService {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
-        createdBy: group.createdBy.userProfile.realName,
+        createdBy: group.createdBy.username,
         memberNum: group.userGroup.length
       }
     })
