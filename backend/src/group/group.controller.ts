@@ -84,7 +84,7 @@ export class GroupController {
   async joinGroupById(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
-  ) {
+  ): Promise<{ userGroupData: Partial<UserGroup>; isJoined: boolean }> {
     try {
       return await this.groupService.joinGroupById(req.user.id, groupId)
     } catch (error) {

@@ -193,7 +193,10 @@ export class GroupService {
     return groups
   }
 
-  async joinGroupById(userId: number, groupId: number) {
+  async joinGroupById(
+    userId: number,
+    groupId: number
+  ): Promise<{ userGroupData: Partial<UserGroup>; isJoined: boolean }> {
     const group = await this.prisma.group.findFirst({
       where: {
         id: groupId,
@@ -233,8 +236,10 @@ export class GroupService {
       )
 
       return {
-        userId: userId,
-        groupId: groupId,
+        userGroupData: {
+          userId: userId,
+          groupId: groupId
+        },
         isJoined: false
       }
     } else {
@@ -244,7 +249,7 @@ export class GroupService {
         isGroupLeader: false
       }
       return {
-        ...(await this.createUserGroup(userGroupData)),
+        userGroupData: await this.createUserGroup(userGroupData),
         isJoined: true
       }
     }
