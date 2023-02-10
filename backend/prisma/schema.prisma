@@ -229,8 +229,7 @@ model ContestNotice {
 }
 
 model ContestProblem {
-  id         Int      @id @default(autoincrement())
-  displayId  String   @map("display_id")
+  id         String
   contest    Contest  @relation(fields: [contestId], references: [id])
   contestId  Int      @map("contest_id")
   problem    Problem  @relation(fields: [problemId], references: [id])
@@ -239,8 +238,8 @@ model ContestProblem {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  @@unique([contestId, problemId], name: "contestProblemUniqueConstraint")
-  @@unique([contestId, displayId], name: "contestProblemDisplayIdUniqueConstraint")
+  @@id([contestId, problemId])
+  @@unique([contestId, id])
   @@map("contest_problem")
 }
 
@@ -277,8 +276,7 @@ model Workbook {
 }
 
 model WorkbookProblem {
-  id         Int      @id @default(autoincrement())
-  displayId  String   @map("display_id")
+  id         String
   workbook   Workbook @relation(fields: [workbookId], references: [id])
   workbookId Int      @map("workbook_id")
   problem    Problem  @relation(fields: [problemId], references: [id])
@@ -286,8 +284,8 @@ model WorkbookProblem {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  @@unique([workbookId, problemId], name: "workbookProblemUniqueConstraint")
-  @@unique([workbookId, displayId], name: "workbookProblemDisplayIdUniqueConstraint")
+  @@id([workbookId, problemId])
+  @@unique([workbookId, id])
   @@map("workbook_problem")
 }
 
