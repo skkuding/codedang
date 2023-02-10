@@ -109,6 +109,7 @@ export class GroupController {
   }
 
   @Get(':groupId/leaders')
+  @UseGuards(GroupMemberGuard)
   async getGroupLeaders(
     @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<string[]> {
@@ -123,6 +124,7 @@ export class GroupController {
   }
 
   @Get(':groupId/members')
+  @UseGuards(GroupMemberGuard)
   async getGroupMembers(
     @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<string[]> {
