@@ -13,7 +13,10 @@ import {
 import { Group, UserGroup } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
-import { EntityNotExistException } from 'src/common/exception/business.exception'
+import {
+  EntityAlreadyExistException,
+  EntityNotExistException
+} from 'src/common/exception/business.exception'
 import { GroupService } from './group.service'
 import { GroupMemberGuard } from './guard/group-member.guard'
 import { GroupData } from './interface/group-data.interface'
@@ -86,6 +89,8 @@ export class GroupController {
       return await this.groupService.joinGroupById(req.user.id, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof EntityAlreadyExistException) {
         throw new NotFoundException(error.message)
       }
       throw new InternalServerErrorException()

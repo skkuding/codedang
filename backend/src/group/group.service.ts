@@ -2,8 +2,8 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
 import { Group, UserGroup } from '@prisma/client'
 import {
-  EntityNotExistException,
-  JoinGroupRequestAlreadyExistException
+  EntityAlreadyExistException,
+  EntityNotExistException
 } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { UserGroupData } from './interface/user-group-data.interface'
@@ -132,17 +132,15 @@ export class GroupService {
           userGroup: true
         }
       })
-    )
-      .filter((group) => group.id != 1)
-      .map((group) => {
-        return {
-          id: group.id,
-          groupName: group.groupName,
-          description: group.description,
-          createdBy: group.createdBy.username,
-          memberNum: group.userGroup.length
-        }
-      })
+    ).map((group) => {
+      return {
+        id: group.id,
+        groupName: group.groupName,
+        description: group.description,
+        createdBy: group.createdBy.username,
+        memberNum: group.userGroup.length
+      }
+    })
 
     return groups
   }
@@ -209,13 +207,21 @@ export class GroupService {
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
 
-    if (group.config['requireApprovalBeforeJoin']) {
+    const isRegisterd = await this.prisma.userGroup.findFirst({
+      where: {
+        userId: userId,
+        groupId: groupId
+      }
+    })
+
+    if (isRegisterd) {
+      throw new EntityAlreadyExistException('Group join record')
+    } else if (group.config['requireApprovalBeforeJoin']) {
       const joinGroupRequest = await this.cacheManager.get(
         joinGroupCacheKey(userId, groupId)
       )
-
       if (joinGroupRequest) {
-        throw new JoinGroupRequestAlreadyExistException()
+        throw new EntityAlreadyExistException('Group join request')
       }
 
       const userGroupValue = `user:${userId}:group:${groupId}`
@@ -224,13 +230,22 @@ export class GroupService {
         userGroupValue,
         JOIN_GROUP_REQUEST_EXPIRATION_SEC
       )
+
+      return {
+        userId: userId,
+        groupId: groupId,
+        isJoined: false
+      }
     } else {
       const userGroupData: UserGroupData = {
         userId,
         groupId,
         isGroupLeader: false
       }
-      await this.createUserGroup(userGroupData)
+      return {
+        ...(await this.createUserGroup(userGroupData)),
+        isJoined: true
+      }
     }
   }
 
