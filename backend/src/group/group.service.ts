@@ -11,6 +11,7 @@ import { GroupData } from './interface/group-data.interface'
 import { JOIN_GROUP_REQUEST_EXPIRATION_SEC } from './constants/pending.constants'
 import { joinGroupCacheKey } from 'src/common/cache/keys'
 import { Cache } from 'cache-manager'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 
 @Injectable()
 export class GroupService {
@@ -250,14 +251,26 @@ export class GroupService {
   }
 
   async leaveGroup(userId: number, groupId: number): Promise<UserGroup> {
-    return await this.prisma.userGroup.delete({
-      where: {
-        userId_groupId: {
-          userId: userId,
-          groupId: groupId
+    try {
+      const deletedUserGroup = await this.prisma.userGroup.delete({
+        where: {
+          userId_groupId: {
+            userId: userId,
+            groupId: groupId
+          }
         }
+      })
+      return deletedUserGroup
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('userGroup')
+      } else {
+        throw error
       }
-    })
+    }
   }
 
   async getUserGroupMembershipInfo(userId: number, groupId: number) {
