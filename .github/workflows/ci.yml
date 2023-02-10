@@ -60,6 +60,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Lint pull request title
+        run: echo ${{ github.event.pull_request.title }} | pnpm commitlint --verbose
+
       - name: Lint
         run: pnpm lint
 

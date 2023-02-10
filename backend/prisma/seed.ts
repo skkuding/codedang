@@ -148,7 +148,7 @@ const createGroups = async () => {
   // add users to private group
   // group leader: user01
   // registered: user01, user03, user05, user07, user09
-  for (const [_, user] of users.entries()) {
+  for (const user of users) {
     prisma.userGroup.create({
       data: {
         userId: user.id,
