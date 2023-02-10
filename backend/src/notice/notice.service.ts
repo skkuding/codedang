@@ -44,13 +44,6 @@ export class NoticeService {
     return notice
   }
 
-  // 수정 완료
-  /**
-   * 첫 페이지 -> default (cursor === null)
-   * cursor 음수 -> exception
-   * -> custom decorator
-   * 음수, 0 에 대해 예외처리하는 custom pipe
-   */
   async getNoticesByGroupId(
     groupId: number,
     cursor: number,

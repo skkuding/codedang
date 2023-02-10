@@ -44,8 +44,7 @@ export class PublicNoticeController {
 }
 
 @Controller('group/:groupId/notice')
-// @UseGuards(RolesGuard, GroupMemberGuard)
-@Public()
+@UseGuards(RolesGuard, GroupMemberGuard)
 export class GroupNoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
