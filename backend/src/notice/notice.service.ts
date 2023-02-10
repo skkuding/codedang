@@ -44,11 +44,31 @@ export class NoticeService {
     return notice
   }
 
+  // 수정 완료
+  /**
+   * 첫 페이지 -> default (cursor === null)
+   * cursor 음수 -> exception
+   * -> custom decorator
+   * 음수, 0 에 대해 예외처리하는 custom pipe
+   */
   async getNoticesByGroupId(
     groupId: number,
-    offset: number
+    cursor: number,
+    take: number
   ): Promise<Partial<Notice>[]> {
+    let skip
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    } else if (cursor > 0) {
+      skip = 1
+    }
     return await this.prisma.notice.findMany({
+      take,
+      skip,
+      cursor: {
+        id: cursor
+      },
       where: {
         groupId: groupId,
         visible: true
@@ -58,9 +78,7 @@ export class NoticeService {
         title: true,
         createTime: true,
         fixed: true
-      },
-      skip: offset - 1,
-      take: 10
+      }
     })
   }
 
@@ -108,8 +126,23 @@ export class NoticeService {
     }
   }
 
-  async getAdminNotices(offset: number): Promise<Partial<Notice>[]> {
+  async getAdminNotices(
+    cursor: number,
+    take: number
+  ): Promise<Partial<Notice>[]> {
+    let skip
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    } else if (cursor > 0) {
+      skip = 1
+    }
     return await this.prisma.notice.findMany({
+      take,
+      skip,
+      cursor: {
+        id: cursor
+      },
       where: {
         groupId: 1
       },
@@ -125,17 +158,28 @@ export class NoticeService {
         updateTime: true,
         createdBy: true,
         visible: true
-      },
-      skip: offset - 1,
-      take: 5
+      }
     })
   }
 
   async getAdminNoticesByGroupId(
     groupId: number,
-    offset: number
+    take: number,
+    cursor: number
   ): Promise<Partial<Notice>[]> {
+    let skip
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    } else if (cursor > 0) {
+      skip = 1
+    }
     return await this.prisma.notice.findMany({
+      take,
+      skip,
+      cursor: {
+        id: cursor
+      },
       where: {
         groupId: groupId
       },
@@ -145,9 +189,7 @@ export class NoticeService {
         updateTime: true,
         visible: true,
         fixed: true
-      },
-      skip: offset - 1,
-      take: 5
+      }
     })
   }
 

@@ -6,7 +6,8 @@ import {
   ParseIntPipe,
   UseGuards,
   NotFoundException,
-  InternalServerErrorException
+  InternalServerErrorException,
+  DefaultValuePipe
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
 import { Notice } from '@prisma/client'
@@ -23,9 +24,10 @@ export class PublicNoticeController {
 
   @Get()
   async getNotices(
-    @Query('offset', ParseIntPipe) offset: number
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getNoticesByGroupId(1, offset)
+    return await this.noticeService.getNoticesByGroupId(1, cursor, take)
   }
 
   @Get(':id')
@@ -42,16 +44,18 @@ export class PublicNoticeController {
 }
 
 @Controller('group/:groupId/notice')
-@UseGuards(RolesGuard, GroupMemberGuard)
+// @UseGuards(RolesGuard, GroupMemberGuard)
+@Public()
 export class GroupNoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
-  @Get()
+  @Get('')
   async getNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('offset', ParseIntPipe) offset: number
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getNoticesByGroupId(groupId, offset)
+    return await this.noticeService.getNoticesByGroupId(groupId, cursor, take)
   }
 
   @Get(':id')
