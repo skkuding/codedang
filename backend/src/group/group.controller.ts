@@ -1,5 +1,6 @@
 import {
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   InternalServerErrorException,
@@ -7,6 +8,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   Req,
   UseGuards
 } from '@nestjs/common'
@@ -26,9 +28,12 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Get()
-  async getGroups(): Promise<GroupData[]> {
+  async getGroups(
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
+  ): Promise<GroupData[]> {
     try {
-      return await this.groupService.getGroups()
+      return await this.groupService.getGroups(cursor, take)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

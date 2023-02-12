@@ -113,9 +113,12 @@ export class GroupService {
     return members
   }
 
-  async getGroups(): Promise<GroupData[]> {
+  async getGroups(cursor: number, take: number): Promise<GroupData[]> {
     const groups = (
       await this.prisma.group.findMany({
+        take,
+        skip: cursor ? 1 : 0,
+        ...(cursor && { cursor: { id: cursor } }),
         where: {
           NOT: {
             id: 1
