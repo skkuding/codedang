@@ -61,7 +61,7 @@ export class GroupController {
   async getGroup(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
-  ): Promise<Partial<Group>> {
+  ): Promise<Partial<GroupData>> {
     try {
       return await this.groupService.getGroup(req.user.id, groupId)
     } catch (error) {
