@@ -54,24 +54,11 @@ export class GroupController {
   @Get(':groupId')
   @UseGuards(GroupMemberGuard)
   async getGroup(
+    @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Partial<Group>> {
     try {
-      return await this.groupService.getGroup(groupId)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get(':groupId/join')
-  async getGroupJoinById(
-    @Param('groupId', ParseIntPipe) groupId: number
-  ): Promise<GroupData> {
-    try {
-      return await this.groupService.getGroupJoinById(groupId)
+      return await this.groupService.getGroup(req.user.id, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

@@ -20,52 +20,56 @@ export class GroupService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getGroup(groupId: number): Promise<Partial<Group>> {
-    const group = await this.prisma.group.findUnique({
+  async getGroup(userId: number, groupId: number): Promise<Partial<GroupData>> {
+    const isJoined = await this.prisma.userGroup.findFirst({
       where: {
-        id: groupId
+        userId: userId,
+        groupId: groupId
       },
       select: {
-        id: true,
-        groupName: true,
-        description: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('group')
-    })
-
-    return group
-  }
-
-  async getGroupJoinById(groupId: number): Promise<GroupData> {
-    const group = await this.prisma.group.findFirst({
-      where: {
-        id: groupId,
-        config: {
-          path: ['allowJoinFromSearch'],
-          equals: true
-        }
-      },
-      select: {
-        id: true,
-        groupName: true,
-        description: true,
-        userGroup: true,
-        createdBy: {
+        group: {
           select: {
-            username: true
+            id: true,
+            groupName: true,
+            description: true
           }
         }
-      },
-      rejectOnNotFound: () => new EntityNotExistException('group')
+      }
     })
 
-    return {
-      id: group.id,
-      groupName: group.groupName,
-      description: group.description,
-      createdBy: group.createdBy.username,
-      memberNum: group.userGroup.length,
-      leaders: await this.getGroupLeaders(groupId)
+    if (!isJoined) {
+      const group = await this.prisma.group.findFirst({
+        where: {
+          id: groupId,
+          config: {
+            path: ['allowJoinFromSearch'],
+            equals: true
+          }
+        },
+        select: {
+          id: true,
+          groupName: true,
+          description: true,
+          userGroup: true,
+          createdBy: {
+            select: {
+              username: true
+            }
+          }
+        },
+        rejectOnNotFound: () => new EntityNotExistException('group')
+      })
+
+      return {
+        id: group.id,
+        groupName: group.groupName,
+        description: group.description,
+        createdBy: group.createdBy.username,
+        memberNum: group.userGroup.length,
+        leaders: await this.getGroupLeaders(groupId)
+      }
+    } else {
+      return isJoined.group
     }
   }
 
@@ -211,14 +215,14 @@ export class GroupService {
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
 
-    const isRegisterd = await this.prisma.userGroup.findFirst({
+    const isJoined = await this.prisma.userGroup.findFirst({
       where: {
         userId: userId,
         groupId: groupId
       }
     })
 
-    if (isRegisterd) {
+    if (isJoined) {
       throw new EntityAlreadyExistException('Group join record')
     } else if (group.config['requireApprovalBeforeJoin']) {
       const joinGroupRequest = await this.cacheManager.get(
