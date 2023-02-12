@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { useProblemStore } from '../store/problem'
+import type { Language } from '../types'
 import Button from '@/common/components/Atom/Button.vue'
 import Dropdown from '@/common/components/Molecule/Dropdown.vue'
 import ListItem from '@/common/components/Atom/ListItem.vue'
@@ -8,30 +10,27 @@ import Fa6SolidCaretDown from '~icons/fa6-solid/caret-down'
 import IconRefresh from '~icons/fa6-solid/arrow-rotate-right'
 import IconRun from '~icons/bi/play'
 
-const items = ['Editor', 'Standings', 'Submissions']
-
-const langs = [
-  { lang: 'cpp', name: 'C++' },
-  { lang: 'python', name: 'Python' },
-  { lang: 'javascript', name: 'JavaScript' },
-  { lang: 'java', name: 'Java' }
+const languages: Array<{ label: string; value: Language }> = [
+  { label: 'C++', value: 'cpp' },
+  { label: 'Python', value: 'python' },
+  { label: 'Javascript', value: 'javascript' },
+  { label: 'Java', value: 'java' }
 ]
 
-const activeItem = ref(items[0])
+const store = useProblemStore()
 
-defineProps<{
-  modelValue: string
-}>()
+const navigations = [
+  { label: 'Editor', to: { name: 'problem-id' } },
+  { label: 'Standings', to: { name: 'problem-id-standings' } },
+  { label: 'Submissinos', to: { name: 'problem-id-submissions' } }
+]
 
-defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
+const route = useRoute()
 
-const activeStyle = (item: string) => {
-  return item === activeItem.value
+const activeClass = (name: string) =>
+  route.name === name
     ? 'border-white cursor-default'
     : 'border-transparent active:bg-white/40 cursor-pointer' // use transparent border for color transition effect
-}
 </script>
 
 <template>
@@ -51,52 +50,62 @@ const activeStyle = (item: string) => {
           <ListItem>채권관계</ListItem>
         </template>
       </Dropdown>
-      <div
-        v-for="item in items"
-        :key="item"
+      <RouterLink
+        v-for="{ label, to } in navigations"
+        :key="label"
+        :to="to"
         class="flex h-full select-none items-center border-t-2 px-3 text-lg font-semibold text-white transition hover:bg-white/20"
-        :class="activeStyle(item)"
-        @click="activeItem = item"
+        :class="activeClass(to.name)"
       >
-        {{ item }}
-      </div>
+        {{ label }}
+      </RouterLink>
     </div>
 
-    <div class="flex w-full justify-end gap-x-4">
-      <Button color="gray-dark" class="h-9">
-        <IconRefresh />
-      </Button>
-      <Button color="green" class="h-9">
-        <div class="item-center flex flex-row">
-          <IconRun class="h-6 w-6" />
-          <span class="px-1">Run</span>
-        </div>
-      </Button>
-      <Button color="blue" class="h-9">
-        <span class="px-1">Submit</span>
-      </Button>
-      <Dropdown color="slate">
-        <template #button>
-          <div
-            class="flex h-9 w-fit flex-row items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white hover:bg-slate-500/80 active:bg-slate-500/60"
-          >
-            <span class="font-semibold">
-              {{ langs.find((x) => x.lang === modelValue)?.name }}
-            </span>
-            <IconDown class="h-4 w-4" />
+    <Transition
+      enter-active-class="transition-opacity duration-300"
+      leave-active-class="transition-opacity duration-300"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="$route.name === 'problem-id'"
+        class="flex w-full justify-end gap-x-4"
+      >
+        <Button color="gray-dark" class="h-9">
+          <IconRefresh />
+        </Button>
+        <Button color="green" class="h-9">
+          <div class="item-center flex flex-row">
+            <IconRun class="h-6 w-6" />
+            <span class="px-1">Run</span>
           </div>
-        </template>
-        <template #items>
-          <ListItem
-            v-for="{ lang, name } in langs"
-            :key="lang"
-            color="slate"
-            @click="$emit('update:modelValue', lang)"
-          >
-            {{ name }}
-          </ListItem>
-        </template>
-      </Dropdown>
-    </div>
+        </Button>
+        <Button color="blue" class="h-9">
+          <span class="px-1">Submit</span>
+        </Button>
+        <Dropdown color="slate">
+          <template #button>
+            <div
+              class="flex h-9 w-fit flex-row items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white hover:bg-slate-500/80 active:bg-slate-500/60"
+            >
+              <span class="font-semibold">
+                {{ languages.find((x) => x.value === store.language)?.label }}
+              </span>
+              <IconDown class="h-4 w-4" />
+            </div>
+          </template>
+          <template #items>
+            <ListItem
+              v-for="{ label, value } in languages"
+              :key="value"
+              color="slate"
+              @click="store.language = value"
+            >
+              {{ label }}
+            </ListItem>
+          </template>
+        </Dropdown>
+      </div>
+    </Transition>
   </nav>
 </template>
