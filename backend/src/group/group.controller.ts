@@ -12,7 +12,7 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common'
-import { Group, UserGroup } from '@prisma/client'
+import { UserGroup } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
