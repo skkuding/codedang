@@ -73,24 +73,25 @@ export const useNotice = () => {
 
   const router = useRouter()
 
-  function goDetail({ id }: Item) {
-    router.push({
+  const goDetail = async ({ id }: Item) => {
+    await router.push({
       name: 'notice-id',
       params: { id }
     })
   }
 
-  function getNotice(id: number) {
+  const getNotice = (id: number) => {
+    adjacentNotices.value = []
     currentNotice.value = notices.find((x) => x.id === id)
     const previousNotice = notices.find((x) => x.id === id - 1)
     const nextNotice = notices.find((x) => x.id === id + 1)
     if (previousNotice) {
-      previousNotice.icon = IconAngleUp
+      previousNotice.icon = markRaw(IconAngleUp)
       previousNotice.name = 'prev'
       adjacentNotices.value.push(markRaw(previousNotice))
     }
     if (nextNotice) {
-      nextNotice.icon = IconAngleDown
+      nextNotice.icon = markRaw(IconAngleDown)
       nextNotice.name = 'next'
       adjacentNotices.value.push(markRaw(nextNotice))
     }
