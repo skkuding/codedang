@@ -5,7 +5,7 @@ import { ProblemResponseDto } from './problem.response.dto'
 @Exclude()
 export class RelatedProblemResponseDto {
   @Expose()
-  displayId: string
+  id: string
 
   @Expose()
   @Type(() => ProblemResponseDto)

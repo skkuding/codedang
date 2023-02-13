@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import { Language, Level } from '@prisma/client'
 import { Exclude, Expose } from 'class-transformer'
 
 @Exclude()
@@ -9,9 +9,11 @@ export class ProblemResponseDto {
   @Expose() inputDescription: string
   @Expose() outputDescription: string
   @Expose() hint: string
-  @Expose() languages: Prisma.JsonValue
+  @Expose() languages: Language[]
   @Expose() timeLimit: number
   @Expose() memoryLimit: number
-  @Expose() difficulty: string
-  @Expose() source: Prisma.JsonValue
+  @Expose() difficulty: Level
+  @Expose() source: string[]
+  @Expose() inputExamples: string[]
+  @Expose() outputExamples: string[]
 }

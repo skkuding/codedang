@@ -1,6 +1,6 @@
 import { Problem, Language, Level } from '@prisma/client'
 
-export const Problems: Problem[] = [
+export const problems: Problem[] = [
   {
     id: 1,
     createdById: 1,
@@ -41,7 +41,7 @@ export const Problems: Problem[] = [
   }
 ]
 
-export const ContestProblems = [
+export const contestProblems = [
   {
     id: 'A',
     contestId: 1,
@@ -60,7 +60,7 @@ export const ContestProblems = [
   }
 ]
 
-export const WorkbookProblems = [
+export const workbookProblems = [
   {
     id: 'A',
     workbookId: 1,

@@ -22,14 +22,12 @@ export class ProblemRepository {
 
   private readonly problemsSelectOption = {
     id: true,
-    title: true
+    title: true,
+    difficulty: true
   }
 
   private readonly problemSelectOption = {
     ...this.problemsSelectOption,
-    difficulty: true,
-    submissionNum: true,
-    acceptedNum: true,
     description: true,
     inputDescription: true,
     outputDescription: true,
@@ -37,18 +35,20 @@ export class ProblemRepository {
     languages: true,
     timeLimit: true,
     memoryLimit: true,
-    source: true
+    source: true,
+    inputExamples: true,
+    outputExamples: true
   }
 
   private readonly relatedProblemSelectOption = {
-    displayId: true,
+    id: true,
     problem: {
       select: this.problemSelectOption
     }
   }
 
   private readonly relatedProblemsSelectOption = {
-    displayId: true,
+    id: true,
     problem: {
       select: this.problemsSelectOption
     }
@@ -62,8 +62,7 @@ export class ProblemRepository {
         groupId: PUBLIC_GROUP_ID
       },
       select: {
-        ...this.problemsSelectOption,
-        difficulty: true
+        ...this.problemsSelectOption
       }
     })
   }

@@ -3,11 +3,11 @@ import { Exclude, Expose, Transform } from 'class-transformer'
 @Exclude()
 export class RelatedProblemsResponseDto {
   @Expose()
-  displayId: string
+  id: string
 
   @Expose()
   @Transform(({ obj }) => obj.problem.id, { toClassOnly: true })
-  id: number
+  problemId: number
 
   @Expose()
   @Transform(({ obj }) => obj.problem.title, { toClassOnly: true })
