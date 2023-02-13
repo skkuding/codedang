@@ -29,7 +29,6 @@ export class ContestService {
     title: true,
     startTime: true,
     endTime: true,
-    type: true,
     group: { select: { id: true, groupName: true } }
   }
 
