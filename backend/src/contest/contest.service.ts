@@ -146,30 +146,30 @@ export class ContestService {
         finished: this.filterFinished(contests)
       }
     }
-    
+
     const now = new Date()
-    const registeredContests = (await this.prisma.user.findUnique({
-      where: {
-        id: user.id
-      },
-      select: {
-        contest: {
-          where: {
-            endTime: {
-              gt: now
+    const registeredContests = (
+      await this.prisma.user.findUnique({
+        where: {
+          id: user.id
+        },
+        select: {
+          contest: {
+            where: {
+              endTime: {
+                gt: now
+              }
+            },
+            select: this.contestSelectOption,
+            orderBy: {
+              endTime: 'asc'
             }
-          },
-          select: this.contestSelectOption,
-          orderBy: {
-            endTime: 'asc'
           }
         }
-      }
-    })).contest
+      })
+    ).contest
 
-    const registeredContestId = registeredContests.map(
-      (contest) => contest.id
-    )
+    const registeredContestId = registeredContests.map((contest) => contest.id)
 
     const contests = await this.prisma.contest.findMany({
       where: {
@@ -209,11 +209,11 @@ export class ContestService {
       (contest) => contest.startTime <= now && contest.endTime > now
     )
     return ongoingContest
-  } 
+  }
 
   filterUpcoming(contests: Partial<Contest>[]): Partial<Contest>[] {
     const now = new Date()
-    let upcomingContest = contests.filter(
+    const upcomingContest = contests.filter(
       (contest) => contest.startTime > now
     )
     upcomingContest.sort(this.startTimeCompare)
