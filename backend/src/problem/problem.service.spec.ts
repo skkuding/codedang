@@ -127,6 +127,16 @@ describe('ProblemService', () => {
         plainToInstance(ProblemResponseDto, mockProblem)
       )
     })
+
+    it('should throw error when the problem does not exist', async () => {
+      // given
+      db.problem.findFirst.rejects(new EntityNotExistException('Problem'))
+
+      // then
+      await expect(service.getProblem(problemId)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
   })
 })
 
