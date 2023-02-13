@@ -99,4 +99,14 @@ export class WorkbookService {
       }
     }
   }
+
+  async isVisible(workbookId: number, groupId: number): Promise<boolean> {
+    return !!(await this.prisma.workbook.count({
+      where: {
+        id: workbookId,
+        groupId: groupId,
+        isVisible: true
+      }
+    }))
+  }
 }

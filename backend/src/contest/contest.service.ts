@@ -29,7 +29,6 @@ export class ContestService {
     title: true,
     startTime: true,
     endTime: true,
-    type: true,
     group: { select: { id: true, groupName: true } }
   }
 
@@ -330,5 +329,18 @@ export class ContestService {
     return await this.prisma.contestRecord.create({
       data: { contestId, userId }
     })
+  }
+
+  async isVisible(contestId: number, groupId: number): Promise<boolean> {
+    return !!(await this.prisma.contest.count({
+      where: {
+        id: contestId,
+        config: {
+          path: ['isVisible'],
+          equals: true
+        },
+        groupId: groupId
+      }
+    }))
   }
 }
