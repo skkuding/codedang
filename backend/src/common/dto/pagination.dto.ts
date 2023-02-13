@@ -4,7 +4,7 @@ import {
   PAGINATION_MAX_LIMIT,
   PAGINATION_MIN_LIMIT,
   PAGINATION_MIN_OFFSET
-} from '../contstants'
+} from '../constants'
 
 @Exclude()
 export class PaginationDto {
