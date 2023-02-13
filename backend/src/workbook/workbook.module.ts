@@ -15,6 +15,7 @@ import { GroupService } from 'src/group/group.service'
     GroupWorkbookController,
     WorkbookAdminController
   ],
-  providers: [WorkbookService, GroupService]
+  providers: [WorkbookService, GroupService],
+  exports: [WorkbookService]
 })
 export class WorkbookModule {}

@@ -3,7 +3,6 @@ import { ContestModule } from 'src/contest/contest.module'
 import { GroupModule } from 'src/group/group.module'
 import { UserModule } from 'src/user/user.module'
 import { WorkbookModule } from 'src/workbook/workbook.module'
-import { WorkbookService } from 'src/workbook/workbook.service'
 import {
   GroupContestProblemController,
   GroupWorkbookProblemController,
@@ -31,8 +30,7 @@ import {
     ProblemService,
     ContestProblemService,
     WorkbookProblemService,
-    ProblemRepository,
-    WorkbookService
+    ProblemRepository
   ]
 })
 export class ProblemModule {}
