@@ -5,17 +5,17 @@ import {
 } from './workbook.controller'
 import { WorkbookService } from './workbook.service'
 import { UserModule } from 'src/user/user.module'
+import { GroupModule } from 'src/group/group.module'
 import { WorkbookAdminController } from './workbook-admin.controller'
-import { GroupService } from 'src/group/group.service'
 
 @Module({
-  imports: [UserModule],
+  imports: [UserModule, GroupModule],
   controllers: [
     PublicWorkbookController,
     GroupWorkbookController,
     WorkbookAdminController
   ],
-  providers: [WorkbookService, GroupService],
+  providers: [WorkbookService],
   exports: [WorkbookService]
 })
 export class WorkbookModule {}
