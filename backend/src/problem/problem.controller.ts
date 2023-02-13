@@ -71,6 +71,9 @@ export class PublicContestProblemController {
         paginationDto
       )
     } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      }
       throw new InternalServerErrorException()
     }
   }
@@ -156,6 +159,9 @@ export class GroupContestProblemController {
         groupId
       )
     } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      }
       throw new InternalServerErrorException()
     }
   }
@@ -201,6 +207,9 @@ export class GroupWorkbookProblemController {
         groupId
       )
     } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      }
       throw new InternalServerErrorException()
     }
   }
