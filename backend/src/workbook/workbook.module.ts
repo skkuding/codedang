@@ -6,6 +6,7 @@ import {
 import { WorkbookService } from './workbook.service'
 import { UserModule } from 'src/user/user.module'
 import { WorkbookAdminController } from './workbook-admin.controller'
+import { GroupService } from 'src/group/group.service'
 
 @Module({
   imports: [UserModule],
@@ -14,6 +15,6 @@ import { WorkbookAdminController } from './workbook-admin.controller'
     GroupWorkbookController,
     WorkbookAdminController
   ],
-  providers: [WorkbookService]
+  providers: [WorkbookService, GroupService]
 })
 export class WorkbookModule {}
