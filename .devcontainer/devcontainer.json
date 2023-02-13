@@ -14,6 +14,7 @@
         "eamodio.gitlens",
         "editorconfig.editorconfig",
         "esbenp.prettier-vscode",
+        "hashicorp.terraform",
         "hbenl.test-adapter-converter",
         "hbenl.vscode-mocha-test-adapter",
         "hbenl.vscode-test-explorer",
