@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { PUBLIC_GROUP_ID } from 'src/common/constants'
 import { PaginationDto } from 'src/common/dto/pagination.dto'
-import { EntityNotExistException } from 'src/common/exception/business.exception'
+import {
+  ForbiddenAccessException,
+  EntityNotExistException
+} from 'src/common/exception/business.exception'
 import { ContestService } from 'src/contest/contest.service'
 import { WorkbookService } from 'src/workbook/workbook.service'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
@@ -11,9 +14,6 @@ import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { ProblemRepository } from './problem.repository'
 
-/**
- * TODO: 사용하는 service별로 class를 분리합니다
- */
 @Injectable()
 export class ProblemService {
   constructor(private readonly problemRepository: ProblemRepository) {}
@@ -50,6 +50,9 @@ export class ContestProblemService {
       contestId,
       paginationDto
     )
+    if (data.length > 0 && data[0].contest.startTime > new Date()) {
+      throw new ForbiddenAccessException('Contest is not started yet.')
+    }
     return plainToInstance(RelatedProblemsResponseDto, data)
   }
 
@@ -65,6 +68,9 @@ export class ContestProblemService {
       contestId,
       problemId
     )
+    if (data.contest.startTime > new Date()) {
+      throw new ForbiddenAccessException('Contest is not started yet.')
+    }
     return plainToInstance(RelatedProblemResponseDto, data)
   }
 }

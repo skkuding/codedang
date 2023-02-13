@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Get,
   InternalServerErrorException,
@@ -9,7 +10,10 @@ import {
   UseGuards
 } from '@nestjs/common'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
-import { EntityNotExistException } from 'src/common/exception/business.exception'
+import {
+  EntityNotExistException,
+  ForbiddenAccessException
+} from 'src/common/exception/business.exception'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { PaginationDto } from '../common/dto/pagination.dto'
@@ -73,6 +77,8 @@ export class PublicContestProblemController {
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
+      } else if (err instanceof ForbiddenAccessException) {
+        throw new BadRequestException(err.message)
       }
       throw new InternalServerErrorException()
     }
@@ -91,6 +97,8 @@ export class PublicContestProblemController {
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
+      } else if (err instanceof ForbiddenAccessException) {
+        throw new BadRequestException(err.message)
       }
       throw new InternalServerErrorException()
     }

@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub } from 'sinon'
+import * as dayjs from 'dayjs'
 import {
   ContestProblemService,
   ProblemService,
@@ -21,7 +22,10 @@ import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ContestService } from 'src/contest/contest.service'
 import { GroupService } from 'src/group/group.service'
 import { CACHE_MANAGER } from '@nestjs/common'
-import { EntityNotExistException } from 'src/common/exception/business.exception'
+import {
+  EntityNotExistException,
+  ForbiddenAccessException
+} from 'src/common/exception/business.exception'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { WorkbookService } from 'src/workbook/workbook.service'
 
@@ -223,6 +227,20 @@ describe('ContestProblemService', () => {
         service.getContestProblems(contestId, paginationDto)
       ).to.be.rejectedWith(EntityNotExistException)
     })
+
+    it('should throw error when the contest is not started yet', async () => {
+      stub(contestService, 'isVisible').resolves(true)
+      const notStartedContestProblems = mockContestProblems.map((x) => ({
+        ...x,
+        contest: {
+          startTime: dayjs().add(1, 'day')
+        }
+      }))
+      db.contestProblem.findMany.resolves(notStartedContestProblems)
+      await expect(
+        service.getContestProblems(contestId, paginationDto)
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
   })
 
   describe('getContestProblem', () => {
@@ -268,6 +286,20 @@ describe('ContestProblemService', () => {
         service.getContestProblem(contestId, problemId)
       ).to.be.rejectedWith(EntityNotExistException)
     })
+  })
+
+  it('should throw error when the contest is not started yet', async () => {
+    stub(contestService, 'isVisible').resolves(true)
+    const notStartedContestProblem = {
+      ...mockContestProblem,
+      contest: {
+        startTime: dayjs().add(1, 'day')
+      }
+    }
+    db.contestProblem.findUnique.resolves(notStartedContestProblem)
+    await expect(
+      service.getContestProblem(contestId, problemId)
+    ).to.be.rejectedWith(ForbiddenAccessException)
   })
 })
 

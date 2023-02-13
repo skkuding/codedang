@@ -12,8 +12,6 @@ import { PrismaService } from 'src/prisma/prisma.service'
  * repository는 ORM 쿼리를 위한 layer입니다. unit test에서는 제외하고, 통합 테스트(e2e test)에서 실제 반환값과 ResponseDto가 일치하는지 비교를 통해 검증합니다
  * https://softwareengineering.stackexchange.com/questions/185326/why-do-i-need-unit-tests-for-testing-repository-methods
  *
- *  TODO: wrapper와 제네릭을 사용해서 중복된 코드를 제거합니다
- * https://dev.to/harryhorton/how-to-wrap-a-prisma-method-and-reuse-types-271a
  */
 
 @Injectable()
@@ -78,22 +76,23 @@ export class ProblemRepository {
     })
   }
 
-  async getContestProblems(
-    contestId: number,
-    paginationDto: PaginationDto
-  ): Promise<Partial<ContestProblem> & { problem: Partial<Problem> }[]> {
+  async getContestProblems(contestId: number, paginationDto: PaginationDto) {
     return await this.prisma.contestProblem.findMany({
       skip: paginationDto.offset,
       take: paginationDto.limit,
       where: { contestId: contestId },
-      select: this.relatedProblemsSelectOption
+      select: {
+        ...this.relatedProblemsSelectOption,
+        contest: {
+          select: {
+            startTime: true
+          }
+        }
+      }
     })
   }
 
-  async getContestProblem(
-    contestId: number,
-    problemId: number
-  ): Promise<Partial<ContestProblem> & { problem: Partial<Problem> }> {
+  async getContestProblem(contestId: number, problemId: number) {
     return await this.prisma.contestProblem.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -102,7 +101,14 @@ export class ProblemRepository {
           problemId: problemId
         }
       },
-      select: this.relatedProblemSelectOption,
+      select: {
+        ...this.relatedProblemSelectOption,
+        contest: {
+          select: {
+            startTime: true
+          }
+        }
+      },
       rejectOnNotFound: () => new EntityNotExistException('Problem')
     })
   }

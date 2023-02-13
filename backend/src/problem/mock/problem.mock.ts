@@ -48,7 +48,10 @@ export const contestProblems = [
     problemId: 1,
     score: 0,
     createTime: undefined,
-    updateTime: undefined
+    updateTime: undefined,
+    contest: {
+      startTime: new Date()
+    }
   },
   {
     id: 'B',
@@ -56,7 +59,10 @@ export const contestProblems = [
     problemId: 2,
     score: 0,
     createTime: undefined,
-    updateTime: undefined
+    updateTime: undefined,
+    contest: {
+      startTime: new Date()
+    }
   }
 ]
 
