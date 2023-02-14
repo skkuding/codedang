@@ -125,12 +125,12 @@ export class GroupContestAdminController {
   async getAdminContests(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
-    @Query('offset', ParseIntPipe) offset: number
+    @Query('offset', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminContestsByGroupId(
       groupId,
       cursor,
-      offset
+      take
     )
   }
 }
