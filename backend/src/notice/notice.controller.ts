@@ -10,14 +10,14 @@ import {
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
 import { Notice } from '@prisma/client'
-import { Public } from 'src/common/decorator/public.decorator'
+import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { UserNotice } from './interface/user-notice.interface'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 
 @Controller('notice')
-@Public()
+@AuthNotNeeded()
 export class PublicNoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
