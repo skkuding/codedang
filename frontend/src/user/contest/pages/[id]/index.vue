@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import Badge from '@/common/components/Molecule/Badge.vue'
 import Tab from '@/common/components/Molecule/Tab.vue'
 import top from '../../components/top.vue'
@@ -8,9 +8,15 @@ import problem from '../../components/problem.vue'
 import ranking from '../../components/ranking.vue'
 import notice from '../../components/notice.vue'
 import { useNow, useDateFormat } from '@vueuse/core'
-
+import axios from 'axios'
 const formatter = ref('YYYY-MM-DD HH:mm:ss')
 const time = useDateFormat(useNow(), formatter)
+
+const items = ref([])
+onMounted(async () => {
+  const response = await axios.get('/api/contest/1')
+  items.value = response.data
+})
 </script>
 
 <template>
@@ -22,7 +28,10 @@ const time = useDateFormat(useNow(), formatter)
     <Tab :items="['top', 'problem', 'notice', 'ranking']" class="font-bold">
       <template #top><top /></template>
       <template #notice><notice /></template>
-      <template #problem><problem /></template>
+      <template #problem>
+        <problem />
+        {{ items }}
+      </template>
       <template #ranking><ranking /></template>
     </Tab>
   </div>
