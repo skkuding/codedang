@@ -57,17 +57,16 @@ export class GroupContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  @AuthNotNeeded() //delete
-  //@UseGuards(RolesGuard, GroupMemberGuard)
+  @UseGuards(RolesGuard, GroupMemberGuard)
   async getContests(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
-    @Query('take', ParseIntPipe) offset: number
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getContestsByGroupId(
       groupId,
       cursor,
-      offset
+      take
     )
   }
 
