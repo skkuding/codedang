@@ -22,7 +22,7 @@ const store = useProblemStore()
 const navigations = [
   { label: 'Editor', to: { name: 'problem-id' } },
   { label: 'Standings', to: { name: 'problem-id-standings' } },
-  { label: 'Submissinos', to: { name: 'problem-id-submissions' } }
+  { label: 'Submissions', to: { name: 'problem-id-submissions' } }
 ]
 
 const route = useRoute()
@@ -34,7 +34,9 @@ const activeClass = (name: string) =>
 </script>
 
 <template>
-  <nav class="flex h-14 w-full items-center justify-between bg-slate-700 px-6">
+  <nav
+    class="flex h-14 w-full items-center justify-between gap-x-20 overflow-x-scroll bg-slate-700 px-6"
+  >
     <div class="flex h-full shrink-0 items-center justify-start gap-x-4">
       <Dropdown class="mr-3">
         <template #button>
