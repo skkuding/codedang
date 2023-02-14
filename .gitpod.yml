@@ -9,7 +9,7 @@ ports:
 tasks:
   - name: Node.js
     init: ./scripts/setup.sh
-    command: nvm use
+    command: nvm install
 
 vscode:
   extensions:
