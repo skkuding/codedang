@@ -34,12 +34,12 @@ const activeClass = (name: string) =>
 </script>
 
 <template>
-  <nav class="flex h-14 w-full flex-row items-center bg-slate-700 px-6">
-    <div class="flex h-full w-full items-center justify-start gap-x-4">
-      <Dropdown class="pr-3">
+  <nav class="flex h-14 w-full items-center justify-between bg-slate-700 px-6">
+    <div class="flex h-full shrink-0 items-center justify-start gap-x-4">
+      <Dropdown class="mr-3">
         <template #button>
           <div
-            class="flex h-9 w-fit select-none flex-row items-center gap-x-2 rounded px-2 text-white transition hover:bg-white/20 active:bg-white/40"
+            class="flex h-9 w-fit select-none items-center gap-x-2 rounded px-2 text-white transition hover:bg-white/20 active:bg-white/40"
           >
             <Fa6SolidCaretDown class="h-4 w-4" />
             <span>가파른 경사</span>
@@ -67,15 +67,12 @@ const activeClass = (name: string) =>
       enter-from-class="opacity-0"
       leave-to-class="opacity-0"
     >
-      <div
-        v-if="$route.name === 'problem-id'"
-        class="flex w-full justify-end gap-x-4"
-      >
+      <div v-if="$route.name === 'problem-id'" class="flex justify-end gap-x-4">
         <Button color="gray-dark" class="h-9">
           <IconRefresh />
         </Button>
         <Button color="green" class="h-9">
-          <div class="item-center flex flex-row">
+          <div class="item-center flex">
             <IconRun class="h-6 w-6" />
             <span class="px-1">Run</span>
           </div>
@@ -86,7 +83,7 @@ const activeClass = (name: string) =>
         <Dropdown color="slate">
           <template #button>
             <div
-              class="flex h-9 w-fit flex-row items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white hover:bg-slate-500/80 active:bg-slate-500/60"
+              class="flex h-9 w-fit items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white hover:bg-slate-500/80 active:bg-slate-500/60"
             >
               <span class="font-semibold">
                 {{ languages.find((x) => x.value === store.language)?.label }}
