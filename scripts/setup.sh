@@ -39,11 +39,8 @@ fi
 jwt_secret=$(echo -n head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum)
 echo "JWT_SECRET=$jwt_secret" >> backend/.env
 
-# Install pnpm if not installed
-pnpm --version || curl -fsSL https://get.pnpm.io/install.sh | bash -
-
 # Install Node.js packages
-bash -i -c 'pnpm install'
+pnpm install
 
 # Install lefthook for git hook
 npx lefthook install
