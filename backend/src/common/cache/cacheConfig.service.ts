@@ -15,7 +15,7 @@ export class CacheConfigService implements CacheOptionsFactory {
       store: await redisStore({
         socket: {
           host: this.config.get('CACHE_DATABASE_URL'),
-          port: this.config.get('CACHE_DATABASE_R')
+          port: this.config.get('CACHE_DATABASE_PORT')
         }
       })
     }
