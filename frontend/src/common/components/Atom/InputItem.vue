@@ -3,9 +3,9 @@ import { computed } from 'vue'
 
 const props = defineProps<{
   placeholder?: string
-  required?: boolean
   shadow?: boolean
   modelValue: string
+  message?: string
 }>()
 
 defineEmits<{
@@ -20,17 +20,19 @@ const shadowClass = computed(() =>
 </script>
 
 <template>
-  <input
-    v-bind="$attrs"
-    :value="modelValue"
-    :placeholder="placeholder"
-    :class="shadowClass"
-    class="rounded py-1 px-3 outline-none"
-    @input="
-      $emit('update:modelValue', ($event.target as HTMLInputElement).value)
-    "
-  />
-  <div v-show="required && !modelValue" class="text-red pt-1 text-xs font-bold">
-    {{ placeholder + ' is required' }}
+  <div class="flex flex-col gap-1">
+    <input
+      v-bind="$attrs"
+      :value="modelValue"
+      :placeholder="placeholder"
+      :class="shadowClass"
+      class="rounded py-1 px-3 outline-none"
+      @input="
+        $emit('update:modelValue', ($event.target as HTMLInputElement).value)
+      "
+    />
+    <p v-show="message" class="text-red text-xs font-bold">
+      {{ message }}
+    </p>
   </div>
 </template>
