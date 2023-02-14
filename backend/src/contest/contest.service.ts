@@ -200,12 +200,15 @@ export class ContestService {
   async getContestsByGroupId(
     groupId: number,
     myCursor: number,
-    offset: number
+    take: number
   ): Promise<Partial<Contest>[]> {
     let skipNum = 1
-    if (!myCursor) (skipNum = 0), (myCursor = 1)
+    if (!myCursor){
+      skipNum = 0
+      myCursor = 1
+    }
     return await this.prisma.contest.findMany({
-      take: offset,
+      take: take,
       skip: skipNum,
       cursor: {
         id: myCursor
@@ -217,15 +220,15 @@ export class ContestService {
 
   async getAdminOngoingContests(
     myCursor: number,
-    offset: number
+    take: number
   ): Promise<Partial<Contest>[]> {
     const now = new Date(Date.now())
     let realCursor = myCursor
-    let realOffset = offset
+    let realOffset = take
     if (!myCursor) realCursor = 1
     if (realOffset < 0) realOffset -= 1
     else realOffset += 1
-    const contets = await this.prisma.contest.findMany({
+    const contests = await this.prisma.contest.findMany({
       take: realOffset,
       cursor: {
         id: realCursor
@@ -239,10 +242,10 @@ export class ContestService {
       },
       select: this.contestSelectOption
     })
-    let results = contets
+    let results = contests
     if (results[0].id == myCursor) {
       results = results.slice(1)
-    } else if (results.length > offset) {
+    } else if (results.length > Math.abs(take)) {
       results.pop()
     }
     return results
@@ -252,7 +255,6 @@ export class ContestService {
     myCursor: number,
     offset: number
   ): Promise<Partial<Contest>[]> {
-    //커서를 안보낸다. ==> default 설정
     let skipNum = 1
     if (!myCursor) {
       skipNum = 0
@@ -293,7 +295,10 @@ export class ContestService {
     offset: number
   ): Promise<Partial<Contest>[]> {
     let skipNum = 1
-    if (!myCursor) (skipNum = 0), (myCursor = 1)
+    if (!myCursor){
+      skipNum = 0
+      myCursor = 1
+    }
     return await this.prisma.contest.findMany({
       skip: skipNum,
       take: offset,
@@ -576,7 +581,6 @@ export class ContestService {
         data: { contestId, userId }
       })
     }
-    // Todo: other contest type -> create other contest record table
     return
   }
 }
