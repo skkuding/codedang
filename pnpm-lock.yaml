@@ -166,6 +166,7 @@ importers:
       '@vueuse/components': ^9.10.0
       '@vueuse/core': ^9.10.0
       '@vueuse/math': ^9.10.0
+      '@vueuse/router': ^9.12.0
       autoprefixer: ^10.4.13
       axios: ^1.2.2
       axios-retry: ^3.3.1
@@ -189,6 +190,7 @@ importers:
       '@vueuse/components': 9.10.0_vue@3.2.45
       '@vueuse/core': 9.10.0_vue@3.2.45
       '@vueuse/math': 9.10.0_vue@3.2.45
+      '@vueuse/router': 9.12.0_xsxatmlnmmg5bcuv3xdnj6fj7y
       axios: 1.2.2
       axios-retry: 3.3.1
       nprogress: 0.2.0
@@ -2373,6 +2375,19 @@ packages:
   /@vueuse/metadata/9.10.0:
     resolution: {integrity: sha512-G5VZhgTCapzU9rv0Iq2HBrVOSGzOKb+OE668NxhXNcTjUjwYxULkEhAw70FtRLMZc+hxcFAzDZlKYA0xcwNMuw==}
 
+  /@vueuse/router/9.12.0_xsxatmlnmmg5bcuv3xdnj6fj7y:
+    resolution: {integrity: sha512-I3TaWrsxEdANrgJjNEeRTbOMGS+uYjB5zHoyayhFgk1SY1ytDw51tgXr6n4n9fVqglorvhKdX5rFDvBAbeQ+Xw==}
+    peerDependencies:
+      vue-router: '>=4.0.0-rc.1'
+    dependencies:
+      '@vueuse/shared': 9.12.0_vue@3.2.45
+      vue-demi: 0.13.11_vue@3.2.45
+      vue-router: 4.1.6_vue@3.2.45
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
+
   /@vueuse/shared/9.10.0_vue@3.2.45:
     resolution: {integrity: sha512-vakHJ2ZRklAzqmcVBL38RS7BxdBA4+5poG9NsSyqJxrt9kz0zX3P5CXMy0Hm6LFbZXUgvKdqAS3pUH1zX/5qTQ==}
     dependencies:
@@ -2380,6 +2395,15 @@ packages:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+
+  /@vueuse/shared/9.12.0_vue@3.2.45:
+    resolution: {integrity: sha512-TWuJLACQ0BVithVTRbex4Wf1a1VaRuSpVeyEd4vMUWl54PzlE0ciFUshKCXnlLuD0lxIaLK4Ypj3NXYzZh4+SQ==}
+    dependencies:
+      vue-demi: 0.13.11_vue@3.2.45
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
 
   /@webassemblyjs/ast/1.11.1:
     resolution: {integrity: sha512-ukBh14qFLjxTQNTXocdyksN5QdM28S1CxHt2rdskFyL+xFV7VremuBLVbmCePj+URalXBENx/9Lm7lnhihtCSw==}
