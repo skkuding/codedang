@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# [REQUIREMENTS]
+# Need to install: docker, nvm, pnpm
+
 set -ex
 
 BASEDIR=$(dirname $(dirname $(realpath $0)))
@@ -33,11 +36,14 @@ echo "NODEMAILER_PASS=\"\"" >> backend/.env
 # Use docker-compose profile
 if [ -z $DEVCONTAINER ]
 then
-  docker-compose up -d
+  docker compose up -d
 fi
 
 jwt_secret=$(echo -n head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum)
 echo "JWT_SECRET=$jwt_secret" >> backend/.env
+
+# Install Node.js
+bash -i -c 'nvm install'
 
 # Install Node.js packages
 pnpm install
