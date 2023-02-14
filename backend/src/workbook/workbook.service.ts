@@ -16,14 +16,17 @@ export class WorkbookService {
     groupId: number,
     isAdmin: boolean,
     myCursor: number,
-    offset: number
+    take: number
   ): Promise<Partial<Workbook>[]> {
     const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
     let skipNum = 1
-    if (!myCursor) (skipNum = 0), (myCursor = 1)
+    if (!myCursor){
+      skipNum = 0
+      myCursor = 0
+    }
     const workbooks = await this.prisma.workbook.findMany({
       skip: skipNum,
-      take: offset,
+      take: take,
       cursor: {
         id: myCursor
       },
