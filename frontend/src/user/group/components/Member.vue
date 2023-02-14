@@ -50,15 +50,16 @@ const groupMember = [
     <Button class="absolute right-0 -bottom-20" @click="isModalVisible = true">
       Leave Group
     </Button>
-    <Modal
-      v-model="isModalVisible"
-      title="Skku coding platform"
-      title-color="green"
-      class="h-48 w-80"
-    >
-      Leave Group Do you really want to leave group?
-      <Button class="m-4 mt-6 w-20" @click="close">Yes</Button>
-      <Button class="m-4 mt-6 w-20" @click="close">No</Button>
+    <Modal v-model="isModalVisible">
+      <div class="flex flex-col items-center gap-6 px-4 pt-14 pb-8">
+        <h1 class="text-center font-bold">
+          Leave Group Do you really want to leave group?
+        </h1>
+        <div class="flex gap-8">
+          <Button class="w-20" @click="close">Yes</Button>
+          <Button class="w-20" @click="close">No</Button>
+        </div>
+      </div>
     </Modal>
   </div>
 </template>
