@@ -13,8 +13,7 @@ import {
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
   ActionNotAllowedException,
-  EntityNotExistException,
-  ForbiddenAccessException
+  EntityNotExistException
 } from 'src/common/exception/business.exception'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { ContestService } from './contest.service'
@@ -56,7 +55,7 @@ export class GroupContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  @UseGuards(RolesGuard, GroupMemberGuard)
+  @UseGuards(GroupMemberGuard)
   async getContests(
     @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Partial<Contest>[]> {
@@ -64,18 +63,16 @@ export class GroupContestController {
   }
 
   @Get(':id')
+  @UseGuards(GroupMemberGuard)
   async getContest(
-    @Req() req: AuthenticatedRequest,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     try {
-      return await this.contestService.getContestById(req.user.id, contestId)
+      return await this.contestService.getGroupContestById(groupId, contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      }
-      if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
       }
       throw new InternalServerErrorException()
     }
