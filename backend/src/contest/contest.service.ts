@@ -9,7 +9,6 @@ import {
 import {
   ActionNotAllowedException,
   EntityNotExistException,
-  ForbiddenAccessException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
@@ -190,8 +189,6 @@ export class ContestService {
       },
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
-
-    console.log(contest)
 
     return contest
   }
