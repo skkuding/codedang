@@ -191,8 +191,7 @@ export class UserService {
   }
 
   async createJwt(payload: EmailAuthJwtPayload): Promise<string> {
-    return await this.jwtService.signAsync({
-      ...payload,
+    return await this.jwtService.signAsync(payload, {
       expiresIn: EMAIL_AUTH_EXPIRE_TIME
     })
   }

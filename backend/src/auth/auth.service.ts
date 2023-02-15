@@ -81,12 +81,10 @@ export class AuthService {
 
   async createJwtTokens(userId: number, username: string): Promise<JwtTokens> {
     const payload: JwtPayload = { userId, username }
-    const accessToken = await this.jwtService.signAsync({
-      ...payload,
+    const accessToken = await this.jwtService.signAsync(payload, {
       expiresIn: ACCESS_TOKEN_EXPIRE_TIME
     })
-    const refreshToken = await this.jwtService.signAsync({
-      ...payload,
+    const refreshToken = await this.jwtService.signAsync(payload, {
       expiresIn: REFRESH_TOKEN_EXPIRE_TIME
     })
 
