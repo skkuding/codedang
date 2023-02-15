@@ -148,7 +148,7 @@ const createGroups = async () => {
   // add users to private group
   // group leader: user01
   // registered: user01, user03, user05, user07, user09
-  for (const [_, user] of users.entries()) {
+  for (const user of users) {
     prisma.userGroup.create({
       data: {
         userId: user.id,
@@ -6379,6 +6379,7 @@ const createContests = async () => {
   for (const problem of problems) {
     await prisma.contestProblem.create({
       data: {
+        id: String(problem.id),
         contestId: contest.id,
         problemId: problem.id
       }
@@ -6401,6 +6402,7 @@ const createWorkbooks = async () => {
   for (const problem of problems) {
     await prisma.workbookProblem.create({
       data: {
+        id: String(problem.id),
         workbookId: workbook.id,
         problemId: problem.id
       }
