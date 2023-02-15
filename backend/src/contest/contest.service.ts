@@ -252,14 +252,17 @@ export class ContestService {
 
   async getContestDetailById(contestId: number): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findFirst({
-      where: { id: contestId, groupId: PUBLIC_GROUP_ID },
-      select: {
-        ...this.contestSelectOption,
-        description: true,
+      where: {
+        id: contestId,
+        groupId: PUBLIC_GROUP_ID,
         config: {
           path: ['isVisible'],
           equals: true
         }
+      },
+      select: {
+        ...this.contestSelectOption,
+        description: true
       },
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
