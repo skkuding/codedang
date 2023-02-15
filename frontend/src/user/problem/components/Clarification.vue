@@ -6,6 +6,15 @@ import { OnClickOutside } from '@vueuse/components'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import Button from '@/common/components/Atom/Button.vue'
 
+const props = withDefaults(
+  defineProps<{
+    modelValue: number
+  }>(),
+  {
+    modelValue: 10000
+  }
+)
+
 const el = ref<HTMLElement | null>(null)
 
 const date = new Date().toLocaleString()
@@ -23,12 +32,22 @@ const { x, y, style } = useDraggable(el, {
 const ELEMENT_WIDTH = 54
 const ELEMENT_HEIGHT = 54
 
-watch([x, window.width], () => {
-  x.value = Math.max(0, Math.min(window.width.value - ELEMENT_WIDTH, x.value))
+watch([x, () => props.modelValue, window.width], () => {
+  x.value = Math.max(
+    0,
+    Math.min(
+      props.modelValue - ELEMENT_WIDTH,
+      window.width.value - ELEMENT_WIDTH,
+      x.value
+    )
+  )
 })
 
 watch([y, window.height], () => {
-  y.value = Math.max(0, Math.min(window.height.value - ELEMENT_HEIGHT, y.value))
+  y.value = Math.max(
+    112,
+    Math.min(window.height.value - ELEMENT_HEIGHT, y.value)
+  )
 })
 
 const noticeList = [

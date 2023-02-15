@@ -34,7 +34,7 @@ const { x } = useDraggable(resizingBar, {
 
 <template>
   <main class="flex h-[calc(100vh-112px)] border-t border-slate-400">
-    <Clarification />
+    <Clarification v-model="x" />
     <div
       class="flex w-[600px] min-w-[400px] flex-col gap-4 overflow-scroll bg-slate-700 p-8 text-white"
       :style="{ width: x + 'px' }"
