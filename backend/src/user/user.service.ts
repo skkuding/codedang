@@ -17,10 +17,7 @@ import {
 import { EmailService } from 'src/email/email.service'
 import { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt'
-import {
-  EMAIL_AUTH_PIN_EXPIRATION_SEC,
-  EMAIL_AUTH_TOKEN_EXPIRATION_SEC
-} from './constants/jwt.constants'
+import { EMAIL_AUTH_EXPIRE_TIME } from '../common/constants'
 import { Request } from 'express'
 import { ExtractJwt } from 'passport-jwt'
 import { ConfigService } from '@nestjs/config'
@@ -101,10 +98,10 @@ export class UserService {
 
     await this.emailService.sendEmailAuthenticationPin(email, pin)
 
-    await this.createPinInCache(
+    await this.cacheManager.set(
       emailAuthenticationPinCacheKey(email),
       pin,
-      EMAIL_AUTH_PIN_EXPIRATION_SEC
+      1000 * EMAIL_AUTH_EXPIRE_TIME
     )
 
     return 'Email authentication pin is sent to your email address'
@@ -114,14 +111,6 @@ export class UserService {
     return randomInt(0, Number('1'.padEnd(numberOfDigits + 1, '0')))
       .toString()
       .padStart(numberOfDigits, '0')
-  }
-
-  async createPinInCache(
-    key: string,
-    pin: string,
-    timeToLive: number
-  ): Promise<void> {
-    await this.cacheManager.set(key, pin, timeToLive)
   }
 
   async updatePassword(
@@ -202,9 +191,8 @@ export class UserService {
   }
 
   async createJwt(payload: EmailAuthJwtPayload): Promise<string> {
-    return await this.jwtService.signAsync({
-      ...payload,
-      expiresIn: EMAIL_AUTH_TOKEN_EXPIRATION_SEC
+    return await this.jwtService.signAsync(payload, {
+      expiresIn: EMAIL_AUTH_EXPIRE_TIME
     })
   }
 
