@@ -5,7 +5,6 @@ import { Contest, ContestRecord, Group, UserGroup } from '@prisma/client'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
-  ForbiddenAccessException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
@@ -120,6 +119,7 @@ const record: ContestRecord = {
 const mockPrismaService = {
   contest: {
     findUnique: stub().resolves(contest),
+    findFirst: stub().resolves(contest),
     findMany: stub().resolves(contests),
     create: stub().resolves(contest),
     update: stub().resolves(contest),
@@ -365,57 +365,29 @@ describe('ContestService', () => {
     })
   })
 
-  describe('getContestById', () => {
-    beforeEach(() => {
-      mockPrismaService.contest.findUnique.resolves(contest)
-    })
-
+  describe('getGroupContestById', () => {
     it('should throw error when contest does not exist', async () => {
-      mockPrismaService.contest.findUnique.rejects(
+      mockPrismaService.contest.findFirst.rejects(
         new EntityNotExistException('contest')
       )
 
       await expect(
-        service.getContestById(userId, contestId)
+        service.getGroupContestById(groupId, contestId)
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
-    it('should throw error when user is not a group member and contest is not finished yet', async () => {
-      const now = new Date()
-      const notEndedContest = {
-        ...contest,
-        endTime: now.setFullYear(now.getFullYear() + 1)
-      }
-      mockPrismaService.contest.findUnique.resolves(notEndedContest)
-      stub(groupService, 'getUserGroup').resolves(null)
+    it('should return contest', async () => {
+      mockPrismaService.contest.findFirst.resolves(contest)
 
-      await expect(
-        service.getContestById(userId, contestId)
-      ).to.be.rejectedWith(ForbiddenAccessException)
-    })
-
-    it('should return contest when user is not a group member and contest is finished', async () => {
-      stub(groupService, 'getUserGroup').resolves(null)
-
-      expect(await service.getContestById(userId, contestId)).to.deep.equal(
-        contest
-      )
-    })
-
-    it('should return contest of the group', async () => {
-      stub(groupService, 'getUserGroup').resolves({
-        isGroupLeader: false
-      })
-
-      expect(await service.getContestById(userId, contestId)).to.be.equal(
-        contest
-      )
+      expect(
+        await service.getGroupContestById(groupId, contestId)
+      ).to.deep.equal(contest)
     })
   })
 
   describe('getContestDetailById', () => {
     it('should throw error when contest does not exist', async () => {
-      mockPrismaService.contest.findUnique.rejects(
+      mockPrismaService.contest.findFirst.rejects(
         new EntityNotExistException('contest')
       )
 
@@ -425,7 +397,7 @@ describe('ContestService', () => {
     })
 
     it('should return contest', async () => {
-      mockPrismaService.contest.findUnique.resolves(contest)
+      mockPrismaService.contest.findFirst.resolves(contest)
 
       expect(
         await contestService.getContestDetailById(contestId)
