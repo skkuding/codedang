@@ -32,6 +32,7 @@ import { Roles } from 'src/common/decorator/roles.decorator'
 import { CreateContestPublicizingRequestDto } from './dto/create-publicizing-request.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
+import { CursorValidationPipe } from 'src/common/pipe/custom-validation.pipe'
 
 @Controller('admin/contest')
 @AuthNotNeeded()
@@ -42,7 +43,13 @@ export class ContestAdminController {
 
   @Get()
   async getAdminContests(
-    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query(
+      'cursor',
+      CursorValidationPipe,
+      new DefaultValuePipe(0),
+      ParseIntPipe
+    )
+    cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminContests(cursor, take)
@@ -50,7 +57,13 @@ export class ContestAdminController {
 
   @Get('ongoing')
   async getAdminOngoingContests(
-    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query(
+      'cursor',
+      CursorValidationPipe,
+      new DefaultValuePipe(0),
+      ParseIntPipe
+    )
+    cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminOngoingContests(cursor, take)
@@ -125,7 +138,13 @@ export class GroupContestAdminController {
   @Get()
   async getAdminContests(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query(
+      'cursor',
+      CursorValidationPipe,
+      new DefaultValuePipe(0),
+      ParseIntPipe
+    )
+    cursor: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminContestsByGroupId(

@@ -22,6 +22,7 @@ import { ContestService } from './contest.service'
 import { Contest } from '@prisma/client'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
+import { CursorValidationPipe } from 'src/common/pipe/custom-validation.pipe'
 
 @Controller('contest')
 @AuthNotNeeded()
@@ -61,7 +62,13 @@ export class GroupContestController {
   //@UseGuards(RolesGuard, GroupMemberGuard)
   async getContests(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query(
+      'cursor',
+      CursorValidationPipe,
+      new DefaultValuePipe(0),
+      ParseIntPipe
+    )
+    cursor: number,
     @Query('take', ParseIntPipe) offset: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getContestsByGroupId(

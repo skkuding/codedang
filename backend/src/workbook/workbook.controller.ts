@@ -14,6 +14,7 @@ import { RolesGuard } from 'src/user/guard/roles.guard'
 import { GroupMemberGuard } from '../group/guard/group-member.guard'
 import { Workbook } from '@prisma/client'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
+import { CursorValidationPipe } from 'src/common/pipe/custom-validation.pipe'
 
 @Controller('group/:groupId/workbook')
 @UseGuards(RolesGuard, GroupMemberGuard)

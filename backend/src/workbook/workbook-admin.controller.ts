@@ -22,6 +22,7 @@ import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Workbook } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { CursorValidationPipe } from 'src/common/pipe/custom-validation.pipe'
 
 @Controller('admin/group/:groupId/workbook')
 @UseGuards(RolesGuard, GroupLeaderGuard)
@@ -31,7 +32,13 @@ export class WorkbookAdminController {
   @Get()
   async getGroupWorkbooks(
     @Param('groupId', ParseIntPipe) groupId,
-    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query(
+      'cursor',
+      CursorValidationPipe,
+      new DefaultValuePipe(0),
+      ParseIntPipe
+    )
+    cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {
