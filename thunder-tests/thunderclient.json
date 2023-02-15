@@ -2365,7 +2365,7 @@
     "method": "PATCH",
     "sortNum": 270000,
     "created": "2023-02-15T05:20:39.543Z",
-    "modified": "2023-02-15T12:34:25.544Z",
+    "modified": "2023-02-15T12:53:47.748Z",
     "headers": [
       {
         "name": "email-auth",
@@ -2380,13 +2380,19 @@
     },
     "tests": [
       {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
         "type": "res-body",
         "custom": "",
         "action": "contains",
         "value": ""
       }
     ],
-    "docs": "# Update Email\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin to New Email -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n",
+    "docs": "# Update Email\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin to New Email -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n핀으로 본인 확인이 완료된 이메일로 계정의 이메일 정보를 업데이트합니다.  \n핀이 확인되지 않은 경우, 확인된 이메일이 아닌 다른 이메일로 변경하는 경우, 그리고 로그인이 된 상태가 아닌 경우 변경 요청이 거부됩니다.",
     "preReq": {
       "runRequests": [
         {
