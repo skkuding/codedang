@@ -19,7 +19,6 @@ import { contestPublicizingRequestKey } from 'src/common/cache/keys'
 
 const contestId = 1
 const userId = 1
-const rankId = 1
 const groupId = 1
 const contestPublicizeRequestId = 1
 
