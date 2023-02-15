@@ -55,7 +55,7 @@ export class GroupContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  @UseGuards(RolesGuard, GroupMemberGuard)
+  @UseGuards(GroupMemberGuard)
   async getContests(
     @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Partial<Contest>[]> {
@@ -63,18 +63,16 @@ export class GroupContestController {
   }
 
   @Get(':id')
+  @UseGuards(GroupMemberGuard)
   async getContest(
-    @Req() req: AuthenticatedRequest,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     try {
-      return await this.contestService.getContestById(req.user.id, contestId)
+      return await this.contestService.getGroupContestById(groupId, contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      }
-      if (error instanceof ActionNotAllowedException) {
-        throw new MethodNotAllowedException(error.message)
       }
       throw new InternalServerErrorException()
     }

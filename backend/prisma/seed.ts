@@ -136,7 +136,7 @@ const createGroups = async () => {
   // add users to public group
   // group leader: user01
   for (const user of allUsers) {
-    prisma.userGroup.create({
+    await prisma.userGroup.create({
       data: {
         userId: user.id,
         groupId: publicGroup.id,
