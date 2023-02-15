@@ -357,7 +357,7 @@ describe('ContestService', () => {
 
   describe('getContests', () => {
     it('should return ongoing, upcoming, finished contests', async () => {
-      expect(await contestService.getContests(user)).to.deep.equal({
+      expect(await service.getContests(user)).to.deep.equal({
         ongoing: ongoingContests,
         upcoming: upcomingContests,
         finished: finishedContests
@@ -391,17 +391,17 @@ describe('ContestService', () => {
         new EntityNotExistException('contest')
       )
 
-      await expect(
-        contestService.getContestDetailById(contestId)
-      ).to.be.rejectedWith(EntityNotExistException)
+      await expect(service.getContestDetailById(contestId)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
 
     it('should return contest', async () => {
       mockPrismaService.contest.findFirst.resolves(contest)
 
-      expect(
-        await contestService.getContestDetailById(contestId)
-      ).to.deep.equal(contest)
+      expect(await service.getContestDetailById(contestId)).to.deep.equal(
+        contest
+      )
     })
   })
 
