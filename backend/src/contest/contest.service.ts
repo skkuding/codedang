@@ -263,7 +263,14 @@ export class ContestService {
   async getContestDetailById(contestId: number): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
-      select: { ...this.contestSelectOption, description: true, visible: true },
+      select: {
+        ...this.contestSelectOption,
+        description: true,
+        config: {
+          path: ['isVisible'],
+          equals: true
+        }
+      },
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
