@@ -17,7 +17,6 @@ import { UpdateContestDto } from './dto/update-contest.dto'
 import { AuthenticatedUser } from 'src/auth/class/authenticated-user.class'
 import { StoredPublicizingRequest } from './interface/publicizing-request.interface'
 
-
 @Injectable()
 export class ContestService {
   constructor(
@@ -132,7 +131,10 @@ export class ContestService {
     if (user === undefined) {
       const contests = await this.prisma.contest.findMany({
         where: {
-          visible: true
+          config: {
+            path: ['isVisible'],
+            equals: true
+          }
         },
         select: this.contestSelectOption,
         orderBy: {
