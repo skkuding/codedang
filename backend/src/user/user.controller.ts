@@ -148,7 +148,7 @@ export class EmailAuthenticationController {
   constructor(private readonly userService: UserService) {}
 
   setJwtInHeader(res: Response, jwt: string) {
-    res.setHeader('authorization', `${AUTH_TYPE} ${jwt}`)
+    res.setHeader('email-auth', `${jwt}`)
   }
 
   @Post('/send-email/password-reset')
