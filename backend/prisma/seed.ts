@@ -26,7 +26,6 @@ const createUsers = async () => {
       username: 'super',
       password: await encrypt('Supersuper'),
       email: 'skkucodingplatform@gmail.com',
-      lastLogin: new Date(),
       role: Role.SuperAdmin
     }
   })
@@ -37,7 +36,6 @@ const createUsers = async () => {
       username: 'admin',
       password: await encrypt('Adminadmin'),
       email: 'admin@example.com',
-      lastLogin: new Date(),
       role: Role.Admin
     }
   })
@@ -48,7 +46,6 @@ const createUsers = async () => {
       username: 'manager',
       password: await encrypt('Manager'),
       email: 'manager@example.com',
-      lastLogin: new Date(),
       role: Role.Manager
     }
   })
@@ -61,7 +58,6 @@ const createUsers = async () => {
         username: `user${specifier}`,
         password: await encrypt('Useruser'),
         email: `user${specifier}@example.com`,
-        lastLogin: new Date(),
         role: Role.User
       }
     })
