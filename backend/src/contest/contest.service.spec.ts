@@ -5,7 +5,6 @@ import { Contest, ContestRecord, Group, UserGroup } from '@prisma/client'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
-  ForbiddenAccessException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
