@@ -17,7 +17,7 @@ const workbookArray = [
     groupId: 1,
     title: 'thisistitle1',
     description: 'thisisdescription1',
-    visible: true,
+    isVisible: true,
     createTime: DATETIME,
     updateTime: DATETIME
   },
@@ -27,7 +27,7 @@ const workbookArray = [
     groupId: 1,
     title: 'thisistitle2',
     description: 'thisisdescription2',
-    visible: false,
+    isVisible: false,
     createTime: DATETIME,
     updateTime: DATETIME
   },
@@ -37,7 +37,7 @@ const workbookArray = [
     groupId: 2,
     title: 'thisistitle3',
     description: 'thisisdescription3',
-    visible: true,
+    isVisible: true,
     createTime: DATETIME,
     updateTime: DATETIME
   },
@@ -47,7 +47,7 @@ const workbookArray = [
     groupId: 2,
     title: 'thisistitle4',
     description: 'thisisdescription4',
-    visible: true,
+    isVisible: true,
     createTime: DATETIME,
     updateTime: DATETIME
   }
@@ -56,13 +56,13 @@ const workbookArray = [
 const createWorkbookDto = {
   title: 'createworkbook',
   description: 'description',
-  visible: false
+  isVisible: false
 }
 
 const updateWorkbookDto = {
   title: 'updateworkbook',
   description: 'description',
-  visible: false
+  isVisible: false
 }
 
 const showTitleDescriptionUpdatedTime = ({
@@ -79,7 +79,7 @@ const publicWorkbooks = [
   showTitleDescriptionUpdatedTime(workbookArray[0]),
   showTitleDescriptionUpdatedTime(workbookArray[1])
 ]
-const visiblePublicWorkbooks = [
+const isVisiblePublicWorkbooks = [
   showTitleDescriptionUpdatedTime(workbookArray[0])
 ]
 const groupWorkbooks = [
@@ -119,13 +119,13 @@ describe('WorkbookService', () => {
   })
 
   it('get a list of public workbooks(user)', async () => {
-    db.workbook.findMany.resolves(visiblePublicWorkbooks)
+    db.workbook.findMany.resolves(isVisiblePublicWorkbooks)
 
     const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
       PUBLIC_GROUP_ID,
       false
     )
-    expect(returnedPublicWorkbooks).to.deep.equal(visiblePublicWorkbooks)
+    expect(returnedPublicWorkbooks).to.deep.equal(isVisiblePublicWorkbooks)
   })
 
   it('get a list of public workbooks(admin)', async () => {
