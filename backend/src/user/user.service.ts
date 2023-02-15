@@ -251,8 +251,7 @@ export class UserService {
       data: {
         username: signUpDto.username,
         password: encryptedPassword,
-        email: signUpDto.email,
-        lastLogin: null
+        email: signUpDto.email
       }
     })
   }

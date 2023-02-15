@@ -22,6 +22,7 @@ let superAdminUser: User
 let managerUser: User
 const users: User[] = []
 let publicGroup: Group
+let privateGroup: Group
 const problems: Problem[] = []
 const problemTestcases: ProblemTestcase[] = []
 let contest: Contest
@@ -33,7 +34,7 @@ const createUsers = async () => {
   superAdminUser = await prisma.user.create({
     data: {
       username: 'super',
-      password: await encrypt('supersuper'),
+      password: await encrypt('Supersuper'),
       email: 'skkucodingplatform@gmail.com',
       lastLogin: new Date(),
       role: Role.SuperAdmin
@@ -44,7 +45,7 @@ const createUsers = async () => {
   await prisma.user.create({
     data: {
       username: 'admin',
-      password: await encrypt('adminadmin'),
+      password: await encrypt('Adminadmin'),
       email: 'admin@example.com',
       lastLogin: new Date(),
       role: Role.Admin
@@ -55,7 +56,7 @@ const createUsers = async () => {
   managerUser = await prisma.user.create({
     data: {
       username: 'manager',
-      password: await encrypt('manager'),
+      password: await encrypt('Manager'),
       email: 'manager@example.com',
       lastLogin: new Date(),
       role: Role.Manager
@@ -68,7 +69,7 @@ const createUsers = async () => {
     const user = await prisma.user.create({
       data: {
         username: `user${specifier}`,
-        password: await encrypt('useruser'),
+        password: await encrypt('Useruser'),
         email: `user${specifier}@example.com`,
         lastLogin: new Date(),
         role: Role.User
@@ -76,17 +77,6 @@ const createUsers = async () => {
     })
     users.push(user)
   }
-
-  // create email unauthenticated user
-  await prisma.user.create({
-    data: {
-      username: 'unauth',
-      password: await encrypt('useruser'),
-      email: 'unauthenticated@example.com',
-      lastLogin: new Date(),
-      role: Role.User
-    }
-  })
 
   // create super admin user's profile
   await prisma.userProfile.create({
@@ -105,7 +95,7 @@ const createGroups = async () => {
       groupName: 'Example Group',
       description:
         'This is an example group just for testing. This group should not be shown on production environment.',
-      createdById: managerUser.id,
+      createdById: superAdminUser.id,
       config: {
         showOnList: false,
         allowJoinFromSearch: false,
@@ -116,7 +106,7 @@ const createGroups = async () => {
   })
 
   // create private group
-  const privateGroup = await prisma.group.create({
+  privateGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group',
       description:
@@ -136,7 +126,7 @@ const createGroups = async () => {
   // add users to public group
   // group leader: user01
   for (const user of allUsers) {
-    prisma.userGroup.create({
+    await prisma.userGroup.create({
       data: {
         userId: user.id,
         groupId: publicGroup.id,
@@ -149,7 +139,7 @@ const createGroups = async () => {
   // group leader: user01
   // registered: user01, user03, user05, user07, user09
   for (const user of users) {
-    prisma.userGroup.create({
+    await prisma.userGroup.create({
       data: {
         userId: user.id,
         groupId: privateGroup.id,
@@ -6355,7 +6345,7 @@ const createContests = async () => {
       title: 'Future Contest',
       description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
       createdById: superAdminUser.id,
-      groupId: publicGroup.id,
+      groupId: privateGroup.id,
       startTime: dayjs().add(-1, 'hour').add(1, 'year').toDate(),
       endTime: dayjs().add(2, 'hour').add(1, 'year').toDate(),
       config: {
@@ -6398,12 +6388,27 @@ const createWorkbooks = async () => {
       groupId: publicGroup.id
     }
   })
+  const privateWorkbook = await prisma.workbook.create({
+    data: {
+      title: '모의대회 문제집',
+      description: '<p>모의대회 문제들을 모아뒀습니다!</p>',
+      createdById: superAdminUser.id,
+      groupId: privateGroup.id
+    }
+  })
 
   for (const problem of problems) {
     await prisma.workbookProblem.create({
       data: {
         id: String(problem.id),
         workbookId: workbook.id,
+        problemId: problem.id
+      }
+    })
+    await prisma.workbookProblem.create({
+      data: {
+        id: String(problem.id),
+        workbookId: privateWorkbook.id,
         problemId: problem.id
       }
     })
@@ -6539,7 +6544,7 @@ int main(void) {
         hash: generateHash(),
         userId: users[5].id,
         problemId: problems[5].id,
-        contestId: workbook.id,
+        workbookId: workbook.id,
         code: `#include <iostream>
 int main(void) {
     std::cout << "Hello, World!" << endl;
@@ -6563,7 +6568,7 @@ int main(void) {
         hash: generateHash(),
         userId: users[6].id,
         problemId: problems[6].id,
-        contestId: workbook.id,
+        workbookId: workbook.id,
         code: `print("Hello, World!")`,
         language: Language.Python3
       }

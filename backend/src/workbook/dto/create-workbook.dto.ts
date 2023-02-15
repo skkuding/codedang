@@ -1,3 +1,3 @@
 import { UpdateWorkbookDto } from './update-workbook.dto'
 
-export type CreateWorkbookDto = UpdateWorkbookDto
+export class CreateWorkbookDto extends UpdateWorkbookDto {}
