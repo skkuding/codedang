@@ -1,4 +1,10 @@
-import { IsAlphanumeric, IsEmail, IsNotEmpty, IsString } from 'class-validator'
+import {
+  IsAlphanumeric,
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Matches
+} from 'class-validator'
 
 export class SignUpDto {
   @IsAlphanumeric()
@@ -13,7 +19,7 @@ export class SignUpDto {
   @IsNotEmpty()
   readonly email: string
 
-  @IsString()
+  @Matches(/^[a-zA-Z\s]+$/)
   @IsNotEmpty()
   readonly realName: string
 }
