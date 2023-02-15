@@ -18,14 +18,14 @@ enum Role {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  username   String   @unique
+  id         Int       @id @default(autoincrement())
+  username   String    @unique
   password   String
-  role       Role     @default(User)
-  email      String   @unique
-  lastLogin  DateTime @map("last_login")
-  createTime DateTime @default(now()) @map("create_time")
-  updateTime DateTime @updatedAt @map("update_time")
+  role       Role      @default(User)
+  email      String    @unique
+  lastLogin  DateTime? @map("last_login")
+  createTime DateTime  @default(now()) @map("create_time")
+  updateTime DateTime  @updatedAt @map("update_time")
 
   userProfile   UserProfile?
   userGroup     UserGroup[]
