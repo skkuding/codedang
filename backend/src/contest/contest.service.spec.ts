@@ -23,11 +23,14 @@ import { CreateContestDto } from './dto/create-contest.dto'
 import { CreateContestPublicizingRequestDto } from './dto/create-publicizing-request.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
+import { AuthenticatedUser } from 'src/auth/class/authenticated-user.class'
 
 const contestId = 1
 const userId = 1
 const groupId = 1
 const contestPublicizeRequestId = 1
+
+let user: AuthenticatedUser
 
 const contest = {
   id: contestId,
