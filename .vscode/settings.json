@@ -1,6 +1,7 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
+  "thunder-client.saveToWorkspace": true,
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   }
