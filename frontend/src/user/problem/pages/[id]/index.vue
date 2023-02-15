@@ -28,7 +28,10 @@ const copySample = (index: number, type: 'input' | 'output') => {
 
 const resizingBar = ref<HTMLDivElement>()
 const { x } = useDraggable(resizingBar, {
-  initialValue: { x: 600, y: 0 }
+  initialValue: { x: 600, y: 0 },
+  onMove: (p) => {
+    if (p.x < 400) p.x = 400
+  }
 })
 </script>
 
