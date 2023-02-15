@@ -213,17 +213,17 @@ export class GroupService {
         }
       },
       select: {
-        config: true
+        config: true,
+        userGroup: {
+          select: {
+            userId: true
+          }
+        }
       },
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
 
-    const isJoined = await this.prisma.userGroup.findFirst({
-      where: {
-        userId: userId,
-        groupId: groupId
-      }
-    })
+    const isJoined = group.userGroup.includes({ userId: userId })
 
     if (isJoined) {
       throw new EntityAlreadyExistException('Group join record')
