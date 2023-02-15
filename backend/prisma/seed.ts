@@ -81,7 +81,7 @@ const createGroups = async () => {
       groupName: 'Example Group',
       description:
         'This is an example group just for testing. This group should not be shown on production environment.',
-      createdById: managerUser.id
+      createdById: superAdminUser.id
     }
   })
 
@@ -100,7 +100,7 @@ const createGroups = async () => {
   // add users to public group
   // group leader: user01
   for (const user of allUsers) {
-    prisma.userGroup.create({
+    await prisma.userGroup.create({
       data: {
         userId: user.id,
         groupId: publicGroup.id,
@@ -114,7 +114,7 @@ const createGroups = async () => {
   // group leader: user01
   // registered: user01, user03, user05, user07, user09
   for (const [index, user] of users.entries()) {
-    prisma.userGroup.create({
+    await prisma.userGroup.create({
       data: {
         userId: user.id,
         groupId: privateGroup.id,
@@ -6316,7 +6316,7 @@ const createContests = async () => {
       description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
       descriptionSummary: '미래 대회',
       createdById: superAdminUser.id,
-      groupId: publicGroup.id,
+      groupId: privateGroup.id,
       startTime: dayjs().add(-1, 'hour').add(1, 'year').toDate(),
       endTime: dayjs().add(2, 'hour').add(1, 'year').toDate(),
       type: ContestType.ACM
