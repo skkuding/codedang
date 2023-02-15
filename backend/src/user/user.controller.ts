@@ -85,7 +85,6 @@ export class UserController {
       ) {
         throw new UnauthorizedException(error.message)
       }
-
       throw new InternalServerErrorException()
     }
   }

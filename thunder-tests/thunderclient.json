@@ -8,12 +8,12 @@
     "method": "POST",
     "sortNum": 10000,
     "created": "2023-01-04T03:25:24.818Z",
-    "modified": "2023-01-15T14:00:39.842Z",
+    "modified": "2023-02-04T06:38:15.885Z",
     "headers": [],
     "params": [],
     "body": {
       "type": "json",
-      "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"adminadmin\"\n}",
+      "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Adminadmin\"\n}",
       "form": []
     },
     "tests": [
@@ -57,9 +57,9 @@
     "name": "Succeed",
     "url": "/auth/logout",
     "method": "POST",
-    "sortNum": 10000,
+    "sortNum": 30000,
     "created": "2023-01-04T03:36:13.805Z",
-    "modified": "2023-01-15T15:08:25.492Z",
+    "modified": "2023-02-15T05:04:35.551Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -86,7 +86,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -103,7 +103,7 @@
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-01-04T03:36:45.663Z",
-    "modified": "2023-01-15T15:27:59.153Z",
+    "modified": "2023-02-15T05:04:45.817Z",
     "headers": [
       {
         "name": "Set-Cookie",
@@ -135,7 +135,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-var-empty",
           "triggerValue": "{{refresh_token}}"
@@ -226,7 +226,7 @@
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-01-04T03:44:08.324Z",
-    "modified": "2023-01-15T15:46:37.619Z",
+    "modified": "2023-02-15T04:57:35.348Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -265,7 +265,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -282,7 +282,7 @@
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-01-04T03:44:47.207Z",
-    "modified": "2023-01-15T15:49:35.648Z",
+    "modified": "2023-02-15T05:05:08.839Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -321,7 +321,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -338,7 +338,7 @@
     "method": "POST",
     "sortNum": 10000,
     "created": "2023-01-04T03:45:44.318Z",
-    "modified": "2023-01-15T16:06:00.212Z",
+    "modified": "2023-02-15T05:08:17.158Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -353,7 +353,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -470,9 +470,9 @@
     "name": "401: Invalid Token",
     "url": "/auth/logout",
     "method": "POST",
-    "sortNum": 20000,
+    "sortNum": 40000,
     "created": "2023-01-15T14:58:53.478Z",
-    "modified": "2023-01-15T15:00:31.793Z",
+    "modified": "2023-02-15T04:51:42.049Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -486,7 +486,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "c5ccfac6-5e94-4b03-aecb-e357db6157b9",
+          "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -503,7 +503,7 @@
     "method": "GET",
     "sortNum": 20000,
     "created": "2023-01-15T15:25:15.488Z",
-    "modified": "2023-01-15T15:26:15.226Z",
+    "modified": "2023-02-15T04:52:11.677Z",
     "headers": [
       {
         "name": "Set-Cookie",
@@ -522,7 +522,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "c5ccfac6-5e94-4b03-aecb-e357db6157b9",
+          "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -566,7 +566,7 @@
     "method": "GET",
     "sortNum": 20000,
     "created": "2023-01-15T15:50:08.931Z",
-    "modified": "2023-01-15T15:51:04.018Z",
+    "modified": "2023-02-15T05:05:19.512Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -586,7 +586,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -599,11 +599,11 @@
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "4b515a9e-2c7f-46c3-aef5-809b6f2c322f",
     "name": "403: Not ended contest",
-    "url": "/group/1/contest/1",
+    "url": "/group/2/contest/3",
     "method": "GET",
     "sortNum": 15000,
     "created": "2023-01-15T15:51:57.192Z",
-    "modified": "2023-01-15T15:57:44.650Z",
+    "modified": "2023-02-15T05:18:07.022Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -623,7 +623,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -640,7 +640,7 @@
     "method": "POST",
     "sortNum": 20000,
     "created": "2023-01-18T07:58:25.651Z",
-    "modified": "2023-01-18T07:59:04.723Z",
+    "modified": "2023-02-15T05:08:22.517Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -654,7 +654,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -671,7 +671,7 @@
     "method": "POST",
     "sortNum": 30000,
     "created": "2023-01-18T07:59:40.454Z",
-    "modified": "2023-01-18T08:00:15.661Z",
+    "modified": "2023-02-15T05:08:36.120Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -691,7 +691,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -708,7 +708,7 @@
     "method": "POST",
     "sortNum": 25000,
     "created": "2023-01-18T08:00:24.978Z",
-    "modified": "2023-01-18T08:00:52.224Z",
+    "modified": "2023-02-15T05:08:29.218Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -728,7 +728,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -784,7 +784,7 @@
     "method": "GET",
     "sortNum": 60000,
     "created": "2023-02-01T01:48:09.050Z",
-    "modified": "2023-02-01T02:05:01.306Z",
+    "modified": "2023-02-15T05:12:42.238Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -816,7 +816,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -833,7 +833,7 @@
     "method": "GET",
     "sortNum": 70000,
     "created": "2023-02-01T06:59:43.886Z",
-    "modified": "2023-02-01T07:04:47.429Z",
+    "modified": "2023-02-15T05:12:55.005Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -895,7 +895,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -1033,7 +1033,7 @@
     "method": "POST",
     "sortNum": 80000,
     "created": "2023-02-01T07:05:49.259Z",
-    "modified": "2023-02-01T07:09:28.166Z",
+    "modified": "2023-02-15T05:13:09.653Z",
     "headers": [],
     "params": [],
     "body": {
@@ -1052,7 +1052,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -1069,7 +1069,7 @@
     "method": "DELETE",
     "sortNum": 90000,
     "created": "2023-02-01T07:10:05.193Z",
-    "modified": "2023-02-01T07:21:21.747Z",
+    "modified": "2023-02-15T05:14:42.376Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -1084,7 +1084,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -1147,7 +1147,7 @@
     "method": "PUT",
     "sortNum": 100000,
     "created": "2023-02-01T07:12:44.273Z",
-    "modified": "2023-02-01T07:24:22.735Z",
+    "modified": "2023-02-15T05:13:35.270Z",
     "headers": [],
     "params": [],
     "body": {
@@ -1166,7 +1166,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -1194,56 +1194,6 @@
         "value": "404"
       }
     ]
-  },
-  {
-    "_id": "29e89972-fd6e-411b-af6d-0cb1b910b306",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "162021f9-d9b8-4acb-880a-fac122d0fadf",
-    "name": "Succeed",
-    "url": "/group/1/notice?offset=1",
-    "method": "GET",
-    "sortNum": 90000,
-    "created": "2023-02-01T07:13:58.376Z",
-    "modified": "2023-02-01T07:19:11.799Z",
-    "headers": [],
-    "params": [
-      {
-        "name": "offset",
-        "value": "1",
-        "isPath": false
-      }
-    ],
-    "tests": [
-      {
-        "type": "res-code",
-        "custom": "",
-        "action": "equal",
-        "value": "200"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"id\": 1"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"id\": 2"
-      }
-    ],
-    "docs": "# Get group's all notices\n\n한 group의 모든 공지사항을 불러옵니다.\n\n## Query\n\n- `offset`: 몇 번째 item부터 가져올지 정합니다.",
-    "preReq": {
-      "runRequests": [
-        {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
-          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-          "triggerCondition": "run-always",
-          "triggerValue": ""
-        }
-      ]
-    }
   },
   {
     "_id": "1af21194-f768-4f41-a382-80c28db2bcce",
@@ -1300,7 +1250,7 @@
     "method": "DELETE",
     "sortNum": 100000,
     "created": "2023-02-01T07:22:42.587Z",
-    "modified": "2023-02-01T07:47:38.377Z",
+    "modified": "2023-02-15T05:13:49.352Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -1315,7 +1265,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -1332,7 +1282,7 @@
     "method": "PUT",
     "sortNum": 110000,
     "created": "2023-02-01T07:22:57.836Z",
-    "modified": "2023-02-01T07:47:33.785Z",
+    "modified": "2023-02-15T05:13:56.345Z",
     "headers": [],
     "params": [],
     "body": {
@@ -1352,6 +1302,975 @@
     "preReq": {
       "runRequests": [
         {
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "fc5ba97b-1e06-4c6d-b1b3-ed6e0d8c6e14",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "50cd7ae2-a924-4930-a42b-ed37e850f6fe",
+    "name": "Succeed",
+    "url": "/email-auth/send-email/register-new",
+    "method": "POST",
+    "sortNum": 10000,
+    "created": "2023-02-04T06:10:35.871Z",
+    "modified": "2023-02-15T05:47:38.170Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"email\": \"skkucp@gmail.com\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "201"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "equal",
+        "value": "Email authentication pin is sent to your email address"
+      }
+    ],
+    "docs": "# Send Email\n\n사용자가 가입을 시도하면 확인을 위해 기입한 이메일로 핀을 전송합니다.  \n해당 이메일로 가입된 다른 유저가 있을 경우 이메일이 전송되지 않고 가입이 차단됩니다."
+  },
+  {
+    "_id": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "dcc8290a-fa46-4ad9-b9a1-f2f422fe2006",
+    "name": "Log In as SuperAdmin",
+    "url": "/auth/login",
+    "method": "POST",
+    "sortNum": 65000,
+    "created": "2023-02-04T06:19:10.115Z",
+    "modified": "2023-02-15T04:47:51.109Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"username\": \"super\",\n  \"password\": \"Supersuper\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "set-env-var",
+        "custom": "header.authorization",
+        "action": "setto",
+        "value": "{{bearer_token}}"
+      },
+      {
+        "type": "set-env-var",
+        "custom": "cookie.refresh_token",
+        "action": "setto",
+        "value": "{{refresh_token}}"
+      }
+    ]
+  },
+  {
+    "_id": "0b01e633-3ba5-4925-b679-3f80a1873e97",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "36691b67-944b-4450-91a2-51c74b45688a",
+    "name": "Succeed",
+    "url": "/email-auth/send-email/password-reset",
+    "method": "POST",
+    "sortNum": 10000,
+    "created": "2023-02-04T06:24:00.834Z",
+    "modified": "2023-02-15T03:50:47.317Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"email\": \"skkucodingplatform@gmail.com\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "201"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "equal",
+        "value": "Email authentication pin is sent to your email address"
+      }
+    ],
+    "docs": "# Send Email for Password Reset\n\n비밀번호 재설정을 위해 입력된 이메일로 본인 확인용 핀을 전송합니다.  \n해당 이메일로 가입된 유저가 없을 경우 이메일이 전송되지 않습니다.  "
+  },
+  {
+    "_id": "c6022466-99cd-4f7e-b06d-15268b720f57",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "6d283a69-e74c-49e2-b5b0-dde19238cfd1",
+    "name": "Succeed",
+    "url": "/user",
+    "method": "GET",
+    "sortNum": 120000,
+    "created": "2023-02-04T06:28:28.347Z",
+    "modified": "2023-02-15T05:48:15.121Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "username"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "role"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "email"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "lastLogin"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "updateTime"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "userProfile"
+      }
+    ],
+    "docs": "# Get User Profile\n\n사용자의 프로필 정보를 가져옵니다. 로그인 상태가 아닐 경우 프로필을 가져오지 않습니다.",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "64c3b07a-ac38-4b9e-b402-7757ef83b3ba",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "6d283a69-e74c-49e2-b5b0-dde19238cfd1",
+    "name": "401: Nonexistent User",
+    "url": "/user",
+    "method": "GET",
+    "sortNum": 150000,
+    "created": "2023-02-04T06:31:57.457Z",
+    "modified": "2023-02-04T06:33:01.422Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "401"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Unauthorized"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "c5ccfac6-5e94-4b03-aecb-e357db6157b9",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "251f46a8-e842-46ae-8e4d-89a57d3e3fb7",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "e887d9a5-3376-440c-8411-9d99a5881f6a",
+    "name": "Succeed",
+    "url": "/user/password-reset",
+    "method": "PATCH",
+    "sortNum": 170000,
+    "created": "2023-02-04T06:35:06.560Z",
+    "modified": "2023-02-15T04:01:11.165Z",
+    "headers": [
+      {
+        "name": "Authorization",
+        "value": "{{bearer_token}}"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"newPassword\": \"Supersuper\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Password Reset successfully"
+      }
+    ],
+    "docs": "# Reset Password\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin for Password Reset -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n리퀘스트로 받은 새로운 비밀번호로 비밀번호를 재설정합니다.  \n핀으로 본인 확인을 마치지 않았거나, 새로운 비밀번호가 유효하지 않을 경우 비밀번호를 재설정하지 않습니다.\n\n### Bad Password\n- 8자 미만\n- 소문자, 대문자, 숫자, 특수문자 중 2가지 이상의 조합이 아님"
+  },
+  {
+    "_id": "51dd9387-6b96-4bb6-8d37-f3fff1768bf2",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "e887d9a5-3376-440c-8411-9d99a5881f6a",
+    "name": "422: Bad Password",
+    "url": "/user/password-reset",
+    "method": "PATCH",
+    "sortNum": 180000,
+    "created": "2023-02-04T06:46:43.263Z",
+    "modified": "2023-02-15T03:51:01.289Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"newPassword\": \"badpassword\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "422"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Bad password"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "6584d0c4-0f1c-4b8a-8649-94d3e6d71d30",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "50cd7ae2-a924-4930-a42b-ed37e850f6fe",
+    "name": "422: Duplicate Email",
+    "url": "/email-auth/send-email/register-new",
+    "method": "POST",
+    "sortNum": 20000,
+    "created": "2023-02-04T12:44:36.428Z",
+    "modified": "2023-02-04T12:45:14.432Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"email\": \"skkucodingplatform@gmail.com\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "422"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "This email is already used"
+      }
+    ]
+  },
+  {
+    "_id": "471ff6ce-dbd1-4ee0-969a-72e4d8d4fbef",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "36691b67-944b-4450-91a2-51c74b45688a",
+    "name": "401: Unauthorized",
+    "url": "/email-auth/send-email/password-reset",
+    "method": "POST",
+    "sortNum": 20000,
+    "created": "2023-02-04T12:46:01.478Z",
+    "modified": "2023-02-15T05:47:12.268Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"email\": \"skkucp@gmail.com\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "401"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Cannot find a registered user whose email address is"
+      }
+    ]
+  },
+  {
+    "_id": "d346ad0a-d895-4ce4-8245-6bc8b07297d9",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "3a424d2b-2fb8-4b0a-8b1d-772d11597261",
+    "name": "Succeed",
+    "url": "/email-auth/verify-pin",
+    "method": "POST",
+    "sortNum": 190000,
+    "created": "2023-02-04T12:51:09.929Z",
+    "modified": "2023-02-15T05:45:55.586Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"pin\": \"798435\",\n  \"email\": \"sori2511@gmail.com\" // Email address that received pin\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "201"
+      },
+      {
+        "type": "custom-header",
+        "custom": "Authorization",
+        "action": "contains",
+        "value": "Bearer"
+      },
+      {
+        "type": "set-env-var",
+        "custom": "header.authorization",
+        "action": "setto",
+        "value": "{{bearer_token}}"
+      }
+    ],
+    "docs": "# Verify Pin and Issue Jwt\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin for Password Reset 혹은 Send Pin to New Email 리퀘스트를 먼저 보내주세요.**  \n\n리퀘스트로 전송된 핀과 메일로 전송된 핀이 일치하면 Access 토큰을 발행합니다.  \n해당 토큰은 Reset Password와 Sign Up 과정을 수행하는 데 필수적입니다.  \n\n### Request Body\n리퀘스트 바디의 `pin`, `email`은 수동으로 입력해야 합니다.\nSend Email 과정에서 메일을 받은 이메일 주소를 `email`에, 전송받은 핀을 `pin`에 기입하여 리퀘스트를 보내주세요.\n\n### Access Token\n- `Authrization` header를 통해 bearer token을 발급합니다."
+  },
+  {
+    "_id": "fe911128-f592-4015-b2ce-c5ab16a82a53",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "b2a0a2ac-e83c-4e01-816c-b402fc61b190",
+    "name": "Succeed",
+    "url": "/user/sign-up",
+    "method": "POST",
+    "sortNum": 200000,
+    "created": "2023-02-06T08:54:36.128Z",
+    "modified": "2023-02-15T05:35:52.158Z",
+    "headers": [
+      {
+        "name": "Authorization",
+        "value": "{{bearer_token}}"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"username\": \"test\",\n  \"password\": \"it'smehi\",\n  \"email\": \"sori2511@gmail.com\",\n  \"realName\": \"MyeongRyunLee\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "201"
+      }
+    ],
+    "docs": "# Reset Password\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin to New Email -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n리퀘스트로 받은 정보를 바탕으로 유저를 가입시킵니다.\n핀으로 본인의 이메일임이 확인이 되지 않은 경우, 핀으로 확인된 이메일이 아닌 다른 이메일로 가입을 시도하는 경우, 그리고 username 혹은 password가 유효하지 않을 경우에는 가입이 거부됩니다.\n\n### Bad Username\n- 3자 미만 혹은 10자 초과\n- 소문자, 숫자 외의 문자 포함\n\n\n### Bad Password\n- 8자 미만\n- 소문자, 대문자, 숫자, 특수문자 중 2가지 이상의 조합이 아님"
+  },
+  {
+    "_id": "4e632b66-abd9-4416-a70b-138e9bb6056e",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "3a424d2b-2fb8-4b0a-8b1d-772d11597261",
+    "name": "500: Invalid Pin",
+    "url": "/email-auth/verify-pin",
+    "method": "POST",
+    "sortNum": 200000,
+    "created": "2023-02-15T03:36:24.801Z",
+    "modified": "2023-02-15T03:51:53.040Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"pin\": \"0\",\n  \"email\": \"skkucp@gmail.com\" // Your email\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "500"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "PIN not found or invalid PIN"
+      }
+    ]
+  },
+  {
+    "_id": "45554ac6-87d2-46c9-9450-c8c1d29a7923",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "b2a0a2ac-e83c-4e01-816c-b402fc61b190",
+    "name": "422: Bad Password",
+    "url": "/user/sign-up",
+    "method": "POST",
+    "sortNum": 220000,
+    "created": "2023-02-15T03:53:11.459Z",
+    "modified": "2023-02-15T03:55:52.353Z",
+    "headers": [
+      {
+        "name": "Authorization",
+        "value": "{{bearer_token}}"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"username\": \"test\",\n  \"password\": \"badpassword\",\n  \"email\": \"skkucp@gmail.com\",\n  \"realName\": \"MyeongRyunLee\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "422"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Bad password"
+      }
+    ]
+  },
+  {
+    "_id": "1010394b-64e8-434b-842a-57e096d36c3a",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "b2a0a2ac-e83c-4e01-816c-b402fc61b190",
+    "name": "401: Unauthorized",
+    "url": "/user/sign-up",
+    "method": "POST",
+    "sortNum": 205000,
+    "created": "2023-02-15T03:53:29.316Z",
+    "modified": "2023-02-15T04:07:09.120Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"username\": \"test\",\n  \"password\": \"it'smehi\",\n  \"email\": \"skkucp@gmail.com\",\n  \"realName\": \"MyeongRyunLee\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "401"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Invalid token: jwt must be provided"
+      }
+    ]
+  },
+  {
+    "_id": "5355cb23-4a06-4469-8cd1-87b17b442cb8",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "b2a0a2ac-e83c-4e01-816c-b402fc61b190",
+    "name": "422: Bad Username",
+    "url": "/user/sign-up",
+    "method": "POST",
+    "sortNum": 207500,
+    "created": "2023-02-15T03:56:01.930Z",
+    "modified": "2023-02-15T03:56:44.926Z",
+    "headers": [
+      {
+        "name": "Authorization",
+        "value": "{{bearer_token}}"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"username\": \"bad username\",\n  \"password\": \"it'smehi\",\n  \"email\": \"skkucp@gmail.com\",\n  \"realName\": \"MyeongRyunLee\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "422"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Bad username"
+      }
+    ]
+  },
+  {
+    "_id": "5b50b69b-e841-4a73-bc97-4cd821bab9d1",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "e887d9a5-3376-440c-8411-9d99a5881f6a",
+    "name": "401: Unauthorized",
+    "url": "/user/password-reset",
+    "method": "PATCH",
+    "sortNum": 175000,
+    "created": "2023-02-15T03:59:13.887Z",
+    "modified": "2023-02-15T03:59:36.768Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"newPassword\": \"Supersuper\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "401"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Invalid token: jwt must be provided"
+      }
+    ],
+    "docs": "# Reset Password\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin for Password Reset -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n리퀘스트로 받은 새로운 비밀번호로 비밀번호를 재설정합니다.  \n핀으로 본인 확인을 마치지 않았거나, 새로운 비밀번호가 유효하지 않을 경우 비밀번호를 재설정하지 않습니다.\n\n### Bad Password\n- 8자 이하\n- 소문자, 대문자, 숫자, 특수문자 중 2가지 이상의 조합이 아님"
+  },
+  {
+    "_id": "08d65706-7184-4383-ae4e-3951c24b4d60",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "b2a0a2ac-e83c-4e01-816c-b402fc61b190",
+    "name": "422: Not Authenticated",
+    "url": "/user/sign-up",
+    "method": "POST",
+    "sortNum": 206250,
+    "created": "2023-02-15T04:04:54.972Z",
+    "modified": "2023-02-15T04:05:45.857Z",
+    "headers": [
+      {
+        "name": "Authorization",
+        "value": "{{bearer_token}}"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"username\": \"test\",\n  \"password\": \"it'smehi\",\n  \"email\": \"skkucodingplatform@gmail.com\",\n  \"realName\": \"MyeongRyunLee\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "422"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "The email is not authenticated one"
+      }
+    ],
+    "docs": "# Reset Password\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin for Sign Up -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n리퀘스트로 받은 정보를 바탕으로 유저를 가입시킵니다.  \n핀으로 본인 확인이 되지 않았거나 username 혹은 password가 유효하지 않을 경우 가입이 되지 않습니다.\n\n### Bad Username\n- 3자 미만 혹은 10자 초과\n- 소문자, 숫자 외의 문자 포함\n\n\n### Bad Password\n- 8자 미만\n- 소문자, 대문자, 숫자, 특수문자 중 2가지 이상의 조합이 아님"
+  },
+  {
+    "_id": "2902f14c-3e97-4dbd-b520-84898231a7c7",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "b2a0a2ac-e83c-4e01-816c-b402fc61b190",
+    "name": "422: Duplicate Username",
+    "url": "/user/sign-up",
+    "method": "POST",
+    "sortNum": 206875,
+    "created": "2023-02-15T04:09:02.244Z",
+    "modified": "2023-02-15T04:09:46.224Z",
+    "headers": [
+      {
+        "name": "Authorization",
+        "value": "{{bearer_token}}"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"username\": \"super\",\n  \"password\": \"it'smehi\",\n  \"email\": \"sori2511@gmail.com\",\n  \"realName\": \"MyeongRyunLee\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "422"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Username already exists"
+      }
+    ]
+  },
+  {
+    "_id": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "dcc8290a-fa46-4ad9-b9a1-f2f422fe2006",
+    "name": "Log In as Group Leader",
+    "url": "/auth/login",
+    "method": "POST",
+    "sortNum": 75000,
+    "created": "2023-02-15T04:31:09.239Z",
+    "modified": "2023-02-15T05:06:56.596Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"username\": \"user01\",\n  \"password\": \"Useruser\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "set-env-var",
+        "custom": "header.authorization",
+        "action": "setto",
+        "value": "{{bearer_token}}"
+      },
+      {
+        "type": "set-env-var",
+        "custom": "cookie.refresh_token",
+        "action": "setto",
+        "value": "{{refresh_token}}"
+      }
+    ],
+    "docs": "User/Delete Own Account/Succeed 리퀘스트 전송 후에는 작동하지 않을 유틸 리퀘스트입니다.  \n복구를 원한다면 `npx prisma migrate reset`을 실행해주세요."
+  },
+  {
+    "_id": "4b1ec996-565e-4bf5-bad3-f2bb0c8202de",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "d778da2a-c38e-4bc4-a9a7-146fbd728295",
+    "name": "Succeed",
+    "url": "/user/withdrawal",
+    "method": "POST",
+    "sortNum": 230000,
+    "created": "2023-02-15T04:32:11.015Z",
+    "modified": "2023-02-15T05:47:58.534Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"password\": \"Useruser\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "201"
+      }
+    ],
+    "docs": "# Delete Own Account\n\n**⚠️ 이 리퀘스트를 보내면 user10이 DB에서 삭제됩니다. 복구를 원한다면 `npx prisma migrate reset`을 실행해주세요.**  \n\n확인용 비밀번호를 받고 로그인한 유저를 탈퇴시킵니다.  \n해당 유저가 존재하지 않거나, 리퀘스트로 받은 비밀번호가 유저의 비밀번호와 일치하지 않으면 탈퇴가 거부됩니다.",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "2219bd59-56e6-4979-887c-15d0bf0a3b02",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "d778da2a-c38e-4bc4-a9a7-146fbd728295",
+    "name": "401: Unauthorized",
+    "url": "/user/withdrawal",
+    "method": "POST",
+    "sortNum": 240000,
+    "created": "2023-02-15T04:33:04.566Z",
+    "modified": "2023-02-15T05:48:04.092Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"password\": \"Useruser\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "401"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Unauthorized"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "16e1a8a4-01d0-4674-9da9-03055d997c00",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "d778da2a-c38e-4bc4-a9a7-146fbd728295",
+    "name": "401: Incorrect Password",
+    "url": "/user/withdrawal",
+    "method": "POST",
+    "sortNum": 250000,
+    "created": "2023-02-15T04:37:58.196Z",
+    "modified": "2023-02-15T05:48:08.783Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"password\": \"incorrectpassword\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "401"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Incorrect password"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Unauthorized"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "51a403bb-a032-42b1-b027-6834bed26ad6",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "de080044-6fb5-4591-9d2d-b240e336f5b1",
+    "name": "Succeed",
+    "url": "/user/realname",
+    "method": "PATCH",
+    "sortNum": 250000,
+    "created": "2023-02-15T04:43:05.467Z",
+    "modified": "2023-02-15T05:48:36.073Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"realName\": \"Yuljeon Kim\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "id"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "userId"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "createTime"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "updateTime"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "1a00946d-e974-4f75-b8bc-50b5b18c09db",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "de080044-6fb5-4591-9d2d-b240e336f5b1",
+    "name": "401: Unauthorized",
+    "url": "/user/realname",
+    "method": "PATCH",
+    "sortNum": 260000,
+    "created": "2023-02-15T04:45:19.279Z",
+    "modified": "2023-02-15T04:49:37.689Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"realName\": \"Yuljeon Kim\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "401"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Unauthorized"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "5a59c618-44a1-40e7-899d-c4edab0095c3",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "dcc8290a-fa46-4ad9-b9a1-f2f422fe2006",
+    "name": "Log Out",
+    "url": "/auth/logout",
+    "method": "POST",
+    "sortNum": 85000,
+    "created": "2023-02-15T04:45:58.233Z",
+    "modified": "2023-02-15T04:47:56.279Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "201"
+      },
+      {
+        "type": "set-env-var",
+        "custom": "cookie.refresh_token",
+        "action": "setto",
+        "value": "{{refresh_token}}"
+      },
+      {
+        "type": "set-env-var",
+        "custom": "null",
+        "action": "setto",
+        "value": "{{bearer_token}}"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
           "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
@@ -1359,5 +2278,232 @@
         }
       ]
     }
+  },
+  {
+    "_id": "51b92ba3-7b43-4ba1-8f91-5c34f71a3d8f",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "162021f9-d9b8-4acb-880a-fac122d0fadf",
+    "name": "Succeed",
+    "url": "/group/1/notice?offset=1",
+    "method": "GET",
+    "sortNum": 100000,
+    "created": "2023-02-15T05:00:13.415Z",
+    "modified": "2023-02-15T05:00:13.415Z",
+    "headers": [],
+    "params": [
+      {
+        "name": "offset",
+        "value": "1",
+        "isPath": false
+      }
+    ],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"id\": 1"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"id\": 2"
+      }
+    ],
+    "docs": "# Get group's all notices\n\n한 group의 모든 공지사항을 불러옵니다.\n\n## Query\n\n- `offset`: 몇 번째 item부터 가져올지 정합니다.",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "dcc8290a-fa46-4ad9-b9a1-f2f422fe2006",
+    "name": "Log In as User (user10)",
+    "url": "/auth/login",
+    "method": "POST",
+    "sortNum": 80000,
+    "created": "2023-02-15T05:05:30.675Z",
+    "modified": "2023-02-15T05:10:28.657Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"username\": \"user10\",\n  \"password\": \"Useruser\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "set-env-var",
+        "custom": "header.authorization",
+        "action": "setto",
+        "value": "{{bearer_token}}"
+      },
+      {
+        "type": "set-env-var",
+        "custom": "cookie.refresh_token",
+        "action": "setto",
+        "value": "{{refresh_token}}"
+      }
+    ],
+    "docs": "User/Delete Own Account/Succeed 리퀘스트 전송 후에는 작동하지 않을 유틸 리퀘스트입니다.  \n복구를 원한다면 `npx prisma migrate reset`을 실행해주세요."
+  },
+  {
+    "_id": "1b51dcb4-a62b-4632-ac2b-65de72e0c2d5",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "5331b192-c3f2-427b-aaf6-561b463e95d4",
+    "name": "Succeed",
+    "url": "/user/email",
+    "method": "PATCH",
+    "sortNum": 270000,
+    "created": "2023-02-15T05:20:39.543Z",
+    "modified": "2023-02-15T05:46:07.934Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"email\": \"sori2511@gmail.com\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": ""
+      }
+    ],
+    "docs": "# Update Email\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin to New Email -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "00d4f4c6-5078-4ce4-a4a5-008470f3cc39",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "5331b192-c3f2-427b-aaf6-561b463e95d4",
+    "name": "422: Not Authenticated",
+    "url": "/user/email",
+    "method": "PATCH",
+    "sortNum": 280000,
+    "created": "2023-02-15T05:28:31.944Z",
+    "modified": "2023-02-15T05:31:20.292Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"email\": \"sori2511@gmail.com\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "422"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "The email is not authenticated one"
+      }
+    ],
+    "docs": "# Update Email\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin to New Email -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "5ea0017e-797b-4604-8e78-e0e3e3c11397",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "5331b192-c3f2-427b-aaf6-561b463e95d4",
+    "name": "401: Unauthorized",
+    "url": "/user/email",
+    "method": "PATCH",
+    "sortNum": 275000,
+    "created": "2023-02-15T05:28:33.055Z",
+    "modified": "2023-02-15T05:43:54.757Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"email\": \"sori2511@gmail.com\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": ""
+      }
+    ],
+    "docs": "# Update Email\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin to New Email -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "738d825a-cebb-487e-a1e9-854166c0de59",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "5331b192-c3f2-427b-aaf6-561b463e95d4",
+    "name": "404: Not Found",
+    "url": "/user/email",
+    "method": "PATCH",
+    "sortNum": 300000,
+    "created": "2023-02-15T05:28:42.869Z",
+    "modified": "2023-02-15T05:28:42.869Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"email\": \"sori2511@gmail.com\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": ""
+      }
+    ],
+    "docs": "# Update Email\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin to New Email -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n"
   }
 ]
