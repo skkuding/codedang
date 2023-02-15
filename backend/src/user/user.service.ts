@@ -131,7 +131,7 @@ export class UserService {
     req: Request,
     jwtVerifyOptions: JwtVerifyOptions = {}
   ): Promise<EmailAuthJwtObject> {
-    const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req)
+    const token = ExtractJwt.fromHeader('email-auth')(req)
     const options = {
       secret: this.config.get('JWT_SECRET'),
       ...jwtVerifyOptions

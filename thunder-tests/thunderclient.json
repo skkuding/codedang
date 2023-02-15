@@ -1522,11 +1522,11 @@
     "method": "PATCH",
     "sortNum": 170000,
     "created": "2023-02-04T06:35:06.560Z",
-    "modified": "2023-02-15T04:01:11.165Z",
+    "modified": "2023-02-15T12:32:36.713Z",
     "headers": [
       {
-        "name": "Authorization",
-        "value": "{{bearer_token}}"
+        "name": "email-auth",
+        "value": "{{email_token}}"
       }
     ],
     "params": [],
@@ -1666,7 +1666,7 @@
     "method": "POST",
     "sortNum": 190000,
     "created": "2023-02-04T12:51:09.929Z",
-    "modified": "2023-02-15T05:45:55.586Z",
+    "modified": "2023-02-15T12:31:49.033Z",
     "headers": [],
     "params": [],
     "body": {
@@ -1682,16 +1682,10 @@
         "value": "201"
       },
       {
-        "type": "custom-header",
-        "custom": "Authorization",
-        "action": "contains",
-        "value": "Bearer"
-      },
-      {
         "type": "set-env-var",
-        "custom": "header.authorization",
+        "custom": "header.email-auth",
         "action": "setto",
-        "value": "{{bearer_token}}"
+        "value": "{{email_token}}"
       }
     ],
     "docs": "# Verify Pin and Issue Jwt\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin for Password Reset 혹은 Send Pin to New Email 리퀘스트를 먼저 보내주세요.**  \n\n리퀘스트로 전송된 핀과 메일로 전송된 핀이 일치하면 Access 토큰을 발행합니다.  \n해당 토큰은 Reset Password와 Sign Up 과정을 수행하는 데 필수적입니다.  \n\n### Request Body\n리퀘스트 바디의 `pin`, `email`은 수동으로 입력해야 합니다.\nSend Email 과정에서 메일을 받은 이메일 주소를 `email`에, 전송받은 핀을 `pin`에 기입하여 리퀘스트를 보내주세요.\n\n### Access Token\n- `Authrization` header를 통해 bearer token을 발급합니다."
@@ -1705,11 +1699,11 @@
     "method": "POST",
     "sortNum": 200000,
     "created": "2023-02-06T08:54:36.128Z",
-    "modified": "2023-02-15T05:35:52.158Z",
+    "modified": "2023-02-15T12:33:03.015Z",
     "headers": [
       {
-        "name": "Authorization",
-        "value": "{{bearer_token}}"
+        "name": "email-auth",
+        "value": "{{email_token}}"
       }
     ],
     "params": [],
@@ -1769,11 +1763,11 @@
     "method": "POST",
     "sortNum": 220000,
     "created": "2023-02-15T03:53:11.459Z",
-    "modified": "2023-02-15T03:55:52.353Z",
+    "modified": "2023-02-15T12:33:20.887Z",
     "headers": [
       {
-        "name": "Authorization",
-        "value": "{{bearer_token}}"
+        "name": "email-auth",
+        "value": "{{email_token}}"
       }
     ],
     "params": [],
@@ -1838,11 +1832,11 @@
     "method": "POST",
     "sortNum": 207500,
     "created": "2023-02-15T03:56:01.930Z",
-    "modified": "2023-02-15T03:56:44.926Z",
+    "modified": "2023-02-15T12:33:35.848Z",
     "headers": [
       {
-        "name": "Authorization",
-        "value": "{{bearer_token}}"
+        "name": "email-auth",
+        "value": "{{email_token}}"
       }
     ],
     "params": [],
@@ -1908,11 +1902,11 @@
     "method": "POST",
     "sortNum": 206250,
     "created": "2023-02-15T04:04:54.972Z",
-    "modified": "2023-02-15T04:05:45.857Z",
+    "modified": "2023-02-15T12:34:01.128Z",
     "headers": [
       {
-        "name": "Authorization",
-        "value": "{{bearer_token}}"
+        "name": "email-auth",
+        "value": "{{email_token}}"
       }
     ],
     "params": [],
@@ -1946,11 +1940,11 @@
     "method": "POST",
     "sortNum": 206875,
     "created": "2023-02-15T04:09:02.244Z",
-    "modified": "2023-02-15T04:09:46.224Z",
+    "modified": "2023-02-15T12:33:50.818Z",
     "headers": [
       {
-        "name": "Authorization",
-        "value": "{{bearer_token}}"
+        "name": "email-auth",
+        "value": "{{email_token}}"
       }
     ],
     "params": [],
@@ -2371,8 +2365,13 @@
     "method": "PATCH",
     "sortNum": 270000,
     "created": "2023-02-15T05:20:39.543Z",
-    "modified": "2023-02-15T05:46:07.934Z",
-    "headers": [],
+    "modified": "2023-02-15T12:53:47.748Z",
+    "headers": [
+      {
+        "name": "email-auth",
+        "value": "{{email_token}}"
+      }
+    ],
     "params": [],
     "body": {
       "type": "json",
@@ -2381,13 +2380,13 @@
     },
     "tests": [
       {
-        "type": "res-body",
+        "type": "res-code",
         "custom": "",
-        "action": "contains",
-        "value": ""
+        "action": "equal",
+        "value": "200"
       }
     ],
-    "docs": "# Update Email\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin to New Email -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n",
+    "docs": "# Update Email\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin to New Email -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n핀으로 본인 확인이 완료된 이메일로 계정의 이메일 정보를 업데이트합니다.  \n핀이 확인되지 않은 경우, 확인된 이메일이 아닌 다른 이메일로 변경하는 경우, 그리고 로그인이 된 상태가 아닌 경우 변경 요청이 거부됩니다.",
     "preReq": {
       "runRequests": [
         {
@@ -2408,8 +2407,13 @@
     "method": "PATCH",
     "sortNum": 280000,
     "created": "2023-02-15T05:28:31.944Z",
-    "modified": "2023-02-15T05:31:20.292Z",
-    "headers": [],
+    "modified": "2023-02-15T12:34:50.956Z",
+    "headers": [
+      {
+        "name": "email-auth",
+        "value": "{{email_token}}"
+      }
+    ],
     "params": [],
     "body": {
       "type": "json",
@@ -2430,7 +2434,6 @@
         "value": "The email is not authenticated one"
       }
     ],
-    "docs": "# Update Email\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin to New Email -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n",
     "preReq": {
       "runRequests": [
         {
@@ -2451,7 +2454,7 @@
     "method": "PATCH",
     "sortNum": 275000,
     "created": "2023-02-15T05:28:33.055Z",
-    "modified": "2023-02-15T05:43:54.757Z",
+    "modified": "2023-02-15T12:40:02.598Z",
     "headers": [],
     "params": [],
     "body": {
@@ -2461,17 +2464,22 @@
     },
     "tests": [
       {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "401"
+      },
+      {
         "type": "res-body",
         "custom": "",
         "action": "contains",
-        "value": ""
+        "value": "Invalid token: jwt must be provided"
       }
     ],
-    "docs": "# Update Email\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin to New Email -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n",
     "preReq": {
       "runRequests": [
         {
-          "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -2488,8 +2496,13 @@
     "method": "PATCH",
     "sortNum": 300000,
     "created": "2023-02-15T05:28:42.869Z",
-    "modified": "2023-02-15T05:28:42.869Z",
-    "headers": [],
+    "modified": "2023-02-15T13:50:23.746Z",
+    "headers": [
+      {
+        "name": "email-auth",
+        "value": "{{email_token}}"
+      }
+    ],
     "params": [],
     "body": {
       "type": "json",
@@ -2498,12 +2511,22 @@
     },
     "tests": [
       {
-        "type": "res-body",
+        "type": "res-code",
         "custom": "",
-        "action": "contains",
-        "value": ""
+        "action": "equal",
+        "value": "404"
       }
     ],
-    "docs": "# Update Email\n\n**⚠️ 이 리퀘스트를 보내기 전에 Send Pin to New Email -> Verify Pin and Issue Jwt  리퀘스트를 차례로 보내주세요.**  \n\n"
+    "docs": "# Update Email\n\n**⚠️ 이 리퀘스트를 보내면 user10이 DB에서 삭제됩니다. 복구를 원한다면 `npx prisma migrate reset`을 실행해주세요.**  \n",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "4b1ec996-565e-4bf5-bad3-f2bb0c8202de",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
   }
 ]

@@ -31,7 +31,6 @@ import { NewPasswordDto } from './dto/newPassword.dto'
 import { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
 import { Request, Response } from 'express'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
-import { AUTH_TYPE } from '../common/constants'
 import { AuthNotNeeded } from '../common/decorator/auth-ignore.decorator'
 
 @Controller('user')
@@ -147,7 +146,7 @@ export class EmailAuthenticationController {
   constructor(private readonly userService: UserService) {}
 
   setJwtInHeader(res: Response, jwt: string) {
-    res.setHeader('authorization', `${AUTH_TYPE} ${jwt}`)
+    res.setHeader('email-auth', `${jwt}`)
   }
 
   @Post('/send-email/password-reset')
