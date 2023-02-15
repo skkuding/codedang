@@ -39,7 +39,7 @@ const { x } = useDraggable(resizingBar, {
   <main class="flex h-[calc(100vh-112px)] border-t border-slate-400">
     <Clarification v-model="x" />
     <div
-      class="flex w-[600px] min-w-[400px] flex-col gap-4 overflow-scroll bg-slate-700 p-8 text-white"
+      class="flex w-[600px] min-w-[400px] flex-col gap-4 overflow-hidden bg-slate-700 p-8 text-white"
       :style="{ width: x + 'px' }"
     >
       <h1 class="text-xl font-bold">습격자 초라기</h1>

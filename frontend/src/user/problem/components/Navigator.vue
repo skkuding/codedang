@@ -35,7 +35,7 @@ const activeClass = (name: string) =>
 
 <template>
   <nav
-    class="flex h-14 w-full items-center justify-between gap-x-20 overflow-x-scroll bg-slate-700 px-6"
+    class="flex h-14 w-full items-center justify-between gap-x-20 bg-slate-700 px-6"
   >
     <div class="flex h-full shrink-0 items-center justify-start gap-x-4">
       <Dropdown class="mr-3">
@@ -56,7 +56,7 @@ const activeClass = (name: string) =>
         v-for="{ label, to } in navigations"
         :key="label"
         :to="to"
-        class="flex h-full select-none items-center border-t-2 px-3 text-lg font-semibold text-white transition hover:bg-white/20"
+        class="hidden h-full select-none items-center border-t-2 px-3 text-lg font-semibold text-white transition hover:bg-white/20 min-[530px]:flex"
         :class="activeClass(to.name)"
       >
         {{ label }}
@@ -69,7 +69,10 @@ const activeClass = (name: string) =>
       enter-from-class="opacity-0"
       leave-to-class="opacity-0"
     >
-      <div v-if="$route.name === 'problem-id'" class="flex justify-end gap-x-4">
+      <div
+        v-if="$route.name === 'problem-id'"
+        class="hidden justify-end gap-x-4 min-[950px]:flex"
+      >
         <Button color="gray-dark" class="h-9">
           <IconRefresh />
         </Button>
