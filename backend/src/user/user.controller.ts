@@ -31,15 +31,15 @@ import { NewPasswordDto } from './dto/newPassword.dto'
 import { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
 import { Request, Response } from 'express'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
-import { AUTH_TYPE } from './constants/jwt.constants'
-import { Public } from '../common/decorator/public.decorator'
+import { AUTH_TYPE } from '../common/constants'
+import { AuthNotNeeded } from '../common/decorator/auth-ignore.decorator'
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Patch('/password-reset')
-  @Public()
+  @AuthNotNeeded()
   async updatePassword(
     @Body() newPasswordDto: NewPasswordDto,
     @Req() req: Request
@@ -57,7 +57,7 @@ export class UserController {
   }
 
   @Post('/sign-up')
-  @Public()
+  @AuthNotNeeded()
   async signUp(@Body() signUpDto: SignUpDto, @Req() req: Request) {
     try {
       await this.userService.signUp(req, signUpDto)
@@ -85,7 +85,6 @@ export class UserController {
       ) {
         throw new UnauthorizedException(error.message)
       }
-
       throw new InternalServerErrorException()
     }
   }
@@ -143,7 +142,7 @@ export class UserController {
 }
 
 @Controller('email-auth')
-@Public()
+@AuthNotNeeded()
 export class EmailAuthenticationController {
   constructor(private readonly userService: UserService) {}
 

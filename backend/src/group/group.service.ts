@@ -7,14 +7,13 @@ import { UserGroupData } from './interface/user-group-data.interface'
 export class GroupService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getUserGroupMembershipInfo(userId: number, groupId: number) {
+  async getUserGroup(userId: number, groupId: number) {
     return await this.prisma.userGroup.findFirst({
       where: {
         userId: userId,
         groupId: groupId
       },
       select: {
-        isRegistered: true,
         isGroupLeader: true
       }
     })
@@ -25,7 +24,6 @@ export class GroupService {
       await this.prisma.userGroup.findMany({
         where: {
           userId: userId,
-          isRegistered: true,
           isGroupLeader: true
         },
         select: {
@@ -44,7 +42,6 @@ export class GroupService {
         group: {
           connect: { id: userGroupData.groupId }
         },
-        isRegistered: userGroupData.isRegistered,
         isGroupLeader: userGroupData.isGroupLeader
       }
     })

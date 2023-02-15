@@ -15,6 +15,7 @@ import { WorkbookAdminController } from './workbook-admin.controller'
     GroupWorkbookController,
     WorkbookAdminController
   ],
-  providers: [WorkbookService]
+  providers: [WorkbookService],
+  exports: [WorkbookService]
 })
 export class WorkbookModule {}
