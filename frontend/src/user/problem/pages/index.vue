@@ -60,11 +60,8 @@ problemList.value = []
 
 onMounted(async () => {
   try {
-    const ProblemResponse = await axios.get(`/api/problem?offset=0&limit=10`)
-    problemList.value = ProblemResponse.data
-    // .then((res) => {
-    //   problemList.value = res.data
-    // })
+    const problemResponse = await axios.get(`/api/problem?offset=0&limit=10`)
+    problemList.value = problemResponse.data
   } catch (err) {
     console.log(err)
   }
