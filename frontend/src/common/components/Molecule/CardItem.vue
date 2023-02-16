@@ -41,9 +41,9 @@ const textColorStyle = computed(() => {
         <p class="text-text-subtitle font-bold">
           {{ additionalText }}
         </p>
-        <div :class="textColorStyle">
+        <p :class="textColorStyle">
           {{ coloredText }}
-        </div>
+        </p>
       </div>
     </div>
   </div>
