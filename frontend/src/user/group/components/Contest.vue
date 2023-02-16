@@ -18,8 +18,8 @@ interface Item {
   img: string
   title: string
   description: string
-  coloredText: string
-  color: 'gray' | 'green'
+  startedBefore: string
+  participation: boolean
 }
 
 const cardItems: Item[] = [
@@ -27,57 +27,57 @@ const cardItems: Item[] = [
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
-    coloredText: 'Started Before 00:07:05',
-    color: 'green'
+    startedBefore: '00:07:05',
+    participation: true
   },
   {
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
-    coloredText: 'Started Before 00:07:05',
-    color: 'green'
+    startedBefore: '00:07:05',
+    participation: false
   },
   {
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
-    coloredText: 'Started Before 00:07:05',
-    color: 'green'
+    startedBefore: '00:07:05',
+    participation: false
   },
   {
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
-    coloredText: 'Started Before 00:07:05',
-    color: 'gray'
+    startedBefore: '00:07:05',
+    participation: true
   },
   {
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
-    coloredText: 'Started Before 00:07:05',
-    color: 'gray'
+    startedBefore: '00:07:05',
+    participation: false
   },
   {
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
-    coloredText: 'Started Before 00:07:05',
-    color: 'gray'
+    startedBefore: '00:07:05',
+    participation: false
   },
   {
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
-    coloredText: 'Started Before 00:07:05',
-    color: 'gray'
+    startedBefore: '00:07:05',
+    participation: false
   },
   {
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
-    coloredText: 'Started Before 00:07:05',
-    color: 'gray'
+    startedBefore: '00:07:05',
+    participation: false
   }
 ]
 </script>
@@ -96,14 +96,17 @@ const cardItems: Item[] = [
     </div>
     <div class="flex flex-col justify-center gap-4">
       <CardItem
-        v-for="(item, index) in cardItems"
+        v-for="(
+          { img, title, description, participation, startedBefore }, index
+        ) in cardItems"
         :key="index"
-        :img="item.img"
-        :title="item.title"
-        :description="item.description"
-        :colored-text="item.coloredText"
-        :border-color="item.color"
-        class="w-full drop-shadow-md"
+        :img="img"
+        :title="title"
+        :description="description"
+        :additional-text="participation ? '#참여' : ''"
+        :colored-text="`Started Before ${startedBefore}`"
+        :border-color="participation ? 'green' : 'gray'"
+        class="w-full bg-white drop-shadow-md"
       />
     </div>
   </div>

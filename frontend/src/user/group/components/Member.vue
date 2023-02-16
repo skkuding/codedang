@@ -34,27 +34,14 @@ const groupMember = [
 </script>
 
 <template>
-  <div class="relative mx-auto mb-32">
-    <Namebox
-      class="mb-12"
-      title="Manager"
-      :user-list="groupAdmin"
-      :creator="createdBy"
-    />
-    <Namebox
-      class="mb-28"
-      title="Member"
-      :user-list="groupMember"
-      :creator="createdBy"
-    />
-    <Button class="absolute right-0 -bottom-20" @click="isModalVisible = true">
-      Leave Group
-    </Button>
-    <Modal v-model="isModalVisible">
-      <div class="flex flex-col items-center gap-6 px-4 pt-14 pb-8">
-        <h1 class="text-center font-bold">
-          Leave Group Do you really want to leave group?
-        </h1>
+  <div class="relative mx-auto flex flex-col gap-10">
+    <Namebox title="Manager" :user-list="groupAdmin" :creator="createdBy" />
+    <Namebox title="Member" :user-list="groupMember" :creator="createdBy" />
+    <Button class="self-end" @click="isModalVisible = true">Leave Group</Button>
+    <Modal v-model="isModalVisible" class="shadow-md">
+      <div class="flex flex-col items-center justify-center gap-6 p-8">
+        <h1 class="text-lg font-bold">Leave Group</h1>
+        <p>Do you really want to leave group?</p>
         <div class="flex gap-8">
           <Button class="w-20" @click="close">Yes</Button>
           <Button class="w-20" @click="close">No</Button>

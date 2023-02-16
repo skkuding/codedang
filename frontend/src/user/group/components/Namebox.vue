@@ -20,14 +20,18 @@ const isCreator = (id: number) => {
 </script>
 
 <template>
-  <div>
+  <section class="flex flex-col gap-4">
     <PageSubtitle :text="title" />
-    <div
-      class="border-gray grid grid-cols-1 gap-y-3.5 rounded-md border p-6 text-center sm:grid-cols-3 lg:grid-cols-5"
+    <ul
+      class="border-gray grid grid-cols-1 gap-3.5 rounded-md border p-6 text-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
     >
-      <div v-for="user in userList" :key="user.id" :class="isCreator(user.id)">
-        {{ user.username + '(' + user.studentId + ')' }}
-      </div>
-    </div>
-  </div>
+      <li
+        v-for="{ id, username, studentId } in userList"
+        :key="id"
+        :class="isCreator(id)"
+      >
+        {{ username + ' (' + studentId + ')' }}
+      </li>
+    </ul>
+  </section>
 </template>

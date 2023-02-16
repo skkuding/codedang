@@ -19,7 +19,6 @@ const cardItems = [
     title: 'SKKU 프로그래밍 대회 2021',
     header: '2022.03.07 updated',
     description: 'description',
-    color: 'gray',
     total: 6,
     complete: 1
   },
@@ -27,7 +26,6 @@ const cardItems = [
     title: 'SKKU 프로그래밍 대회 2021',
     header: '2022.05.07 updated',
     description: 'description',
-    color: 'green',
     total: 6,
     complete: 2
   },
@@ -35,7 +33,6 @@ const cardItems = [
     title: 'SKKU 프로그래밍 대회 2021',
     header: '2022.05.07 updated',
     description: 'description',
-    color: 'red',
     total: 6,
     complete: 3
   },
@@ -43,7 +40,6 @@ const cardItems = [
     title: 'SKKU 프로그래밍 대회 2021',
     header: '2022.05.07 updated',
     description: 'description',
-    color: 'blue',
     total: 6,
     complete: 4
   },
@@ -51,7 +47,7 @@ const cardItems = [
     title: 'SKKU 프로그래밍 대회 2021',
     header: '2022.05.07 updated',
     description: 'description',
-    color: 'blue',
+
     total: 6,
     complete: 5
   },
@@ -59,7 +55,6 @@ const cardItems = [
     title: 'SKKU 프로그래밍 대회 2021',
     header: '2022.05.07 updated',
     description: 'description',
-    color: 'gray',
     total: 6,
     complete: 1
   },
@@ -67,7 +62,6 @@ const cardItems = [
     title: 'SKKU 프로그래밍 대회 2021',
     header: '2022.05.07 updated',
     description: 'description',
-    color: 'green',
     total: 6,
     complete: 2
   },
@@ -75,7 +69,6 @@ const cardItems = [
     title: 'SKKU 프로그래밍 대회 2021',
     header: '2022.05.07 updated',
     description: 'description',
-    color: 'red',
     total: 6,
     complete: 3
   }
@@ -83,29 +76,25 @@ const cardItems = [
 </script>
 
 <template>
-  <div>
-    <div
-      class="mb-16 flex flex-col items-end justify-end lg:flex-row lg:justify-end"
-    >
-      <RadioButton
-        class="mb-2 lg:mb-0 lg:mr-8"
-        :texts="texts"
-        @selected="setSelected"
-      />
-      <SearchBar placeholder="keywords" />
-    </div>
-    <div class="grid grid-cols-1 lg:grid-cols-2">
-      <ProgressCard
-        v-for="(item, index) in cardItems"
-        :key="index"
-        :title="item.title"
-        :header="item.header"
-        :description="item.description"
-        :total="item.total"
-        :complete="item.complete"
-        class="m-4 cursor-pointer"
-        @click="$router.push('/workbook/' + index)"
-      />
-    </div>
+  <div
+    class="mb-8 flex flex-col items-end justify-end gap-y-2 gap-x-4 lg:flex-row lg:justify-end"
+  >
+    <RadioButton :texts="texts" @selected="setSelected" />
+    <SearchBar placeholder="keywords" />
+  </div>
+  <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+    <ProgressCard
+      v-for="(item, index) in cardItems"
+      :key="index"
+      :title="item.title"
+      :header="item.header"
+      :description="item.description"
+      :total="item.total"
+      :complete="item.complete"
+      class="cursor-pointer"
+      progress-text="problems"
+      color="#CDCDCD"
+      @click="$router.push('/workbook/' + index)"
+    />
   </div>
 </template>

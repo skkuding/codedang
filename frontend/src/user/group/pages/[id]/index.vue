@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import Profile from '../../../home/components/Profile.vue'
+import Profile from '@/user/home/components/Profile.vue'
 import Tab from '@/common/components/Molecule/Tab.vue'
-import contest from '../../components/Contest.vue'
-import member from '../../components/Member.vue'
-import notice from '../../components/Notice.vue'
-import workbook from '../../components/Workbook.vue'
+import Contest from '@/user/group/components/Contest.vue'
+import Member from '@/user/group/components/Member.vue'
+import Notice from '@/user/group/components/Notice.vue'
+import Workbook from '@/user/group/components/Workbook.vue'
+
 defineProps<{
-  id: number
+  id: string
 }>()
 
 const group = {
@@ -19,19 +20,20 @@ const group = {
 </script>
 
 <template>
-  <div class="pt-20">
+  <div class="mt-10 flex flex-col gap-4">
     <Profile
-      class="pb-7"
       :group-name="group.groupName"
       :description="group.description"
       :group-image="group.groupImage"
     ></Profile>
     <Tab :items="['notice', 'contest', 'workbook', 'member']">
-      <template #notice><notice :id="id" class="pt-16" /></template>
-      <template #contest><contest :id="id" class="pt-16" /></template>
-      <template #workbook><workbook :id="id" class="pt-16" /></template>
+      <template #notice><Notice :id="Number(id)" /></template>
+      <template #contest><Contest :id="Number(id)" /></template>
+      <template #workbook>
+        <Workbook :id="Number(id)" />
+      </template>
       <template #member>
-        <member :id="id" :created-by="group.createdBy" class="pt-16" />
+        <Member :id="Number(id)" :created-by="group.createdBy" />
       </template>
     </Tab>
   </div>
