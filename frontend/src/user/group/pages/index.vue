@@ -107,26 +107,26 @@ const groupList: Group[] = [
 </script>
 
 <template>
-  <div class="flex flex-col pt-10">
+  <div class="mt-10 flex flex-col">
     <Button class="self-end" @click="joinModalVisible = true">
       Join Group
     </Button>
     <GroupListSection :group-list="myGroupList" title="My Group" />
     <GroupListSection :group-list="groupList" title="All Group" pagination />
-  </div>
-  <Modal v-model="joinModalVisible" class="w-[400px]">
-    <div class="flex flex-col items-center gap-2 py-12 px-4">
-      <h1 class="mb-2 text-center text-lg font-bold">
-        Join Group by Invitation Code
-      </h1>
-      <div class="flex items-start gap-2">
-        <InputItem v-model="invitationCode" placeholder="Invitation Code" />
-        <Button class="py-2"><IconSendFilled /></Button>
+    <Modal v-model="joinModalVisible" class="px-4 shadow-md">
+      <div class="flex flex-col items-center gap-2 py-12 px-4">
+        <h1 class="mb-2 text-center text-lg font-bold">
+          Join Group by Invitation Code
+        </h1>
+        <div class="flex items-start gap-2">
+          <InputItem v-model="invitationCode" placeholder="Invitation Code" />
+          <Button class="py-2"><IconSendFilled /></Button>
+        </div>
+        <p v-if="noInvitationCode" class="text-red">
+          Group not found! Please check your code again
+        </p>
+        <p>If you have invitation code, enter the code here.</p>
       </div>
-      <p v-if="noInvitationCode" class="text-red">
-        Group not found! Please check your code again
-      </p>
-      <p>If you have invitation code, enter the code here.</p>
-    </div>
-  </Modal>
+    </Modal>
+  </div>
 </template>
