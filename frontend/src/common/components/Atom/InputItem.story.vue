@@ -19,13 +19,13 @@ const data = ref('')
         </textarea>
       </template>
     </Variant>
-    <Variant title="Required">
+    <Variant title="Message">
       <InputItem v-model="data" required placeholder="Username" class="m-0.5" />
       <template #source>
         <textarea v-pre>
           <InputItem
             v-model="data"
-            required
+            message="Username is required"
             placeholder="Username"
           />
         </textarea>
