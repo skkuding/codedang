@@ -22,9 +22,7 @@ const time = useDateFormat(useNow(), formatter)
     <Tab :items="['top', 'problem', 'notice', 'ranking']" class="font-bold">
       <template #top><top /></template>
       <template #notice><notice /></template>
-      <template #problem>
-        <problem />
-      </template>
+      <template #problem><problem /></template>
       <template #ranking><ranking /></template>
     </Tab>
   </div>

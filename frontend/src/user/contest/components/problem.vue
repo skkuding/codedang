@@ -26,6 +26,6 @@ onMounted(async () => {
     :items="items"
     no-search-bar
     :number-of-pages="1"
-    @row-clicked="(row:any) => $router.push('/problem/' + row.problemId)"
+    @row-clicked="({ id }) => $router.push('/problem/' + id)"
   />
 </template>
