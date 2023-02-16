@@ -5,32 +5,30 @@ import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import Button from '@/common/components/Atom/Button.vue'
-import { ref, computed } from 'vue'
+import axios from 'axios'
+import { ref, onMounted, computed } from 'vue'
 
 interface Problem {
   id: number
   title: string
-  level: number
-  submissions: number
-  rate: string
-  tags: string
+  difficulty: string
 }
 
-const colorMapper = (level: number) => {
+const colorMapper = (level: string) => {
   switch (level) {
-    case 1:
+    case 'Level1':
       return 'bg-level-1'
-    case 2:
+    case 'Level2':
       return 'bg-level-2'
-    case 3:
+    case 'Level3':
       return 'bg-level-3'
-    case 4:
+    case 'Level4':
       return 'bg-level-4'
-    case 5:
+    case 'Level5':
       return 'bg-level-5'
-    case 6:
+    case 'Level6':
       return 'bg-level-6'
-    case 7:
+    case 'Level7':
       return 'bg-level-7'
     default:
       return 'bg-gray'
@@ -62,84 +60,18 @@ problemList.value = [
   {
     id: 1,
     title: '가파른 경사',
-    level: 1,
-    submissions: 132,
-    rate: '92.14%',
-    tags: 'A'
-  },
-  {
-    id: 1006,
-    title: '습격자 호루라기',
-    level: 2,
-    submissions: 561,
-    rate: '70%',
-    tags: 'B'
-  },
-  {
-    id: 10,
-    title: '아싸 홍삼',
-    level: 1,
-    submissions: 100,
-    rate: '90%',
-    tags: 'E'
-  },
-  {
-    id: 11,
-    title: '에브리바디 홍상',
-    level: 2,
-    submissions: 100,
-    rate: '83%',
-    tags: 'C'
-  },
-  {
-    id: 12,
-    title: '나는 토깽이',
-    level: 3,
-    submissions: 100,
-    rate: '72%',
-    tags: 'D'
-  },
-  {
-    id: 13,
-    title: '나는 거부깅',
-    level: 4,
-    submissions: 100,
-    rate: '65%',
-    tags: 'F'
-  },
-  {
-    id: 14,
-    title: '토깽이 둘',
-    level: 5,
-    submissions: 100,
-    rate: '52%',
-    tags: 'G'
-  },
-  {
-    id: 15,
-    title: '토깽이 토깽이',
-    level: 6,
-    submissions: 100,
-    rate: '1%',
-    tags: 'H'
-  },
-  {
-    id: 16,
-    title: '아싸 토깽 에브리바디 토깽',
-    level: 7,
-    submissions: 100,
-    rate: '1%',
-    tags: 'I'
-  },
-  {
-    id: 17,
-    title: '토깽이 토깽이',
-    level: 7,
-    submissions: 100,
-    rate: '1%',
-    tags: 'J'
+    difficulty: 'Level 1'
   }
 ]
+
+onMounted(() => {
+  axios
+    .get(`/api/problem?offset=0&limit=10`)
+    .then((res) => {
+      problemList.value = res.data
+    })
+    .catch((err) => console.log('error is ', err))
+})
 
 const cardItems = [
   {
@@ -236,8 +168,11 @@ const clickMore = () => {
     </template>
     <template #level="{ row }">
       <div class="flex items-center gap-2">
-        <span class="h-5 w-5 rounded-full" :class="colorMapper(row.level)" />
-        Level {{ row.level }}
+        <span
+          class="h-5 w-5 rounded-full"
+          :class="colorMapper(row.difficulty)"
+        />
+        {{ row.difficulty }}
       </div>
     </template>
   </PaginationTable>
