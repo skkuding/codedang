@@ -58,10 +58,16 @@ const fields = computed(() =>
 const problemList = ref<Problem[]>([])
 problemList.value = []
 
-onMounted(() => {
-  axios.get(`/api/problem?offset=0&limit=10`).then((res) => {
-    problemList.value = res.data
-  })
+onMounted(async () => {
+  try {
+    const ProblemResponse = await axios.get(`/api/problem?offset=0&limit=10`)
+    problemList.value = ProblemResponse.data
+    // .then((res) => {
+    //   problemList.value = res.data
+    // })
+  } catch (err) {
+    console.log(err)
+  }
 })
 
 const cardItems = [
