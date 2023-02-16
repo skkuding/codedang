@@ -8,29 +8,25 @@ interface User {
   role: string
 }
 
-const props = defineProps<{
+defineProps<{
   title: string
   creator: number
   userList: User[]
 }>()
-
-const isCreator = (id: number) => {
-  if (id === props.creator) return 'text-green'
-}
 </script>
 
 <template>
-  <section class="flex flex-col gap-4">
+  <section class="flex flex-col items-center gap-6">
     <PageSubtitle :text="title" />
-    <ul
-      class="border-gray grid grid-cols-1 gap-3.5 rounded-md border p-6 text-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-    >
+    <ul class="border-gray flex flex-col gap-4 rounded border py-4">
       <li
         v-for="{ id, username, studentId } in userList"
         :key="id"
-        :class="isCreator(id)"
+        class="flex items-center justify-center gap-1 py-2 px-8"
+        :style="id === creator ? 'color: green' : ''"
       >
-        {{ username + ' (' + studentId + ')' }}
+        <span class="font-medium">{{ username }}</span>
+        <span class="text-xs">({{ studentId }})</span>
       </li>
     </ul>
   </section>
