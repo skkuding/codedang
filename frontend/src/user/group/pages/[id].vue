@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Profile from '@/user/home/components/Profile.vue'
+import Profile from '@/user/group/components/Profile.vue'
 import Tab from '@/common/components/Molecule/Tab.vue'
 import Contest from '@/user/group/components/Contest.vue'
 import Member from '@/user/group/components/Member.vue'

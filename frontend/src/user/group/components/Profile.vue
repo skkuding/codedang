@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import Button from '@/common/components/Atom/Button.vue'
-import Setting from '~icons/ph/gear'
+import IconGear from '~icons/fa6-solid/gear'
 defineProps<{
   groupName: string
   description: string
@@ -21,7 +21,7 @@ defineProps<{
       <div class="flex items-end">
         <PageTitle :text="groupName" />
         <Button color="gray-dark" class="ml-2 px-1">
-          <Setting class="h-6 w-6" />
+          <IconGear class="h-6 w-6" />
         </Button>
       </div>
       <div class="text-black">{{ description }}</div>
