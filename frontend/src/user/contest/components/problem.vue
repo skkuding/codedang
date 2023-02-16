@@ -8,12 +8,7 @@ interface Item {
   problemId: number
   title: string
 }
-interface Field {
-  key: string
-  label?: string
-  width?: string
-}
-const field: Field[] = [
+const field = [
   { key: 'id', label: '#', width: '40%' },
   { key: 'title', label: 'Title' }
 ]
