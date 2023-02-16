@@ -3,7 +3,9 @@ import WorkbookTitle from '../components/WorkbookTitle.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import IconCheck from '~icons/fa6-regular/circle-check'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useWorkbook } from '../composables/workbook'
+import { useRouter } from 'vue-router'
 
 // TODO: define interface in separte file
 interface Problem {
@@ -13,8 +15,8 @@ interface Problem {
   result: string
 }
 
-defineProps<{
-  id: number
+const props = defineProps<{
+  id: string
 }>()
 
 const showTags = ref(false)
@@ -92,11 +94,22 @@ workbookProblemList.value = [
 ]
 
 // TODO: implement change-page function to reset workbookProblemList using API when click pagination buttons
+
+const router = useRouter()
+const { workbook, getWorkbook } = useWorkbook()
+
+onMounted(async () => {
+  try {
+    await getWorkbook(parseInt(props.id))
+  } catch (err) {
+    router.replace('/404')
+  }
+})
 </script>
 
 <template>
   <div class="my-10">
-    <WorkbookTitle text="CATS 대비 문제집 Level 1" color="red" class="mb-2" />
+    <WorkbookTitle :text="workbook?.title || ''" color="red" class="mb-2" />
     <PaginationTable
       :fields="fields"
       :items="workbookProblemList"

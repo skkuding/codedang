@@ -1,4 +1,3 @@
-import { useToast } from '@/common/composables/toast'
 import axios from 'axios'
 import { ref } from 'vue'
 
@@ -13,17 +12,9 @@ export function useWorkbook() {
   const workbookList = ref<Workbook[]>([])
   const workbook = ref<Workbook>()
 
-  const openToast = useToast()
-
   const getWorkbooks = async () => {
-    await axios
-      .get('api/workbook')
-      .then((res) => {
-        workbookList.value = res.data
-      })
-      .catch((err) => {
-        openToast({ message: err.message, type: 'error' })
-      })
+    const res = await axios.get('/api/workbook')
+    workbookList.value = res.data
   }
 
   // TODO: workbook 요청 개수만큼 추가로 받아오는 getMoreWorkbooks 구현 #344
@@ -60,14 +51,8 @@ export function useWorkbook() {
   }
 
   const getWorkbook = async (id: number) => {
-    await axios
-      .get('api/workbook/' + id)
-      .then((res) => {
-        workbook.value = res.data
-      })
-      .catch((err) => {
-        openToast({ message: err.message, type: 'error' })
-      })
+    const res = await axios.get('/api/workbook/' + id)
+    workbook.value = res.data
   }
 
   return { workbook, workbookList, getWorkbooks, getMoreWorkbooks, getWorkbook }

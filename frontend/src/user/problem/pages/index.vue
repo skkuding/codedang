@@ -7,7 +7,7 @@ import Switch from '@/common/components/Molecule/Switch.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useDateFormat } from '@vueuse/core'
-import { useWorkbook } from '../composables/workbook'
+import { useWorkbook } from '../../workbook/composables/workbook'
 import { useWindowSize } from '@vueuse/core'
 
 interface Problem {
@@ -150,7 +150,7 @@ const { workbookList, getWorkbooks, getMoreWorkbooks } = useWorkbook()
 const MAX_WORKBOOK = 6
 
 onMounted(async () => {
-  getWorkbooks()
+  await getWorkbooks()
 })
 </script>
 
