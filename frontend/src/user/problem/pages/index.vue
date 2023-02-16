@@ -56,21 +56,12 @@ const fields = computed(() =>
 )
 
 const problemList = ref<Problem[]>([])
-problemList.value = [
-  {
-    id: 1,
-    title: '가파른 경사',
-    difficulty: 'Level 1'
-  }
-]
+problemList.value = []
 
 onMounted(() => {
-  axios
-    .get(`/api/problem?offset=0&limit=10`)
-    .then((res) => {
-      problemList.value = res.data
-    })
-    .catch((err) => console.log('error is ', err))
+  axios.get(`/api/problem?offset=0&limit=10`).then((res) => {
+    problemList.value = res.data
+  })
 })
 
 const cardItems = [
