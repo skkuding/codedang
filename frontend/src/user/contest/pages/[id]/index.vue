@@ -1,35 +1,13 @@
 <script setup lang="ts">
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import Badge from '@/common/components/Molecule/Badge.vue'
 import Tab from '@/common/components/Molecule/Tab.vue'
 import top from '../../components/top.vue'
 import problem from '../../components/problem.vue'
 import ranking from '../../components/ranking.vue'
 import notice from '../../components/notice.vue'
-import { useNow, useDateFormat } from '@vueuse/core'
-import axios from 'axios'
-import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
-
-interface Item {
-  id: string
-  problemId: number
-  title: string
-}
-interface Field {
-  key: string
-  label?: string
-  width?: string
-}
-const field: Field[] = [
-  { key: 'id', label: '#', width: '40%' },
-  { key: 'title', label: 'Title' }
-]
-const items = ref<Item[]>([])
-onMounted(async () => {
-  const response = await axios.get('/api/contest/1/problem?offset=0&limit=10')
-  items.value = response.data
-})
+import { useDateFormat, useNow } from '@vueuse/core'
 
 const formatter = ref('YYYY-MM-DD HH:mm:ss')
 const time = useDateFormat(useNow(), formatter)
@@ -45,15 +23,7 @@ const time = useDateFormat(useNow(), formatter)
       <template #top><top /></template>
       <template #notice><notice /></template>
       <template #problem>
-        <problem>
-          <PaginationTable
-            :fields="field"
-            :items="items"
-            no-search-bar
-            :number-of-pages="1"
-            @row-clicked="(row:any) => $router.push('/problem/' + row.problemId)"
-          />
-        </problem>
+        <problem />
       </template>
       <template #ranking><ranking /></template>
     </Tab>
