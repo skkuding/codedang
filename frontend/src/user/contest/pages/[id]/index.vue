@@ -10,25 +10,29 @@ import notice from '../../components/notice.vue'
 import { useNow, useDateFormat } from '@vueuse/core'
 import axios from 'axios'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
-import { stringifyQuery } from 'vue-router'
 
+interface Item {
+  id: string
+  problemId: number
+  title: string
+}
 interface Field {
   key: string
   label?: string
   width?: string
 }
-
-const formatter = ref('YYYY-MM-DD HH:mm:ss')
-const time = useDateFormat(useNow(), formatter)
 const field: Field[] = [
-  { key: 'id', label: '#' },
+  { key: 'id', label: '#', width: '40%' },
   { key: 'title', label: 'Title' }
 ]
-const items = ref([])
+const items = ref<Item[]>([])
 onMounted(async () => {
   const response = await axios.get('/api/contest/1/problem?offset=0&limit=10')
   items.value = response.data
 })
+
+const formatter = ref('YYYY-MM-DD HH:mm:ss')
+const time = useDateFormat(useNow(), formatter)
 </script>
 
 <template>
@@ -41,14 +45,15 @@ onMounted(async () => {
       <template #top><top /></template>
       <template #notice><notice /></template>
       <template #problem>
-        <problem />
-        <PaginationTable
-          :fields="field"
-          :items="items"
-          no-search-bar
-          :number-of-pages="2"
-        />
-        {{ items }}
+        <problem>
+          <PaginationTable
+            :fields="field"
+            :items="items"
+            no-search-bar
+            :number-of-pages="1"
+            @row-clicked="(row:any) => $router.push('/problem/' + row.problemId)"
+          />
+        </problem>
       </template>
       <template #ranking><ranking /></template>
     </Tab>
