@@ -26,6 +26,7 @@ type Group = {
 const props = defineProps<{
   title: string
   groupList: Group[]
+  myGroup: boolean
   pagination?: boolean
 }>()
 
@@ -35,13 +36,11 @@ const router = useRouter()
 
 const currentPage = ref(1)
 const modalVisible = ref(false)
-
-const belongGroup = ref(false)
 const modalSwitch = ref('desc')
 
 const goGroup = (id: number) => {
   // 사용자가 해당 group에 소속되어 있으면
-  if (belongGroup.value) router.push(`/group/${id}`)
+  if (props.myGroup) router.push(`/group/${id}`)
   // 소속 되어 있지 않으면
   else {
     selectedGroup.value = props.groupList.find((item) => item.id === id)

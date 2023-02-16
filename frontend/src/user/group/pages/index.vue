@@ -111,8 +111,17 @@ const groupList: Group[] = [
     <Button class="self-end" @click="joinModalVisible = true">
       Join Group
     </Button>
-    <GroupListSection :group-list="myGroupList" title="My Group" />
-    <GroupListSection :group-list="groupList" title="All Group" pagination />
+    <GroupListSection
+      :group-list="myGroupList"
+      title="My Group"
+      :my-group="true"
+    />
+    <GroupListSection
+      :group-list="groupList"
+      title="All Group"
+      pagination
+      :my-group="false"
+    />
     <Modal v-model="joinModalVisible" class="px-4 shadow-md">
       <div class="flex flex-col items-center gap-2 py-12 px-4">
         <h1 class="mb-2 text-center text-lg font-bold">
