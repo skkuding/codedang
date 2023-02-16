@@ -7,7 +7,7 @@ import Modal from '@/common/components/Molecule/Modal.vue'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import Button from '@/common/components/Atom/Button.vue'
 
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 type Group = {
@@ -37,7 +37,7 @@ const currentPage = ref(1)
 const modalVisible = ref(false)
 
 const belongGroup = ref(false)
-const modalswitch = ref('desc')
+const modalSwitch = ref('desc')
 
 const goGroup = (id: number) => {
   // 사용자가 해당 group에 소속되어 있으면
@@ -46,9 +46,13 @@ const goGroup = (id: number) => {
   else {
     selectedGroup.value = props.groupList.find((item) => item.id === id)
     modalVisible.value = true
-    modalswitch.value = 'desc'
   }
 }
+watch(modalVisible, (value) => {
+  if (!value) {
+    modalSwitch.value = 'desc'
+  }
+})
 </script>
 
 <template>
@@ -85,7 +89,7 @@ const goGroup = (id: number) => {
       mode="out-in"
     >
       <div
-        v-if="modalswitch === 'desc' && selectedGroup"
+        v-if="modalSwitch === 'desc' && selectedGroup"
         class="w-[600px] p-14"
       >
         <PageTitle :text="selectedGroup.groupName" />
@@ -113,16 +117,16 @@ const goGroup = (id: number) => {
             </div>
           </div>
         </div>
-        <Button class="absolute right-10" @click="modalswitch = 'info'">
+        <Button class="absolute right-10" @click="modalSwitch = 'info'">
           Join
         </Button>
       </div>
 
       <div
-        v-else-if="modalswitch === 'info'"
+        v-else-if="modalSwitch === 'info'"
         class="flex h-48 w-96 items-center justify-center"
       >
-        <p class="text-center">
+        <p class="text-center font-bold">
           Invitation succesfully requested!
           <br />
           Please wait for group manager’s approval :)
