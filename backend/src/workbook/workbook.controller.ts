@@ -61,7 +61,7 @@ export class PublicWorkbookController {
   }
 
   @Get('/:workbookId')
-  async getGroupWorkbook(
+  async getPublicWorkbook(
     @Param('workbookId', ParseIntPipe) workbookId
   ): Promise<Workbook> {
     try {

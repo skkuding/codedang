@@ -81,7 +81,7 @@ const publicWorkbooks = [
   showIdTitleDescriptionUpdatedTime(workbookArray[0]),
   showIdTitleDescriptionUpdatedTime(workbookArray[1])
 ]
-const visiblePublicWorkbooks = [
+const isVisiblePublicWorkbooks = [
   showIdTitleDescriptionUpdatedTime(workbookArray[0])
 ]
 const groupWorkbooks = [
