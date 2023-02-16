@@ -2,11 +2,13 @@ import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
 import { Contest } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { contestPublicizingRequestKey } from 'src/common/cache/keys'
-import { PUBLICIZING_REQUEST_EXPIRE_TIME } from 'src/common/constants'
+import {
+  PUBLICIZING_REQUEST_EXPIRE_TIME,
+  PUBLIC_GROUP_ID
+} from 'src/common/constants'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
-  ForbiddenAccessException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
@@ -127,6 +129,7 @@ export class ContestService {
   }> {
     const contests = await this.prisma.contest.findMany({
       where: {
+        groupId: PUBLIC_GROUP_ID,
         config: {
           path: ['isVisible'],
           equals: true
@@ -161,12 +164,12 @@ export class ContestService {
     return ongoingContest
   }
 
-  async getContestById(
-    userId: number,
+  async getGroupContestById(
+    groupId: number,
     contestId: number
   ): Promise<Partial<Contest>> {
-    const contest = await this.prisma.contest.findUnique({
-      where: { id: contestId },
+    const contest = await this.prisma.contest.findFirst({
+      where: { id: contestId, groupId: groupId },
       select: {
         ...this.contestSelectOption,
         description: true,
@@ -174,25 +177,12 @@ export class ContestService {
       },
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
-
-    const userGroup = await this.groupService.getUserGroup(
-      userId,
-      contest.group.id
-    )
-    const now = new Date()
-
-    if (!userGroup && contest.endTime > now) {
-      throw new ForbiddenAccessException(
-        'Before the contest is ended, only group members can access'
-      )
-    }
-
     return contest
   }
 
   async getModalContestById(contestId: number): Promise<Partial<Contest>> {
-    const contest = await this.prisma.contest.findUnique({
-      where: { id: contestId },
+    const contest = await this.prisma.contest.findFirst({
+      where: { id: contestId, groupId: PUBLIC_GROUP_ID },
       select: {
         id: true,
         title: true

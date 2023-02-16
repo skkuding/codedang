@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { ContestProblem, Problem, WorkbookProblem } from '@prisma/client'
+import { Problem, WorkbookProblem } from '@prisma/client'
 import { PUBLIC_GROUP_ID } from 'src/common/constants'
 import { PaginationDto } from 'src/common/dto/pagination.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'

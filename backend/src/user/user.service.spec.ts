@@ -246,7 +246,7 @@ describe('UserService', () => {
 
   describe('verifyJwtFromRequestHeader', () => {
     beforeEach(() => {
-      ExtractJwt.fromAuthHeaderAsBearerToken = fake.returns(() => {
+      ExtractJwt.fromHeader = fake.returns(() => {
         return ''
       })
     })
@@ -260,7 +260,7 @@ describe('UserService', () => {
 
     it('throw exception if token is invalid', async () => {
       jwtService.verifyAsync = stub().rejects(
-        new Exception('veryfication failed')
+        new Exception('verification failed')
       )
 
       await expect(

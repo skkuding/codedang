@@ -131,7 +131,7 @@ export class UserService {
     req: Request,
     jwtVerifyOptions: JwtVerifyOptions = {}
   ): Promise<EmailAuthJwtObject> {
-    const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req)
+    const token = ExtractJwt.fromHeader('email-auth')(req)
     const options = {
       secret: this.config.get('JWT_SECRET'),
       ...jwtVerifyOptions
@@ -191,8 +191,7 @@ export class UserService {
   }
 
   async createJwt(payload: EmailAuthJwtPayload): Promise<string> {
-    return await this.jwtService.signAsync({
-      ...payload,
+    return await this.jwtService.signAsync(payload, {
       expiresIn: EMAIL_AUTH_EXPIRE_TIME
     })
   }
@@ -252,8 +251,7 @@ export class UserService {
       data: {
         username: signUpDto.username,
         password: encryptedPassword,
-        email: signUpDto.email,
-        lastLogin: null
+        email: signUpDto.email
       }
     })
   }
