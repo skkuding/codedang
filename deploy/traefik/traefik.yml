@@ -1,0 +1,5 @@
+providers:
+  ecs: true
+
+api:
+  insecure: true

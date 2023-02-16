@@ -1,0 +1,17 @@
+[
+  {
+    "name": "traefik",
+    "image": "ghcr.io/skkuding/codedang-traefik",
+    "cpu": 256,
+    "memory": 512,
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": 80
+      },
+      {
+        "containerPort": 8080
+      }
+    ]
+  }
+]
