@@ -85,13 +85,9 @@ const cardItems: Item[] = [
 <template>
   <div>
     <div
-      class="mb-16 flex flex-col items-end justify-end lg:flex-row lg:justify-end"
+      class="mb-8 flex flex-col items-end justify-end gap-y-2 gap-x-4 lg:flex-row"
     >
-      <RadioButton
-        class="mb-2 lg:mb-0 lg:mr-8"
-        :texts="status"
-        @selected="changeSelected"
-      />
+      <RadioButton :texts="status" @selected="changeSelected" />
       <SearchBar placeholder="keywords" />
     </div>
     <div class="flex flex-col justify-center gap-4">

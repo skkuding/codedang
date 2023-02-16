@@ -77,7 +77,7 @@ const cardItems = [
 
 <template>
   <div
-    class="mb-8 flex flex-col items-end justify-end gap-y-2 gap-x-4 lg:flex-row lg:justify-end"
+    class="mb-8 flex flex-col items-end justify-end gap-y-2 gap-x-4 lg:flex-row"
   >
     <RadioButton :texts="texts" @selected="setSelected" />
     <SearchBar placeholder="keywords" />
