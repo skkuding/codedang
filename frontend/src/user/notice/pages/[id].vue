@@ -12,14 +12,14 @@ const props = defineProps<{
 
 const router = useRouter()
 
-const { currentNotice, adjacentNotices, getNotice, goDetail } = useNotice()
+const { currentNotice, adjacentNotices, numberOfPages, getNotice, goDetail } =
+  useNotice()
 
-onMounted(() => {
-  getNotice(parseInt(props.id))
-
-  if (!currentNotice.value) {
+onMounted(async () => {
+  try {
+    await getNotice(parseInt(props.id))
+  } catch (err) {
     router.replace('/404')
-    return
   }
 })
 
@@ -35,7 +35,7 @@ const field: Field[] = [
     <div class="mb-4 flex justify-end">
       <router-link to="/notice" class="flex items-center">
         <IconBars />
-        <div class="ml-2">List</div>
+        <div class="ml-2 hidden sm:block">List</div>
       </router-link>
     </div>
     <div
@@ -43,23 +43,24 @@ const field: Field[] = [
     >
       <PageSubtitle
         :text="currentNotice?.title || ''"
-        class="!text-text-title"
+        class="!text-text-title break-all"
       />
-      <div class="hidden sm:block">
-        {{ currentNotice?.date }}
+      <div class="hidden min-w-fit items-center pl-4 md:flex">
+        {{ currentNotice?.createTime }}
       </div>
     </div>
-    <div class="m-4 text-right text-sm">
-      Last update: {{ currentNotice?.update }}
+    <div class="m-4 hidden text-right text-sm md:block">
+      Last update: {{ currentNotice?.updateTime }}
     </div>
-    <div class="min-h-[400px] w-full max-w-full break-all p-4">
-      {{ currentNotice?.content }}
-    </div>
+    <div
+      v-dompurify-html="currentNotice?.content"
+      class="prose min-h-[400px] w-full max-w-full break-all p-4"
+    ></div>
     <PaginationTable
       no-header
       no-pagination
       no-search-bar
-      :number-of-pages="1"
+      :number-of-pages="numberOfPages"
       :fields="field"
       :items="adjacentNotices"
       @row-clicked="goDetail"

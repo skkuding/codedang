@@ -18,37 +18,33 @@ enum Role {
 }
 
 model User {
-  id                    Int      @id @default(autoincrement())
-  username              String   @unique
-  password              String
-  role                  Role     @default(User)
-  email                 String   @unique
-  hasEmailAuthenticated Boolean  @default(false) @map("has_email_authenticated")
-  lastLogin             DateTime @map("last_login")
-  createTime            DateTime @default(now()) @map("create_time")
-  updateTime            DateTime @updatedAt @map("update_time")
+  id         Int       @id @default(autoincrement())
+  username   String    @unique
+  password   String
+  role       Role      @default(User)
+  email      String    @unique
+  lastLogin  DateTime? @map("last_login")
+  createTime DateTime  @default(now()) @map("create_time")
+  updateTime DateTime  @updatedAt @map("update_time")
 
-  userProfile               UserProfile?
-  userGroup                 UserGroup[]
-  group                     Group[]
-  notice                    Notice[]
-  problem                   Problem[]
-  contest                   Contest[]
-  contestRecord             ContestRecord[]
-  contestRankACM            ContestRankACM[]
-  workbook                  Workbook[]
-  submission                Submission[]
-  contestPublicizingRequest ContestPublicizingRequest[]
+  userProfile   UserProfile?
+  userGroup     UserGroup[]
+  group         Group[]
+  notice        Notice[]
+  problem       Problem[]
+  contest       Contest[]
+  contestRecord ContestRecord[]
+  workbook      Workbook[]
+  submission    Submission[]
 
   @@map("user")
 }
 
 model UserProfile {
   id         Int      @id @default(autoincrement())
-  user       User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int      @unique @map("user_id")
-  realName   String?  @map("real_name")
-  major      String?
+  realName   String   @map("real_name")
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
@@ -57,11 +53,10 @@ model UserProfile {
 
 model UserGroup {
   id            Int      @id @default(autoincrement())
-  user          User     @relation(fields: [userId], references: [id])
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int      @map("user_id")
   group         Group    @relation(fields: [groupId], references: [id])
   groupId       Int      @map("group_id")
-  isRegistered  Boolean  @default(false) @map("is_registered")
   isGroupLeader Boolean  @default(false) @map("is_group_leader")
   createTime    DateTime @default(now()) @map("create_time")
   updateTime    DateTime @updatedAt @map("update_time")
@@ -70,16 +65,22 @@ model UserGroup {
 }
 
 model Group {
-  id             Int      @id @default(autoincrement())
-  createdBy      User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById    Int      @map("created_by_id")
-  groupName      String   @unique @map("group_name")
-  private        Boolean  @default(false)
-  // 생성시 자동 발급
-  invitationCode String   @map("invitation_code")
-  description    String
-  createTime     DateTime @default(now()) @map("create_time")
-  updateTime     DateTime @updatedAt @map("update_time")
+  id          Int      @id @default(autoincrement())
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdById Int      @map("created_by_id")
+  groupName   String   @unique @map("group_name")
+  description String
+  /// config default value
+  /// {
+  ///   "showOnList": true,          // show on 'all groups' list
+  ///   "allowJoinFromSearch": true, // can join from 'all groups' list. set to false if `showOnList` is false
+  ///   "allowJoinWithURL": false,
+  ///   "requireApprovalBeforeJoin": true
+  /// }
+  config      Json
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
 
   userGroup UserGroup[]
   notice    Notice[]
@@ -98,8 +99,8 @@ model Notice {
   groupId     Int      @map("group_id")
   title       String
   content     String
-  visible     Boolean  @default(true)
-  fixed       Boolean  @default(false)
+  isVisible   Boolean  @default(true) @map("is_visible")
+  isFixed     Boolean  @default(false) @map("is_fixed")
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
@@ -107,28 +108,25 @@ model Notice {
 }
 
 model Problem {
-  id                Int      @id @default(autoincrement())
-  createdBy         User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById       Int      @map("created_by_id")
-  group             Group    @relation(fields: [groupId], references: [id])
-  groupId           Int      @map("group_id")
+  id                Int        @id @default(autoincrement())
+  createdBy         User       @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdById       Int        @map("created_by_id")
+  group             Group      @relation(fields: [groupId], references: [id])
+  groupId           Int        @map("group_id")
   title             String
   description       String
-  inputDescription  String   @map("input_description")
-  outputDescription String   @map("output_description")
+  inputDescription  String     @map("input_description")
+  outputDescription String     @map("output_description")
   hint              String
-  languages         Json
-  timeLimit         Int      @map("time_limit") // unit: MilliSeconds
-  memoryLimit       Int      @map("memory_limit") // unit: MegaBytes
-  difficulty        String
-  source            Json
-  shared            Boolean  @default(false)
-  submissionNum     Int      @default(0) @map("submission_num")
-  acceptedNum       Int      @default(0) @map("accepted_num")
-  score             Int      @default(0)
-  createTime        DateTime @default(now()) @map("create_time")
-  updateTime        DateTime @updatedAt @map("update_time")
-  // TODO: example input, output
+  languages         Language[]
+  timeLimit         Int        @map("time_limit") // unit: MilliSeconds
+  memoryLimit       Int        @map("memory_limit") // unit: MegaBytes
+  difficulty        Level
+  source            String
+  createTime        DateTime   @default(now()) @map("create_time")
+  updateTime        DateTime   @updatedAt @map("update_time")
+  inputExamples     String[]   @map("input_examples")
+  outputExamples    String[]   @map("output_examples")
 
   problemTestcase ProblemTestcase[]
   problemTag      ProblemTag[]
@@ -140,15 +138,30 @@ model Problem {
   @@map("problem")
 }
 
+enum Level {
+  Level1
+  Level2
+  Level3
+}
+
+enum Language {
+  C
+  Cpp
+  Java
+  Python3
+}
+
 model ProblemTestcase {
-  id         Int      @id @default(autoincrement())
-  problem    Problem  @relation(fields: [problemId], references: [id])
-  problemId  Int      @map("problem_id")
-  input      String // TODO: save I/O data in file (since it's very large!)
-  output     String
-  score      Int      @default(0)
-  createTime DateTime @default(now()) @map("create_time")
-  updateTime DateTime @updatedAt @map("update_time")
+  id          Int      @id @default(autoincrement())
+  problem     Problem  @relation(fields: [problemId], references: [id])
+  problemId   Int      @map("problem_id")
+  input       String // url to corresponding file
+  output      String
+  scoreWeight Int      @default(1) @map("score_weight")
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
+
+  submissionResult SubmissionResult[]
 
   @@map("problem_testcase")
 }
@@ -166,7 +179,6 @@ model ProblemTag {
 model Tag {
   id         Int      @id @default(autoincrement())
   name       String   @unique
-  visible    Boolean  @default(true)
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
@@ -176,37 +188,30 @@ model Tag {
 }
 
 model Contest {
-  id                 Int         @id @default(autoincrement())
-  createdBy          User        @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById        Int         @map("created_by_id")
-  group              Group       @relation(fields: [groupId], references: [id])
-  groupId            Int         @map("group_id")
-  title              String
-  description        String
-  descriptionSummary String      @map("description_summary") @db.VarChar(1200)
-  startTime          DateTime    @map("start_time")
-  endTime            DateTime    @map("end_time")
-  visible            Boolean     @default(true)
-  isRankVisible      Boolean     @default(true) @map("is_rank_visible")
-  isPublic           Boolean     @default(false)
-  type               ContestType
-  createTime         DateTime    @default(now()) @map("create_time")
-  updateTime         DateTime    @updatedAt @map("update_time")
+  id          Int      @id @default(autoincrement())
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdById Int      @map("created_by_id")
+  group       Group    @relation(fields: [groupId], references: [id])
+  groupId     Int      @map("group_id")
+  title       String
+  description String
+  startTime   DateTime @map("start_time")
+  endTime     DateTime @map("end_time")
+  /// config default value
+  /// {
+  ///   "isVisible": true,
+  ///   "isRankVisible": true
+  /// }
+  config      Json
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
 
-  contestNotice             ContestNotice[]
-  contestProblem            ContestProblem[]
-  contestRecord             ContestRecord[]
-  contestRankACM            ContestRankACM[]
-  submission                Submission[]
-  contestPublicizingRequest ContestPublicizingRequest[]
+  contestNotice  ContestNotice[]
+  contestProblem ContestProblem[]
+  contestRecord  ContestRecord[]
+  submission     Submission[]
 
   @@map("contest")
-}
-
-enum ContestType {
-  ACM
-  TotalScore
-  ProblemBank
 }
 
 model ContestNotice {
@@ -223,28 +228,8 @@ model ContestNotice {
   @@map("contest_notice")
 }
 
-model ContestPublicizingRequest {
-  id            Int           @id @default(autoincrement())
-  contest       Contest       @relation(fields: [contestId], references: [id])
-  contestId     Int           @map("contest_id")
-  message       String
-  requestStatus RequestStatus @default(Pending) @map("request_status")
-  createdBy     User          @relation(fields: [createdById], references: [id])
-  createdById   Int           @map("created_by_id")
-  createTime    DateTime      @default(now()) @map("create_time")
-  updateTime    DateTime      @updatedAt @map("update_time")
-
-  @@map("contest_publicizing_request")
-}
-
-enum RequestStatus {
-  Pending
-  Accepted
-  Rejected
-}
-
 model ContestProblem {
-  id         Int      @id @default(autoincrement())
+  id         String
   contest    Contest  @relation(fields: [contestId], references: [id])
   contestId  Int      @map("contest_id")
   problem    Problem  @relation(fields: [problemId], references: [id])
@@ -253,23 +238,12 @@ model ContestProblem {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
+  @@id([contestId, problemId])
+  @@unique([contestId, id])
   @@map("contest_problem")
 }
 
 model ContestRecord {
-  id         Int      @id @default(autoincrement())
-  contest    Contest  @relation(fields: [contestId], references: [id])
-  contestId  Int      @map("contest_id")
-  user       User     @relation(fields: [userId], references: [id])
-  userId     Int      @map("user_id")
-  rank       Int
-  createTime DateTime @default(now()) @map("create_time")
-  updateTime DateTime @updatedAt @map("update_time")
-
-  @@map("contest_record")
-}
-
-model ContestRankACM {
   id                 Int      @id @default(autoincrement())
   contest            Contest  @relation(fields: [contestId], references: [id])
   contestId          Int      @map("contest_id")
@@ -277,11 +251,10 @@ model ContestRankACM {
   userId             Int      @map("user_id")
   acceptedProblemNum Int      @default(0) @map("accepted_problem_num")
   totalPenalty       Int      @default(0) @map("total_penalty")
-  submissionInfo     Json?    @map("submission_info")
   createTime         DateTime @default(now()) @map("create_time")
   updateTime         DateTime @updatedAt @map("update_time")
 
-  @@map("contest_rank_acm")
+  @@map("contest_record")
 }
 
 model Workbook {
@@ -292,7 +265,7 @@ model Workbook {
   groupId     Int      @map("group_id")
   title       String
   description String
-  visible     Boolean  @default(true)
+  isVisible   Boolean  @default(true) @map("is_visible")
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
@@ -303,20 +276,22 @@ model Workbook {
 }
 
 model WorkbookProblem {
-  id         Int      @id @default(autoincrement())
+  id         String
   workbook   Workbook @relation(fields: [workbookId], references: [id])
   workbookId Int      @map("workbook_id")
   problem    Problem  @relation(fields: [problemId], references: [id])
   problemId  Int      @map("problem_id")
-  score      Int      @default(0)
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
+  @@id([workbookId, problemId])
+  @@unique([workbookId, id])
   @@map("workbook_problem")
 }
 
 model Submission {
   id         Int       @id @default(autoincrement())
+  hash       String    @unique // 6 digit hex
   user       User      @relation(fields: [userId], references: [id])
   userId     Int       @map("user_id")
   problem    Problem   @relation(fields: [problemId], references: [id])
@@ -327,8 +302,6 @@ model Submission {
   workbookId Int?      @map("workbook_id")
   code       String
   language   String
-  shared     Boolean   @default(false)
-  ipAddr     String    @map("ip_addr")
   createTime DateTime  @default(now()) @map("create_time")
   updateTime DateTime  @updatedAt @map("update_time")
 
@@ -338,14 +311,24 @@ model Submission {
 }
 
 model SubmissionResult {
-  id           Int        @id @default(autoincrement())
-  submission   Submission @relation(fields: [submissionId], references: [id])
-  submissionId Int        @map("submission_id")
-  result       String
-  acceptedNum  Int        @map("accepted_num")
-  totalScore   Int        @map("total_score")
-  createTime   DateTime   @default(now()) @map("create_time")
-  updateTime   DateTime   @updatedAt @map("update_time")
+  id                Int             @id @default(autoincrement())
+  submission        Submission      @relation(fields: [submissionId], references: [id])
+  submissionId      Int             @map("submission_id")
+  problemTestcase   ProblemTestcase @relation(fields: [problemTestcaseId], references: [id])
+  problemTestcaseId Int             @map("problem_test_case_id")
+  result            ResultStatus
+  createTime        DateTime        @default(now()) @map("create_time")
+  updateTime        DateTime        @updatedAt @map("update_time")
 
   @@map("submssion_result")
+}
+
+enum ResultStatus {
+  Accepted
+  WrongAnswer
+  CompileError
+  RuntimeError
+  TimeLimitExceeded
+  MemoryLimitExceeded
+  OutputLimitExceeded
 }

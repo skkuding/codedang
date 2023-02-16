@@ -12,7 +12,7 @@ import { EntityNotExistException } from 'src/common/exception/business.exception
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { GroupMemberGuard } from '../group/guard/group-member.guard'
 import { Workbook } from '@prisma/client'
-import { Public } from 'src/common/decorator/public.decorator'
+import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 
 @Controller('group/:groupId/workbook')
 @UseGuards(RolesGuard, GroupMemberGuard)
@@ -47,7 +47,7 @@ export class GroupWorkbookController {
 }
 
 @Controller('workbook')
-@Public()
+@AuthNotNeeded()
 export class PublicWorkbookController {
   constructor(private readonly workbookService: WorkbookService) {}
 

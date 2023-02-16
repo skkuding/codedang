@@ -1,3 +1,0 @@
-export const PASSWORD_RESET_TOKEN_EXPIRATION_SEC = 300
-export const PASSWORD_RESET_PIN_EXPIRATION_SEC = 300
-export const AUTH_TYPE = 'Bearer'
