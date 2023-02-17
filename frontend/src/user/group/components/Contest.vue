@@ -8,11 +8,8 @@ defineProps<{
   id: number
 }>()
 
-const status = ['Latest', 'Ongoing']
-const selected = ref()
-const changeSelected = (index: number) => {
-  selected.value = index
-}
+const filters = ['Latest', 'Ongoing']
+const selectedFilter = ref(filters[0])
 
 interface Item {
   img: string
@@ -87,7 +84,7 @@ const cardItems: Item[] = [
     <div
       class="mb-8 flex flex-col items-end justify-end gap-y-2 gap-x-4 lg:flex-row"
     >
-      <RadioButton :texts="status" @selected="changeSelected" />
+      <RadioButton v-model="selectedFilter" :texts="filters" />
       <SearchBar placeholder="keywords" />
     </div>
     <div class="flex flex-col justify-center gap-4">

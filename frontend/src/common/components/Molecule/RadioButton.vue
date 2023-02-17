@@ -1,35 +1,25 @@
 <script setup lang="ts">
 import Button from '../Atom/Button.vue'
-import { ref, watch } from 'vue'
 
 defineProps<{
   texts: string[]
+  modelValue: string
 }>()
 
-const selected = ref(0)
-const emit = defineEmits(['selected'])
-watch(selected, (value) => {
-  emit('selected', value)
-})
-
-const setSelected = (index: number) => {
-  selected.value = index
-}
-
-const setColor = (index: number) => {
-  if (selected.value === index) return 'green'
-  return 'gray'
-}
+defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
 </script>
 
 <template>
   <div class="flex gap-x-2">
     <Button
-      v-for="(text, index) in texts"
+      v-for="text in texts"
       :key="text"
-      rounded
-      :color="setColor(index)"
-      @click="setSelected(index)"
+      class="rounded-2xl px-3"
+      style="color: white"
+      :color="modelValue === text ? 'green' : 'gray'"
+      @click="$emit('update:modelValue', text)"
     >
       {{ text }}
     </Button>

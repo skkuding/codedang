@@ -8,11 +8,8 @@ defineProps<{
   id: number
 }>()
 
-const texts = ['Latest', 'Ongoing']
-const selected = ref()
-const setSelected = (index: number) => {
-  selected.value = index
-}
+const filters = ['Latest', 'Ongoing']
+const selectedFilter = ref(filters[0])
 
 const cardItems = [
   {
@@ -79,7 +76,7 @@ const cardItems = [
   <div
     class="mb-8 flex flex-col items-end justify-end gap-y-2 gap-x-4 lg:flex-row"
   >
-    <RadioButton :texts="texts" @selected="setSelected" />
+    <RadioButton v-model="selectedFilter" :texts="filters" />
     <SearchBar placeholder="keywords" />
   </div>
   <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
