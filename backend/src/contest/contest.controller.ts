@@ -20,6 +20,7 @@ import { ContestService } from './contest.service'
 import { Contest } from '@prisma/client'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
+import { PUBLIC_GROUP_ID } from 'src/common/constants'
 
 @Controller('contest')
 @AuthNotNeeded()
@@ -34,7 +35,7 @@ export class PublicContestController {
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests(req.user, undefined)
+    return await this.contestService.getContests(req.user?.id, PUBLIC_GROUP_ID)
   }
 
   @Get(':contestId')
@@ -43,7 +44,7 @@ export class PublicContestController {
   ): Promise<Partial<Contest>> {
     try {
       return await this.contestService.getContestDetailById(
-        undefined,
+        PUBLIC_GROUP_ID,
         contestId
       )
     } catch (error) {
@@ -56,18 +57,22 @@ export class PublicContestController {
 }
 
 @Controller('group/:groupId/contest')
+@AuthNotNeeded()
 export class GroupContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  async getContests(@Param('groupId', ParseIntPipe) groupId: number): Promise<{
+  async getContests(
+    @Req() req: AuthenticatedRequest,
+    @Param('groupId', ParseIntPipe) groupId: number
+  ): Promise<{
     registeredOngoing?: Partial<Contest>[]
     registeredUpcoming?: Partial<Contest>[]
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests(undefined, groupId)
+    return await this.contestService.getContests(req.user?.id, groupId)
   }
 
   @Get(':id')
