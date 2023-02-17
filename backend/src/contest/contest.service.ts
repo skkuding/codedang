@@ -121,7 +121,7 @@ export class ContestService {
   }
 
   async getContests(
-    user: AuthenticatedUser,
+    userId: number,
     groupId: number
   ): Promise<{
     registeredOngoing?: Partial<Contest>[]
@@ -130,7 +130,7 @@ export class ContestService {
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    if (user === undefined) {
+    if (userId === undefined) {
       const contests = await this.prisma.contest.findMany({
         where: {
           groupId: groupId,
@@ -156,7 +156,7 @@ export class ContestService {
     const registeredContests = (
       await this.prisma.user.findUnique({
         where: {
-          id: user.id
+          id: userId
         },
         select: {
           contest: {
