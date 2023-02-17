@@ -11,60 +11,68 @@ defineProps<{
 const filters = ['Latest', 'Ongoing']
 const selectedFilter = ref(filters[0])
 
-const cardItems = [
+// dummy data
+const data = [
   {
+    id: 1,
     title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.03.07 updated',
+    updatedAt: '2022.03.07 updated',
     description: 'description',
     total: 6,
     complete: 1
   },
   {
+    id: 2,
     title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
+    updatedAt: '2022.05.07 updated',
     description: 'description',
     total: 6,
     complete: 2
   },
   {
+    id: 3,
     title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
+    updatedAt: '2022.05.07 updated',
     description: 'description',
     total: 6,
     complete: 3
   },
   {
+    id: 4,
     title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
+    updatedAt: '2022.05.07 updated',
     description: 'description',
     total: 6,
     complete: 4
   },
   {
+    id: 5,
     title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
+    updatedAt: '2022.05.07 updated',
     description: 'description',
-
     total: 6,
     complete: 5
   },
   {
+    id: 6,
     title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
+    updatedAt: '2022.05.07 updated',
     description: 'description',
     total: 6,
     complete: 1
   },
   {
+    id: 7,
     title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
+    updatedAt: '2022.05.07 updated',
     description: 'description',
     total: 6,
     complete: 2
   },
   {
+    id: 8,
     title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
+    updatedAt: '2022.05.07 updated',
     description: 'description',
     total: 6,
     complete: 3
@@ -81,17 +89,24 @@ const cardItems = [
   </div>
   <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
     <ProgressCard
-      v-for="(item, index) in cardItems"
-      :key="index"
-      :title="item.title"
-      :header="item.header"
-      :description="item.description"
-      :total="item.total"
-      :complete="item.complete"
+      v-for="{
+        id: workbookId,
+        title,
+        updatedAt,
+        description,
+        total,
+        complete
+      } in data"
+      :key="workbookId"
+      :title="title"
+      :header="updatedAt"
+      :description="description"
+      :total="total"
+      :complete="complete"
       class="cursor-pointer"
       progress-text="problems"
       color="#CDCDCD"
-      @click="$router.push('/workbook/' + index)"
+      @click="$router.push(`/workbook/${workbookId}`)"
     />
   </div>
 </template>

@@ -15,6 +15,7 @@ function close() {
 }
 // TODO : Yes 눌렀을때 API 호출하도록 변경 필요
 
+// dummy data
 const groupAdmin = [
   { id: 1, username: '하솔비', studentId: '201831xxxx', role: 'group_admin' },
   { id: 3, username: '하솔비', studentId: '201833xxxx', role: 'group_admin' },
@@ -23,7 +24,6 @@ const groupAdmin = [
   { id: 9, username: '아무이름', studentId: '201839xxxx', role: 'group_admin' },
   { id: 11, username: '하하하', studentId: '201831xxxx', role: 'group_admin' }
 ]
-
 const groupMember = [
   { id: 2, username: 'David Kim', studentId: '201832xxxx', role: 'user' },
   { id: 4, username: '하솔비', studentId: '201834xxxx', role: 'user' },
@@ -39,17 +39,16 @@ const groupMember = [
       <Namebox title="Manager" :user-list="groupAdmin" :creator="createdBy" />
       <Namebox title="Member" :user-list="groupMember" :creator="createdBy" />
     </div>
-
     <Button class="self-end" @click="isModalVisible = true">Leave Group</Button>
-    <Modal v-model="isModalVisible" class="shadow-md">
-      <div class="flex flex-col items-center justify-center gap-6 p-8">
-        <h1 class="text-lg font-bold">Leave Group</h1>
-        <p>Do you really want to leave group?</p>
-        <div class="flex gap-8">
-          <Button class="w-20" @click="close">Yes</Button>
-          <Button class="w-20" @click="close">No</Button>
-        </div>
-      </div>
-    </Modal>
   </div>
+  <Modal v-model="isModalVisible" class="shadow-md">
+    <div class="flex flex-col items-center justify-center gap-6 p-8">
+      <h1 class="text-lg font-bold">Leave Group</h1>
+      <p>Do you really want to leave group?</p>
+      <div class="flex gap-8">
+        <Button class="w-20" @click="close">Yes</Button>
+        <Button class="w-20" @click="close">No</Button>
+      </div>
+    </div>
+  </Modal>
 </template>

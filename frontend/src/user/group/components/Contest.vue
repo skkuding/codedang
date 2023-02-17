@@ -12,6 +12,7 @@ const filters = ['Latest', 'Ongoing']
 const selectedFilter = ref(filters[0])
 
 interface Item {
+  id: number
   img: string
   title: string
   description: string
@@ -19,8 +20,10 @@ interface Item {
   participation: boolean
 }
 
-const cardItems: Item[] = [
+// dummy data
+const data: Item[] = [
   {
+    id: 1,
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
@@ -28,6 +31,7 @@ const cardItems: Item[] = [
     participation: true
   },
   {
+    id: 2,
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
@@ -35,6 +39,7 @@ const cardItems: Item[] = [
     participation: false
   },
   {
+    id: 3,
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
@@ -42,6 +47,7 @@ const cardItems: Item[] = [
     participation: false
   },
   {
+    id: 4,
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
@@ -49,6 +55,7 @@ const cardItems: Item[] = [
     participation: true
   },
   {
+    id: 5,
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
@@ -56,6 +63,7 @@ const cardItems: Item[] = [
     participation: false
   },
   {
+    id: 6,
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
@@ -63,6 +71,7 @@ const cardItems: Item[] = [
     participation: false
   },
   {
+    id: 7,
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
@@ -70,6 +79,7 @@ const cardItems: Item[] = [
     participation: false
   },
   {
+    id: 8,
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
     title: 'SKKU 프로그래밍 대회 2023',
     description: 'description',
@@ -80,27 +90,31 @@ const cardItems: Item[] = [
 </script>
 
 <template>
-  <div>
-    <div
-      class="mb-8 flex flex-col items-end justify-end gap-y-2 gap-x-4 lg:flex-row"
-    >
-      <RadioButton v-model="selectedFilter" :texts="filters" />
-      <SearchBar placeholder="keywords" />
-    </div>
-    <div class="flex flex-col justify-center gap-4">
-      <CardItem
-        v-for="(
-          { img, title, description, participation, startedBefore }, index
-        ) in cardItems"
-        :key="index"
-        :img="img"
-        :title="title"
-        :description="description"
-        :additional-text="participation ? '#참여' : ''"
-        :colored-text="`Started Before ${startedBefore}`"
-        :border-color="participation ? 'green' : 'gray'"
-        class="w-full bg-white drop-shadow-md"
-      />
-    </div>
+  <div
+    class="mb-8 flex flex-col items-end justify-end gap-y-2 gap-x-4 lg:flex-row"
+  >
+    <RadioButton v-model="selectedFilter" :texts="filters" />
+    <SearchBar placeholder="keywords" />
+  </div>
+  <div class="flex flex-col justify-center gap-4">
+    <CardItem
+      v-for="{
+        id: contestId,
+        img,
+        title,
+        description,
+        participation,
+        startedBefore
+      } in data"
+      :key="contestId"
+      :img="img"
+      :title="title"
+      :description="description"
+      :additional-text="participation ? '#참여' : ''"
+      :colored-text="`Started Before ${startedBefore}`"
+      :border-color="participation ? 'green' : 'gray'"
+      class="w-full bg-white drop-shadow-md"
+      @click="$router.push(`/contest/${contestId}`)"
+    />
   </div>
 </template>
