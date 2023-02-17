@@ -12,7 +12,6 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { ContestService } from './contest.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
-import { AuthenticatedUser } from 'src/auth/class/authenticated-user.class'
 import { Cache } from 'cache-manager'
 import { CACHE_MANAGER } from '@nestjs/common'
 import { contestPublicizingRequestKey } from 'src/common/cache/keys'
@@ -21,8 +20,6 @@ const contestId = 1
 const userId = 1
 const groupId = 1
 const contestPublicizeRequestId = 1
-
-let user: AuthenticatedUser
 
 const contest = {
   id: contestId,
@@ -357,7 +354,7 @@ describe('ContestService', () => {
 
   describe('getContests', () => {
     it('should return ongoing, upcoming, finished contests', async () => {
-      expect(await service.getContests(user, groupId)).to.deep.equal({
+      expect(await service.getContests(userId, groupId)).to.deep.equal({
         ongoing: ongoingContests,
         upcoming: upcomingContests,
         finished: finishedContests
