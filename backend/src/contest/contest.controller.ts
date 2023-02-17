@@ -8,7 +8,7 @@ import {
   Req,
   Get,
   UseGuards,
-  MethodNotAllowedException
+  ForbiddenException
 } from '@nestjs/common'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
@@ -18,11 +18,11 @@ import {
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { ContestService } from './contest.service'
 import { Contest } from '@prisma/client'
-import { Public } from 'src/common/decorator/public.decorator'
+import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 
 @Controller('contest')
-@Public()
+@AuthNotNeeded()
 export class ContestController {
   constructor(private readonly contestService: ContestService) {}
 
@@ -55,7 +55,7 @@ export class GroupContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  @UseGuards(RolesGuard, GroupMemberGuard)
+  @UseGuards(GroupMemberGuard)
   async getContests(
     @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Partial<Contest>[]> {
@@ -63,18 +63,16 @@ export class GroupContestController {
   }
 
   @Get(':id')
+  @UseGuards(GroupMemberGuard)
   async getContest(
-    @Req() req: AuthenticatedRequest,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     try {
-      return await this.contestService.getContestById(req.user.id, contestId)
+      return await this.contestService.getGroupContestById(groupId, contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      }
-      if (error instanceof ActionNotAllowedException) {
-        throw new MethodNotAllowedException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -85,16 +83,15 @@ export class GroupContestController {
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
     @Param('id', ParseIntPipe) contestId: number
-  ): Promise<null> {
+  ) {
     try {
-      this.contestService.createContestRecord(req.user.id, contestId)
-      return
+      await this.contestService.createContestRecord(req.user.id, contestId)
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
       if (err instanceof ActionNotAllowedException) {
-        throw new MethodNotAllowedException(err.message)
+        throw new ForbiddenException(err.message)
       }
       throw new InternalServerErrorException()
     }

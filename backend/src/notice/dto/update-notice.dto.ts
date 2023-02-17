@@ -11,9 +11,9 @@ export class UpdateNoticeDto {
 
   @IsBoolean()
   @IsOptional()
-  readonly visible: boolean
+  readonly isVisible: boolean
 
   @IsBoolean()
   @IsOptional()
-  readonly fixed: boolean
+  readonly isFixed: boolean
 }

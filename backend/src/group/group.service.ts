@@ -285,7 +285,7 @@ export class GroupService {
     }
   }
 
-  async getUserGroupMembershipInfo(userId: number, groupId: number) {
+  async getUserGroup(userId: number, groupId: number) {
     return await this.prisma.userGroup.findFirst({
       where: {
         userId: userId,
