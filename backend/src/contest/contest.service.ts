@@ -2,10 +2,7 @@ import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
 import { Contest } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { contestPublicizingRequestKey } from 'src/common/cache/keys'
-import {
-  PUBLICIZING_REQUEST_EXPIRE_TIME,
-  PUBLIC_GROUP_ID
-} from 'src/common/constants'
+import { PUBLICIZING_REQUEST_EXPIRE_TIME } from 'src/common/constants'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
@@ -123,7 +120,10 @@ export class ContestService {
     })
   }
 
-  async getContests(user: AuthenticatedUser): Promise<{
+  async getContests(
+    user: AuthenticatedUser,
+    groupId: number
+  ): Promise<{
     registeredOngoing?: Partial<Contest>[]
     registeredUpcoming?: Partial<Contest>[]
     ongoing: Partial<Contest>[]
@@ -133,6 +133,7 @@ export class ContestService {
     if (user === undefined) {
       const contests = await this.prisma.contest.findMany({
         where: {
+          groupId: groupId,
           config: {
             path: ['isVisible'],
             equals: true
@@ -177,7 +178,7 @@ export class ContestService {
 
     const contests = await this.prisma.contest.findMany({
       where: {
-        groupId: PUBLIC_GROUP_ID,
+        groupId: groupId,
         config: {
           path: ['isVisible'],
           equals: true
@@ -234,27 +235,14 @@ export class ContestService {
     return finishedContest
   }
 
-  async getGroupContestById(
+  async getContestDetailById(
     groupId: number,
     contestId: number
   ): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findFirst({
-      where: { id: contestId, groupId: groupId },
-      select: {
-        ...this.contestSelectOption,
-        description: true,
-        config: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('contest')
-    })
-    return contest
-  }
-
-  async getContestDetailById(contestId: number): Promise<Partial<Contest>> {
-    const contest = await this.prisma.contest.findFirst({
       where: {
         id: contestId,
-        groupId: PUBLIC_GROUP_ID,
+        groupId: groupId,
         config: {
           path: ['isVisible'],
           equals: true
@@ -268,19 +256,6 @@ export class ContestService {
     })
 
     return contest
-  }
-
-  async getContestsByGroupId(groupId: number): Promise<Partial<Contest>[]> {
-    return await this.prisma.contest.findMany({
-      where: {
-        groupId,
-        config: {
-          path: ['isVisible'],
-          equals: true
-        }
-      },
-      select: this.contestSelectOption
-    })
   }
 
   async getAdminContests(): Promise<Partial<Contest>[]> {

@@ -34,7 +34,7 @@ export class PublicContestController {
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests(req.user)
+    return await this.contestService.getContests(req.user, undefined)
   }
 
   @Get(':contestId')
@@ -42,7 +42,10 @@ export class PublicContestController {
     @Param('contestId', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     try {
-      return await this.contestService.getContestDetailById(contestId)
+      return await this.contestService.getContestDetailById(
+        undefined,
+        contestId
+      )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -57,11 +60,14 @@ export class GroupContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  @UseGuards(GroupMemberGuard)
-  async getContests(
-    @Param('groupId', ParseIntPipe) groupId: number
-  ): Promise<Partial<Contest>[]> {
-    return await this.contestService.getContestsByGroupId(groupId)
+  async getContests(@Param('groupId', ParseIntPipe) groupId: number): Promise<{
+    registeredOngoing?: Partial<Contest>[]
+    registeredUpcoming?: Partial<Contest>[]
+    ongoing: Partial<Contest>[]
+    upcoming: Partial<Contest>[]
+    finished: Partial<Contest>[]
+  }> {
+    return await this.contestService.getContests(undefined, groupId)
   }
 
   @Get(':id')
@@ -71,7 +77,7 @@ export class GroupContestController {
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     try {
-      return await this.contestService.getGroupContestById(groupId, contestId)
+      return await this.contestService.getContestDetailById(groupId, contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
