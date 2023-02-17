@@ -11,17 +11,8 @@ defineProps<{
 const filters = ['Latest', 'Ongoing']
 const selectedFilter = ref(filters[0])
 
-interface Item {
-  id: number
-  img: string
-  title: string
-  description: string
-  startedBefore: string
-  participation: boolean
-}
-
 // dummy data
-const data: Item[] = [
+const data = [
   {
     id: 1,
     img: 'https://www.skku.edu/_res/skku/img/skku_s.png',
