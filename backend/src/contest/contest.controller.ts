@@ -57,11 +57,11 @@ export class PublicContestController {
 }
 
 @Controller('group/:groupId/contest')
-@AuthNotNeeded()
 export class GroupContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
+  @UseGuards(GroupMemberGuard)
   async getContests(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
@@ -72,7 +72,7 @@ export class GroupContestController {
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests(req.user?.id, groupId)
+    return await this.contestService.getContests(req.user.id, groupId)
   }
 
   @Get(':id')
