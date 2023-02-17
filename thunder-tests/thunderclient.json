@@ -3020,7 +3020,7 @@
     "method": "GET",
     "sortNum": 450000,
     "created": "2023-02-17T09:10:11.361Z",
-    "modified": "2023-02-17T09:10:47.333Z",
+    "modified": "2023-02-17T09:16:25.629Z",
     "headers": [],
     "params": [
       {
@@ -3041,7 +3041,17 @@
         "action": "equal",
         "value": "200"
       }
-    ]
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
   },
   {
     "_id": "8530682d-5ca4-4a9a-b10e-f728ba1bd3c9",
@@ -3052,7 +3062,7 @@
     "method": "GET",
     "sortNum": 460000,
     "created": "2023-02-17T09:12:10.398Z",
-    "modified": "2023-02-17T09:12:32.499Z",
+    "modified": "2023-02-17T09:16:40.681Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -3104,7 +3114,17 @@
         "action": "istype",
         "value": "number"
       }
-    ]
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
   },
   {
     "_id": "04c7409e-f6a4-49ff-b0a8-ea1fd83f6676",
@@ -3115,7 +3135,7 @@
     "method": "GET",
     "sortNum": 470000,
     "created": "2023-02-17T09:14:15.119Z",
-    "modified": "2023-02-17T09:14:38.447Z",
+    "modified": "2023-02-17T09:16:52.419Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -3125,6 +3145,16 @@
         "action": "equal",
         "value": "404"
       }
-    ]
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
   }
 ]
