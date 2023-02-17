@@ -20,6 +20,7 @@ const contestId = 1
 const userId = 1
 const groupId = 1
 const contestPublicizeRequestId = 1
+const undefinedUserId = undefined
 
 const contest = {
   id: contestId,
@@ -41,29 +42,6 @@ const contest = {
   }
 } satisfies Contest & { group: Partial<Group> }
 
-const registeredOngoingContests: Partial<Contest>[] = [
-  {
-    ...contest,
-    id: contestId,
-    endTime: new Date('2999-12-01T12:00:00.000+09:00'),
-    config: {
-      isVisible: false,
-      isRankisVisible: true
-    }
-  }
-]
-const registeredUpcomingContests: Partial<Contest>[] = [
-  {
-    ...contest,
-    id: contestId + 6,
-    startTime: new Date('2999-12-01T12:00:00.000+09:00'),
-    endTime: new Date('2999-12-01T15:00:00.000+09:00'),
-    config: {
-      isVisible: false,
-      isRankisVisible: true
-    }
-  }
-]
 const ongoingContests: Partial<Contest>[] = [
   {
     ...contest,
@@ -376,14 +354,14 @@ describe('ContestService', () => {
   })
 
   describe('getContests', () => {
-    it('should return (registered) ongoing, upcoming, finished contests', async () => {
-      expect(await service.getContests(userId, groupId)).to.deep.equal({
-        registeredOngoing: registeredOngoingContests,
-        registeredUpcoming: registeredUpcomingContests,
-        ongoing: ongoingContests,
-        upcoming: upcomingContests,
-        finished: finishedContests
-      })
+    it('should return ongoing, upcoming, finished contests', async () => {
+      expect(await service.getContests(undefinedUserId, groupId)).to.deep.equal(
+        {
+          ongoing: ongoingContests,
+          upcoming: upcomingContests,
+          finished: finishedContests
+        }
+      )
     })
   })
 

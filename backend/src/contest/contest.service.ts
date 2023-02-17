@@ -13,7 +13,6 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
-import { AuthenticatedUser } from 'src/auth/class/authenticated-user.class'
 import { StoredPublicizingRequest } from './interface/publicizing-request.interface'
 
 @Injectable()
