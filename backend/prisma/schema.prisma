@@ -52,7 +52,7 @@ model UserProfile {
 }
 
 model UserGroup {
-  user          User     @relation(fields: [userId], references: [id])
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int      @map("user_id")
   group         Group    @relation(fields: [groupId], references: [id])
   groupId       Int      @map("group_id")
