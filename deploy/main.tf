@@ -142,6 +142,8 @@ resource "aws_ecs_cluster" "main" {
   name = "codedang"
 }
 
+# bug: destoying aws_ecs_service gets stuck
+# https://github.com/hashicorp/terraform-provider-aws/issues/3414
 resource "aws_ecs_service" "proxy" {
   name            = "traefik"
   cluster         = aws_ecs_cluster.main.id
@@ -166,5 +168,110 @@ resource "aws_ecs_task_definition" "traefik" {
 
   runtime_platform {
     operating_system_family = "LINUX"
+  }
+}
+
+############## Cloudfront - Frontend ##############
+
+resource "aws_s3_bucket" "frontend" {
+  bucket = "codedang-frontend"
+
+  tags = {
+    Name = "Codedang Frontend"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "example" {
+  bucket = aws_s3_bucket.frontend.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_acl" "frontend_acl" {
+  bucket = aws_s3_bucket.frontend.id
+  acl    = "private"
+}
+
+resource "aws_s3_object" "frontend" {
+  for_each = fileset("../frontend/dist", "**")
+
+  bucket       = aws_s3_bucket.frontend.id
+  key          = each.value
+  source       = "../frontend/dist/${each.value}"
+  content_type = lookup(jsondecode(file("mime.json")), regex("\\.[^.]+$", each.key), null)
+}
+
+data "aws_iam_policy_document" "s3_frontend" {
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.frontend.arn}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.frontend.arn]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "frontend" {
+  bucket = aws_s3_bucket.frontend.id
+  policy = data.aws_iam_policy_document.s3_frontend.json
+}
+
+resource "aws_cloudfront_origin_access_control" "frontend" {
+  name                              = "Codedang Frontend"
+  description                       = "Accessing Codedang frontend static assets"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+resource "aws_cloudfront_distribution" "frontend" {
+  origin {
+    domain_name              = aws_s3_bucket.frontend.bucket_domain_name
+    origin_id                = aws_s3_bucket.frontend.id
+    origin_access_control_id = aws_cloudfront_origin_access_control.frontend.id
+  }
+
+  enabled             = true
+  comment             = "Codedang Frontend(Vue.js) Distribution"
+  default_root_object = "index.html"
+
+  default_cache_behavior {
+    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
+    cached_methods         = ["GET", "HEAD", "OPTIONS"]
+    target_origin_id       = aws_s3_bucket.frontend.id
+    viewer_protocol_policy = "redirect-to-https"
+
+    forwarded_values {
+      query_string = true
+
+      cookies {
+        forward = "none"
+      }
+    }
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
+
+  tags = {
+    "Environment" = "production"
   }
 }
