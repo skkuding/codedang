@@ -8,10 +8,11 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service'
 import { UserGroupData } from './interface/user-group-data.interface'
 import { GroupData } from './interface/group-data.interface'
-import { JOIN_GROUP_REQUEST_EXPIRATION_SEC } from './constants/pending.constants'
+import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '../common/constants'
 import { joinGroupCacheKey } from 'src/common/cache/keys'
 import { Cache } from 'cache-manager'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
+import { constants } from 'buffer'
 
 @Injectable()
 export class GroupService {
@@ -239,7 +240,7 @@ export class GroupService {
       await this.cacheManager.set(
         joinGroupCacheKey(userId, groupId),
         userGroupValue,
-        JOIN_GROUP_REQUEST_EXPIRATION_SEC
+        JOIN_GROUP_REQUEST_EXPIRE_TIME
       )
 
       return {
