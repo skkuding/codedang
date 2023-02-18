@@ -1,7 +1,7 @@
 [
   {
-    "name": "traefik",
-    "image": "ghcr.io/skkuding/codedang-traefik",
+    "name": "api-server",
+    "image": "ghcr.io/skkuding/codedang-api",
     "cpu": 256,
     "memory": 512,
     "essential": true,
@@ -10,7 +10,7 @@
         "containerPort": 80
       },
       {
-        "containerPort": 8080
+        "containerPort": 443
       }
     ]
   }

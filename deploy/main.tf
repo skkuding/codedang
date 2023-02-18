@@ -56,17 +56,17 @@ resource "aws_route_table" "main" {
   }
 }
 
-resource "aws_subnet" "subnet_traefik" {
+resource "aws_subnet" "subnet_api_server" {
   vpc_id     = aws_vpc.main.id
   cidr_block = "10.0.1.0/24"
 
   tags = {
-    Name = "codedang-traefik-subnet"
+    Name = "codedang-api-server-subnet"
   }
 }
 
 resource "aws_route_table_association" "a" {
-  subnet_id      = aws_subnet.subnet_traefik.id
+  subnet_id      = aws_subnet.subnet_api_server.id
   route_table_id = aws_route_table.main.id
 }
 
@@ -99,15 +99,6 @@ resource "aws_security_group" "allow_web" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    description = "Traefik Dashboard"
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-
   egress {
     from_port        = 0
     to_port          = 0
@@ -136,7 +127,7 @@ resource "aws_security_group" "allow_web" {
 #   ]
 # }
 
-############## ECS - traefik ##############
+############## ECS - API Server ##############
 
 resource "aws_ecs_cluster" "main" {
   name = "codedang"
@@ -144,27 +135,27 @@ resource "aws_ecs_cluster" "main" {
 
 # bug: destoying aws_ecs_service gets stuck
 # https://github.com/hashicorp/terraform-provider-aws/issues/3414
-resource "aws_ecs_service" "proxy" {
-  name            = "traefik"
+resource "aws_ecs_service" "api_server" {
+  name            = "api-server"
   cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.traefik.arn
+  task_definition = aws_ecs_task_definition.api_server.arn
   desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
     assign_public_ip = true
     security_groups  = [aws_security_group.allow_web.id]
-    subnets          = [aws_subnet.subnet_traefik.id]
+    subnets          = [aws_subnet.subnet_api_server.id]
   }
 }
 
-resource "aws_ecs_task_definition" "traefik" {
-  family                   = "traefik"
+resource "aws_ecs_task_definition" "api_server" {
+  family                   = "api-server"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 512
   memory                   = 1024
-  container_definitions    = file("task-definitions/traefik.json")
+  container_definitions    = file("backend/task-definition.json")
 
   runtime_platform {
     operating_system_family = "LINUX"
