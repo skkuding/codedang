@@ -8,6 +8,7 @@ import { CreateNoticeDto } from './dto/create-notice.dto'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
+import { CACHE_MANAGER } from '@nestjs/common'
 
 const noticeId = 2
 const userId = 1
@@ -90,7 +91,18 @@ describe('NoticeService', () => {
       providers: [
         NoticeService,
         GroupService,
-        { provide: PrismaService, useValue: db }
+        { provide: PrismaService, useValue: db },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => [],
+            store: {
+              keys: () => []
+            }
+          })
+        }
       ]
     }).compile()
 

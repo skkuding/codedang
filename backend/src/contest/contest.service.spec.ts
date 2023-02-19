@@ -88,7 +88,6 @@ const contestPublicizingRequest = {
 }
 
 const userGroup: UserGroup = {
-  id: 1,
   userId: userId,
   groupId: groupId,
   isGroupLeader: true,
@@ -99,7 +98,6 @@ const userGroups: UserGroup[] = [
   userGroup,
   {
     ...userGroup,
-    id: userGroup.id + 1,
     groupId: userGroup.groupId + 1
   }
 ]
