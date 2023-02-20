@@ -57,11 +57,11 @@ export class PublicContestController {
 }
 
 @Controller('group/:groupId/contest')
+@UseGuards(RolesGuard, GroupMemberGuard)
 export class GroupContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  @UseGuards(GroupMemberGuard)
   async getContests(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
@@ -76,7 +76,6 @@ export class GroupContestController {
   }
 
   @Get(':id')
-  @UseGuards(GroupMemberGuard)
   async getContest(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('id', ParseIntPipe) contestId: number
@@ -92,7 +91,6 @@ export class GroupContestController {
   }
 
   @Post(':id/participation')
-  @UseGuards(RolesGuard, GroupMemberGuard)
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
     @Param('id', ParseIntPipe) contestId: number
