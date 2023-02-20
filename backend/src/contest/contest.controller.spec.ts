@@ -13,8 +13,8 @@ describe('PublicContestController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PublicContestController],
       providers: [
-        GroupService,
         ConfigService,
+        { provide: GroupService, useValue: {} },
         { provide: ContestService, useValue: {} },
         { provide: PrismaService, useValue: {} }
       ]
