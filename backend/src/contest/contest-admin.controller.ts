@@ -34,8 +34,10 @@ import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-r
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 
 @Controller('admin/contest')
-@UseGuards(RolesGuard)
-@Roles(Role.Admin)
+@AuthNotNeeded() //delete
+//@UseGuards(RolesGuard)
+//@Roles(Role.Admin)
+//modify
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 

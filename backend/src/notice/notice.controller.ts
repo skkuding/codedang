@@ -48,7 +48,7 @@ export class PublicNoticeController {
 export class GroupNoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
-  @Get('')
+  @Get()
   async getNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,

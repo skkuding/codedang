@@ -203,7 +203,7 @@ export class ContestService {
     take: number
   ): Promise<Partial<Contest>[]> {
     let skipNum = 1
-    if (!myCursor){
+    if (!myCursor) {
       skipNum = 0
       myCursor = 1
     }
@@ -222,33 +222,24 @@ export class ContestService {
     myCursor: number,
     take: number
   ): Promise<Partial<Contest>[]> {
-    const now = new Date(Date.now())
-    let realCursor = myCursor
-    let realOffset = take
-    if (!myCursor) realCursor = 1
-    if (realOffset < 0) realOffset -= 1
-    else realOffset += 1
-    const contests = await this.prisma.contest.findMany({
-      take: realOffset,
+    const now = new Date()
+    let realcursor = myCursor
+    if (!myCursor) realcursor = 1
+    return await this.prisma.contest.findMany({
+      take: take,
       cursor: {
-        id: realCursor
+        id: realcursor
       },
       where: {
         AND: [
           { groupId: 1 },
           { startTime: { lte: now } },
           { endTime: { gte: now } }
-        ]
+        ],
+        NOT: [{ id: myCursor }]
       },
       select: this.contestSelectOption
     })
-    let results = contests
-    if (results[0].id == myCursor) {
-      results = results.slice(1)
-    } else if (results.length > Math.abs(take)) {
-      results.pop()
-    }
-    return results
   }
 
   async getAdminContests(
@@ -295,7 +286,7 @@ export class ContestService {
     offset: number
   ): Promise<Partial<Contest>[]> {
     let skipNum = 1
-    if (!myCursor){
+    if (!myCursor) {
       skipNum = 0
       myCursor = 1
     }
