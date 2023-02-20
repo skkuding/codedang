@@ -114,6 +114,12 @@ const record: ContestRecord = {
   updateTime: new Date()
 }
 
+const nonPublicContestRecord = {
+  groupId: 2,
+  startTime: new Date('2021-12-01T14:00:00.000+09:00'),
+  endTime: new Date('2021-12-01T15:00:00.000+09:00')
+}
+
 const mockPrismaService = {
   contest: {
     findUnique: stub().resolves(contest),
@@ -268,6 +274,46 @@ describe('ContestService', () => {
       expect(mockPrismaService.contest.update.called).to.be.false
 
       isValidPeriodSpy.restore()
+    })
+  })
+
+  describe.only('createPublicContestRecord', () => {
+    it('should throw error when the contest does not exist', async () => {
+      mockPrismaService.contest.findUnique.resolves(null)
+      await expect(
+        service.createPublicContestRecord(userId, contestId)
+      ).to.be.rejectedWith(EntityNotExistException, 'contest')
+    })
+
+    it('should throw error when the contest does not exist', async () => {
+      mockPrismaService.contest.findUnique.resolves(nonPublicContestRecord)
+      await expect(
+        service.createPublicContestRecord(userId, contestId)
+      ).to.be.rejectedWith(
+        ActionNotAllowedException,
+        'participation',
+        'non-public'
+      )
+    })
+
+    it('should throw error when user is participated in contest again', async () => {
+      mockPrismaService.contestRecord.findFirst.resolves(record)
+      await expect(
+        service.createPublicContestRecord(userId, contestId)
+      ).to.be.rejectedWith(
+        ActionNotAllowedException,
+        'repetitive participation'
+      )
+    })
+    it('should throw error when contest is not ongoing', async () => {
+      mockPrismaService.contest.findUnique.resolves(contest)
+      await expect(
+        service.createPublicContestRecord(userId, contestId)
+      ).to.be.rejectedWith(ActionNotAllowedException, 'participation')
+    })
+    it('should successfully create contestRankACM', async () => {
+      await service.createPublicContestRecord(userId, contestId)
+      expect(mockPrismaService.contestRecord.create.calledOnce).to.be.true
     })
   })
 

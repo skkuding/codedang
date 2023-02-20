@@ -48,6 +48,26 @@ export class ContestController {
       throw new InternalServerErrorException()
     }
   }
+
+  @Post(':id/participation')
+  async createPublicContestRecord(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseIntPipe) contestId: number
+  ) {
+    try {
+      await this.contestService.createPublicContestRecord(
+        req.user.id,
+        contestId
+      )
+    } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      } else if (err instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(err.message)
+      }
+      throw new InternalServerErrorException()
+    }
+  }
 }
 
 @Controller('group/:groupId/contest')
