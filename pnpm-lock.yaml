@@ -118,7 +118,7 @@ importers:
       swagger-ui-express: 4.6.0_express@4.18.2
     devDependencies:
       '@nestjs/cli': 9.2.0_@swc+core@1.3.32
-      '@nestjs/schematics': 9.0.4_n7i3t5jmyrdrkypb5pvfihcmg4
+      '@nestjs/schematics': 9.0.4_typescript@4.9.5
       '@nestjs/testing': 9.3.2_7a34jc7ugkzz7otoyin34qriiu
       '@swc/core': 1.3.32
       '@swc/register': 0.1.10_@swc+core@1.3.32
@@ -194,16 +194,16 @@ importers:
       vite-plugin-pages: ^0.28.0
       vite-plugin-vue-layouts: ^0.7.0
       vue: ^3.2.47
-      vue-dompurify-html: ^3.1.2
+      vue-dompurify-html: ^4.0.0
       vue-router: ^4.1.6
       vue-tsc: ^1.0.24
     dependencies:
-      '@codemirror/autocomplete': 6.4.0
+      '@codemirror/autocomplete': 6.4.0_3vjmlbvry52nacv5itadnsciwy
       '@codemirror/commands': 6.2.0
       '@codemirror/lang-cpp': 6.0.2
       '@codemirror/lang-java': 6.0.1
       '@codemirror/lang-javascript': 6.1.3
-      '@codemirror/lang-python': 6.1.1
+      '@codemirror/lang-python': 6.1.1_ayvop3hirks73ft2t2pxg4rv7a
       '@codemirror/language': 6.4.0
       '@codemirror/state': 6.2.0
       '@codemirror/theme-one-dark': 6.1.0
@@ -218,7 +218,7 @@ importers:
       nprogress: 0.2.0
       pinia: 2.0.30_hmuptsblhheur2tugfgucj7gc4
       vue: 3.2.47
-      vue-dompurify-html: 3.1.2_vue@3.2.47
+      vue-dompurify-html: 4.0.0_vue@3.2.47
       vue-router: 4.1.6_vue@3.2.47
     devDependencies:
       '@histoire/plugin-vue': 0.13.0_w5alv2p6yy42wrk6mq5i3wlfny
@@ -239,7 +239,7 @@ importers:
       autoprefixer: 10.4.13_postcss@8.4.21
       histoire: 0.13.0_wafj4nouujhc3kw7uzuihsc2xu
       postcss: 8.4.21
-      tailwindcss: 3.2.4
+      tailwindcss: 3.2.4_postcss@8.4.21
       typescript: 4.9.5
       unplugin-icons: 0.15.2
       vite: 3.2.5_@types+node@18.11.19
@@ -361,6 +361,22 @@ packages:
       '@algolia/requester-common': 4.14.2
     dev: true
 
+  /@angular-devkit/core/15.0.4:
+    resolution: {integrity: sha512-4ITpRAevd652SxB+qNesIQ9qfbm7wT5UBU5kJOPPwGL77I21g8CQpkmV1n5VSacPvC9Zbz90feOWexf7w7JzcA==}
+    engines: {node: ^14.20.0 || ^16.13.0 || >=18.10.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
+    peerDependencies:
+      chokidar: ^3.5.2
+    peerDependenciesMeta:
+      chokidar:
+        optional: true
+    dependencies:
+      ajv: 8.11.0
+      ajv-formats: 2.1.1_ajv@8.11.0
+      jsonc-parser: 3.2.0
+      rxjs: 6.6.7
+      source-map: 0.7.4
+    dev: true
+
   /@angular-devkit/core/15.0.4_chokidar@3.5.3:
     resolution: {integrity: sha512-4ITpRAevd652SxB+qNesIQ9qfbm7wT5UBU5kJOPPwGL77I21g8CQpkmV1n5VSacPvC9Zbz90feOWexf7w7JzcA==}
     engines: {node: ^14.20.0 || ^16.13.0 || >=18.10.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
@@ -371,7 +387,7 @@ packages:
         optional: true
     dependencies:
       ajv: 8.11.0
-      ajv-formats: 2.1.1
+      ajv-formats: 2.1.1_ajv@8.11.0
       chokidar: 3.5.3
       jsonc-parser: 3.2.0
       rxjs: 6.6.7
@@ -388,7 +404,7 @@ packages:
         optional: true
     dependencies:
       ajv: 8.12.0
-      ajv-formats: 2.1.1
+      ajv-formats: 2.1.1_ajv@8.12.0
       chokidar: 3.5.3
       jsonc-parser: 3.2.0
       rxjs: 6.6.7
@@ -406,6 +422,19 @@ packages:
       inquirer: 8.2.4
       symbol-observable: 4.0.0
       yargs-parser: 21.1.1
+    transitivePeerDependencies:
+      - chokidar
+    dev: true
+
+  /@angular-devkit/schematics/15.0.4:
+    resolution: {integrity: sha512-/gXiLFS0+xFdx6wPoBpe/c6/K9I5edMpaASqPf4XheKtrsSvL+qTlIi3nsbfItzOiDXbaBmlbxGfkMHz/yg0Ig==}
+    engines: {node: ^14.20.0 || ^16.13.0 || >=18.10.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
+    dependencies:
+      '@angular-devkit/core': 15.0.4
+      jsonc-parser: 3.2.0
+      magic-string: 0.26.7
+      ora: 5.4.1
+      rxjs: 6.6.7
     transitivePeerDependencies:
       - chokidar
     dev: true
@@ -488,8 +517,13 @@ packages:
       '@babel/helper-validator-identifier': 7.16.7
       to-fast-properties: 2.0.0
 
-  /@codemirror/autocomplete/6.4.0:
+  /@codemirror/autocomplete/6.4.0_3vjmlbvry52nacv5itadnsciwy:
     resolution: {integrity: sha512-HLF2PnZAm1s4kGs30EiqKMgD7XsYaQ0XJnMR0rofEWQ5t5D60SfqpDIkIh1ze5tiEbyUWm8+VJ6W1/erVvBMIA==}
+    peerDependencies:
+      '@codemirror/language': ^6.0.0
+      '@codemirror/state': ^6.0.0
+      '@codemirror/view': ^6.0.0
+      '@lezer/common': ^1.0.0
     dependencies:
       '@codemirror/language': 6.4.0
       '@codemirror/state': 6.2.0
@@ -522,7 +556,7 @@ packages:
   /@codemirror/lang-javascript/6.1.3:
     resolution: {integrity: sha512-u3JgK9AwfNpyGwRhtzIVxVfH9yOK5ZNswmaN6W+XFuUXzW9o8CGgnSBEcaUgZ0hdLvHQHyM+3+22HKgbItki/w==}
     dependencies:
-      '@codemirror/autocomplete': 6.4.0
+      '@codemirror/autocomplete': 6.4.0_3vjmlbvry52nacv5itadnsciwy
       '@codemirror/language': 6.4.0
       '@codemirror/lint': 6.0.0
       '@codemirror/state': 6.2.0
@@ -538,12 +572,16 @@ packages:
       '@lezer/json': 1.0.0
     dev: true
 
-  /@codemirror/lang-python/6.1.1:
+  /@codemirror/lang-python/6.1.1_ayvop3hirks73ft2t2pxg4rv7a:
     resolution: {integrity: sha512-AddGMIKUssUAqaDKoxKWA5GAzy/CVE0eSY7/ANgNzdS1GYBkp6N49XKEyMElkuN04UsZ+bTIQdj+tVV75NMwJw==}
     dependencies:
-      '@codemirror/autocomplete': 6.4.0
+      '@codemirror/autocomplete': 6.4.0_3vjmlbvry52nacv5itadnsciwy
       '@codemirror/language': 6.4.0
       '@lezer/python': 1.1.1
+    transitivePeerDependencies:
+      - '@codemirror/state'
+      - '@codemirror/view'
+      - '@lezer/common'
     dev: false
 
   /@codemirror/language/6.4.0:
@@ -1474,6 +1512,21 @@ packages:
       - chokidar
     dev: true
 
+  /@nestjs/schematics/9.0.4_typescript@4.9.5:
+    resolution: {integrity: sha512-egurCfAc4e5i1r2TmeAF0UrOKejFmT5oTdv4b7HcOVPupc3QGU7CbEfGleL3mkM5AjrixTQeMxU9bJ00ttAbGg==}
+    peerDependencies:
+      typescript: ^4.3.5
+    dependencies:
+      '@angular-devkit/core': 15.0.4
+      '@angular-devkit/schematics': 15.0.4
+      fs-extra: 11.1.0
+      jsonc-parser: 3.2.0
+      pluralize: 8.0.0
+      typescript: 4.9.5
+    transitivePeerDependencies:
+      - chokidar
+    dev: true
+
   /@nestjs/swagger/6.2.1_3u72aojo6cmpi6jnill3dtlagu:
     resolution: {integrity: sha512-9M2vkfJHIzLqDZwvM5TEZO0MxRCvIb0xVy0LsmWwxH1lrb0z/4MhU+r2CWDhBtTccVJrKxVPiU2s3T3b9uUJbg==}
     peerDependencies:
@@ -1826,7 +1879,7 @@ packages:
       tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1'
     dependencies:
       mini-svg-data-uri: 1.4.4
-      tailwindcss: 3.2.4
+      tailwindcss: 3.2.4_postcss@8.4.21
     dev: true
 
   /@tailwindcss/typography/0.5.9_tailwindcss@3.2.4:
@@ -1838,7 +1891,7 @@ packages:
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 3.2.4
+      tailwindcss: 3.2.4_postcss@8.4.21
     dev: true
 
   /@tiptap/core/2.0.0-beta.212_@tiptap+pm@2.0.0-beta.212:
@@ -2896,8 +2949,21 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /ajv-formats/2.1.1:
+  /ajv-formats/2.1.1_ajv@8.11.0:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
+    peerDependencies:
+      ajv: ^8.0.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
+    dependencies:
+      ajv: 8.11.0
+    dev: true
+
+  /ajv-formats/2.1.1_ajv@8.12.0:
+    resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
+    peerDependencies:
+      ajv: ^8.0.0
     peerDependenciesMeta:
       ajv:
         optional: true
@@ -3663,8 +3729,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
-      is-text-path: 1.0.1
       JSONStream: 1.3.5
+      is-text-path: 1.0.1
       lodash: 4.17.21
       meow: 8.1.2
       split2: 3.2.2
@@ -4083,8 +4149,8 @@ packages:
       domelementtype: 2.3.0
     dev: false
 
-  /dompurify/2.4.0:
-    resolution: {integrity: sha512-Be9tbQMZds4a3C6xTmz68NlMfeONA//4dOavl/1rNw50E+/QO0KVpbcU0PcaW0nsQxurXls9ZocqFxk8R2mWEA==}
+  /dompurify/3.0.0:
+    resolution: {integrity: sha512-0g/yr2IJn4nTbxwL785YxS7/AvvgGFJw6LLWP+BzWzB1+BYOqPUT9Hy0rXrZh5HLdHnxH72aDdzvC9SdTjsuaA==}
     dev: false
 
   /domutils/2.8.0:
@@ -8881,10 +8947,12 @@ packages:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
     dev: true
 
-  /tailwindcss/3.2.4:
+  /tailwindcss/3.2.4_postcss@8.4.21:
     resolution: {integrity: sha512-AhwtHCKMtR71JgeYDaswmZXhPcW9iuI9Sp2LvZPo9upDZ7231ZJ7eA9RaURbhpXGVlrjX4cFNlB4ieTetEb7hQ==}
     engines: {node: '>=12.13.0'}
     hasBin: true
+    peerDependencies:
+      postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
       chokidar: 3.5.3
@@ -9690,12 +9758,12 @@ packages:
     dependencies:
       vue: 3.2.47
 
-  /vue-dompurify-html/3.1.2_vue@3.2.47:
-    resolution: {integrity: sha512-2xCnSuog5+OPUtmeAwPZY/6oV9YKuLhjgcl5EUw3jKbmhnyPo8YyCczCeRNGBorVcz1fCGm6PEOIUSXNS8I0ZA==}
+  /vue-dompurify-html/4.0.0_vue@3.2.47:
+    resolution: {integrity: sha512-yLxmZSoVNM+ZpRXwbrq6mwY7xidRd6W4P2/W8zLBdXSQckpmPVvmDaJALYH0jm0CgibNJbe4+E5j6wzOKwRKvg==}
     peerDependencies:
       vue: ^2.7.0 || ^3.0.0
     dependencies:
-      dompurify: 2.4.0
+      dompurify: 3.0.0
       vue: 3.2.47
       vue-demi: 0.13.11_vue@3.2.47
     transitivePeerDependencies:
