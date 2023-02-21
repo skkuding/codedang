@@ -39,7 +39,7 @@ const { x } = useDraggable(resizingBar, {
   <main class="flex h-[calc(100vh-112px)] border-t border-slate-400">
     <Clarification v-model="x" />
     <div
-      class="flex w-[600px] min-w-[400px] flex-col gap-4 overflow-hidden bg-slate-700 p-8 text-white"
+      class="flex w-[600px] min-w-[400px] flex-col gap-4 overflow-y-auto bg-slate-700 p-8 text-white"
       :style="{ width: x + 'px' }"
     >
       <h1 class="text-xl font-bold">습격자 초라기</h1>
@@ -110,10 +110,8 @@ const { x } = useDraggable(resizingBar, {
       ref="resizingBar"
       class="hover:bg-blue w-px cursor-ew-resize bg-slate-400 hover:w-1"
     />
-    <div
-      class="flex grow flex-col justify-between overflow-scroll bg-[#292c33]"
-    >
-      <CodeEditor v-model="code" :lang="store.language" />
+    <div class="flex grow flex-col justify-between bg-[#292c33]">
+      <CodeEditor v-model="code" :lang="store.language" class="overflow-auto" />
       <div class="grid grid-cols-2 grid-rows-[36px_200px]">
         <div
           class="flex items-center border-y border-r border-slate-400 px-4 text-white"
@@ -125,7 +123,7 @@ const { x } = useDraggable(resizingBar, {
         >
           Output
         </div>
-        <div class="overflow-scroll border-r border-slate-400 p-4 text-white">
+        <div class="overflow-auto border-r border-slate-400 p-4 text-white">
           <pre>
 1
 2
@@ -137,7 +135,7 @@ const { x } = useDraggable(resizingBar, {
 8
           </pre>
         </div>
-        <div class="overflow-scroll p-4 text-white">
+        <div class="overflow-auto p-4 text-white">
           <pre>
 3
 2
