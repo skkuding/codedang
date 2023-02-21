@@ -1,8 +1,13 @@
 /* eslint-disable */
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  CACHE_MANAGER,
+  Inject,
+  Injectable
+} from '@nestjs/common'
 import { Group, UserGroup } from '@prisma/client'
 import {
-  EntityAlreadyExistException,
+  ActionNotAllowedException,
   EntityNotExistException
 } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
@@ -12,7 +17,6 @@ import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '../common/constants'
 import { joinGroupCacheKey } from 'src/common/cache/keys'
 import { Cache } from 'cache-manager'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
-import { constants } from 'buffer'
 
 @Injectable()
 export class GroupService {
@@ -229,13 +233,13 @@ export class GroupService {
     )
 
     if (isJoined) {
-      throw new EntityAlreadyExistException('Group join record')
+      throw new ActionNotAllowedException('join request', 'group')
     } else if (group.config['requireApprovalBeforeJoin']) {
       const joinGroupRequest = await this.cacheManager.get(
         joinGroupCacheKey(userId, groupId)
       )
       if (joinGroupRequest) {
-        throw new EntityAlreadyExistException('Group join request')
+        throw new ActionNotAllowedException('join request', 'group')
       }
 
       const userGroupValue = `user:${userId}:group:${groupId}`

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   DefaultValuePipe,
   Delete,
@@ -16,7 +17,7 @@ import { UserGroup } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
-  EntityAlreadyExistException,
+  ActionNotAllowedException,
   EntityNotExistException
 } from 'src/common/exception/business.exception'
 import { GroupService } from './group.service'
@@ -82,8 +83,8 @@ export class GroupController {
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof EntityAlreadyExistException) {
-        throw new NotFoundException(error.message)
+      } else if (error instanceof ActionNotAllowedException) {
+        throw new BadRequestException(error.message)
       }
       throw new InternalServerErrorException()
     }
