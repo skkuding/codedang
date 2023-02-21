@@ -162,7 +162,6 @@ importers:
       '@histoire/plugin-vue': ^0.13.0
       '@iconify-json/ant-design': ^1.1.4
       '@iconify-json/bi': ^1.1.14
-      '@iconify-json/carbon': ^1.1.15
       '@iconify-json/fa6-brands': ^1.1.8
       '@iconify-json/fa6-regular': ^1.1.8
       '@iconify-json/fa6-solid': ^1.1.10
@@ -229,7 +228,6 @@ importers:
       '@histoire/plugin-vue': 0.13.0_w5alv2p6yy42wrk6mq5i3wlfny
       '@iconify-json/ant-design': 1.1.4
       '@iconify-json/bi': 1.1.14
-      '@iconify-json/carbon': 1.1.15
       '@iconify-json/fa6-brands': 1.1.8
       '@iconify-json/fa6-regular': 1.1.8
       '@iconify-json/fa6-solid': 1.1.10
@@ -1126,12 +1124,6 @@ packages:
 
   /@iconify-json/bi/1.1.14:
     resolution: {integrity: sha512-RoIkXt3UIdtIv/SN5eII2iUOGFfu7BgpoPFpC3tnXeulgF8b7pJbE3Rw50ZG72HdvE0eE+RXIJXgNKLfXxM7TA==}
-    dependencies:
-      '@iconify/types': 2.0.0
-    dev: true
-
-  /@iconify-json/carbon/1.1.15:
-    resolution: {integrity: sha512-O1JtNFRIFVCJwS0YpU9XmWmZIvZzvGBi+CL7dI2ofAU7b5XV6PNH2IVnwEGKCCxEyAPaok23lR5qpgC7AWbgkQ==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true
