@@ -200,7 +200,7 @@ const joinGroup = () => {
 <template>
   <section class="mb-20 flex flex-col gap-4">
     <div class="flex flex-wrap justify-between gap-6">
-      <PageTitle :text="title" class="shrink-0 text-black" />
+      <PageTitle :text="title" />
       <SearchBar
         v-if="!isMyGroup && groupList.length !== 0"
         class="self-end"
