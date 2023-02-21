@@ -20,19 +20,17 @@ const shadowClass = computed(() =>
 </script>
 
 <template>
-  <div class="flex flex-col gap-1">
-    <input
-      v-bind="$attrs"
-      :value="modelValue"
-      :placeholder="placeholder"
-      :class="shadowClass"
-      class="rounded py-1 px-3 outline-none"
-      @input="
-        $emit('update:modelValue', ($event.target as HTMLInputElement).value)
-      "
-    />
-    <p v-show="required && !modelValue" class="text-red text-xs font-bold">
-      {{ placeholder + ' is required' }}
-    </p>
-  </div>
+  <input
+    v-bind="$attrs"
+    :value="modelValue"
+    :placeholder="placeholder"
+    :class="shadowClass"
+    class="rounded py-1 px-3 outline-none"
+    @input="
+      $emit('update:modelValue', ($event.target as HTMLInputElement).value)
+    "
+  />
+  <p v-show="required && !modelValue" class="text-red text-xs font-bold">
+    {{ placeholder + ' is required' }}
+  </p>
 </template>
