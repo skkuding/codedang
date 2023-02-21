@@ -3584,12 +3584,12 @@
     "_id": "b2069df2-b962-4c61-8bba-52d2f32da4ba",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "18cc4c2b-1889-43b3-8d3d-8b2f6d453ed3",
-    "name": "Succeed",
+    "name": "Succeed(Joined group)",
     "url": "/group/3",
     "method": "GET",
     "sortNum": 590000,
     "created": "2023-02-21T07:00:09.919Z",
-    "modified": "2023-02-21T10:16:55.525Z",
+    "modified": "2023-02-21T17:29:31.585Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -3604,6 +3604,24 @@
         "custom": "json.id",
         "action": "equal",
         "value": "3"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"groupName\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"description\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "notcontains",
+        "value": "\"createdBy\""
       }
     ],
     "docs": "# Get group\n\n### URL\nGET /group/{groupId}<br><br>\n\n### Description\n그룹의 id가 {groupId}인 그룹의 정보를 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n  id: Number\n  groupName: String\n  description: String\n}\n\n```",
@@ -3916,6 +3934,111 @@
       }
     ],
     "docs": "# Join group by id (Case2)\n",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "ed53dc3f-5d05-4fc3-8307-44eaf8130de9",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "18cc4c2b-1889-43b3-8d3d-8b2f6d453ed3",
+    "name": "404: Group does not exist",
+    "url": "/group/0",
+    "method": "GET",
+    "sortNum": 605000,
+    "created": "2023-02-21T17:03:18.161Z",
+    "modified": "2023-02-21T17:33:16.101Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "404"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.message",
+        "action": "equal",
+        "value": "group does not exist"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "b61da0f4-d454-48cd-912f-37962278b785",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "18cc4c2b-1889-43b3-8d3d-8b2f6d453ed3",
+    "name": "Succeed(Not joined group)",
+    "url": "/group/2",
+    "method": "GET",
+    "sortNum": 592500,
+    "created": "2023-02-21T17:23:38.437Z",
+    "modified": "2023-02-21T17:34:01.337Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.id",
+        "action": "equal",
+        "value": "2"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"groupName\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"description\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"createdBy\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"memberNum\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"leaders\""
+      }
+    ],
+    "docs": "# Get group\n\n### URL\nGET /group/{groupId}<br><br>\n\n### Description\n그룹의 id가 {groupId}인 그룹의 정보를 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n  id: Number\n  groupName: String\n  description: String\n}\n\n```",
     "preReq": {
       "runRequests": [
         {
