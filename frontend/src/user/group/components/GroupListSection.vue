@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
-// import CardItem from '@/common/components/Molecule/CardItem.vue'
 import Pagination from '@/common/components/Molecule/Pagination.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
@@ -212,7 +211,6 @@ const joinGroup = () => {
       No Group
     </p>
     <div v-else class="flex flex-col gap-16">
-      <!-- 디자인 변경 테스트 -->
       <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
         <article
           v-for="(
@@ -248,18 +246,6 @@ const joinGroup = () => {
           </div>
         </article>
       </div>
-      <!-- <div class="flex flex-col gap-4">
-        <CardItem
-          v-for="group in groupList"
-          :key="group.id"
-          :title="group.groupName"
-          :description="group.description"
-          :additional-text="'Member: ' + group.member"
-          :colored-text="'Created By ' + group.createdUser"
-          border-color="gray"
-          @click="goGroup(group.id)"
-        />
-      </div> -->
       <Pagination
         v-if="pagination"
         v-model="currentPage"
