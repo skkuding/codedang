@@ -110,7 +110,7 @@ const { x } = useDraggable(resizingBar, {
       ref="resizingBar"
       class="hover:bg-blue w-px cursor-ew-resize bg-slate-400 hover:w-1"
     />
-    <div class="flex grow flex-col justify-between bg-[#292c33]">
+    <div class="flex min-w-[400px] grow flex-col justify-between bg-[#292c33]">
       <CodeEditor v-model="code" :lang="store.language" class="overflow-auto" />
       <div class="grid grid-cols-2 grid-rows-[36px_200px]">
         <div
