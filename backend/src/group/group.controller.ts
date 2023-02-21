@@ -36,9 +36,6 @@ export class GroupController {
     try {
       return await this.groupService.getGroups(cursor, take)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
       throw new InternalServerErrorException()
     }
   }
@@ -50,9 +47,6 @@ export class GroupController {
     try {
       return await this.groupService.getJoinedGroups(req.user.id)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
       throw new InternalServerErrorException()
     }
   }
