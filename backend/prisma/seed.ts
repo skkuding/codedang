@@ -22,7 +22,10 @@ let superAdminUser: User
 let managerUser: User
 const users: User[] = []
 let publicGroup: Group
+let publicGroup2: Group
+let publicGroup3: Group
 let privateGroup: Group
+let privateGroup2: Group
 const problems: Problem[] = []
 const problemTestcases: ProblemTestcase[] = []
 let contest: Contest
@@ -105,12 +108,60 @@ const createGroups = async () => {
     }
   })
 
+  // create empty public group
+  publicGroup2 = await prisma.group.create({
+    data: {
+      groupName: 'Example Empty Group',
+      description:
+        'This is an example group just for testing. This group should not be shown on production environment.',
+      createdById: superAdminUser.id,
+      config: {
+        showOnList: true,
+        allowJoinFromSearch: true,
+        allowJoinWithURL: false,
+        requireApprovalBeforeJoin: false
+      }
+    }
+  })
+
   // create private group
   privateGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group',
       description:
         'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      createdById: managerUser.id,
+      config: {
+        showOnList: false,
+        allowJoinFromSearch: false,
+        allowJoinWithURL: true,
+        requireApprovalBeforeJoin: true
+      }
+    }
+  })
+
+  // create empty private group
+  privateGroup2 = await prisma.group.create({
+    data: {
+      groupName: 'Example Empty Private Group',
+      description:
+        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      createdById: managerUser.id,
+      config: {
+        showOnList: false,
+        allowJoinFromSearch: false,
+        allowJoinWithURL: true,
+        requireApprovalBeforeJoin: false
+      }
+    }
+  })
+
+  // create empty public group
+  publicGroup3 = await prisma.group.create({
+    data: {
+      groupName: 'Example Empty Public Group',
+      description:
+        'This is an example group just for testing. This group should not be shown on production environment.',
       createdById: managerUser.id,
       config: {
         showOnList: true,
