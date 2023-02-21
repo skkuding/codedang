@@ -30,7 +30,7 @@ const shadowClass = computed(() =>
       $emit('update:modelValue', ($event.target as HTMLInputElement).value)
     "
   />
-  <div v-show="required && !modelValue" class="text-red pt-1 text-xs font-bold">
+  <p v-show="required && !modelValue" class="text-red text-xs font-bold">
     {{ placeholder + ' is required' }}
-  </div>
+  </p>
 </template>

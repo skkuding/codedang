@@ -315,7 +315,18 @@ describe('WorkbookProblemService', () => {
         WorkbookService,
         GroupService,
         ProblemRepository,
-        { provide: PrismaService, useValue: db }
+        { provide: PrismaService, useValue: db },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => [],
+            store: {
+              keys: () => []
+            }
+          })
+        }
       ]
     }).compile()
 
