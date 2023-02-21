@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Namebox from './NameList.vue'
+import NameList from './NameList.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import { ref } from 'vue'
@@ -36,8 +36,8 @@ const groupMember = [
 <template>
   <div class="mx-auto mt-8 flex flex-col gap-20">
     <div class="flex flex-wrap justify-center gap-y-10 gap-x-20">
-      <Namebox title="Manager" :user-list="groupAdmin" :creator="createdBy" />
-      <Namebox title="Member" :user-list="groupMember" :creator="createdBy" />
+      <NameList title="Manager" :user-list="groupAdmin" :creator="createdBy" />
+      <NameList title="Member" :user-list="groupMember" :creator="createdBy" />
     </div>
     <Button class="self-end" @click="isModalVisible = true">Leave Group</Button>
   </div>
