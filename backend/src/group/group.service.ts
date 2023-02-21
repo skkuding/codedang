@@ -224,7 +224,9 @@ export class GroupService {
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
 
-    const isJoined = group.userGroup.includes({ userId: userId })
+    const isJoined = group.userGroup.some(
+      (joinedUser) => joinedUser.userId === userId
+    )
 
     if (isJoined) {
       throw new EntityAlreadyExistException('Group join record')
