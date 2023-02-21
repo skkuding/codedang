@@ -29,13 +29,23 @@ const groupMember = [
   { id: 4, username: '하솔비', studentId: '201834xxxx', role: 'user' },
   { id: 5, username: '하솔비', studentId: '201835xxxx', role: 'user' },
   { id: 6, username: '하솔비', studentId: '201836xxxx', role: 'user' },
+  { id: 10, username: '하솔비', studentId: '201832xxxx', role: 'user' },
+  { id: 2, username: 'David Kim', studentId: '201832xxxx', role: 'user' },
+  { id: 2, username: 'David Kim', studentId: '201832xxxx', role: 'user' },
+  { id: 4, username: '하솔비', studentId: '201834xxxx', role: 'user' },
+  { id: 5, username: '하솔비', studentId: '201835xxxx', role: 'user' },
+  { id: 6, username: '하솔비', studentId: '201836xxxx', role: 'user' },
+  { id: 10, username: '하솔비', studentId: '201832xxxx', role: 'user' },
+  { id: 4, username: '하솔비', studentId: '201834xxxx', role: 'user' },
+  { id: 5, username: '하솔비', studentId: '201835xxxx', role: 'user' },
+  { id: 6, username: '하솔비', studentId: '201836xxxx', role: 'user' },
   { id: 10, username: '하솔비', studentId: '201832xxxx', role: 'user' }
 ]
 </script>
 
 <template>
   <div class="mx-auto mt-8 flex flex-col gap-20">
-    <div class="flex flex-wrap justify-center gap-y-10 gap-x-20">
+    <div class="flex flex-col justify-center gap-10">
       <NameList title="Manager" :user-list="groupAdmin" :creator="createdBy" />
       <NameList title="Member" :user-list="groupMember" :creator="createdBy" />
     </div>

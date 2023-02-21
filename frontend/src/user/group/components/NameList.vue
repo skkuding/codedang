@@ -18,7 +18,9 @@ defineProps<{
 <template>
   <section class="flex flex-col items-center gap-6">
     <PageSubtitle :text="title" />
-    <ul class="border-gray flex flex-col gap-4 rounded border py-4">
+    <ul
+      class="border-gray grid grid-cols-1 gap-4 rounded border py-4 md:grid-cols-2 lg:grid-cols-3"
+    >
       <li
         v-for="{ id, username, studentId } in userList"
         :key="id"
