@@ -159,7 +159,7 @@ const allGroupList: Group[] = [
 const props = defineProps<{
   title: string
   pagination?: boolean
-  myGroup: boolean
+  isMyGroup: boolean
 }>()
 
 const COLOR_CLASS = [
@@ -171,7 +171,7 @@ const COLOR_CLASS = [
   'bg-red'
 ]
 
-const groupList = props.myGroup ? myGroupList : allGroupList // dummy data
+const groupList = props.isMyGroup ? myGroupList : allGroupList // dummy data
 const selectedGroup = ref<Group | undefined>(groupList[0])
 const currentPage = ref(1)
 const modalVisible = ref(false)
@@ -203,7 +203,7 @@ const joinGroup = () => {
     <div class="flex flex-wrap justify-between gap-6">
       <PageTitle :text="title" class="shrink-0 text-black" />
       <SearchBar
-        v-if="!myGroup && groupList.length !== 0"
+        v-if="!isMyGroup && groupList.length !== 0"
         class="self-end"
         placeholder="그룹 이름을 검색해보세요!"
       />
