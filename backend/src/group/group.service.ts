@@ -239,7 +239,7 @@ export class GroupService {
         joinGroupCacheKey(userId, groupId)
       )
       if (joinGroupRequest) {
-        throw new ActionNotAllowedException('join request', 'group')
+        throw new ActionNotAllowedException('duplicated join request', 'group')
       }
 
       const userGroupValue = `user:${userId}:group:${groupId}`
