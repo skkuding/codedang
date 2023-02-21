@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import PageSubtitle from '../Atom/PageSubtitle.vue'
 type BorderColor = 'gray' | 'green'
 const props = defineProps<{
   borderColor?: BorderColor
@@ -30,9 +31,7 @@ const textColorStyle = computed(() => {
     <img v-if="img" :src="img" class="h-16 w-16" />
     <div class="flex grow flex-col justify-between gap-2 md:flex-row">
       <div class="flex flex-col justify-between">
-        <h1 class="text-text-subtitle text-xl font-bold">
-          {{ title }}
-        </h1>
+        <PageSubtitle :text="title" />
         <p class="text-gray-dark">
           {{ description }}
         </p>
@@ -42,7 +41,7 @@ const textColorStyle = computed(() => {
           {{ additionalText }}
         </p>
         <p :class="textColorStyle">
-          {{ coloredText }}
+          {{ coloredTextShort || coloredText }}
         </p>
       </div>
     </div>
