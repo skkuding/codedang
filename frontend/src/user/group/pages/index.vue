@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import InputItem from '@/common/components/Atom/InputItem.vue'
 import Button from '@/common/components/Atom/Button.vue'
-import IconSendFilled from '~icons/carbon/send-filled'
 import GroupListSection from '../components/GroupListSection.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
+import IconPaperPlane from '~icons/fa6-solid/paper-plane'
 
 import { ref } from 'vue'
 
@@ -22,18 +22,19 @@ const invitationCode = ref('')
     <GroupListSection title="All Group" pagination :is-my-group="false" />
     <Modal v-model="joinModalVisible" class="px-4 shadow-md">
       <div class="flex flex-col items-center gap-2 py-12 px-4">
-        <h1 class="mb-2 text-center text-lg font-bold">
+        <h1 class="mb-1 text-center text-lg font-bold">
           Join Group by Invitation Code
         </h1>
-        <div class="flex items-start gap-2">
-          <InputItem v-model="invitationCode" placeholder="Invitation Code" />
-          <Button class="py-2"><IconSendFilled /></Button>
-        </div>
-        <p v-if="noInvitationCode" class="text-red text-center">
-          Group not found! Please check your code again
-        </p>
         <p class="text-center">
           If you have invitation code, enter the code here.
+        </p>
+        <div class="flex items-start gap-2">
+          <InputItem v-model="invitationCode" placeholder="Invitation Code" />
+          <Button class="py-2"><IconPaperPlane /></Button>
+        </div>
+
+        <p v-if="noInvitationCode" class="text-red text-center">
+          Group not found! Please check your code again
         </p>
       </div>
     </Modal>
