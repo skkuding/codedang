@@ -8,6 +8,11 @@ pre-commit:
       glob: '*.{js,ts,vue,css,yaml,yml}'
       run: pnpm prettier --check {staged_files}
 
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm commitlint --edit
+
 post-checkout:
   commands:
     setup:

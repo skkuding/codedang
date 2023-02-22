@@ -33,13 +33,7 @@ export class NoticeAdminController {
 
   @Get()
   async getAdminNotices(
-    @Query(
-      'cursor',
-      CursorValidationPipe,
-      new DefaultValuePipe(0),
-      ParseIntPipe
-    )
-    cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
     return await this.noticeService.getAdminNotices(cursor, take)
@@ -74,13 +68,7 @@ export class GroupNoticeAdminController {
   @Get()
   async getAdminNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query(
-      'cursor',
-      CursorValidationPipe,
-      new DefaultValuePipe(0),
-      ParseIntPipe
-    )
-    cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
     return await this.noticeService.getAdminNoticesByGroupId(

@@ -25,13 +25,7 @@ export class PublicNoticeController {
 
   @Get()
   async getNotices(
-    @Query(
-      'cursor',
-      CursorValidationPipe,
-      new DefaultValuePipe(0),
-      ParseIntPipe
-    )
-    cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
     return await this.noticeService.getNoticesByGroupId(1, cursor, take)
@@ -58,8 +52,7 @@ export class GroupNoticeController {
   @Get('')
   async getNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', CursorValidationPipe)
-    cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
     return await this.noticeService.getNoticesByGroupId(groupId, cursor, take)

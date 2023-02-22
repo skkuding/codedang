@@ -2,17 +2,13 @@ import { UserNotice } from './interface/user-notice.interface'
 import { Injectable } from '@nestjs/common'
 import { Notice } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { GroupService } from 'src/group/group.service'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { CreateNoticeDto } from './dto/create-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 
 @Injectable()
 export class NoticeService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly group: GroupService
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createNotice(
     userId: number,
@@ -30,8 +26,8 @@ export class NoticeService {
       data: {
         title: noticeDto.title,
         content: noticeDto.content,
-        visible: noticeDto.visible,
-        fixed: noticeDto.fixed,
+        isVisible: noticeDto.isVisible,
+        isFixed: noticeDto.isFixed,
         group: {
           connect: { id: groupId }
         },
@@ -49,12 +45,10 @@ export class NoticeService {
     cursor: number,
     take: number
   ): Promise<Partial<Notice>[]> {
-    let skip
+    let skip = 1
     if (cursor === 0) {
       cursor = 1
       skip = 0
-    } else if (cursor > 0) {
-      skip = 1
     }
     return await this.prisma.notice.findMany({
       take,
@@ -64,13 +58,13 @@ export class NoticeService {
       },
       where: {
         groupId: groupId,
-        visible: true
+        isVisible: true
       },
       select: {
         id: true,
         title: true,
         createTime: true,
-        fixed: true
+        isFixed: true
       }
     })
   }
@@ -79,7 +73,7 @@ export class NoticeService {
     const current = await this.prisma.notice.findFirst({
       where: {
         id: id,
-        visible: true
+        isVisible: true
       },
       select: {
         title: true,
@@ -100,7 +94,7 @@ export class NoticeService {
         where: {
           id: options.compare,
           groupId: groupId,
-          visible: true
+          isVisible: true
         },
         orderBy: {
           id: options.order
@@ -123,12 +117,10 @@ export class NoticeService {
     cursor: number,
     take: number
   ): Promise<Partial<Notice>[]> {
-    let skip
+    let skip = 1
     if (cursor === 0) {
       cursor = 1
       skip = 0
-    } else if (cursor > 0) {
-      skip = 1
     }
     return await this.prisma.notice.findMany({
       take,
@@ -150,7 +142,7 @@ export class NoticeService {
         title: true,
         updateTime: true,
         createdBy: true,
-        visible: true
+        isVisible: true
       }
     })
   }
@@ -160,12 +152,10 @@ export class NoticeService {
     take: number,
     cursor: number
   ): Promise<Partial<Notice>[]> {
-    let skip
+    let skip = 1
     if (cursor === 0) {
       cursor = 1
       skip = 0
-    } else if (cursor > 0) {
-      skip = 1
     }
     return await this.prisma.notice.findMany({
       take,
@@ -180,8 +170,8 @@ export class NoticeService {
         id: true,
         title: true,
         updateTime: true,
-        visible: true,
-        fixed: true
+        isVisible: true,
+        isFixed: true
       }
     })
   }
@@ -199,8 +189,8 @@ export class NoticeService {
         },
         title: true,
         content: true,
-        visible: true,
-        fixed: true
+        isVisible: true,
+        isFixed: true
       },
       rejectOnNotFound: () => new EntityNotExistException('notice')
     })

@@ -10,22 +10,25 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 export class WorkbookService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private prismaAdminFindWhereOption: object = { visible: true }
+  private prismaAdminFindWhereOption: object = { isVisible: true }
 
   async getWorkbooksByGroupId(
     groupId: number,
     isAdmin: boolean,
-    myCursor: number,
-    offset: number
+    cursor: number,
+    take: number
   ): Promise<Partial<Workbook>[]> {
     const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
-    let skipNum = 1
-    if (!myCursor) (skipNum = 0), (myCursor = 1)
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
+    }
     const workbooks = await this.prisma.workbook.findMany({
-      skip: skipNum,
-      take: offset,
+      skip: skip,
+      take: take,
       cursor: {
-        id: myCursor
+        id: cursor
       },
       where: {
         groupId,
@@ -39,10 +42,11 @@ export class WorkbookService {
   async getWorkbookById(
     workbookId: number,
     isAdmin: boolean
-  ): Promise<Workbook> {
+  ): Promise<Partial<Workbook>> {
     const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
     const workbook = await this.prisma.workbook.findFirst({
       where: { id: workbookId, ...whereOption },
+      select: { id: true, title: true },
       rejectOnNotFound: () => new EntityNotExistException('workbook')
     })
     return workbook
@@ -107,5 +111,15 @@ export class WorkbookService {
         throw error
       }
     }
+  }
+
+  async isVisible(workbookId: number, groupId: number): Promise<boolean> {
+    return !!(await this.prisma.workbook.count({
+      where: {
+        id: workbookId,
+        groupId: groupId,
+        isVisible: true
+      }
+    }))
   }
 }

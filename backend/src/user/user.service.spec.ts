@@ -188,14 +188,12 @@ describe('UserService', () => {
   describe('createPinAndSendEmail', () => {
     let createPinRandomlySpy: SinonSpy
     let sendEmailAuthenticationPinSpy: SinonStub
-    let createPinInCacheSpy: SinonStub
     beforeEach(() => {
       createPinRandomlySpy = spy(service, 'createPinRandomly')
       sendEmailAuthenticationPinSpy = stub(
         emailService,
         'sendEmailAuthenticationPin'
       )
-      createPinInCacheSpy = stub(service, 'createPinInCache')
     })
 
     it('create pin and send email', async () => {
@@ -205,23 +203,6 @@ describe('UserService', () => {
       )
       expect(createPinRandomlySpy.called).to.be.true
       expect(sendEmailAuthenticationPinSpy.called).to.be.true
-      expect(createPinInCacheSpy.called).to.be.true
-    })
-  })
-
-  describe('createPinInCache', () => {
-    it('set pin in cache', async () => {
-      await service.createPinInCache(
-        PASSWORD_RESET_PIN_KEY,
-        PASSWORD_RESET_PIN,
-        300
-      )
-      expect(cacheMock.set.calledOnce).to.be.true
-      expect(cacheMock.set.firstCall.args).to.deep.equal([
-        PASSWORD_RESET_PIN_KEY,
-        PASSWORD_RESET_PIN,
-        300
-      ])
     })
   })
 
@@ -265,7 +246,7 @@ describe('UserService', () => {
 
   describe('verifyJwtFromRequestHeader', () => {
     beforeEach(() => {
-      ExtractJwt.fromAuthHeaderAsBearerToken = fake.returns(() => {
+      ExtractJwt.fromHeader = fake.returns(() => {
         return ''
       })
     })
@@ -279,7 +260,7 @@ describe('UserService', () => {
 
     it('throw exception if token is invalid', async () => {
       jwtService.verifyAsync = stub().rejects(
-        new Exception('veryfication failed')
+        new Exception('verification failed')
       )
 
       await expect(

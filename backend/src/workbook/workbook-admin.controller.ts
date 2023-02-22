@@ -32,8 +32,7 @@ export class WorkbookAdminController {
   @Get()
   async getGroupWorkbooks(
     @Param('groupId', ParseIntPipe) groupId,
-    @Query('cursor', CursorValidationPipe)
-    cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {
@@ -51,7 +50,7 @@ export class WorkbookAdminController {
   @Get('/:workbookId')
   async getWorkbook(
     @Param('workbookId', ParseIntPipe) workbookId
-  ): Promise<Workbook> {
+  ): Promise<Partial<Workbook>> {
     try {
       return await this.workbookService.getWorkbookById(workbookId, true)
     } catch (error) {

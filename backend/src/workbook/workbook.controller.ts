@@ -42,7 +42,7 @@ export class GroupWorkbookController {
   @Get('/:workbookId')
   async getGroupWorkbook(
     @Param('workbookId', ParseIntPipe) workbookId
-  ): Promise<Workbook> {
+  ): Promise<Partial<Workbook>> {
     try {
       return await this.workbookService.getWorkbookById(workbookId, false)
     } catch (error) {

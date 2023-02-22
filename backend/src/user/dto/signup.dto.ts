@@ -1,9 +1,9 @@
 import {
-  IsAlpha,
   IsAlphanumeric,
   IsEmail,
   IsNotEmpty,
-  IsString
+  IsString,
+  Matches
 } from 'class-validator'
 
 export class SignUpDto {
@@ -19,7 +19,7 @@ export class SignUpDto {
   @IsNotEmpty()
   readonly email: string
 
-  @IsAlpha()
+  @Matches(/^[a-zA-Z\s]+$/)
   @IsNotEmpty()
   readonly realName: string
 }
