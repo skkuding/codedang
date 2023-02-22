@@ -108,9 +108,6 @@ export class GroupController {
     try {
       return await this.groupService.getGroupLeaders(groupId)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
       throw new InternalServerErrorException()
     }
   }
@@ -123,9 +120,6 @@ export class GroupController {
     try {
       return await this.groupService.getGroupMembers(groupId)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
       throw new InternalServerErrorException()
     }
   }
