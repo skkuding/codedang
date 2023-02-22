@@ -4,7 +4,7 @@ import { EntityNotExistException } from 'src/common/exception/business.exception
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateWorkbookDto } from './dto/create-workbook.dto'
 import { UpdateWorkbookDto } from './dto/update-workbook.dto'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
+import { PUBLIC_GROUP_ID } from 'src/common/constants'
 
 @Injectable()
 export class WorkbookService {
@@ -12,11 +12,11 @@ export class WorkbookService {
 
   private prismaAdminFindWhereOption: object = { isVisible: true }
 
-  async getWorkbooksByGroupId(
-    groupId: number,
-    isAdmin: boolean,
+  async getWorkbooks(
     cursor: number,
-    take: number
+    take: number,
+    isAdmin: boolean,
+    groupId = PUBLIC_GROUP_ID
   ): Promise<Partial<Workbook>[]> {
     const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
     let skip = 1
@@ -39,13 +39,14 @@ export class WorkbookService {
     return workbooks
   }
 
-  async getWorkbookById(
+  async getWorkbook(
     workbookId: number,
-    isAdmin: boolean
+    isAdmin: boolean,
+    groupId = PUBLIC_GROUP_ID
   ): Promise<Partial<Workbook>> {
     const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
     const workbook = await this.prisma.workbook.findFirst({
-      where: { id: workbookId, ...whereOption },
+      where: { id: workbookId, groupId: groupId, ...whereOption },
       select: { id: true, title: true },
       rejectOnNotFound: () => new EntityNotExistException('workbook')
     })
@@ -57,60 +58,57 @@ export class WorkbookService {
     groupId: number,
     createWorkbookDto: CreateWorkbookDto
   ): Promise<Workbook> {
-    const newWorkbook = await this.prisma.workbook.create({
+    const workbook = await this.prisma.workbook.create({
       data: {
         groupId,
         createdById: userId,
         ...createWorkbookDto
       }
     })
-    return newWorkbook
+    return workbook
   }
 
   async updateWorkbook(
+    groupId: number,
     workbookId: number,
     updateWorkbookDto: UpdateWorkbookDto
   ): Promise<Workbook> {
-    try {
-      const updatedWorkbook = await this.prisma.workbook.update({
-        where: {
-          id: workbookId
-        },
-        data: {
-          ...updateWorkbookDto
-        }
-      })
-      return updatedWorkbook
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('workbook')
-      } else {
-        throw error
+    await this.prisma.workbook.findFirst({
+      where: {
+        id: workbookId,
+        groupId: groupId
+      },
+      rejectOnNotFound: () => new EntityNotExistException('workbook')
+    })
+
+    const workbook = await this.prisma.workbook.update({
+      where: {
+        id: workbookId
+      },
+      data: {
+        ...updateWorkbookDto
       }
-    }
+    })
+
+    return workbook
   }
 
-  async deleteWorkbook(workbookId: number): Promise<Workbook> {
-    try {
-      const deletedWorkbook = await this.prisma.workbook.delete({
-        where: {
-          id: workbookId
-        }
-      })
-      return deletedWorkbook
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('workbook')
-      } else {
-        throw error
+  async deleteWorkbook(groupId: number, workbookId: number): Promise<Workbook> {
+    await this.prisma.workbook.findFirst({
+      where: {
+        id: workbookId,
+        groupId: groupId
+      },
+      rejectOnNotFound: () => new EntityNotExistException('workbook')
+    })
+
+    const workbook = await this.prisma.workbook.delete({
+      where: {
+        id: workbookId
       }
-    }
+    })
+
+    return workbook
   }
 
   async isVisible(workbookId: number, groupId: number): Promise<boolean> {

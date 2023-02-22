@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { WorkbookService } from './workbook.service'
@@ -93,8 +92,7 @@ const groupWorkbooks = [
 ]
 const onePublicWorkbook = showIdTitle(workbookArray[0])
 const oneGroupWorkbook = workbookArray[2]
-const PUBLIC_GROUP_ID = 1
-const PRIVATE_GROUP_ID = 2
+const GROUP_ID = 2
 const CREATE_BY_ID = 1
 
 const db = {
@@ -126,11 +124,10 @@ describe('WorkbookService', () => {
   it('get a list of public workbooks(user)', async () => {
     db.workbook.findMany.resolves(isVisiblePublicWorkbooks)
 
-    const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
-      PUBLIC_GROUP_ID,
-      false,
+    const returnedPublicWorkbooks = await workbookService.getWorkbooks(
       0,
-      3
+      3,
+      false
     )
     expect(returnedPublicWorkbooks).to.deep.equal(isVisiblePublicWorkbooks)
   })
@@ -138,11 +135,10 @@ describe('WorkbookService', () => {
   it('get a list of public workbooks(admin)', async () => {
     db.workbook.findMany.resolves(publicWorkbooks)
 
-    const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
-      PUBLIC_GROUP_ID,
-      true,
+    const returnedPublicWorkbooks = await workbookService.getWorkbooks(
       0,
-      3
+      3,
+      true
     )
     expect(returnedPublicWorkbooks).to.deep.equal(publicWorkbooks)
   })
@@ -150,11 +146,10 @@ describe('WorkbookService', () => {
   it('get a list of private group workbooks', async () => {
     db.workbook.findMany.resolves(groupWorkbooks)
 
-    const returnedGroupWorkbooks = await workbookService.getWorkbooksByGroupId(
-      PRIVATE_GROUP_ID,
-      false,
+    const returnedGroupWorkbooks = await workbookService.getWorkbooks(
       0,
-      3
+      3,
+      false
     )
     expect(returnedGroupWorkbooks).to.deep.equal(groupWorkbooks)
   })
@@ -167,7 +162,7 @@ describe('WorkbookService', () => {
       .onSecondCall()
       .rejects(new EntityNotExistException('workbook'))
 
-    const returnedWorkbook = await workbookService.getWorkbookById(
+    const returnedWorkbook = await workbookService.getWorkbook(
       workbookId,
       false
     )
@@ -175,7 +170,7 @@ describe('WorkbookService', () => {
 
     workbookId = 9999999
     await expect(
-      workbookService.getWorkbookById(workbookId, false)
+      workbookService.getWorkbook(workbookId, false)
     ).to.be.rejectedWith(EntityNotExistException)
   })
 
@@ -184,7 +179,7 @@ describe('WorkbookService', () => {
 
     const createdWorkbook = await workbookService.createWorkbook(
       CREATE_BY_ID,
-      PRIVATE_GROUP_ID,
+      GROUP_ID,
       createWorkbookDto
     )
     expect(createdWorkbook).to.deep.equal(oneGroupWorkbook)
@@ -196,14 +191,10 @@ describe('WorkbookService', () => {
       .onFirstCall()
       .resolves(oneGroupWorkbook)
       .onSecondCall()
-      .rejects(
-        new PrismaClientKnownRequestError('message', {
-          code: 'P2025',
-          clientVersion: '0.0.0'
-        })
-      )
+      .rejects(new EntityNotExistException('workbook'))
 
     const updatedWorkbook = await workbookService.updateWorkbook(
+      GROUP_ID,
       workbookId,
       updateWorkbookDto
     )
@@ -211,7 +202,7 @@ describe('WorkbookService', () => {
 
     workbookId = 9999999
     await expect(
-      workbookService.updateWorkbook(workbookId, updateWorkbookDto)
+      workbookService.updateWorkbook(GROUP_ID, workbookId, updateWorkbookDto)
     ).to.be.rejectedWith(EntityNotExistException)
   })
 
@@ -221,19 +212,17 @@ describe('WorkbookService', () => {
       .onFirstCall()
       .resolves(oneGroupWorkbook)
       .onSecondCall()
-      .rejects(
-        new PrismaClientKnownRequestError('message', {
-          code: 'P2025',
-          clientVersion: '0.0.0'
-        })
-      )
+      .rejects(new EntityNotExistException('workbook'))
 
-    const deletedWorkbook = await workbookService.deleteWorkbook(workbookId)
+    const deletedWorkbook = await workbookService.deleteWorkbook(
+      GROUP_ID,
+      workbookId
+    )
     expect(deletedWorkbook).to.deep.equal(oneGroupWorkbook)
 
     workbookId = 9999999
-    await expect(workbookService.deleteWorkbook(workbookId)).to.be.rejectedWith(
-      EntityNotExistException
-    )
+    await expect(
+      workbookService.deleteWorkbook(GROUP_ID, workbookId)
+    ).to.be.rejectedWith(EntityNotExistException)
   })
 })

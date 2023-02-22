@@ -35,11 +35,11 @@ export class WorkbookAdminController {
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {
-      return await this.workbookService.getWorkbooksByGroupId(
-        groupId,
-        true,
+      return await this.workbookService.getWorkbooks(
         cursor,
-        take
+        take,
+        true,
+        groupId
       )
     } catch (error) {
       throw new InternalServerErrorException()
@@ -48,10 +48,11 @@ export class WorkbookAdminController {
 
   @Get('/:workbookId')
   async getWorkbook(
+    @Param('groupId', ParseIntPipe) groupId,
     @Param('workbookId', ParseIntPipe) workbookId
   ): Promise<Partial<Workbook>> {
     try {
-      return await this.workbookService.getWorkbookById(workbookId, true)
+      return await this.workbookService.getWorkbook(workbookId, true, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -80,11 +81,13 @@ export class WorkbookAdminController {
 
   @Put('/:workbookId')
   async updateWorkbook(
+    @Param('groupId', ParseIntPipe) groupId,
     @Param('workbookId', ParseIntPipe) workbookId,
     @Body() updateWorkbookDto: UpdateWorkbookDto
   ): Promise<Workbook> {
     try {
       return await this.workbookService.updateWorkbook(
+        groupId,
         workbookId,
         updateWorkbookDto
       )
@@ -99,10 +102,11 @@ export class WorkbookAdminController {
 
   @Delete('/:workbookId')
   async deleteWorkbook(
+    @Param('groupId', ParseIntPipe) groupId,
     @Param('workbookId', ParseIntPipe) workbookId
   ): Promise<Workbook> {
     try {
-      return await this.workbookService.deleteWorkbook(workbookId)
+      return await this.workbookService.deleteWorkbook(groupId, workbookId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

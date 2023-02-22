@@ -28,11 +28,11 @@ export class GroupWorkbookController {
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {
-      return await this.workbookService.getWorkbooksByGroupId(
-        groupId,
-        false,
+      return await this.workbookService.getWorkbooks(
         cursor,
-        take
+        take,
+        false,
+        groupId
       )
     } catch (error) {
       throw new InternalServerErrorException()
@@ -41,10 +41,11 @@ export class GroupWorkbookController {
 
   @Get('/:workbookId')
   async getGroupWorkbook(
+    @Param('groupId', ParseIntPipe) groupId,
     @Param('workbookId', ParseIntPipe) workbookId
   ): Promise<Partial<Workbook>> {
     try {
-      return await this.workbookService.getWorkbookById(workbookId, false)
+      return await this.workbookService.getWorkbook(workbookId, false, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -66,12 +67,7 @@ export class PublicWorkbookController {
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {
-      return await this.workbookService.getWorkbooksByGroupId(
-        1,
-        false,
-        cursor,
-        take
-      )
+      return await this.workbookService.getWorkbooks(cursor, take, false)
     } catch (error) {
       throw new InternalServerErrorException()
     }
