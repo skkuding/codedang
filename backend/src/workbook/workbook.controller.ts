@@ -14,6 +14,7 @@ import { RolesGuard } from 'src/user/guard/roles.guard'
 import { GroupMemberGuard } from '../group/guard/group-member.guard'
 import { Workbook } from '@prisma/client'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
+import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 
 @Controller('group/:groupId/workbook')
 @UseGuards(RolesGuard, GroupMemberGuard)
@@ -23,7 +24,7 @@ export class GroupWorkbookController {
   @Get()
   async getGroupWorkbooks(
     @Param('groupId', ParseIntPipe) groupId,
-    @Query('cursor', ParseIntPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {
@@ -61,7 +62,7 @@ export class PublicWorkbookController {
 
   @Get()
   async getPublicWorkbooks(
-    @Query('cursor', ParseIntPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {

@@ -385,6 +385,8 @@ describe('ContestService', () => {
 
   describe('getAdminContests', () => {
     it('should return contests in open space', async () => {
+      stub(groupService, 'getUserGroupLeaderList').resolves([groupId])
+
       expect(await service.getAdminContests(0, 3)).to.deep.equal(contests)
     })
   })

@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  DefaultValuePipe,
   Delete,
   Get,
   InternalServerErrorException,
@@ -30,6 +29,7 @@ import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
+import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 
 @Controller('admin/contest')
 @UseGuards(RolesGuard)
@@ -39,7 +39,7 @@ export class ContestAdminController {
 
   @Get()
   async getAdminContests(
-    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminContests(cursor, take)
@@ -47,7 +47,7 @@ export class ContestAdminController {
 
   @Get('ongoing')
   async getAdminOngoingContests(
-    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminOngoingContests(cursor, take)
@@ -120,8 +120,8 @@ export class GroupContestAdminController {
   @Get()
   async getAdminContests(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
-    @Query('offset', ParseIntPipe) take: number
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
     return await this.contestService.getAdminContestsByGroupId(
       groupId,

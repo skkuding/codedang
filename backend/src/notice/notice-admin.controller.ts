@@ -11,8 +11,7 @@ import {
   ParseIntPipe,
   UseGuards,
   InternalServerErrorException,
-  NotFoundException,
-  DefaultValuePipe
+  NotFoundException
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
 import { Notice, Role } from '@prisma/client'
@@ -23,6 +22,7 @@ import { CreateNoticeDto } from './dto/create-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { Roles } from 'src/common/decorator/roles.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
+import { CursorValidationPipe } from '../common/pipe/cursor-validation.pipe'
 
 @Controller('admin/notice')
 @UseGuards(RolesGuard)
@@ -32,7 +32,7 @@ export class NoticeAdminController {
 
   @Get()
   async getAdminNotices(
-    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
     return await this.noticeService.getAdminNotices(cursor, take)
@@ -67,7 +67,7 @@ export class GroupNoticeAdminController {
   @Get()
   async getAdminNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
     return await this.noticeService.getAdminNoticesByGroupId(
