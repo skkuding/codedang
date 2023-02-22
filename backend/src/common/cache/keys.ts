@@ -6,3 +6,6 @@ export const emailAuthenticationPinCacheKey = (email: string) =>
 
 export const contestPublicizingRequestKey = (contestId: number) =>
   `contest:${contestId}:publicize`
+
+export const joinGroupCacheKey = (userId: number, groupId: number) =>
+  `user:${userId}:group:${groupId}`

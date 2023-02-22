@@ -20,6 +20,7 @@ const contestId = 1
 const userId = 1
 const groupId = 1
 const contestPublicizeRequestId = 1
+const undefinedUserId = undefined
 
 const contest = {
   id: contestId,
@@ -88,7 +89,6 @@ const contestPublicizingRequest = {
 }
 
 const userGroup: UserGroup = {
-  id: 1,
   userId: userId,
   groupId: groupId,
   isGroupLeader: true,
@@ -99,7 +99,6 @@ const userGroups: UserGroup[] = [
   userGroup,
   {
     ...userGroup,
-    id: userGroup.id + 1,
     groupId: userGroup.groupId + 1
   }
 ]
@@ -354,22 +353,24 @@ describe('ContestService', () => {
 
   describe('getContests', () => {
     it('should return ongoing, upcoming, finished contests', async () => {
-      expect(await service.getContests()).to.deep.equal({
-        ongoing: ongoingContests,
-        upcoming: upcomingContests,
-        finished: finishedContests
-      })
+      expect(await service.getContests(undefinedUserId, groupId)).to.deep.equal(
+        {
+          ongoing: ongoingContests,
+          upcoming: upcomingContests,
+          finished: finishedContests
+        }
+      )
     })
   })
 
-  describe('getGroupContestById', () => {
+  describe('getContestDetailById', () => {
     it('should throw error when contest does not exist', async () => {
       mockPrismaService.contest.findFirst.rejects(
         new EntityNotExistException('contest')
       )
 
       await expect(
-        service.getGroupContestById(groupId, contestId)
+        service.getContestDetailById(groupId, contestId)
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
@@ -377,36 +378,8 @@ describe('ContestService', () => {
       mockPrismaService.contest.findFirst.resolves(contest)
 
       expect(
-        await service.getGroupContestById(groupId, contestId)
+        await service.getContestDetailById(groupId, contestId)
       ).to.deep.equal(contest)
-    })
-  })
-
-  describe('getModalContestById', () => {
-    it('should throw error when contest does not exist', async () => {
-      mockPrismaService.contest.findFirst.rejects(
-        new EntityNotExistException('contest')
-      )
-
-      await expect(service.getModalContestById(contestId)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-
-    it('should return contest', async () => {
-      mockPrismaService.contest.findFirst.resolves(contest)
-
-      expect(await service.getModalContestById(contestId)).to.deep.equal(
-        contest
-      )
-    })
-  })
-
-  describe('getContestsByGroupId', () => {
-    it('should return contests of the group', async () => {
-      expect(await service.getContestsByGroupId(groupId)).to.deep.equal(
-        contests
-      )
     })
   })
 

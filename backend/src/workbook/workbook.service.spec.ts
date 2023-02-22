@@ -77,6 +77,11 @@ const showIdTitleDescriptionUpdatedTime = ({
   updateTime
 })
 
+const showIdTitle = ({ id, title }: Workbook) => ({
+  id,
+  title
+})
+
 const publicWorkbooks = [
   showIdTitleDescriptionUpdatedTime(workbookArray[0]),
   showIdTitleDescriptionUpdatedTime(workbookArray[1])
@@ -88,7 +93,7 @@ const groupWorkbooks = [
   showIdTitleDescriptionUpdatedTime(workbookArray[2]),
   showIdTitleDescriptionUpdatedTime(workbookArray[3])
 ]
-const onePublicWorkbook = workbookArray[0]
+const onePublicWorkbook = showIdTitle(workbookArray[0])
 const oneGroupWorkbook = workbookArray[2]
 const PUBLIC_GROUP_ID = 1
 const PRIVATE_GROUP_ID = 2

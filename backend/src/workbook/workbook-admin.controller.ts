@@ -40,7 +40,7 @@ export class WorkbookAdminController {
   @Get('/:workbookId')
   async getWorkbook(
     @Param('workbookId', ParseIntPipe) workbookId
-  ): Promise<Workbook> {
+  ): Promise<Partial<Workbook>> {
     try {
       return await this.workbookService.getWorkbookById(workbookId, true)
     } catch (error) {
