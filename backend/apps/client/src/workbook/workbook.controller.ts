@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards
 } from '@nestjs/common'
+import { Workbook } from '@prisma/client'
 import { AuthNotNeeded, GroupMemberGuard, RolesGuard } from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
@@ -73,10 +74,13 @@ export class GroupWorkbookController {
     }
   }
 
-  @Get(':workbookId')
-  async getWorkbook(@Param('workbookId', ParseIntPipe) workbookId) {
+  @Get('/:workbookId')
+  async getGroupWorkbook(
+    @Param('groupId', ParseIntPipe) groupId,
+    @Param('workbookId', ParseIntPipe) workbookId
+  ): Promise<Partial<Workbook>> {
     try {
-      return await this.workbookService.getWorkbookById(workbookId)
+      return await this.workbookService.getWorkbookById(workbookId, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

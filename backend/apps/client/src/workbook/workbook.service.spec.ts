@@ -224,7 +224,7 @@ describe('WorkbookService', () => {
 
     workbookId = 9999999
     await expect(
-      workbookService.getWorkbookById(workbookId)
+      workbookService.getWorkbookById(workbookId, 1)
     ).to.be.rejectedWith(EntityNotExistException)
   })
 
@@ -253,6 +253,7 @@ describe('WorkbookService', () => {
       )
 
     const updatedWorkbook = await workbookService.updateWorkbook(
+      GROUP_ID,
       workbookId,
       updateWorkbookDto
     )
@@ -260,7 +261,7 @@ describe('WorkbookService', () => {
 
     workbookId = 9999999
     await expect(
-      workbookService.updateWorkbook(workbookId, updateWorkbookDto)
+      workbookService.updateWorkbook(GROUP_ID, workbookId, updateWorkbookDto)
     ).to.be.rejectedWith(EntityNotExistException)
   })
 
@@ -277,12 +278,15 @@ describe('WorkbookService', () => {
         })
       )
 
-    const deletedWorkbook = await workbookService.deleteWorkbook(workbookId)
+    const deletedWorkbook = await workbookService.deleteWorkbook(
+      GROUP_ID,
+      workbookId
+    )
     expect(deletedWorkbook).to.deep.equal(oneGroupWorkbook)
 
     workbookId = 9999999
-    await expect(workbookService.deleteWorkbook(workbookId)).to.be.rejectedWith(
-      EntityNotExistException
-    )
+    await expect(
+      workbookService.deleteWorkbook(GROUP_ID, workbookId)
+    ).to.be.rejectedWith(EntityNotExistException)
   })
 })
