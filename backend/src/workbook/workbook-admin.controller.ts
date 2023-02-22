@@ -36,9 +36,9 @@ export class WorkbookAdminController {
   ): Promise<Partial<Workbook>[]> {
     try {
       return await this.workbookService.getAdminWorkbooksByGroupId(
-        groupId,
         cursor,
-        take
+        take,
+        groupId
       )
     } catch (error) {
       throw new InternalServerErrorException()

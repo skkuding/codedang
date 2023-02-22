@@ -22,9 +22,12 @@ export class WorkbookController {
   constructor(private readonly workbookService: WorkbookService) {}
 
   @Get()
-  async getWorkbooks(): Promise<Partial<Workbook>[]> {
+  async getWorkbooks(
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
+  ): Promise<Partial<Workbook>[]> {
     try {
-      return await this.workbookService.getWorkbooksByGroupId()
+      return await this.workbookService.getWorkbooksByGroupId(cursor, take)
     } catch (error) {
       throw new InternalServerErrorException()
     }
@@ -44,9 +47,9 @@ export class GroupWorkbookController {
   ): Promise<Partial<Workbook>[]> {
     try {
       return await this.workbookService.getWorkbooksByGroupId(
-        groupId,
         cursor,
-        take
+        take,
+        groupId
       )
     } catch (error) {
       throw new InternalServerErrorException()

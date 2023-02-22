@@ -257,6 +257,27 @@ export class ContestService {
     return contest
   }
 
+  async getAdminContests(
+    cursor: number,
+    take: number,
+    groupId = OPEN_SPACE_ID
+  ): Promise<Partial<Contest>[]> {
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
+    }
+    return await this.prisma.contest.findMany({
+      where: { groupId },
+      select: { ...this.contestSelectOption, config: true },
+      skip: skip,
+      take: take,
+      cursor: {
+        id: cursor
+      }
+    })
+  }
+
   async getAdminOngoingContests(
     cursor: number,
     take: number,
@@ -275,35 +296,12 @@ export class ContestService {
       select: this.contestSelectOption,
       take: take,
       cursor: {
-        id: cursor ? cursor: 1
+        id: cursor ? cursor : 1
       }
     })
   }
 
-  async getAdminContests(
-    cursor: number,
-    take: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Contest>[]> {
-    let skip = 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
-    return await this.prisma.contest.findMany({
-      where: {
-        groupId: groupId
-      },
-      select: { ...this.contestSelectOption, config: true },
-      skip: skip,
-      take: take,
-      cursor: {
-        id: cursor
-      }
-    })
-  }
-
-  async getAdminContestById(contestId: number): Promise<Partial<Contest>> {
+  async getAdminContest(contestId: number): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
       select: {
@@ -315,27 +313,6 @@ export class ContestService {
     })
 
     return contest
-  }
-
-  async getAdminContestsByGroupId(
-    cursor: number,
-    take: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Contest>[]> {
-    let skip = 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
-    return await this.prisma.contest.findMany({
-      skip: skip,
-      take: take,
-      cursor: {
-        id: cursor
-      },
-      where: { groupId },
-      select: { ...this.contestSelectOption, config: true }
-    })
   }
 
   async createContestPublicizingRequest(contestId: number, userId: number) {

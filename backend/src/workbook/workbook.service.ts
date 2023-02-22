@@ -22,28 +22,38 @@ export class WorkbookService {
       skip = 0
     }
     const workbooks = await this.prisma.workbook.findMany({
-      skip: skip,
-      take: take,
-      cursor: {
-        id: cursor
-      },
       where: {
         groupId,
         isVisible: true
       },
-      select: { title: true, description: true, updateTime: true }
+      select: { title: true, description: true, updateTime: true },
+      skip: skip,
+      take: take,
+      cursor: {
+        id: cursor
+      }
     })
     return workbooks
   }
 
   async getAdminWorkbooksByGroupId(
+    cursor,
+    take,
     groupId = OPEN_SPACE_ID
   ): Promise<Partial<Workbook>[]> {
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
+    }
     const workbooks = await this.prisma.workbook.findMany({
-      where: {
-        groupId
-      },
-      select: { title: true, description: true, updateTime: true }
+      where: { groupId },
+      select: { title: true, description: true, updateTime: true },
+      skip: skip,
+      take: take,
+      cursor: {
+        id: cursor
+      }
     })
     return workbooks
   }

@@ -108,7 +108,7 @@ export class GroupContestAdminController {
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     try {
-      return await this.contestService.getAdminContestById(contestId)
+      return await this.contestService.getAdminContest(contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -123,11 +123,7 @@ export class GroupContestAdminController {
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
-    return await this.contestService.getAdminContestsByGroupId(
-      groupId,
-      cursor,
-      take
-    )
+    return await this.contestService.getAdminContests(cursor, take, groupId)
   }
 }
 

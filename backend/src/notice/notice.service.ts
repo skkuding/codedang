@@ -52,11 +52,6 @@ export class NoticeService {
       skip = 0
     }
     return await this.prisma.notice.findMany({
-      take,
-      skip,
-      cursor: {
-        id: cursor
-      },
       where: {
         groupId: groupId,
         isVisible: true
@@ -66,6 +61,11 @@ export class NoticeService {
         title: true,
         createTime: true,
         isFixed: true
+      },
+      take,
+      skip,
+      cursor: {
+        id: cursor
       }
     })
   }
@@ -114,43 +114,9 @@ export class NoticeService {
     }
   }
 
-  async getAdminNotices(
-    cursor: number,
-    take: number
-  ): Promise<Partial<Notice>[]> {
-    let skip = 1
-    if (cursor === 0) {
-      cursor = 1
-      skip = 0
-    }
-    return await this.prisma.notice.findMany({
-      take,
-      skip,
-      cursor: {
-        id: cursor
-      },
-      where: {
-        groupId: 1
-      },
-      select: {
-        id: true,
-        group: {
-          select: {
-            id: true,
-            groupName: true
-          }
-        },
-        title: true,
-        updateTime: true,
-        createdBy: true,
-        isVisible: true
-      }
-    })
-  }
-
   async getAdminNoticesByGroupId(
-    take: number,
     cursor: number,
+    take: number,
     groupId = OPEN_SPACE_ID
   ): Promise<Partial<Notice>[]> {
     let skip = 1
@@ -159,20 +125,19 @@ export class NoticeService {
       skip = 0
     }
     return await this.prisma.notice.findMany({
+      where: { groupId },
+      select: {
+        id: true,
+        title: true,
+        createdBy: true,
+        updateTime: true,
+        isVisible: true,
+        isFixed: true
+      },
       take,
       skip,
       cursor: {
         id: cursor
-      },
-      where: {
-        groupId: groupId
-      },
-      select: {
-        id: true,
-        title: true,
-        updateTime: true,
-        isVisible: true,
-        isFixed: true
       }
     })
   }

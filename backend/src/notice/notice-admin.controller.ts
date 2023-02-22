@@ -35,7 +35,7 @@ export class NoticeAdminController {
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getAdminNotices(cursor, take)
+    return await this.noticeService.getAdminNoticesByGroupId(cursor, take)
   }
 }
 
@@ -71,9 +71,9 @@ export class GroupNoticeAdminController {
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
     return await this.noticeService.getAdminNoticesByGroupId(
-      groupId,
       cursor,
-      take
+      take,
+      groupId
     )
   }
 
