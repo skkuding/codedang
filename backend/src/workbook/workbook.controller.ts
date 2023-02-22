@@ -63,7 +63,7 @@ export class PublicWorkbookController {
   @Get('/:workbookId')
   async getPublicWorkbook(
     @Param('workbookId', ParseIntPipe) workbookId
-  ): Promise<Workbook> {
+  ): Promise<Partial<Workbook>> {
     try {
       return await this.workbookService.getWorkbookById(workbookId, false)
     } catch (error) {
