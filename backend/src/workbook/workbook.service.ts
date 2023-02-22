@@ -58,17 +58,28 @@ export class WorkbookService {
     return workbooks
   }
 
-  async getWorkbookById(workbookId: number): Promise<Workbook> {
+  async getWorkbookById(workbookId: number): Promise<Partial<Workbook>> {
     const workbook = await this.prisma.workbook.findFirst({
       where: { id: workbookId, isVisible: true },
+      select: { id: true, title: true },
       rejectOnNotFound: () => new EntityNotExistException('workbook')
     })
     return workbook
   }
 
-  async getAdminWorkbookById(workbookId: number): Promise<Workbook> {
+  async getAdminWorkbookById(workbookId: number): Promise<Partial<Workbook>> {
     const workbook = await this.prisma.workbook.findFirst({
       where: { id: workbookId },
+      select: {
+        id: true,
+        title: true,
+        createdBy: {
+          select: {
+            username: true
+          }
+        },
+        isVisible: true
+      },
       rejectOnNotFound: () => new EntityNotExistException('workbook')
     })
     return workbook
