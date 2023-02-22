@@ -33,7 +33,7 @@ export class NoticeAdminController {
   async getAdminNotices(
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getAdminNotices(offset)
+    return await this.noticeService.getAdminNoticesByGroupId(offset)
   }
 }
 
@@ -50,9 +50,9 @@ export class GroupNoticeAdminController {
   ): Promise<Notice> {
     try {
       return await this.noticeService.createNotice(
+        createNoticeDto,
         req.user.id,
-        groupId,
-        createNoticeDto
+        groupId
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
@@ -67,7 +67,7 @@ export class GroupNoticeAdminController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getAdminNoticesByGroupId(groupId, offset)
+    return await this.noticeService.getAdminNoticesByGroupId(offset, groupId)
   }
 
   @Get(':id')

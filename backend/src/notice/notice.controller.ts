@@ -18,20 +18,20 @@ import { EntityNotExistException } from 'src/common/exception/business.exception
 
 @Controller('notice')
 @AuthNotNeeded()
-export class PublicNoticeController {
+export class NoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Get()
   async getNotices(
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getNoticesByGroupId(1, offset)
+    return await this.noticeService.getNoticesByGroupId(offset)
   }
 
   @Get(':id')
   async getNotice(@Param('id', ParseIntPipe) id: number): Promise<UserNotice> {
     try {
-      return await this.noticeService.getNotice(id, 1)
+      return await this.noticeService.getNotice(id)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -51,13 +51,13 @@ export class GroupNoticeController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getNoticesByGroupId(groupId, offset)
+    return await this.noticeService.getNoticesByGroupId(offset, groupId)
   }
 
   @Get(':id')
   async getNotice(
-    @Param('id', ParseIntPipe) id: number,
-    @Param('groupId', ParseIntPipe) groupId: number
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Param('id', ParseIntPipe) id: number
   ): Promise<UserNotice> {
     try {
       return await this.noticeService.getNotice(id, groupId)

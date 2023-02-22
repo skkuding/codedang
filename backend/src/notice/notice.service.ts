@@ -5,15 +5,16 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { CreateNoticeDto } from './dto/create-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
+import { OPEN_SPACE_ID } from 'src/common/constants'
 
 @Injectable()
 export class NoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createNotice(
+    noticeDto: CreateNoticeDto,
     userId: number,
-    groupId: number,
-    noticeDto: CreateNoticeDto
+    groupId: number
   ): Promise<Notice> {
     await this.prisma.group.findUnique({
       where: {
@@ -41,8 +42,8 @@ export class NoticeService {
   }
 
   async getNoticesByGroupId(
-    groupId: number,
-    offset: number
+    offset: number,
+    groupId = OPEN_SPACE_ID
   ): Promise<Partial<Notice>[]> {
     return await this.prisma.notice.findMany({
       where: {
@@ -60,7 +61,7 @@ export class NoticeService {
     })
   }
 
-  async getNotice(id: number, groupId: number): Promise<UserNotice> {
+  async getNotice(id: number, groupId = OPEN_SPACE_ID): Promise<UserNotice> {
     const current = await this.prisma.notice.findFirst({
       where: {
         id: id,
@@ -104,32 +105,9 @@ export class NoticeService {
     }
   }
 
-  async getAdminNotices(offset: number): Promise<Partial<Notice>[]> {
-    return await this.prisma.notice.findMany({
-      where: {
-        groupId: 1
-      },
-      select: {
-        id: true,
-        group: {
-          select: {
-            id: true,
-            groupName: true
-          }
-        },
-        title: true,
-        updateTime: true,
-        createdBy: true,
-        isVisible: true
-      },
-      skip: offset - 1,
-      take: 5
-    })
-  }
-
   async getAdminNoticesByGroupId(
-    groupId: number,
-    offset: number
+    offset: number,
+    groupId = OPEN_SPACE_ID
   ): Promise<Partial<Notice>[]> {
     return await this.prisma.notice.findMany({
       where: {
