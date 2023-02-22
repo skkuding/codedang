@@ -123,7 +123,9 @@ describe('WorkbookService', () => {
 
     const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
       PUBLIC_GROUP_ID,
-      false
+      false,
+      0,
+      3
     )
     expect(returnedPublicWorkbooks).to.deep.equal(isVisiblePublicWorkbooks)
   })
@@ -133,7 +135,9 @@ describe('WorkbookService', () => {
 
     const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
       PUBLIC_GROUP_ID,
-      true
+      true,
+      0,
+      3
     )
     expect(returnedPublicWorkbooks).to.deep.equal(publicWorkbooks)
   })
@@ -143,7 +147,9 @@ describe('WorkbookService', () => {
 
     const returnedGroupWorkbooks = await workbookService.getWorkbooksByGroupId(
       PRIVATE_GROUP_ID,
-      false
+      false,
+      0,
+      3
     )
     expect(returnedGroupWorkbooks).to.deep.equal(groupWorkbooks)
   })
