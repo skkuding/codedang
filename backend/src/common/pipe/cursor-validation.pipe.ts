@@ -8,7 +8,7 @@ import { InvalidCursorValueException } from '../exception/controller.exception'
 
 @Injectable()
 export class CursorValidationPipe implements PipeTransform {
-  transform(value: string, metadata: ArgumentMetadata) {
+  transform(value: string) {
     // validation for default values
     if (value == null) {
       return 0
