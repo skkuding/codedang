@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  DefaultValuePipe,
   Delete,
   Get,
   InternalServerErrorException,
@@ -32,23 +31,17 @@ import { Roles } from 'src/common/decorator/roles.decorator'
 import { CreateContestPublicizingRequestDto } from './dto/create-publicizing-request.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
-import { CursorValidationPipe } from 'src/common/pipe/custom-validation.pipe'
+import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 
 @Controller('admin/contest')
-@AuthNotNeeded()
-//@UseGuards(RolesGuard)
+@UseGuards(RolesGuard)
 @Roles(Role.Admin)
 export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
   async getAdminContests(
-    @Query(
-      'cursor',
-      CursorValidationPipe,
-      new DefaultValuePipe(0),
-      ParseIntPipe
-    )
+    @Query('cursor', CursorValidationPipe)
     cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
@@ -57,12 +50,7 @@ export class ContestAdminController {
 
   @Get('ongoing')
   async getAdminOngoingContests(
-    @Query(
-      'cursor',
-      CursorValidationPipe,
-      new DefaultValuePipe(0),
-      ParseIntPipe
-    )
+    @Query('cursor', CursorValidationPipe)
     cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
@@ -138,12 +126,7 @@ export class GroupContestAdminController {
   @Get()
   async getAdminContests(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query(
-      'cursor',
-      CursorValidationPipe,
-      new DefaultValuePipe(0),
-      ParseIntPipe
-    )
+    @Query('cursor', CursorValidationPipe)
     cursor: number,
     @Query('offset', ParseIntPipe) offset: number
   ): Promise<Partial<Contest>[]> {

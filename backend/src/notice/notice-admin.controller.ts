@@ -23,7 +23,7 @@ import { CreateNoticeDto } from './dto/create-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { Roles } from 'src/common/decorator/roles.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
-import { CursorValidationPipe } from '../common/pipe/custom-validation.pipe'
+import { CursorValidationPipe } from '../common/pipe/cursor-validation.pipe'
 
 @Controller('admin/notice')
 @UseGuards(RolesGuard)

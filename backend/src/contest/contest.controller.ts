@@ -9,8 +9,7 @@ import {
   Get,
   UseGuards,
   MethodNotAllowedException,
-  Query,
-  DefaultValuePipe
+  Query
 } from '@nestjs/common'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
@@ -22,7 +21,7 @@ import { ContestService } from './contest.service'
 import { Contest } from '@prisma/client'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
-import { CursorValidationPipe } from 'src/common/pipe/custom-validation.pipe'
+import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 
 @Controller('contest')
 @AuthNotNeeded()
@@ -58,16 +57,10 @@ export class GroupContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  @AuthNotNeeded() //delete
-  //@UseGuards(RolesGuard, GroupMemberGuard)
+  @UseGuards(RolesGuard, GroupMemberGuard)
   async getContests(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query(
-      'cursor',
-      CursorValidationPipe,
-      new DefaultValuePipe(0),
-      ParseIntPipe
-    )
+    @Query('cursor', CursorValidationPipe)
     cursor: number,
     @Query('take', ParseIntPipe) offset: number
   ): Promise<Partial<Contest>[]> {
