@@ -160,7 +160,11 @@ describe('NoticeService', () => {
     it('should return notice list of the group', async () => {
       db.notice.findMany.resolves(noticeArray)
 
-      const getNoticesByGroupId = await service.getNoticesByGroupId(group.id, 1)
+      const getNoticesByGroupId = await service.getNoticesByGroupId(
+        group.id,
+        0,
+        3
+      )
       expect(getNoticesByGroupId).to.deep.equal(noticeArray)
     })
   })
@@ -235,7 +239,8 @@ describe('NoticeService', () => {
 
       const getNoticesByGroupId = await service.getAdminNoticesByGroupId(
         groupId,
-        1
+        0,
+        3
       )
       expect(getNoticesByGroupId).to.deep.equal(noticeArray)
     })
@@ -309,7 +314,7 @@ describe('NoticeService', () => {
     it('should return notice list in open space', async () => {
       db.notice.findMany.resolves(noticeArray)
 
-      const getNotices = await service.getAdminNotices(1)
+      const getNotices = await service.getAdminNotices(0, 3)
       expect(getNotices).to.deep.equal(noticeArray)
     })
   })

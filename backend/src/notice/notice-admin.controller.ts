@@ -11,7 +11,8 @@ import {
   ParseIntPipe,
   UseGuards,
   InternalServerErrorException,
-  NotFoundException
+  NotFoundException,
+  DefaultValuePipe
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
 import { Notice, Role } from '@prisma/client'
@@ -31,9 +32,10 @@ export class NoticeAdminController {
 
   @Get()
   async getAdminNotices(
-    @Query('offset', ParseIntPipe) offset: number
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getAdminNotices(offset)
+    return await this.noticeService.getAdminNotices(cursor, take)
   }
 }
 
@@ -65,9 +67,14 @@ export class GroupNoticeAdminController {
   @Get()
   async getAdminNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('offset', ParseIntPipe) offset: number
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getAdminNoticesByGroupId(groupId, offset)
+    return await this.noticeService.getAdminNoticesByGroupId(
+      groupId,
+      cursor,
+      take
+    )
   }
 
   @Get(':id')

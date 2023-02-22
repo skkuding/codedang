@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   InternalServerErrorException,
@@ -9,6 +10,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   UseGuards
 } from '@nestjs/common'
@@ -28,10 +30,17 @@ export class WorkbookAdminController {
 
   @Get()
   async getGroupWorkbooks(
-    @Param('groupId', ParseIntPipe) groupId
+    @Param('groupId', ParseIntPipe) groupId,
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {
-      return await this.workbookService.getWorkbooksByGroupId(groupId, true)
+      return await this.workbookService.getWorkbooksByGroupId(
+        groupId,
+        true,
+        cursor,
+        take
+      )
     } catch (error) {
       throw new InternalServerErrorException()
     }

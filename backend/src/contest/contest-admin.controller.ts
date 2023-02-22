@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   InternalServerErrorException,
@@ -10,6 +11,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Req,
   UnprocessableEntityException,
   UseGuards
@@ -36,8 +38,19 @@ export class ContestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  async getAdminContests(): Promise<Partial<Contest>[]> {
-    return await this.contestService.getAdminContests()
+  async getAdminContests(
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
+  ): Promise<Partial<Contest>[]> {
+    return await this.contestService.getAdminContests(cursor, take)
+  }
+
+  @Get('ongoing')
+  async getAdminOngoingContests(
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
+  ): Promise<Partial<Contest>[]> {
+    return await this.contestService.getAdminOngoingContests(cursor, take)
   }
 }
 
@@ -106,9 +119,15 @@ export class GroupContestAdminController {
 
   @Get()
   async getAdminContests(
-    @Param('groupId', ParseIntPipe) groupId: number
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('offset', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
-    return await this.contestService.getAdminContestsByGroupId(groupId)
+    return await this.contestService.getAdminContestsByGroupId(
+      groupId,
+      cursor,
+      take
+    )
   }
 }
 
