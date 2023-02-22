@@ -11,9 +11,9 @@ export class CreateNoticeDto {
 
   @IsBoolean()
   @IsNotEmpty()
-  readonly visible: boolean
+  readonly isVisible: boolean
 
   @IsBoolean()
   @IsNotEmpty()
-  readonly fixed: boolean
+  readonly isFixed: boolean
 }

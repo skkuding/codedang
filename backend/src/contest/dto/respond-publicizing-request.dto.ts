@@ -1,11 +1,7 @@
-import { RequestStatus } from '@prisma/client'
-import { IsEnum, IsNotEmpty } from 'class-validator'
+import { IsBoolean, IsNotEmpty } from 'class-validator'
 
 export class RespondContestPublicizingRequestDto {
-  @IsEnum({
-    accepted: RequestStatus.Accepted,
-    rejected: RequestStatus.Rejected
-  })
+  @IsBoolean()
   @IsNotEmpty()
-  readonly requestStatus: RequestStatus
+  readonly accepted: boolean
 }

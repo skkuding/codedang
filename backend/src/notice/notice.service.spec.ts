@@ -8,6 +8,7 @@ import { CreateNoticeDto } from './dto/create-notice.dto'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
+import { CACHE_MANAGER } from '@nestjs/common'
 
 const noticeId = 2
 const userId = 1
@@ -16,15 +17,15 @@ const groupId = 1
 const createNoticeDto: CreateNoticeDto = {
   title: 'Title',
   content: 'Content',
-  visible: true,
-  fixed: true
+  isVisible: true,
+  isFixed: true
 }
 
 const updateNoticeDto: UpdateNoticeDto = {
   title: 'Title',
   content: 'Content',
-  visible: true,
-  fixed: true
+  isVisible: true,
+  isFixed: true
 }
 
 const notice: Notice = {
@@ -33,8 +34,8 @@ const notice: Notice = {
   groupId: groupId,
   title: 'Title',
   content: 'Content',
-  visible: true,
-  fixed: true,
+  isVisible: true,
+  isFixed: true,
   createTime: new Date(),
   updateTime: new Date()
 }
@@ -53,9 +54,14 @@ const group: Group = {
   id: groupId,
   createdById: 1,
   groupName: 'group_name',
-  private: true,
-  invitationCode: '1',
   description: 'description',
+  isDeleted: false,
+  config: {
+    showOnList: true,
+    allowJoinFromSearch: true,
+    allowJoinWithURL: false,
+    requireApprovalBeforeJoin: true
+  },
   createTime: new Date(),
   updateTime: new Date()
 }
@@ -79,19 +85,28 @@ const db = {
 
 describe('NoticeService', () => {
   let service: NoticeService
-  let groupService: GroupService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NoticeService,
         GroupService,
-        { provide: PrismaService, useValue: db }
+        { provide: PrismaService, useValue: db },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => [],
+            store: {
+              keys: () => []
+            }
+          })
+        }
       ]
     }).compile()
 
     service = module.get<NoticeService>(NoticeService)
-    groupService = module.get<GroupService>(GroupService)
   })
 
   it('should be defined', () => {
@@ -126,19 +141,19 @@ describe('NoticeService', () => {
         id: noticePrev.id,
         title: noticePrev.title,
         createTime: noticePrev.createTime,
-        fixed: noticePrev.fixed
+        isFixed: noticePrev.isFixed
       },
       {
         id: notice.id,
         title: notice.title,
         createTime: notice.createTime,
-        fixed: notice.fixed
+        isFixed: notice.isFixed
       },
       {
         id: noticeNext.id,
         title: noticeNext.title,
         createTime: noticeNext.createTime,
-        fixed: noticeNext.fixed
+        isFixed: noticeNext.isFixed
       }
     ]
 
@@ -196,22 +211,22 @@ describe('NoticeService', () => {
         id: noticePrev.id,
         title: noticePrev.title,
         updateTime: noticePrev.updateTime,
-        visible: noticePrev.visible,
-        fixed: noticePrev.fixed
+        isVisible: noticePrev.isVisible,
+        isFixed: noticePrev.isFixed
       },
       {
         id: notice.id,
         title: notice.title,
         updateTime: notice.updateTime,
-        visible: notice.visible,
-        fixed: notice.fixed
+        isVisible: notice.isVisible,
+        isFixed: notice.isFixed
       },
       {
         id: noticeNext.id,
         title: noticeNext.title,
         updateTime: noticeNext.updateTime,
-        visible: noticeNext.visible,
-        fixed: noticeNext.fixed
+        isVisible: noticeNext.isVisible,
+        isFixed: noticeNext.isFixed
       }
     ]
 
@@ -233,8 +248,8 @@ describe('NoticeService', () => {
       },
       title: notice.title,
       content: notice.content,
-      visible: notice.visible,
-      fixed: notice.fixed
+      isVisible: notice.isVisible,
+      isFixed: notice.isFixed
     }
 
     it('should return a notice', async () => {
@@ -267,7 +282,7 @@ describe('NoticeService', () => {
         },
         title: noticePrev.title,
         updateTime: noticePrev.updateTime,
-        visible: noticePrev.visible
+        isVisible: noticePrev.isVisible
       },
       {
         id: notice.id,
@@ -277,7 +292,7 @@ describe('NoticeService', () => {
         },
         title: notice.title,
         updateTime: notice.updateTime,
-        visible: notice.visible
+        isVisible: notice.isVisible
       },
       {
         id: noticeNext.id,
@@ -287,7 +302,7 @@ describe('NoticeService', () => {
         },
         title: noticeNext.title,
         updateTime: noticeNext.updateTime,
-        visible: noticeNext.visible
+        isVisible: noticeNext.isVisible
       }
     ]
 
