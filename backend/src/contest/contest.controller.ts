@@ -63,11 +63,7 @@ export class GroupContestController {
     @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
-    return await this.contestService.getContestsByGroupId(
-      groupId,
-      cursor,
-      take
-    )
+    return await this.contestService.getContestsByGroupId(groupId, cursor, take)
   }
 
   @Get(':id')
