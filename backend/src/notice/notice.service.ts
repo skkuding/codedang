@@ -49,12 +49,10 @@ export class NoticeService {
     cursor: number,
     take: number
   ): Promise<Partial<Notice>[]> {
-    let skip
+    let skip = 1
     if (cursor === 0) {
       cursor = 1
       skip = 0
-    } else if (cursor > 0) {
-      skip = 1
     }
     return await this.prisma.notice.findMany({
       take,
@@ -123,12 +121,10 @@ export class NoticeService {
     cursor: number,
     take: number
   ): Promise<Partial<Notice>[]> {
-    let skip
+    let skip = 1
     if (cursor === 0) {
       cursor = 1
       skip = 0
-    } else if (cursor > 0) {
-      skip = 1
     }
     return await this.prisma.notice.findMany({
       take,
@@ -160,12 +156,10 @@ export class NoticeService {
     take: number,
     cursor: number
   ): Promise<Partial<Notice>[]> {
-    let skip
+    let skip = 1
     if (cursor === 0) {
       cursor = 1
       skip = 0
-    } else if (cursor > 0) {
-      skip = 1
     }
     return await this.prisma.notice.findMany({
       take,

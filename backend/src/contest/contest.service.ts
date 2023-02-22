@@ -199,19 +199,19 @@ export class ContestService {
 
   async getContestsByGroupId(
     groupId: number,
-    myCursor: number,
+    cursor: number,
     take: number
   ): Promise<Partial<Contest>[]> {
-    let skipNum = 1
-    if (!myCursor) {
-      skipNum = 0
-      myCursor = 1
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
     }
     return await this.prisma.contest.findMany({
       take: take,
-      skip: skipNum,
+      skip: skip,
       cursor: {
-        id: myCursor
+        id: cursor
       },
       where: { groupId, visible: true },
       select: this.contestSelectOption
@@ -219,16 +219,14 @@ export class ContestService {
   }
 
   async getAdminOngoingContests(
-    myCursor: number,
+    cursor: number,
     take: number
   ): Promise<Partial<Contest>[]> {
     const now = new Date()
-    let realcursor = myCursor
-    if (!myCursor) realcursor = 1
     return await this.prisma.contest.findMany({
       take: take,
       cursor: {
-        id: realcursor
+        id: cursor ? cursor : 1
       },
       where: {
         AND: [
@@ -236,26 +234,26 @@ export class ContestService {
           { startTime: { lte: now } },
           { endTime: { gte: now } }
         ],
-        NOT: [{ id: myCursor }]
+        NOT: [{ id: cursor }]
       },
       select: this.contestSelectOption
     })
   }
 
   async getAdminContests(
-    myCursor: number,
-    offset: number
+    cursor: number,
+    take: number
   ): Promise<Partial<Contest>[]> {
-    let skipNum = 1
-    if (!myCursor) {
-      skipNum = 0
-      myCursor = 1
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
     }
     return await this.prisma.contest.findMany({
-      skip: skipNum,
-      take: offset,
+      skip: skip,
+      take: take,
       cursor: {
-        id: myCursor
+        id: cursor
       },
       where: {
         groupId: 1
@@ -282,19 +280,19 @@ export class ContestService {
 
   async getAdminContestsByGroupId(
     groupId: number,
-    myCursor: number,
-    offset: number
+    cursor: number,
+    take: number
   ): Promise<Partial<Contest>[]> {
-    let skipNum = 1
-    if (!myCursor) {
-      skipNum = 0
-      myCursor = 1
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
     }
     return await this.prisma.contest.findMany({
-      skip: skipNum,
-      take: offset,
+      skip: skip,
+      take: take,
       cursor: {
-        id: myCursor
+        id: cursor
       },
       where: { groupId },
       select: { ...this.contestSelectOption, visible: true }
