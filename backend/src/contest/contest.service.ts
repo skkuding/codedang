@@ -257,8 +257,43 @@ export class ContestService {
     return contest
   }
 
-  async getAdminContests(): Promise<Partial<Contest>[]> {
+  async getAdminOngoingContests(
+    cursor: number,
+    take: number
+  ): Promise<Partial<Contest>[]> {
+    const now = new Date()
     return await this.prisma.contest.findMany({
+      take: take,
+      cursor: {
+        id: cursor ? cursor : 1
+      },
+      where: {
+        AND: [
+          { groupId: 1 },
+          { startTime: { lte: now } },
+          { endTime: { gte: now } }
+        ],
+        NOT: [{ id: cursor }]
+      },
+      select: this.contestSelectOption
+    })
+  }
+
+  async getAdminContests(
+    cursor: number,
+    take: number
+  ): Promise<Partial<Contest>[]> {
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
+    }
+    return await this.prisma.contest.findMany({
+      skip: skip,
+      take: take,
+      cursor: {
+        id: cursor
+      },
       where: {
         groupId: 1
       },
@@ -281,9 +316,21 @@ export class ContestService {
   }
 
   async getAdminContestsByGroupId(
-    groupId: number
+    groupId: number,
+    cursor: number,
+    take: number
   ): Promise<Partial<Contest>[]> {
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
+    }
     return await this.prisma.contest.findMany({
+      skip: skip,
+      take: take,
+      cursor: {
+        id: cursor
+      },
       where: { groupId },
       select: { ...this.contestSelectOption, config: true }
     })

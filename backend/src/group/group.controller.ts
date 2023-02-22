@@ -1,6 +1,5 @@
 import {
   Controller,
-  DefaultValuePipe,
   Delete,
   Get,
   InternalServerErrorException,
@@ -19,6 +18,7 @@ import {
   EntityAlreadyExistException,
   EntityNotExistException
 } from 'src/common/exception/business.exception'
+import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 import { GroupService } from './group.service'
 import { GroupMemberGuard } from './guard/group-member.guard'
 import { GroupData } from './interface/group-data.interface'
@@ -29,7 +29,7 @@ export class GroupController {
 
   @Get()
   async getGroups(
-    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<GroupData[]> {
     try {
