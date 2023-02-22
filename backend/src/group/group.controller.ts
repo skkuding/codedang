@@ -14,6 +14,7 @@ import {
 import { UserGroup } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import {
   EntityAlreadyExistException,
   EntityNotExistException
@@ -28,6 +29,7 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Get()
+  @AuthNotNeeded()
   async getGroups(
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
