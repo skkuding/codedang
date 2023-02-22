@@ -30,10 +30,11 @@ export class WorkbookService {
   async getWorkbookById(
     workbookId: number,
     isAdmin: boolean
-  ): Promise<Workbook> {
+  ): Promise<Partial<Workbook>> {
     const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
     const workbook = await this.prisma.workbook.findFirst({
       where: { id: workbookId, ...whereOption },
+      select: { id: true, title: true },
       rejectOnNotFound: () => new EntityNotExistException('workbook')
     })
     return workbook
