@@ -8,8 +8,7 @@ import {
   Req,
   Get,
   UseGuards,
-  ForbiddenException,
-  Query
+  ForbiddenException
 } from '@nestjs/common'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
@@ -21,7 +20,6 @@ import { ContestService } from './contest.service'
 import { Contest } from '@prisma/client'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
-import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 import { PUBLIC_GROUP_ID } from 'src/common/constants'
 
 @Controller('contest')

@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  DefaultValuePipe,
   Delete,
   Get,
   InternalServerErrorException,
@@ -30,7 +29,6 @@ import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
-import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 
 @Controller('admin/contest')

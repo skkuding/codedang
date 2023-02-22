@@ -11,8 +11,7 @@ import {
   ParseIntPipe,
   UseGuards,
   InternalServerErrorException,
-  NotFoundException,
-  DefaultValuePipe
+  NotFoundException
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
 import { Notice, Role } from '@prisma/client'
