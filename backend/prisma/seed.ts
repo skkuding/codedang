@@ -56,7 +56,7 @@ const createUsers = async () => {
   managerUser = await prisma.user.create({
     data: {
       username: 'manager',
-      password: await encrypt('Manager'),
+      password: await encrypt('Managermanager'),
       email: 'manager@example.com',
       lastLogin: new Date(),
       role: Role.Manager
