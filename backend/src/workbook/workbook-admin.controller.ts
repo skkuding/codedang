@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   UseGuards
 } from '@nestjs/common'
@@ -20,6 +21,7 @@ import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Workbook } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 
 @Controller('admin/group/:groupId/workbook')
 @UseGuards(RolesGuard, GroupLeaderGuard)
@@ -27,11 +29,17 @@ export class WorkbookAdminController {
   constructor(private readonly workbookService: WorkbookService) {}
 
   @Get()
-  async getWorkbooks(
-    @Param('groupId', ParseIntPipe) groupId
+  async getGroupWorkbooks(
+    @Param('groupId', ParseIntPipe) groupId,
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {
-      return await this.workbookService.getAdminWorkbooksByGroupId(groupId)
+      return await this.workbookService.getAdminWorkbooksByGroupId(
+        groupId,
+        cursor,
+        take
+      )
     } catch (error) {
       throw new InternalServerErrorException()
     }
@@ -40,7 +48,7 @@ export class WorkbookAdminController {
   @Get('/:workbookId')
   async getWorkbook(
     @Param('workbookId', ParseIntPipe) workbookId
-  ): Promise<Workbook> {
+  ): Promise<Partial<Workbook>> {
     try {
       return await this.workbookService.getAdminWorkbookById(workbookId)
     } catch (error) {

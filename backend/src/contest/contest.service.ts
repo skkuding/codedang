@@ -11,7 +11,6 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
-import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
@@ -22,7 +21,6 @@ import { StoredPublicizingRequest } from './interface/publicizing-request.interf
 export class ContestService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly groupService: GroupService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -259,12 +257,49 @@ export class ContestService {
     return contest
   }
 
-  async getAdminContestsByGroupId(
+  async getAdminOngoingContests(
+    cursor: number,
+    take: number,
     groupId = OPEN_SPACE_ID
   ): Promise<Partial<Contest>[]> {
+    const now = new Date()
     return await this.prisma.contest.findMany({
-      where: { groupId },
-      select: { ...this.contestSelectOption, config: true }
+      where: {
+        AND: [
+          { groupId: groupId },
+          { startTime: { lte: now } },
+          { endTime: { gte: now } }
+        ],
+        NOT: [{ id: cursor }]
+      },
+      select: this.contestSelectOption,
+      take: take,
+      cursor: {
+        id: cursor ? cursor: 1
+      }
+    })
+  }
+
+  async getAdminContests(
+    cursor: number,
+    take: number,
+    groupId = OPEN_SPACE_ID
+  ): Promise<Partial<Contest>[]> {
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
+    }
+    return await this.prisma.contest.findMany({
+      where: {
+        groupId: groupId
+      },
+      select: { ...this.contestSelectOption, config: true },
+      skip: skip,
+      take: take,
+      cursor: {
+        id: cursor
+      }
     })
   }
 
@@ -280,6 +315,27 @@ export class ContestService {
     })
 
     return contest
+  }
+
+  async getAdminContestsByGroupId(
+    cursor: number,
+    take: number,
+    groupId = OPEN_SPACE_ID
+  ): Promise<Partial<Contest>[]> {
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
+    }
+    return await this.prisma.contest.findMany({
+      skip: skip,
+      take: take,
+      cursor: {
+        id: cursor
+      },
+      where: { groupId },
+      select: { ...this.contestSelectOption, config: true }
+    })
   }
 
   async createContestPublicizingRequest(contestId: number, userId: number) {

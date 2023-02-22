@@ -5,7 +5,8 @@ import {
   ParseIntPipe,
   InternalServerErrorException,
   NotFoundException,
-  UseGuards
+  UseGuards,
+  Query
 } from '@nestjs/common'
 import { WorkbookService } from './workbook.service'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
@@ -13,6 +14,7 @@ import { RolesGuard } from 'src/user/guard/roles.guard'
 import { GroupMemberGuard } from '../group/guard/group-member.guard'
 import { Workbook } from '@prisma/client'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
+import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 
 @Controller('workbook')
 @AuthNotNeeded()
@@ -35,11 +37,17 @@ export class GroupWorkbookController {
   constructor(private readonly workbookService: WorkbookService) {}
 
   @Get()
-  async getWorkbooks(
-    @Param('groupId', ParseIntPipe) groupId
+  async getGroupWorkbooks(
+    @Param('groupId', ParseIntPipe) groupId,
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {
-      return await this.workbookService.getWorkbooksByGroupId(groupId)
+      return await this.workbookService.getWorkbooksByGroupId(
+        groupId,
+        cursor,
+        take
+      )
     } catch (error) {
       throw new InternalServerErrorException()
     }
@@ -48,7 +56,7 @@ export class GroupWorkbookController {
   @Get('/:workbookId')
   async getWorkbook(
     @Param('workbookId', ParseIntPipe) workbookId
-  ): Promise<Workbook> {
+  ): Promise<Partial<Workbook>> {
     try {
       return await this.workbookService.getWorkbookById(workbookId)
     } catch (error) {

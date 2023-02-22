@@ -12,9 +12,21 @@ export class WorkbookService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getWorkbooksByGroupId(
+    cursor: number,
+    take: number,
     groupId = OPEN_SPACE_ID
   ): Promise<Partial<Workbook>[]> {
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
+    }
     const workbooks = await this.prisma.workbook.findMany({
+      skip: skip,
+      take: take,
+      cursor: {
+        id: cursor
+      },
       where: {
         groupId,
         isVisible: true
