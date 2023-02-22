@@ -5,44 +5,57 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateWorkbookDto } from './dto/create-workbook.dto'
 import { UpdateWorkbookDto } from './dto/update-workbook.dto'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
+import { OPEN_SPACE_ID } from 'src/common/constants'
 
 @Injectable()
 export class WorkbookService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private prismaAdminFindWhereOption: object = { isVisible: true }
-
   async getWorkbooksByGroupId(
-    groupId: number,
-    isAdmin: boolean
+    groupId = OPEN_SPACE_ID
   ): Promise<Partial<Workbook>[]> {
-    const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
     const workbooks = await this.prisma.workbook.findMany({
       where: {
         groupId,
-        ...whereOption
+        isVisible: true
       },
       select: { title: true, description: true, updateTime: true }
     })
     return workbooks
   }
 
-  async getWorkbookById(
-    workbookId: number,
-    isAdmin: boolean
-  ): Promise<Workbook> {
-    const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
+  async getAdminWorkbooksByGroupId(
+    groupId = OPEN_SPACE_ID
+  ): Promise<Partial<Workbook>[]> {
+    const workbooks = await this.prisma.workbook.findMany({
+      where: {
+        groupId
+      },
+      select: { title: true, description: true, updateTime: true }
+    })
+    return workbooks
+  }
+
+  async getWorkbookById(workbookId: number): Promise<Workbook> {
     const workbook = await this.prisma.workbook.findFirst({
-      where: { id: workbookId, ...whereOption },
+      where: { id: workbookId, isVisible: true },
+      rejectOnNotFound: () => new EntityNotExistException('workbook')
+    })
+    return workbook
+  }
+
+  async getAdminWorkbookById(workbookId: number): Promise<Workbook> {
+    const workbook = await this.prisma.workbook.findFirst({
+      where: { id: workbookId },
       rejectOnNotFound: () => new EntityNotExistException('workbook')
     })
     return workbook
   }
 
   async createWorkbook(
+    createWorkbookDto: CreateWorkbookDto,
     userId: number,
-    groupId: number,
-    createWorkbookDto: CreateWorkbookDto
+    groupId = OPEN_SPACE_ID
   ): Promise<Workbook> {
     const newWorkbook = await this.prisma.workbook.create({
       data: {

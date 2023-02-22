@@ -14,49 +14,49 @@ import { GroupMemberGuard } from '../group/guard/group-member.guard'
 import { Workbook } from '@prisma/client'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 
+@Controller('workbook')
+@AuthNotNeeded()
+export class WorkbookController {
+  constructor(private readonly workbookService: WorkbookService) {}
+
+  @Get()
+  async getWorkbooks(): Promise<Partial<Workbook>[]> {
+    try {
+      return await this.workbookService.getWorkbooksByGroupId()
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+}
+
 @Controller('group/:groupId/workbook')
 @UseGuards(RolesGuard, GroupMemberGuard)
 export class GroupWorkbookController {
   constructor(private readonly workbookService: WorkbookService) {}
 
   @Get()
-  async getGroupWorkbooks(
+  async getWorkbooks(
     @Param('groupId', ParseIntPipe) groupId
   ): Promise<Partial<Workbook>[]> {
     try {
-      return await this.workbookService.getWorkbooksByGroupId(groupId, false)
+      return await this.workbookService.getWorkbooksByGroupId(groupId)
     } catch (error) {
       throw new InternalServerErrorException()
     }
   }
 
   @Get('/:workbookId')
-  async getGroupWorkbook(
+  async getWorkbook(
     @Param('workbookId', ParseIntPipe) workbookId
   ): Promise<Workbook> {
     try {
-      return await this.workbookService.getWorkbookById(workbookId, false)
+      return await this.workbookService.getWorkbookById(workbookId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       } else {
         throw new InternalServerErrorException()
       }
-    }
-  }
-}
-
-@Controller('workbook')
-@AuthNotNeeded()
-export class PublicWorkbookController {
-  constructor(private readonly workbookService: WorkbookService) {}
-
-  @Get()
-  async getPublicWorkbooks(): Promise<Partial<Workbook>[]> {
-    try {
-      return await this.workbookService.getWorkbooksByGroupId(1, false)
-    } catch (error) {
-      throw new InternalServerErrorException()
     }
   }
 }

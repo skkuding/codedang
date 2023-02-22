@@ -27,11 +27,11 @@ export class WorkbookAdminController {
   constructor(private readonly workbookService: WorkbookService) {}
 
   @Get()
-  async getGroupWorkbooks(
+  async getWorkbooks(
     @Param('groupId', ParseIntPipe) groupId
   ): Promise<Partial<Workbook>[]> {
     try {
-      return await this.workbookService.getWorkbooksByGroupId(groupId, true)
+      return await this.workbookService.getAdminWorkbooksByGroupId(groupId)
     } catch (error) {
       throw new InternalServerErrorException()
     }
@@ -42,7 +42,7 @@ export class WorkbookAdminController {
     @Param('workbookId', ParseIntPipe) workbookId
   ): Promise<Workbook> {
     try {
-      return await this.workbookService.getWorkbookById(workbookId, true)
+      return await this.workbookService.getAdminWorkbookById(workbookId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -54,15 +54,15 @@ export class WorkbookAdminController {
 
   @Post()
   async createWorkbook(
+    @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId,
-    @Body() createWorkbookDto: CreateWorkbookDto,
-    @Req() req: AuthenticatedRequest
+    @Body() createWorkbookDto: CreateWorkbookDto
   ): Promise<Workbook> {
     try {
       return await this.workbookService.createWorkbook(
+        createWorkbookDto,
         req.user.id,
-        groupId,
-        createWorkbookDto
+        groupId
       )
     } catch (error) {
       throw new InternalServerErrorException()
