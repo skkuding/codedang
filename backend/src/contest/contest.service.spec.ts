@@ -387,7 +387,17 @@ describe('ContestService', () => {
     it('should return contests in open space', async () => {
       stub(groupService, 'getUserGroupLeaderList').resolves([groupId])
 
-      expect(await service.getAdminContests()).to.deep.equal(contests)
+      expect(await service.getAdminContests(0, 3)).to.deep.equal(contests)
+    })
+  })
+
+  describe('getAdminOngoingContests', () => {
+    it('should return ongoing contests in open space', async () => {
+      mockPrismaService.contest.findMany.resolves(ongoingContests)
+
+      expect(await service.getAdminOngoingContests(0, 1)).to.deep.equal(
+        ongoingContests
+      )
     })
   })
 
@@ -413,9 +423,10 @@ describe('ContestService', () => {
 
   describe('getAdminContestsByGroupId', () => {
     it('should return contests of the group', async () => {
-      expect(await service.getAdminContestsByGroupId(groupId)).to.deep.equal(
-        contests
-      )
+      mockPrismaService.contest.findMany.resolves(contests)
+      expect(
+        await service.getAdminContestsByGroupId(groupId, 0, 3)
+      ).to.deep.equal(contests)
     })
   })
 
