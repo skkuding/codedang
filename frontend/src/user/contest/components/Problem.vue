@@ -3,27 +3,33 @@ import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
 
-interface Item {
+const props = defineProps<{
+  id: number
+}>()
+
+interface Problem {
   id: string
   problemId: number
   title: string
 }
-const field = [
-  { key: 'id', label: '#', width: '40%' },
-  { key: 'title', label: 'Title' }
-]
-const items = ref<Item[]>([])
+const field = [{ key: 'id', label: '#', width: '40%' }, { key: 'title' }]
+const problemList = ref<Problem[]>([])
 
 onMounted(async () => {
-  const response = await axios.get('/api/contest/1/problem?offset=0&limit=10')
-  items.value = response.data
+  const res = await axios.get(`/api/contest/${props.id}/problem`, {
+    params: {
+      offset: 0,
+      limit: 10
+    }
+  })
+  problemList.value = res.data
 })
 </script>
 
 <template>
   <PaginationTable
     :fields="field"
-    :items="items"
+    :items="problemList"
     no-search-bar
     :number-of-pages="1"
     @row-clicked="({ id }) => $router.push('/problem/' + id)"
