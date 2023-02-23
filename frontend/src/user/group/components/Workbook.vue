@@ -85,15 +85,5 @@ useIntersectionObserver(target, ([{ isIntersecting }]) => {
       @click="$router.push(`/workbook/${workbookId}`)"
     />
     <div v-if="!loading" ref="target" />
-
-    <!-- 로딩 상태 UI로 스켈레톤 선택. 다른 UI로 변경해도 OK
-    <div
-      v-if="loading"
-      class="bg-gray min-w-sm flex h-56 w-full animate-pulse items-center justify-center rounded-lg"
-    />
-    <div
-      v-if="loading"
-      class="bg-gray min-w-sm flex h-56 w-full animate-pulse items-center justify-center rounded-lg"
-    /> -->
   </div>
 </template>
