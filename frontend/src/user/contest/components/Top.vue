@@ -1,4 +1,8 @@
 <script setup lang="ts">
+defineProps<{
+  id: number
+}>()
+
 const text =
   '<div>일시 : 1/4(월) - 1/10(일) 참여 방법 :상단의 SKKU Coding Platform 모의대회 클릭 후 참여\
   <br>참여 혜택 : 스타벅스 5000원 상품권 증정\
