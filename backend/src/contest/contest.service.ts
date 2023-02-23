@@ -160,6 +160,7 @@ export class ContestService {
         select: {
           contest: {
             where: {
+              groupId: groupId,
               endTime: {
                 gt: now
               }
