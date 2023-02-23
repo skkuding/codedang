@@ -6,7 +6,7 @@ import Button from '@/common/components/Atom/Button.vue'
 import Dropdown from '@/common/components/Molecule/Dropdown.vue'
 import ListItem from '@/common/components/Atom/ListItem.vue'
 import IconDown from '~icons/fa6-solid/angle-down'
-import Fa6SolidCaretDown from '~icons/fa6-solid/caret-down'
+import IconCaretDown from '~icons/fa6-solid/caret-down'
 import IconRefresh from '~icons/fa6-solid/arrow-rotate-right'
 import IconRun from '~icons/bi/play'
 
@@ -43,7 +43,7 @@ const activeClass = (name: string) =>
           <div
             class="flex h-9 w-fit select-none items-center gap-x-2 rounded px-2 text-white transition hover:bg-white/20 active:bg-white/40"
           >
-            <Fa6SolidCaretDown class="h-4 w-4" />
+            <IconCaretDown class="h-4 w-4" />
             <span>가파른 경사</span>
           </div>
         </template>
