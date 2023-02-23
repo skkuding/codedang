@@ -16,6 +16,7 @@ const field = [{ key: 'id', label: '#', width: '40%' }, { key: 'title' }]
 const problemList = ref<Problem[]>([])
 
 onMounted(async () => {
+  // TODO: problem cursor-based pagination 연결
   const res = await axios.get(`/api/contest/${props.id}/problem`, {
     params: {
       offset: 0,
