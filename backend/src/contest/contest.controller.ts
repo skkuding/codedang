@@ -62,8 +62,6 @@ export class GuestContestController {
 
   @Get()
   async getContests(@Req() req: AuthenticatedRequest): Promise<{
-    registeredOngoing?: Partial<Contest>[]
-    registeredUpcoming?: Partial<Contest>[]
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
