@@ -10,22 +10,24 @@ import {
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
 import { Notice } from '@prisma/client'
-import { Public } from 'src/common/decorator/public.decorator'
+import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { UserNotice } from './interface/user-notice.interface'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
+import { CursorValidationPipe } from '../common/pipe/cursor-validation.pipe'
 
 @Controller('notice')
-@Public()
+@AuthNotNeeded()
 export class PublicNoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Get()
   async getNotices(
-    @Query('offset', ParseIntPipe) offset: number
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getNoticesByGroupId(1, offset)
+    return await this.noticeService.getNoticesByGroupId(1, cursor, take)
   }
 
   @Get(':id')
@@ -46,12 +48,13 @@ export class PublicNoticeController {
 export class GroupNoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
-  @Get()
+  @Get('')
   async getNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('offset', ParseIntPipe) offset: number
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getNoticesByGroupId(groupId, offset)
+    return await this.noticeService.getNoticesByGroupId(groupId, cursor, take)
   }
 
   @Get(':id')

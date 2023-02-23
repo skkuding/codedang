@@ -22,19 +22,20 @@ import { CreateNoticeDto } from './dto/create-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { Roles } from 'src/common/decorator/roles.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
+import { CursorValidationPipe } from '../common/pipe/cursor-validation.pipe'
 
 @Controller('admin/notice')
 @UseGuards(RolesGuard)
-@Roles(Role.Manager)
+@Roles(Role.Admin)
 export class NoticeAdminController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Get()
   async getAdminNotices(
-    @Req() req: AuthenticatedRequest,
-    @Query('offset', ParseIntPipe) offset: number
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getAdminNotices(req.user.id, offset)
+    return await this.noticeService.getAdminNotices(cursor, take)
   }
 }
 
@@ -66,9 +67,14 @@ export class GroupNoticeAdminController {
   @Get()
   async getAdminNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('offset', ParseIntPipe) offset: number
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getAdminNoticesByGroupId(groupId, offset)
+    return await this.noticeService.getAdminNoticesByGroupId(
+      groupId,
+      cursor,
+      take
+    )
   }
 
   @Get(':id')

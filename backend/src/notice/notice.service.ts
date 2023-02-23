@@ -2,17 +2,13 @@ import { UserNotice } from './interface/user-notice.interface'
 import { Injectable } from '@nestjs/common'
 import { Notice } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { GroupService } from 'src/group/group.service'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { CreateNoticeDto } from './dto/create-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 
 @Injectable()
 export class NoticeService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly group: GroupService
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createNotice(
     userId: number,
@@ -30,8 +26,8 @@ export class NoticeService {
       data: {
         title: noticeDto.title,
         content: noticeDto.content,
-        visible: noticeDto.visible,
-        fixed: noticeDto.fixed,
+        isVisible: noticeDto.isVisible,
+        isFixed: noticeDto.isFixed,
         group: {
           connect: { id: groupId }
         },
@@ -46,21 +42,30 @@ export class NoticeService {
 
   async getNoticesByGroupId(
     groupId: number,
-    offset: number
+    cursor: number,
+    take: number
   ): Promise<Partial<Notice>[]> {
+    let skip = 1
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    }
     return await this.prisma.notice.findMany({
+      take,
+      skip,
+      cursor: {
+        id: cursor
+      },
       where: {
         groupId: groupId,
-        visible: true
+        isVisible: true
       },
       select: {
         id: true,
         title: true,
         createTime: true,
-        fixed: true
-      },
-      skip: offset - 1,
-      take: 10
+        isFixed: true
+      }
     })
   }
 
@@ -68,7 +73,7 @@ export class NoticeService {
     const current = await this.prisma.notice.findFirst({
       where: {
         id: id,
-        visible: true
+        isVisible: true
       },
       select: {
         title: true,
@@ -89,7 +94,7 @@ export class NoticeService {
         where: {
           id: options.compare,
           groupId: groupId,
-          visible: true
+          isVisible: true
         },
         orderBy: {
           id: options.order
@@ -109,16 +114,22 @@ export class NoticeService {
   }
 
   async getAdminNotices(
-    userId: number,
-    offset: number
+    cursor: number,
+    take: number
   ): Promise<Partial<Notice>[]> {
-    const groupIds = await this.group.getUserGroupLeaderList(userId)
-
+    let skip = 1
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    }
     return await this.prisma.notice.findMany({
+      take,
+      skip,
+      cursor: {
+        id: cursor
+      },
       where: {
-        groupId: {
-          in: groupIds
-        }
+        groupId: 1
       },
       select: {
         id: true,
@@ -131,18 +142,27 @@ export class NoticeService {
         title: true,
         updateTime: true,
         createdBy: true,
-        visible: true
-      },
-      skip: offset - 1,
-      take: 5
+        isVisible: true
+      }
     })
   }
 
   async getAdminNoticesByGroupId(
     groupId: number,
-    offset: number
+    take: number,
+    cursor: number
   ): Promise<Partial<Notice>[]> {
+    let skip = 1
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    }
     return await this.prisma.notice.findMany({
+      take,
+      skip,
+      cursor: {
+        id: cursor
+      },
       where: {
         groupId: groupId
       },
@@ -150,11 +170,9 @@ export class NoticeService {
         id: true,
         title: true,
         updateTime: true,
-        visible: true,
-        fixed: true
-      },
-      skip: offset - 1,
-      take: 5
+        isVisible: true,
+        isFixed: true
+      }
     })
   }
 
@@ -171,8 +189,8 @@ export class NoticeService {
         },
         title: true,
         content: true,
-        visible: true,
-        fixed: true
+        isVisible: true,
+        isFixed: true
       },
       rejectOnNotFound: () => new EntityNotExistException('notice')
     })
