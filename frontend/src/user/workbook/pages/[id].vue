@@ -95,6 +95,13 @@ workbookProblemList.value = [
 
 // TODO: implement change-page function to reset workbookProblemList using API when click pagination buttons
 
+const TITLE_COLOR: ('green' | 'gray' | 'blue' | 'red')[] = [
+  'gray',
+  'green',
+  'red',
+  'blue'
+]
+
 const router = useRouter()
 const { workbook, getWorkbook } = useWorkbook()
 
@@ -109,7 +116,11 @@ onMounted(async () => {
 
 <template>
   <div class="my-10">
-    <WorkbookTitle :text="workbook?.title || ''" color="red" class="mb-2" />
+    <WorkbookTitle
+      :text="workbook?.title || ''"
+      :color="TITLE_COLOR[parseInt(id) % 4]"
+      class="mb-2"
+    />
     <PaginationTable
       :fields="fields"
       :items="workbookProblemList"

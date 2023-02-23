@@ -144,10 +144,10 @@ problemList.value = [
   }
 ]
 
-const { workbookList, getWorkbooks, getMoreWorkbooks } = useWorkbook()
+const CARD_COLOR = ['#FFE5CC', '#94D0AD', '#FFCDCD', '#B1DDEB']
 
-// TODO: 모든 workbook 개수 가져오기
-const MAX_WORKBOOK = 6
+const { containLastItem, workbookList, getWorkbooks, getMoreWorkbooks } =
+  useWorkbook()
 
 onMounted(async () => {
   await getWorkbooks()
@@ -180,6 +180,7 @@ onMounted(async () => {
   </div>
   <div v-if="workbookList.length === 0">No Workbook</div>
   <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+    <!-- TODO: submission 기록 (total, complete) 가져오기 -->
     <ProgressCard
       v-for="(workbook, index) in workbookList"
       :key="index"
@@ -188,22 +189,18 @@ onMounted(async () => {
         useDateFormat(workbook.updateTime, 'YYYY.MM.DD').value + ' updated'
       "
       :description="workbook.description"
-      color="#94D0AD"
+      :color="CARD_COLOR[workbook.id % 4]"
       :total="6"
       :complete="1"
       @click="$router.push('/workbook/' + workbook.id)"
     />
   </div>
   <Button
-    v-if="workbookList.length < MAX_WORKBOOK"
+    v-if="!containLastItem"
     outline
     color="gray-dark"
     class="mt-8 mb-20 w-full"
-    @click="
-      useWindowSize().width.value < 768
-        ? getMoreWorkbooks(workbookList.length, 2)
-        : getMoreWorkbooks(workbookList.length, 4)
-    "
+    @click="getMoreWorkbooks(useWindowSize().width.value < 768 ? 2 : 4)"
   >
     More
   </Button>
