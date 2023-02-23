@@ -24,7 +24,7 @@ type Response = {
 const workbookList = ref<Response>([])
 
 // query parameters
-const take = ref(2)
+const take = ref(10)
 const cursor = ref(0)
 const hasNextPage = ref(true)
 const loading = ref(false)
