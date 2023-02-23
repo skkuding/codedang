@@ -5,5 +5,5 @@ defineProps<{
 </script>
 
 <template>
-  <div class="text-text-subtitle text-xl font-bold">{{ text }}</div>
+  <h2 class="text-text-subtitle text-xl font-bold">{{ text }}</h2>
 </template>

@@ -2,7 +2,7 @@ import { ExecutionContext, Injectable } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { AuthGuard } from '@nestjs/passport'
 import { Observable } from 'rxjs'
-import { IS_AUTH_NEEDED_KEY } from 'src/common/decorator/auth-ignore.decorator'
+import { IS_AUTH_NOT_NEEDED_KEY } from 'src/common/decorator/auth-ignore.decorator'
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -13,11 +13,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   canActivate(
     context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const isAuthNeeded = this.reflector.getAllAndOverride<boolean>(
-      IS_AUTH_NEEDED_KEY,
+    const isAuthNotNeeded = this.reflector.getAllAndOverride<boolean>(
+      IS_AUTH_NOT_NEEDED_KEY,
       [context.getHandler(), context.getClass()]
     )
-    if (!isAuthNeeded) {
+    if (isAuthNotNeeded) {
       return true
     }
     return super.canActivate(context)
