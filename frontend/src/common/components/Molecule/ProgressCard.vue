@@ -26,7 +26,7 @@ const progressWidth = computed(() => {
   <div class="min-w-min cursor-pointer rounded-lg p-12" :style="shadowColor">
     <div class="text-text-title text-xs">{{ header }}</div>
     <div class="text-text-title mb-2 text-2xl">{{ title }}</div>
-    <div class="mb-4">{{ description }}</div>
+    <div v-dompurify-html="description" class="mb-4" />
     <!-- progress bar -->
     <div class="w-full text-right">
       {{ complete + ' / ' + total }}
