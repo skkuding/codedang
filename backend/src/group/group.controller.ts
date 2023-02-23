@@ -1,6 +1,5 @@
 import {
   Controller,
-  DefaultValuePipe,
   Delete,
   Get,
   InternalServerErrorException,
@@ -15,10 +14,12 @@ import {
 import { UserGroup } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import {
   EntityAlreadyExistException,
   EntityNotExistException
 } from 'src/common/exception/business.exception'
+import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 import { GroupService } from './group.service'
 import { GroupMemberGuard } from './guard/group-member.guard'
 import { GroupData } from './interface/group-data.interface'
@@ -28,8 +29,9 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Get()
+  @AuthNotNeeded()
   async getGroups(
-    @Query('cursor', new DefaultValuePipe(0), ParseIntPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<GroupData[]> {
     try {

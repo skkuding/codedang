@@ -75,6 +75,11 @@ const showTitleDescriptionUpdatedTime = ({
   updateTime
 })
 
+const showIdTitle = ({ id, title }: Workbook) => ({
+  id,
+  title
+})
+
 const publicWorkbooks = [
   showTitleDescriptionUpdatedTime(workbookArray[0]),
   showTitleDescriptionUpdatedTime(workbookArray[1])
@@ -86,7 +91,7 @@ const groupWorkbooks = [
   showTitleDescriptionUpdatedTime(workbookArray[2]),
   showTitleDescriptionUpdatedTime(workbookArray[3])
 ]
-const onePublicWorkbook = workbookArray[0]
+const onePublicWorkbook = showIdTitle(workbookArray[0])
 const oneGroupWorkbook = workbookArray[2]
 const PUBLIC_GROUP_ID = 1
 const PRIVATE_GROUP_ID = 2
@@ -123,7 +128,9 @@ describe('WorkbookService', () => {
 
     const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
       PUBLIC_GROUP_ID,
-      false
+      false,
+      0,
+      3
     )
     expect(returnedPublicWorkbooks).to.deep.equal(isVisiblePublicWorkbooks)
   })
@@ -133,7 +140,9 @@ describe('WorkbookService', () => {
 
     const returnedPublicWorkbooks = await workbookService.getWorkbooksByGroupId(
       PUBLIC_GROUP_ID,
-      true
+      true,
+      0,
+      3
     )
     expect(returnedPublicWorkbooks).to.deep.equal(publicWorkbooks)
   })
@@ -143,7 +152,9 @@ describe('WorkbookService', () => {
 
     const returnedGroupWorkbooks = await workbookService.getWorkbooksByGroupId(
       PRIVATE_GROUP_ID,
-      false
+      false,
+      0,
+      3
     )
     expect(returnedGroupWorkbooks).to.deep.equal(groupWorkbooks)
   })
