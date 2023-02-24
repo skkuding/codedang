@@ -32,7 +32,7 @@ export class ContestController {
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests(undefined, PUBLIC_GROUP_ID)
+    return await this.contestService.getContestsByGroupId()
   }
 
   @Get('auth')

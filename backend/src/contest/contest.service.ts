@@ -121,7 +121,7 @@ export class ContestService {
   }
 
   async getContestsByGroupId(
-    userId: number,
+    userId: number = undefined,
     groupId = OPEN_SPACE_ID
   ): Promise<{
     registeredOngoing?: Partial<Contest>[]
