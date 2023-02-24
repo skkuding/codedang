@@ -28,12 +28,12 @@ export class PublicContestController {
 
   @Get()
   @AuthNotNeeded()
-  async getContests(@Req() req: AuthenticatedRequest): Promise<{
+  async getContests(): Promise<{
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests(req.user?.id, PUBLIC_GROUP_ID)
+    return await this.contestService.getContests(PUBLIC_GROUP_ID)
   }
 
   @Get('auth')
@@ -44,29 +44,12 @@ export class PublicContestController {
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests(req.user.id, PUBLIC_GROUP_ID)
+    return await this.contestService.getContests(PUBLIC_GROUP_ID, req.user.id)
   }
 
   @Get(':contestId')
   @AuthNotNeeded()
   async getContest(
-    @Param('contestId', ParseIntPipe) contestId: number
-  ): Promise<Partial<Contest>> {
-    try {
-      return await this.contestService.getContestDetailById(
-        PUBLIC_GROUP_ID,
-        contestId
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get('auth/:contestId')
-  async authGetContest(
     @Param('contestId', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     try {
