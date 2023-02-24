@@ -29,8 +29,8 @@ import {
   WorkbookProblemService
 } from './problem.service'
 
-@AuthNotNeeded()
 @Controller('problem')
+@AuthNotNeeded()
 export class ProblemController {
   constructor(private readonly problemService: ProblemService) {}
 
@@ -60,8 +60,8 @@ export class ProblemController {
   }
 }
 
-@AuthNotNeeded()
 @Controller('contest/:contestId/problem')
+@AuthNotNeeded()
 export class ContestProblemController {
   constructor(private readonly contestProblemService: ContestProblemService) {}
 
@@ -106,8 +106,8 @@ export class ContestProblemController {
   }
 }
 
-@UseGuards(RolesGuard, GroupMemberGuard)
 @Controller('group/:groupId/contest/:contestId/problem')
+@UseGuards(RolesGuard, GroupMemberGuard)
 export class GroupContestProblemController {
   constructor(private readonly contestProblemService: ContestProblemService) {}
 
@@ -196,8 +196,8 @@ export class WorkbookProblemController {
   }
 }
 
-@UseGuards(RolesGuard, GroupMemberGuard)
 @Controller('group/:groupId/workbook/:workbookId/problem')
+@UseGuards(RolesGuard, GroupMemberGuard)
 export class GroupWorkbookProblemController {
   constructor(
     private readonly workbookProblemService: WorkbookProblemService
