@@ -1,3 +1,4 @@
+import { CACHE_MANAGER } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { fake } from 'sinon'
@@ -12,15 +13,20 @@ const mockPrismaService = {
 
 describe('GroupService', () => {
   let service: GroupService
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GroupService,
-        { provide: PrismaService, useValue: mockPrismaService }
+        { provide: PrismaService, useValue: mockPrismaService },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => []
+          })
+        }
       ]
     }).compile()
-
     service = module.get<GroupService>(GroupService)
   })
 

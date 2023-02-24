@@ -1,6 +1,10 @@
 {
+<<<<<<< HEAD
   "extension": "ts",
   "spec": ["*/**/*.spec.ts"],
+=======
+  "extension": "spec.ts",
+>>>>>>> origin/main
   "require": ["@swc/register", "mocha-fixture.ts"],
   "reporter": "dot"
 }
