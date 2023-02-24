@@ -1,18 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { PublicProblemController } from './problem.controller'
+import { ProblemController } from './problem.controller'
 import { expect } from 'chai'
 import { ProblemService } from './problem.service'
 
-describe('PublicProblemController', () => {
-  let controller: PublicProblemController
+describe('ProblemController', () => {
+  let controller: ProblemController
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [PublicProblemController],
+      controllers: [ProblemController],
       providers: [{ provide: ProblemService, useValue: {} }]
     }).compile()
 
-    controller = module.get<PublicProblemController>(PublicProblemController)
+    controller = module.get<ProblemController>(ProblemController)
   })
 
   it('should be defined', () => {
