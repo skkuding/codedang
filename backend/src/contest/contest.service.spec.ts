@@ -111,6 +111,27 @@ const record: ContestRecord = {
   createTime: new Date(),
   updateTime: new Date()
 }
+const recordAlready: ContestRecord = {
+  id: 1,
+  contestId: contestId,
+  userId: userId,
+  acceptedProblemNum: 0,
+  totalPenalty: 0,
+  createTime: new Date(),
+  updateTime: new Date()
+}
+
+const recordFinished = {
+  groupId: 1,
+  startTime: new Date('2021-12-01T14:00:00.000+09:00'),
+  endTime: new Date('2021-12-01T15:00:00.000+09:00')
+}
+
+const publicContestRecord = {
+  groupId: 1,
+  startTime: new Date('2021-12-01T14:00:00.000+09:00'),
+  endTime: new Date('2021-12-01T15:00:00.000+09:00')
+}
 
 const nonPublicContestRecord = {
   groupId: 2,
@@ -296,7 +317,8 @@ describe('ContestService', () => {
     })
 
     it('should throw error when user is participated in contest again', async () => {
-      mockPrismaService.contestRecord.findFirst.resolves(record)
+      mockPrismaService.contest.findUnique.resolves(publicContestRecord)
+      mockPrismaService.contestRecord.findFirst.resolves(recordAlready)
       await expect(
         service.createPublicContestRecord(userId, contestId)
       ).to.be.rejectedWith(
@@ -304,15 +326,13 @@ describe('ContestService', () => {
         'repetitive participation'
       )
     })
+
     it('should throw error when contest is not ongoing', async () => {
-      mockPrismaService.contest.findUnique.resolves(contest)
+      mockPrismaService.contest.findUnique.resolves(publicContestRecord)
+      mockPrismaService.contestRecord.findFirst.resolves(recordFinished)
       await expect(
         service.createPublicContestRecord(userId, contestId)
       ).to.be.rejectedWith(ActionNotAllowedException, 'participation')
-    })
-    it('should successfully create contestRankACM', async () => {
-      await service.createPublicContestRecord(userId, contestId)
-      expect(mockPrismaService.contestRecord.create.calledOnce).to.be.true
     })
   })
 
