@@ -20,11 +20,10 @@ import { ContestService } from './contest.service'
 import { Contest } from '@prisma/client'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
-import { PUBLIC_GROUP_ID } from 'src/common/constants'
 
 @Controller('contest')
 @AuthNotNeeded()
-export class PublicContestController {
+export class ContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
@@ -35,7 +34,7 @@ export class PublicContestController {
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests(req.user?.id, PUBLIC_GROUP_ID)
+    return await this.contestService.getContestsByGroupId(req.user?.id)
   }
 
   @Get(':contestId')
@@ -43,10 +42,7 @@ export class PublicContestController {
     @Param('contestId', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     try {
-      return await this.contestService.getContestDetailById(
-        PUBLIC_GROUP_ID,
-        contestId
-      )
+      return await this.contestService.getContest(contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -72,7 +68,7 @@ export class GroupContestController {
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests(req.user.id, groupId)
+    return await this.contestService.getContestsByGroupId(req.user.id, groupId)
   }
 
   @Get(':id')
@@ -81,7 +77,7 @@ export class GroupContestController {
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     try {
-      return await this.contestService.getContestDetailById(groupId, contestId)
+      return await this.contestService.getContest(contestId, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -96,13 +92,12 @@ export class GroupContestController {
     @Param('id', ParseIntPipe) contestId: number
   ) {
     try {
-      await this.contestService.createContestRecord(req.user.id, contestId)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      }
-      if (err instanceof ActionNotAllowedException) {
-        throw new ForbiddenException(err.message)
+      await this.contestService.createContestRecord(contestId, req.user.id)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ActionNotAllowedException) {
+        throw new ForbiddenException(error.message)
       }
       throw new InternalServerErrorException()
     }
