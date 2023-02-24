@@ -270,26 +270,15 @@ export class GroupService {
   }
 
   async leaveGroup(userId: number, groupId: number): Promise<UserGroup> {
-    try {
-      const deletedUserGroup = await this.prisma.userGroup.delete({
-        where: {
-          userId_groupId: {
-            userId: userId,
-            groupId: groupId
-          }
+    const deletedUserGroup = await this.prisma.userGroup.delete({
+      where: {
+        userId_groupId: {
+          userId: userId,
+          groupId: groupId
         }
-      })
-      return deletedUserGroup
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('userGroup')
-      } else {
-        throw error
       }
-    }
+    })
+    return deletedUserGroup
   }
 
   async getUserGroup(userId: number, groupId: number) {

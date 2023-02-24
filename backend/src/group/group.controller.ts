@@ -93,9 +93,6 @@ export class GroupController {
     try {
       return await this.groupService.leaveGroup(req.user.id, groupId)
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        throw new NotFoundException(error.message)
-      }
       throw new InternalServerErrorException()
     }
   }
