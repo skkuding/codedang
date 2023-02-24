@@ -3,11 +3,15 @@ import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import { ref } from 'vue'
 import Badge from '@/common/components/Molecule/Badge.vue'
 import Tab from '@/common/components/Molecule/Tab.vue'
-import top from '../../components/top.vue'
-import problem from '../../components/problem.vue'
-import ranking from '../../components/ranking.vue'
-import notice from '../../components/notice.vue'
-import { useNow, useDateFormat } from '@vueuse/core'
+import Top from '../components/Top.vue'
+import Problem from '../components/Problem.vue'
+import Ranking from '../components/Ranking.vue'
+import Notice from '../components/Notice.vue'
+import { useDateFormat, useNow } from '@vueuse/core'
+
+defineProps<{
+  id: string
+}>()
 
 const formatter = ref('YYYY-MM-DD HH:mm:ss')
 const time = useDateFormat(useNow(), formatter)
@@ -20,10 +24,10 @@ const time = useDateFormat(useNow(), formatter)
       <Badge color="green">{{ time }}</Badge>
     </div>
     <Tab :items="['top', 'problem', 'notice', 'ranking']" class="font-bold">
-      <template #top><top /></template>
-      <template #notice><notice /></template>
-      <template #problem><problem /></template>
-      <template #ranking><ranking /></template>
+      <template #top><Top :id="Number(id)" /></template>
+      <template #notice><Notice :id="Number(id)" /></template>
+      <template #problem><Problem :id="Number(id)" /></template>
+      <template #ranking><Ranking :id="Number(id)" /></template>
     </Tab>
   </div>
 </template>
