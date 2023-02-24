@@ -120,8 +120,8 @@ export class ContestService {
   }
 
   async getContests(
-    groupId: number,
-    userId: number = undefined
+    userId: number,
+    groupId: number
   ): Promise<{
     registeredOngoing?: Partial<Contest>[]
     registeredUpcoming?: Partial<Contest>[]

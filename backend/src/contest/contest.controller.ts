@@ -33,7 +33,7 @@ export class PublicContestController {
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests(PUBLIC_GROUP_ID)
+    return await this.contestService.getContests(undefined, PUBLIC_GROUP_ID)
   }
 
   @Get('auth')
@@ -44,7 +44,7 @@ export class PublicContestController {
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getContests(PUBLIC_GROUP_ID, req.user.id)
+    return await this.contestService.getContests(req.user.id, PUBLIC_GROUP_ID)
   }
 
   @Get(':contestId')
