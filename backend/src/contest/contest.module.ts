@@ -9,8 +9,7 @@ import {
 } from './contest-admin.controller'
 import {
   PublicContestController,
-  GroupContestController,
-  GuestContestController
+  GroupContestController
 } from './contest.controller'
 import { ContestService } from './contest.service'
 
@@ -18,7 +17,6 @@ import { ContestService } from './contest.service'
   imports: [GroupModule, UserModule],
   controllers: [
     PublicContestController,
-    GuestContestController,
     GroupContestController,
     ContestAdminController,
     GroupContestAdminController,

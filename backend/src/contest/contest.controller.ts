@@ -22,12 +22,22 @@ import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { PUBLIC_GROUP_ID } from 'src/common/constants'
 
-@Controller('contest/auth')
+@Controller('contest')
 export class PublicContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
+  @AuthNotNeeded()
   async getContests(@Req() req: AuthenticatedRequest): Promise<{
+    ongoing: Partial<Contest>[]
+    upcoming: Partial<Contest>[]
+    finished: Partial<Contest>[]
+  }> {
+    return await this.contestService.getContests(req.user?.id, PUBLIC_GROUP_ID)
+  }
+
+  @Get('auth')
+  async authGetContests(@Req() req: AuthenticatedRequest): Promise<{
     registeredOngoing?: Partial<Contest>[]
     registeredUpcoming?: Partial<Contest>[]
     ongoing: Partial<Contest>[]
@@ -38,6 +48,7 @@ export class PublicContestController {
   }
 
   @Get(':contestId')
+  @AuthNotNeeded()
   async getContest(
     @Param('contestId', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
@@ -53,24 +64,9 @@ export class PublicContestController {
       throw new InternalServerErrorException()
     }
   }
-}
 
-@Controller('contest')
-@AuthNotNeeded()
-export class GuestContestController {
-  constructor(private readonly contestService: ContestService) {}
-
-  @Get()
-  async getContests(@Req() req: AuthenticatedRequest): Promise<{
-    ongoing: Partial<Contest>[]
-    upcoming: Partial<Contest>[]
-    finished: Partial<Contest>[]
-  }> {
-    return await this.contestService.getContests(req.user?.id, PUBLIC_GROUP_ID)
-  }
-
-  @Get(':contestId')
-  async getContest(
+  @Get('auth/:contestId')
+  async authGetContest(
     @Param('contestId', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     try {
