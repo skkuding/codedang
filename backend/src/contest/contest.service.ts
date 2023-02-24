@@ -340,7 +340,7 @@ export class ContestService {
         groupId: true
       }
     })
-    // console.dir(contest)
+
     if (!contest) {
       throw new EntityNotExistException('contest')
     } else if (contest.groupId != 1) {

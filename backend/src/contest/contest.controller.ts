@@ -65,7 +65,7 @@ export class ContestController {
       } else if (err instanceof ActionNotAllowedException) {
         throw new MethodNotAllowedException(err.message)
       }
-      throw new InternalServerErrorException()
+      throw new InternalServerErrorException(err.message)
     }
   }
 }
