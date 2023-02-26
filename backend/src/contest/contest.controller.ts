@@ -37,8 +37,8 @@ export class ContestController {
 
   @Get('auth')
   async authGetContests(@Req() req: AuthenticatedRequest): Promise<{
-    registeredOngoing?: Partial<Contest>[]
-    registeredUpcoming?: Partial<Contest>[]
+    registeredOngoing: Partial<Contest>[]
+    registeredUpcoming: Partial<Contest>[]
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
