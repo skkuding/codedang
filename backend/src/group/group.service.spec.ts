@@ -1,14 +1,17 @@
 import { CACHE_MANAGER } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { groups, userGroups } from './mock/group.mock'
+import { groups, userGroups, groupDatas } from './mock/group.mock'
 import { stub } from 'sinon'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { GroupService } from './group.service'
 import { Cache } from 'cache-manager'
 import { UserGroup } from '@prisma/client'
 import { joinGroupCacheKey } from 'src/common/cache/keys'
-import { ActionNotAllowedException } from 'src/common/exception/business.exception'
+import {
+  ActionNotAllowedException,
+  EntityNotExistException
+} from 'src/common/exception/business.exception'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 
 const db = {
@@ -54,6 +57,73 @@ describe('GroupService', () => {
 
   it('should be defined', () => {
     expect(service).to.be.ok
+  })
+
+  describe('getGroup', () => {
+    it('should return groupData for join when user is not joined to a group', async () => {
+      //given
+      const userId = 3
+      const groupId = 1
+      const mockGroup = groups.filter((group) => group.id === groupId)[0]
+      db.userGroup.findFirst.resolves(null)
+      db.group.findFirst.resolves({
+        id: mockGroup.id,
+        groupName: mockGroup.groupName,
+        description: mockGroup.description,
+        userGroup: userGroups.filter(
+          (userGroup) => userGroup.groupId === groupId
+        ),
+        createdBy: {
+          username: 'manager'
+        }
+      })
+      stub(service, 'getGroupLeaders').resolves(['manager'])
+
+      //when
+      const result = await service.getGroup(userId, groupId)
+
+      //then
+      expect(result).to.deep.equal({ ...groupDatas[0], leaders: ['manager'] })
+    })
+
+    it('should return groupData when user is joined to a group', async () => {
+      //given
+      const userId = 1
+      const groupId = 1
+      const mockGroup = groups.filter((group) => group.id === groupId)[0]
+      db.userGroup.findFirst.resolves({
+        group: {
+          id: mockGroup.id,
+          groupName: mockGroup.groupName,
+          description: mockGroup.description
+        }
+      })
+
+      //when
+      const result = await service.getGroup(userId, groupId)
+
+      //then
+      expect(result).to.deep.equal({
+        id: mockGroup.id,
+        groupName: mockGroup.groupName,
+        description: mockGroup.description
+      })
+    })
+
+    it('should throw EntityNotExistException when group not exists', async () => {
+      //given
+      const userId = 1
+      const groupId = 4
+      db.userGroup.findFirst.resolves(null)
+      db.group.findFirst.rejects(new EntityNotExistException('group'))
+
+      //when
+
+      //then
+      await expect(service.getGroup(userId, groupId)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
   })
 
   describe('joinGroupById', () => {
