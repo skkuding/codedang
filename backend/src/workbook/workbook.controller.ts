@@ -16,6 +16,39 @@ import { Workbook } from '@prisma/client'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 
+@Controller('workbook')
+@AuthNotNeeded()
+export class WorkbookController {
+  constructor(private readonly workbookService: WorkbookService) {}
+
+  @Get()
+  async getWorkbooks(
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
+  ): Promise<Partial<Workbook>[]> {
+    try {
+      return await this.workbookService.getWorkbooksByGroupId(cursor, take)
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('/:workbookId')
+  async getWorkbook(
+    @Param('workbookId', ParseIntPipe) workbookId
+  ): Promise<Partial<Workbook>> {
+    try {
+      return await this.workbookService.getWorkbookById(workbookId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      } else {
+        throw new InternalServerErrorException()
+      }
+    }
+  }
+}
+
 @Controller('group/:groupId/workbook')
 @UseGuards(RolesGuard, GroupMemberGuard)
 export class GroupWorkbookController {
@@ -28,10 +61,9 @@ export class GroupWorkbookController {
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {
-      return await this.workbookService.getWorkbooks(
+      return await this.workbookService.getWorkbooksByGroupId(
         cursor,
         take,
-        false,
         groupId
       )
     } catch (error) {
@@ -40,36 +72,18 @@ export class GroupWorkbookController {
   }
 
   @Get('/:workbookId')
-  async getGroupWorkbook(
+  async getWorkbook(
     @Param('groupId', ParseIntPipe) groupId,
     @Param('workbookId', ParseIntPipe) workbookId
   ): Promise<Partial<Workbook>> {
     try {
-      return await this.workbookService.getWorkbook(workbookId, false, groupId)
+      return await this.workbookService.getWorkbookById(workbookId, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       } else {
         throw new InternalServerErrorException()
       }
-    }
-  }
-}
-
-@Controller('workbook')
-@AuthNotNeeded()
-export class PublicWorkbookController {
-  constructor(private readonly workbookService: WorkbookService) {}
-
-  @Get()
-  async getPublicWorkbooks(
-    @Query('cursor', CursorValidationPipe) cursor: number,
-    @Query('take', ParseIntPipe) take: number
-  ): Promise<Partial<Workbook>[]> {
-    try {
-      return await this.workbookService.getWorkbooks(cursor, take, false)
-    } catch (error) {
-      throw new InternalServerErrorException()
     }
   }
 }

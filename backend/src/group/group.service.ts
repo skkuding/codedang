@@ -1,8 +1,13 @@
 /* eslint-disable */
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  CACHE_MANAGER,
+  Inject,
+  Injectable
+} from '@nestjs/common'
 import { Group, UserGroup } from '@prisma/client'
 import {
-  EntityAlreadyExistException,
+  ActionNotAllowedException,
   EntityNotExistException
 } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
@@ -12,7 +17,6 @@ import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '../common/constants'
 import { joinGroupCacheKey } from 'src/common/cache/keys'
 import { Cache } from 'cache-manager'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
-import { constants } from 'buffer'
 
 @Injectable()
 export class GroupService {
@@ -224,16 +228,18 @@ export class GroupService {
       rejectOnNotFound: () => new EntityNotExistException('group')
     })
 
-    const isJoined = group.userGroup.includes({ userId: userId })
+    const isJoined = group.userGroup.some(
+      (joinedUser) => joinedUser.userId === userId
+    )
 
     if (isJoined) {
-      throw new EntityAlreadyExistException('Group join record')
+      throw new ActionNotAllowedException('join request', 'group')
     } else if (group.config['requireApprovalBeforeJoin']) {
       const joinGroupRequest = await this.cacheManager.get(
         joinGroupCacheKey(userId, groupId)
       )
       if (joinGroupRequest) {
-        throw new EntityAlreadyExistException('Group join request')
+        throw new ActionNotAllowedException('duplicated join request', 'group')
       }
 
       const userGroupValue = `user:${userId}:group:${groupId}`
@@ -264,26 +270,15 @@ export class GroupService {
   }
 
   async leaveGroup(userId: number, groupId: number): Promise<UserGroup> {
-    try {
-      const deletedUserGroup = await this.prisma.userGroup.delete({
-        where: {
-          userId_groupId: {
-            userId: userId,
-            groupId: groupId
-          }
+    const deletedUserGroup = await this.prisma.userGroup.delete({
+      where: {
+        userId_groupId: {
+          userId: userId,
+          groupId: groupId
         }
-      })
-      return deletedUserGroup
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('userGroup')
-      } else {
-        throw error
       }
-    }
+    })
+    return deletedUserGroup
   }
 
   async getUserGroup(userId: number, groupId: number) {

@@ -65,7 +65,7 @@ export class GroupContestAdminController {
     @Body() contestDto: CreateContestDto
   ): Promise<Contest> {
     try {
-      return await this.contestService.createContest(req.user.id, contestDto)
+      return await this.contestService.createContest(contestDto, req.user.id)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
@@ -108,7 +108,7 @@ export class GroupContestAdminController {
     @Param('id', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
     try {
-      return await this.contestService.getAdminContestById(contestId)
+      return await this.contestService.getAdminContest(contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -123,11 +123,7 @@ export class GroupContestAdminController {
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Contest>[]> {
-    return await this.contestService.getAdminContestsByGroupId(
-      groupId,
-      cursor,
-      take
-    )
+    return await this.contestService.getAdminContests(cursor, take, groupId)
   }
 }
 
@@ -137,9 +133,18 @@ export class GroupContestAdminController {
 export class ContestPublicizingRequestAdminController {
   constructor(private readonly contestService: ContestService) {}
 
-  @Patch('/:contestId')
+  @Get()
+  async getContestPublicizingRequests() {
+    try {
+      return await this.contestService.getContestPublicizingRequests()
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Patch('/:id')
   async respondContestPublicizingRequest(
-    @Param('contestId', ParseIntPipe) contestId: number,
+    @Param('id', ParseIntPipe) contestId: number,
     @Body()
     respondContestPublicizingRequestDto: RespondContestPublicizingRequestDto
   ) {
@@ -152,15 +157,6 @@ export class ContestPublicizingRequestAdminController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get()
-  async getContestPublicizingRequests() {
-    try {
-      return await this.contestService.getContestPublicizingRequests()
-    } catch (error) {
       throw new InternalServerErrorException()
     }
   }
@@ -178,8 +174,8 @@ export class ContestPublicizingRequestController {
   ) {
     try {
       return await this.contestService.createContestPublicizingRequest(
-        req.user.id,
-        contestId
+        contestId,
+        req.user.id
       )
     } catch (error) {
       if (error instanceof ActionNotAllowedException) {

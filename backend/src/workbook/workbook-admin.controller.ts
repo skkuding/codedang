@@ -35,10 +35,9 @@ export class WorkbookAdminController {
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {
-      return await this.workbookService.getWorkbooks(
+      return await this.workbookService.getAdminWorkbooksByGroupId(
         cursor,
         take,
-        true,
         groupId
       )
     } catch (error) {
@@ -52,7 +51,7 @@ export class WorkbookAdminController {
     @Param('workbookId', ParseIntPipe) workbookId
   ): Promise<Partial<Workbook>> {
     try {
-      return await this.workbookService.getWorkbook(workbookId, true, groupId)
+      return await this.workbookService.getAdminWorkbookById(workbookId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -64,15 +63,15 @@ export class WorkbookAdminController {
 
   @Post()
   async createWorkbook(
+    @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId,
-    @Body() createWorkbookDto: CreateWorkbookDto,
-    @Req() req: AuthenticatedRequest
+    @Body() createWorkbookDto: CreateWorkbookDto
   ): Promise<Workbook> {
     try {
       return await this.workbookService.createWorkbook(
+        createWorkbookDto,
         req.user.id,
-        groupId,
-        createWorkbookDto
+        groupId
       )
     } catch (error) {
       throw new InternalServerErrorException()
