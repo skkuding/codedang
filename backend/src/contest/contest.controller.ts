@@ -8,8 +8,7 @@ import {
   Req,
   Get,
   UseGuards,
-  ForbiddenException,
-  MethodNotAllowedException
+  ForbiddenException
 } from '@nestjs/common'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
@@ -57,21 +56,21 @@ export class PublicContestController {
   }
 
   @Post(':id/participation')
-  async createPublicContestRecord(
+  async createContestRecord(
     @Req() req: AuthenticatedRequest,
     @Param('id', ParseIntPipe) contestId: number
   ) {
     try {
-      await this.contestService.createPublicContestRecord(
-        //req.user.id,
-        6,
-        contestId
+      await this.contestService.createContestRecord(
+        req.user.id,
+        contestId,
+        true
       )
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       } else if (err instanceof ActionNotAllowedException) {
-        throw new MethodNotAllowedException(err.message)
+        throw new ForbiddenException(err.message)
       }
       throw new InternalServerErrorException(err.message)
     }

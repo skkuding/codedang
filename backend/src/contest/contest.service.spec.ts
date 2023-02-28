@@ -297,18 +297,18 @@ describe('ContestService', () => {
     })
   })
 
-  describe.only('createPublicContestRecord', () => {
+  describe('createPublicContestRecord', () => {
     it('should throw error when the contest does not exist', async () => {
       mockPrismaService.contest.findUnique.resolves(null)
       await expect(
-        service.createPublicContestRecord(userId, contestId)
+        service.createContestRecord(userId, contestId, true)
       ).to.be.rejectedWith(EntityNotExistException, 'contest')
     })
 
     it('should throw error when the contest does not exist', async () => {
       mockPrismaService.contest.findUnique.resolves(nonPublicContestRecord)
       await expect(
-        service.createPublicContestRecord(userId, contestId)
+        service.createContestRecord(userId, contestId, true)
       ).to.be.rejectedWith(
         ActionNotAllowedException,
         'participation',
@@ -320,7 +320,7 @@ describe('ContestService', () => {
       mockPrismaService.contest.findUnique.resolves(publicContestRecord)
       mockPrismaService.contestRecord.findFirst.resolves(recordAlready)
       await expect(
-        service.createPublicContestRecord(userId, contestId)
+        service.createContestRecord(userId, contestId, true)
       ).to.be.rejectedWith(
         ActionNotAllowedException,
         'repetitive participation'
@@ -331,7 +331,7 @@ describe('ContestService', () => {
       mockPrismaService.contest.findUnique.resolves(publicContestRecord)
       mockPrismaService.contestRecord.findFirst.resolves(recordFinished)
       await expect(
-        service.createPublicContestRecord(userId, contestId)
+        service.createContestRecord(userId, contestId, true)
       ).to.be.rejectedWith(ActionNotAllowedException, 'participation')
     })
   })
