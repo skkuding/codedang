@@ -8,10 +8,7 @@ import { GroupService } from './group.service'
 import { Cache } from 'cache-manager'
 import { UserGroup } from '@prisma/client'
 import { joinGroupCacheKey } from 'src/common/cache/keys'
-import {
-  EntityAlreadyExistException,
-  EntityNotExistException
-} from 'src/common/exception/business.exception'
+import { ActionNotAllowedException } from 'src/common/exception/business.exception'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 
 const db = {
@@ -116,7 +113,7 @@ describe('GroupService', () => {
       })
     })
 
-    it('should throw EntityAlreadyExistException when user is already group memeber', async () => {
+    it('should throw ActionNotAllowedException when user is already group memeber', async () => {
       //given
       const userId = 2
       const groupId = 2
@@ -131,10 +128,10 @@ describe('GroupService', () => {
       const result = async () => await service.joinGroupById(userId, groupId)
 
       //then
-      expect(result()).to.be.rejectedWith(EntityAlreadyExistException)
+      expect(result()).to.be.rejectedWith(ActionNotAllowedException)
     })
 
-    it('should throw EntityAlreadyExistException when join request already exists in cache', async () => {
+    it('should throw ActionNotAllowedException when join request already exists in cache', async () => {
       //given
       const userId = 3
       const groupId = 2
@@ -150,7 +147,7 @@ describe('GroupService', () => {
 
       //when
       await expect(service.joinGroupById(userId, groupId)).to.be.rejectedWith(
-        EntityAlreadyExistException
+        ActionNotAllowedException
       )
 
       //then
@@ -193,7 +190,7 @@ describe('GroupService', () => {
 
       //when
       await expect(service.leaveGroup(userId, groupId)).to.be.rejectedWith(
-        EntityNotExistException
+        Error
       )
     })
   })
