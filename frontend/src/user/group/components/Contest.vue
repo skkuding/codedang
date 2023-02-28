@@ -6,7 +6,7 @@ import CardItem from '@/common/components/Molecule/CardItem.vue'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '@/common/store/auth'
-import { useNow, useTimeAgo } from '@vueuse/core'
+import { useDateFormat, useNow, useTimeAgo } from '@vueuse/core'
 
 const props = defineProps<{
   id: number
@@ -53,19 +53,8 @@ onMounted(async () => {
     finished: data.finished
   }
 })
-const padStart = (
-  targetLength: number,
-  padString: string,
-  str: string
-): string => {
-  return str.length >= targetLength
-    ? str
-    : new Array(targetLength - str.length + 1).join(padString) + str
-}
 const now = useNow()
 const DAY = 1000 * 60 * 60 * 24
-const HOUR = 1000 * 60 * 60
-const MINUTE = 1000 * 60
 const getTimeInfo = (key: keyof State, date: Date) => {
   const diff = now.value.getTime() - date.getTime()
   if (key === 'finished') {
@@ -73,23 +62,9 @@ const getTimeInfo = (key: keyof State, date: Date) => {
   } else if (diff < -DAY) {
     return `Start After ${useTimeAgo(date).value}`
   } else if (diff <= 0) {
-    const hour = padStart(2, '0', String(Math.floor(-diff / HOUR)))
-    const min = padStart(2, '0', String(Math.floor((-diff % HOUR) / MINUTE)))
-    const sec = padStart(
-      2,
-      '0',
-      String(Math.floor(((-diff % HOUR) % MINUTE) / 1000))
-    )
-    return `Start After ${hour}:${min}:${sec}`
+    return `Start After ${useDateFormat(new Date(-diff), 'HH:mm:ss').value}`
   } else if (diff < DAY) {
-    const hour = padStart(2, '0', String(Math.floor(diff / HOUR)))
-    const min = padStart(2, '0', String(Math.floor((diff % HOUR) / MINUTE)))
-    const sec = padStart(
-      2,
-      '0',
-      String(Math.floor(((diff % HOUR) % MINUTE) / 1000))
-    )
-    return `Started Before ${hour}:${min}:${sec}`
+    return `Started Before ${useDateFormat(new Date(diff), 'HH:mm:ss').value}`
   } else {
     return `Started Before ${useTimeAgo(date).value}`
   }
