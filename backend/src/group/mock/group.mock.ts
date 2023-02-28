@@ -30,6 +30,21 @@ export const groups: Group[] = [
     isDeleted: false,
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z')
+  },
+  {
+    id: 3,
+    config: {
+      showOnList: false,
+      allowJoinFromSearch: false,
+      allowJoinWithURL: true,
+      requireApprovalBeforeJoin: true
+    },
+    description: 'mock public group with approval',
+    createdById: 1,
+    groupName: 'mock public group 2',
+    isDeleted: false,
+    createTime: new Date('2023-02-22T00:00:00.000Z'),
+    updateTime: new Date('2023-02-22T10:00:00.000Z')
   }
 ]
 
@@ -63,6 +78,16 @@ export const users: User[] = [
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
     email: 'user02@skkuding.dev',
     lastLogin: new Date('2023-02-22T10:00:00.000Z')
+  },
+  {
+    id: 4,
+    role: Role.User,
+    password: '1234',
+    username: 'user03',
+    createTime: new Date('2023-02-22T00:00:00.000Z'),
+    updateTime: new Date('2023-02-22T10:00:00.000Z'),
+    email: 'user03@skkuding.dev',
+    lastLogin: new Date('2023-02-22T10:00:00.000Z')
   }
 ]
 
@@ -93,6 +118,6 @@ export const userGroups: UserGroup[] = [
     userId: 2,
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
-    isGroupLeader: true
+    isGroupLeader: false
   }
 ]
