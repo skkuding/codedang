@@ -49,9 +49,3 @@ export class EmailTransmissionFailedException extends BusinessException {
     super(message)
   }
 }
-
-export class EntityAlreadyExistException extends BusinessException {
-  constructor(entity) {
-    super(`${entity} already exists`)
-  }
-}
