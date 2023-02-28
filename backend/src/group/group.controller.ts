@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Delete,
   Get,
@@ -16,7 +17,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import {
-  EntityAlreadyExistException,
+  ActionNotAllowedException,
   EntityNotExistException
 } from 'src/common/exception/business.exception'
 import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
@@ -37,9 +38,6 @@ export class GroupController {
     try {
       return await this.groupService.getGroups(cursor, take)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
       throw new InternalServerErrorException()
     }
   }
@@ -51,9 +49,6 @@ export class GroupController {
     try {
       return await this.groupService.getJoinedGroups(req.user.id)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
       throw new InternalServerErrorException()
     }
   }
@@ -84,8 +79,8 @@ export class GroupController {
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof EntityAlreadyExistException) {
-        throw new NotFoundException(error.message)
+      } else if (error instanceof ActionNotAllowedException) {
+        throw new BadRequestException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -100,9 +95,6 @@ export class GroupController {
     try {
       return await this.groupService.leaveGroup(req.user.id, groupId)
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        throw new NotFoundException(error.message)
-      }
       throw new InternalServerErrorException()
     }
   }
@@ -115,9 +107,6 @@ export class GroupController {
     try {
       return await this.groupService.getGroupLeaders(groupId)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
       throw new InternalServerErrorException()
     }
   }
@@ -130,9 +119,6 @@ export class GroupController {
     try {
       return await this.groupService.getGroupMembers(groupId)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
       throw new InternalServerErrorException()
     }
   }
