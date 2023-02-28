@@ -3212,7 +3212,7 @@
     "method": "POST",
     "sortNum": 490000,
     "created": "2023-02-21T00:48:09.835Z",
-    "modified": "2023-02-21T10:14:39.489Z",
+    "modified": "2023-02-28T04:08:00.348Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -3245,7 +3245,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "6b97d200-4b3f-42e4-8c8d-0088bb2e5cd4",
+          "reqId": "dab03aa1-e57d-4ac2-8ccd-100dfde5259f",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -3257,12 +3257,12 @@
     "_id": "8ac61468-d539-4085-97a4-cac31d977444",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "e69f258a-3604-45e3-92fd-f87e9f25c64a",
-    "name": "404: Group join request already exists",
+    "name": "400: Duplicated join request is not allowed to this group",
     "url": "/group/5/join",
     "method": "POST",
     "sortNum": 500000,
     "created": "2023-02-21T01:44:32.310Z",
-    "modified": "2023-02-21T10:24:20.944Z",
+    "modified": "2023-02-28T04:02:17.769Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -3270,13 +3270,13 @@
         "type": "res-code",
         "custom": "",
         "action": "equal",
-        "value": "404"
+        "value": "400"
       },
       {
         "type": "json-query",
         "custom": "json.message",
-        "action": "contains",
-        "value": "Group join request already exists"
+        "action": "equal",
+        "value": "duplicated join request is not allowed to this group"
       }
     ],
     "preReq": {
@@ -3409,50 +3409,20 @@
     }
   },
   {
-    "_id": "6b97d200-4b3f-42e4-8c8d-0088bb2e5cd4",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "e69f258a-3604-45e3-92fd-f87e9f25c64a",
-    "name": "Pre run",
-    "url": "/group/2/leave",
-    "method": "DELETE",
-    "sortNum": 560000,
-    "created": "2023-02-21T04:18:40.305Z",
-    "modified": "2023-02-21T04:43:54.076Z",
-    "headers": [],
-    "params": [],
-    "tests": [],
-    "docs": "# Pre Run\n\"id: 2\"인 그룹에 가입되어있다면 미리 탈퇴합니다.",
-    "preReq": {
-      "runRequests": [
-        {
-          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
-          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-          "triggerCondition": "run-always",
-          "triggerValue": ""
-        }
-      ]
-    }
-  },
-  {
     "_id": "1f864552-0657-4256-961b-c37b023ee3a5",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "607d4957-04bd-445a-bc2a-36d2a65c9047",
     "name": "Succeed",
-    "url": "/group?cursor=0&take=10",
+    "url": "/group?take=5",
     "method": "GET",
     "sortNum": 570000,
     "created": "2023-02-21T06:11:43.765Z",
-    "modified": "2023-02-21T10:26:05.288Z",
+    "modified": "2023-02-28T03:59:53.092Z",
     "headers": [],
     "params": [
       {
-        "name": "cursor",
-        "value": "0",
-        "isPath": false
-      },
-      {
         "name": "take",
-        "value": "10",
+        "value": "5",
         "isPath": false
       }
     ],
@@ -3498,12 +3468,12 @@
     "_id": "af1c8666-e7a9-47ed-a9d0-edde11990066",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "607d4957-04bd-445a-bc2a-36d2a65c9047",
-    "name": "Pass invalid value to cursor",
+    "name": "500: Internal Server Error",
     "url": "/group?cursor=-1&take=5",
     "method": "GET",
     "sortNum": 580000,
     "created": "2023-02-21T06:33:24.526Z",
-    "modified": "2023-02-21T06:35:58.576Z",
+    "modified": "2023-02-28T03:58:04.972Z",
     "headers": [],
     "params": [
       {
@@ -3522,13 +3492,13 @@
         "type": "res-code",
         "custom": "",
         "action": "equal",
-        "value": "200"
+        "value": "500"
       },
       {
         "type": "json-query",
-        "custom": "json | filter(id > 1)",
-        "action": "count",
-        "value": "0"
+        "custom": "json.message",
+        "action": "equal",
+        "value": "Internal server error"
       }
     ],
     "preReq": {
@@ -3683,7 +3653,7 @@
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-02-21T08:19:28.677Z",
-    "modified": "2023-02-21T08:42:18.586Z",
+    "modified": "2023-02-28T04:06:34.068Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -3704,7 +3674,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "reqId": "5a1d9f76-166a-49a3-8f62-e92d7d01e461",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -3758,7 +3728,7 @@
     "method": "GET",
     "sortNum": 630000,
     "created": "2023-02-21T08:24:06.274Z",
-    "modified": "2023-02-21T08:26:28.716Z",
+    "modified": "2023-02-28T04:07:00.554Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -3778,55 +3748,7 @@
     "preReq": {
       "runRequests": [
         {
-          "reqId": "96a047b1-9ddc-4a69-9560-995ef04cc218",
-          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-          "triggerCondition": "run-always",
-          "triggerValue": ""
-        }
-      ]
-    }
-  },
-  {
-    "_id": "c879aad1-bc97-41c4-b341-3916dbd89b62",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "dc4b1bd7-bc6f-4a48-b5b1-bd0026d8e3f2",
-    "name": "Pre run",
-    "url": "/group/2/leave",
-    "method": "DELETE",
-    "sortNum": 30000,
-    "created": "2023-02-21T08:25:15.425Z",
-    "modified": "2023-02-21T08:25:22.404Z",
-    "headers": [],
-    "params": [],
-    "tests": [],
-    "preReq": {
-      "runRequests": [
-        {
-          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
-          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-          "triggerCondition": "run-always",
-          "triggerValue": ""
-        }
-      ]
-    }
-  },
-  {
-    "_id": "96a047b1-9ddc-4a69-9560-995ef04cc218",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "d9b60a8b-4f6a-48c0-a9e8-bcab5069cc24",
-    "name": "Pre run",
-    "url": "/group/2/leave",
-    "method": "DELETE",
-    "sortNum": 640000,
-    "created": "2023-02-21T08:25:31.441Z",
-    "modified": "2023-02-21T08:25:32.973Z",
-    "headers": [],
-    "params": [],
-    "tests": [],
-    "preReq": {
-      "runRequests": [
-        {
-          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "reqId": "618a3eeb-f3e4-416c-a74f-016337a8739b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -3978,6 +3900,133 @@
       }
     ],
     "docs": "# Get group\n\n### URL\nGET /group/{groupId}<br><br>\n\n### Description\n그룹의 id가 {groupId}인 그룹의 정보를 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n  id: Number\n  groupName: String\n  description: String\n}\n\n```",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "f192649d-d966-4b71-acdf-d331f39acd7e",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "607d4957-04bd-445a-bc2a-36d2a65c9047",
+    "name": "Succeed Case2",
+    "url": "/group?cursor=1&take=5",
+    "method": "GET",
+    "sortNum": 575000,
+    "created": "2023-02-28T03:58:46.391Z",
+    "modified": "2023-02-28T03:59:35.826Z",
+    "headers": [],
+    "params": [
+      {
+        "name": "cursor",
+        "value": "1",
+        "isPath": false
+      },
+      {
+        "name": "take",
+        "value": "5",
+        "isPath": false
+      }
+    ],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "json-query",
+        "custom": "json | filter(id > 1)",
+        "action": "count",
+        "value": "1"
+      },
+      {
+        "type": "json-query",
+        "custom": "json[0].id",
+        "action": "equal",
+        "value": "5"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "5a1d9f76-166a-49a3-8f62-e92d7d01e461",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "8320fdd3-689e-469b-9f5e-a525574326aa",
+    "name": "Ger group members Pre Run",
+    "url": "/group/2/leave",
+    "method": "DELETE",
+    "sortNum": 10000,
+    "created": "2023-02-28T04:03:50.373Z",
+    "modified": "2023-02-28T04:03:53.690Z",
+    "headers": [],
+    "params": [],
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "618a3eeb-f3e4-416c-a74f-016337a8739b",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "8320fdd3-689e-469b-9f5e-a525574326aa",
+    "name": "Get group leaders Pre Run",
+    "url": "/group/2/leave",
+    "method": "DELETE",
+    "sortNum": 20000,
+    "created": "2023-02-28T04:04:29.111Z",
+    "modified": "2023-02-28T04:04:31.045Z",
+    "headers": [],
+    "params": [],
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "dab03aa1-e57d-4ac2-8ccd-100dfde5259f",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "8320fdd3-689e-469b-9f5e-a525574326aa",
+    "name": "Join group by id Pre Run",
+    "url": "/group/2/leave",
+    "method": "DELETE",
+    "sortNum": 30000,
+    "created": "2023-02-28T04:04:54.112Z",
+    "modified": "2023-02-28T04:04:55.611Z",
+    "headers": [],
+    "params": [],
+    "tests": [],
+    "docs": "# Pre Run\n\"id: 2\"인 그룹에 가입되어있다면 미리 탈퇴합니다.",
     "preReq": {
       "runRequests": [
         {
