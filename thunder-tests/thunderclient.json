@@ -152,7 +152,7 @@
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-01-04T03:41:11.804Z",
-    "modified": "2023-01-15T15:38:47.388Z",
+    "modified": "2023-03-02T11:19:45.926Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -181,18 +181,28 @@
         "value": "\"finished\""
       }
     ],
-    "docs": "# Get all contests\n\n모든 대회 목록을 불러옵니다.  \n대회의 진행 상태에 따라 구분합니다. (ongoing, upcoming, finished)"
+    "docs": "# Get all contests\n## 사용자가 로그인이 되지 않은 경우\n\n모든 대회 목록을 불러옵니다.  \n대회의 진행 상태에 따라 구분합니다. (ongoing, upcoming, finished) <br>\n로그인되지 않았으므로 registered는 따로 구분하지 않습니다.",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
   },
   {
     "_id": "cae53d1e-c7c4-4825-a7f5-96a61a478d70",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "05ffbb82-5894-4752-9025-0ac933930903",
     "name": "Succeed",
-    "url": "/contest/1/modal",
+    "url": "/contest/1",
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-01-04T03:43:05.492Z",
-    "modified": "2023-01-15T15:42:51.441Z",
+    "modified": "2023-03-02T11:27:38.186Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -206,16 +216,40 @@
         "type": "res-body",
         "custom": "",
         "action": "contains",
+        "value": "\"id\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
         "value": "\"title\""
       },
       {
         "type": "res-body",
         "custom": "",
         "action": "contains",
-        "value": "\"descriptionSummary\""
+        "value": "\"startTime\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"endTime\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"group\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"description\""
       }
     ],
-    "docs": "# Get modal contest by ID\n\nModal에 보여줄 요약된 대회 정보를 가져옵니다."
+    "docs": "# Get contest by ID\n\n대회 정보를 가져옵니다."
   },
   {
     "_id": "df4f680f-9ae5-4f1d-9169-08a9a62b8bcd",
@@ -226,7 +260,69 @@
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-01-04T03:44:08.324Z",
-    "modified": "2023-02-15T04:57:35.348Z",
+    "modified": "2023-03-02T11:31:12.792Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"registeredOngoing\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"registeredUpcoming\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"ongoing\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"upcoming\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"finished\""
+      }
+    ],
+    "docs": "# Get group's all contests\n\n그룹의 대회 목록을 가져옵니다.<br>\n대회의 진행 상태에 따라 구분합니다. (registered ongoing, registered upcoming, ongoing, upcoming, finished) <br>\n",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "af8a1447-ee6c-4e13-bf24-7617ffde6f25",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "4b515a9e-2c7f-46c3-aef5-809b6f2c322f",
+    "name": "Succeed",
+    "url": "/group/1/contest/2",
+    "method": "GET",
+    "sortNum": 10000,
+    "created": "2023-01-04T03:44:47.207Z",
+    "modified": "2023-03-02T11:03:49.619Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -259,56 +355,6 @@
         "custom": "",
         "action": "contains",
         "value": "\"group\""
-      }
-    ],
-    "docs": "# Get group's all contests\n\n그룹의 대회 목록을 가져옵니다.",
-    "preReq": {
-      "runRequests": [
-        {
-          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
-          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-          "triggerCondition": "run-always",
-          "triggerValue": ""
-        }
-      ]
-    }
-  },
-  {
-    "_id": "af8a1447-ee6c-4e13-bf24-7617ffde6f25",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "4b515a9e-2c7f-46c3-aef5-809b6f2c322f",
-    "name": "Succeed",
-    "url": "/group/1/contest/2",
-    "method": "GET",
-    "sortNum": 10000,
-    "created": "2023-01-04T03:44:47.207Z",
-    "modified": "2023-02-15T05:05:08.839Z",
-    "headers": [],
-    "params": [],
-    "tests": [
-      {
-        "type": "res-code",
-        "custom": "",
-        "action": "equal",
-        "value": "200"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"title\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"startTime\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"endTime\""
       },
       {
         "type": "res-body",
@@ -535,11 +581,11 @@
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "05ffbb82-5894-4752-9025-0ac933930903",
     "name": "404: Nonexistent contest",
-    "url": "/contest/0/modal",
+    "url": "/contest/0",
     "method": "GET",
     "sortNum": 20000,
     "created": "2023-01-15T15:41:35.396Z",
-    "modified": "2023-01-15T15:42:22.320Z",
+    "modified": "2023-03-02T11:31:28.501Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -3196,6 +3242,105 @@
       "runRequests": [
         {
           "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "e80bb4a0-a6b1-4ea7-9469-55898375d4cf",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "8b4393e5-4001-4f7d-9f41-cce5ef02a10b",
+    "name": "Succeed",
+    "url": "/contest/auth",
+    "method": "GET",
+    "sortNum": 10000,
+    "created": "2023-03-02T10:49:33.129Z",
+    "modified": "2023-03-02T11:08:37.589Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"registeredOngoing\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"registeredUpcoming\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"ongoing\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"upcoming\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"finished\""
+      }
+    ],
+    "docs": "# Get all contests\n## 사용자가 로그인된 경우\n\n모든 대회 목록을 불러옵니다.  \n대회의 진행 상태에 따라 구분합니다. (registered ongoing, registered upcoming, ongoing, upcoming, finished) <br>\n로그인되었으므로 registered contests를 따로 구분합니다.",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "0b535a1b-4437-4f59-af29-c04fde974b01",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "8b4393e5-4001-4f7d-9f41-cce5ef02a10b",
+    "name": "401: Unauthorized",
+    "url": "/contest/auth",
+    "method": "GET",
+    "sortNum": 500000,
+    "created": "2023-03-02T11:15:12.248Z",
+    "modified": "2023-03-02T11:31:39.633Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "401"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Unauthorized"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
