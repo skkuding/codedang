@@ -120,16 +120,29 @@ export class ContestService {
     })
   }
 
+  async getContestsByGroupId<T extends number>(
+    userId?: T,
+    groupId?: number
+  ): Promise<
+    T extends undefined
+      ? {
+          ongoing: Partial<Contest>[]
+          upcoming: Partial<Contest>[]
+          finished: Partial<Contest>[]
+        }
+      : {
+          registeredOngoing: Partial<Contest>[]
+          registeredUpcoming: Partial<Contest>[]
+          ongoing: Partial<Contest>[]
+          upcoming: Partial<Contest>[]
+          finished: Partial<Contest>[]
+        }
+  >
+
   async getContestsByGroupId(
-    userId: number,
+    userId: number = undefined,
     groupId = OPEN_SPACE_ID
-  ): Promise<{
-    registeredOngoing?: Partial<Contest>[]
-    registeredUpcoming?: Partial<Contest>[]
-    ongoing: Partial<Contest>[]
-    upcoming: Partial<Contest>[]
-    finished: Partial<Contest>[]
-  }> {
+  ) {
     if (userId === undefined) {
       const contests = await this.prisma.contest.findMany({
         where: {
