@@ -22,14 +22,23 @@ import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 
 @Controller('contest')
-@AuthNotNeeded()
 export class ContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  async getContests(@Req() req: AuthenticatedRequest): Promise<{
-    registeredOngoing?: Partial<Contest>[]
-    registeredUpcoming?: Partial<Contest>[]
+  @AuthNotNeeded()
+  async getContests(): Promise<{
+    ongoing: Partial<Contest>[]
+    upcoming: Partial<Contest>[]
+    finished: Partial<Contest>[]
+  }> {
+    return await this.contestService.getContestsByGroupId()
+  }
+
+  @Get('auth')
+  async authGetContests(@Req() req: AuthenticatedRequest): Promise<{
+    registeredOngoing: Partial<Contest>[]
+    registeredUpcoming: Partial<Contest>[]
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
     finished: Partial<Contest>[]
@@ -38,6 +47,7 @@ export class ContestController {
   }
 
   @Get(':contestId')
+  @AuthNotNeeded()
   async getContest(
     @Param('contestId', ParseIntPipe) contestId: number
   ): Promise<Partial<Contest>> {
