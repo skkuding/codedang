@@ -35,6 +35,10 @@ module.exports = {
         selector: ['objectLiteralProperty', 'classProperty'],
         format: ['camelCase', 'PascalCase']
       }
+    ],
+    '@typescript-eslint/consistent-type-imports': [
+      'warn',
+      { fixStyle: 'inline-type-imports' }
     ]
   }
 }
