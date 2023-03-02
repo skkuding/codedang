@@ -66,11 +66,13 @@ const updateWorkbookDto = {
   isVisible: false
 }
 
-const showTitleDescriptionUpdatedTime = ({
+const showIdTitleDescriptionUpdatedTime = ({
+  id,
   title,
   description,
   updateTime
 }: Workbook) => ({
+  id,
   title,
   description,
   updateTime
@@ -82,15 +84,15 @@ const showIdTitle = ({ id, title }: Workbook) => ({
 })
 
 const publicWorkbooks = [
-  showTitleDescriptionUpdatedTime(workbookArray[0]),
-  showTitleDescriptionUpdatedTime(workbookArray[1])
+  showIdTitleDescriptionUpdatedTime(workbookArray[0]),
+  showIdTitleDescriptionUpdatedTime(workbookArray[1])
 ]
 const visiblePublicWorkbooks = [
-  showTitleDescriptionUpdatedTime(workbookArray[0])
+  showIdTitleDescriptionUpdatedTime(workbookArray[0])
 ]
 const groupWorkbooks = [
-  showTitleDescriptionUpdatedTime(workbookArray[2]),
-  showTitleDescriptionUpdatedTime(workbookArray[3])
+  showIdTitleDescriptionUpdatedTime(workbookArray[2]),
+  showIdTitleDescriptionUpdatedTime(workbookArray[3])
 ]
 const onePublicWorkbook = {
   id: workbookArray[0].id,

@@ -26,7 +26,7 @@ export class WorkbookService {
         groupId,
         isVisible: true
       },
-      select: { title: true, description: true, updateTime: true },
+      select: { id: true, title: true, description: true, updateTime: true },
       skip: skip,
       take: take,
       cursor: {
@@ -48,7 +48,7 @@ export class WorkbookService {
     }
     const workbooks = await this.prisma.workbook.findMany({
       where: { groupId },
-      select: { title: true, description: true, updateTime: true },
+      select: { id: true, title: true, description: true, updateTime: true },
       skip: skip,
       take: take,
       cursor: {
