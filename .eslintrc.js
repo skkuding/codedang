@@ -3,6 +3,9 @@ module.exports = {
   env: { node: true },
   root: true,
   parser: '@typescript-eslint/parser',
+  parserOptions: {
+    emitDecoratorMetadata: true
+  },
   plugins: ['@typescript-eslint'],
   extends: [
     'eslint:recommended',
