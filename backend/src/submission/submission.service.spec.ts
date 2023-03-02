@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { SubmissionService } from './submission.service'

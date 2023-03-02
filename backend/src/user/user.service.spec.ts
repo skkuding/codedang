@@ -1,9 +1,9 @@
 import { MailerService } from '@nestjs-modules/mailer'
 import { CACHE_MANAGER, UnauthorizedException } from '@nestjs/common'
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { stub, spy, fake, SinonStub, SinonSpy } from 'sinon'
-import { User, UserProfile } from '@prisma/client'
+import { stub, spy, fake, type SinonStub, type SinonSpy } from 'sinon'
+import { type User, type UserProfile } from '@prisma/client'
 import { emailAuthenticationPinCacheKey } from 'src/common/cache/keys'
 import {
   EntityNotExistException,
@@ -17,12 +17,12 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { UserService } from './user.service'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
-import { Request } from 'express'
+import { type Request } from 'express'
 import { GroupService } from 'src/group/group.service'
 import { AuthService } from 'src/auth/auth.service'
 import { ExtractJwt } from 'passport-jwt'
 import { Exception } from 'handlebars'
-import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { type AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 
 const ID = 1
 const EMAIL_ADDRESS = 'email@email.com'

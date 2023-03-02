@@ -1,4 +1,4 @@
-import { Problem, Language, Level } from '@prisma/client'
+import { type Problem, Language, Level } from '@prisma/client'
 
 export const problems: Problem[] = [
   {
