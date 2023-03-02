@@ -16,19 +16,19 @@ import {
   UseGuards
 } from '@nestjs/common'
 import { ContestService } from './contest.service'
-import { CreateContestDto } from './dto/create-contest.dto'
-import { UpdateContestDto } from './dto/update-contest.dto'
+import { type CreateContestDto } from './dto/create-contest.dto'
+import { type UpdateContestDto } from './dto/update-contest.dto'
 import { type Contest, Role } from '@prisma/client'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
-import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { type AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
-import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
+import { type RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 
 @Controller('admin/contest')

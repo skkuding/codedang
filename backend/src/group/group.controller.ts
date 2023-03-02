@@ -13,8 +13,7 @@ import {
   UseGuards
 } from '@nestjs/common'
 import { type UserGroup } from '@prisma/client'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
-import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { type AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import {
   ActionNotAllowedException,

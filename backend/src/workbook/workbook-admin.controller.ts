@@ -14,13 +14,13 @@ import {
   UseGuards
 } from '@nestjs/common'
 import { WorkbookService } from './workbook.service'
-import { CreateWorkbookDto } from './dto/create-workbook.dto'
-import { UpdateWorkbookDto } from './dto/update-workbook.dto'
+import { type CreateWorkbookDto } from './dto/create-workbook.dto'
+import { type UpdateWorkbookDto } from './dto/update-workbook.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { type Workbook } from '@prisma/client'
-import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { type AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 
 @Controller('admin/group/:groupId/workbook')

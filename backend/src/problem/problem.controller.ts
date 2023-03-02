@@ -17,7 +17,7 @@ import {
 } from 'src/common/exception/business.exception'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
-import { PaginationDto } from '../common/dto/pagination.dto'
+import { type PaginationDto } from '../common/dto/pagination.dto'
 import { type RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { type RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { type ProblemResponseDto } from './dto/problem.response.dto'

@@ -10,7 +10,7 @@ import {
   UseGuards,
   ForbiddenException
 } from '@nestjs/common'
-import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { type AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import {
   ActionNotAllowedException,
   EntityNotExistException
