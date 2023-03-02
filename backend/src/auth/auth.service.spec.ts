@@ -1,13 +1,14 @@
 import { CACHE_MANAGER } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import Sinon, { stub } from 'sinon'
+import type Sinon from 'sinon'
+import { stub } from 'sinon'
 import * as proxyquire from 'proxyquire'
 
-import { Cache } from 'cache-manager'
-import { User } from '@prisma/client'
+import { type Cache } from 'cache-manager'
+import { type User } from '@prisma/client'
 
 import { UserService } from 'src/user/user.service'
 import { PrismaService } from 'src/prisma/prisma.service'

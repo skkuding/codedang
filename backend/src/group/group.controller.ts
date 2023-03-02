@@ -12,9 +12,8 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common'
-import { UserGroup } from '@prisma/client'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
-import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { type UserGroup } from '@prisma/client'
+import { type AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import {
   ActionNotAllowedException,
@@ -23,7 +22,7 @@ import {
 import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 import { GroupService } from './group.service'
 import { GroupMemberGuard } from './guard/group-member.guard'
-import { GroupData } from './interface/group-data.interface'
+import { type GroupData } from './interface/group-data.interface'
 
 @Controller('group')
 export class GroupController {

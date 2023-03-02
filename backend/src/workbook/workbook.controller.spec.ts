@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { GroupService } from 'src/group/group.service'
 import { UserService } from 'src/user/user.service'
