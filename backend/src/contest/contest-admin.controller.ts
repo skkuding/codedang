@@ -18,7 +18,7 @@ import {
 import { ContestService } from './contest.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
-import { Contest, Role } from '@prisma/client'
+import { type Contest, Role } from '@prisma/client'
 import {
   ActionNotAllowedException,
   EntityNotExistException,

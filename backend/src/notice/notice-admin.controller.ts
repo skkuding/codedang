@@ -14,7 +14,7 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
-import { Notice, Role } from '@prisma/client'
+import { type Notice, Role } from '@prisma/client'
 import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { UpdateNoticeDto } from './dto/update-notice.dto'

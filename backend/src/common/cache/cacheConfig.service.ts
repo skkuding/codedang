@@ -1,6 +1,6 @@
 import {
-  CacheModuleOptions,
-  CacheOptionsFactory,
+  type CacheModuleOptions,
+  type CacheOptionsFactory,
   Injectable
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'

@@ -19,7 +19,7 @@ import { UpdateWorkbookDto } from './dto/update-workbook.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
-import { Workbook } from '@prisma/client'
+import { type Workbook } from '@prisma/client'
 import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 
