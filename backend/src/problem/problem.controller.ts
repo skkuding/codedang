@@ -17,11 +17,11 @@ import {
 } from 'src/common/exception/business.exception'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
-import { PaginationDto } from '../common/dto/pagination.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
+import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 
 import {
   ContestProblemService,
@@ -36,10 +36,11 @@ export class ProblemController {
 
   @Get()
   async getProblems(
-    @Query() paginationDto: PaginationDto
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<ProblemsResponseDto[]> {
     try {
-      return await this.problemService.getProblems(paginationDto)
+      return await this.problemService.getProblems(cursor, take)
     } catch (err) {
       throw new InternalServerErrorException()
     }
@@ -68,12 +69,14 @@ export class ContestProblemController {
   @Get()
   async getContestProblems(
     @Param('contestId', ParseIntPipe) contestId: number,
-    @Query() paginationDto: PaginationDto
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<RelatedProblemsResponseDto[]> {
     try {
       return await this.contestProblemService.getContestProblems(
         contestId,
-        paginationDto
+        cursor,
+        take
       )
     } catch (err) {
       if (err instanceof EntityNotExistException) {
@@ -115,12 +118,14 @@ export class GroupContestProblemController {
   async getContestProblems(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
-    @Query() paginationDto: PaginationDto
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<RelatedProblemsResponseDto[]> {
     try {
       return await this.contestProblemService.getContestProblems(
         contestId,
-        paginationDto,
+        cursor,
+        take,
         groupId
       )
     } catch (err) {
@@ -162,12 +167,14 @@ export class WorkbookProblemController {
   @Get()
   async getWorkbookProblems(
     @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Query() paginationDto: PaginationDto
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<RelatedProblemsResponseDto[]> {
     try {
       return await this.workbookProblemService.getWorkbookProblems(
         workbookId,
-        paginationDto
+        cursor,
+        take
       )
     } catch (err) {
       if (err instanceof EntityNotExistException) {
@@ -207,12 +214,14 @@ export class GroupWorkbookProblemController {
   async getWorkbookProblems(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Query() paginationDto: PaginationDto
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<RelatedProblemsResponseDto[]> {
     try {
       return await this.workbookProblemService.getWorkbookProblems(
         workbookId,
-        paginationDto,
+        cursor,
+        take,
         groupId
       )
     } catch (err) {

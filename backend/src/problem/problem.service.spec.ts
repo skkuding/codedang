@@ -109,7 +109,7 @@ describe('ProblemService', () => {
       db.problem.findMany.resolves(mockProblems)
 
       // when
-      const result = await service.getProblems(paginationDto)
+      const result = await service.getProblems(1, 1)
 
       // then
       expect(result).to.deep.equal(
@@ -191,7 +191,7 @@ describe('ContestProblemService', () => {
       db.contestProblem.findMany.resolves(mockContestProblems)
 
       // when
-      const result = await service.getContestProblems(contestId, paginationDto)
+      const result = await service.getContestProblems(contestId, 1, 1)
 
       // then
       expect(result).to.deep.equal(
@@ -205,11 +205,7 @@ describe('ContestProblemService', () => {
       db.contestProblem.findMany.resolves(mockContestProblems)
 
       // when
-      const result = await service.getContestProblems(
-        contestId,
-        paginationDto,
-        groupId
-      )
+      const result = await service.getContestProblems(contestId, 1, 1, groupId)
 
       // then
       expect(result).to.deep.equal(
@@ -224,7 +220,7 @@ describe('ContestProblemService', () => {
 
       // then
       await expect(
-        service.getContestProblems(contestId, paginationDto)
+        service.getContestProblems(contestId, 1, 1)
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
@@ -238,7 +234,7 @@ describe('ContestProblemService', () => {
       }))
       db.contestProblem.findMany.resolves(notStartedContestProblems)
       await expect(
-        service.getContestProblems(contestId, paginationDto)
+        service.getContestProblems(contestId, 1, 1)
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
@@ -354,10 +350,7 @@ describe('WorkbookProblemService', () => {
       db.workbookProblem.findMany.resolves(mockWorkbookProblems)
 
       // when
-      const result = await service.getWorkbookProblems(
-        workbookId,
-        paginationDto
-      )
+      const result = await service.getWorkbookProblems(workbookId, 1, 1)
 
       // then
       expect(result).to.deep.equal(
@@ -373,7 +366,8 @@ describe('WorkbookProblemService', () => {
       // when
       const result = await service.getWorkbookProblems(
         workbookId,
-        paginationDto,
+        1,
+        1,
         groupId
       )
 
@@ -389,7 +383,7 @@ describe('WorkbookProblemService', () => {
 
       // then
       await expect(
-        service.getWorkbookProblems(workbookId, paginationDto)
+        service.getWorkbookProblems(workbookId, 1, 1)
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })

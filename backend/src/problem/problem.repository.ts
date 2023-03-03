@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Problem, WorkbookProblem } from '@prisma/client'
 import { OPEN_SPACE_ID } from 'src/common/constants'
-import { PaginationDto } from 'src/common/dto/pagination.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 
@@ -52,10 +51,35 @@ export class ProblemRepository {
     }
   }
 
-  async getProblems(paginationDto: PaginationDto): Promise<Partial<Problem>[]> {
+  // {
+  //     where: { groupId },
+  //     select: {
+  //       id: true,
+  //       title: true,
+  //       createdBy: true,
+  //       updateTime: true,
+  //       isVisible: true,
+  //       isFixed: true
+  //     },
+  //     take,
+  //     skip,
+  //     cursor: {
+  //       id: cursor
+  //     }
+  //   }
+
+  async getProblems(cursor: number, take: number): Promise<Partial<Problem>[]> {
+    let skip = 1
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    }
     return await this.prisma.problem.findMany({
-      skip: paginationDto.offset,
-      take: paginationDto.limit,
+      cursor: {
+        id: cursor
+      },
+      skip: skip,
+      take: take,
       where: {
         groupId: OPEN_SPACE_ID
       },
@@ -79,10 +103,22 @@ export class ProblemRepository {
     })
   }
 
-  async getContestProblems(contestId: number, paginationDto: PaginationDto) {
+  async getContestProblems(contestId: number, cursor: number, take: number) {
+    let skip = 1
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    }
     return await this.prisma.contestProblem.findMany({
-      skip: paginationDto.offset,
-      take: paginationDto.limit,
+      cursor: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_id: {
+          contestId: contestId,
+          id: cursor.toString()
+        }
+      },
+      skip: skip,
+      take: take,
       where: { contestId: contestId },
       select: {
         ...this.relatedProblemsSelectOption,
@@ -118,11 +154,24 @@ export class ProblemRepository {
 
   async getWorkbookProblems(
     workbookId: number,
-    paginationDto: PaginationDto
+    cursor: number,
+    take: number
   ): Promise<(Partial<WorkbookProblem> & { problem: Partial<Problem> })[]> {
+    let skip = 1
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    }
     return await this.prisma.workbookProblem.findMany({
-      skip: paginationDto.offset,
-      take: paginationDto.limit,
+      cursor: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        workbookId_id: {
+          workbookId: workbookId,
+          id: cursor.toString()
+        }
+      },
+      skip: skip,
+      take: take,
       where: { workbookId: workbookId },
       select: this.relatedProblemsSelectOption
     })
