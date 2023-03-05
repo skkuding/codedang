@@ -6355,16 +6355,6 @@ const createContests = async () => {
     }
   })
 
-  // add contest notice
-  await prisma.contestNotice.create({
-    data: {
-      title: '1번 문제 수정 안내',
-      description: '<p>1번 문제가 blah blah 수정되었습니다.</p>',
-      contestId: contest.id,
-      problemId: problems[0].id
-    }
-  })
-
   // add problems to contest
   for (const problem of problems) {
     await prisma.contestProblem.create({
@@ -6375,6 +6365,16 @@ const createContests = async () => {
       }
     })
   }
+
+  // add contest notice
+  await prisma.contestNotice.create({
+    data: {
+      title: '1번 문제 수정 안내',
+      description: '<p>1번 문제가 blah blah 수정되었습니다.</p>',
+      contestId: contest.id,
+      problemId: problems[0].id
+    }
+  })
 
   // TODO: add records and ranks
 }
