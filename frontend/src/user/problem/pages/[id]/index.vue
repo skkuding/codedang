@@ -31,6 +31,7 @@ const { x } = useDraggable(resizingBar, {
   initialValue: { x: 600, y: 0 },
   onMove: (p) => {
     if (p.x < 400) p.x = 400
+    if (window.innerWidth - 400 < p.x) p.x = window.innerWidth - 400
   }
 })
 </script>
