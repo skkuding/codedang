@@ -1,7 +1,7 @@
 import { CACHE_MANAGER, forwardRef, Inject, Injectable } from '@nestjs/common'
-import { JwtService, JwtVerifyOptions } from '@nestjs/jwt'
+import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
-import { User } from '@prisma/client'
+import { type User } from '@prisma/client'
 import { UserService } from 'src/user/user.service'
 import { Cache } from 'cache-manager'
 
@@ -16,8 +16,12 @@ import {
   ACCESS_TOKEN_EXPIRE_TIME,
   REFRESH_TOKEN_EXPIRE_TIME
 } from '../common/constants'
-import { LoginUserDto } from './dto/login-user.dto'
-import { JwtObject, JwtPayload, JwtTokens } from './interface/jwt.interface'
+import { type LoginUserDto } from './dto/login-user.dto'
+import {
+  type JwtObject,
+  type JwtPayload,
+  type JwtTokens
+} from './interface/jwt.interface'
 
 @Injectable()
 export class AuthService {

@@ -1,5 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/common'
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { fake } from 'sinon'
 import { PrismaService } from 'src/prisma/prisma.service'

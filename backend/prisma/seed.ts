@@ -1,17 +1,17 @@
 import {
   PrismaClient,
-  Group,
+  type Group,
   Role,
-  User,
-  Problem,
+  type User,
+  type Problem,
   Level,
-  Tag,
+  type Tag,
   Language,
-  Contest,
-  Workbook,
+  type Contest,
+  type Workbook,
   ResultStatus,
-  Submission,
-  ProblemTestcase
+  type Submission,
+  type ProblemTestcase
 } from '@prisma/client'
 import { encrypt } from 'src/common/hash'
 import * as dayjs from 'dayjs'

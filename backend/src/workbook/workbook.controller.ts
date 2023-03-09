@@ -12,7 +12,7 @@ import { WorkbookService } from './workbook.service'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { GroupMemberGuard } from '../group/guard/group-member.guard'
-import { Workbook } from '@prisma/client'
+import { type Workbook } from '@prisma/client'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 

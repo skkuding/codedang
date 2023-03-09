@@ -1,6 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { JwtModule, JwtModuleOptions } from '@nestjs/jwt'
+import { JwtModule, type JwtModuleOptions } from '@nestjs/jwt'
 import { EmailModule } from 'src/email/email.module'
 import { AuthModule } from 'src/auth/auth.module'
 import { GroupModule } from 'src/group/group.module'
