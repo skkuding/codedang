@@ -123,7 +123,7 @@ export const userGroups: UserGroup[] = [
   }
 ]
 
-export const groupDatas: GroupData[] = [
+export const publicGroupDatas: GroupData[] = [
   {
     id: 1,
     groupName: 'mock public group',
@@ -139,3 +139,13 @@ export const groupDatas: GroupData[] = [
     memberNum: 2
   }
 ]
+
+export const mockGroupData = {
+  id: 2,
+  groupName: 'mock public group 2',
+  description: 'mock public group with approval',
+  createdBy: {
+    username: 'manager'
+  },
+  userGroup: [userGroups[2], userGroups[3]]
+}

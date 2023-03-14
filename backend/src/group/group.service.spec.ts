@@ -1,7 +1,12 @@
 import { CACHE_MANAGER } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { groups, userGroups, groupDatas } from './mock/group.mock'
+import {
+  groups,
+  userGroups,
+  publicGroupDatas,
+  mockGroupData
+} from './mock/group.mock'
 import { stub } from 'sinon'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { GroupService } from './group.service'
@@ -63,27 +68,19 @@ describe('GroupService', () => {
     it('should return groupData for join when user is not joined to a group', async () => {
       //given
       const userId = 3
-      const groupId = 1
-      const mockGroup = groups.filter((group) => group.id === groupId)[0]
+      const groupId = 2
       db.userGroup.findFirst.resolves(null)
-      db.group.findFirst.resolves({
-        id: mockGroup.id,
-        groupName: mockGroup.groupName,
-        description: mockGroup.description,
-        userGroup: userGroups.filter(
-          (userGroup) => userGroup.groupId === groupId
-        ),
-        createdBy: {
-          username: 'manager'
-        }
-      })
+      db.group.findFirst.resolves(mockGroupData)
       stub(service, 'getGroupLeaders').resolves(['manager'])
 
       //when
       const result = await service.getGroup(userId, groupId)
 
       //then
-      expect(result).to.deep.equal({ ...groupDatas[0], leaders: ['manager'] })
+      expect(result).to.deep.equal({
+        ...publicGroupDatas[1],
+        leaders: ['manager']
+      })
     })
 
     it('should return groupData when user is joined to a group', async () => {
@@ -123,6 +120,44 @@ describe('GroupService', () => {
       await expect(service.getGroup(userId, groupId)).to.be.rejectedWith(
         EntityNotExistException
       )
+    })
+  })
+
+  describe('getGroups', () => {
+    it('should return a list of groups that showOnList is true', async () => {
+      //given
+      const cursor = 0
+      const take = 5
+      db.group.findMany.resolves([mockGroupData])
+
+      //when
+      const result = await service.getGroups(cursor, take)
+
+      //then
+      expect(result).to.deep.equal([publicGroupDatas[1]])
+    })
+  })
+
+  describe('getJoinedGroups', () => {
+    it('should return a list of groups to which user belongs to', async () => {
+      //given
+      const userId = 1
+      db.userGroup.findMany.resolves(
+        userGroups
+          .filter(
+            (userGroup) => userGroup.userId == userId && userGroup.groupId !== 1
+          )
+          .map((userGroup) => {
+            return { groupId: userGroup.groupId }
+          })
+      )
+      db.group.findMany.resolves([mockGroupData])
+
+      //when
+      const result = await service.getJoinedGroups(userId)
+
+      //then
+      expect(result).to.deep.equal([publicGroupDatas[1]])
     })
   })
 
