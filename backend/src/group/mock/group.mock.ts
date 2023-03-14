@@ -1,5 +1,5 @@
-import { Group, Role, User, UserGroup } from '@prisma/client'
-import { GroupData } from '../interface/group-data.interface'
+import { type Group, Role, type User, type UserGroup } from '@prisma/client'
+import { type GroupData } from '../interface/group-data.interface'
 
 export const groups: Group[] = [
   {

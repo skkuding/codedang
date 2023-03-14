@@ -10,8 +10,8 @@ import {
 import { stub } from 'sinon'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { GroupService } from './group.service'
-import { Cache } from 'cache-manager'
-import { UserGroup } from '@prisma/client'
+import { type Cache } from 'cache-manager'
+import { type UserGroup } from '@prisma/client'
 import { joinGroupCacheKey } from 'src/common/cache/keys'
 import {
   ActionNotAllowedException,
