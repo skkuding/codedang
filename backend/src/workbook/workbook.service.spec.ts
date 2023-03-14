@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { WorkbookService } from './workbook.service'
 import { stub } from 'sinon'
-import { Workbook } from '@prisma/client'
+import { type Workbook } from '@prisma/client'
 import { OPEN_SPACE_ID } from 'src/common/constants'
 
 const DATETIME = new Date(2022, 8, 8)
@@ -66,11 +66,13 @@ const updateWorkbookDto = {
   isVisible: false
 }
 
-const showTitleDescriptionUpdatedTime = ({
+const showIdTitleDescriptionUpdatedTime = ({
+  id,
   title,
   description,
   updateTime
 }: Workbook) => ({
+  id,
   title,
   description,
   updateTime
@@ -82,15 +84,15 @@ const showIdTitle = ({ id, title }: Workbook) => ({
 })
 
 const publicWorkbooks = [
-  showTitleDescriptionUpdatedTime(workbookArray[0]),
-  showTitleDescriptionUpdatedTime(workbookArray[1])
+  showIdTitleDescriptionUpdatedTime(workbookArray[0]),
+  showIdTitleDescriptionUpdatedTime(workbookArray[1])
 ]
 const visiblePublicWorkbooks = [
-  showTitleDescriptionUpdatedTime(workbookArray[0])
+  showIdTitleDescriptionUpdatedTime(workbookArray[0])
 ]
 const groupWorkbooks = [
-  showTitleDescriptionUpdatedTime(workbookArray[2]),
-  showTitleDescriptionUpdatedTime(workbookArray[3])
+  showIdTitleDescriptionUpdatedTime(workbookArray[2]),
+  showIdTitleDescriptionUpdatedTime(workbookArray[3])
 ]
 const onePublicWorkbook = {
   id: workbookArray[0].id,

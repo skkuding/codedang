@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import * as dayjs from 'dayjs'
@@ -14,7 +14,7 @@ import {
   workbookProblems
 } from './mock/problem.mock'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { PaginationDto } from 'src/common/dto/pagination.dto'
+import { type PaginationDto } from 'src/common/dto/pagination.dto'
 import { plainToInstance } from 'class-transformer'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'

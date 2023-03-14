@@ -1,5 +1,5 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
-import { Contest } from '@prisma/client'
+import { type Contest } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { contestPublicizingRequestKey } from 'src/common/cache/keys'
 import {
@@ -12,10 +12,10 @@ import {
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { CreateContestDto } from './dto/create-contest.dto'
-import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
-import { UpdateContestDto } from './dto/update-contest.dto'
-import { StoredPublicizingRequest } from './interface/publicizing-request.interface'
+import { type CreateContestDto } from './dto/create-contest.dto'
+import { type RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
+import { type UpdateContestDto } from './dto/update-contest.dto'
+import { type StoredPublicizingRequest } from './interface/publicizing-request.interface'
 
 @Injectable()
 export class ContestService {
@@ -120,16 +120,29 @@ export class ContestService {
     })
   }
 
+  async getContestsByGroupId<T extends number>(
+    userId?: T,
+    groupId?: number
+  ): Promise<
+    T extends undefined
+      ? {
+          ongoing: Partial<Contest>[]
+          upcoming: Partial<Contest>[]
+          finished: Partial<Contest>[]
+        }
+      : {
+          registeredOngoing: Partial<Contest>[]
+          registeredUpcoming: Partial<Contest>[]
+          ongoing: Partial<Contest>[]
+          upcoming: Partial<Contest>[]
+          finished: Partial<Contest>[]
+        }
+  >
+
   async getContestsByGroupId(
-    userId: number,
+    userId: number = undefined,
     groupId = OPEN_SPACE_ID
-  ): Promise<{
-    registeredOngoing?: Partial<Contest>[]
-    registeredUpcoming?: Partial<Contest>[]
-    ongoing: Partial<Contest>[]
-    upcoming: Partial<Contest>[]
-    finished: Partial<Contest>[]
-  }> {
+  ) {
     if (userId === undefined) {
       const contests = await this.prisma.contest.findMany({
         where: {
