@@ -3765,7 +3765,7 @@
     "method": "POST",
     "sortNum": 495000,
     "created": "2023-02-21T10:09:29.921Z",
-    "modified": "2023-02-21T10:23:31.543Z",
+    "modified": "2023-03-15T01:41:09.970Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -3794,7 +3794,7 @@
         "value": "false"
       }
     ],
-    "docs": "# Join group by id (Case2)\n",
+    "docs": "# Join group by id (Case2)\n\n### warning\n현재 cache db에 올라간 가입 요청을 삭제하는 api가 구현되어있지 않아 최초 한번만 동작합니다.",
     "preReq": {
       "runRequests": [
         {
