@@ -3468,12 +3468,12 @@
     "_id": "af1c8666-e7a9-47ed-a9d0-edde11990066",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "607d4957-04bd-445a-bc2a-36d2a65c9047",
-    "name": "500: Internal Server Error",
+    "name": "400: Bad Request",
     "url": "/group?cursor=-1&take=5",
     "method": "GET",
     "sortNum": 580000,
     "created": "2023-02-21T06:33:24.526Z",
-    "modified": "2023-02-28T03:58:04.972Z",
+    "modified": "2023-03-15T01:59:16.976Z",
     "headers": [],
     "params": [
       {
@@ -3492,13 +3492,13 @@
         "type": "res-code",
         "custom": "",
         "action": "equal",
-        "value": "500"
+        "value": "400"
       },
       {
         "type": "json-query",
         "custom": "json.message",
-        "action": "equal",
-        "value": "Internal server error"
+        "action": "contains",
+        "value": "Invalid cursor value"
       }
     ],
     "preReq": {
