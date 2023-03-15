@@ -74,7 +74,7 @@ export class NoticeService {
     const current = await this.prisma.notice.findFirst({
       where: {
         id,
-        groupId, // 수정
+        groupId,
         isVisible: true
       },
       select: {
