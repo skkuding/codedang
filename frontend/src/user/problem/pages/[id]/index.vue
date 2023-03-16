@@ -26,12 +26,20 @@ const copySample = (index: number, type: 'input' | 'output') => {
   })
 }
 
-const resizingBar = ref<HTMLDivElement>()
-const { x } = useDraggable(resizingBar, {
+const resizingBarX = ref<HTMLDivElement>()
+const { x } = useDraggable(resizingBarX, {
   initialValue: { x: 600, y: 0 },
   onMove: (p) => {
     if (p.x < 400) p.x = 400
     if (window.innerWidth - 400 < p.x) p.x = window.innerWidth - 400
+  }
+})
+const resizingBarY = ref<HTMLDivElement>()
+const { y } = useDraggable(resizingBarY, {
+  initialValue: { x: 0, y: 236 },
+  onMove: (p) => {
+    p.y = window.innerHeight - p.y
+    console.log(p)
   }
 })
 </script>
@@ -108,26 +116,36 @@ const { x } = useDraggable(resizingBar, {
       </div>
     </div>
     <div
-      ref="resizingBar"
+      ref="resizingBarX"
       class="hover:bg-blue w-px cursor-ew-resize bg-slate-400 hover:w-1"
     />
     <div
       class="flex min-w-[400px] grow flex-col justify-between overflow-hidden bg-[#292c33]"
     >
       <CodeEditor v-model="code" :lang="store.language" class="overflow-auto" />
-      <div class="grid grid-cols-2 grid-rows-[36px_200px]">
+      <div :style="{ height: y + 'px' }">
         <div
-          class="flex items-center border-y border-r border-slate-400 px-4 text-white"
-        >
-          Input
-        </div>
+          ref="resizingBarY"
+          class="hover:bg-blue mt-[3px] h-px cursor-ns-resize bg-slate-400 hover:mt-0 hover:h-1"
+        />
         <div
-          class="flex items-center border-y border-slate-400 px-4 text-white"
+          class="grid h-full grid-cols-2"
+          :class="`grid-rows-[36px_minmax(0px,_1fr)]`"
         >
-          Output
-        </div>
-        <div class="overflow-auto border-r border-slate-400 p-4 text-white">
-          <pre>
+          <div
+            class="flex items-center border-y border-r border-slate-400 px-4 text-white"
+          >
+            Input
+          </div>
+          <div
+            class="flex items-center border-y border-slate-400 px-4 text-white"
+          >
+            Output
+          </div>
+          <div
+            class="h-full overflow-auto border-r border-slate-400 p-4 text-white"
+          >
+            <pre>
 1
 2
 3
@@ -135,15 +153,16 @@ const { x } = useDraggable(resizingBar, {
 5
 6
 7
-8
-          </pre>
-        </div>
-        <div class="overflow-auto p-4 text-white">
-          <pre>
+8</pre
+            >
+          </div>
+          <div class="h-full overflow-auto p-4 text-white">
+            <pre>
 3
 2
-4
-          </pre>
+4</pre
+            >
+          </div>
         </div>
       </div>
     </div>
