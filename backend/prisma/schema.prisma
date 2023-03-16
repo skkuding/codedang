@@ -214,15 +214,15 @@ model Contest {
 }
 
 model ContestNotice {
-  id             Int            @id @default(autoincrement())
-  contest        Contest        @relation(fields: [contestId], references: [id])
-  contestId      Int            @map("contest_id")
-  title          String
-  description    String
-  contestProblem ContestProblem @relation(fields: [problemId, contestId], references: [contestId, problemId])
-  problemId      Int            @map("problem_id")
-  createTime     DateTime       @default(now()) @map("create_time")
-  updateTime     DateTime       @updatedAt @map("update_time")
+  id          Int            @id @default(autoincrement())
+  contest     Contest        @relation(fields: [contestId], references: [id])
+  contestId   Int            @map("contest_id")
+  title       String
+  description String
+  problem     ContestProblem @relation(fields: [problemId, contestId], references: [contestId, problemId])
+  problemId   Int            @map("problem_id")
+  createTime  DateTime       @default(now()) @map("create_time")
+  updateTime  DateTime       @updatedAt @map("update_time")
 
   @@map("contest_notice")
 }
