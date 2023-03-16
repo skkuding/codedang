@@ -34,13 +34,14 @@ const { x } = useDraggable(resizingBarX, {
     if (window.innerWidth - 400 < p.x) p.x = window.innerWidth - 400
   }
 })
-const codeBlockHeight = ref<number>(window.innerHeight - 112 - 236)
+const codeBlockHeight = ref<number>(window.innerHeight - 112 - 236 - 24)
 const resizingBarY = ref<HTMLDivElement>()
 const { y } = useDraggable(resizingBarY, {
-  initialValue: { x: 0, y: 236 },
+  initialValue: { x: 0, y: 240 },
   onMove: (p) => {
-    p.y = window.innerHeight - p.y
-    codeBlockHeight.value = window.innerHeight - 112 - p.y
+    p.y = window.innerHeight - p.y - 24
+    codeBlockHeight.value = window.innerHeight - 112 - p.y - 24
+    if (p.y < 4) p.y = 4
   }
 })
 </script>
@@ -129,6 +130,7 @@ const { y } = useDraggable(resizingBarY, {
         class="overflow-auto"
         :style="{ height: codeBlockHeight + 'px' }"
       />
+
       <div :style="{ height: y + 'px' }">
         <div
           ref="resizingBarY"
@@ -170,6 +172,12 @@ const { y } = useDraggable(resizingBarY, {
             >
           </div>
         </div>
+      </div>
+      <div
+        class="flex h-[24px] items-center justify-between bg-slate-900 px-4 py-1 text-white"
+      >
+        <div>C++</div>
+        <div>-O2 -Wall -std=gnu++17</div>
       </div>
     </div>
   </main>
