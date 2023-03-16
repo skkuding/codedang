@@ -3,7 +3,7 @@ import Toast from '@/common/components/Atom/Toast.vue'
 import { useAuthStore } from './common/store/auth'
 
 // check if refresh token is valid
-await useAuthStore().reissue()
+useAuthStore().reissue()
 </script>
 
 <template>
