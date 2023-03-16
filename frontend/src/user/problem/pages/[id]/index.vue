@@ -34,12 +34,13 @@ const { x } = useDraggable(resizingBarX, {
     if (window.innerWidth - 400 < p.x) p.x = window.innerWidth - 400
   }
 })
+const codeBlockHeight = ref<number>(window.innerHeight - 112 - 236)
 const resizingBarY = ref<HTMLDivElement>()
 const { y } = useDraggable(resizingBarY, {
   initialValue: { x: 0, y: 236 },
   onMove: (p) => {
     p.y = window.innerHeight - p.y
-    console.log(p)
+    codeBlockHeight.value = window.innerHeight - 112 - p.y
   }
 })
 </script>
@@ -122,11 +123,16 @@ const { y } = useDraggable(resizingBarY, {
     <div
       class="flex min-w-[400px] grow flex-col justify-between overflow-hidden bg-[#292c33]"
     >
-      <CodeEditor v-model="code" :lang="store.language" class="overflow-auto" />
+      <CodeEditor
+        v-model="code"
+        :lang="store.language"
+        class="overflow-auto"
+        :style="{ height: codeBlockHeight + 'px' }"
+      />
       <div :style="{ height: y + 'px' }">
         <div
           ref="resizingBarY"
-          class="hover:bg-blue mt-[3px] h-px cursor-ns-resize bg-slate-400 hover:mt-0 hover:h-1"
+          class="hover:bg-blue mt-[3px] h-px cursor-ns-resize bg-transparent hover:mt-0 hover:h-1"
         />
         <div
           class="grid h-full grid-cols-2"
