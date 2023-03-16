@@ -132,7 +132,7 @@ const { y } = useDraggable(resizingBarY, {
       <div :style="{ height: y + 'px' }">
         <div
           ref="resizingBarY"
-          class="hover:bg-blue mt-[3px] h-px cursor-ns-resize bg-transparent hover:mt-0 hover:h-1"
+          class="hover:bg-blue mt-[3px] h-px cursor-ns-resize bg-slate-400 hover:mt-0 hover:h-1"
         />
         <div
           class="grid h-full grid-cols-2"
