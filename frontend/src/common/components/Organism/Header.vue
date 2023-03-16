@@ -100,7 +100,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
       >
         <div
           v-show="isMenuOpen"
-          class="fixed inset-x-0 top-14 z-30 flex w-full flex-col items-center justify-center gap-6 overflow-hidden bg-white/75 py-8 shadow-lg backdrop-blur md:hidden"
+          class="absolute inset-x-0 top-14 z-30 flex w-full flex-col items-center justify-center gap-6 overflow-hidden bg-white/75 py-8 shadow-lg backdrop-blur md:hidden"
         >
           <nav class="text-text-title flex flex-col items-center gap-2">
             <router-link
