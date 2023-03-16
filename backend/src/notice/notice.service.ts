@@ -1,9 +1,9 @@
-import { UserNotice } from './interface/user-notice.interface'
+import { type UserNotice } from './interface/user-notice.interface'
 import { Injectable } from '@nestjs/common'
-import { Notice } from '@prisma/client'
+import { type Notice } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { UpdateNoticeDto } from './dto/update-notice.dto'
-import { CreateNoticeDto } from './dto/create-notice.dto'
+import { type UpdateNoticeDto } from './dto/update-notice.dto'
+import { type CreateNoticeDto } from './dto/create-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { OPEN_SPACE_ID } from 'src/common/constants'
 

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common'
-import { Workbook } from '@prisma/client'
+import { type Workbook } from '@prisma/client'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { CreateWorkbookDto } from './dto/create-workbook.dto'
-import { UpdateWorkbookDto } from './dto/update-workbook.dto'
+import { type CreateWorkbookDto } from './dto/create-workbook.dto'
+import { type UpdateWorkbookDto } from './dto/update-workbook.dto'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { OPEN_SPACE_ID } from 'src/common/constants'
 
@@ -26,7 +26,7 @@ export class WorkbookService {
         groupId,
         isVisible: true
       },
-      select: { title: true, description: true, updateTime: true },
+      select: { id: true, title: true, description: true, updateTime: true },
       skip: skip,
       take: take,
       cursor: {
@@ -48,7 +48,7 @@ export class WorkbookService {
     }
     const workbooks = await this.prisma.workbook.findMany({
       where: { groupId },
-      select: { title: true, description: true, updateTime: true },
+      select: { id: true, title: true, description: true, updateTime: true },
       skip: skip,
       take: take,
       cursor: {

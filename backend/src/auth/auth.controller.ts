@@ -8,7 +8,7 @@ import {
   UnauthorizedException,
   InternalServerErrorException
 } from '@nestjs/common'
-import { Request, Response } from 'express'
+import { type Request, type Response } from 'express'
 import { AuthService } from './auth.service'
 
 import {
@@ -17,9 +17,9 @@ import {
 } from '../common/exception/business.exception'
 
 import { REFRESH_TOKEN_COOKIE_OPTIONS, AUTH_TYPE } from '../common/constants'
-import { LoginUserDto } from './dto/login-user.dto'
-import { AuthenticatedRequest } from './interface/authenticated-request.interface'
-import { JwtTokens } from './interface/jwt.interface'
+import { type LoginUserDto } from './dto/login-user.dto'
+import { type AuthenticatedRequest } from './interface/authenticated-request.interface'
+import { type JwtTokens } from './interface/jwt.interface'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 
 @Controller('auth')
