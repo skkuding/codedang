@@ -28,7 +28,7 @@ const PasswordReset = defineAsyncComponent(() => import('./PasswordReset.vue'))
 
 <template>
   <Modal
-    class="flex justify-center px-10 transition-all"
+    class="flex w-80 justify-center transition-all"
     :class="height[modelValue]"
     :model-value="modelValue !== 'close'"
     @update:model-value="$emit('update:modelValue', 'close')"
