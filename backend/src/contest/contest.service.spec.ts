@@ -1,7 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import { Contest, ContestRecord, Group, UserGroup } from '@prisma/client'
+import {
+  type Contest,
+  type ContestRecord,
+  type Group,
+  type UserGroup
+} from '@prisma/client'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
@@ -10,9 +15,9 @@ import {
 import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { ContestService } from './contest.service'
-import { CreateContestDto } from './dto/create-contest.dto'
-import { UpdateContestDto } from './dto/update-contest.dto'
-import { Cache } from 'cache-manager'
+import { type CreateContestDto } from './dto/create-contest.dto'
+import { type UpdateContestDto } from './dto/update-contest.dto'
+import { type Cache } from 'cache-manager'
 import { CACHE_MANAGER } from '@nestjs/common'
 import { contestPublicizingRequestKey } from 'src/common/cache/keys'
 
@@ -41,6 +46,18 @@ const contest = {
     groupName: 'group'
   }
 } satisfies Contest & { group: Partial<Group> }
+
+const contestDetail = {
+  title: 'contest',
+  description: 'description',
+  id: contestId,
+  group: {
+    id: groupId,
+    groupName: 'group'
+  },
+  startTime: new Date('2021-12-01T14:00:00.000+09:00'),
+  endTime: new Date('2021-12-01T15:00:00.000+09:00')
+}
 
 const ongoingContests: Partial<Contest>[] = [
   {
@@ -75,12 +92,66 @@ const upcomingContests: Partial<Contest>[] = [
     }
   }
 ]
+const registeredOngoingContests: Partial<Contest>[] = [
+  {
+    ...contest,
+    id: contestId,
+    endTime: new Date('2999-12-01T12:00:00.000+09:00'),
+    config: {
+      isVisible: false,
+      isRankisVisible: true
+    }
+  }
+]
+const registeredUpcomingContests: Partial<Contest>[] = [
+  {
+    ...contest,
+    id: contestId + 6,
+    startTime: new Date('2999-12-01T12:00:00.000+09:00'),
+    endTime: new Date('2999-12-01T15:00:00.000+09:00'),
+    config: {
+      isVisible: false,
+      isRankisVisible: true
+    }
+  }
+]
 const contests: Partial<Contest>[] = [
   ...ongoingContests,
   ...finishedContests,
   ...upcomingContests
 ]
+const userContests: Partial<Contest>[] = [
+  ...registeredOngoingContests,
+  ...registeredUpcomingContests
+]
 const ongoingContest: Partial<Contest> = ongoingContests[0]
+
+const earlierContest: Contest = {
+  ...contest,
+  id: contestId,
+  startTime: new Date('2999-12-01T11:00:00.000+09:00'),
+  endTime: new Date('2999-12-01T15:00:00.000+09:00'),
+  config: {
+    isVisible: false,
+    isRankisVisible: true
+  }
+}
+
+const laterContest: Contest = {
+  ...contest,
+  id: contestId,
+  startTime: new Date('2999-12-01T12:00:00.000+09:00'),
+  endTime: new Date('2999-12-01T15:00:00.000+09:00'),
+  config: {
+    isVisible: false,
+    isRankisVisible: true
+  }
+}
+
+const user = {
+  id: userId,
+  contest: userContests
+}
 
 const contestPublicizingRequest = {
   contest: contestId,
@@ -128,12 +199,14 @@ const mockPrismaService = {
   userGroup: {
     findFirst: stub().resolves(userGroup),
     findMany: stub().resolves(userGroups)
+  },
+  user: {
+    findUnique: stub().resolves(user)
   }
 }
 
 describe('ContestService', () => {
   let service: ContestService
-  let groupService: GroupService
   let cache: Cache
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -155,7 +228,6 @@ describe('ContestService', () => {
       ]
     }).compile()
     service = module.get<ContestService>(ContestService)
-    groupService = module.get<GroupService>(GroupService)
     cache = module.get<Cache>(CACHE_MANAGER)
   })
 
@@ -182,7 +254,7 @@ describe('ContestService', () => {
       //given
 
       //when
-      const result = await service.createContest(userId, createContestDto)
+      const result = await service.createContest(createContestDto, userId)
 
       //then
       expect(mockPrismaService.contest.create.calledOnce).to.be.true
@@ -195,7 +267,7 @@ describe('ContestService', () => {
 
       //when
       const callContestCreate = async () =>
-        await service.createContest(userId, createContestDto)
+        await service.createContest(createContestDto, userId)
 
       //then
       await expect(callContestCreate()).to.be.rejectedWith(
@@ -333,6 +405,53 @@ describe('ContestService', () => {
     })
   })
 
+  describe('getContests', () => {
+    it('should return ongoing, upcoming, finished contests when userId is undefined', async () => {
+      mockPrismaService.contest.findMany.resolves(contests)
+      expect(
+        await service.getContestsByGroupId(undefinedUserId, groupId)
+      ).to.deep.equal({
+        ongoing: ongoingContests,
+        upcoming: upcomingContests,
+        finished: finishedContests
+      })
+    })
+
+    it('should return registered ongoing, registered upcoming, ongoing, upcoming, finished contests', async () => {
+      mockPrismaService.user.findUnique.resolves(user)
+      mockPrismaService.contest.findMany.resolves(contests)
+      expect(await service.getContestsByGroupId(userId, groupId)).to.deep.equal(
+        {
+          registeredOngoing: registeredOngoingContests,
+          registeredUpcoming: registeredUpcomingContests,
+          ongoing: ongoingContests,
+          upcoming: upcomingContests,
+          finished: finishedContests
+        }
+      )
+    })
+  })
+
+  describe('startTimeCompare', () => {
+    it('should return -1 when a is earlier than b', async () => {
+      expect(
+        service.startTimeCompare(earlierContest, laterContest)
+      ).to.deep.equal(-1)
+    })
+
+    it('should return 1 when b is earlier than a', async () => {
+      expect(
+        service.startTimeCompare(laterContest, earlierContest)
+      ).to.deep.equal(1)
+    })
+
+    it('should return 0 when a.startTime is equal b.startTime', async () => {
+      expect(
+        service.startTimeCompare(earlierContest, earlierContest)
+      ).to.deep.equal(0)
+    })
+  })
+
   describe('filterOngoing', () => {
     it('should return ongoing contests of the group', async () => {
       expect(service.filterOngoing(contests)).to.deep.equal(ongoingContests)
@@ -351,42 +470,42 @@ describe('ContestService', () => {
     })
   })
 
-  describe('getContests', () => {
+  describe('getContestsByGroupId', () => {
     it('should return ongoing, upcoming, finished contests', async () => {
-      expect(await service.getContests(undefinedUserId, groupId)).to.deep.equal(
-        {
-          ongoing: ongoingContests,
-          upcoming: upcomingContests,
-          finished: finishedContests
-        }
-      )
+      expect(
+        await service.getContestsByGroupId(undefinedUserId, groupId)
+      ).to.deep.equal({
+        ongoing: ongoingContests,
+        upcoming: upcomingContests,
+        finished: finishedContests
+      })
     })
+
+    //TODO: test when userId is given
   })
 
-  describe('getContestDetailById', () => {
+  describe('getContest', () => {
     it('should throw error when contest does not exist', async () => {
       mockPrismaService.contest.findFirst.rejects(
         new EntityNotExistException('contest')
       )
 
-      await expect(
-        service.getContestDetailById(groupId, contestId)
-      ).to.be.rejectedWith(EntityNotExistException)
+      await expect(service.getContest(contestId, groupId)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
 
     it('should return contest', async () => {
-      mockPrismaService.contest.findFirst.resolves(contest)
+      mockPrismaService.contest.findFirst.resolves(contestDetail)
 
-      expect(
-        await service.getContestDetailById(groupId, contestId)
-      ).to.deep.equal(contest)
+      expect(await service.getContest(groupId, contestId)).to.deep.equal(
+        contestDetail
+      )
     })
   })
 
   describe('getAdminContests', () => {
     it('should return contests in open space', async () => {
-      stub(groupService, 'getUserGroupLeaderList').resolves([groupId])
-
       expect(await service.getAdminContests(0, 3)).to.deep.equal(contests)
     })
   })
@@ -401,13 +520,13 @@ describe('ContestService', () => {
     })
   })
 
-  describe('getAdminContestById', () => {
+  describe('getAdminContest', () => {
     it('should throw error when contest does not exist', async () => {
       mockPrismaService.contest.findUnique.rejects(
         new EntityNotExistException('contest')
       )
 
-      await expect(service.getAdminContestById(contestId)).to.be.rejectedWith(
+      await expect(service.getAdminContest(contestId)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
@@ -415,18 +534,7 @@ describe('ContestService', () => {
     it('should return contest', async () => {
       mockPrismaService.contest.findUnique.resolves(contest)
 
-      expect(await service.getAdminContestById(contestId)).to.deep.equal(
-        contest
-      )
-    })
-  })
-
-  describe('getAdminContestsByGroupId', () => {
-    it('should return contests of the group', async () => {
-      mockPrismaService.contest.findMany.resolves(contests)
-      expect(
-        await service.getAdminContestsByGroupId(groupId, 0, 3)
-      ).to.deep.equal(contests)
+      expect(await service.getAdminContest(contestId)).to.deep.equal(contest)
     })
   })
 

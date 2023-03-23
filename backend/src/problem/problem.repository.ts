@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
-import { Problem, WorkbookProblem } from '@prisma/client'
-import { PUBLIC_GROUP_ID } from 'src/common/constants'
-import { PaginationDto } from 'src/common/dto/pagination.dto'
+import { type Problem, type WorkbookProblem } from '@prisma/client'
+import { OPEN_SPACE_ID } from 'src/common/constants'
+import { type PaginationDto } from 'src/common/dto/pagination.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 
@@ -57,7 +57,7 @@ export class ProblemRepository {
       skip: paginationDto.offset,
       take: paginationDto.limit,
       where: {
-        groupId: PUBLIC_GROUP_ID
+        groupId: OPEN_SPACE_ID
       },
       select: {
         ...this.problemsSelectOption
@@ -65,11 +65,14 @@ export class ProblemRepository {
     })
   }
 
-  async getProblem(problemId: number): Promise<Partial<Problem>> {
+  async getProblem(
+    problemId: number,
+    groupId: number
+  ): Promise<Partial<Problem>> {
     return await this.prisma.problem.findFirst({
       where: {
         id: problemId,
-        groupId: PUBLIC_GROUP_ID
+        groupId: groupId
       },
       select: this.problemSelectOption,
       rejectOnNotFound: () => new EntityNotExistException('Problem')

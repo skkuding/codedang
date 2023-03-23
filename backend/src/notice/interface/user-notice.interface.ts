@@ -1,4 +1,4 @@
-import { Notice } from '@prisma/client'
+import { type Notice } from '@prisma/client'
 
 export interface UserNotice {
   current: Partial<Notice>
