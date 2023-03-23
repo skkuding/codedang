@@ -20,8 +20,8 @@ const invitationCode = ref('')
     </Button>
     <GroupListSection title="My Group" :is-my-group="true" />
     <GroupListSection title="All Group" pagination :is-my-group="false" />
-    <Modal v-model="joinModalVisible" class="px-4 shadow-md">
-      <div class="flex flex-col items-center gap-2 py-12 px-4">
+    <Modal v-model="joinModalVisible" class="shadow-md">
+      <div class="flex flex-col items-center gap-2 py-12 px-8">
         <h1 class="mb-1 text-center text-lg font-bold">
           Join Group by Invitation Code
         </h1>
