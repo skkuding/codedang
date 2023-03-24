@@ -54,6 +54,23 @@ const workbookArray = [
   }
 ]
 
+const problems = [
+  {
+    problem: {
+      id: 1,
+      title: 'Workbook Problem Example',
+      problemTag: [{ tag: { name: 'tag1' } }, { tag: { name: 'tag2' } }]
+    }
+  },
+  {
+    problem: {
+      id: 2,
+      title: 'Just Another Example',
+      problemTag: [{ tag: { name: 'tag1' } }, { tag: { name: 'tag2' } }]
+    }
+  }
+]
+
 const createWorkbookDto = {
   title: 'createworkbook',
   description: 'description',
@@ -78,11 +95,6 @@ const showIdTitleDescriptionUpdatedTime = ({
   updateTime
 })
 
-const showIdTitle = ({ id, title }: Workbook) => ({
-  id,
-  title
-})
-
 const publicWorkbooks = [
   showIdTitleDescriptionUpdatedTime(workbookArray[0]),
   showIdTitleDescriptionUpdatedTime(workbookArray[1])
@@ -100,7 +112,15 @@ const onePublicWorkbook = {
   createdBy: { username: 'manager' },
   isVisible: workbookArray[0].isVisible
 }
-const visibleOnePublicWorkbook = showIdTitle(workbookArray[0])
+const visibleOnePublicWorkbook = {
+  id: workbookArray[0].id,
+  title: workbookArray[0].title,
+  problems: problems.map((x) => ({
+    id: x.problem.id,
+    title: x.problem.title,
+    tags: x.problem.problemTag.map((y) => y.tag.name)
+  }))
+}
 const oneGroupWorkbook = workbookArray[2]
 const PRIVATE_GROUP_ID = 2
 const CREATE_BY_ID = 1
@@ -113,6 +133,9 @@ const db = {
     create: stub(),
     update: stub(),
     delete: stub()
+  },
+  workbookProblem: {
+    findMany: stub()
   }
 }
 
@@ -169,6 +192,13 @@ describe('WorkbookService', () => {
       .resolves(visibleOnePublicWorkbook)
       .onSecondCall()
       .rejects(new EntityNotExistException('workbook'))
+
+    db.workbookProblem.findMany.reset()
+    db.workbookProblem.findMany
+      .onFirstCall()
+      .resolves(problems)
+      .onSecondCall()
+      .resolves([])
 
     const returnedWorkbook = await workbookService.getWorkbookById(workbookId)
     expect(returnedWorkbook).to.deep.equal(visibleOnePublicWorkbook)

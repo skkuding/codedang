@@ -6,6 +6,11 @@ export interface Workbook {
   title: string
   description: string
   updateTime: string
+  problems: {
+    id: string
+    title: string
+    tags: string[]
+  }[]
 }
 
 export function useWorkbook() {
