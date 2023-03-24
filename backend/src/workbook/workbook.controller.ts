@@ -32,6 +32,21 @@ export class WorkbookController {
       throw new InternalServerErrorException()
     }
   }
+
+  @Get('/:workbookId')
+  async getWorkbook(
+    @Param('workbookId', ParseIntPipe) workbookId
+  ): Promise<Partial<Workbook>> {
+    try {
+      return await this.workbookService.getWorkbookById(workbookId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      } else {
+        throw new InternalServerErrorException()
+      }
+    }
+  }
 }
 
 @Controller('group/:groupId/workbook')
