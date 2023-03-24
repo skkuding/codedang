@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { type Workbook } from '@prisma/client'
+import { type Workbook, type Problem } from '@prisma/client'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { type CreateWorkbookDto } from './dto/create-workbook.dto'
@@ -58,13 +58,46 @@ export class WorkbookService {
     return workbooks
   }
 
-  async getWorkbookById(workbookId: number): Promise<Partial<Workbook>> {
+  async getWorkbookById(
+    workbookId: number
+  ): Promise<Partial<Workbook> & { problems: Partial<Problem>[] }> {
     const workbook = await this.prisma.workbook.findFirst({
       where: { id: workbookId, isVisible: true },
       select: { id: true, title: true },
       rejectOnNotFound: () => new EntityNotExistException('workbook')
     })
-    return workbook
+
+    const rawProblems = await this.prisma.workbookProblem.findMany({
+      where: { workbookId },
+      select: {
+        problem: {
+          select: {
+            id: true,
+            title: true,
+            problemTag: {
+              select: {
+                tag: {
+                  select: {
+                    name: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+
+    const problems = rawProblems.map((x) => ({
+      id: x.problem.id,
+      title: x.problem.title,
+      tags: x.problem.problemTag.map((y) => y.tag.name)
+    }))
+
+    return {
+      ...workbook,
+      problems
+    }
   }
 
   async getAdminWorkbookById(workbookId: number): Promise<Partial<Workbook>> {
