@@ -24,29 +24,21 @@ type Response = {
 const workbookList = ref<Response>([])
 
 // query parameters
-const take = ref(10)
+const take = ref(4)
 const cursor = ref(0)
 const hasNextPage = ref(true)
-const loading = ref(false)
-const store = useAuthStore()
 
 // call group workbook list get api
+const store = useAuthStore()
 watchEffect(async () => {
-  // 임시 코드 (header에서 로그인 안됨)
-  if (!store.isLoggedIn) {
-    await store.login('user10', 'Useruser')
-    return
-  }
-
+  if (!store.isLoggedIn) return // 비로그인시 어떤 로직 수행???
   if (!hasNextPage.value) return
   const url = cursor.value
     ? `/api/group/${props.id}/workbook?take=${take.value}&cursor=${cursor.value}`
     : `/api/group/${props.id}/workbook?take=${take.value}`
   try {
-    loading.value = true
     const { data } = await axios.get<Response>(url)
     workbookList.value.push(...data)
-    loading.value = false
     if (data.length < take.value) {
       hasNextPage.value = false
     }
@@ -84,6 +76,6 @@ useIntersectionObserver(target, ([{ isIntersecting }]) => {
       :complete="2"
       @click="$router.push(`/workbook/${workbookId}`)"
     />
-    <div v-if="!loading" ref="target" />
   </div>
+  <div ref="target" />
 </template>
