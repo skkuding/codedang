@@ -112,9 +112,9 @@ export class ProblemRepository {
     return await this.prisma.contestProblem.findMany({
       cursor: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        contestId_id: {
+        contestId_problemId: {
           contestId: contestId,
-          id: cursor.toString()
+          problemId: cursor
         }
       },
       skip: skip,
@@ -165,9 +165,9 @@ export class ProblemRepository {
     return await this.prisma.workbookProblem.findMany({
       cursor: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        workbookId_id: {
+        workbookId_problemId: {
           workbookId: workbookId,
-          id: cursor.toString()
+          problemId: cursor
         }
       },
       skip: skip,
