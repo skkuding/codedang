@@ -1,4 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
+import { expect } from 'chai'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 
@@ -16,7 +17,7 @@ describe('AdminController', () => {
 
   describe('root', () => {
     it('should return "Hello World!"', () => {
-      expect(adminController.getHello()).toBe('Hello World!')
+      expect(adminController.getHello()).to.equal('Hello World!')
     })
   })
 })
