@@ -13,7 +13,7 @@ import {
   type Submission,
   type ProblemTestcase
 } from '@prisma/client'
-import { encrypt } from 'src/common/hash'
+import { encrypt } from '~/common/hash'
 import * as dayjs from 'dayjs'
 
 const prisma = new PrismaClient()

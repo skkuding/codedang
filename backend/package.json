@@ -6,7 +6,7 @@
     "start": "rimraf dist && nest start",
     "start:dev": "rimraf dist && nest start --watch",
     "start:debug": "rimraf dist && nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/apps/backend/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "mocha \"*/**/*.spec.ts\"",
     "test:watch": "mocha --watch"
