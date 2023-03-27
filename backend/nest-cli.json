@@ -1,6 +1,6 @@
 {
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/backend/src",
+  "sourceRoot": "apps/client/src",
   "compilerOptions": {
     "assets": [
       {
@@ -10,18 +10,18 @@
     "watchAssets": true,
     "plugins": ["@nestjs/swagger"],
     "webpack": true,
-    "tsConfigPath": "apps/backend/tsconfig.app.json"
+    "tsConfigPath": "apps/client/tsconfig.app.json"
   },
   "monorepo": true,
-  "root": "apps/backend",
+  "root": "apps/client",
   "projects": {
-    "backend": {
+    "client": {
       "type": "application",
-      "root": "apps/backend",
+      "root": "apps/client",
       "entryFile": "main",
-      "sourceRoot": "apps/backend/src",
+      "sourceRoot": "apps/client/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/backend/tsconfig.app.json"
+        "tsConfigPath": "apps/client/tsconfig.app.json"
       }
     },
     "admin": {
