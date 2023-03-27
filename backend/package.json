@@ -12,10 +12,13 @@
     "test:watch": "mocha --watch"
   },
   "dependencies": {
+    "@apollo/server": "^4.5.0",
     "@nestjs-modules/mailer": "^1.8.1",
+    "@nestjs/apollo": "^11.0.4",
     "@nestjs/common": "^9.3.10",
     "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.3.10",
+    "@nestjs/graphql": "^11.0.4",
     "@nestjs/jwt": "^10.0.2",
     "@nestjs/passport": "^9.0.3",
     "@nestjs/platform-express": "^9.3.10",
@@ -28,6 +31,7 @@
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
     "dayjs": "^1.11.7",
+    "graphql": "^16.6.0",
     "handlebars": "^4.7.7",
     "nodemailer": "^6.9.1",
     "passport": "^0.6.0",
