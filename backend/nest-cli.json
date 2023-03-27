@@ -8,6 +8,7 @@
       }
     ],
     "watchAssets": true,
+    "deleteOutDir": true,
     "plugins": ["@nestjs/swagger"],
     "webpack": true,
     "tsConfigPath": "apps/client/tsconfig.app.json"
