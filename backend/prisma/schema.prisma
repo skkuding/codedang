@@ -219,7 +219,7 @@ model ContestNotice {
   contestId   Int            @map("contest_id")
   title       String
   description String
-  problem     ContestProblem @relation(fields: [problemId, contestId], references: [contestId, problemId])
+  problem     ContestProblem @relation(fields: [problemId, contestId], references: [problemId, contestId])
   problemId   Int            @map("problem_id")
   createTime  DateTime       @default(now()) @map("create_time")
   updateTime  DateTime       @updatedAt @map("update_time")
