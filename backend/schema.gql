@@ -1,0 +1,4729 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input BoolFieldUpdateOperationsInput {
+  set: Boolean
+}
+
+input BoolFilter {
+  equals: Boolean
+  not: NestedBoolFilter
+}
+
+type Contest {
+  _count: ContestCount!
+
+  """
+  config default value
+  {
+  "isVisible": true,
+  "isRankVisible": true
+  }
+  """
+  config: JSON!
+  contestNotice: [ContestNotice!]
+  contestProblem: [ContestProblem!]
+  contestRecord: [ContestRecord!]
+  createTime: DateTime!
+  createdBy: User!
+  createdById: Int!
+  description: String!
+  endTime: DateTime!
+  group: Group!
+  groupId: Int!
+  id: ID!
+  startTime: DateTime!
+  submission: [Submission!]
+  title: String!
+  updateTime: DateTime!
+}
+
+type ContestCount {
+  contestNotice: Int!
+  contestProblem: Int!
+  contestRecord: Int!
+  submission: Int!
+}
+
+input ContestCreateManyCreatedByInput {
+  config: JSON!
+  createTime: DateTime
+  description: String!
+  endTime: DateTime!
+  groupId: Int!
+  id: Int
+  startTime: DateTime!
+  title: String!
+  updateTime: DateTime
+}
+
+input ContestCreateManyCreatedByInputEnvelope {
+  data: [ContestCreateManyCreatedByInput!]!
+  skipDuplicates: Boolean
+}
+
+input ContestCreateManyGroupInput {
+  config: JSON!
+  createTime: DateTime
+  createdById: Int!
+  description: String!
+  endTime: DateTime!
+  id: Int
+  startTime: DateTime!
+  title: String!
+  updateTime: DateTime
+}
+
+input ContestCreateManyGroupInputEnvelope {
+  data: [ContestCreateManyGroupInput!]!
+  skipDuplicates: Boolean
+}
+
+input ContestCreateNestedManyWithoutCreatedByInput {
+  connect: [ContestWhereUniqueInput!]
+  connectOrCreate: [ContestCreateOrConnectWithoutCreatedByInput!]
+  create: [ContestCreateWithoutCreatedByInput!]
+  createMany: ContestCreateManyCreatedByInputEnvelope
+}
+
+input ContestCreateNestedManyWithoutGroupInput {
+  connect: [ContestWhereUniqueInput!]
+  connectOrCreate: [ContestCreateOrConnectWithoutGroupInput!]
+  create: [ContestCreateWithoutGroupInput!]
+  createMany: ContestCreateManyGroupInputEnvelope
+}
+
+input ContestCreateNestedOneWithoutContestNoticeInput {
+  connect: ContestWhereUniqueInput
+  connectOrCreate: ContestCreateOrConnectWithoutContestNoticeInput
+  create: ContestCreateWithoutContestNoticeInput
+}
+
+input ContestCreateNestedOneWithoutContestProblemInput {
+  connect: ContestWhereUniqueInput
+  connectOrCreate: ContestCreateOrConnectWithoutContestProblemInput
+  create: ContestCreateWithoutContestProblemInput
+}
+
+input ContestCreateNestedOneWithoutContestRecordInput {
+  connect: ContestWhereUniqueInput
+  connectOrCreate: ContestCreateOrConnectWithoutContestRecordInput
+  create: ContestCreateWithoutContestRecordInput
+}
+
+input ContestCreateNestedOneWithoutSubmissionInput {
+  connect: ContestWhereUniqueInput
+  connectOrCreate: ContestCreateOrConnectWithoutSubmissionInput
+  create: ContestCreateWithoutSubmissionInput
+}
+
+input ContestCreateOrConnectWithoutContestNoticeInput {
+  create: ContestCreateWithoutContestNoticeInput!
+  where: ContestWhereUniqueInput!
+}
+
+input ContestCreateOrConnectWithoutContestProblemInput {
+  create: ContestCreateWithoutContestProblemInput!
+  where: ContestWhereUniqueInput!
+}
+
+input ContestCreateOrConnectWithoutContestRecordInput {
+  create: ContestCreateWithoutContestRecordInput!
+  where: ContestWhereUniqueInput!
+}
+
+input ContestCreateOrConnectWithoutCreatedByInput {
+  create: ContestCreateWithoutCreatedByInput!
+  where: ContestWhereUniqueInput!
+}
+
+input ContestCreateOrConnectWithoutGroupInput {
+  create: ContestCreateWithoutGroupInput!
+  where: ContestWhereUniqueInput!
+}
+
+input ContestCreateOrConnectWithoutSubmissionInput {
+  create: ContestCreateWithoutSubmissionInput!
+  where: ContestWhereUniqueInput!
+}
+
+input ContestCreateWithoutContestNoticeInput {
+  config: JSON!
+  contestProblem: ContestProblemCreateNestedManyWithoutContestInput
+  contestRecord: ContestRecordCreateNestedManyWithoutContestInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutContestInput!
+  description: String!
+  endTime: DateTime!
+  group: GroupCreateNestedOneWithoutContestInput!
+  startTime: DateTime!
+  submission: SubmissionCreateNestedManyWithoutContestInput
+  title: String!
+  updateTime: DateTime
+}
+
+input ContestCreateWithoutContestProblemInput {
+  config: JSON!
+  contestNotice: ContestNoticeCreateNestedManyWithoutContestInput
+  contestRecord: ContestRecordCreateNestedManyWithoutContestInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutContestInput!
+  description: String!
+  endTime: DateTime!
+  group: GroupCreateNestedOneWithoutContestInput!
+  startTime: DateTime!
+  submission: SubmissionCreateNestedManyWithoutContestInput
+  title: String!
+  updateTime: DateTime
+}
+
+input ContestCreateWithoutContestRecordInput {
+  config: JSON!
+  contestNotice: ContestNoticeCreateNestedManyWithoutContestInput
+  contestProblem: ContestProblemCreateNestedManyWithoutContestInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutContestInput!
+  description: String!
+  endTime: DateTime!
+  group: GroupCreateNestedOneWithoutContestInput!
+  startTime: DateTime!
+  submission: SubmissionCreateNestedManyWithoutContestInput
+  title: String!
+  updateTime: DateTime
+}
+
+input ContestCreateWithoutCreatedByInput {
+  config: JSON!
+  contestNotice: ContestNoticeCreateNestedManyWithoutContestInput
+  contestProblem: ContestProblemCreateNestedManyWithoutContestInput
+  contestRecord: ContestRecordCreateNestedManyWithoutContestInput
+  createTime: DateTime
+  description: String!
+  endTime: DateTime!
+  group: GroupCreateNestedOneWithoutContestInput!
+  startTime: DateTime!
+  submission: SubmissionCreateNestedManyWithoutContestInput
+  title: String!
+  updateTime: DateTime
+}
+
+input ContestCreateWithoutGroupInput {
+  config: JSON!
+  contestNotice: ContestNoticeCreateNestedManyWithoutContestInput
+  contestProblem: ContestProblemCreateNestedManyWithoutContestInput
+  contestRecord: ContestRecordCreateNestedManyWithoutContestInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutContestInput!
+  description: String!
+  endTime: DateTime!
+  startTime: DateTime!
+  submission: SubmissionCreateNestedManyWithoutContestInput
+  title: String!
+  updateTime: DateTime
+}
+
+input ContestCreateWithoutSubmissionInput {
+  config: JSON!
+  contestNotice: ContestNoticeCreateNestedManyWithoutContestInput
+  contestProblem: ContestProblemCreateNestedManyWithoutContestInput
+  contestRecord: ContestRecordCreateNestedManyWithoutContestInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutContestInput!
+  description: String!
+  endTime: DateTime!
+  group: GroupCreateNestedOneWithoutContestInput!
+  startTime: DateTime!
+  title: String!
+  updateTime: DateTime
+}
+
+type ContestNotice {
+  contest: Contest!
+  contestId: Int!
+  createTime: DateTime!
+  description: String!
+  id: ID!
+  problem: Problem!
+  problemId: Int!
+  title: String!
+  updateTime: DateTime!
+}
+
+input ContestNoticeCreateManyContestInput {
+  createTime: DateTime
+  description: String!
+  id: Int
+  problemId: Int!
+  title: String!
+  updateTime: DateTime
+}
+
+input ContestNoticeCreateManyContestInputEnvelope {
+  data: [ContestNoticeCreateManyContestInput!]!
+  skipDuplicates: Boolean
+}
+
+input ContestNoticeCreateManyProblemInput {
+  contestId: Int!
+  createTime: DateTime
+  description: String!
+  id: Int
+  title: String!
+  updateTime: DateTime
+}
+
+input ContestNoticeCreateManyProblemInputEnvelope {
+  data: [ContestNoticeCreateManyProblemInput!]!
+  skipDuplicates: Boolean
+}
+
+input ContestNoticeCreateNestedManyWithoutContestInput {
+  connect: [ContestNoticeWhereUniqueInput!]
+  connectOrCreate: [ContestNoticeCreateOrConnectWithoutContestInput!]
+  create: [ContestNoticeCreateWithoutContestInput!]
+  createMany: ContestNoticeCreateManyContestInputEnvelope
+}
+
+input ContestNoticeCreateNestedManyWithoutProblemInput {
+  connect: [ContestNoticeWhereUniqueInput!]
+  connectOrCreate: [ContestNoticeCreateOrConnectWithoutProblemInput!]
+  create: [ContestNoticeCreateWithoutProblemInput!]
+  createMany: ContestNoticeCreateManyProblemInputEnvelope
+}
+
+input ContestNoticeCreateOrConnectWithoutContestInput {
+  create: ContestNoticeCreateWithoutContestInput!
+  where: ContestNoticeWhereUniqueInput!
+}
+
+input ContestNoticeCreateOrConnectWithoutProblemInput {
+  create: ContestNoticeCreateWithoutProblemInput!
+  where: ContestNoticeWhereUniqueInput!
+}
+
+input ContestNoticeCreateWithoutContestInput {
+  createTime: DateTime
+  description: String!
+  problem: ProblemCreateNestedOneWithoutContestNoticeInput!
+  title: String!
+  updateTime: DateTime
+}
+
+input ContestNoticeCreateWithoutProblemInput {
+  contest: ContestCreateNestedOneWithoutContestNoticeInput!
+  createTime: DateTime
+  description: String!
+  title: String!
+  updateTime: DateTime
+}
+
+input ContestNoticeScalarWhereInput {
+  AND: [ContestNoticeScalarWhereInput!]
+  NOT: [ContestNoticeScalarWhereInput!]
+  OR: [ContestNoticeScalarWhereInput!]
+  contestId: IntFilter
+  createTime: DateTimeFilter
+  description: StringFilter
+  id: IntFilter
+  problemId: IntFilter
+  title: StringFilter
+  updateTime: DateTimeFilter
+}
+
+input ContestNoticeUpdateManyMutationInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  description: StringFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestNoticeUpdateManyWithWhereWithoutContestInput {
+  data: ContestNoticeUpdateManyMutationInput!
+  where: ContestNoticeScalarWhereInput!
+}
+
+input ContestNoticeUpdateManyWithWhereWithoutProblemInput {
+  data: ContestNoticeUpdateManyMutationInput!
+  where: ContestNoticeScalarWhereInput!
+}
+
+input ContestNoticeUpdateManyWithoutContestNestedInput {
+  connect: [ContestNoticeWhereUniqueInput!]
+  connectOrCreate: [ContestNoticeCreateOrConnectWithoutContestInput!]
+  create: [ContestNoticeCreateWithoutContestInput!]
+  createMany: ContestNoticeCreateManyContestInputEnvelope
+  delete: [ContestNoticeWhereUniqueInput!]
+  deleteMany: [ContestNoticeScalarWhereInput!]
+  disconnect: [ContestNoticeWhereUniqueInput!]
+  set: [ContestNoticeWhereUniqueInput!]
+  update: [ContestNoticeUpdateWithWhereUniqueWithoutContestInput!]
+  updateMany: [ContestNoticeUpdateManyWithWhereWithoutContestInput!]
+  upsert: [ContestNoticeUpsertWithWhereUniqueWithoutContestInput!]
+}
+
+input ContestNoticeUpdateManyWithoutProblemNestedInput {
+  connect: [ContestNoticeWhereUniqueInput!]
+  connectOrCreate: [ContestNoticeCreateOrConnectWithoutProblemInput!]
+  create: [ContestNoticeCreateWithoutProblemInput!]
+  createMany: ContestNoticeCreateManyProblemInputEnvelope
+  delete: [ContestNoticeWhereUniqueInput!]
+  deleteMany: [ContestNoticeScalarWhereInput!]
+  disconnect: [ContestNoticeWhereUniqueInput!]
+  set: [ContestNoticeWhereUniqueInput!]
+  update: [ContestNoticeUpdateWithWhereUniqueWithoutProblemInput!]
+  updateMany: [ContestNoticeUpdateManyWithWhereWithoutProblemInput!]
+  upsert: [ContestNoticeUpsertWithWhereUniqueWithoutProblemInput!]
+}
+
+input ContestNoticeUpdateWithWhereUniqueWithoutContestInput {
+  data: ContestNoticeUpdateWithoutContestInput!
+  where: ContestNoticeWhereUniqueInput!
+}
+
+input ContestNoticeUpdateWithWhereUniqueWithoutProblemInput {
+  data: ContestNoticeUpdateWithoutProblemInput!
+  where: ContestNoticeWhereUniqueInput!
+}
+
+input ContestNoticeUpdateWithoutContestInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  description: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateOneRequiredWithoutContestNoticeNestedInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestNoticeUpdateWithoutProblemInput {
+  contest: ContestUpdateOneRequiredWithoutContestNoticeNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  description: StringFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestNoticeUpsertWithWhereUniqueWithoutContestInput {
+  create: ContestNoticeCreateWithoutContestInput!
+  update: ContestNoticeUpdateWithoutContestInput!
+  where: ContestNoticeWhereUniqueInput!
+}
+
+input ContestNoticeUpsertWithWhereUniqueWithoutProblemInput {
+  create: ContestNoticeCreateWithoutProblemInput!
+  update: ContestNoticeUpdateWithoutProblemInput!
+  where: ContestNoticeWhereUniqueInput!
+}
+
+input ContestNoticeWhereUniqueInput {
+  id: Int
+}
+
+type ContestProblem {
+  contest: Contest!
+  contestId: Int!
+  createTime: DateTime!
+  id: String!
+  problem: Problem!
+  problemId: Int!
+  score: Int!
+  updateTime: DateTime!
+}
+
+input ContestProblemContestIdIdCompoundUniqueInput {
+  contestId: Int!
+  id: String!
+}
+
+input ContestProblemContestIdProblemIdCompoundUniqueInput {
+  contestId: Int!
+  problemId: Int!
+}
+
+input ContestProblemCreateManyContestInput {
+  createTime: DateTime
+  id: String!
+  problemId: Int!
+  score: Int
+  updateTime: DateTime
+}
+
+input ContestProblemCreateManyContestInputEnvelope {
+  data: [ContestProblemCreateManyContestInput!]!
+  skipDuplicates: Boolean
+}
+
+input ContestProblemCreateManyProblemInput {
+  contestId: Int!
+  createTime: DateTime
+  id: String!
+  score: Int
+  updateTime: DateTime
+}
+
+input ContestProblemCreateManyProblemInputEnvelope {
+  data: [ContestProblemCreateManyProblemInput!]!
+  skipDuplicates: Boolean
+}
+
+input ContestProblemCreateNestedManyWithoutContestInput {
+  connect: [ContestProblemWhereUniqueInput!]
+  connectOrCreate: [ContestProblemCreateOrConnectWithoutContestInput!]
+  create: [ContestProblemCreateWithoutContestInput!]
+  createMany: ContestProblemCreateManyContestInputEnvelope
+}
+
+input ContestProblemCreateNestedManyWithoutProblemInput {
+  connect: [ContestProblemWhereUniqueInput!]
+  connectOrCreate: [ContestProblemCreateOrConnectWithoutProblemInput!]
+  create: [ContestProblemCreateWithoutProblemInput!]
+  createMany: ContestProblemCreateManyProblemInputEnvelope
+}
+
+input ContestProblemCreateOrConnectWithoutContestInput {
+  create: ContestProblemCreateWithoutContestInput!
+  where: ContestProblemWhereUniqueInput!
+}
+
+input ContestProblemCreateOrConnectWithoutProblemInput {
+  create: ContestProblemCreateWithoutProblemInput!
+  where: ContestProblemWhereUniqueInput!
+}
+
+input ContestProblemCreateWithoutContestInput {
+  createTime: DateTime
+  id: String!
+  problem: ProblemCreateNestedOneWithoutContestProblemInput!
+  score: Int
+  updateTime: DateTime
+}
+
+input ContestProblemCreateWithoutProblemInput {
+  contest: ContestCreateNestedOneWithoutContestProblemInput!
+  createTime: DateTime
+  id: String!
+  score: Int
+  updateTime: DateTime
+}
+
+input ContestProblemScalarWhereInput {
+  AND: [ContestProblemScalarWhereInput!]
+  NOT: [ContestProblemScalarWhereInput!]
+  OR: [ContestProblemScalarWhereInput!]
+  contestId: IntFilter
+  createTime: DateTimeFilter
+  id: StringFilter
+  problemId: IntFilter
+  score: IntFilter
+  updateTime: DateTimeFilter
+}
+
+input ContestProblemUpdateManyMutationInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  id: StringFieldUpdateOperationsInput
+  score: IntFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestProblemUpdateManyWithWhereWithoutContestInput {
+  data: ContestProblemUpdateManyMutationInput!
+  where: ContestProblemScalarWhereInput!
+}
+
+input ContestProblemUpdateManyWithWhereWithoutProblemInput {
+  data: ContestProblemUpdateManyMutationInput!
+  where: ContestProblemScalarWhereInput!
+}
+
+input ContestProblemUpdateManyWithoutContestNestedInput {
+  connect: [ContestProblemWhereUniqueInput!]
+  connectOrCreate: [ContestProblemCreateOrConnectWithoutContestInput!]
+  create: [ContestProblemCreateWithoutContestInput!]
+  createMany: ContestProblemCreateManyContestInputEnvelope
+  delete: [ContestProblemWhereUniqueInput!]
+  deleteMany: [ContestProblemScalarWhereInput!]
+  disconnect: [ContestProblemWhereUniqueInput!]
+  set: [ContestProblemWhereUniqueInput!]
+  update: [ContestProblemUpdateWithWhereUniqueWithoutContestInput!]
+  updateMany: [ContestProblemUpdateManyWithWhereWithoutContestInput!]
+  upsert: [ContestProblemUpsertWithWhereUniqueWithoutContestInput!]
+}
+
+input ContestProblemUpdateManyWithoutProblemNestedInput {
+  connect: [ContestProblemWhereUniqueInput!]
+  connectOrCreate: [ContestProblemCreateOrConnectWithoutProblemInput!]
+  create: [ContestProblemCreateWithoutProblemInput!]
+  createMany: ContestProblemCreateManyProblemInputEnvelope
+  delete: [ContestProblemWhereUniqueInput!]
+  deleteMany: [ContestProblemScalarWhereInput!]
+  disconnect: [ContestProblemWhereUniqueInput!]
+  set: [ContestProblemWhereUniqueInput!]
+  update: [ContestProblemUpdateWithWhereUniqueWithoutProblemInput!]
+  updateMany: [ContestProblemUpdateManyWithWhereWithoutProblemInput!]
+  upsert: [ContestProblemUpsertWithWhereUniqueWithoutProblemInput!]
+}
+
+input ContestProblemUpdateWithWhereUniqueWithoutContestInput {
+  data: ContestProblemUpdateWithoutContestInput!
+  where: ContestProblemWhereUniqueInput!
+}
+
+input ContestProblemUpdateWithWhereUniqueWithoutProblemInput {
+  data: ContestProblemUpdateWithoutProblemInput!
+  where: ContestProblemWhereUniqueInput!
+}
+
+input ContestProblemUpdateWithoutContestInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  id: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateOneRequiredWithoutContestProblemNestedInput
+  score: IntFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestProblemUpdateWithoutProblemInput {
+  contest: ContestUpdateOneRequiredWithoutContestProblemNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  id: StringFieldUpdateOperationsInput
+  score: IntFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestProblemUpsertWithWhereUniqueWithoutContestInput {
+  create: ContestProblemCreateWithoutContestInput!
+  update: ContestProblemUpdateWithoutContestInput!
+  where: ContestProblemWhereUniqueInput!
+}
+
+input ContestProblemUpsertWithWhereUniqueWithoutProblemInput {
+  create: ContestProblemCreateWithoutProblemInput!
+  update: ContestProblemUpdateWithoutProblemInput!
+  where: ContestProblemWhereUniqueInput!
+}
+
+input ContestProblemWhereUniqueInput {
+  contestId_id: ContestProblemContestIdIdCompoundUniqueInput
+  contestId_problemId: ContestProblemContestIdProblemIdCompoundUniqueInput
+}
+
+type ContestRecord {
+  acceptedProblemNum: Int!
+  contest: Contest!
+  contestId: Int!
+  createTime: DateTime!
+  id: ID!
+  totalPenalty: Int!
+  updateTime: DateTime!
+  user: User!
+  userId: Int!
+}
+
+input ContestRecordCreateManyContestInput {
+  acceptedProblemNum: Int
+  createTime: DateTime
+  id: Int
+  totalPenalty: Int
+  updateTime: DateTime
+  userId: Int!
+}
+
+input ContestRecordCreateManyContestInputEnvelope {
+  data: [ContestRecordCreateManyContestInput!]!
+  skipDuplicates: Boolean
+}
+
+input ContestRecordCreateManyUserInput {
+  acceptedProblemNum: Int
+  contestId: Int!
+  createTime: DateTime
+  id: Int
+  totalPenalty: Int
+  updateTime: DateTime
+}
+
+input ContestRecordCreateManyUserInputEnvelope {
+  data: [ContestRecordCreateManyUserInput!]!
+  skipDuplicates: Boolean
+}
+
+input ContestRecordCreateNestedManyWithoutContestInput {
+  connect: [ContestRecordWhereUniqueInput!]
+  connectOrCreate: [ContestRecordCreateOrConnectWithoutContestInput!]
+  create: [ContestRecordCreateWithoutContestInput!]
+  createMany: ContestRecordCreateManyContestInputEnvelope
+}
+
+input ContestRecordCreateNestedManyWithoutUserInput {
+  connect: [ContestRecordWhereUniqueInput!]
+  connectOrCreate: [ContestRecordCreateOrConnectWithoutUserInput!]
+  create: [ContestRecordCreateWithoutUserInput!]
+  createMany: ContestRecordCreateManyUserInputEnvelope
+}
+
+input ContestRecordCreateOrConnectWithoutContestInput {
+  create: ContestRecordCreateWithoutContestInput!
+  where: ContestRecordWhereUniqueInput!
+}
+
+input ContestRecordCreateOrConnectWithoutUserInput {
+  create: ContestRecordCreateWithoutUserInput!
+  where: ContestRecordWhereUniqueInput!
+}
+
+input ContestRecordCreateWithoutContestInput {
+  acceptedProblemNum: Int
+  createTime: DateTime
+  totalPenalty: Int
+  updateTime: DateTime
+  user: UserCreateNestedOneWithoutContestRecordInput!
+}
+
+input ContestRecordCreateWithoutUserInput {
+  acceptedProblemNum: Int
+  contest: ContestCreateNestedOneWithoutContestRecordInput!
+  createTime: DateTime
+  totalPenalty: Int
+  updateTime: DateTime
+}
+
+input ContestRecordScalarWhereInput {
+  AND: [ContestRecordScalarWhereInput!]
+  NOT: [ContestRecordScalarWhereInput!]
+  OR: [ContestRecordScalarWhereInput!]
+  acceptedProblemNum: IntFilter
+  contestId: IntFilter
+  createTime: DateTimeFilter
+  id: IntFilter
+  totalPenalty: IntFilter
+  updateTime: DateTimeFilter
+  userId: IntFilter
+}
+
+input ContestRecordUpdateManyMutationInput {
+  acceptedProblemNum: IntFieldUpdateOperationsInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  totalPenalty: IntFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestRecordUpdateManyWithWhereWithoutContestInput {
+  data: ContestRecordUpdateManyMutationInput!
+  where: ContestRecordScalarWhereInput!
+}
+
+input ContestRecordUpdateManyWithWhereWithoutUserInput {
+  data: ContestRecordUpdateManyMutationInput!
+  where: ContestRecordScalarWhereInput!
+}
+
+input ContestRecordUpdateManyWithoutContestNestedInput {
+  connect: [ContestRecordWhereUniqueInput!]
+  connectOrCreate: [ContestRecordCreateOrConnectWithoutContestInput!]
+  create: [ContestRecordCreateWithoutContestInput!]
+  createMany: ContestRecordCreateManyContestInputEnvelope
+  delete: [ContestRecordWhereUniqueInput!]
+  deleteMany: [ContestRecordScalarWhereInput!]
+  disconnect: [ContestRecordWhereUniqueInput!]
+  set: [ContestRecordWhereUniqueInput!]
+  update: [ContestRecordUpdateWithWhereUniqueWithoutContestInput!]
+  updateMany: [ContestRecordUpdateManyWithWhereWithoutContestInput!]
+  upsert: [ContestRecordUpsertWithWhereUniqueWithoutContestInput!]
+}
+
+input ContestRecordUpdateManyWithoutUserNestedInput {
+  connect: [ContestRecordWhereUniqueInput!]
+  connectOrCreate: [ContestRecordCreateOrConnectWithoutUserInput!]
+  create: [ContestRecordCreateWithoutUserInput!]
+  createMany: ContestRecordCreateManyUserInputEnvelope
+  delete: [ContestRecordWhereUniqueInput!]
+  deleteMany: [ContestRecordScalarWhereInput!]
+  disconnect: [ContestRecordWhereUniqueInput!]
+  set: [ContestRecordWhereUniqueInput!]
+  update: [ContestRecordUpdateWithWhereUniqueWithoutUserInput!]
+  updateMany: [ContestRecordUpdateManyWithWhereWithoutUserInput!]
+  upsert: [ContestRecordUpsertWithWhereUniqueWithoutUserInput!]
+}
+
+input ContestRecordUpdateWithWhereUniqueWithoutContestInput {
+  data: ContestRecordUpdateWithoutContestInput!
+  where: ContestRecordWhereUniqueInput!
+}
+
+input ContestRecordUpdateWithWhereUniqueWithoutUserInput {
+  data: ContestRecordUpdateWithoutUserInput!
+  where: ContestRecordWhereUniqueInput!
+}
+
+input ContestRecordUpdateWithoutContestInput {
+  acceptedProblemNum: IntFieldUpdateOperationsInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  totalPenalty: IntFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  user: UserUpdateOneRequiredWithoutContestRecordNestedInput
+}
+
+input ContestRecordUpdateWithoutUserInput {
+  acceptedProblemNum: IntFieldUpdateOperationsInput
+  contest: ContestUpdateOneRequiredWithoutContestRecordNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  totalPenalty: IntFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestRecordUpsertWithWhereUniqueWithoutContestInput {
+  create: ContestRecordCreateWithoutContestInput!
+  update: ContestRecordUpdateWithoutContestInput!
+  where: ContestRecordWhereUniqueInput!
+}
+
+input ContestRecordUpsertWithWhereUniqueWithoutUserInput {
+  create: ContestRecordCreateWithoutUserInput!
+  update: ContestRecordUpdateWithoutUserInput!
+  where: ContestRecordWhereUniqueInput!
+}
+
+input ContestRecordWhereUniqueInput {
+  id: Int
+}
+
+input ContestScalarWhereInput {
+  AND: [ContestScalarWhereInput!]
+  NOT: [ContestScalarWhereInput!]
+  OR: [ContestScalarWhereInput!]
+  config: JsonFilter
+  createTime: DateTimeFilter
+  createdById: IntFilter
+  description: StringFilter
+  endTime: DateTimeFilter
+  groupId: IntFilter
+  id: IntFilter
+  startTime: DateTimeFilter
+  title: StringFilter
+  updateTime: DateTimeFilter
+}
+
+input ContestUpdateManyMutationInput {
+  config: JSON
+  createTime: DateTimeFieldUpdateOperationsInput
+  description: StringFieldUpdateOperationsInput
+  endTime: DateTimeFieldUpdateOperationsInput
+  startTime: DateTimeFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestUpdateManyWithWhereWithoutCreatedByInput {
+  data: ContestUpdateManyMutationInput!
+  where: ContestScalarWhereInput!
+}
+
+input ContestUpdateManyWithWhereWithoutGroupInput {
+  data: ContestUpdateManyMutationInput!
+  where: ContestScalarWhereInput!
+}
+
+input ContestUpdateManyWithoutCreatedByNestedInput {
+  connect: [ContestWhereUniqueInput!]
+  connectOrCreate: [ContestCreateOrConnectWithoutCreatedByInput!]
+  create: [ContestCreateWithoutCreatedByInput!]
+  createMany: ContestCreateManyCreatedByInputEnvelope
+  delete: [ContestWhereUniqueInput!]
+  deleteMany: [ContestScalarWhereInput!]
+  disconnect: [ContestWhereUniqueInput!]
+  set: [ContestWhereUniqueInput!]
+  update: [ContestUpdateWithWhereUniqueWithoutCreatedByInput!]
+  updateMany: [ContestUpdateManyWithWhereWithoutCreatedByInput!]
+  upsert: [ContestUpsertWithWhereUniqueWithoutCreatedByInput!]
+}
+
+input ContestUpdateManyWithoutGroupNestedInput {
+  connect: [ContestWhereUniqueInput!]
+  connectOrCreate: [ContestCreateOrConnectWithoutGroupInput!]
+  create: [ContestCreateWithoutGroupInput!]
+  createMany: ContestCreateManyGroupInputEnvelope
+  delete: [ContestWhereUniqueInput!]
+  deleteMany: [ContestScalarWhereInput!]
+  disconnect: [ContestWhereUniqueInput!]
+  set: [ContestWhereUniqueInput!]
+  update: [ContestUpdateWithWhereUniqueWithoutGroupInput!]
+  updateMany: [ContestUpdateManyWithWhereWithoutGroupInput!]
+  upsert: [ContestUpsertWithWhereUniqueWithoutGroupInput!]
+}
+
+input ContestUpdateOneRequiredWithoutContestNoticeNestedInput {
+  connect: ContestWhereUniqueInput
+  connectOrCreate: ContestCreateOrConnectWithoutContestNoticeInput
+  create: ContestCreateWithoutContestNoticeInput
+  update: ContestUpdateWithoutContestNoticeInput
+  upsert: ContestUpsertWithoutContestNoticeInput
+}
+
+input ContestUpdateOneRequiredWithoutContestProblemNestedInput {
+  connect: ContestWhereUniqueInput
+  connectOrCreate: ContestCreateOrConnectWithoutContestProblemInput
+  create: ContestCreateWithoutContestProblemInput
+  update: ContestUpdateWithoutContestProblemInput
+  upsert: ContestUpsertWithoutContestProblemInput
+}
+
+input ContestUpdateOneRequiredWithoutContestRecordNestedInput {
+  connect: ContestWhereUniqueInput
+  connectOrCreate: ContestCreateOrConnectWithoutContestRecordInput
+  create: ContestCreateWithoutContestRecordInput
+  update: ContestUpdateWithoutContestRecordInput
+  upsert: ContestUpsertWithoutContestRecordInput
+}
+
+input ContestUpdateOneWithoutSubmissionNestedInput {
+  connect: ContestWhereUniqueInput
+  connectOrCreate: ContestCreateOrConnectWithoutSubmissionInput
+  create: ContestCreateWithoutSubmissionInput
+  delete: Boolean
+  disconnect: Boolean
+  update: ContestUpdateWithoutSubmissionInput
+  upsert: ContestUpsertWithoutSubmissionInput
+}
+
+input ContestUpdateWithWhereUniqueWithoutCreatedByInput {
+  data: ContestUpdateWithoutCreatedByInput!
+  where: ContestWhereUniqueInput!
+}
+
+input ContestUpdateWithWhereUniqueWithoutGroupInput {
+  data: ContestUpdateWithoutGroupInput!
+  where: ContestWhereUniqueInput!
+}
+
+input ContestUpdateWithoutContestNoticeInput {
+  config: JSON
+  contestProblem: ContestProblemUpdateManyWithoutContestNestedInput
+  contestRecord: ContestRecordUpdateManyWithoutContestNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutContestNestedInput
+  description: StringFieldUpdateOperationsInput
+  endTime: DateTimeFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutContestNestedInput
+  startTime: DateTimeFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutContestNestedInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestUpdateWithoutContestProblemInput {
+  config: JSON
+  contestNotice: ContestNoticeUpdateManyWithoutContestNestedInput
+  contestRecord: ContestRecordUpdateManyWithoutContestNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutContestNestedInput
+  description: StringFieldUpdateOperationsInput
+  endTime: DateTimeFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutContestNestedInput
+  startTime: DateTimeFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutContestNestedInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestUpdateWithoutContestRecordInput {
+  config: JSON
+  contestNotice: ContestNoticeUpdateManyWithoutContestNestedInput
+  contestProblem: ContestProblemUpdateManyWithoutContestNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutContestNestedInput
+  description: StringFieldUpdateOperationsInput
+  endTime: DateTimeFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutContestNestedInput
+  startTime: DateTimeFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutContestNestedInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestUpdateWithoutCreatedByInput {
+  config: JSON
+  contestNotice: ContestNoticeUpdateManyWithoutContestNestedInput
+  contestProblem: ContestProblemUpdateManyWithoutContestNestedInput
+  contestRecord: ContestRecordUpdateManyWithoutContestNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  description: StringFieldUpdateOperationsInput
+  endTime: DateTimeFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutContestNestedInput
+  startTime: DateTimeFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutContestNestedInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestUpdateWithoutGroupInput {
+  config: JSON
+  contestNotice: ContestNoticeUpdateManyWithoutContestNestedInput
+  contestProblem: ContestProblemUpdateManyWithoutContestNestedInput
+  contestRecord: ContestRecordUpdateManyWithoutContestNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutContestNestedInput
+  description: StringFieldUpdateOperationsInput
+  endTime: DateTimeFieldUpdateOperationsInput
+  startTime: DateTimeFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutContestNestedInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestUpdateWithoutSubmissionInput {
+  config: JSON
+  contestNotice: ContestNoticeUpdateManyWithoutContestNestedInput
+  contestProblem: ContestProblemUpdateManyWithoutContestNestedInput
+  contestRecord: ContestRecordUpdateManyWithoutContestNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutContestNestedInput
+  description: StringFieldUpdateOperationsInput
+  endTime: DateTimeFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutContestNestedInput
+  startTime: DateTimeFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ContestUpsertWithWhereUniqueWithoutCreatedByInput {
+  create: ContestCreateWithoutCreatedByInput!
+  update: ContestUpdateWithoutCreatedByInput!
+  where: ContestWhereUniqueInput!
+}
+
+input ContestUpsertWithWhereUniqueWithoutGroupInput {
+  create: ContestCreateWithoutGroupInput!
+  update: ContestUpdateWithoutGroupInput!
+  where: ContestWhereUniqueInput!
+}
+
+input ContestUpsertWithoutContestNoticeInput {
+  create: ContestCreateWithoutContestNoticeInput!
+  update: ContestUpdateWithoutContestNoticeInput!
+}
+
+input ContestUpsertWithoutContestProblemInput {
+  create: ContestCreateWithoutContestProblemInput!
+  update: ContestUpdateWithoutContestProblemInput!
+}
+
+input ContestUpsertWithoutContestRecordInput {
+  create: ContestCreateWithoutContestRecordInput!
+  update: ContestUpdateWithoutContestRecordInput!
+}
+
+input ContestUpsertWithoutSubmissionInput {
+  create: ContestCreateWithoutSubmissionInput!
+  update: ContestUpdateWithoutSubmissionInput!
+}
+
+input ContestWhereUniqueInput {
+  id: Int
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input DateTimeFieldUpdateOperationsInput {
+  set: DateTime
+}
+
+input DateTimeFilter {
+  equals: DateTime
+  gt: DateTime
+  gte: DateTime
+  in: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  not: NestedDateTimeFilter
+  notIn: [DateTime!]
+}
+
+input EnumLanguageNullableListFilter {
+  equals: [Language!]
+  has: Language
+  hasEvery: [Language!]
+  hasSome: [Language!]
+  isEmpty: Boolean
+}
+
+input EnumLevelFieldUpdateOperationsInput {
+  set: Level
+}
+
+input EnumLevelFilter {
+  equals: Level
+  in: [Level!]
+  not: NestedEnumLevelFilter
+  notIn: [Level!]
+}
+
+input EnumResultStatusFieldUpdateOperationsInput {
+  set: ResultStatus
+}
+
+input EnumResultStatusFilter {
+  equals: ResultStatus
+  in: [ResultStatus!]
+  not: NestedEnumResultStatusFilter
+  notIn: [ResultStatus!]
+}
+
+input EnumRoleFieldUpdateOperationsInput {
+  set: Role
+}
+
+type Group {
+  _count: GroupCount!
+
+  """
+  config default value
+  {
+  "showOnList": true,          // show on 'all groups' list
+  "allowJoinFromSearch": true, // can join from 'all groups' list. set to false if `showOnList` is false
+  "allowJoinWithURL": false,
+  "requireApprovalBeforeJoin": true
+  }
+  """
+  config: JSON!
+  contest: [Contest!]
+  createTime: DateTime!
+  createdBy: User!
+  createdById: Int!
+  description: String!
+  groupName: String!
+  id: ID!
+  isDeleted: Boolean!
+  notice: [Notice!]
+  problem: [Problem!]
+  updateTime: DateTime!
+  userGroup: [UserGroup!]
+  workbook: [Workbook!]
+}
+
+type GroupCount {
+  contest: Int!
+  notice: Int!
+  problem: Int!
+  userGroup: Int!
+  workbook: Int!
+}
+
+input GroupCreateManyCreatedByInput {
+  config: JSON!
+  createTime: DateTime
+  description: String!
+  groupName: String!
+  id: Int
+  isDeleted: Boolean
+  updateTime: DateTime
+}
+
+input GroupCreateManyCreatedByInputEnvelope {
+  data: [GroupCreateManyCreatedByInput!]!
+  skipDuplicates: Boolean
+}
+
+input GroupCreateNestedManyWithoutCreatedByInput {
+  connect: [GroupWhereUniqueInput!]
+  connectOrCreate: [GroupCreateOrConnectWithoutCreatedByInput!]
+  create: [GroupCreateWithoutCreatedByInput!]
+  createMany: GroupCreateManyCreatedByInputEnvelope
+}
+
+input GroupCreateNestedOneWithoutContestInput {
+  connect: GroupWhereUniqueInput
+  connectOrCreate: GroupCreateOrConnectWithoutContestInput
+  create: GroupCreateWithoutContestInput
+}
+
+input GroupCreateNestedOneWithoutNoticeInput {
+  connect: GroupWhereUniqueInput
+  connectOrCreate: GroupCreateOrConnectWithoutNoticeInput
+  create: GroupCreateWithoutNoticeInput
+}
+
+input GroupCreateNestedOneWithoutProblemInput {
+  connect: GroupWhereUniqueInput
+  connectOrCreate: GroupCreateOrConnectWithoutProblemInput
+  create: GroupCreateWithoutProblemInput
+}
+
+input GroupCreateNestedOneWithoutUserGroupInput {
+  connect: GroupWhereUniqueInput
+  connectOrCreate: GroupCreateOrConnectWithoutUserGroupInput
+  create: GroupCreateWithoutUserGroupInput
+}
+
+input GroupCreateNestedOneWithoutWorkbookInput {
+  connect: GroupWhereUniqueInput
+  connectOrCreate: GroupCreateOrConnectWithoutWorkbookInput
+  create: GroupCreateWithoutWorkbookInput
+}
+
+input GroupCreateOrConnectWithoutContestInput {
+  create: GroupCreateWithoutContestInput!
+  where: GroupWhereUniqueInput!
+}
+
+input GroupCreateOrConnectWithoutCreatedByInput {
+  create: GroupCreateWithoutCreatedByInput!
+  where: GroupWhereUniqueInput!
+}
+
+input GroupCreateOrConnectWithoutNoticeInput {
+  create: GroupCreateWithoutNoticeInput!
+  where: GroupWhereUniqueInput!
+}
+
+input GroupCreateOrConnectWithoutProblemInput {
+  create: GroupCreateWithoutProblemInput!
+  where: GroupWhereUniqueInput!
+}
+
+input GroupCreateOrConnectWithoutUserGroupInput {
+  create: GroupCreateWithoutUserGroupInput!
+  where: GroupWhereUniqueInput!
+}
+
+input GroupCreateOrConnectWithoutWorkbookInput {
+  create: GroupCreateWithoutWorkbookInput!
+  where: GroupWhereUniqueInput!
+}
+
+input GroupCreateWithoutContestInput {
+  config: JSON!
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutGroupInput!
+  description: String!
+  groupName: String!
+  isDeleted: Boolean
+  notice: NoticeCreateNestedManyWithoutGroupInput
+  problem: ProblemCreateNestedManyWithoutGroupInput
+  updateTime: DateTime
+  userGroup: UserGroupCreateNestedManyWithoutGroupInput
+  workbook: WorkbookCreateNestedManyWithoutGroupInput
+}
+
+input GroupCreateWithoutCreatedByInput {
+  config: JSON!
+  contest: ContestCreateNestedManyWithoutGroupInput
+  createTime: DateTime
+  description: String!
+  groupName: String!
+  isDeleted: Boolean
+  notice: NoticeCreateNestedManyWithoutGroupInput
+  problem: ProblemCreateNestedManyWithoutGroupInput
+  updateTime: DateTime
+  userGroup: UserGroupCreateNestedManyWithoutGroupInput
+  workbook: WorkbookCreateNestedManyWithoutGroupInput
+}
+
+input GroupCreateWithoutNoticeInput {
+  config: JSON!
+  contest: ContestCreateNestedManyWithoutGroupInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutGroupInput!
+  description: String!
+  groupName: String!
+  isDeleted: Boolean
+  problem: ProblemCreateNestedManyWithoutGroupInput
+  updateTime: DateTime
+  userGroup: UserGroupCreateNestedManyWithoutGroupInput
+  workbook: WorkbookCreateNestedManyWithoutGroupInput
+}
+
+input GroupCreateWithoutProblemInput {
+  config: JSON!
+  contest: ContestCreateNestedManyWithoutGroupInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutGroupInput!
+  description: String!
+  groupName: String!
+  isDeleted: Boolean
+  notice: NoticeCreateNestedManyWithoutGroupInput
+  updateTime: DateTime
+  userGroup: UserGroupCreateNestedManyWithoutGroupInput
+  workbook: WorkbookCreateNestedManyWithoutGroupInput
+}
+
+input GroupCreateWithoutUserGroupInput {
+  config: JSON!
+  contest: ContestCreateNestedManyWithoutGroupInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutGroupInput!
+  description: String!
+  groupName: String!
+  isDeleted: Boolean
+  notice: NoticeCreateNestedManyWithoutGroupInput
+  problem: ProblemCreateNestedManyWithoutGroupInput
+  updateTime: DateTime
+  workbook: WorkbookCreateNestedManyWithoutGroupInput
+}
+
+input GroupCreateWithoutWorkbookInput {
+  config: JSON!
+  contest: ContestCreateNestedManyWithoutGroupInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutGroupInput!
+  description: String!
+  groupName: String!
+  isDeleted: Boolean
+  notice: NoticeCreateNestedManyWithoutGroupInput
+  problem: ProblemCreateNestedManyWithoutGroupInput
+  updateTime: DateTime
+  userGroup: UserGroupCreateNestedManyWithoutGroupInput
+}
+
+input GroupScalarWhereInput {
+  AND: [GroupScalarWhereInput!]
+  NOT: [GroupScalarWhereInput!]
+  OR: [GroupScalarWhereInput!]
+  config: JsonFilter
+  createTime: DateTimeFilter
+  createdById: IntFilter
+  description: StringFilter
+  groupName: StringFilter
+  id: IntFilter
+  isDeleted: BoolFilter
+  updateTime: DateTimeFilter
+}
+
+input GroupUpdateManyMutationInput {
+  config: JSON
+  createTime: DateTimeFieldUpdateOperationsInput
+  description: StringFieldUpdateOperationsInput
+  groupName: StringFieldUpdateOperationsInput
+  isDeleted: BoolFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input GroupUpdateManyWithWhereWithoutCreatedByInput {
+  data: GroupUpdateManyMutationInput!
+  where: GroupScalarWhereInput!
+}
+
+input GroupUpdateManyWithoutCreatedByNestedInput {
+  connect: [GroupWhereUniqueInput!]
+  connectOrCreate: [GroupCreateOrConnectWithoutCreatedByInput!]
+  create: [GroupCreateWithoutCreatedByInput!]
+  createMany: GroupCreateManyCreatedByInputEnvelope
+  delete: [GroupWhereUniqueInput!]
+  deleteMany: [GroupScalarWhereInput!]
+  disconnect: [GroupWhereUniqueInput!]
+  set: [GroupWhereUniqueInput!]
+  update: [GroupUpdateWithWhereUniqueWithoutCreatedByInput!]
+  updateMany: [GroupUpdateManyWithWhereWithoutCreatedByInput!]
+  upsert: [GroupUpsertWithWhereUniqueWithoutCreatedByInput!]
+}
+
+input GroupUpdateOneRequiredWithoutContestNestedInput {
+  connect: GroupWhereUniqueInput
+  connectOrCreate: GroupCreateOrConnectWithoutContestInput
+  create: GroupCreateWithoutContestInput
+  update: GroupUpdateWithoutContestInput
+  upsert: GroupUpsertWithoutContestInput
+}
+
+input GroupUpdateOneRequiredWithoutNoticeNestedInput {
+  connect: GroupWhereUniqueInput
+  connectOrCreate: GroupCreateOrConnectWithoutNoticeInput
+  create: GroupCreateWithoutNoticeInput
+  update: GroupUpdateWithoutNoticeInput
+  upsert: GroupUpsertWithoutNoticeInput
+}
+
+input GroupUpdateOneRequiredWithoutProblemNestedInput {
+  connect: GroupWhereUniqueInput
+  connectOrCreate: GroupCreateOrConnectWithoutProblemInput
+  create: GroupCreateWithoutProblemInput
+  update: GroupUpdateWithoutProblemInput
+  upsert: GroupUpsertWithoutProblemInput
+}
+
+input GroupUpdateOneRequiredWithoutUserGroupNestedInput {
+  connect: GroupWhereUniqueInput
+  connectOrCreate: GroupCreateOrConnectWithoutUserGroupInput
+  create: GroupCreateWithoutUserGroupInput
+  update: GroupUpdateWithoutUserGroupInput
+  upsert: GroupUpsertWithoutUserGroupInput
+}
+
+input GroupUpdateOneRequiredWithoutWorkbookNestedInput {
+  connect: GroupWhereUniqueInput
+  connectOrCreate: GroupCreateOrConnectWithoutWorkbookInput
+  create: GroupCreateWithoutWorkbookInput
+  update: GroupUpdateWithoutWorkbookInput
+  upsert: GroupUpsertWithoutWorkbookInput
+}
+
+input GroupUpdateWithWhereUniqueWithoutCreatedByInput {
+  data: GroupUpdateWithoutCreatedByInput!
+  where: GroupWhereUniqueInput!
+}
+
+input GroupUpdateWithoutContestInput {
+  config: JSON
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutGroupNestedInput
+  description: StringFieldUpdateOperationsInput
+  groupName: StringFieldUpdateOperationsInput
+  isDeleted: BoolFieldUpdateOperationsInput
+  notice: NoticeUpdateManyWithoutGroupNestedInput
+  problem: ProblemUpdateManyWithoutGroupNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userGroup: UserGroupUpdateManyWithoutGroupNestedInput
+  workbook: WorkbookUpdateManyWithoutGroupNestedInput
+}
+
+input GroupUpdateWithoutCreatedByInput {
+  config: JSON
+  contest: ContestUpdateManyWithoutGroupNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  description: StringFieldUpdateOperationsInput
+  groupName: StringFieldUpdateOperationsInput
+  isDeleted: BoolFieldUpdateOperationsInput
+  notice: NoticeUpdateManyWithoutGroupNestedInput
+  problem: ProblemUpdateManyWithoutGroupNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userGroup: UserGroupUpdateManyWithoutGroupNestedInput
+  workbook: WorkbookUpdateManyWithoutGroupNestedInput
+}
+
+input GroupUpdateWithoutNoticeInput {
+  config: JSON
+  contest: ContestUpdateManyWithoutGroupNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutGroupNestedInput
+  description: StringFieldUpdateOperationsInput
+  groupName: StringFieldUpdateOperationsInput
+  isDeleted: BoolFieldUpdateOperationsInput
+  problem: ProblemUpdateManyWithoutGroupNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userGroup: UserGroupUpdateManyWithoutGroupNestedInput
+  workbook: WorkbookUpdateManyWithoutGroupNestedInput
+}
+
+input GroupUpdateWithoutProblemInput {
+  config: JSON
+  contest: ContestUpdateManyWithoutGroupNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutGroupNestedInput
+  description: StringFieldUpdateOperationsInput
+  groupName: StringFieldUpdateOperationsInput
+  isDeleted: BoolFieldUpdateOperationsInput
+  notice: NoticeUpdateManyWithoutGroupNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userGroup: UserGroupUpdateManyWithoutGroupNestedInput
+  workbook: WorkbookUpdateManyWithoutGroupNestedInput
+}
+
+input GroupUpdateWithoutUserGroupInput {
+  config: JSON
+  contest: ContestUpdateManyWithoutGroupNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutGroupNestedInput
+  description: StringFieldUpdateOperationsInput
+  groupName: StringFieldUpdateOperationsInput
+  isDeleted: BoolFieldUpdateOperationsInput
+  notice: NoticeUpdateManyWithoutGroupNestedInput
+  problem: ProblemUpdateManyWithoutGroupNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  workbook: WorkbookUpdateManyWithoutGroupNestedInput
+}
+
+input GroupUpdateWithoutWorkbookInput {
+  config: JSON
+  contest: ContestUpdateManyWithoutGroupNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutGroupNestedInput
+  description: StringFieldUpdateOperationsInput
+  groupName: StringFieldUpdateOperationsInput
+  isDeleted: BoolFieldUpdateOperationsInput
+  notice: NoticeUpdateManyWithoutGroupNestedInput
+  problem: ProblemUpdateManyWithoutGroupNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userGroup: UserGroupUpdateManyWithoutGroupNestedInput
+}
+
+input GroupUpsertWithWhereUniqueWithoutCreatedByInput {
+  create: GroupCreateWithoutCreatedByInput!
+  update: GroupUpdateWithoutCreatedByInput!
+  where: GroupWhereUniqueInput!
+}
+
+input GroupUpsertWithoutContestInput {
+  create: GroupCreateWithoutContestInput!
+  update: GroupUpdateWithoutContestInput!
+}
+
+input GroupUpsertWithoutNoticeInput {
+  create: GroupCreateWithoutNoticeInput!
+  update: GroupUpdateWithoutNoticeInput!
+}
+
+input GroupUpsertWithoutProblemInput {
+  create: GroupCreateWithoutProblemInput!
+  update: GroupUpdateWithoutProblemInput!
+}
+
+input GroupUpsertWithoutUserGroupInput {
+  create: GroupCreateWithoutUserGroupInput!
+  update: GroupUpdateWithoutUserGroupInput!
+}
+
+input GroupUpsertWithoutWorkbookInput {
+  create: GroupCreateWithoutWorkbookInput!
+  update: GroupUpdateWithoutWorkbookInput!
+}
+
+input GroupWhereUniqueInput {
+  groupName: String
+  id: Int
+}
+
+input IntFieldUpdateOperationsInput {
+  decrement: Int
+  divide: Int
+  increment: Int
+  multiply: Int
+  set: Int
+}
+
+input IntFilter {
+  equals: Int
+  gt: Int
+  gte: Int
+  in: [Int!]
+  lt: Int
+  lte: Int
+  not: NestedIntFilter
+  notIn: [Int!]
+}
+
+input IntNullableFilter {
+  equals: Int
+  gt: Int
+  gte: Int
+  in: [Int!]
+  lt: Int
+  lte: Int
+  not: NestedIntNullableFilter
+  notIn: [Int!]
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+input JsonFilter {
+  array_contains: JSON
+  array_ends_with: JSON
+  array_starts_with: JSON
+  equals: JSON
+  gt: JSON
+  gte: JSON
+  lt: JSON
+  lte: JSON
+  not: JSON
+  path: [String!]
+  string_contains: String
+  string_ends_with: String
+  string_starts_with: String
+}
+
+enum Language {
+  C
+  Cpp
+  Java
+  Python3
+}
+
+enum Level {
+  Level1
+  Level2
+  Level3
+}
+
+type Mutation {
+  createUser(userCreateInput: UserCreateInput!): User!
+  removeUser(id: Int!): User!
+  updateUser(userUpdateInput: UserUpdateInput!): User!
+}
+
+input NestedBoolFilter {
+  equals: Boolean
+  not: NestedBoolFilter
+}
+
+input NestedDateTimeFilter {
+  equals: DateTime
+  gt: DateTime
+  gte: DateTime
+  in: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  not: NestedDateTimeFilter
+  notIn: [DateTime!]
+}
+
+input NestedEnumLevelFilter {
+  equals: Level
+  in: [Level!]
+  not: NestedEnumLevelFilter
+  notIn: [Level!]
+}
+
+input NestedEnumResultStatusFilter {
+  equals: ResultStatus
+  in: [ResultStatus!]
+  not: NestedEnumResultStatusFilter
+  notIn: [ResultStatus!]
+}
+
+input NestedIntFilter {
+  equals: Int
+  gt: Int
+  gte: Int
+  in: [Int!]
+  lt: Int
+  lte: Int
+  not: NestedIntFilter
+  notIn: [Int!]
+}
+
+input NestedIntNullableFilter {
+  equals: Int
+  gt: Int
+  gte: Int
+  in: [Int!]
+  lt: Int
+  lte: Int
+  not: NestedIntNullableFilter
+  notIn: [Int!]
+}
+
+input NestedStringFilter {
+  contains: String
+  endsWith: String
+  equals: String
+  gt: String
+  gte: String
+  in: [String!]
+  lt: String
+  lte: String
+  not: NestedStringFilter
+  notIn: [String!]
+  startsWith: String
+}
+
+type Notice {
+  content: String!
+  createTime: DateTime!
+  createdBy: User!
+  createdById: Int!
+  group: Group!
+  groupId: Int!
+  id: ID!
+  isFixed: Boolean!
+  isVisible: Boolean!
+  title: String!
+  updateTime: DateTime!
+}
+
+input NoticeCreateManyCreatedByInput {
+  content: String!
+  createTime: DateTime
+  groupId: Int!
+  id: Int
+  isFixed: Boolean
+  isVisible: Boolean
+  title: String!
+  updateTime: DateTime
+}
+
+input NoticeCreateManyCreatedByInputEnvelope {
+  data: [NoticeCreateManyCreatedByInput!]!
+  skipDuplicates: Boolean
+}
+
+input NoticeCreateManyGroupInput {
+  content: String!
+  createTime: DateTime
+  createdById: Int!
+  id: Int
+  isFixed: Boolean
+  isVisible: Boolean
+  title: String!
+  updateTime: DateTime
+}
+
+input NoticeCreateManyGroupInputEnvelope {
+  data: [NoticeCreateManyGroupInput!]!
+  skipDuplicates: Boolean
+}
+
+input NoticeCreateNestedManyWithoutCreatedByInput {
+  connect: [NoticeWhereUniqueInput!]
+  connectOrCreate: [NoticeCreateOrConnectWithoutCreatedByInput!]
+  create: [NoticeCreateWithoutCreatedByInput!]
+  createMany: NoticeCreateManyCreatedByInputEnvelope
+}
+
+input NoticeCreateNestedManyWithoutGroupInput {
+  connect: [NoticeWhereUniqueInput!]
+  connectOrCreate: [NoticeCreateOrConnectWithoutGroupInput!]
+  create: [NoticeCreateWithoutGroupInput!]
+  createMany: NoticeCreateManyGroupInputEnvelope
+}
+
+input NoticeCreateOrConnectWithoutCreatedByInput {
+  create: NoticeCreateWithoutCreatedByInput!
+  where: NoticeWhereUniqueInput!
+}
+
+input NoticeCreateOrConnectWithoutGroupInput {
+  create: NoticeCreateWithoutGroupInput!
+  where: NoticeWhereUniqueInput!
+}
+
+input NoticeCreateWithoutCreatedByInput {
+  content: String!
+  createTime: DateTime
+  group: GroupCreateNestedOneWithoutNoticeInput!
+  isFixed: Boolean
+  isVisible: Boolean
+  title: String!
+  updateTime: DateTime
+}
+
+input NoticeCreateWithoutGroupInput {
+  content: String!
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutNoticeInput!
+  isFixed: Boolean
+  isVisible: Boolean
+  title: String!
+  updateTime: DateTime
+}
+
+input NoticeScalarWhereInput {
+  AND: [NoticeScalarWhereInput!]
+  NOT: [NoticeScalarWhereInput!]
+  OR: [NoticeScalarWhereInput!]
+  content: StringFilter
+  createTime: DateTimeFilter
+  createdById: IntFilter
+  groupId: IntFilter
+  id: IntFilter
+  isFixed: BoolFilter
+  isVisible: BoolFilter
+  title: StringFilter
+  updateTime: DateTimeFilter
+}
+
+input NoticeUpdateManyMutationInput {
+  content: StringFieldUpdateOperationsInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  isFixed: BoolFieldUpdateOperationsInput
+  isVisible: BoolFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input NoticeUpdateManyWithWhereWithoutCreatedByInput {
+  data: NoticeUpdateManyMutationInput!
+  where: NoticeScalarWhereInput!
+}
+
+input NoticeUpdateManyWithWhereWithoutGroupInput {
+  data: NoticeUpdateManyMutationInput!
+  where: NoticeScalarWhereInput!
+}
+
+input NoticeUpdateManyWithoutCreatedByNestedInput {
+  connect: [NoticeWhereUniqueInput!]
+  connectOrCreate: [NoticeCreateOrConnectWithoutCreatedByInput!]
+  create: [NoticeCreateWithoutCreatedByInput!]
+  createMany: NoticeCreateManyCreatedByInputEnvelope
+  delete: [NoticeWhereUniqueInput!]
+  deleteMany: [NoticeScalarWhereInput!]
+  disconnect: [NoticeWhereUniqueInput!]
+  set: [NoticeWhereUniqueInput!]
+  update: [NoticeUpdateWithWhereUniqueWithoutCreatedByInput!]
+  updateMany: [NoticeUpdateManyWithWhereWithoutCreatedByInput!]
+  upsert: [NoticeUpsertWithWhereUniqueWithoutCreatedByInput!]
+}
+
+input NoticeUpdateManyWithoutGroupNestedInput {
+  connect: [NoticeWhereUniqueInput!]
+  connectOrCreate: [NoticeCreateOrConnectWithoutGroupInput!]
+  create: [NoticeCreateWithoutGroupInput!]
+  createMany: NoticeCreateManyGroupInputEnvelope
+  delete: [NoticeWhereUniqueInput!]
+  deleteMany: [NoticeScalarWhereInput!]
+  disconnect: [NoticeWhereUniqueInput!]
+  set: [NoticeWhereUniqueInput!]
+  update: [NoticeUpdateWithWhereUniqueWithoutGroupInput!]
+  updateMany: [NoticeUpdateManyWithWhereWithoutGroupInput!]
+  upsert: [NoticeUpsertWithWhereUniqueWithoutGroupInput!]
+}
+
+input NoticeUpdateWithWhereUniqueWithoutCreatedByInput {
+  data: NoticeUpdateWithoutCreatedByInput!
+  where: NoticeWhereUniqueInput!
+}
+
+input NoticeUpdateWithWhereUniqueWithoutGroupInput {
+  data: NoticeUpdateWithoutGroupInput!
+  where: NoticeWhereUniqueInput!
+}
+
+input NoticeUpdateWithoutCreatedByInput {
+  content: StringFieldUpdateOperationsInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutNoticeNestedInput
+  isFixed: BoolFieldUpdateOperationsInput
+  isVisible: BoolFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input NoticeUpdateWithoutGroupInput {
+  content: StringFieldUpdateOperationsInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutNoticeNestedInput
+  isFixed: BoolFieldUpdateOperationsInput
+  isVisible: BoolFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input NoticeUpsertWithWhereUniqueWithoutCreatedByInput {
+  create: NoticeCreateWithoutCreatedByInput!
+  update: NoticeUpdateWithoutCreatedByInput!
+  where: NoticeWhereUniqueInput!
+}
+
+input NoticeUpsertWithWhereUniqueWithoutGroupInput {
+  create: NoticeCreateWithoutGroupInput!
+  update: NoticeUpdateWithoutGroupInput!
+  where: NoticeWhereUniqueInput!
+}
+
+input NoticeWhereUniqueInput {
+  id: Int
+}
+
+input NullableDateTimeFieldUpdateOperationsInput {
+  set: DateTime
+}
+
+type Problem {
+  _count: ProblemCount!
+  contestNotice: [ContestNotice!]
+  contestProblem: [ContestProblem!]
+  createTime: DateTime!
+  createdBy: User!
+  createdById: Int!
+  description: String!
+  difficulty: Level!
+  group: Group!
+  groupId: Int!
+  hint: String!
+  id: ID!
+  inputDescription: String!
+  inputExamples: [String!]
+  languages: [Language!]
+  memoryLimit: Int!
+  outputDescription: String!
+  outputExamples: [String!]
+  problemTag: [ProblemTag!]
+  problemTestcase: [ProblemTestcase!]
+  source: String!
+  submission: [Submission!]
+  timeLimit: Int!
+  title: String!
+  updateTime: DateTime!
+  workbookProblem: [WorkbookProblem!]
+}
+
+type ProblemCount {
+  contestNotice: Int!
+  contestProblem: Int!
+  problemTag: Int!
+  problemTestcase: Int!
+  submission: Int!
+  workbookProblem: Int!
+}
+
+input ProblemCreateManyCreatedByInput {
+  createTime: DateTime
+  description: String!
+  difficulty: Level!
+  groupId: Int!
+  hint: String!
+  id: Int
+  inputDescription: String!
+  inputExamples: ProblemCreateinputExamplesInput
+  languages: ProblemCreatelanguagesInput
+  memoryLimit: Int!
+  outputDescription: String!
+  outputExamples: ProblemCreateoutputExamplesInput
+  source: String!
+  timeLimit: Int!
+  title: String!
+  updateTime: DateTime
+}
+
+input ProblemCreateManyCreatedByInputEnvelope {
+  data: [ProblemCreateManyCreatedByInput!]!
+  skipDuplicates: Boolean
+}
+
+input ProblemCreateManyGroupInput {
+  createTime: DateTime
+  createdById: Int!
+  description: String!
+  difficulty: Level!
+  hint: String!
+  id: Int
+  inputDescription: String!
+  inputExamples: ProblemCreateinputExamplesInput
+  languages: ProblemCreatelanguagesInput
+  memoryLimit: Int!
+  outputDescription: String!
+  outputExamples: ProblemCreateoutputExamplesInput
+  source: String!
+  timeLimit: Int!
+  title: String!
+  updateTime: DateTime
+}
+
+input ProblemCreateManyGroupInputEnvelope {
+  data: [ProblemCreateManyGroupInput!]!
+  skipDuplicates: Boolean
+}
+
+input ProblemCreateNestedManyWithoutCreatedByInput {
+  connect: [ProblemWhereUniqueInput!]
+  connectOrCreate: [ProblemCreateOrConnectWithoutCreatedByInput!]
+  create: [ProblemCreateWithoutCreatedByInput!]
+  createMany: ProblemCreateManyCreatedByInputEnvelope
+}
+
+input ProblemCreateNestedManyWithoutGroupInput {
+  connect: [ProblemWhereUniqueInput!]
+  connectOrCreate: [ProblemCreateOrConnectWithoutGroupInput!]
+  create: [ProblemCreateWithoutGroupInput!]
+  createMany: ProblemCreateManyGroupInputEnvelope
+}
+
+input ProblemCreateNestedOneWithoutContestNoticeInput {
+  connect: ProblemWhereUniqueInput
+  connectOrCreate: ProblemCreateOrConnectWithoutContestNoticeInput
+  create: ProblemCreateWithoutContestNoticeInput
+}
+
+input ProblemCreateNestedOneWithoutContestProblemInput {
+  connect: ProblemWhereUniqueInput
+  connectOrCreate: ProblemCreateOrConnectWithoutContestProblemInput
+  create: ProblemCreateWithoutContestProblemInput
+}
+
+input ProblemCreateNestedOneWithoutProblemTestcaseInput {
+  connect: ProblemWhereUniqueInput
+  connectOrCreate: ProblemCreateOrConnectWithoutProblemTestcaseInput
+  create: ProblemCreateWithoutProblemTestcaseInput
+}
+
+input ProblemCreateNestedOneWithoutSubmissionInput {
+  connect: ProblemWhereUniqueInput
+  connectOrCreate: ProblemCreateOrConnectWithoutSubmissionInput
+  create: ProblemCreateWithoutSubmissionInput
+}
+
+input ProblemCreateNestedOneWithoutWorkbookProblemInput {
+  connect: ProblemWhereUniqueInput
+  connectOrCreate: ProblemCreateOrConnectWithoutWorkbookProblemInput
+  create: ProblemCreateWithoutWorkbookProblemInput
+}
+
+input ProblemCreateOrConnectWithoutContestNoticeInput {
+  create: ProblemCreateWithoutContestNoticeInput!
+  where: ProblemWhereUniqueInput!
+}
+
+input ProblemCreateOrConnectWithoutContestProblemInput {
+  create: ProblemCreateWithoutContestProblemInput!
+  where: ProblemWhereUniqueInput!
+}
+
+input ProblemCreateOrConnectWithoutCreatedByInput {
+  create: ProblemCreateWithoutCreatedByInput!
+  where: ProblemWhereUniqueInput!
+}
+
+input ProblemCreateOrConnectWithoutGroupInput {
+  create: ProblemCreateWithoutGroupInput!
+  where: ProblemWhereUniqueInput!
+}
+
+input ProblemCreateOrConnectWithoutProblemTestcaseInput {
+  create: ProblemCreateWithoutProblemTestcaseInput!
+  where: ProblemWhereUniqueInput!
+}
+
+input ProblemCreateOrConnectWithoutSubmissionInput {
+  create: ProblemCreateWithoutSubmissionInput!
+  where: ProblemWhereUniqueInput!
+}
+
+input ProblemCreateOrConnectWithoutWorkbookProblemInput {
+  create: ProblemCreateWithoutWorkbookProblemInput!
+  where: ProblemWhereUniqueInput!
+}
+
+input ProblemCreateWithoutContestNoticeInput {
+  contestProblem: ContestProblemCreateNestedManyWithoutProblemInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutProblemInput!
+  description: String!
+  difficulty: Level!
+  group: GroupCreateNestedOneWithoutProblemInput!
+  hint: String!
+  inputDescription: String!
+  inputExamples: ProblemCreateinputExamplesInput
+  languages: ProblemCreatelanguagesInput
+  memoryLimit: Int!
+  outputDescription: String!
+  outputExamples: ProblemCreateoutputExamplesInput
+  problemTag: ProblemTagCreateNestedManyWithoutProblemInput
+  problemTestcase: ProblemTestcaseCreateNestedManyWithoutProblemInput
+  source: String!
+  submission: SubmissionCreateNestedManyWithoutProblemInput
+  timeLimit: Int!
+  title: String!
+  updateTime: DateTime
+  workbookProblem: WorkbookProblemCreateNestedManyWithoutProblemInput
+}
+
+input ProblemCreateWithoutContestProblemInput {
+  contestNotice: ContestNoticeCreateNestedManyWithoutProblemInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutProblemInput!
+  description: String!
+  difficulty: Level!
+  group: GroupCreateNestedOneWithoutProblemInput!
+  hint: String!
+  inputDescription: String!
+  inputExamples: ProblemCreateinputExamplesInput
+  languages: ProblemCreatelanguagesInput
+  memoryLimit: Int!
+  outputDescription: String!
+  outputExamples: ProblemCreateoutputExamplesInput
+  problemTag: ProblemTagCreateNestedManyWithoutProblemInput
+  problemTestcase: ProblemTestcaseCreateNestedManyWithoutProblemInput
+  source: String!
+  submission: SubmissionCreateNestedManyWithoutProblemInput
+  timeLimit: Int!
+  title: String!
+  updateTime: DateTime
+  workbookProblem: WorkbookProblemCreateNestedManyWithoutProblemInput
+}
+
+input ProblemCreateWithoutCreatedByInput {
+  contestNotice: ContestNoticeCreateNestedManyWithoutProblemInput
+  contestProblem: ContestProblemCreateNestedManyWithoutProblemInput
+  createTime: DateTime
+  description: String!
+  difficulty: Level!
+  group: GroupCreateNestedOneWithoutProblemInput!
+  hint: String!
+  inputDescription: String!
+  inputExamples: ProblemCreateinputExamplesInput
+  languages: ProblemCreatelanguagesInput
+  memoryLimit: Int!
+  outputDescription: String!
+  outputExamples: ProblemCreateoutputExamplesInput
+  problemTag: ProblemTagCreateNestedManyWithoutProblemInput
+  problemTestcase: ProblemTestcaseCreateNestedManyWithoutProblemInput
+  source: String!
+  submission: SubmissionCreateNestedManyWithoutProblemInput
+  timeLimit: Int!
+  title: String!
+  updateTime: DateTime
+  workbookProblem: WorkbookProblemCreateNestedManyWithoutProblemInput
+}
+
+input ProblemCreateWithoutGroupInput {
+  contestNotice: ContestNoticeCreateNestedManyWithoutProblemInput
+  contestProblem: ContestProblemCreateNestedManyWithoutProblemInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutProblemInput!
+  description: String!
+  difficulty: Level!
+  hint: String!
+  inputDescription: String!
+  inputExamples: ProblemCreateinputExamplesInput
+  languages: ProblemCreatelanguagesInput
+  memoryLimit: Int!
+  outputDescription: String!
+  outputExamples: ProblemCreateoutputExamplesInput
+  problemTag: ProblemTagCreateNestedManyWithoutProblemInput
+  problemTestcase: ProblemTestcaseCreateNestedManyWithoutProblemInput
+  source: String!
+  submission: SubmissionCreateNestedManyWithoutProblemInput
+  timeLimit: Int!
+  title: String!
+  updateTime: DateTime
+  workbookProblem: WorkbookProblemCreateNestedManyWithoutProblemInput
+}
+
+input ProblemCreateWithoutProblemTestcaseInput {
+  contestNotice: ContestNoticeCreateNestedManyWithoutProblemInput
+  contestProblem: ContestProblemCreateNestedManyWithoutProblemInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutProblemInput!
+  description: String!
+  difficulty: Level!
+  group: GroupCreateNestedOneWithoutProblemInput!
+  hint: String!
+  inputDescription: String!
+  inputExamples: ProblemCreateinputExamplesInput
+  languages: ProblemCreatelanguagesInput
+  memoryLimit: Int!
+  outputDescription: String!
+  outputExamples: ProblemCreateoutputExamplesInput
+  problemTag: ProblemTagCreateNestedManyWithoutProblemInput
+  source: String!
+  submission: SubmissionCreateNestedManyWithoutProblemInput
+  timeLimit: Int!
+  title: String!
+  updateTime: DateTime
+  workbookProblem: WorkbookProblemCreateNestedManyWithoutProblemInput
+}
+
+input ProblemCreateWithoutSubmissionInput {
+  contestNotice: ContestNoticeCreateNestedManyWithoutProblemInput
+  contestProblem: ContestProblemCreateNestedManyWithoutProblemInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutProblemInput!
+  description: String!
+  difficulty: Level!
+  group: GroupCreateNestedOneWithoutProblemInput!
+  hint: String!
+  inputDescription: String!
+  inputExamples: ProblemCreateinputExamplesInput
+  languages: ProblemCreatelanguagesInput
+  memoryLimit: Int!
+  outputDescription: String!
+  outputExamples: ProblemCreateoutputExamplesInput
+  problemTag: ProblemTagCreateNestedManyWithoutProblemInput
+  problemTestcase: ProblemTestcaseCreateNestedManyWithoutProblemInput
+  source: String!
+  timeLimit: Int!
+  title: String!
+  updateTime: DateTime
+  workbookProblem: WorkbookProblemCreateNestedManyWithoutProblemInput
+}
+
+input ProblemCreateWithoutWorkbookProblemInput {
+  contestNotice: ContestNoticeCreateNestedManyWithoutProblemInput
+  contestProblem: ContestProblemCreateNestedManyWithoutProblemInput
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutProblemInput!
+  description: String!
+  difficulty: Level!
+  group: GroupCreateNestedOneWithoutProblemInput!
+  hint: String!
+  inputDescription: String!
+  inputExamples: ProblemCreateinputExamplesInput
+  languages: ProblemCreatelanguagesInput
+  memoryLimit: Int!
+  outputDescription: String!
+  outputExamples: ProblemCreateoutputExamplesInput
+  problemTag: ProblemTagCreateNestedManyWithoutProblemInput
+  problemTestcase: ProblemTestcaseCreateNestedManyWithoutProblemInput
+  source: String!
+  submission: SubmissionCreateNestedManyWithoutProblemInput
+  timeLimit: Int!
+  title: String!
+  updateTime: DateTime
+}
+
+input ProblemCreateinputExamplesInput {
+  set: [String!]!
+}
+
+input ProblemCreatelanguagesInput {
+  set: [Language!]!
+}
+
+input ProblemCreateoutputExamplesInput {
+  set: [String!]!
+}
+
+input ProblemScalarWhereInput {
+  AND: [ProblemScalarWhereInput!]
+  NOT: [ProblemScalarWhereInput!]
+  OR: [ProblemScalarWhereInput!]
+  createTime: DateTimeFilter
+  createdById: IntFilter
+  description: StringFilter
+  difficulty: EnumLevelFilter
+  groupId: IntFilter
+  hint: StringFilter
+  id: IntFilter
+  inputDescription: StringFilter
+  inputExamples: StringNullableListFilter
+  languages: EnumLanguageNullableListFilter
+  memoryLimit: IntFilter
+  outputDescription: StringFilter
+  outputExamples: StringNullableListFilter
+  source: StringFilter
+  timeLimit: IntFilter
+  title: StringFilter
+  updateTime: DateTimeFilter
+}
+
+type ProblemTag {
+  id: ID!
+  problem: Problem!
+  problemId: Int!
+  tag: Tag!
+  tagId: Int!
+}
+
+input ProblemTagCreateManyProblemInput {
+  id: Int
+  tagId: Int!
+}
+
+input ProblemTagCreateManyProblemInputEnvelope {
+  data: [ProblemTagCreateManyProblemInput!]!
+  skipDuplicates: Boolean
+}
+
+input ProblemTagCreateNestedManyWithoutProblemInput {
+  connect: [ProblemTagWhereUniqueInput!]
+  connectOrCreate: [ProblemTagCreateOrConnectWithoutProblemInput!]
+  create: [ProblemTagCreateWithoutProblemInput!]
+  createMany: ProblemTagCreateManyProblemInputEnvelope
+}
+
+input ProblemTagCreateOrConnectWithoutProblemInput {
+  create: ProblemTagCreateWithoutProblemInput!
+  where: ProblemTagWhereUniqueInput!
+}
+
+input ProblemTagCreateWithoutProblemInput {
+  tag: TagCreateNestedOneWithoutProblemTagInput!
+}
+
+input ProblemTagScalarWhereInput {
+  AND: [ProblemTagScalarWhereInput!]
+  NOT: [ProblemTagScalarWhereInput!]
+  OR: [ProblemTagScalarWhereInput!]
+  id: IntFilter
+  problemId: IntFilter
+  tagId: IntFilter
+}
+
+input ProblemTagUncheckedUpdateManyWithoutProblemTagInput {
+  id: IntFieldUpdateOperationsInput
+  tagId: IntFieldUpdateOperationsInput
+}
+
+input ProblemTagUpdateManyWithWhereWithoutProblemInput {
+  data: ProblemTagUncheckedUpdateManyWithoutProblemTagInput!
+  where: ProblemTagScalarWhereInput!
+}
+
+input ProblemTagUpdateManyWithoutProblemNestedInput {
+  connect: [ProblemTagWhereUniqueInput!]
+  connectOrCreate: [ProblemTagCreateOrConnectWithoutProblemInput!]
+  create: [ProblemTagCreateWithoutProblemInput!]
+  createMany: ProblemTagCreateManyProblemInputEnvelope
+  delete: [ProblemTagWhereUniqueInput!]
+  deleteMany: [ProblemTagScalarWhereInput!]
+  disconnect: [ProblemTagWhereUniqueInput!]
+  set: [ProblemTagWhereUniqueInput!]
+  update: [ProblemTagUpdateWithWhereUniqueWithoutProblemInput!]
+  updateMany: [ProblemTagUpdateManyWithWhereWithoutProblemInput!]
+  upsert: [ProblemTagUpsertWithWhereUniqueWithoutProblemInput!]
+}
+
+input ProblemTagUpdateWithWhereUniqueWithoutProblemInput {
+  data: ProblemTagUpdateWithoutProblemInput!
+  where: ProblemTagWhereUniqueInput!
+}
+
+input ProblemTagUpdateWithoutProblemInput {
+  tag: TagUpdateOneRequiredWithoutProblemTagNestedInput
+}
+
+input ProblemTagUpsertWithWhereUniqueWithoutProblemInput {
+  create: ProblemTagCreateWithoutProblemInput!
+  update: ProblemTagUpdateWithoutProblemInput!
+  where: ProblemTagWhereUniqueInput!
+}
+
+input ProblemTagWhereUniqueInput {
+  id: Int
+}
+
+type ProblemTestcase {
+  _count: ProblemTestcaseCount!
+  createTime: DateTime!
+  id: ID!
+  input: String!
+  output: String!
+  problem: Problem!
+  problemId: Int!
+  scoreWeight: Int!
+  submissionResult: [SubmissionResult!]
+  updateTime: DateTime!
+}
+
+type ProblemTestcaseCount {
+  submissionResult: Int!
+}
+
+input ProblemTestcaseCreateManyProblemInput {
+  createTime: DateTime
+  id: Int
+  input: String!
+  output: String!
+  scoreWeight: Int
+  updateTime: DateTime
+}
+
+input ProblemTestcaseCreateManyProblemInputEnvelope {
+  data: [ProblemTestcaseCreateManyProblemInput!]!
+  skipDuplicates: Boolean
+}
+
+input ProblemTestcaseCreateNestedManyWithoutProblemInput {
+  connect: [ProblemTestcaseWhereUniqueInput!]
+  connectOrCreate: [ProblemTestcaseCreateOrConnectWithoutProblemInput!]
+  create: [ProblemTestcaseCreateWithoutProblemInput!]
+  createMany: ProblemTestcaseCreateManyProblemInputEnvelope
+}
+
+input ProblemTestcaseCreateNestedOneWithoutSubmissionResultInput {
+  connect: ProblemTestcaseWhereUniqueInput
+  connectOrCreate: ProblemTestcaseCreateOrConnectWithoutSubmissionResultInput
+  create: ProblemTestcaseCreateWithoutSubmissionResultInput
+}
+
+input ProblemTestcaseCreateOrConnectWithoutProblemInput {
+  create: ProblemTestcaseCreateWithoutProblemInput!
+  where: ProblemTestcaseWhereUniqueInput!
+}
+
+input ProblemTestcaseCreateOrConnectWithoutSubmissionResultInput {
+  create: ProblemTestcaseCreateWithoutSubmissionResultInput!
+  where: ProblemTestcaseWhereUniqueInput!
+}
+
+input ProblemTestcaseCreateWithoutProblemInput {
+  createTime: DateTime
+  input: String!
+  output: String!
+  scoreWeight: Int
+  submissionResult: SubmissionResultCreateNestedManyWithoutProblemTestcaseInput
+  updateTime: DateTime
+}
+
+input ProblemTestcaseCreateWithoutSubmissionResultInput {
+  createTime: DateTime
+  input: String!
+  output: String!
+  problem: ProblemCreateNestedOneWithoutProblemTestcaseInput!
+  scoreWeight: Int
+  updateTime: DateTime
+}
+
+input ProblemTestcaseScalarWhereInput {
+  AND: [ProblemTestcaseScalarWhereInput!]
+  NOT: [ProblemTestcaseScalarWhereInput!]
+  OR: [ProblemTestcaseScalarWhereInput!]
+  createTime: DateTimeFilter
+  id: IntFilter
+  input: StringFilter
+  output: StringFilter
+  problemId: IntFilter
+  scoreWeight: IntFilter
+  updateTime: DateTimeFilter
+}
+
+input ProblemTestcaseUpdateManyMutationInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  input: StringFieldUpdateOperationsInput
+  output: StringFieldUpdateOperationsInput
+  scoreWeight: IntFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ProblemTestcaseUpdateManyWithWhereWithoutProblemInput {
+  data: ProblemTestcaseUpdateManyMutationInput!
+  where: ProblemTestcaseScalarWhereInput!
+}
+
+input ProblemTestcaseUpdateManyWithoutProblemNestedInput {
+  connect: [ProblemTestcaseWhereUniqueInput!]
+  connectOrCreate: [ProblemTestcaseCreateOrConnectWithoutProblemInput!]
+  create: [ProblemTestcaseCreateWithoutProblemInput!]
+  createMany: ProblemTestcaseCreateManyProblemInputEnvelope
+  delete: [ProblemTestcaseWhereUniqueInput!]
+  deleteMany: [ProblemTestcaseScalarWhereInput!]
+  disconnect: [ProblemTestcaseWhereUniqueInput!]
+  set: [ProblemTestcaseWhereUniqueInput!]
+  update: [ProblemTestcaseUpdateWithWhereUniqueWithoutProblemInput!]
+  updateMany: [ProblemTestcaseUpdateManyWithWhereWithoutProblemInput!]
+  upsert: [ProblemTestcaseUpsertWithWhereUniqueWithoutProblemInput!]
+}
+
+input ProblemTestcaseUpdateOneRequiredWithoutSubmissionResultNestedInput {
+  connect: ProblemTestcaseWhereUniqueInput
+  connectOrCreate: ProblemTestcaseCreateOrConnectWithoutSubmissionResultInput
+  create: ProblemTestcaseCreateWithoutSubmissionResultInput
+  update: ProblemTestcaseUpdateWithoutSubmissionResultInput
+  upsert: ProblemTestcaseUpsertWithoutSubmissionResultInput
+}
+
+input ProblemTestcaseUpdateWithWhereUniqueWithoutProblemInput {
+  data: ProblemTestcaseUpdateWithoutProblemInput!
+  where: ProblemTestcaseWhereUniqueInput!
+}
+
+input ProblemTestcaseUpdateWithoutProblemInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  input: StringFieldUpdateOperationsInput
+  output: StringFieldUpdateOperationsInput
+  scoreWeight: IntFieldUpdateOperationsInput
+  submissionResult: SubmissionResultUpdateManyWithoutProblemTestcaseNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ProblemTestcaseUpdateWithoutSubmissionResultInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  input: StringFieldUpdateOperationsInput
+  output: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateOneRequiredWithoutProblemTestcaseNestedInput
+  scoreWeight: IntFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ProblemTestcaseUpsertWithWhereUniqueWithoutProblemInput {
+  create: ProblemTestcaseCreateWithoutProblemInput!
+  update: ProblemTestcaseUpdateWithoutProblemInput!
+  where: ProblemTestcaseWhereUniqueInput!
+}
+
+input ProblemTestcaseUpsertWithoutSubmissionResultInput {
+  create: ProblemTestcaseCreateWithoutSubmissionResultInput!
+  update: ProblemTestcaseUpdateWithoutSubmissionResultInput!
+}
+
+input ProblemTestcaseWhereUniqueInput {
+  id: Int
+}
+
+input ProblemUpdateManyMutationInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  description: StringFieldUpdateOperationsInput
+  difficulty: EnumLevelFieldUpdateOperationsInput
+  hint: StringFieldUpdateOperationsInput
+  inputDescription: StringFieldUpdateOperationsInput
+  inputExamples: ProblemUpdateinputExamplesInput
+  languages: ProblemUpdatelanguagesInput
+  memoryLimit: IntFieldUpdateOperationsInput
+  outputDescription: StringFieldUpdateOperationsInput
+  outputExamples: ProblemUpdateoutputExamplesInput
+  source: StringFieldUpdateOperationsInput
+  timeLimit: IntFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ProblemUpdateManyWithWhereWithoutCreatedByInput {
+  data: ProblemUpdateManyMutationInput!
+  where: ProblemScalarWhereInput!
+}
+
+input ProblemUpdateManyWithWhereWithoutGroupInput {
+  data: ProblemUpdateManyMutationInput!
+  where: ProblemScalarWhereInput!
+}
+
+input ProblemUpdateManyWithoutCreatedByNestedInput {
+  connect: [ProblemWhereUniqueInput!]
+  connectOrCreate: [ProblemCreateOrConnectWithoutCreatedByInput!]
+  create: [ProblemCreateWithoutCreatedByInput!]
+  createMany: ProblemCreateManyCreatedByInputEnvelope
+  delete: [ProblemWhereUniqueInput!]
+  deleteMany: [ProblemScalarWhereInput!]
+  disconnect: [ProblemWhereUniqueInput!]
+  set: [ProblemWhereUniqueInput!]
+  update: [ProblemUpdateWithWhereUniqueWithoutCreatedByInput!]
+  updateMany: [ProblemUpdateManyWithWhereWithoutCreatedByInput!]
+  upsert: [ProblemUpsertWithWhereUniqueWithoutCreatedByInput!]
+}
+
+input ProblemUpdateManyWithoutGroupNestedInput {
+  connect: [ProblemWhereUniqueInput!]
+  connectOrCreate: [ProblemCreateOrConnectWithoutGroupInput!]
+  create: [ProblemCreateWithoutGroupInput!]
+  createMany: ProblemCreateManyGroupInputEnvelope
+  delete: [ProblemWhereUniqueInput!]
+  deleteMany: [ProblemScalarWhereInput!]
+  disconnect: [ProblemWhereUniqueInput!]
+  set: [ProblemWhereUniqueInput!]
+  update: [ProblemUpdateWithWhereUniqueWithoutGroupInput!]
+  updateMany: [ProblemUpdateManyWithWhereWithoutGroupInput!]
+  upsert: [ProblemUpsertWithWhereUniqueWithoutGroupInput!]
+}
+
+input ProblemUpdateOneRequiredWithoutContestNoticeNestedInput {
+  connect: ProblemWhereUniqueInput
+  connectOrCreate: ProblemCreateOrConnectWithoutContestNoticeInput
+  create: ProblemCreateWithoutContestNoticeInput
+  update: ProblemUpdateWithoutContestNoticeInput
+  upsert: ProblemUpsertWithoutContestNoticeInput
+}
+
+input ProblemUpdateOneRequiredWithoutContestProblemNestedInput {
+  connect: ProblemWhereUniqueInput
+  connectOrCreate: ProblemCreateOrConnectWithoutContestProblemInput
+  create: ProblemCreateWithoutContestProblemInput
+  update: ProblemUpdateWithoutContestProblemInput
+  upsert: ProblemUpsertWithoutContestProblemInput
+}
+
+input ProblemUpdateOneRequiredWithoutProblemTestcaseNestedInput {
+  connect: ProblemWhereUniqueInput
+  connectOrCreate: ProblemCreateOrConnectWithoutProblemTestcaseInput
+  create: ProblemCreateWithoutProblemTestcaseInput
+  update: ProblemUpdateWithoutProblemTestcaseInput
+  upsert: ProblemUpsertWithoutProblemTestcaseInput
+}
+
+input ProblemUpdateOneRequiredWithoutSubmissionNestedInput {
+  connect: ProblemWhereUniqueInput
+  connectOrCreate: ProblemCreateOrConnectWithoutSubmissionInput
+  create: ProblemCreateWithoutSubmissionInput
+  update: ProblemUpdateWithoutSubmissionInput
+  upsert: ProblemUpsertWithoutSubmissionInput
+}
+
+input ProblemUpdateOneRequiredWithoutWorkbookProblemNestedInput {
+  connect: ProblemWhereUniqueInput
+  connectOrCreate: ProblemCreateOrConnectWithoutWorkbookProblemInput
+  create: ProblemCreateWithoutWorkbookProblemInput
+  update: ProblemUpdateWithoutWorkbookProblemInput
+  upsert: ProblemUpsertWithoutWorkbookProblemInput
+}
+
+input ProblemUpdateWithWhereUniqueWithoutCreatedByInput {
+  data: ProblemUpdateWithoutCreatedByInput!
+  where: ProblemWhereUniqueInput!
+}
+
+input ProblemUpdateWithWhereUniqueWithoutGroupInput {
+  data: ProblemUpdateWithoutGroupInput!
+  where: ProblemWhereUniqueInput!
+}
+
+input ProblemUpdateWithoutContestNoticeInput {
+  contestProblem: ContestProblemUpdateManyWithoutProblemNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutProblemNestedInput
+  description: StringFieldUpdateOperationsInput
+  difficulty: EnumLevelFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutProblemNestedInput
+  hint: StringFieldUpdateOperationsInput
+  inputDescription: StringFieldUpdateOperationsInput
+  inputExamples: ProblemUpdateinputExamplesInput
+  languages: ProblemUpdatelanguagesInput
+  memoryLimit: IntFieldUpdateOperationsInput
+  outputDescription: StringFieldUpdateOperationsInput
+  outputExamples: ProblemUpdateoutputExamplesInput
+  problemTag: ProblemTagUpdateManyWithoutProblemNestedInput
+  problemTestcase: ProblemTestcaseUpdateManyWithoutProblemNestedInput
+  source: StringFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutProblemNestedInput
+  timeLimit: IntFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  workbookProblem: WorkbookProblemUpdateManyWithoutProblemNestedInput
+}
+
+input ProblemUpdateWithoutContestProblemInput {
+  contestNotice: ContestNoticeUpdateManyWithoutProblemNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutProblemNestedInput
+  description: StringFieldUpdateOperationsInput
+  difficulty: EnumLevelFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutProblemNestedInput
+  hint: StringFieldUpdateOperationsInput
+  inputDescription: StringFieldUpdateOperationsInput
+  inputExamples: ProblemUpdateinputExamplesInput
+  languages: ProblemUpdatelanguagesInput
+  memoryLimit: IntFieldUpdateOperationsInput
+  outputDescription: StringFieldUpdateOperationsInput
+  outputExamples: ProblemUpdateoutputExamplesInput
+  problemTag: ProblemTagUpdateManyWithoutProblemNestedInput
+  problemTestcase: ProblemTestcaseUpdateManyWithoutProblemNestedInput
+  source: StringFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutProblemNestedInput
+  timeLimit: IntFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  workbookProblem: WorkbookProblemUpdateManyWithoutProblemNestedInput
+}
+
+input ProblemUpdateWithoutCreatedByInput {
+  contestNotice: ContestNoticeUpdateManyWithoutProblemNestedInput
+  contestProblem: ContestProblemUpdateManyWithoutProblemNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  description: StringFieldUpdateOperationsInput
+  difficulty: EnumLevelFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutProblemNestedInput
+  hint: StringFieldUpdateOperationsInput
+  inputDescription: StringFieldUpdateOperationsInput
+  inputExamples: ProblemUpdateinputExamplesInput
+  languages: ProblemUpdatelanguagesInput
+  memoryLimit: IntFieldUpdateOperationsInput
+  outputDescription: StringFieldUpdateOperationsInput
+  outputExamples: ProblemUpdateoutputExamplesInput
+  problemTag: ProblemTagUpdateManyWithoutProblemNestedInput
+  problemTestcase: ProblemTestcaseUpdateManyWithoutProblemNestedInput
+  source: StringFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutProblemNestedInput
+  timeLimit: IntFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  workbookProblem: WorkbookProblemUpdateManyWithoutProblemNestedInput
+}
+
+input ProblemUpdateWithoutGroupInput {
+  contestNotice: ContestNoticeUpdateManyWithoutProblemNestedInput
+  contestProblem: ContestProblemUpdateManyWithoutProblemNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutProblemNestedInput
+  description: StringFieldUpdateOperationsInput
+  difficulty: EnumLevelFieldUpdateOperationsInput
+  hint: StringFieldUpdateOperationsInput
+  inputDescription: StringFieldUpdateOperationsInput
+  inputExamples: ProblemUpdateinputExamplesInput
+  languages: ProblemUpdatelanguagesInput
+  memoryLimit: IntFieldUpdateOperationsInput
+  outputDescription: StringFieldUpdateOperationsInput
+  outputExamples: ProblemUpdateoutputExamplesInput
+  problemTag: ProblemTagUpdateManyWithoutProblemNestedInput
+  problemTestcase: ProblemTestcaseUpdateManyWithoutProblemNestedInput
+  source: StringFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutProblemNestedInput
+  timeLimit: IntFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  workbookProblem: WorkbookProblemUpdateManyWithoutProblemNestedInput
+}
+
+input ProblemUpdateWithoutProblemTestcaseInput {
+  contestNotice: ContestNoticeUpdateManyWithoutProblemNestedInput
+  contestProblem: ContestProblemUpdateManyWithoutProblemNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutProblemNestedInput
+  description: StringFieldUpdateOperationsInput
+  difficulty: EnumLevelFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutProblemNestedInput
+  hint: StringFieldUpdateOperationsInput
+  inputDescription: StringFieldUpdateOperationsInput
+  inputExamples: ProblemUpdateinputExamplesInput
+  languages: ProblemUpdatelanguagesInput
+  memoryLimit: IntFieldUpdateOperationsInput
+  outputDescription: StringFieldUpdateOperationsInput
+  outputExamples: ProblemUpdateoutputExamplesInput
+  problemTag: ProblemTagUpdateManyWithoutProblemNestedInput
+  source: StringFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutProblemNestedInput
+  timeLimit: IntFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  workbookProblem: WorkbookProblemUpdateManyWithoutProblemNestedInput
+}
+
+input ProblemUpdateWithoutSubmissionInput {
+  contestNotice: ContestNoticeUpdateManyWithoutProblemNestedInput
+  contestProblem: ContestProblemUpdateManyWithoutProblemNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutProblemNestedInput
+  description: StringFieldUpdateOperationsInput
+  difficulty: EnumLevelFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutProblemNestedInput
+  hint: StringFieldUpdateOperationsInput
+  inputDescription: StringFieldUpdateOperationsInput
+  inputExamples: ProblemUpdateinputExamplesInput
+  languages: ProblemUpdatelanguagesInput
+  memoryLimit: IntFieldUpdateOperationsInput
+  outputDescription: StringFieldUpdateOperationsInput
+  outputExamples: ProblemUpdateoutputExamplesInput
+  problemTag: ProblemTagUpdateManyWithoutProblemNestedInput
+  problemTestcase: ProblemTestcaseUpdateManyWithoutProblemNestedInput
+  source: StringFieldUpdateOperationsInput
+  timeLimit: IntFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  workbookProblem: WorkbookProblemUpdateManyWithoutProblemNestedInput
+}
+
+input ProblemUpdateWithoutWorkbookProblemInput {
+  contestNotice: ContestNoticeUpdateManyWithoutProblemNestedInput
+  contestProblem: ContestProblemUpdateManyWithoutProblemNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutProblemNestedInput
+  description: StringFieldUpdateOperationsInput
+  difficulty: EnumLevelFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutProblemNestedInput
+  hint: StringFieldUpdateOperationsInput
+  inputDescription: StringFieldUpdateOperationsInput
+  inputExamples: ProblemUpdateinputExamplesInput
+  languages: ProblemUpdatelanguagesInput
+  memoryLimit: IntFieldUpdateOperationsInput
+  outputDescription: StringFieldUpdateOperationsInput
+  outputExamples: ProblemUpdateoutputExamplesInput
+  problemTag: ProblemTagUpdateManyWithoutProblemNestedInput
+  problemTestcase: ProblemTestcaseUpdateManyWithoutProblemNestedInput
+  source: StringFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutProblemNestedInput
+  timeLimit: IntFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input ProblemUpdateinputExamplesInput {
+  push: [String!]
+  set: [String!]
+}
+
+input ProblemUpdatelanguagesInput {
+  push: [Language!]
+  set: [Language!]
+}
+
+input ProblemUpdateoutputExamplesInput {
+  push: [String!]
+  set: [String!]
+}
+
+input ProblemUpsertWithWhereUniqueWithoutCreatedByInput {
+  create: ProblemCreateWithoutCreatedByInput!
+  update: ProblemUpdateWithoutCreatedByInput!
+  where: ProblemWhereUniqueInput!
+}
+
+input ProblemUpsertWithWhereUniqueWithoutGroupInput {
+  create: ProblemCreateWithoutGroupInput!
+  update: ProblemUpdateWithoutGroupInput!
+  where: ProblemWhereUniqueInput!
+}
+
+input ProblemUpsertWithoutContestNoticeInput {
+  create: ProblemCreateWithoutContestNoticeInput!
+  update: ProblemUpdateWithoutContestNoticeInput!
+}
+
+input ProblemUpsertWithoutContestProblemInput {
+  create: ProblemCreateWithoutContestProblemInput!
+  update: ProblemUpdateWithoutContestProblemInput!
+}
+
+input ProblemUpsertWithoutProblemTestcaseInput {
+  create: ProblemCreateWithoutProblemTestcaseInput!
+  update: ProblemUpdateWithoutProblemTestcaseInput!
+}
+
+input ProblemUpsertWithoutSubmissionInput {
+  create: ProblemCreateWithoutSubmissionInput!
+  update: ProblemUpdateWithoutSubmissionInput!
+}
+
+input ProblemUpsertWithoutWorkbookProblemInput {
+  create: ProblemCreateWithoutWorkbookProblemInput!
+  update: ProblemUpdateWithoutWorkbookProblemInput!
+}
+
+input ProblemWhereUniqueInput {
+  id: Int
+}
+
+type Query {
+  user(id: Int!): User!
+}
+
+enum QueryMode {
+  default
+  insensitive
+}
+
+enum ResultStatus {
+  Accepted
+  CompileError
+  MemoryLimitExceeded
+  OutputLimitExceeded
+  RuntimeError
+  TimeLimitExceeded
+  WrongAnswer
+}
+
+enum Role {
+  Admin
+  Manager
+  SuperAdmin
+  User
+}
+
+input StringFieldUpdateOperationsInput {
+  set: String
+}
+
+input StringFilter {
+  contains: String
+  endsWith: String
+  equals: String
+  gt: String
+  gte: String
+  in: [String!]
+  lt: String
+  lte: String
+  mode: QueryMode
+  not: NestedStringFilter
+  notIn: [String!]
+  startsWith: String
+}
+
+input StringNullableListFilter {
+  equals: [String!]
+  has: String
+  hasEvery: [String!]
+  hasSome: [String!]
+  isEmpty: Boolean
+}
+
+type Submission {
+  _count: SubmissionCount!
+  code: String!
+  contest: Contest
+  contestId: Int
+  createTime: DateTime!
+  hash: String!
+  id: ID!
+  language: String!
+  problem: Problem!
+  problemId: Int!
+  submissionResult: [SubmissionResult!]
+  updateTime: DateTime!
+  user: User!
+  userId: Int!
+  workbook: Workbook
+  workbookId: Int
+}
+
+type SubmissionCount {
+  submissionResult: Int!
+}
+
+input SubmissionCreateManyContestInput {
+  code: String!
+  createTime: DateTime
+  hash: String!
+  id: Int
+  language: String!
+  problemId: Int!
+  updateTime: DateTime
+  userId: Int!
+  workbookId: Int
+}
+
+input SubmissionCreateManyContestInputEnvelope {
+  data: [SubmissionCreateManyContestInput!]!
+  skipDuplicates: Boolean
+}
+
+input SubmissionCreateManyProblemInput {
+  code: String!
+  contestId: Int
+  createTime: DateTime
+  hash: String!
+  id: Int
+  language: String!
+  updateTime: DateTime
+  userId: Int!
+  workbookId: Int
+}
+
+input SubmissionCreateManyProblemInputEnvelope {
+  data: [SubmissionCreateManyProblemInput!]!
+  skipDuplicates: Boolean
+}
+
+input SubmissionCreateManyUserInput {
+  code: String!
+  contestId: Int
+  createTime: DateTime
+  hash: String!
+  id: Int
+  language: String!
+  problemId: Int!
+  updateTime: DateTime
+  workbookId: Int
+}
+
+input SubmissionCreateManyUserInputEnvelope {
+  data: [SubmissionCreateManyUserInput!]!
+  skipDuplicates: Boolean
+}
+
+input SubmissionCreateManyWorkbookInput {
+  code: String!
+  contestId: Int
+  createTime: DateTime
+  hash: String!
+  id: Int
+  language: String!
+  problemId: Int!
+  updateTime: DateTime
+  userId: Int!
+}
+
+input SubmissionCreateManyWorkbookInputEnvelope {
+  data: [SubmissionCreateManyWorkbookInput!]!
+  skipDuplicates: Boolean
+}
+
+input SubmissionCreateNestedManyWithoutContestInput {
+  connect: [SubmissionWhereUniqueInput!]
+  connectOrCreate: [SubmissionCreateOrConnectWithoutContestInput!]
+  create: [SubmissionCreateWithoutContestInput!]
+  createMany: SubmissionCreateManyContestInputEnvelope
+}
+
+input SubmissionCreateNestedManyWithoutProblemInput {
+  connect: [SubmissionWhereUniqueInput!]
+  connectOrCreate: [SubmissionCreateOrConnectWithoutProblemInput!]
+  create: [SubmissionCreateWithoutProblemInput!]
+  createMany: SubmissionCreateManyProblemInputEnvelope
+}
+
+input SubmissionCreateNestedManyWithoutUserInput {
+  connect: [SubmissionWhereUniqueInput!]
+  connectOrCreate: [SubmissionCreateOrConnectWithoutUserInput!]
+  create: [SubmissionCreateWithoutUserInput!]
+  createMany: SubmissionCreateManyUserInputEnvelope
+}
+
+input SubmissionCreateNestedManyWithoutWorkbookInput {
+  connect: [SubmissionWhereUniqueInput!]
+  connectOrCreate: [SubmissionCreateOrConnectWithoutWorkbookInput!]
+  create: [SubmissionCreateWithoutWorkbookInput!]
+  createMany: SubmissionCreateManyWorkbookInputEnvelope
+}
+
+input SubmissionCreateNestedOneWithoutSubmissionResultInput {
+  connect: SubmissionWhereUniqueInput
+  connectOrCreate: SubmissionCreateOrConnectWithoutSubmissionResultInput
+  create: SubmissionCreateWithoutSubmissionResultInput
+}
+
+input SubmissionCreateOrConnectWithoutContestInput {
+  create: SubmissionCreateWithoutContestInput!
+  where: SubmissionWhereUniqueInput!
+}
+
+input SubmissionCreateOrConnectWithoutProblemInput {
+  create: SubmissionCreateWithoutProblemInput!
+  where: SubmissionWhereUniqueInput!
+}
+
+input SubmissionCreateOrConnectWithoutSubmissionResultInput {
+  create: SubmissionCreateWithoutSubmissionResultInput!
+  where: SubmissionWhereUniqueInput!
+}
+
+input SubmissionCreateOrConnectWithoutUserInput {
+  create: SubmissionCreateWithoutUserInput!
+  where: SubmissionWhereUniqueInput!
+}
+
+input SubmissionCreateOrConnectWithoutWorkbookInput {
+  create: SubmissionCreateWithoutWorkbookInput!
+  where: SubmissionWhereUniqueInput!
+}
+
+input SubmissionCreateWithoutContestInput {
+  code: String!
+  createTime: DateTime
+  hash: String!
+  language: String!
+  problem: ProblemCreateNestedOneWithoutSubmissionInput!
+  submissionResult: SubmissionResultCreateNestedManyWithoutSubmissionInput
+  updateTime: DateTime
+  user: UserCreateNestedOneWithoutSubmissionInput!
+  workbook: WorkbookCreateNestedOneWithoutSubmissionInput
+}
+
+input SubmissionCreateWithoutProblemInput {
+  code: String!
+  contest: ContestCreateNestedOneWithoutSubmissionInput
+  createTime: DateTime
+  hash: String!
+  language: String!
+  submissionResult: SubmissionResultCreateNestedManyWithoutSubmissionInput
+  updateTime: DateTime
+  user: UserCreateNestedOneWithoutSubmissionInput!
+  workbook: WorkbookCreateNestedOneWithoutSubmissionInput
+}
+
+input SubmissionCreateWithoutSubmissionResultInput {
+  code: String!
+  contest: ContestCreateNestedOneWithoutSubmissionInput
+  createTime: DateTime
+  hash: String!
+  language: String!
+  problem: ProblemCreateNestedOneWithoutSubmissionInput!
+  updateTime: DateTime
+  user: UserCreateNestedOneWithoutSubmissionInput!
+  workbook: WorkbookCreateNestedOneWithoutSubmissionInput
+}
+
+input SubmissionCreateWithoutUserInput {
+  code: String!
+  contest: ContestCreateNestedOneWithoutSubmissionInput
+  createTime: DateTime
+  hash: String!
+  language: String!
+  problem: ProblemCreateNestedOneWithoutSubmissionInput!
+  submissionResult: SubmissionResultCreateNestedManyWithoutSubmissionInput
+  updateTime: DateTime
+  workbook: WorkbookCreateNestedOneWithoutSubmissionInput
+}
+
+input SubmissionCreateWithoutWorkbookInput {
+  code: String!
+  contest: ContestCreateNestedOneWithoutSubmissionInput
+  createTime: DateTime
+  hash: String!
+  language: String!
+  problem: ProblemCreateNestedOneWithoutSubmissionInput!
+  submissionResult: SubmissionResultCreateNestedManyWithoutSubmissionInput
+  updateTime: DateTime
+  user: UserCreateNestedOneWithoutSubmissionInput!
+}
+
+type SubmissionResult {
+  createTime: DateTime!
+  id: ID!
+  problemTestcase: ProblemTestcase!
+  problemTestcaseId: Int!
+  result: ResultStatus!
+  submission: Submission!
+  submissionId: Int!
+  updateTime: DateTime!
+}
+
+input SubmissionResultCreateManyProblemTestcaseInput {
+  createTime: DateTime
+  id: Int
+  result: ResultStatus!
+  submissionId: Int!
+  updateTime: DateTime
+}
+
+input SubmissionResultCreateManyProblemTestcaseInputEnvelope {
+  data: [SubmissionResultCreateManyProblemTestcaseInput!]!
+  skipDuplicates: Boolean
+}
+
+input SubmissionResultCreateManySubmissionInput {
+  createTime: DateTime
+  id: Int
+  problemTestcaseId: Int!
+  result: ResultStatus!
+  updateTime: DateTime
+}
+
+input SubmissionResultCreateManySubmissionInputEnvelope {
+  data: [SubmissionResultCreateManySubmissionInput!]!
+  skipDuplicates: Boolean
+}
+
+input SubmissionResultCreateNestedManyWithoutProblemTestcaseInput {
+  connect: [SubmissionResultWhereUniqueInput!]
+  connectOrCreate: [SubmissionResultCreateOrConnectWithoutProblemTestcaseInput!]
+  create: [SubmissionResultCreateWithoutProblemTestcaseInput!]
+  createMany: SubmissionResultCreateManyProblemTestcaseInputEnvelope
+}
+
+input SubmissionResultCreateNestedManyWithoutSubmissionInput {
+  connect: [SubmissionResultWhereUniqueInput!]
+  connectOrCreate: [SubmissionResultCreateOrConnectWithoutSubmissionInput!]
+  create: [SubmissionResultCreateWithoutSubmissionInput!]
+  createMany: SubmissionResultCreateManySubmissionInputEnvelope
+}
+
+input SubmissionResultCreateOrConnectWithoutProblemTestcaseInput {
+  create: SubmissionResultCreateWithoutProblemTestcaseInput!
+  where: SubmissionResultWhereUniqueInput!
+}
+
+input SubmissionResultCreateOrConnectWithoutSubmissionInput {
+  create: SubmissionResultCreateWithoutSubmissionInput!
+  where: SubmissionResultWhereUniqueInput!
+}
+
+input SubmissionResultCreateWithoutProblemTestcaseInput {
+  createTime: DateTime
+  result: ResultStatus!
+  submission: SubmissionCreateNestedOneWithoutSubmissionResultInput!
+  updateTime: DateTime
+}
+
+input SubmissionResultCreateWithoutSubmissionInput {
+  createTime: DateTime
+  problemTestcase: ProblemTestcaseCreateNestedOneWithoutSubmissionResultInput!
+  result: ResultStatus!
+  updateTime: DateTime
+}
+
+input SubmissionResultScalarWhereInput {
+  AND: [SubmissionResultScalarWhereInput!]
+  NOT: [SubmissionResultScalarWhereInput!]
+  OR: [SubmissionResultScalarWhereInput!]
+  createTime: DateTimeFilter
+  id: IntFilter
+  problemTestcaseId: IntFilter
+  result: EnumResultStatusFilter
+  submissionId: IntFilter
+  updateTime: DateTimeFilter
+}
+
+input SubmissionResultUpdateManyMutationInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  result: EnumResultStatusFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input SubmissionResultUpdateManyWithWhereWithoutProblemTestcaseInput {
+  data: SubmissionResultUpdateManyMutationInput!
+  where: SubmissionResultScalarWhereInput!
+}
+
+input SubmissionResultUpdateManyWithWhereWithoutSubmissionInput {
+  data: SubmissionResultUpdateManyMutationInput!
+  where: SubmissionResultScalarWhereInput!
+}
+
+input SubmissionResultUpdateManyWithoutProblemTestcaseNestedInput {
+  connect: [SubmissionResultWhereUniqueInput!]
+  connectOrCreate: [SubmissionResultCreateOrConnectWithoutProblemTestcaseInput!]
+  create: [SubmissionResultCreateWithoutProblemTestcaseInput!]
+  createMany: SubmissionResultCreateManyProblemTestcaseInputEnvelope
+  delete: [SubmissionResultWhereUniqueInput!]
+  deleteMany: [SubmissionResultScalarWhereInput!]
+  disconnect: [SubmissionResultWhereUniqueInput!]
+  set: [SubmissionResultWhereUniqueInput!]
+  update: [SubmissionResultUpdateWithWhereUniqueWithoutProblemTestcaseInput!]
+  updateMany: [SubmissionResultUpdateManyWithWhereWithoutProblemTestcaseInput!]
+  upsert: [SubmissionResultUpsertWithWhereUniqueWithoutProblemTestcaseInput!]
+}
+
+input SubmissionResultUpdateManyWithoutSubmissionNestedInput {
+  connect: [SubmissionResultWhereUniqueInput!]
+  connectOrCreate: [SubmissionResultCreateOrConnectWithoutSubmissionInput!]
+  create: [SubmissionResultCreateWithoutSubmissionInput!]
+  createMany: SubmissionResultCreateManySubmissionInputEnvelope
+  delete: [SubmissionResultWhereUniqueInput!]
+  deleteMany: [SubmissionResultScalarWhereInput!]
+  disconnect: [SubmissionResultWhereUniqueInput!]
+  set: [SubmissionResultWhereUniqueInput!]
+  update: [SubmissionResultUpdateWithWhereUniqueWithoutSubmissionInput!]
+  updateMany: [SubmissionResultUpdateManyWithWhereWithoutSubmissionInput!]
+  upsert: [SubmissionResultUpsertWithWhereUniqueWithoutSubmissionInput!]
+}
+
+input SubmissionResultUpdateWithWhereUniqueWithoutProblemTestcaseInput {
+  data: SubmissionResultUpdateWithoutProblemTestcaseInput!
+  where: SubmissionResultWhereUniqueInput!
+}
+
+input SubmissionResultUpdateWithWhereUniqueWithoutSubmissionInput {
+  data: SubmissionResultUpdateWithoutSubmissionInput!
+  where: SubmissionResultWhereUniqueInput!
+}
+
+input SubmissionResultUpdateWithoutProblemTestcaseInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  result: EnumResultStatusFieldUpdateOperationsInput
+  submission: SubmissionUpdateOneRequiredWithoutSubmissionResultNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input SubmissionResultUpdateWithoutSubmissionInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  problemTestcase: ProblemTestcaseUpdateOneRequiredWithoutSubmissionResultNestedInput
+  result: EnumResultStatusFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input SubmissionResultUpsertWithWhereUniqueWithoutProblemTestcaseInput {
+  create: SubmissionResultCreateWithoutProblemTestcaseInput!
+  update: SubmissionResultUpdateWithoutProblemTestcaseInput!
+  where: SubmissionResultWhereUniqueInput!
+}
+
+input SubmissionResultUpsertWithWhereUniqueWithoutSubmissionInput {
+  create: SubmissionResultCreateWithoutSubmissionInput!
+  update: SubmissionResultUpdateWithoutSubmissionInput!
+  where: SubmissionResultWhereUniqueInput!
+}
+
+input SubmissionResultWhereUniqueInput {
+  id: Int
+}
+
+input SubmissionScalarWhereInput {
+  AND: [SubmissionScalarWhereInput!]
+  NOT: [SubmissionScalarWhereInput!]
+  OR: [SubmissionScalarWhereInput!]
+  code: StringFilter
+  contestId: IntNullableFilter
+  createTime: DateTimeFilter
+  hash: StringFilter
+  id: IntFilter
+  language: StringFilter
+  problemId: IntFilter
+  updateTime: DateTimeFilter
+  userId: IntFilter
+  workbookId: IntNullableFilter
+}
+
+input SubmissionUpdateManyMutationInput {
+  code: StringFieldUpdateOperationsInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  hash: StringFieldUpdateOperationsInput
+  language: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input SubmissionUpdateManyWithWhereWithoutContestInput {
+  data: SubmissionUpdateManyMutationInput!
+  where: SubmissionScalarWhereInput!
+}
+
+input SubmissionUpdateManyWithWhereWithoutProblemInput {
+  data: SubmissionUpdateManyMutationInput!
+  where: SubmissionScalarWhereInput!
+}
+
+input SubmissionUpdateManyWithWhereWithoutUserInput {
+  data: SubmissionUpdateManyMutationInput!
+  where: SubmissionScalarWhereInput!
+}
+
+input SubmissionUpdateManyWithWhereWithoutWorkbookInput {
+  data: SubmissionUpdateManyMutationInput!
+  where: SubmissionScalarWhereInput!
+}
+
+input SubmissionUpdateManyWithoutContestNestedInput {
+  connect: [SubmissionWhereUniqueInput!]
+  connectOrCreate: [SubmissionCreateOrConnectWithoutContestInput!]
+  create: [SubmissionCreateWithoutContestInput!]
+  createMany: SubmissionCreateManyContestInputEnvelope
+  delete: [SubmissionWhereUniqueInput!]
+  deleteMany: [SubmissionScalarWhereInput!]
+  disconnect: [SubmissionWhereUniqueInput!]
+  set: [SubmissionWhereUniqueInput!]
+  update: [SubmissionUpdateWithWhereUniqueWithoutContestInput!]
+  updateMany: [SubmissionUpdateManyWithWhereWithoutContestInput!]
+  upsert: [SubmissionUpsertWithWhereUniqueWithoutContestInput!]
+}
+
+input SubmissionUpdateManyWithoutProblemNestedInput {
+  connect: [SubmissionWhereUniqueInput!]
+  connectOrCreate: [SubmissionCreateOrConnectWithoutProblemInput!]
+  create: [SubmissionCreateWithoutProblemInput!]
+  createMany: SubmissionCreateManyProblemInputEnvelope
+  delete: [SubmissionWhereUniqueInput!]
+  deleteMany: [SubmissionScalarWhereInput!]
+  disconnect: [SubmissionWhereUniqueInput!]
+  set: [SubmissionWhereUniqueInput!]
+  update: [SubmissionUpdateWithWhereUniqueWithoutProblemInput!]
+  updateMany: [SubmissionUpdateManyWithWhereWithoutProblemInput!]
+  upsert: [SubmissionUpsertWithWhereUniqueWithoutProblemInput!]
+}
+
+input SubmissionUpdateManyWithoutUserNestedInput {
+  connect: [SubmissionWhereUniqueInput!]
+  connectOrCreate: [SubmissionCreateOrConnectWithoutUserInput!]
+  create: [SubmissionCreateWithoutUserInput!]
+  createMany: SubmissionCreateManyUserInputEnvelope
+  delete: [SubmissionWhereUniqueInput!]
+  deleteMany: [SubmissionScalarWhereInput!]
+  disconnect: [SubmissionWhereUniqueInput!]
+  set: [SubmissionWhereUniqueInput!]
+  update: [SubmissionUpdateWithWhereUniqueWithoutUserInput!]
+  updateMany: [SubmissionUpdateManyWithWhereWithoutUserInput!]
+  upsert: [SubmissionUpsertWithWhereUniqueWithoutUserInput!]
+}
+
+input SubmissionUpdateManyWithoutWorkbookNestedInput {
+  connect: [SubmissionWhereUniqueInput!]
+  connectOrCreate: [SubmissionCreateOrConnectWithoutWorkbookInput!]
+  create: [SubmissionCreateWithoutWorkbookInput!]
+  createMany: SubmissionCreateManyWorkbookInputEnvelope
+  delete: [SubmissionWhereUniqueInput!]
+  deleteMany: [SubmissionScalarWhereInput!]
+  disconnect: [SubmissionWhereUniqueInput!]
+  set: [SubmissionWhereUniqueInput!]
+  update: [SubmissionUpdateWithWhereUniqueWithoutWorkbookInput!]
+  updateMany: [SubmissionUpdateManyWithWhereWithoutWorkbookInput!]
+  upsert: [SubmissionUpsertWithWhereUniqueWithoutWorkbookInput!]
+}
+
+input SubmissionUpdateOneRequiredWithoutSubmissionResultNestedInput {
+  connect: SubmissionWhereUniqueInput
+  connectOrCreate: SubmissionCreateOrConnectWithoutSubmissionResultInput
+  create: SubmissionCreateWithoutSubmissionResultInput
+  update: SubmissionUpdateWithoutSubmissionResultInput
+  upsert: SubmissionUpsertWithoutSubmissionResultInput
+}
+
+input SubmissionUpdateWithWhereUniqueWithoutContestInput {
+  data: SubmissionUpdateWithoutContestInput!
+  where: SubmissionWhereUniqueInput!
+}
+
+input SubmissionUpdateWithWhereUniqueWithoutProblemInput {
+  data: SubmissionUpdateWithoutProblemInput!
+  where: SubmissionWhereUniqueInput!
+}
+
+input SubmissionUpdateWithWhereUniqueWithoutUserInput {
+  data: SubmissionUpdateWithoutUserInput!
+  where: SubmissionWhereUniqueInput!
+}
+
+input SubmissionUpdateWithWhereUniqueWithoutWorkbookInput {
+  data: SubmissionUpdateWithoutWorkbookInput!
+  where: SubmissionWhereUniqueInput!
+}
+
+input SubmissionUpdateWithoutContestInput {
+  code: StringFieldUpdateOperationsInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  hash: StringFieldUpdateOperationsInput
+  language: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateOneRequiredWithoutSubmissionNestedInput
+  submissionResult: SubmissionResultUpdateManyWithoutSubmissionNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  user: UserUpdateOneRequiredWithoutSubmissionNestedInput
+  workbook: WorkbookUpdateOneWithoutSubmissionNestedInput
+}
+
+input SubmissionUpdateWithoutProblemInput {
+  code: StringFieldUpdateOperationsInput
+  contest: ContestUpdateOneWithoutSubmissionNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  hash: StringFieldUpdateOperationsInput
+  language: StringFieldUpdateOperationsInput
+  submissionResult: SubmissionResultUpdateManyWithoutSubmissionNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  user: UserUpdateOneRequiredWithoutSubmissionNestedInput
+  workbook: WorkbookUpdateOneWithoutSubmissionNestedInput
+}
+
+input SubmissionUpdateWithoutSubmissionResultInput {
+  code: StringFieldUpdateOperationsInput
+  contest: ContestUpdateOneWithoutSubmissionNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  hash: StringFieldUpdateOperationsInput
+  language: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateOneRequiredWithoutSubmissionNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  user: UserUpdateOneRequiredWithoutSubmissionNestedInput
+  workbook: WorkbookUpdateOneWithoutSubmissionNestedInput
+}
+
+input SubmissionUpdateWithoutUserInput {
+  code: StringFieldUpdateOperationsInput
+  contest: ContestUpdateOneWithoutSubmissionNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  hash: StringFieldUpdateOperationsInput
+  language: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateOneRequiredWithoutSubmissionNestedInput
+  submissionResult: SubmissionResultUpdateManyWithoutSubmissionNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  workbook: WorkbookUpdateOneWithoutSubmissionNestedInput
+}
+
+input SubmissionUpdateWithoutWorkbookInput {
+  code: StringFieldUpdateOperationsInput
+  contest: ContestUpdateOneWithoutSubmissionNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  hash: StringFieldUpdateOperationsInput
+  language: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateOneRequiredWithoutSubmissionNestedInput
+  submissionResult: SubmissionResultUpdateManyWithoutSubmissionNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  user: UserUpdateOneRequiredWithoutSubmissionNestedInput
+}
+
+input SubmissionUpsertWithWhereUniqueWithoutContestInput {
+  create: SubmissionCreateWithoutContestInput!
+  update: SubmissionUpdateWithoutContestInput!
+  where: SubmissionWhereUniqueInput!
+}
+
+input SubmissionUpsertWithWhereUniqueWithoutProblemInput {
+  create: SubmissionCreateWithoutProblemInput!
+  update: SubmissionUpdateWithoutProblemInput!
+  where: SubmissionWhereUniqueInput!
+}
+
+input SubmissionUpsertWithWhereUniqueWithoutUserInput {
+  create: SubmissionCreateWithoutUserInput!
+  update: SubmissionUpdateWithoutUserInput!
+  where: SubmissionWhereUniqueInput!
+}
+
+input SubmissionUpsertWithWhereUniqueWithoutWorkbookInput {
+  create: SubmissionCreateWithoutWorkbookInput!
+  update: SubmissionUpdateWithoutWorkbookInput!
+  where: SubmissionWhereUniqueInput!
+}
+
+input SubmissionUpsertWithoutSubmissionResultInput {
+  create: SubmissionCreateWithoutSubmissionResultInput!
+  update: SubmissionUpdateWithoutSubmissionResultInput!
+}
+
+input SubmissionWhereUniqueInput {
+  hash: String
+  id: Int
+}
+
+type Tag {
+  _count: TagCount!
+  createTime: DateTime!
+  id: ID!
+  name: String!
+  problemTag: [ProblemTag!]
+  updateTime: DateTime!
+}
+
+type TagCount {
+  problemTag: Int!
+}
+
+input TagCreateNestedOneWithoutProblemTagInput {
+  connect: TagWhereUniqueInput
+  connectOrCreate: TagCreateOrConnectWithoutProblemTagInput
+  create: TagCreateWithoutProblemTagInput
+}
+
+input TagCreateOrConnectWithoutProblemTagInput {
+  create: TagCreateWithoutProblemTagInput!
+  where: TagWhereUniqueInput!
+}
+
+input TagCreateWithoutProblemTagInput {
+  createTime: DateTime
+  name: String!
+  updateTime: DateTime
+}
+
+input TagUpdateOneRequiredWithoutProblemTagNestedInput {
+  connect: TagWhereUniqueInput
+  connectOrCreate: TagCreateOrConnectWithoutProblemTagInput
+  create: TagCreateWithoutProblemTagInput
+  update: TagUpdateWithoutProblemTagInput
+  upsert: TagUpsertWithoutProblemTagInput
+}
+
+input TagUpdateWithoutProblemTagInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  name: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input TagUpsertWithoutProblemTagInput {
+  create: TagCreateWithoutProblemTagInput!
+  update: TagUpdateWithoutProblemTagInput!
+}
+
+input TagWhereUniqueInput {
+  id: Int
+  name: String
+}
+
+type User {
+  _count: UserCount!
+  contest: [Contest!]
+  contestRecord: [ContestRecord!]
+  createTime: DateTime!
+  email: String!
+  group: [Group!]
+  id: ID!
+  lastLogin: DateTime
+  notice: [Notice!]
+  password: String!
+  problem: [Problem!]
+  role: Role!
+  submission: [Submission!]
+  updateTime: DateTime!
+  userGroup: [UserGroup!]
+  userProfile: UserProfile
+  username: String!
+  workbook: [Workbook!]
+}
+
+type UserCount {
+  contest: Int!
+  contestRecord: Int!
+  group: Int!
+  notice: Int!
+  problem: Int!
+  submission: Int!
+  userGroup: Int!
+  workbook: Int!
+}
+
+input UserCreateInput {
+  contest: ContestCreateNestedManyWithoutCreatedByInput
+  contestRecord: ContestRecordCreateNestedManyWithoutUserInput
+  createTime: DateTime
+  email: String!
+  group: GroupCreateNestedManyWithoutCreatedByInput
+  lastLogin: DateTime
+  notice: NoticeCreateNestedManyWithoutCreatedByInput
+  password: String!
+  problem: ProblemCreateNestedManyWithoutCreatedByInput
+  role: Role
+  submission: SubmissionCreateNestedManyWithoutUserInput
+  updateTime: DateTime
+  userGroup: UserGroupCreateNestedManyWithoutUserInput
+  userProfile: UserProfileCreateNestedOneWithoutUserInput
+  username: String!
+  workbook: WorkbookCreateNestedManyWithoutCreatedByInput
+}
+
+input UserCreateNestedOneWithoutContestInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutContestInput
+  create: UserCreateWithoutContestInput
+}
+
+input UserCreateNestedOneWithoutContestRecordInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutContestRecordInput
+  create: UserCreateWithoutContestRecordInput
+}
+
+input UserCreateNestedOneWithoutGroupInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutGroupInput
+  create: UserCreateWithoutGroupInput
+}
+
+input UserCreateNestedOneWithoutNoticeInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutNoticeInput
+  create: UserCreateWithoutNoticeInput
+}
+
+input UserCreateNestedOneWithoutProblemInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutProblemInput
+  create: UserCreateWithoutProblemInput
+}
+
+input UserCreateNestedOneWithoutSubmissionInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutSubmissionInput
+  create: UserCreateWithoutSubmissionInput
+}
+
+input UserCreateNestedOneWithoutUserGroupInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutUserGroupInput
+  create: UserCreateWithoutUserGroupInput
+}
+
+input UserCreateNestedOneWithoutWorkbookInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutWorkbookInput
+  create: UserCreateWithoutWorkbookInput
+}
+
+input UserCreateOrConnectWithoutContestInput {
+  create: UserCreateWithoutContestInput!
+  where: UserWhereUniqueInput!
+}
+
+input UserCreateOrConnectWithoutContestRecordInput {
+  create: UserCreateWithoutContestRecordInput!
+  where: UserWhereUniqueInput!
+}
+
+input UserCreateOrConnectWithoutGroupInput {
+  create: UserCreateWithoutGroupInput!
+  where: UserWhereUniqueInput!
+}
+
+input UserCreateOrConnectWithoutNoticeInput {
+  create: UserCreateWithoutNoticeInput!
+  where: UserWhereUniqueInput!
+}
+
+input UserCreateOrConnectWithoutProblemInput {
+  create: UserCreateWithoutProblemInput!
+  where: UserWhereUniqueInput!
+}
+
+input UserCreateOrConnectWithoutSubmissionInput {
+  create: UserCreateWithoutSubmissionInput!
+  where: UserWhereUniqueInput!
+}
+
+input UserCreateOrConnectWithoutUserGroupInput {
+  create: UserCreateWithoutUserGroupInput!
+  where: UserWhereUniqueInput!
+}
+
+input UserCreateOrConnectWithoutWorkbookInput {
+  create: UserCreateWithoutWorkbookInput!
+  where: UserWhereUniqueInput!
+}
+
+input UserCreateWithoutContestInput {
+  contestRecord: ContestRecordCreateNestedManyWithoutUserInput
+  createTime: DateTime
+  email: String!
+  group: GroupCreateNestedManyWithoutCreatedByInput
+  lastLogin: DateTime
+  notice: NoticeCreateNestedManyWithoutCreatedByInput
+  password: String!
+  problem: ProblemCreateNestedManyWithoutCreatedByInput
+  role: Role
+  submission: SubmissionCreateNestedManyWithoutUserInput
+  updateTime: DateTime
+  userGroup: UserGroupCreateNestedManyWithoutUserInput
+  userProfile: UserProfileCreateNestedOneWithoutUserInput
+  username: String!
+  workbook: WorkbookCreateNestedManyWithoutCreatedByInput
+}
+
+input UserCreateWithoutContestRecordInput {
+  contest: ContestCreateNestedManyWithoutCreatedByInput
+  createTime: DateTime
+  email: String!
+  group: GroupCreateNestedManyWithoutCreatedByInput
+  lastLogin: DateTime
+  notice: NoticeCreateNestedManyWithoutCreatedByInput
+  password: String!
+  problem: ProblemCreateNestedManyWithoutCreatedByInput
+  role: Role
+  submission: SubmissionCreateNestedManyWithoutUserInput
+  updateTime: DateTime
+  userGroup: UserGroupCreateNestedManyWithoutUserInput
+  userProfile: UserProfileCreateNestedOneWithoutUserInput
+  username: String!
+  workbook: WorkbookCreateNestedManyWithoutCreatedByInput
+}
+
+input UserCreateWithoutGroupInput {
+  contest: ContestCreateNestedManyWithoutCreatedByInput
+  contestRecord: ContestRecordCreateNestedManyWithoutUserInput
+  createTime: DateTime
+  email: String!
+  lastLogin: DateTime
+  notice: NoticeCreateNestedManyWithoutCreatedByInput
+  password: String!
+  problem: ProblemCreateNestedManyWithoutCreatedByInput
+  role: Role
+  submission: SubmissionCreateNestedManyWithoutUserInput
+  updateTime: DateTime
+  userGroup: UserGroupCreateNestedManyWithoutUserInput
+  userProfile: UserProfileCreateNestedOneWithoutUserInput
+  username: String!
+  workbook: WorkbookCreateNestedManyWithoutCreatedByInput
+}
+
+input UserCreateWithoutNoticeInput {
+  contest: ContestCreateNestedManyWithoutCreatedByInput
+  contestRecord: ContestRecordCreateNestedManyWithoutUserInput
+  createTime: DateTime
+  email: String!
+  group: GroupCreateNestedManyWithoutCreatedByInput
+  lastLogin: DateTime
+  password: String!
+  problem: ProblemCreateNestedManyWithoutCreatedByInput
+  role: Role
+  submission: SubmissionCreateNestedManyWithoutUserInput
+  updateTime: DateTime
+  userGroup: UserGroupCreateNestedManyWithoutUserInput
+  userProfile: UserProfileCreateNestedOneWithoutUserInput
+  username: String!
+  workbook: WorkbookCreateNestedManyWithoutCreatedByInput
+}
+
+input UserCreateWithoutProblemInput {
+  contest: ContestCreateNestedManyWithoutCreatedByInput
+  contestRecord: ContestRecordCreateNestedManyWithoutUserInput
+  createTime: DateTime
+  email: String!
+  group: GroupCreateNestedManyWithoutCreatedByInput
+  lastLogin: DateTime
+  notice: NoticeCreateNestedManyWithoutCreatedByInput
+  password: String!
+  role: Role
+  submission: SubmissionCreateNestedManyWithoutUserInput
+  updateTime: DateTime
+  userGroup: UserGroupCreateNestedManyWithoutUserInput
+  userProfile: UserProfileCreateNestedOneWithoutUserInput
+  username: String!
+  workbook: WorkbookCreateNestedManyWithoutCreatedByInput
+}
+
+input UserCreateWithoutSubmissionInput {
+  contest: ContestCreateNestedManyWithoutCreatedByInput
+  contestRecord: ContestRecordCreateNestedManyWithoutUserInput
+  createTime: DateTime
+  email: String!
+  group: GroupCreateNestedManyWithoutCreatedByInput
+  lastLogin: DateTime
+  notice: NoticeCreateNestedManyWithoutCreatedByInput
+  password: String!
+  problem: ProblemCreateNestedManyWithoutCreatedByInput
+  role: Role
+  updateTime: DateTime
+  userGroup: UserGroupCreateNestedManyWithoutUserInput
+  userProfile: UserProfileCreateNestedOneWithoutUserInput
+  username: String!
+  workbook: WorkbookCreateNestedManyWithoutCreatedByInput
+}
+
+input UserCreateWithoutUserGroupInput {
+  contest: ContestCreateNestedManyWithoutCreatedByInput
+  contestRecord: ContestRecordCreateNestedManyWithoutUserInput
+  createTime: DateTime
+  email: String!
+  group: GroupCreateNestedManyWithoutCreatedByInput
+  lastLogin: DateTime
+  notice: NoticeCreateNestedManyWithoutCreatedByInput
+  password: String!
+  problem: ProblemCreateNestedManyWithoutCreatedByInput
+  role: Role
+  submission: SubmissionCreateNestedManyWithoutUserInput
+  updateTime: DateTime
+  userProfile: UserProfileCreateNestedOneWithoutUserInput
+  username: String!
+  workbook: WorkbookCreateNestedManyWithoutCreatedByInput
+}
+
+input UserCreateWithoutWorkbookInput {
+  contest: ContestCreateNestedManyWithoutCreatedByInput
+  contestRecord: ContestRecordCreateNestedManyWithoutUserInput
+  createTime: DateTime
+  email: String!
+  group: GroupCreateNestedManyWithoutCreatedByInput
+  lastLogin: DateTime
+  notice: NoticeCreateNestedManyWithoutCreatedByInput
+  password: String!
+  problem: ProblemCreateNestedManyWithoutCreatedByInput
+  role: Role
+  submission: SubmissionCreateNestedManyWithoutUserInput
+  updateTime: DateTime
+  userGroup: UserGroupCreateNestedManyWithoutUserInput
+  userProfile: UserProfileCreateNestedOneWithoutUserInput
+  username: String!
+}
+
+type UserGroup {
+  createTime: DateTime!
+  group: Group!
+  groupId: Int!
+  isGroupLeader: Boolean!
+  updateTime: DateTime!
+  user: User!
+  userId: Int!
+}
+
+input UserGroupCreateManyGroupInput {
+  createTime: DateTime
+  isGroupLeader: Boolean
+  updateTime: DateTime
+  userId: Int!
+}
+
+input UserGroupCreateManyGroupInputEnvelope {
+  data: [UserGroupCreateManyGroupInput!]!
+  skipDuplicates: Boolean
+}
+
+input UserGroupCreateManyUserInput {
+  createTime: DateTime
+  groupId: Int!
+  isGroupLeader: Boolean
+  updateTime: DateTime
+}
+
+input UserGroupCreateManyUserInputEnvelope {
+  data: [UserGroupCreateManyUserInput!]!
+  skipDuplicates: Boolean
+}
+
+input UserGroupCreateNestedManyWithoutGroupInput {
+  connect: [UserGroupWhereUniqueInput!]
+  connectOrCreate: [UserGroupCreateOrConnectWithoutGroupInput!]
+  create: [UserGroupCreateWithoutGroupInput!]
+  createMany: UserGroupCreateManyGroupInputEnvelope
+}
+
+input UserGroupCreateNestedManyWithoutUserInput {
+  connect: [UserGroupWhereUniqueInput!]
+  connectOrCreate: [UserGroupCreateOrConnectWithoutUserInput!]
+  create: [UserGroupCreateWithoutUserInput!]
+  createMany: UserGroupCreateManyUserInputEnvelope
+}
+
+input UserGroupCreateOrConnectWithoutGroupInput {
+  create: UserGroupCreateWithoutGroupInput!
+  where: UserGroupWhereUniqueInput!
+}
+
+input UserGroupCreateOrConnectWithoutUserInput {
+  create: UserGroupCreateWithoutUserInput!
+  where: UserGroupWhereUniqueInput!
+}
+
+input UserGroupCreateWithoutGroupInput {
+  createTime: DateTime
+  isGroupLeader: Boolean
+  updateTime: DateTime
+  user: UserCreateNestedOneWithoutUserGroupInput!
+}
+
+input UserGroupCreateWithoutUserInput {
+  createTime: DateTime
+  group: GroupCreateNestedOneWithoutUserGroupInput!
+  isGroupLeader: Boolean
+  updateTime: DateTime
+}
+
+input UserGroupScalarWhereInput {
+  AND: [UserGroupScalarWhereInput!]
+  NOT: [UserGroupScalarWhereInput!]
+  OR: [UserGroupScalarWhereInput!]
+  createTime: DateTimeFilter
+  groupId: IntFilter
+  isGroupLeader: BoolFilter
+  updateTime: DateTimeFilter
+  userId: IntFilter
+}
+
+input UserGroupUpdateManyMutationInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  isGroupLeader: BoolFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input UserGroupUpdateManyWithWhereWithoutGroupInput {
+  data: UserGroupUpdateManyMutationInput!
+  where: UserGroupScalarWhereInput!
+}
+
+input UserGroupUpdateManyWithWhereWithoutUserInput {
+  data: UserGroupUpdateManyMutationInput!
+  where: UserGroupScalarWhereInput!
+}
+
+input UserGroupUpdateManyWithoutGroupNestedInput {
+  connect: [UserGroupWhereUniqueInput!]
+  connectOrCreate: [UserGroupCreateOrConnectWithoutGroupInput!]
+  create: [UserGroupCreateWithoutGroupInput!]
+  createMany: UserGroupCreateManyGroupInputEnvelope
+  delete: [UserGroupWhereUniqueInput!]
+  deleteMany: [UserGroupScalarWhereInput!]
+  disconnect: [UserGroupWhereUniqueInput!]
+  set: [UserGroupWhereUniqueInput!]
+  update: [UserGroupUpdateWithWhereUniqueWithoutGroupInput!]
+  updateMany: [UserGroupUpdateManyWithWhereWithoutGroupInput!]
+  upsert: [UserGroupUpsertWithWhereUniqueWithoutGroupInput!]
+}
+
+input UserGroupUpdateManyWithoutUserNestedInput {
+  connect: [UserGroupWhereUniqueInput!]
+  connectOrCreate: [UserGroupCreateOrConnectWithoutUserInput!]
+  create: [UserGroupCreateWithoutUserInput!]
+  createMany: UserGroupCreateManyUserInputEnvelope
+  delete: [UserGroupWhereUniqueInput!]
+  deleteMany: [UserGroupScalarWhereInput!]
+  disconnect: [UserGroupWhereUniqueInput!]
+  set: [UserGroupWhereUniqueInput!]
+  update: [UserGroupUpdateWithWhereUniqueWithoutUserInput!]
+  updateMany: [UserGroupUpdateManyWithWhereWithoutUserInput!]
+  upsert: [UserGroupUpsertWithWhereUniqueWithoutUserInput!]
+}
+
+input UserGroupUpdateWithWhereUniqueWithoutGroupInput {
+  data: UserGroupUpdateWithoutGroupInput!
+  where: UserGroupWhereUniqueInput!
+}
+
+input UserGroupUpdateWithWhereUniqueWithoutUserInput {
+  data: UserGroupUpdateWithoutUserInput!
+  where: UserGroupWhereUniqueInput!
+}
+
+input UserGroupUpdateWithoutGroupInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  isGroupLeader: BoolFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  user: UserUpdateOneRequiredWithoutUserGroupNestedInput
+}
+
+input UserGroupUpdateWithoutUserInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutUserGroupNestedInput
+  isGroupLeader: BoolFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input UserGroupUpsertWithWhereUniqueWithoutGroupInput {
+  create: UserGroupCreateWithoutGroupInput!
+  update: UserGroupUpdateWithoutGroupInput!
+  where: UserGroupWhereUniqueInput!
+}
+
+input UserGroupUpsertWithWhereUniqueWithoutUserInput {
+  create: UserGroupCreateWithoutUserInput!
+  update: UserGroupUpdateWithoutUserInput!
+  where: UserGroupWhereUniqueInput!
+}
+
+input UserGroupUserIdGroupIdCompoundUniqueInput {
+  groupId: Int!
+  userId: Int!
+}
+
+input UserGroupWhereUniqueInput {
+  userId_groupId: UserGroupUserIdGroupIdCompoundUniqueInput
+}
+
+type UserProfile {
+  createTime: DateTime!
+  id: ID!
+  realName: String!
+  updateTime: DateTime!
+  user: User!
+  userId: Int!
+}
+
+input UserProfileCreateNestedOneWithoutUserInput {
+  connect: UserProfileWhereUniqueInput
+  connectOrCreate: UserProfileCreateOrConnectWithoutUserInput
+  create: UserProfileCreateWithoutUserInput
+}
+
+input UserProfileCreateOrConnectWithoutUserInput {
+  create: UserProfileCreateWithoutUserInput!
+  where: UserProfileWhereUniqueInput!
+}
+
+input UserProfileCreateWithoutUserInput {
+  createTime: DateTime
+  realName: String!
+  updateTime: DateTime
+}
+
+input UserProfileUpdateOneWithoutUserNestedInput {
+  connect: UserProfileWhereUniqueInput
+  connectOrCreate: UserProfileCreateOrConnectWithoutUserInput
+  create: UserProfileCreateWithoutUserInput
+  delete: Boolean
+  disconnect: Boolean
+  update: UserProfileUpdateWithoutUserInput
+  upsert: UserProfileUpsertWithoutUserInput
+}
+
+input UserProfileUpdateWithoutUserInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  realName: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input UserProfileUpsertWithoutUserInput {
+  create: UserProfileCreateWithoutUserInput!
+  update: UserProfileUpdateWithoutUserInput!
+}
+
+input UserProfileWhereUniqueInput {
+  id: Int
+  userId: Int
+}
+
+input UserUpdateInput {
+  contest: ContestUpdateManyWithoutCreatedByNestedInput
+  contestRecord: ContestRecordUpdateManyWithoutUserNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  email: StringFieldUpdateOperationsInput
+  group: GroupUpdateManyWithoutCreatedByNestedInput
+  lastLogin: NullableDateTimeFieldUpdateOperationsInput
+  notice: NoticeUpdateManyWithoutCreatedByNestedInput
+  password: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateManyWithoutCreatedByNestedInput
+  role: EnumRoleFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutUserNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userGroup: UserGroupUpdateManyWithoutUserNestedInput
+  userProfile: UserProfileUpdateOneWithoutUserNestedInput
+  username: StringFieldUpdateOperationsInput
+  workbook: WorkbookUpdateManyWithoutCreatedByNestedInput
+}
+
+input UserUpdateOneRequiredWithoutContestNestedInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutContestInput
+  create: UserCreateWithoutContestInput
+  update: UserUpdateWithoutContestInput
+  upsert: UserUpsertWithoutContestInput
+}
+
+input UserUpdateOneRequiredWithoutContestRecordNestedInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutContestRecordInput
+  create: UserCreateWithoutContestRecordInput
+  update: UserUpdateWithoutContestRecordInput
+  upsert: UserUpsertWithoutContestRecordInput
+}
+
+input UserUpdateOneRequiredWithoutGroupNestedInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutGroupInput
+  create: UserCreateWithoutGroupInput
+  update: UserUpdateWithoutGroupInput
+  upsert: UserUpsertWithoutGroupInput
+}
+
+input UserUpdateOneRequiredWithoutNoticeNestedInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutNoticeInput
+  create: UserCreateWithoutNoticeInput
+  update: UserUpdateWithoutNoticeInput
+  upsert: UserUpsertWithoutNoticeInput
+}
+
+input UserUpdateOneRequiredWithoutProblemNestedInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutProblemInput
+  create: UserCreateWithoutProblemInput
+  update: UserUpdateWithoutProblemInput
+  upsert: UserUpsertWithoutProblemInput
+}
+
+input UserUpdateOneRequiredWithoutSubmissionNestedInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutSubmissionInput
+  create: UserCreateWithoutSubmissionInput
+  update: UserUpdateWithoutSubmissionInput
+  upsert: UserUpsertWithoutSubmissionInput
+}
+
+input UserUpdateOneRequiredWithoutUserGroupNestedInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutUserGroupInput
+  create: UserCreateWithoutUserGroupInput
+  update: UserUpdateWithoutUserGroupInput
+  upsert: UserUpsertWithoutUserGroupInput
+}
+
+input UserUpdateOneRequiredWithoutWorkbookNestedInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutWorkbookInput
+  create: UserCreateWithoutWorkbookInput
+  update: UserUpdateWithoutWorkbookInput
+  upsert: UserUpsertWithoutWorkbookInput
+}
+
+input UserUpdateWithoutContestInput {
+  contestRecord: ContestRecordUpdateManyWithoutUserNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  email: StringFieldUpdateOperationsInput
+  group: GroupUpdateManyWithoutCreatedByNestedInput
+  lastLogin: NullableDateTimeFieldUpdateOperationsInput
+  notice: NoticeUpdateManyWithoutCreatedByNestedInput
+  password: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateManyWithoutCreatedByNestedInput
+  role: EnumRoleFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutUserNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userGroup: UserGroupUpdateManyWithoutUserNestedInput
+  userProfile: UserProfileUpdateOneWithoutUserNestedInput
+  username: StringFieldUpdateOperationsInput
+  workbook: WorkbookUpdateManyWithoutCreatedByNestedInput
+}
+
+input UserUpdateWithoutContestRecordInput {
+  contest: ContestUpdateManyWithoutCreatedByNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  email: StringFieldUpdateOperationsInput
+  group: GroupUpdateManyWithoutCreatedByNestedInput
+  lastLogin: NullableDateTimeFieldUpdateOperationsInput
+  notice: NoticeUpdateManyWithoutCreatedByNestedInput
+  password: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateManyWithoutCreatedByNestedInput
+  role: EnumRoleFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutUserNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userGroup: UserGroupUpdateManyWithoutUserNestedInput
+  userProfile: UserProfileUpdateOneWithoutUserNestedInput
+  username: StringFieldUpdateOperationsInput
+  workbook: WorkbookUpdateManyWithoutCreatedByNestedInput
+}
+
+input UserUpdateWithoutGroupInput {
+  contest: ContestUpdateManyWithoutCreatedByNestedInput
+  contestRecord: ContestRecordUpdateManyWithoutUserNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  email: StringFieldUpdateOperationsInput
+  lastLogin: NullableDateTimeFieldUpdateOperationsInput
+  notice: NoticeUpdateManyWithoutCreatedByNestedInput
+  password: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateManyWithoutCreatedByNestedInput
+  role: EnumRoleFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutUserNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userGroup: UserGroupUpdateManyWithoutUserNestedInput
+  userProfile: UserProfileUpdateOneWithoutUserNestedInput
+  username: StringFieldUpdateOperationsInput
+  workbook: WorkbookUpdateManyWithoutCreatedByNestedInput
+}
+
+input UserUpdateWithoutNoticeInput {
+  contest: ContestUpdateManyWithoutCreatedByNestedInput
+  contestRecord: ContestRecordUpdateManyWithoutUserNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  email: StringFieldUpdateOperationsInput
+  group: GroupUpdateManyWithoutCreatedByNestedInput
+  lastLogin: NullableDateTimeFieldUpdateOperationsInput
+  password: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateManyWithoutCreatedByNestedInput
+  role: EnumRoleFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutUserNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userGroup: UserGroupUpdateManyWithoutUserNestedInput
+  userProfile: UserProfileUpdateOneWithoutUserNestedInput
+  username: StringFieldUpdateOperationsInput
+  workbook: WorkbookUpdateManyWithoutCreatedByNestedInput
+}
+
+input UserUpdateWithoutProblemInput {
+  contest: ContestUpdateManyWithoutCreatedByNestedInput
+  contestRecord: ContestRecordUpdateManyWithoutUserNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  email: StringFieldUpdateOperationsInput
+  group: GroupUpdateManyWithoutCreatedByNestedInput
+  lastLogin: NullableDateTimeFieldUpdateOperationsInput
+  notice: NoticeUpdateManyWithoutCreatedByNestedInput
+  password: StringFieldUpdateOperationsInput
+  role: EnumRoleFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutUserNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userGroup: UserGroupUpdateManyWithoutUserNestedInput
+  userProfile: UserProfileUpdateOneWithoutUserNestedInput
+  username: StringFieldUpdateOperationsInput
+  workbook: WorkbookUpdateManyWithoutCreatedByNestedInput
+}
+
+input UserUpdateWithoutSubmissionInput {
+  contest: ContestUpdateManyWithoutCreatedByNestedInput
+  contestRecord: ContestRecordUpdateManyWithoutUserNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  email: StringFieldUpdateOperationsInput
+  group: GroupUpdateManyWithoutCreatedByNestedInput
+  lastLogin: NullableDateTimeFieldUpdateOperationsInput
+  notice: NoticeUpdateManyWithoutCreatedByNestedInput
+  password: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateManyWithoutCreatedByNestedInput
+  role: EnumRoleFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userGroup: UserGroupUpdateManyWithoutUserNestedInput
+  userProfile: UserProfileUpdateOneWithoutUserNestedInput
+  username: StringFieldUpdateOperationsInput
+  workbook: WorkbookUpdateManyWithoutCreatedByNestedInput
+}
+
+input UserUpdateWithoutUserGroupInput {
+  contest: ContestUpdateManyWithoutCreatedByNestedInput
+  contestRecord: ContestRecordUpdateManyWithoutUserNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  email: StringFieldUpdateOperationsInput
+  group: GroupUpdateManyWithoutCreatedByNestedInput
+  lastLogin: NullableDateTimeFieldUpdateOperationsInput
+  notice: NoticeUpdateManyWithoutCreatedByNestedInput
+  password: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateManyWithoutCreatedByNestedInput
+  role: EnumRoleFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutUserNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userProfile: UserProfileUpdateOneWithoutUserNestedInput
+  username: StringFieldUpdateOperationsInput
+  workbook: WorkbookUpdateManyWithoutCreatedByNestedInput
+}
+
+input UserUpdateWithoutWorkbookInput {
+  contest: ContestUpdateManyWithoutCreatedByNestedInput
+  contestRecord: ContestRecordUpdateManyWithoutUserNestedInput
+  createTime: DateTimeFieldUpdateOperationsInput
+  email: StringFieldUpdateOperationsInput
+  group: GroupUpdateManyWithoutCreatedByNestedInput
+  lastLogin: NullableDateTimeFieldUpdateOperationsInput
+  notice: NoticeUpdateManyWithoutCreatedByNestedInput
+  password: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateManyWithoutCreatedByNestedInput
+  role: EnumRoleFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutUserNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  userGroup: UserGroupUpdateManyWithoutUserNestedInput
+  userProfile: UserProfileUpdateOneWithoutUserNestedInput
+  username: StringFieldUpdateOperationsInput
+}
+
+input UserUpsertWithoutContestInput {
+  create: UserCreateWithoutContestInput!
+  update: UserUpdateWithoutContestInput!
+}
+
+input UserUpsertWithoutContestRecordInput {
+  create: UserCreateWithoutContestRecordInput!
+  update: UserUpdateWithoutContestRecordInput!
+}
+
+input UserUpsertWithoutGroupInput {
+  create: UserCreateWithoutGroupInput!
+  update: UserUpdateWithoutGroupInput!
+}
+
+input UserUpsertWithoutNoticeInput {
+  create: UserCreateWithoutNoticeInput!
+  update: UserUpdateWithoutNoticeInput!
+}
+
+input UserUpsertWithoutProblemInput {
+  create: UserCreateWithoutProblemInput!
+  update: UserUpdateWithoutProblemInput!
+}
+
+input UserUpsertWithoutSubmissionInput {
+  create: UserCreateWithoutSubmissionInput!
+  update: UserUpdateWithoutSubmissionInput!
+}
+
+input UserUpsertWithoutUserGroupInput {
+  create: UserCreateWithoutUserGroupInput!
+  update: UserUpdateWithoutUserGroupInput!
+}
+
+input UserUpsertWithoutWorkbookInput {
+  create: UserCreateWithoutWorkbookInput!
+  update: UserUpdateWithoutWorkbookInput!
+}
+
+input UserWhereUniqueInput {
+  email: String
+  id: Int
+  username: String
+}
+
+type Workbook {
+  _count: WorkbookCount!
+  createTime: DateTime!
+  createdBy: User!
+  createdById: Int!
+  description: String!
+  group: Group!
+  groupId: Int!
+  id: ID!
+  isVisible: Boolean!
+  submission: [Submission!]
+  title: String!
+  updateTime: DateTime!
+  workbookProblem: [WorkbookProblem!]
+}
+
+type WorkbookCount {
+  submission: Int!
+  workbookProblem: Int!
+}
+
+input WorkbookCreateManyCreatedByInput {
+  createTime: DateTime
+  description: String!
+  groupId: Int!
+  id: Int
+  isVisible: Boolean
+  title: String!
+  updateTime: DateTime
+}
+
+input WorkbookCreateManyCreatedByInputEnvelope {
+  data: [WorkbookCreateManyCreatedByInput!]!
+  skipDuplicates: Boolean
+}
+
+input WorkbookCreateManyGroupInput {
+  createTime: DateTime
+  createdById: Int!
+  description: String!
+  id: Int
+  isVisible: Boolean
+  title: String!
+  updateTime: DateTime
+}
+
+input WorkbookCreateManyGroupInputEnvelope {
+  data: [WorkbookCreateManyGroupInput!]!
+  skipDuplicates: Boolean
+}
+
+input WorkbookCreateNestedManyWithoutCreatedByInput {
+  connect: [WorkbookWhereUniqueInput!]
+  connectOrCreate: [WorkbookCreateOrConnectWithoutCreatedByInput!]
+  create: [WorkbookCreateWithoutCreatedByInput!]
+  createMany: WorkbookCreateManyCreatedByInputEnvelope
+}
+
+input WorkbookCreateNestedManyWithoutGroupInput {
+  connect: [WorkbookWhereUniqueInput!]
+  connectOrCreate: [WorkbookCreateOrConnectWithoutGroupInput!]
+  create: [WorkbookCreateWithoutGroupInput!]
+  createMany: WorkbookCreateManyGroupInputEnvelope
+}
+
+input WorkbookCreateNestedOneWithoutSubmissionInput {
+  connect: WorkbookWhereUniqueInput
+  connectOrCreate: WorkbookCreateOrConnectWithoutSubmissionInput
+  create: WorkbookCreateWithoutSubmissionInput
+}
+
+input WorkbookCreateNestedOneWithoutWorkbookProblemInput {
+  connect: WorkbookWhereUniqueInput
+  connectOrCreate: WorkbookCreateOrConnectWithoutWorkbookProblemInput
+  create: WorkbookCreateWithoutWorkbookProblemInput
+}
+
+input WorkbookCreateOrConnectWithoutCreatedByInput {
+  create: WorkbookCreateWithoutCreatedByInput!
+  where: WorkbookWhereUniqueInput!
+}
+
+input WorkbookCreateOrConnectWithoutGroupInput {
+  create: WorkbookCreateWithoutGroupInput!
+  where: WorkbookWhereUniqueInput!
+}
+
+input WorkbookCreateOrConnectWithoutSubmissionInput {
+  create: WorkbookCreateWithoutSubmissionInput!
+  where: WorkbookWhereUniqueInput!
+}
+
+input WorkbookCreateOrConnectWithoutWorkbookProblemInput {
+  create: WorkbookCreateWithoutWorkbookProblemInput!
+  where: WorkbookWhereUniqueInput!
+}
+
+input WorkbookCreateWithoutCreatedByInput {
+  createTime: DateTime
+  description: String!
+  group: GroupCreateNestedOneWithoutWorkbookInput!
+  isVisible: Boolean
+  submission: SubmissionCreateNestedManyWithoutWorkbookInput
+  title: String!
+  updateTime: DateTime
+  workbookProblem: WorkbookProblemCreateNestedManyWithoutWorkbookInput
+}
+
+input WorkbookCreateWithoutGroupInput {
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutWorkbookInput!
+  description: String!
+  isVisible: Boolean
+  submission: SubmissionCreateNestedManyWithoutWorkbookInput
+  title: String!
+  updateTime: DateTime
+  workbookProblem: WorkbookProblemCreateNestedManyWithoutWorkbookInput
+}
+
+input WorkbookCreateWithoutSubmissionInput {
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutWorkbookInput!
+  description: String!
+  group: GroupCreateNestedOneWithoutWorkbookInput!
+  isVisible: Boolean
+  title: String!
+  updateTime: DateTime
+  workbookProblem: WorkbookProblemCreateNestedManyWithoutWorkbookInput
+}
+
+input WorkbookCreateWithoutWorkbookProblemInput {
+  createTime: DateTime
+  createdBy: UserCreateNestedOneWithoutWorkbookInput!
+  description: String!
+  group: GroupCreateNestedOneWithoutWorkbookInput!
+  isVisible: Boolean
+  submission: SubmissionCreateNestedManyWithoutWorkbookInput
+  title: String!
+  updateTime: DateTime
+}
+
+type WorkbookProblem {
+  createTime: DateTime!
+  id: String!
+  problem: Problem!
+  problemId: Int!
+  updateTime: DateTime!
+  workbook: Workbook!
+  workbookId: Int!
+}
+
+input WorkbookProblemCreateManyProblemInput {
+  createTime: DateTime
+  id: String!
+  updateTime: DateTime
+  workbookId: Int!
+}
+
+input WorkbookProblemCreateManyProblemInputEnvelope {
+  data: [WorkbookProblemCreateManyProblemInput!]!
+  skipDuplicates: Boolean
+}
+
+input WorkbookProblemCreateManyWorkbookInput {
+  createTime: DateTime
+  id: String!
+  problemId: Int!
+  updateTime: DateTime
+}
+
+input WorkbookProblemCreateManyWorkbookInputEnvelope {
+  data: [WorkbookProblemCreateManyWorkbookInput!]!
+  skipDuplicates: Boolean
+}
+
+input WorkbookProblemCreateNestedManyWithoutProblemInput {
+  connect: [WorkbookProblemWhereUniqueInput!]
+  connectOrCreate: [WorkbookProblemCreateOrConnectWithoutProblemInput!]
+  create: [WorkbookProblemCreateWithoutProblemInput!]
+  createMany: WorkbookProblemCreateManyProblemInputEnvelope
+}
+
+input WorkbookProblemCreateNestedManyWithoutWorkbookInput {
+  connect: [WorkbookProblemWhereUniqueInput!]
+  connectOrCreate: [WorkbookProblemCreateOrConnectWithoutWorkbookInput!]
+  create: [WorkbookProblemCreateWithoutWorkbookInput!]
+  createMany: WorkbookProblemCreateManyWorkbookInputEnvelope
+}
+
+input WorkbookProblemCreateOrConnectWithoutProblemInput {
+  create: WorkbookProblemCreateWithoutProblemInput!
+  where: WorkbookProblemWhereUniqueInput!
+}
+
+input WorkbookProblemCreateOrConnectWithoutWorkbookInput {
+  create: WorkbookProblemCreateWithoutWorkbookInput!
+  where: WorkbookProblemWhereUniqueInput!
+}
+
+input WorkbookProblemCreateWithoutProblemInput {
+  createTime: DateTime
+  id: String!
+  updateTime: DateTime
+  workbook: WorkbookCreateNestedOneWithoutWorkbookProblemInput!
+}
+
+input WorkbookProblemCreateWithoutWorkbookInput {
+  createTime: DateTime
+  id: String!
+  problem: ProblemCreateNestedOneWithoutWorkbookProblemInput!
+  updateTime: DateTime
+}
+
+input WorkbookProblemScalarWhereInput {
+  AND: [WorkbookProblemScalarWhereInput!]
+  NOT: [WorkbookProblemScalarWhereInput!]
+  OR: [WorkbookProblemScalarWhereInput!]
+  createTime: DateTimeFilter
+  id: StringFilter
+  problemId: IntFilter
+  updateTime: DateTimeFilter
+  workbookId: IntFilter
+}
+
+input WorkbookProblemUpdateManyMutationInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  id: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input WorkbookProblemUpdateManyWithWhereWithoutProblemInput {
+  data: WorkbookProblemUpdateManyMutationInput!
+  where: WorkbookProblemScalarWhereInput!
+}
+
+input WorkbookProblemUpdateManyWithWhereWithoutWorkbookInput {
+  data: WorkbookProblemUpdateManyMutationInput!
+  where: WorkbookProblemScalarWhereInput!
+}
+
+input WorkbookProblemUpdateManyWithoutProblemNestedInput {
+  connect: [WorkbookProblemWhereUniqueInput!]
+  connectOrCreate: [WorkbookProblemCreateOrConnectWithoutProblemInput!]
+  create: [WorkbookProblemCreateWithoutProblemInput!]
+  createMany: WorkbookProblemCreateManyProblemInputEnvelope
+  delete: [WorkbookProblemWhereUniqueInput!]
+  deleteMany: [WorkbookProblemScalarWhereInput!]
+  disconnect: [WorkbookProblemWhereUniqueInput!]
+  set: [WorkbookProblemWhereUniqueInput!]
+  update: [WorkbookProblemUpdateWithWhereUniqueWithoutProblemInput!]
+  updateMany: [WorkbookProblemUpdateManyWithWhereWithoutProblemInput!]
+  upsert: [WorkbookProblemUpsertWithWhereUniqueWithoutProblemInput!]
+}
+
+input WorkbookProblemUpdateManyWithoutWorkbookNestedInput {
+  connect: [WorkbookProblemWhereUniqueInput!]
+  connectOrCreate: [WorkbookProblemCreateOrConnectWithoutWorkbookInput!]
+  create: [WorkbookProblemCreateWithoutWorkbookInput!]
+  createMany: WorkbookProblemCreateManyWorkbookInputEnvelope
+  delete: [WorkbookProblemWhereUniqueInput!]
+  deleteMany: [WorkbookProblemScalarWhereInput!]
+  disconnect: [WorkbookProblemWhereUniqueInput!]
+  set: [WorkbookProblemWhereUniqueInput!]
+  update: [WorkbookProblemUpdateWithWhereUniqueWithoutWorkbookInput!]
+  updateMany: [WorkbookProblemUpdateManyWithWhereWithoutWorkbookInput!]
+  upsert: [WorkbookProblemUpsertWithWhereUniqueWithoutWorkbookInput!]
+}
+
+input WorkbookProblemUpdateWithWhereUniqueWithoutProblemInput {
+  data: WorkbookProblemUpdateWithoutProblemInput!
+  where: WorkbookProblemWhereUniqueInput!
+}
+
+input WorkbookProblemUpdateWithWhereUniqueWithoutWorkbookInput {
+  data: WorkbookProblemUpdateWithoutWorkbookInput!
+  where: WorkbookProblemWhereUniqueInput!
+}
+
+input WorkbookProblemUpdateWithoutProblemInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  id: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  workbook: WorkbookUpdateOneRequiredWithoutWorkbookProblemNestedInput
+}
+
+input WorkbookProblemUpdateWithoutWorkbookInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  id: StringFieldUpdateOperationsInput
+  problem: ProblemUpdateOneRequiredWithoutWorkbookProblemNestedInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input WorkbookProblemUpsertWithWhereUniqueWithoutProblemInput {
+  create: WorkbookProblemCreateWithoutProblemInput!
+  update: WorkbookProblemUpdateWithoutProblemInput!
+  where: WorkbookProblemWhereUniqueInput!
+}
+
+input WorkbookProblemUpsertWithWhereUniqueWithoutWorkbookInput {
+  create: WorkbookProblemCreateWithoutWorkbookInput!
+  update: WorkbookProblemUpdateWithoutWorkbookInput!
+  where: WorkbookProblemWhereUniqueInput!
+}
+
+input WorkbookProblemWhereUniqueInput {
+  workbookId_id: WorkbookProblemWorkbookIdIdCompoundUniqueInput
+  workbookId_problemId: WorkbookProblemWorkbookIdProblemIdCompoundUniqueInput
+}
+
+input WorkbookProblemWorkbookIdIdCompoundUniqueInput {
+  id: String!
+  workbookId: Int!
+}
+
+input WorkbookProblemWorkbookIdProblemIdCompoundUniqueInput {
+  problemId: Int!
+  workbookId: Int!
+}
+
+input WorkbookScalarWhereInput {
+  AND: [WorkbookScalarWhereInput!]
+  NOT: [WorkbookScalarWhereInput!]
+  OR: [WorkbookScalarWhereInput!]
+  createTime: DateTimeFilter
+  createdById: IntFilter
+  description: StringFilter
+  groupId: IntFilter
+  id: IntFilter
+  isVisible: BoolFilter
+  title: StringFilter
+  updateTime: DateTimeFilter
+}
+
+input WorkbookUpdateManyMutationInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  description: StringFieldUpdateOperationsInput
+  isVisible: BoolFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input WorkbookUpdateManyWithWhereWithoutCreatedByInput {
+  data: WorkbookUpdateManyMutationInput!
+  where: WorkbookScalarWhereInput!
+}
+
+input WorkbookUpdateManyWithWhereWithoutGroupInput {
+  data: WorkbookUpdateManyMutationInput!
+  where: WorkbookScalarWhereInput!
+}
+
+input WorkbookUpdateManyWithoutCreatedByNestedInput {
+  connect: [WorkbookWhereUniqueInput!]
+  connectOrCreate: [WorkbookCreateOrConnectWithoutCreatedByInput!]
+  create: [WorkbookCreateWithoutCreatedByInput!]
+  createMany: WorkbookCreateManyCreatedByInputEnvelope
+  delete: [WorkbookWhereUniqueInput!]
+  deleteMany: [WorkbookScalarWhereInput!]
+  disconnect: [WorkbookWhereUniqueInput!]
+  set: [WorkbookWhereUniqueInput!]
+  update: [WorkbookUpdateWithWhereUniqueWithoutCreatedByInput!]
+  updateMany: [WorkbookUpdateManyWithWhereWithoutCreatedByInput!]
+  upsert: [WorkbookUpsertWithWhereUniqueWithoutCreatedByInput!]
+}
+
+input WorkbookUpdateManyWithoutGroupNestedInput {
+  connect: [WorkbookWhereUniqueInput!]
+  connectOrCreate: [WorkbookCreateOrConnectWithoutGroupInput!]
+  create: [WorkbookCreateWithoutGroupInput!]
+  createMany: WorkbookCreateManyGroupInputEnvelope
+  delete: [WorkbookWhereUniqueInput!]
+  deleteMany: [WorkbookScalarWhereInput!]
+  disconnect: [WorkbookWhereUniqueInput!]
+  set: [WorkbookWhereUniqueInput!]
+  update: [WorkbookUpdateWithWhereUniqueWithoutGroupInput!]
+  updateMany: [WorkbookUpdateManyWithWhereWithoutGroupInput!]
+  upsert: [WorkbookUpsertWithWhereUniqueWithoutGroupInput!]
+}
+
+input WorkbookUpdateOneRequiredWithoutWorkbookProblemNestedInput {
+  connect: WorkbookWhereUniqueInput
+  connectOrCreate: WorkbookCreateOrConnectWithoutWorkbookProblemInput
+  create: WorkbookCreateWithoutWorkbookProblemInput
+  update: WorkbookUpdateWithoutWorkbookProblemInput
+  upsert: WorkbookUpsertWithoutWorkbookProblemInput
+}
+
+input WorkbookUpdateOneWithoutSubmissionNestedInput {
+  connect: WorkbookWhereUniqueInput
+  connectOrCreate: WorkbookCreateOrConnectWithoutSubmissionInput
+  create: WorkbookCreateWithoutSubmissionInput
+  delete: Boolean
+  disconnect: Boolean
+  update: WorkbookUpdateWithoutSubmissionInput
+  upsert: WorkbookUpsertWithoutSubmissionInput
+}
+
+input WorkbookUpdateWithWhereUniqueWithoutCreatedByInput {
+  data: WorkbookUpdateWithoutCreatedByInput!
+  where: WorkbookWhereUniqueInput!
+}
+
+input WorkbookUpdateWithWhereUniqueWithoutGroupInput {
+  data: WorkbookUpdateWithoutGroupInput!
+  where: WorkbookWhereUniqueInput!
+}
+
+input WorkbookUpdateWithoutCreatedByInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  description: StringFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutWorkbookNestedInput
+  isVisible: BoolFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutWorkbookNestedInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  workbookProblem: WorkbookProblemUpdateManyWithoutWorkbookNestedInput
+}
+
+input WorkbookUpdateWithoutGroupInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutWorkbookNestedInput
+  description: StringFieldUpdateOperationsInput
+  isVisible: BoolFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutWorkbookNestedInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  workbookProblem: WorkbookProblemUpdateManyWithoutWorkbookNestedInput
+}
+
+input WorkbookUpdateWithoutSubmissionInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutWorkbookNestedInput
+  description: StringFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutWorkbookNestedInput
+  isVisible: BoolFieldUpdateOperationsInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+  workbookProblem: WorkbookProblemUpdateManyWithoutWorkbookNestedInput
+}
+
+input WorkbookUpdateWithoutWorkbookProblemInput {
+  createTime: DateTimeFieldUpdateOperationsInput
+  createdBy: UserUpdateOneRequiredWithoutWorkbookNestedInput
+  description: StringFieldUpdateOperationsInput
+  group: GroupUpdateOneRequiredWithoutWorkbookNestedInput
+  isVisible: BoolFieldUpdateOperationsInput
+  submission: SubmissionUpdateManyWithoutWorkbookNestedInput
+  title: StringFieldUpdateOperationsInput
+  updateTime: DateTimeFieldUpdateOperationsInput
+}
+
+input WorkbookUpsertWithWhereUniqueWithoutCreatedByInput {
+  create: WorkbookCreateWithoutCreatedByInput!
+  update: WorkbookUpdateWithoutCreatedByInput!
+  where: WorkbookWhereUniqueInput!
+}
+
+input WorkbookUpsertWithWhereUniqueWithoutGroupInput {
+  create: WorkbookCreateWithoutGroupInput!
+  update: WorkbookUpdateWithoutGroupInput!
+  where: WorkbookWhereUniqueInput!
+}
+
+input WorkbookUpsertWithoutSubmissionInput {
+  create: WorkbookCreateWithoutSubmissionInput!
+  update: WorkbookUpdateWithoutSubmissionInput!
+}
+
+input WorkbookUpsertWithoutWorkbookProblemInput {
+  create: WorkbookCreateWithoutWorkbookProblemInput!
+  update: WorkbookUpdateWithoutWorkbookProblemInput!
+}
+
+input WorkbookWhereUniqueInput {
+  id: Int
+}

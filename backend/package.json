@@ -61,6 +61,7 @@
     "@types/supertest": "^2.0.12",
     "chai": "^4.3.7",
     "chai-as-promised": "^7.1.1",
+    "graphql-type-json": "^0.3.2",
     "mocha": "^10.2.0",
     "prisma": "^4.11.0",
     "prisma-nestjs-graphql": "^17.1.0",
