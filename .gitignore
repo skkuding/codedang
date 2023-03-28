@@ -79,5 +79,6 @@ docs/.vitepress/cache/
 thunderActivity.json
 thunderEnvironment.json
 
-# Prisma NestJS GraphQL Generator
+# NestJS & GraphQL
 @generated/
+backend/schema.gql
