@@ -295,7 +295,7 @@ describe('GroupService', () => {
 
       //when
       await expect(service.leaveGroup(userId, groupId)).to.be.rejectedWith(
-        Error
+        PrismaClientKnownRequestError
       )
     })
   })
