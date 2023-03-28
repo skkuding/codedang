@@ -960,11 +960,11 @@
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "f8458b9c-c963-421d-9b18-5d2c187f6924",
     "name": "200: OK",
-    "url": "/group/1/workbook/1",
+    "url": "/workbook/1",
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-02-01T07:05:06.328Z",
-    "modified": "2023-02-01T07:16:31.063Z",
+    "modified": "2023-03-23T08:32:35.585Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -984,43 +984,7 @@
         "type": "res-body",
         "custom": "",
         "action": "contains",
-        "value": "\"createdById\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"groupId\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
         "value": "\"title\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"description\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"visible\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"createTime\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"updateTime\""
       }
     ]
   },
