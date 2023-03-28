@@ -10,16 +10,16 @@ import * as proxyquire from 'proxyquire'
 import { type Cache } from 'cache-manager'
 import { type User } from '@prisma/client'
 
-import { UserService } from '~/user/user.service'
-import { PrismaService } from '~/prisma/prisma.service'
+import { UserService } from '@client/user/user.service'
+import { PrismaService } from '@client/prisma/prisma.service'
 
 import {
   InvalidJwtTokenException,
   InvalidUserException
-} from '~/common/exception/business.exception'
-import { EmailService } from '~/email/email.service'
+} from '@client/common/exception/business.exception'
+import { EmailService } from '@client/email/email.service'
 import { MailerService } from '@nestjs-modules/mailer'
-import { GroupService } from '~/group/group.service'
+import { GroupService } from '@client/group/group.service'
 
 describe('AuthService', () => {
   let service

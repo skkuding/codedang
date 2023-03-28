@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { fake } from 'sinon'
-import { PrismaService } from '~/prisma/prisma.service'
+import { PrismaService } from '@client/prisma/prisma.service'
 import { GroupService } from './group.service'
 
 const mockPrismaService = {

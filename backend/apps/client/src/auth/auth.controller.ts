@@ -20,7 +20,7 @@ import { REFRESH_TOKEN_COOKIE_OPTIONS, AUTH_TYPE } from '../common/constants'
 import { LoginUserDto } from './dto/login-user.dto'
 import { type AuthenticatedRequest } from './interface/authenticated-request.interface'
 import { type JwtTokens } from './interface/jwt.interface'
-import { AuthNotNeeded } from '~/common/decorator/auth-ignore.decorator'
+import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
 
 @Controller('auth')
 export class AuthController {

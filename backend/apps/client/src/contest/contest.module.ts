@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
-import { GroupModule } from '~/group/group.module'
-import { UserModule } from '~/user/user.module'
+import { GroupModule } from '@client/group/group.module'
+import { UserModule } from '@client/user/user.module'
 import {
   ContestAdminController,
   ContestPublicizingRequestAdminController,

@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
-import { OPEN_SPACE_ID } from '~/common/constants'
-import { type PaginationDto } from '~/common/dto/pagination.dto'
+import { OPEN_SPACE_ID } from '@client/common/constants'
+import { type PaginationDto } from '@client/common/dto/pagination.dto'
 import {
   ForbiddenAccessException,
   EntityNotExistException
-} from '~/common/exception/business.exception'
-import { ContestService } from '~/contest/contest.service'
-import { WorkbookService } from '~/workbook/workbook.service'
+} from '@client/common/exception/business.exception'
+import { ContestService } from '@client/contest/contest.service'
+import { WorkbookService } from '@client/workbook/workbook.service'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'

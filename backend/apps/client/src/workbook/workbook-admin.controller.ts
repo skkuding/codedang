@@ -16,12 +16,12 @@ import {
 import { WorkbookService } from './workbook.service'
 import { type CreateWorkbookDto } from './dto/create-workbook.dto'
 import { type UpdateWorkbookDto } from './dto/update-workbook.dto'
-import { EntityNotExistException } from '~/common/exception/business.exception'
-import { GroupLeaderGuard } from '~/group/guard/group-leader.guard'
-import { RolesGuard } from '~/user/guard/roles.guard'
+import { EntityNotExistException } from '@client/common/exception/business.exception'
+import { GroupLeaderGuard } from '@client/group/guard/group-leader.guard'
+import { RolesGuard } from '@client/user/guard/roles.guard'
 import { type Workbook } from '@prisma/client'
-import { type AuthenticatedRequest } from '~/auth/interface/authenticated-request.interface'
-import { CursorValidationPipe } from '~/common/pipe/cursor-validation.pipe'
+import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import { CursorValidationPipe } from '@client/common/pipe/cursor-validation.pipe'
 
 @Controller('admin/group/:groupId/workbook')
 @UseGuards(RolesGuard, GroupLeaderGuard)

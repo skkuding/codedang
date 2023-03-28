@@ -10,11 +10,11 @@ import {
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
 import { type Notice } from '@prisma/client'
-import { AuthNotNeeded } from '~/common/decorator/auth-ignore.decorator'
-import { RolesGuard } from '~/user/guard/roles.guard'
-import { GroupMemberGuard } from '~/group/guard/group-member.guard'
+import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
+import { RolesGuard } from '@client/user/guard/roles.guard'
+import { GroupMemberGuard } from '@client/group/guard/group-member.guard'
 import { type UserNotice } from './interface/user-notice.interface'
-import { EntityNotExistException } from '~/common/exception/business.exception'
+import { EntityNotExistException } from '@client/common/exception/business.exception'
 import { CursorValidationPipe } from '../common/pipe/cursor-validation.pipe'
 
 @Controller('notice')

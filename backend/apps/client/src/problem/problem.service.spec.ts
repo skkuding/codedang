@@ -13,21 +13,21 @@ import {
   problems,
   workbookProblems
 } from './mock/problem.mock'
-import { PrismaService } from '~/prisma/prisma.service'
-import { type PaginationDto } from '~/common/dto/pagination.dto'
+import { PrismaService } from '@client/prisma/prisma.service'
+import { type PaginationDto } from '@client/common/dto/pagination.dto'
 import { plainToInstance } from 'class-transformer'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
-import { ContestService } from '~/contest/contest.service'
-import { GroupService } from '~/group/group.service'
+import { ContestService } from '@client/contest/contest.service'
+import { GroupService } from '@client/group/group.service'
 import { CACHE_MANAGER } from '@nestjs/common'
 import {
   EntityNotExistException,
   ForbiddenAccessException
-} from '~/common/exception/business.exception'
+} from '@client/common/exception/business.exception'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
-import { WorkbookService } from '~/workbook/workbook.service'
+import { WorkbookService } from '@client/workbook/workbook.service'
 
 const db = {
   problem: {

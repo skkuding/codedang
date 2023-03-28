@@ -5,8 +5,8 @@ import {
   GroupNoticeAdminController
 } from './notice-admin.controller'
 import { NoticeService } from './notice.service'
-import { GroupModule } from '~/group/group.module'
-import { UserModule } from '~/user/user.module'
+import { GroupModule } from '@client/group/group.module'
+import { UserModule } from '@client/user/user.module'
 
 @Module({
   imports: [UserModule, GroupModule],

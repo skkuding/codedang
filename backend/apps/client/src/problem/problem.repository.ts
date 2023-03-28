@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { type Problem, type WorkbookProblem } from '@prisma/client'
-import { OPEN_SPACE_ID } from '~/common/constants'
-import { type PaginationDto } from '~/common/dto/pagination.dto'
-import { EntityNotExistException } from '~/common/exception/business.exception'
-import { PrismaService } from '~/prisma/prisma.service'
+import { OPEN_SPACE_ID } from '@client/common/constants'
+import { type PaginationDto } from '@client/common/dto/pagination.dto'
+import { EntityNotExistException } from '@client/common/exception/business.exception'
+import { PrismaService } from '@client/prisma/prisma.service'
 
 /**
  * repository에서는 partial entity를 반환합니다.

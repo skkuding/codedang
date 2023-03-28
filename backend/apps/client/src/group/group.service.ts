@@ -9,12 +9,12 @@ import { Group, UserGroup } from '@prisma/client'
 import {
   ActionNotAllowedException,
   EntityNotExistException
-} from '~/common/exception/business.exception'
-import { PrismaService } from '~/prisma/prisma.service'
+} from '@client/common/exception/business.exception'
+import { PrismaService } from '@client/prisma/prisma.service'
 import { UserGroupData } from './interface/user-group-data.interface'
 import { GroupData } from './interface/group-data.interface'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '../common/constants'
-import { joinGroupCacheKey } from '~/common/cache/keys'
+import { joinGroupCacheKey } from '@client/common/cache/keys'
 import { Cache } from 'cache-manager'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 

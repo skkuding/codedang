@@ -1,12 +1,12 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
-import { EntityNotExistException } from '~/common/exception/business.exception'
-import { PrismaService } from '~/prisma/prisma.service'
+import { EntityNotExistException } from '@client/common/exception/business.exception'
+import { PrismaService } from '@client/prisma/prisma.service'
 import { WorkbookService } from './workbook.service'
 import { stub } from 'sinon'
 import { type Workbook } from '@prisma/client'
-import { OPEN_SPACE_ID } from '~/common/constants'
+import { OPEN_SPACE_ID } from '@client/common/constants'
 
 const DATETIME = new Date(2022, 8, 8)
 const DATETIME_TOMORROW = new Date()

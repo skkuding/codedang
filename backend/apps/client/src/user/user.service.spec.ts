@@ -4,25 +4,25 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub, spy, fake, type SinonStub, type SinonSpy } from 'sinon'
 import { type User, type UserProfile } from '@prisma/client'
-import { emailAuthenticationPinCacheKey } from '~/common/cache/keys'
+import { emailAuthenticationPinCacheKey } from '@client/common/cache/keys'
 import {
   EntityNotExistException,
   InvalidJwtTokenException,
   InvalidPinException,
   InvalidUserException,
   UnprocessableDataException
-} from '~/common/exception/business.exception'
-import { EmailService } from '~/email/email.service'
-import { PrismaService } from '~/prisma/prisma.service'
+} from '@client/common/exception/business.exception'
+import { EmailService } from '@client/email/email.service'
+import { PrismaService } from '@client/prisma/prisma.service'
 import { UserService } from './user.service'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { type Request } from 'express'
-import { GroupService } from '~/group/group.service'
-import { AuthService } from '~/auth/auth.service'
+import { GroupService } from '@client/group/group.service'
+import { AuthService } from '@client/auth/auth.service'
 import { ExtractJwt } from 'passport-jwt'
 import { Exception } from 'handlebars'
-import { type AuthenticatedRequest } from '~/auth/interface/authenticated-request.interface'
+import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 
 const ID = 1
 const EMAIL_ADDRESS = 'email@email.com'

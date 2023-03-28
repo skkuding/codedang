@@ -1,7 +1,7 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { GroupService } from '~/group/group.service'
-import { UserService } from '~/user/user.service'
+import { GroupService } from '@client/group/group.service'
+import { UserService } from '@client/user/user.service'
 import {
   WorkbookController,
   GroupWorkbookController

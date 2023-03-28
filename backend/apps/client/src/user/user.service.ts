@@ -1,9 +1,9 @@
 import { CACHE_MANAGER, forwardRef, Inject, Injectable } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
-import { PrismaService } from '~/prisma/prisma.service'
-import { encrypt } from '~/common/hash'
-import { emailAuthenticationPinCacheKey } from '~/common/cache/keys'
+import { PrismaService } from '@client/prisma/prisma.service'
+import { encrypt } from '@client/common/hash'
+import { emailAuthenticationPinCacheKey } from '@client/common/cache/keys'
 import { type UserEmailDto } from './dto/userEmail.dto'
 import { type NewPasswordDto } from './dto/newPassword.dto'
 import { type User, type UserProfile } from '@prisma/client'
@@ -13,8 +13,8 @@ import {
   InvalidPinException,
   InvalidUserException,
   UnprocessableDataException
-} from '~/common/exception/business.exception'
-import { EmailService } from '~/email/email.service'
+} from '@client/common/exception/business.exception'
+import { EmailService } from '@client/email/email.service'
 import { type EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import { EMAIL_AUTH_EXPIRE_TIME } from '../common/constants'
@@ -26,15 +26,15 @@ import {
   type EmailAuthJwtObject
 } from './interface/jwt.interface'
 import { type CreateUserProfileData } from './interface/create-userprofile.interface'
-import { GroupService } from '~/group/group.service'
-import { type UserGroupData } from '~/group/interface/user-group-data.interface'
+import { GroupService } from '@client/group/group.service'
+import { type UserGroupData } from '@client/group/interface/user-group-data.interface'
 import { type WithdrawalDto } from './dto/withdrawal.dto'
-import { AuthService } from '~/auth/auth.service'
+import { AuthService } from '@client/auth/auth.service'
 import { type GetUserProfileDto } from './dto/get-userprofile.dto'
 import { type UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
 import { type UpdateUserEmailDto } from './dto/update-user-email.dto'
 import { type SignUpDto } from './dto/signup.dto'
-import { type AuthenticatedRequest } from '~/auth/interface/authenticated-request.interface'
+import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 
 @Injectable()
 export class UserService {

@@ -23,13 +23,13 @@ import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
-} from '~/common/exception/business.exception'
-import { type AuthenticatedRequest } from '~/auth/interface/authenticated-request.interface'
-import { GroupLeaderGuard } from '~/group/guard/group-leader.guard'
-import { RolesGuard } from '~/user/guard/roles.guard'
-import { Roles } from '~/common/decorator/roles.decorator'
+} from '@client/common/exception/business.exception'
+import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import { GroupLeaderGuard } from '@client/group/guard/group-leader.guard'
+import { RolesGuard } from '@client/user/guard/roles.guard'
+import { Roles } from '@client/common/decorator/roles.decorator'
 import { type RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
-import { CursorValidationPipe } from '~/common/pipe/cursor-validation.pipe'
+import { CursorValidationPipe } from '@client/common/pipe/cursor-validation.pipe'
 
 @Controller('admin/contest')
 @UseGuards(RolesGuard)

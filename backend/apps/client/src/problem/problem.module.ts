@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common'
-import { ContestModule } from '~/contest/contest.module'
-import { GroupModule } from '~/group/group.module'
-import { UserModule } from '~/user/user.module'
-import { WorkbookModule } from '~/workbook/workbook.module'
+import { ContestModule } from '@client/contest/contest.module'
+import { GroupModule } from '@client/group/group.module'
+import { UserModule } from '@client/user/user.module'
+import { WorkbookModule } from '@client/workbook/workbook.module'
 import {
   GroupContestProblemController,
   GroupWorkbookProblemController,

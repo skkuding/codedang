@@ -10,13 +10,13 @@ import {
   Query,
   UseGuards
 } from '@nestjs/common'
-import { AuthNotNeeded } from '~/common/decorator/auth-ignore.decorator'
+import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
 import {
   EntityNotExistException,
   ForbiddenAccessException
-} from '~/common/exception/business.exception'
-import { GroupMemberGuard } from '~/group/guard/group-member.guard'
-import { RolesGuard } from '~/user/guard/roles.guard'
+} from '@client/common/exception/business.exception'
+import { GroupMemberGuard } from '@client/group/guard/group-member.guard'
+import { RolesGuard } from '@client/user/guard/roles.guard'
 import { type PaginationDto } from '../common/dto/pagination.dto'
 import { type RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { type RelatedProblemsResponseDto } from './dto/related-problems.response.dto'

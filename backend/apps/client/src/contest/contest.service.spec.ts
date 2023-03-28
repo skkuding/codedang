@@ -11,15 +11,15 @@ import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
-} from '~/common/exception/business.exception'
-import { GroupService } from '~/group/group.service'
-import { PrismaService } from '~/prisma/prisma.service'
+} from '@client/common/exception/business.exception'
+import { GroupService } from '@client/group/group.service'
+import { PrismaService } from '@client/prisma/prisma.service'
 import { ContestService } from './contest.service'
 import { type CreateContestDto } from './dto/create-contest.dto'
 import { type UpdateContestDto } from './dto/update-contest.dto'
 import { type Cache } from 'cache-manager'
 import { CACHE_MANAGER } from '@nestjs/common'
-import { contestPublicizingRequestKey } from '~/common/cache/keys'
+import { contestPublicizingRequestKey } from '@client/common/cache/keys'
 
 const contestId = 1
 const userId = 1

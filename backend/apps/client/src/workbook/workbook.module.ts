@@ -4,8 +4,8 @@ import {
   WorkbookController
 } from './workbook.controller'
 import { WorkbookService } from './workbook.service'
-import { UserModule } from '~/user/user.module'
-import { GroupModule } from '~/group/group.module'
+import { UserModule } from '@client/user/user.module'
+import { GroupModule } from '@client/group/group.module'
 import { WorkbookAdminController } from './workbook-admin.controller'
 
 @Module({

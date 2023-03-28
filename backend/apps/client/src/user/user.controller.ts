@@ -12,7 +12,7 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { type UserProfile, type User } from '@prisma/client'
-import { type AuthenticatedRequest } from '~/auth/interface/authenticated-request.interface'
+import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import {
   EntityNotExistException,
   InvalidUserException,
@@ -20,7 +20,7 @@ import {
   EmailTransmissionFailedException,
   InvalidJwtTokenException,
   InvalidPinException
-} from '~/common/exception/business.exception'
+} from '@client/common/exception/business.exception'
 import { type GetUserProfileDto } from './dto/get-userprofile.dto'
 import { type SignUpDto } from './dto/signup.dto'
 import { type UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'

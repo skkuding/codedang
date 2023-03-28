@@ -6,8 +6,8 @@ import {
   NoticeAdminController
 } from './notice-admin.controller'
 import { NoticeService } from './notice.service'
-import { GroupService } from '~/group/group.service'
-import { UserService } from '~/user/user.service'
+import { GroupService } from '@client/group/group.service'
+import { UserService } from '@client/user/user.service'
 
 describe('NoticeController', () => {
   let controller: NoticeController

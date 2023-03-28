@@ -15,13 +15,13 @@ import {
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
 import { type Notice, Role } from '@prisma/client'
-import { GroupLeaderGuard } from '~/group/guard/group-leader.guard'
-import { type AuthenticatedRequest } from '~/auth/interface/authenticated-request.interface'
+import { GroupLeaderGuard } from '@client/group/guard/group-leader.guard'
+import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { CreateNoticeDto } from './dto/create-notice.dto'
-import { EntityNotExistException } from '~/common/exception/business.exception'
-import { Roles } from '~/common/decorator/roles.decorator'
-import { RolesGuard } from '~/user/guard/roles.guard'
+import { EntityNotExistException } from '@client/common/exception/business.exception'
+import { Roles } from '@client/common/decorator/roles.decorator'
+import { RolesGuard } from '@client/user/guard/roles.guard'
 import { CursorValidationPipe } from '../common/pipe/cursor-validation.pipe'
 
 @Controller('admin/notice')

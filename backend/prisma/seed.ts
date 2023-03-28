@@ -1,19 +1,19 @@
 import {
   PrismaClient,
-  type Group,
   Role,
+  Level,
+  Language,
+  ResultStatus,
+  type Group,
   type User,
   type Problem,
-  Level,
   type Tag,
-  Language,
   type Contest,
   type Workbook,
-  ResultStatus,
   type Submission,
   type ProblemTestcase
 } from '@prisma/client'
-import { encrypt } from '~/common/hash'
+import { encrypt } from '@client/common/hash'
 import * as dayjs from 'dayjs'
 
 const prisma = new PrismaClient()

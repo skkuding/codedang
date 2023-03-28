@@ -1,13 +1,13 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import { PrismaService } from '~/prisma/prisma.service'
+import { PrismaService } from '@client/prisma/prisma.service'
 import { type Group, type Notice } from '@prisma/client'
 import { NoticeService } from './notice.service'
 import { type CreateNoticeDto } from './dto/create-notice.dto'
 import { type UpdateNoticeDto } from './dto/update-notice.dto'
-import { EntityNotExistException } from '~/common/exception/business.exception'
-import { GroupService } from '~/group/group.service'
+import { EntityNotExistException } from '@client/common/exception/business.exception'
+import { GroupService } from '@client/group/group.service'
 import { CACHE_MANAGER } from '@nestjs/common'
 
 const noticeId = 2

@@ -1,6 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { UserService } from '~/user/user.service'
+import { UserService } from '@client/user/user.service'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 
