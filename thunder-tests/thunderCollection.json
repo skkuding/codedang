@@ -140,7 +140,7 @@
       },
       {
         "_id": "f8458b9c-c963-421d-9b18-5d2c187f6924",
-        "name": "Get One Open Space Workbook",
+        "name": "Get One Workbook",
         "containerId": "b31b0cce-32af-4db8-b281-76478bf9e920",
         "created": "2023-01-30T07:55:39.530Z",
         "sortNum": 185000
