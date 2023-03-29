@@ -95,7 +95,7 @@ export class AuthService {
     await this.cacheManager.set(
       refreshTokenCacheKey(userId),
       refreshToken,
-      REFRESH_TOKEN_EXPIRE_TIME
+      REFRESH_TOKEN_EXPIRE_TIME * 1000 // milliseconds
     )
 
     return { accessToken, refreshToken }
