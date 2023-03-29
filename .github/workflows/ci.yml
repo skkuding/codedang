@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, edited, synchronize, reopened]
 
 jobs:
   build:
@@ -60,6 +61,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Lint pull request title
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "${{ github.event.pull_request.title }}" | pnpm commitlint --verbose
+
       - name: Lint
         run: pnpm lint
 
@@ -109,6 +114,9 @@ jobs:
             --to-schema-datamodel ./prisma/schema.prisma \
             --shadow-database-url postgresql://postgres:1234@127.0.0.1:5432/skkuding?schema=public \
             --exit-code
+
+      - name: Check types in Typescript
+        run: pnpm --filter backend exec tsc --noEmit
 
       - name: Test
         run: pnpm -r test

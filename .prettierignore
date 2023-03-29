@@ -2,3 +2,5 @@ dist/
 node_modules/
 *.md
 pnpm-lock.yaml
+.pnpm-store/
+thunder-tests/

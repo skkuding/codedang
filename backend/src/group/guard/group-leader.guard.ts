@@ -1,6 +1,10 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
-import { AuthenticatedUser } from 'src/auth/class/authenticated-user.class'
-import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import {
+  type CanActivate,
+  type ExecutionContext,
+  Injectable
+} from '@nestjs/common'
+import { type AuthenticatedUser } from 'src/auth/class/authenticated-user.class'
+import { type AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { GroupService } from '../group.service'
 
 @Injectable()
@@ -18,13 +22,8 @@ export class GroupLeaderGuard implements CanActivate {
     const groupId: number = parseInt(request.params.groupId)
     const userId: number = request.user.id
 
-    const userGroupMembershipInfo =
-      await this.groupService.getUserGroupMembershipInfo(userId, groupId)
-
-    const isGroupLeader: boolean =
-      userGroupMembershipInfo &&
-      userGroupMembershipInfo.isRegistered &&
-      userGroupMembershipInfo.isGroupLeader
+    const userGroup = await this.groupService.getUserGroup(userId, groupId)
+    const isGroupLeader: boolean = userGroup && userGroup.isGroupLeader
 
     if (isGroupLeader) {
       return true

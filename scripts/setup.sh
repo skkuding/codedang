@@ -36,8 +36,11 @@ then
   docker-compose up -d
 fi
 
-jwt_secret=$(echo -n head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum)
-echo "JWT_SECRET=$jwt_secret" >> backend/.env
+echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum | head -c 64)" >> backend/.env
+
+# Generate thunder client environment
+# Since environment variable changes frequently, let git ignore actual environment variables
+cp thunder-tests/thunderEnvironmentBase.json thunder-tests/thunderEnvironment.json
 
 # Install pnpm
 pnpm --version || sudo corepack enable

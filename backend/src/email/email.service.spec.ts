@@ -1,5 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer'
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EmailTransmissionFailedException } from 'src/common/exception/business.exception'
@@ -55,7 +55,7 @@ describe('EmailService', () => {
 
   it('Email transmission success', async () => {
     MailerMock.sendMail.resolves(expectedEmailInfo)
-    await service.sendPasswordResetPin(recipient, 'PIN')
+    await service.sendEmailAuthenticationPin(recipient, 'PIN')
 
     expect(MailerMock.sendMail.calledOnce).to.be.true
   })
@@ -65,7 +65,7 @@ describe('EmailService', () => {
     MailerMock.sendMail.resolves(Promise.resolve(expectedEmailInfo))
 
     await expect(
-      service.sendPasswordResetPin(recipient, 'PIN')
+      service.sendEmailAuthenticationPin(recipient, 'PIN')
     ).to.be.rejectedWith(EmailTransmissionFailedException)
   })
 })
