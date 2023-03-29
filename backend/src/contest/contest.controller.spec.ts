@@ -1,17 +1,17 @@
 import { ConfigService } from '@nestjs/config'
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { PublicContestController } from './contest.controller'
+import { ContestController } from './contest.controller'
 import { ContestService } from './contest.service'
 
-describe('PublicContestController', () => {
-  let controller: PublicContestController
+describe('ContestController', () => {
+  let controller: ContestController
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [PublicContestController],
+      controllers: [ContestController],
       providers: [
         ConfigService,
         { provide: GroupService, useValue: {} },
@@ -20,7 +20,7 @@ describe('PublicContestController', () => {
       ]
     }).compile()
 
-    controller = module.get<PublicContestController>(PublicContestController)
+    controller = module.get<ContestController>(ContestController)
   })
 
   it('should be defined', () => {

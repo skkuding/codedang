@@ -9,17 +9,17 @@ import {
   InternalServerErrorException
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
-import { Notice } from '@prisma/client'
+import { type Notice } from '@prisma/client'
 import { AuthNotNeeded } from 'src/common/decorator/auth-ignore.decorator'
 import { RolesGuard } from 'src/user/guard/roles.guard'
 import { GroupMemberGuard } from 'src/group/guard/group-member.guard'
-import { UserNotice } from './interface/user-notice.interface'
+import { type UserNotice } from './interface/user-notice.interface'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { CursorValidationPipe } from '../common/pipe/cursor-validation.pipe'
 
 @Controller('notice')
 @AuthNotNeeded()
-export class PublicNoticeController {
+export class NoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Get()
@@ -27,13 +27,13 @@ export class PublicNoticeController {
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getNoticesByGroupId(1, cursor, take)
+    return await this.noticeService.getNoticesByGroupId(cursor, take)
   }
 
   @Get(':id')
   async getNotice(@Param('id', ParseIntPipe) id: number): Promise<UserNotice> {
     try {
-      return await this.noticeService.getNotice(id, 1)
+      return await this.noticeService.getNotice(id)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -54,13 +54,13 @@ export class GroupNoticeController {
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getNoticesByGroupId(groupId, cursor, take)
+    return await this.noticeService.getNoticesByGroupId(cursor, take, groupId)
   }
 
   @Get(':id')
   async getNotice(
-    @Param('id', ParseIntPipe) id: number,
-    @Param('groupId', ParseIntPipe) groupId: number
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Param('id', ParseIntPipe) id: number
   ): Promise<UserNotice> {
     try {
       return await this.noticeService.getNotice(id, groupId)

@@ -14,9 +14,9 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { NoticeService } from './notice.service'
-import { Notice, Role } from '@prisma/client'
+import { type Notice, Role } from '@prisma/client'
 import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
-import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { type AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { CreateNoticeDto } from './dto/create-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
@@ -35,7 +35,7 @@ export class NoticeAdminController {
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getAdminNotices(cursor, take)
+    return await this.noticeService.getAdminNoticesByGroupId(cursor, take)
   }
 }
 
@@ -52,9 +52,9 @@ export class GroupNoticeAdminController {
   ): Promise<Notice> {
     try {
       return await this.noticeService.createNotice(
+        createNoticeDto,
         req.user.id,
-        groupId,
-        createNoticeDto
+        groupId
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
@@ -71,9 +71,9 @@ export class GroupNoticeAdminController {
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Notice>[]> {
     return await this.noticeService.getAdminNoticesByGroupId(
-      groupId,
       cursor,
-      take
+      take,
+      groupId
     )
   }
 

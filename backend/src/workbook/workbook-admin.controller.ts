@@ -14,13 +14,13 @@ import {
   UseGuards
 } from '@nestjs/common'
 import { WorkbookService } from './workbook.service'
-import { CreateWorkbookDto } from './dto/create-workbook.dto'
-import { UpdateWorkbookDto } from './dto/update-workbook.dto'
+import { type CreateWorkbookDto } from './dto/create-workbook.dto'
+import { type UpdateWorkbookDto } from './dto/update-workbook.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupLeaderGuard } from 'src/group/guard/group-leader.guard'
 import { RolesGuard } from 'src/user/guard/roles.guard'
-import { Workbook } from '@prisma/client'
-import { AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
+import { type Workbook } from '@prisma/client'
+import { type AuthenticatedRequest } from 'src/auth/interface/authenticated-request.interface'
 import { CursorValidationPipe } from 'src/common/pipe/cursor-validation.pipe'
 
 @Controller('admin/group/:groupId/workbook')
@@ -35,11 +35,10 @@ export class WorkbookAdminController {
     @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Workbook>[]> {
     try {
-      return await this.workbookService.getWorkbooksByGroupId(
-        groupId,
-        true,
+      return await this.workbookService.getAdminWorkbooksByGroupId(
         cursor,
-        take
+        take,
+        groupId
       )
     } catch (error) {
       throw new InternalServerErrorException()
@@ -51,7 +50,7 @@ export class WorkbookAdminController {
     @Param('workbookId', ParseIntPipe) workbookId
   ): Promise<Partial<Workbook>> {
     try {
-      return await this.workbookService.getWorkbookById(workbookId, true)
+      return await this.workbookService.getAdminWorkbookById(workbookId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -63,15 +62,15 @@ export class WorkbookAdminController {
 
   @Post()
   async createWorkbook(
+    @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId,
-    @Body() createWorkbookDto: CreateWorkbookDto,
-    @Req() req: AuthenticatedRequest
+    @Body() createWorkbookDto: CreateWorkbookDto
   ): Promise<Workbook> {
     try {
       return await this.workbookService.createWorkbook(
+        createWorkbookDto,
         req.user.id,
-        groupId,
-        createWorkbookDto
+        groupId
       )
     } catch (error) {
       throw new InternalServerErrorException()

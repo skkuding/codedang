@@ -6,9 +6,9 @@ import { WorkbookModule } from 'src/workbook/workbook.module'
 import {
   GroupContestProblemController,
   GroupWorkbookProblemController,
-  PublicContestProblemController,
-  PublicProblemController,
-  PublicWorkbookProblemController
+  ContestProblemController,
+  ProblemController,
+  WorkbookProblemController
 } from './problem.controller'
 import { ProblemRepository } from './problem.repository'
 import {
@@ -20,9 +20,9 @@ import {
 @Module({
   imports: [GroupModule, UserModule, ContestModule, WorkbookModule],
   controllers: [
-    PublicProblemController,
-    PublicContestProblemController,
-    PublicWorkbookProblemController,
+    ProblemController,
+    ContestProblemController,
+    WorkbookProblemController,
     GroupContestProblemController,
     GroupWorkbookProblemController
   ],
