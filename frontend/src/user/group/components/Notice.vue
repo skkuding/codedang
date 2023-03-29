@@ -23,12 +23,9 @@ interface Item {
 const items = ref<Item[]>([])
 
 axios
-  .get(`/api/group/${props.id}/notice?offset=1`, {
-    headers: {
-      Authorization:
-        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJ1c2VybmFtZSI6InVzZXIxMCIsImlhdCI6MTY3NzEzOTM2OCwiZXhwIjoxNjc3MTQxMTY4LCJpc3MiOiJza2t1ZGluZy5kZXYifQ.65trJwV5MkvhD30dc30Y2HiTJazX9_t4G0dZnKeWuOU'
-      // 임시 토큰
-    }
+  .get(`/api/group/${props.id}/notice?cursor=1&take=10`, {
+    // TODO: cursor를 variable로
+    headers: {}
   })
   .then((res) => {
     for (let i = 0; i < res.data.length; i++) {
@@ -45,23 +42,8 @@ const shownPages = ref(items.value.length)
 const currentPage = ref(1)
 const currentItems = computed(() => items.value)
 
-// 추후 api 연결
 const filter = () => {
-  // const total = []
-  // for (const item of items) {
-  //   total.push(
-  //     ...item.filter(
-  //       (value) =>
-  //         value.title.includes(keyword) || value.createTime.includes(keyword)
-  //     )
-  //   )
-  // }
-  // shownItems.value.splice(0, shownItems.value.length)
-  // while (total.length > 0) {
-  //   shownItems.value.push(total.splice(0, 3))
-  // }
-  // shownPages.value = shownItems.value.length
-  // currentPage.value = 1
+  // TODO: 추후 api 연결
 }
 
 const changeItems = (page: number) => {
