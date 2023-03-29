@@ -1,25 +1,26 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
-import { Contest } from '@prisma/client'
+import { type Contest } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { contestPublicizingRequestKey } from 'src/common/cache/keys'
-import { PUBLICIZING_REQUEST_EXPIRE_TIME } from 'src/common/constants'
+import {
+  OPEN_SPACE_ID,
+  PUBLICIZING_REQUEST_EXPIRE_TIME
+} from 'src/common/constants'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
-import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { CreateContestDto } from './dto/create-contest.dto'
-import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
-import { UpdateContestDto } from './dto/update-contest.dto'
-import { StoredPublicizingRequest } from './interface/publicizing-request.interface'
+import { type CreateContestDto } from './dto/create-contest.dto'
+import { type RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
+import { type UpdateContestDto } from './dto/update-contest.dto'
+import { type StoredPublicizingRequest } from './interface/publicizing-request.interface'
 
 @Injectable()
 export class ContestService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly groupService: GroupService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -32,8 +33,8 @@ export class ContestService {
   }
 
   async createContest(
-    userId: number,
-    contestDto: CreateContestDto
+    contestDto: CreateContestDto,
+    userId: number
   ): Promise<Contest> {
     if (!this.isValidPeriod(contestDto.startTime, contestDto.endTime)) {
       throw new UnprocessableDataException(
@@ -119,16 +120,29 @@ export class ContestService {
     })
   }
 
-  async getContests(
-    userId: number,
-    groupId: number
-  ): Promise<{
-    registeredOngoing?: Partial<Contest>[]
-    registeredUpcoming?: Partial<Contest>[]
-    ongoing: Partial<Contest>[]
-    upcoming: Partial<Contest>[]
-    finished: Partial<Contest>[]
-  }> {
+  async getContestsByGroupId<T extends number>(
+    userId?: T,
+    groupId?: number
+  ): Promise<
+    T extends undefined
+      ? {
+          ongoing: Partial<Contest>[]
+          upcoming: Partial<Contest>[]
+          finished: Partial<Contest>[]
+        }
+      : {
+          registeredOngoing: Partial<Contest>[]
+          registeredUpcoming: Partial<Contest>[]
+          ongoing: Partial<Contest>[]
+          upcoming: Partial<Contest>[]
+          finished: Partial<Contest>[]
+        }
+  >
+
+  async getContestsByGroupId(
+    userId: number = undefined,
+    groupId = OPEN_SPACE_ID
+  ) {
     if (userId === undefined) {
       const contests = await this.prisma.contest.findMany({
         where: {
@@ -172,7 +186,6 @@ export class ContestService {
         }
       })
     ).contest
-
     const registeredContestId = registeredContests.map((contest) => contest.id)
 
     const contests = await this.prisma.contest.findMany({
@@ -234,9 +247,9 @@ export class ContestService {
     return finishedContest
   }
 
-  async getContestDetailById(
-    groupId: number,
-    contestId: number
+  async getContest(
+    contestId: number,
+    groupId = OPEN_SPACE_ID
   ): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findFirst({
       where: {
@@ -257,16 +270,51 @@ export class ContestService {
     return contest
   }
 
-  async getAdminContests(): Promise<Partial<Contest>[]> {
+  async getAdminContests(
+    cursor: number,
+    take: number,
+    groupId = OPEN_SPACE_ID
+  ): Promise<Partial<Contest>[]> {
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
+    }
     return await this.prisma.contest.findMany({
-      where: {
-        groupId: 1
-      },
-      select: { ...this.contestSelectOption, config: true }
+      where: { groupId },
+      select: { ...this.contestSelectOption, config: true },
+      skip: skip,
+      take: take,
+      cursor: {
+        id: cursor
+      }
     })
   }
 
-  async getAdminContestById(contestId: number): Promise<Partial<Contest>> {
+  async getAdminOngoingContests(
+    cursor: number,
+    take: number,
+    groupId = OPEN_SPACE_ID
+  ): Promise<Partial<Contest>[]> {
+    const now = new Date()
+    return await this.prisma.contest.findMany({
+      where: {
+        AND: [
+          { groupId: groupId },
+          { startTime: { lte: now } },
+          { endTime: { gte: now } }
+        ],
+        NOT: [{ id: cursor }]
+      },
+      select: this.contestSelectOption,
+      take: take,
+      cursor: {
+        id: cursor ? cursor : 1
+      }
+    })
+  }
+
+  async getAdminContest(contestId: number): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
       select: {
@@ -280,16 +328,7 @@ export class ContestService {
     return contest
   }
 
-  async getAdminContestsByGroupId(
-    groupId: number
-  ): Promise<Partial<Contest>[]> {
-    return await this.prisma.contest.findMany({
-      where: { groupId },
-      select: { ...this.contestSelectOption, config: true }
-    })
-  }
-
-  async createContestPublicizingRequest(userId: number, contestId: number) {
+  async createContestPublicizingRequest(contestId: number, userId: number) {
     const duplicateRequest = await this.cacheManager.get(
       contestPublicizingRequestKey(contestId)
     )
@@ -341,12 +380,12 @@ export class ContestService {
         id
       },
       data: {
-        groupId: 1
+        groupId: OPEN_SPACE_ID
       }
     })
   }
 
-  async createContestRecord(userId: number, contestId: number) {
+  async createContestRecord(contestId: number, userId: number) {
     const contest = await this.prisma.contest.findUnique({
       where: { id: contestId },
       select: { startTime: true, endTime: true }

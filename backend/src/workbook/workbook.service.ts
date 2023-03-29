@@ -1,48 +1,127 @@
 import { Injectable } from '@nestjs/common'
-import { Workbook } from '@prisma/client'
+import { type Workbook, type Problem } from '@prisma/client'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { CreateWorkbookDto } from './dto/create-workbook.dto'
-import { UpdateWorkbookDto } from './dto/update-workbook.dto'
+import { type CreateWorkbookDto } from './dto/create-workbook.dto'
+import { type UpdateWorkbookDto } from './dto/update-workbook.dto'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
+import { OPEN_SPACE_ID } from 'src/common/constants'
 
 @Injectable()
 export class WorkbookService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private prismaAdminFindWhereOption: object = { isVisible: true }
-
   async getWorkbooksByGroupId(
-    groupId: number,
-    isAdmin: boolean
+    cursor: number,
+    take: number,
+    groupId = OPEN_SPACE_ID
   ): Promise<Partial<Workbook>[]> {
-    const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
+    }
     const workbooks = await this.prisma.workbook.findMany({
       where: {
         groupId,
-        ...whereOption
+        isVisible: true
       },
-      select: { title: true, description: true, updateTime: true }
+      select: { id: true, title: true, description: true, updateTime: true },
+      skip: skip,
+      take: take,
+      cursor: {
+        id: cursor
+      }
+    })
+    return workbooks
+  }
+
+  async getAdminWorkbooksByGroupId(
+    cursor,
+    take,
+    groupId = OPEN_SPACE_ID
+  ): Promise<Partial<Workbook>[]> {
+    let skip = 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
+    }
+    const workbooks = await this.prisma.workbook.findMany({
+      where: { groupId },
+      select: { id: true, title: true, description: true, updateTime: true },
+      skip: skip,
+      take: take,
+      cursor: {
+        id: cursor
+      }
     })
     return workbooks
   }
 
   async getWorkbookById(
-    workbookId: number,
-    isAdmin: boolean
-  ): Promise<Workbook> {
-    const whereOption = isAdmin ? {} : this.prismaAdminFindWhereOption
+    workbookId: number
+  ): Promise<Partial<Workbook> & { problems: Partial<Problem>[] }> {
     const workbook = await this.prisma.workbook.findFirst({
-      where: { id: workbookId, ...whereOption },
+      where: { id: workbookId, isVisible: true },
+      select: { id: true, title: true },
+      rejectOnNotFound: () => new EntityNotExistException('workbook')
+    })
+
+    const rawProblems = await this.prisma.workbookProblem.findMany({
+      where: { workbookId },
+      select: {
+        problem: {
+          select: {
+            id: true,
+            title: true,
+            problemTag: {
+              select: {
+                tag: {
+                  select: {
+                    name: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+
+    const problems = rawProblems.map((x) => ({
+      id: x.problem.id,
+      title: x.problem.title,
+      tags: x.problem.problemTag.map((y) => y.tag.name)
+    }))
+
+    return {
+      ...workbook,
+      problems
+    }
+  }
+
+  async getAdminWorkbookById(workbookId: number): Promise<Partial<Workbook>> {
+    const workbook = await this.prisma.workbook.findFirst({
+      where: { id: workbookId },
+      select: {
+        id: true,
+        title: true,
+        createdBy: {
+          select: {
+            username: true
+          }
+        },
+        isVisible: true
+      },
       rejectOnNotFound: () => new EntityNotExistException('workbook')
     })
     return workbook
   }
 
   async createWorkbook(
+    createWorkbookDto: CreateWorkbookDto,
     userId: number,
-    groupId: number,
-    createWorkbookDto: CreateWorkbookDto
+    groupId = OPEN_SPACE_ID
   ): Promise<Workbook> {
     const newWorkbook = await this.prisma.workbook.create({
       data: {

@@ -1,20 +1,19 @@
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { GroupService } from 'src/group/group.service'
 import { UserService } from 'src/user/user.service'
 import {
-  PublicWorkbookController,
+  WorkbookController,
   GroupWorkbookController
 } from './workbook.controller'
 import { WorkbookService } from './workbook.service'
 
 describe('WorkbookController', () => {
-  let publicController: PublicWorkbookController
-  let groupController: GroupWorkbookController
+  let controller: WorkbookController
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [PublicWorkbookController, GroupWorkbookController],
+      controllers: [WorkbookController, GroupWorkbookController],
       providers: [
         { provide: WorkbookService, useValue: {} },
         { provide: UserService, useValue: {} },
@@ -22,18 +21,31 @@ describe('WorkbookController', () => {
       ]
     }).compile()
 
-    publicController = module.get<PublicWorkbookController>(
-      PublicWorkbookController
-    )
-    groupController = module.get<GroupWorkbookController>(
-      GroupWorkbookController
-    )
+    controller = module.get<WorkbookController>(WorkbookController)
   })
 
-  it('public controller should be defined', () => {
-    expect(publicController).to.be.ok
+  it('should be defined', () => {
+    expect(controller).to.be.ok
   })
-  it('group controller should be defined', () => {
-    expect(groupController).to.be.ok
+})
+
+describe('GroupWorkbookController', () => {
+  let controller: GroupWorkbookController
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [GroupWorkbookController],
+      providers: [
+        { provide: WorkbookService, useValue: {} },
+        { provide: UserService, useValue: {} },
+        { provide: GroupService, useValue: {} }
+      ]
+    }).compile()
+
+    controller = module.get<GroupWorkbookController>(GroupWorkbookController)
+  })
+
+  it('should be defined', () => {
+    expect(controller).to.be.ok
   })
 })

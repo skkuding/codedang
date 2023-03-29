@@ -1,19 +1,20 @@
-import { UserNotice } from './interface/user-notice.interface'
+import { type UserNotice } from './interface/user-notice.interface'
 import { Injectable } from '@nestjs/common'
-import { Notice } from '@prisma/client'
+import { type Notice } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { UpdateNoticeDto } from './dto/update-notice.dto'
-import { CreateNoticeDto } from './dto/create-notice.dto'
+import { type UpdateNoticeDto } from './dto/update-notice.dto'
+import { type CreateNoticeDto } from './dto/create-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
+import { OPEN_SPACE_ID } from 'src/common/constants'
 
 @Injectable()
 export class NoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createNotice(
+    noticeDto: CreateNoticeDto,
     userId: number,
-    groupId: number,
-    noticeDto: CreateNoticeDto
+    groupId: number
   ): Promise<Notice> {
     await this.prisma.group.findUnique({
       where: {
@@ -41,9 +42,15 @@ export class NoticeService {
   }
 
   async getNoticesByGroupId(
-    groupId: number,
-    offset: number
+    cursor: number,
+    take: number,
+    groupId = OPEN_SPACE_ID
   ): Promise<Partial<Notice>[]> {
+    let skip = 1
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    }
     return await this.prisma.notice.findMany({
       where: {
         groupId: groupId,
@@ -55,12 +62,15 @@ export class NoticeService {
         createTime: true,
         isFixed: true
       },
-      skip: offset - 1,
-      take: 10
+      take,
+      skip,
+      cursor: {
+        id: cursor
+      }
     })
   }
 
-  async getNotice(id: number, groupId: number): Promise<UserNotice> {
+  async getNotice(id: number, groupId = OPEN_SPACE_ID): Promise<UserNotice> {
     const current = await this.prisma.notice.findFirst({
       where: {
         id: id,
@@ -104,46 +114,31 @@ export class NoticeService {
     }
   }
 
-  async getAdminNotices(offset: number): Promise<Partial<Notice>[]> {
-    return await this.prisma.notice.findMany({
-      where: {
-        groupId: 1
-      },
-      select: {
-        id: true,
-        group: {
-          select: {
-            id: true,
-            groupName: true
-          }
-        },
-        title: true,
-        updateTime: true,
-        createdBy: true,
-        isVisible: true
-      },
-      skip: offset - 1,
-      take: 5
-    })
-  }
-
   async getAdminNoticesByGroupId(
-    groupId: number,
-    offset: number
+    cursor: number,
+    take: number,
+    groupId = OPEN_SPACE_ID
   ): Promise<Partial<Notice>[]> {
+    let skip = 1
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    }
     return await this.prisma.notice.findMany({
-      where: {
-        groupId: groupId
-      },
+      where: { groupId },
       select: {
         id: true,
         title: true,
+        createdBy: true,
         updateTime: true,
         isVisible: true,
         isFixed: true
       },
-      skip: offset - 1,
-      take: 5
+      take,
+      skip,
+      cursor: {
+        id: cursor
+      }
     })
   }
 

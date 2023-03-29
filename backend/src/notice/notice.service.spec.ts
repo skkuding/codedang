@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { Group, Notice } from '@prisma/client'
+import { type Group, type Notice } from '@prisma/client'
 import { NoticeService } from './notice.service'
-import { CreateNoticeDto } from './dto/create-notice.dto'
-import { UpdateNoticeDto } from './dto/update-notice.dto'
+import { type CreateNoticeDto } from './dto/create-notice.dto'
+import { type UpdateNoticeDto } from './dto/update-notice.dto'
 import { EntityNotExistException } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
 import { CACHE_MANAGER } from '@nestjs/common'
@@ -120,9 +120,9 @@ describe('NoticeService', () => {
 
     it('should return new created notice data', async () => {
       const createResult = await service.createNotice(
+        createNoticeDto,
         userId,
-        groupId,
-        createNoticeDto
+        groupId
       )
       expect(createResult).to.deep.equal(notice)
     })
@@ -130,7 +130,7 @@ describe('NoticeService', () => {
     it('should throw error when given group does not exist', async () => {
       db.group.findUnique.rejects(new EntityNotExistException('group'))
       await expect(
-        service.createNotice(userId, groupId, createNoticeDto)
+        service.createNotice(createNoticeDto, userId, groupId)
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })
@@ -160,7 +160,11 @@ describe('NoticeService', () => {
     it('should return notice list of the group', async () => {
       db.notice.findMany.resolves(noticeArray)
 
-      const getNoticesByGroupId = await service.getNoticesByGroupId(group.id, 1)
+      const getNoticesByGroupId = await service.getNoticesByGroupId(
+        0,
+        3,
+        group.id
+      )
       expect(getNoticesByGroupId).to.deep.equal(noticeArray)
     })
   })
@@ -210,6 +214,7 @@ describe('NoticeService', () => {
       {
         id: noticePrev.id,
         title: noticePrev.title,
+        createdBy: noticePrev.createdById,
         updateTime: noticePrev.updateTime,
         isVisible: noticePrev.isVisible,
         isFixed: noticePrev.isFixed
@@ -217,6 +222,7 @@ describe('NoticeService', () => {
       {
         id: notice.id,
         title: notice.title,
+        createdBy: notice.createdById,
         updateTime: notice.updateTime,
         isVisible: notice.isVisible,
         isFixed: notice.isFixed
@@ -224,6 +230,7 @@ describe('NoticeService', () => {
       {
         id: noticeNext.id,
         title: noticeNext.title,
+        createdBy: noticeNext.createdById,
         updateTime: noticeNext.updateTime,
         isVisible: noticeNext.isVisible,
         isFixed: noticeNext.isFixed
@@ -234,8 +241,9 @@ describe('NoticeService', () => {
       db.notice.findMany.resolves(noticeArray)
 
       const getNoticesByGroupId = await service.getAdminNoticesByGroupId(
-        groupId,
-        1
+        0,
+        3,
+        groupId
       )
       expect(getNoticesByGroupId).to.deep.equal(noticeArray)
     })
@@ -269,48 +277,6 @@ describe('NoticeService', () => {
         EntityNotExistException
       )
       db.notice.findUnique.reset()
-    })
-  })
-
-  describe('getAdminNotices', () => {
-    const noticeArray = [
-      {
-        id: noticePrev.id,
-        group: {
-          id: group.id,
-          groupName: group.groupName
-        },
-        title: noticePrev.title,
-        updateTime: noticePrev.updateTime,
-        isVisible: noticePrev.isVisible
-      },
-      {
-        id: notice.id,
-        group: {
-          id: group.id,
-          groupName: group.groupName
-        },
-        title: notice.title,
-        updateTime: notice.updateTime,
-        isVisible: notice.isVisible
-      },
-      {
-        id: noticeNext.id,
-        group: {
-          id: group.id,
-          groupName: group.groupName
-        },
-        title: noticeNext.title,
-        updateTime: noticeNext.updateTime,
-        isVisible: noticeNext.isVisible
-      }
-    ]
-
-    it('should return notice list in open space', async () => {
-      db.notice.findMany.resolves(noticeArray)
-
-      const getNotices = await service.getAdminNotices(1)
-      expect(getNotices).to.deep.equal(noticeArray)
     })
   })
 

@@ -1,17 +1,17 @@
 import {
   PrismaClient,
-  Group,
+  type Group,
   Role,
-  User,
-  Problem,
+  type User,
+  type Problem,
   Level,
-  Tag,
+  type Tag,
   Language,
-  Contest,
-  Workbook,
+  type Contest,
+  type Workbook,
   ResultStatus,
-  Submission,
-  ProblemTestcase
+  type Submission,
+  type ProblemTestcase
 } from '@prisma/client'
 import { encrypt } from 'src/common/hash'
 import * as dayjs from 'dayjs'
@@ -6383,7 +6383,7 @@ const createWorkbooks = async () => {
   workbook = await prisma.workbook.create({
     data: {
       title: '모의대회 문제집',
-      description: '<p>모의대회 문제들을 모아뒀습니다!</p>',
+      description: '모의대회 문제들을 모아뒀습니다!',
       createdById: superAdminUser.id,
       groupId: publicGroup.id
     }
@@ -6391,7 +6391,7 @@ const createWorkbooks = async () => {
   const privateWorkbook = await prisma.workbook.create({
     data: {
       title: '모의대회 문제집',
-      description: '<p>모의대회 문제들을 모아뒀습니다!</p>',
+      description: '모의대회 문제들을 모아뒀습니다!',
       createdById: superAdminUser.id,
       groupId: privateGroup.id
     }

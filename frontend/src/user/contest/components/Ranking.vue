@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 
+defineProps<{
+  id: number
+}>()
+
 const fields = [
   { key: 'id', label: '#' },
   { key: 'user', label: 'User' },
