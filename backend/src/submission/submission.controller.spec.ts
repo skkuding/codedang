@@ -1,4 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
+import { expect } from 'chai'
 import { SubmissionController } from './submission.controller'
 import { SubmissionService } from './submission.service'
 
@@ -15,6 +16,6 @@ describe('SubmissionController', () => {
   })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined()
+    expect(controller).to.be.ok
   })
 })

@@ -3,6 +3,8 @@ import { GroupModule } from 'src/group/group.module'
 import { UserModule } from 'src/user/user.module'
 import {
   ContestAdminController,
+  ContestPublicizingRequestAdminController,
+  ContestPublicizingRequestController,
   GroupContestAdminController
 } from './contest-admin.controller'
 import { ContestController, GroupContestController } from './contest.controller'
@@ -14,8 +16,11 @@ import { ContestService } from './contest.service'
     ContestController,
     GroupContestController,
     ContestAdminController,
-    GroupContestAdminController
+    GroupContestAdminController,
+    ContestPublicizingRequestController,
+    ContestPublicizingRequestAdminController
   ],
-  providers: [ContestService]
+  providers: [ContestService],
+  exports: [ContestService]
 })
 export class ContestModule {}

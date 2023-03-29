@@ -1,5 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { ProblemController } from './problem.controller'
+import { expect } from 'chai'
 import { ProblemService } from './problem.service'
 
 describe('ProblemController', () => {
@@ -15,6 +16,6 @@ describe('ProblemController', () => {
   })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined()
+    expect(controller).to.be.ok
   })
 })

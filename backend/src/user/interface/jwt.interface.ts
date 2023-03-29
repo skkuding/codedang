@@ -1,8 +1,8 @@
-export interface PasswordResetJwtPayload {
-  userId: number
+export interface EmailAuthJwtPayload {
+  email: string
 }
 
-export interface PasswordResetJwtObject extends PasswordResetJwtPayload {
+export interface EmailAuthJwtObject extends EmailAuthJwtPayload {
   iat: number
   exp: number
   iss: string

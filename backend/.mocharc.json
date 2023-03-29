@@ -1,0 +1,5 @@
+{
+  "extension": "spec.ts",
+  "require": ["@swc/register", "mocha-fixture.ts"],
+  "reporter": "dot"
+}

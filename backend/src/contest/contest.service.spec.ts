@@ -1,19 +1,31 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { Contest, ContestType } from '@prisma/client'
+import { Test, type TestingModule } from '@nestjs/testing'
+import { expect } from 'chai'
+import { stub } from 'sinon'
 import {
+  type Contest,
+  type ContestRecord,
+  type Group,
+  type UserGroup
+} from '@prisma/client'
+import {
+  ActionNotAllowedException,
   EntityNotExistException,
-  ForbiddenAccessException,
   UnprocessableDataException
 } from 'src/common/exception/business.exception'
 import { GroupService } from 'src/group/group.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { ContestService } from './contest.service'
-import { CreateContestDto } from './dto/create-contest.dto'
-import { UpdateContestDto } from './dto/update-contest.dto'
+import { type CreateContestDto } from './dto/create-contest.dto'
+import { type UpdateContestDto } from './dto/update-contest.dto'
+import { type Cache } from 'cache-manager'
+import { CACHE_MANAGER } from '@nestjs/common'
+import { contestPublicizingRequestKey } from 'src/common/cache/keys'
 
 const contestId = 1
 const userId = 1
 const groupId = 1
+const contestPublicizeRequestId = 1
+const undefinedUserId = undefined
 
 const contest = {
   id: contestId,
@@ -21,17 +33,30 @@ const contest = {
   groupId: groupId,
   title: 'title',
   description: 'description',
-  descriptionSummary: 'description summary',
   startTime: new Date('2021-12-01T14:00:00.000+09:00'),
   endTime: new Date('2021-12-01T15:00:00.000+09:00'),
-  visible: true,
-  isRankVisible: true,
-  type: ContestType.ACM,
+  config: {
+    isVisible: true,
+    isRankVisible: true
+  },
   createTime: new Date('2021-11-01T18:34:23.999175+09:00'),
   updateTime: new Date('2021-11-01T18:34:23.999175+09:00'),
   group: {
-    groupId: groupId
+    id: groupId,
+    groupName: 'group'
   }
+} satisfies Contest & { group: Partial<Group> }
+
+const contestDetail = {
+  title: 'contest',
+  description: 'description',
+  id: contestId,
+  group: {
+    id: groupId,
+    groupName: 'group'
+  },
+  startTime: new Date('2021-12-01T14:00:00.000+09:00'),
+  endTime: new Date('2021-12-01T15:00:00.000+09:00')
 }
 
 const ongoingContests: Partial<Contest>[] = [
@@ -39,62 +64,175 @@ const ongoingContests: Partial<Contest>[] = [
     ...contest,
     id: contestId,
     endTime: new Date('2999-12-01T12:00:00.000+09:00'),
-    visible: false
+    config: {
+      isVisible: false,
+      isRankisVisible: true
+    }
   }
 ]
-
 const finishedContests: Partial<Contest>[] = [
   {
     ...contest,
-    id: contestId + 3,
-    visible: false
+    id: contestId + 1,
+    config: {
+      isVisible: false,
+      isRankisVisible: true
+    }
   }
 ]
-
 const upcomingContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId + 6,
     startTime: new Date('2999-12-01T12:00:00.000+09:00'),
     endTime: new Date('2999-12-01T15:00:00.000+09:00'),
-    visible: false
+    config: {
+      isVisible: false,
+      isRankisVisible: true
+    }
   }
 ]
-
+const registeredOngoingContests: Partial<Contest>[] = [
+  {
+    ...contest,
+    id: contestId,
+    endTime: new Date('2999-12-01T12:00:00.000+09:00'),
+    config: {
+      isVisible: false,
+      isRankisVisible: true
+    }
+  }
+]
+const registeredUpcomingContests: Partial<Contest>[] = [
+  {
+    ...contest,
+    id: contestId + 6,
+    startTime: new Date('2999-12-01T12:00:00.000+09:00'),
+    endTime: new Date('2999-12-01T15:00:00.000+09:00'),
+    config: {
+      isVisible: false,
+      isRankisVisible: true
+    }
+  }
+]
 const contests: Partial<Contest>[] = [
   ...ongoingContests,
   ...finishedContests,
   ...upcomingContests
 ]
+const userContests: Partial<Contest>[] = [
+  ...registeredOngoingContests,
+  ...registeredUpcomingContests
+]
+const ongoingContest: Partial<Contest> = ongoingContests[0]
+
+const earlierContest: Contest = {
+  ...contest,
+  id: contestId,
+  startTime: new Date('2999-12-01T11:00:00.000+09:00'),
+  endTime: new Date('2999-12-01T15:00:00.000+09:00'),
+  config: {
+    isVisible: false,
+    isRankisVisible: true
+  }
+}
+
+const laterContest: Contest = {
+  ...contest,
+  id: contestId,
+  startTime: new Date('2999-12-01T12:00:00.000+09:00'),
+  endTime: new Date('2999-12-01T15:00:00.000+09:00'),
+  config: {
+    isVisible: false,
+    isRankisVisible: true
+  }
+}
+
+const user = {
+  id: userId,
+  contest: userContests
+}
+
+const contestPublicizingRequest = {
+  contest: contestId,
+  user: userId,
+  createTime: new Date()
+}
+
+const userGroup: UserGroup = {
+  userId: userId,
+  groupId: groupId,
+  isGroupLeader: true,
+  createTime: new Date(),
+  updateTime: new Date()
+}
+const userGroups: UserGroup[] = [
+  userGroup,
+  {
+    ...userGroup,
+    groupId: userGroup.groupId + 1
+  }
+]
+const record: ContestRecord = {
+  id: 1,
+  contestId: contestId,
+  userId: userId,
+  acceptedProblemNum: 0,
+  totalPenalty: 0,
+  createTime: new Date(),
+  updateTime: new Date()
+}
 
 const mockPrismaService = {
   contest: {
-    findUnique: jest.fn().mockResolvedValue(contest),
-    findMany: jest.fn().mockResolvedValue(contests),
-    findFirst: jest.fn().mockResolvedValue(contest),
-    create: jest.fn().mockResolvedValue(contest),
-    update: jest.fn().mockResolvedValue(contest),
-    delete: jest.fn()
+    findUnique: stub().resolves(contest),
+    findFirst: stub().resolves(contest),
+    findMany: stub().resolves(contests),
+    create: stub().resolves(contest),
+    update: stub().resolves(contest),
+    delete: stub()
+  },
+  contestRecord: {
+    findFirst: stub().resolves(null),
+    create: stub().resolves(null)
+  },
+  userGroup: {
+    findFirst: stub().resolves(userGroup),
+    findMany: stub().resolves(userGroups)
+  },
+  user: {
+    findUnique: stub().resolves(user)
   }
 }
 
 describe('ContestService', () => {
-  let contestService: ContestService
-  let groupService: GroupService
+  let service: ContestService
+  let cache: Cache
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ContestService,
         GroupService,
-        { provide: PrismaService, useValue: mockPrismaService }
+        { provide: PrismaService, useValue: mockPrismaService },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => [],
+            store: {
+              keys: () => []
+            }
+          })
+        }
       ]
     }).compile()
-    contestService = module.get<ContestService>(ContestService)
-    groupService = module.get<GroupService>(GroupService)
+    service = module.get<ContestService>(ContestService)
+    cache = module.get<Cache>(CACHE_MANAGER)
   })
 
   it('should be defined', () => {
-    expect(contestService).toBeDefined()
+    expect(service).to.be.ok
   })
 
   describe('createContest', () => {
@@ -102,49 +240,42 @@ describe('ContestService', () => {
       groupId: contest.groupId,
       title: contest.title,
       description: contest.description,
-      descriptionSummary: contest.descriptionSummary,
       startTime: contest.startTime,
       endTime: contest.endTime,
-      visible: contest.visible,
-      isRankVisible: contest.isRankVisible,
-      type: contest.type
+      isVisible: contest.config.isVisible,
+      isRankVisible: contest.config.isRankVisible
     }
 
     afterEach(() => {
-      mockPrismaService.contest.create.mockClear()
+      mockPrismaService.contest.create.reset()
     })
 
     it('should return created contest', async () => {
       //given
 
       //when
-      const result = await contestService.createContest(
-        userId,
-        createContestDto
-      )
+      const result = await service.createContest(createContestDto, userId)
 
       //then
-      expect(mockPrismaService.contest.create).toBeCalledTimes(1)
-      expect(result).toEqual(contest)
+      expect(mockPrismaService.contest.create.calledOnce).to.be.true
+      expect(result).to.deep.equal(contest)
     })
 
     it('should throw error when given contest period is not valid', async () => {
       //given
-      const isValidPeriodSpy = jest
-        .spyOn(contestService, 'isValidPeriod')
-        .mockReturnValue(false)
+      const isValidPeriodSpy = stub(service, 'isValidPeriod').returns(false)
 
       //when
       const callContestCreate = async () =>
-        await contestService.createContest(userId, createContestDto)
+        await service.createContest(createContestDto, userId)
 
       //then
-      await expect(callContestCreate).rejects.toThrow(
+      await expect(callContestCreate()).to.be.rejectedWith(
         UnprocessableDataException
       )
-      expect(mockPrismaService.contest.create).toBeCalledTimes(0)
+      expect(mockPrismaService.contest.create.called).to.be.false
 
-      isValidPeriodSpy.mockRestore()
+      isValidPeriodSpy.restore()
     })
   })
 
@@ -153,40 +284,36 @@ describe('ContestService', () => {
     const updateContestDto: UpdateContestDto = {
       title: contest.title,
       description: contest.description,
-      descriptionSummary: contest.descriptionSummary,
       startTime: contest.startTime,
       endTime: contest.endTime,
-      visible: contest.visible,
-      isRankVisible: contest.isRankVisible,
-      type: contest.type
+      isVisible: contest.config.isVisible,
+      isRankVisible: contest.config.isRankVisible
     }
 
     beforeEach(() => {
-      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
+      mockPrismaService.contest.findUnique.resolves(contest)
       callUpdateContest = async () =>
-        await contestService.updateContest(contestId, updateContestDto)
+        await service.updateContest(contestId, updateContestDto)
     })
+
     afterEach(() => {
-      mockPrismaService.contest.update.mockClear()
+      mockPrismaService.contest.update.reset()
     })
 
     it('should return updated contest', async () => {
       //given
 
       //when
-      const result = await contestService.updateContest(
-        contestId,
-        updateContestDto
-      )
+      const result = await service.updateContest(contestId, updateContestDto)
 
       //then
-      expect(mockPrismaService.contest.update).toBeCalledTimes(1)
-      expect(result).toBe(contest)
+      expect(mockPrismaService.contest.update.calledOnce).to.be.true
+      expect(result).to.equal(contest)
     })
 
     it('should throw error when the contest does not exist', async () => {
       //given
-      mockPrismaService.contest.findUnique.mockRejectedValue(
+      mockPrismaService.contest.findUnique.rejects(
         new EntityNotExistException('contest')
       )
 
@@ -194,26 +321,24 @@ describe('ContestService', () => {
 
       //then
       await expect(
-        contestService.updateContest(contestId, updateContestDto)
-      ).rejects.toThrow(EntityNotExistException)
-      expect(mockPrismaService.contest.update).toBeCalledTimes(0)
+        service.updateContest(contestId, updateContestDto)
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(mockPrismaService.contest.update.called).to.be.false
     })
 
     it('should throw error when given contest period is not valid', async () => {
       //given
-      const isValidPeriodSpy = jest
-        .spyOn(contestService, 'isValidPeriod')
-        .mockReturnValue(false)
+      const isValidPeriodSpy = stub(service, 'isValidPeriod').returns(false)
 
       //when
 
       //then
-      await expect(callUpdateContest).rejects.toThrow(
+      await expect(callUpdateContest()).to.be.rejectedWith(
         UnprocessableDataException
       )
-      expect(mockPrismaService.contest.update).toBeCalledTimes(0)
+      expect(mockPrismaService.contest.update.called).to.be.false
 
-      isValidPeriodSpy.mockRestore()
+      isValidPeriodSpy.restore()
     })
   })
 
@@ -226,10 +351,10 @@ describe('ContestService', () => {
       endTime.setDate(startTime.getDate() + 1)
 
       //when
-      const result = contestService.isValidPeriod(startTime, endTime)
+      const result = service.isValidPeriod(startTime, endTime)
 
       //then
-      expect(result).toBe(true)
+      expect(result).to.equal(true)
     })
 
     it('should return false when end time is ealier than start time', () => {
@@ -237,202 +362,291 @@ describe('ContestService', () => {
       endTime.setDate(startTime.getDate() - 1)
 
       //when
-      const result = contestService.isValidPeriod(startTime, endTime)
+      const result = service.isValidPeriod(startTime, endTime)
 
       //then
-      expect(result).toBeFalsy()
+      expect(result).to.be.false
     })
   })
 
   describe('deleteContest', () => {
     beforeEach(() => {
-      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
+      mockPrismaService.contest.findUnique.resolves(contest)
     })
     afterEach(() => {
-      mockPrismaService.contest.delete.mockClear()
+      mockPrismaService.contest.delete.reset()
     })
 
     it('should successfully delete the contest', async () => {
       //given
 
       //when
-      await contestService.deleteContest(contestId)
+      await service.deleteContest(contestId)
 
       //then
-      expect(mockPrismaService.contest.delete).toBeCalledTimes(1)
+      expect(mockPrismaService.contest.delete.calledOnce).to.be.true
     })
 
     it('should throw error when contest does not exist', async () => {
       //given
-      mockPrismaService.contest.findUnique.mockRejectedValue(
+      mockPrismaService.contest.findUnique.rejects(
         new EntityNotExistException('contest')
       )
 
       //when
       const callContestDelete = async () =>
-        await contestService.deleteContest(contestId)
+        await service.deleteContest(contestId)
 
       //then
-      await expect(callContestDelete).rejects.toThrow(EntityNotExistException)
-      expect(mockPrismaService.contest.delete).toBeCalledTimes(0)
-    })
-  })
-
-  describe('filterOngoing', () => {
-    it('should return ongoing contests of the group', async () => {
-      expect(contestService.filterOngoing(contests)).toEqual(ongoingContests)
-    })
-  })
-
-  describe('filterUpcoming', () => {
-    it('should return upcoming contests of the group', async () => {
-      expect(contestService.filterUpcoming(contests)).toEqual(upcomingContests)
-    })
-  })
-
-  describe('filterFinished', () => {
-    it('should return ongoing contests of the group', async () => {
-      expect(contestService.filterFinished(contests)).toEqual(finishedContests)
+      await expect(callContestDelete()).to.be.rejectedWith(
+        EntityNotExistException
+      )
+      expect(mockPrismaService.contest.delete.called).to.be.false
     })
   })
 
   describe('getContests', () => {
-    it('should return ongoing, upcoming, finished contests', async () => {
-      expect(await contestService.getContests()).toEqual({
+    it('should return ongoing, upcoming, finished contests when userId is undefined', async () => {
+      mockPrismaService.contest.findMany.resolves(contests)
+      expect(
+        await service.getContestsByGroupId(undefinedUserId, groupId)
+      ).to.deep.equal({
         ongoing: ongoingContests,
         upcoming: upcomingContests,
         finished: finishedContests
       })
     })
-  })
 
-  describe('getContestById', () => {
-    beforeEach(() => {
-      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
-    })
-
-    it('should throw error when contest does not exist', async () => {
-      mockPrismaService.contest.findUnique.mockRejectedValue(
-        new EntityNotExistException('contest')
-      )
-
-      await expect(
-        contestService.getContestById(userId, contestId)
-      ).rejects.toThrow(EntityNotExistException)
-    })
-
-    it('should throw error when user is not a group member and contest is not finished yet', async () => {
-      const now = new Date()
-      const notEndedContest = {
-        ...contest,
-        endTime: now.setFullYear(now.getFullYear() + 1)
-      }
-      mockPrismaService.contest.findUnique.mockResolvedValue(notEndedContest)
-      jest
-        .spyOn(groupService, 'getUserGroupMembershipInfo')
-        .mockResolvedValue(null)
-
-      await expect(
-        contestService.getContestById(userId, contestId)
-      ).rejects.toThrow(ForbiddenAccessException)
-    })
-
-    it('should return contest when user is not a group member and contest is finished', async () => {
-      jest
-        .spyOn(groupService, 'getUserGroupMembershipInfo')
-        .mockResolvedValue(null)
-
-      expect(await contestService.getContestById(userId, contestId)).toEqual(
-        contest
-      )
-    })
-
-    it('should return contest of the group', async () => {
-      jest
-        .spyOn(groupService, 'getUserGroupMembershipInfo')
-        .mockResolvedValue({ isRegistered: true, isGroupManager: false })
-
-      expect(await contestService.getContestById(userId, contestId)).toEqual(
-        contest
+    it('should return registered ongoing, registered upcoming, ongoing, upcoming, finished contests', async () => {
+      mockPrismaService.user.findUnique.resolves(user)
+      mockPrismaService.contest.findMany.resolves(contests)
+      expect(await service.getContestsByGroupId(userId, groupId)).to.deep.equal(
+        {
+          registeredOngoing: registeredOngoingContests,
+          registeredUpcoming: registeredUpcomingContests,
+          ongoing: ongoingContests,
+          upcoming: upcomingContests,
+          finished: finishedContests
+        }
       )
     })
   })
 
-  describe('getModalContestById', () => {
-    it('should throw error when contest does not exist', async () => {
-      mockPrismaService.contest.findUnique.mockRejectedValue(
-        new EntityNotExistException('contest')
-      )
-
-      await expect(
-        contestService.getModalContestById(contestId)
-      ).rejects.toThrow(EntityNotExistException)
+  describe('startTimeCompare', () => {
+    it('should return -1 when a is earlier than b', async () => {
+      expect(
+        service.startTimeCompare(earlierContest, laterContest)
+      ).to.deep.equal(-1)
     })
 
-    it('should return contest', async () => {
-      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
+    it('should return 1 when b is earlier than a', async () => {
+      expect(
+        service.startTimeCompare(laterContest, earlierContest)
+      ).to.deep.equal(1)
+    })
 
-      expect(await contestService.getModalContestById(contestId)).toEqual(
-        contest
-      )
+    it('should return 0 when a.startTime is equal b.startTime', async () => {
+      expect(
+        service.startTimeCompare(earlierContest, earlierContest)
+      ).to.deep.equal(0)
+    })
+  })
+
+  describe('filterOngoing', () => {
+    it('should return ongoing contests of the group', async () => {
+      expect(service.filterOngoing(contests)).to.deep.equal(ongoingContests)
+    })
+  })
+
+  describe('filterUpcoming', () => {
+    it('should return upcoming contests of the group', async () => {
+      expect(service.filterUpcoming(contests)).to.deep.equal(upcomingContests)
+    })
+  })
+
+  describe('filterFinished', () => {
+    it('should return ongoing contests of the group', async () => {
+      expect(service.filterFinished(contests)).to.deep.equal(finishedContests)
     })
   })
 
   describe('getContestsByGroupId', () => {
-    it('should return contests of the group', async () => {
-      expect(await contestService.getContestsByGroupId(groupId)).toEqual(
-        contests
+    it('should return ongoing, upcoming, finished contests', async () => {
+      expect(
+        await service.getContestsByGroupId(undefinedUserId, groupId)
+      ).to.deep.equal({
+        ongoing: ongoingContests,
+        upcoming: upcomingContests,
+        finished: finishedContests
+      })
+    })
+
+    //TODO: test when userId is given
+  })
+
+  describe('getContest', () => {
+    it('should throw error when contest does not exist', async () => {
+      mockPrismaService.contest.findFirst.rejects(
+        new EntityNotExistException('contest')
+      )
+
+      await expect(service.getContest(contestId, groupId)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
+
+    it('should return contest', async () => {
+      mockPrismaService.contest.findFirst.resolves(contestDetail)
+
+      expect(await service.getContest(groupId, contestId)).to.deep.equal(
+        contestDetail
       )
     })
   })
 
   describe('getAdminContests', () => {
-    it('should return contests in groups whose user is group manager', async () => {
-      jest
-        .spyOn(groupService, 'getUserGroupManagerList')
-        .mockResolvedValue([groupId])
-
-      expect(await contestService.getAdminContests(userId)).toEqual(contests)
+    it('should return contests in open space', async () => {
+      expect(await service.getAdminContests(0, 3)).to.deep.equal(contests)
     })
   })
 
   describe('getAdminOngoingContests', () => {
-    it('should return ongoing contests in groups whose user is group manager', async () => {
-      jest
-        .spyOn(groupService, 'getUserGroupManagerList')
-        .mockResolvedValue([groupId])
+    it('should return ongoing contests in open space', async () => {
+      mockPrismaService.contest.findMany.resolves(ongoingContests)
 
-      expect(await contestService.getAdminOngoingContests(userId)).toEqual(
+      expect(await service.getAdminOngoingContests(0, 1)).to.deep.equal(
         ongoingContests
       )
     })
   })
 
-  describe('getAdminContestById', () => {
+  describe('getAdminContest', () => {
     it('should throw error when contest does not exist', async () => {
-      mockPrismaService.contest.findUnique.mockRejectedValue(
+      mockPrismaService.contest.findUnique.rejects(
         new EntityNotExistException('contest')
       )
 
-      await expect(
-        contestService.getAdminContestById(contestId)
-      ).rejects.toThrow(EntityNotExistException)
+      await expect(service.getAdminContest(contestId)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
 
     it('should return contest', async () => {
-      mockPrismaService.contest.findUnique.mockResolvedValue(contest)
+      mockPrismaService.contest.findUnique.resolves(contest)
 
-      expect(await contestService.getAdminContestById(contestId)).toEqual(
-        contest
-      )
+      expect(await service.getAdminContest(contestId)).to.deep.equal(contest)
     })
   })
 
-  describe('getAdminContestsByGroupId', () => {
-    it('should return contests of the group', async () => {
-      expect(await contestService.getAdminContestsByGroupId(groupId)).toEqual(
-        contests
+  describe('createContestPublicizingRequest', () => {
+    it('should return created request when contest does not have accepted or pending request', async () => {
+      stub(cache, 'get').resolves(null)
+      const setSpy = stub(cache, 'set').resolves()
+
+      await service.createContestPublicizingRequest(userId, contestId)
+      expect(setSpy.calledOnce).to.be.true
+    })
+
+    it('should throw error when existing accepted request for the contest', async () => {
+      stub(cache, 'get').resolves(contestPublicizingRequest)
+      const setSpy = stub(cache, 'set').resolves()
+
+      await expect(
+        service.createContestPublicizingRequest(userId, contestId)
+      ).to.be.rejectedWith(ActionNotAllowedException)
+      expect(setSpy.called).to.be.false
+    })
+  })
+
+  describe('getContestPublicizingRequests', () => {
+    it('should return requests for given contestId', async () => {
+      stub(cache.store, 'keys').resolves([
+        contestPublicizingRequestKey(contestId)
+      ])
+      stub(cache, 'get').resolves(contestPublicizingRequest)
+
+      const res = await service.getContestPublicizingRequests()
+      expect(res).to.deep.equal([contestPublicizingRequest])
+    })
+  })
+
+  describe('respondContestPublicizingRequest', () => {
+    afterEach(() => {
+      mockPrismaService.contest.update.reset()
+    })
+
+    it('should update contest and request', async () => {
+      stub(cache, 'get').resolves(contestPublicizingRequest)
+      const delSpy = stub(cache, 'del').resolves()
+
+      await service.respondContestPublicizingRequest(
+        contestPublicizeRequestId,
+        { accepted: true }
       )
+      expect(mockPrismaService.contest.update.calledOnce).to.be.true
+      expect(delSpy.calledOnce).to.be.true
+    })
+
+    it('should throw error when request for the contest does not exist', async () => {
+      stub(cache, 'get').resolves(null)
+      const delSpy = stub(cache, 'del').resolves()
+
+      await expect(
+        service.respondContestPublicizingRequest(contestPublicizeRequestId, {
+          accepted: true
+        })
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(delSpy.called).to.be.false
+    })
+
+    it('should not update contest when given request is rejected', async () => {
+      stub(cache, 'get').resolves(contestPublicizingRequest)
+      const delSpy = stub(cache, 'del').resolves()
+
+      await service.respondContestPublicizingRequest(
+        contestPublicizeRequestId,
+        { accepted: false }
+      )
+      expect(mockPrismaService.contest.update.calledOnce).to.be.false
+      expect(delSpy.calledOnce).to.be.true
+    })
+  })
+
+  describe('createContestRecord', () => {
+    beforeEach(() => {
+      mockPrismaService.contest.findUnique.resolves(ongoingContest)
+      mockPrismaService.contestRecord.findFirst.resolves(null)
+    })
+    afterEach(() => {
+      mockPrismaService.contest.findUnique.resolves(contest)
+      mockPrismaService.contestRecord.findFirst.resolves(null)
+    })
+
+    it('should throw error when the contest does not exist', async () => {
+      mockPrismaService.contest.findUnique.resolves(null)
+      await expect(
+        service.createContestRecord(userId, contestId)
+      ).to.be.rejectedWith(EntityNotExistException, 'contest')
+    })
+
+    it('should throw error when user is participated in contest again', async () => {
+      mockPrismaService.contestRecord.findFirst.resolves(record)
+      await expect(
+        service.createContestRecord(userId, contestId)
+      ).to.be.rejectedWith(
+        ActionNotAllowedException,
+        'repetitive participation'
+      )
+    })
+    it('should throw error when contest is not ongoing', async () => {
+      mockPrismaService.contest.findUnique.resolves(contest)
+      await expect(
+        service.createContestRecord(userId, contestId)
+      ).to.be.rejectedWith(ActionNotAllowedException, 'participation')
+    })
+    it('should successfully create contestRankACM', async () => {
+      await service.createContestRecord(userId, contestId)
+      expect(mockPrismaService.contestRecord.create.calledOnce).to.be.true
     })
   })
 })

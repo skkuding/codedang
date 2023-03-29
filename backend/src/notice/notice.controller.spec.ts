@@ -1,8 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import {
-  PublicNoticeController,
-  GroupNoticeController
-} from './notice.controller'
+import { Test, type TestingModule } from '@nestjs/testing'
+import { expect } from 'chai'
+import { NoticeController, GroupNoticeController } from './notice.controller'
 import {
   GroupNoticeAdminController,
   NoticeAdminController
@@ -11,12 +9,12 @@ import { NoticeService } from './notice.service'
 import { GroupService } from 'src/group/group.service'
 import { UserService } from 'src/user/user.service'
 
-describe('PublicNoticeController', () => {
-  let controller: PublicNoticeController
+describe('NoticeController', () => {
+  let controller: NoticeController
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [PublicNoticeController],
+      controllers: [NoticeController],
       providers: [
         { provide: NoticeService, useValue: {} },
         { provide: UserService, useValue: {} },
@@ -24,11 +22,11 @@ describe('PublicNoticeController', () => {
       ]
     }).compile()
 
-    controller = module.get<PublicNoticeController>(PublicNoticeController)
+    controller = module.get<NoticeController>(NoticeController)
   })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined()
+    expect(controller).to.be.ok
   })
 })
 
@@ -49,7 +47,7 @@ describe('GroupNoticeController', () => {
   })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined()
+    expect(controller).to.be.ok
   })
 })
 
@@ -69,7 +67,7 @@ describe('NoticeAdminController', () => {
   })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined()
+    expect(controller).to.be.ok
   })
 })
 
@@ -92,6 +90,6 @@ describe('GroupNoticeAdminController', () => {
   })
 
   it('should be defined', () => {
-    expect(controller).toBeDefined()
+    expect(controller).to.be.ok
   })
 })
