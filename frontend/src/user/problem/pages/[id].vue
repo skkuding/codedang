@@ -1,9 +1,19 @@
 <script setup lang="ts">
+import Header from '../components/Header.vue'
+import Navigator from '../components/Navigator.vue'
+
 defineProps<{
-  id: number
+  id: string
 }>()
 </script>
 
 <template>
-  <div>This is problem detail page : id = {{ id }}</div>
+  <Header />
+  <Navigator />
+  <RouterView />
 </template>
+
+<route lang="yaml">
+meta:
+  layout: empty
+</route>
