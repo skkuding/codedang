@@ -4,6 +4,7 @@ import {
   Injectable
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
+import { type GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
 import { Role } from '@prisma/client'
 import { ROLES_KEY } from 'src/common/decorator/roles.decorator'
 import { UserService } from 'src/user/user.service'
@@ -32,7 +33,13 @@ export class RolesGuard implements CanActivate {
       role = Role.User
     }
 
-    const request: AuthenticatedRequest = context.switchToHttp().getRequest()
+    const request: AuthenticatedRequest =
+      context.getType() === 'http'
+        ? context.switchToHttp().getRequest()
+        : context.getType<GqlContextType>() === 'graphql'
+        ? GqlExecutionContext.create(context).getContext().req
+        : undefined
+
     const userRole = await this.userService.getUserRole(request.user.id)
 
     if (this.#rolesHierarchy[userRole.role] >= this.#rolesHierarchy[role]) {
