@@ -6,8 +6,9 @@ generator client {
 }
 
 generator graphql {
-  provider = "prisma-nestjs-graphql"
-  output   = "../apps/admin/src/@generated"
+  provider           = "prisma-nestjs-graphql"
+  output             = "../apps/admin/src/@generated"
+  noAtomicOperations = true
 }
 
 datasource db {
