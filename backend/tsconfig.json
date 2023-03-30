@@ -16,7 +16,11 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@admin/*": ["apps/admin/src/*"],
+      "@client/*": ["apps/client/src/*"]
+    }
   },
   "ts-node": {
     "swc": true
