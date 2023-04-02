@@ -23,10 +23,15 @@ interface Item {
 const items = ref<Item[]>([])
 
 axios
-  .get(`/api/group/${props.id}/notice?cursor=1&take=10`, {
-    // TODO: cursor를 variable로
-    headers: {}
-  })
+  .get(
+    `/api/group/${props.id}/notice?cursor=${
+      ref(items).value.length || 1
+    }&take=10`,
+    {
+      // TODO: cursor를 variable로
+      headers: {}
+    }
+  )
   .then((res) => {
     for (let i = 0; i < res.data.length; i++) {
       res.data[i].createTime = res.data[i].createTime.toString().slice(0, 10)
