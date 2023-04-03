@@ -51,23 +51,6 @@ export class ProblemRepository {
     }
   }
 
-  // {
-  //     where: { groupId },
-  //     select: {
-  //       id: true,
-  //       title: true,
-  //       createdBy: true,
-  //       updateTime: true,
-  //       isVisible: true,
-  //       isFixed: true
-  //     },
-  //     take,
-  //     skip,
-  //     cursor: {
-  //       id: cursor
-  //     }
-  //   }
-
   async getProblems(cursor: number, take: number): Promise<Partial<Problem>[]> {
     let skip = 1
     if (cursor === 0) {
