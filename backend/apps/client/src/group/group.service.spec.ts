@@ -200,14 +200,23 @@ describe('GroupService', () => {
           (userGroup) => userGroup.groupId === groupId
         )
       })
-      const cacheSpy = stub(cache, 'get').resolves(undefined)
+      const cacheSpyGet = stub(cache, 'get').resolves(undefined)
+      const cacheSpySet = stub(cache, 'set').resolves()
 
       //when
       const result = await service.joinGroupById(userId, groupId)
 
       //then
-      expect(cacheSpy.calledWith(joinGroupCacheKey(userId, groupId))).to.be.true
-      expect(cacheSpy.calledOnce).to.be.true
+      expect(cacheSpyGet.calledWith(joinGroupCacheKey(userId, groupId))).to.be
+        .true
+      expect(cacheSpyGet.calledOnce).to.be.true
+      expect(
+        cacheSpySet.calledWith(joinGroupCacheKey(userId, groupId), {
+          userId,
+          groupId
+        })
+      ).to.be.true
+      expect(cacheSpySet.calledOnce).to.be.true
       expect(result).to.deep.equal({
         userGroupData: {
           userId,

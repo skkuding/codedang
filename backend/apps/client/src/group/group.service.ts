@@ -16,6 +16,7 @@ import { GroupData } from './interface/group-data.interface'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '../common/constants'
 import { joinGroupCacheKey } from '@client/common/cache/keys'
 import { Cache } from 'cache-manager'
+import { GroupJoinRequest } from './interface/group-join-request.interface'
 
 @Injectable()
 export class GroupService {
@@ -241,7 +242,7 @@ export class GroupService {
         throw new ActionNotAllowedException('duplicated join request', 'group')
       }
 
-      const userGroupValue = `user:${userId}:group:${groupId}`
+      const userGroupValue: GroupJoinRequest = { userId, groupId }
       await this.cacheManager.set(
         joinGroupCacheKey(userId, groupId),
         userGroupValue,
