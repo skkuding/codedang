@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { OPEN_SPACE_ID } from '@client/common/constants'
-import { type PaginationDto } from '@client/common/dto/pagination.dto'
 import {
   ForbiddenAccessException,
   EntityNotExistException
