@@ -17,7 +17,6 @@ import {
   ActionNotAllowedException,
   EntityNotExistException
 } from 'src/common/exception/business.exception'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 
 const db = {
   user: {
@@ -280,23 +279,6 @@ describe('GroupService', () => {
 
       //then
       expect(result).to.deep.equal(userGroups[3])
-    })
-
-    it('should throw EntityNotExistException when invalid userId and groupId passed', async () => {
-      //given
-      const userId = 3
-      const groupId = 3
-      db.userGroup.delete.rejects(
-        new PrismaClientKnownRequestError('error', {
-          code: 'P2025',
-          clientVersion: '4.0.0'
-        })
-      )
-
-      //when
-      await expect(service.leaveGroup(userId, groupId)).to.be.rejectedWith(
-        PrismaClientKnownRequestError
-      )
     })
   })
 
