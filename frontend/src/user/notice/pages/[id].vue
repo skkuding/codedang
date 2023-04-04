@@ -4,7 +4,7 @@ import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import IconBars from '~icons/fa6-solid/bars'
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useNotice, type Field } from '../composables/notice'
+import { useNotice, type Field, type Item } from '../composables/notice'
 
 const props = defineProps<{
   id: string
@@ -22,6 +22,14 @@ onMounted(async () => {
     router.replace('/404')
   }
 })
+
+const changePage = async (item: Item) => {
+  await goDetail(item)
+  getNotice(parseInt(props.id))
+  if (!currentNotice.value) {
+    await router.replace({ name: 'all' })
+  }
+}
 
 const field: Field[] = [
   { key: 'icon', width: '5%' },
@@ -63,7 +71,7 @@ const field: Field[] = [
       :number-of-pages="numberOfPages"
       :fields="field"
       :items="adjacentNotices"
-      @row-clicked="goDetail"
+      @row-clicked="changePage"
     >
       <template #icon="{ row }">
         <component :is="row.icon" />
