@@ -20,6 +20,7 @@ import { type UpdateContestDto } from './dto/update-contest.dto'
 import { type Cache } from 'cache-manager'
 import { CACHE_MANAGER } from '@nestjs/common'
 import { contestPublicizingRequestKey } from '@client/common/cache/keys'
+import * as dayjs from 'dayjs'
 
 const contestId = 1
 const userId = 1
@@ -33,14 +34,14 @@ const contest = {
   groupId: groupId,
   title: 'title',
   description: 'description',
-  startTime: new Date('2021-12-01T14:00:00.000+09:00'),
-  endTime: new Date('2021-12-01T15:00:00.000+09:00'),
+  startTime: dayjs().add(-1, 'day').toDate(),
+  endTime: dayjs().add(1, 'day').toDate(),
   config: {
     isVisible: true,
     isRankVisible: true
   },
-  createTime: new Date('2021-11-01T18:34:23.999175+09:00'),
-  updateTime: new Date('2021-11-01T18:34:23.999175+09:00'),
+  createTime: dayjs().add(-1, 'day').toDate(),
+  updateTime: dayjs().add(-1, 'day').toDate(),
   group: {
     id: groupId,
     groupName: 'group'
@@ -55,15 +56,16 @@ const contestDetail = {
     id: groupId,
     groupName: 'group'
   },
-  startTime: new Date('2021-12-01T14:00:00.000+09:00'),
-  endTime: new Date('2021-12-01T15:00:00.000+09:00')
+  startTime: dayjs().add(-1, 'day').toDate(),
+  endTime: dayjs().add(-1, 'day').toDate()
 }
 
 const ongoingContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId,
-    endTime: new Date('2999-12-01T12:00:00.000+09:00'),
+    startTime: dayjs().add(-1, 'day').toDate(),
+    endTime: dayjs().add(1, 'day').toDate(),
     config: {
       isVisible: false,
       isRankisVisible: true
@@ -74,6 +76,8 @@ const finishedContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId + 1,
+    startTime: dayjs().add(-2, 'day').toDate(),
+    endTime: dayjs().add(-1, 'day').toDate(),
     config: {
       isVisible: false,
       isRankisVisible: true
@@ -84,8 +88,8 @@ const upcomingContests: Partial<Contest>[] = [
   {
     ...contest,
     id: contestId + 6,
-    startTime: new Date('2999-12-01T12:00:00.000+09:00'),
-    endTime: new Date('2999-12-01T15:00:00.000+09:00'),
+    startTime: dayjs().add(1, 'day').toDate(),
+    endTime: dayjs().add(2, 'day').toDate(),
     config: {
       isVisible: false,
       isRankisVisible: true
@@ -200,12 +204,6 @@ const recordFinished = {
 
 const publicContestRecord = {
   groupId: 1,
-  startTime: new Date('2021-12-01T14:00:00.000+09:00'),
-  endTime: new Date('2021-12-01T15:00:00.000+09:00')
-}
-
-const nonPublicContestRecord = {
-  groupId: 2,
   startTime: new Date('2021-12-01T14:00:00.000+09:00'),
   endTime: new Date('2021-12-01T15:00:00.000+09:00')
 }
@@ -371,28 +369,17 @@ describe('ContestService', () => {
 
   describe('createPublicContestRecord', () => {
     it('should throw error when the contest does not exist', async () => {
-      mockPrismaService.contest.findUnique.resolves(null)
+      mockPrismaService.contest.findFirst.resolves(null)
       await expect(
-        service.createContestRecord(userId, contestId, true)
+        service.createContestRecord(contestId, userId)
       ).to.be.rejectedWith(EntityNotExistException, 'contest')
     })
 
-    it('should throw error when the contest does not exist', async () => {
-      mockPrismaService.contest.findUnique.resolves(nonPublicContestRecord)
-      await expect(
-        service.createContestRecord(userId, contestId, true)
-      ).to.be.rejectedWith(
-        ActionNotAllowedException,
-        'participation',
-        'non-public'
-      )
-    })
-
     it('should throw error when user is participated in contest again', async () => {
-      mockPrismaService.contest.findUnique.resolves(publicContestRecord)
+      mockPrismaService.contest.findFirst.resolves(publicContestRecord)
       mockPrismaService.contestRecord.findFirst.resolves(recordAlready)
       await expect(
-        service.createContestRecord(userId, contestId, true)
+        service.createContestRecord(contestId, userId)
       ).to.be.rejectedWith(
         ActionNotAllowedException,
         'repetitive participation'
@@ -400,10 +387,10 @@ describe('ContestService', () => {
     })
 
     it('should throw error when contest is not ongoing', async () => {
-      mockPrismaService.contest.findUnique.resolves(publicContestRecord)
+      mockPrismaService.contest.findFirst.resolves(publicContestRecord)
       mockPrismaService.contestRecord.findFirst.resolves(recordFinished)
       await expect(
-        service.createContestRecord(userId, contestId, true)
+        service.createContestRecord(contestId, userId)
       ).to.be.rejectedWith(ActionNotAllowedException, 'participation')
     })
   })
@@ -680,38 +667,39 @@ describe('ContestService', () => {
 
   describe('createContestRecord', () => {
     beforeEach(() => {
-      mockPrismaService.contest.findUnique.resolves(ongoingContest)
+      mockPrismaService.contest.findFirst.resolves(ongoingContest)
       mockPrismaService.contestRecord.findFirst.resolves(null)
     })
     afterEach(() => {
-      mockPrismaService.contest.findUnique.resolves(contest)
+      mockPrismaService.contest.findFirst.resolves(contest)
       mockPrismaService.contestRecord.findFirst.resolves(null)
     })
 
     it('should throw error when the contest does not exist', async () => {
-      mockPrismaService.contest.findUnique.resolves(null)
+      mockPrismaService.contest.findFirst.resolves(null)
       await expect(
-        service.createContestRecord(userId, contestId)
+        service.createContestRecord(contestId, userId)
       ).to.be.rejectedWith(EntityNotExistException, 'contest')
     })
 
     it('should throw error when user is participated in contest again', async () => {
       mockPrismaService.contestRecord.findFirst.resolves(record)
       await expect(
-        service.createContestRecord(userId, contestId)
+        service.createContestRecord(contestId, userId)
       ).to.be.rejectedWith(
         ActionNotAllowedException,
         'repetitive participation'
       )
     })
     it('should throw error when contest is not ongoing', async () => {
-      mockPrismaService.contest.findUnique.resolves(contest)
+      mockPrismaService.contest.findFirst.resolves(finishedContests[0])
       await expect(
-        service.createContestRecord(userId, contestId)
+        service.createContestRecord(contestId, userId)
       ).to.be.rejectedWith(ActionNotAllowedException, 'participation')
     })
     it('should successfully create contestRankACM', async () => {
-      await service.createContestRecord(userId, contestId)
+      mockPrismaService.contestRecord.create.reset()
+      await service.createContestRecord(contestId, userId)
       expect(mockPrismaService.contestRecord.create.calledOnce).to.be.true
     })
   })
