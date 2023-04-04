@@ -14,7 +14,6 @@ import {
   workbookProblems
 } from './mock/problem.mock'
 import { PrismaService } from '@client/prisma/prisma.service'
-import { type PaginationDto } from '@client/common/dto/pagination.dto'
 import { plainToInstance } from 'class-transformer'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
@@ -72,11 +71,6 @@ const mockWorkbookProblem = {
 const mockWorkbookProblems = workbookProblems.map((workbookProblem) => {
   return { ...workbookProblem, problem: Object.assign({}, mockProblems[0]) }
 })
-
-const paginationDto: PaginationDto = {
-  offset: 0,
-  limit: 10
-}
 
 describe('ProblemService', () => {
   let service: ProblemService
