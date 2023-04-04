@@ -41,8 +41,8 @@ export const useNotice = () => {
 
   const router = useRouter()
 
-  function goDetail({ id }: Item) {
-    router.push({
+  const goDetail = async ({ id }: Item) => {
+    await router.push({
       name: 'notice-id',
       params: { id }
     })
