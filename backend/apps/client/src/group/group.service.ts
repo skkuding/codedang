@@ -16,7 +16,6 @@ import { GroupData } from './interface/group-data.interface'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '../common/constants'
 import { joinGroupCacheKey } from '@client/common/cache/keys'
 import { Cache } from 'cache-manager'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 
 @Injectable()
 export class GroupService {
