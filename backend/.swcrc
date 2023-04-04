@@ -11,7 +11,8 @@
       "decoratorMetadata": true
     },
     "paths": {
-      "src/*": ["./src/*"]
+      "@admin/*": ["./apps/admin/src/*"],
+      "@client/*": ["./apps/client/src/*"]
     }
   },
   "module": {
