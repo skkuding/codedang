@@ -396,16 +396,17 @@ export class ContestService {
   async createContestRecord(
     userId: number,
     contestId: number,
-    isPublic = false
+    groupId: number
   ) {
-    const contest = await this.prisma.contest.findUnique({
-      where: { id: contestId },
+    const contest = await this.prisma.contest.findFirst({
+      where: {
+        id: contestId,
+        groupId: groupId
+      },
       select: { startTime: true, endTime: true, groupId: true }
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
-    } else if (isPublic && contest.groupId != 1) {
-      throw new ActionNotAllowedException('participation', 'non-public')
     }
 
     const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
@@ -424,39 +425,6 @@ export class ContestService {
       data: { contestId, userId }
     })
   }
-
-  // async createPublicContestRecord(userId: number, contestId: number) {
-  //   const contest = await this.prisma.contest.findUnique({
-  //     where: { id: contestId },
-  //     select: {
-  //       startTime: true,
-  //       endTime: true,
-  //       groupId: true
-  //     }
-  //   })
-
-  //   if (!contest) {
-  //     throw new EntityNotExistException('contest')
-  //   } else if (contest.groupId != 1) {
-  //     throw new ActionNotAllowedException('participation', 'non-public')
-  //   }
-
-  //   const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
-  //     where: { userId, contestId },
-  //     select: { id: true }
-  //   })
-  //   if (isAlreadyRecord) {
-  //     throw new ActionNotAllowedException('repetitive participation', 'contest')
-  //   }
-  //   const now = new Date()
-  //   if (now < contest.startTime || now >= contest.endTime) {
-  //     throw new ActionNotAllowedException('participation', 'ended contest')
-  //   }
-
-  //   return await this.prisma.contestRecord.create({
-  //     data: { contestId, userId }
-  //   })
-  // }
 
   async isVisible(contestId: number, groupId: number): Promise<boolean> {
     return !!(await this.prisma.contest.count({

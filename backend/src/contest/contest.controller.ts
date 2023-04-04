@@ -61,11 +61,7 @@ export class PublicContestController {
     @Param('id', ParseIntPipe) contestId: number
   ) {
     try {
-      await this.contestService.createContestRecord(
-        req.user.id,
-        contestId,
-        true
-      )
+      await this.contestService.createContestRecord(req.user.id, contestId, 1)
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
@@ -114,10 +110,15 @@ export class GroupContestController {
   @Post(':id/participation')
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Param('id', ParseIntPipe) contestId: number
   ) {
     try {
-      await this.contestService.createContestRecord(req.user.id, contestId)
+      await this.contestService.createContestRecord(
+        req.user.id,
+        contestId,
+        groupId
+      )
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
