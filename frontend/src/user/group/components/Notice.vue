@@ -77,6 +77,10 @@ const selected = ref('')
 const clickRow = (row: Item) => {
   selected.value = row.title
 }
+
+// TODO: 현재 문제점
+// Pagination에 리스트가 포함됨. 새로 컴포넌트를 만들어야 할지?
+// 공지가 두 번 가져와짐. 받아오는 데이터에는 문제가 없으니 찍는 과정에서 중복되는 듯.
 </script>
 
 <template>
