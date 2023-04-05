@@ -28,7 +28,6 @@ axios
       ref(items).value.length || 1
     }&take=10`,
     {
-      // TODO: cursor를 variable로
       headers: {}
     }
   )
