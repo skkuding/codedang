@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
+import { useIntersectionObserver } from '@vueuse/core'
 import axios from 'axios'
 import { ref, computed } from 'vue'
 
@@ -22,11 +23,15 @@ interface Item {
 // initial items
 const items = ref<Item[]>([])
 
+const take = ref(4)
+const cursor = ref(0)
+const hasNextPage = ref(true)
+
 axios
   .get(
-    `/api/group/${props.id}/notice?cursor=${
-      ref(items).value.length || 1
-    }&take=10`,
+    cursor.value
+      ? `/api/group/${props.id}/notice?cursor=${cursor.value}&take=${take.value}`
+      : `/api/group/${props.id}/notice?take=${take.value}`,
     {
       headers: {}
     }
@@ -36,10 +41,22 @@ axios
       res.data[i].createTime = res.data[i].createTime.toString().slice(0, 10)
     }
     items.value = res.data
+    items.value.push(...res.data)
+    if (res.data.length < take.value) {
+      hasNextPage.value = false
+    }
   })
   .catch((err) => console.log('error is ', err))
 
 // const shownItems = ref(items.value)
+
+const target = ref(null)
+useIntersectionObserver(target, ([{ isIntersecting }]) => {
+  if (isIntersecting && items.value.length > 0) {
+    cursor.value = items.value[items.value.length - 1].id
+  }
+})
+
 const shownPages = ref(items.value.length)
 
 // items in current page
