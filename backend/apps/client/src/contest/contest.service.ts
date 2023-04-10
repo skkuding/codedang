@@ -142,19 +142,7 @@ export class ContestService {
     groupId = OPEN_SPACE_ID
   ) {
     if (userId === undefined) {
-      const contests = await this.prisma.contest.findMany({
-        where: {
-          groupId: groupId,
-          config: {
-            path: ['isVisible'],
-            equals: true
-          }
-        },
-        select: this.contestSelectOption,
-        orderBy: {
-          endTime: 'asc'
-        }
-      })
+      const contests = await this.findContestsByGroupId(groupId)
 
       return {
         ongoing: this.filterOngoing(contests),
@@ -185,22 +173,10 @@ export class ContestService {
     ).contest
     const registeredContestId = registeredContests.map((contest) => contest.id)
 
-    const contests = await this.prisma.contest.findMany({
-      where: {
-        groupId: groupId,
-        config: {
-          path: ['isVisible'],
-          equals: true
-        },
-        id: {
-          notIn: registeredContestId
-        }
-      },
-      select: this.contestSelectOption,
-      orderBy: {
-        endTime: 'asc'
-      }
-    })
+    const contests = await this.findContestsByGroupId(
+      groupId,
+      registeredContestId
+    )
 
     return {
       registeredOngoing: this.filterOngoing(registeredContests),
@@ -215,12 +191,22 @@ export class ContestService {
   }>
 
   async getFinishedContestsByGroupId(groupId = OPEN_SPACE_ID) {
-    const contests = await this.prisma.contest.findMany({
+    const contests = await this.findContestsByGroupId(groupId)
+    return {
+      finished: this.filterFinished(contests)
+    }
+  }
+
+  async findContestsByGroupId(groupId: number, notIn: number[] = undefined) {
+    return this.prisma.contest.findMany({
       where: {
         groupId: groupId,
         config: {
           path: ['isVisible'],
           equals: true
+        },
+        id: {
+          notIn
         }
       },
       select: this.contestSelectOption,
@@ -228,9 +214,6 @@ export class ContestService {
         endTime: 'asc'
       }
     })
-    return {
-      finished: this.filterFinished(contests)
-    }
   }
 
   startTimeCompare(a: Contest, b: Contest) {
