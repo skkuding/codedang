@@ -1,4 +1,5 @@
-import { CACHE_MANAGER, forwardRef, Inject, Injectable } from '@nestjs/common'
+import { forwardRef, Inject, Injectable } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { type User } from '@prisma/client'

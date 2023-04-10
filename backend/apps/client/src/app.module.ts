@@ -1,4 +1,5 @@
-import { CacheModule, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
+import { CacheModule } from '@nestjs/cache-manager'
 import { ConfigModule } from '@nestjs/config'
 
 import { AppController } from './app.controller'
