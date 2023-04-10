@@ -210,6 +210,29 @@ export class ContestService {
     }
   }
 
+  async getFinishedContestsByGroupId(groupId?: number): Promise<{
+    finished: Partial<Contest>[]
+  }>
+
+  async getFinishedContestsByGroupId(groupId = OPEN_SPACE_ID) {
+    const contests = await this.prisma.contest.findMany({
+      where: {
+        groupId: groupId,
+        config: {
+          path: ['isVisible'],
+          equals: true
+        }
+      },
+      select: this.contestSelectOption,
+      orderBy: {
+        endTime: 'asc'
+      }
+    })
+    return {
+      finished: this.filterFinished(contests)
+    }
+  }
+
   startTimeCompare(a: Contest, b: Contest) {
     if (a.startTime < b.startTime) {
       return -1
