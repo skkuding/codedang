@@ -25,7 +25,7 @@ defineProps<{
         v-for="{ id, username, studentId } in userList"
         :key="id"
         :class="id === creator ? 'text-green' : ''"
-        class="flex items-center justify-center gap-1 py-2 px-8"
+        class="flex items-center justify-center gap-1 px-8 py-2"
       >
         <span class="font-medium">{{ username }}</span>
         <span class="text-xs">({{ studentId }})</span>
