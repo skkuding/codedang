@@ -5,7 +5,6 @@ import defaultTheme from 'tailwindcss/defaultTheme'
 import colors from 'tailwindcss/colors'
 import forms from '@tailwindcss/forms'
 import typography from '@tailwindcss/typography'
-import lineClamp from '@tailwindcss/line-clamp'
 
 export default {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
@@ -86,5 +85,5 @@ export default {
       }
     }
   },
-  plugins: [forms, typography, lineClamp]
+  plugins: [forms, typography]
 } satisfies Config
