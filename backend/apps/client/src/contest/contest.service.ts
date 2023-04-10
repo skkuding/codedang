@@ -186,19 +186,23 @@ export class ContestService {
     }
   }
 
-  async getFinishedContestsByGroupId(
-    groupId: number,
-    cursor: number,
+  async getFinishedContestsByGroupId({
+    groupId,
+    cursor,
+    take
+  }: {
+    groupId?: number
+    cursor: number
     take: number
-  ): Promise<{
+  }): Promise<{
     finished: Partial<Contest>[]
   }>
 
-  async getFinishedContestsByGroupId(
+  async getFinishedContestsByGroupId({
     groupId = OPEN_SPACE_ID,
-    cursor: number,
-    take: number
-  ) {
+    cursor,
+    take
+  }) {
     const contests = await this.findContestsByGroupId({ groupId, cursor, take })
     return {
       finished: this.filterFinished(contests)

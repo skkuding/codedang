@@ -8,7 +8,8 @@ import {
   Req,
   Get,
   UseGuards,
-  ForbiddenException
+  ForbiddenException,
+  Query
 } from '@nestjs/common'
 import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import {
@@ -20,6 +21,7 @@ import { ContestService } from './contest.service'
 import { type Contest } from '@prisma/client'
 import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
 import { RolesGuard } from '@client/user/guard/roles.guard'
+import { CursorValidationPipe } from '@client/common/pipe/cursor-validation.pipe'
 
 @Controller('contest')
 export class ContestController {
@@ -42,6 +44,20 @@ export class ContestController {
     upcoming: Partial<Contest>[]
   }> {
     return await this.contestService.getAliveContestsByGroupId(req.user?.id)
+  }
+
+  @Get('finished')
+  @AuthNotNeeded()
+  async getFinishedContests(
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
+  ): Promise<{
+    finished: Partial<Contest>[]
+  }> {
+    return await this.contestService.getFinishedContestsByGroupId({
+      cursor,
+      take
+    })
   }
 
   @Get(':contestId')
@@ -96,6 +112,21 @@ export class GroupContestController {
       req.user.id,
       groupId
     )
+  }
+
+  @Get('finished')
+  async getFinishedContests(
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
+  ): Promise<{
+    finished: Partial<Contest>[]
+  }> {
+    return await this.contestService.getFinishedContestsByGroupId({
+      groupId,
+      cursor,
+      take
+    })
   }
 
   @Get(':id')
