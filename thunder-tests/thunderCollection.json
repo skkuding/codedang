@@ -333,6 +333,20 @@
         "containerId": "589c8657-8198-4b4f-96f0-b90f5c6af633",
         "created": "2023-02-17T08:50:38.854Z",
         "sortNum": 430000
+      },
+      {
+        "_id": "1e9d4bed-ed09-409a-a12c-676571aa8354",
+        "name": "Get finished contests",
+        "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+        "created": "2023-04-10T07:27:02.158Z",
+        "sortNum": 135000
+      },
+      {
+        "_id": "0e51dd91-afe6-4bcd-835d-b3df3d2b6f07",
+        "name": "Get group's finished contests",
+        "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+        "created": "2023-04-10T07:34:16.185Z",
+        "sortNum": 155000
       }
     ],
     "settings": {

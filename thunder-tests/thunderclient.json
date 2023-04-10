@@ -152,7 +152,7 @@
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-01-04T03:41:11.804Z",
-    "modified": "2023-01-15T15:38:47.388Z",
+    "modified": "2023-04-10T07:37:46.986Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -173,15 +173,9 @@
         "custom": "",
         "action": "contains",
         "value": "\"upcoming\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"finished\""
       }
     ],
-    "docs": "# Get all contests\n\n모든 대회 목록을 불러옵니다.  \n대회의 진행 상태에 따라 구분합니다. (ongoing, upcoming, finished)"
+    "docs": "# Get all contests\n\n종료된 대회를 제외한 모든 목록을 불러옵니다.  \n대회의 진행 상태에 따라 구분합니다. (ongoing, upcoming)"
   },
   {
     "_id": "cae53d1e-c7c4-4825-a7f5-96a61a478d70",
@@ -226,7 +220,7 @@
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-01-04T03:44:08.324Z",
-    "modified": "2023-02-15T04:57:35.348Z",
+    "modified": "2023-04-10T07:36:35.603Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -261,7 +255,7 @@
         "value": "\"group\""
       }
     ],
-    "docs": "# Get group's all contests\n\n그룹의 대회 목록을 가져옵니다.",
+    "docs": "# Get group's all contests\n\n그룹의 종료된 대회를 제외한 목록을 가져옵니다.",
     "preReq": {
       "runRequests": [
         {
@@ -3166,5 +3160,100 @@
         }
       ]
     }
+  },
+  {
+    "_id": "61f5f9ac-06d3-42dd-a3a6-6d9aa6eca245",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "032d7ed6-f54f-4d85-a220-588597bf686b",
+    "name": "Succeed",
+    "url": "/contest/finished?take=10",
+    "method": "GET",
+    "sortNum": 500000,
+    "created": "2023-04-10T05:39:19.746Z",
+    "modified": "2023-04-10T07:21:00.173Z",
+    "headers": [],
+    "params": [
+      {
+        "name": "take",
+        "value": "10",
+        "isPath": false
+      }
+    ],
+    "tests": [],
+    "docs": "# Get all finished contests\n\n\n모든 종료된 대회를 불러옵니다.<br/>페이지네이션이 포함된 요청입니다."
+  },
+  {
+    "_id": "61f884a7-2a08-4519-ad43-60c9eb76630a",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "1e9d4bed-ed09-409a-a12c-676571aa8354",
+    "name": "Succeed",
+    "url": "/contest/finished?take=10",
+    "method": "GET",
+    "sortNum": 510000,
+    "created": "2023-04-10T07:27:17.842Z",
+    "modified": "2023-04-10T07:38:19.724Z",
+    "headers": [],
+    "params": [
+      {
+        "name": "take",
+        "value": "10",
+        "isPath": false
+      }
+    ],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"finished\""
+      }
+    ],
+    "docs": "# Get finished contests\n\n모든 종료된 대회를 가져옵니다.<br/>\ncursor based pagination을 사용합니다."
+  },
+  {
+    "_id": "1964ba6a-65a2-4068-a88f-2228802aba37",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "0e51dd91-afe6-4bcd-835d-b3df3d2b6f07",
+    "name": "Succeed",
+    "url": "/group/1/contest/finished?take=10",
+    "method": "GET",
+    "sortNum": 520000,
+    "created": "2023-04-10T07:34:27.293Z",
+    "modified": "2023-04-10T07:40:24.477Z",
+    "headers": [],
+    "params": [
+      {
+        "name": "take",
+        "value": "10",
+        "isPath": false
+      }
+    ],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"finished\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"group\""
+      }
+    ],
+    "docs": "# Get group's finished contests\n\n그룹내에서 끝난 대회들을 가지고 옵니다. <br/>\nCursor based pagination을 사용합니다."
   }
 ]
