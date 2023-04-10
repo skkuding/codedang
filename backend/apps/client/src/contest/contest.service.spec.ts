@@ -483,6 +483,21 @@ describe('ContestService', () => {
     })
   })
 
+  describe('getFinishedContests', () => {
+    it('should return finished contests when cursor is 0', async () => {
+      mockPrismaService.contest.findMany.resolves(contests)
+      expect(
+        await service.getFinishedContestsByGroupId({
+          groupId,
+          cursor: 0,
+          take: 10
+        })
+      ).to.deep.equal({
+        finished: finishedContests
+      })
+    })
+  })
+
   describe('startTimeCompare', () => {
     it('should return -1 when a is earlier than b', async () => {
       expect(
