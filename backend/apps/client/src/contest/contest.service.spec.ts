@@ -458,19 +458,18 @@ describe('ContestService', () => {
     })
   })
 
-  describe('getContests', () => {
-    it('should return ongoing, upcoming, finished contests when userId is undefined', async () => {
+  describe('getAliveContests', () => {
+    it('should return ongoing, upcoming contests when userId is undefined', async () => {
       mockPrismaService.contest.findMany.resolves(contests)
       expect(
         await service.getAliveContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
         ongoing: ongoingContests,
-        upcoming: upcomingContests,
-        finished: finishedContests
+        upcoming: upcomingContests
       })
     })
 
-    it('should return registered ongoing, registered upcoming, ongoing, upcoming, finished contests', async () => {
+    it('should return registered ongoing, registered upcoming, ongoing, upcoming contests', async () => {
       mockPrismaService.user.findUnique.resolves(user)
       mockPrismaService.contest.findMany.resolves(contests)
       expect(
@@ -479,8 +478,7 @@ describe('ContestService', () => {
         registeredOngoing: registeredOngoingContests,
         registeredUpcoming: registeredUpcomingContests,
         ongoing: ongoingContests,
-        upcoming: upcomingContests,
-        finished: finishedContests
+        upcoming: upcomingContests
       })
     })
   })
