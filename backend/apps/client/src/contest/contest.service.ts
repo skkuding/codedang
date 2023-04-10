@@ -128,14 +128,12 @@ export class ContestService {
       ? {
           ongoing: Partial<Contest>[]
           upcoming: Partial<Contest>[]
-          finished: Partial<Contest>[]
         }
       : {
           registeredOngoing: Partial<Contest>[]
           registeredUpcoming: Partial<Contest>[]
           ongoing: Partial<Contest>[]
           upcoming: Partial<Contest>[]
-          finished: Partial<Contest>[]
         }
   >
 
@@ -160,8 +158,7 @@ export class ContestService {
 
       return {
         ongoing: this.filterOngoing(contests),
-        upcoming: this.filterUpcoming(contests),
-        finished: this.filterFinished(contests)
+        upcoming: this.filterUpcoming(contests)
       }
     }
 
@@ -209,8 +206,7 @@ export class ContestService {
       registeredOngoing: this.filterOngoing(registeredContests),
       registeredUpcoming: this.filterUpcoming(registeredContests),
       ongoing: this.filterOngoing(contests),
-      upcoming: this.filterUpcoming(contests),
-      finished: this.filterFinished(contests)
+      upcoming: this.filterUpcoming(contests)
     }
   }
 

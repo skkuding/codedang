@@ -30,7 +30,6 @@ export class ContestController {
   async getContests(): Promise<{
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
-    finished: Partial<Contest>[]
   }> {
     return await this.contestService.getContestsByGroupId()
   }
@@ -41,7 +40,6 @@ export class ContestController {
     registeredUpcoming: Partial<Contest>[]
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
-    finished: Partial<Contest>[]
   }> {
     return await this.contestService.getContestsByGroupId(req.user?.id)
   }
@@ -93,7 +91,6 @@ export class GroupContestController {
     registeredUpcoming?: Partial<Contest>[]
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
-    finished: Partial<Contest>[]
   }> {
     return await this.contestService.getContestsByGroupId(req.user.id, groupId)
   }
