@@ -1,10 +1,6 @@
 /* eslint-disable */
-import {
-  BadRequestException,
-  CACHE_MANAGER,
-  Inject,
-  Injectable
-} from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Group, UserGroup } from '@prisma/client'
 import {
   ActionNotAllowedException,
@@ -16,7 +12,6 @@ import { GroupData } from './interface/group-data.interface'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '../common/constants'
 import { joinGroupCacheKey } from '@client/common/cache/keys'
 import { Cache } from 'cache-manager'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 
 @Injectable()
 export class GroupService {

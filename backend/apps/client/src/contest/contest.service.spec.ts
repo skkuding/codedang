@@ -18,7 +18,7 @@ import { ContestService } from './contest.service'
 import { type CreateContestDto } from './dto/create-contest.dto'
 import { type UpdateContestDto } from './dto/update-contest.dto'
 import { type Cache } from 'cache-manager'
-import { CACHE_MANAGER } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { contestPublicizingRequestKey } from '@client/common/cache/keys'
 import * as dayjs from 'dayjs'
 
