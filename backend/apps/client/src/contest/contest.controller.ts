@@ -31,7 +31,7 @@ export class ContestController {
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
   }> {
-    return await this.contestService.getContestsByGroupId()
+    return await this.contestService.getAliveContestsByGroupId()
   }
 
   @Get('auth')
@@ -41,7 +41,7 @@ export class ContestController {
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
   }> {
-    return await this.contestService.getContestsByGroupId(req.user?.id)
+    return await this.contestService.getAliveContestsByGroupId(req.user?.id)
   }
 
   @Get(':contestId')
@@ -92,7 +92,10 @@ export class GroupContestController {
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
   }> {
-    return await this.contestService.getContestsByGroupId(req.user.id, groupId)
+    return await this.contestService.getAliveContestsByGroupId(
+      req.user.id,
+      groupId
+    )
   }
 
   @Get(':id')

@@ -120,7 +120,7 @@ export class ContestService {
     })
   }
 
-  async getContestsByGroupId<T extends number>(
+  async getAliveContestsByGroupId<T extends number>(
     userId?: T,
     groupId?: number
   ): Promise<
@@ -137,7 +137,7 @@ export class ContestService {
         }
   >
 
-  async getContestsByGroupId(
+  async getAliveContestsByGroupId(
     userId: number = undefined,
     groupId = OPEN_SPACE_ID
   ) {
