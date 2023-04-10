@@ -142,7 +142,7 @@ export class ContestService {
     groupId = OPEN_SPACE_ID
   ) {
     if (userId === undefined) {
-      const contests = await this.findContestsByGroupId(groupId)
+      const contests = await this.findContestsByGroupId({ groupId })
 
       return {
         ongoing: this.filterOngoing(contests),
@@ -173,10 +173,10 @@ export class ContestService {
     ).contest
     const registeredContestId = registeredContests.map((contest) => contest.id)
 
-    const contests = await this.findContestsByGroupId(
+    const contests = await this.findContestsByGroupId({
       groupId,
-      registeredContestId
-    )
+      notIn: registeredContestId
+    })
 
     return {
       registeredOngoing: this.filterOngoing(registeredContests),
@@ -186,19 +186,40 @@ export class ContestService {
     }
   }
 
-  async getFinishedContestsByGroupId(groupId?: number): Promise<{
+  async getFinishedContestsByGroupId(
+    groupId: number,
+    cursor: number,
+    take: number
+  ): Promise<{
     finished: Partial<Contest>[]
   }>
 
-  async getFinishedContestsByGroupId(groupId = OPEN_SPACE_ID) {
-    const contests = await this.findContestsByGroupId(groupId)
+  async getFinishedContestsByGroupId(
+    groupId = OPEN_SPACE_ID,
+    cursor: number,
+    take: number
+  ) {
+    const contests = await this.findContestsByGroupId({ groupId, cursor, take })
     return {
       finished: this.filterFinished(contests)
     }
   }
 
-  async findContestsByGroupId(groupId: number, notIn: number[] = undefined) {
+  async findContestsByGroupId({
+    groupId,
+    notIn,
+    cursor,
+    take
+  }: {
+    groupId: number
+    notIn?: number[]
+    cursor?: number
+    take?: number
+  }) {
     return this.prisma.contest.findMany({
+      take,
+      skip: cursor ? 1 : 0,
+      ...(cursor && { cursor: { id: cursor } }),
       where: {
         groupId: groupId,
         config: {
