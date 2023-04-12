@@ -1,4 +1,4 @@
-import { CACHE_MANAGER } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import {

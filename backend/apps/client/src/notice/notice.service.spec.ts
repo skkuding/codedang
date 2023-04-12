@@ -8,7 +8,7 @@ import { type CreateNoticeDto } from './dto/create-notice.dto'
 import { type UpdateNoticeDto } from './dto/update-notice.dto'
 import { EntityNotExistException } from '@client/common/exception/business.exception'
 import { GroupService } from '@client/group/group.service'
-import { CACHE_MANAGER } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 
 const noticeId = 2
 const userId = 1
