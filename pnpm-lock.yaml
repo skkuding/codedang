@@ -10,6 +10,12 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^17.6.1
         version: 17.6.1
+      '@commitlint/types':
+        specifier: ^17.4.4
+        version: 17.4.4
+      '@types/node':
+        specifier: ^18.15.11
+        version: 18.15.11
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.58.0
         version: 5.58.0(@typescript-eslint/parser@5.58.0)(eslint@8.38.0)(typescript@5.0.4)
