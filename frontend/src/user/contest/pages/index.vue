@@ -55,7 +55,7 @@ const showFinished = ref(false)
     ]"
     :key="index"
   >
-    <div class="mt-8 mb-4 flex flex-row items-center">
+    <div class="mb-4 mt-8 flex flex-row items-center">
       <PageSubtitle
         :text="title"
         :class="{ '!text-red': status === 'finished' }"
