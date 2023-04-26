@@ -90,7 +90,7 @@ const getTimeInfo = (key: keyof State, date: Date) => {
 
 <template>
   <div
-    class="mb-8 flex flex-col items-end justify-end gap-y-2 gap-x-4 lg:flex-row"
+    class="mb-8 flex flex-col items-end justify-end gap-x-4 gap-y-2 lg:flex-row"
   >
     <RadioButton v-model="selectedFilter" :texts="filters" />
     <SearchBar placeholder="원하는 대회를 검색해보세요!" />

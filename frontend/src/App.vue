@@ -7,6 +7,6 @@ useAuthStore().reissue()
 </script>
 
 <template>
-  <router-view :key="$router.currentRoute.value.fullPath" />
+  <router-view />
   <Toast />
 </template>
