@@ -50,7 +50,7 @@ echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256s
 cp thunder-tests/thunderEnvironmentBase.json thunder-tests/thunderEnvironment.json
 
 # Install pnpm and Node.js packages
-npm install -g pnpm@8
+npm install -g pnpm@latest
 pnpm install
 
 # Install lefthook for git hook
