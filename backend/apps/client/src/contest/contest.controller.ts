@@ -60,6 +60,23 @@ export class ContestController {
       throw new InternalServerErrorException()
     }
   }
+
+  @Post(':id/participation')
+  async createContestRecord(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseIntPipe) contestId: number
+  ) {
+    try {
+      await this.contestService.createContestRecord(contestId, req.user.id)
+    } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      } else if (err instanceof ActionNotAllowedException) {
+        throw new ForbiddenException(err.message)
+      }
+      throw new InternalServerErrorException(err.message)
+    }
+  }
 }
 
 @Controller('group/:groupId/contest')
@@ -99,15 +116,21 @@ export class GroupContestController {
   @Post(':id/participation')
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Param('id', ParseIntPipe) contestId: number
   ) {
     try {
-      await this.contestService.createContestRecord(contestId, req.user.id)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ActionNotAllowedException) {
-        throw new ForbiddenException(error.message)
+      await this.contestService.createContestRecord(
+        contestId,
+        req.user.id,
+        groupId
+      )
+    } catch (err) {
+      if (err instanceof EntityNotExistException) {
+        throw new NotFoundException(err.message)
+      }
+      if (err instanceof ActionNotAllowedException) {
+        throw new ForbiddenException(err.message)
       }
       throw new InternalServerErrorException()
     }

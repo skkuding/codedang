@@ -99,7 +99,7 @@ const noticeList = [
       "
     >
       <div
-        class="bg-red absolute top-0.5 right-0.5 h-[15px] w-[15px] rounded-full text-xs font-bold text-white"
+        class="bg-red absolute right-0.5 top-0.5 h-[15px] w-[15px] rounded-full text-xs font-bold text-white"
       >
         1
       </div>
@@ -109,7 +109,7 @@ const noticeList = [
     </button>
     <div
       v-if="visible"
-      class="border-gray fixed z-50 m-auto h-96 w-1/2 overflow-auto rounded-md border border-solid bg-white py-2 px-6"
+      class="border-gray fixed z-50 m-auto h-96 w-1/2 overflow-auto rounded-md border border-solid bg-white px-6 py-2"
     >
       <div class="mb-3">
         <PageSubtitle text="Notice" class="ml-12" />
