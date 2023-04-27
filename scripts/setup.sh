@@ -2,6 +2,13 @@
 
 set -ex
 
+# Check requirements: npm
+if [ ! $(command -v npm) ]
+then
+  echo "Error: npm is not installed. Please install npm first."
+  exit 1
+fi
+
 BASEDIR=$(dirname $(dirname $(realpath $0)))
 
 cd $BASEDIR
@@ -42,13 +49,12 @@ echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256s
 # Since environment variable changes frequently, let git ignore actual environment variables
 cp thunder-tests/thunderEnvironmentBase.json thunder-tests/thunderEnvironment.json
 
-# Install pnpm
-pnpm --version || sudo corepack enable
-corepack prepare pnpm@7.2.1 --activate
+# Install pnpm and Node.js packages
+npm install -g pnpm@8
 pnpm install
 
 # Install lefthook for git hook
-npx lefthook install
+pnpm exec lefthook install
 
 # Apply database migration
 for i in {1..5}
