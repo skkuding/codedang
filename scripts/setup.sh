@@ -40,7 +40,7 @@ echo "NODEMAILER_PASS=\"\"" >> backend/.env
 # Use docker-compose profile
 if [ -z $DEVCONTAINER ]
 then
-  docker-compose up -d
+  docker compose up -d
 fi
 
 echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum | head -c 64)" >> backend/.env
