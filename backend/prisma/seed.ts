@@ -29,7 +29,8 @@ let privateGroup2: Group
 const problems: Problem[] = []
 const problemTestcases: ProblemTestcase[] = []
 let contest: Contest
-let workbook: Workbook
+const workbooks: Workbook[] = []
+const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
 
 const createUsers = async () => {
@@ -6431,35 +6432,43 @@ const createContests = async () => {
 }
 
 const createWorkbooks = async () => {
-  workbook = await prisma.workbook.create({
-    data: {
-      title: '모의대회 문제집',
-      description: '모의대회 문제들을 모아뒀습니다!',
-      createdById: superAdminUser.id,
-      groupId: publicGroup.id
-    }
-  })
-  const privateWorkbook = await prisma.workbook.create({
-    data: {
-      title: '모의대회 문제집',
-      description: '모의대회 문제들을 모아뒀습니다!',
-      createdById: superAdminUser.id,
-      groupId: privateGroup.id
-    }
-  })
+  for (let i = 1; i <= 3; i++) {
+    workbooks.push(
+      await prisma.workbook.create({
+        data: {
+          title: '모의대회 문제집',
+          description: '모의대회 문제들을 모아뒀습니다!',
+          createdById: superAdminUser.id,
+          groupId: publicGroup.id
+        }
+      })
+    )
+  }
+  for (let i = 1; i <= 3; i++) {
+    privateWorkbooks.push(
+      await prisma.workbook.create({
+        data: {
+          title: '모의대회 문제집',
+          description: '모의대회 문제들을 모아뒀습니다!',
+          createdById: superAdminUser.id,
+          groupId: privateGroup.id
+        }
+      })
+    )
+  }
 
   for (const problem of problems) {
     await prisma.workbookProblem.create({
       data: {
         id: String(problem.id),
-        workbookId: workbook.id,
+        workbookId: workbooks[0].id,
         problemId: problem.id
       }
     })
     await prisma.workbookProblem.create({
       data: {
         id: String(problem.id),
-        workbookId: privateWorkbook.id,
+        workbookId: privateWorkbooks[0].id,
         problemId: problem.id
       }
     })
@@ -6595,7 +6604,7 @@ int main(void) {
         hash: generateHash(),
         userId: users[5].id,
         problemId: problems[5].id,
-        workbookId: workbook.id,
+        workbookId: workbooks[0].id,
         code: `#include <iostream>
 int main(void) {
     std::cout << "Hello, World!" << endl;
@@ -6619,7 +6628,7 @@ int main(void) {
         hash: generateHash(),
         userId: users[6].id,
         problemId: problems[6].id,
-        workbookId: workbook.id,
+        workbookId: workbooks[0].id,
         code: `print("Hello, World!")`,
         language: Language.Python3
       }
