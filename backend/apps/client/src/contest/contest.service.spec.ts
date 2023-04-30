@@ -462,7 +462,7 @@ describe('ContestService', () => {
     it('should return ongoing, upcoming contests when userId is undefined', async () => {
       mockPrismaService.contest.findMany.resolves(contests)
       expect(
-        await service.getAliveContestsByGroupId(undefinedUserId, groupId)
+        await service.getContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
         ongoing: ongoingContests,
         upcoming: upcomingContests
@@ -472,26 +472,24 @@ describe('ContestService', () => {
     it('should return registered ongoing, registered upcoming, ongoing, upcoming contests', async () => {
       mockPrismaService.user.findUnique.resolves(user)
       mockPrismaService.contest.findMany.resolves(contests)
-      expect(
-        await service.getAliveContestsByGroupId(userId, groupId)
-      ).to.deep.equal({
-        registeredOngoing: registeredOngoingContests,
-        registeredUpcoming: registeredUpcomingContests,
-        ongoing: ongoingContests,
-        upcoming: upcomingContests
-      })
+      expect(await service.getContestsByGroupId(userId, groupId)).to.deep.equal(
+        {
+          registeredOngoing: registeredOngoingContests,
+          registeredUpcoming: registeredUpcomingContests,
+          ongoing: ongoingContests,
+          upcoming: upcomingContests
+        }
+      )
     })
   })
 
   describe('getFinishedContests', () => {
     it('should return finished contests when cursor is 0', async () => {
       mockPrismaService.contest.findMany.resolves(contests)
+      const cursor = 0
+      const take = 10
       expect(
-        await service.getFinishedContestsByGroupId({
-          groupId,
-          cursor: 0,
-          take: 10
-        })
+        await service.getFinishedContestsByGroupId(cursor, take)
       ).to.deep.equal({
         finished: finishedContests
       })
@@ -539,11 +537,10 @@ describe('ContestService', () => {
   describe('getContestsByGroupId', () => {
     it('should return ongoing, upcoming, finished contests', async () => {
       expect(
-        await service.getAliveContestsByGroupId(undefinedUserId, groupId)
+        await service.getContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
         ongoing: ongoingContests,
-        upcoming: upcomingContests,
-        finished: finishedContests
+        upcoming: upcomingContests
       })
     })
 

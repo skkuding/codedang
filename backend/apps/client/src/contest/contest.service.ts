@@ -120,7 +120,7 @@ export class ContestService {
     })
   }
 
-  async getAliveContestsByGroupId<T extends number>(
+  async getContestsByGroupId<T extends number>(
     userId?: T,
     groupId?: number
   ): Promise<
@@ -137,20 +137,34 @@ export class ContestService {
         }
   >
 
-  async getAliveContestsByGroupId(
+  async getContestsByGroupId(
     userId: number = undefined,
     groupId = OPEN_SPACE_ID
   ) {
+    const now = new Date()
     if (userId === undefined) {
-      const contests = await this.findContestsByGroupId({ groupId })
-
+      const contests = await this.prisma.contest.findMany({
+        where: {
+          groupId,
+          endTime: {
+            gt: now
+          },
+          config: {
+            path: ['isVisible'],
+            equals: true
+          }
+        },
+        select: this.contestSelectOption,
+        orderBy: {
+          endTime: 'asc'
+        }
+      })
       return {
         ongoing: this.filterOngoing(contests),
         upcoming: this.filterUpcoming(contests)
       }
     }
 
-    const now = new Date()
     const registeredContests = (
       await this.prisma.user.findUnique({
         where: {
@@ -171,11 +185,26 @@ export class ContestService {
         }
       })
     ).contest
-    const registeredContestId = registeredContests.map((contest) => contest.id)
 
-    const contests = await this.findContestsByGroupId({
-      groupId,
-      notIn: registeredContestId
+    const registeredContestId = registeredContests.map((contest) => contest.id)
+    const contests = await this.prisma.contest.findMany({
+      where: {
+        groupId,
+        endTime: {
+          gt: now
+        },
+        config: {
+          path: ['isVisible'],
+          equals: true
+        },
+        id: {
+          notIn: registeredContestId
+        }
+      },
+      select: this.contestSelectOption,
+      orderBy: {
+        endTime: 'asc'
+      }
     })
 
     return {
@@ -186,52 +215,27 @@ export class ContestService {
     }
   }
 
-  async getFinishedContestsByGroupId({
-    groupId,
-    cursor,
-    take
-  }: {
-    groupId?: number
-    cursor: number
-    take: number
-  }): Promise<{
+  async getFinishedContestsByGroupId(
+    cursor: number,
+    take: number,
+    groupId = OPEN_SPACE_ID
+  ): Promise<{
     finished: Partial<Contest>[]
-  }>
-
-  async getFinishedContestsByGroupId({
-    groupId = OPEN_SPACE_ID,
-    cursor,
-    take
-  }) {
-    const contests = await this.findContestsByGroupId({ groupId, cursor, take })
-    return {
-      finished: this.filterFinished(contests)
-    }
-  }
-
-  async findContestsByGroupId({
-    groupId,
-    notIn,
-    cursor,
-    take
-  }: {
-    groupId: number
-    notIn?: number[]
-    cursor?: number
-    take?: number
-  }) {
-    return this.prisma.contest.findMany({
+  }> {
+    const skip = cursor ? 1 : 0
+    const now = new Date()
+    const finished = await this.prisma.contest.findMany({
       take,
-      skip: cursor ? 1 : 0,
+      skip,
       ...(cursor && { cursor: { id: cursor } }),
       where: {
-        groupId: groupId,
+        groupId,
+        endTime: {
+          lte: now
+        },
         config: {
           path: ['isVisible'],
           equals: true
-        },
-        id: {
-          notIn
         }
       },
       select: this.contestSelectOption,
@@ -239,6 +243,7 @@ export class ContestService {
         endTime: 'asc'
       }
     })
+    return { finished }
   }
 
   startTimeCompare(a: Contest, b: Contest) {

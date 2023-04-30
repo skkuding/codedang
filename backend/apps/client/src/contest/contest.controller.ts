@@ -33,7 +33,7 @@ export class ContestController {
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
   }> {
-    return await this.contestService.getAliveContestsByGroupId()
+    return await this.contestService.getContestsByGroupId()
   }
 
   @Get('auth')
@@ -43,7 +43,7 @@ export class ContestController {
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
   }> {
-    return await this.contestService.getAliveContestsByGroupId(req.user?.id)
+    return await this.contestService.getContestsByGroupId(req.user?.id)
   }
 
   @Get('finished')
@@ -54,10 +54,7 @@ export class ContestController {
   ): Promise<{
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getFinishedContestsByGroupId({
-      cursor,
-      take
-    })
+    return await this.contestService.getFinishedContestsByGroupId(cursor, take)
   }
 
   @Get(':contestId')
@@ -108,10 +105,7 @@ export class GroupContestController {
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
   }> {
-    return await this.contestService.getAliveContestsByGroupId(
-      req.user.id,
-      groupId
-    )
+    return await this.contestService.getContestsByGroupId(req.user.id, groupId)
   }
 
   @Get('finished')
@@ -122,11 +116,11 @@ export class GroupContestController {
   ): Promise<{
     finished: Partial<Contest>[]
   }> {
-    return await this.contestService.getFinishedContestsByGroupId({
-      groupId,
+    return await this.contestService.getFinishedContestsByGroupId(
       cursor,
-      take
-    })
+      take,
+      groupId
+    )
   }
 
   @Get(':id')
