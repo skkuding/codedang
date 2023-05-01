@@ -787,19 +787,36 @@
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "ecac38fa-17f6-43e7-a6f3-1ddc4de2ed11",
     "name": "200: OK",
-    "url": "/workbook",
+    "url": "/workbook?cursor=1&take=2",
     "method": "GET",
     "sortNum": 50000,
     "created": "2023-01-31T18:01:10.929Z",
-    "modified": "2023-02-01T01:40:42.716Z",
+    "modified": "2023-03-02T08:06:47.182Z",
     "headers": [],
-    "params": [],
+    "params": [
+      {
+        "name": "cursor",
+        "value": "1",
+        "isPath": false
+      },
+      {
+        "name": "take",
+        "value": "2",
+        "isPath": false
+      }
+    ],
     "tests": [
       {
         "type": "res-code",
         "custom": "",
         "action": "equal",
         "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"id\""
       },
       {
         "type": "res-body",
@@ -818,27 +835,51 @@
         "custom": "",
         "action": "contains",
         "value": "\"updateTime\""
+      },
+      {
+        "type": "json-query",
+        "custom": "json.id | length",
+        "action": "<=",
+        "value": "2"
       }
-    ]
+    ],
+    "docs": "# Get All Workbooks\n\nOpen Space의 workbook 목록을 보여줍니다.\n\n## Query\n\n- `cursor`: (optional) 가져올 아이템의 기준점으로, take 값에 따라 기준점의 앞뒤에 있는 아이템을 가져오게 됩니다. cursor 값은 항상 양수여야 하며, 값을 넘겨주지 않으면 자동으로 첫번째 아이템부터 반환됩니다.\n- `take`: 가져올 아이템의 개수를 지정합니다.\n\n### Examples\n전체 아이템: [1 2 3 4 5 6] / 현재 페이지: [3 4] 일 때  \n\n1. `?cursor=3?take=-2` => [1 2]\n2. `?cursor=4?take=2` => [5 6]\n3. `?take=5` => [1 2 3 4 5]"
   },
   {
     "_id": "efc963b0-4c49-45ee-8901-a9765037a443",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "ee01069f-f88f-4841-9cf1-921fd2521372",
     "name": "200: OK",
-    "url": "/group/2/workbook",
+    "url": "/group/2/workbook?cursor=6&take=-2",
     "method": "GET",
     "sortNum": 60000,
     "created": "2023-02-01T01:48:09.050Z",
-    "modified": "2023-02-15T05:12:42.238Z",
+    "modified": "2023-03-02T08:10:10.392Z",
     "headers": [],
-    "params": [],
+    "params": [
+      {
+        "name": "cursor",
+        "value": "6",
+        "isPath": false
+      },
+      {
+        "name": "take",
+        "value": "-2",
+        "isPath": false
+      }
+    ],
     "tests": [
       {
         "type": "res-code",
         "custom": "",
         "action": "equal",
         "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"id\""
       },
       {
         "type": "res-body",
@@ -857,8 +898,15 @@
         "custom": "",
         "action": "contains",
         "value": "\"updateTime\""
+      },
+      {
+        "type": "json-query",
+        "custom": "json.id | length",
+        "action": "<=",
+        "value": "2"
       }
     ],
+    "docs": "# Get Group Workbook List\n\n그룹의 workbook 목록을 가져옵니다.\n\n## Query\n\n- `cursor`: (optional) 가져올 아이템의 기준점으로, take 값에 따라 기준점의 앞뒤에 있는 아이템을 가져오게 됩니다. cursor 값은 항상 양수여야 하며, 값을 넘겨주지 않으면 자동으로 첫번째 아이템부터 반환됩니다.\n- `take`: 가져올 아이템의 개수를 지정합니다.\n\n### Examples\n전체 아이템: [1 2 3 4 5 6] / 현재 페이지: [3 4] 일 때  \n\n1. `?cursor=3?take=-2` => [1 2]\n2. `?cursor=4?take=2` => [5 6]\n3. `?take=5` => [1 2 3 4 5]",
     "preReq": {
       "runRequests": [
         {
@@ -954,16 +1002,16 @@
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "df830ccf-ea06-40c9-9dec-69679e90a91a",
     "name": "Succeed",
-    "url": "/notice?offset=1",
+    "url": "/notice?take=3",
     "method": "GET",
     "sortNum": 60000,
     "created": "2023-02-01T07:02:36.251Z",
-    "modified": "2023-02-01T07:10:35.248Z",
+    "modified": "2023-03-02T07:51:26.976Z",
     "headers": [],
     "params": [
       {
-        "name": "offset",
-        "value": "1",
+        "name": "take",
+        "value": "3",
         "isPath": false
       }
     ],
@@ -993,13 +1041,13 @@
         "value": "\"id\": 3"
       },
       {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"id\": 4"
+        "type": "json-query",
+        "custom": "json.id | length",
+        "action": "<=",
+        "value": "3"
       }
     ],
-    "docs": "# Get all notices\n\nOpen space의 공지사항을 불러옵니다.\n\n## Query\n\n- `offset`: 몇 번째 item부터 가져올지 정합니다."
+    "docs": "# Get all notices\n\nOpen space의 공지사항을 불러옵니다.\n\n## Query\n\n- `cursor`: (optional) 가져올 아이템의 기준점으로, take 값에 따라 기준점의 앞뒤에 있는 아이템을 가져오게 됩니다. cursor 값은 항상 양수여야 하며, 값을 넘겨주지 않으면 자동으로 첫번째 아이템부터 반환됩니다.\n- `take`: 가져올 아이템의 개수를 지정합니다.\n\n### Examples\n전체 아이템: [1 2 3 4 5 6] / 현재 페이지: [3 4] 일 때  \n\n1. `?cursor=3?take=-2` => [1 2]\n2. `?cursor=4?take=2` => [5 6]\n3. `?take=5` => [1 2 3 4 5]"
   },
   {
     "_id": "f4c615bd-92ae-424a-8bc5-4d5e74a0f3d5",
@@ -2288,16 +2336,21 @@
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "162021f9-d9b8-4acb-880a-fac122d0fadf",
     "name": "Succeed",
-    "url": "/group/1/notice?offset=1",
+    "url": "/group/1/notice?cursor=1&take=2",
     "method": "GET",
     "sortNum": 100000,
     "created": "2023-02-15T05:00:13.415Z",
-    "modified": "2023-02-15T05:00:13.415Z",
+    "modified": "2023-03-02T06:28:47.330Z",
     "headers": [],
     "params": [
       {
-        "name": "offset",
+        "name": "cursor",
         "value": "1",
+        "isPath": false
+      },
+      {
+        "name": "take",
+        "value": "2",
         "isPath": false
       }
     ],
@@ -2312,16 +2365,22 @@
         "type": "res-body",
         "custom": "",
         "action": "contains",
-        "value": "\"id\": 1"
+        "value": "\"id\": 2"
       },
       {
         "type": "res-body",
         "custom": "",
         "action": "contains",
-        "value": "\"id\": 2"
+        "value": "\"id\": 3"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.id | length",
+        "action": "<=",
+        "value": "5"
       }
     ],
-    "docs": "# Get group's all notices\n\n한 group의 모든 공지사항을 불러옵니다.\n\n## Query\n\n- `offset`: 몇 번째 item부터 가져올지 정합니다.",
+    "docs": "# Get group's all notices\n\n한 group의 모든 공지사항을 불러옵니다.\n\n\n## Query\n\n- `cursor`: (optional) 가져올 아이템의 기준점으로, take 값에 따라 기준점의 앞뒤에 있는 아이템을 가져오게 됩니다. cursor 값은 항상 양수여야 하며, 값을 넘겨주지 않으면 자동으로 첫번째 아이템부터 반환됩니다.\n- `take`: 가져올 아이템의 개수를 지정합니다.\n\n### Examples\n전체 아이템: [1 2 3 4 5 6] / 현재 페이지: [3 4]  \n\n1. `?cursor=3?take=-2` => [1 2]\n2. `?cursor=4?take=2` => [5 6]\n3. `?take=5` => [1 2 3 4 5]",
     "preReq": {
       "runRequests": [
         {
