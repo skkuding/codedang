@@ -641,43 +641,6 @@
     }
   },
   {
-    "_id": "386b119c-039e-4cce-8316-3939f9008204",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "4b515a9e-2c7f-46c3-aef5-809b6f2c322f",
-    "name": "403: Not ended contest",
-    "url": "/group/2/contest/3",
-    "method": "GET",
-    "sortNum": 15000,
-    "created": "2023-01-15T15:51:57.192Z",
-    "modified": "2023-02-15T05:18:07.022Z",
-    "headers": [],
-    "params": [],
-    "tests": [
-      {
-        "type": "res-code",
-        "custom": "",
-        "action": "equal",
-        "value": "403"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "Before the contest is ended, only group members can access"
-      }
-    ],
-    "preReq": {
-      "runRequests": [
-        {
-          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
-          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-          "triggerCondition": "run-always",
-          "triggerValue": ""
-        }
-      ]
-    }
-  },
-  {
     "_id": "8526d2dc-b8f5-4dc6-873f-09f411e6ca31",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "fee4c6ed-cf6b-45c1-830b-ae840a325a19",
