@@ -1,0 +1,117 @@
+name: Move pull requests into Under Review 🔍 column
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  track_PR:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get PR ID environment variable
+        run: |
+          echo "PULLREQ_ID=${{ github.event.pull_request.node_id }}" >> $GITHUB_ENV
+          echo "REPO_NAME=${{ github.repository }}" >> $GITHUB_ENV
+
+      - name: Get project data
+        env:
+          GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
+          ORGANIZATION: skkuding
+          PROJECT_NUMBER: 7
+        run: |
+          gh api graphql -f query='
+            query($org: String!, $number: Int!) {
+              user(login: $org){
+                projectV2(number: $number) {
+                  id
+                  fields(first:20) {
+                    nodes {
+                      ... on ProjectV2Field {
+                        id
+                        name
+                      }
+                      ... on ProjectV2SingleSelectField {
+                        id
+                        name
+                        options {
+                          id
+                          name
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
+
+          echo 'PROJECT_ID='$(jq '.data.user.projectV2.id' project_data.json) >> $GITHUB_ENV
+          echo 'STATUS_FIELD_ID='$(jq '.data.user.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'STATUS_VALUE_ID='$(jq '.data.user.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Under Review 🔍") |.id' project_data.json) >> $GITHUB_ENV
+
+      - name: Get reference issue ID
+        env:
+          GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
+        run: |
+          gh api graphql -f query='
+            query($pr_id: ID!) {
+              node(id: $pr_id) {
+                ... on PullRequest {
+                  closingIssuesReferences(first: 1) {
+                    nodes {
+                    id
+                    title
+                    }
+                  }
+                }
+              }
+            }' -f pr_id=$PULLREQ_ID > pr_data.json
+
+          echo 'ISSUE_ID='$(jq '.data.node.closingIssuesReferences.nodes[0].id' pr_data.json) >> $GITHUB_ENV
+
+      - name: Get Issue Project Item
+        env:
+          GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
+        run: |
+          gh api graphql -f query='
+            query ($issue_id: ID!) {
+              node(id: $issue_id) {
+                ... on Issue {
+                  number
+                  title
+                  projectItems(first: 10) {
+                    nodes {
+                      id
+                    }
+                  }
+                }
+              }
+            }' -f issue_id=$ISSUE_ID > issue_project_item.json
+
+          echo 'ISSUE_PROJECT_ITEM_ID='$(jq '.data.node.projectItems.nodes[0].id' issue_project_item.json) >> $GITHUB_ENV
+
+      - name: Set fields
+        env:
+          GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
+        run: |
+          gh api graphql -f query='
+            mutation (
+              $project: ID!,
+              $item: ID!,
+              $status_field: ID!,
+              $status_value: String!
+            ) {
+              set_status: updateProjectV2ItemFieldValue(
+                input: {
+                  projectId: $project,
+                  itemId: $item,
+                  fieldId: $status_field,
+                  value: {
+                    singleSelectOptionId: $status_value
+                  }
+                }
+              ) {
+                projectV2Item {
+                  id
+                }
+              }
+            }' -f project=$PROJECT_ID -f item=$ISSUE_PROJECT_ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=${{ env.STATUS_VALUE_ID }} --silent
