@@ -3225,5 +3225,133 @@
         }
       ]
     }
+  },
+  {
+    "_id": "d504c08c-b82b-4276-8a04-2d06c608a2b4",
+    "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+    "containerId": "",
+    "name": "test: 401",
+    "url": "",
+    "method": "POST",
+    "sortNum": 10000,
+    "created": "2023-05-02T11:00:40.397Z",
+    "modified": "2023-05-02T11:08:40.849Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "graphql",
+      "raw": "",
+      "form": [],
+      "graphql": {
+        "query": "query User {\n    user(id: 3) {\n        username\n    }\n}"
+      }
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "898dfe29-e6e9-4e72-82ea-59629ba262cf",
+    "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+    "containerId": "",
+    "name": "test: 403",
+    "url": "",
+    "method": "POST",
+    "sortNum": 20000,
+    "created": "2023-05-02T11:07:38.011Z",
+    "modified": "2023-05-02T11:08:55.362Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "graphql",
+      "raw": "",
+      "form": [],
+      "graphql": {
+        "query": "query User {\n    user(id: 3) {\n        username\n    }\n}"
+      }
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "c01b0a00-029c-408e-bc3c-fd90d34e7a0e",
+    "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+    "containerId": "",
+    "name": "test: Succeed",
+    "url": "",
+    "method": "POST",
+    "sortNum": 5000,
+    "created": "2023-05-02T11:08:05.218Z",
+    "modified": "2023-05-02T11:09:28.898Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "graphql",
+      "raw": "",
+      "form": [],
+      "graphql": {
+        "query": "query User {\n    user(id: 3) {\n        username\n    }\n}"
+      }
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "0002ce16-0a74-4dab-a7cc-5ffbd4e7b013",
+    "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+    "containerId": "",
+    "name": "test: 403 Copy",
+    "url": "",
+    "method": "POST",
+    "sortNum": 30000,
+    "created": "2023-05-02T11:12:48.283Z",
+    "modified": "2023-05-02T11:12:55.042Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "graphql",
+      "raw": "",
+      "form": [],
+      "graphql": {
+        "query": "query User {\n    user(id: 3) {\n        username\n    }\n}"
+      }
+    },
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
   }
 ]

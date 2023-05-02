@@ -4,10 +4,11 @@ import {
   Injectable
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
-import { Role } from '@prisma/client'
+import { GqlExecutionContext } from '@nestjs/graphql'
+import { Role, type User } from '@prisma/client'
 import { ROLES_KEY } from '@client/common/decorator/roles.decorator'
-import { UserService } from '@client/user/user.service'
-import { type AuthenticatedRequest } from '../../auth/interface/authenticated-request.interface'
+import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import { PrismaService } from '@admin/prisma/prisma.service'
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -15,7 +16,7 @@ export class RolesGuard implements CanActivate {
 
   constructor(
     private readonly reflector: Reflector,
-    private readonly userService: UserService
+    private readonly prisma: PrismaService
   ) {
     Object.keys(Role).forEach((key, index) => {
       this.#rolesHierarchy[key] = index
@@ -32,14 +33,24 @@ export class RolesGuard implements CanActivate {
       role = Role.User
     }
 
-    const request: AuthenticatedRequest = context.switchToHttp().getRequest()
+    const request: AuthenticatedRequest =
+      GqlExecutionContext.create(context).getContext().req
 
-    const userRole = await this.userService.getUserRole(request.user.id)
+    const userRole = await this.getUserRole(request.user.id)
 
     if (this.#rolesHierarchy[userRole.role] >= this.#rolesHierarchy[role]) {
       request.user.role = userRole.role
       return true
     }
     return false
+  }
+
+  private async getUserRole(userId: number): Promise<Partial<User>> {
+    return await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        role: true
+      }
+    })
   }
 }

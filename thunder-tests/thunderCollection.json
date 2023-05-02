@@ -346,5 +346,21 @@
         "baseUrl": "http://localhost:4000"
       }
     }
+  },
+  {
+    "_id": "089b01d8-96da-497e-8921-f5df86e4d23c",
+    "colName": "GraphQL",
+    "created": "2023-05-02T10:59:44.408Z",
+    "sortNum": 20000,
+    "folders": [],
+    "settings": {
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{bearer_token}}"
+      },
+      "options": {
+        "baseUrl": "http://localhost:5000/graphql"
+      }
+    }
   }
 ]

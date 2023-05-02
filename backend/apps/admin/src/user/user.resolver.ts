@@ -3,7 +3,13 @@ import { UserService } from './user.service'
 import { User } from '../@generated/user/user.model'
 import { UserCreateInput } from '../@generated/user/user-create.input'
 import { UserUpdateInput } from '../@generated/user/user-update.input'
+import { UseGuards } from '@nestjs/common'
+import { RolesGuard } from './guard/roles.guard'
+import { Roles } from '@client/common/decorator/roles.decorator'
+import { Role } from '@prisma/client'
 
+@UseGuards(RolesGuard)
+@Roles(Role.Admin)
 @Resolver(() => User)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
@@ -18,6 +24,8 @@ export class UserResolver {
     return this.userService.findAll()
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(Role.SuperAdmin)
   @Query(() => User, { name: 'user' })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.userService.findOne(id)
