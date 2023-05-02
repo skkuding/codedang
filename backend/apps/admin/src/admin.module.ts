@@ -4,6 +4,8 @@ import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { UserModule } from './user/user.module'
+import { AdminModule } from './admin/admin.module'
+import { ProblemModule } from './problem/problem.module'
 
 @Module({
   imports: [
@@ -12,7 +14,9 @@ import { UserModule } from './user/user.module'
       autoSchemaFile: 'schema.gql',
       sortSchema: true
     }),
-    UserModule
+    UserModule,
+    AdminModule,
+    ProblemModule
   ],
   controllers: [AdminController],
   providers: [AdminService]
