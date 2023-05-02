@@ -13,7 +13,7 @@ import CardItem from './CardItem.vue'
       colored-text="Created by skkuding"
       colored-text-short="By skkuding"
     />
-    <h2 class="mt-8 mb-2 text-lg">Another Example</h2>
+    <h2 class="mb-2 mt-8 text-lg">Another Example</h2>
     <CardItem
       class="w-[640px] rounded-lg"
       title="Colored Gray"

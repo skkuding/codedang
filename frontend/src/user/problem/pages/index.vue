@@ -155,7 +155,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <PageSubtitle text="All Problem" class="mt-10 mb-2" />
+  <PageSubtitle text="All Problem" class="mb-2 mt-10" />
   <PaginationTable
     :fields="fields"
     :items="problemList"
@@ -174,7 +174,7 @@ onMounted(async () => {
     </template>
   </PaginationTable>
 
-  <PageSubtitle text="Workbook" class="mt-10 mb-2" />
+  <PageSubtitle text="Workbook" class="mb-2 mt-10" />
   <div class="flex justify-end">
     <SearchBar class="mb-5" placeholder="keywords" />
   </div>
@@ -199,7 +199,7 @@ onMounted(async () => {
     v-if="!containLastItem"
     outline
     color="gray-dark"
-    class="mt-8 mb-20 w-full"
+    class="mb-20 mt-8 w-full"
     @click="getMoreWorkbooks(useWindowSize().width.value < 768 ? 2 : 4)"
   >
     More
