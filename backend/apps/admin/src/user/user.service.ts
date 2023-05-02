@@ -4,8 +4,7 @@ import { type UserUpdateInput } from '../@generated/user/user-update.input'
 import { UnprocessableDataException } from '@client/common/exception/business.exception'
 import { type User } from '@admin/@generated/user/user.model'
 import { encrypt } from '@client/common/hash'
-import { PrismaService } from '@admin/prisma/prisma.service'
-import { GroupService } from '@client/group/group.service'
+import { PrismaService } from '@client/prisma/prisma.service'
 import { UserService } from '@client/user/user.service'
 import { type CreateUserProfileData } from './interface/create-userprofile.interface'
 
@@ -13,7 +12,6 @@ import { type CreateUserProfileData } from './interface/create-userprofile.inter
 export class AdminUserService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly groupService: GroupService,
     private readonly userService: UserService
   ) {}
 
