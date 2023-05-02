@@ -123,6 +123,7 @@ const createGroups = async () => {
   })
 
   // create empty private group
+  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요한 그룹을 테스트할 때 사용합니다
   await prisma.group.create({
     data: {
       groupName: 'Example Private Group 2',
@@ -139,6 +140,7 @@ const createGroups = async () => {
   })
 
   // create empty private group
+  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요없는 그룹을 테스트할 때 사용합니다
   await prisma.group.create({
     data: {
       groupName: 'Example Private Group 3',
