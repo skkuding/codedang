@@ -1,0 +1,33 @@
+<script setup lang="ts">
+import PageTitle from '@/client/src/common/components/Atom/PageTitle.vue'
+import { ref } from 'vue'
+import Badge from '@/client/src/common/components/Molecule/Badge.vue'
+import Tab from '@/client/src/common/components/Molecule/Tab.vue'
+import Top from '../components/Top.vue'
+import Problem from '../components/Problem.vue'
+import Ranking from '../components/Ranking.vue'
+import Notice from '../components/Notice.vue'
+import { useDateFormat, useNow } from '@vueuse/core'
+
+defineProps<{
+  id: string
+}>()
+
+const formatter = ref('YYYY-MM-DD HH:mm:ss')
+const time = useDateFormat(useNow(), formatter)
+</script>
+
+<template>
+  <div class="mt-10">
+    <div class="mb-5 flex justify-between">
+      <PageTitle text="SKKU Coding Platform 2차 모의대회" class="mb-14" />
+      <Badge color="green">{{ time }}</Badge>
+    </div>
+    <Tab :items="['top', 'problem', 'notice', 'ranking']" class="font-bold">
+      <template #top><Top :id="Number(id)" /></template>
+      <template #notice><Notice :id="Number(id)" /></template>
+      <template #problem><Problem :id="Number(id)" /></template>
+      <template #ranking><Ranking :id="Number(id)" /></template>
+    </Tab>
+  </div>
+</template>

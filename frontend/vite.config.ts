@@ -9,10 +9,12 @@ import checker from 'vite-plugin-checker'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  root: 'client',
   plugins: [
     vue(),
     icons({ autoInstall: true }),
     pages({
+      exclude: ['**/*.ts', '**/App.vue'],
       pagesDir: [
         { dir: 'src/user/home/pages', baseRoute: '' },
         { dir: 'src/user/notice/pages', baseRoute: 'notice' },
@@ -20,20 +22,28 @@ export default defineConfig({
         { dir: 'src/user/contest/pages', baseRoute: 'contest' },
         { dir: 'src/user/group/pages', baseRoute: 'group' },
         { dir: 'src/user/workbook/pages', baseRoute: 'workbook' },
-        { dir: 'src/manager/pages', baseRoute: 'manager' }
+        { dir: '../admin/src/manager/pages', baseRoute: 'admin' }
       ]
     }),
     layouts({
       layoutsDirs: 'src/common/layouts'
     }),
     checker({
-      eslint: { lintCommand: 'eslint "./src/**/*.{ts,vue}"' },
+      eslint: { lintCommand: 'eslint "src/**/*.{ts,vue}"' },
       vueTsc: true
     })
   ],
+  build: {
+    rollupOptions: {
+      input: {
+        admin: fileURLToPath(new URL('./admin/index.html', import.meta.url)),
+        client: fileURLToPath(new URL('./client/index.html', import.meta.url))
+      }
+    }
+  },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./', import.meta.url))
     }
   },
   server: {

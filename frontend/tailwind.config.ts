@@ -7,7 +7,12 @@ import forms from '@tailwindcss/forms'
 import typography from '@tailwindcss/typography'
 
 export default {
-  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+  content: [
+    './client/index.html',
+    './client/src/**/*.{vue,js,ts,jsx,tsx}',
+    './admin/index.html',
+    './admin/src/**/*.{vue,js,ts,jsx,tsx}'
+  ],
   theme: {
     colors: {
       white: colors.white,

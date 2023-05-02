@@ -1,10 +1,17 @@
 {
   "extends": "@vue/tsconfig/tsconfig.web.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "include": [
+    "client/vite-env.d.ts",
+    "client/src/**/*",
+    "client/src/**/*.vue",
+    "admin/vite-env.d.ts",
+    "admin/src/**/*",
+    "admin/src/**/*.vue"
+  ],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./*"]
     }
   },
 
