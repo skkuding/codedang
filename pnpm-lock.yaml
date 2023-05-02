@@ -279,8 +279,8 @@ importers:
         specifier: ^9.13.0
         version: 9.13.0(vue@3.2.47)
       '@vueuse/router':
-        specifier: ^9.13.0
-        version: 9.13.0(vue-router@4.1.6)(vue@3.2.47)
+        specifier: ^10.1.2
+        version: 10.1.2(vue-router@4.1.6)(vue@3.2.47)
       axios:
         specifier: ^1.3.5
         version: 1.3.5
@@ -3338,13 +3338,13 @@ packages:
     resolution: {integrity: sha512-gdU7TKNAUVlXXLbaF+ZCfte8BjRJQWPCa2J55+7/h+yDtzw3vOoGQDRXzI6pyKyo6bXFT5/QoPE4hAknExjRLQ==}
     dev: false
 
-  /@vueuse/router@9.13.0(vue-router@4.1.6)(vue@3.2.47):
-    resolution: {integrity: sha512-lcL6auSUGMGZMdDzZJb02QDe909AChzMXoxqFS3gL2E8mHmIx0SrNor+33UkqvvBPi18vXpDq/R7tPd9fxWwTg==}
+  /@vueuse/router@10.1.2(vue-router@4.1.6)(vue@3.2.47):
+    resolution: {integrity: sha512-99KhTBZliU5gRPHPhi7UO97vArgWIYLomLeCPYJQvbg1gYYa3BVX/uFDcdOaVYhdz5rWDeY/DaeW5CeNYR7zzQ==}
     peerDependencies:
       vue-router: '>=4.0.0-rc.1'
     dependencies:
-      '@vueuse/shared': 9.13.0(vue@3.2.47)
-      vue-demi: 0.13.11(vue@3.2.47)
+      '@vueuse/shared': 10.1.2(vue@3.2.47)
+      vue-demi: 0.14.0(vue@3.2.47)
       vue-router: 4.1.6(vue@3.2.47)
     transitivePeerDependencies:
       - '@vue/composition-api'
