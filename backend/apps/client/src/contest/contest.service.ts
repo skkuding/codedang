@@ -224,26 +224,42 @@ export class ContestService {
   }> {
     const skip = cursor ? 1 : 0
     const now = new Date()
-    const finished = await this.prisma.contest.findMany({
-      take,
-      skip,
-      ...(cursor && { cursor: { id: cursor } }),
-      where: {
-        groupId,
-        endTime: {
-          lte: now
+    if (cursor) {
+      const finished = await this.prisma.contest.findMany({
+        where: {
+          endTime: {
+            lte: now
+          },
+          groupId,
+          config: {
+            path: ['isVisible'],
+            equals: true
+          }
         },
-        config: {
-          path: ['isVisible'],
-          equals: true
+        take,
+        skip,
+        cursor: { id: cursor },
+        select: this.contestSelectOption,
+        orderBy: {
+          endTime: 'asc'
         }
-      },
-      select: this.contestSelectOption,
-      orderBy: {
-        endTime: 'asc'
-      }
-    })
-    return { finished }
+      })
+      return { finished }
+    } else {
+      const finished = await this.prisma.contest.findMany({
+        where: {
+          endTime: {
+            lte: now
+          },
+          groupId
+        },
+        select: this.contestSelectOption,
+        orderBy: {
+          endTime: 'asc'
+        }
+      })
+      return { finished }
+    }
   }
 
   startTimeCompare(a: Contest, b: Contest) {
@@ -271,12 +287,6 @@ export class ContestService {
     )
     upcomingContest.sort(this.startTimeCompare)
     return upcomingContest
-  }
-
-  filterFinished(contests: Partial<Contest>[]): Partial<Contest>[] {
-    const now = new Date()
-    const finishedContest = contests.filter((contest) => contest.endTime <= now)
-    return finishedContest
   }
 
   async getContest(

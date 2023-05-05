@@ -485,12 +485,8 @@ describe('ContestService', () => {
 
   describe('getFinishedContests', () => {
     it('should return finished contests when cursor is 0', async () => {
-      mockPrismaService.contest.findMany.resolves(contests)
-      const cursor = 0
-      const take = 10
-      expect(
-        await service.getFinishedContestsByGroupId(cursor, take)
-      ).to.deep.equal({
+      mockPrismaService.contest.findMany.resolves(finishedContests)
+      expect(await service.getFinishedContestsByGroupId(0, 1)).to.deep.equal({
         finished: finishedContests
       })
     })
@@ -528,14 +524,9 @@ describe('ContestService', () => {
     })
   })
 
-  describe('filterFinished', () => {
-    it('should return ongoing contests of the group', async () => {
-      expect(service.filterFinished(contests)).to.deep.equal(finishedContests)
-    })
-  })
-
   describe('getContestsByGroupId', () => {
     it('should return ongoing, upcoming, finished contests', async () => {
+      mockPrismaService.contest.findMany.resolves(contests)
       expect(
         await service.getContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
