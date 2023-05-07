@@ -1,5 +1,5 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
-import { type Contest } from '@prisma/client'
+import { Prisma, type Contest } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { contestPublicizingRequestKey } from '@client/common/cache/keys'
 import {
@@ -222,44 +222,36 @@ export class ContestService {
   ): Promise<{
     finished: Partial<Contest>[]
   }> {
-    const skip = cursor ? 1 : 0
     const now = new Date()
-    if (cursor) {
-      const finished = await this.prisma.contest.findMany({
-        where: {
-          endTime: {
-            lte: now
-          },
-          groupId,
-          config: {
-            path: ['isVisible'],
-            equals: true
-          }
+    let findOptions: Prisma.ContestFindManyArgs = {
+      where: {
+        endTime: {
+          lte: now
         },
-        take,
-        skip,
-        cursor: { id: cursor },
-        select: this.contestSelectOption,
-        orderBy: {
-          endTime: 'asc'
+        groupId,
+        config: {
+          path: ['isVisible'],
+          equals: true
         }
-      })
-      return { finished }
-    } else {
-      const finished = await this.prisma.contest.findMany({
-        where: {
-          endTime: {
-            lte: now
-          },
-          groupId
-        },
-        select: this.contestSelectOption,
-        orderBy: {
-          endTime: 'asc'
-        }
-      })
-      return { finished }
+      },
+      take,
+      select: this.contestSelectOption,
+      orderBy: {
+        endTime: 'asc'
+      }
     }
+    if (cursor) {
+      findOptions = {
+        ...findOptions,
+        skip: 1,
+        cursor: {
+          id: cursor
+        }
+      }
+    }
+
+    const finished = await this.prisma.contest.findMany(findOptions)
+    return { finished }
   }
 
   startTimeCompare(a: Contest, b: Contest) {
