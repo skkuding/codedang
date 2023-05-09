@@ -15,7 +15,7 @@ jobs:
 
       - name: Get project data
         env:
-          GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ORGANIZATION: skkuding
           PROJECT_NUMBER: 7
         run: |
@@ -50,7 +50,7 @@ jobs:
 
       - name: Get reference issue ID
         env:
-          GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh api graphql -f query='
             query($pr_id: ID!) {
@@ -70,7 +70,7 @@ jobs:
 
       - name: Get Issue Project Item
         env:
-          GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh api graphql -f query='
             query ($issue_id: ID!) {
@@ -91,7 +91,7 @@ jobs:
 
       - name: Set fields
         env:
-          GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh api graphql -f query='
             mutation (
