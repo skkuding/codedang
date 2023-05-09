@@ -307,7 +307,7 @@ model Submission {
   workbook   Workbook? @relation(fields: [workbookId], references: [id])
   workbookId Int?      @map("workbook_id")
   code       String
-  language   String
+  language   Language
   createTime DateTime  @default(now()) @map("create_time")
   updateTime DateTime  @updatedAt @map("update_time")
 
