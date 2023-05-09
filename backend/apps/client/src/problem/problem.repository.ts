@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { type Problem, type WorkbookProblem } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@client/common/constants'
-import { type PaginationDto } from '@client/common/dto/pagination.dto'
 import { EntityNotExistException } from '@client/common/exception/business.exception'
 import { PrismaService } from '@client/prisma/prisma.service'
 
@@ -52,10 +51,18 @@ export class ProblemRepository {
     }
   }
 
-  async getProblems(paginationDto: PaginationDto): Promise<Partial<Problem>[]> {
+  async getProblems(cursor: number, take: number): Promise<Partial<Problem>[]> {
+    let skip = 1
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    }
     return await this.prisma.problem.findMany({
-      skip: paginationDto.offset,
-      take: paginationDto.limit,
+      cursor: {
+        id: cursor
+      },
+      skip: skip,
+      take: take,
       where: {
         groupId: OPEN_SPACE_ID
       },
@@ -79,10 +86,22 @@ export class ProblemRepository {
     })
   }
 
-  async getContestProblems(contestId: number, paginationDto: PaginationDto) {
+  async getContestProblems(contestId: number, cursor: number, take: number) {
+    let skip = 1
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    }
     return await this.prisma.contestProblem.findMany({
-      skip: paginationDto.offset,
-      take: paginationDto.limit,
+      cursor: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_problemId: {
+          contestId: contestId,
+          problemId: cursor
+        }
+      },
+      skip: skip,
+      take: take,
       where: { contestId: contestId },
       select: {
         ...this.relatedProblemsSelectOption,
@@ -118,11 +137,24 @@ export class ProblemRepository {
 
   async getWorkbookProblems(
     workbookId: number,
-    paginationDto: PaginationDto
+    cursor: number,
+    take: number
   ): Promise<(Partial<WorkbookProblem> & { problem: Partial<Problem> })[]> {
+    let skip = 1
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    }
     return await this.prisma.workbookProblem.findMany({
-      skip: paginationDto.offset,
-      take: paginationDto.limit,
+      cursor: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        workbookId_problemId: {
+          workbookId: workbookId,
+          problemId: cursor
+        }
+      },
+      skip: skip,
+      take: take,
       where: { workbookId: workbookId },
       select: this.relatedProblemsSelectOption
     })

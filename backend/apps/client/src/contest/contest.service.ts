@@ -1,4 +1,5 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { type Contest } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { contestPublicizingRequestKey } from '@client/common/cache/keys'
@@ -385,10 +386,17 @@ export class ContestService {
     })
   }
 
-  async createContestRecord(contestId: number, userId: number) {
-    const contest = await this.prisma.contest.findUnique({
-      where: { id: contestId },
-      select: { startTime: true, endTime: true }
+  async createContestRecord(
+    contestId: number,
+    userId: number,
+    groupId = OPEN_SPACE_ID
+  ) {
+    const contest = await this.prisma.contest.findFirst({
+      where: {
+        id: contestId,
+        groupId: groupId
+      },
+      select: { startTime: true, endTime: true, groupId: true }
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
