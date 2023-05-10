@@ -40,11 +40,7 @@ type State = Pick<Response, 'finished' | 'ongoing' | 'upcoming'> & {
 const contentList = ref<State | null>(null)
 const store = useAuthStore()
 onMounted(async () => {
-  // 임시 코드
-  if (!store.isLoggedIn) {
-    await store.login('user10', 'Useruser')
-  }
-
+  if (!store.isLoggedIn) return // 비로그인 시 어떤 로직 수행??
   const { data } = await axios.get<Response>(`/api/group/${props.id}/contest`)
   contentList.value = {
     registered: data.registeredOngoing.concat(...data.registeredUpcoming),
@@ -75,7 +71,7 @@ const DAY = 1000 * 60 * 60 * 24
 const getTimeInfo = (key: keyof State, date: Date) => {
   const diff = now.value.getTime() - date.getTime()
   if (key === 'finished') {
-    return `Finished ${useTimeAgo(date).value} ago`
+    return `Finished ${useTimeAgo(date).value}`
   } else if (diff < -DAY) {
     return `Start After ${useTimeAgo(date).value}`
   } else if (diff <= 0) {
