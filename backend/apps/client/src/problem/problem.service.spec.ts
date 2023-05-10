@@ -20,7 +20,7 @@ import { ProblemResponseDto } from './dto/problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ContestService } from '@client/contest/contest.service'
 import { GroupService } from '@client/group/group.service'
-import { CACHE_MANAGER } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import {
   EntityNotExistException,
   ForbiddenAccessException
