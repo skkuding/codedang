@@ -26,7 +26,8 @@ let privateGroup: Group
 const problems: Problem[] = []
 const problemTestcases: ProblemTestcase[] = []
 let contest: Contest
-let workbook: Workbook
+const workbooks: Workbook[] = []
+const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
 
 const createUsers = async () => {
@@ -6380,35 +6381,43 @@ const createContests = async () => {
 }
 
 const createWorkbooks = async () => {
-  workbook = await prisma.workbook.create({
-    data: {
-      title: '모의대회 문제집',
-      description: '모의대회 문제들을 모아뒀습니다!',
-      createdById: superAdminUser.id,
-      groupId: publicGroup.id
-    }
-  })
-  const privateWorkbook = await prisma.workbook.create({
-    data: {
-      title: '모의대회 문제집',
-      description: '모의대회 문제들을 모아뒀습니다!',
-      createdById: superAdminUser.id,
-      groupId: privateGroup.id
-    }
-  })
+  for (let i = 1; i <= 3; i++) {
+    workbooks.push(
+      await prisma.workbook.create({
+        data: {
+          title: '모의대회 문제집',
+          description: '모의대회 문제들을 모아뒀습니다!',
+          createdById: superAdminUser.id,
+          groupId: publicGroup.id
+        }
+      })
+    )
+  }
+  for (let i = 1; i <= 3; i++) {
+    privateWorkbooks.push(
+      await prisma.workbook.create({
+        data: {
+          title: '모의대회 문제집',
+          description: '모의대회 문제들을 모아뒀습니다!',
+          createdById: superAdminUser.id,
+          groupId: privateGroup.id
+        }
+      })
+    )
+  }
 
   for (const problem of problems) {
     await prisma.workbookProblem.create({
       data: {
         id: String(problem.id),
-        workbookId: workbook.id,
+        workbookId: workbooks[0].id,
         problemId: problem.id
       }
     })
     await prisma.workbookProblem.create({
       data: {
         id: String(problem.id),
-        workbookId: privateWorkbook.id,
+        workbookId: privateWorkbooks[0].id,
         problemId: problem.id
       }
     })
@@ -6425,7 +6434,7 @@ const createSubmissions = async () => {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[0].id,
         problemId: problems[0].id,
         contestId: contest.id,
@@ -6449,7 +6458,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[1].id,
         problemId: problems[1].id,
         contestId: contest.id,
@@ -6473,7 +6482,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[2].id,
         problemId: problems[2].id,
         contestId: contest.id,
@@ -6497,7 +6506,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[3].id,
         problemId: problems[3].id,
         contestId: contest.id,
@@ -6517,7 +6526,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[4].id,
         problemId: problems[4].id,
         contestId: contest.id,
@@ -6541,10 +6550,10 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[5].id,
         problemId: problems[5].id,
-        workbookId: workbook.id,
+        workbookId: workbooks[0].id,
         code: `#include <iostream>
 int main(void) {
     std::cout << "Hello, World!" << endl;
@@ -6565,10 +6574,10 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[6].id,
         problemId: problems[6].id,
-        workbookId: workbook.id,
+        workbookId: workbooks[0].id,
         code: `print("Hello, World!")`,
         language: Language.Python3
       }
