@@ -3236,6 +3236,56 @@
     }
   },
   {
+    "_id": "2b66e831-ee6c-40bc-8b49-07334fd0e38a",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "e69f258a-3604-45e3-92fd-f87e9f25c64a",
+    "name": "Succeed (Need approval before join) ",
+    "url": "/group/3/join",
+    "method": "POST",
+    "sortNum": 490000,
+    "created": "2023-02-21T00:48:09.835Z",
+    "modified": "2023-05-02T13:16:13.229Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "201"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.userGroupData.userId",
+        "action": "equal",
+        "value": "13"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.userGroupData.groupId",
+        "action": "equal",
+        "value": "3"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.isJoined",
+        "action": "equal",
+        "value": "false"
+      }
+    ],
+    "docs": "# Join group by id\n\n### Notice\n이 메서드에는 그룹이 가입시에 사전 승인을 필요로 하는지에 따른 2개의 succeed cases가 존재합니다.<br><br>\n\n### URL\nPOST /group/{groupId}/join <br><br>\n\n### Description\n그룹의 id가 `{groupId}`인 그룹에 가입힙니다.<br><br>\n\n### Response Type\n```typscript\n{\n  userGroupData: {\n    userId: Number\n    groupId: Number\n    isGroupLeader: Boolean\n    createTime: Date\n    updateTime: Date\n  },\n  isJoined: Boolean\n}\n```\n\n<br>\n\n### Caution\n테스트 케이스 **400: Duplicated join request**를 실행 했을 때<br>\n테스트 결과에서 pre run이 실패했다는 메세지가 뜨면 무시하셔도 됩니다!",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
     "_id": "8ac61468-d539-4085-97a4-cac31d977444",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "e69f258a-3604-45e3-92fd-f87e9f25c64a",
@@ -3943,56 +3993,6 @@
     }
   },
   {
-    "_id": "2b66e831-ee6c-40bc-8b49-07334fd0e38a",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "e69f258a-3604-45e3-92fd-f87e9f25c64a",
-    "name": "Succeed (Need apporval before join) ",
-    "url": "/group/3/join",
-    "method": "POST",
-    "sortNum": 490000,
-    "created": "2023-02-21T00:48:09.835Z",
-    "modified": "2023-05-02T13:16:13.229Z",
-    "headers": [],
-    "params": [],
-    "tests": [
-      {
-        "type": "res-code",
-        "custom": "",
-        "action": "equal",
-        "value": "201"
-      },
-      {
-        "type": "json-query",
-        "custom": "json.userGroupData.userId",
-        "action": "equal",
-        "value": "13"
-      },
-      {
-        "type": "json-query",
-        "custom": "json.userGroupData.groupId",
-        "action": "equal",
-        "value": "3"
-      },
-      {
-        "type": "json-query",
-        "custom": "json.isJoined",
-        "action": "equal",
-        "value": "false"
-      }
-    ],
-    "docs": "# Join group by id\n\n### Notice\n이 메서드에는 그룹이 가입시에 사전 승인을 필요로 하는지에 따른 2개의 succeed cases가 존재합니다.<br><br>\n\n### URL\nPOST /group/{groupId}/join <br><br>\n\n### Description\n그룹의 id가 `{groupId}`인 그룹에 가입힙니다.<br><br>\n\n### Response Type\n```typscript\n{\n  userGroupData: {\n    userId: Number\n    groupId: Number\n    isGroupLeader: Boolean\n    createTime: Date\n    updateTime: Date\n  },\n  isJoined: Boolean\n}\n```\n\n<br>\n\n### Caution\n테스트 케이스 **400: Duplicated join request**를 실행 했을 때<br>\n테스트 결과에서 pre run이 실패했다는 메세지가 뜨면 무시하셔도 됩니다!",
-    "preReq": {
-      "runRequests": [
-        {
-          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
-          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-          "triggerCondition": "run-always",
-          "triggerValue": ""
-        }
-      ]
-    }
-  },
-  {
     "_id": "0b535a1b-4437-4f59-af29-c04fde974b01",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "8b4393e5-4001-4f7d-9f41-cce5ef02a10b",
@@ -4023,6 +4023,30 @@
       "runRequests": [
         {
           "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "a3aee315-f4c3-4b0b-bf09-ad5ffab9f17a",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "dcc8290a-fa46-4ad9-b9a1-f2f422fe2006",
+    "name": "Join Group By ID",
+    "url": "/group/4/join",
+    "method": "POST",
+    "sortNum": 650000,
+    "created": "2023-04-28T12:27:04.282Z",
+    "modified": "2023-04-28T12:27:30.939Z",
+    "headers": [],
+    "params": [],
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -4094,30 +4118,6 @@
       "runRequests": [
         {
           "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
-          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-          "triggerCondition": "run-always",
-          "triggerValue": ""
-        }
-      ]
-    }
-  },
-  {
-    "_id": "a3aee315-f4c3-4b0b-bf09-ad5ffab9f17a",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "dcc8290a-fa46-4ad9-b9a1-f2f422fe2006",
-    "name": "Join Group By ID",
-    "url": "/group/4/join",
-    "method": "POST",
-    "sortNum": 650000,
-    "created": "2023-04-28T12:27:04.282Z",
-    "modified": "2023-04-28T12:27:30.939Z",
-    "headers": [],
-    "params": [],
-    "tests": [],
-    "preReq": {
-      "runRequests": [
-        {
-          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
