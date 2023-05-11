@@ -27,8 +27,8 @@
         "sortNum": 40000,
         "settings": {
           "runOptions": {
-            "delay": 500,
-            "iterations": 1,
+            "delay": 10,
+            "iterations": 3,
             "dataFilePath": ""
           }
         }
@@ -91,14 +91,14 @@
       },
       {
         "_id": "d39772e1-109e-4fba-924e-6ab90a3e5277",
-        "name": "Get all contests",
+        "name": "Get all contests (for logged-out users)",
         "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
         "created": "2023-01-15T15:31:49.190Z",
         "sortNum": 130000
       },
       {
         "_id": "05ffbb82-5894-4752-9025-0ac933930903",
-        "name": "Get modal contest by ID",
+        "name": "Get contest by ID",
         "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
         "created": "2023-01-15T15:35:34.279Z",
         "sortNum": 140000
@@ -389,6 +389,13 @@
         "containerId": "a9aa5ec4-bc54-44ba-adf1-f2cb4ee6876a",
         "created": "2023-02-21T08:15:14.474Z",
         "sortNum": 412500
+      },
+      {
+        "_id": "8b4393e5-4001-4f7d-9f41-cce5ef02a10b",
+        "name": "Get all contests (for logged-in users)",
+        "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+        "created": "2023-03-02T11:08:27.602Z",
+        "sortNum": 135000
       }
     ],
     "settings": {
