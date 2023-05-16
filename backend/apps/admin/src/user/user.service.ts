@@ -1,42 +1,48 @@
 import { Injectable } from '@nestjs/common'
 import { type UserCreateInput } from '../@generated/user/user-create.input'
 import { type UserUpdateInput } from '../@generated/user/user-update.input'
+import { PrismaService } from '@admin/prisma/prisma.service'
+import { type User } from '@admin/@generated/user/user.model'
 
 @Injectable()
-export class AdminUserService {
-  async getAllUsers() {
-    // return await this.prisma.user.findAll()
-    return 'get all users'
+export class UserService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async createUser(userCreateInput: UserCreateInput) {
+    return await this.prisma.user.create({
+      data: userCreateInput
+    })
   }
 
-  async getUser(id: number) {
-    // return await this.prisma.user.findUnique({
-    //   where: {
-    //     id: id
-    //   }
-    // })
-    return 'get user'
+  async getAllUsers(): Promise<User[]> {
+    return await this.prisma.user.findMany()
   }
 
-  async updateUser(id: number, userUpdateInput: UserUpdateInput) {
-    // return await this.prisma.user.update({
-    //   where: {
-    //     id: id
-    //   },
-    //   update: {
-    //     userUpdateInput
-    //   }
-    // })
-    return 'update user'
+  async getUser(id: number): Promise<User> {
+    return await this.prisma.user.findUnique({
+      where: {
+        id: id
+      }
+    })
   }
 
-  async deleteUser(id: number) {
-    //   return await this.prisma.user.delete({
-    //     where: {
-    //       id: id
-    //     }
-    //   })
-    // }
-    return 'delete user'
+  async updateUser(
+    id: number,
+    userUpdateInput: UserUpdateInput
+  ): Promise<User> {
+    return await this.prisma.user.update({
+      where: {
+        id: id
+      },
+      data: userUpdateInput
+    })
+  }
+
+  async deleteUser(id: number): Promise<User> {
+    return await this.prisma.user.delete({
+      where: {
+        id: id
+      }
+    })
   }
 }

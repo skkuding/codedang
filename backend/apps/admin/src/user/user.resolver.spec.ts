@@ -1,14 +1,14 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { UserResolver } from './user.resolver'
-import { AdminUserService } from './user.service'
+import { UserService } from './user.service'
 
 describe('UserResolver', () => {
   let resolver: UserResolver
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UserResolver, AdminUserService]
+      providers: [UserResolver, UserService]
     }).compile()
 
     resolver = module.get<UserResolver>(UserResolver)

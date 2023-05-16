@@ -4,7 +4,6 @@ import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { UserModule } from './user/user.module'
-import { PrismaService } from './prisma/prisma.service'
 import { PrismaModule } from './prisma/prisma.module'
 import { ConfigModule } from '@nestjs/config'
 
@@ -20,6 +19,6 @@ import { ConfigModule } from '@nestjs/config'
     PrismaModule
   ],
   controllers: [AdminController],
-  providers: [AdminService, PrismaService]
+  providers: [AdminService]
 })
 export class AdminModule {}
