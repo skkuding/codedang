@@ -237,7 +237,7 @@ export class ContestService {
       take,
       select: this.contestSelectOption,
       orderBy: {
-        endTime: 'asc'
+        endTime: 'desc'
       }
     }
     if (cursor) {
