@@ -1,5 +1,6 @@
 import { MailerService } from '@nestjs-modules/mailer'
-import { CACHE_MANAGER, UnauthorizedException } from '@nestjs/common'
+import { UnauthorizedException } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub, spy, fake, type SinonStub, type SinonSpy } from 'sinon'
