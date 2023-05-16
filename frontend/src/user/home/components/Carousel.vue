@@ -24,7 +24,7 @@ const { pause, resume } = useIntervalFn(() => {
   <div
     class="bg-gray/50 relative h-80 w-full overflow-hidden md:h-96 lg:h-[30rem]"
   >
-    <div class="absolute left-1/2 bottom-5 z-10 flex -translate-x-1/2 gap-2">
+    <div class="absolute bottom-5 left-1/2 z-10 flex -translate-x-1/2 gap-2">
       <button
         v-for="index in slides.length"
         :key="index"
@@ -36,7 +36,6 @@ const { pause, resume } = useIntervalFn(() => {
       />
     </div>
     <transition
-      class="absolute inset-0"
       enter-active-class="transition-transform duration-1000"
       leave-active-class="transition-transform duration-1000"
       :enter-from-class="
@@ -50,7 +49,7 @@ const { pause, resume } = useIntervalFn(() => {
     >
       <div
         :key="currentSlide"
-        class="bg-cover bg-center"
+        class="absolute inset-0 bg-cover bg-center"
         :style="{ backgroundImage: `url(${slides[currentSlide]})` }"
       >
         <img

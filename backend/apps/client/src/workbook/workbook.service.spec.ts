@@ -1,11 +1,10 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { EntityNotExistException } from '@client/common/exception/business.exception'
 import { PrismaService } from '@client/prisma/prisma.service'
 import { WorkbookService } from './workbook.service'
 import { stub } from 'sinon'
-import { type Workbook } from '@prisma/client'
+import { Prisma, type Workbook } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@client/common/constants'
 
 const DATETIME = new Date(2022, 8, 8)
@@ -247,7 +246,7 @@ describe('WorkbookService', () => {
       .resolves(oneGroupWorkbook)
       .onSecondCall()
       .rejects(
-        new PrismaClientKnownRequestError('message', {
+        new Prisma.PrismaClientKnownRequestError('message', {
           code: 'P2025',
           clientVersion: '0.0.0'
         })
@@ -272,7 +271,7 @@ describe('WorkbookService', () => {
       .resolves(oneGroupWorkbook)
       .onSecondCall()
       .rejects(
-        new PrismaClientKnownRequestError('message', {
+        new Prisma.PrismaClientKnownRequestError('message', {
           code: 'P2025',
           clientVersion: '0.0.0'
         })

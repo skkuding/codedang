@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { OPEN_SPACE_ID } from '@client/common/constants'
-import { type PaginationDto } from '@client/common/dto/pagination.dto'
 import {
   ForbiddenAccessException,
   EntityNotExistException
@@ -19,9 +18,10 @@ export class ProblemService {
   constructor(private readonly problemRepository: ProblemRepository) {}
 
   async getProblems(
-    paginationDto: PaginationDto
+    cursor: number,
+    take: number
   ): Promise<ProblemsResponseDto[]> {
-    const data = await this.problemRepository.getProblems(paginationDto)
+    const data = await this.problemRepository.getProblems(cursor, take)
     return plainToInstance(ProblemsResponseDto, data)
   }
 
@@ -43,7 +43,8 @@ export class ContestProblemService {
 
   async getContestProblems(
     contestId: number,
-    paginationDto: PaginationDto,
+    cursor: number,
+    take: number,
     groupId = OPEN_SPACE_ID
   ): Promise<RelatedProblemsResponseDto[]> {
     if (!(await this.contestService.isVisible(contestId, groupId))) {
@@ -51,7 +52,8 @@ export class ContestProblemService {
     }
     const data = await this.problemRepository.getContestProblems(
       contestId,
-      paginationDto
+      cursor,
+      take
     )
     if (data.length > 0 && data[0].contest.startTime > new Date()) {
       throw new ForbiddenAccessException('Contest is not started yet.')
@@ -87,7 +89,8 @@ export class WorkbookProblemService {
 
   async getWorkbookProblems(
     workbookId: number,
-    paginationDto: PaginationDto,
+    cursor: number,
+    take: number,
     groupId = OPEN_SPACE_ID
   ): Promise<RelatedProblemsResponseDto[]> {
     if (!(await this.workbookService.isVisible(workbookId, groupId))) {
@@ -95,7 +98,8 @@ export class WorkbookProblemService {
     }
     const data = await this.problemRepository.getWorkbookProblems(
       workbookId,
-      paginationDto
+      cursor,
+      take
     )
     return plainToInstance(RelatedProblemsResponseDto, data)
   }

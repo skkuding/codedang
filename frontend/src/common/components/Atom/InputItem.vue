@@ -25,7 +25,7 @@ const shadowClass = computed(() =>
     :value="modelValue"
     :placeholder="placeholder"
     :class="shadowClass"
-    class="rounded py-1 px-3 outline-none"
+    class="rounded px-3 py-1 outline-none"
     @input="
       $emit('update:modelValue', ($event.target as HTMLInputElement).value)
     "
