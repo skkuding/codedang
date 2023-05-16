@@ -1,16 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '@client/prisma/prisma.service'
-import { ProblemRepository } from '@client/problem/problem.repository'
 import type { ProblemWhereUniqueInput } from '@admin/@generated/problem/problem-where-unique.input'
 import type { ProblemUpdateInput } from '@admin/@generated/problem/problem-update.input'
 import type { ProblemCreateInput } from '@admin/@generated/problem/problem-create.input'
 
 @Injectable()
 export class ProblemService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly problemRepository: ProblemRepository
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   private readonly problemsSelectOption = {
     id: true,

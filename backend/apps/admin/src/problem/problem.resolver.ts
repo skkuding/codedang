@@ -5,23 +5,23 @@ import { Problem } from '@admin/@generated/problem/problem.model'
 import { ProblemUpdateInput } from '@admin/@generated/problem/problem-update.input'
 import { ProblemWhereUniqueInput } from '@admin/@generated/problem/problem-where-unique.input'
 
-@Resolver('Problem')
+@Resolver(() => Problem)
 export class ProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
   @Mutation(() => Problem, { name: 'createProblem' })
-  async create(
+  async createProblem(
     @Args('problemCreateInput') problemCreateInput: ProblemCreateInput
   ) {
     return await this.problemService.create(problemCreateInput)
   }
 
-  @Mutation('removeProblemById')
+  @Mutation(() => Problem, { name: 'removeProblem' })
   async removeProblem(@Args('id') problemId: number) {
     return await this.problemService.remove(problemId)
   }
 
-  @Mutation('updateProblem')
+  @Mutation(() => Problem, { name: 'updateProblem' })
   async updateProblem(
     @Args('id') problemWhereUniqueInput: ProblemWhereUniqueInput,
     @Args('problemUpdateInput') problemUpdateInput: ProblemUpdateInput
