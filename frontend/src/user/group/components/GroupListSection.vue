@@ -268,7 +268,7 @@ const joinGroup = () => {
         class="w-full max-w-[600px] p-14"
       >
         <PageTitle :text="selectedGroup.groupName" />
-        <div class="mt-4 mb-8 grid grid-cols-1 gap-x-8 sm:grid-cols-2">
+        <div class="mb-8 mt-4 grid grid-cols-1 gap-x-8 sm:grid-cols-2">
           <div class="border-green flex flex-col gap-2 border-l-2 py-4 pl-6">
             <PageSubtitle text="Description" />
             <p class="w-full font-bold">{{ selectedGroup.description }}</p>
@@ -295,7 +295,7 @@ const joinGroup = () => {
 
       <div
         v-else-if="modalType === 'info'"
-        class="max-w-96 flex w-full items-center justify-center py-12 px-6"
+        class="max-w-96 flex w-full items-center justify-center px-6 py-12"
       >
         <p class="text-center font-bold">
           Invitation succesfully requested!

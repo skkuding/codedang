@@ -1,5 +1,6 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
-import { Prisma, type Contest } from '@prisma/client'
+import { Inject, Injectable } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { type Prisma, type Contest } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { contestPublicizingRequestKey } from '@client/common/cache/keys'
 import {
