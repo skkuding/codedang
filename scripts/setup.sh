@@ -30,6 +30,9 @@ fi
 echo "NODEMAILER_USER=\"\"" >> backend/.env
 echo "NODEMAILER_PASS=\"\"" >> backend/.env
 
+# Save RabbitMQ URI to dotenv file
+echo "AMQP_URI=amqp://skku:1234@localhost:5672/%2f" >> backend/.env
+
 # Use docker-compose profile
 if [ -z $DEVCONTAINER ]
 then

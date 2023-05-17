@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@apollo/server": "^4.7.1",
+    "@golevelup/nestjs-rabbitmq": "^3.6.0",
     "@nestjs-modules/mailer": "^1.8.1",
     "@nestjs/apollo": "^11.0.5",
     "@nestjs/cache-manager": "^1.0.0",

@@ -49,3 +49,9 @@ export class EmailTransmissionFailedException extends BusinessException {
     super(message)
   }
 }
+
+export class MessageFormatError extends BusinessException {
+  constructor(error) {
+    super(`Invalid message format: ${JSON.stringify(error)}`)
+  }
+}
