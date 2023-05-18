@@ -154,7 +154,9 @@ enum Language {
   C
   Cpp
   Java
+  Python2
   Python3
+  Golang
 }
 
 model ProblemTestcase {
@@ -329,6 +331,7 @@ model SubmissionResult {
 }
 
 enum ResultStatus {
+  Judging
   Accepted
   WrongAnswer
   CompileError
@@ -336,4 +339,5 @@ enum ResultStatus {
   TimeLimitExceeded
   MemoryLimitExceeded
   OutputLimitExceeded
+  ServerError
 }
