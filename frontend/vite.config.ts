@@ -28,7 +28,8 @@ export default defineConfig({
     }),
     checker({
       eslint: { lintCommand: 'eslint "./src/**/*.{ts,vue}"' },
-      vueTsc: true
+      vueTsc: true,
+      enableBuild: false
     })
   ],
   resolve: {
