@@ -41,4 +41,3 @@ jobs:
             ./docs/.vitepress/dist \
             s3://${{ secrets.S3_BUCKET_DOCUMENTATION }} \
             --region ap-northeast-2 \
-            --acl public-read
