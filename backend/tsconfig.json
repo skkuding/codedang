@@ -19,7 +19,9 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@admin/*": ["apps/admin/src/*"],
-      "@client/*": ["apps/client/src/*"]
+      "@client/*": ["apps/client/src/*"],
+      "@libs/prisma": ["libs/prisma/src/index.ts"],
+      "@libs/prisma/*": ["libs/prisma/src/*"]
     }
   },
   "ts-node": {

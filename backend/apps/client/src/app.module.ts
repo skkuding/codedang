@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 
-import { PrismaModule } from './prisma/prisma.module'
+import { PrismaModule } from '@libs/prisma'
 import { AuthModule } from './auth/auth.module'
 import { ContestModule } from './contest/contest.module'
 import { GroupModule } from './group/group.module'
