@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# [REQUIREMENTS]
+# Need to install: docker, nvm, pnpm
+
 set -ex
 
 BASEDIR=$(dirname $(dirname $(realpath $0)))
@@ -33,7 +36,7 @@ echo "NODEMAILER_PASS=\"\"" >> backend/.env
 # Use docker-compose profile
 if [ -z $DEVCONTAINER ]
 then
-  docker-compose up -d
+  docker compose up -d
 fi
 
 echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum | head -c 64)" >> backend/.env
@@ -42,9 +45,10 @@ echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256s
 # Since environment variable changes frequently, let git ignore actual environment variables
 cp thunder-tests/thunderEnvironmentBase.json thunder-tests/thunderEnvironment.json
 
-# Install pnpm
-pnpm --version || sudo corepack enable
-corepack prepare pnpm@7.2.1 --activate
+# Install Node.js
+bash -i -c 'nvm install'
+
+# Install Node.js packages
 pnpm install
 
 # Install lefthook for git hook
