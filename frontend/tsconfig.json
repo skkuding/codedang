@@ -1,7 +1,10 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
   "compilerOptions": {
+    // Replace moduleResolution "bundler" with "node"
+    // since some libraries don't support it yet (have to explicilty export types)
+    "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
@@ -10,7 +13,7 @@
 
   "references": [
     {
-      "path": "./tsconfig.vite-config.json"
+      "path": "./tsconfig.node.json"
     }
   ]
 }
