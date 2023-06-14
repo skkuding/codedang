@@ -8,7 +8,7 @@ import {
   mockGroupData
 } from './mock/group.mock'
 import { stub } from 'sinon'
-import { PrismaService } from '@client/prisma/prisma.service'
+import { PrismaService } from '@libs/prisma'
 import { GroupService } from './group.service'
 import { type Cache } from 'cache-manager'
 import { type UserGroup } from '@prisma/client'

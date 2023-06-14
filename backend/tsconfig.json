@@ -20,8 +20,7 @@
     "paths": {
       "@admin/*": ["apps/admin/src/*"],
       "@client/*": ["apps/client/src/*"],
-      "@libs/prisma": ["libs/prisma/src/index.ts"],
-      "@libs/prisma/*": ["libs/prisma/src/*"]
+      "@libs/prisma": ["libs/prisma/src/index.ts"]
     }
   },
   "ts-node": {

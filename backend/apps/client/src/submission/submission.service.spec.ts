@@ -1,6 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { PrismaService } from '@client/prisma/prisma.service'
+import { PrismaService } from '@libs/prisma'
 import { SubmissionService } from './submission.service'
 
 describe('SubmissionService', () => {
