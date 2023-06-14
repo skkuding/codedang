@@ -8,7 +8,7 @@
     "method": "POST",
     "sortNum": 10000,
     "created": "2023-01-04T03:25:24.818Z",
-    "modified": "2023-02-04T06:38:15.885Z",
+    "modified": "2023-02-21T01:20:16.961Z",
     "headers": [],
     "params": [],
     "body": {
@@ -152,7 +152,7 @@
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-01-04T03:41:11.804Z",
-    "modified": "2023-01-15T15:38:47.388Z",
+    "modified": "2023-05-01T11:12:05.626Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -181,18 +181,28 @@
         "value": "\"finished\""
       }
     ],
-    "docs": "# Get all contests\n\n모든 대회 목록을 불러옵니다.  \n대회의 진행 상태에 따라 구분합니다. (ongoing, upcoming, finished)"
+    "docs": "# Get all contests\n## 사용자가 로그인이 되지 않은 경우\n\n로그인되지 않은 사용자를 위해 모든 대회 목록을 불러옵니다.  \n대회의 진행 상태에 따라 구분합니다. (ongoing, upcoming, finished) <br>\n로그인되지 않았으므로 registered는 따로 구분하지 않습니다.",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
   },
   {
     "_id": "cae53d1e-c7c4-4825-a7f5-96a61a478d70",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "05ffbb82-5894-4752-9025-0ac933930903",
     "name": "Succeed",
-    "url": "/contest/1/modal",
+    "url": "/contest/1",
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-01-04T03:43:05.492Z",
-    "modified": "2023-01-15T15:42:51.441Z",
+    "modified": "2023-03-02T11:27:38.186Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -206,16 +216,40 @@
         "type": "res-body",
         "custom": "",
         "action": "contains",
+        "value": "\"id\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
         "value": "\"title\""
       },
       {
         "type": "res-body",
         "custom": "",
         "action": "contains",
-        "value": "\"descriptionSummary\""
+        "value": "\"startTime\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"endTime\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"group\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"description\""
       }
     ],
-    "docs": "# Get modal contest by ID\n\nModal에 보여줄 요약된 대회 정보를 가져옵니다."
+    "docs": "# Get contest by ID\n\n대회 정보를 가져옵니다."
   },
   {
     "_id": "df4f680f-9ae5-4f1d-9169-08a9a62b8bcd",
@@ -226,7 +260,69 @@
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-01-04T03:44:08.324Z",
-    "modified": "2023-02-15T04:57:35.348Z",
+    "modified": "2023-03-02T11:31:12.792Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"registeredOngoing\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"registeredUpcoming\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"ongoing\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"upcoming\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"finished\""
+      }
+    ],
+    "docs": "# Get group's all contests\n\n그룹의 대회 목록을 가져옵니다.<br>\n대회의 진행 상태에 따라 구분합니다. (registered ongoing, registered upcoming, ongoing, upcoming, finished) <br>\n",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "af8a1447-ee6c-4e13-bf24-7617ffde6f25",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "4b515a9e-2c7f-46c3-aef5-809b6f2c322f",
+    "name": "Succeed",
+    "url": "/group/1/contest/2",
+    "method": "GET",
+    "sortNum": 10000,
+    "created": "2023-01-04T03:44:47.207Z",
+    "modified": "2023-03-02T11:03:49.619Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -259,56 +355,6 @@
         "custom": "",
         "action": "contains",
         "value": "\"group\""
-      }
-    ],
-    "docs": "# Get group's all contests\n\n그룹의 대회 목록을 가져옵니다.",
-    "preReq": {
-      "runRequests": [
-        {
-          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
-          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-          "triggerCondition": "run-always",
-          "triggerValue": ""
-        }
-      ]
-    }
-  },
-  {
-    "_id": "af8a1447-ee6c-4e13-bf24-7617ffde6f25",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "4b515a9e-2c7f-46c3-aef5-809b6f2c322f",
-    "name": "Succeed",
-    "url": "/group/1/contest/2",
-    "method": "GET",
-    "sortNum": 10000,
-    "created": "2023-01-04T03:44:47.207Z",
-    "modified": "2023-02-15T05:05:08.839Z",
-    "headers": [],
-    "params": [],
-    "tests": [
-      {
-        "type": "res-code",
-        "custom": "",
-        "action": "equal",
-        "value": "200"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"title\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"startTime\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"endTime\""
       },
       {
         "type": "res-body",
@@ -535,11 +581,11 @@
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "05ffbb82-5894-4752-9025-0ac933930903",
     "name": "404: Nonexistent contest",
-    "url": "/contest/0/modal",
+    "url": "/contest/0",
     "method": "GET",
     "sortNum": 20000,
     "created": "2023-01-15T15:41:35.396Z",
-    "modified": "2023-01-15T15:42:22.320Z",
+    "modified": "2023-03-02T11:31:28.501Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -587,43 +633,6 @@
       "runRequests": [
         {
           "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
-          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-          "triggerCondition": "run-always",
-          "triggerValue": ""
-        }
-      ]
-    }
-  },
-  {
-    "_id": "386b119c-039e-4cce-8316-3939f9008204",
-    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "4b515a9e-2c7f-46c3-aef5-809b6f2c322f",
-    "name": "403: Not ended contest",
-    "url": "/group/2/contest/3",
-    "method": "GET",
-    "sortNum": 15000,
-    "created": "2023-01-15T15:51:57.192Z",
-    "modified": "2023-02-15T05:18:07.022Z",
-    "headers": [],
-    "params": [],
-    "tests": [
-      {
-        "type": "res-code",
-        "custom": "",
-        "action": "equal",
-        "value": "403"
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "Before the contest is ended, only group members can access"
-      }
-    ],
-    "preReq": {
-      "runRequests": [
-        {
-          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -741,19 +750,36 @@
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "ecac38fa-17f6-43e7-a6f3-1ddc4de2ed11",
     "name": "200: OK",
-    "url": "/workbook",
+    "url": "/workbook?cursor=1&take=2",
     "method": "GET",
     "sortNum": 50000,
     "created": "2023-01-31T18:01:10.929Z",
-    "modified": "2023-02-01T01:40:42.716Z",
+    "modified": "2023-03-02T08:06:47.182Z",
     "headers": [],
-    "params": [],
+    "params": [
+      {
+        "name": "cursor",
+        "value": "1",
+        "isPath": false
+      },
+      {
+        "name": "take",
+        "value": "2",
+        "isPath": false
+      }
+    ],
     "tests": [
       {
         "type": "res-code",
         "custom": "",
         "action": "equal",
         "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"id\""
       },
       {
         "type": "res-body",
@@ -772,27 +798,51 @@
         "custom": "",
         "action": "contains",
         "value": "\"updateTime\""
+      },
+      {
+        "type": "json-query",
+        "custom": "json.id | length",
+        "action": "<=",
+        "value": "2"
       }
-    ]
+    ],
+    "docs": "# Get All Workbooks\n\nOpen Space의 workbook 목록을 보여줍니다.\n\n## Query\n\n- `cursor`: (optional) 가져올 아이템의 기준점으로, take 값에 따라 기준점의 앞뒤에 있는 아이템을 가져오게 됩니다. cursor 값은 항상 양수여야 하며, 값을 넘겨주지 않으면 자동으로 첫번째 아이템부터 반환됩니다.\n- `take`: 가져올 아이템의 개수를 지정합니다.\n\n### Examples\n전체 아이템: [1 2 3 4 5 6] / 현재 페이지: [3 4] 일 때  \n\n1. `?cursor=3?take=-2` => [1 2]\n2. `?cursor=4?take=2` => [5 6]\n3. `?take=5` => [1 2 3 4 5]"
   },
   {
     "_id": "efc963b0-4c49-45ee-8901-a9765037a443",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "ee01069f-f88f-4841-9cf1-921fd2521372",
     "name": "200: OK",
-    "url": "/group/2/workbook",
+    "url": "/group/2/workbook?cursor=6&take=-2",
     "method": "GET",
     "sortNum": 60000,
     "created": "2023-02-01T01:48:09.050Z",
-    "modified": "2023-02-15T05:12:42.238Z",
+    "modified": "2023-03-02T08:10:10.392Z",
     "headers": [],
-    "params": [],
+    "params": [
+      {
+        "name": "cursor",
+        "value": "6",
+        "isPath": false
+      },
+      {
+        "name": "take",
+        "value": "-2",
+        "isPath": false
+      }
+    ],
     "tests": [
       {
         "type": "res-code",
         "custom": "",
         "action": "equal",
         "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"id\""
       },
       {
         "type": "res-body",
@@ -811,8 +861,15 @@
         "custom": "",
         "action": "contains",
         "value": "\"updateTime\""
+      },
+      {
+        "type": "json-query",
+        "custom": "json.id | length",
+        "action": "<=",
+        "value": "2"
       }
     ],
+    "docs": "# Get Group Workbook List\n\n그룹의 workbook 목록을 가져옵니다.\n\n## Query\n\n- `cursor`: (optional) 가져올 아이템의 기준점으로, take 값에 따라 기준점의 앞뒤에 있는 아이템을 가져오게 됩니다. cursor 값은 항상 양수여야 하며, 값을 넘겨주지 않으면 자동으로 첫번째 아이템부터 반환됩니다.\n- `take`: 가져올 아이템의 개수를 지정합니다.\n\n### Examples\n전체 아이템: [1 2 3 4 5 6] / 현재 페이지: [3 4] 일 때  \n\n1. `?cursor=3?take=-2` => [1 2]\n2. `?cursor=4?take=2` => [5 6]\n3. `?take=5` => [1 2 3 4 5]",
     "preReq": {
       "runRequests": [
         {
@@ -908,16 +965,16 @@
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "df830ccf-ea06-40c9-9dec-69679e90a91a",
     "name": "Succeed",
-    "url": "/notice?offset=1",
+    "url": "/notice?take=3",
     "method": "GET",
     "sortNum": 60000,
     "created": "2023-02-01T07:02:36.251Z",
-    "modified": "2023-02-01T07:10:35.248Z",
+    "modified": "2023-03-02T07:51:26.976Z",
     "headers": [],
     "params": [
       {
-        "name": "offset",
-        "value": "1",
+        "name": "take",
+        "value": "3",
         "isPath": false
       }
     ],
@@ -947,24 +1004,24 @@
         "value": "\"id\": 3"
       },
       {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"id\": 4"
+        "type": "json-query",
+        "custom": "json.id | length",
+        "action": "<=",
+        "value": "3"
       }
     ],
-    "docs": "# Get all notices\n\nOpen space의 공지사항을 불러옵니다.\n\n## Query\n\n- `offset`: 몇 번째 item부터 가져올지 정합니다."
+    "docs": "# Get all notices\n\nOpen space의 공지사항을 불러옵니다.\n\n## Query\n\n- `cursor`: (optional) 가져올 아이템의 기준점으로, take 값에 따라 기준점의 앞뒤에 있는 아이템을 가져오게 됩니다. cursor 값은 항상 양수여야 하며, 값을 넘겨주지 않으면 자동으로 첫번째 아이템부터 반환됩니다.\n- `take`: 가져올 아이템의 개수를 지정합니다.\n\n### Examples\n전체 아이템: [1 2 3 4 5 6] / 현재 페이지: [3 4] 일 때  \n\n1. `?cursor=3?take=-2` => [1 2]\n2. `?cursor=4?take=2` => [5 6]\n3. `?take=5` => [1 2 3 4 5]"
   },
   {
     "_id": "f4c615bd-92ae-424a-8bc5-4d5e74a0f3d5",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "f8458b9c-c963-421d-9b18-5d2c187f6924",
     "name": "200: OK",
-    "url": "/group/1/workbook/1",
+    "url": "/workbook/1",
     "method": "GET",
     "sortNum": 10000,
     "created": "2023-02-01T07:05:06.328Z",
-    "modified": "2023-02-01T07:16:31.063Z",
+    "modified": "2023-03-23T08:32:35.585Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -984,43 +1041,7 @@
         "type": "res-body",
         "custom": "",
         "action": "contains",
-        "value": "\"createdById\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"groupId\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
         "value": "\"title\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"description\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"visible\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"createTime\""
-      },
-      {
-        "type": "res-body",
-        "custom": "",
-        "action": "contains",
-        "value": "\"updateTime\""
       }
     ]
   },
@@ -2278,16 +2299,21 @@
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "162021f9-d9b8-4acb-880a-fac122d0fadf",
     "name": "Succeed",
-    "url": "/group/1/notice?offset=1",
+    "url": "/group/1/notice?cursor=1&take=2",
     "method": "GET",
     "sortNum": 100000,
     "created": "2023-02-15T05:00:13.415Z",
-    "modified": "2023-02-15T05:00:13.415Z",
+    "modified": "2023-03-02T06:28:47.330Z",
     "headers": [],
     "params": [
       {
-        "name": "offset",
+        "name": "cursor",
         "value": "1",
+        "isPath": false
+      },
+      {
+        "name": "take",
+        "value": "2",
         "isPath": false
       }
     ],
@@ -2302,16 +2328,22 @@
         "type": "res-body",
         "custom": "",
         "action": "contains",
-        "value": "\"id\": 1"
+        "value": "\"id\": 2"
       },
       {
         "type": "res-body",
         "custom": "",
         "action": "contains",
-        "value": "\"id\": 2"
+        "value": "\"id\": 3"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.id | length",
+        "action": "<=",
+        "value": "5"
       }
     ],
-    "docs": "# Get group's all notices\n\n한 group의 모든 공지사항을 불러옵니다.\n\n## Query\n\n- `offset`: 몇 번째 item부터 가져올지 정합니다.",
+    "docs": "# Get group's all notices\n\n한 group의 모든 공지사항을 불러옵니다.\n\n\n## Query\n\n- `cursor`: (optional) 가져올 아이템의 기준점으로, take 값에 따라 기준점의 앞뒤에 있는 아이템을 가져오게 됩니다. cursor 값은 항상 양수여야 하며, 값을 넘겨주지 않으면 자동으로 첫번째 아이템부터 반환됩니다.\n- `take`: 가져올 아이템의 개수를 지정합니다.\n\n### Examples\n전체 아이템: [1 2 3 4 5 6] / 현재 페이지: [3 4]  \n\n1. `?cursor=3?take=-2` => [1 2]\n2. `?cursor=4?take=2` => [5 6]\n3. `?take=5` => [1 2 3 4 5]",
     "preReq": {
       "runRequests": [
         {
@@ -3196,6 +3228,896 @@
       "runRequests": [
         {
           "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "2b66e831-ee6c-40bc-8b49-07334fd0e38a",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "e69f258a-3604-45e3-92fd-f87e9f25c64a",
+    "name": "Succeed (Need approval before join) ",
+    "url": "/group/3/join",
+    "method": "POST",
+    "sortNum": 490000,
+    "created": "2023-02-21T00:48:09.835Z",
+    "modified": "2023-05-02T13:16:13.229Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "201"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.userGroupData.userId",
+        "action": "equal",
+        "value": "13"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.userGroupData.groupId",
+        "action": "equal",
+        "value": "3"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.isJoined",
+        "action": "equal",
+        "value": "false"
+      }
+    ],
+    "docs": "# Join group by id\n\n### Notice\n이 메서드에는 그룹이 가입시에 사전 승인을 필요로 하는지에 따른 2개의 succeed cases가 존재합니다.<br><br>\n\n### URL\nPOST /group/{groupId}/join <br><br>\n\n### Description\n그룹의 id가 `{groupId}`인 그룹에 가입힙니다.<br><br>\n\n### Response Type\n```typscript\n{\n  userGroupData: {\n    userId: Number\n    groupId: Number\n    isGroupLeader: Boolean\n    createTime: Date\n    updateTime: Date\n  },\n  isJoined: Boolean\n}\n```\n\n<br>\n\n### Caution\n테스트 케이스 **400: Duplicated join request**를 실행 했을 때<br>\n테스트 결과에서 pre run이 실패했다는 메세지가 뜨면 무시하셔도 됩니다!",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "8ac61468-d539-4085-97a4-cac31d977444",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "e69f258a-3604-45e3-92fd-f87e9f25c64a",
+    "name": "400: Duplicated join request",
+    "url": "/group/3/join",
+    "method": "POST",
+    "sortNum": 500000,
+    "created": "2023-02-21T01:44:32.310Z",
+    "modified": "2023-05-11T11:03:04.433Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "400"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.message",
+        "action": "equal",
+        "value": "duplicated join request is not allowed to this group"
+      }
+    ]
+  },
+  {
+    "_id": "14c37f88-667a-4695-8817-0ab1964b8378",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "e69f258a-3604-45e3-92fd-f87e9f25c64a",
+    "name": "404: Nonexistent Group",
+    "url": "/group/-1/join",
+    "method": "POST",
+    "sortNum": 510000,
+    "created": "2023-02-21T02:00:24.137Z",
+    "modified": "2023-02-21T06:07:04.159Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "404"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.message",
+        "action": "equal",
+        "value": "group does not exist"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "900d5e1c-7d58-441c-9fc8-52f9dd9e0ca3",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "64dbfafd-a97c-478d-9551-21c89d441ebe",
+    "name": "Succeed",
+    "url": "/group/4/leave",
+    "method": "DELETE",
+    "sortNum": 520000,
+    "created": "2023-02-21T02:04:34.793Z",
+    "modified": "2023-04-28T12:28:09.459Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.userId",
+        "action": "equal",
+        "value": "13"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.groupId",
+        "action": "equal",
+        "value": "4"
+      }
+    ],
+    "docs": "# Leave group\n\n### URL\nDELETE /group/{groupId}/leave <br><br>\n\n### Description\n그룹의 id가 {groupId}인 그룹에서 탈퇴힙니다.<br><br>\n\n### Response Type\n```typscript\n{\n  userId: Number\n  groupId: Number\n  isGroupLeader: Boolean\n  createTime: DateString\n  updateTime: DateString\n}\n```",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "a3aee315-f4c3-4b0b-bf09-ad5ffab9f17a",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "5e0781d0-7301-476d-918b-37bfe370a3f7",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "64dbfafd-a97c-478d-9551-21c89d441ebe",
+    "name": "403: Forbidden",
+    "url": "/group/3/leave",
+    "method": "DELETE",
+    "sortNum": 550000,
+    "created": "2023-02-21T04:13:48.673Z",
+    "modified": "2023-04-28T12:19:03.908Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "403"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.message",
+        "action": "equal",
+        "value": "Forbidden resource"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "af1c8666-e7a9-47ed-a9d0-edde11990066",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "607d4957-04bd-445a-bc2a-36d2a65c9047",
+    "name": "400: Invalid Cursor",
+    "url": "/group?cursor=-1&take=5",
+    "method": "GET",
+    "sortNum": 580000,
+    "created": "2023-02-21T06:33:24.526Z",
+    "modified": "2023-04-28T11:30:30.985Z",
+    "headers": [],
+    "params": [
+      {
+        "name": "cursor",
+        "value": "-1",
+        "isPath": false
+      },
+      {
+        "name": "take",
+        "value": "5",
+        "isPath": false
+      }
+    ],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "400"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.message",
+        "action": "contains",
+        "value": "Invalid cursor value: -1"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "9a846c00-2ab6-4092-81fa-d4b6c1e0b552",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "4130bc7d-5b08-4f36-a173-fc2c3a0b24fb",
+    "name": "Succeed",
+    "url": "/group/joined",
+    "method": "GET",
+    "sortNum": 580000,
+    "created": "2023-02-21T06:36:54.399Z",
+    "modified": "2023-04-28T12:21:43.540Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "json-query",
+        "custom": "json | filter(id>1)",
+        "action": "count",
+        "value": "2"
+      }
+    ],
+    "docs": "# Get joined groups\n\n### URL\nGET /group/joined <br><br>\n\n### Description\n가입한 그룹의 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n   id: Number\n   groupName: String\n   description: String\n   createdBy: String\n   memberNum: Number\n} []\n```",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "9dffba42-be8a-48c1-8243-e327ce99589b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "b2069df2-b962-4c61-8bba-52d2f32da4ba",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "18cc4c2b-1889-43b3-8d3d-8b2f6d453ed3",
+    "name": "Succeed (Joined group)",
+    "url": "/group/4",
+    "method": "GET",
+    "sortNum": 590000,
+    "created": "2023-02-21T07:00:09.919Z",
+    "modified": "2023-04-28T12:59:36.577Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.id",
+        "action": "equal",
+        "value": "4"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"groupName\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"description\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "notcontains",
+        "value": "\"createdBy\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "notcontains",
+        "value": "\"memberNum\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "notcontains",
+        "value": "\"leaders\""
+      }
+    ],
+    "docs": "# Get group\n\n### Notice\n이 메서드에는 유저의 그룹 가입 여부에 따른 2개의 Success Cases 및 Response Types들이 존재합니다.<br><br>\n\n### URL\nGET /group/{groupId}<br><br>\n\n### Description\n그룹의 id가 {groupId}인 그룹의 정보를 불러옵니다.<br><br>\n\n### Response Type (Joined group)\n```typscript\n{\n  id: Number\n  groupName: String\n  description: String\n}\n\n```\n<br>\n\n### Response Type (Not joined group)\n```typscript\n{\n  id: Number\n  groupName: String\n  description: String\n  createdBy: String\n  memberNum: Number\n  leaders: String[]\n}\n\n```\n<br>\n\n### Success Cases\n**Joined group**: `가입한` 그룹의 정보를 요청하는 경우<br>\n**Not Joined group**: `가입하지 않은` 그룹의 정보를 요청하는 경우\n<br><br>",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "9dffba42-be8a-48c1-8243-e327ce99589b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "d56e50c0-6c0a-48bb-98ca-1941a4584d23",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "d9b60a8b-4f6a-48c0-a9e8-bcab5069cc24",
+    "name": "Succeed",
+    "url": "/group/4/leaders",
+    "method": "GET",
+    "sortNum": 620000,
+    "created": "2023-02-21T08:15:42.908Z",
+    "modified": "2023-04-28T13:02:54.722Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "json-query",
+        "custom": "json | first",
+        "action": "equal",
+        "value": "manager"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.",
+        "action": "count",
+        "value": "2"
+      }
+    ],
+    "docs": "# Get group leaders\n\n### URL\nGET /group/{groupId}/leaders <br><br>\n\n### Description\n가입한 그룹의 리더의 username 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\nString[]\n```",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "9dffba42-be8a-48c1-8243-e327ce99589b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "376f4101-8eda-49a6-9f64-729bdf9522dc",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "dc4b1bd7-bc6f-4a48-b5b1-bd0026d8e3f2",
+    "name": "Succeed",
+    "url": "/group/2/members",
+    "method": "GET",
+    "sortNum": 10000,
+    "created": "2023-02-21T08:19:28.677Z",
+    "modified": "2023-04-28T12:21:13.139Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "json-query",
+        "custom": "json",
+        "action": "count",
+        "value": "9"
+      }
+    ],
+    "docs": "# Get group members\n\n### URL\nGET /group/{groupId}/members <br><br>\n\n### Description\n가입한 그룹의 멤버들의 username 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\nString[]\n```",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "9dffba42-be8a-48c1-8243-e327ce99589b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "92244561-e2a3-4bb5-952d-f6a8053ee40a",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "dc4b1bd7-bc6f-4a48-b5b1-bd0026d8e3f2",
+    "name": "403: Forbidden",
+    "url": "/group/3/members",
+    "method": "GET",
+    "sortNum": 20000,
+    "created": "2023-02-21T08:23:03.093Z",
+    "modified": "2023-04-28T12:18:16.465Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "403"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.message",
+        "action": "equal",
+        "value": "Forbidden resource"
+      }
+    ]
+  },
+  {
+    "_id": "a213383d-8a5c-499d-aa1d-5ebfeb3bcb90",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "d9b60a8b-4f6a-48c0-a9e8-bcab5069cc24",
+    "name": "403: Forbidden",
+    "url": "/group/3/leaders",
+    "method": "GET",
+    "sortNum": 630000,
+    "created": "2023-02-21T08:24:06.274Z",
+    "modified": "2023-04-28T13:03:03.856Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "403"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.message",
+        "action": "equal",
+        "value": "Forbidden resource"
+      }
+    ]
+  },
+  {
+    "_id": "9dffba42-be8a-48c1-8243-e327ce99589b",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "e69f258a-3604-45e3-92fd-f87e9f25c64a",
+    "name": "Succeed (Not need approval before join)",
+    "url": "/group/4/join",
+    "method": "POST",
+    "sortNum": 495000,
+    "created": "2023-02-21T10:09:29.921Z",
+    "modified": "2023-04-28T11:26:50.017Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "201"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.userGroupData.userId",
+        "action": "equal",
+        "value": "13"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.userGroupData.groupId",
+        "action": "equal",
+        "value": "4"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.isJoined",
+        "action": "equal",
+        "value": "true"
+      }
+    ],
+    "docs": "# Join group by id (Case2)\n\n### warning\n현재 cache db에 올라간 가입 요청을 삭제하는 api가 구현되어있지 않아 최초 한번만 동작합니다.",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "900d5e1c-7d58-441c-9fc8-52f9dd9e0ca3",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "ed53dc3f-5d05-4fc3-8307-44eaf8130de9",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "18cc4c2b-1889-43b3-8d3d-8b2f6d453ed3",
+    "name": "404: Nonexistent Group",
+    "url": "/group/0",
+    "method": "GET",
+    "sortNum": 605000,
+    "created": "2023-02-21T17:03:18.161Z",
+    "modified": "2023-02-21T17:33:16.101Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "404"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.message",
+        "action": "equal",
+        "value": "group does not exist"
+      }
+    ],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "b61da0f4-d454-48cd-912f-37962278b785",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "18cc4c2b-1889-43b3-8d3d-8b2f6d453ed3",
+    "name": "Succeed (Not joined group)",
+    "url": "/group/3",
+    "method": "GET",
+    "sortNum": 592500,
+    "created": "2023-02-21T17:23:38.437Z",
+    "modified": "2023-04-28T12:43:10.918Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.id",
+        "action": "equal",
+        "value": "3"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"groupName\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"description\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"createdBy\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"memberNum\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"leaders\""
+      }
+    ],
+    "docs": "# Get group\n\n### URL\nGET /group/{groupId}<br><br>\n\n### Description\n그룹의 id가 {groupId}인 그룹의 정보를 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n  id: Number\n  groupName: String\n  description: String\n}\n\n```",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "f192649d-d966-4b71-acdf-d331f39acd7e",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "607d4957-04bd-445a-bc2a-36d2a65c9047",
+    "name": "Succeed",
+    "url": "/group?cursor=3&take=5",
+    "method": "GET",
+    "sortNum": 575000,
+    "created": "2023-02-28T03:58:46.391Z",
+    "modified": "2023-04-28T12:22:22.515Z",
+    "headers": [],
+    "params": [
+      {
+        "name": "cursor",
+        "value": "3",
+        "isPath": false
+      },
+      {
+        "name": "take",
+        "value": "5",
+        "isPath": false
+      }
+    ],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "json-query",
+        "custom": "json | filter(id > 1)",
+        "action": "count",
+        "value": "1"
+      },
+      {
+        "type": "json-query",
+        "custom": "json[0].id",
+        "action": "equal",
+        "value": "4"
+      }
+    ],
+    "docs": "# Get groups\n\n### URL\nGET /group <br><br>\n\n### Query String\n|#|name|type|description|\n|-|--|--|--|\n|1|cursor|number?|전달하지 않을경우 처음부터 {take} 만큼 불러옵니다.|\n|2|take|number|한 번에 불러올 group의 개수|\n\n<br>\n\n### Description\n공개로 설정된 그룹 들의 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n   id: Number\n   groupName: String\n   description: String\n   createdBy: String\n   memberNum: Number\n} []\n```",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "e80bb4a0-a6b1-4ea7-9469-55898375d4cf",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "8b4393e5-4001-4f7d-9f41-cce5ef02a10b",
+    "name": "Succeed",
+    "url": "/contest/auth",
+    "method": "GET",
+    "sortNum": 10000,
+    "created": "2023-03-02T10:49:33.129Z",
+    "modified": "2023-05-01T11:12:16.173Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "200"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"registeredOngoing\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"registeredUpcoming\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"ongoing\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"upcoming\""
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "\"finished\""
+      }
+    ],
+    "docs": "# Get all contests\n## 사용자가 로그인된 경우\n\n로그인된 사용자를 위해 모든 대회 목록을 불러옵니다.  \n대회의 진행 상태에 따라 구분합니다. (registered ongoing, registered upcoming, ongoing, upcoming, finished) <br>\n로그인되었으므로 registered contests를 따로 구분합니다.",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "0b535a1b-4437-4f59-af29-c04fde974b01",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "8b4393e5-4001-4f7d-9f41-cce5ef02a10b",
+    "name": "401: Unauthorized",
+    "url": "/contest/auth",
+    "method": "GET",
+    "sortNum": 500000,
+    "created": "2023-03-02T11:15:12.248Z",
+    "modified": "2023-05-01T11:13:13.838Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "401"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Unauthorized"
+      }
+    ],
+    "docs": "# Get all contests\n## 401: Unauthorized\n\n로그인되지 않은 사용자가 이 요청을 보내면 401로 실패를 합니다.",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "a3aee315-f4c3-4b0b-bf09-ad5ffab9f17a",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "dcc8290a-fa46-4ad9-b9a1-f2f422fe2006",
+    "name": "Join Group By ID",
+    "url": "/group/4/join",
+    "method": "POST",
+    "sortNum": 650000,
+    "created": "2023-04-28T12:27:04.282Z",
+    "modified": "2023-04-28T12:27:30.939Z",
+    "headers": [],
+    "params": [],
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
+  },
+  {
+    "_id": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "dcc8290a-fa46-4ad9-b9a1-f2f422fe2006",
+    "name": "Log In as User (user02)",
+    "url": "/auth/login",
+    "method": "POST",
+    "sortNum": 77500,
+    "created": "2023-05-01T11:08:34.294Z",
+    "modified": "2023-05-01T11:10:21.674Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"username\": \"user02\",\n  \"password\": \"Useruser\"\n}",
+      "form": []
+    },
+    "tests": [
+      {
+        "type": "set-env-var",
+        "custom": "header.authorization",
+        "action": "setto",
+        "value": "{{bearer_token}}"
+      },
+      {
+        "type": "set-env-var",
+        "custom": "cookie.refresh_token",
+        "action": "setto",
+        "value": "{{refresh_token}}"
+      }
+    ],
+    "docs": "User/Delete Own Account/Succeed 리퀘스트 전송 후에는 작동하지 않을 유틸 리퀘스트입니다.  \n복구를 원한다면 `npx prisma migrate reset`을 실행해주세요."
+  },
+  {
+    "_id": "9ba3bbcf-db6f-41a8-acf1-322e6b5735b3",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "5c0a9108-1d33-407e-91bc-ae25b89bcfe7",
+    "name": "403: Forbidden",
+    "url": "/group/1/contest",
+    "method": "GET",
+    "sortNum": 20000,
+    "created": "2023-05-01T11:09:01.740Z",
+    "modified": "2023-05-01T11:14:09.112Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-code",
+        "custom": "",
+        "action": "equal",
+        "value": "403"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "Forbidden"
+      }
+    ],
+    "docs": "# Get group's all contests\n## 403: Forbidden\n\n만약 요청을 보낸 user가 해당 그룹에 소속되지 않았을 경우 403: Forbidden 에러를 띄웁니다.\n",
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""

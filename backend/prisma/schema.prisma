@@ -5,6 +5,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator graphql {
+  provider           = "prisma-nestjs-graphql"
+  output             = "../apps/admin/src/@generated"
+  noAtomicOperations = true
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -290,8 +296,7 @@ model WorkbookProblem {
 }
 
 model Submission {
-  id         Int       @id @default(autoincrement())
-  hash       String    @unique // 6 digit hex
+  id         String    @id // 6 digit hex hash
   user       User      @relation(fields: [userId], references: [id])
   userId     Int       @map("user_id")
   problem    Problem   @relation(fields: [problemId], references: [id])
@@ -301,7 +306,7 @@ model Submission {
   workbook   Workbook? @relation(fields: [workbookId], references: [id])
   workbookId Int?      @map("workbook_id")
   code       String
-  language   String
+  language   Language
   createTime DateTime  @default(now()) @map("create_time")
   updateTime DateTime  @updatedAt @map("update_time")
 
@@ -313,7 +318,7 @@ model Submission {
 model SubmissionResult {
   id                Int             @id @default(autoincrement())
   submission        Submission      @relation(fields: [submissionId], references: [id])
-  submissionId      Int             @map("submission_id")
+  submissionId      String          @map("submission_id")
   problemTestcase   ProblemTestcase @relation(fields: [problemTestcaseId], references: [id])
   problemTestcaseId Int             @map("problem_test_case_id")
   result            ResultStatus

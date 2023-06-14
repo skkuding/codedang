@@ -1,19 +1,19 @@
 import {
   PrismaClient,
-  Group,
   Role,
-  User,
-  Problem,
   Level,
-  Tag,
   Language,
-  Contest,
-  Workbook,
   ResultStatus,
-  Submission,
-  ProblemTestcase
+  type Group,
+  type User,
+  type Problem,
+  type Tag,
+  type Contest,
+  type Workbook,
+  type Submission,
+  type ProblemTestcase
 } from '@prisma/client'
-import { encrypt } from 'src/common/hash'
+import { encrypt } from '@client/common/hash'
 import * as dayjs from 'dayjs'
 
 const prisma = new PrismaClient()
@@ -26,7 +26,8 @@ let privateGroup: Group
 const problems: Problem[] = []
 const problemTestcases: ProblemTestcase[] = []
 let contest: Contest
-let workbook: Workbook
+const workbooks: Workbook[] = []
+const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
 
 const createUsers = async () => {
@@ -105,7 +106,7 @@ const createGroups = async () => {
     }
   })
 
-  // create private group
+  // create empty private group
   privateGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group',
@@ -113,10 +114,44 @@ const createGroups = async () => {
         'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
       createdById: managerUser.id,
       config: {
+        showOnList: false,
+        allowJoinFromSearch: false,
+        allowJoinWithURL: true,
+        requireApprovalBeforeJoin: true
+      }
+    }
+  })
+
+  // create empty private group
+  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요한 그룹을 테스트할 때 사용합니다
+  await prisma.group.create({
+    data: {
+      groupName: 'Example Private Group 2',
+      description:
+        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      createdById: managerUser.id,
+      config: {
         showOnList: true,
         allowJoinFromSearch: true,
-        allowJoinWithURL: false,
+        allowJoinWithURL: true,
         requireApprovalBeforeJoin: true
+      }
+    }
+  })
+
+  // create empty private group
+  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요없는 그룹을 테스트할 때 사용합니다
+  await prisma.group.create({
+    data: {
+      groupName: 'Example Private Group 3',
+      description:
+        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      createdById: managerUser.id,
+      config: {
+        showOnList: true,
+        allowJoinFromSearch: true,
+        allowJoinWithURL: true,
+        requireApprovalBeforeJoin: false
       }
     }
   })
@@ -147,6 +182,22 @@ const createGroups = async () => {
       }
     })
   }
+
+  await prisma.userGroup.create({
+    data: {
+      userId: managerUser.id,
+      groupId: 4,
+      isGroupLeader: true
+    }
+  })
+
+  await prisma.userGroup.create({
+    data: {
+      userId: superAdminUser.id,
+      groupId: 4,
+      isGroupLeader: true
+    }
+  })
 }
 
 const createNotices = async () => {
@@ -6380,35 +6431,43 @@ const createContests = async () => {
 }
 
 const createWorkbooks = async () => {
-  workbook = await prisma.workbook.create({
-    data: {
-      title: '모의대회 문제집',
-      description: '<p>모의대회 문제들을 모아뒀습니다!</p>',
-      createdById: superAdminUser.id,
-      groupId: publicGroup.id
-    }
-  })
-  const privateWorkbook = await prisma.workbook.create({
-    data: {
-      title: '모의대회 문제집',
-      description: '<p>모의대회 문제들을 모아뒀습니다!</p>',
-      createdById: superAdminUser.id,
-      groupId: privateGroup.id
-    }
-  })
+  for (let i = 1; i <= 3; i++) {
+    workbooks.push(
+      await prisma.workbook.create({
+        data: {
+          title: '모의대회 문제집',
+          description: '모의대회 문제들을 모아뒀습니다!',
+          createdById: superAdminUser.id,
+          groupId: publicGroup.id
+        }
+      })
+    )
+  }
+  for (let i = 1; i <= 3; i++) {
+    privateWorkbooks.push(
+      await prisma.workbook.create({
+        data: {
+          title: '모의대회 문제집',
+          description: '모의대회 문제들을 모아뒀습니다!',
+          createdById: superAdminUser.id,
+          groupId: privateGroup.id
+        }
+      })
+    )
+  }
 
   for (const problem of problems) {
     await prisma.workbookProblem.create({
       data: {
         id: String(problem.id),
-        workbookId: workbook.id,
+        workbookId: workbooks[0].id,
         problemId: problem.id
       }
     })
     await prisma.workbookProblem.create({
       data: {
         id: String(problem.id),
-        workbookId: privateWorkbook.id,
+        workbookId: privateWorkbooks[0].id,
         problemId: problem.id
       }
     })
@@ -6425,7 +6484,7 @@ const createSubmissions = async () => {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[0].id,
         problemId: problems[0].id,
         contestId: contest.id,
@@ -6449,7 +6508,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[1].id,
         problemId: problems[1].id,
         contestId: contest.id,
@@ -6473,7 +6532,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[2].id,
         problemId: problems[2].id,
         contestId: contest.id,
@@ -6497,7 +6556,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[3].id,
         problemId: problems[3].id,
         contestId: contest.id,
@@ -6517,7 +6576,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[4].id,
         problemId: problems[4].id,
         contestId: contest.id,
@@ -6541,10 +6600,10 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[5].id,
         problemId: problems[5].id,
-        workbookId: workbook.id,
+        workbookId: workbooks[0].id,
         code: `#include <iostream>
 int main(void) {
     std::cout << "Hello, World!" << endl;
@@ -6565,10 +6624,10 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[6].id,
         problemId: problems[6].id,
-        workbookId: workbook.id,
+        workbookId: workbooks[0].id,
         code: `print("Hello, World!")`,
         language: Language.Python3
       }
