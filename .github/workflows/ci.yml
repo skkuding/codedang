@@ -118,12 +118,9 @@ jobs:
       - name: Check types in Typescript
         run: pnpm --filter backend exec tsc --noEmit
 
-      - name: Create dotenv file
-        run: |
-          touch backend/.env
-          echo "DATABASE_URL=\"postgresql://postgres:1234@127.0.0.1:5432/skkuding?schema=public\"" >> backend/.env
-
       - name: Test
         run: pnpm -r test
+        env:
+          DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
 
   # TODO: deploy
