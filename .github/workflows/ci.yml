@@ -120,8 +120,7 @@ jobs:
 
       - name: Add configuration for test
         run: |
-          echo "DATABASE_URL=postgresql://postgres:1234@127.0.0.1:5432/skkuding?schema=public" \
-            >> backend/.env
+          echo "DATABASE_URL=\"postgresql://postgres:1234@127.0.0.1:5432/skkuding?schema=public\"" > backend/.env
 
       - name: Test
         run: pnpm -r test
