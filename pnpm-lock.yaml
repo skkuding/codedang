@@ -59,9 +59,6 @@ importers:
       '@apollo/server':
         specifier: ^4.7.1
         version: 4.7.1(graphql@16.6.0)
-      '@golevelup/nestjs-rabbitmq':
-        specifier: ^3.6.0
-        version: 3.6.0(@nestjs/common@9.4.0)(rxjs@7.8.1)
       '@nestjs-modules/mailer':
         specifier: ^1.8.1
         version: 1.8.1(@nestjs/common@9.4.2)(@nestjs/core@9.4.2)(nodemailer@6.9.3)
@@ -1368,43 +1365,6 @@ packages:
     resolution: {integrity: sha512-LxcyMGxwmTh2lY9FwHPGWOHmYFCZvbrFCBZL4FzSSsxsRPuhrYUg/49/0KDfW8tnIEaEHtfmn6+NPN+1DqaNmA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
-
-  /@golevelup/nestjs-common@1.4.4:
-    resolution: {integrity: sha512-NTjtOhHTMuGwiR3lmBQKKaRr++mHQEsh8AxtaH+/EWOYKMK2Cv/8duaH9MQ0hI3TwnouyaA5IRxYR1ZCUyNXOQ==}
-    dependencies:
-      nanoid: 3.3.6
-    dev: false
-
-  /@golevelup/nestjs-discovery@3.0.0:
-    resolution: {integrity: sha512-ZvkXtobTKxXB1LJanP/l6Z/Fing88IMBr3uabQpU2IWjfsstjh02qYDSU2cfD6CSmNldX5ewW5Pd+SdK2lU8Sw==}
-    dependencies:
-      lodash: 4.17.21
-    dev: false
-
-  /@golevelup/nestjs-modules@0.6.1(@nestjs/common@9.4.0)(rxjs@7.8.1):
-    resolution: {integrity: sha512-E0STg8In8fhIivnGDJAA70+XLPHzK5bMTkCnif9FbZ8waTYDQ3T/QQL0h73k+CUFeznn1hmuEW14sNaE+8cd7w==}
-    peerDependencies:
-      '@nestjs/common': ^9.x
-      rxjs: ^7.x
-    dependencies:
-      '@nestjs/common': 9.4.0(cache-manager@5.2.1)(class-transformer@0.5.1)(class-validator@0.14.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
-      lodash: 4.17.21
-      rxjs: 7.8.1
-    dev: false
-
-  /@golevelup/nestjs-rabbitmq@3.6.0(@nestjs/common@9.4.0)(rxjs@7.8.1):
-    resolution: {integrity: sha512-gfa+27QlQdf49g9Y1JrFp/xXFjzXEtRTlVDW7KqJTUYqq03f2AKYdOPH0Iu8ScqpPPRt+qNv9COBJD44Sizerg==}
-    dependencies:
-      '@golevelup/nestjs-common': 1.4.4
-      '@golevelup/nestjs-discovery': 3.0.0
-      '@golevelup/nestjs-modules': 0.6.1(@nestjs/common@9.4.0)(rxjs@7.8.1)
-      amqp-connection-manager: 3.9.0(amqplib@0.8.0)
-      amqplib: 0.8.0
-    transitivePeerDependencies:
-      - '@nestjs/common'
-      - rxjs
-      - supports-color
-    dev: false
 
   /@graphql-tools/merge@8.4.0(graphql@16.6.0):
     resolution: {integrity: sha512-3XYCWe0d3I4F1azNj1CdShlbHfTIfiDgj00R9uvFH8tHKh7i1IWN3F7QQYovcHKhayaR6zPok3YYMESYQcBoaA==}
@@ -3706,30 +3666,6 @@ packages:
       '@algolia/transporter': 4.14.3
     dev: true
 
-  /amqp-connection-manager@3.9.0(amqplib@0.8.0):
-    resolution: {integrity: sha512-ZKw9ckJKz40Lc2pC7DY0NVocpzPalMaCgv0sBn+N4er2QFAJul9pIiMOm/FsPHeCzB+FulV7PckOpmZvWvewGQ==}
-    engines: {node: '>=10.0.0', npm: '>5.0.0'}
-    peerDependencies:
-      amqplib: '*'
-    dependencies:
-      amqplib: 0.8.0
-      promise-breaker: 5.0.0
-    dev: false
-
-  /amqplib@0.8.0:
-    resolution: {integrity: sha512-icU+a4kkq4Y1PS4NNi+YPDMwdlbFcZ1EZTQT2nigW3fvOb6AOgUQ9+Mk4ue0Zu5cBg/XpDzB40oH10ysrk2dmA==}
-    engines: {node: '>=10'}
-    dependencies:
-      bitsyntax: 0.1.0
-      bluebird: 3.7.2
-      buffer-more-ints: 1.0.0
-      readable-stream: 1.1.14
-      safe-buffer: 5.2.1
-      url-parse: 1.5.10
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
   /ansi-colors@4.1.1:
     resolution: {integrity: sha512-JoX0apGbHaUJBNl6yF+p6JAFYZ666/hhCGKN5t9QFjbJQKUU/g8MNbFDbvfrgKXvI1QpZplPOnwIo99lX/AAmA==}
     engines: {node: '>=6'}
@@ -3954,17 +3890,6 @@ packages:
     resolution: {integrity: sha512-B64AGL4ug2IS2jvV/zjTYDD1L+2gOJTT7Rv+VaK7KVQtQOo/xZbCDsh7g727ipckmU+QJYRqo5RcifVr0Kgcmg==}
     dev: true
 
-  /bitsyntax@0.1.0:
-    resolution: {integrity: sha512-ikAdCnrloKmFOugAfxWws89/fPc+nw0OOG1IzIE72uSOg/A3cYptKCjSUhDTuj7fhsJtzkzlv7l3b8PzRHLN0Q==}
-    engines: {node: '>=0.8'}
-    dependencies:
-      buffer-more-ints: 1.0.0
-      debug: 2.6.9
-      safe-buffer: 5.1.2
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
   /bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
     dependencies:
@@ -3972,10 +3897,6 @@ packages:
       inherits: 2.0.4
       readable-stream: 3.6.0
     dev: true
-
-  /bluebird@3.7.2:
-    resolution: {integrity: sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==}
-    dev: false
 
   /body-parser@1.20.1:
     resolution: {integrity: sha512-jWi7abTbYwajOytWCQc37VulmWiRae5RyTpaCyDcS5/lMdtwSz5lOpDE67srw/HYe35f1z3fDQw+3txg7gNtWw==}
@@ -4060,10 +3981,6 @@ packages:
 
   /buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
-
-  /buffer-more-ints@1.0.0:
-    resolution: {integrity: sha512-EMetuGFz5SLsT0QTnXzINh4Ksr+oo4i+UGTXEshiGCQWnsgSs7ZhJ8fzlwQ+OzEMs0MpDAMr1hxnblp5a4vcHg==}
-    dev: false
 
   /buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
@@ -8624,10 +8541,6 @@ packages:
   /process-nextick-args@2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
 
-  /promise-breaker@5.0.0:
-    resolution: {integrity: sha512-mgsWQuG4kJ1dtO6e/QlNDLFtMkMzzecsC69aI5hlLEjGHFNpHrvGhFi4LiK5jg2SMQj74/diH+wZliL9LpGsyA==}
-    dev: false
-
   /promise@7.3.1:
     resolution: {integrity: sha512-nolQXZ/4L+bP/UGlkfaIujX9BKxGwmQ9OT4mOt5yvy8iK1h3wqTEJCijzGANTCCl9nWjY41juyAn2K3Q1hLLTg==}
     dependencies:
@@ -8947,6 +8860,7 @@ packages:
 
   /querystringify@2.2.0:
     resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
+    dev: true
 
   /queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
@@ -9123,6 +9037,7 @@ packages:
 
   /requires-port@1.0.0:
     resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
+    dev: true
 
   /resolve-from@4.0.0:
     resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
@@ -10254,6 +10169,7 @@ packages:
     dependencies:
       querystringify: 2.2.0
       requires-port: 1.0.0
+    dev: true
 
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
