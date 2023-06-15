@@ -15,6 +15,7 @@ vscode:
     - bradlc.vscode-tailwindcss
     - csstools.postcss
     - dbaeumer.vscode-eslint
+    - eamodio.gitlens
     - editorconfig.editorconfig
     - esbenp.prettier-vscode
     - hbenl.test-adapter-converter
