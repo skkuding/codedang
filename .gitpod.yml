@@ -17,7 +17,9 @@ vscode:
     - dbaeumer.vscode-eslint
     - editorconfig.editorconfig
     - esbenp.prettier-vscode
+    - hbenl.test-adapter-converter
     - hbenl.vscode-mocha-test-adapter
+    - hbenl.vscode-test-explorer
     - johnsoncodehk.vscode-typescript-vue-plugin
     - prisma.prisma
     - rangav.vscode-thunder-client
