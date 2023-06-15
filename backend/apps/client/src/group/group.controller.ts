@@ -53,7 +53,6 @@ export class GroupController {
   }
 
   @Get(':groupId')
-  @UseGuards(GroupMemberGuard)
   async getGroup(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number

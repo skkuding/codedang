@@ -8,18 +8,9 @@ defineProps<{
 defineEmits<{
   (e: 'update:modelValue', value: boolean): void
 }>()
-</script>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-
-export default defineComponent({
-  /* inherit class attribute only to modal itself
-   * `inheritAttrs` option does not support `<script setup>`
-   * https://vuejs.org/guide/extras/composition-api-faq.html#does-composition-api-cover-all-use-cases
-   */
-  inheritAttrs: false
-})
+// inherit class attribute only to modal itself
+defineOptions({ inheritAttrs: false })
 </script>
 
 <template>
