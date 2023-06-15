@@ -36,7 +36,6 @@ const { pause, resume } = useIntervalFn(() => {
       />
     </div>
     <transition
-      class="absolute inset-0"
       enter-active-class="transition-transform duration-1000"
       leave-active-class="transition-transform duration-1000"
       :enter-from-class="
@@ -50,7 +49,7 @@ const { pause, resume } = useIntervalFn(() => {
     >
       <div
         :key="currentSlide"
-        class="bg-cover bg-center"
+        class="absolute inset-0 bg-cover bg-center"
         :style="{ backgroundImage: `url(${slides[currentSlide]})` }"
       >
         <img
