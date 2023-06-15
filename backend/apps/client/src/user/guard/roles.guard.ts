@@ -33,7 +33,6 @@ export class RolesGuard implements CanActivate {
     }
 
     const request: AuthenticatedRequest = context.switchToHttp().getRequest()
-
     const userRole = await this.userService.getUserRole(request.user.id)
 
     if (this.#rolesHierarchy[userRole.role] >= this.#rolesHierarchy[role]) {

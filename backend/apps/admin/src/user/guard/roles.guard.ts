@@ -30,12 +30,11 @@ export class RolesGuard implements CanActivate {
     ])
 
     if (!role) {
-      role = Role.User
+      role = Role.Admin
     }
 
     const request: AuthenticatedRequest =
       GqlExecutionContext.create(context).getContext().req
-
     const userRole = await this.getUserRole(request.user.id)
 
     if (this.#rolesHierarchy[userRole.role] >= this.#rolesHierarchy[role]) {

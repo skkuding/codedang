@@ -1,7 +1,7 @@
 [
   {
     "_id": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "colName": "Coding Platform API",
+    "colName": "Codedang Client API",
     "created": "2023-01-04T03:24:30.216Z",
     "sortNum": 10000,
     "folders": [
@@ -356,7 +356,7 @@
   },
   {
     "_id": "089b01d8-96da-497e-8921-f5df86e4d23c",
-    "colName": "GraphQL",
+    "colName": "Codedang Admin API",
     "created": "2023-05-02T10:59:44.408Z",
     "sortNum": 20000,
     "folders": [],
@@ -366,7 +366,7 @@
         "bearer": "{{bearer_token}}"
       },
       "options": {
-        "baseUrl": "http://localhost:5000/graphql"
+        "baseUrl": "http://localhost:3000/graphql"
       }
     }
   }
