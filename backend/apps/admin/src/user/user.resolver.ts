@@ -8,24 +8,24 @@ import { UserUpdateInput } from '../@generated/user/user-update.input'
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @Mutation(() => User)
-  createUsers(
+  @Mutation(() => User, { name: 'createUser' })
+  createUser(
     @Args('userCreateInput') userCreateInput: UserCreateInput
   ): Promise<User> {
     return this.userService.createUser(userCreateInput)
   }
 
-  @Query(() => [User])
-  getUsers(): Promise<User[]> {
+  @Query(() => [User], { name: 'getAllUsers' })
+  getAllUsers(): Promise<User[]> {
     return this.userService.getAllUsers()
   }
 
-  @Query(() => User)
+  @Query(() => User, { name: 'getUser' })
   getUser(@Args('id', { type: () => Int }) id: number): Promise<User> {
     return this.userService.getUser(id)
   }
 
-  @Mutation(() => User)
+  @Mutation(() => User, { name: 'updateUser' })
   updateUser(
     @Args('id') id: number,
     @Args('userUpdateInput') userUpdateInput: UserUpdateInput
@@ -33,7 +33,7 @@ export class UserResolver {
     return this.userService.updateUser(id, userUpdateInput)
   }
 
-  @Mutation(() => User)
+  @Mutation(() => User, { name: 'deleteUser' })
   deleteUser(@Args('id', { type: () => Int }) id: number): Promise<User> {
     return this.userService.deleteUser(id)
   }

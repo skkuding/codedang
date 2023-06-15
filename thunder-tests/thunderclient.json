@@ -3415,7 +3415,7 @@
     "method": "POST",
     "sortNum": 510000,
     "created": "2023-06-15T11:04:01.290Z",
-    "modified": "2023-06-15T11:40:32.556Z",
+    "modified": "2023-06-15T12:10:09.046Z",
     "headers": [],
     "params": [],
     "body": {
@@ -3423,7 +3423,7 @@
       "raw": "",
       "form": [],
       "graphql": {
-        "query": "query User {\n    getUser(id: 20) {\n        username\n    }\n}"
+        "query": "query User {\n    getUser(id: 21) {\n        username\n    }\n}"
       }
     },
     "tests": []
@@ -3437,7 +3437,7 @@
     "method": "POST",
     "sortNum": 520000,
     "created": "2023-06-15T11:09:31.592Z",
-    "modified": "2023-06-15T11:40:21.716Z",
+    "modified": "2023-06-15T12:09:41.166Z",
     "headers": [],
     "params": [],
     "body": {
@@ -3445,7 +3445,7 @@
       "raw": "",
       "form": [],
       "graphql": {
-        "query": "mutation User {\n    createUsers(userCreateInput: {\n  username: \"newUser1\",\n  password: \"newUser1\",\n  role: User,\n  email: \"johndoe1@gmail.com\"\n}) {\n        id\n        username\n    }\n}",
+        "query": "mutation User {\n    createUser(userCreateInput: {\n  username: \"newUser5\",\n  password: \"newUser5\",\n  role: User,\n  email: \"johndoe5@gmail.com\"\n}) {\n        id\n        username\n    }\n}",
         "variables": "{\n  \"username\": \"newUser\",\n  \"password\": \"newUser\",\n  \"role\": \"user\",\n  \"email\": \"johndoe@gmail.com\"\n}"
       }
     },
@@ -3460,7 +3460,7 @@
     "method": "POST",
     "sortNum": 530000,
     "created": "2023-06-15T11:27:18.088Z",
-    "modified": "2023-06-15T11:40:47.175Z",
+    "modified": "2023-06-15T12:10:22.541Z",
     "headers": [],
     "params": [],
     "body": {
@@ -3468,7 +3468,7 @@
       "raw": "",
       "form": [],
       "graphql": {
-        "query": "query User {\n    getUsers {\n        id\n        username\n    }\n}"
+        "query": "query User {\n    getAllUsers {\n        id\n        username\n    }\n}"
       }
     },
     "tests": []
@@ -3482,7 +3482,7 @@
     "method": "POST",
     "sortNum": 540000,
     "created": "2023-06-15T11:29:29.954Z",
-    "modified": "2023-06-15T11:41:08.652Z",
+    "modified": "2023-06-15T12:10:54.536Z",
     "headers": [],
     "params": [],
     "body": {
@@ -3490,7 +3490,7 @@
       "raw": "",
       "form": [],
       "graphql": {
-        "query": "mutation User {\n    deleteUser (id: 20)\n    {\n        id\n        username\n        email\n    }\n}"
+        "query": "mutation User {\n    deleteUser (id: 21)\n    {\n        id\n        username\n        email\n    }\n}"
       }
     },
     "tests": []
@@ -3504,7 +3504,7 @@
     "method": "POST",
     "sortNum": 550000,
     "created": "2023-06-15T11:33:29.947Z",
-    "modified": "2023-06-15T11:40:58.591Z",
+    "modified": "2023-06-15T12:10:48.777Z",
     "headers": [],
     "params": [],
     "body": {
@@ -3512,7 +3512,7 @@
       "raw": "",
       "form": [],
       "graphql": {
-        "query": "mutation User {\n    updateUser(id: 20,\n  userUpdateInput: {\n  email: \"johndoe50@gmail.com\"\n}) {\n        id\n        username\n        email\n    }\n}"
+        "query": "mutation User {\n    updateUser(id: 21,\n  userUpdateInput: {\n  email: \"johndoe550@gmail.com\"\n}) {\n        id\n        username\n        email\n    }\n}"
       }
     },
     "tests": []
