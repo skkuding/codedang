@@ -1,7 +1,7 @@
 [
   {
     "_id": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "colName": "Coding Platform API",
+    "colName": "Codedang Client API",
     "created": "2023-01-04T03:24:30.216Z",
     "sortNum": 10000,
     "folders": [
@@ -91,7 +91,7 @@
       },
       {
         "_id": "d39772e1-109e-4fba-924e-6ab90a3e5277",
-        "name": "Get all contests (for logged-out users)",
+        "name": "Get ongoing & upcoming contests (for logged-out users)",
         "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
         "created": "2023-01-15T15:31:49.190Z",
         "sortNum": 130000
@@ -105,7 +105,7 @@
       },
       {
         "_id": "5c0a9108-1d33-407e-91bc-ae25b89bcfe7",
-        "name": "Get group's all contests",
+        "name": "Get group's ongoing & upcoming contests",
         "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
         "created": "2023-01-15T15:35:57.785Z",
         "sortNum": 150000
@@ -392,10 +392,24 @@
       },
       {
         "_id": "8b4393e5-4001-4f7d-9f41-cce5ef02a10b",
-        "name": "Get all contests (for logged-in users)",
+        "name": "Get ongoing & upcoming contests (for logged-in users)",
         "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
         "created": "2023-03-02T11:08:27.602Z",
         "sortNum": 135000
+      },
+      {
+        "_id": "1e9d4bed-ed09-409a-a12c-676571aa8354",
+        "name": "Get finished contests",
+        "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+        "created": "2023-04-10T07:27:02.158Z",
+        "sortNum": 135000
+      },
+      {
+        "_id": "0e51dd91-afe6-4bcd-835d-b3df3d2b6f07",
+        "name": "Get group's finished contests",
+        "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
+        "created": "2023-04-10T07:34:16.185Z",
+        "sortNum": 155000
       }
     ],
     "settings": {
@@ -406,7 +420,24 @@
       },
       "tests": [],
       "options": {
-        "baseUrl": "http://localhost:4000"
+
+       "baseUrl": "http://localhost:4000"
+      }
+    }
+  },
+  {
+    "_id": "089b01d8-96da-497e-8921-f5df86e4d23c",
+    "colName": "Codedang Admin API",
+    "created": "2023-05-02T10:59:44.408Z",
+    "sortNum": 20000,
+    "folders": [],
+    "settings": {
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{bearer_token}}"
+      },
+      "options": {
+        "baseUrl": "http://localhost:3000/graphql"
       }
     }
   }

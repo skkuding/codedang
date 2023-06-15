@@ -458,19 +458,18 @@ describe('ContestService', () => {
     })
   })
 
-  describe('getContests', () => {
-    it('should return ongoing, upcoming, finished contests when userId is undefined', async () => {
+  describe('getAliveContests', () => {
+    it('should return ongoing, upcoming contests when userId is undefined', async () => {
       mockPrismaService.contest.findMany.resolves(contests)
       expect(
         await service.getContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
         ongoing: ongoingContests,
-        upcoming: upcomingContests,
-        finished: finishedContests
+        upcoming: upcomingContests
       })
     })
 
-    it('should return registered ongoing, registered upcoming, ongoing, upcoming, finished contests', async () => {
+    it('should return registered ongoing, registered upcoming, ongoing, upcoming contests', async () => {
       mockPrismaService.user.findUnique.resolves(user)
       mockPrismaService.contest.findMany.resolves(contests)
       expect(await service.getContestsByGroupId(userId, groupId)).to.deep.equal(
@@ -478,10 +477,18 @@ describe('ContestService', () => {
           registeredOngoing: registeredOngoingContests,
           registeredUpcoming: registeredUpcomingContests,
           ongoing: ongoingContests,
-          upcoming: upcomingContests,
-          finished: finishedContests
+          upcoming: upcomingContests
         }
       )
+    })
+  })
+
+  describe('getFinishedContests', () => {
+    it('should return finished contests when cursor is 0', async () => {
+      mockPrismaService.contest.findMany.resolves(finishedContests)
+      expect(await service.getFinishedContestsByGroupId(0, 1)).to.deep.equal({
+        finished: finishedContests
+      })
     })
   })
 
@@ -517,20 +524,14 @@ describe('ContestService', () => {
     })
   })
 
-  describe('filterFinished', () => {
-    it('should return ongoing contests of the group', async () => {
-      expect(service.filterFinished(contests)).to.deep.equal(finishedContests)
-    })
-  })
-
   describe('getContestsByGroupId', () => {
     it('should return ongoing, upcoming, finished contests', async () => {
+      mockPrismaService.contest.findMany.resolves(contests)
       expect(
         await service.getContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
         ongoing: ongoingContests,
-        upcoming: upcomingContests,
-        finished: finishedContests
+        upcoming: upcomingContests
       })
     })
 
