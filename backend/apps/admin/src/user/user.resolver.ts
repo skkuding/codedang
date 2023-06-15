@@ -15,12 +15,12 @@ export class UserResolver {
     return this.userService.createUser(userCreateInput)
   }
 
-  @Query(() => [User], { name: 'user' })
+  @Query(() => [User])
   getUsers(): Promise<User[]> {
     return this.userService.getAllUsers()
   }
 
-  @Query(() => User, { name: 'user' })
+  @Query(() => User)
   getUser(@Args('id', { type: () => Int }) id: number): Promise<User> {
     return this.userService.getUser(id)
   }
