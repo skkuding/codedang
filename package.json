@@ -22,5 +22,6 @@
     "typescript": "^5.0.4",
     "vitepress": "1.0.0-beta.1",
     "vue-eslint-parser": "^9.3.0"
-  }
+  },
+  "packageManager": "pnpm@8.6.2"
 }
