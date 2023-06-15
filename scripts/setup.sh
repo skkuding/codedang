@@ -6,6 +6,9 @@ BASEDIR=$(dirname $(dirname $(realpath $0)))
 
 cd $BASEDIR
 
+# Enable git auto completion
+echo "source /usr/share/bash-completion/completions/git" >> ~/.bashrc
+
 # Save database URL to dotenv file for Prisma
 if [ -z $DEVCONTAINER ]
 then
