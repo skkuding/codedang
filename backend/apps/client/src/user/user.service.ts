@@ -57,7 +57,7 @@ export class UserService {
       select: {
         role: true
       },
-      rejectOnNotFound: () => new EntityNotExistException('notice')
+      rejectOnNotFound: () => new EntityNotExistException('user')
     })
   }
 
