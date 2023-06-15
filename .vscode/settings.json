@@ -1,6 +1,7 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
+  "material-icon-theme.activeIconPack": "nest",
   "thunder-client.saveToWorkspace": true,
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
