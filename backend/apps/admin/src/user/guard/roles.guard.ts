@@ -8,7 +8,7 @@ import { GqlExecutionContext } from '@nestjs/graphql'
 import { Role, type User } from '@prisma/client'
 import { ROLES_KEY } from '@client/common/decorator/roles.decorator'
 import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
-import { PrismaService } from '@admin/prisma/prisma.service'
+import { PrismaService } from '@libs/prisma'
 
 @Injectable()
 export class RolesGuard implements CanActivate {

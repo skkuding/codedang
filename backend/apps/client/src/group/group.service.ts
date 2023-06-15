@@ -6,7 +6,7 @@ import {
   ActionNotAllowedException,
   EntityNotExistException
 } from '@client/common/exception/business.exception'
-import { PrismaService } from '@client/prisma/prisma.service'
+import { PrismaService } from '@libs/prisma'
 import { UserGroupData } from './interface/user-group-data.interface'
 import { GroupData } from './interface/group-data.interface'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '../common/constants'

@@ -13,7 +13,7 @@ import {
   problems,
   workbookProblems
 } from './mock/problem.mock'
-import { PrismaService } from '@client/prisma/prisma.service'
+import { PrismaService } from '@libs/prisma'
 import { plainToInstance } from 'class-transformer'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'

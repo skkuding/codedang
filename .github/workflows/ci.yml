@@ -120,5 +120,7 @@ jobs:
 
       - name: Test
         run: pnpm -r test
+        env:
+          DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
 
   # TODO: deploy
