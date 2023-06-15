@@ -106,7 +106,7 @@ const createGroups = async () => {
     }
   })
 
-  // create private group
+  // create empty private group
   privateGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group',
@@ -114,10 +114,44 @@ const createGroups = async () => {
         'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
       createdById: managerUser.id,
       config: {
+        showOnList: false,
+        allowJoinFromSearch: false,
+        allowJoinWithURL: true,
+        requireApprovalBeforeJoin: true
+      }
+    }
+  })
+
+  // create empty private group
+  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요한 그룹을 테스트할 때 사용합니다
+  await prisma.group.create({
+    data: {
+      groupName: 'Example Private Group 2',
+      description:
+        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      createdById: managerUser.id,
+      config: {
         showOnList: true,
         allowJoinFromSearch: true,
-        allowJoinWithURL: false,
+        allowJoinWithURL: true,
         requireApprovalBeforeJoin: true
+      }
+    }
+  })
+
+  // create empty private group
+  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요없는 그룹을 테스트할 때 사용합니다
+  await prisma.group.create({
+    data: {
+      groupName: 'Example Private Group 3',
+      description:
+        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      createdById: managerUser.id,
+      config: {
+        showOnList: true,
+        allowJoinFromSearch: true,
+        allowJoinWithURL: true,
+        requireApprovalBeforeJoin: false
       }
     }
   })
@@ -148,6 +182,22 @@ const createGroups = async () => {
       }
     })
   }
+
+  await prisma.userGroup.create({
+    data: {
+      userId: managerUser.id,
+      groupId: 4,
+      isGroupLeader: true
+    }
+  })
+
+  await prisma.userGroup.create({
+    data: {
+      userId: superAdminUser.id,
+      groupId: 4,
+      isGroupLeader: true
+    }
+  })
 }
 
 const createNotices = async () => {
@@ -6434,7 +6484,7 @@ const createSubmissions = async () => {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[0].id,
         problemId: problems[0].id,
         contestId: contest.id,
@@ -6458,7 +6508,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[1].id,
         problemId: problems[1].id,
         contestId: contest.id,
@@ -6482,7 +6532,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[2].id,
         problemId: problems[2].id,
         contestId: contest.id,
@@ -6506,7 +6556,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[3].id,
         problemId: problems[3].id,
         contestId: contest.id,
@@ -6526,7 +6576,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[4].id,
         problemId: problems[4].id,
         contestId: contest.id,
@@ -6550,7 +6600,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[5].id,
         problemId: problems[5].id,
         workbookId: workbooks[0].id,
@@ -6574,7 +6624,7 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        hash: generateHash(),
+        id: generateHash(),
         userId: users[6].id,
         problemId: problems[6].id,
         workbookId: workbooks[0].id,

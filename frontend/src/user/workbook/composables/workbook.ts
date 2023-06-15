@@ -10,6 +10,7 @@ export interface Workbook {
     id: string
     title: string
     tags: string[]
+    result: string
   }[]
 }
 
