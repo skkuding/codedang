@@ -2,14 +2,14 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { UserService } from './user.service'
 import { PrismaModule, PrismaService } from '@libs/prisma'
-import { ConfigService } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 
 describe('UserService', () => {
   let service: UserService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [PrismaModule],
+      imports: [PrismaModule, ConfigModule],
       providers: [
         UserService,
         ConfigService,
