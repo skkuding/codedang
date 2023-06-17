@@ -398,6 +398,41 @@
         "sortNum": 135000
       },
       {
+        "_id": "1915cbb0-7526-495a-8416-d43a703f3b16",
+        "name": "Admin User",
+        "containerId": "",
+        "created": "2023-06-15T10:59:58.751Z",
+        "sortNum": 440000
+      },
+      {
+        "_id": "209bec3c-0449-4d8b-9216-1bb92afc77af",
+        "name": "User Create",
+        "containerId": "1915cbb0-7526-495a-8416-d43a703f3b16",
+        "created": "2023-06-15T11:00:13.467Z",
+        "sortNum": 450000
+      },
+      {
+        "_id": "6a7d0144-918c-4112-9774-f941d25b3f67",
+        "name": "User Delete",
+        "containerId": "1915cbb0-7526-495a-8416-d43a703f3b16",
+        "created": "2023-06-15T11:00:19.907Z",
+        "sortNum": 460000
+      },
+      {
+        "_id": "b089f8be-93f3-41e6-b8d9-b7f5e71f85ca",
+        "name": "User Read",
+        "containerId": "1915cbb0-7526-495a-8416-d43a703f3b16",
+        "created": "2023-06-15T11:00:27.545Z",
+        "sortNum": 455000
+      },
+      {
+        "_id": "788c0112-2ded-4ce6-86e1-598aae69b21e",
+        "name": "User Update",
+        "containerId": "1915cbb0-7526-495a-8416-d43a703f3b16",
+        "created": "2023-06-15T11:00:47.722Z",
+        "sortNum": 457500
+      },
+      {
         "_id": "1e9d4bed-ed09-409a-a12c-676571aa8354",
         "name": "Get finished contests",
         "containerId": "4ca3b3af-2477-4c0c-98a9-64d2f10277f6",
