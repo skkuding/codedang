@@ -11,7 +11,7 @@ import { type Cache } from 'cache-manager'
 import { type User } from '@prisma/client'
 
 import { UserService } from '@client/user/user.service'
-import { PrismaService } from '@client/prisma/prisma.service'
+import { PrismaService } from '@libs/prisma'
 
 import {
   InvalidJwtTokenException,

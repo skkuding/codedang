@@ -1,5 +1,5 @@
 import { Injectable, type OnModuleInit } from '@nestjs/common'
-import { PrismaService } from '@client/prisma/prisma.service'
+import { PrismaService } from '@libs/prisma'
 import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
 import {
   CONSUME_CHANNEL,
