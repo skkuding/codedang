@@ -38,7 +38,11 @@ export class UserService {
       where: {
         id: id
       },
-      data: userUpdateInput
+      data: {
+        username: userUpdateInput.username,
+        password: userUpdateInput.password,
+        email: userUpdateInput.email
+      }
     })
   }
 
