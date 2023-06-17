@@ -4292,5 +4292,116 @@
         }
       ]
     }
+  },
+  {
+    "_id": "7037c9dd-a8f2-498f-9cb1-0bdbaab07241",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "b089f8be-93f3-41e6-b8d9-b7f5e71f85ca",
+    "name": "User Read",
+    "url": "http://localhost:3000/graphql",
+    "method": "POST",
+    "sortNum": 510000,
+    "created": "2023-06-15T11:04:01.290Z",
+    "modified": "2023-06-15T12:10:09.046Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "graphql",
+      "raw": "",
+      "form": [],
+      "graphql": {
+        "query": "query User {\n    getUser(id: 21) {\n        username\n    }\n}"
+      }
+    },
+    "tests": []
+  },
+  {
+    "_id": "cfb1afea-8baa-4ce8-b19c-1000c203b134",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "209bec3c-0449-4d8b-9216-1bb92afc77af",
+    "name": "User Create",
+    "url": "http://localhost:3000/graphql",
+    "method": "POST",
+    "sortNum": 520000,
+    "created": "2023-06-15T11:09:31.592Z",
+    "modified": "2023-06-15T12:09:41.166Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "graphql",
+      "raw": "",
+      "form": [],
+      "graphql": {
+        "query": "mutation User {\n    createUser(userCreateInput: {\n  username: \"newUser5\",\n  password: \"newUser5\",\n  role: User,\n  email: \"johndoe5@gmail.com\"\n}) {\n        id\n        username\n    }\n}",
+        "variables": "{\n  \"username\": \"newUser\",\n  \"password\": \"newUser\",\n  \"role\": \"user\",\n  \"email\": \"johndoe@gmail.com\"\n}"
+      }
+    },
+    "tests": []
+  },
+  {
+    "_id": "a16a8d0a-ba8d-41a8-988d-abbea3d75f53",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "b089f8be-93f3-41e6-b8d9-b7f5e71f85ca",
+    "name": "All User Read",
+    "url": "http://localhost:3000/graphql",
+    "method": "POST",
+    "sortNum": 530000,
+    "created": "2023-06-15T11:27:18.088Z",
+    "modified": "2023-06-15T12:10:22.541Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "graphql",
+      "raw": "",
+      "form": [],
+      "graphql": {
+        "query": "query User {\n    getAllUsers {\n        id\n        username\n    }\n}"
+      }
+    },
+    "tests": []
+  },
+  {
+    "_id": "a324f625-f90b-45ad-8eaf-487d3984bfcd",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "6a7d0144-918c-4112-9774-f941d25b3f67",
+    "name": "User Delete",
+    "url": "http://localhost:3000/graphql",
+    "method": "POST",
+    "sortNum": 540000,
+    "created": "2023-06-15T11:29:29.954Z",
+    "modified": "2023-06-15T12:10:54.536Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "graphql",
+      "raw": "",
+      "form": [],
+      "graphql": {
+        "query": "mutation User {\n    deleteUser (id: 21)\n    {\n        id\n        username\n        email\n    }\n}"
+      }
+    },
+    "tests": []
+  },
+  {
+    "_id": "2a08fb0f-3942-4afb-bfeb-eaedf1adbbf7",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "788c0112-2ded-4ce6-86e1-598aae69b21e",
+    "name": "User Update",
+    "url": "http://localhost:3000/graphql",
+    "method": "POST",
+    "sortNum": 550000,
+    "created": "2023-06-15T11:33:29.947Z",
+    "modified": "2023-06-15T12:10:48.777Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "graphql",
+      "raw": "",
+      "form": [],
+      "graphql": {
+        "query": "mutation User {\n    updateUser(id: 21,\n  userUpdateInput: {\n  email: \"johndoe550@gmail.com\"\n}) {\n        id\n        username\n        email\n    }\n}"
+      }
+    },
+    "tests": []
   }
 ]
