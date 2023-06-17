@@ -4,6 +4,7 @@ import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
 import {
   CONSUME_CHANNEL,
   EXCHANGE,
+  ORIGIN_HANDLER_NAME,
   RESULT_KEY,
   RESULT_QUEUE,
   SUBMISSION_KEY
@@ -15,7 +16,10 @@ import {
   type Submission,
   type SubmissionResult
 } from '@prisma/client'
-import { MessageFormatError } from '@client/common/exception/business.exception'
+import {
+  ActionNotAllowedException,
+  MessageFormatError
+} from '@client/common/exception/business.exception'
 import { JudgeRequestDto } from './dto/judge-request.dto'
 import type { CreateSubmissionDto } from './dto/create-submission.dto'
 import { UpdateSubmissionResultData } from './dto/update-submission-result.dto'
@@ -40,18 +44,8 @@ export class SubmissionService implements OnModuleInit {
             await this.submissionResultHandler(msg)
           } catch (error) {
             if (error instanceof MessageFormatError) {
-              console.log(
-                'Dont requeue. message format error: %s with %s',
-                msg,
-                error
-              )
               return new Nack()
             } else {
-              console.log(
-                'Requeue submission-result message: %s with %s',
-                msg,
-                error
-              )
               return new Nack(true)
             }
           }
@@ -64,7 +58,7 @@ export class SubmissionService implements OnModuleInit {
             channel: CONSUME_CHANNEL
           }
         },
-        'original Handler Name'
+        ORIGIN_HANDLER_NAME
       )
     }
   }
@@ -72,14 +66,17 @@ export class SubmissionService implements OnModuleInit {
   async createSubmission(
     createSubmissionDto: CreateSubmissionDto,
     userId: number
-  ) {
+  ): Promise<Submission> {
     const { languages } = await this.prisma.problem.findUnique({
       where: { id: createSubmissionDto.problemId },
       select: { languages: true }
     })
 
     if (!languages.includes(createSubmissionDto.language)) {
-      throw new Error(`${createSubmissionDto.language} is not allowed`)
+      throw new ActionNotAllowedException(
+        `${createSubmissionDto.language}`,
+        'problem'
+      )
     }
 
     const submission: Submission = await this.prisma.submission.create({
@@ -90,10 +87,8 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    const submissionResultIds = await this.createSubmissionResult(
-      submission.id,
-      submission.problemId
-    )
+    const submissionResultIds: { id: number }[] =
+      await this.createSubmissionResult(submission.id, submission.problemId)
 
     await this.publishJudgeRequestMessage(submission, submissionResultIds)
 
@@ -164,7 +159,9 @@ export class SubmissionService implements OnModuleInit {
     })
   }
 
-  public async submissionResultHandler(msg: SubmissionResultMessage) {
+  private async submissionResultHandler(
+    msg: SubmissionResultMessage
+  ): Promise<void> {
     const validationError: ValidationError[] = await validate(msg)
 
     if (validationError.length > 0) {
@@ -172,23 +169,12 @@ export class SubmissionService implements OnModuleInit {
     }
 
     const resultCode: ResultStatus = matchResultCode(msg.resultCode)
-    const data = new UpdateSubmissionResultData(resultCode)
-
-    // switch (resultCode) {
-    //   case ResultStatus.ServerError:
-    //   case ResultStatus.CompileError:
-    //     data.errorMessage = msg.error
-    //     break
-    //   default:
-    //     data.acceptedNum = msg.data.acceptedNum
-    //     data.totalTestcase = msg.data.totalTestcase
-    //     data.judgeResult = JSON.stringify(msg.data.judgeResult)
-    // }
+    const data: UpdateSubmissionResultData = new UpdateSubmissionResultData(
+      resultCode
+    )
 
     const submissionResultId: number = parseInt(msg.submissionResultId, 10)
     await this.updateSubmissionResult(submissionResultId, data)
-
-    //TODO: server push하는 코드(user id에게)
   }
 
   private async updateSubmissionResult(

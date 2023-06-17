@@ -8,11 +8,14 @@ const RESULT_KEY = 'result'
 
 const RESULT_QUEUE = 'result-queue'
 
+const ORIGIN_HANDLER_NAME = 'codedang-handler'
+
 export {
   PUBLISH_CHANNEL,
   CONSUME_CHANNEL,
   EXCHANGE,
   SUBMISSION_KEY,
   RESULT_KEY,
-  RESULT_QUEUE
+  RESULT_QUEUE,
+  ORIGIN_HANDLER_NAME
 }
