@@ -1,4 +1,3 @@
-/* eslint-disable */
 export interface GroupData {
   id: number
   groupName: string

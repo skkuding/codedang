@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { type Contest } from '@prisma/client'
+import { type Prisma, type Contest } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { contestPublicizingRequestKey } from '@client/common/cache/keys'
 import {
@@ -12,7 +12,7 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from '@client/common/exception/business.exception'
-import { PrismaService } from '@client/prisma/prisma.service'
+import { PrismaService } from '@libs/prisma'
 import { type CreateContestDto } from './dto/create-contest.dto'
 import { type RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 import { type UpdateContestDto } from './dto/update-contest.dto'
@@ -129,14 +129,12 @@ export class ContestService {
       ? {
           ongoing: Partial<Contest>[]
           upcoming: Partial<Contest>[]
-          finished: Partial<Contest>[]
         }
       : {
           registeredOngoing: Partial<Contest>[]
           registeredUpcoming: Partial<Contest>[]
           ongoing: Partial<Contest>[]
           upcoming: Partial<Contest>[]
-          finished: Partial<Contest>[]
         }
   >
 
@@ -144,10 +142,14 @@ export class ContestService {
     userId: number = undefined,
     groupId = OPEN_SPACE_ID
   ) {
+    const now = new Date()
     if (userId === undefined) {
       const contests = await this.prisma.contest.findMany({
         where: {
-          groupId: groupId,
+          groupId,
+          endTime: {
+            gt: now
+          },
           config: {
             path: ['isVisible'],
             equals: true
@@ -158,15 +160,12 @@ export class ContestService {
           endTime: 'asc'
         }
       })
-
       return {
         ongoing: this.filterOngoing(contests),
-        upcoming: this.filterUpcoming(contests),
-        finished: this.filterFinished(contests)
+        upcoming: this.filterUpcoming(contests)
       }
     }
 
-    const now = new Date()
     const registeredContests = (
       await this.prisma.user.findUnique({
         where: {
@@ -187,11 +186,14 @@ export class ContestService {
         }
       })
     ).contest
-    const registeredContestId = registeredContests.map((contest) => contest.id)
 
+    const registeredContestId = registeredContests.map((contest) => contest.id)
     const contests = await this.prisma.contest.findMany({
       where: {
-        groupId: groupId,
+        groupId,
+        endTime: {
+          gt: now
+        },
         config: {
           path: ['isVisible'],
           equals: true
@@ -210,9 +212,47 @@ export class ContestService {
       registeredOngoing: this.filterOngoing(registeredContests),
       registeredUpcoming: this.filterUpcoming(registeredContests),
       ongoing: this.filterOngoing(contests),
-      upcoming: this.filterUpcoming(contests),
-      finished: this.filterFinished(contests)
+      upcoming: this.filterUpcoming(contests)
     }
+  }
+
+  async getFinishedContestsByGroupId(
+    cursor: number,
+    take: number,
+    groupId = OPEN_SPACE_ID
+  ): Promise<{
+    finished: Partial<Contest>[]
+  }> {
+    const now = new Date()
+    let findOptions: Prisma.ContestFindManyArgs = {
+      where: {
+        endTime: {
+          lte: now
+        },
+        groupId,
+        config: {
+          path: ['isVisible'],
+          equals: true
+        }
+      },
+      take,
+      select: this.contestSelectOption,
+      orderBy: {
+        endTime: 'desc'
+      }
+    }
+    if (cursor) {
+      findOptions = {
+        ...findOptions,
+        skip: 1,
+        cursor: {
+          id: cursor
+        }
+      }
+    }
+
+    const finished = await this.prisma.contest.findMany(findOptions)
+    return { finished }
   }
 
   startTimeCompare(a: Contest, b: Contest) {
@@ -240,12 +280,6 @@ export class ContestService {
     )
     upcomingContest.sort(this.startTimeCompare)
     return upcomingContest
-  }
-
-  filterFinished(contests: Partial<Contest>[]): Partial<Contest>[] {
-    const now = new Date()
-    const finishedContest = contests.filter((contest) => contest.endTime <= now)
-    return finishedContest
   }
 
   async getContest(

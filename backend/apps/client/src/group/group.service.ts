@@ -1,18 +1,17 @@
-/* eslint-disable */
 import { Inject, Injectable } from '@nestjs/common'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Group, UserGroup } from '@prisma/client'
+import { type UserGroup } from '@prisma/client'
 import {
   ActionNotAllowedException,
   EntityNotExistException
 } from '@client/common/exception/business.exception'
-import { PrismaService } from '@client/prisma/prisma.service'
-import { UserGroupData } from './interface/user-group-data.interface'
-import { GroupData } from './interface/group-data.interface'
+import { PrismaService } from '@libs/prisma'
+import { type UserGroupData } from './interface/user-group-data.interface'
+import { type GroupData } from './interface/group-data.interface'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '../common/constants'
 import { joinGroupCacheKey } from '@client/common/cache/keys'
 import { Cache } from 'cache-manager'
-import { GroupJoinRequest } from './interface/group-join-request.interface'
+import { type GroupJoinRequest } from './interface/group-join-request.interface'
 
 @Injectable()
 export class GroupService {
@@ -268,6 +267,7 @@ export class GroupService {
   async leaveGroup(userId: number, groupId: number): Promise<UserGroup> {
     const deletedUserGroup = await this.prisma.userGroup.delete({
       where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         userId_groupId: {
           userId: userId,
           groupId: groupId

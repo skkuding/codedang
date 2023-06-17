@@ -1,7 +1,7 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { EntityNotExistException } from '@client/common/exception/business.exception'
-import { PrismaService } from '@client/prisma/prisma.service'
+import { PrismaService } from '@libs/prisma'
 import { WorkbookService } from './workbook.service'
 import { stub } from 'sinon'
 import { Prisma, type Workbook } from '@prisma/client'

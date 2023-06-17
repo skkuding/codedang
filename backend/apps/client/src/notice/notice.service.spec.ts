@@ -1,7 +1,7 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import { PrismaService } from '@client/prisma/prisma.service'
+import { PrismaService } from '@libs/prisma'
 import { type Group, type Notice } from '@prisma/client'
 import { NoticeService } from './notice.service'
 import { type CreateNoticeDto } from './dto/create-notice.dto'

@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
-import { PrismaService } from '@client/prisma/prisma.service'
+import { PrismaService } from '@libs/prisma'
 import { encrypt } from '@client/common/hash'
 import { emailAuthenticationPinCacheKey } from '@client/common/cache/keys'
 import { type UserEmailDto } from './dto/userEmail.dto'
@@ -57,7 +57,7 @@ export class UserService {
       select: {
         role: true
       },
-      rejectOnNotFound: () => new EntityNotExistException('notice')
+      rejectOnNotFound: () => new EntityNotExistException('user')
     })
   }
 

@@ -4,8 +4,12 @@ import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { UserModule } from './user/user.module'
-import { PrismaModule } from './prisma/prisma.module'
+import { APP_GUARD } from '@nestjs/core'
+import { JwtAuthGuard } from '@admin/auth/guard/jwt-auth.guard'
+import { RolesGuard } from './user/guard/roles.guard'
+import { PrismaModule } from '@libs/prisma'
 import { ConfigModule } from '@nestjs/config'
+import { AuthModule } from '@admin/auth/auth.module'
 
 @Module({
   imports: [
@@ -16,9 +20,14 @@ import { ConfigModule } from '@nestjs/config'
       sortSchema: true
     }),
     UserModule,
-    PrismaModule
+    PrismaModule,
+    AuthModule
   ],
   controllers: [AdminController],
-  providers: [AdminService]
+  providers: [
+    AdminService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard }
+  ]
 })
 export class AdminModule {}

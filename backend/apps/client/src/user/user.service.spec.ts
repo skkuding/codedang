@@ -14,7 +14,7 @@ import {
   UnprocessableDataException
 } from '@client/common/exception/business.exception'
 import { EmailService } from '@client/email/email.service'
-import { PrismaService } from '@client/prisma/prisma.service'
+import { PrismaService } from '@libs/prisma'
 import { UserService } from './user.service'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'

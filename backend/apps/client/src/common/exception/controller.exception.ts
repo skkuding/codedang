@@ -1,3 +1,5 @@
+import { BadRequestException } from '@nestjs/common'
+
 export class ControllerException extends Error {
   name: string
 
@@ -8,7 +10,7 @@ export class ControllerException extends Error {
 }
 
 /** Throw when a cursor has not positive value */
-export class InvalidCursorValueException extends ControllerException {
+export class InvalidCursorValueException extends BadRequestException {
   constructor(message) {
     super(
       `Invalid cursor value: ${message}, cursor value must be a positive value`
