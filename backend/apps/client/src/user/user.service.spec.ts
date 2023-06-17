@@ -286,7 +286,7 @@ describe('UserService', () => {
     let deletePinFromCacheSpy: SinonStub
     beforeEach(() => {
       deletePinFromCacheSpy = stub(service, 'deletePinFromCache')
-      jwtService.signAsync = fake.resolves('token')
+      jwtService.signAsync = stub().resolves('token')
     })
 
     it('should pass verification with valid pin', async () => {
