@@ -1,7 +1,8 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { UserService } from './user.service'
-import { PrismaModule } from '@libs/prisma'
+import { PrismaModule, PrismaService } from '@libs/prisma'
+import { ConfigService } from '@nestjs/config'
 
 describe('UserService', () => {
   let service: UserService
@@ -9,7 +10,11 @@ describe('UserService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [PrismaModule],
-      providers: [UserService]
+      providers: [
+        UserService,
+        ConfigService,
+        { provide: PrismaService, useValue: {} }
+      ]
     }).compile()
 
     service = module.get<UserService>(UserService)
