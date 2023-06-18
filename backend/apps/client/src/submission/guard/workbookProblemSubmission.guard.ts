@@ -1,3 +1,4 @@
+import { type AuthenticatedUser } from '@client/auth/class/authenticated-user.class'
 import {
   Injectable,
   type CanActivate,
@@ -13,6 +14,15 @@ export class WorkbookProblemSubmissionGuard implements CanActivate {
     context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest()
-    return request ? true : false
+    const user: AuthenticatedUser = request.user
+
+    if (user.isAdmin() || user.isSuperAdmin()) {
+      return true
+    }
+
+    // const workbookId: number = parseInt(request.params.workbookId)
+    // const userId: number = request.user.id
+
+    return true
   }
 }

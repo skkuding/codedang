@@ -28,6 +28,7 @@ import { generateHash } from './hash/hash'
 import { calculateTimeLimit } from './constants/cpuLimit.constants'
 import { calculateMemoryLimit } from './constants/memoryLimit.constants'
 import { matchResultCode } from './constants/resultCode.constants'
+import type { SubmissionResultDTO } from './dto/submission-result.dto'
 
 @Injectable()
 export class SubmissionService implements OnModuleInit {
@@ -60,6 +61,26 @@ export class SubmissionService implements OnModuleInit {
         },
         ORIGIN_HANDLER_NAME
       )
+    }
+  }
+
+  async getSubmissionResults(
+    submissionId: string
+  ): Promise<SubmissionResultDTO> {
+    const submissionResults = await this.prisma.submissionResult.findMany({
+      where: {
+        submissionId
+      }
+    })
+
+    // TODO: 점수 계산 및 정답 여부 코드 추가
+    const score = 100
+    const passed = true
+
+    return {
+      submissionResults,
+      passed,
+      score
     }
   }
 
