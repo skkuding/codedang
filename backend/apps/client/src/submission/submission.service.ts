@@ -87,7 +87,7 @@ export class SubmissionService implements OnModuleInit {
   async createSubmission(
     createSubmissionDto: CreateSubmissionDto,
     userId: number
-  ): Promise<Submission> {
+  ): Promise<Submission | { submissionResultIds: { id: number }[] }> {
     const { languages } = await this.prisma.problem.findUnique({
       where: { id: createSubmissionDto.problemId },
       select: { languages: true }
@@ -113,7 +113,10 @@ export class SubmissionService implements OnModuleInit {
 
     await this.publishJudgeRequestMessage(submission, submissionResultIds)
 
-    return submission
+    return {
+      ...submission,
+      submissionResultIds
+    }
   }
 
   private async createSubmissionResult(
