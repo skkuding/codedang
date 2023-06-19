@@ -20,7 +20,7 @@ export class CreateSubmissionDto {
   @IsNotEmpty()
   language: Language
 
-  @IsBoolean()
-  @IsNotEmpty()
-  shared: boolean
+  // @IsBoolean()
+  // @IsNotEmpty()
+  // shared: boolean
 }

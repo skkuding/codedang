@@ -20,7 +20,7 @@ import type { Submission } from '@prisma/client'
 export class SubmissionController {
   constructor(private readonly submissionService: SubmissionService) {}
 
-  @Get('results/:submissionId')
+  @Get('result/:submissionId')
   @UseGuards(SubmissionResultGuard)
   async getSubmissionResults(
     @Param('submissionId') submissionId: string
