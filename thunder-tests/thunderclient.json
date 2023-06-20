@@ -2594,20 +2594,20 @@
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
     "containerId": "349d820f-c076-4ace-9b0e-45edbe7cd092",
     "name": "Succeed",
-    "url": "/problem?cursor=1&take=5",
+    "url": "/problem?offset=1&limit=5",
     "method": "GET",
     "sortNum": 330000,
     "created": "2023-02-17T07:12:29.375Z",
-    "modified": "2023-06-20T12:23:23.969Z",
+    "modified": "2023-06-20T12:36:25.336Z",
     "headers": [],
     "params": [
       {
-        "name": "cursor",
+        "name": "offset",
         "value": "1",
         "isPath": false
       },
       {
-        "name": "take",
+        "name": "limit",
         "value": "5",
         "isPath": false
       }

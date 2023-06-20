@@ -44,17 +44,17 @@ const fields = computed(() =>
     ? [
         { key: 'id', label: '#' },
         { key: 'title' },
-        { key: 'level' },
-        { key: 'submissions' },
-        { key: 'rate', label: 'AC Rate' },
-        { key: 'tags' }
+        { key: 'level' }
+        // { key: 'submissions' },
+        // { key: 'rate', label: 'AC Rate' },
+        // { key: 'tags' }
       ]
     : [
         { key: 'id', label: '#' },
         { key: 'title' },
-        { key: 'level' },
-        { key: 'submissions' },
-        { key: 'rate', label: 'AC Rate' }
+        { key: 'level' }
+        // { key: 'submissions' },
+        // { key: 'rate', label: 'AC Rate' }
       ]
 )
 
@@ -75,9 +75,10 @@ onMounted(async () => {
       }
     )
     .then((res) => {
-      for (let i = 0; i < res.data.length; i++) {
-        res.data[i].createTime = res.data[i].createTime.toString().slice(0, 10)
-      }
+      // for (let i = 0; i < res.data.length; i++) {
+      //   res.data[i].createTime = res.data[i].createTime.toString().slice(0, 10)
+      //   res.data[i].updateTime = res.data[i].updateTime.toString().slice(0, 10)
+      // }
       console.log('res is ', res)
       problemList.value.push(...res.data)
       if (res.data.length < take.value) {
