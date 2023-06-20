@@ -75,7 +75,7 @@ onMounted(async () => {
       for (let i = 0; i < res.data.length; i++) {
         res.data[i].createTime = res.data[i].createTime.toString().slice(0, 10)
       }
-      console.log("res is ", res)
+      console.log('res is ', res)
       problemList.value.push(...res.data)
       if (res.data.length < take.value) {
         hasNextPage.value = false
