@@ -3,6 +3,9 @@ module.exports = {
   env: { node: true },
   root: true,
   parser: '@typescript-eslint/parser',
+  parserOptions: {
+    emitDecoratorMetadata: true
+  },
   plugins: ['@typescript-eslint'],
   extends: [
     'eslint:recommended',
@@ -29,7 +32,16 @@ module.exports = {
       {
         selector: 'typeLike',
         format: ['PascalCase']
+      },
+
+      {
+        selector: ['objectLiteralProperty', 'classProperty'],
+        format: ['camelCase', 'PascalCase']
       }
+    ],
+    '@typescript-eslint/consistent-type-imports': [
+      'warn',
+      { fixStyle: 'inline-type-imports' }
     ]
   }
 }

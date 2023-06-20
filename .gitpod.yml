@@ -2,7 +2,7 @@ gitConfig:
   pull.rebase: 'true'
 
 ports:
-  - port: 5000 # Nest.js
+  - port: 4000 # Nest.js
     onOpen: ignore
     visibility: public
 
@@ -15,10 +15,13 @@ vscode:
     - bradlc.vscode-tailwindcss
     - csstools.postcss
     - dbaeumer.vscode-eslint
+    - eamodio.gitlens
     - editorconfig.editorconfig
     - esbenp.prettier-vscode
-    - Vue.volar
+    - hbenl.test-adapter-converter
+    - hbenl.vscode-mocha-test-adapter
+    - hbenl.vscode-test-explorer
     - johnsoncodehk.vscode-typescript-vue-plugin
-    - Orta.vscode-jest
     - prisma.prisma
     - rangav.vscode-thunder-client
+    - Vue.volar

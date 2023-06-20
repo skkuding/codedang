@@ -5,18 +5,28 @@
   "runServices": ["app", "dev-db", "dev-cache"],
   "workspaceFolder": "/workspace",
   "postCreateCommand": "scripts/setup.sh",
-  "extensions": [
-    "bradlc.vscode-tailwindcss",
-    "csstools.postcss",
-    "dbaeumer.vscode-eslint",
-    "editorconfig.editorconfig",
-    "esbenp.prettier-vscode",
-    "Orta.vscode-jest",
-    "prisma.prisma",
-    "rangav.vscode-thunder-client",
-    "Vue.volar",
-    "Vue.vscode-typescript-vue-plugin"
-  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bradlc.vscode-tailwindcss",
+        "csstools.postcss",
+        "dbaeumer.vscode-eslint",
+        "eamodio.gitlens",
+        "editorconfig.editorconfig",
+        "esbenp.prettier-vscode",
+        "hbenl.test-adapter-converter",
+        "hbenl.vscode-mocha-test-adapter",
+        "hbenl.vscode-test-explorer",
+        "prisma.prisma",
+        "rangav.vscode-thunder-client",
+        "Vue.volar",
+        "Vue.vscode-typescript-vue-plugin"
+      ]
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/pnpm:2": {}
+  },
   // Connect as non-root user (https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user)
   "remoteUser": "node"
 }

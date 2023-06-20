@@ -184,7 +184,7 @@ const changeWorkBook = (page: number) => {
 </script>
 
 <template>
-  <div class="mt-10 mb-4 flex justify-between">
+  <div class="mb-4 mt-10 flex justify-between">
     <PageTitle text="Group List" />
     <Button
       class="flex items-center gap-1"
@@ -226,7 +226,7 @@ const changeWorkBook = (page: number) => {
       </Card>
     </div>
   </div>
-  <PageTitle text="Ongoing Contest" class="mt-10 mb-4" />
+  <PageTitle text="Ongoing Contest" class="mb-4 mt-10" />
   <PaginationTable
     no-search-bar
     :fields="contestFields"
@@ -235,7 +235,7 @@ const changeWorkBook = (page: number) => {
     @row-clicked="(data: WorkBookItem) => $router.push('/contest/' + data.id)"
     @change-page="changeContest"
   ></PaginationTable>
-  <PageTitle text="Ongoing Workbook" class="mt-10 mb-4" />
+  <PageTitle text="Ongoing Workbook" class="mb-4 mt-10" />
   <PaginationTable
     class="mb-4"
     no-search-bar

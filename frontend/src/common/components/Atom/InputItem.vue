@@ -25,12 +25,12 @@ const shadowClass = computed(() =>
     :value="modelValue"
     :placeholder="placeholder"
     :class="shadowClass"
-    class="rounded py-1 px-3 outline-none"
+    class="rounded px-3 py-1 outline-none"
     @input="
       $emit('update:modelValue', ($event.target as HTMLInputElement).value)
     "
   />
-  <div v-show="required && !modelValue" class="text-red pt-1 text-xs font-bold">
+  <p v-show="required && !modelValue" class="text-red text-xs font-bold">
     {{ placeholder + ' is required' }}
-  </div>
+  </p>
 </template>

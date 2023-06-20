@@ -1,12 +1,13 @@
 import axios from 'axios'
 import { defineStore } from 'pinia'
+import { useStorage } from '@vueuse/core'
 import { useToast } from '@/common/composables/toast'
 
 const openToast = useToast()
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    isLoggedIn: false
+    isLoggedIn: useStorage('isLoggedIn', false)
   }),
   actions: {
     async login(username: string, password: string) {

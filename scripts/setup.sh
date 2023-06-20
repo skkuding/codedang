@@ -2,6 +2,13 @@
 
 set -ex
 
+# Check requirements: npm
+if [ ! $(command -v npm) ]
+then
+  echo "Error: npm is not installed. Please install npm first."
+  exit 1
+fi
+
 BASEDIR=$(dirname $(dirname $(realpath $0)))
 
 cd $BASEDIR
@@ -33,25 +40,31 @@ echo "NODEMAILER_PASS=\"\"" >> backend/.env
 # Use docker-compose profile
 if [ -z $DEVCONTAINER ]
 then
-  docker-compose up -d
+  docker compose up -d
 fi
 
-jwt_secret=$(echo -n head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum)
-echo "JWT_SECRET=$jwt_secret" >> backend/.env
+echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum | head -c 64)" >> backend/.env
 
-# Install pnpm
-pnpm --version || sudo corepack enable
-corepack prepare pnpm@7.2.1 --activate
+# Generate thunder client environment
+# Since environment variable changes frequently, let git ignore actual environment variables
+cp thunder-tests/thunderEnvironmentBase.json thunder-tests/thunderEnvironment.json
+
+# Install pnpm and Node.js packages
+npm install -g pnpm@latest
 pnpm install
 
 # Install lefthook for git hook
-npx lefthook install
+pnpm exec lefthook install
+
+# Enable git auto completion
+echo "source /usr/share/bash-completion/completions/git" >> ~/.bashrc
 
 # Apply database migration
 for i in {1..5}
 do
-  cd $BASEDIR/backend
-  npx prisma migrate dev && break # break if migration succeed
+  pnpm --filter backend exec prisma generate \
+    && pnpm --filter backend exec prisma migrate dev \
+    && break # break if migration succeed
   echo -e '\n⚠️ Failed to migrate. Waiting for db to be ready...\n'
   sleep 5
 done

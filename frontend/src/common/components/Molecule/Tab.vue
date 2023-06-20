@@ -1,34 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useRouteQuery } from '@vueuse/router'
 
 const props = defineProps<{
   items: string[]
   color?: string
 }>()
-
-const activeItem = ref(props.items[0])
-const hoverItem = ref()
-const tabcolor = props.color ? props.color : '#8DC63F'
+const tab = useRouteQuery<string | null>('tab')
+const tabColor = props.color ? props.color : '#8dc63f'
 // TODO: use preset color
 // https://github.com/skkuding/next/pull/122#discussion_r928096433
 
+const hoverStyle = props.color
+  ? `hover:text-[${props.color}]`
+  : `hover:text-[#8dc63f]`
+
 const activeStyle = (item: string) => {
-  return item === activeItem.value
-    ? `color: ${tabcolor}; border-bottom: 3px solid ${tabcolor};`
+  return item === (tab.value || props.items[0])
+    ? `color: ${tabColor}; border-bottom: 3px solid ${tabColor};`
     : ''
-}
-const hoverStyle = (item: string) => {
-  return item === hoverItem.value ? `color: ${tabcolor};` : ''
 }
 
 const setActiveItem = (item: string) => {
-  activeItem.value = item
-}
-const setHoverItem = (item: string) => {
-  hoverItem.value = item
-}
-const setHoverFalse = () => {
-  hoverItem.value = ''
+  tab.value = item
 }
 </script>
 
@@ -37,15 +30,14 @@ const setHoverFalse = () => {
     <li
       v-for="item in items"
       :key="item"
+      :class="hoverStyle"
       class="text-text-title mx-2 cursor-pointer p-2 text-xl"
-      :style="[hoverStyle(item), activeStyle(item)]"
+      :style="activeStyle(item)"
       @click="setActiveItem(item)"
-      @mouseover="setHoverItem(item)"
-      @mouseleave="setHoverFalse()"
     >
       {{ item.charAt(0).toUpperCase() + item.slice(1) }}
     </li>
   </ul>
 
-  <div class="m-4"><slot :name="activeItem" /></div>
+  <div class="m-4"><slot :name="tab || items[0]" /></div>
 </template>

@@ -12,9 +12,10 @@ import IconArrowRightFromBracket from '~icons/fa6-solid/arrow-right-from-bracket
 import Button from '../Atom/Button.vue'
 import AuthModal from './AuthModal.vue'
 import { useAuthStore } from '@/common/store/auth'
+import { useRouter } from 'vue-router'
 
 const auth = useAuthStore()
-
+const router = useRouter()
 const isMenuOpen = ref(false)
 const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 </script>
@@ -38,8 +39,11 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
             ]"
             :key="name"
             class="cursor-pointer text-lg font-semibold hover:opacity-60 active:opacity-40"
-            active-class="text-green hover:opacity-70 active:opacity-50"
             :to="to"
+            :class="{
+              'text-green hover:opacity-70 active:opacity-50':
+                router.currentRoute.value.fullPath.startsWith(to)
+            }"
           >
             {{ name }}
           </router-link>
@@ -96,7 +100,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
       >
         <div
           v-show="isMenuOpen"
-          class="fixed inset-x-0 top-14 z-30 flex w-full flex-col items-center justify-center gap-6 overflow-hidden bg-white/75 py-8 shadow-lg backdrop-blur md:hidden"
+          class="absolute inset-x-0 top-14 z-30 flex w-full flex-col items-center justify-center gap-6 overflow-hidden bg-white/75 py-8 shadow-lg backdrop-blur md:hidden"
         >
           <nav class="text-text-title flex flex-col items-center gap-2">
             <router-link

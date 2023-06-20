@@ -1,0 +1,23 @@
+{
+  "test": ".*.ts$",
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "decorators": true,
+      "importMeta": true
+    },
+    "transform": {
+      "legacyDecorator": true,
+      "decoratorMetadata": true
+    },
+    "paths": {
+      "@admin/*": ["./apps/admin/src/*"],
+      "@client/*": ["./apps/client/src/*"],
+      "@libs/prisma": ["./libs/prisma/src/index.ts"]
+    }
+  },
+  "module": {
+    "type": "commonjs",
+    "noInterop": true
+  }
+}
