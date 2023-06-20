@@ -4,7 +4,7 @@ defineProps<{
   items: {
     title: string
     date?: string
-    href: string
+    href?: string
     state?: string
   }[]
 }>()
@@ -20,16 +20,23 @@ defineProps<{
       <slot name="cardStatus" />
     </div>
     <div class="flex flex-col gap-1">
-      <router-link
-        v-for="item in items"
-        :key="item.title"
-        :to="item.href"
-        class="hover:bg-gray/25 active:bg-gray/50 flex cursor-pointer items-center rounded p-1"
-      >
-        <span><slot name="icon" :item="item.state" /></span>
-        <span class="ml-2 mr-auto">{{ item.title }}</span>
-        <span class="text-right">{{ item.date }}</span>
-      </router-link>
+      <template v-for="(item, index) in items">
+        <router-link
+          v-if="item.href"
+          :key="item.title"
+          :to="item.href"
+          class="hover:bg-gray/25 active:bg-gray/50 flex cursor-pointer items-center rounded p-1"
+        >
+          <span><slot name="icon" :item="item.state" /></span>
+          <span class="ml-2 mr-auto">{{ item.title }}</span>
+          <span class="text-right">{{ item.date }}</span>
+        </router-link>
+        <div v-else :key="index" class="flex items-center rounded p-1">
+          <span><slot name="icon" :item="item.state" /></span>
+          <span class="ml-2 mr-auto">{{ item.title }}</span>
+          <span class="text-right">{{ item.date }}</span>
+        </div>
+      </template>
     </div>
   </section>
 </template>

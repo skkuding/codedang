@@ -9,36 +9,18 @@ import IconUnlock from '~icons/bi/unlock'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
 import { ref, computed } from 'vue'
 
-interface Field {
-  key: string
-  label?: string
-}
-interface CardProps {
-  title: string
-  date?: string
-  href: string
-  state?: string
-}
-interface GroupItem {
-  href: string
-  title: string
-  items: CardProps[]
-  scope: string
-}
 type WorkBookItem = Record<string, string>
-const groupItems: GroupItem[] = [
+const groupItems = [
   {
     href: '/',
     title: '초급반',
     scope: 'private',
     items: [
       {
-        title: 'npc 초급반 학생들이 있는 곳',
-        href: '/'
+        title: 'npc 초급반 학생들이 있는 곳'
       },
       {
-        title: 'member: 20',
-        href: '/'
+        title: 'member: 20'
       }
     ]
   },
@@ -48,12 +30,10 @@ const groupItems: GroupItem[] = [
     scope: 'public',
     items: [
       {
-        title: 'npc 중급반 학생들이 있는 곳',
-        href: '/'
+        title: 'npc 중급반 학생들이 있는 곳'
       },
       {
-        title: '20',
-        href: '/'
+        title: '20'
       }
     ]
   },
@@ -63,14 +43,13 @@ const groupItems: GroupItem[] = [
     scope: 'private',
     items: [
       {
-        title: 'npc 고급반 학생들이 있는 곳',
-        href: '/'
+        title: 'npc 고급반 학생들이 있는 곳'
       },
-      { title: '20', href: '/' }
+      { title: '20' }
     ]
   }
 ]
-const contestFields: Field[] = [
+const contestFields = [
   { key: 'index', label: '#' },
   { key: 'title' },
   { key: 'group' },
@@ -112,7 +91,7 @@ const contestItems = [
     type: 'ACM'
   }
 ]
-const workBookFields: Field[] = [
+const workBookFields = [
   { key: 'index', label: '#' },
   { key: 'title' },
   { key: 'group' },
