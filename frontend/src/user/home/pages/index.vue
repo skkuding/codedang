@@ -44,7 +44,7 @@ const contestItems = [
 
 <template>
   <div
-    class="my-20 flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
+    class="flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
   >
     <Card href="/notice" :items="noticeItems" class="w-[36rem] max-w-full">
       <template #title>

@@ -9,7 +9,7 @@ console.log(group)
 <template>
   <div class="flex w-full">
     <Sidebar :group="group" class="fixed bottom-0 left-0 top-0 flex-none" />
-    <main class="ml-20 mr-20 flex-1 pl-48">
+    <main class="ml-20 mr-20 flex-1 py-10 pl-48">
       <router-view @toggle-group="(value: boolean) => (group = value)" />
     </main>
   </div>

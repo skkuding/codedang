@@ -160,10 +160,12 @@ const changeContest = (page: number) => {
 const changeWorkBook = (page: number) => {
   currentWorkBookP.value = page
 }
+const emits = defineEmits(['toggleGroup'])
+emits('toggleGroup', false)
 </script>
 
 <template>
-  <div class="mb-4 mt-10 flex justify-between">
+  <div class="mb-4 flex justify-between">
     <PageTitle text="Group List" />
     <Button
       class="flex items-center gap-1"
