@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
-import RadioButton from '@/common/components/Molecule/RadioButton.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import CardItem from '@/common/components/Molecule/CardItem.vue'
 import { onMounted, ref, watchEffect } from 'vue'
@@ -11,9 +10,6 @@ import { useNow, useTimeAgo, useIntersectionObserver } from '@vueuse/core'
 const props = defineProps<{
   id: number
 }>()
-
-const filters = ['Latest', 'Ongoing']
-const selectedFilter = ref(filters[0])
 
 // server data
 type ContestList = {
@@ -124,7 +120,6 @@ const getTimeInfo = (key: keyof State, date: Date) => {
   <div
     class="mb-8 flex flex-col items-end justify-end gap-x-4 gap-y-2 lg:flex-row"
   >
-    <RadioButton v-model="selectedFilter" :texts="filters" />
     <SearchBar placeholder="원하는 대회를 검색해보세요!" />
   </div>
   <div class="flex flex-col gap-16">
