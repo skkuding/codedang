@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { h } from 'vue'
-import { NButton, NSwitch } from 'naive-ui'
+import { NButton, NSwitch, NIcon } from 'naive-ui'
+import FaRegularTrashAlt from '~icons/fa-regular/trash-alt'
 
 interface Contest {
   id: number
@@ -61,16 +62,17 @@ const columns = [
     title: 'Delete',
     key: 'delete',
     render(row: Contest) {
-      return h(
-        NButton,
-        {
-          strong: true,
-          tertiary: true,
-          size: 'small',
-          onClick: () => deleteContest(row)
-        },
-        { default: () => 'Play' }
-      )
+      return h(NButton, {
+        strong: true,
+        tertiary: true,
+        size: 'small',
+        onClick: () => deleteContest(row),
+        renderIcon() {
+          return h(NIcon, null, {
+            default: () => h(FaRegularTrashAlt)
+          })
+        }
+      })
     }
   }
 ]
