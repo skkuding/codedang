@@ -5,8 +5,11 @@ import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import Button from '@/common/components/Atom/Button.vue'
+import { ref, computed, onMounted } from 'vue'
+import { useDateFormat } from '@vueuse/core'
+import { useWorkbook } from '../../workbook/composables/workbook'
+import { useWindowSize } from '@vueuse/core'
 import axios from 'axios'
-import { ref, onMounted, computed } from 'vue'
 
 interface Problem {
   id: number
@@ -91,85 +94,14 @@ onMounted(async () => {
   // }
 })
 
-const cardItems = [
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.03.07 updated',
-    description: 'description',
-    color: 'gray',
-    total: 6,
-    complete: 1
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'green',
-    total: 6,
-    complete: 2
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'red',
-    total: 6,
-    complete: 3
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'blue',
-    total: 6,
-    complete: 4
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'blue',
-    total: 6,
-    complete: 5
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'gray',
-    total: 6,
-    complete: 1
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'green',
-    total: 6,
-    complete: 2
-  },
-  {
-    title: 'SKKU 프로그래밍 대회 2021',
-    header: '2022.05.07 updated',
-    description: 'description',
-    color: 'red',
-    total: 6,
-    complete: 3
-  }
-]
+const CARD_COLOR = ['#FFE5CC', '#94D0AD', '#FFCDCD', '#B1DDEB']
 
-const numberOfCards = ref(4)
-const clickMore = () => {
-  window.innerWidth < 768
-    ? (numberOfCards.value = Math.min(
-        numberOfCards.value + 2,
-        cardItems.length
-      ))
-    : (numberOfCards.value = Math.min(
-        numberOfCards.value + 4,
-        cardItems.length
-      ))
-}
+const { containLastItem, workbookList, getWorkbooks, getMoreWorkbooks } =
+  useWorkbook()
+
+onMounted(async () => {
+  await getWorkbooks()
+})
 </script>
 
 <template>
@@ -199,25 +131,29 @@ const clickMore = () => {
   <div class="flex justify-end">
     <SearchBar class="mb-5" placeholder="keywords" />
   </div>
+  <div v-if="workbookList.length === 0">No Workbook</div>
   <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+    <!-- TODO: submission 기록 (total, complete) 가져오기 -->
     <ProgressCard
-      v-for="index in numberOfCards"
+      v-for="(workbook, index) in workbookList"
       :key="index"
-      :title="cardItems[index - 1].title"
-      :header="cardItems[index - 1].header"
-      :description="cardItems[index - 1].description"
-      :color="cardItems[index - 1].color"
-      :total="cardItems[index - 1].total"
-      :complete="cardItems[index - 1].complete"
-      @click="() => $router.push('/workbook/' + index)"
+      :title="workbook.title"
+      :header="
+        useDateFormat(workbook.updateTime, 'YYYY.MM.DD').value + ' updated'
+      "
+      :description="workbook.description"
+      :color="CARD_COLOR[workbook.id % 4]"
+      :total="6"
+      :complete="1"
+      @click="$router.push('/workbook/' + workbook.id)"
     />
   </div>
   <Button
-    v-if="numberOfCards < cardItems.length"
+    v-if="!containLastItem"
     outline
     color="gray-dark"
     class="mb-20 mt-8 w-full"
-    @click="clickMore"
+    @click="getMoreWorkbooks(useWindowSize().width.value < 768 ? 2 : 4)"
   >
     More
   </Button>

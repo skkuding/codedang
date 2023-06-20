@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 const props = defineProps<{
-  color?: 'green' | 'blue' | 'indigo' | 'gray' | 'gray-dark' | 'white'
+  color?: 'green' | 'blue' | 'red' | 'indigo' | 'gray' | 'gray-dark' | 'white'
   outline?: boolean
   pressed?: boolean
 }>()
@@ -12,6 +12,7 @@ const colorMapper = {
   blue: 'text-blue hover:bg-blue/20 active:bg-blue/40',
   indigo: 'text-[#334155] hover:bg-[#334155]/20 active:bg-[#334155]/40',
   gray: 'text-gray hover:bg-gray/20 active:bg-gray/40',
+  red: 'text-red hover:bg-red/20 active:bg-red/40',
   // eslint-disable-next-line
   'gray-dark': 'text-gray-dark hover:bg-gray-dark/20 active:bg-gray-dark/40',
   white: 'text-white hover:bg-white/20 active:bg-white/40'
@@ -22,6 +23,7 @@ const pressedColorMapper = {
   blue: 'text-blue bg-blue/40',
   indigo: 'text-white bg-[#334155]/40',
   gray: 'text-gray bg-gray/40',
+  red: 'text-red bg-red/40',
   // eslint-disable-next-line
   'gray-dark': 'text-gray-dark bg-gray-dark/40',
   white: 'text-white bg-white/40'
@@ -33,6 +35,7 @@ const backgroundColorMapper = {
   indigo:
     'text-white bg-[#334155] hover:bg-[#334155]/80 active:bg-[#334155]/60',
   gray: 'text-default bg-gray hover:bg-gray/80 active:bg-gray/60',
+  red: 'text-white bg-red hover:bg-red/80 active:bg-red/60',
   // eslint-disable-next-line
   'gray-dark':
     'text-white bg-gray-dark hover:bg-gray-dark/80 active:bg-gray-dark/60',
@@ -44,6 +47,7 @@ const pressedBackgroundColorMapper = {
   blue: 'text-white bg-blue/60',
   indigo: 'text-white bg-[#334155]/60',
   gray: 'text-default bg-gray/60',
+  red: 'text-white bg-red/60',
   // eslint-disable-next-line
   'gray-dark': 'text-white bg-gray-dark/60',
   white: 'text-default bg-white/60'

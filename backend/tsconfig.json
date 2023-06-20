@@ -16,7 +16,12 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@admin/*": ["apps/admin/src/*"],
+      "@client/*": ["apps/client/src/*"],
+      "@libs/prisma": ["libs/prisma/src/index.ts"]
+    }
   },
   "ts-node": {
     "swc": true

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowRef, computed, watch, onMounted } from 'vue'
+import { ref, shallowRef, watch, onMounted } from 'vue'
 import {
   EditorView,
   highlightActiveLine,
@@ -18,12 +18,9 @@ import { closeBrackets } from '@codemirror/autocomplete'
 import {
   syntaxHighlighting,
   defaultHighlightStyle,
-  indentOnInput
+  indentOnInput,
+  type LanguageSupport
 } from '@codemirror/language'
-import { cpp } from '@codemirror/lang-cpp'
-import { python } from '@codemirror/lang-python'
-import { javascript } from '@codemirror/lang-javascript'
-import { java } from '@codemirror/lang-java'
 import { oneDark } from '@codemirror/theme-one-dark'
 
 const props = withDefaults(
@@ -48,31 +45,13 @@ const font = EditorView.theme({
   }
 })
 
-const languageExtensions = {
-  cpp: cpp(),
-  python: python(),
-  javascript: javascript(),
-  java: java()
+const languageExtensions: Record<string, () => Promise<LanguageSupport>> = {
+  cpp: () => import('@codemirror/lang-cpp').then((x) => x.cpp()),
+  python: () => import('@codemirror/lang-python').then((x) => x.python()),
+  javascript: () =>
+    import('@codemirror/lang-javascript').then((x) => x.javascript()),
+  java: () => import('@codemirror/lang-java').then((x) => x.java())
 }
-
-const extensions = computed(() => [
-  keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
-  oneDark,
-  font,
-  languageExtensions[props.lang],
-  history(),
-  lineNumbers(),
-  highlightActiveLine(),
-  drawSelection(),
-  closeBrackets(),
-  syntaxHighlighting(defaultHighlightStyle),
-  indentOnInput()
-])
-
-const state = EditorState.create({
-  doc: props.modelValue,
-  extensions: extensions.value
-})
 
 watch(
   () => props.modelValue,
@@ -87,7 +66,26 @@ watch(
   }
 )
 
-onMounted(() => {
+onMounted(async () => {
+  const extensions = [
+    keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
+    oneDark,
+    font,
+    await languageExtensions[props.lang](),
+    history(),
+    lineNumbers(),
+    highlightActiveLine(),
+    drawSelection(),
+    closeBrackets(),
+    syntaxHighlighting(defaultHighlightStyle),
+    indentOnInput()
+  ]
+
+  const state = EditorState.create({
+    doc: props.modelValue,
+    extensions
+  })
+
   view.value = new EditorView({
     state,
     parent: editor.value,
