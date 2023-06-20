@@ -41,7 +41,7 @@ const contentList = ref<State>({
 })
 const hasNextPage = ref(true)
 const cursor = ref(0)
-const take = 1
+const take = 10
 const store = useAuthStore()
 // get unfinished contests (registered, upcoming, ongoing)
 onMounted(async () => {
