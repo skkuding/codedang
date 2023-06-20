@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import Card from '../components/Card.vue'
+import Card from '@/common/components/Molecule/Card.vue'
 import IconInfo from '~icons/fa6-solid/circle-info'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
 import IconMedal from '~icons/fa6-solid/medal'
 import IconEllipsis from '~icons/fa6-solid/ellipsis'
 import IconCalendar from '~icons/fa6-solid/calendar'
+import IconBars from '~icons/fa6-solid/bars'
 
 const noticeItems = [
   {
@@ -43,7 +44,7 @@ const contestItems = [
 
 <template>
   <div
-    class="my-20 flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
+    class="flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
   >
     <Card href="/notice" :items="noticeItems" class="w-[36rem] max-w-full">
       <template #title>
@@ -60,7 +61,14 @@ const contestItems = [
         <IconMedal />
         <h2 class="ml-2">Current/Upcoming Contests</h2>
       </template>
-
+      <template #titleIcon>
+        <router-link
+          to="/"
+          class="cursor-pointer hover:opacity-50 active:opacity-30"
+        >
+          <IconBars />
+        </router-link>
+      </template>
       <template #icon="item">
         <IconEllipsis v-if="item.item === 'ongoing'" />
         <IconCalendar v-else />
