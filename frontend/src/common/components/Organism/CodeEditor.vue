@@ -53,25 +53,6 @@ const languageExtensions: Record<string, () => Promise<LanguageSupport>> = {
   java: () => import('@codemirror/lang-java').then((x) => x.java())
 }
 
-const extensions = [
-  keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
-  oneDark,
-  font,
-  await languageExtensions[props.lang](),
-  history(),
-  lineNumbers(),
-  highlightActiveLine(),
-  drawSelection(),
-  closeBrackets(),
-  syntaxHighlighting(defaultHighlightStyle),
-  indentOnInput()
-]
-
-const state = EditorState.create({
-  doc: props.modelValue,
-  extensions: extensions
-})
-
 watch(
   () => props.modelValue,
   (value) => {
@@ -85,7 +66,26 @@ watch(
   }
 )
 
-onMounted(() => {
+onMounted(async () => {
+  const extensions = [
+    keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
+    oneDark,
+    font,
+    await languageExtensions[props.lang](),
+    history(),
+    lineNumbers(),
+    highlightActiveLine(),
+    drawSelection(),
+    closeBrackets(),
+    syntaxHighlighting(defaultHighlightStyle),
+    indentOnInput()
+  ]
+
+  const state = EditorState.create({
+    doc: props.modelValue,
+    extensions
+  })
+
   view.value = new EditorView({
     state,
     parent: editor.value,
