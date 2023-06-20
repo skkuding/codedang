@@ -32,7 +32,7 @@ export class SubmissionController {
   async createPublicSubmission(
     @Body() createSubmissionDTO: CreateSubmissionDto,
     @Req() req: AuthenticatedRequest
-  ): Promise<Submission | { submissionResultIds: { id: number }[] }> {
+  ): Promise<Submission & { submissionResultIds: { id: number }[] }> {
     return await this.submissionService.createSubmission(
       createSubmissionDTO,
       req.user.id
@@ -44,7 +44,7 @@ export class SubmissionController {
   async createContestSubmission(
     @Body() createSubmissionDTO: CreateSubmissionDto,
     @Req() req: AuthenticatedRequest
-  ): Promise<Submission | { submissionResultIds: { id: number }[] }> {
+  ): Promise<Submission & { submissionResultIds: { id: number }[] }> {
     return await this.submissionService.createSubmission(
       createSubmissionDTO,
       req.user.id
@@ -56,7 +56,7 @@ export class SubmissionController {
   async createWorkbookSubmission(
     @Body() createSubmissionDTO: CreateSubmissionDto,
     @Req() req: AuthenticatedRequest
-  ): Promise<Submission | { submissionResultIds: { id: number }[] }> {
+  ): Promise<Submission & { submissionResultIds: { id: number }[] }> {
     return await this.submissionService.createSubmission(
       createSubmissionDTO,
       req.user.id

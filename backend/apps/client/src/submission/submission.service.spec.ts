@@ -78,7 +78,8 @@ describe('SubmissionService', () => {
       expect(result).to.deep.equal({
         submissionResults: [...submissionResults],
         score: 100,
-        passed: true
+        passed: true,
+        judgeFinished: true
       })
     })
   })

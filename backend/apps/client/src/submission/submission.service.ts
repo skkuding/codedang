@@ -76,10 +76,12 @@ export class SubmissionService implements OnModuleInit {
     // TODO: 점수 계산 및 정답 여부 코드 추가
     const score = 100
     const passed = true
+    const judgeFinished = true
 
     return {
       submissionResults,
       passed,
+      judgeFinished,
       score
     }
   }
@@ -87,7 +89,7 @@ export class SubmissionService implements OnModuleInit {
   async createSubmission(
     createSubmissionDto: CreateSubmissionDto,
     userId: number
-  ): Promise<Submission | { submissionResultIds: { id: number }[] }> {
+  ): Promise<Submission & { submissionResultIds: { id: number }[] }> {
     const { languages } = await this.prisma.problem.findUnique({
       where: { id: createSubmissionDto.problemId },
       select: { languages: true }
