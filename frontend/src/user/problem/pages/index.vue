@@ -57,14 +57,38 @@ const fields = computed(() =>
 
 const problemList = ref<Problem[]>([])
 problemList.value = []
+const take = ref(10) // 10개씩
+const cursor = ref(0)
+const hasNextPage = ref(true)
 
 onMounted(async () => {
-  try {
-    const problemResponse = await axios.get(`/api/problem?offset=0&limit=10`)
-    problemList.value = problemResponse.data
-  } catch (err) {
-    console.log(err)
-  }
+  axios
+    .get(
+      cursor.value
+        ? `/api/problem?cursor=${cursor.value}&take=${take.value}`
+        : `/api/problem?take=${take.value}`,
+      {
+        headers: {}
+      }
+    )
+    .then((res) => {
+      for (let i = 0; i < res.data.length; i++) {
+        res.data[i].createTime = res.data[i].createTime.toString().slice(0, 10)
+      }
+      console.log("res is ", res)
+      problemList.value.push(...res.data)
+      if (res.data.length < take.value) {
+        hasNextPage.value = false
+      }
+    })
+    .catch((err) => console.log('error is ', err))
+
+  // try {
+  //   const problemResponse = await axios.get(`/api/problem?offset=0&limit=10`)
+  //   problemList.value = problemResponse.data
+  // } catch (err) {
+  //   console.log(err)
+  // }
 })
 
 const cardItems = [
@@ -149,7 +173,7 @@ const clickMore = () => {
 </script>
 
 <template>
-  <PageSubtitle text="All Problem" class="mt-10 mb-2" />
+  <PageSubtitle text="All Problem" class="mb-2 mt-10" />
   <PaginationTable
     :fields="fields"
     :items="problemList"
@@ -171,7 +195,7 @@ const clickMore = () => {
     </template>
   </PaginationTable>
 
-  <PageSubtitle text="Workbook" class="mt-10 mb-2" />
+  <PageSubtitle text="Workbook" class="mb-2 mt-10" />
   <div class="flex justify-end">
     <SearchBar class="mb-5" placeholder="keywords" />
   </div>
@@ -192,7 +216,7 @@ const clickMore = () => {
     v-if="numberOfCards < cardItems.length"
     outline
     color="gray-dark"
-    class="mt-8 mb-20 w-full"
+    class="mb-20 mt-8 w-full"
     @click="clickMore"
   >
     More
