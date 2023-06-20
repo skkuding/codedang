@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import Sidebar from '../components/Organism/Sidebar.vue'
 
 const group = ref(false)
+console.log(group)
 </script>
 
 <template>

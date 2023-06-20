@@ -12,13 +12,12 @@ defineProps<{
 
 <template>
   <section class="border-gray/25 w-full rounded-lg border-2 p-5 shadow-xl">
-    <div class="mb-4 flex justify-between text-xl font-bold">
+    <router-link :to="href" class="mb-4 flex justify-between text-xl font-bold">
       <span class="flex items-center">
         <slot name="title" />
       </span>
       <slot name="titleIcon" />
-      <slot name="cardStatus" />
-    </div>
+    </router-link>
     <div class="flex flex-col gap-1">
       <template v-for="(item, index) in items">
         <router-link

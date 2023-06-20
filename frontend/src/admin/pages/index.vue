@@ -12,7 +12,7 @@ import { ref, computed } from 'vue'
 type WorkBookItem = Record<string, string>
 const groupItems = [
   {
-    href: '/',
+    href: '/admin/1',
     title: '초급반',
     scope: 'private',
     items: [
@@ -180,14 +180,11 @@ const changeWorkBook = (page: number) => {
   </div>
   <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
     <div v-for="group in groupItems" :key="group.title">
-      <Card :items="group.items" href="/group">
+      <Card :items="group.items" :href="group.href">
         <template #title>
-          <router-link
-            :to="group.href"
-            class="cursor-pointer hover:opacity-50 active:opacity-30"
-          >
+          <div class="cursor-pointer hover:opacity-50 active:opacity-30">
             {{ group.title }}
-          </router-link>
+          </div>
         </template>
         <template #titleIcon>
           <div v-if="group.scope === 'private'" class="ml-auto flex">
