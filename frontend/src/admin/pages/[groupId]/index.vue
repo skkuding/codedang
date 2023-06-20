@@ -25,11 +25,13 @@ const groupUpdateTimeFormat = useDateFormat(
   groupUpdateTime,
   'YYYY.MM.DD HH:mm:ss'
 )
+const emits = defineEmits(['toggleGroup'])
+emits('toggleGroup', true)
 </script>
 
 <template>
   <!-- TODO: mobile responsive -->
-  <main class="p-16">
+  <main>
     <h1
       class="text-text-title border-green flex w-2/3 items-center border-b-8 pb-4 text-3xl font-extrabold"
     >
