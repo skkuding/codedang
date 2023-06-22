@@ -97,21 +97,22 @@ const data = ref(
 </script>
 
 <template>
-  <main class="flex flex-col">
+  <div class="flex flex-col">
     <PageTitle text="Contest List" class="mb-5" />
     <SearchBar placeholder="keywords" class="mb-5 self-end" />
     <n-data-table
-      class="text-xl"
       :columns="columns"
       :data="data"
+      :loading="loading"
       :pagination="{
         pageSize: 5
       }"
-      :loading="loading"
+      :scroll-x="1100"
       :bordered="false"
+      class="text-xl"
       row-class-name="font-bold text-base"
     />
-  </main>
+  </div>
 </template>
 <route lang="yaml">
 meta:
