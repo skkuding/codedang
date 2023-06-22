@@ -13,16 +13,18 @@ import {
   InternalServerErrorException,
   NotFoundException
 } from '@nestjs/common'
-import { NoticeService } from './notice.service'
 import { type Notice, Role } from '@prisma/client'
-import { GroupLeaderGuard } from '@client/group/guard/group-leader.guard'
-import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
-import { UpdateNoticeDto } from './dto/update-notice.dto'
+import {
+  AuthenticatedRequest,
+  RolesGuard,
+  Roles,
+  GroupLeaderGuard
+} from '@libs/auth'
+import { EntityNotExistException } from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
 import { CreateNoticeDto } from './dto/create-notice.dto'
-import { EntityNotExistException } from '@client/common/exception/business.exception'
-import { Roles } from '@client/common/decorator/roles.decorator'
-import { RolesGuard } from '@client/user/guard/roles.guard'
-import { CursorValidationPipe } from '../common/pipe/cursor-validation.pipe'
+import { UpdateNoticeDto } from './dto/update-notice.dto'
+import { NoticeService } from './notice.service'
 
 @Controller('admin/notice')
 @UseGuards(RolesGuard)

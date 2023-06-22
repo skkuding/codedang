@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Footer from './Footer.vue'
 import Toast from '../Atom/Toast.vue'
+import Footer from './Footer.vue'
 </script>
 
 <template>

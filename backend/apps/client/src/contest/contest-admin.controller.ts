@@ -15,21 +15,23 @@ import {
   UnprocessableEntityException,
   UseGuards
 } from '@nestjs/common'
-import { ContestService } from './contest.service'
-import { type CreateContestDto } from './dto/create-contest.dto'
-import { type UpdateContestDto } from './dto/update-contest.dto'
 import { type Contest, Role } from '@prisma/client'
+import {
+  AuthenticatedRequest,
+  RolesGuard,
+  Roles,
+  GroupLeaderGuard
+} from '@libs/auth'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
-} from '@client/common/exception/business.exception'
-import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
-import { GroupLeaderGuard } from '@client/group/guard/group-leader.guard'
-import { RolesGuard } from '@client/user/guard/roles.guard'
-import { Roles } from '@client/common/decorator/roles.decorator'
-import { type RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
-import { CursorValidationPipe } from '@client/common/pipe/cursor-validation.pipe'
+} from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
+import { ContestService } from './contest.service'
+import { CreateContestDto } from './dto/create-contest.dto'
+import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
+import { UpdateContestDto } from './dto/update-contest.dto'
 
 @Controller('admin/contest')
 @UseGuards(RolesGuard)
