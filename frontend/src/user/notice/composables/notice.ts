@@ -24,11 +24,12 @@ export interface Item {
 export const useNotice = () => {
   const notices = ref<Item[]>([])
   async function getNoticeList(numberOfPages: number) {
-    const res = await axios.get(
-      `/api/notice?take=10${
-        numberOfPages == 1 ? '' : '&cursor=' + 10 * (numberOfPages - 1)
-      }`
-    )
+    const res = await axios.get('/api/notice', {
+      params:
+        numberOfPages == 1
+          ? { take: 10 }
+          : { take: 10, cursor: 10 * (numberOfPages - 1) }
+    })
     notices.value = res.data
     notices.value.map((notice) => {
       notice.createTime = useDateFormat(notice.createTime, 'YYYY-MM-DD').value
