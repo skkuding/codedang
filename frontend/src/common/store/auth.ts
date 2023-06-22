@@ -41,6 +41,28 @@ export const useAuthStore = defineStore('auth', {
       } catch (e) {
         this.isLoggedIn = false
       }
+    },
+
+    async signup(
+      username: string,
+      password: string,
+      email: string,
+      realName: string
+    ) {
+      try {
+        const res = await axios.post('/api/user/sign-up', {
+          username,
+          password,
+          email,
+          realName
+        })
+        axios.defaults.headers.common.authorization = res.headers.authorization
+        openToast({ message: 'Sign up succeed!', type: 'success' })
+      } catch (e) {
+        openToast({ message: 'Sign up failed!', type: 'error' })
+        console.log('error is ', e)
+        throw new Error('Sign up failed')
+      }
     }
   }
 })

@@ -4,9 +4,13 @@ import Button from '../Atom/Button.vue'
 import InputItem from '../Atom/InputItem.vue'
 import IconPaperPlane from '~icons/fa6-solid/paper-plane'
 import IconCheck from '~icons/fa6-solid/check'
+// import { useAuthStore } from '@/common/store/auth'
+import { useToast } from '@/common/composables/toast'
 
+const openToast = useToast()
+// const emit =
 defineEmits<{
-  (e: 'to', value: 'login' | 'signup' | 'password'): void
+  (e: 'to', value: 'login' | 'signup' | 'password' | 'close'): void
 }>()
 
 const username = ref('')
@@ -16,6 +20,40 @@ const studentId = ref('')
 const realName = ref('')
 const password = ref('')
 const passwordAgain = ref('')
+
+// const auth = useAuthStore()
+const regex =
+  /((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*\d))|((?=.*[a-z])(?=.*[^a-zA-Z0-9\s]))|((?=.*[A-Z])(?=.*\d))|((?=.*[A-Z])(?=.*[^a-zA-Z0-9\s]))|((?=.*\d)(?=.*[^a-zA-Z0-9\s]))/
+
+const signup = async () => {
+  if (username.value.length < 3 || username.value.length > 10) {
+    // bad username
+    openToast({
+      message: 'Username must be 4 ~ 9 characters',
+      type: 'error'
+    })
+  }
+  if (!regex.test(password.value)) {
+    console.log('bad password')
+    openToast({
+      message:
+        'Password must be a combination of at least 2 of lower case, upper case, number or exclamation marks',
+      type: 'error'
+    })
+    // bad password
+  } else if (password.value.length < 8) {
+    console.log('short password')
+    openToast({
+      message: 'Password must be at least 8 characters',
+      type: 'error'
+    })
+    // bad password
+  } else {
+    console.log('yes')
+  }
+  // await auth.signup(username.value, password.value)
+  // emit('to', 'close')
+}
 </script>
 
 <template>
@@ -25,7 +63,7 @@ const passwordAgain = ref('')
       <br />
       SKKU Coding Platform
     </h1>
-    <form class="flex w-60 flex-col gap-3" @submit.prevent>
+    <form class="flex w-60 flex-col gap-3" @submit.prevent="signup">
       <InputItem v-model="username" placeholder="Username" class="rounded-md" />
       <div class="flex gap-2">
         <InputItem
