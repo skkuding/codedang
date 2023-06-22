@@ -5,8 +5,10 @@ import { Level } from '@admin/@generated/prisma/level.enum'
 import type { UserCreateNestedOneWithoutProblemInput } from '@admin/@generated/user/user-create-nested-one-without-problem.input'
 import type { GroupCreateNestedOneWithoutProblemInput } from '@admin/@generated/group/group-create-nested-one-without-problem.input'
 import { type UpdateProblem } from './dto/update-problem.dto'
-import { Language } from '@prisma/client'
 import { isDefined } from 'class-validator'
+import type { ProblemTestcaseUncheckedCreateNestedManyWithoutProblemInput } from '@admin/@generated/problem-testcase/problem-testcase-unchecked-create-nested-many-without-problem.input'
+import type { ProblemTagUncheckedCreateNestedManyWithoutProblemInput } from '@admin/@generated/problem-tag/problem-tag-unchecked-create-nested-many-without-problem.input'
+import type { ProblemTagCreateWithoutProblemInput } from '@admin/@generated/problem-tag/problem-tag-create-without-problem.input'
 
 @Injectable()
 export class ProblemService {
@@ -49,10 +51,39 @@ export class ProblemService {
       }
     }
 
+    const problemTestcase: ProblemTestcaseUncheckedCreateNestedManyWithoutProblemInput =
+      {
+        create: problemCreateInput.problemTestcase
+      }
+
+    let problemTag: ProblemTagUncheckedCreateNestedManyWithoutProblemInput
+    if (isDefined(problemCreateInput.problemTag)) {
+      problemTag = {
+        create: problemCreateInput.problemTag.map(
+          (t): ProblemTagCreateWithoutProblemInput => {
+            return {
+              tag: {
+                create: {
+                  name: t
+                }
+              }
+            }
+          }
+        )
+      }
+    }
+
     const {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       groupId: _1,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       difficulty: _2,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       createdById: _3,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      problemTestcase: _4,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      problemTag: _5,
       ..._data
     } = problemCreateInput
 
@@ -61,7 +92,9 @@ export class ProblemService {
         ..._data,
         group: group,
         difficulty: difficulty,
-        createdBy: createdBy
+        createdBy: createdBy,
+        problemTestcase: problemTestcase,
+        problemTag: problemTag
       }
     })
   }
@@ -87,42 +120,15 @@ export class ProblemService {
     })
   }
 
-  mapLanguage(input: string): Language {
-    let rvalue: Language = Language.C
-    if (input == 'Cpp') rvalue = Language.Cpp
-    else if (input == 'Java') rvalue = Language.Java
-    else rvalue = Language.Python3
-
-    return rvalue
-  }
-
   async update(updateProblemInput: UpdateProblem) {
-    interface LooseObject {
-      [key: string]: any
-    }
-
-    const {
-      problemId: _a,
-      difficulty: _b,
-      languages: _c,
-      ..._data
-    }: LooseObject = updateProblemInput
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { problemId: _a, difficulty: _b, ..._data } = updateProblemInput
 
     const problemId: number = updateProblemInput.problemId
 
-    let difficulty: Level = Level.Level1
+    let difficulty: Level
     if (isDefined(updateProblemInput.difficulty)) {
-      if (updateProblemInput.difficulty == 'Level2') difficulty = Level.Level2
-      else difficulty = Level.Level3
-      _data.difficulty = difficulty
-    }
-
-    let languages: Language[] = []
-    if (isDefined(updateProblemInput.languages)) {
-      languages = updateProblemInput.languages.map((value: string) =>
-        this.mapLanguage(value)
-      )
-      _data.languages = languages
+      difficulty = Level[updateProblemInput.difficulty]
     }
 
     return await this.prisma.problem.update({
@@ -130,7 +136,8 @@ export class ProblemService {
         id: problemId
       },
       data: {
-        ..._data
+        ..._data,
+        difficulty: difficulty
       }
     })
   }
@@ -138,7 +145,7 @@ export class ProblemService {
   async remove(problemId: number) {
     return await this.prisma.problem.delete({
       where: {
-        id: problemId
+        id: problemId //here
       }
     })
   }

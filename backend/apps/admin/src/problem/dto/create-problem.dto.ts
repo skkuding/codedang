@@ -1,13 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
-
-@InputType()
-export class ProgramIO {
-  @Field({ nullable: false })
-  input: string
-
-  @Field({ nullable: false })
-  output: string
-}
+import { LanguageInput, DifficultyInput } from './update-problem.dto'
+import { ProblemTestcaseCreateWithoutProblemInput } from '@admin/@generated/problem-testcase/problem-testcase-create-without-problem.input'
 
 @InputType()
 export class CreateProblem {
@@ -38,18 +31,24 @@ export class CreateProblem {
   @Field(() => Int)
   memoryLimit: number
 
-  @Field({ nullable: false })
-  difficulty: string
+  @Field(() => DifficultyInput, { nullable: true })
+  difficulty: DifficultyInput // modify
 
-  // @Field(() => [String])
-  // tags: string[]
+  @Field(() => [LanguageInput], { nullable: true })
+  languages?: Array<LanguageInput>
 
   @Field({ nullable: false })
   source: string
 
-  // @Field(() => [ProgramIO])
-  // sample: ProgramIO[]
+  @Field(() => [String], { nullable: true })
+  inputExamples?: Array<string>
 
-  // @Field(() => [ProgramIO])
-  // testcase: ProgramIO[]
+  @Field(() => [String], { nullable: true })
+  outputExamples?: Array<string>
+
+  @Field(() => [ProblemTestcaseCreateWithoutProblemInput], { nullable: true })
+  problemTestcase?: Array<ProblemTestcaseCreateWithoutProblemInput>
+
+  @Field(() => [String], { nullable: true })
+  problemTag?: Array<string>
 }
