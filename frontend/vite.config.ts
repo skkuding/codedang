@@ -20,7 +20,7 @@ export default defineConfig({
         { dir: 'src/user/contest/pages', baseRoute: 'contest' },
         { dir: 'src/user/group/pages', baseRoute: 'group' },
         { dir: 'src/user/workbook/pages', baseRoute: 'workbook' },
-        { dir: 'src/manager/pages', baseRoute: 'manager' }
+        { dir: 'src/admin/pages', baseRoute: 'admin' }
       ]
     }),
     layouts({
@@ -45,5 +45,8 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
+  },
+  optimizeDeps: {
+    exclude: ['@codemirror/state']
   }
 })
