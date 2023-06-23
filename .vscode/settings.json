@@ -5,6 +5,5 @@
   "thunder-client.saveToWorkspace": true,
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
-  },
-  "prettier.prettierPath": "./node_modules/prettier"
+  }
 }
