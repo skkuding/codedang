@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import Button from '@/common/components/Atom/Button.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
-import IconUp from '~icons/fa/arrow-up'
 import IconDown from '~icons/fa/arrow-down'
-import IconTrash from '~icons/fa/trash-o'
+import IconUp from '~icons/fa/arrow-up'
 import IconCheck from '~icons/fa/check'
 import IconClose from '~icons/fa/close'
+import IconTrash from '~icons/fa/trash-o'
 </script>
 
 <template>

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
-import type { UserCreateInput } from '../@generated/user/user-create.input'
-import type { UserUpdateInput } from '../@generated/user/user-update.input'
 import { PrismaService } from '@libs/prisma'
 import type { User } from '@admin/@generated/user/user.model'
+import type { UserCreateInput } from '../@generated/user/user-create.input'
+import type { UserUpdateInput } from '../@generated/user/user-update.input'
 
 @Injectable()
 export class UserService {

@@ -1,7 +1,7 @@
-import * as path from 'path'
 import { MailerService } from '@nestjs-modules/mailer'
 import { Injectable } from '@nestjs/common'
 import type { SentMessageInfo } from 'nodemailer'
+import * as path from 'path'
 import { EmailTransmissionFailedException } from '@client/common/exception/business.exception'
 
 @Injectable()
