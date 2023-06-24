@@ -8,8 +8,8 @@ import IconEllipsis from '~icons/fa6-solid/ellipsis'
 import IconBars from '~icons/fa6-solid/bars'
 import IconCalendar from '~icons/fa6-solid/calendar'
 import type { Item } from '@/user/notice/composables/notice'
-import { useDateFormat } from '@vueuse/core'
 import axios from 'axios'
+import { useDateFormat } from '@vueuse/core'
 
 interface Post {
   title: string
