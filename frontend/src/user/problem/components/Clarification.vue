@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import Button from '@/common/components/Atom/Button.vue'
+import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
+import { OnClickOutside } from '@vueuse/components'
+import { useDraggable, useWindowSize } from '@vueuse/core'
 import { ref, watch } from 'vue'
 import IconSoundFilled from '~icons/ant-design/sound-filled'
-import { useDraggable, useWindowSize } from '@vueuse/core'
-import { OnClickOutside } from '@vueuse/components'
-import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
-import Button from '@/common/components/Atom/Button.vue'
 
 const props = withDefaults(
   defineProps<{

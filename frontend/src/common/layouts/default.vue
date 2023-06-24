@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Header from '../components/Organism/Header.vue'
-import Footer from '../components/Organism/Footer.vue'
 import { defineAsyncComponent } from 'vue'
+import Footer from '../components/Organism/Footer.vue'
+import Header from '../components/Organism/Header.vue'
 
 const Carousel = defineAsyncComponent(
   () => import('@/user/home/components/Carousel.vue')

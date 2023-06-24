@@ -8,13 +8,13 @@ import {
   UseGuards,
   Query
 } from '@nestjs/common'
-import { WorkbookService } from './workbook.service'
+import type { Workbook } from '@prisma/client'
+import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
 import { EntityNotExistException } from '@client/common/exception/business.exception'
+import { CursorValidationPipe } from '@client/common/pipe/cursor-validation.pipe'
 import { RolesGuard } from '@client/user/guard/roles.guard'
 import { GroupMemberGuard } from '../group/guard/group-member.guard'
-import { type Workbook } from '@prisma/client'
-import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
-import { CursorValidationPipe } from '@client/common/pipe/cursor-validation.pipe'
+import { WorkbookService } from './workbook.service'
 
 @Controller('workbook')
 @AuthNotNeeded()

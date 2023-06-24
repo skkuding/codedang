@@ -1,5 +1,5 @@
-import { Test } from '@nestjs/testing'
 import { ConfigService } from '@nestjs/config'
+import { Test } from '@nestjs/testing'
 import { expect } from 'chai'
 import { PrismaService } from './prisma.service'
 

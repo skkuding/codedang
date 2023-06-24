@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { useToast } from '@/common/composables/toast'
+import { useClipboard } from '@vueuse/core'
 import IconGithub from '~icons/fa6-brands/github'
 import IconEnvelope from '~icons/fa6-solid/envelope'
-import IconKakaoTalk from '~icons/ri/kakao-talk-fill'
 import IconLink from '~icons/fa6-solid/link'
-import { useClipboard } from '@vueuse/core'
-import { useToast } from '@/common/composables/toast'
+import IconKakaoTalk from '~icons/ri/kakao-talk-fill'
 
 const { copy } = useClipboard()
 const openToast = useToast()

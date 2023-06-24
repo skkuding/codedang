@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
-import { ref } from 'vue'
 import Badge from '@/common/components/Molecule/Badge.vue'
 import Tab from '@/common/components/Molecule/Tab.vue'
-import Top from '../components/Top.vue'
+import { useDateFormat, useNow } from '@vueuse/core'
+import { ref } from 'vue'
+import Notice from '../components/Notice.vue'
 import Problem from '../components/Problem.vue'
 import Ranking from '../components/Ranking.vue'
-import Notice from '../components/Notice.vue'
-import { useDateFormat, useNow } from '@vueuse/core'
+import Top from '../components/Top.vue'
 
 defineProps<{
   id: string

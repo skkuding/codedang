@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { fileURLToPath, URL } from 'url'
-import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import icons from 'unplugin-icons/vite'
+import { fileURLToPath, URL } from 'url'
+import { defineConfig } from 'vite'
+import checker from 'vite-plugin-checker'
 import pages from 'vite-plugin-pages'
 import layouts from 'vite-plugin-vue-layouts'
-import checker from 'vite-plugin-checker'
 
 // https://vitejs.dev/config/
 export default defineConfig({

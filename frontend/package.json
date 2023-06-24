@@ -38,6 +38,7 @@
     "@histoire/plugin-vue": "^0.16.1",
     "@iconify-json/ant-design": "^1.1.5",
     "@iconify-json/bi": "^1.1.17",
+    "@iconify-json/fa": "^1.1.4",
     "@iconify-json/fa6-brands": "^1.1.11",
     "@iconify-json/fa6-regular": "^1.1.11",
     "@iconify-json/fa6-solid": "^1.1.13",

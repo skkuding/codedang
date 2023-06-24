@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { onTrigger } from '@/common/composables/toast'
 import type { ToastOption } from '@/common/composables/toast'
-import IconCircleInfo from '~icons/fa6-solid/circle-info'
+import { ref } from 'vue'
 import IconCircleCheck from '~icons/fa6-solid/circle-check'
-import IconTriangleExclamation from '~icons/fa6-solid/triangle-exclamation'
+import IconCircleInfo from '~icons/fa6-solid/circle-info'
 import IconCircleXmark from '~icons/fa6-solid/circle-xmark'
+import IconTriangleExclamation from '~icons/fa6-solid/triangle-exclamation'
 
 interface ToastItem extends ToastOption {
   id: symbol

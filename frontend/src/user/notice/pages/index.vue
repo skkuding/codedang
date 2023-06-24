@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
+import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useNotice, type Field } from '../composables/notice'
 
 const field: Field[] = [
