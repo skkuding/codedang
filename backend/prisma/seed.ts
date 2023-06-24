@@ -6724,7 +6724,7 @@ const createContests = async () => {
     // add clarifications to contestProblem
     await prisma.clarification.create({
       data: {
-        content: '1번 문제가 blah blah 수정되었습니다.',
+        content: `${problem.id}번 문제가 blah blah 수정되었습니다.`,
         contestId: contest.id,
         problemId: problem.id
       }
