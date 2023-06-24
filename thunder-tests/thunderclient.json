@@ -4332,7 +4332,7 @@
     "method": "POST",
     "sortNum": 510000,
     "created": "2023-06-15T11:04:01.290Z",
-    "modified": "2023-06-15T12:10:09.046Z",
+    "modified": "2023-06-24T11:52:48.384Z",
     "headers": [],
     "params": [],
     "body": {
@@ -4343,7 +4343,17 @@
         "query": "query User {\n    getUser(id: 21) {\n        username\n    }\n}"
       }
     },
-    "tests": []
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
   },
   {
     "_id": "cfb1afea-8baa-4ce8-b19c-1000c203b134",

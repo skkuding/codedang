@@ -8,6 +8,7 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './auth/auth.module'
 import { JwtAuthGuard } from './auth/guard/jwt-auth.guard'
+import { ClarificationModule } from './clarification/clarification.module'
 import { CacheConfigService } from './common/cache/cacheConfig.service'
 import { ContestModule } from './contest/contest.module'
 import { EmailModule } from './email/email.module'
@@ -38,7 +39,8 @@ import { WorkbookModule } from './workbook/workbook.module'
     SubmissionModule,
     UserModule,
     WorkbookModule,
-    EmailModule
+    EmailModule,
+    ClarificationModule
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }]
