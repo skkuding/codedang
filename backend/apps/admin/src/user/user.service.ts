@@ -1,12 +1,19 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { type UserCreateInput } from '../@generated/user/user-create.input'
 import { type UserUpdateInput } from '../@generated/user/user-update.input'
 import { PrismaService } from '@libs/prisma'
 import { type User } from '@admin/@generated/user/user.model'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Cache } from 'cache-manager'
+import { type UserGroup } from '@admin/@generated/user-group/user-group.model'
+import { type UserGroupData } from './interface/user-group-data.interface'
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+  ) {}
 
   async createUser(userCreateInput: UserCreateInput) {
     return await this.prisma.user.create({
@@ -30,6 +37,170 @@ export class UserService {
     })
   }
 
+  async getGroupManagers(cursor: number, take: number, groupId: number) {
+    const groupManagers = await this.prisma.userGroup.findMany({
+      take,
+      skip: cursor ? 1 : 0,
+      ...(cursor && {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        cursor: { userId_groupId: { userId: cursor, groupId } }
+      }),
+      where: {
+        groupId: groupId,
+        isGroupLeader: true
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            userProfile: {
+              select: {
+                realName: true
+              }
+            },
+            email: true
+          }
+        }
+      }
+    })
+
+    const processedGroupManagers = groupManagers.map((userGroup) => {
+      const { username, id: userId, email, userProfile } = userGroup.user
+
+      if (userProfile == null) {
+        return {
+          username,
+          userId,
+          realName: '',
+          email
+        }
+      } else {
+        return {
+          username,
+          userId,
+          realName: userProfile.realName,
+          email
+        }
+      }
+    })
+    return processedGroupManagers
+  }
+
+  async getGroupMembers(cursor: number, take: number, groupId: number) {
+    const groupMembers = await this.prisma.userGroup.findMany({
+      take,
+      skip: cursor ? 1 : 0,
+      ...(cursor && {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        cursor: { userId_groupId: { userId: cursor, groupId } }
+      }),
+      where: {
+        groupId: groupId,
+        isGroupLeader: false
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            userProfile: {
+              select: {
+                realName: true
+              }
+            },
+            email: true
+          }
+        }
+      }
+    })
+
+    const processedGroupManagers = groupMembers.map((userGroup) => {
+      const { username, id: userId, email, userProfile } = userGroup.user
+
+      if (userProfile == null) {
+        return {
+          username,
+          userId,
+          realName: '',
+          email
+        }
+      } else {
+        return {
+          username,
+          userId,
+          realName: userProfile.realName,
+          email
+        }
+      }
+    })
+    return processedGroupManagers
+  }
+
+  async upOrDowngradeManager(
+    userId: number,
+    groupId: number,
+    isUpgrade: boolean
+  ): Promise<UserGroup> {
+    const groupManagers = (
+      await this.prisma.userGroup.findMany({
+        where: {
+          groupId: groupId,
+          isGroupLeader: true
+        },
+        select: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              userProfile: {
+                select: {
+                  realName: true
+                }
+              },
+              email: true
+            }
+          }
+        }
+      })
+    ).map((userGroup) => {
+      return {
+        username: userGroup.user.username,
+        userId: userGroup.user.id,
+        realName: userGroup.user.userProfile.realName,
+        email: userGroup.user.email
+      }
+    })
+
+    const doesTheManagerExist = groupManagers.some(
+      (groupManager) => groupManager.userId === userId
+    )
+
+    let upgradeOrDowngrade = true
+    if (doesTheManagerExist == true && isUpgrade == false) {
+      upgradeOrDowngrade = false
+    } else if (doesTheManagerExist == false && isUpgrade == true) {
+      upgradeOrDowngrade = true
+    } else {
+      console.log('Invalid request')
+      throw new NotFoundException()
+    }
+    const returnVal = await this.prisma.userGroup.update({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId
+        }
+      },
+      data: {
+        isGroupLeader: upgradeOrDowngrade
+      }
+    })
+    console.log(returnVal)
+    return returnVal
+  }
+
   async updateUser(
     id: number,
     userUpdateInput: UserUpdateInput
@@ -46,11 +217,114 @@ export class UserService {
     })
   }
 
-  async deleteUser(id: number): Promise<User> {
-    return await this.prisma.user.delete({
-      where: {
-        id: id
+  async createUserGroup(userGroupData: UserGroupData): Promise<UserGroup> {
+    return await this.prisma.userGroup.create({
+      data: {
+        user: {
+          connect: { id: userGroupData.userId }
+        },
+        group: {
+          connect: { id: userGroupData.groupId }
+        },
+        isGroupLeader: userGroupData.isGroupLeader
       }
     })
+  }
+
+  async registerNewMembers(
+    groupId: number,
+    managers: number[],
+    members: number[]
+  ) {
+    const groupMembers = (
+      await this.prisma.userGroup.findMany({
+        where: {
+          groupId: groupId
+        },
+        select: {
+          user: {
+            select: {
+              id: true
+            }
+          }
+        }
+      })
+    ).map((userGroup) => {
+      return {
+        userId: userGroup.user.id
+      }
+    })
+
+    managers.forEach(async (userId) => {
+      if (!(userId in groupMembers)) {
+        const userGroupData: UserGroupData = {
+          userId,
+          groupId,
+          isGroupLeader: true
+        }
+        await this.createUserGroup(userGroupData)
+      }
+    })
+
+    members.forEach(async (userId) => {
+      if (!(userId in groupMembers)) {
+        const userGroupData: UserGroupData = {
+          userId,
+          groupId,
+          isGroupLeader: false
+        }
+        await this.createUserGroup(userGroupData)
+      }
+    })
+  }
+
+  async deleteGroupMember(userId: number, groupId: number) {
+    const groupManagers = (
+      await this.prisma.userGroup.findMany({
+        where: {
+          groupId: groupId,
+          isGroupLeader: true
+        },
+        select: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              userProfile: {
+                select: {
+                  realName: true
+                }
+              },
+              email: true
+            }
+          }
+        }
+      })
+    ).map((userGroup) => {
+      return {
+        username: userGroup.user.username,
+        userId: userGroup.user.id,
+        realName: userGroup.user.userProfile.realName,
+        email: userGroup.user.email
+      }
+    })
+
+    const doesTheManagerExist = groupManagers.some(
+      (groupManager) => groupManager.userId === userId
+    )
+
+    if (groupManagers.length <= 1 || !doesTheManagerExist) {
+      // should not remove
+    } else {
+      await this.prisma.userGroup.delete({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          userId_groupId: {
+            userId,
+            groupId
+          }
+        }
+      })
+    }
   }
 }
