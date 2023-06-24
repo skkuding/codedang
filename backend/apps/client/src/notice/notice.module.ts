@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common'
-import { NoticeController, GroupNoticeController } from './notice.controller'
+import { GroupModule } from '@client/group/group.module'
+import { UserModule } from '@client/user/user.module'
 import {
   NoticeAdminController,
   GroupNoticeAdminController
 } from './notice-admin.controller'
+import { NoticeController, GroupNoticeController } from './notice.controller'
 import { NoticeService } from './notice.service'
-import { GroupModule } from '@client/group/group.module'
-import { UserModule } from '@client/user/user.module'
 
 @Module({
   imports: [UserModule, GroupModule],

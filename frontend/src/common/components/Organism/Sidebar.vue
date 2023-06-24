@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import IconBiHouse from '~icons/bi/house'
+import CodingPlatformLogo from '@/common/components/Atom/CodingPlatformLogo.vue'
+import { computed } from 'vue'
+import IconBox from '~icons/bi/box'
+import IconCode from '~icons/bi/code-square'
 import IconFile from '~icons/bi/file-text'
+import IconBiHouse from '~icons/bi/house'
+import IconBook from '~icons/bi/journals'
 import IconTrophy from '~icons/bi/trophy'
 import IconUser from '~icons/fa6-regular/user'
 import IconBrain from '~icons/fluent/brain-circuit-24-regular'
-import IconBox from '~icons/bi/box'
-import IconCode from '~icons/bi/code-square'
-import IconBook from '~icons/bi/journals'
-import { computed } from 'vue'
-import CodingPlatformLogo from '@/common/components/Atom/CodingPlatformLogo.vue'
 
 // TODO: get group name and color
 const props = defineProps<{

@@ -1,5 +1,5 @@
-import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import type { Language } from '../types'
 
 export const useProblemStore = defineStore('problem', () => {

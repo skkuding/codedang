@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import WorkbookTitle from '../components/WorkbookTitle.vue'
-import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
-import IconCheck from '~icons/fa6-regular/circle-check'
+import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { computed, onMounted, ref } from 'vue'
-import { useWorkbook } from '../composables/workbook'
 import { useRouter } from 'vue-router'
+import IconCheck from '~icons/fa6-regular/circle-check'
+import WorkbookTitle from '../components/WorkbookTitle.vue'
+import { useWorkbook } from '../composables/workbook'
 
 const props = defineProps<{
   id: string

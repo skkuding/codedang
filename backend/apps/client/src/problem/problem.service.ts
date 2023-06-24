@@ -7,10 +7,10 @@ import {
 } from '@client/common/exception/business.exception'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
-import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
-import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
+import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
+import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemRepository } from './problem.repository'
 
 @Injectable()

@@ -1,7 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { type Prisma, type Contest } from '@prisma/client'
+import { Inject, Injectable } from '@nestjs/common'
+import type { Prisma, Contest } from '@prisma/client'
 import { Cache } from 'cache-manager'
+import { PrismaService } from '@libs/prisma'
 import { contestPublicizingRequestKey } from '@client/common/cache/keys'
 import {
   OPEN_SPACE_ID,
@@ -12,11 +13,10 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from '@client/common/exception/business.exception'
-import { PrismaService } from '@libs/prisma'
-import { type CreateContestDto } from './dto/create-contest.dto'
-import { type RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
-import { type UpdateContestDto } from './dto/update-contest.dto'
-import { type StoredPublicizingRequest } from './interface/publicizing-request.interface'
+import type { CreateContestDto } from './dto/create-contest.dto'
+import type { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
+import type { UpdateContestDto } from './dto/update-contest.dto'
+import type { StoredPublicizingRequest } from './interface/publicizing-request.interface'
 
 @Injectable()
 export class ContestService {
