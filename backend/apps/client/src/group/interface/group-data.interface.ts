@@ -5,4 +5,5 @@ export interface GroupData {
   memberNum: number
   createdBy: string
   leaders?: string[]
+  isGroupLeader?: boolean
 }

@@ -123,6 +123,41 @@ export const userGroups: UserGroup[] = [
   }
 ]
 
+export const userGroupsForJoinedGroups = [
+  {
+    ...userGroups[0],
+    group: {
+      ...groups[0],
+      createdBy: users[0],
+      userGroup: userGroups.slice(0, 2)
+    }
+  },
+  {
+    ...userGroups[1],
+    group: {
+      ...groups[0],
+      createdBy: users[0],
+      userGroup: userGroups.slice(0, 2)
+    }
+  },
+  {
+    ...userGroups[2],
+    group: {
+      ...groups[1],
+      createdBy: users[0],
+      userGroup: userGroups.slice(2)
+    }
+  },
+  {
+    ...userGroups[3],
+    group: {
+      ...groups[1],
+      createdBy: users[0],
+      userGroup: userGroups.slice(2)
+    }
+  }
+]
+
 export const publicGroupDatas: GroupData[] = [
   {
     id: 1,

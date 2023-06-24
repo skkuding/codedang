@@ -3515,7 +3515,7 @@
     "method": "GET",
     "sortNum": 580000,
     "created": "2023-02-21T06:36:54.399Z",
-    "modified": "2023-04-28T12:21:43.540Z",
+    "modified": "2023-06-24T09:02:30.579Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -3526,17 +3526,47 @@
         "value": "200"
       },
       {
-        "type": "json-query",
-        "custom": "json | filter(id>1)",
-        "action": "count",
-        "value": "2"
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "id"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "groupName"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "description"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "createdBy"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "memberNum"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "isGroupLeader"
       }
     ],
-    "docs": "# Get joined groups\n\n### URL\nGET /group/joined <br><br>\n\n### Description\n가입한 그룹의 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n   id: Number\n   groupName: String\n   description: String\n   createdBy: String\n   memberNum: Number\n} []\n```",
+    "docs": "# Get joined groups\n\n### URL\nGET /group/joined <br><br>\n\n### Description\n가입한 그룹의 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n   id: Number\n   groupName: String\n   description: String\n   memberNum: Number\n   createdBy: String\n   isGroupLeader: Boolean\n} []\n```",
     "preReq": {
       "runRequests": [
         {
-          "reqId": "9dffba42-be8a-48c1-8243-e327ce99589b",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
