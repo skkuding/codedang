@@ -7,8 +7,8 @@ import type { GroupCreateNestedOneWithoutProblemInput } from '@admin/@generated/
 import { type UpdateProblem } from './dto/update-problem.dto'
 import { isDefined } from 'class-validator'
 import type { ProblemTestcaseUncheckedCreateNestedManyWithoutProblemInput } from '@admin/@generated/problem-testcase/problem-testcase-unchecked-create-nested-many-without-problem.input'
-import type { ProblemTagUncheckedCreateNestedManyWithoutProblemInput } from '@admin/@generated/problem-tag/problem-tag-unchecked-create-nested-many-without-problem.input'
-import type { ProblemTagCreateWithoutProblemInput } from '@admin/@generated/problem-tag/problem-tag-create-without-problem.input'
+import type { TagCreateManyInput } from '@admin/@generated/tag/tag-create-many.input'
+import type { ProblemTagUncheckedCreateWithoutProblemInput } from '@admin/@generated/problem-tag/problem-tag-unchecked-create-without-problem.input'
 
 @Injectable()
 export class ProblemService {
@@ -56,22 +56,29 @@ export class ProblemService {
         create: problemCreateInput.problemTestcase
       }
 
-    let problemTag: ProblemTagUncheckedCreateNestedManyWithoutProblemInput
-    if (isDefined(problemCreateInput.problemTag)) {
-      problemTag = {
-        create: problemCreateInput.problemTag.map(
-          (t): ProblemTagCreateWithoutProblemInput => {
-            return {
-              tag: {
-                create: {
-                  name: t
-                }
-              }
-            }
-          }
-        )
+    const parsedTag = problemCreateInput.problemTag.map(
+      (value): TagCreateManyInput => {
+        return {
+          name: value
+        }
       }
-    }
+    )
+    await this.prisma.tag.createMany({
+      data: parsedTag,
+      skipDuplicates: true
+    })
+    const _tagsId = await this.prisma.tag.findMany({
+      select: { id: true },
+      where: {
+        OR: parsedTag
+      }
+    })
+    const tagsId: Array<ProblemTagUncheckedCreateWithoutProblemInput> =
+      _tagsId.map((value) => {
+        return {
+          tagId: value.id
+        }
+      })
 
     const {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -94,7 +101,9 @@ export class ProblemService {
         difficulty: difficulty,
         createdBy: createdBy,
         problemTestcase: problemTestcase,
-        problemTag: problemTag
+        problemTag: {
+          create: tagsId
+        }
       }
     })
   }
@@ -145,7 +154,7 @@ export class ProblemService {
   async remove(problemId: number) {
     return await this.prisma.problem.delete({
       where: {
-        id: problemId //here
+        id: problemId
       }
     })
   }
