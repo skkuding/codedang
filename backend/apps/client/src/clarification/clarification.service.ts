@@ -1,9 +1,9 @@
+import { Injectable } from '@nestjs/common'
+import type { Clarification } from '@prisma/client'
+import { PrismaService } from '@libs/prisma'
 import { OPEN_SPACE_ID } from '@client/common/constants'
 import { EntityNotExistException } from '@client/common/exception/business.exception'
-import { PrismaService } from '@libs/prisma'
 import { ContestService } from '@client/contest/contest.service'
-import { Injectable } from '@nestjs/common'
-import { type Clarification } from '@prisma/client'
 
 @Injectable()
 export class ClarificationService {

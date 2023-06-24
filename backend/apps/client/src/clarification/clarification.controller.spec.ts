@@ -1,6 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import { ClarificationController } from './clarification.controller'
 import { expect } from 'chai'
+import { ClarificationController } from './clarification.controller'
 import { ClarificationService } from './clarification.service'
 
 describe('ClarificationController', () => {

@@ -1,12 +1,12 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
+import type { Clarification } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import { ClarificationService } from './clarification.service'
 import { PrismaService } from '@libs/prisma'
-import { ContestService } from '@client/contest/contest.service'
-import { type Clarification } from '@prisma/client'
 import { EntityNotExistException } from '@client/common/exception/business.exception'
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { ContestService } from '@client/contest/contest.service'
+import { ClarificationService } from './clarification.service'
 
 const groupId = 2
 const contestId = 1
