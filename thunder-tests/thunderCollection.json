@@ -455,7 +455,7 @@
       },
       {
         "_id": "af51ee2a-b6a3-4162-9b37-9d7741ffd67e",
-        "name": "Get Clarifications by Contest",
+        "name": "Get Clarifications by Group Contest",
         "containerId": "48547883-d35f-483f-a8d4-87a746611eb7",
         "created": "2023-06-24T06:38:52.458Z",
         "sortNum": 480000
@@ -469,10 +469,10 @@
       },
       {
         "_id": "7b4a93f3-807f-40e9-a830-8ba1d261ccb9",
-        "name": "Get Clarifications by Group Contest",
+        "name": "Get Clarifications by Contest",
         "containerId": "48547883-d35f-483f-a8d4-87a746611eb7",
         "created": "2023-06-24T07:04:33.600Z",
-        "sortNum": 485000
+        "sortNum": 240000
       },
       {
         "_id": "ff1c5805-4fdd-44d4-ba67-f10ad9a06368",
