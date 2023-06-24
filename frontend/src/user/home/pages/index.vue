@@ -5,11 +5,11 @@ import IconInfo from '~icons/fa6-solid/circle-info'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
 import IconMedal from '~icons/fa6-solid/medal'
 import IconEllipsis from '~icons/fa6-solid/ellipsis'
-import IconCalendar from '~icons/fa6-solid/calendar'
 import IconBars from '~icons/fa6-solid/bars'
+import IconCalendar from '~icons/fa6-solid/calendar'
 import type { Item } from '@/user/notice/composables/notice'
-import axios from 'axios'
 import { useDateFormat } from '@vueuse/core'
+import axios from 'axios'
 
 interface Post {
   title: string
@@ -25,49 +25,36 @@ interface ContestItem extends Item {
 const notices = ref<Post[]>([])
 const contest = ref<Post[]>([])
 
-async function getNotice() {
-  const res = await axios('/api/notice?take=3')
-  notices.value = res.data.map((element: Item) => ({
-    title: element.title,
-    date: useDateFormat(element.createTime, 'YYYY-MM-DD'),
-    href: `/notice/${element.id}`
-  }))
-}
-
-async function getContest() {
-  const res = await axios('/api/contest')
-  let count = 0
-  const temp: Post[] = []
-  res.data.ongoing.map((element: ContestItem) => {
-    if (count === 3) return
-    temp.push({
+axios
+  .get('/api/notice', {
+    params: { take: 3 }
+  })
+  .then((res) => {
+    notices.value = res.data.map((element: Item) => ({
       title: element.title,
-      date: element.startTime,
+      date: useDateFormat(element.createTime, 'YYYY-MM-DD').value,
+      href: `/notice/${element.id}`
+    }))
+  })
+
+axios.get('api/contest').then((res) => {
+  res.data.ongoing.map((element: ContestItem) => {
+    contest.value.push({
+      title: element.title,
+      date: useDateFormat(element.startTime, 'YYYY-MM-DD').value,
       href: `/contest/${element.id}`,
       state: 'ongoing'
     })
-    count++
   })
-  count = 0
   res.data.upcoming.map((element: ContestItem) => {
-    temp.push({
+    contest.value.push({
       title: element.title,
-      date: element.startTime,
+      date: useDateFormat(element.startTime, 'YYYY-MM-DD').value,
       href: `/contest/${element.id}`,
       state: 'upcoming'
     })
-    count++
   })
-  temp.sort((a, b) => {
-    return new Date(a.date).getTime() - new Date(b.date).getTime()
-  })
-  contest.value = temp.slice(0, 3).map((element: Post) => ({
-    ...element,
-    date: useDateFormat(element.date, 'YYYY-MM-DD').value
-  }))
-}
-getNotice()
-getContest()
+})
 </script>
 
 <template>
