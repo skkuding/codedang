@@ -32,8 +32,6 @@ const db = {
 
 describe('ClarificationService', () => {
   let service: ClarificationService
-  let contestService: ContestService
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -48,7 +46,6 @@ describe('ClarificationService', () => {
     }).compile()
 
     service = module.get<ClarificationService>(ClarificationService)
-    contestService = module.get<ContestService>(ContestService)
   })
 
   it('should be defined', () => {
