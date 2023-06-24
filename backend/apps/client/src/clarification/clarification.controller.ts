@@ -11,7 +11,7 @@ import { ClarificationService } from './clarification.service'
 import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
 import { EntityNotExistException } from '@client/common/exception/business.exception'
 import { type Clarification } from '@prisma/client'
-import { RolesGuard } from '@admin/user/guard/roles.guard'
+import { RolesGuard } from '@client/user/guard/roles.guard'
 import { GroupMemberGuard } from '@client/group/guard/group-member.guard'
 
 @Controller('contest/:contestId')
