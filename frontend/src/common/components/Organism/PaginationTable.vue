@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, ref, watch } from 'vue'
-import SearchBar from '../Molecule/SearchBar.vue'
 import Pagination from '../Molecule/Pagination.vue'
+import SearchBar from '../Molecule/SearchBar.vue'
 
 type SubfieldType = {
   key: string

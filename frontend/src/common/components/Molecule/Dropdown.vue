@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useToggle } from '@vueuse/core'
 import { OnClickOutside } from '@vueuse/components'
+import { useToggle } from '@vueuse/core'
 
 const [show, toggle] = useToggle()
 

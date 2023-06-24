@@ -1,7 +1,7 @@
-import * as path from 'path'
 import { MailerService } from '@nestjs-modules/mailer'
 import { Injectable } from '@nestjs/common'
-import { type SentMessageInfo } from 'nodemailer'
+import type { SentMessageInfo } from 'nodemailer'
+import * as path from 'path'
 import { EmailTransmissionFailedException } from '@client/common/exception/business.exception'
 
 @Injectable()
@@ -14,13 +14,13 @@ export class EmailService {
   ): Promise<SentMessageInfo> {
     const sentEmailInfo = await this.mailerService.sendMail({
       to: email,
-      subject: `SKKU Coding Platform Email Authentication`,
-      template: path.join(__dirname, 'templates/email-auth'),
+      subject: '[Codedang] Authentication',
+      template: path.join(__dirname, 'email/templates/email-auth'),
       context: { pin },
       attachments: [
         {
           filename: 'logo.png',
-          path: path.join(__dirname, 'templates/logo.png'),
+          path: path.join(__dirname, 'email/templates/logo.png'),
           cid: 'logo'
         }
       ]

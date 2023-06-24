@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
 import RadioButton from '@/common/components/Molecule/RadioButton.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
-import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
 import { useAuthStore } from '@/common/store/auth'
 import { useIntersectionObserver } from '@vueuse/core'
-import { ref, watchEffect } from 'vue'
 import axios from 'axios'
+import { ref, watchEffect } from 'vue'
 
 const props = defineProps<{
   id: number

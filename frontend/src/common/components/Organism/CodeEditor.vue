@@ -1,5 +1,19 @@
 <script setup lang="ts">
-import { ref, shallowRef, watch, onMounted } from 'vue'
+import { closeBrackets } from '@codemirror/autocomplete'
+import {
+  defaultKeymap,
+  history,
+  historyKeymap,
+  indentWithTab
+} from '@codemirror/commands'
+import {
+  syntaxHighlighting,
+  defaultHighlightStyle,
+  indentOnInput,
+  type LanguageSupport
+} from '@codemirror/language'
+import { EditorState, type Transaction } from '@codemirror/state'
+import { oneDark } from '@codemirror/theme-one-dark'
 import {
   EditorView,
   highlightActiveLine,
@@ -7,21 +21,7 @@ import {
   lineNumbers,
   drawSelection
 } from '@codemirror/view'
-import { EditorState, type Transaction } from '@codemirror/state'
-import {
-  defaultKeymap,
-  history,
-  historyKeymap,
-  indentWithTab
-} from '@codemirror/commands'
-import { closeBrackets } from '@codemirror/autocomplete'
-import {
-  syntaxHighlighting,
-  defaultHighlightStyle,
-  indentOnInput,
-  type LanguageSupport
-} from '@codemirror/language'
-import { oneDark } from '@codemirror/theme-one-dark'
+import { ref, shallowRef, watch, onMounted } from 'vue'
 
 const props = withDefaults(
   defineProps<{

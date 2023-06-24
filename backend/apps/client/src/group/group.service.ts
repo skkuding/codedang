@@ -1,17 +1,17 @@
-import { Inject, Injectable } from '@nestjs/common'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { type UserGroup } from '@prisma/client'
+import { Inject, Injectable } from '@nestjs/common'
+import type { UserGroup } from '@prisma/client'
+import { Cache } from 'cache-manager'
+import { PrismaService } from '@libs/prisma'
+import { joinGroupCacheKey } from '@client/common/cache/keys'
 import {
   ActionNotAllowedException,
   EntityNotExistException
 } from '@client/common/exception/business.exception'
-import { PrismaService } from '@libs/prisma'
-import { type UserGroupData } from './interface/user-group-data.interface'
-import { type GroupData } from './interface/group-data.interface'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '../common/constants'
-import { joinGroupCacheKey } from '@client/common/cache/keys'
-import { Cache } from 'cache-manager'
-import { type GroupJoinRequest } from './interface/group-join-request.interface'
+import type { GroupData } from './interface/group-data.interface'
+import type { GroupJoinRequest } from './interface/group-join-request.interface'
+import type { UserGroupData } from './interface/user-group-data.interface'
 
 @Injectable()
 export class GroupService {

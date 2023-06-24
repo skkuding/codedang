@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import InputItem from '@/common/components/Atom/InputItem.vue'
 import Button from '@/common/components/Atom/Button.vue'
-import GroupListSection from '../components/GroupListSection.vue'
+import InputItem from '@/common/components/Atom/InputItem.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
-import IconPaperPlane from '~icons/fa6-solid/paper-plane'
-
 import { ref } from 'vue'
+import IconPaperPlane from '~icons/fa6-solid/paper-plane'
+import GroupListSection from '../components/GroupListSection.vue'
 
 //TODO: invitation 검색 API 연결 후 noInvitation 값을 변경하는 function 구현 필요
 const noInvitationCode = ref(false)
