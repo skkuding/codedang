@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { type Problem, type WorkbookProblem } from '@prisma/client'
+import type { Problem, WorkbookProblem } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@client/common/constants'
 import { EntityNotExistException } from '@client/common/exception/business.exception'
 import { PrismaService } from '@libs/prisma'

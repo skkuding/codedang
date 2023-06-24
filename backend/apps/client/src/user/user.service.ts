@@ -5,9 +5,9 @@ import { randomInt } from 'crypto'
 import { PrismaService } from '@libs/prisma'
 import { encrypt } from '@client/common/hash'
 import { emailAuthenticationPinCacheKey } from '@client/common/cache/keys'
-import { type UserEmailDto } from './dto/userEmail.dto'
-import { type NewPasswordDto } from './dto/newPassword.dto'
-import { type User, type UserProfile } from '@prisma/client'
+import type { UserEmailDto } from './dto/userEmail.dto'
+import type { NewPasswordDto } from './dto/newPassword.dto'
+import type { User, UserProfile } from '@prisma/client'
 import {
   EntityNotExistException,
   InvalidJwtTokenException,
@@ -16,26 +16,26 @@ import {
   UnprocessableDataException
 } from '@client/common/exception/business.exception'
 import { EmailService } from '@client/email/email.service'
-import { type EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
+import type { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import { EMAIL_AUTH_EXPIRE_TIME } from '../common/constants'
-import { type Request } from 'express'
+import type { Request } from 'express'
 import { ExtractJwt } from 'passport-jwt'
 import { ConfigService } from '@nestjs/config'
-import {
-  type EmailAuthJwtPayload,
-  type EmailAuthJwtObject
+import type {
+  EmailAuthJwtPayload,
+  EmailAuthJwtObject
 } from './interface/jwt.interface'
-import { type CreateUserProfileData } from './interface/create-userprofile.interface'
+import type { CreateUserProfileData } from './interface/create-userprofile.interface'
 import { GroupService } from '@client/group/group.service'
-import { type UserGroupData } from '@client/group/interface/user-group-data.interface'
-import { type WithdrawalDto } from './dto/withdrawal.dto'
+import type { UserGroupData } from '@client/group/interface/user-group-data.interface'
+import type { WithdrawalDto } from './dto/withdrawal.dto'
 import { AuthService } from '@client/auth/auth.service'
-import { type GetUserProfileDto } from './dto/get-userprofile.dto'
-import { type UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
-import { type UpdateUserEmailDto } from './dto/update-user-email.dto'
-import { type SignUpDto } from './dto/signup.dto'
-import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import type { GetUserProfileDto } from './dto/get-userprofile.dto'
+import type { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
+import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
+import type { SignUpDto } from './dto/signup.dto'
+import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 
 @Injectable()
 export class UserService {

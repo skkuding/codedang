@@ -17,10 +17,10 @@ import {
 } from '@client/common/exception/business.exception'
 import { GroupMemberGuard } from '@client/group/guard/group-member.guard'
 import { RolesGuard } from '@client/user/guard/roles.guard'
-import { type RelatedProblemResponseDto } from './dto/related-problem.response.dto'
-import { type RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
-import { type ProblemResponseDto } from './dto/problem.response.dto'
-import { type ProblemsResponseDto } from './dto/problems.response.dto'
+import type { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
+import type { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
+import type { ProblemResponseDto } from './dto/problem.response.dto'
+import type { ProblemsResponseDto } from './dto/problems.response.dto'
 import { CursorValidationPipe } from '@client/common/pipe/cursor-validation.pipe'
 
 import {

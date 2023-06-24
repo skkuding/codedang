@@ -4,7 +4,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub, spy, fake, type SinonStub, type SinonSpy } from 'sinon'
-import { type User, type UserProfile } from '@prisma/client'
+import type { User, UserProfile } from '@prisma/client'
 import { emailAuthenticationPinCacheKey } from '@client/common/cache/keys'
 import {
   EntityNotExistException,
@@ -18,12 +18,12 @@ import { PrismaService } from '@libs/prisma'
 import { UserService } from './user.service'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
-import { type Request } from 'express'
+import type { Request } from 'express'
 import { GroupService } from '@client/group/group.service'
 import { AuthService } from '@client/auth/auth.service'
 import { ExtractJwt } from 'passport-jwt'
 import { Exception } from 'handlebars'
-import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 
 const ID = 1
 const EMAIL_ADDRESS = 'email@email.com'

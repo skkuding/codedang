@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
-import { type User } from '@prisma/client'
+import type { User } from '@prisma/client'
 import { UserService } from '@client/user/user.service'
 import { Cache } from 'cache-manager'
 
@@ -17,11 +17,11 @@ import {
   ACCESS_TOKEN_EXPIRE_TIME,
   REFRESH_TOKEN_EXPIRE_TIME
 } from '../common/constants'
-import { type LoginUserDto } from './dto/login-user.dto'
-import {
-  type JwtObject,
-  type JwtPayload,
-  type JwtTokens
+import type { LoginUserDto } from './dto/login-user.dto'
+import type {
+  JwtObject,
+  JwtPayload,
+  JwtTokens
 } from './interface/jwt.interface'
 
 @Injectable()

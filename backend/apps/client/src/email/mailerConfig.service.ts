@@ -1,6 +1,6 @@
-import {
-  type MailerOptions,
-  type MailerOptionsFactory
+import type {
+  MailerOptions,
+  MailerOptionsFactory
 } from '@nestjs-modules/mailer'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -13,14 +13,14 @@ export class MailerConfigService implements MailerOptionsFactory {
   createMailerOptions(): MailerOptions | Promise<MailerOptions> {
     return {
       transport: {
-        service: 'gmail',
+        host: 'mail.skkuding.dev',
         auth: {
           user: this.config.get('NODEMAILER_USER'),
           pass: this.config.get('NODEMAILER_PASS')
         }
       },
       defaults: {
-        from: `"SKKU CODING PLATFORM" <${this.config.get('NODEMAILER_USER')}>`
+        from: this.config.get('NODEMAILER_USER')
       },
       template: {
         adapter: new HandlebarsAdapter(),

@@ -7,8 +7,8 @@ import type Sinon from 'sinon'
 import { stub } from 'sinon'
 import * as proxyquire from 'proxyquire'
 
-import { type Cache } from 'cache-manager'
-import { type User } from '@prisma/client'
+import type { Cache } from 'cache-manager'
+import type { User } from '@prisma/client'
 
 import { UserService } from '@client/user/user.service'
 import { PrismaService } from '@libs/prisma'

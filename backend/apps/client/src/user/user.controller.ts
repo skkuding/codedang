@@ -11,8 +11,8 @@ import {
   Controller,
   NotFoundException
 } from '@nestjs/common'
-import { type UserProfile, type User } from '@prisma/client'
-import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import type { UserProfile, User } from '@prisma/client'
+import { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import {
   EntityNotExistException,
   InvalidUserException,
@@ -21,16 +21,16 @@ import {
   InvalidJwtTokenException,
   InvalidPinException
 } from '@client/common/exception/business.exception'
-import { type GetUserProfileDto } from './dto/get-userprofile.dto'
-import { type SignUpDto } from './dto/signup.dto'
-import { type UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
-import { type WithdrawalDto } from './dto/withdrawal.dto'
+import type { GetUserProfileDto } from './dto/get-userprofile.dto'
+import { SignUpDto } from './dto/signup.dto'
+import { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
+import { WithdrawalDto } from './dto/withdrawal.dto'
 import { UserService } from './user.service'
-import { type UserEmailDto } from './dto/userEmail.dto'
-import { type NewPasswordDto } from './dto/newPassword.dto'
-import { type EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
+import { UserEmailDto } from './dto/userEmail.dto'
+import { NewPasswordDto } from './dto/newPassword.dto'
+import { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
 import { Request, type Response } from 'express'
-import { type UpdateUserEmailDto } from './dto/update-user-email.dto'
+import { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import { AuthNotNeeded } from '../common/decorator/auth-ignore.decorator'
 
 @Controller('user')

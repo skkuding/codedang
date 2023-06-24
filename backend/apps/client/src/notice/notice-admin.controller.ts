@@ -16,7 +16,7 @@ import {
 import { NoticeService } from './notice.service'
 import { type Notice, Role } from '@prisma/client'
 import { GroupLeaderGuard } from '@client/group/guard/group-leader.guard'
-import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import { UpdateNoticeDto } from './dto/update-notice.dto'
 import { CreateNoticeDto } from './dto/create-notice.dto'
 import { EntityNotExistException } from '@client/common/exception/business.exception'

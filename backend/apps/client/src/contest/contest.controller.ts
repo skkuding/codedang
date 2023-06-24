@@ -11,14 +11,14 @@ import {
   ForbiddenException,
   Query
 } from '@nestjs/common'
-import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import {
   ActionNotAllowedException,
   EntityNotExistException
 } from '@client/common/exception/business.exception'
 import { GroupMemberGuard } from '@client/group/guard/group-member.guard'
 import { ContestService } from './contest.service'
-import { type Contest } from '@prisma/client'
+import type { Contest } from '@prisma/client'
 import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
 import { RolesGuard } from '@client/user/guard/roles.guard'
 import { CursorValidationPipe } from '@client/common/pipe/cursor-validation.pipe'

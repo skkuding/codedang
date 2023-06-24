@@ -1,12 +1,7 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import {
-  type Contest,
-  type ContestRecord,
-  type Group,
-  type UserGroup
-} from '@prisma/client'
+import type { Contest, ContestRecord, Group, UserGroup } from '@prisma/client'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
@@ -15,9 +10,9 @@ import {
 import { GroupService } from '@client/group/group.service'
 import { PrismaService } from '@libs/prisma'
 import { ContestService } from './contest.service'
-import { type CreateContestDto } from './dto/create-contest.dto'
-import { type UpdateContestDto } from './dto/update-contest.dto'
-import { type Cache } from 'cache-manager'
+import type { CreateContestDto } from './dto/create-contest.dto'
+import type { UpdateContestDto } from './dto/update-contest.dto'
+import type { Cache } from 'cache-manager'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { contestPublicizingRequestKey } from '@client/common/cache/keys'
 import * as dayjs from 'dayjs'
