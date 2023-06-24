@@ -8,7 +8,7 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common'
-import { GroupMember } from './dto/groupmember.dto'
+import { GroupMember } from './dto/groupMember.dto'
 import { UserGroup } from '@admin/@generated/user-group/user-group.model'
 import { EntityNotExistException } from '@client/common/exception/business.exception'
 
