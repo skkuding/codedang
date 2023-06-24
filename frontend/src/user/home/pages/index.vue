@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import Card from '@/common/components/Molecule/Card.vue'
-import IconInfo from '~icons/fa6-solid/circle-info'
+import type { Item } from '@/user/notice/composables/notice'
+import { useDateFormat } from '@vueuse/core'
+import axios from 'axios'
+import { ref } from 'vue'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
-import IconMedal from '~icons/fa6-solid/medal'
-import IconEllipsis from '~icons/fa6-solid/ellipsis'
 import IconBars from '~icons/fa6-solid/bars'
 import IconCalendar from '~icons/fa6-solid/calendar'
-import type { Item } from '@/user/notice/composables/notice'
-import axios from 'axios'
-import { useDateFormat } from '@vueuse/core'
+import IconInfo from '~icons/fa6-solid/circle-info'
+import IconEllipsis from '~icons/fa6-solid/ellipsis'
+import IconMedal from '~icons/fa6-solid/medal'
 
 interface Post {
   title: string
