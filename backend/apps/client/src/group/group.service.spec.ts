@@ -15,7 +15,8 @@ import {
   groups,
   userGroups,
   publicGroupDatas,
-  mockGroupData
+  mockGroupData,
+  userGroupsForJoinedGroups
 } from './mock/group.mock'
 
 const db = {
@@ -142,13 +143,9 @@ describe('GroupService', () => {
       //given
       const userId = 1
       db.userGroup.findMany.resolves(
-        userGroups
-          .filter(
-            (userGroup) => userGroup.userId == userId && userGroup.groupId !== 1
-          )
-          .map((userGroup) => {
-            return { groupId: userGroup.groupId }
-          })
+        userGroupsForJoinedGroups.filter(
+          (userGroup) => userGroup.userId == userId && userGroup.groupId !== 1
+        )
       )
       db.group.findMany.resolves([mockGroupData])
 
@@ -156,7 +153,9 @@ describe('GroupService', () => {
       const result = await service.getJoinedGroups(userId)
 
       //then
-      expect(result).to.deep.equal([publicGroupDatas[1]])
+      expect(result).to.deep.equal([
+        { ...publicGroupDatas[1], isGroupLeader: true }
+      ])
     })
   })
 

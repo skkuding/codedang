@@ -154,7 +154,7 @@ export class GroupService {
   }
 
   async getJoinedGroups(userId: number): Promise<GroupData[]> {
-    const groupIds = (
+    return (
       await this.prisma.userGroup.findMany({
         where: {
           NOT: {
@@ -163,41 +163,32 @@ export class GroupService {
           userId: userId
         },
         select: {
-          groupId: true
-        }
-      })
-    ).map((group) => group.groupId)
-
-    const groups = (
-      await this.prisma.group.findMany({
-        where: {
-          id: {
-            in: groupIds
-          }
-        },
-        select: {
-          createdBy: {
+          group: {
             select: {
-              username: true
+              createdBy: {
+                select: {
+                  username: true
+                }
+              },
+              id: true,
+              groupName: true,
+              description: true,
+              userGroup: true
             }
           },
-          id: true,
-          groupName: true,
-          description: true,
-          userGroup: true
+          isGroupLeader: true
         }
       })
-    ).map((group) => {
+    ).map((userGroup) => {
       return {
-        id: group.id,
-        groupName: group.groupName,
-        description: group.description,
-        createdBy: group.createdBy.username,
-        memberNum: group.userGroup.length
+        id: userGroup.group.id,
+        groupName: userGroup.group.groupName,
+        description: userGroup.group.description,
+        memberNum: userGroup.group.userGroup.length,
+        createdBy: userGroup.group.createdBy.username,
+        isGroupLeader: userGroup.isGroupLeader
       }
     })
-
-    return groups
   }
 
   async joinGroupById(
