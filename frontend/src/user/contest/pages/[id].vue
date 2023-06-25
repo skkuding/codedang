@@ -20,15 +20,11 @@ const contest = ref({
   startTime: '',
   endTime: ''
 })
-let startTime = ''
-let endTime = ''
 const formatter = ref('YYYY-MM-DD HH:mm:ss')
 const time = useDateFormat(useNow(), formatter)
 
 axios.get(`/api/contest/${props.id}`).then((res) => {
   contest.value = res.data
-  startTime = useDateFormat(contest.value.startTime, formatter).value
-  endTime = useDateFormat(contest.value.endTime, formatter).value
 })
 </script>
 
@@ -36,7 +32,11 @@ axios.get(`/api/contest/${props.id}`).then((res) => {
   <div class="mt-10">
     <div class="mb-5 flex justify-between">
       <PageTitle :text="contest.title" class="mb-14" />
-      <Badge :color="startTime > time || endTime > time ? 'green' : 'red'">
+      <Badge
+        :color="
+          contest.startTime > time || contest.endTime > time ? 'green' : 'red'
+        "
+      >
         {{ time }}
       </Badge>
     </div>
