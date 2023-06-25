@@ -7,10 +7,10 @@ import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
 import type { Request } from 'express'
 import { ExtractJwt } from 'passport-jwt'
+import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import { PrismaService } from '@libs/prisma'
 import { AuthService } from '@client/auth/auth.service'
 import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
-import { emailAuthenticationPinCacheKey } from '@client/common/cache/keys'
 import {
   EntityNotExistException,
   InvalidJwtTokenException,

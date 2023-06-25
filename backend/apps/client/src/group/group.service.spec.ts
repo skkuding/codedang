@@ -4,8 +4,8 @@ import type { UserGroup } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
+import { joinGroupCacheKey } from '@libs/cache'
 import { PrismaService } from '@libs/prisma'
-import { joinGroupCacheKey } from '@client/common/cache/keys'
 import {
   ActionNotAllowedException,
   EntityNotExistException

@@ -5,8 +5,8 @@ import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as dayjs from 'dayjs'
 import { stub } from 'sinon'
+import { contestPublicizingRequestKey } from '@libs/cache'
 import { PrismaService } from '@libs/prisma'
-import { contestPublicizingRequestKey } from '@client/common/cache/keys'
 import {
   ActionNotAllowedException,
   EntityNotExistException,

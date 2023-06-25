@@ -2,8 +2,8 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import type { Prisma, Contest } from '@prisma/client'
 import { Cache } from 'cache-manager'
+import { contestPublicizingRequestKey } from '@libs/cache'
 import { PrismaService } from '@libs/prisma'
-import { contestPublicizingRequestKey } from '@client/common/cache/keys'
 import {
   OPEN_SPACE_ID,
   PUBLICIZING_REQUEST_EXPIRE_TIME

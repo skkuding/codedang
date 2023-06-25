@@ -2,8 +2,8 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import type { UserGroup } from '@prisma/client'
 import { Cache } from 'cache-manager'
+import { joinGroupCacheKey } from '@libs/cache'
 import { PrismaService } from '@libs/prisma'
-import { joinGroupCacheKey } from '@client/common/cache/keys'
 import {
   ActionNotAllowedException,
   EntityNotExistException
