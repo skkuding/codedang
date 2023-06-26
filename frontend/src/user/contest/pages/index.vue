@@ -33,10 +33,10 @@ const auth = useAuthStore()
 
 if (auth.isLoggedIn) {
   axios.get('/api/contest/auth').then((res) => {
-    items.value.ongoing = [...res.data.ongoing, ...res.data.registeredOngoing]
+    items.value.ongoing = [...res.data.registeredOngoing, ...res.data.ongoing]
     items.value.upcoming = [
-      ...res.data.upcoming,
-      ...res.data.registeredUpcoming
+      ...res.data.registeredUpcoming,
+      ...res.data.upcoming
     ]
   })
 } else {
