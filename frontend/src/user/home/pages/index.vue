@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Card from '@/common/components/Molecule/Card.vue'
+import type { Contest } from '@/user/contest/pages/index.vue'
 import type { Item } from '@/user/notice/composables/notice'
 import { useDateFormat } from '@vueuse/core'
 import axios from 'axios'
@@ -18,10 +19,6 @@ interface Post {
   state?: string
 }
 
-interface ContestItem extends Item {
-  startTime: string
-}
-
 const notices = ref<Post[]>([])
 const contest = ref<Post[]>([])
 
@@ -38,7 +35,7 @@ axios
   })
 
 axios.get('api/contest').then((res) => {
-  res.data.ongoing.map((element: ContestItem) => {
+  res.data.ongoing.map((element: Contest) => {
     contest.value.push({
       title: element.title,
       date: useDateFormat(element.startTime, 'YYYY-MM-DD').value,
@@ -46,7 +43,7 @@ axios.get('api/contest').then((res) => {
       state: 'ongoing'
     })
   })
-  res.data.upcoming.map((element: ContestItem) => {
+  res.data.upcoming.map((element: Contest) => {
     contest.value.push({
       title: element.title,
       date: useDateFormat(element.startTime, 'YYYY-MM-DD').value,
