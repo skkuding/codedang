@@ -20,7 +20,7 @@ provider "aws" {
   # Use credential created by AWS SSO, and specify it with environment variable
   # For example, if the name of profile is 'admin',
   # `AWS_PROFILE="admin" terraform plan`
-  profile = "skkuding"
+  profile = var.profile
 }
 
 # S3 bucket for Terraform Backend
