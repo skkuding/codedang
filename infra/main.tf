@@ -233,3 +233,15 @@ resource "aws_s3_object" "frontend" {
   source       = "../frontend/dist/${each.value}"
   content_type = lookup(jsondecode(file("mime.json")), regex("\\.[^.]+$", each.key), null)
 }
+
+resource "aws_s3_bucket_website_configuration" "frontend" {
+  bucket = aws_s3_bucket.frontend.id
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "index.html"
+  }
+}
