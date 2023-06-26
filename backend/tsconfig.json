@@ -20,6 +20,7 @@
     "paths": {
       "@admin/*": ["apps/admin/src/*"],
       "@client/*": ["apps/client/src/*"],
+      "@libs/*": ["libs/common/src/*"],
       "@libs/prisma": ["libs/prisma/src/index.ts"],
       "@libs/cache": ["libs/cache/src/index.ts"]
     }
