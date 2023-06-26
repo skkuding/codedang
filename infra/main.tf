@@ -85,20 +85,25 @@ resource "aws_route_table" "main" {
 
 resource "aws_subnet" "subnet_api_server" {
   vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.2.0/24"
+  cidr_block = "10.0.5.0/24"
 
   tags = {
     Name = "Codedang-API-Server-Subnet"
   }
 }
 
-resource "aws_route_table_association" "a" {
-  subnet_id      = aws_subnet.proxy.id
+resource "aws_route_table_association" "proxy1" {
+  subnet_id      = aws_subnet.proxy1.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "proxy2" {
+  subnet_id      = aws_subnet.proxy2.id
   route_table_id = aws_route_table.main.id
 }
 
 resource "aws_security_group" "allow_web" {
-  name        = "allow_web"
+  name        = "Codedang-AllowWeb"
   description = "Allow WEB inbound traffic"
   vpc_id      = aws_vpc.main.id
 
@@ -156,12 +161,23 @@ resource "aws_security_group" "allow_web" {
 
 ############## ECS - Proxy ##############
 
-resource "aws_subnet" "proxy" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.1.0/24"
+resource "aws_subnet" "proxy1" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "ap-northeast-2a"
 
   tags = {
-    Name = "Codedang-Proxy-Subnet"
+    Name = "Codedang-Proxy-Subnet1"
+  }
+}
+
+resource "aws_subnet" "proxy2" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "ap-northeast-2c"
+
+  tags = {
+    Name = "Codedang-Proxy-Subnet2"
   }
 }
 
@@ -169,11 +185,31 @@ resource "aws_ecs_cluster" "proxy" {
   name = "Codedang-Proxy"
 }
 
+resource "aws_lb" "proxy" {
+  name               = "Codedang-Proxy-Load-Balancer"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.allow_web.id]
+  subnets            = [aws_subnet.proxy1.id, aws_subnet.proxy2.id]
+  enable_http2       = true
+}
+
+resource "aws_lb_listener" "proxy" {
+  load_balancer_arn = aws_lb.proxy.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.proxy.arn
+  }
+}
+
 resource "aws_lb_target_group" "proxy" {
   name        = "Codedang-Proxy-Target-Group"
   target_type = "ip"
   port        = 80
-  protocol    = "TCP"
+  protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
 }
 
@@ -187,7 +223,7 @@ resource "aws_ecs_service" "proxy" {
   network_configuration {
     assign_public_ip = true
     security_groups  = [aws_security_group.allow_web.id]
-    subnets          = [aws_subnet.proxy.id]
+    subnets          = [aws_subnet.proxy1.id, aws_subnet.proxy2.id]
   }
 
   load_balancer {
@@ -195,6 +231,10 @@ resource "aws_ecs_service" "proxy" {
     container_name   = "Codedang-Proxy"
     container_port   = 80
   }
+
+  depends_on = [
+    aws_lb_listener.proxy
+  ]
 }
 
 resource "aws_ecs_task_definition" "proxy" {
