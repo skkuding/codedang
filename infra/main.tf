@@ -285,15 +285,15 @@ resource "aws_ecs_task_definition" "proxy" {
 #   }
 # }
 
-############## Cloudfront - Frontend ##############
+############## S3 - Frontend ##############
 
-# resource "aws_s3_bucket" "frontend" {
-#   bucket = "codedang-frontend"
+resource "aws_s3_bucket" "frontend" {
+  bucket = var.s3_bucket
 
-#   tags = {
-#     Name = "Codedang Frontend"
-#   }
-# }
+  tags = {
+    Name = "Codedang"
+  }
+}
 
 # resource "aws_s3_bucket_public_access_block" "example" {
 #   bucket = aws_s3_bucket.frontend.id
@@ -309,14 +309,14 @@ resource "aws_ecs_task_definition" "proxy" {
 #   acl    = "private"
 # }
 
-# resource "aws_s3_object" "frontend" {
-#   for_each = fileset("../frontend/dist", "**")
+resource "aws_s3_object" "frontend" {
+  for_each = fileset("../frontend/dist", "**")
 
-#   bucket       = aws_s3_bucket.frontend.id
-#   key          = each.value
-#   source       = "../frontend/dist/${each.value}"
-#   content_type = lookup(jsondecode(file("mime.json")), regex("\\.[^.]+$", each.key), null)
-# }
+  bucket       = aws_s3_bucket.frontend.id
+  key          = each.value
+  source       = "../frontend/dist/${each.value}"
+  content_type = lookup(jsondecode(file("mime.json")), regex("\\.[^.]+$", each.key), null)
+}
 
 # data "aws_iam_policy_document" "s3_frontend" {
 #   statement {
