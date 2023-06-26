@@ -13,11 +13,11 @@ interface Group {
   groupName: string
 }
 
-interface Contest {
+export interface Contest {
   id: number
   title: string
-  startTime: Date
-  endTime: Date
+  startTime: string
+  endTime: string
   type: string
   group: Group
 }
