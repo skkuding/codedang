@@ -8,7 +8,7 @@ import { joinGroupCacheKey } from '@libs/cache'
 import {
   ActionNotAllowedException,
   EntityNotExistException
-} from '@libs/exception/business.exception'
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { GroupService } from './group.service'
 import {

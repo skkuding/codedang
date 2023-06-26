@@ -8,8 +8,8 @@ import {
   UseGuards
 } from '@nestjs/common'
 import type { Clarification } from '@prisma/client'
-import { AuthNotNeeded } from '@libs/decorator/auth-ignore.decorator'
-import { EntityNotExistException } from '@libs/exception/business.exception'
+import { AuthNotNeeded } from '@libs/decorator'
+import { EntityNotExistException } from '@libs/exception'
 import { GroupMemberGuard } from '@client/group/guard/group-member.guard'
 import { RolesGuard } from '@client/user/guard/roles.guard'
 import { ClarificationService } from './clarification.service'

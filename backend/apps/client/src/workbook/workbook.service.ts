@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma, type Workbook, type Problem } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { EntityNotExistException } from '@libs/exception/business.exception'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { CreateWorkbookDto } from './dto/create-workbook.dto'
 import type { UpdateWorkbookDto } from './dto/update-workbook.dto'

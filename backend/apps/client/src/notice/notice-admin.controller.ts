@@ -14,9 +14,9 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { type Notice, Role } from '@prisma/client'
-import { Roles } from '@libs/decorator/roles.decorator'
-import { EntityNotExistException } from '@libs/exception/business.exception'
-import { CursorValidationPipe } from '@libs/pipe/cursor-validation.pipe'
+import { Roles } from '@libs/decorator'
+import { EntityNotExistException } from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
 import { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import { GroupLeaderGuard } from '@client/group/guard/group-leader.guard'
 import { RolesGuard } from '@client/user/guard/roles.guard'

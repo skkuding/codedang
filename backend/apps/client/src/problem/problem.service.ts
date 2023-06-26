@@ -4,7 +4,7 @@ import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ForbiddenAccessException,
   EntityNotExistException
-} from '@libs/exception/business.exception'
+} from '@libs/exception'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { ProblemResponseDto } from './dto/problem.response.dto'

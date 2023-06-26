@@ -7,7 +7,7 @@ import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ActionNotAllowedException,
   EntityNotExistException
-} from '@libs/exception/business.exception'
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { GroupData } from './interface/group-data.interface'
 import type { GroupJoinRequest } from './interface/group-join-request.interface'

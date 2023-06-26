@@ -3,7 +3,7 @@ import { Prisma, type Workbook } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { EntityNotExistException } from '@libs/exception/business.exception'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { WorkbookService } from './workbook.service'
 

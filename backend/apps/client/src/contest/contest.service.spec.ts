@@ -10,7 +10,7 @@ import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
-} from '@libs/exception/business.exception'
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { GroupService } from '@client/group/group.service'
 import { ContestService } from './contest.service'

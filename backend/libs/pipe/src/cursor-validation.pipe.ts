@@ -3,7 +3,7 @@ import {
   Injectable,
   BadRequestException
 } from '@nestjs/common'
-import { InvalidCursorValueException } from '../exception/controller.exception'
+import { InvalidCursorValueException } from '@libs/exception'
 
 @Injectable()
 export class CursorValidationPipe implements PipeTransform {

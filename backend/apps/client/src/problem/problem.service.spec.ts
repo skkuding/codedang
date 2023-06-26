@@ -7,7 +7,7 @@ import { stub } from 'sinon'
 import {
   EntityNotExistException,
   ForbiddenAccessException
-} from '@libs/exception/business.exception'
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { ContestService } from '@client/contest/contest.service'
 import { GroupService } from '@client/group/group.service'

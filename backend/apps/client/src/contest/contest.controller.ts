@@ -12,12 +12,12 @@ import {
   Query
 } from '@nestjs/common'
 import type { Contest } from '@prisma/client'
-import { AuthNotNeeded } from '@libs/decorator/auth-ignore.decorator'
+import { AuthNotNeeded } from '@libs/decorator'
 import {
   ActionNotAllowedException,
   EntityNotExistException
-} from '@libs/exception/business.exception'
-import { CursorValidationPipe } from '@libs/pipe/cursor-validation.pipe'
+} from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
 import { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import { GroupMemberGuard } from '@client/group/guard/group-member.guard'
 import { RolesGuard } from '@client/user/guard/roles.guard'

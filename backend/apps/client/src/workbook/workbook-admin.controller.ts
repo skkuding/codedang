@@ -14,8 +14,8 @@ import {
   UseGuards
 } from '@nestjs/common'
 import type { Workbook } from '@prisma/client'
-import { EntityNotExistException } from '@libs/exception/business.exception'
-import { CursorValidationPipe } from '@libs/pipe/cursor-validation.pipe'
+import { EntityNotExistException } from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
 import { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import { GroupLeaderGuard } from '@client/group/guard/group-leader.guard'
 import { RolesGuard } from '@client/user/guard/roles.guard'

@@ -8,7 +8,7 @@ import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
-} from '@libs/exception/business.exception'
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { CreateContestDto } from './dto/create-contest.dto'
 import type { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'

@@ -17,7 +17,7 @@ import {
   InvalidPinException,
   InvalidUserException,
   UnprocessableDataException
-} from '@libs/exception/business.exception'
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { AuthService } from '@client/auth/auth.service'
 import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'

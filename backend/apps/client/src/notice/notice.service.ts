@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import type { Notice } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { EntityNotExistException } from '@libs/exception/business.exception'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { CreateNoticeDto } from './dto/create-notice.dto'
 import type { UpdateNoticeDto } from './dto/update-notice.dto'

@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common'
 import type { UserProfile, User } from '@prisma/client'
 import { Request, type Response } from 'express'
-import { AuthNotNeeded } from '@libs/decorator/auth-ignore.decorator'
+import { AuthNotNeeded } from '@libs/decorator'
 import {
   EntityNotExistException,
   InvalidUserException,
@@ -21,7 +21,7 @@ import {
   EmailTransmissionFailedException,
   InvalidJwtTokenException,
   InvalidPinException
-} from '@libs/exception/business.exception'
+} from '@libs/exception'
 import { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
 import type { GetUserProfileDto } from './dto/get-userprofile.dto'

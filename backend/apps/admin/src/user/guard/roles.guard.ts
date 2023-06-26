@@ -6,7 +6,7 @@ import {
 import { Reflector } from '@nestjs/core'
 import { GqlExecutionContext } from '@nestjs/graphql'
 import { Role, type User } from '@prisma/client'
-import { ROLES_KEY } from '@libs/decorator/roles.decorator'
+import { ROLES_KEY } from '@libs/decorator'
 import { PrismaService } from '@libs/prisma'
 import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 
