@@ -20,6 +20,7 @@ provider "aws" {
   # Use credential created by AWS SSO, and specify it with environment variable
   # For example, if the name of profile is 'admin',
   # `AWS_PROFILE="admin" terraform plan`
+  profile = "skkuding"
 }
 
 # S3 bucket for Terraform Backend
@@ -92,7 +93,7 @@ resource "aws_subnet" "subnet_api_server" {
 }
 
 resource "aws_route_table_association" "a" {
-  subnet_id      = aws_subnet.subnet_api_server.id
+  subnet_id      = aws_subnet.proxy.id
   route_table_id = aws_route_table.main.id
 }
 
