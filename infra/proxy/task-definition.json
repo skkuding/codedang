@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Codedang-Proxy",
+    "image": "nginx:stable-alpine",
+    "cpu": 512,
+    "memory": 512,
+    "portMappings": [
+      {
+        "containerPort": 80,
+        "hostPort": 80
+      }
+    ]
+  }
+]
