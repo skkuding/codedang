@@ -7,14 +7,25 @@ const currentPage = ref(1)
 
 <template>
   <Story>
-    <Variant>
+    <Variant title="light">
       <template #default>
-        <Pagination v-model="currentPage" :number-of-pages="10" />
+        <Pagination v-model="currentPage" :number-of-pages="10" mode="light" />
       </template>
       <!-- [workaround] use `source` slot to show v-model -->
       <template #source>
         <textarea v-pre>
           <Pagination v-model="currentPage" :number-of-pages="10" />
+        </textarea>
+      </template>
+    </Variant>
+    <Variant title="dark">
+      <template #default>
+        <Pagination v-model="currentPage" :number-of-pages="10" mode="dark" />
+      </template>
+      <!-- [workaround] use `source` slot to show v-model -->
+      <template #source>
+        <textarea v-pre>
+          <Pagination v-model="currentPage" :number-of-pages="10" mode="dark" />
         </textarea>
       </template>
     </Variant>

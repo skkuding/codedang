@@ -1,35 +1,45 @@
 <script setup lang="ts">
+import { useDark } from '@vueuse/core'
 import { useClamp } from '@vueuse/math'
-import { watch } from 'vue'
+import { toRefs, watch } from 'vue'
 import IconAngleLeft from '~icons/fa6-solid/angle-left'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
 import IconEllipsis from '~icons/fa6-solid/ellipsis'
 import Button from '../Atom/Button.vue'
 
-const props = defineProps<{
-  numberOfPages: number
-  modelValue: number
-  mode?: 'light' | 'dark'
-}>()
+const props = withDefaults(
+  defineProps<{
+    numberOfPages: number
+    modelValue: number
+    mode: 'light' | 'dark'
+  }>(),
+  { mode: 'light' }
+)
+
+const { numberOfPages, modelValue, mode } = toRefs(props)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void
 }>()
 
-const currentPage = useClamp(props.modelValue, 1, props.numberOfPages)
+const currentPage = useClamp(modelValue.value, 1, numberOfPages)
+
+const dark = useDark()
 watch(
-  () => props.modelValue,
-  (modelValue) => (currentPage.value = modelValue)
+  mode,
+  (mode) => {
+    dark.value = mode === 'dark'
+  },
+  { immediate: true }
 )
 
 const currentPageColor = (page: number) => {
-  if (!props.mode || props.mode === 'light')
-    return currentPage.value === page ? 'gray-dark' : 'gray'
-  else return currentPage.value === page ? 'gray' : 'indigo'
+  if (dark.value) return currentPage.value === page ? 'gray' : 'indigo'
+  return currentPage.value === page ? 'gray-dark' : 'gray'
 }
 
-watch(currentPage, (value) => {
-  emit('update:modelValue', value)
+watch(currentPage, () => {
+  emit('update:modelValue', currentPage.value)
 })
 </script>
 
@@ -37,7 +47,7 @@ watch(currentPage, (value) => {
   <div class="flex flex-row gap-1">
     <Button
       outline
-      :color="!mode || mode === 'light' ? 'gray-dark' : 'white'"
+      :color="dark ? 'white' : 'gray-dark'"
       :class="{ 'pointer-events-none': currentPage === 1 }"
       class="aspect-square rounded-lg"
       @click="currentPage--"
@@ -67,7 +77,7 @@ watch(currentPage, (value) => {
     <div
       v-if="currentPage > 3 && numberOfPages > 4"
       class="p-2"
-      :class="!mode || mode === 'light' ? 'text-gray-dark' : 'text-white'"
+      :class="dark ? 'text-white' : 'text-gray-dark'"
     >
       <IconEllipsis />
     </div>
@@ -101,7 +111,7 @@ watch(currentPage, (value) => {
     <div
       v-if="currentPage < numberOfPages - 2 && numberOfPages > 4"
       class="p-2"
-      :class="!mode || mode === 'light' ? 'text-gray-dark' : 'text-white'"
+      :class="dark ? 'text-white' : 'text-gray-dark'"
     >
       <IconEllipsis />
     </div>
@@ -128,7 +138,7 @@ watch(currentPage, (value) => {
 
     <Button
       outline
-      :color="!mode || mode === 'light' ? 'gray-dark' : 'white'"
+      :color="dark ? 'white' : 'gray-dark'"
       :class="{ 'pointer-events-none': currentPage === numberOfPages }"
       class="aspect-square rounded-lg"
       @click="currentPage++"
