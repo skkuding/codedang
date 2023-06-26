@@ -169,6 +169,14 @@ resource "aws_ecs_cluster" "proxy" {
   name = "Codedang-Proxy"
 }
 
+resource "aws_lb_target_group" "proxy" {
+  name        = "Codedang-Proxy-Target-Group"
+  target_type = "ip"
+  port        = 80
+  protocol    = "TCP"
+  vpc_id      = aws_vpc.main.id
+}
+
 resource "aws_ecs_service" "proxy" {
   name            = "Codedang-Proxy-Service"
   cluster         = aws_ecs_cluster.proxy.id
@@ -180,6 +188,12 @@ resource "aws_ecs_service" "proxy" {
     assign_public_ip = true
     security_groups  = [aws_security_group.allow_web.id]
     subnets          = [aws_subnet.proxy.id]
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.proxy.arn
+    container_name   = "Codedang-Proxy"
+    container_port   = 80
   }
 }
 
