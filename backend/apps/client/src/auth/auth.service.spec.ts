@@ -1,25 +1,22 @@
+import { MailerService } from '@nestjs-modules/mailer'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test, type TestingModule } from '@nestjs/testing'
+import type { User } from '@prisma/client'
+import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
+import * as proxyquire from 'proxyquire'
 import type Sinon from 'sinon'
 import { stub } from 'sinon'
-import * as proxyquire from 'proxyquire'
-
-import { type Cache } from 'cache-manager'
-import { type User } from '@prisma/client'
-
-import { UserService } from '@client/user/user.service'
 import { PrismaService } from '@libs/prisma'
-
 import {
   InvalidJwtTokenException,
   InvalidUserException
 } from '@client/common/exception/business.exception'
 import { EmailService } from '@client/email/email.service'
-import { MailerService } from '@nestjs-modules/mailer'
 import { GroupService } from '@client/group/group.service'
+import { UserService } from '@client/user/user.service'
 
 describe('AuthService', () => {
   let service

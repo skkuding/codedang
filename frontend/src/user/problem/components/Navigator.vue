@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import Button from '@/common/components/Atom/Button.vue'
+import ListItem from '@/common/components/Atom/ListItem.vue'
+import Dropdown from '@/common/components/Molecule/Dropdown.vue'
 import { useRoute } from 'vue-router'
+import IconRun from '~icons/bi/play'
+import IconDown from '~icons/fa6-solid/angle-down'
+import IconRefresh from '~icons/fa6-solid/arrow-rotate-right'
+import IconCaretDown from '~icons/fa6-solid/caret-down'
 import { useProblemStore } from '../store/problem'
 import type { Language } from '../types'
-import Button from '@/common/components/Atom/Button.vue'
-import Dropdown from '@/common/components/Molecule/Dropdown.vue'
-import ListItem from '@/common/components/Atom/ListItem.vue'
-import IconDown from '~icons/fa6-solid/angle-down'
-import IconCaretDown from '~icons/fa6-solid/caret-down'
-import IconRefresh from '~icons/fa6-solid/arrow-rotate-right'
-import IconRun from '~icons/bi/play'
 
 const languages: Array<{ label: string; value: Language }> = [
   { label: 'C++', value: 'cpp' },

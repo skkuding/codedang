@@ -1,9 +1,9 @@
-import { useRouter } from 'vue-router'
-import { ref, markRaw, type Component } from 'vue'
-import IconAngleUp from '~icons/fa6-solid/angle-up'
-import IconAngleDown from '~icons/fa6-solid/angle-down'
-import axios from 'axios'
 import { useDateFormat } from '@vueuse/core'
+import axios from 'axios'
+import { ref, markRaw, type Component } from 'vue'
+import { useRouter } from 'vue-router'
+import IconAngleDown from '~icons/fa6-solid/angle-down'
+import IconAngleUp from '~icons/fa6-solid/angle-up'
 
 export interface Field {
   key: string
@@ -23,10 +23,12 @@ export interface Item {
 
 export const useNotice = () => {
   const notices = ref<Item[]>([])
-  async function getNoticeList(currentPage: number) {
-    const res = await axios.get('/api/notice', {
-      params: { offset: (currentPage - 1) * 10 + 1 }
-    })
+  async function getNoticeList(numberOfPages: number) {
+    const res = await axios.get(
+      `/api/notice?take=10${
+        numberOfPages == 1 ? '' : '&cursor=' + 10 * (numberOfPages - 1)
+      }`
+    )
     notices.value = res.data
     notices.value.map((notice) => {
       notice.createTime = useDateFormat(notice.createTime, 'YYYY-MM-DD').value

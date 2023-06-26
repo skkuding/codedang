@@ -1,13 +1,13 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { NoticeController, GroupNoticeController } from './notice.controller'
+import { GroupService } from '@client/group/group.service'
+import { UserService } from '@client/user/user.service'
 import {
   GroupNoticeAdminController,
   NoticeAdminController
 } from './notice-admin.controller'
+import { NoticeController, GroupNoticeController } from './notice.controller'
 import { NoticeService } from './notice.service'
-import { GroupService } from '@client/group/group.service'
-import { UserService } from '@client/user/user.service'
 
 describe('NoticeController', () => {
   let controller: NoticeController

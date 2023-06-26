@@ -1,14 +1,13 @@
 <script setup lang="ts">
+import Button from '@/common/components/Atom/Button.vue'
+import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
+import Modal from '@/common/components/Molecule/Modal.vue'
 import Pagination from '@/common/components/Molecule/Pagination.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
-import Modal from '@/common/components/Molecule/Modal.vue'
-import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
-import Button from '@/common/components/Atom/Button.vue'
-import IconUserGroup from '~icons/fa6-solid/user-group'
-
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import IconUserGroup from '~icons/fa6-solid/user-group'
 
 type Group = {
   id: number

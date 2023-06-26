@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useAuthStore } from '@/common/store/auth'
-import SymbolLogo from '../Atom/SymbolLogo.vue'
+import { ref } from 'vue'
 import Button from '../Atom/Button.vue'
 import InputItem from '../Atom/InputItem.vue'
+import SymbolLogo from '../Atom/SymbolLogo.vue'
 
 const emit = defineEmits<{
   (e: 'to', value: 'login' | 'signup' | 'password' | 'close'): void
