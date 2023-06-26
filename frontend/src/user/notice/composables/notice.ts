@@ -65,6 +65,7 @@ export const useNotice = () => {
     currentNotice.value = res.data.current
     previousNotice.value = res.data.prev
     nextNotice.value = res.data.next
+    adjacentNotices.value = []
 
     if (previousNotice.value) {
       previousNotice.value.icon = markRaw(IconAngleUp)
