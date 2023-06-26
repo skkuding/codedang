@@ -5,11 +5,11 @@ import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { joinGroupCacheKey } from '@libs/cache'
-import { PrismaService } from '@libs/prisma'
 import {
   ActionNotAllowedException,
   EntityNotExistException
-} from '@client/common/exception/business.exception'
+} from '@libs/exception/business.exception'
+import { PrismaService } from '@libs/prisma'
 import { GroupService } from './group.service'
 import {
   groups,

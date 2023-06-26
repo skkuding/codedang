@@ -3,12 +3,12 @@ import { Inject, Injectable } from '@nestjs/common'
 import type { UserGroup } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { joinGroupCacheKey } from '@libs/cache'
-import { PrismaService } from '@libs/prisma'
+import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ActionNotAllowedException,
   EntityNotExistException
-} from '@client/common/exception/business.exception'
-import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '../common/constants'
+} from '@libs/exception/business.exception'
+import { PrismaService } from '@libs/prisma'
 import type { GroupData } from './interface/group-data.interface'
 import type { GroupJoinRequest } from './interface/group-join-request.interface'
 import type { UserGroupData } from './interface/user-group-data.interface'

@@ -2,7 +2,7 @@ import { type ExecutionContext, Injectable } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { AuthGuard } from '@nestjs/passport'
 import type { Observable } from 'rxjs'
-import { IS_AUTH_NOT_NEEDED_KEY } from '@client/common/decorator/auth-ignore.decorator'
+import { IS_AUTH_NOT_NEEDED_KEY } from '@libs/decorator/auth-ignore.decorator'
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {

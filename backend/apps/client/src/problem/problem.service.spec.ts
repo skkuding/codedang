@@ -4,11 +4,11 @@ import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import * as dayjs from 'dayjs'
 import { stub } from 'sinon'
-import { PrismaService } from '@libs/prisma'
 import {
   EntityNotExistException,
   ForbiddenAccessException
-} from '@client/common/exception/business.exception'
+} from '@libs/exception/business.exception'
+import { PrismaService } from '@libs/prisma'
 import { ContestService } from '@client/contest/contest.service'
 import { GroupService } from '@client/group/group.service'
 import { WorkbookService } from '@client/workbook/workbook.service'

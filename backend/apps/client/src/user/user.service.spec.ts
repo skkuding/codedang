@@ -11,16 +11,16 @@ import { Exception } from 'handlebars'
 import { ExtractJwt } from 'passport-jwt'
 import { stub, spy, fake, type SinonStub, type SinonSpy } from 'sinon'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
-import { PrismaService } from '@libs/prisma'
-import { AuthService } from '@client/auth/auth.service'
-import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import {
   EntityNotExistException,
   InvalidJwtTokenException,
   InvalidPinException,
   InvalidUserException,
   UnprocessableDataException
-} from '@client/common/exception/business.exception'
+} from '@libs/exception/business.exception'
+import { PrismaService } from '@libs/prisma'
+import { AuthService } from '@client/auth/auth.service'
+import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
 import { UserService } from './user.service'

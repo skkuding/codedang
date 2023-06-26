@@ -8,21 +8,21 @@ import { randomInt } from 'crypto'
 import type { Request } from 'express'
 import { ExtractJwt } from 'passport-jwt'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
-import { PrismaService } from '@libs/prisma'
-import { AuthService } from '@client/auth/auth.service'
-import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import { EMAIL_AUTH_EXPIRE_TIME } from '@libs/constants'
 import {
   EntityNotExistException,
   InvalidJwtTokenException,
   InvalidPinException,
   InvalidUserException,
   UnprocessableDataException
-} from '@client/common/exception/business.exception'
-import { encrypt } from '@client/common/hash'
+} from '@libs/exception/business.exception'
+import { encrypt } from '@libs/hash'
+import { PrismaService } from '@libs/prisma'
+import { AuthService } from '@client/auth/auth.service'
+import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
 import type { UserGroupData } from '@client/group/interface/user-group-data.interface'
-import { EMAIL_AUTH_EXPIRE_TIME } from '../common/constants'
 import type { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
 import type { GetUserProfileDto } from './dto/get-userprofile.dto'
 import type { NewPasswordDto } from './dto/newPassword.dto'

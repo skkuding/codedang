@@ -2,7 +2,7 @@ import { MailerService } from '@nestjs-modules/mailer'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import { EmailTransmissionFailedException } from '@client/common/exception/business.exception'
+import { EmailTransmissionFailedException } from '@libs/exception/business.exception'
 import { EmailService } from './email.service'
 
 describe('EmailService', () => {

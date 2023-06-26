@@ -9,11 +9,11 @@ import { expect } from 'chai'
 import * as proxyquire from 'proxyquire'
 import type Sinon from 'sinon'
 import { stub } from 'sinon'
-import { PrismaService } from '@libs/prisma'
 import {
   InvalidJwtTokenException,
   InvalidUserException
-} from '@client/common/exception/business.exception'
+} from '@libs/exception/business.exception'
+import { PrismaService } from '@libs/prisma'
 import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
 import { UserService } from '@client/user/user.service'

@@ -9,11 +9,11 @@ import {
   InternalServerErrorException
 } from '@nestjs/common'
 import type { Notice } from '@prisma/client'
-import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
-import { EntityNotExistException } from '@client/common/exception/business.exception'
+import { AuthNotNeeded } from '@libs/decorator/auth-ignore.decorator'
+import { EntityNotExistException } from '@libs/exception/business.exception'
+import { CursorValidationPipe } from '@libs/pipe/cursor-validation.pipe'
 import { GroupMemberGuard } from '@client/group/guard/group-member.guard'
 import { RolesGuard } from '@client/user/guard/roles.guard'
-import { CursorValidationPipe } from '../common/pipe/cursor-validation.pipe'
 import type { UserNotice } from './interface/user-notice.interface'
 import { NoticeService } from './notice.service'
 

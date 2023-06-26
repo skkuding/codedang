@@ -9,12 +9,12 @@ import {
   InternalServerErrorException
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
-import { REFRESH_TOKEN_COOKIE_OPTIONS, AUTH_TYPE } from '../common/constants'
+import { REFRESH_TOKEN_COOKIE_OPTIONS, AUTH_TYPE } from '@libs/constants'
+import { AuthNotNeeded } from '@libs/decorator/auth-ignore.decorator'
 import {
   InvalidJwtTokenException,
   InvalidUserException
-} from '../common/exception/business.exception'
+} from '@libs/exception/business.exception'
 import { AuthService } from './auth.service'
 import { LoginUserDto } from './dto/login-user.dto'
 import { AuthenticatedRequest } from './interface/authenticated-request.interface'

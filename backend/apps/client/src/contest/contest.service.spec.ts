@@ -6,12 +6,12 @@ import { expect } from 'chai'
 import * as dayjs from 'dayjs'
 import { stub } from 'sinon'
 import { contestPublicizingRequestKey } from '@libs/cache'
-import { PrismaService } from '@libs/prisma'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
-} from '@client/common/exception/business.exception'
+} from '@libs/exception/business.exception'
+import { PrismaService } from '@libs/prisma'
 import { GroupService } from '@client/group/group.service'
 import { ContestService } from './contest.service'
 import type { CreateContestDto } from './dto/create-contest.dto'
