@@ -185,7 +185,7 @@ resource "aws_ecs_service" "proxy" {
 
 resource "aws_ecs_task_definition" "proxy" {
   family                   = "Codedang-Proxy"
-  requires_compatibilities = ["EC2"]
+  requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 512
   memory                   = 1024
