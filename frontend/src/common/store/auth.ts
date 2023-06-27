@@ -51,13 +51,21 @@ export const useAuthStore = defineStore('auth', {
       emailAuth: string
     ) {
       try {
-        await axios.post('/api/user/sign-up', {
-          username,
-          password,
-          email,
-          realName
-        })
-        axios.defaults.headers.common['email-auth'] = emailAuth
+        await axios.post(
+          '/api/user/sign-up',
+          {
+            username,
+            password,
+            email,
+            realName
+          },
+          {
+            headers: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              'email-auth': emailAuth
+            }
+          }
+        )
         openToast({ message: 'Sign up succeed!', type: 'success' })
       } catch (e) {
         openToast({ message: 'Sign up failed!', type: 'error' })

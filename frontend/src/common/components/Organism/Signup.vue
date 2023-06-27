@@ -46,7 +46,6 @@ const signup = async () => {
       type: 'error'
     })
   } else if (!regex.test(password.value)) {
-    console.log('bad password')
     openToast({
       message:
         'Password must be a combination of at least 2 of lower case, upper case, number or exclamation marks',
@@ -54,14 +53,12 @@ const signup = async () => {
     })
     // bad password
   } else if (password.value.length < 8) {
-    console.log('short password')
     openToast({
       message: 'Password must be at least 8 characters',
       type: 'error'
     })
     // bad password
   } else if (password.value !== passwordAgain.value) {
-    console.log('password mismatch')
     openToast({
       message: 'Password does not match!',
       type: 'error'
@@ -72,13 +69,11 @@ const signup = async () => {
       type: 'error'
     })
   } else if (!realnameRegex.test(realName.value)) {
-    console.log('real name should be english')
     openToast({
       message: 'Real name should be English!',
       type: 'error'
     })
   } else {
-    console.log('yes')
     await auth.signup(
       username.value,
       password.value,
@@ -96,9 +91,12 @@ const verifyEmail = async () => {
       email: emailVerify
     })
     openToast({ message: 'Email verification code sent', type: 'success' })
-  } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (e: any) {
+    if (e.response.status === 422) {
+      openToast({ message: 'You have already signed up!', type: 'error' })
+    }
     openToast({ message: 'Check your email again!', type: 'error' })
-    console.log('email is', emailVerify, 'error is ', e)
     throw new Error('Email verification code sending failed')
   }
 }
@@ -113,12 +111,9 @@ const verifyCode = async () => {
     })
     openToast({ message: 'Email verification succeed!', type: 'success' })
     emailAuth.value = res.headers['email-auth']
-    console.log('res is ', res)
-    console.log('emailAuth is ', emailAuth.value)
     verificationEmail.value = true
   } catch (e) {
     openToast({ message: 'Email verification failed!', type: 'error' })
-    console.log('email is', emailVerify, 'error is ', e)
     throw new Error('Email verification failed')
   }
 }
@@ -181,7 +176,7 @@ const verifyCode = async () => {
       <InputItem
         v-model="passwordAgain"
         type="password"
-        placeholder="Password Again"
+        placeholder="Retype Password"
         class="rounded-md"
       />
       <!-- <VueClientRecaptcha
