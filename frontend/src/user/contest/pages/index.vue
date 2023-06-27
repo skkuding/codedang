@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import CardItem from '@/common/components/Molecule/CardItem.vue'
+import { useTimeAgo } from '@vueuse/core'
+import axios from 'axios'
+import { onMounted, ref } from 'vue'
 import IconAnglesRight from '~icons/fa6-solid/angles-right'
 import IconCaretDown from '~icons/fa6-solid/caret-down'
 import IconCaretUp from '~icons/fa6-solid/caret-up'
-import { useTimeAgo } from '@vueuse/core'
-import { onMounted, ref } from 'vue'
-import axios from 'axios'
 
 interface Group {
   id: number
   groupName: string
 }
 
-interface Contest {
+export interface Contest {
   id: number
   title: string
-  startTime: Date
-  endTime: Date
+  startTime: string
+  endTime: string
   type: string
   group: Group
 }

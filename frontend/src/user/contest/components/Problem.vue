@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 
 const props = defineProps<{
   id: number
@@ -15,16 +15,15 @@ interface Problem {
 const field = [{ key: 'id', label: '#', width: '40%' }, { key: 'title' }]
 const problemList = ref<Problem[]>([])
 
-onMounted(async () => {
-  // TODO: problem cursor-based pagination 연결
-  const res = await axios.get(`/api/contest/${props.id}/problem`, {
+axios
+  .get(`/api/contest/${props.id}/problem`, {
     params: {
-      offset: 0,
-      limit: 10
+      take: 10
     }
   })
-  problemList.value = res.data
-})
+  .then((res) => {
+    problemList.value = res.data
+  })
 </script>
 
 <template>

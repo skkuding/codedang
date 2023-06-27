@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useDateFormat } from '@vueuse/core'
-import IconPenToSquare from '~icons/fa6-solid/pen-to-square'
-import IconLock from '~icons/bi/lock'
-import IconUnlock from '~icons/bi/unlock'
-import IconTrashCan from '~icons/fa6-solid/trash-can'
 import groupImage from '@/common/assets/logo.png'
 import Button from '@/common/components/Atom/Button.vue'
+import { useDateFormat } from '@vueuse/core'
+import { ref } from 'vue'
+import IconLock from '~icons/bi/lock'
+import IconUnlock from '~icons/bi/unlock'
+import IconPenToSquare from '~icons/fa6-solid/pen-to-square'
+import IconTrashCan from '~icons/fa6-solid/trash-can'
 
 const groupName = ref('SKKUDING')
 const description = ref('SKKU 개발동아리입니다.')
