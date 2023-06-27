@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useToast } from '@/common/composables/toast'
 import Button from './Button.vue'
 import Toast from './Toast.vue'
-import { useToast } from '@/common/composables/toast'
 
 const openToast = useToast()
 

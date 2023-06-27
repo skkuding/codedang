@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { logEvent } from 'histoire/client'
-import Dialog from './Dialog.vue'
-import Button from '../Atom/Button.vue'
 import { useDialog } from '@/common/composables/dialog'
+import { logEvent } from 'histoire/client'
+import Button from '../Atom/Button.vue'
+import Dialog from './Dialog.vue'
 
 const dialog = useDialog()
 </script>

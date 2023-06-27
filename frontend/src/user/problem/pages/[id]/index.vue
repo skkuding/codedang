@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useClipboard, useDraggable } from '@vueuse/core'
-import { useToast } from '@/common/composables/toast'
-import { useProblemStore } from '../../store/problem'
-import Clarification from '../../components/Clarification.vue'
 import CodeEditor from '@/common/components/Organism/CodeEditor.vue'
+import { useToast } from '@/common/composables/toast'
+import { useClipboard, useDraggable } from '@vueuse/core'
+import { ref } from 'vue'
 import IconCopy from '~icons/fa6-regular/copy'
+import Clarification from '../../components/Clarification.vue'
+import { useProblemStore } from '../../store/problem'
 
 defineProps<{
   id: string

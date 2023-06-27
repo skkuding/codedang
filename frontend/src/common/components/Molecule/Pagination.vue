@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { watch } from 'vue'
 import { useClamp } from '@vueuse/math'
-import Button from '../Atom/Button.vue'
+import { watch } from 'vue'
 import IconAngleLeft from '~icons/fa6-solid/angle-left'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
 import IconEllipsis from '~icons/fa6-solid/ellipsis'
+import Button from '../Atom/Button.vue'
 
 const props = defineProps<{
   numberOfPages: number

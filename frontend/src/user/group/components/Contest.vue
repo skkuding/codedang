@@ -1,19 +1,15 @@
 <script setup lang="ts">
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
-import RadioButton from '@/common/components/Molecule/RadioButton.vue'
-import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import CardItem from '@/common/components/Molecule/CardItem.vue'
-import { onMounted, ref } from 'vue'
-import axios from 'axios'
+import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import { useAuthStore } from '@/common/store/auth'
-import { useNow, useTimeAgo } from '@vueuse/core'
+import { useNow, useTimeAgo, useIntersectionObserver } from '@vueuse/core'
+import axios from 'axios'
+import { onMounted, ref, watchEffect } from 'vue'
 
 const props = defineProps<{
   id: number
 }>()
-
-const filters = ['Latest', 'Ongoing']
-const selectedFilter = ref(filters[0])
 
 // server data
 type ContestList = {
@@ -37,16 +33,52 @@ type Response = {
 type State = Pick<Response, 'finished' | 'ongoing' | 'upcoming'> & {
   registered: ContestList
 }
-const contentList = ref<State | null>(null)
+const contentList = ref<State>({
+  registered: [],
+  upcoming: [],
+  ongoing: [],
+  finished: []
+})
+const hasNextPage = ref(true)
+const cursor = ref(0)
+const take = 10
 const store = useAuthStore()
+// get unfinished contests (registered, upcoming, ongoing)
 onMounted(async () => {
   if (!store.isLoggedIn) return // 비로그인 시 어떤 로직 수행??
-  const { data } = await axios.get<Response>(`/api/group/${props.id}/contest`)
+  const { data } = await axios.get<Omit<Response, 'finished'>>(
+    `/api/group/${props.id}/contest`
+  )
   contentList.value = {
+    ...contentList.value,
     registered: data.registeredOngoing.concat(...data.registeredUpcoming),
     upcoming: data.upcoming,
-    ongoing: data.ongoing,
-    finished: data.finished
+    ongoing: data.ongoing
+  }
+})
+// get finished contests
+watchEffect(async () => {
+  if (!store.isLoggedIn) return // 비로그인시 어떤 로직 수행???
+  if (!hasNextPage.value) return
+  const url = cursor.value
+    ? `/api/group/${props.id}/contest/finished?take=${take}&cursor=${cursor.value}`
+    : `/api/group/${props.id}/contest/finished?take=${take}`
+  try {
+    const { data } = await axios.get<Pick<Response, 'finished'>>(url)
+    contentList.value.finished.push(...data.finished)
+    if (data.finished.length < take) {
+      hasNextPage.value = false
+    }
+  } catch (e) {
+    console.log(e)
+  }
+})
+// infinite scroll for finished contests
+const target = ref(null)
+useIntersectionObserver(target, ([{ isIntersecting }]) => {
+  if (isIntersecting && contentList.value.finished.length > 0) {
+    cursor.value =
+      contentList.value.finished[contentList.value.finished.length - 1].id
   }
 })
 // padStart 사용하면 에러 발생하여 대안책 사용
@@ -88,10 +120,9 @@ const getTimeInfo = (key: keyof State, date: Date) => {
   <div
     class="mb-8 flex flex-col items-end justify-end gap-x-4 gap-y-2 lg:flex-row"
   >
-    <RadioButton v-model="selectedFilter" :texts="filters" />
     <SearchBar placeholder="원하는 대회를 검색해보세요!" />
   </div>
-  <div v-if="contentList !== null" class="flex flex-col gap-16">
+  <div class="flex flex-col gap-16">
     <section
       v-for="key in ['registered', 'ongoing', 'upcoming', 'finished'] as const"
       :key="key"
@@ -122,6 +153,7 @@ const getTimeInfo = (key: keyof State, date: Date) => {
         class="w-full bg-white capitalize drop-shadow-md"
         @click="$router.push(`/contest/${contestId}`)"
       />
+      <div v-if="key === 'finished'" ref="target" />
     </section>
   </div>
 </template>

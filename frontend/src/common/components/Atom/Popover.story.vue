@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Popover from './Popover.vue'
 import Button from './Button.vue'
+import Popover from './Popover.vue'
 </script>
 
 <template>

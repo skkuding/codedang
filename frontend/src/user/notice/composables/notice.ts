@@ -1,9 +1,9 @@
-import { useRouter } from 'vue-router'
-import { ref, markRaw, type Component } from 'vue'
-import IconAngleUp from '~icons/fa6-solid/angle-up'
-import IconAngleDown from '~icons/fa6-solid/angle-down'
-import axios from 'axios'
 import { useDateFormat } from '@vueuse/core'
+import axios from 'axios'
+import { ref, markRaw, type Component } from 'vue'
+import { useRouter } from 'vue-router'
+import IconAngleDown from '~icons/fa6-solid/angle-down'
+import IconAngleUp from '~icons/fa6-solid/angle-up'
 
 export interface Field {
   key: string
@@ -23,9 +23,12 @@ export interface Item {
 
 export const useNotice = () => {
   const notices = ref<Item[]>([])
-  async function getNoticeList(currentPage: number) {
+  async function getNoticeList(numberOfPages: number) {
     const res = await axios.get('/api/notice', {
-      params: { offset: (currentPage - 1) * 10 + 1 }
+      params:
+        numberOfPages == 1
+          ? { take: 10 }
+          : { take: 10, cursor: 10 * (numberOfPages - 1) }
     })
     notices.value = res.data
     notices.value.map((notice) => {
@@ -62,6 +65,7 @@ export const useNotice = () => {
     currentNotice.value = res.data.current
     previousNotice.value = res.data.prev
     nextNotice.value = res.data.next
+    adjacentNotices.value = []
 
     if (previousNotice.value) {
       previousNotice.value.icon = markRaw(IconAngleUp)

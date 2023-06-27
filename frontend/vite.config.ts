@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { fileURLToPath, URL } from 'url'
-import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import icons from 'unplugin-icons/vite'
+import { fileURLToPath, URL } from 'url'
+import { defineConfig } from 'vite'
+import checker from 'vite-plugin-checker'
 import pages from 'vite-plugin-pages'
 import layouts from 'vite-plugin-vue-layouts'
-import checker from 'vite-plugin-checker'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -20,7 +20,7 @@ export default defineConfig({
         { dir: 'src/user/contest/pages', baseRoute: 'contest' },
         { dir: 'src/user/group/pages', baseRoute: 'group' },
         { dir: 'src/user/workbook/pages', baseRoute: 'workbook' },
-        { dir: 'src/manager/pages', baseRoute: 'manager' }
+        { dir: 'src/admin/pages', baseRoute: 'admin' }
       ]
     }),
     layouts({
@@ -45,5 +45,8 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
+  },
+  optimizeDeps: {
+    exclude: ['@codemirror/state']
   }
 })

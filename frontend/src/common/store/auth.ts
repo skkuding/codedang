@@ -1,7 +1,7 @@
+import { useToast } from '@/common/composables/toast'
+import { useStorage } from '@vueuse/core'
 import axios from 'axios'
 import { defineStore } from 'pinia'
-import { useStorage } from '@vueuse/core'
-import { useToast } from '@/common/composables/toast'
 
 const openToast = useToast()
 
@@ -47,16 +47,17 @@ export const useAuthStore = defineStore('auth', {
       username: string,
       password: string,
       email: string,
-      realName: string
+      realName: string,
+      emailAuth: string
     ) {
       try {
-        const res = await axios.post('/api/user/sign-up', {
+        await axios.post('/api/user/sign-up', {
           username,
           password,
           email,
           realName
         })
-        axios.defaults.headers.common.authorization = res.headers.authorization
+        axios.defaults.headers.common['email-auth'] = emailAuth
         openToast({ message: 'Sign up succeed!', type: 'success' })
       } catch (e) {
         openToast({ message: 'Sign up failed!', type: 'error' })

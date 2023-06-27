@@ -1,30 +1,43 @@
 <script setup lang="ts">
+import { useToast } from '@/common/composables/toast'
+import { useAuthStore } from '@/common/store/auth'
+import axios from 'axios'
 import { ref } from 'vue'
+import IconCheck from '~icons/fa6-solid/check'
+import IconPaperPlane from '~icons/fa6-solid/paper-plane'
 import Button from '../Atom/Button.vue'
 import InputItem from '../Atom/InputItem.vue'
-import IconPaperPlane from '~icons/fa6-solid/paper-plane'
-import IconCheck from '~icons/fa6-solid/check'
-// import { useAuthStore } from '@/common/store/auth'
-import { useToast } from '@/common/composables/toast'
 
 const openToast = useToast()
-// const emit =
-defineEmits<{
+const emit = defineEmits<{
   (e: 'to', value: 'login' | 'signup' | 'password' | 'close'): void
 }>()
 
 const username = ref('')
 const email = ref('')
 const verificationCode = ref('')
-const studentId = ref('')
+// const studentId = ref('')
 const realName = ref('')
 const password = ref('')
 const passwordAgain = ref('')
+const verificationEmail = ref(false)
+const emailAuth = ref('')
 
-// const auth = useAuthStore()
+// const captchaValue = ref('')
+
+// const getCaptchaCode = (value: string) => {
+//   /* you can access captcha code */
+//   console.log('getcode is ', value)
+// }
+// const checkValidCaptcha = (value: string) => {
+//   /* expected return boolean if your value and captcha code are same return True otherwise return False */
+//   console.log('checkcode is ', value)
+// }
+
+const auth = useAuthStore()
 const regex =
   /((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*\d))|((?=.*[a-z])(?=.*[^a-zA-Z0-9\s]))|((?=.*[A-Z])(?=.*\d))|((?=.*[A-Z])(?=.*[^a-zA-Z0-9\s]))|((?=.*\d)(?=.*[^a-zA-Z0-9\s]))/
-
+const realnameRegex = /^[a-zA-Z\\s]+$/
 const signup = async () => {
   if (username.value.length < 3 || username.value.length > 10) {
     // bad username
@@ -32,8 +45,7 @@ const signup = async () => {
       message: 'Username must be 4 ~ 9 characters',
       type: 'error'
     })
-  }
-  if (!regex.test(password.value)) {
+  } else if (!regex.test(password.value)) {
     console.log('bad password')
     openToast({
       message:
@@ -48,11 +60,67 @@ const signup = async () => {
       type: 'error'
     })
     // bad password
+  } else if (password.value !== passwordAgain.value) {
+    console.log('password mismatch')
+    openToast({
+      message: 'Password does not match!',
+      type: 'error'
+    })
+  } else if (!verificationEmail.value) {
+    openToast({
+      message: 'Please verify email address',
+      type: 'error'
+    })
+  } else if (!realnameRegex.test(realName.value)) {
+    console.log('real name should be english')
+    openToast({
+      message: 'Real name should be English!',
+      type: 'error'
+    })
   } else {
     console.log('yes')
+    await auth.signup(
+      username.value,
+      password.value,
+      email.value,
+      realName.value,
+      emailAuth.value
+    )
+    emit('to', 'close')
   }
-  // await auth.signup(username.value, password.value)
-  // emit('to', 'close')
+}
+const verifyEmail = async () => {
+  const emailVerify = email.value
+  try {
+    await axios.post('/api/email-auth/send-email/register-new', {
+      email: emailVerify
+    })
+    openToast({ message: 'Email verification code sent', type: 'success' })
+  } catch (e) {
+    openToast({ message: 'Check your email again!', type: 'error' })
+    console.log('email is', emailVerify, 'error is ', e)
+    throw new Error('Email verification code sending failed')
+  }
+}
+const verifyCode = async () => {
+  // email code verification
+  const emailVerify = email.value
+  const pin = verificationCode.value
+  try {
+    const res = await axios.post('/api/email-auth/verify-pin', {
+      pin,
+      email: emailVerify
+    })
+    openToast({ message: 'Email verification succeed!', type: 'success' })
+    emailAuth.value = res.headers['email-auth']
+    console.log('res is ', res)
+    console.log('emailAuth is ', emailAuth.value)
+    verificationEmail.value = true
+  } catch (e) {
+    openToast({ message: 'Email verification failed!', type: 'error' })
+    console.log('email is', emailVerify, 'error is ', e)
+    throw new Error('Email verification failed')
+  }
 }
 </script>
 
@@ -72,7 +140,10 @@ const signup = async () => {
           placeholder="Email Address"
           class="min-w-0 rounded-md"
         />
-        <Button class="aspect-square h-[34px] rounded-md">
+        <Button
+          class="aspect-square h-[34px] rounded-md"
+          @click.prevent="verifyEmail()"
+        >
           <IconPaperPlane />
         </Button>
       </div>
@@ -83,16 +154,19 @@ const signup = async () => {
           placeholder="Verification Code"
           class="min-w-0 rounded-md"
         />
-        <Button class="aspect-square h-[34px] rounded-md">
+        <Button
+          class="aspect-square h-[34px] rounded-md"
+          @click.prevent="verifyCode()"
+        >
           <IconCheck />
         </Button>
       </div>
-      <InputItem
+      <!-- <InputItem
         v-model="studentId"
         type="number"
         placeholder="Student ID"
         class="rounded-md"
-      />
+      /> -->
       <InputItem
         v-model="realName"
         placeholder="Real Name"
@@ -110,7 +184,20 @@ const signup = async () => {
         placeholder="Password Again"
         class="rounded-md"
       />
-      <Button type="submit" class="rounded-md">Register</Button>
+      <!-- <VueClientRecaptcha
+        :value="captchaValue"
+        @get-code="getCaptchaCode"
+        @is-valid="checkValidCaptcha"
+      />
+      <InputItem
+        v-model="captchaValue"
+        type="text"
+        placeholder="Are you a robot?"
+        class="rounded-md"
+      /> -->
+      <Button type="submit" class="rounded-md" @click.prevent="signup()">
+        Register
+      </Button>
     </form>
     <!-- TODO: form validation -->
     <!-- TODO: captcha -->

@@ -1,10 +1,18 @@
 import { MailerService } from '@nestjs-modules/mailer'
-import { UnauthorizedException } from '@nestjs/common'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { UnauthorizedException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { JwtService } from '@nestjs/jwt'
 import { Test, type TestingModule } from '@nestjs/testing'
+import type { User, UserProfile } from '@prisma/client'
 import { expect } from 'chai'
+import type { Request } from 'express'
+import { Exception } from 'handlebars'
+import { ExtractJwt } from 'passport-jwt'
 import { stub, spy, fake, type SinonStub, type SinonSpy } from 'sinon'
-import { type User, type UserProfile } from '@prisma/client'
+import { PrismaService } from '@libs/prisma'
+import { AuthService } from '@client/auth/auth.service'
+import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import { emailAuthenticationPinCacheKey } from '@client/common/cache/keys'
 import {
   EntityNotExistException,
@@ -14,16 +22,8 @@ import {
   UnprocessableDataException
 } from '@client/common/exception/business.exception'
 import { EmailService } from '@client/email/email.service'
-import { PrismaService } from '@libs/prisma'
-import { UserService } from './user.service'
-import { JwtService } from '@nestjs/jwt'
-import { ConfigService } from '@nestjs/config'
-import { type Request } from 'express'
 import { GroupService } from '@client/group/group.service'
-import { AuthService } from '@client/auth/auth.service'
-import { ExtractJwt } from 'passport-jwt'
-import { Exception } from 'handlebars'
-import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import { UserService } from './user.service'
 
 const ID = 1
 const EMAIL_ADDRESS = 'email@email.com'
