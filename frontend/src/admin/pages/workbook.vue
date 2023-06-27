@@ -24,11 +24,13 @@ const toggleVisible = (row: Workbook) => {
 const columns = [
   {
     title: '#',
-    key: 'id'
+    key: 'id',
+    minWidth: 80
   },
   {
     title: 'Group',
-    key: 'group'
+    key: 'group',
+    minWidth: 150
   },
   {
     title: 'Title',
@@ -37,12 +39,13 @@ const columns = [
   {
     title: 'Period',
     key: 'period',
-    width: 250
+    width: 220
   },
   {
     title: 'Visible',
     key: 'visible',
     align: 'center' as const,
+    width: 120,
     render(row: Workbook) {
       return h(NSwitch, {
         strong: true,
@@ -57,6 +60,7 @@ const columns = [
     title: 'Delete',
     key: 'delete',
     align: 'center' as const,
+    width: 120,
     render(row: Workbook) {
       return h(NButton, {
         strong: true,
@@ -104,7 +108,7 @@ const data = ref(
       :scroll-x="1100"
       :bordered="false"
       class="text-xl"
-      row-class-name="font-bold text-base"
+      row-class-name="font-bold text-base h-20"
     />
   </div>
 </template>

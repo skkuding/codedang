@@ -25,15 +25,18 @@ const toggleVisible = (row: Contest) => {
 const columns = [
   {
     title: '#',
-    key: 'id'
+    key: 'id',
+    minWidth: 80
   },
   {
     title: 'Group',
-    key: 'group'
+    key: 'group',
+    minWidth: 150
   },
   {
     title: 'Type',
-    key: 'type'
+    key: 'type',
+    width: 100
   },
   {
     title: 'Title',
@@ -42,12 +45,13 @@ const columns = [
   {
     title: 'Period',
     key: 'period',
-    width: 250
+    width: 220
   },
   {
     title: 'Visible',
     key: 'visible',
     align: 'center' as const,
+    width: 120,
     render(row: Contest) {
       return h(NSwitch, {
         strong: true,
@@ -61,6 +65,7 @@ const columns = [
   {
     title: 'Delete',
     key: 'delete',
+    width: 120,
     align: 'center' as const,
     render(row: Contest) {
       return h(NButton, {
@@ -110,7 +115,7 @@ const data = ref(
       :scroll-x="1100"
       :bordered="false"
       class="text-xl"
-      row-class-name="font-bold text-base"
+      row-class-name="font-bold text-base h-20"
     />
   </div>
 </template>

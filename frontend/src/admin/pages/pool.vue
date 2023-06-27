@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { h, ref } from 'vue'
-import { NTag, NButton, NIcon, NDataTable } from 'naive-ui'
+import { NTag, NButton, NIcon, NDataTable, NCard } from 'naive-ui'
 import Fa6RegularTrashCan from '~icons/fa6-regular/trash-can'
 import Fa6RegularSquareCaretRight from '~icons/fa6-regular/square-caret-right'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
@@ -21,48 +21,72 @@ const deletePool = (row: Pool) => {
 const columns = [
   {
     title: '#',
-    key: 'id'
+    key: 'id',
+    minWidth: 80
   },
   {
     title: 'Name',
     key: 'name',
-    width: 400
+    minWidth: 250
   },
   {
     title: 'Problems',
-    key: 'problems'
+    key: 'problems',
+    align: 'center' as const,
+    width: 150
   },
   {
     title: 'Create Time',
-    key: 'createTime'
+    key: 'createTime',
+    width: 220
   },
   {
     title: 'Shared Group',
     key: 'sharedGroup',
     align: 'center' as const,
+    width: 300,
     render(row: Pool) {
       const tags = row.sharedGroup.map((tagKey) => {
         return h(
           NTag,
           {
-            style: {
-              marginRight: '6px'
-            },
             type: 'success',
-            bordered: false
+            bordered: false,
+            style: {
+              fontSize: '1rem'
+            }
           },
           {
             default: () => tagKey
           }
         )
       })
-      return tags
+      return h(
+        NCard,
+        {
+          bordered: false,
+          style: {
+            background: 'transparent'
+          },
+          contentStyle: {
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.5rem',
+            justifyContent: 'center',
+            padding: '0'
+          }
+        },
+        {
+          default: () => tags
+        }
+      )
     }
   },
   {
     title: 'Delete',
     key: 'delete',
     align: 'center' as const,
+    width: 150,
     render(row: Pool) {
       return [
         h(NButton, {
@@ -129,7 +153,7 @@ const data = ref(
       :scroll-x="1100"
       :bordered="false"
       class="text-xl"
-      row-class-name="font-bold text-base"
+      row-class-name="font-bold text-base h-20"
     />
   </div>
 </template>

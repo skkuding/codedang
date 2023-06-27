@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { h, ref } from 'vue'
-import { NTag, NButton, NIcon, NDataTable } from 'naive-ui'
+import { NTag, NCard, NButton, NIcon, NDataTable } from 'naive-ui'
 import Fa6RegularTrashCan from '~icons/fa6-regular/trash-can'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
@@ -20,49 +20,72 @@ const deleteProblem = (row: Problem) => {
 const columns = [
   {
     title: '#',
-    key: 'id'
+    key: 'id',
+    minWidth: 80
   },
   {
     title: 'Title',
     key: 'title',
-    width: 400
+    minWidth: 300
   },
   {
     title: 'Difficulty',
-    key: 'difficulty'
+    key: 'difficulty',
+    align: 'center' as const,
+    width: 150
   },
   {
     title: 'Tag',
     key: 'tag',
     align: 'center' as const,
+    width: 250,
     render(row: Problem) {
       const tags = row.tag.map((tagKey) => {
         return h(
           NTag,
           {
-            style: {
-              marginRight: '6px'
-            },
             type: 'success',
-            bordered: false
+            bordered: false,
+            style: {
+              fontSize: '1rem'
+            }
           },
           {
             default: () => tagKey
           }
         )
       })
-      return tags
+      return h(
+        NCard,
+        {
+          bordered: false,
+          style: {
+            background: 'transparent'
+          },
+          contentStyle: {
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.5rem',
+            justifyContent: 'center',
+            padding: '0'
+          }
+        },
+        {
+          default: () => tags
+        }
+      )
     }
   },
   {
     title: 'LastUpdate',
     key: 'lastUpdate',
-    width: 250
+    width: 220
   },
   {
     title: 'Delete',
     key: 'delete',
     align: 'center' as const,
+    width: 120,
     render(row: Problem) {
       return h(NButton, {
         strong: true,
@@ -109,7 +132,7 @@ const data = ref(
       :scroll-x="1100"
       :bordered="false"
       class="text-xl"
-      row-class-name="font-bold text-base"
+      row-class-name="font-bold text-base h-20"
     />
   </div>
 </template>
