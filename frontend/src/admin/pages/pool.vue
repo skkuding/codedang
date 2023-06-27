@@ -1,7 +1,139 @@
 <script setup lang="ts">
-// write script code
+import { h, ref } from 'vue'
+import { NTag, NButton, NIcon, NDataTable } from 'naive-ui'
+import Fa6RegularTrashCan from '~icons/fa6-regular/trash-can'
+import Fa6RegularSquareCaretRight from '~icons/fa6-regular/square-caret-right'
+import PageTitle from '@/common/components/Atom/PageTitle.vue'
+import SearchBar from '@/common/components/Molecule/SearchBar.vue'
+
+interface Pool {
+  id: number
+  name: string
+  problems: string
+  createTime: string
+  sharedGroup: string[]
+}
+
+const deletePool = (row: Pool) => {
+  console.log('delete Pool', row)
+}
+
+const columns = [
+  {
+    title: '#',
+    key: 'id'
+  },
+  {
+    title: 'Name',
+    key: 'name',
+    width: 400
+  },
+  {
+    title: 'Problems',
+    key: 'problems'
+  },
+  {
+    title: 'Create Time',
+    key: 'createTime'
+  },
+  {
+    title: 'Shared Group',
+    key: 'sharedGroup',
+    align: 'center' as const,
+    render(row: Pool) {
+      const tags = row.sharedGroup.map((tagKey) => {
+        return h(
+          NTag,
+          {
+            style: {
+              marginRight: '6px'
+            },
+            type: 'success',
+            bordered: false
+          },
+          {
+            default: () => tagKey
+          }
+        )
+      })
+      return tags
+    }
+  },
+  {
+    title: 'Delete',
+    key: 'delete',
+    align: 'center' as const,
+    render(row: Pool) {
+      return [
+        h(NButton, {
+          style: {
+            marginRight: '6px'
+          },
+          strong: true,
+          size: 'small',
+          bordered: true,
+          onClick: () => deletePool(row),
+          renderIcon() {
+            return h(NIcon, null, {
+              default: () => h(Fa6RegularTrashCan)
+            })
+          }
+        }),
+        h(NButton, {
+          style: {
+            marginRight: '6px'
+          },
+          strong: true,
+          size: 'small',
+          bordered: true,
+          onClick: () => deletePool(row),
+          renderIcon() {
+            return h(NIcon, null, {
+              default: () => h(Fa6RegularSquareCaretRight)
+            })
+          }
+        })
+      ]
+    }
+  }
+]
+const loading = ref(false)
+const data = ref(
+  Array(104)
+    .fill({
+      id: 1,
+      name: '가파른 경사',
+      problems: '20',
+      createTime: '2022-08-28 18:00:00',
+      sharedGroup: ['NPC 초급반', 'NPC 중급반', 'NPC 고급반']
+    })
+    .map((item, index) => ({
+      ...item,
+      id: item.id + index,
+      problems: (item.id + index) * 6
+    }))
+)
 </script>
 
 <template>
-  <div>write template code</div>
+  <div class="flex flex-col">
+    <PageTitle text="Problem Pool List" class="mb-5" />
+    <SearchBar placeholder="keywords" class="mb-5 self-end" />
+    <n-data-table
+      :columns="columns"
+      :data="data"
+      :loading="loading"
+      :pagination="{
+        pageSize: 5
+      }"
+      :scroll-x="1100"
+      :bordered="false"
+      class="text-xl"
+      row-class-name="font-bold text-base"
+    />
+  </div>
 </template>
+<route lang="yaml">
+meta:
+  layout: admin
+</route>
