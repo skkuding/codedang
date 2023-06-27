@@ -16,23 +16,11 @@ const emit = defineEmits<{
 const username = ref('')
 const email = ref('')
 const verificationCode = ref('')
-// const studentId = ref('')
 const realName = ref('')
 const password = ref('')
 const passwordAgain = ref('')
 const verificationEmail = ref(false)
 const emailAuth = ref('')
-
-// const captchaValue = ref('')
-
-// const getCaptchaCode = (value: string) => {
-//   /* you can access captcha code */
-//   console.log('getcode is ', value)
-// }
-// const checkValidCaptcha = (value: string) => {
-//   /* expected return boolean if your value and captcha code are same return True otherwise return False */
-//   console.log('checkcode is ', value)
-// }
 
 const auth = useAuthStore()
 const regex =
@@ -179,23 +167,10 @@ const verifyCode = async () => {
         placeholder="Retype Password"
         class="rounded-md"
       />
-      <!-- <VueClientRecaptcha
-        :value="captchaValue"
-        @get-code="getCaptchaCode"
-        @is-valid="checkValidCaptcha"
-      />
-      <InputItem
-        v-model="captchaValue"
-        type="text"
-        placeholder="Are you a robot?"
-        class="rounded-md"
-      /> -->
       <Button type="submit" class="rounded-md" @click.prevent="signup()">
         Register
       </Button>
     </form>
-    <!-- TODO: form validation -->
-    <!-- TODO: captcha -->
     <div class="text-gray-dark mt-6 flex flex-col items-center text-sm">
       Already have an account?
       <a
