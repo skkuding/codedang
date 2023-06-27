@@ -9,23 +9,23 @@ const currentPage = ref(1)
   <Story>
     <Variant title="light">
       <template #default>
-        <Pagination v-model="currentPage" :number-of-pages="10" mode="light" />
+        <Pagination v-model="currentPage" :number-of-pages="19" mode="light" />
       </template>
       <!-- [workaround] use `source` slot to show v-model -->
       <template #source>
         <textarea v-pre>
-          <Pagination v-model="currentPage" :number-of-pages="10" />
+          <Pagination v-model="currentPage" :number-of-pages="19" />
         </textarea>
       </template>
     </Variant>
     <Variant title="dark">
       <template #default>
-        <Pagination v-model="currentPage" :number-of-pages="10" mode="dark" />
+        <Pagination v-model="currentPage" :number-of-pages="19" mode="dark" />
       </template>
       <!-- [workaround] use `source` slot to show v-model -->
       <template #source>
         <textarea v-pre>
-          <Pagination v-model="currentPage" :number-of-pages="10" mode="dark" />
+          <Pagination v-model="currentPage" :number-of-pages="19" mode="dark" />
         </textarea>
       </template>
     </Variant>
