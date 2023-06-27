@@ -68,7 +68,7 @@ const { y } = useDraggable(resizingBarY, {
   }
 })
 
-const getProblem = async () => {
+onMounted(async () => {
   const res = await axios.get(`/api/problem/${props.id}`)
   problem.value = res.data
   samples.value = [...Array(problem.value?.inputExamples.length).keys()].map(
@@ -79,10 +79,6 @@ const getProblem = async () => {
       }
     }
   )
-}
-
-onMounted(async () => {
-  await getProblem()
 })
 </script>
 
@@ -168,22 +164,22 @@ onMounted(async () => {
             class="h-full overflow-auto border-r border-slate-400 p-4 text-white"
           >
             <pre>
-1
-2
-3
-4
-5
-6
-7
-8</pre
-            >
+              1
+              2
+              3
+              4
+              5
+              6
+              7
+              8
+            </pre>
           </div>
           <div class="h-full overflow-auto p-4 text-white">
             <pre>
-3
-2
-4</pre
-            >
+              3
+              2
+              4
+            </pre>
           </div>
         </div>
       </div>
