@@ -3,6 +3,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import type { User, UserProfile } from '@prisma/client'
+import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
 import type { Request } from 'express'
@@ -15,8 +16,7 @@ import {
   InvalidPinException,
   InvalidUserException,
   UnprocessableDataException
-} from '@libs/exception/business.exception'
-import { encrypt } from '@libs/hash'
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { AuthService } from '@client/auth/auth.service'
 import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
@@ -153,7 +153,7 @@ export class UserService {
         email
       },
       data: {
-        password: await encrypt(newPassword)
+        password: await hash(newPassword)
       }
     })
   }
@@ -246,7 +246,7 @@ export class UserService {
   }
 
   async createUser(signUpDto: SignUpDto): Promise<User> {
-    const encryptedPassword = await encrypt(signUpDto.password)
+    const encryptedPassword = await hash(signUpDto.password)
 
     return await this.prisma.user.create({
       data: {

@@ -9,10 +9,7 @@ import { expect } from 'chai'
 import * as proxyquire from 'proxyquire'
 import type Sinon from 'sinon'
 import { stub } from 'sinon'
-import {
-  InvalidJwtTokenException,
-  InvalidUserException
-} from '@libs/exception/business.exception'
+import { InvalidJwtTokenException, InvalidUserException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
@@ -42,9 +39,8 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const { AuthService } = proxyquire('./auth.service', {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      '../common/hash': {
-        validate: async (passwordFromDB, passwordFromUserInput) =>
+      argon2: {
+        verify: async (passwordFromDB, passwordFromUserInput) =>
           passwordFromDB === passwordFromUserInput
       }
     })

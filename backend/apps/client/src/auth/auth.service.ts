@@ -3,17 +3,14 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import type { User } from '@prisma/client'
+import { verify } from 'argon2'
 import { Cache } from 'cache-manager'
 import { refreshTokenCacheKey } from '@libs/cache'
 import {
   ACCESS_TOKEN_EXPIRE_TIME,
   REFRESH_TOKEN_EXPIRE_TIME
 } from '@libs/constants'
-import {
-  InvalidUserException,
-  InvalidJwtTokenException
-} from '@libs/exception/business.exception'
-import { validate } from '@libs/hash'
+import { InvalidUserException, InvalidJwtTokenException } from '@libs/exception'
 import { UserService } from '@client/user/user.service'
 import type { LoginUserDto } from './dto/login-user.dto'
 import type {
@@ -43,11 +40,11 @@ export class AuthService {
   }
 
   async isValidUser(user: User, password: string) {
-    if (!user || !(await validate(user.password, password))) {
+    if (!user || !(await verify(user.password, password))) {
       return false
     }
     return true
-  }
+  } //TODO: 이게 굳이 여기 있어야 하나?
 
   async updateJwtTokens(refreshToken: string): Promise<JwtTokens> {
     const { userId, username } = await this.verifyJwtToken(refreshToken)
