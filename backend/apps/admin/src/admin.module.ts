@@ -10,6 +10,7 @@ import { RolesGuard } from './user/guard/roles.guard'
 import { PrismaModule } from '@libs/prisma'
 import { ConfigModule } from '@nestjs/config'
 import { AuthModule } from '@admin/auth/auth.module'
+import { ContestModule } from './contest/contest.module'
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { AuthModule } from '@admin/auth/auth.module'
     }),
     UserModule,
     PrismaModule,
-    AuthModule
+    AuthModule,
+    ContestModule
   ],
   controllers: [AdminController],
   providers: [
