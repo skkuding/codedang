@@ -16,7 +16,7 @@ defineEmits<{
    since `transition` cannot trigger `fit-content` */
 const height = {
   login: 'h-[30rem]',
-  signup: 'h-[46rem]',
+  signup: 'h-[36rem]',
   password: 'h-[24rem]',
   close: 'h-[18rem]' // set non-zero height for closing animation
 }

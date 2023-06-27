@@ -42,7 +42,6 @@ const signup = async () => {
     openToast({
       message: 'Password must be at least 8 characters',
       type: 'error'
-      // bad password
     })
   } else if (password.value !== passwordAgain.value) {
     openToast({
@@ -87,7 +86,6 @@ const verifyEmail = async () => {
   }
 }
 const verifyCode = async () => {
-  // email code verification
   const emailVerify = email.value
   const pin = verificationCode.value
   try {
@@ -142,12 +140,6 @@ const verifyCode = async () => {
           <IconCheck />
         </Button>
       </div>
-      <!-- <InputItem
-        v-model="studentId"
-        type="number"
-        placeholder="Student ID"
-        class="rounded-md"
-      /> -->
       <InputItem
         v-model="realName"
         placeholder="Real Name"
