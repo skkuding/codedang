@@ -28,7 +28,6 @@ const regex =
 const realnameRegex = /^[a-zA-Z\\s]+$/
 const signup = async () => {
   if (username.value.length < 3 || username.value.length > 10) {
-    // bad username
     openToast({
       message: 'Username must be 4 ~ 9 characters',
       type: 'error'
@@ -39,13 +38,12 @@ const signup = async () => {
         'Password must be a combination of at least 2 of lower case, upper case, number or exclamation marks',
       type: 'error'
     })
-    // bad password
   } else if (password.value.length < 8) {
     openToast({
       message: 'Password must be at least 8 characters',
       type: 'error'
+      // bad password
     })
-    // bad password
   } else if (password.value !== passwordAgain.value) {
     openToast({
       message: 'Password does not match!',
