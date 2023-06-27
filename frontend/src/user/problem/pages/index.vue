@@ -41,6 +41,8 @@ const colorMapper = (level: string) => {
   }
 }
 const perPage = 3
+const pageSlot = 3
+const numberOfPages = ref(4)
 const currentPage = ref(1)
 const currentItems = ref<Problem[]>([])
 const showTags = ref(false)
@@ -66,38 +68,46 @@ const fields = computed(() =>
 const problemList = ref<Problem[][]>([])
 
 const changePage = (page: number) => {
-  if (currentPage.value < page && page % 3 === 1) {
+  console.log('problemList.value')
+  let q = Math.floor((currentPage.value - 1) / pageSlot) * pageSlot
+  console.log('q = ', q)
+  if (q < page && page <= q + pageSlot) {
+    console.log(page)
     currentPage.value = page
-    getProblemList((page - 1) * perPage + 1)
-  } else if (currentPage.value > page && page % 3 === 2) {
-    currentPage.value = page
-    console.log((page - 3) * perPage + 1)
-    getProblemList((page - 3) * perPage + 1)
+    currentItems.value = problemList.value[(page - 1) % pageSlot]
   } else {
     currentPage.value = page
-    currentItems.value = problemList.value[(page - 1) % 3]
+    console.log(
+      'cursor',
+      Math.floor((page - 1) / pageSlot) * perPage * pageSlot
+    )
+    getProblemList(Math.floor((page - 1) / pageSlot) * perPage * pageSlot)
   }
 }
 
 const getProblemList = async (cursor: number) => {
   const params =
-    cursor === 1 ? { take: perPage * 3 } : { cursor: cursor, take: perPage * 3 }
+    cursor === 0
+      ? { take: perPage * pageSlot }
+      : { cursor: cursor, take: perPage * pageSlot }
   const res = await axios.get('/api/problem', {
     params: params
   })
   let problems = res.data
   problemList.value = []
+  console.log(problems)
   do {
     if (problems.length === 0) return
     else if (problems.length > perPage) {
-      problemList.value.push(problems.slice(1, perPage + 1))
+      problemList.value.push(problems.slice(0, perPage))
       problems = problems.splice(perPage)
     } else {
       problemList.value.push(problems)
       problems = problems.splice(problems.length + 1)
     }
   } while (problems.length > 0)
-  currentItems.value = problemList.value[(currentPage.value - 1) % 3]
+  console.log(problemList.value)
+  currentItems.value = problemList.value[(currentPage.value - 1) % pageSlot]
 }
 
 const CARD_COLOR = ['#FFE5CC', '#94D0AD', '#FFCDCD', '#B1DDEB']
@@ -107,7 +117,7 @@ const { containLastItem, workbookList, getWorkbooks, getMoreWorkbooks } =
 
 onMounted(async () => {
   await getWorkbooks()
-  await getProblemList(1)
+  await getProblemList(0)
 })
 </script>
 
@@ -117,7 +127,8 @@ onMounted(async () => {
     :fields="fields"
     :items="currentItems"
     placeholder="keywords"
-    :number-of-pages="4"
+    :number-of-pages="numberOfPages"
+    :page-slot="pageSlot"
     @change-page="changePage"
     @row-clicked="({ id }) => $router.push('/problem/' + id)"
   >
