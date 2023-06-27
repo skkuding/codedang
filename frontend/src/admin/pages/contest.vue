@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { h, ref } from 'vue'
-import { NButton, NSwitch, NIcon, NDataTable } from 'naive-ui'
-import Fa6RegularTrashCan from '~icons/fa6-regular/trash-can'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
+import { NButton, NSwitch, NIcon, NDataTable } from 'naive-ui'
+import { h, ref } from 'vue'
+import Fa6RegularTrashCan from '~icons/fa6-regular/trash-can'
 
 interface Contest {
   id: number
