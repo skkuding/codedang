@@ -68,19 +68,12 @@ const fields = computed(() =>
 const problemList = ref<Problem[][]>([])
 
 const changePage = (page: number) => {
-  console.log('problemList.value')
   let q = Math.floor((currentPage.value - 1) / pageSlot) * pageSlot
-  console.log('q = ', q)
   if (q < page && page <= q + pageSlot) {
-    console.log(page)
     currentPage.value = page
     currentItems.value = problemList.value[(page - 1) % pageSlot]
   } else {
     currentPage.value = page
-    console.log(
-      'cursor',
-      Math.floor((page - 1) / pageSlot) * perPage * pageSlot
-    )
     getProblemList(Math.floor((page - 1) / pageSlot) * perPage * pageSlot)
   }
 }
@@ -95,7 +88,6 @@ const getProblemList = async (cursor: number) => {
   })
   let problems = res.data
   problemList.value = []
-  console.log(problems)
   do {
     if (problems.length === 0) return
     else if (problems.length > perPage) {
@@ -106,7 +98,6 @@ const getProblemList = async (cursor: number) => {
       problems = problems.splice(problems.length + 1)
     }
   } while (problems.length > 0)
-  console.log(problemList.value)
   currentItems.value = problemList.value[(currentPage.value - 1) % pageSlot]
 }
 
