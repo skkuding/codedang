@@ -15,8 +15,10 @@ Codedang은 스꾸딩(skkuding) 팀에서 만들고 관리하는 성균관대학
 
 ## Documentation 🔍
 
-준비 중입니다. 조금만 기다려주세요!
+문서 웹페이지를 참고해주세요. https://docs.skkuding.dev
+
+Frontend component 문서(story)는 Histoire로 관리하고 있습니다. https://story.skkuding.dev
 
 ## Contributing Guide 👏
 
-[`CONTRIBUTING.md`](CONTRIBUTING.md)에서 확인할 수 있습니다.
+[CONTRIBUTING.md](CONTRIBUTING.md)에서 확인할 수 있습니다.
