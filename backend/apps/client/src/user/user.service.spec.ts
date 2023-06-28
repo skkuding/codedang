@@ -7,9 +7,9 @@ import type { User, UserProfile } from '@prisma/client'
 import { expect } from 'chai'
 import type { Request } from 'express'
 import { Exception } from 'handlebars'
-import type { AuthenticatedRequest } from 'libs/auth/src/authenticated-request.interface'
 import { ExtractJwt } from 'passport-jwt'
 import { stub, spy, fake, type SinonStub, type SinonSpy } from 'sinon'
+import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import {
   EntityNotExistException,
@@ -19,7 +19,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { AuthService } from '@client/auth/auth.service'
 import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
 import { UserService } from './user.service'
@@ -95,17 +94,17 @@ describe('UserService', () => {
   let service: UserService
   let emailService: EmailService
   let jwtService: JwtService
+  let jwtAuthService: JwtAuthService
   let groupService: GroupService
-  let authService: AuthService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
-        AuthService,
         EmailService,
         GroupService,
         JwtService,
+        JwtAuthService,
         ConfigService,
         { provide: PrismaService, useValue: db },
         { provide: CACHE_MANAGER, useValue: cacheMock },
@@ -116,8 +115,8 @@ describe('UserService', () => {
     service = module.get<UserService>(UserService)
     emailService = module.get<EmailService>(EmailService)
     jwtService = module.get<JwtService>(JwtService)
+    jwtAuthService = module.get<JwtAuthService>(JwtAuthService)
     groupService = module.get<GroupService>(GroupService)
-    authService = module.get<AuthService>(AuthService)
   })
 
   it('should be defined', () => {
@@ -434,7 +433,7 @@ describe('UserService', () => {
     })
 
     it('delete validated user', async () => {
-      isValidUserSpy = stub(authService, 'isValidUser').resolves(true)
+      isValidUserSpy = stub(jwtAuthService, 'isValidUser').resolves(true)
 
       await service.withdrawal(user.username, { password: user.password })
       expect(isValidUserSpy.calledOnce).to.be.true
@@ -442,7 +441,7 @@ describe('UserService', () => {
     })
 
     it('should not delete non-validated user', async () => {
-      isValidUserSpy = stub(authService, 'isValidUser').resolves(false)
+      isValidUserSpy = stub(jwtAuthService, 'isValidUser').resolves(false)
 
       await expect(
         service.withdrawal(user.username, { password: 'differentPassword' })
