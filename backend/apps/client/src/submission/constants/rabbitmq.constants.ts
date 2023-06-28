@@ -10,6 +10,8 @@ const RESULT_QUEUE = 'iris.q.judge.result'
 
 const ORIGIN_HANDLER_NAME = 'codedang-handler'
 
+const PUBLISH_TYPE = 'judge'
+
 export {
   PUBLISH_CHANNEL,
   CONSUME_CHANNEL,
@@ -17,5 +19,6 @@ export {
   SUBMISSION_KEY,
   RESULT_KEY,
   RESULT_QUEUE,
-  ORIGIN_HANDLER_NAME
+  ORIGIN_HANDLER_NAME,
+  PUBLISH_TYPE
 }

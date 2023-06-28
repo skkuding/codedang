@@ -12,6 +12,7 @@ import { AuthenticatedRequest } from '@client/auth/interface/authenticated-reque
 import { CreateSubmissionDto } from './dto/create-submission.dto'
 import type { SubmissionResultDTO } from './dto/submission-result.dto'
 import { ContestProblemSubmissionGuard } from './guard/contestProblemSubmission.guard'
+import { PublicProblemSubmissionGuard } from './guard/publicProblemSubmission.guard'
 import { SubmissionResultGuard } from './guard/submissionResult.guard'
 import { WorkbookProblemSubmissionGuard } from './guard/workbookProblemSubmission.guard'
 import { SubmissionService } from './submission.service'
@@ -29,6 +30,7 @@ export class SubmissionController {
   }
 
   @Post('problem/:problemId')
+  @UseGuards(PublicProblemSubmissionGuard)
   async createPublicSubmission(
     @Body() createSubmissionDTO: CreateSubmissionDto,
     @Req() req: AuthenticatedRequest
@@ -43,8 +45,10 @@ export class SubmissionController {
   @UseGuards(ContestProblemSubmissionGuard)
   async createContestSubmission(
     @Body() createSubmissionDTO: CreateSubmissionDto,
+    @Param('contestId') contestId: number,
     @Req() req: AuthenticatedRequest
   ): Promise<Submission & { submissionResultIds: { id: number }[] }> {
+    createSubmissionDTO.contestId = contestId
     return await this.submissionService.createSubmission(
       createSubmissionDTO,
       req.user.id
@@ -55,8 +59,10 @@ export class SubmissionController {
   @UseGuards(WorkbookProblemSubmissionGuard)
   async createWorkbookSubmission(
     @Body() createSubmissionDTO: CreateSubmissionDto,
+    @Param('workbookId') workbookId: number,
     @Req() req: AuthenticatedRequest
   ): Promise<Submission & { submissionResultIds: { id: number }[] }> {
+    createSubmissionDTO.workbookId = workbookId
     return await this.submissionService.createSubmission(
       createSubmissionDTO,
       req.user.id

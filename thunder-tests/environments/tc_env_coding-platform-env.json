@@ -1,0 +1,18 @@
+{
+    "_id": "0ea6f937-c505-41ea-948a-39b0eb7b50e6",
+    "name": "Coding Platform Env",
+    "default": true,
+    "sortNum": 10000,
+    "created": "2023-01-15T13:19:23.832Z",
+    "modified": "2023-01-15T13:19:23.833Z",
+    "data": [
+        {
+            "name": "bearer_token",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUsInVzZXJuYW1lIjoidXNlcjAyIiwiaWF0IjoxNjg3OTY5OTIyLCJleHAiOjE2ODc5NzE3MjIsImlzcyI6InNra3VkaW5nLmRldiJ9.0lKgWVa12J5oegnoln54yCF41J1l689a-WO7o0l0u6Q"
+        },
+        {
+            "name": "refresh_token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUsInVzZXJuYW1lIjoidXNlcjAyIiwiaWF0IjoxNjg3OTY5OTIyLCJleHAiOjE2ODgwNTYzMjIsImlzcyI6InNra3VkaW5nLmRldiJ9.R2N8rE_VKaPK-UKvJjttx8NUznCTPs6f-9e_IrALa-k"
+        }
+    ]
+}

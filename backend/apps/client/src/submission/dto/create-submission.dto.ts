@@ -1,9 +1,9 @@
 import { Language } from '@prisma/client'
 import {
-  // IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString
 } from 'class-validator'
 
@@ -20,7 +20,11 @@ export class CreateSubmissionDto {
   @IsNotEmpty()
   language: Language
 
-  // @IsBoolean()
-  // @IsNotEmpty()
-  // shared: boolean
+  @IsNumber()
+  @IsOptional()
+  contestId?: number
+
+  @IsNumber()
+  @IsOptional()
+  workbookId?: number
 }

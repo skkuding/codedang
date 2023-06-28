@@ -18,6 +18,7 @@ import {
   CONSUME_CHANNEL,
   EXCHANGE,
   ORIGIN_HANDLER_NAME,
+  PUBLISH_TYPE,
   RESULT_KEY,
   RESULT_QUEUE,
   SUBMISSION_KEY
@@ -47,7 +48,7 @@ export class SubmissionService implements OnModuleInit {
             if (error instanceof MessageFormatError) {
               return new Nack()
             } else {
-              return new Nack(true)
+              return new Nack()
             }
           }
         },
@@ -73,10 +74,18 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    // TODO: 점수 계산 및 정답 여부 코드 추가
+    /*
+     TODO: 점수 계산 로직 추가
+    */
     const score = 100
-    const passed = true
-    const judgeFinished = true
+    const passed =
+      submissionResults.filter(
+        (result) => result.result !== ResultStatus.Accepted
+      ).length === 0
+    const judgeFinished =
+      submissionResults.filter(
+        (result) => result.result !== ResultStatus.Judging
+      ).length === 0
 
     return {
       submissionResults,
@@ -113,7 +122,7 @@ export class SubmissionService implements OnModuleInit {
     const submissionResultIds: { id: number }[] =
       await this.createSubmissionResult(submission.id, submission.problemId)
 
-    await this.publishJudgeRequestMessage(submission, submissionResultIds)
+    await this.publishJudgeRequestMessage(submission)
 
     return {
       ...submission,
@@ -121,7 +130,7 @@ export class SubmissionService implements OnModuleInit {
     }
   }
 
-  private async createSubmissionResult(
+  async createSubmissionResult(
     submissionId: string,
     problemId: number
   ): Promise<{ id: number }[]> {
@@ -156,10 +165,7 @@ export class SubmissionService implements OnModuleInit {
     })
   }
 
-  private async publishJudgeRequestMessage(
-    submission: Submission,
-    submissionResultIds: { id: number }[]
-  ): Promise<void> {
+  async publishJudgeRequestMessage(submission: Submission): Promise<void> {
     const problem: Partial<Problem> = await this.prisma.problem.findUnique({
       where: { id: submission.problemId },
       select: {
@@ -176,19 +182,21 @@ export class SubmissionService implements OnModuleInit {
       calculateMemoryLimit(submission.language, problem.memoryLimit)
     )
 
-    submissionResultIds.forEach((submissionResultId) => {
-      this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
-        persistent: true,
-        messageId: submissionResultId.toString(),
-        type: 'Judge'
-      })
+    /*
+      TODO: problem 단위가 아닌 testcase 단위로 채점하도록 변경
+    */
+
+    this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
+      persistent: true,
+      messageId: submission.id,
+      type: PUBLISH_TYPE
     })
   }
 
-  private async submissionResultHandler(
-    msg: SubmissionResultMessage
-  ): Promise<void> {
+  async submissionResultHandler(msg: SubmissionResultMessage): Promise<void> {
     const validationError: ValidationError[] = await validate(msg)
+
+    console.log(msg)
 
     if (validationError.length > 0) {
       throw new MessageFormatError({ ...validationError })
@@ -203,7 +211,7 @@ export class SubmissionService implements OnModuleInit {
     await this.updateSubmissionResult(submissionResultId, data)
   }
 
-  private async updateSubmissionResult(
+  async updateSubmissionResult(
     id: number,
     data: UpdateSubmissionResultData
   ): Promise<SubmissionResult> {
