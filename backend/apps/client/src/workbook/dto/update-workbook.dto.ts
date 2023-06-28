@@ -10,6 +10,5 @@ export class UpdateWorkbookDto {
   description: string
 
   @IsBoolean()
-  @IsNotEmpty() // TODO: 떼기
   isVisible: boolean
 }
