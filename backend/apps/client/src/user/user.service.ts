@@ -1,5 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { forwardRef, Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import type { User, UserProfile } from '@prisma/client'
@@ -7,8 +7,8 @@ import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
 import type { Request } from 'express'
-import type { AuthenticatedRequest } from 'libs/auth/src/authenticated-request.interface'
 import { ExtractJwt } from 'passport-jwt'
+import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import { EMAIL_AUTH_EXPIRE_TIME } from '@libs/constants'
 import {
@@ -19,7 +19,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { AuthService } from '@client/auth/auth.service'
 import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
 import type { UserGroupData } from '@client/group/interface/user-group-data.interface'
@@ -47,8 +46,7 @@ export class UserService {
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
     private readonly groupService: GroupService,
-    @Inject(forwardRef(() => AuthService))
-    private readonly authService: AuthService
+    private readonly jwtAuthService: JwtAuthService
   ) {}
 
   async updateLastLogin(username: string) {
@@ -272,7 +270,9 @@ export class UserService {
   async withdrawal(username: string, withdrawalDto: WithdrawalDto) {
     const user: User = await this.getUserCredential(username)
 
-    if (!(await this.authService.isValidUser(user, withdrawalDto.password))) {
+    if (
+      !(await this.jwtAuthService.isValidUser(user, withdrawalDto.password))
+    ) {
       throw new InvalidUserException('Incorrect password')
     }
 
