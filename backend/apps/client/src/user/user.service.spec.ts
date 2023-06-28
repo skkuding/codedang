@@ -1,6 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test, type TestingModule } from '@nestjs/testing'
@@ -123,21 +122,6 @@ describe('UserService', () => {
 
   it('should be defined', () => {
     expect(service).to.be.ok
-  })
-
-  describe('getUserRole', () => {
-    it('return given user role', async () => {
-      db.user.findUnique.resolves(user.role)
-      const ret = await service.getUserRole(ID)
-      expect(ret).to.equal(user.role)
-    })
-
-    it('throw UnauthorizedException', async () => {
-      db.user.findUnique.rejects(new UnauthorizedException())
-      await expect(service.getUserRole(ID)).to.be.rejectedWith(
-        UnauthorizedException
-      )
-    })
   })
 
   describe('sendPinForRegisterNewEmail', () => {
