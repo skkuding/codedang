@@ -290,28 +290,6 @@ describe('GroupService', () => {
     })
   })
 
-  describe('getUserGroup', () => {
-    it('should return isGroupLeader', async () => {
-      //given
-      const userId = 2
-      const groupId = 2
-      db.userGroup.findFirst.resolves(
-        userGroups
-          .filter(
-            (userGroup) =>
-              userGroup.userId == userId && userGroup.groupId === groupId
-          )
-          .pop().isGroupLeader
-      )
-
-      //when
-      const result = await service.getUserGroup(userId, groupId)
-
-      //then
-      expect(result).to.deep.equal(userGroups[3].isGroupLeader)
-    })
-  })
-
   describe('getGroupMembers', () => {
     it('should return group members', async () => {
       //given

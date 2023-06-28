@@ -5,11 +5,11 @@ import {
 } from '@nestjs/common'
 import type { AuthenticatedRequest } from 'libs/auth/src/authenticated-request.interface'
 import type { AuthenticatedUser } from '@libs/auth'
-import { GroupService } from '../group.service'
+import { RolesService } from './roles.service'
 
 @Injectable()
 export class GroupMemberGuard implements CanActivate {
-  constructor(private readonly groupService: GroupService) {}
+  constructor(private readonly service: RolesService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: AuthenticatedRequest = context.switchToHttp().getRequest()
@@ -22,7 +22,7 @@ export class GroupMemberGuard implements CanActivate {
     const groupId: number = parseInt(request.params.groupId)
     const userId: number = request.user.id
 
-    const userGroup = await this.groupService.getUserGroup(userId, groupId)
+    const userGroup = await this.service.getUserGroup(userId, groupId)
 
     if (userGroup) {
       return true

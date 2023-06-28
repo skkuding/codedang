@@ -268,18 +268,6 @@ export class GroupService {
     return deletedUserGroup
   }
 
-  async getUserGroup(userId: number, groupId: number) {
-    return await this.prisma.userGroup.findFirst({
-      where: {
-        userId: userId,
-        groupId: groupId
-      },
-      select: {
-        isGroupLeader: true
-      }
-    })
-  }
-
   async getUserGroupLeaderList(userId: number): Promise<number[]> {
     return (
       await this.prisma.userGroup.findMany({

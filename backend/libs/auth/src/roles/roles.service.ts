@@ -16,4 +16,16 @@ export class RolesService {
       rejectOnNotFound: () => new EntityNotExistException('user')
     })
   }
+
+  async getUserGroup(userId: number, groupId: number) {
+    return await this.prisma.userGroup.findFirst({
+      where: {
+        userId: userId,
+        groupId: groupId
+      },
+      select: {
+        isGroupLeader: true
+      }
+    })
+  }
 }
