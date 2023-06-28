@@ -13,13 +13,13 @@ import {
   UseGuards
 } from '@nestjs/common'
 import type { UserGroup } from '@prisma/client'
-import { AuthNotNeeded } from '@libs/decorator'
+import { AuthenticatedRequest } from 'libs/auth/src/authenticated-request.interface'
+import { AuthNotNeeded } from '@libs/auth'
 import {
   ActionNotAllowedException,
   EntityNotExistException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
-import { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import { GroupService } from './group.service'
 import { GroupMemberGuard } from './guard/group-member.guard'
 import type { GroupData } from './interface/group-data.interface'

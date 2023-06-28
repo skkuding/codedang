@@ -10,19 +10,19 @@ import {
 } from '@nestjs/common'
 import { Request, Response } from 'express'
 import type { JwtTokens } from '@libs/auth'
-import { REFRESH_TOKEN_COOKIE_OPTIONS, AUTH_TYPE } from '@libs/constants'
-import { AuthNotNeeded } from '@libs/decorator'
+import { AuthNotNeeded } from '@libs/auth'
+import { REFRESH_TOKEN_COOKIE_OPTIONS } from '@libs/constants'
 import { InvalidJwtTokenException, InvalidUserException } from '@libs/exception'
+import { AuthenticatedRequest } from '../../../../libs/auth/src/authenticated-request.interface'
 import { AuthService } from './auth.service'
 import { LoginUserDto } from './dto/login-user.dto'
-import { AuthenticatedRequest } from './interface/authenticated-request.interface'
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   setJwtResponse = (res: Response, jwtTokens: JwtTokens) => {
-    res.setHeader('authorization', `${AUTH_TYPE} ${jwtTokens.accessToken}`)
+    res.setHeader('authorization', `Bearer ${jwtTokens.accessToken}`)
     res.cookie(
       'refresh_token',
       jwtTokens.refreshToken,

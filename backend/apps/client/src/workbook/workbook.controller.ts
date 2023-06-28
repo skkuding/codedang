@@ -9,10 +9,10 @@ import {
   Query
 } from '@nestjs/common'
 import type { Workbook } from '@prisma/client'
-import { AuthNotNeeded } from '@libs/decorator'
+import { AuthNotNeeded } from '@libs/auth'
+import { RolesGuard } from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
-import { RolesGuard } from '@client/user/guard/roles.guard'
 import { GroupMemberGuard } from '../group/guard/group-member.guard'
 import { WorkbookService } from './workbook.service'
 

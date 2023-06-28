@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core'
 import { type GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
 import { AuthGuard } from '@nestjs/passport'
 import type { Observable } from 'rxjs'
-import { IS_AUTH_NOT_NEEDED_KEY } from '@libs/decorator'
+import { IS_AUTH_NOT_NEEDED_KEY } from './auth-ignore.decorator'
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -14,14 +14,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   canActivate(
     context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
-    if (context.getType<GqlContextType>() !== 'graphql') {
-      const isAuthNotNeeded = this.reflector.getAllAndOverride<boolean>(
-        IS_AUTH_NOT_NEEDED_KEY,
-        [context.getHandler(), context.getClass()]
-      )
-      if (isAuthNotNeeded) {
-        return true
-      }
+    const isAuthNotNeeded = this.reflector.getAllAndOverride<boolean>(
+      IS_AUTH_NOT_NEEDED_KEY,
+      [context.getHandler(), context.getClass()]
+    )
+    if (isAuthNotNeeded) {
+      return true
     }
     return super.canActivate(context)
   }

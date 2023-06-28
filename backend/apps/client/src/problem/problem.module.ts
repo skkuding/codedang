@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
+import { RolesModule } from '@libs/auth'
 import { ContestModule } from '@client/contest/contest.module'
 import { GroupModule } from '@client/group/group.module'
-import { UserModule } from '@client/user/user.module'
 import { WorkbookModule } from '@client/workbook/workbook.module'
 import {
   GroupContestProblemController,
@@ -18,7 +18,7 @@ import {
 } from './problem.service'
 
 @Module({
-  imports: [GroupModule, UserModule, ContestModule, WorkbookModule],
+  imports: [GroupModule, RolesModule, ContestModule, WorkbookModule],
   controllers: [
     ProblemController,
     ContestProblemController,

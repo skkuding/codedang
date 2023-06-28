@@ -10,14 +10,14 @@ import {
   Query,
   UseGuards
 } from '@nestjs/common'
-import { AuthNotNeeded } from '@libs/decorator'
+import { AuthNotNeeded } from '@libs/auth'
+import { RolesGuard } from '@libs/auth'
 import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { GroupMemberGuard } from '@client/group/guard/group-member.guard'
-import { RolesGuard } from '@client/user/guard/roles.guard'
 import type { ProblemResponseDto } from './dto/problem.response.dto'
 import type { ProblemsResponseDto } from './dto/problems.response.dto'
 import type { RelatedProblemResponseDto } from './dto/related-problem.response.dto'

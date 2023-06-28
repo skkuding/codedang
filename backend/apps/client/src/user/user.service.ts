@@ -7,6 +7,7 @@ import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
 import type { Request } from 'express'
+import type { AuthenticatedRequest } from 'libs/auth/src/authenticated-request.interface'
 import { ExtractJwt } from 'passport-jwt'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import { EMAIL_AUTH_EXPIRE_TIME } from '@libs/constants'
@@ -19,7 +20,6 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { AuthService } from '@client/auth/auth.service'
-import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
 import type { UserGroupData } from '@client/group/interface/user-group-data.interface'
@@ -50,16 +50,6 @@ export class UserService {
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService
   ) {}
-
-  async getUserRole(userId: number): Promise<Partial<User>> {
-    return await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        role: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('user')
-    })
-  }
 
   async updateLastLogin(username: string) {
     await this.prisma.user.update({
