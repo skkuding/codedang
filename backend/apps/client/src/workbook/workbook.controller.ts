@@ -1,19 +1,17 @@
 import {
   Controller,
   Get,
-  Param,
-  ParseIntPipe,
   InternalServerErrorException,
   NotFoundException,
-  UseGuards,
-  Query
+  Param,
+  ParseIntPipe,
+  Query,
+  UseGuards
 } from '@nestjs/common'
 import type { Workbook } from '@prisma/client'
-import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
-import { EntityNotExistException } from '@client/common/exception/business.exception'
-import { CursorValidationPipe } from '@client/common/pipe/cursor-validation.pipe'
-import { RolesGuard } from '@client/user/guard/roles.guard'
-import { GroupMemberGuard } from '../group/guard/group-member.guard'
+import { AuthNotNeeded, GroupMemberGuard, RolesGuard } from '@libs/auth'
+import { EntityNotExistException } from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
 import { WorkbookService } from './workbook.service'
 
 @Controller('workbook')

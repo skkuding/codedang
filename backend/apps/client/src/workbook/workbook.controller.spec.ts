@@ -1,7 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { GroupService } from '@client/group/group.service'
-import { UserService } from '@client/user/user.service'
+import { RolesService } from '@libs/auth'
 import {
   WorkbookController,
   GroupWorkbookController
@@ -16,8 +15,7 @@ describe('WorkbookController', () => {
       controllers: [WorkbookController, GroupWorkbookController],
       providers: [
         { provide: WorkbookService, useValue: {} },
-        { provide: UserService, useValue: {} },
-        { provide: GroupService, useValue: {} }
+        { provide: RolesService, useValue: {} }
       ]
     }).compile()
 
@@ -37,8 +35,7 @@ describe('GroupWorkbookController', () => {
       controllers: [GroupWorkbookController],
       providers: [
         { provide: WorkbookService, useValue: {} },
-        { provide: UserService, useValue: {} },
-        { provide: GroupService, useValue: {} }
+        { provide: RolesService, useValue: {} }
       ]
     }).compile()
 

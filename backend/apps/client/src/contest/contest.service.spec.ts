@@ -5,14 +5,13 @@ import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as dayjs from 'dayjs'
 import { stub } from 'sinon'
-import { PrismaService } from '@libs/prisma'
-import { contestPublicizingRequestKey } from '@client/common/cache/keys'
+import { contestPublicizingRequestKey } from '@libs/cache'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
-} from '@client/common/exception/business.exception'
-import { GroupService } from '@client/group/group.service'
+} from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
 import { ContestService } from './contest.service'
 import type { CreateContestDto } from './dto/create-contest.dto'
 import type { UpdateContestDto } from './dto/update-contest.dto'
@@ -232,7 +231,6 @@ describe('ContestService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ContestService,
-        GroupService,
         { provide: PrismaService, useValue: mockPrismaService },
         {
           provide: CACHE_MANAGER,

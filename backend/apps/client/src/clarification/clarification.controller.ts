@@ -8,10 +8,8 @@ import {
   UseGuards
 } from '@nestjs/common'
 import type { Clarification } from '@prisma/client'
-import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
-import { EntityNotExistException } from '@client/common/exception/business.exception'
-import { GroupMemberGuard } from '@client/group/guard/group-member.guard'
-import { RolesGuard } from '@client/user/guard/roles.guard'
+import { AuthNotNeeded, RolesGuard, GroupMemberGuard } from '@libs/auth'
+import { EntityNotExistException } from '@libs/exception'
 import { ClarificationService } from './clarification.service'
 
 @Controller('contest/:contestId')
