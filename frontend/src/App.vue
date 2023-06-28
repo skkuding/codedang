@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Toast from '@/common/components/Atom/Toast.vue'
-import { useAuthStore } from './common/store/auth'
 import { NConfigProvider, type GlobalThemeOverrides } from 'naive-ui'
+import { useAuthStore } from './common/store/auth'
 
 const themeOverrides: GlobalThemeOverrides = {
   common: {

@@ -1,16 +1,15 @@
-import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import { createPinia } from 'pinia'
 import { useAuthStore } from '@/common/store/auth'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+import { createPinia } from 'pinia'
 import { setupLayouts } from 'virtual:generated-layouts'
 import generatedRoutes from 'virtual:generated-pages'
-import App from './App.vue'
+import { createApp } from 'vue'
 import VueDOMPurifyHTML from 'vue-dompurify-html'
-
-import 'nprogress/nprogress.css'
+import { createRouter, createWebHistory } from 'vue-router'
+import App from './App.vue'
 import './common/styles/style.css'
 
 // Retry 401 failed request to reissue access token

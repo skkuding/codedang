@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import Button from '@/common/components/Atom/Button.vue'
+import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import IconGear from '~icons/fa6-solid/gear'
+
 defineProps<{
   groupName: string
   description: string

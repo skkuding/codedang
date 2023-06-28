@@ -1,17 +1,17 @@
-import { Inject, Injectable } from '@nestjs/common'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { type UserGroup } from '@prisma/client'
+import { Inject, Injectable } from '@nestjs/common'
+import type { UserGroup } from '@prisma/client'
+import { Cache } from 'cache-manager'
+import { PrismaService } from '@libs/prisma'
+import { joinGroupCacheKey } from '@client/common/cache/keys'
 import {
   ActionNotAllowedException,
   EntityNotExistException
 } from '@client/common/exception/business.exception'
-import { PrismaService } from '@libs/prisma'
-import { type UserGroupData } from './interface/user-group-data.interface'
-import { type GroupData } from './interface/group-data.interface'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '../common/constants'
-import { joinGroupCacheKey } from '@client/common/cache/keys'
-import { Cache } from 'cache-manager'
-import { type GroupJoinRequest } from './interface/group-join-request.interface'
+import type { GroupData } from './interface/group-data.interface'
+import type { GroupJoinRequest } from './interface/group-join-request.interface'
+import type { UserGroupData } from './interface/user-group-data.interface'
 
 @Injectable()
 export class GroupService {
@@ -154,7 +154,7 @@ export class GroupService {
   }
 
   async getJoinedGroups(userId: number): Promise<GroupData[]> {
-    const groupIds = (
+    return (
       await this.prisma.userGroup.findMany({
         where: {
           NOT: {
@@ -163,41 +163,32 @@ export class GroupService {
           userId: userId
         },
         select: {
-          groupId: true
-        }
-      })
-    ).map((group) => group.groupId)
-
-    const groups = (
-      await this.prisma.group.findMany({
-        where: {
-          id: {
-            in: groupIds
-          }
-        },
-        select: {
-          createdBy: {
+          group: {
             select: {
-              username: true
+              createdBy: {
+                select: {
+                  username: true
+                }
+              },
+              id: true,
+              groupName: true,
+              description: true,
+              userGroup: true
             }
           },
-          id: true,
-          groupName: true,
-          description: true,
-          userGroup: true
+          isGroupLeader: true
         }
       })
-    ).map((group) => {
+    ).map((userGroup) => {
       return {
-        id: group.id,
-        groupName: group.groupName,
-        description: group.description,
-        createdBy: group.createdBy.username,
-        memberNum: group.userGroup.length
+        id: userGroup.group.id,
+        groupName: userGroup.group.groupName,
+        description: userGroup.group.description,
+        memberNum: userGroup.group.userGroup.length,
+        createdBy: userGroup.group.createdBy.username,
+        isGroupLeader: userGroup.isGroupLeader
       }
     })
-
-    return groups
   }
 
   async joinGroupById(

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
-import IconBars from '~icons/fa6-solid/bars'
+import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import IconBars from '~icons/fa6-solid/bars'
 import { useNotice, type Field, type Item } from '../composables/notice'
 
 const props = defineProps<{

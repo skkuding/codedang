@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { h, ref } from 'vue'
-import { NButton, NSwitch, NIcon, NDataTable } from 'naive-ui'
-import Fa6RegularTrashCan from '~icons/fa6-regular/trash-can'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
+import { NButton, NSwitch, NIcon, NDataTable } from 'naive-ui'
+import { h, ref } from 'vue'
+import Fa6RegularTrashCan from '~icons/fa6-regular/trash-can'
 
 interface Workbook {
   id: number
@@ -24,11 +24,13 @@ const toggleVisible = (row: Workbook) => {
 const columns = [
   {
     title: '#',
-    key: 'id'
+    key: 'id',
+    minWidth: 80
   },
   {
     title: 'Group',
-    key: 'group'
+    key: 'group',
+    minWidth: 150
   },
   {
     title: 'Title',
@@ -37,12 +39,13 @@ const columns = [
   {
     title: 'Period',
     key: 'period',
-    width: 250
+    width: 220
   },
   {
     title: 'Visible',
     key: 'visible',
     align: 'center' as const,
+    width: 120,
     render(row: Workbook) {
       return h(NSwitch, {
         strong: true,
@@ -57,6 +60,7 @@ const columns = [
     title: 'Delete',
     key: 'delete',
     align: 'center' as const,
+    width: 120,
     render(row: Workbook) {
       return h(NButton, {
         strong: true,
