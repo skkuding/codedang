@@ -3,7 +3,7 @@ import {
   type ExecutionContext,
   Injectable
 } from '@nestjs/common'
-import type { AuthenticatedUser } from '@client/auth/class/authenticated-user.class'
+import type { AuthenticatedUser } from '@libs/auth'
 import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import { GroupService } from '../group.service'
 

@@ -5,6 +5,7 @@ import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import type { User } from '@prisma/client'
 import { verify } from 'argon2'
 import { Cache } from 'cache-manager'
+import type { JwtObject, JwtPayload, JwtTokens } from '@libs/auth'
 import { refreshTokenCacheKey } from '@libs/cache'
 import {
   ACCESS_TOKEN_EXPIRE_TIME,
@@ -13,11 +14,6 @@ import {
 import { InvalidUserException, InvalidJwtTokenException } from '@libs/exception'
 import { UserService } from '@client/user/user.service'
 import type { LoginUserDto } from './dto/login-user.dto'
-import type {
-  JwtObject,
-  JwtPayload,
-  JwtTokens
-} from './interface/jwt.interface'
 
 @Injectable()
 export class AuthService {
