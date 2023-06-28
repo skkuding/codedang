@@ -14,14 +14,13 @@ import {
 } from '@nestjs/common'
 import type { UserGroup } from '@prisma/client'
 import { AuthenticatedRequest } from 'libs/auth/src/authenticated-request.interface'
-import { AuthNotNeeded } from '@libs/auth'
+import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
 import {
   ActionNotAllowedException,
   EntityNotExistException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
-import { GroupMemberGuard } from './guard/group-member.guard'
 import type { GroupData } from './interface/group-data.interface'
 
 @Controller('group')

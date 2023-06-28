@@ -13,14 +13,12 @@ import {
 } from '@nestjs/common'
 import type { Contest } from '@prisma/client'
 import { AuthenticatedRequest } from 'libs/auth/src/authenticated-request.interface'
-import { AuthNotNeeded } from '@libs/auth'
-import { RolesGuard } from '@libs/auth'
+import { AuthNotNeeded, RolesGuard, GroupMemberGuard } from '@libs/auth'
 import {
   ActionNotAllowedException,
   EntityNotExistException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
-import { GroupMemberGuard } from '@client/group/guard/group-member.guard'
 import { ContestService } from './contest.service'
 
 @Controller('contest')
