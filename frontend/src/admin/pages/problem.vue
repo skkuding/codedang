@@ -109,7 +109,7 @@ const data = ref(
       :scroll-x="1100"
       :bordered="false"
       class="text-xl"
-      row-class-name="font-bold text-base"
+      row-class-name="text-base"
     />
   </div>
 </template>
