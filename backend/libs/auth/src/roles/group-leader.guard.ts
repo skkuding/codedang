@@ -1,10 +1,10 @@
 import {
+  Injectable,
   type CanActivate,
-  type ExecutionContext,
-  Injectable
+  type ExecutionContext
 } from '@nestjs/common'
-import type { AuthenticatedRequest } from 'libs/auth/src/authenticated-request.interface'
-import type { AuthenticatedUser } from '@libs/auth'
+import type { AuthenticatedRequest } from '../authenticated-request.interface'
+import type { AuthenticatedUser } from '../authenticated-user.class'
 import { RolesService } from './roles.service'
 
 @Injectable()

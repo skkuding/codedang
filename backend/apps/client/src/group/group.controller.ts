@@ -13,8 +13,11 @@ import {
   UseGuards
 } from '@nestjs/common'
 import type { UserGroup } from '@prisma/client'
-import { AuthenticatedRequest } from 'libs/auth/src/authenticated-request.interface'
-import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  AuthNotNeeded,
+  GroupMemberGuard
+} from '@libs/auth'
 import {
   ActionNotAllowedException,
   EntityNotExistException

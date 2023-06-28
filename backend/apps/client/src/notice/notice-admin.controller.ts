@@ -14,8 +14,12 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { type Notice, Role } from '@prisma/client'
-import { AuthenticatedRequest } from 'libs/auth/src/authenticated-request.interface'
-import { RolesGuard, Roles, GroupLeaderGuard } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  RolesGuard,
+  Roles,
+  GroupLeaderGuard
+} from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { CreateNoticeDto } from './dto/create-notice.dto'

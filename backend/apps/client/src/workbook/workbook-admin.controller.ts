@@ -14,8 +14,12 @@ import {
   UseGuards
 } from '@nestjs/common'
 import { Role, type Workbook } from '@prisma/client'
-import { AuthenticatedRequest } from 'libs/auth/src/authenticated-request.interface'
-import { Roles, RolesGuard, GroupLeaderGuard } from '@libs/auth'
+import {
+  type AuthenticatedRequest,
+  Roles,
+  RolesGuard,
+  GroupLeaderGuard
+} from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { CreateWorkbookDto } from './dto/create-workbook.dto'

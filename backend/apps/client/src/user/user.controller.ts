@@ -13,8 +13,7 @@ import {
 } from '@nestjs/common'
 import type { UserProfile, User } from '@prisma/client'
 import { Request, type Response } from 'express'
-import { AuthenticatedRequest } from 'libs/auth/src/authenticated-request.interface'
-import { AuthNotNeeded } from '@libs/auth'
+import { AuthenticatedRequest, AuthNotNeeded } from '@libs/auth'
 import {
   EntityNotExistException,
   InvalidUserException,

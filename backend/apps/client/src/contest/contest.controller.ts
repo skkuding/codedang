@@ -12,8 +12,12 @@ import {
   Query
 } from '@nestjs/common'
 import type { Contest } from '@prisma/client'
-import { AuthenticatedRequest } from 'libs/auth/src/authenticated-request.interface'
-import { AuthNotNeeded, RolesGuard, GroupMemberGuard } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  AuthNotNeeded,
+  RolesGuard,
+  GroupMemberGuard
+} from '@libs/auth'
 import {
   ActionNotAllowedException,
   EntityNotExistException

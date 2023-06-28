@@ -5,7 +5,6 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { GroupService } from '@client/group/group.service'
 import type { CreateNoticeDto } from './dto/create-notice.dto'
 import type { UpdateNoticeDto } from './dto/update-notice.dto'
 import { NoticeService } from './notice.service'
@@ -90,7 +89,6 @@ describe('NoticeService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NoticeService,
-        GroupService,
         { provide: PrismaService, useValue: db },
         {
           provide: CACHE_MANAGER,

@@ -9,10 +9,9 @@ import {
   InternalServerErrorException
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { AuthNotNeeded, type JwtTokens } from '@libs/auth'
+import { AuthenticatedRequest, AuthNotNeeded, type JwtTokens } from '@libs/auth'
 import { REFRESH_TOKEN_COOKIE_OPTIONS } from '@libs/constants'
 import { InvalidJwtTokenException, InvalidUserException } from '@libs/exception'
-import { AuthenticatedRequest } from '../../../../libs/auth/src/authenticated-request.interface'
 import { AuthService } from './auth.service'
 import { LoginUserDto } from './dto/login-user.dto'
 

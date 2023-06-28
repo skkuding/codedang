@@ -12,7 +12,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { GroupService } from '@client/group/group.service'
 import { ContestService } from './contest.service'
 import type { CreateContestDto } from './dto/create-contest.dto'
 import type { UpdateContestDto } from './dto/update-contest.dto'
@@ -232,7 +231,6 @@ describe('ContestService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ContestService,
-        GroupService,
         { provide: PrismaService, useValue: mockPrismaService },
         {
           provide: CACHE_MANAGER,
