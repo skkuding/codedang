@@ -62,15 +62,6 @@
         "tsConfigPath": "libs/auth/tsconfig.lib.json"
       }
     },
-    "decorator": {
-      "type": "library",
-      "root": "libs/decorator",
-      "entryFile": "index",
-      "sourceRoot": "libs/decorator/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/decorator/tsconfig.lib.json"
-      }
-    },
     "exception": {
       "type": "library",
       "root": "libs/exception",
