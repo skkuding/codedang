@@ -1,8 +1,8 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
+import { PrismaService } from '@libs/prisma'
 import { SubmissionController } from './submission.controller'
 import { SubmissionService } from './submission.service'
-import { PrismaService } from '@libs/prisma'
 
 describe('SubmissionController', () => {
   let controller: SubmissionController

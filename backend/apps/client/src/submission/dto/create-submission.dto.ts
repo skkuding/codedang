@@ -1,3 +1,4 @@
+import { Language } from '@prisma/client'
 import {
   // IsBoolean,
   IsEnum,
@@ -5,7 +6,6 @@ import {
   IsNumber,
   IsString
 } from 'class-validator'
-import { Language } from '@prisma/client'
 
 export class CreateSubmissionDto {
   @IsNumber()

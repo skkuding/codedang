@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common'
-import { SubmissionController } from './submission.controller'
-import { SubmissionService } from './submission.service'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import {
   CONSUME_CHANNEL,
   PUBLISH_CHANNEL
 } from './constants/rabbitmq.constants'
+import { SubmissionController } from './submission.controller'
+import { SubmissionService } from './submission.service'
 
 @Module({
   imports: [

@@ -1,6 +1,19 @@
 import { Injectable, type OnModuleInit } from '@nestjs/common'
-import { PrismaService } from '@libs/prisma'
 import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
+import {
+  type Problem,
+  ResultStatus,
+  type Submission,
+  type SubmissionResult
+} from '@prisma/client'
+import { type ValidationError, validate } from 'class-validator'
+import { PrismaService } from '@libs/prisma'
+import {
+  ActionNotAllowedException,
+  MessageFormatError
+} from '@client/common/exception/business.exception'
+import { calculateTimeLimit } from './constants/cpuLimit.constants'
+import { calculateMemoryLimit } from './constants/memoryLimit.constants'
 import {
   CONSUME_CHANNEL,
   EXCHANGE,
@@ -9,26 +22,13 @@ import {
   RESULT_QUEUE,
   SUBMISSION_KEY
 } from './constants/rabbitmq.constants'
-import { type ValidationError, validate } from 'class-validator'
-import {
-  type Problem,
-  ResultStatus,
-  type Submission,
-  type SubmissionResult
-} from '@prisma/client'
-import {
-  ActionNotAllowedException,
-  MessageFormatError
-} from '@client/common/exception/business.exception'
-import { JudgeRequestDto } from './dto/judge-request.dto'
-import type { CreateSubmissionDto } from './dto/create-submission.dto'
-import { UpdateSubmissionResultData } from './dto/update-submission-result.dto'
-import type { SubmissionResultMessage } from './dto/submission-result-message'
-import { generateHash } from './hash/hash'
-import { calculateTimeLimit } from './constants/cpuLimit.constants'
-import { calculateMemoryLimit } from './constants/memoryLimit.constants'
 import { matchResultCode } from './constants/resultCode.constants'
+import type { CreateSubmissionDto } from './dto/create-submission.dto'
+import { JudgeRequestDto } from './dto/judge-request.dto'
+import type { SubmissionResultMessage } from './dto/submission-result-message'
 import type { SubmissionResultDTO } from './dto/submission-result.dto'
+import { UpdateSubmissionResultData } from './dto/update-submission-result.dto'
+import { generateHash } from './hash/hash'
 
 @Injectable()
 export class SubmissionService implements OnModuleInit {

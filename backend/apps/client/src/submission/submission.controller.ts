@@ -7,14 +7,14 @@ import {
   Body,
   Req
 } from '@nestjs/common'
-import { SubmissionService } from './submission.service'
-import type { SubmissionResultDTO } from './dto/submission-result.dto'
-import { SubmissionResultGuard } from './guard/submissionResult.guard'
-import { ContestProblemSubmissionGuard } from './guard/contestProblemSubmission.guard'
-import { WorkbookProblemSubmissionGuard } from './guard/workbookProblemSubmission.guard'
-import { CreateSubmissionDto } from './dto/create-submission.dto'
-import { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
 import type { Submission } from '@prisma/client'
+import { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import { CreateSubmissionDto } from './dto/create-submission.dto'
+import type { SubmissionResultDTO } from './dto/submission-result.dto'
+import { ContestProblemSubmissionGuard } from './guard/contestProblemSubmission.guard'
+import { SubmissionResultGuard } from './guard/submissionResult.guard'
+import { WorkbookProblemSubmissionGuard } from './guard/workbookProblemSubmission.guard'
+import { SubmissionService } from './submission.service'
 
 @Controller('submission')
 export class SubmissionController {

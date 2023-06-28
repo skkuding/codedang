@@ -1,11 +1,11 @@
-import { type AuthenticatedUser } from '@client/auth/class/authenticated-user.class'
-import { PrismaService } from '@libs/prisma'
 import {
   Injectable,
   type CanActivate,
   type ExecutionContext,
   ForbiddenException
 } from '@nestjs/common'
+import { PrismaService } from '@libs/prisma'
+import type { AuthenticatedUser } from '@client/auth/class/authenticated-user.class'
 
 @Injectable()
 export class SubmissionResultGuard implements CanActivate {
