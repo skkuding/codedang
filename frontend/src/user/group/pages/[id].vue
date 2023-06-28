@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import Tab from '@/common/components/Molecule/Tab.vue'
-import Profile from '@/user/group/components/Profile.vue'
 import Contest from '@/user/group/components/Contest.vue'
 import Member from '@/user/group/components/Member.vue'
 import Notice from '@/user/group/components/Notice.vue'
+import Profile from '@/user/group/components/Profile.vue'
 import Workbook from '@/user/group/components/Workbook.vue'
 
 defineProps<{

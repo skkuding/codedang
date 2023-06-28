@@ -34,8 +34,10 @@ else
 fi
 
 # Save user account and password to dotenv file for nodemailer
+echo "NODEMAILER_HOST=\"email-smtp.ap-northeast-2.amazonaws.com\"" >> backend/.env
 echo "NODEMAILER_USER=\"\"" >> backend/.env
 echo "NODEMAILER_PASS=\"\"" >> backend/.env
+echo "NODEMAILER_FROM=\"\"" >> backend/.env
 
 # Save RabbitMQ URI to dotenv file
 echo "AMQP_URI=amqp://skku:1234@localhost:5672/%2f" >> backend/.env

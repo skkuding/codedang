@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import Button from '../Atom/Button.vue'
 import IconMagnifyingGlass from '~icons/fa6-solid/magnifying-glass'
+import Button from '../Atom/Button.vue'
 
 defineProps<{
   placeholder?: string

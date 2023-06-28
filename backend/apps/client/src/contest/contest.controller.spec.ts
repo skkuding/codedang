@@ -1,8 +1,8 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { GroupService } from '@client/group/group.service'
 import { PrismaService } from '@libs/prisma'
+import { GroupService } from '@client/group/group.service'
 import { ContestController } from './contest.controller'
 import { ContestService } from './contest.service'
 

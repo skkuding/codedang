@@ -3515,7 +3515,7 @@
     "method": "GET",
     "sortNum": 580000,
     "created": "2023-02-21T06:36:54.399Z",
-    "modified": "2023-04-28T12:21:43.540Z",
+    "modified": "2023-06-24T09:02:30.579Z",
     "headers": [],
     "params": [],
     "tests": [
@@ -3526,17 +3526,47 @@
         "value": "200"
       },
       {
-        "type": "json-query",
-        "custom": "json | filter(id>1)",
-        "action": "count",
-        "value": "2"
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "id"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "groupName"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "description"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "createdBy"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "memberNum"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "isGroupLeader"
       }
     ],
-    "docs": "# Get joined groups\n\n### URL\nGET /group/joined <br><br>\n\n### Description\n가입한 그룹의 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n   id: Number\n   groupName: String\n   description: String\n   createdBy: String\n   memberNum: Number\n} []\n```",
+    "docs": "# Get joined groups\n\n### URL\nGET /group/joined <br><br>\n\n### Description\n가입한 그룹의 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n   id: Number\n   groupName: String\n   description: String\n   memberNum: Number\n   createdBy: String\n   isGroupLeader: Boolean\n} []\n```",
     "preReq": {
       "runRequests": [
         {
-          "reqId": "9dffba42-be8a-48c1-8243-e327ce99589b",
+          "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
@@ -4302,7 +4332,7 @@
     "method": "POST",
     "sortNum": 510000,
     "created": "2023-06-15T11:04:01.290Z",
-    "modified": "2023-06-15T12:10:09.046Z",
+    "modified": "2023-06-24T11:52:48.384Z",
     "headers": [],
     "params": [],
     "body": {
@@ -4313,7 +4343,17 @@
         "query": "query User {\n    getUser(id: 21) {\n        username\n    }\n}"
       }
     },
-    "tests": []
+    "tests": [],
+    "preReq": {
+      "runRequests": [
+        {
+          "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+          "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+          "triggerCondition": "run-always",
+          "triggerValue": ""
+        }
+      ]
+    }
   },
   {
     "_id": "cfb1afea-8baa-4ce8-b19c-1000c203b134",
@@ -4405,32 +4445,173 @@
     "tests": []
   },
   {
-    "_id": "b8c814cb-38d3-4ac1-ac90-61e03d10c2a7",
+    "_id": "db0cbfea-38e1-4ec6-961d-eea5c93cb432",
     "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-    "containerId": "1ccbd548-8ac1-476d-9477-e268aff30e83",
+    "containerId": "af51ee2a-b6a3-4162-9b37-9d7741ffd67e",
     "name": "Succeed",
-    "url": "/submission/problem/1",
-    "method": "POST",
-    "sortNum": 690000,
-    "created": "2023-06-18T10:41:36.646Z",
-    "modified": "2023-06-18T10:59:31.884Z",
+    "url": "/group/1/contest/1/clarification",
+    "method": "GET",
+    "sortNum": 660000,
+    "created": "2023-06-24T06:39:38.959Z",
+    "modified": "2023-06-24T07:20:40.915Z",
     "headers": [],
     "params": [],
-    "body": {
-      "type": "json",
-      "raw": "{\n  \"problemId\": 1,\n  \"code\": \"#include <stdio.h>\\nint main(void) {\\n\\tprintf(\\\"Hello, World!\\n\\\");\\n\\treturn 0;\\n}\",\n  \"language\": \"C\",\n  \"shared\": false\n}",
-      "form": []
-    },
-    "tests": [],
+    "tests": [
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "id"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "content"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "updateTime"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.problem.id | stringify",
+        "action": "notcontains",
+        "value": "null"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.problem.problemId | stringify",
+        "action": "notcontains",
+        "value": "null"
+      }
+    ],
+    "docs": "# Get Clarifications by Contest\n\n파라미터로 주어진 group contest와 관련된 clarification의 목록을 불러옵니다.  \n\n### Problem\n- 리스폰스의 `problem`은 각 clarification이 직접적으로 등록되어 있는 문제를 나타냅니다.\n- `problem.id`는 문제 정렬을 위해 작성자가 임의로 설정할 수 있는 값(= 사용자에게 보여주기 위한 ID)이고, 실제 서버에서 해당 레코드를 찾을 때 사용되는 ID는 `problem.problemId`입니다.\n- 관련 문제에 접근하려면 `/contest/:contestId/problem/${problem.problemId}`로 GET 리퀘스트를 보내주세요.",
     "preReq": {
       "runRequests": [
         {
-          "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+          "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
           "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
           "triggerCondition": "run-always",
           "triggerValue": ""
         }
       ]
     }
+  },
+  {
+    "_id": "1d84b7b7-7f24-4f5c-af1e-9dae389d6697",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "07c06f7a-4664-48a7-a7a1-2eef5942f39b",
+    "name": "Succeed",
+    "url": "/contest/1/problem/1/clarification",
+    "method": "GET",
+    "sortNum": 670000,
+    "created": "2023-06-24T06:44:20.345Z",
+    "modified": "2023-06-24T07:15:23.794Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "id"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "content"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "updateTime"
+      }
+    ],
+    "docs": "# Get Clarifications by Contest\n\n파라미터로 주어진 open space contest의 problem에 등록된 clarification의 목록을 불러옵니다.  "
+  },
+  {
+    "_id": "e88a1fa5-1a37-4fda-99ac-7427ffb71719",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "7b4a93f3-807f-40e9-a830-8ba1d261ccb9",
+    "name": "Succeed",
+    "url": "/contest/1/clarification",
+    "method": "GET",
+    "sortNum": 660000,
+    "created": "2023-06-24T07:04:33.600Z",
+    "modified": "2023-06-24T07:04:33.600Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "id"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "content"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "updateTime"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.problem.id | stringify",
+        "action": "notcontains",
+        "value": "null"
+      },
+      {
+        "type": "json-query",
+        "custom": "json.problem.problemId | stringify",
+        "action": "notcontains",
+        "value": "null"
+      }
+    ],
+    "docs": "# Get Clarifications by Contest\n\n파라미터로 주어진 open space contest와 관련된 clarification의 목록을 불러옵니다.  \n\n### Problem\n- 리스폰스의 `problem`은 각 clarification이 직접적으로 등록되어 있는 문제를 나타냅니다.\n- `problem.id`는 문제 정렬을 위해 작성자가 임의로 설정할 수 있는 값(= 사용자에게 보여주기 위한 ID)이고, 실제 서버에서 해당 레코드를 찾을 때 사용되는 ID는 `problem.problemId`입니다.\n- 관련 문제에 접근하려면 `/contest/:contestId/problem/${problem.problemId}`로 GET 리퀘스트를 보내주세요."
+  },
+  {
+    "_id": "fdde2ff7-4fad-4bc8-b923-296d71843be9",
+    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+    "containerId": "ff1c5805-4fdd-44d4-ba67-f10ad9a06368",
+    "name": "Succeed",
+    "url": "/group/1/contest/1/problem/1/clarification",
+    "method": "GET",
+    "sortNum": 670000,
+    "created": "2023-06-24T07:15:39.073Z",
+    "modified": "2023-06-24T07:21:17.946Z",
+    "headers": [],
+    "params": [],
+    "tests": [
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "id"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "content"
+      },
+      {
+        "type": "res-body",
+        "custom": "",
+        "action": "contains",
+        "value": "updateTime"
+      }
+    ],
+    "docs": "# Get Clarifications by Contest\n\n파라미터로 주어진 group contest의 problem에 등록된 clarification의 목록을 불러옵니다.  "
   }
 ]
