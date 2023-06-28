@@ -3,7 +3,8 @@ import { PrismaService } from '@libs/prisma'
 import {
   Injectable,
   type CanActivate,
-  type ExecutionContext
+  type ExecutionContext,
+  ForbiddenException
 } from '@nestjs/common'
 
 @Injectable()
@@ -21,13 +22,18 @@ export class SubmissionResultGuard implements CanActivate {
     const submissionId: string = request.params.submissionId
     const userId: number = request.user.id
 
-    const valid = await this.prisma.submission.findFirst({
-      where: {
-        id: submissionId,
-        userId
-      }
-    })
+    await this.prisma.submission
+      .findFirstOrThrow({
+        where: {
+          id: submissionId,
+          userId
+        }
+      })
+      .then(() => [])
+      .catch(() => {
+        throw new ForbiddenException()
+      })
 
-    return valid ? true : false
+    return true
   }
 }
