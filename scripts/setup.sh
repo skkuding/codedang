@@ -49,7 +49,7 @@ echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256s
 
 # Generate thunder client environment
 # Since environment variable changes frequently, let git ignore actual environment variables
-cp thunder-tests/thunderEnvironmentBase.json thunder-tests/thunderEnvironment.json
+cp thunder-tests/thunderEnvironmentBase.json thunder-tests/environments/tc_env_coding-platform-env.json
 
 # Install pnpm and Node.js packages
 npm install -g pnpm@latest
