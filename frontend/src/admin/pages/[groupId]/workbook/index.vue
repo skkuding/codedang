@@ -71,10 +71,13 @@ const onoff = ref(true)
       "
     >
       <template #visible="{}">
-        <Switch v-model="onoff" />
+        <Switch v-model="onoff" @click.stop="" />
       </template>
       <template #delete="{}">
-        <Button class="flex h-[32px] w-[32px] items-center justify-center">
+        <Button
+          class="flex h-[32px] w-[32px] items-center justify-center"
+          @click.stop="console.log('test')"
+        >
           <IconTrash />
         </Button>
       </template>
