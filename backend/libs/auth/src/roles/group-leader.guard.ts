@@ -14,10 +14,18 @@ export class GroupLeaderGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     let request: AuthenticatedRequest
+    let groupId: number
     if (context.getType<GqlContextType>() === 'graphql') {
       request = GqlExecutionContext.create(context).getContext().req
+      groupId = parseInt(
+        context
+          .getArgs()
+          .find((arg) => typeof arg === 'object' && 'groupId' in arg)
+          ?.groupId ?? 0
+      )
     } else {
       request = context.switchToHttp().getRequest()
+      groupId = parseInt(request.params.groupId)
     }
 
     const user: AuthenticatedUser = request.user
@@ -29,12 +37,8 @@ export class GroupLeaderGuard implements CanActivate {
       return true
     }
 
-    const groupId: number = parseInt(request.params.groupId)
-    const userId: number = user.id
-
-    const userGroup = await this.service.getUserGroup(userId, groupId)
+    const userGroup = await this.service.getUserGroup(user.id, groupId)
     const isGroupLeader: boolean = userGroup && userGroup.isGroupLeader
-
     if (isGroupLeader) {
       return true
     }

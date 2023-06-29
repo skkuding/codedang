@@ -43,7 +43,6 @@ export class RolesGuard implements CanActivate {
       const userRole = (await this.service.getUserRole(user.id)).role
       user.role = userRole
     }
-
     if (this.#rolesHierarchy[user.role] >= this.#rolesHierarchy[role]) {
       return true
     }
