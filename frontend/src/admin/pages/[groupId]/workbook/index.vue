@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import Button from '@/common/components/Atom/Button.vue'
-import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
+import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
+import { ref } from 'vue'
 import IconTrash from '~icons/fa/trash-o'
+
 const props = defineProps<{
   groupId: string
 }>()
@@ -66,7 +67,7 @@ const onoff = ref(true)
       placeholder="keywords"
       :number-of-pages="3"
       @row-clicked="
-        (data) => $router.push(`/admin/${props.groupId}/workbook` + data.id)
+        (data) => $router.push(`/admin/${props.groupId}/workbook/` + data.id)
       "
     >
       <template #visible="{}">
