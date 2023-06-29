@@ -9,7 +9,7 @@
     "start:prod": "node dist/apps/backend/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "mocha \"*/**/*.spec.ts\"",
-    "test:watch": "mocha --watch"
+    "test:debug": "mocha --inspect-brk \"*/**/*.spec.ts\""
   },
   "dependencies": {
     "@apollo/server": "^4.7.4",
