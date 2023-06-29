@@ -1,7 +1,41 @@
 <script setup lang="ts">
-// write script code
+import { ref } from 'vue'
+import InputItem from '@/common/components/Atom/InputItem.vue'
+import TextEditor from '@/common/components/Organism/TextEditor.vue'
+import { nDatePicker } from 'naive-ui'
+const title = ref('')
+const dateRange = ref<[number, number]>([1183135260000, Date.now()])
 </script>
 
 <template>
-  <div>write template code</div>
+  <div class="flex flex-col">
+    <div class="text-right text-lg font-semibold">SKKUDING</div>
+    <div class="bg-gray h-[1px]"></div>
+    <div class="mt-10">
+      <h1 class="text-gray-dark mr-6 inline text-2xl font-semibold">
+        Create Workbook
+      </h1>
+    </div>
+    <div class="bg-gray h-[1px]"></div>
+    <div class="mt-8 flex">
+      <h2 class="mr-10 text-lg">Group</h2>
+      <h2 class="text-lg">Title</h2>
+    </div>
+    <div class="mt-8 flex">
+      <div class="mr-10">NPC 중급반</div>
+      <InputItem v-model="title" required placeholder="Title" />
+    </div>
+    <h2 class="mt-8 text-lg">Description</h2>
+    <TextEditor class="h-[360px] w-full" />
+    <div class="flex">
+      <h2 class="mr-80 text-lg">Start Time</h2>
+      <h2 class="text-lg">End Time</h2>
+    </div>
+    <nDatePicker v-model:value="dateRange" type="datetimerange" clearable />
+  </div>
 </template>
+
+<route lang="yaml">
+meta:
+  layout: admin
+</route>
