@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Switch from './Switch.vue'
 import { ref } from 'vue'
+import Switch from './Switch.vue'
 
 const data = ref(false)
 </script>

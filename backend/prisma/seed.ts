@@ -13,7 +13,7 @@ import {
   type Submission,
   type ProblemTestcase
 } from '@prisma/client'
-import { encrypt } from '@client/common/hash'
+import { hash } from 'argon2'
 import * as dayjs from 'dayjs'
 
 const prisma = new PrismaClient()
@@ -35,7 +35,7 @@ const createUsers = async () => {
   superAdminUser = await prisma.user.create({
     data: {
       username: 'super',
-      password: await encrypt('Supersuper'),
+      password: await hash('Supersuper'),
       email: 'skkucodingplatform@gmail.com',
       lastLogin: new Date(),
       role: Role.SuperAdmin
@@ -46,7 +46,7 @@ const createUsers = async () => {
   await prisma.user.create({
     data: {
       username: 'admin',
-      password: await encrypt('Adminadmin'),
+      password: await hash('Adminadmin'),
       email: 'admin@example.com',
       lastLogin: new Date(),
       role: Role.Admin
@@ -57,7 +57,7 @@ const createUsers = async () => {
   managerUser = await prisma.user.create({
     data: {
       username: 'manager',
-      password: await encrypt('Manager'),
+      password: await hash('Manager'),
       email: 'manager@example.com',
       lastLogin: new Date(),
       role: Role.Manager
@@ -70,7 +70,7 @@ const createUsers = async () => {
     const user = await prisma.user.create({
       data: {
         username: `user${specifier}`,
-        password: await encrypt('Useruser'),
+        password: await hash('Useruser'),
         email: `user${specifier}@example.com`,
         lastLogin: new Date(),
         role: Role.User
@@ -6711,21 +6711,20 @@ const createContests = async () => {
     }
   })
 
-  // add contest notice
-  await prisma.contestNotice.create({
-    data: {
-      title: '1번 문제 수정 안내',
-      description: '<p>1번 문제가 blah blah 수정되었습니다.</p>',
-      contestId: contest.id,
-      problemId: problems[0].id
-    }
-  })
-
   // add problems to contest
   for (const problem of problems) {
     await prisma.contestProblem.create({
       data: {
         id: String(problem.id),
+        contestId: contest.id,
+        problemId: problem.id
+      }
+    })
+
+    // add clarifications to contestProblem
+    await prisma.clarification.create({
+      data: {
+        content: `${problem.id}번 문제가 blah blah 수정되었습니다.`,
         contestId: contest.id,
         problemId: problem.id
       }

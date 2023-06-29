@@ -1,6 +1,3 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { ContestService } from './contest.service'
-import { Contest } from '@admin/@generated/contest/contest.model'
 import {
   InternalServerErrorException,
   MethodNotAllowedException,
@@ -9,16 +6,19 @@ import {
   Req,
   UnprocessableEntityException
 } from '@nestjs/common'
-import { CursorValidationPipe } from '@admin/common/pipe/cursor-validation.pipe'
-import { CreateContestDto } from './dto/create-contest.dto'
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { Contest } from '@admin/@generated/contest/contest.model'
 import { AuthenticatedRequest } from '@admin/auth/interface/authenticated-request.interface'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
 } from '@admin/common/exception/business.exception'
-import { UpdateContestDto } from './dto/update-contest.dto'
+import { CursorValidationPipe } from '@admin/common/pipe/cursor-validation.pipe'
+import { ContestService } from './contest.service'
+import { CreateContestDto } from './dto/create-contest.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
+import { UpdateContestDto } from './dto/update-contest.dto'
 
 @Resolver(() => Contest)
 export class ContestResolver {
