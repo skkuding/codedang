@@ -5,6 +5,7 @@ const props = defineProps<{
   placeholder?: string
   required?: boolean
   shadow?: boolean
+  isValid?: string
   modelValue: string
 }>()
 
@@ -32,5 +33,18 @@ const shadowClass = computed(() =>
   />
   <p v-show="required && !modelValue" class="text-red text-xs font-bold">
     {{ placeholder + ' is required' }}
+  </p>
+  <p v-show="isValid !== '' && !modelValue" class="text-red text-xs font-bold">
+    {{ isValid }}
+  </p>
+  <p
+    v-show="
+      (isValid === 'Email verification code sent' ||
+        isValid === 'Email verification succeed!') &&
+      !modelValue
+    "
+    class="text-green text-xs font-bold"
+  >
+    {{ isValid }}
   </p>
 </template>

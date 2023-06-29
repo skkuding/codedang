@@ -6,20 +6,18 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import type { User } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
-import * as proxyquire from 'proxyquire'
 import type Sinon from 'sinon'
 import { stub } from 'sinon'
+import { JwtAuthService } from '@libs/auth'
+import { InvalidJwtTokenException, InvalidUserException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import {
-  InvalidJwtTokenException,
-  InvalidUserException
-} from '@client/common/exception/business.exception'
 import { EmailService } from '@client/email/email.service'
-import { GroupService } from '@client/group/group.service'
 import { UserService } from '@client/user/user.service'
+import { AuthService } from './auth.service'
 
 describe('AuthService', () => {
   let service
+  let jwtAuthService: JwtAuthService
   let cache: Cache
   let createJwtTokensSpy: Sinon.SinonStub
   const ACCESS_TOKEN = 'access_token'
@@ -41,18 +39,11 @@ describe('AuthService', () => {
   }
 
   beforeEach(async () => {
-    const { AuthService } = proxyquire('./auth.service', {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      '../common/hash': {
-        validate: async (passwordFromDB, passwordFromUserInput) =>
-          passwordFromDB === passwordFromUserInput
-      }
-    })
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         EmailService,
+        JwtAuthService,
         {
           provide: UserService,
           useValue: userMock
@@ -61,7 +52,6 @@ describe('AuthService', () => {
         { provide: ConfigService, useValue: {} },
         { provide: JwtService, useValue: {} },
         { provide: MailerService, useValue: {} },
-        { provide: GroupService, useValue: {} },
         {
           provide: CACHE_MANAGER,
           useFactory: () => ({
@@ -73,6 +63,7 @@ describe('AuthService', () => {
     }).compile()
 
     service = module.get(AuthService)
+    jwtAuthService = module.get<JwtAuthService>(JwtAuthService)
     cache = module.get<Cache>(CACHE_MANAGER)
     createJwtTokensSpy = stub(service, 'createJwtTokens').resolves({
       accessToken: ACCESS_TOKEN,
@@ -89,7 +80,7 @@ describe('AuthService', () => {
 
     it('should return new access token and refresh token when user validation succeed', async () => {
       //given
-      const isValidUserSpy = stub(service, 'isValidUser').resolves(true)
+      const isValidUserSpy = stub(jwtAuthService, 'isValidUser').resolves(true)
 
       //when
       const result = await service.issueJwtTokens(loginUserDto)
@@ -109,7 +100,7 @@ describe('AuthService', () => {
 
     it('should throw InvalidUserException when the user validation failed', async () => {
       //given
-      const isValidUserSpy = stub(service, 'isValidUser').resolves(false)
+      const isValidUserSpy = stub(jwtAuthService, 'isValidUser').resolves(false)
 
       //when
       await expect(service.issueJwtTokens(loginUserDto)).to.be.rejectedWith(
@@ -120,30 +111,6 @@ describe('AuthService', () => {
       expect(userMock.getUserCredential.calledWith(loginUserDto.username)).to.be
         .true
       expect(isValidUserSpy.calledWith(user, loginUserDto.password)).to.be.true
-    })
-  })
-
-  describe('isValidUser', () => {
-    it("should return true when the given password match with the user's password", async () => {
-      //when
-      const result = await service.isValidUser(user, VALID_PASSWORD)
-
-      //then
-      expect(result).to.equal(true)
-    })
-    it('should return false when the user is given as null', async () => {
-      //when
-      const result = await service.isValidUser(null, VALID_PASSWORD)
-
-      //then
-      expect(result).to.equal(false)
-    })
-    it('should return false when the password validation failed', async () => {
-      //when
-      const result = await service.isValidUser(user, 'invalid_password')
-
-      //then
-      expect(result).to.equal(false)
     })
   })
 

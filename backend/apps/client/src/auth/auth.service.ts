@@ -1,52 +1,41 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { forwardRef, Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
-import type { User } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { UserService } from '@client/user/user.service'
-import { refreshTokenCacheKey } from '../common/cache/keys'
+import {
+  JwtAuthService,
+  type JwtObject,
+  type JwtPayload,
+  type JwtTokens
+} from '@libs/auth'
+import { refreshTokenCacheKey } from '@libs/cache'
 import {
   ACCESS_TOKEN_EXPIRE_TIME,
   REFRESH_TOKEN_EXPIRE_TIME
-} from '../common/constants'
-import {
-  InvalidUserException,
-  InvalidJwtTokenException
-} from '../common/exception/business.exception'
-import { validate } from '../common/hash'
+} from '@libs/constants'
+import { InvalidUserException, InvalidJwtTokenException } from '@libs/exception'
+import { UserService } from '@client/user/user.service'
 import type { LoginUserDto } from './dto/login-user.dto'
-import type {
-  JwtObject,
-  JwtPayload,
-  JwtTokens
-} from './interface/jwt.interface'
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly jwtService: JwtService,
     private readonly config: ConfigService,
-    @Inject(forwardRef(() => UserService))
+    private readonly jwtService: JwtService,
+    private readonly jwtAuthService: JwtAuthService,
     private readonly userService: UserService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   async issueJwtTokens(loginUserDto: LoginUserDto): Promise<JwtTokens> {
     const user = await this.userService.getUserCredential(loginUserDto.username)
-    if (!(await this.isValidUser(user, loginUserDto.password))) {
+    if (!(await this.jwtAuthService.isValidUser(user, loginUserDto.password))) {
       throw new InvalidUserException('Incorrect username or password')
     }
     await this.userService.updateLastLogin(user.username)
 
     return await this.createJwtTokens(user.id, user.username)
-  }
-
-  async isValidUser(user: User, password: string) {
-    if (!user || !(await validate(user.password, password))) {
-      return false
-    }
-    return true
   }
 
   async updateJwtTokens(refreshToken: string): Promise<JwtTokens> {
