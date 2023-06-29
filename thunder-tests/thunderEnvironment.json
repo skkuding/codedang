@@ -1,11 +1,9 @@
-[
-  {
-    "_id": "0ea6f937-c505-41ea-948a-39b0eb7b50e6",
-    "name": "Coding Platform Env",
-    "default": true,
-    "sortNum": 10000,
-    "created": "2023-01-15T13:19:23.832Z",
-    "modified": "2023-01-15T13:19:23.833Z",
-    "data": []
-  }
-]
+{
+  "_id": "0ea6f937-c505-41ea-948a-39b0eb7b50e6",
+  "name": "Coding Platform Env",
+  "default": true,
+  "sortNum": 10000,
+  "created": "2023-01-15T13:19:23.832Z",
+  "modified": "2023-01-15T13:19:23.833Z",
+  "data": []
+}
