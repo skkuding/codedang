@@ -77,7 +77,7 @@ docs/.vitepress/cache/
 
 # Thunder Client
 thunderActivity.json
-thunderEnvironment.json
+thunder-tests/environments
 
 # NestJS & GraphQL
 @generated/
