@@ -7,6 +7,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from 'cache-manager'
 import { type UserGroup } from '@admin/@generated/user-group/user-group.model'
 import { type UserGroupData } from './interface/user-group-data.interface'
+import { Role } from '@prisma/client'
 
 @Injectable()
 export class UserService {
@@ -37,57 +38,8 @@ export class UserService {
     })
   }
 
-  async getGroupManagers(cursor: number, take: number, groupId: number) {
-    const groupManagers = await this.prisma.userGroup.findMany({
-      take,
-      skip: cursor ? 1 : 0,
-      ...(cursor && {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        cursor: { userId_groupId: { userId: cursor, groupId } }
-      }),
-      where: {
-        groupId: groupId,
-        isGroupLeader: true
-      },
-      select: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            userProfile: {
-              select: {
-                realName: true
-              }
-            },
-            email: true
-          }
-        }
-      }
-    })
-
-    const processedGroupManagers = groupManagers.map((userGroup) => {
-      const { username, id: userId, email, userProfile } = userGroup.user
-
-      if (userProfile == null) {
-        return {
-          username,
-          userId,
-          realName: '',
-          email
-        }
-      } else {
-        return {
-          username,
-          userId,
-          realName: userProfile.realName,
-          email
-        }
-      }
-    })
-    return processedGroupManagers
-  }
-
-  async getGroupMembers(cursor: number, take: number, groupId: number) {
+  async getUsers(groupId: number, role: Role, cursor: number, take: number) {
+    const isGroupLeader = role == Role.Manager
     const groupMembers = await this.prisma.userGroup.findMany({
       take,
       skip: cursor ? 1 : 0,
@@ -97,7 +49,7 @@ export class UserService {
       }),
       where: {
         groupId: groupId,
-        isGroupLeader: false
+        isGroupLeader: isGroupLeader
       },
       select: {
         user: {
@@ -115,7 +67,7 @@ export class UserService {
       }
     })
 
-    const processedGroupManagers = groupMembers.map((userGroup) => {
+    const processedGroupMembers = groupMembers.map((userGroup) => {
       const { username, id: userId, email, userProfile } = userGroup.user
 
       if (userProfile == null) {
@@ -134,7 +86,7 @@ export class UserService {
         }
       }
     })
-    return processedGroupManagers
+    return processedGroupMembers
   }
 
   async upOrDowngradeManager(
@@ -278,45 +230,45 @@ export class UserService {
     })
   }
 
-  async deleteGroupMember(userId: number, groupId: number) {
+  async deleteGroupMember(userId: number, groupId: number): Promise<UserGroup> {
     const groupManagers = (
       await this.prisma.userGroup.findMany({
         where: {
-          groupId: groupId,
-          isGroupLeader: true
+          groupId: groupId
         },
         select: {
+          isGroupLeader: true,
           user: {
             select: {
-              id: true,
-              username: true,
-              userProfile: {
-                select: {
-                  realName: true
-                }
-              },
-              email: true
+              id: true
             }
           }
         }
       })
     ).map((userGroup) => {
       return {
-        username: userGroup.user.username,
-        userId: userGroup.user.id,
-        realName: userGroup.user.userProfile.realName,
-        email: userGroup.user.email
+        isGroupLeader: userGroup.isGroupLeader,
+        userId: userGroup.user.id
       }
     })
 
-    const doesTheManagerExist = groupManagers.some(
-      (groupManager) => groupManager.userId === userId
+    const doesTheMemberExist = groupManagers.some(
+      (groupMember) => groupMember.userId === userId
     )
 
-    if (groupManagers.length <= 1 || !doesTheManagerExist) {
-      // should not remove
-    } else {
-      await this.prisma.userGroup.delete({
+    let managerNum = 0
+    groupManagers.forEach((groupMember) => {
+      if (groupMember.isGroupLeader) managerNum += 1
+    })
+
+    const isItManager = groupManagers.some((groupMember) => {
+      return groupMember.isGroupLeader === true && groupMember.userId === userId
+    })
+
+    if (groupManagers.length <= 1 || !doesTheMemberExist || managerNum <= 1) {
+      throw new NotFoundException()
+    } else if (!isItManager || (isItManager && managerNum > 1)) {
+      return await this.prisma.userGroup.delete({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           userId_groupId: {
@@ -327,4 +279,8 @@ export class UserService {
       })
     }
   }
+
+  // async getGroupMEmbersNeededApproval(groupId: string) {
+
+  // }
 }

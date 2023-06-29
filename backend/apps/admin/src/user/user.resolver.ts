@@ -1,16 +1,12 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
+import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql'
 import { UserService } from './user.service'
 import { User } from '../@generated/user/user.model'
 import { UserCreateInput } from '../@generated/user/user-create.input'
 import { UserUpdateInput } from '../@generated/user/user-update.input'
-import {
-  InternalServerErrorException,
-  NotFoundException,
-  UnauthorizedException
-} from '@nestjs/common'
+import { InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { GroupMember } from './dto/groupMember.dto'
 import { UserGroup } from '@admin/@generated/user-group/user-group.model'
-import { EntityNotExistException } from '@client/common/exception/business.exception'
+import { GetUsersInput } from './dto/getUsersInput.dto'
 
 @Resolver(() => User)
 export class UserResolver {
@@ -33,27 +29,13 @@ export class UserResolver {
     return this.userService.getUser(id)
   }
 
-  @Query(() => [GroupMember], { name: 'groupManagerList' })
-  getGroupManagerList(
-    @Args('cursor', { type: () => Int }) cursor: number,
-    @Args('take', { type: () => Int }) take: number,
-    @Args('groupId', { type: () => Int }) groupId: number
+  @Query(() => [GroupMember], { name: 'getUsers' })
+  getUsers(
+    @Args('input', { type: () => GetUsersInput }) input
   ): Promise<GroupMember[]> {
     try {
-      return this.userService.getGroupManagers(cursor, take, groupId)
-    } catch (error) {
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Query(() => [GroupMember], { name: 'groupMemberList' })
-  groupMemberList(
-    @Args('cursor', { type: () => Int }) cursor: number,
-    @Args('take', { type: () => Int }) take: number,
-    @Args('groupId', { type: () => Int }) groupId: number
-  ): Promise<GroupMember[]> {
-    try {
-      return this.userService.getGroupMembers(cursor, take, groupId)
+      const { id, role, cursor, take } = input
+      return this.userService.getUsers(id, role, cursor, take)
     } catch (error) {
       throw new InternalServerErrorException()
     }
@@ -97,18 +79,29 @@ export class UserResolver {
     return this.userService.updateUser(id, userUpdateInput)
   }
 
-  @Mutation(() => User, { name: 'deleteGroupMember' })
+  @Mutation(() => UserGroup, { name: 'deleteGroupMember' })
   deleteGroupMember(
     @Args('userId', { type: () => Int }) userId: number,
     @Args('groupId', { type: () => Int }) groupId: number
-  ) {
+  ): Promise<UserGroup> {
     try {
-      this.userService.deleteGroupMember(userId, groupId)
+      return this.userService.deleteGroupMember(userId, groupId)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new UnauthorizedException(error.message)
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message)
       }
       throw new InternalServerErrorException()
     }
   }
+
+  // @Query(() => [User], { name: 'getGroupMembersNeededApproval' })
+  // getGroupMembersNeededApproval(
+  //   @Args('groupId', { type: () => ID! }) groupId: string
+  // ) {
+  //   try {
+  //     return this.userService.getGroupMEmbersNeededApproval(groupId)
+  //   } catch (error) {
+
+  //   }
+  // }
 }
