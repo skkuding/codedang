@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import InputItem from '@/common/components/Atom/InputItem.vue'
+import Switch from '@/common/components/Molecule/Switch.vue'
 import TextEditor from '@/common/components/Organism/TextEditor.vue'
-import { nDatePicker } from 'naive-ui'
+import { NDatePicker } from 'naive-ui'
+import { ref } from 'vue'
+
 const title = ref('')
 const dateRange = ref<[number, number]>([1183135260000, Date.now()])
 </script>
@@ -11,13 +13,13 @@ const dateRange = ref<[number, number]>([1183135260000, Date.now()])
   <div class="flex flex-col">
     <div class="text-right text-lg font-semibold">SKKUDING</div>
     <div class="bg-gray h-[1px]"></div>
-    <div class="mt-10">
+    <div class="mt-16">
       <h1 class="text-gray-dark mr-6 inline text-2xl font-semibold">
         Create Workbook
       </h1>
     </div>
     <div class="bg-gray h-[1px]"></div>
-    <div class="mt-8 flex">
+    <div class="mt-16 flex">
       <h2 class="mr-10 text-lg">Group</h2>
       <h2 class="text-lg">Title</h2>
     </div>
@@ -27,11 +29,14 @@ const dateRange = ref<[number, number]>([1183135260000, Date.now()])
     </div>
     <h2 class="mt-8 text-lg">Description</h2>
     <TextEditor class="h-[360px] w-full" />
-    <div class="flex">
-      <h2 class="mr-80 text-lg">Start Time</h2>
-      <h2 class="text-lg">End Time</h2>
+
+    <div class="mt-16">
+      <NDatePicker v-model:value="dateRange" type="datetimerange" clearable />
     </div>
-    <nDatePicker v-model:value="dateRange" type="datetimerange" clearable />
+    <div class="mt-16 flex">
+      <Switch class="mr-8" label="Visible" />
+      <Switch label="Problem Difficulty Visible" />
+    </div>
   </div>
 </template>
 
