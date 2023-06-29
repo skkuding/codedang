@@ -1,10 +1,11 @@
 {
+  "$schema": "https://json.schemastore.org/swcrc",
   "test": ".*.ts$",
+  "sourceMaps": true,
   "jsc": {
     "parser": {
       "syntax": "typescript",
-      "decorators": true,
-      "importMeta": true
+      "decorators": true
     },
     "transform": {
       "legacyDecorator": true,
