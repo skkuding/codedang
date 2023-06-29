@@ -7,7 +7,7 @@ import {
   JwtAuthModule,
   JwtAuthGuard,
   RolesModule,
-  RolesGuard
+  GroupLeaderGuard
 } from '@libs/auth'
 import { PrismaModule } from '@libs/prisma'
 import { AdminController } from './admin.controller'
@@ -33,7 +33,7 @@ import { UserModule } from './user/user.module'
   providers: [
     AdminService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: RolesGuard }
+    { provide: APP_GUARD, useClass: GroupLeaderGuard }
   ]
 })
 export class AdminModule {}
