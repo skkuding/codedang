@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common'
-import { GroupModule } from '@client/group/group.module'
-import { UserModule } from '@client/user/user.module'
+import { RolesModule } from '@libs/auth'
 import { WorkbookAdminController } from './workbook-admin.controller'
 import {
   GroupWorkbookController,
@@ -9,7 +8,7 @@ import {
 import { WorkbookService } from './workbook.service'
 
 @Module({
-  imports: [UserModule, GroupModule],
+  imports: [RolesModule],
   controllers: [
     WorkbookController,
     GroupWorkbookController,

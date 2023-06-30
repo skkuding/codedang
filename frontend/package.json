@@ -28,6 +28,7 @@
     "@vueuse/router": "^10.2.0",
     "axios": "^1.4.0",
     "axios-retry": "^3.5.0",
+    "naive-ui": "^2.34.4",
     "nprogress": "0.2.0",
     "pinia": "^2.1.4",
     "vue": "^3.3.4",

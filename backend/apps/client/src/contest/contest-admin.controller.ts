@@ -16,16 +16,18 @@ import {
   UseGuards
 } from '@nestjs/common'
 import { type Contest, Role } from '@prisma/client'
-import { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
-import { Roles } from '@client/common/decorator/roles.decorator'
+import {
+  AuthenticatedRequest,
+  RolesGuard,
+  Roles,
+  GroupLeaderGuard
+} from '@libs/auth'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
-} from '@client/common/exception/business.exception'
-import { CursorValidationPipe } from '@client/common/pipe/cursor-validation.pipe'
-import { GroupLeaderGuard } from '@client/group/guard/group-leader.guard'
-import { RolesGuard } from '@client/user/guard/roles.guard'
+} from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
