@@ -1,0 +1,7 @@
+{
+    "problemId": 1,
+    "code": "#include<stdio.h>\n\n int main () {\n  int a;\n  scanf(\"%d\\n\", &a);\n  printf(\"%d\\n\", a);\n}\n",
+    "language": "C",
+    "timeLimit": 1000,
+    "memoryLimit": 268435456
+}

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# OnCreateCommand from Iris
+# go get -d && go install -v golang.org/x/tools/gopls@latest && go install -v github.com/ramya-rao-a/go-outline@latest && git config --global --add safe.directory /app/src
+
 set -ex
 
 # Check requirements: npm

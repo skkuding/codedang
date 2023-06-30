@@ -2,7 +2,14 @@
   "name": "skkuding-next",
   "dockerComposeFile": "../docker-compose.yml",
   "service": "app",
-  "runServices": ["app", "dev-db", "dev-cache"],
+  "runServices": [
+    "app",
+    "dev-db",
+    "dev-cache",
+    "rabbitmq-dev",
+    "testcase-server-dev",
+    "setup-dev"
+  ],
   "workspaceFolder": "/workspace",
   "postCreateCommand": "scripts/setup.sh",
   "customizations": {
@@ -20,12 +27,18 @@
         "prisma.prisma",
         "rangav.vscode-thunder-client",
         "Vue.volar",
-        "Vue.vscode-typescript-vue-plugin"
+        "Vue.vscode-typescript-vue-plugin",
+        "golang.go",
+        "golang.go-nightly",
+        "albert.TabOut",
+        "donjayamanne.githistory",
+        "eamodio.gitlens"
       ]
     }
   },
   "features": {
-    "ghcr.io/devcontainers-contrib/features/pnpm:2": {}
+    "ghcr.io/devcontainers-contrib/features/pnpm:2": {},
+    "ghcr.io/devcontainers/features/go:1": {}
   },
   // Connect as non-root user (https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user)
   "remoteUser": "node"
