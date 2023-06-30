@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common'
 import { PrismaService } from '@client/prisma/prisma.service'
-import { type CreateProblem } from './dto/create-problem.dto'
+import { type CreateGroupProblemDto } from './dto/create-problem.dto'
 import { Level } from '@admin/@generated/prisma/level.enum'
 import type { UserCreateNestedOneWithoutProblemInput } from '@admin/@generated/user/user-create-nested-one-without-problem.input'
 import type { GroupCreateNestedOneWithoutProblemInput } from '@admin/@generated/group/group-create-nested-one-without-problem.input'
@@ -9,6 +9,12 @@ import { isDefined } from 'class-validator'
 import type { ProblemTestcaseUncheckedCreateNestedManyWithoutProblemInput } from '@admin/@generated/problem-testcase/problem-testcase-unchecked-create-nested-many-without-problem.input'
 import type { TagCreateManyInput } from '@admin/@generated/tag/tag-create-many.input'
 import type { ProblemTagUncheckedCreateWithoutProblemInput } from '@admin/@generated/problem-tag/problem-tag-unchecked-create-without-problem.input'
+import type {
+  DeleteGroupProblemDto,
+  GetGroupProblemDto,
+  GetGroupProblemsDto
+} from './dto/request-problem.dto'
+import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 
 @Injectable()
 export class ProblemService {
@@ -34,11 +40,7 @@ export class ProblemService {
     outputExamples: true
   }
 
-  async create(problemCreateInput: CreateProblem) {
-    let difficulty: Level = Level.Level1
-    if (problemCreateInput.difficulty == 'Level2') difficulty = Level.Level2
-    else difficulty = Level.Level3
-
+  async create(problemCreateInput: CreateGroupProblemDto) {
     const createdBy: UserCreateNestedOneWithoutProblemInput = {
       connect: {
         id: problemCreateInput.createdById
@@ -56,35 +58,35 @@ export class ProblemService {
         create: problemCreateInput.problemTestcase
       }
 
-    const parsedTag = problemCreateInput.problemTag.map(
-      (value): TagCreateManyInput => {
-        return {
-          name: value
+    let tagsId: Array<ProblemTagUncheckedCreateWithoutProblemInput>
+    if (isDefined(problemCreateInput.problemTag)) {
+      const parsedTag = problemCreateInput.problemTag.map(
+        (value): TagCreateManyInput => {
+          return {
+            name: value
+          }
         }
-      }
-    )
-    await this.prisma.tag.createMany({
-      data: parsedTag,
-      skipDuplicates: true
-    })
-    const _tagsId = await this.prisma.tag.findMany({
-      select: { id: true },
-      where: {
-        OR: parsedTag
-      }
-    })
-    const tagsId: Array<ProblemTagUncheckedCreateWithoutProblemInput> =
-      _tagsId.map((value) => {
+      )
+      await this.prisma.tag.createMany({
+        data: parsedTag,
+        skipDuplicates: true
+      })
+      const _tagsId = await this.prisma.tag.findMany({
+        select: { id: true },
+        where: {
+          OR: parsedTag
+        }
+      })
+      tagsId = _tagsId.map((value) => {
         return {
           tagId: value.id
         }
       })
+    }
 
     const {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       groupId: _1,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      difficulty: _2,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       createdById: _3,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -98,7 +100,6 @@ export class ProblemService {
       data: {
         ..._data,
         group: group,
-        difficulty: difficulty,
         createdBy: createdBy,
         problemTestcase: problemTestcase,
         problemTag: {
@@ -108,25 +109,47 @@ export class ProblemService {
     })
   }
 
-  async findAll(groupId: number, cursor: number, take: number) {
+  async findAll(getGroupProblemsInput: GetGroupProblemsDto) {
+    const whereOptions: ProblemWhereInput = {
+      groupId: { equals: getGroupProblemsInput.groupId }
+    }
+
+    if (isDefined(getGroupProblemsInput.createdById)) {
+      whereOptions.createdById = { equals: getGroupProblemsInput.createdById }
+    }
+
+    if (isDefined(getGroupProblemsInput.difficulty)) {
+      whereOptions.difficulty = {
+        equals: getGroupProblemsInput.difficulty
+      }
+    }
+
+    if (isDefined(getGroupProblemsInput.languages)) {
+      whereOptions.languages = { hasSome: getGroupProblemsInput.languages }
+    }
+
     return await this.prisma.problem.findMany({
       where: {
-        groupId: groupId
+        ...whereOptions
       },
       select: this.problemsSelectOption,
-      cursor: { id: cursor },
+      cursor: { id: getGroupProblemsInput.cursor },
       skip: 1,
-      take: take
+      take: getGroupProblemsInput.take
     })
   }
 
-  async findOne(id: number) {
-    return await this.prisma.problem.findUnique({
-      where: {
-        id: id
-      },
-      select: this.problemSelectOption
-    })
+  async findOne(getGroupProblemInput: GetGroupProblemDto) {
+    try {
+      return await this.prisma.problem.findUniqueOrThrow({
+        where: {
+          id: getGroupProblemInput.problemId
+        },
+        select: this.problemSelectOption
+      })
+    } catch {
+      throw new HttpException('no such problem', 404)
+    }
   }
 
   async update(updateProblemInput: UpdateProblem) {
@@ -140,7 +163,7 @@ export class ProblemService {
       difficulty = Level[updateProblemInput.difficulty]
     }
 
-    return await this.prisma.problem.update({
+    const data = await this.prisma.problem.update({
       where: {
         id: problemId
       },
@@ -149,13 +172,30 @@ export class ProblemService {
         difficulty: difficulty
       }
     })
+
+    if (!data) {
+      throw new BadRequestException('no user with such sutdentId')
+    }
+
+    return data
   }
 
-  async remove(problemId: number) {
-    return await this.prisma.problem.delete({
-      where: {
-        id: problemId
-      }
-    })
+  async remove(deleteGroupProblemInput: DeleteGroupProblemDto) {
+    try {
+      await this.prisma.problem.findUniqueOrThrow({
+        where: {
+          id: deleteGroupProblemInput.problemId
+        },
+        select: this.problemSelectOption
+      })
+
+      return await this.prisma.problem.delete({
+        where: {
+          id: deleteGroupProblemInput.problemId
+        }
+      })
+    } catch {
+      throw new HttpException('no such problem', 404)
+    }
   }
 }

@@ -3405,5 +3405,97 @@
         }
       ]
     }
+  },
+  {
+    "_id": "1e89c7f2-8652-4ae5-9eda-3bca497f6eb7",
+    "colId": "22b40379-ea1b-4edc-8dff-2f2671cf8c57",
+    "containerId": "67b9850b-5901-4f26-b934-613fe71e2f06",
+    "name": "createProblem",
+    "url": "graphql",
+    "method": "POST",
+    "sortNum": 10000,
+    "created": "2023-06-30T13:29:53.039Z",
+    "modified": "2023-06-30T15:05:57.681Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "graphql",
+      "raw": "",
+      "form": [],
+      "graphql": {
+        "query": "mutation Problem(\n        $createData: CreateGroupProblemDto!\n    ) {\n    createGroupProblem(\n       createGroupProblemInput: $createData\n    )\n    {\n        id\n        title\n        description\n    }\n}",
+        "variables": "{\n \"createData\": {\n   \"createdById\": 4,\n    \"groupId\": 1,\n    \"difficulty\": \"Level1\",\n    \"description\": \"here we go\",\n    \"inputDescription\": \"Manchester\",\n    \"outputDescription\": \"Winner of Premier League\",\n    \"timeLimit\": 666,\n    \"memoryLimit\": 33,\n    \"hint\": \"hit rather hint\",\n    \"source\" : \"genesis\",\n    \"title\": \"Champion\",\n    \"languages\": [\"Cpp\",\"Java\"],\n    \"inputExamples\": [\"e\",\"x\"],\n    \"outputExamples\": [\"a\",\"m\",\"p\",\"l\",\"e\"],\n    \"problemTestcase\":[\n      {\n        \"input\": \"in\",\n        \"output\": \"out\"\n      }\n      ],\n      \"problemTag\":[\n          \"World Cup\"\n        ]\n  }\n}"
+      }
+    },
+    "tests": []
+  },
+  {
+    "_id": "9c34b3bc-9992-437e-84ef-6a7020f69f2c",
+    "colId": "22b40379-ea1b-4edc-8dff-2f2671cf8c57",
+    "containerId": "67b9850b-5901-4f26-b934-613fe71e2f06",
+    "name": "getGroupProblems",
+    "url": "graphql",
+    "method": "POST",
+    "sortNum": 5000,
+    "created": "2023-06-30T13:34:26.958Z",
+    "modified": "2023-06-30T15:04:59.764Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "graphql",
+      "raw": "",
+      "form": [],
+      "graphql": {
+        "query": "query Problem(\n        $getGroupProblemsInput: GetGroupProblemsDto!\n    ) {\n    getGroupProblems(\n       getGroupProblemsInput: $getGroupProblemsInput\n    )\n    {\n        id\n        title\n        difficulty\n    }\n}",
+        "variables": "{\n  \"getGroupProblemsInput\":{\n    \"groupId\":1,\n    \"cursor\": 23,\n    \"take\": 2,\n    \"createdById\": 4,\n    \"difficulty\": \"Level1\",\n    \"languages\": [\"Cpp\"]\n  }\n}"
+      }
+    },
+    "tests": []
+  },
+  {
+    "_id": "2385a84b-7786-49ad-9638-0aedcd8c5258",
+    "colId": "22b40379-ea1b-4edc-8dff-2f2671cf8c57",
+    "containerId": "67b9850b-5901-4f26-b934-613fe71e2f06",
+    "name": "getGroupProblem",
+    "url": "graphql",
+    "method": "POST",
+    "sortNum": 7500,
+    "created": "2023-06-30T14:36:50.696Z",
+    "modified": "2023-06-30T15:05:14.131Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "graphql",
+      "raw": "",
+      "form": [],
+      "graphql": {
+        "query": "query Problem(\n        $getGroupProblemInput: GetGroupProblemDto!\n    ) {\n    getGroupProblem(\n       getGroupProblemInput: $getGroupProblemInput\n    )\n    {\n        id\n        title\n        difficulty\n    }\n}",
+        "variables": "{\n  \"getGroupProblemInput\":{\n    \"problemId\": 25\n  }\n}"
+      }
+    },
+    "tests": []
+  },
+  {
+    "_id": "b104e0f3-5325-40f3-8c8e-e9ea8825d04a",
+    "colId": "22b40379-ea1b-4edc-8dff-2f2671cf8c57",
+    "containerId": "67b9850b-5901-4f26-b934-613fe71e2f06",
+    "name": "deleteGroupProblem",
+    "url": "graphql",
+    "method": "POST",
+    "sortNum": 50000,
+    "created": "2023-06-30T14:41:45.838Z",
+    "modified": "2023-06-30T15:06:40.001Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "graphql",
+      "raw": "",
+      "form": [],
+      "graphql": {
+        "query": "mutation Problem(\n        $deleteData: DeleteGroupProblemDto!\n    ) {\n    deleteGroupProblem(\n       deleteGroupProblemInput: $deleteData\n    )\n    {\n        id\n        title\n        description\n    }\n}",
+        "variables": "{\n  \"deleteData\":{\n    \"problemId\": 22\n  }\n}"
+      }
+    },
+    "tests": []
   }
 ]

@@ -2,47 +2,45 @@ import { Resolver, Mutation, Args, Query } from '@nestjs/graphql'
 import { ProblemService } from './problem.service'
 import { Problem } from '@admin/@generated/problem/problem.model'
 import { UpdateProblem } from './dto/update-problem.dto'
-import { CreateProblem } from './dto/create-problem.dto'
+import { CreateGroupProblemDto } from './dto/create-problem.dto'
 import {
-  GetGroupProblem,
-  GetGroupProblems,
-  RemoveGroupProblem
+  GetGroupProblemDto,
+  GetGroupProblemsDto,
+  DeleteGroupProblemDto
 } from './dto/request-problem.dto'
 
 @Resolver(() => Problem)
 export class ProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
-  @Query(() => Problem, { name: 'getGroupProblemByProblemId' })
+  @Query(() => Problem, { name: 'getGroupProblem' })
   async getById(
-    @Args('getGroupProblemInput') getGroupProblemInput: GetGroupProblem
+    @Args('getGroupProblemInput') getGroupProblemInput: GetGroupProblemDto
   ) {
-    return await this.problemService.findOne(getGroupProblemInput.problemId)
+    return await this.problemService.findOne(getGroupProblemInput)
   }
 
-  @Query(() => [Problem], { name: 'getGroupProblemByGroupId' })
+  @Query(() => [Problem], { name: 'getGroupProblems' })
   async geAllByGroup(
-    @Args('getGroupProbelmsInput') getGroupProblemsInput: GetGroupProblems
+    @Args('getGroupProblemsInput') getGroupProblemsInput: GetGroupProblemsDto
   ) {
-    return await this.problemService.findAll(
-      getGroupProblemsInput.groupId,
-      getGroupProblemsInput.cursor,
-      getGroupProblemsInput.take
-    )
+    return await this.problemService.findAll(getGroupProblemsInput)
   }
 
   @Mutation(() => Problem, { name: 'createGroupProblem' })
   async createProblem(
-    @Args('problemCreateInput') problemCreateInput: CreateProblem
+    @Args('createGroupProblemInput')
+    createGroupProblemInput: CreateGroupProblemDto
   ) {
-    return await this.problemService.create(problemCreateInput)
+    return await this.problemService.create(createGroupProblemInput)
   }
 
-  @Mutation(() => Problem, { name: 'removeGroupProblemByProblemId' })
+  @Mutation(() => Problem, { name: 'deleteGroupProblem' })
   async removeProblem(
-    @Args('removeGroupProblemInput') removeGroupProblemInput: RemoveGroupProblem
+    @Args('deleteGroupProblemInput')
+    deleteGroupProblemInput: DeleteGroupProblemDto
   ) {
-    return await this.problemService.remove(removeGroupProblemInput.problemId)
+    return await this.problemService.remove(deleteGroupProblemInput)
   }
 
   @Mutation(() => Problem, { name: 'updateGroupProblem' })

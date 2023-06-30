@@ -3,7 +3,7 @@ import { LanguageInput, DifficultyInput } from './update-problem.dto'
 import { ProblemTestcaseCreateWithoutProblemInput } from '@admin/@generated/problem-testcase/problem-testcase-create-without-problem.input'
 
 @InputType()
-export class CreateProblem {
+export class CreateGroupProblemDto {
   @Field(() => Int)
   createdById: number
 

@@ -69,17 +69,4 @@ export class UpdateProblem {
 
   @Field(() => String, { nullable: true })
   source?: string
-
-  // @Field(() => [String], { nullable: true })
-  // inputExamples?: Array<string>
-
-  // @Field(() => [String], { nullable: true })
-  // outputExamples?: Array<string>
-
-  // @Field(() => [ProblemTestcaseCreateWithoutProblemInput], { nullable: true })
-  // problemTestcase?: Array<ProblemTestcaseCreateWithoutProblemInput>
-
-  // @Field(() => [String], { nullable: true })
-  // problemTag?: Array<string>
 }
-// test case 수정?
