@@ -32,7 +32,7 @@ export class SubmissionResultMessage {
 
   @IsString()
   @IsNotEmpty()
-  submissionResultId: string
+  submissionId: string
 
   @IsString()
   @IsNotEmpty()

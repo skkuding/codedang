@@ -1,11 +1,6 @@
 import { Injectable, type OnModuleInit } from '@nestjs/common'
 import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
-import {
-  type Problem,
-  ResultStatus,
-  type Submission,
-  type SubmissionResult
-} from '@prisma/client'
+import { type Problem, ResultStatus, type Submission } from '@prisma/client'
 import { type ValidationError, validate } from 'class-validator'
 import { ActionNotAllowedException, MessageFormatError } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -25,7 +20,6 @@ import type { CreateSubmissionDto } from './dto/create-submission.dto'
 import { JudgeRequestDto } from './dto/judge-request.dto'
 import type { SubmissionResultMessage } from './dto/submission-result-message'
 import type { SubmissionResultDTO } from './dto/submission-result.dto'
-import { UpdateSubmissionResultData } from './dto/update-submission-result.dto'
 import { generateHash } from './hash/hash'
 
 @Injectable()
@@ -193,32 +187,56 @@ export class SubmissionService implements OnModuleInit {
   async submissionResultHandler(msg: SubmissionResultMessage): Promise<void> {
     const validationError: ValidationError[] = await validate(msg)
 
-    console.log(msg)
-
     if (validationError.length > 0) {
       throw new MessageFormatError({ ...validationError })
     }
 
     const resultCode: ResultStatus = matchResultCode(msg.resultCode)
-    const data: UpdateSubmissionResultData = new UpdateSubmissionResultData(
-      resultCode
-    )
+    const submissionId = msg.submissionId
 
-    const submissionResultId: number = parseInt(msg.submissionResultId, 10)
-    await this.updateSubmissionResult(submissionResultId, data)
+    const judgeResults = msg.data.judgeResult.map((result) => {
+      return {
+        problemTestcaseId: parseInt(result.testcaseId.split(':')[1], 10),
+        result: resultCode,
+        submissionId
+      }
+    })
+
+    await this.updateSubmissionResult(judgeResults)
   }
 
   async updateSubmissionResult(
-    id: number,
-    data: UpdateSubmissionResultData
-  ): Promise<SubmissionResult> {
-    return await this.prisma.submissionResult.update({
-      where: {
-        id
-      },
-      data: {
-        ...data
+    judgeResults: {
+      problemTestcaseId: number
+      result: ResultStatus
+      submissionId: string
+    }[]
+  ): Promise<void> {
+    for (const result of judgeResults) {
+      try {
+        const id = await this.prisma.submissionResult
+          .findFirst({
+            where: {
+              submissionId: result.submissionId,
+              problemTestcaseId: result.problemTestcaseId
+            },
+            select: {
+              id: true
+            }
+          })
+          .then((result) => result.id)
+
+        await this.prisma.submissionResult.update({
+          where: {
+            id
+          },
+          data: {
+            result: result.result
+          }
+        })
+      } catch (e) {
+        console.log(e)
       }
-    })
+    }
   }
 }
