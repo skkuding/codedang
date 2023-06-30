@@ -4,8 +4,8 @@ import {
   type ExecutionContext,
   ForbiddenException
 } from '@nestjs/common'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
-import { OPEN_SPACE_ID } from '@client/common/constants'
 
 @Injectable()
 export class PublicProblemSubmissionGuard implements CanActivate {

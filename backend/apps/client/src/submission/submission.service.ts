@@ -7,11 +7,8 @@ import {
   type SubmissionResult
 } from '@prisma/client'
 import { type ValidationError, validate } from 'class-validator'
+import { ActionNotAllowedException, MessageFormatError } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import {
-  ActionNotAllowedException,
-  MessageFormatError
-} from '@client/common/exception/business.exception'
 import { calculateTimeLimit } from './constants/cpuLimit.constants'
 import { calculateMemoryLimit } from './constants/memoryLimit.constants'
 import {

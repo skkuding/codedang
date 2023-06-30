@@ -4,8 +4,8 @@ import {
   type ExecutionContext,
   ForbiddenException
 } from '@nestjs/common'
+import type { AuthenticatedUser } from '@libs/auth'
 import { PrismaService } from '@libs/prisma'
-import type { AuthenticatedUser } from '@client/auth/class/authenticated-user.class'
 
 @Injectable()
 export class SubmissionResultGuard implements CanActivate {

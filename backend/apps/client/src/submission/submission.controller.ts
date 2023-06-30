@@ -8,7 +8,7 @@ import {
   Req
 } from '@nestjs/common'
 import type { Submission } from '@prisma/client'
-import { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import { AuthenticatedRequest } from '@libs/auth'
 import { CreateSubmissionDto } from './dto/create-submission.dto'
 import type { SubmissionResultDTO } from './dto/submission-result.dto'
 import { ContestProblemSubmissionGuard } from './guard/contestProblemSubmission.guard'
