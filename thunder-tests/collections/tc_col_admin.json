@@ -1,0 +1,45 @@
+{
+    "_id": "22b40379-ea1b-4edc-8dff-2f2671cf8c57",
+    "colName": "Admin",
+    "created": "2023-06-30T13:29:23.887Z",
+    "sortNum": 20000,
+    "folders": [
+        {
+            "_id": "67b9850b-5901-4f26-b934-613fe71e2f06",
+            "name": "problem",
+            "containerId": "",
+            "created": "2023-06-30T13:29:38.760Z",
+            "sortNum": 10000
+        }
+    ],
+    "settings": {
+        "options": {
+            "baseUrl": "localhost:3000/"
+        }
+    },
+    "requests": [
+        {
+            "_id": "a7423e60-02a9-439a-88df-97f0d106028e",
+            "colId": "22b40379-ea1b-4edc-8dff-2f2671cf8c57",
+            "containerId": "67b9850b-5901-4f26-b934-613fe71e2f06",
+            "name": "getGroupProblem",
+            "url": "graphql",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2023-06-30T15:54:21.724Z",
+            "modified": "2023-06-30T15:56:34.003Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query Problem(\n        $getGroupProblemInput: GetGroupProblemDto!\n    ) {\n    getGroupProblem(\n       getGroupProblemInput: $getGroupProblemInput\n    )\n    {\n        id\n        title\n        description\n    }\n}",
+                    "variables": "{\n  \"getGroupProblemInput\":{\n    \"problemId\": 18\n  }\n}"
+                }
+            },
+            "tests": []
+        }
+    ]
+}

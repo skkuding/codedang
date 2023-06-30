@@ -1,13 +1,13 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql'
-import { ProblemService } from './problem.service'
 import { Problem } from '@admin/@generated/problem/problem.model'
-import { UpdateProblem } from './dto/update-problem.dto'
 import { CreateGroupProblemDto } from './dto/create-problem.dto'
 import {
   GetGroupProblemDto,
   GetGroupProblemsDto,
   DeleteGroupProblemDto
 } from './dto/request-problem.dto'
+import { UpdateProblem } from './dto/update-problem.dto'
+import { ProblemService } from './problem.service'
 
 @Resolver(() => Problem)
 export class ProblemResolver {

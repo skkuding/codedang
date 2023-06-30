@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import IconCheck from '~icons/fa6-solid/check'
+import IconPaperPlane from '~icons/fa6-solid/paper-plane'
 import Button from '../Atom/Button.vue'
 import InputItem from '../Atom/InputItem.vue'
-import IconPaperPlane from '~icons/fa6-solid/paper-plane'
-import IconCheck from '~icons/fa6-solid/check'
 
 defineEmits<{
   (e: 'to', value: 'login' | 'signup' | 'password'): void

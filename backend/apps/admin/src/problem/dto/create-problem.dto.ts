@@ -1,6 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
-import { LanguageInput, DifficultyInput } from './update-problem.dto'
 import { ProblemTestcaseCreateWithoutProblemInput } from '@admin/@generated/problem-testcase/problem-testcase-create-without-problem.input'
+import { LanguageInput, DifficultyInput } from './update-problem.dto'
 
 @InputType()
 export class CreateGroupProblemDto {

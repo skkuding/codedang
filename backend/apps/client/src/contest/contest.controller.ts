@@ -8,18 +8,22 @@ import {
   Req,
   Get,
   UseGuards,
-  ForbiddenException
+  ForbiddenException,
+  Query
 } from '@nestjs/common'
-import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import type { Contest } from '@prisma/client'
+import {
+  AuthenticatedRequest,
+  AuthNotNeeded,
+  RolesGuard,
+  GroupMemberGuard
+} from '@libs/auth'
 import {
   ActionNotAllowedException,
   EntityNotExistException
-} from '@client/common/exception/business.exception'
-import { GroupMemberGuard } from '@client/group/guard/group-member.guard'
+} from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
-import { type Contest } from '@prisma/client'
-import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
-import { RolesGuard } from '@client/user/guard/roles.guard'
 
 @Controller('contest')
 export class ContestController {
@@ -30,7 +34,6 @@ export class ContestController {
   async getContests(): Promise<{
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
-    finished: Partial<Contest>[]
   }> {
     return await this.contestService.getContestsByGroupId()
   }
@@ -41,9 +44,19 @@ export class ContestController {
     registeredUpcoming: Partial<Contest>[]
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
-    finished: Partial<Contest>[]
   }> {
     return await this.contestService.getContestsByGroupId(req.user?.id)
+  }
+
+  @Get('finished')
+  @AuthNotNeeded()
+  async getFinishedContests(
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
+  ): Promise<{
+    finished: Partial<Contest>[]
+  }> {
+    return await this.contestService.getFinishedContestsByGroupId(cursor, take)
   }
 
   @Get(':contestId')
@@ -93,9 +106,23 @@ export class GroupContestController {
     registeredUpcoming?: Partial<Contest>[]
     ongoing: Partial<Contest>[]
     upcoming: Partial<Contest>[]
-    finished: Partial<Contest>[]
   }> {
     return await this.contestService.getContestsByGroupId(req.user.id, groupId)
+  }
+
+  @Get('finished')
+  async getFinishedContests(
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
+  ): Promise<{
+    finished: Partial<Contest>[]
+  }> {
+    return await this.contestService.getFinishedContestsByGroupId(
+      cursor,
+      take,
+      groupId
+    )
   }
 
   @Get(':id')

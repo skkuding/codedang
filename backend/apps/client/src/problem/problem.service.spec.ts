@@ -1,32 +1,32 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { stub } from 'sinon'
+import { plainToInstance } from 'class-transformer'
 import * as dayjs from 'dayjs'
+import { stub } from 'sinon'
 import {
-  ContestProblemService,
-  ProblemService,
-  WorkbookProblemService
-} from './problem.service'
-import { ProblemRepository } from './problem.repository'
+  EntityNotExistException,
+  ForbiddenAccessException
+} from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
+import { ContestService } from '@client/contest/contest.service'
+import { GroupService } from '@client/group/group.service'
+import { WorkbookService } from '@client/workbook/workbook.service'
+import { ProblemResponseDto } from './dto/problem.response.dto'
+import { ProblemsResponseDto } from './dto/problems.response.dto'
+import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
+import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import {
   contestProblems,
   problems,
   workbookProblems
 } from './mock/problem.mock'
-import { PrismaService } from '@client/prisma/prisma.service'
-import { plainToInstance } from 'class-transformer'
-import { ProblemsResponseDto } from './dto/problems.response.dto'
-import { ProblemResponseDto } from './dto/problem.response.dto'
-import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
-import { ContestService } from '@client/contest/contest.service'
-import { GroupService } from '@client/group/group.service'
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { ProblemRepository } from './problem.repository'
 import {
-  EntityNotExistException,
-  ForbiddenAccessException
-} from '@client/common/exception/business.exception'
-import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
-import { WorkbookService } from '@client/workbook/workbook.service'
+  ContestProblemService,
+  ProblemService,
+  WorkbookProblemService
+} from './problem.service'
 
 const db = {
   problem: {

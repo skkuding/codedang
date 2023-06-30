@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Modal from './Modal.vue'
-import Button from '../Atom/Button.vue'
 import { ref } from 'vue'
+import Button from '../Atom/Button.vue'
+import Modal from './Modal.vue'
 
 const show = ref(false)
 </script>

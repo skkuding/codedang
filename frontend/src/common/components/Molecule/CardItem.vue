@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import PageSubtitle from '../Atom/PageSubtitle.vue'
+
 type BorderColor = 'gray' | 'green'
 const props = defineProps<{
   borderColor?: BorderColor

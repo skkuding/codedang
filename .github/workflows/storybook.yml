@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths: ['frontend/**']
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -24,13 +28,15 @@ jobs:
       - name: Build story
         run: pnpm --filter frontend story:build
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ap-northeast-2
+
       - name: Deploy story to AWS S3
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws s3 sync \
             ./frontend/.histoire/dist \
             s3://${{ secrets.S3_BUCKET_STORY }} \
             --region ap-northeast-2 \
-            --acl public-read

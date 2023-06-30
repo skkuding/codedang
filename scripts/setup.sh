@@ -2,6 +2,13 @@
 
 set -ex
 
+# Check requirements: npm
+if [ ! $(command -v npm) ]
+then
+  echo "Error: npm is not installed. Please install npm first."
+  exit 1
+fi
+
 BASEDIR=$(dirname $(dirname $(realpath $0)))
 
 cd $BASEDIR
@@ -27,28 +34,32 @@ else
 fi
 
 # Save user account and password to dotenv file for nodemailer
+echo "NODEMAILER_HOST=\"email-smtp.ap-northeast-2.amazonaws.com\"" >> backend/.env
 echo "NODEMAILER_USER=\"\"" >> backend/.env
 echo "NODEMAILER_PASS=\"\"" >> backend/.env
+echo "NODEMAILER_FROM=\"\"" >> backend/.env
 
 # Use docker-compose profile
 if [ -z $DEVCONTAINER ]
 then
-  docker-compose up -d
+  docker compose up -d
 fi
 
 echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum | head -c 64)" >> backend/.env
 
 # Generate thunder client environment
 # Since environment variable changes frequently, let git ignore actual environment variables
-cp thunder-tests/thunderEnvironmentBase.json thunder-tests/thunderEnvironment.json
+cp thunder-tests/environments/base.json thunder-tests/environments/tc_env_coding-platform-env.json
 
-# Install pnpm
-pnpm --version || sudo corepack enable
-corepack prepare pnpm@7.2.1 --activate
+# Install pnpm and Node.js packages
+npm install -g pnpm@latest
 pnpm install
 
 # Install lefthook for git hook
-npx lefthook install
+pnpm exec lefthook install
+
+# Enable git auto completion
+echo "source /usr/share/bash-completion/completions/git" >> ~/.bashrc
 
 # Apply database migration
 for i in {1..5}

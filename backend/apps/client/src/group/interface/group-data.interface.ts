@@ -1,4 +1,3 @@
-/* eslint-disable */
 export interface GroupData {
   id: number
   groupName: string
@@ -6,4 +5,5 @@ export interface GroupData {
   memberNum: number
   createdBy: string
   leaders?: string[]
+  isGroupLeader?: boolean
 }

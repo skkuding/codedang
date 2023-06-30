@@ -13,7 +13,7 @@ import {
   type Submission,
   type ProblemTestcase
 } from '@prisma/client'
-import { encrypt } from '@client/common/hash'
+import { hash } from 'argon2'
 import * as dayjs from 'dayjs'
 
 const prisma = new PrismaClient()
@@ -35,7 +35,7 @@ const createUsers = async () => {
   superAdminUser = await prisma.user.create({
     data: {
       username: 'super',
-      password: await encrypt('Supersuper'),
+      password: await hash('Supersuper'),
       email: 'skkucodingplatform@gmail.com',
       lastLogin: new Date(),
       role: Role.SuperAdmin
@@ -46,7 +46,7 @@ const createUsers = async () => {
   await prisma.user.create({
     data: {
       username: 'admin',
-      password: await encrypt('Adminadmin'),
+      password: await hash('Adminadmin'),
       email: 'admin@example.com',
       lastLogin: new Date(),
       role: Role.Admin
@@ -57,7 +57,7 @@ const createUsers = async () => {
   managerUser = await prisma.user.create({
     data: {
       username: 'manager',
-      password: await encrypt('Manager'),
+      password: await hash('Manager'),
       email: 'manager@example.com',
       lastLogin: new Date(),
       role: Role.Manager
@@ -70,7 +70,7 @@ const createUsers = async () => {
     const user = await prisma.user.create({
       data: {
         username: `user${specifier}`,
-        password: await encrypt('Useruser'),
+        password: await hash('Useruser'),
         email: `user${specifier}@example.com`,
         lastLogin: new Date(),
         role: Role.User
@@ -106,7 +106,7 @@ const createGroups = async () => {
     }
   })
 
-  // create private group
+  // create empty private group
   privateGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group',
@@ -114,10 +114,44 @@ const createGroups = async () => {
         'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
       createdById: managerUser.id,
       config: {
+        showOnList: false,
+        allowJoinFromSearch: false,
+        allowJoinWithURL: true,
+        requireApprovalBeforeJoin: true
+      }
+    }
+  })
+
+  // create empty private group
+  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요한 그룹을 테스트할 때 사용합니다
+  await prisma.group.create({
+    data: {
+      groupName: 'Example Private Group 2',
+      description:
+        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      createdById: managerUser.id,
+      config: {
         showOnList: true,
         allowJoinFromSearch: true,
-        allowJoinWithURL: false,
+        allowJoinWithURL: true,
         requireApprovalBeforeJoin: true
+      }
+    }
+  })
+
+  // create empty private group
+  // 'showOnList'가 true 이면서 가입시 사전 승인이 필요없는 그룹을 테스트할 때 사용합니다
+  await prisma.group.create({
+    data: {
+      groupName: 'Example Private Group 3',
+      description:
+        'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+      createdById: managerUser.id,
+      config: {
+        showOnList: true,
+        allowJoinFromSearch: true,
+        allowJoinWithURL: true,
+        requireApprovalBeforeJoin: false
       }
     }
   })
@@ -148,11 +182,332 @@ const createGroups = async () => {
       }
     })
   }
+
+  await prisma.userGroup.create({
+    data: {
+      userId: managerUser.id,
+      groupId: 4,
+      isGroupLeader: true
+    }
+  })
+
+  await prisma.userGroup.create({
+    data: {
+      userId: superAdminUser.id,
+      groupId: 4,
+      isGroupLeader: true
+    }
+  })
 }
 
 const createNotices = async () => {
   await prisma.notice.createMany({
     data: [
+      {
+        title: '아주 중요한 공지사항',
+        content: '<p>사실 별 내용 없어요 😇</p>',
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: '더 중요한 공지사항',
+        content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
+<p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
+<p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
+<p>일반사면을 명하려면 국회의 동의를 얻어야 한다. 연소자의 근로는 특별한 보호를 받는다.</p>
+<p>국회에서 의결된 법률안은 정부에 이송되어 15일 이내에 대통령이 공포한다.</p>
+<p>법률이 정하는 주요방위산업체에 종사하는 근로자의 단체행동권은 법률이 정하는 바에 의하여 이를 제한하거나 인정하지 아니할 수 있다.</p>
+<p>법률은 특별한 규정이 없는 한 공포한 날로부터 20일을 경과함으로써 효력을 발생한다.</p>
+<p>비상계엄이 선포된 때에는 법률이 정하는 바에 의하여 영장제도, 언론·출판·집회·결사의 자유, 정부나 법원의 권한에 관하여 특별한 조치를 할 수 있다.</p>`,
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: '제일 중요한 공지사항',
+        content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
+<p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
+<p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
+<p>대통령은 법률이 정하는 바에 의하여 사면·감형 또는 복권을 명할 수 있다.</p>
+<p>국무위원은 국정에 관하여 대통령을 보좌하며, 국무회의의 구성원으로서 국정을 심의한다.</p>
+<p>국민의 모든 자유와 권리는 국가안전보장·질서유지 또는 공공복리를 위하여 필요한 경우에 한하여 법률로써 제한할 수 있으며, 제한하는 경우에도 자유와 권리의 본질적인 내용을 침해할 수 없다.</p>
+<p>한 회계연도를 넘어 계속하여 지출할 필요가 있을 때에는 정부는 연한을 정하여 계속비로서 국회의 의결을 얻어야 한다.</p>
+<p>국가는 재해를 예방하고 그 위험으로부터 국민을 보호하기 위하여 노력하여야 한다.</p>`,
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: 'HTML element들 테스트해봐요',
+        content: `<h1>Heading 1</h1>
+<h2>Heading 2</h2>
+<p>Simple Text</p>
+<p><strong>Bold Text</strong></p>
+<p><em>Italic Text</em></p>
+<p><s>Text with Strike</s></p>
+<p><code>Inline Code</code></p>
+<pre><code>#include &lt;stdio.h&gt;
+
+int main() {
+  printf("Hello, world!");
+  return 0;
+}
+</code></pre>
+<ul>
+  <li><p>Bullet List Item 1</p></li>
+  <li><p>Bullet List Item 2</p></li>
+  <li><p>Bullet List Item 3</p></li>
+</ul>
+<ol>
+  <li><p>Ordered List Item 1</p></li>
+  <li><p>Ordered List Item 2</p></li>
+  <li><p>Ordered List Item 3</p></li>
+</ol>`,
+        createdById: managerUser.id,
+        groupId: 1
+      },
+      {
+        title: '아주 중요한 공지사항',
+        content: '<p>사실 별 내용 없어요 😇</p>',
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: '더 중요한 공지사항',
+        content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
+<p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
+<p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
+<p>일반사면을 명하려면 국회의 동의를 얻어야 한다. 연소자의 근로는 특별한 보호를 받는다.</p>
+<p>국회에서 의결된 법률안은 정부에 이송되어 15일 이내에 대통령이 공포한다.</p>
+<p>법률이 정하는 주요방위산업체에 종사하는 근로자의 단체행동권은 법률이 정하는 바에 의하여 이를 제한하거나 인정하지 아니할 수 있다.</p>
+<p>법률은 특별한 규정이 없는 한 공포한 날로부터 20일을 경과함으로써 효력을 발생한다.</p>
+<p>비상계엄이 선포된 때에는 법률이 정하는 바에 의하여 영장제도, 언론·출판·집회·결사의 자유, 정부나 법원의 권한에 관하여 특별한 조치를 할 수 있다.</p>`,
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: '제일 중요한 공지사항',
+        content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
+<p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
+<p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
+<p>대통령은 법률이 정하는 바에 의하여 사면·감형 또는 복권을 명할 수 있다.</p>
+<p>국무위원은 국정에 관하여 대통령을 보좌하며, 국무회의의 구성원으로서 국정을 심의한다.</p>
+<p>국민의 모든 자유와 권리는 국가안전보장·질서유지 또는 공공복리를 위하여 필요한 경우에 한하여 법률로써 제한할 수 있으며, 제한하는 경우에도 자유와 권리의 본질적인 내용을 침해할 수 없다.</p>
+<p>한 회계연도를 넘어 계속하여 지출할 필요가 있을 때에는 정부는 연한을 정하여 계속비로서 국회의 의결을 얻어야 한다.</p>
+<p>국가는 재해를 예방하고 그 위험으로부터 국민을 보호하기 위하여 노력하여야 한다.</p>`,
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: 'HTML element들 테스트해봐요',
+        content: `<h1>Heading 1</h1>
+<h2>Heading 2</h2>
+<p>Simple Text</p>
+<p><strong>Bold Text</strong></p>
+<p><em>Italic Text</em></p>
+<p><s>Text with Strike</s></p>
+<p><code>Inline Code</code></p>
+<pre><code>#include &lt;stdio.h&gt;
+
+int main() {
+  printf("Hello, world!");
+  return 0;
+}
+</code></pre>
+<ul>
+  <li><p>Bullet List Item 1</p></li>
+  <li><p>Bullet List Item 2</p></li>
+  <li><p>Bullet List Item 3</p></li>
+</ul>
+<ol>
+  <li><p>Ordered List Item 1</p></li>
+  <li><p>Ordered List Item 2</p></li>
+  <li><p>Ordered List Item 3</p></li>
+</ol>`,
+        createdById: managerUser.id,
+        groupId: 1
+      },
+      {
+        title: '아주 중요한 공지사항',
+        content: '<p>사실 별 내용 없어요 😇</p>',
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: '더 중요한 공지사항',
+        content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
+<p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
+<p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
+<p>일반사면을 명하려면 국회의 동의를 얻어야 한다. 연소자의 근로는 특별한 보호를 받는다.</p>
+<p>국회에서 의결된 법률안은 정부에 이송되어 15일 이내에 대통령이 공포한다.</p>
+<p>법률이 정하는 주요방위산업체에 종사하는 근로자의 단체행동권은 법률이 정하는 바에 의하여 이를 제한하거나 인정하지 아니할 수 있다.</p>
+<p>법률은 특별한 규정이 없는 한 공포한 날로부터 20일을 경과함으로써 효력을 발생한다.</p>
+<p>비상계엄이 선포된 때에는 법률이 정하는 바에 의하여 영장제도, 언론·출판·집회·결사의 자유, 정부나 법원의 권한에 관하여 특별한 조치를 할 수 있다.</p>`,
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: '제일 중요한 공지사항',
+        content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
+<p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
+<p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
+<p>대통령은 법률이 정하는 바에 의하여 사면·감형 또는 복권을 명할 수 있다.</p>
+<p>국무위원은 국정에 관하여 대통령을 보좌하며, 국무회의의 구성원으로서 국정을 심의한다.</p>
+<p>국민의 모든 자유와 권리는 국가안전보장·질서유지 또는 공공복리를 위하여 필요한 경우에 한하여 법률로써 제한할 수 있으며, 제한하는 경우에도 자유와 권리의 본질적인 내용을 침해할 수 없다.</p>
+<p>한 회계연도를 넘어 계속하여 지출할 필요가 있을 때에는 정부는 연한을 정하여 계속비로서 국회의 의결을 얻어야 한다.</p>
+<p>국가는 재해를 예방하고 그 위험으로부터 국민을 보호하기 위하여 노력하여야 한다.</p>`,
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: 'HTML element들 테스트해봐요',
+        content: `<h1>Heading 1</h1>
+<h2>Heading 2</h2>
+<p>Simple Text</p>
+<p><strong>Bold Text</strong></p>
+<p><em>Italic Text</em></p>
+<p><s>Text with Strike</s></p>
+<p><code>Inline Code</code></p>
+<pre><code>#include &lt;stdio.h&gt;
+
+int main() {
+  printf("Hello, world!");
+  return 0;
+}
+</code></pre>
+<ul>
+  <li><p>Bullet List Item 1</p></li>
+  <li><p>Bullet List Item 2</p></li>
+  <li><p>Bullet List Item 3</p></li>
+</ul>
+<ol>
+  <li><p>Ordered List Item 1</p></li>
+  <li><p>Ordered List Item 2</p></li>
+  <li><p>Ordered List Item 3</p></li>
+</ol>`,
+        createdById: managerUser.id,
+        groupId: 1
+      },
+      {
+        title: '아주 중요한 공지사항',
+        content: '<p>사실 별 내용 없어요 😇</p>',
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: '더 중요한 공지사항',
+        content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
+<p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
+<p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
+<p>일반사면을 명하려면 국회의 동의를 얻어야 한다. 연소자의 근로는 특별한 보호를 받는다.</p>
+<p>국회에서 의결된 법률안은 정부에 이송되어 15일 이내에 대통령이 공포한다.</p>
+<p>법률이 정하는 주요방위산업체에 종사하는 근로자의 단체행동권은 법률이 정하는 바에 의하여 이를 제한하거나 인정하지 아니할 수 있다.</p>
+<p>법률은 특별한 규정이 없는 한 공포한 날로부터 20일을 경과함으로써 효력을 발생한다.</p>
+<p>비상계엄이 선포된 때에는 법률이 정하는 바에 의하여 영장제도, 언론·출판·집회·결사의 자유, 정부나 법원의 권한에 관하여 특별한 조치를 할 수 있다.</p>`,
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: '제일 중요한 공지사항',
+        content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
+<p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
+<p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
+<p>대통령은 법률이 정하는 바에 의하여 사면·감형 또는 복권을 명할 수 있다.</p>
+<p>국무위원은 국정에 관하여 대통령을 보좌하며, 국무회의의 구성원으로서 국정을 심의한다.</p>
+<p>국민의 모든 자유와 권리는 국가안전보장·질서유지 또는 공공복리를 위하여 필요한 경우에 한하여 법률로써 제한할 수 있으며, 제한하는 경우에도 자유와 권리의 본질적인 내용을 침해할 수 없다.</p>
+<p>한 회계연도를 넘어 계속하여 지출할 필요가 있을 때에는 정부는 연한을 정하여 계속비로서 국회의 의결을 얻어야 한다.</p>
+<p>국가는 재해를 예방하고 그 위험으로부터 국민을 보호하기 위하여 노력하여야 한다.</p>`,
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: 'HTML element들 테스트해봐요',
+        content: `<h1>Heading 1</h1>
+<h2>Heading 2</h2>
+<p>Simple Text</p>
+<p><strong>Bold Text</strong></p>
+<p><em>Italic Text</em></p>
+<p><s>Text with Strike</s></p>
+<p><code>Inline Code</code></p>
+<pre><code>#include &lt;stdio.h&gt;
+
+int main() {
+  printf("Hello, world!");
+  return 0;
+}
+</code></pre>
+<ul>
+  <li><p>Bullet List Item 1</p></li>
+  <li><p>Bullet List Item 2</p></li>
+  <li><p>Bullet List Item 3</p></li>
+</ul>
+<ol>
+  <li><p>Ordered List Item 1</p></li>
+  <li><p>Ordered List Item 2</p></li>
+  <li><p>Ordered List Item 3</p></li>
+</ol>`,
+        createdById: managerUser.id,
+        groupId: 1
+      },
+      {
+        title: '아주 중요한 공지사항',
+        content: '<p>사실 별 내용 없어요 😇</p>',
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: '더 중요한 공지사항',
+        content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
+<p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
+<p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
+<p>일반사면을 명하려면 국회의 동의를 얻어야 한다. 연소자의 근로는 특별한 보호를 받는다.</p>
+<p>국회에서 의결된 법률안은 정부에 이송되어 15일 이내에 대통령이 공포한다.</p>
+<p>법률이 정하는 주요방위산업체에 종사하는 근로자의 단체행동권은 법률이 정하는 바에 의하여 이를 제한하거나 인정하지 아니할 수 있다.</p>
+<p>법률은 특별한 규정이 없는 한 공포한 날로부터 20일을 경과함으로써 효력을 발생한다.</p>
+<p>비상계엄이 선포된 때에는 법률이 정하는 바에 의하여 영장제도, 언론·출판·집회·결사의 자유, 정부나 법원의 권한에 관하여 특별한 조치를 할 수 있다.</p>`,
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: '제일 중요한 공지사항',
+        content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
+<p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
+<p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
+<p>대통령은 법률이 정하는 바에 의하여 사면·감형 또는 복권을 명할 수 있다.</p>
+<p>국무위원은 국정에 관하여 대통령을 보좌하며, 국무회의의 구성원으로서 국정을 심의한다.</p>
+<p>국민의 모든 자유와 권리는 국가안전보장·질서유지 또는 공공복리를 위하여 필요한 경우에 한하여 법률로써 제한할 수 있으며, 제한하는 경우에도 자유와 권리의 본질적인 내용을 침해할 수 없다.</p>
+<p>한 회계연도를 넘어 계속하여 지출할 필요가 있을 때에는 정부는 연한을 정하여 계속비로서 국회의 의결을 얻어야 한다.</p>
+<p>국가는 재해를 예방하고 그 위험으로부터 국민을 보호하기 위하여 노력하여야 한다.</p>`,
+        createdById: superAdminUser.id,
+        groupId: 1
+      },
+      {
+        title: 'HTML element들 테스트해봐요',
+        content: `<h1>Heading 1</h1>
+<h2>Heading 2</h2>
+<p>Simple Text</p>
+<p><strong>Bold Text</strong></p>
+<p><em>Italic Text</em></p>
+<p><s>Text with Strike</s></p>
+<p><code>Inline Code</code></p>
+<pre><code>#include &lt;stdio.h&gt;
+
+int main() {
+  printf("Hello, world!");
+  return 0;
+}
+</code></pre>
+<ul>
+  <li><p>Bullet List Item 1</p></li>
+  <li><p>Bullet List Item 2</p></li>
+  <li><p>Bullet List Item 3</p></li>
+</ul>
+<ol>
+  <li><p>Ordered List Item 1</p></li>
+  <li><p>Ordered List Item 2</p></li>
+  <li><p>Ordered List Item 3</p></li>
+</ol>`,
+        createdById: managerUser.id,
+        groupId: 1
+      },
       {
         title: '아주 중요한 공지사항',
         content: '<p>사실 별 내용 없어요 😇</p>',
@@ -6356,21 +6711,20 @@ const createContests = async () => {
     }
   })
 
-  // add contest notice
-  await prisma.contestNotice.create({
-    data: {
-      title: '1번 문제 수정 안내',
-      description: '<p>1번 문제가 blah blah 수정되었습니다.</p>',
-      contestId: contest.id,
-      problemId: problems[0].id
-    }
-  })
-
   // add problems to contest
   for (const problem of problems) {
     await prisma.contestProblem.create({
       data: {
         id: String(problem.id),
+        contestId: contest.id,
+        problemId: problem.id
+      }
+    })
+
+    // add clarifications to contestProblem
+    await prisma.clarification.create({
+      data: {
+        content: `${problem.id}번 문제가 blah blah 수정되었습니다.`,
         contestId: contest.id,
         problemId: problem.id
       }

@@ -1,20 +1,20 @@
 import { BadRequestException, HttpException, Injectable } from '@nestjs/common'
-import { PrismaService } from '@client/prisma/prisma.service'
-import { type CreateGroupProblemDto } from './dto/create-problem.dto'
-import { Level } from '@admin/@generated/prisma/level.enum'
-import type { UserCreateNestedOneWithoutProblemInput } from '@admin/@generated/user/user-create-nested-one-without-problem.input'
-import type { GroupCreateNestedOneWithoutProblemInput } from '@admin/@generated/group/group-create-nested-one-without-problem.input'
-import { type UpdateProblem } from './dto/update-problem.dto'
 import { isDefined } from 'class-validator'
-import type { ProblemTestcaseUncheckedCreateNestedManyWithoutProblemInput } from '@admin/@generated/problem-testcase/problem-testcase-unchecked-create-nested-many-without-problem.input'
-import type { TagCreateManyInput } from '@admin/@generated/tag/tag-create-many.input'
+import { PrismaService } from '@libs/prisma'
+import type { GroupCreateNestedOneWithoutProblemInput } from '@admin/@generated/group/group-create-nested-one-without-problem.input'
+import { Level } from '@admin/@generated/prisma/level.enum'
 import type { ProblemTagUncheckedCreateWithoutProblemInput } from '@admin/@generated/problem-tag/problem-tag-unchecked-create-without-problem.input'
+import type { ProblemTestcaseUncheckedCreateNestedManyWithoutProblemInput } from '@admin/@generated/problem-testcase/problem-testcase-unchecked-create-nested-many-without-problem.input'
+import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
+import type { TagCreateManyInput } from '@admin/@generated/tag/tag-create-many.input'
+import type { UserCreateNestedOneWithoutProblemInput } from '@admin/@generated/user/user-create-nested-one-without-problem.input'
+import type { CreateGroupProblemDto } from './dto/create-problem.dto'
 import type {
   DeleteGroupProblemDto,
   GetGroupProblemDto,
   GetGroupProblemsDto
 } from './dto/request-problem.dto'
-import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
+import type { UpdateProblem } from './dto/update-problem.dto'
 
 @Injectable()
 export class ProblemService {
