@@ -2,21 +2,18 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import type { Contest } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { PrismaService } from '@libs/prisma'
-import { contestPublicizingRequestKey } from '@admin/common/cache/keys'
-import {
-  OPEN_SPACE_ID,
-  PUBLICIZING_REQUEST_EXPIRE_TIME
-} from '@admin/common/constants'
+import { contestPublicizingRequestKey } from '@libs/cache'
+import { OPEN_SPACE_ID, PUBLICIZING_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
-} from '@admin/common/exception/business.exception'
+} from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
+import type { StoredPublicizingRequest } from './class/publicizing-request.class'
 import type { CreateContestDto } from './dto/create-contest.dto'
 import type { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 import type { UpdateContestDto } from './dto/update-contest.dto'
-import type { StoredPublicizingRequest } from './interface/publicizing-request.interface'
 
 // 어드민
 @Injectable()
@@ -146,7 +143,7 @@ export class ContestService {
   }
 
   async deleteContest(id: number) {
-    await this.prisma.contest.findUnique({
+    const contest = await this.prisma.contest.findUnique({
       where: {
         id: id
       },
@@ -158,6 +155,8 @@ export class ContestService {
         id: id
       }
     })
+
+    return contest
   }
 
   async getAdminContest(contestId: number): Promise<Partial<Contest>> {

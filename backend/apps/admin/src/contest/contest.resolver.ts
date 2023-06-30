@@ -7,18 +7,21 @@ import {
   UnprocessableEntityException
 } from '@nestjs/common'
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { Contest } from '@admin/@generated/contest/contest.model'
-import { AuthenticatedRequest } from '@admin/auth/interface/authenticated-request.interface'
+import { AuthenticatedRequest } from '@libs/auth'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
-} from '@admin/common/exception/business.exception'
-import { CursorValidationPipe } from '@admin/common/pipe/cursor-validation.pipe'
+} from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
+import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
 import { CreateContestDto } from './dto/create-contest.dto'
 import { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
 import { UpdateContestDto } from './dto/update-contest.dto'
+import { ContestPublicizingRequest } from './model/contest-publicizing-request.model'
+import { RespondContestPublicizingRequest as OutputTypeRespondcontestPublicizingRequestDto } from './model/respond-contest-publicizing-request.model'
+import { StoredPublicizingRequestOutput } from './model/stored-publicizing-request.model'
 
 @Resolver(() => Contest)
 export class ContestResolver {
@@ -77,7 +80,7 @@ export class ContestResolver {
     }
   }
 
-  @Mutation()
+  @Mutation(() => Contest)
   async deleteContest(@Args('id', ParseIntPipe) id: number) {
     try {
       return await this.contestService.deleteContest(id)
@@ -101,7 +104,7 @@ export class ContestResolver {
     }
   }
 
-  @Query()
+  @Query(() => [StoredPublicizingRequestOutput])
   async contestPublicizingRequests() {
     try {
       return await this.contestService.getContestPublicizingRequests()
@@ -110,7 +113,7 @@ export class ContestResolver {
     }
   }
 
-  @Mutation()
+  @Mutation(() => OutputTypeRespondcontestPublicizingRequestDto)
   async respondContestPublicizingRequest(
     @Args('id', ParseIntPipe) contestId: number,
     @Args('respondContestPublicizingRequestDto')
@@ -121,6 +124,7 @@ export class ContestResolver {
         contestId,
         respondContestPublicizingRequestDto
       )
+      return respondContestPublicizingRequestDto
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -129,16 +133,20 @@ export class ContestResolver {
     }
   }
 
-  @Mutation()
+  @Mutation(() => ContestPublicizingRequest)
   async createContestPublicizingRequest(
     @Req() req: AuthenticatedRequest,
     @Args('id', ParseIntPipe) contestId: number
   ) {
     try {
-      return await this.contestService.createContestPublicizingRequest(
+      await this.contestService.createContestPublicizingRequest(
         contestId,
         req.user.id
       )
+      return {
+        userId: req.user.id,
+        contestId: contestId
+      }
     } catch (error) {
       if (error instanceof ActionNotAllowedException) {
         throw new MethodNotAllowedException(error.message)
