@@ -1,7 +1,7 @@
 [
   {
-    "name": "api-server",
-    "image": "ghcr.io/skkuding/codedang-api",
+    "name": "Codedang-Api",
+    "image": "219857217698.dkr.ecr.ap-northeast-1.amazonaws.com/codedang-api",
     "cpu": 256,
     "memory": 512,
     "essential": true,

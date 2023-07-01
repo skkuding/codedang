@@ -13,8 +13,8 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   origin {
-    domain_name = aws_lb.proxy.dns_name
-    origin_id   = aws_lb.proxy.id
+    domain_name = aws_lb.api.dns_name
+    origin_id   = aws_lb.api.id
 
     custom_origin_config {
       http_port              = 80
@@ -47,7 +47,7 @@ resource "aws_cloudfront_distribution" "main" {
     path_pattern           = "/api/*"
     allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
     cached_methods         = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id       = aws_lb.proxy.id
+    target_origin_id       = aws_lb.api.id
     viewer_protocol_policy = "redirect-to-https"
 
     forwarded_values {

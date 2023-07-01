@@ -8,6 +8,18 @@ variable "s3_bucket" {
   default = "codedang"
 }
 
+variable "region" {
+  type    = string
+  default = "ap-northeast-2"
+}
+
+variable "availability_zones" {
+  description = "List of availability zones"
+  type        = list(string)
+  default     = ["ap-northeast-2a", "ap-northeast-2c"] # 추가 서브넷에 대한 가용 영역 목록을 지정합니다.
+}
+
+
 variable "isolated_subnets" {
   type = map(number)
   default = {
@@ -61,8 +73,4 @@ variable "private_subnets" {
   }
   description = "Map of AZ to a number that should be used for private subnets"
 }
-variable "availability_zones" {
-  description = "List of availability zones"
-  type        = list(string)
-  default     = ["ap-northeast-2a", "ap-northeast-2c"] # 추가 서브넷에 대한 가용 영역 목록을 지정합니다.
-}
+

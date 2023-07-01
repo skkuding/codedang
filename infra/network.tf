@@ -32,13 +32,13 @@ resource "aws_route_table" "main" {
   }
 }
 
-resource "aws_route_table_association" "proxy1" {
-  subnet_id      = aws_subnet.proxy1.id
+resource "aws_route_table_association" "api1" {
+  subnet_id      = aws_subnet.public_api1.id
   route_table_id = aws_route_table.main.id
 }
 
-resource "aws_route_table_association" "proxy2" {
-  subnet_id      = aws_subnet.proxy2.id
+resource "aws_route_table_association" "api2" {
+  subnet_id      = aws_subnet.public_api2.id
   route_table_id = aws_route_table.main.id
 }
 

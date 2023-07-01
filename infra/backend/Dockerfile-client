@@ -1,5 +1,5 @@
 # [NOTE] Build image from the root directory of this repository.
-# ex) `docker build -f deploy/backend/Dockerfile .`
+# ex) ` docker build -f infra/backend/Dockerfile-client .`
 
 ### BUILDER ###
 FROM node:18-alpine AS builder
@@ -10,11 +10,14 @@ WORKDIR /build
 RUN corepack enable
 RUN pnpm --filter=backend deploy out
 
+WORKDIR /build/out
+RUN npx prisma generate
+RUN npm run build client
+
 ### PRODUCTION ###
 FROM node:18-alpine
 
+ENV NODE_ENV=production
 COPY --from=builder /build/out .
 
-RUN npx prisma generate && npm run build
-
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/apps/client/main.js"]
