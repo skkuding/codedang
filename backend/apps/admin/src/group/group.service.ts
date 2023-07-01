@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import type { AuthenticatedUser } from '@libs/auth'
-import { ForbiddenAccessException } from '@libs/exception'
+import { OPEN_SPACE_ID } from '@libs/constants'
+import {
+  ForbiddenAccessException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { UserService } from '@admin/user/user.service'
 import type { CreateGroupInput, UpdateGroupInput } from './model/group.input'
@@ -13,6 +17,15 @@ export class GroupService {
   ) {}
 
   async createGroup(input: CreateGroupInput, userId: number) {
+    const duplicateName = await this.prisma.group.findUnique({
+      where: {
+        groupName: input.groupName
+      }
+    })
+    if (duplicateName) {
+      throw new UnprocessableDataException('Group name already exists')
+    }
+
     const group = await this.prisma.group.create({
       data: {
         groupName: input.groupName,
@@ -45,6 +58,7 @@ export class GroupService {
           id: true,
           groupName: true,
           description: true,
+          config: true,
           userGroup: true
         }
       })
@@ -86,6 +100,18 @@ export class GroupService {
   }
 
   async updateGroup(id: number, input: UpdateGroupInput) {
+    const duplicateName = await this.prisma.group.findFirst({
+      where: {
+        NOT: {
+          id
+        },
+        groupName: input.groupName
+      }
+    })
+    if (duplicateName) {
+      throw new UnprocessableDataException('Group name already exists')
+    }
+
     return await this.prisma.group.update({
       where: {
         id
@@ -99,7 +125,9 @@ export class GroupService {
   }
 
   async deleteGroup(id: number, user: AuthenticatedUser) {
-    if (!user.isAdmin() && !user.isSuperAdmin()) {
+    if (id === OPEN_SPACE_ID) {
+      throw new UnprocessableDataException('Open space cannot be deleted')
+    } else if (!user.isAdmin() && !user.isSuperAdmin()) {
       const group = await this.prisma.group.findUnique({
         where: { id },
         select: {
@@ -113,11 +141,10 @@ export class GroupService {
       }
     }
 
-    await this.prisma.userGroup.deleteMany({
+    return await this.prisma.userGroup.deleteMany({
       where: {
         groupId: id
       }
     })
-    return 'Group is successfully deleted'
   }
 }

@@ -13,3 +13,9 @@ export class FindGroup extends FindManyGroup {
   @Field(() => [String], { nullable: false })
   managers!: Array<string>
 }
+
+@ObjectType()
+export class DeletedUserGroup {
+  @Field(() => Int, { nullable: false })
+  count!: number
+}
