@@ -220,14 +220,20 @@ export class GroupService {
     if (isJoined) {
       throw new ActionNotAllowedException('join request', 'group')
     } else if (group.config['requireApprovalBeforeJoin']) {
-      const joinGroupRequest: number[] = await this.cacheManager.get(
+      let joinGroupRequest: number[] = await this.cacheManager.get(
         joinGroupCacheKey(groupId)
       )
-      if (joinGroupRequest) {
-        throw new ActionNotAllowedException('duplicated join request', 'group')
+      if (joinGroupRequest !== undefined) {
+        if (userId in joinGroupRequest) {
+          throw new ActionNotAllowedException(
+            'duplicated join request',
+            'group'
+          )
+        }
       }
 
-      joinGroupRequest.push(userId)
+      if (joinGroupRequest !== undefined) joinGroupRequest.push(userId)
+      else joinGroupRequest = [userId]
       await this.cacheManager.set(
         joinGroupCacheKey(groupId),
         joinGroupRequest,
