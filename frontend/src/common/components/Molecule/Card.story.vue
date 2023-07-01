@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Card from './Card.vue'
-import IconInfo from '~icons/fa6-solid/circle-info'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
-import IconMedal from '~icons/fa6-solid/medal'
-import IconEllipsis from '~icons/fa6-solid/ellipsis'
 import IconCalendar from '~icons/fa6-solid/calendar'
+import IconInfo from '~icons/fa6-solid/circle-info'
+import IconEllipsis from '~icons/fa6-solid/ellipsis'
+import IconMedal from '~icons/fa6-solid/medal'
+import Card from './Card.vue'
 
 const noticeItems = [
   {

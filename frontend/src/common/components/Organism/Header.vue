@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useAuthStore } from '@/common/store/auth'
 import { OnClickOutside } from '@vueuse/components'
-import Dropdown from '../Molecule/Dropdown.vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import IconUser from '~icons/fa6-regular/user'
+import IconArrowRightFromBracket from '~icons/fa6-solid/arrow-right-from-bracket'
+import IconBars from '~icons/fa6-solid/bars'
+import IconSliders from '~icons/fa6-solid/sliders'
+import IconUserGear from '~icons/fa6-solid/user-gear'
+import Button from '../Atom/Button.vue'
 import ListItem from '../Atom/ListItem.vue'
 import SignatureLogo from '../Atom/SignatureLogo.vue'
-import IconUser from '~icons/fa6-regular/user'
-import IconBars from '~icons/fa6-solid/bars'
-import IconUserGear from '~icons/fa6-solid/user-gear'
-import IconSliders from '~icons/fa6-solid/sliders'
-import IconArrowRightFromBracket from '~icons/fa6-solid/arrow-right-from-bracket'
-import Button from '../Atom/Button.vue'
+import Dropdown from '../Molecule/Dropdown.vue'
 import AuthModal from './AuthModal.vue'
-import { useAuthStore } from '@/common/store/auth'
-import { useRouter } from 'vue-router'
 
 const auth = useAuthStore()
 const router = useRouter()
