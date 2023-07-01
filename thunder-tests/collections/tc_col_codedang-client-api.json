@@ -1576,12 +1576,12 @@
             "method": "POST",
             "sortNum": 80000,
             "created": "2023-02-01T07:05:49.259Z",
-            "modified": "2023-02-15T05:13:09.653Z",
+            "modified": "2023-07-01T05:02:55.588Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"title\": \"title of workbook\",\n  \"description\": \"description of workbook\",\n  \"visible\": true\n}",
+                "raw": "{\n  \"title\": \"title of workbook2\",\n  \"description\": \"description of workbook2\",\n  \"isVisible\": true\n}",
                 "form": []
             },
             "tests": [
@@ -1595,7 +1595,7 @@
             "preReq": {
                 "runRequests": [
                     {
-                        "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
                         "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
                         "triggerCondition": "run-always",
                         "triggerValue": ""

@@ -13,6 +13,7 @@ import { PrismaModule } from '@libs/prisma'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { UserModule } from './user/user.module'
+import { WorkbookModule } from './workbook/workbook.module'
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { UserModule } from './user/user.module'
     JwtAuthModule,
     RolesModule,
     UserModule,
-    PrismaModule
+    PrismaModule,
+    WorkbookModule
   ],
   controllers: [AdminController],
   providers: [

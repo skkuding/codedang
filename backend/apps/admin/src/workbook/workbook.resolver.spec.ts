@@ -1,0 +1,19 @@
+import { Test, TestingModule } from '@nestjs/testing'
+import { WorkbookResolver } from './workbook.resolver'
+import { WorkbookService } from './workbook.service'
+
+describe('WorkbookResolver', () => {
+  let resolver: WorkbookResolver
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [WorkbookResolver, WorkbookService]
+    }).compile()
+
+    resolver = module.get<WorkbookResolver>(WorkbookResolver)
+  })
+
+  it('should be defined', () => {
+    expect(resolver).toBeDefined()
+  })
+})
