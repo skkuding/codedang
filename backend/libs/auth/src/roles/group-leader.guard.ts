@@ -3,16 +3,29 @@ import {
   type CanActivate,
   type ExecutionContext
 } from '@nestjs/common'
+import { Reflector } from '@nestjs/core'
 import { type GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
 import type { AuthenticatedRequest } from '../authenticated-request.interface'
 import type { AuthenticatedUser } from '../authenticated-user.class'
+import { LEADER_NOT_NEEDED_KEY } from '../guard.decorator'
 import { RolesService } from './roles.service'
 
 @Injectable()
 export class GroupLeaderGuard implements CanActivate {
-  constructor(private readonly service: RolesService) {}
+  constructor(
+    private reflector: Reflector,
+    private readonly service: RolesService
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isLeaderNotNeeded = this.reflector.getAllAndOverride<boolean>(
+      LEADER_NOT_NEEDED_KEY,
+      [context.getHandler(), context.getClass()]
+    )
+    if (isLeaderNotNeeded) {
+      return true
+    }
+
     let request: AuthenticatedRequest
     let groupId: number
     if (context.getType<GqlContextType>() === 'graphql') {
