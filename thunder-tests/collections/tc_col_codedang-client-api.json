@@ -479,6 +479,34 @@
             "containerId": "48547883-d35f-483f-a8d4-87a746611eb7",
             "created": "2023-06-24T07:15:39.073Z",
             "sortNum": 500000
+        },
+        {
+            "_id": "1ceeb6f0-ede0-4953-b535-921a95ff08af",
+            "name": "Get Submission Results",
+            "containerId": "6dae5743-bac8-4ce4-a198-1ddf8d324346",
+            "created": "2023-07-01T07:37:26.261Z",
+            "sortNum": 510000
+        },
+        {
+            "_id": "b5637fa9-bc58-4ed0-ad12-9c163481d00b",
+            "name": "Create Public Submission",
+            "containerId": "6dae5743-bac8-4ce4-a198-1ddf8d324346",
+            "created": "2023-07-01T07:37:52.040Z",
+            "sortNum": 520000
+        },
+        {
+            "_id": "da2d32fa-8b11-4404-8257-5298744eaf2c",
+            "name": "Create Contest Submission",
+            "containerId": "6dae5743-bac8-4ce4-a198-1ddf8d324346",
+            "created": "2023-07-01T07:38:05.619Z",
+            "sortNum": 530000
+        },
+        {
+            "_id": "ab0bbe00-536b-436e-aade-c5b842e205ae",
+            "name": "Create Workbook Submission",
+            "containerId": "6dae5743-bac8-4ce4-a198-1ddf8d324346",
+            "created": "2023-07-01T07:38:29.066Z",
+            "sortNum": 540000
         }
     ],
     "settings": {
@@ -5107,6 +5135,117 @@
                 }
             ],
             "docs": "# Get Clarifications by Contest\n\n파라미터로 주어진 group contest의 problem에 등록된 clarification의 목록을 불러옵니다.  "
+        },
+        {
+            "_id": "52cef395-a4d6-44c1-927d-758c50d07043",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "1ceeb6f0-ede0-4953-b535-921a95ff08af",
+            "name": "Succeed",
+            "url": "/submission/result/1",
+            "method": "GET",
+            "sortNum": 680000,
+            "created": "2023-07-01T07:38:38.548Z",
+            "modified": "2023-07-01T07:40:29.663Z",
+            "headers": [],
+            "params": [],
+            "tests": [],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "7f482415-cc91-4c32-a7d9-8826f468b47b",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "b5637fa9-bc58-4ed0-ad12-9c163481d00b",
+            "name": "Succeed",
+            "url": "/submission/problem/1",
+            "method": "POST",
+            "sortNum": 690000,
+            "created": "2023-07-01T07:38:50.191Z",
+            "modified": "2023-07-01T07:45:14.076Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"problemId\": 1,\n  \"code\": \"test\",\n  \"Language\": \"C\"\n}",
+                "form": []
+            },
+            "tests": [],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "6a976297-480c-486e-9326-b831987d38e8",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "da2d32fa-8b11-4404-8257-5298744eaf2c",
+            "name": "Succeed",
+            "url": "/submission/contest/1/problem/1",
+            "method": "POST",
+            "sortNum": 700000,
+            "created": "2023-07-01T07:39:07.540Z",
+            "modified": "2023-07-01T07:45:21.198Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"problemId\": 1,\n  \"code\": \"test\",\n  \"Language\": \"C\"\n}",
+                "form": []
+            },
+            "tests": [],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "1f3f7f2b-6500-44e9-9e62-d7798e15dea6",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "ab0bbe00-536b-436e-aade-c5b842e205ae",
+            "name": "Succeed",
+            "url": "/submission/workbook/1/problem/1",
+            "method": "POST",
+            "sortNum": 710000,
+            "created": "2023-07-01T07:39:20.223Z",
+            "modified": "2023-07-01T07:50:12.959Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"problemId\": 1,\n  \"code\": \"test\",\n  \"Language\": \"C\"\n}",
+                "form": []
+            },
+            "tests": [],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         }
     ]
 }
