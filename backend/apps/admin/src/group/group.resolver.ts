@@ -11,6 +11,7 @@ import {
   ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
 import { Group } from '@admin/@generated/group/group.model'
 import { GroupService } from './group.service'
 import { CreateGroupInput, UpdateGroupInput } from './model/group.input'
@@ -42,8 +43,11 @@ export class GroupResolver {
 
   @Query(() => [FindManyGroup])
   @UseGuards(RolesGuard)
-  async getGroups(): Promise<Partial<FindManyGroup>[]> {
-    return await this.groupService.getGroups()
+  async getGroups(
+    @Args('cursor', CursorValidationPipe) cursor: number,
+    @Args('take', { type: () => Int }) take: number
+  ): Promise<Partial<FindManyGroup>[]> {
+    return await this.groupService.getGroups(cursor, take)
   }
 
   @Query(() => FindGroup)
