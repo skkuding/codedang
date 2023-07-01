@@ -3,6 +3,15 @@ import { ProblemTestcaseCreateWithoutProblemInput } from '@admin/@generated/prob
 import { LanguageInput, DifficultyInput } from './update-problem.dto'
 
 @InputType()
+export class TestCaseDto {
+  @Field(() => String, { nullable: false })
+  input!: string
+
+  @Field(() => String, { nullable: false })
+  output!: string
+}
+
+@InputType()
 export class CreateGroupProblemDto {
   @Field(() => Int)
   createdById: number
@@ -46,8 +55,8 @@ export class CreateGroupProblemDto {
   @Field(() => [String], { nullable: true })
   outputExamples?: Array<string>
 
-  @Field(() => [ProblemTestcaseCreateWithoutProblemInput], { nullable: true })
-  problemTestcase?: Array<ProblemTestcaseCreateWithoutProblemInput>
+  @Field(() => [TestCaseDto], { nullable: true })
+  problemTestcase?: Array<TestCaseDto>
 
   @Field(() => [String], { nullable: true })
   problemTag?: Array<string>
