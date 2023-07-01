@@ -14,6 +14,7 @@ export default {
       transparent: colors.transparent,
       current: colors.current,
       default: '#212529',
+      yellow: '#f3ec53',
       green: {
         DEFAULT: '#8dc63f',
         dark: '#2d4e00'
