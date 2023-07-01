@@ -3,7 +3,57 @@
     "colName": "Codedang Admin API",
     "created": "2023-05-02T10:59:44.408Z",
     "sortNum": 20000,
-    "folders": [],
+    "folders": [
+        {
+            "_id": "779bfe70-b415-430c-8ac2-5b75f7b66d71",
+            "name": "Group Manager/Member List",
+            "containerId": "a1a33c52-9bec-4f17-9b73-a15b359f2edd",
+            "created": "2023-07-01T04:13:54.692Z",
+            "sortNum": 20000
+        },
+        {
+            "_id": "c243dd82-7c86-400b-a5a6-4f271808402c",
+            "name": "Group Manager Upgrade/Downgrade",
+            "containerId": "a1a33c52-9bec-4f17-9b73-a15b359f2edd",
+            "created": "2023-07-01T04:35:24.186Z",
+            "sortNum": 10000
+        },
+        {
+            "_id": "a1a33c52-9bec-4f17-9b73-a15b359f2edd",
+            "name": "Group User",
+            "containerId": "",
+            "created": "2023-07-01T04:35:49.296Z",
+            "sortNum": 50000
+        },
+        {
+            "_id": "9184a7f5-915d-4076-886c-5009672c0d1a",
+            "name": "Delete Group Manager/Member",
+            "containerId": "a1a33c52-9bec-4f17-9b73-a15b359f2edd",
+            "created": "2023-07-01T05:01:25.938Z",
+            "sortNum": 70000
+        },
+        {
+            "_id": "96ad99fd-dfd9-4df4-af02-3d6a9ccfaeae",
+            "name": "Group Members Needed Approval List",
+            "containerId": "a1a33c52-9bec-4f17-9b73-a15b359f2edd",
+            "created": "2023-07-01T06:03:06.339Z",
+            "sortNum": 80000
+        },
+        {
+            "_id": "fa0097aa-a224-4b34-b67a-5cab53144475",
+            "name": "Reject Join",
+            "containerId": "a1a33c52-9bec-4f17-9b73-a15b359f2edd",
+            "created": "2023-07-01T06:07:56.248Z",
+            "sortNum": 90000
+        },
+        {
+            "_id": "de696fa1-cb8a-46b9-8d2f-282555bcd2c7",
+            "name": "Accept Join",
+            "containerId": "a1a33c52-9bec-4f17-9b73-a15b359f2edd",
+            "created": "2023-07-01T06:08:11.393Z",
+            "sortNum": 100000
+        }
+    ],
     "settings": {
         "auth": {
             "type": "bearer",
@@ -13,5 +63,188 @@
             "baseUrl": "http://localhost:3000/graphql"
         }
     },
-    "requests": []
+    "requests": [
+        {
+            "_id": "d77732af-3043-4b1c-9c9f-a9855c2b7ddb",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "779bfe70-b415-430c-8ac2-5b75f7b66d71",
+            "name": "Group Manager",
+            "url": "http://localhost:3000/graphql",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2023-07-01T04:14:05.536Z",
+            "modified": "2023-07-01T04:32:38.786Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query {\r\n  getUsers(input: {\r\n    id: 4,\r\n    cursor: 0,\r\n    take: 5\r\n  }, role: Manager){\r\n    studentId\r\n    userId\r\n    name\r\n    email\r\n  }\r\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "865e358c-4a16-4fbd-b99c-4ce9ad003a36",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "779bfe70-b415-430c-8ac2-5b75f7b66d71",
+            "name": "Group Member",
+            "url": "http://localhost:3000/graphql",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2023-07-01T04:33:06.022Z",
+            "modified": "2023-07-01T06:27:27.741Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query {\n  getUsers(input: {\n    id: 3,\n    cursor: 0,\n    take: 5\n  }, role: User){\n    studentId\n    userId\n    name\n    email\n  }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "8db9a19c-ba2a-4fcc-a566-ec4192938605",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "c243dd82-7c86-400b-a5a6-4f271808402c",
+            "name": "Group User Downgrade",
+            "url": "http://localhost:3000/graphql",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2023-07-01T04:36:10.194Z",
+            "modified": "2023-07-01T04:55:45.289Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query User {\n  downgradeGroupManager(userId: 3, groupId: 4){\n    userId\n    groupId\n  }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "04557f93-e620-4941-bb6e-d7afedee50b4",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "c243dd82-7c86-400b-a5a6-4f271808402c",
+            "name": "Group User Upgrade",
+            "url": "http://localhost:3000/graphql",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2023-07-01T04:53:40.909Z",
+            "modified": "2023-07-01T04:57:35.248Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query User {\n  upgradeGroupMember(userId: 3, groupId: 4){\n    userId\n    groupId\n  }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "97fbc239-6615-43d3-90c6-edcfc6d31d56",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "9184a7f5-915d-4076-886c-5009672c0d1a",
+            "name": "Delete Group Manager",
+            "url": "http://localhost:3000/graphql",
+            "method": "POST",
+            "sortNum": 50000,
+            "created": "2023-07-01T05:01:37.449Z",
+            "modified": "2023-07-01T05:02:08.168Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "3bd17591-9d95-4aad-852d-29afd41d331f",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "9184a7f5-915d-4076-886c-5009672c0d1a",
+            "name": "Delete Group Member",
+            "url": "http://localhost:3000/graphql",
+            "method": "POST",
+            "sortNum": 60000,
+            "created": "2023-07-01T05:01:44.965Z",
+            "modified": "2023-07-01T05:02:06.361Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "d57885e8-6172-4912-b54b-a40d2f48453a",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "96ad99fd-dfd9-4df4-af02-3d6a9ccfaeae",
+            "name": "Success",
+            "url": "http://localhost:3000/graphql",
+            "method": "POST",
+            "sortNum": 70000,
+            "created": "2023-07-01T06:03:22.283Z",
+            "modified": "2023-07-01T06:21:02.940Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query User {\r\n  getNeededApproval(groupId: \"3\") {\r\n    id\r\n    username\r\n  }\r\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "8b328b35-bb91-4841-9054-4a134e453150",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "de696fa1-cb8a-46b9-8d2f-282555bcd2c7",
+            "name": "Success",
+            "url": "http://localhost:3000/graphql",
+            "method": "POST",
+            "sortNum": 80000,
+            "created": "2023-07-01T06:08:18.469Z",
+            "modified": "2023-07-01T06:26:56.372Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation User {\r\n  acceptJoin (input: {\r\n    groupId: 3,\r\n    userId: 13,\r\n  }) {\r\n    userId\r\n  }\r\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "65452c2e-b5c4-453d-8af7-68884dc4664b",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "fa0097aa-a224-4b34-b67a-5cab53144475",
+            "name": "Success",
+            "url": "http://localhost:3000/graphql",
+            "method": "POST",
+            "sortNum": 90000,
+            "created": "2023-07-01T06:08:25.090Z",
+            "modified": "2023-07-01T06:21:42.386Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation User {\r\n  rejectJoin (input: {\r\n    groupId: 3,\r\n    userId: 13\r\n  })\r\n}"
+                }
+            },
+            "tests": []
+        }
+    ]
 }
