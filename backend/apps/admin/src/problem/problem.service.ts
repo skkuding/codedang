@@ -24,14 +24,11 @@ import type { UpdateProblem } from './dto/update-problem.dto'
 export class ProblemService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private readonly problemsSelectOption = {
-    id: true,
-    title: true,
-    difficulty: true
-  }
-
   private readonly problemSelectOption = {
-    ...this.problemsSelectOption,
+    id: true,
+    createdById: true,
+    groupId: true,
+    title: true,
     description: true,
     inputDescription: true,
     outputDescription: true,
@@ -39,9 +36,14 @@ export class ProblemService {
     languages: true,
     timeLimit: true,
     memoryLimit: true,
+    difficulty: true,
     source: true,
+    createTime: true,
+    updateTime: true,
     inputExamples: true,
-    outputExamples: true
+    outputExamples: true,
+    problemTestcase: true,
+    problemTag: true
   }
 
   async create(problemCreateInput: CreateGroupProblemDto) {
@@ -141,9 +143,11 @@ export class ProblemService {
       where: {
         ...whereOptions
       },
-      select: this.problemsSelectOption,
-      cursor: { id: getGroupProblemsInput.cursor },
-      skip: 1,
+      select: this.problemSelectOption,
+      cursor: {
+        id: getGroupProblemsInput.cursor < 1 ? 1 : getGroupProblemsInput.cursor
+      },
+      skip: getGroupProblemsInput.cursor < 1 ? 0 : 1,
       take: getGroupProblemsInput.take
     })
   }
@@ -191,18 +195,20 @@ export class ProblemService {
 
   async remove(deleteGroupProblemInput: DeleteGroupProblemDto) {
     try {
-      await this.prisma.problem.findUniqueOrThrow({
+      const deletedProblem = await this.prisma.problem.findUniqueOrThrow({
         where: {
           id: deleteGroupProblemInput.problemId
         },
         select: this.problemSelectOption
       })
 
-      return await this.prisma.problem.delete({
+      await this.prisma.problem.delete({
         where: {
           id: deleteGroupProblemInput.problemId
         }
       })
+
+      return `${deletedProblem.title} has been successfully deleted with ID numbered ${deletedProblem.id}!`
     } catch {
       throw new NotFoundException()
     }

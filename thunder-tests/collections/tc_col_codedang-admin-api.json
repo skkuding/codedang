@@ -54,7 +54,7 @@
             "method": "POST",
             "sortNum": 30000,
             "created": "2023-07-01T02:58:44.755Z",
-            "modified": "2023-07-01T03:07:35.155Z",
+            "modified": "2023-07-01T03:57:35.793Z",
             "headers": [],
             "params": [],
             "body": {
@@ -62,8 +62,8 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query Problem(\n        $getGroupProblemInput: GetGroupProblemDto!\n    ) {\n    getGroupProblem(\n       getGroupProblemInput: $getGroupProblemInput\n    ){\n        id\n        problemTestcase{\n            output\n        }\n    }\n}",
-                    "variables": "{\n  \"getGroupProblemInput\":{\n    \"problemId\": 12\n  }\n}"
+                    "query": "query Problem(\n        $getGroupProblemInput: GetGroupProblemDto!\n    ) {\n    getGroupProblem(\n       getGroupProblemInput: $getGroupProblemInput\n    ){\n        id\n        description\n        inputDescription\n        hint\n        inputExamples\n    }\n}",
+                    "variables": "{\n  \"getGroupProblemInput\":{\n    \"problemId\": 13\n  }\n}"
                 }
             },
             "tests": []
@@ -77,7 +77,7 @@
             "method": "POST",
             "sortNum": 40000,
             "created": "2023-07-01T03:10:25.961Z",
-            "modified": "2023-07-01T03:14:00.889Z",
+            "modified": "2023-07-01T04:47:03.319Z",
             "headers": [],
             "params": [],
             "body": {
@@ -85,8 +85,8 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query Problem(\n        $getGroupProblemsInput: GetGroupProblemsDto!\n    ) {\n    getGroupProblems(\n       getGroupProblemsInput: $getGroupProblemsInput\n    ){\n        id\n        problemTestcase{\n            output\n        }\n    }\n}",
-                    "variables": "{\n  \"getGroupProblemsInput\":{\n    \"groupId\": 1,\n    \"cursor\": 1,\n    \"take\": 2,\n    \"languages\": [\"C\"]\n  }\n}"
+                    "query": "query Problem(\n        $getGroupProblemsInput: GetGroupProblemsDto!\n    ) {\n    getGroupProblems(\n       getGroupProblemsInput: $getGroupProblemsInput\n    ){\n        id\n        description\n        problemTestcase{\n            output\n        }\n    }\n}",
+                    "variables": "{\n  \"getGroupProblemsInput\":{\n    \"groupId\": 1,\n    \"cursor\": 0,\n    \"take\": 1\n  }\n}"
                 }
             },
             "tests": []
@@ -100,7 +100,7 @@
             "method": "POST",
             "sortNum": 50000,
             "created": "2023-07-01T03:14:22.350Z",
-            "modified": "2023-07-01T03:30:09.328Z",
+            "modified": "2023-07-01T05:49:39.309Z",
             "headers": [],
             "params": [],
             "body": {
@@ -108,8 +108,8 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation Problem(\n        $deleteGroupProblemInput: DeleteGroupProblemDto!\n    ) {\n    deleteGroupProblem(\n       deleteGroupProblemInput: $deleteGroupProblemInput\n    ){\n        title\n    }\n}",
-                    "variables": "{\n  \"deleteGroupProblemInput\":{\n    \"problemId\": 12\n  }\n}"
+                    "query": "mutation Problem(\n        $deleteGroupProblemInput: DeleteGroupProblemDto!\n    ) {\n    deleteGroupProblem(\n       deleteGroupProblemInput: $deleteGroupProblemInput\n    )\n}",
+                    "variables": "{\n  \"deleteGroupProblemInput\":{\n    \"problemId\": 10\n  }\n}"
                 }
             },
             "tests": []

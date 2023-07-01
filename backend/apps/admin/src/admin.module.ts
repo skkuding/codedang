@@ -13,6 +13,7 @@ import { PrismaModule } from '@libs/prisma'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { ProblemModule } from './problem/problem.module'
+import { ProblemService } from './problem/problem.service'
 import { UserModule } from './user/user.module'
 
 @Module({
