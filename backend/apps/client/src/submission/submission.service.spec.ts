@@ -69,16 +69,55 @@ describe('SubmissionService', () => {
   })
 
   describe('getSubmissionResults', () => {
-    it('should return submission results', async () => {
+    it('should return judgeFinished=true when judge finished', async () => {
       const submissionId = 'test01'
-      db.submissionResult.findMany.resolves([...submissionResults])
+      const results = submissionResults.filter(
+        (submissionResult) => submissionResult.submissionId === submissionId
+      )
+      db.submissionResult.findMany.resolves(results)
 
       const result = await service.getSubmissionResults(submissionId)
 
       expect(result).to.deep.equal({
-        submissionResults: [...submissionResults],
+        submissionResults: results,
         score: 100,
         passed: true,
+        judgeFinished: true
+      })
+    })
+
+    it('shoud return judgeFinished=false when judge not finished', async () => {
+      const submissionId = 'test02'
+      db.submissionResult.findMany.resolves
+      const results = submissionResults.filter(
+        (submissionResult) => submissionResult.submissionId === submissionId
+      )
+      db.submissionResult.findMany.resolves(results)
+
+      const result = await service.getSubmissionResults(submissionId)
+
+      expect(result).to.deep.equal({
+        submissionResults: results,
+        score: 100,
+        passed: false,
+        judgeFinished: false
+      })
+    })
+
+    it('shoud return passed=false when at least one of judge failed', async () => {
+      const submissionId = 'test03'
+      db.submissionResult.findMany.resolves
+      const results = submissionResults.filter(
+        (submissionResult) => submissionResult.submissionId === submissionId
+      )
+      db.submissionResult.findMany.resolves(results)
+
+      const result = await service.getSubmissionResults(submissionId)
+
+      expect(result).to.deep.equal({
+        submissionResults: results,
+        score: 100,
+        passed: false,
         judgeFinished: true
       })
     })
@@ -108,7 +147,11 @@ describe('SubmissionService', () => {
       db.submission.create.resolves(submissions[0])
       db.submissionResult.createMany.resolves()
       db.submissionResult.findMany.resolves(
-        submissionResults.map((submissionResult) => submissionResult.id)
+        submissionResults
+          .filter(
+            (submissionResult) => submissionResult.submissionId === submissionId
+          )
+          .map((submissionResult) => submissionResult.id)
       )
       db.problem.findUnique.resolves(problems[0])
       db.problemTestcase.findMany.resolves([...problemTestcases])
@@ -124,24 +167,18 @@ describe('SubmissionService', () => {
           .map((submissionResult) => submissionResult.id)
       })
 
-      submissionResults
-        .filter(
-          (submissionResult) => submissionResult.submissionId === submissionId
+      expect(
+        amqpConnectionSpyPublish.calledOnceWith(
+          EXCHANGE,
+          SUBMISSION_KEY,
+          judgeRequest,
+          {
+            persistent: true,
+            messageId: submissionId,
+            type: 'judge'
+          }
         )
-        .forEach((submissionResult) => {
-          expect(
-            amqpConnectionSpyPublish.calledWith(
-              EXCHANGE,
-              SUBMISSION_KEY,
-              judgeRequest,
-              {
-                persistent: true,
-                messageId: submissionResult.id.toString(),
-                type: 'Judge'
-              }
-            )
-          ).to.be.true
-        })
+      ).to.be.true
     })
 
     it('should throw ActionNotAllowedException when sumbit with unsupported language', async () => {

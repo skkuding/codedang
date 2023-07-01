@@ -75,7 +75,7 @@ export class SubmissionService implements OnModuleInit {
       ).length === 0
     const judgeFinished =
       submissionResults.filter(
-        (result) => result.result !== ResultStatus.Judging
+        (result) => result.result === ResultStatus.Judging
       ).length === 0
 
     return {
@@ -121,7 +121,7 @@ export class SubmissionService implements OnModuleInit {
     }
   }
 
-  async createSubmissionResult(
+  private async createSubmissionResult(
     submissionId: string,
     problemId: number
   ): Promise<{ id: number }[]> {
@@ -156,7 +156,9 @@ export class SubmissionService implements OnModuleInit {
     })
   }
 
-  async publishJudgeRequestMessage(submission: Submission): Promise<void> {
+  private async publishJudgeRequestMessage(
+    submission: Submission
+  ): Promise<void> {
     const problem: Partial<Problem> = await this.prisma.problem.findUnique({
       where: { id: submission.problemId },
       select: {
@@ -205,7 +207,7 @@ export class SubmissionService implements OnModuleInit {
     await this.updateSubmissionResult(judgeResults)
   }
 
-  async updateSubmissionResult(
+  private async updateSubmissionResult(
     judgeResults: {
       problemTestcaseId: number
       result: ResultStatus
