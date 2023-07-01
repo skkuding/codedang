@@ -77,7 +77,7 @@
             "method": "POST",
             "sortNum": 40000,
             "created": "2023-07-01T03:10:25.961Z",
-            "modified": "2023-07-01T04:47:03.319Z",
+            "modified": "2023-07-01T07:41:37.012Z",
             "headers": [],
             "params": [],
             "body": {
@@ -86,7 +86,7 @@
                 "form": [],
                 "graphql": {
                     "query": "query Problem(\n        $getGroupProblemsInput: GetGroupProblemsDto!\n    ) {\n    getGroupProblems(\n       getGroupProblemsInput: $getGroupProblemsInput\n    ){\n        id\n        description\n        problemTestcase{\n            output\n        }\n    }\n}",
-                    "variables": "{\n  \"getGroupProblemsInput\":{\n    \"groupId\": 1,\n    \"cursor\": 0,\n    \"take\": 1\n  }\n}"
+                    "variables": "{\n  \"getGroupProblemsInput\":{\n    \"groupId\": 2,\n    \"cursor\": 0,\n    \"take\": 1\n  }\n}"
                 }
             },
             "tests": []
@@ -110,6 +110,29 @@
                 "graphql": {
                     "query": "mutation Problem(\n        $deleteGroupProblemInput: DeleteGroupProblemDto!\n    ) {\n    deleteGroupProblem(\n       deleteGroupProblemInput: $deleteGroupProblemInput\n    )\n}",
                     "variables": "{\n  \"deleteGroupProblemInput\":{\n    \"problemId\": 10\n  }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "81dbde5f-7a2c-441a-adc5-4bc22c20cc75",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "b5de957a-6980-4a7c-b956-326d896aa97f",
+            "name": "getOpenSpaceProblems",
+            "url": "",
+            "method": "POST",
+            "sortNum": 45000,
+            "created": "2023-07-01T07:37:16.102Z",
+            "modified": "2023-07-01T07:41:15.883Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query Problem(\n        $getOpenSpaceProblemsInput: GetOpenSpaceProblemDto!\n    ) {\n    getOpenSpaceProblems(\n       getOpenSpaceProblemsInput: $getOpenSpaceProblemsInput\n    ){\n        id\n        description\n        problemTestcase{\n            output\n        }\n    }\n}",
+                    "variables": "{\n  \"getOpenSpaceProblemsInput\":{\n    \"cursor\": 0,\n    \"take\": 1\n  }\n}"
                 }
             },
             "tests": []

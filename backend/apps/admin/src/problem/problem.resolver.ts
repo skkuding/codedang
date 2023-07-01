@@ -1,4 +1,7 @@
+import { BadRequestException } from '@nestjs/common'
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql'
+import { isDefined } from 'class-validator'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import { Problem } from '@admin/@generated/problem/problem.model'
 import { CreateGroupProblemDto } from './dto/create-problem.dto'
 import {
@@ -6,6 +9,7 @@ import {
   GetGroupProblemsDto,
   DeleteGroupProblemDto
 } from './dto/request-problem.dto'
+import { GetOpenSpaceProblemDto } from './dto/request-problem.dto'
 import { UpdateProblem } from './dto/update-problem.dto'
 import { ProblemService } from './problem.service'
 
@@ -21,10 +25,30 @@ export class ProblemResolver {
   }
 
   @Query(() => [Problem], { name: 'getGroupProblems' })
-  async geAllByGroup(
+  async getAllByGroup(
     @Args('getGroupProblemsInput') getGroupProblemsInput: GetGroupProblemsDto
   ) {
+    if (!isDefined(getGroupProblemsInput.groupId)) {
+      throw new BadRequestException()
+    } else if (getGroupProblemsInput.groupId == OPEN_SPACE_ID) {
+      throw new BadRequestException('unauthorized')
+    }
     return await this.problemService.findAll(getGroupProblemsInput)
+  }
+
+  @Query(() => [Problem], { name: 'getOpenSpaceProblems' })
+  async getAllOpenSpace(
+    @Args('getOpenSpaceProblemsInput')
+    getOpenSpaceProblemsInput: GetOpenSpaceProblemDto
+  ) {
+    if (
+      isDefined(getOpenSpaceProblemsInput.groupId) &&
+      getOpenSpaceProblemsInput.groupId != OPEN_SPACE_ID
+    ) {
+      throw new BadRequestException()
+    }
+    getOpenSpaceProblemsInput.groupId = OPEN_SPACE_ID
+    return await this.problemService.findAll({ ...getOpenSpaceProblemsInput })
   }
 
   @Mutation(() => String, { name: 'createGroupProblem' })

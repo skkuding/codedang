@@ -9,8 +9,8 @@ export class GetGroupProblemDto {
 
 @InputType()
 export class GetGroupProblemsDto {
-  @Field(() => Int)
-  groupId: number
+  @Field(() => Int, { nullable: true })
+  groupId?: number
 
   @Field(() => Int)
   cursor: number
@@ -30,3 +30,6 @@ export class GetGroupProblemsDto {
 
 @InputType()
 export class DeleteGroupProblemDto extends GetGroupProblemDto {}
+
+@InputType()
+export class GetOpenSpaceProblemDto extends GetGroupProblemsDto {}
