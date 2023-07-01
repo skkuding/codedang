@@ -18,7 +18,7 @@ export class CursorValidationPipe implements PipeTransform {
         throw new BadRequestException('Cursor value must be number')
       }
       // validation for negative values
-      if (cursor < 0) {
+      if (cursor <= 0) {
         throw new InvalidCursorValueException(cursor)
       }
 

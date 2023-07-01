@@ -44,7 +44,7 @@ export class GroupResolver {
   @Query(() => [FindManyGroup])
   @UseGuards(RolesGuard)
   async getGroups(
-    @Args('cursor', CursorValidationPipe) cursor: number,
+    @Args('cursor', { nullable: true }, CursorValidationPipe) cursor: number,
     @Args('take', { type: () => Int }) take: number
   ): Promise<Partial<FindManyGroup>[]> {
     return await this.groupService.getGroups(cursor, take)
