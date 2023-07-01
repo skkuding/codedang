@@ -1,13 +1,10 @@
 import { Field, Int, InputType } from '@nestjs/graphql'
 
 @InputType()
-export class GetUsersInput {
+export class JoinInput {
   @Field(() => Int)
-  id: number
+  groupId: number
 
   @Field(() => Int)
-  cursor: number
-
-  @Field(() => Int)
-  take: number
+  userId: number
 }

@@ -1,13 +1,18 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException
+} from '@nestjs/common'
 import { Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
+import { joinGroupCacheKey } from '@libs/cache'
+import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 import type { UserGroup } from '@admin/@generated/user-group/user-group.model'
 import type { User } from '@admin/@generated/user/user.model'
-import type { UserCreateInput } from '../@generated/user/user-create.input'
-import type { UserUpdateInput } from '../@generated/user/user-update.input'
-import type { UserGroupData } from './interface/user-group-data.interface'
 
 @Injectable()
 export class UserService {
@@ -16,29 +21,10 @@ export class UserService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async createUser(userCreateInput: UserCreateInput) {
-    return await this.prisma.user.create({
-      data: {
-        username: userCreateInput.username,
-        password: userCreateInput.password,
-        email: userCreateInput.email
-      }
-    })
-  }
-
-  async getAllUsers(): Promise<User[]> {
-    return await this.prisma.user.findMany()
-  }
-
-  async getUser(id: number): Promise<User> {
-    return await this.prisma.user.findUnique({
-      where: {
-        id: id
-      }
-    })
-  }
-
   async getUsers(groupId: number, role: Role, cursor: number, take: number) {
+    if (role != Role.Manager && role != Role.User)
+      throw new BadRequestException()
+
     const isGroupLeader = role == Role.Manager
     const groupMembers = await this.prisma.userGroup.findMany({
       take,
@@ -72,17 +58,16 @@ export class UserService {
 
       if (userProfile == null) {
         return {
-          username,
+          studentId: username,
           userId,
-          realName: '',
+          name: '',
           email
         }
       } else {
         return {
-          username,
+          studentId: username,
           userId,
-          realName: userProfile.realName,
-          email
+          name: userProfile.realName
         }
       }
     })
@@ -103,24 +88,14 @@ export class UserService {
         select: {
           user: {
             select: {
-              id: true,
-              username: true,
-              userProfile: {
-                select: {
-                  realName: true
-                }
-              },
-              email: true
+              id: true
             }
           }
         }
       })
     ).map((userGroup) => {
       return {
-        username: userGroup.user.username,
-        userId: userGroup.user.id,
-        realName: userGroup.user.userProfile.realName,
-        email: userGroup.user.email
+        userId: userGroup.user.id
       }
     })
 
@@ -134,10 +109,9 @@ export class UserService {
     } else if (doesTheManagerExist == false && isUpgrade == true) {
       upgradeOrDowngrade = true
     } else {
-      console.log('Invalid request')
-      throw new NotFoundException()
+      throw new BadRequestException()
     }
-    const returnVal = await this.prisma.userGroup.update({
+    return await this.prisma.userGroup.update({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         userId_groupId: {
@@ -147,85 +121,6 @@ export class UserService {
       },
       data: {
         isGroupLeader: upgradeOrDowngrade
-      }
-    })
-    console.log(returnVal)
-    return returnVal
-  }
-
-  async updateUser(
-    id: number,
-    userUpdateInput: UserUpdateInput
-  ): Promise<User> {
-    return await this.prisma.user.update({
-      where: {
-        id: id
-      },
-      data: {
-        username: userUpdateInput.username,
-        password: userUpdateInput.password,
-        email: userUpdateInput.email
-      }
-    })
-  }
-
-  async createUserGroup(userGroupData: UserGroupData): Promise<UserGroup> {
-    return await this.prisma.userGroup.create({
-      data: {
-        user: {
-          connect: { id: userGroupData.userId }
-        },
-        group: {
-          connect: { id: userGroupData.groupId }
-        },
-        isGroupLeader: userGroupData.isGroupLeader
-      }
-    })
-  }
-
-  async registerNewMembers(
-    groupId: number,
-    managers: number[],
-    members: number[]
-  ) {
-    const groupMembers = (
-      await this.prisma.userGroup.findMany({
-        where: {
-          groupId: groupId
-        },
-        select: {
-          user: {
-            select: {
-              id: true
-            }
-          }
-        }
-      })
-    ).map((userGroup) => {
-      return {
-        userId: userGroup.user.id
-      }
-    })
-
-    managers.forEach(async (userId) => {
-      if (!(userId in groupMembers)) {
-        const userGroupData: UserGroupData = {
-          userId,
-          groupId,
-          isGroupLeader: true
-        }
-        await this.createUserGroup(userGroupData)
-      }
-    })
-
-    members.forEach(async (userId) => {
-      if (!(userId in groupMembers)) {
-        const userGroupData: UserGroupData = {
-          userId,
-          groupId,
-          isGroupLeader: false
-        }
-        await this.createUserGroup(userGroupData)
       }
     })
   }
@@ -280,7 +175,68 @@ export class UserService {
     }
   }
 
-  // async getGroupMEmbersNeededApproval(groupId: string) {
+  async getNeededApproval(groupId: string): Promise<User[]> {
+    const joinGroupRequest: number[] = await this.cacheManager.get(
+      joinGroupCacheKey(parseInt(groupId))
+    )
+    if (joinGroupRequest === undefined) {
+      return []
+    }
+    return await this.prisma.user.findMany({
+      where: {
+        id: {
+          in: joinGroupRequest
+        }
+      }
+    })
+  }
 
-  // }
+  async acceptJoin(groupId: number, userId: number): Promise<UserGroup> {
+    const joinGroupRequest: number[] = await this.cacheManager.get(
+      joinGroupCacheKey(groupId)
+    )
+    if (joinGroupRequest === undefined) {
+      throw new InternalServerErrorException()
+    }
+    if (!joinGroupRequest.includes(userId)) {
+      throw new BadRequestException()
+    }
+    const filtered = joinGroupRequest.filter((element) => element !== userId)
+    await this.cacheManager.set(
+      joinGroupCacheKey(groupId),
+      filtered,
+      JOIN_GROUP_REQUEST_EXPIRE_TIME
+    )
+
+    return await this.prisma.userGroup.create({
+      data: {
+        user: {
+          connect: { id: userId }
+        },
+        group: {
+          connect: { id: groupId }
+        },
+        isGroupLeader: false
+      }
+    })
+  }
+
+  async rejectJoin(groupId: number, userId: number): Promise<number> {
+    const joinGroupRequest: number[] = await this.cacheManager.get(
+      joinGroupCacheKey(groupId)
+    )
+    if (joinGroupRequest === undefined) {
+      throw new InternalServerErrorException()
+    }
+    if (!joinGroupRequest.includes(userId)) {
+      throw new BadRequestException()
+    }
+    const filtered = joinGroupRequest.filter((element) => element !== userId)
+    await this.cacheManager.set(
+      joinGroupCacheKey(groupId),
+      filtered,
+      JOIN_GROUP_REQUEST_EXPIRE_TIME
+    )
+    return userId
+  }
 }
