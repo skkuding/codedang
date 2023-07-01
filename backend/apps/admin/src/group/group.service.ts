@@ -25,6 +25,9 @@ export class GroupService {
     if (duplicateName) {
       throw new UnprocessableDataException('Group name already exists')
     }
+    if (!input.config.showOnList) {
+      input.config.allowJoinFromSearch = false
+    }
 
     const group = await this.prisma.group.create({
       data: {
@@ -36,7 +39,6 @@ export class GroupService {
         }
       }
     })
-
     await this.prisma.userGroup.create({
       data: {
         user: {
@@ -126,6 +128,9 @@ export class GroupService {
       throw new UnprocessableDataException('Group name already exists')
     }
 
+    if (!input.config.showOnList) {
+      input.config.allowJoinFromSearch = false
+    }
     return await this.prisma.group.update({
       where: {
         id
