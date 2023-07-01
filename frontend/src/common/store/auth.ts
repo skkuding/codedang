@@ -1,7 +1,7 @@
+import { useToast } from '@/common/composables/toast'
+import { useStorage } from '@vueuse/core'
 import axios from 'axios'
 import { defineStore } from 'pinia'
-import { useStorage } from '@vueuse/core'
-import { useToast } from '@/common/composables/toast'
 
 const openToast = useToast()
 

@@ -1,13 +1,13 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common'
-import { type UserCreateInput } from '../@generated/user/user-create.input'
-import { type UserUpdateInput } from '../@generated/user/user-update.input'
-import { PrismaService } from '@libs/prisma'
-import { type User } from '@admin/@generated/user/user.model'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Cache } from 'cache-manager'
-import { type UserGroup } from '@admin/@generated/user-group/user-group.model'
-import { type UserGroupData } from './interface/user-group-data.interface'
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { Role } from '@prisma/client'
+import { Cache } from 'cache-manager'
+import { PrismaService } from '@libs/prisma'
+import type { UserGroup } from '@admin/@generated/user-group/user-group.model'
+import type { User } from '@admin/@generated/user/user.model'
+import type { UserCreateInput } from '../@generated/user/user-create.input'
+import type { UserUpdateInput } from '../@generated/user/user-update.input'
+import type { UserGroupData } from './interface/user-group-data.interface'
 
 @Injectable()
 export class UserService {

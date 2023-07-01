@@ -1,12 +1,12 @@
+import { InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql'
-import { UserService } from './user.service'
-import { User } from '../@generated/user/user.model'
+import { UserGroup } from '@admin/@generated/user-group/user-group.model'
 import { UserCreateInput } from '../@generated/user/user-create.input'
 import { UserUpdateInput } from '../@generated/user/user-update.input'
-import { InternalServerErrorException, NotFoundException } from '@nestjs/common'
-import { GroupMember } from './dto/groupMember.dto'
-import { UserGroup } from '@admin/@generated/user-group/user-group.model'
+import { User } from '../@generated/user/user.model'
 import { GetUsersInput } from './dto/getUsersInput.dto'
+import { GroupMember } from './dto/groupMember.dto'
+import { UserService } from './user.service'
 
 @Resolver(() => User)
 export class UserResolver {

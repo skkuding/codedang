@@ -1,8 +1,8 @@
-import { forwardRef, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtModule, type JwtModuleOptions } from '@nestjs/jwt'
+import { JwtAuthModule } from '@libs/auth'
 import { EmailModule } from '@client/email/email.module'
-import { AuthModule } from '@client/auth/auth.module'
 import { GroupModule } from '@client/group/group.module'
 import {
   UserController,
@@ -27,7 +27,7 @@ import { UserService } from './user.service'
       },
       inject: [ConfigService]
     }),
-    forwardRef(() => AuthModule),
+    JwtAuthModule,
     GroupModule,
     EmailModule
   ],
