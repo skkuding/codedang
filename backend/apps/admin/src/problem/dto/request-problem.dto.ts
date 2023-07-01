@@ -18,7 +18,7 @@ export class GetGroupProblemsDto {
   @Field(() => Int)
   take: number
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   createdById?: number
 
   @Field(() => DifficultyInput, { nullable: true })

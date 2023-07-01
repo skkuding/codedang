@@ -3,7 +3,15 @@
     "colName": "Codedang Admin API",
     "created": "2023-05-02T10:59:44.408Z",
     "sortNum": 20000,
-    "folders": [],
+    "folders": [
+        {
+            "_id": "b5de957a-6980-4a7c-b956-326d896aa97f",
+            "name": "Problem",
+            "containerId": "",
+            "created": "2023-07-01T02:39:30.102Z",
+            "sortNum": 10000
+        }
+    ],
     "settings": {
         "auth": {
             "type": "bearer",
@@ -13,5 +21,98 @@
             "baseUrl": "http://localhost:3000/graphql"
         }
     },
-    "requests": []
+    "requests": [
+        {
+            "_id": "323e805b-a62d-4011-9d39-5cd3424d82e5",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "b5de957a-6980-4a7c-b956-326d896aa97f",
+            "name": "createGroupProblem",
+            "url": "",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2023-07-01T02:39:43.120Z",
+            "modified": "2023-07-01T03:01:10.099Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation Problem(\n        $createGroupProblemInput: CreateGroupProblemDto!\n    ) {\n    createGroupProblem(\n       createGroupProblemInput: $createGroupProblemInput\n    )\n}",
+                    "variables": "{\n \"createGroupProblemInput\": {\n   \"createdById\": 10,\n    \"groupId\": 1,\n    \"difficulty\": \"Level1\",\n    \"description\": \"here we go22\",\n    \"inputDescription\": \"Liverpool22\",\n    \"outputDescription\": \"Winner of Premeir League\",\n    \"timeLimit\": 666,\n    \"memoryLimit\": 33,\n    \"hint\": \"hit instead hint\",\n    \"source\" : \"genesis\",\n    \"title\": \"test02q\",\n    \"languages\": [\"Java\"],\n    \"inputExamples\": [\"e\",\"x\"],\n    \"outputExamples\": [\"e\",\"x\",\"a\"],\n    \"problemTestcase\":[\n      {\n        \"input\": \"i\",\n        \"output\": \"o\"\n      },\n      {\n        \"input\": \"knock knock\",\n        \"output\": \"who's there\"\n      }\n      ]\n  }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "ada826d3-9626-481f-9ea6-166446851e10",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "b5de957a-6980-4a7c-b956-326d896aa97f",
+            "name": "getGroupProblem",
+            "url": "",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2023-07-01T02:58:44.755Z",
+            "modified": "2023-07-01T03:07:35.155Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query Problem(\n        $getGroupProblemInput: GetGroupProblemDto!\n    ) {\n    getGroupProblem(\n       getGroupProblemInput: $getGroupProblemInput\n    ){\n        id\n        problemTestcase{\n            output\n        }\n    }\n}",
+                    "variables": "{\n  \"getGroupProblemInput\":{\n    \"problemId\": 12\n  }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "a1d8f1a0-0bcb-4f52-98ed-9226e8e1ab19",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "b5de957a-6980-4a7c-b956-326d896aa97f",
+            "name": "getGroupProblems",
+            "url": "",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2023-07-01T03:10:25.961Z",
+            "modified": "2023-07-01T03:14:00.889Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query Problem(\n        $getGroupProblemsInput: GetGroupProblemsDto!\n    ) {\n    getGroupProblems(\n       getGroupProblemsInput: $getGroupProblemsInput\n    ){\n        id\n        problemTestcase{\n            output\n        }\n    }\n}",
+                    "variables": "{\n  \"getGroupProblemsInput\":{\n    \"groupId\": 1,\n    \"cursor\": 1,\n    \"take\": 2,\n    \"languages\": [\"C\"]\n  }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "1d43485c-b77f-46cd-bd39-4d37b9da4f6d",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "b5de957a-6980-4a7c-b956-326d896aa97f",
+            "name": "deleteGroupProblem",
+            "url": "",
+            "method": "POST",
+            "sortNum": 50000,
+            "created": "2023-07-01T03:14:22.350Z",
+            "modified": "2023-07-01T03:30:09.328Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation Problem(\n        $deleteGroupProblemInput: DeleteGroupProblemDto!\n    ) {\n    deleteGroupProblem(\n       deleteGroupProblemInput: $deleteGroupProblemInput\n    ){\n        title\n    }\n}",
+                    "variables": "{\n  \"deleteGroupProblemInput\":{\n    \"problemId\": 12\n  }\n}"
+                }
+            },
+            "tests": []
+        }
+    ]
 }

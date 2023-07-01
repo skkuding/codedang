@@ -1,3 +1,4 @@
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql'
 import { Problem } from '@admin/@generated/problem/problem.model'
 import { CreateGroupProblemDto } from './dto/create-problem.dto'
@@ -27,7 +28,7 @@ export class ProblemResolver {
     return await this.problemService.findAll(getGroupProblemsInput)
   }
 
-  @Mutation(() => Problem, { name: 'createGroupProblem' })
+  @Mutation(() => String, { name: 'createGroupProblem' })
   async createProblem(
     @Args('createGroupProblemInput')
     createGroupProblemInput: CreateGroupProblemDto

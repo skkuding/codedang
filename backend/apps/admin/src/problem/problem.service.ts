@@ -1,4 +1,8 @@
-import { BadRequestException, HttpException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common'
 import { isDefined } from 'class-validator'
 import { PrismaService } from '@libs/prisma'
 import type { GroupCreateNestedOneWithoutProblemInput } from '@admin/@generated/group/group-create-nested-one-without-problem.input'
@@ -96,17 +100,22 @@ export class ProblemService {
       ..._data
     } = problemCreateInput
 
-    return await this.prisma.problem.create({
-      data: {
-        ..._data,
-        group: group,
-        createdBy: createdBy,
-        problemTestcase: problemTestcase,
-        problemTag: {
-          create: tagsId
+    try {
+      const createdProblem = await this.prisma.problem.create({
+        data: {
+          ..._data,
+          group: group,
+          createdBy: createdBy,
+          problemTestcase: problemTestcase,
+          problemTag: {
+            create: tagsId
+          }
         }
-      }
-    })
+      })
+      return `${createdProblem.title} has been successfully created with ID numbered ${createdProblem.id}!`
+    } catch {
+      throw new BadRequestException()
+    }
   }
 
   async findAll(getGroupProblemsInput: GetGroupProblemsDto) {
@@ -148,7 +157,7 @@ export class ProblemService {
         select: this.problemSelectOption
       })
     } catch {
-      throw new HttpException('no such problem', 404)
+      throw new NotFoundException()
     }
   }
 
@@ -174,7 +183,7 @@ export class ProblemService {
     })
 
     if (!data) {
-      throw new BadRequestException('no user with such sutdentId')
+      throw new NotFoundException()
     }
 
     return data
@@ -195,7 +204,7 @@ export class ProblemService {
         }
       })
     } catch {
-      throw new HttpException('no such problem', 404)
+      throw new NotFoundException()
     }
   }
 }
