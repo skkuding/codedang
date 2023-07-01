@@ -5,13 +5,9 @@ import {
 } from '@nestjs/common'
 import { isDefined } from 'class-validator'
 import { PrismaService } from '@libs/prisma'
-import type { GroupCreateNestedOneWithoutProblemInput } from '@admin/@generated/group/group-create-nested-one-without-problem.input'
 import { Level } from '@admin/@generated/prisma/level.enum'
-import type { ProblemTagUncheckedCreateWithoutProblemInput } from '@admin/@generated/problem-tag/problem-tag-unchecked-create-without-problem.input'
-import type { ProblemTestcaseUncheckedCreateNestedManyWithoutProblemInput } from '@admin/@generated/problem-testcase/problem-testcase-unchecked-create-nested-many-without-problem.input'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 import type { TagCreateManyInput } from '@admin/@generated/tag/tag-create-many.input'
-import type { UserCreateNestedOneWithoutProblemInput } from '@admin/@generated/user/user-create-nested-one-without-problem.input'
 import type { CreateGroupProblemDto } from './dto/create-problem.dto'
 import type {
   DeleteGroupProblemDto,
