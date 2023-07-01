@@ -67,6 +67,8 @@ export class GroupResolver {
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -80,9 +82,7 @@ export class GroupResolver {
     try {
       return await this.groupService.deleteGroup(id, req.user)
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
+      if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
       throw new InternalServerErrorException()

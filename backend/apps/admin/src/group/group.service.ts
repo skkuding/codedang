@@ -111,6 +111,9 @@ export class GroupService {
   }
 
   async updateGroup(id: number, input: UpdateGroupInput) {
+    if (id === OPEN_SPACE_ID) {
+      throw new ForbiddenAccessException('Open space cannot be updated')
+    }
     const duplicateName = await this.prisma.group.findFirst({
       where: {
         NOT: {
@@ -137,7 +140,7 @@ export class GroupService {
 
   async deleteGroup(id: number, user: AuthenticatedUser) {
     if (id === OPEN_SPACE_ID) {
-      throw new UnprocessableDataException('Open space cannot be deleted')
+      throw new ForbiddenAccessException('Open space cannot be deleted')
     } else if (!user.isAdmin() && !user.isSuperAdmin()) {
       const group = await this.prisma.group.findUnique({
         where: { id },
