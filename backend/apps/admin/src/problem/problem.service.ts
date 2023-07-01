@@ -47,24 +47,23 @@ export class ProblemService {
   }
 
   async create(problemCreateInput: CreateGroupProblemDto) {
-    const createdBy: UserCreateNestedOneWithoutProblemInput = {
+    const createdBy = {
       connect: {
         id: problemCreateInput.createdById
       }
     }
 
-    const group: GroupCreateNestedOneWithoutProblemInput = {
+    const group = {
       connect: {
         id: problemCreateInput.groupId
       }
     }
 
-    const problemTestcase: ProblemTestcaseUncheckedCreateNestedManyWithoutProblemInput =
-      {
-        create: problemCreateInput.problemTestcase
-      }
+    const problemTestcase = {
+      create: problemCreateInput.problemTestcase
+    }
 
-    let tagsId: Array<ProblemTagUncheckedCreateWithoutProblemInput>
+    let tagsId
     if (isDefined(problemCreateInput.problemTag)) {
       const parsedTag = problemCreateInput.problemTag.map(
         (value): TagCreateManyInput => {
