@@ -66,7 +66,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-07-01T08:39:22.506Z",
-            "modified": "2023-07-01T09:27:13.761Z",
+            "modified": "2023-07-01T15:12:37.712Z",
             "headers": [],
             "params": [],
             "body": {
@@ -74,7 +74,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query Group {\n  getGroups {\n    id\n    groupName\n    description\n    config\n    memberNum\n  }\n}"
+                    "query": "query Group {\n  getGroups(cursor: 0, take: 3) {\n    id\n    groupName\n    description\n    config\n    memberNum\n  }\n}"
                 }
             },
             "tests": [
@@ -107,6 +107,12 @@
                     "custom": "",
                     "action": "contains",
                     "value": "memberNum"
+                },
+                {
+                    "type": "json-query",
+                    "custom": "json.data.getGroups.id | length",
+                    "action": "<=",
+                    "value": "3"
                 }
             ],
             "docs": "# Get Groups [어드민 대시보드]\n\n모든 그룹의 목록을 가져옵니다.",
@@ -291,7 +297,7 @@
             "method": "POST",
             "sortNum": 2500,
             "created": "2023-07-01T09:38:06.086Z",
-            "modified": "2023-07-01T10:04:35.760Z",
+            "modified": "2023-07-01T15:09:58.752Z",
             "headers": [],
             "params": [],
             "body": {
@@ -328,7 +334,7 @@
                     "value": "config"
                 }
             ],
-            "docs": "# Update Group [그룹 대시보드]\n\n새로운 그룹을 생성합니다.\n\n### Constraints\n- 그룹의 이름은 다른 그룹의 이름과 같을 수 없습니다.\n  + c.f. 422: Duplicate Group Name",
+            "docs": "# Update Group [그룹 대시보드]\n\n새로운 그룹을 생성합니다.\n\n### Constraints\n- 그룹의 이름은 다른 그룹의 이름과 같을 수 없습니다.\n  + c.f. 422: Duplicate Group Name\n- Open Space의 정보는 업데이트할 수 없습니다.",
             "preReq": {
                 "runRequests": [
                     {
@@ -467,12 +473,12 @@
             "_id": "d62f2e3e-7a5c-4543-8eff-bb146cabde99",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
             "containerId": "5cbf039a-6e9c-4321-93c2-e297a12b480e",
-            "name": "422: Protected Open Space",
+            "name": "403: Protected Open Space",
             "url": "",
             "method": "POST",
-            "sortNum": 50000,
+            "sortNum": 35000,
             "created": "2023-07-01T13:27:34.416Z",
-            "modified": "2023-07-01T13:32:03.254Z",
+            "modified": "2023-07-01T15:08:53.783Z",
             "headers": [],
             "params": [],
             "body": {
@@ -488,13 +494,58 @@
                     "type": "json-query",
                     "custom": "json.errors[0].extensions.originalError.statusCode",
                     "action": "equal",
-                    "value": "422"
+                    "value": "403"
                 },
                 {
                     "type": "json-query",
                     "custom": "json.errors[0].message",
                     "action": "equal",
                     "value": "Open space cannot be deleted"
+                }
+            ],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "9631bc1c-c071-4512-9dc6-43267b8f9c78",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "2e6dd7d6-4110-4bd0-9138-660931d2a26d",
+            "name": "403: Protected Open Space",
+            "url": "",
+            "method": "POST",
+            "sortNum": 3750,
+            "created": "2023-07-01T15:05:20.179Z",
+            "modified": "2023-07-01T15:09:04.804Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation Group {\n  updateGroup(\n    groupId: 1\n    input: {\n      groupName: \"Revised Group\",\n      description: \"Blah Blah\",\n      config: {\n        showOnList: true,\n        allowJoinFromSearch: true,\n        allowJoinWithURL: false\n        requireApprovalBeforeJoin: true\n      }\n    }\n  ) {\n    id\n    groupName\n    description\n    config\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].extensions.originalError.statusCode",
+                    "action": "equal",
+                    "value": "403"
+                },
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].message",
+                    "action": "equal",
+                    "value": "Open space cannot be updated"
                 }
             ],
             "preReq": {
