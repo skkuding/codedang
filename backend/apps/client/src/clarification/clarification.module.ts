@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common'
+import { RolesModule } from '@libs/auth'
 import { ContestModule } from '@client/contest/contest.module'
-import { GroupModule } from '@client/group/group.module'
-import { UserModule } from '@client/user/user.module'
 import {
   ClarificationController,
   GroupClarificationController
@@ -9,7 +8,7 @@ import {
 import { ClarificationService } from './clarification.service'
 
 @Module({
-  imports: [UserModule, GroupModule, ContestModule],
+  imports: [RolesModule, ContestModule],
   providers: [ClarificationService],
   controllers: [ClarificationController, GroupClarificationController]
 })

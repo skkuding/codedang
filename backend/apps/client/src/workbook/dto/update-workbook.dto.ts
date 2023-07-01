@@ -10,6 +10,5 @@ export class UpdateWorkbookDto {
   description: string
 
   @IsBoolean()
-  @IsNotEmpty()
   isVisible: boolean
 }
