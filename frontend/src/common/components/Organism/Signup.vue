@@ -64,36 +64,35 @@ watch(verificationCode, () => {
   }
 })
 const signup = async () => {
-  warningUser.value = validate(username.value, 'username')
-  warningPass.value = validate(password.value, 'pass')
-  warningPassRe.value = validate(passwordAgain.value, 'passRe')
-  warningEmail.value = validate(email.value, 'email')
-  warningName.value = validate(realName.value, 'real')
-  warningCode.value = validate(verificationCode.value, 'code')
-  if (
-    warningUser.value === '' &&
-    warningPass.value === '' &&
-    warningPassRe.value === '' &&
-    warningEmail.value === '' &&
-    warningName.value === ''
-  ) {
-    await auth.signup(
-      username.value,
-      password.value,
-      email.value,
-      realName.value,
-      emailAuth.value
-    )
-    emit('to', 'close')
+  if (validate(username.value, 'username')) {
+    if (validate(email.value, 'email')) {
+      if (validate(verificationCode.value, 'code')) {
+        if (validate(realName.value, 'real')) {
+          if (validate(password.value, 'pass')) {
+            if (validate(passwordAgain.value, 'passRe')) {
+              await auth.signup(
+                username.value,
+                password.value,
+                email.value,
+                realName.value,
+                emailAuth.value
+              )
+              emit('to', 'close')
+            }
+          }
+        }
+      }
+    }
   }
 }
 const verifyEmail = async () => {
   const emailVerify = email.value
-  if (validate(email.value, 'email') === '') {
+  if (validate(emailVerify, 'email')) {
     try {
       await axios.post('/api/email-auth/send-email/register-new', {
         email: emailVerify
       })
+      console.log('do you await')
       // openToast({ message: 'Email verification code sent', type: 'success' })
       warningEmail.value = 'Email verification code sent'
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -111,7 +110,10 @@ const verifyEmail = async () => {
 const verifyCode = async () => {
   const emailVerify = email.value
   const pin = verificationCode.value
-  if (validate(verificationCode.value, 'code') === '') {
+  if (
+    validate(verificationCode.value, 'code') &&
+    validate(emailVerify, 'email')
+  ) {
     try {
       const res = await axios.post('/api/email-auth/verify-pin', {
         pin,
@@ -132,71 +134,88 @@ const verifyCode = async () => {
 const validate = (key: string, type: string) => {
   if (type === 'username') {
     if (key === '') {
-      return 'Please type in the username'
+      warningUser.value = 'Please type in the username'
+      return false
     } else if (username.value.length < 3 || username.value.length > 10) {
-      return 'Username must be 4 ~ 9 characters'
+      warningUser.value = 'Username must be 4 ~ 9 characters'
+      return false
     } else {
-      return ''
+      warningUser.value = ''
+      return true
     }
   } else if (type === 'pass') {
     if (key === '') {
-      return 'Please type in the password'
+      warningPass.value = 'Please type in the password'
+      return false
     } else if (key.length < 8) {
-      return 'Password must be at least 8 characters'
+      warningPass.value = 'Password must be at least 8 characters'
+      return false
     } else if (!regex.test(key)) {
-      return 'At least 2 of lower case, upper case, number or exclamation marks required'
+      warningPass.value =
+        'At least 2 of lower case, upper case, number or exclamation marks required'
+      return false
     } else {
-      return ''
+      warningPass.value = ''
+      return true
     }
   } else if (type === 'email') {
     if (key === '') {
-      return 'Please type in your email address'
+      warningEmail.value = 'Please type in your email address'
+      return false
     } else {
-      return ''
+      warningEmail.value = ''
+      return true
     }
   } else if (type === 'real') {
     if (key === '') {
-      return 'Please type in your real name'
+      warningName.value = 'Please type in your real name.'
+      return false
     } else if (!realnameRegex.test(key)) {
-      return 'Real name should be English!'
+      warningName.value = 'Real name should be English!'
+      return false
     } else {
-      return ''
+      warningName.value = ''
+      return true
     }
   } else if (type === 'passRe') {
     if (key === '') {
-      return 'Please type in your password again'
+      warningPassRe.value = 'Please type in your password again.'
+      return false
     } else if (key !== password.value) {
-      return 'Password does not match!'
+      warningPassRe.value = 'Password does not match!'
+      return false
     } else {
-      return ''
+      warningPassRe.value = ''
+      return true
     }
   } else if (type === 'code') {
     if (key === '') {
-      return 'Please verify email address'
+      warningCode.value = 'Please verify email address.'
+      return false
     } else {
-      return ''
+      warningCode.value = ''
+      return true
     }
   } else {
-    return ''
+    return true
   }
 }
 </script>
 
 <template>
   <div class="flex flex-col items-center justify-center">
-    <h1 class="text-green mb-8 w-60 text-center text-xl font-bold">
+    <h1 class="text-green my-8 w-60 text-center text-xl font-bold">
       Welcome to
       <br />
       SKKU Coding Platform
     </h1>
-    <form class="flex w-60 flex-col gap-3" @submit.prevent="signup">
+    <form class="mb-2 flex w-60 flex-col" @submit.prevent="signup">
       <InputItem
         v-model="username"
         placeholder="Username"
-        class="rounded-md"
-        is-valid=""
+        class="mb-1 rounded-md"
       />
-      <p class="text-red text-xs font-bold">
+      <p class="text-red mb-4 text-xs font-bold">
         {{ warningUser }}
       </p>
       <div class="flex gap-2">
@@ -204,7 +223,7 @@ const validate = (key: string, type: string) => {
           v-model="email"
           type="email"
           placeholder="Email Address"
-          class="min-w-0 rounded-md"
+          class="mb-1 min-w-0 rounded-md"
         />
         <Button
           class="aspect-square h-[34px] rounded-md"
@@ -214,14 +233,14 @@ const validate = (key: string, type: string) => {
         </Button>
       </div>
       <p
-        v-if="warningEmail === 'Email verification code sent'"
-        class="text-green text-xs font-bold"
+        v-show="warningEmail === 'Email verification code sent'"
+        class="text-green mb-4 text-xs font-bold"
       >
         Email verification code has been sent!
       </p>
       <p
-        v-if="validate(email, 'email') !== ''"
-        class="text-red text-xs font-bold"
+        v-show="warningEmail !== 'Email verification code sent'"
+        class="text-red mb-4 text-xs font-bold"
       >
         {{ warningEmail }}
       </p>
@@ -230,7 +249,7 @@ const validate = (key: string, type: string) => {
           v-model="verificationCode"
           type="number"
           placeholder="Verification Code"
-          class="min-w-0 rounded-md"
+          class="mb-1 min-w-0 rounded-md"
         />
         <Button
           class="aspect-square h-[34px] rounded-md"
@@ -242,13 +261,13 @@ const validate = (key: string, type: string) => {
       <div>
         <p
           v-show="warningCode === 'Email verification succeed!'"
-          class="text-green text-xs font-bold"
+          class="text-green mb-4 text-xs font-bold"
         >
           Email has been verified!
         </p>
         <p
-          v-if="validate(verificationCode, 'code') !== ''"
-          class="text-red text-xs font-bold"
+          v-show="warningCode !== 'Email verification succeed!'"
+          class="text-red mb-4 text-xs font-bold"
         >
           {{ warningCode }}
         </p>
@@ -256,36 +275,27 @@ const validate = (key: string, type: string) => {
       <InputItem
         v-model="realName"
         placeholder="Real Name"
-        class="rounded-md"
-        is-valid=""
+        class="mb-1 rounded-md"
       />
-      <p
-        v-if="validate(realName, 'real') !== ''"
-        class="text-red text-xs font-bold"
-      >
+      <p class="text-red mb-4 text-xs font-bold">
         {{ warningName }}
       </p>
       <InputItem
         v-model="password"
         type="password"
         placeholder="Password"
-        class="rounded-md"
-        is-valid=""
+        class="mb-1 rounded-md"
       />
-      <p class="text-red text-xs font-bold">
+      <p class="text-red mb-4 text-xs font-bold">
         {{ warningPass }}
       </p>
       <InputItem
         v-model="passwordAgain"
         type="password"
         placeholder="Password Check"
-        class="rounded-md"
-        is-valid=""
+        class="mb-1 rounded-md"
       />
-      <p
-        v-if="validate(passwordAgain, 'passRe') !== ''"
-        class="text-red text-xs font-bold"
-      >
+      <p class="text-red mb-4 text-xs font-bold">
         {{ warningPassRe }}
       </p>
       <Button type="submit" class="rounded-md" @click.prevent="signup()">
