@@ -181,7 +181,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-07-01T09:23:20.634Z",
-            "modified": "2023-07-01T09:55:55.626Z",
+            "modified": "2023-07-02T07:28:34.441Z",
             "headers": [],
             "params": [],
             "body": {
@@ -189,7 +189,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation Group {\n  createGroup(input: {\n    groupName: \"New Group21\",\n    description: \"Blah Blah\",\n    config: {\n      showOnList: true,\n      allowJoinFromSearch: true,\n      allowJoinWithURL: false,\n      requireApprovalBeforeJoin: true\n    }\n  }) {\n    id\n  }\n}"
+                    "query": "mutation Group {\n  createGroup(input: {\n    groupName: \"New Group\",\n    description: \"Blah Blah\",\n    config: {\n      showOnList: false,\n      allowJoinFromSearch: true,\n      allowJoinWithURL: false,\n      requireApprovalBeforeJoin: true\n    }\n  }) {\n    id\n    config\n  }\n}"
                 }
             },
             "tests": [
@@ -200,7 +200,7 @@
                     "value": "id"
                 }
             ],
-            "docs": "# Create Group [유저 대시보드 /그룹]\n\n**⚠️ 최초 1번만 동작할 리퀘스트입니다. 다시 성공 응답을 받으려면 (1) input의 그룹명을 바꿔 리퀘스트를 전송하거나 (2) `npx prisma migrate reset`을 실행해주세요.**  \n\n새로운 그룹을 생성합니다.\n\n### Constraints\n- Manager 이상의 role을 가진 유저만 새 그룹을 생성할 수 있습니다.\n- 그룹의 이름은 다른 그룹의 이름과 같을 수 없습니다.\n- 유저에게 주어지는 그룹 config의 디폴트 값은 다음과 같습니다.\n  ```json\n  showOnList: true\n  allowJoinFromSearch: true\n  allowJoinWithURL: false\n  requireApprovalBeforeJoin: true\n  ```",
+            "docs": "# Create Group [유저 대시보드 /그룹]\n\n**⚠️ 최초 1번만 동작할 리퀘스트입니다. 다시 성공 응답을 받으려면 (1) input의 그룹명을 바꿔 리퀘스트를 전송하거나 (2) `npx prisma migrate reset`을 실행해주세요.**  \n\n새로운 그룹을 생성합니다.\n\n### Constraints\n- Manager 이상의 role을 가진 유저만 새 그룹을 생성할 수 있습니다.\n- 그룹의 이름은 다른 그룹의 이름과 같을 수 없습니다.\n- 유저에게 주어져야 하는 그룹 config의 디폴트 값은 다음과 같습니다.\n  ```json\n  showOnList: true\n  allowJoinFromSearch: true\n  allowJoinWithURL: false\n  requireApprovalBeforeJoin: true\n  ```\n  + `showOnList`가 false이면 `allowJoinFromSearch` 값이 항상 false로 적용됩니다.",
             "preReq": {
                 "runRequests": [
                     {
@@ -297,7 +297,7 @@
             "method": "POST",
             "sortNum": 2500,
             "created": "2023-07-01T09:38:06.086Z",
-            "modified": "2023-07-01T15:09:58.752Z",
+            "modified": "2023-07-02T07:28:39.971Z",
             "headers": [],
             "params": [],
             "body": {
@@ -305,7 +305,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation Group {\n  updateGroup(\n    groupId: 3\n    input: {\n      groupName: \"Revised Group\",\n      description: \"Blah Blah\",\n      config: {\n        showOnList: true,\n        allowJoinFromSearch: true,\n        allowJoinWithURL: false\n        requireApprovalBeforeJoin: true\n      }\n    }\n  ) {\n    id\n    groupName\n    description\n    config\n  }\n}"
+                    "query": "mutation Group {\n  updateGroup(\n    groupId: 3\n    input: {\n      groupName: \"Revised Group\",\n      description: \"Blah Blah\",\n      config: {\n        showOnList: false,\n        allowJoinFromSearch: true,\n        allowJoinWithURL: false\n        requireApprovalBeforeJoin: true\n      }\n    }\n  ) {\n    id\n    groupName\n    description\n    config\n  }\n}"
                 }
             },
             "tests": [
@@ -334,7 +334,7 @@
                     "value": "config"
                 }
             ],
-            "docs": "# Update Group [그룹 대시보드]\n\n새로운 그룹을 생성합니다.\n\n### Constraints\n- 그룹의 이름은 다른 그룹의 이름과 같을 수 없습니다.\n  + c.f. 422: Duplicate Group Name\n- Open Space의 정보는 업데이트할 수 없습니다.",
+            "docs": "# Update Group [그룹 대시보드]\n\n새로운 그룹을 생성합니다.\n\n### Constraints\n- 그룹의 이름은 다른 그룹의 이름과 같을 수 없습니다.\n  + c.f. 422: Duplicate Group Name\n- Open Space의 정보는 업데이트할 수 없습니다.\n- `config`의 `showOnList`가 false이면 `allowJoinFromSearch` 값이 항상 false로 적용됩니다.",
             "preReq": {
                 "runRequests": [
                     {

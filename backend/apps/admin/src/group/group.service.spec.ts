@@ -20,7 +20,7 @@ const input = {
   groupName: 'Group',
   description: 'Group',
   config: {
-    showOnList: true,
+    showOnList: false,
     allowJoinFromSearch: true,
     allowJoinWithURL: false,
     requireApprovalBeforeJoin: true
@@ -47,6 +47,12 @@ const group: Group = {
       updateTime: undefined
     }
   ],
+  config: {
+    showOnList: false,
+    allowJoinFromSearch: false,
+    allowJoinWithURL: false,
+    requireApprovalBeforeJoin: true
+  },
   ...input
 }
 const { userGroup, ...simpleGroup } = group
