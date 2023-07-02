@@ -84,7 +84,6 @@ model Group {
   ///   "requireApprovalBeforeJoin": true
   /// }
   config      Json
-  isDeleted   Boolean  @default(false) @map("is_deleted")
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
