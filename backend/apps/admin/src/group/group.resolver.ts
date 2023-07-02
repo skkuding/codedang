@@ -1,12 +1,11 @@
 import {
   ForbiddenException,
   InternalServerErrorException,
-  UnprocessableEntityException,
-  UseGuards
+  UnprocessableEntityException
 } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
 import { Role } from '@prisma/client'
-import { AuthenticatedRequest, RolesGuard, UseRolesGuard } from '@libs/auth'
+import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import {
   ForbiddenAccessException,
   UnprocessableDataException
@@ -15,11 +14,7 @@ import { CursorValidationPipe } from '@libs/pipe'
 import { Group } from '@admin/@generated/group/group.model'
 import { GroupService } from './group.service'
 import { CreateGroupInput, UpdateGroupInput } from './model/group.input'
-import {
-  DeletedUserGroup,
-  FindGroup,
-  FindManyGroup
-} from './model/group.output'
+import { DeletedUserGroup, FindGroup } from './model/group.output'
 
 @Resolver(() => Group)
 export class GroupResolver {
@@ -41,12 +36,12 @@ export class GroupResolver {
     }
   }
 
-  @Query(() => [FindManyGroup])
-  @UseGuards(RolesGuard)
+  @Query(() => [FindGroup])
+  @UseRolesGuard()
   async getGroups(
     @Args('cursor', { nullable: true }, CursorValidationPipe) cursor: number,
     @Args('take', { type: () => Int }) take: number
-  ): Promise<Partial<FindManyGroup>[]> {
+  ): Promise<Partial<FindGroup>[]> {
     return await this.groupService.getGroups(cursor, take)
   }
 

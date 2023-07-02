@@ -6,15 +6,11 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { UserService } from '@admin/user/user.service'
 import type { CreateGroupInput, UpdateGroupInput } from './model/group.input'
 
 @Injectable()
 export class GroupService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly userService: UserService
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createGroup(input: CreateGroupInput, userId: number) {
     const duplicateName = await this.prisma.group.findUnique({
@@ -94,21 +90,9 @@ export class GroupService {
       }
     })
 
-    const memberNum = userGroup.length
-    const managers = (
-      await this.userService.getUsers({
-        id: {
-          in: userGroup
-            .filter((member) => member.isGroupLeader)
-            .map((manager) => manager.userId)
-        }
-      })
-    ).map((manager) => manager.username)
-
     return {
       ...group,
-      memberNum,
-      managers
+      memberNum: userGroup.length
     }
   }
 

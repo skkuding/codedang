@@ -11,7 +11,6 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { Group } from '@admin/@generated/group/group.model'
 import type { User } from '@admin/@generated/user/user.model'
-import { UserService } from '@admin/user/user.service'
 import { GroupService } from './group.service'
 
 const userId = 1
@@ -83,19 +82,13 @@ const db = {
 
 describe('GroupService', () => {
   let service: GroupService
-  let userService: UserService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        GroupService,
-        UserService,
-        { provide: PrismaService, useValue: db }
-      ]
+      providers: [GroupService, { provide: PrismaService, useValue: db }]
     }).compile()
 
     service = module.get<GroupService>(GroupService)
-    userService = module.get<UserService>(UserService)
   })
 
   it('should be defined', () => {
@@ -129,18 +122,11 @@ describe('GroupService', () => {
   })
 
   describe('getGroup', () => {
-    const group = {
-      ...simpleGroup,
-      memberNum: userGroup.length,
-      managers: [user.username]
-    }
+    const group = { ...simpleGroup, memberNum: userGroup.length }
 
     it('should return a group', async () => {
-      const getUsersSpy = stub(userService, 'getUsers').resolves([user])
-
       const res = await service.getGroup(groupId)
       expect(res).to.deep.equal(group)
-      expect(getUsersSpy.calledOnceWith({ id: { in: [user.id] } })).to.be.true
     })
   })
 
