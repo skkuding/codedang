@@ -4,7 +4,9 @@ services:
   app:
     profiles: ['devcontainer']
     container_name: skkuding-dev
-    image: mcr.microsoft.com/vscode/devcontainers/typescript-node:18-bullseye
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
     volumes:
       - .:/workspace:cached
     depends_on:
@@ -56,16 +58,6 @@ services:
     image: redis:7-alpine
     ports:
       - 6380:6379
-  setup-dev:
-    image: python:3.8-alpine
-    depends_on:
-      - rabbitmq-dev
-    volumes:
-      - ./scripts/rabbitmq-setup.sh:/setup.sh
-    container_name: setup
-    env_file: .env.development
-    entrypoint:
-      - /setup.sh
   rabbitmq-dev:
     image: rabbitmq:3-management-alpine
     container_name: ${RABBITMQ_HOST}

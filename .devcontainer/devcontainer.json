@@ -7,8 +7,7 @@
     "dev-db",
     "dev-cache",
     "rabbitmq-dev",
-    "testcase-server-dev",
-    "setup-dev"
+    "testcase-server-dev"
   ],
   "workspaceFolder": "/workspace",
   "postCreateCommand": "scripts/setup.sh",
