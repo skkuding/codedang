@@ -117,7 +117,7 @@ jobs:
             --exit-code
 
       - name: Migrate Prisma
-        run: pnpm --filter backend exec prisma migrate reset
+        run: pnpm --filter backend exec prisma migrate reset --force
 
       - name: Check types in Typescript
         run: pnpm --filter backend exec tsc --noEmit
