@@ -7,13 +7,13 @@ import {
   JwtAuthModule,
   JwtAuthGuard,
   RolesModule,
-  RolesGuard
+  GroupLeaderGuard
 } from '@libs/auth'
 import { PrismaModule } from '@libs/prisma'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
+import { GroupModule } from './group/group.module'
 import { ProblemModule } from './problem/problem.module'
-import { ProblemService } from './problem/problem.service'
 import { UserModule } from './user/user.module'
 
 @Module({
@@ -28,13 +28,14 @@ import { UserModule } from './user/user.module'
     RolesModule,
     UserModule,
     PrismaModule,
-    ProblemModule
+    ProblemModule,
+    GroupModule
   ],
   controllers: [AdminController],
   providers: [
     AdminService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: RolesGuard }
+    { provide: APP_GUARD, useClass: GroupLeaderGuard }
   ]
 })
 export class AdminModule {}

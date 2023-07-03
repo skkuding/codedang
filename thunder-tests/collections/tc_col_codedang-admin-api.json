@@ -5,11 +5,46 @@
     "sortNum": 20000,
     "folders": [
         {
-            "_id": "b5de957a-6980-4a7c-b956-326d896aa97f",
-            "name": "Problem",
+            "_id": "fe52bede-3550-4899-9738-50719d9b04ef",
+            "name": "Group",
             "containerId": "",
-            "created": "2023-07-01T02:39:30.102Z",
+            "created": "2023-07-01T08:36:12.949Z",
             "sortNum": 10000
+        },
+        {
+            "_id": "e301836d-c693-4efe-a13b-59250583415f",
+            "name": "Get Group",
+            "containerId": "fe52bede-3550-4899-9738-50719d9b04ef",
+            "created": "2023-07-01T08:36:36.695Z",
+            "sortNum": 30000
+        },
+        {
+            "_id": "50fd1447-8e48-415a-adb8-29d7d7f742cc",
+            "name": "Get Groups (Admin)",
+            "containerId": "fe52bede-3550-4899-9738-50719d9b04ef",
+            "created": "2023-07-01T08:38:28.308Z",
+            "sortNum": 22500
+        },
+        {
+            "_id": "771ab14a-f583-4a94-a34e-4f8e8b569d8b",
+            "name": "Create Group",
+            "containerId": "fe52bede-3550-4899-9738-50719d9b04ef",
+            "created": "2023-07-01T08:38:49.546Z",
+            "sortNum": 15000
+        },
+        {
+            "_id": "2e6dd7d6-4110-4bd0-9138-660931d2a26d",
+            "name": "Update Group",
+            "containerId": "fe52bede-3550-4899-9738-50719d9b04ef",
+            "created": "2023-07-01T08:38:57.241Z",
+            "sortNum": 70000
+        },
+        {
+            "_id": "5cbf039a-6e9c-4321-93c2-e297a12b480e",
+            "name": "Delete Group",
+            "containerId": "fe52bede-3550-4899-9738-50719d9b04ef",
+            "created": "2023-07-01T08:39:04.697Z",
+            "sortNum": 80000
         }
     ],
     "settings": {
@@ -23,15 +58,85 @@
     },
     "requests": [
         {
-            "_id": "323e805b-a62d-4011-9d39-5cd3424d82e5",
+            "_id": "71642f55-4b63-417a-8f07-b466f2b65c88",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
-            "containerId": "b5de957a-6980-4a7c-b956-326d896aa97f",
-            "name": "createGroupProblem",
+            "containerId": "50fd1447-8e48-415a-adb8-29d7d7f742cc",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2023-07-01T08:39:22.506Z",
+            "modified": "2023-07-01T15:35:06.098Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query Group {\n  getGroups(take: 3) {\n    id\n    groupName\n    description\n    config\n    memberNum\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "id"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "groupName"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "description"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "config"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "memberNum"
+                },
+                {
+                    "type": "json-query",
+                    "custom": "json.data.getGroups.id | length",
+                    "action": "<=",
+                    "value": "3"
+                }
+            ],
+            "docs": "# Get Groups [어드민 대시보드]\n\n모든 그룹의 목록을 가져옵니다.\n\n## Query\n\n- `cursor`: (optional) 가져올 아이템의 기준점으로, take 값에 따라 기준점의 앞뒤에 있는 아이템을 가져오게 됩니다. cursor 값은 항상 양수여야 하며, 값을 넘겨주지 않으면 자동으로 첫번째 아이템부터 반환됩니다.\n- `take`: 가져올 아이템의 개수를 지정합니다.",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "05e3046e-d43c-43d2-aaf9-a2c948b41183",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "771ab14a-f583-4a94-a34e-4f8e8b569d8b",
+            "name": "422: Duplicate Name",
             "url": "",
             "method": "POST",
             "sortNum": 20000,
-            "created": "2023-07-01T02:39:43.120Z",
-            "modified": "2023-07-01T03:01:10.099Z",
+            "created": "2023-07-01T09:06:26.347Z",
+            "modified": "2023-07-01T09:12:06.176Z",
             "headers": [],
             "params": [],
             "body": {
@@ -39,22 +144,263 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation Problem(\n        $createGroupProblemInput: CreateGroupProblemDto!\n    ) {\n    createGroupProblem(\n       createGroupProblemInput: $createGroupProblemInput\n    )\n}",
-                    "variables": "{\n \"createGroupProblemInput\": {\n   \"createdById\": 10,\n    \"groupId\": 1,\n    \"difficulty\": \"Level1\",\n    \"description\": \"here we go22\",\n    \"inputDescription\": \"Liverpool22\",\n    \"outputDescription\": \"Winner of Premeir League\",\n    \"timeLimit\": 666,\n    \"memoryLimit\": 33,\n    \"hint\": \"hit instead hint\",\n    \"source\" : \"genesis\",\n    \"title\": \"test02q\",\n    \"languages\": [\"Java\"],\n    \"inputExamples\": [\"e\",\"x\"],\n    \"outputExamples\": [\"e\",\"x\",\"a\"],\n    \"problemTestcase\":[\n      {\n        \"input\": \"i\",\n        \"output\": \"o\"\n      },\n      {\n        \"input\": \"knock knock\",\n        \"output\": \"who's there\"\n      }\n      ]\n  }\n}"
+                    "query": "mutation Group {\n  createGroup(input: {\n    groupName: \"Example Group\",\n    description: \"Blah Blah\",\n    config: {\n      showOnList: true,\n      allowJoinFromSearch: true,\n      allowJoinWithURL: false,\n      requireApprovalBeforeJoin: true\n    }\n  }) {\n    id\n  }\n}"
                 }
             },
-            "tests": []
+            "tests": [
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].extensions.status",
+                    "action": "equal",
+                    "value": "422"
+                },
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].message",
+                    "action": "equal",
+                    "value": "Group name already exists"
+                }
+            ],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "86d2ae24-54f0-4567-9a3c-a993ac915ad4",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         },
         {
-            "_id": "ada826d3-9626-481f-9ea6-166446851e10",
+            "_id": "d69f62f2-213f-495e-b8b7-d2904e9c434a",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
-            "containerId": "b5de957a-6980-4a7c-b956-326d896aa97f",
-            "name": "getGroupProblem",
+            "containerId": "771ab14a-f583-4a94-a34e-4f8e8b569d8b",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2023-07-01T09:23:20.634Z",
+            "modified": "2023-07-02T07:28:34.441Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation Group {\n  createGroup(input: {\n    groupName: \"New Group\",\n    description: \"Blah Blah\",\n    config: {\n      showOnList: false,\n      allowJoinFromSearch: true,\n      allowJoinWithURL: false,\n      requireApprovalBeforeJoin: true\n    }\n  }) {\n    id\n    config\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "id"
+                }
+            ],
+            "docs": "# Create Group [유저 대시보드 /그룹]\n\n**⚠️ 최초 1번만 동작할 리퀘스트입니다. 다시 성공 응답을 받으려면 (1) input의 그룹명을 바꿔 리퀘스트를 전송하거나 (2) `npx prisma migrate reset`을 실행해주세요.**  \n\n새로운 그룹을 생성합니다.\n\n### Constraints\n- Manager 이상의 role을 가진 유저만 새 그룹을 생성할 수 있습니다.\n- 그룹의 이름은 다른 그룹의 이름과 같을 수 없습니다.\n- 유저에게 주어져야 하는 그룹 config의 디폴트 값은 다음과 같습니다.\n  ```json\n  showOnList: true\n  allowJoinFromSearch: true\n  allowJoinWithURL: false\n  requireApprovalBeforeJoin: true\n  ```\n  + `showOnList`가 false이면 `allowJoinFromSearch` 값이 항상 false로 적용됩니다.",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "86d2ae24-54f0-4567-9a3c-a993ac915ad4",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "1448e822-f5bb-45aa-a9b0-db9ba1fbda85",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "e301836d-c693-4efe-a13b-59250583415f",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2023-07-01T09:28:51.000Z",
+            "modified": "2023-07-01T13:32:14.311Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query Group {\n  getGroup(groupId: 1) {\n    id\n    groupName\n    description\n    config\n    createTime\n    memberNum\n    managers\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "id"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "groupName"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "description"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "config"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "createTime"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "memberNum"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "managers"
+                }
+            ],
+            "docs": "# Get Group [그룹 대시보드]\n\n그룹의 상세 정보를 보여줍니다.  \n그룹이 존재하지 않거나 유저에게 그룹 관리 권한이 없는 경우 403이 반환됩니다.",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "1894da94-9c1c-4af8-8ea8-a23f8b74ed4d",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "2e6dd7d6-4110-4bd0-9138-660931d2a26d",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 2500,
+            "created": "2023-07-01T09:38:06.086Z",
+            "modified": "2023-07-02T07:28:39.971Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation Group {\n  updateGroup(\n    groupId: 3\n    input: {\n      groupName: \"Revised Group\",\n      description: \"Blah Blah\",\n      config: {\n        showOnList: false,\n        allowJoinFromSearch: true,\n        allowJoinWithURL: false\n        requireApprovalBeforeJoin: true\n      }\n    }\n  ) {\n    id\n    groupName\n    description\n    config\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "id"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "groupName"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "description"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "config"
+                }
+            ],
+            "docs": "# Update Group [그룹 대시보드]\n\n새로운 그룹을 생성합니다.\n\n### Constraints\n- 그룹의 이름은 다른 그룹의 이름과 같을 수 없습니다.\n  + c.f. 422: Duplicate Group Name\n- Open Space의 정보는 업데이트할 수 없습니다.\n- `config`의 `showOnList`가 false이면 `allowJoinFromSearch` 값이 항상 false로 적용됩니다.",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "4a434dd3-41c8-410f-b6f1-e899d8c5001d",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "2e6dd7d6-4110-4bd0-9138-660931d2a26d",
+            "name": "422: Duplicate Name",
+            "url": "",
+            "method": "POST",
+            "sortNum": 5000,
+            "created": "2023-07-01T09:38:13.195Z",
+            "modified": "2023-07-01T09:44:51.817Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation Group {\n  updateGroup(\n    groupId: 2\n    input: {\n      groupName: \"Example Group\",\n      description: \"Blah Blah\",\n      config: {\n        showOnList: true,\n        allowJoinFromSearch: true,\n        allowJoinWithURL: false\n        requireApprovalBeforeJoin: true\n      }\n    }\n  ) {\n    id\n    groupName\n    description\n    config\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].extensions.status",
+                    "action": "equal",
+                    "value": "422"
+                },
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].message",
+                    "action": "equal",
+                    "value": "Group name already exists"
+                }
+            ],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "9b958c6b-8809-462c-b451-88177295c25f",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "5cbf039a-6e9c-4321-93c2-e297a12b480e",
+            "name": "Succeed",
             "url": "",
             "method": "POST",
             "sortNum": 30000,
-            "created": "2023-07-01T02:58:44.755Z",
-            "modified": "2023-07-01T03:57:35.793Z",
+            "created": "2023-07-01T09:47:35.203Z",
+            "modified": "2023-07-01T13:32:37.976Z",
             "headers": [],
             "params": [],
             "body": {
@@ -62,22 +408,32 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query Problem(\n        $getGroupProblemInput: GetGroupProblemDto!\n    ) {\n    getGroupProblem(\n       getGroupProblemInput: $getGroupProblemInput\n    ){\n        id\n        description\n        inputDescription\n        hint\n        inputExamples\n    }\n}",
-                    "variables": "{\n  \"getGroupProblemInput\":{\n    \"problemId\": 13\n  }\n}"
+                    "query": "mutation Group {\n  deleteGroup(groupId: 4) {\n    count\n  }\n}"
                 }
             },
-            "tests": []
+            "tests": [],
+            "docs": "# Delete Group [그룹 대시보드]\n\n**⚠️ 최초 1번만 동작할 리퀘스트입니다. 다시 성공 응답을 받으려면 `npx prisma migrate reset`을 실행해주세요.**  \n\n그룹을 삭제합니다.\n\n### Constraints\n- 그룹은 그룹의 생성자 혹은 Admin/SuperAdmin만 삭제할 수 있습니다.\n- 그룹의 관리자이더라도 그룹을 생성한 유저가 아니라면 삭제가 불가능합니다.\n- Open Space는 어떤 유저도 삭제할 수 없습니다.\n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "86d2ae24-54f0-4567-9a3c-a993ac915ad4",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         },
         {
-            "_id": "a1d8f1a0-0bcb-4f52-98ed-9226e8e1ab19",
+            "_id": "53cc571f-a6d1-4c8d-8659-d261b337933d",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
-            "containerId": "b5de957a-6980-4a7c-b956-326d896aa97f",
-            "name": "getGroupProblems",
+            "containerId": "5cbf039a-6e9c-4321-93c2-e297a12b480e",
+            "name": "403: Not Creator",
             "url": "",
             "method": "POST",
             "sortNum": 40000,
-            "created": "2023-07-01T03:10:25.961Z",
-            "modified": "2023-07-03T14:01:33.372Z",
+            "created": "2023-07-01T09:48:00.827Z",
+            "modified": "2023-07-01T13:31:40.071Z",
             "headers": [],
             "params": [],
             "body": {
@@ -85,22 +441,44 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query Problem(\n        $getGroupProblemsInput: GetGroupProblemsDto!\n    ) {\n    getGroupProblems(\n       getGroupProblemsInput: $getGroupProblemsInput\n    ){\n        id\n        description\n        problemTestcase{\n            output\n        }\n    }\n}",
-                    "variables": "{\n  \"getGroupProblemsInput\":{\n    \"groupId\": 2,\n    \"cursor\": 0,\n    \"take\": 1\n  }\n}"
+                    "query": "mutation Group {\n  deleteGroup(groupId: 2) {\n    count\n  }\n}"
                 }
             },
-            "tests": []
+            "tests": [
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].extensions.originalError.statusCode",
+                    "action": "equal",
+                    "value": "403"
+                },
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].message",
+                    "action": "equal",
+                    "value": "If not admin, only creator can delete a group"
+                }
+            ],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         },
         {
-            "_id": "1d43485c-b77f-46cd-bd39-4d37b9da4f6d",
+            "_id": "d62f2e3e-7a5c-4543-8eff-bb146cabde99",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
-            "containerId": "b5de957a-6980-4a7c-b956-326d896aa97f",
-            "name": "deleteGroupProblem",
+            "containerId": "5cbf039a-6e9c-4321-93c2-e297a12b480e",
+            "name": "403: Protected Open Space",
             "url": "",
             "method": "POST",
-            "sortNum": 50000,
-            "created": "2023-07-01T03:14:22.350Z",
-            "modified": "2023-07-01T05:49:39.309Z",
+            "sortNum": 35000,
+            "created": "2023-07-01T13:27:34.416Z",
+            "modified": "2023-07-01T15:08:53.783Z",
             "headers": [],
             "params": [],
             "body": {
@@ -108,22 +486,44 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation Problem(\n        $deleteGroupProblemInput: DeleteGroupProblemDto!\n    ) {\n    deleteGroupProblem(\n       deleteGroupProblemInput: $deleteGroupProblemInput\n    )\n}",
-                    "variables": "{\n  \"deleteGroupProblemInput\":{\n    \"problemId\": 10\n  }\n}"
+                    "query": "mutation Group {\n  deleteGroup(groupId: 1) {\n    count\n  }\n}"
                 }
             },
-            "tests": []
+            "tests": [
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].extensions.originalError.statusCode",
+                    "action": "equal",
+                    "value": "403"
+                },
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].message",
+                    "action": "equal",
+                    "value": "Open space cannot be deleted"
+                }
+            ],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         },
         {
-            "_id": "81dbde5f-7a2c-441a-adc5-4bc22c20cc75",
+            "_id": "9631bc1c-c071-4512-9dc6-43267b8f9c78",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
-            "containerId": "b5de957a-6980-4a7c-b956-326d896aa97f",
-            "name": "getOpenSpaceProblems",
+            "containerId": "2e6dd7d6-4110-4bd0-9138-660931d2a26d",
+            "name": "403: Protected Open Space",
             "url": "",
             "method": "POST",
-            "sortNum": 45000,
-            "created": "2023-07-01T07:37:16.102Z",
-            "modified": "2023-07-03T14:00:37.334Z",
+            "sortNum": 3750,
+            "created": "2023-07-01T15:05:20.179Z",
+            "modified": "2023-07-01T15:09:04.804Z",
             "headers": [],
             "params": [],
             "body": {
@@ -131,11 +531,33 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query Problem(\n        $getOpenSpaceProblemsInput: GetOpenSpaceProblemsDto!\n    ) {\n    getOpenSpaceProblems(\n       getOpenSpaceProblemsInput: $getOpenSpaceProblemsInput\n    ){\n        id\n        description\n        problemTestcase{\n            output\n        }\n    }\n}",
-                    "variables": "{\n  \"getOpenSpaceProblemsInput\":{\n    \"cursor\": 0,\n    \"take\": 1\n  }\n}"
+                    "query": "mutation Group {\n  updateGroup(\n    groupId: 1\n    input: {\n      groupName: \"Revised Group\",\n      description: \"Blah Blah\",\n      config: {\n        showOnList: true,\n        allowJoinFromSearch: true,\n        allowJoinWithURL: false\n        requireApprovalBeforeJoin: true\n      }\n    }\n  ) {\n    id\n    groupName\n    description\n    config\n  }\n}"
                 }
             },
-            "tests": []
+            "tests": [
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].extensions.originalError.statusCode",
+                    "action": "equal",
+                    "value": "403"
+                },
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].message",
+                    "action": "equal",
+                    "value": "Open space cannot be updated"
+                }
+            ],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         }
     ]
 }
