@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# OnCreateCommand from Iris
-# go get -d && go install -v golang.org/x/tools/gopls@latest && go install -v github.com/ramya-rao-a/go-outline@latest && git config --global --add safe.directory /app/src
-
 set -ex
 
 # Add sandbox directory
@@ -85,6 +82,10 @@ do
   echo -e '\n⚠️ Failed to migrate. Waiting for db to be ready...\n'
   sleep 5
 done
+
+# Install Go dependencies
+cd $BASEDIR/Iris
+go get
 
 # Check RabbitMQ connection
 while ! nc -z "$RABBITMQ_HOST" "$RABBITMQ_PORT"; do sleep 3; done
