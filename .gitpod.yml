@@ -18,6 +18,7 @@ vscode:
     - eamodio.gitlens
     - editorconfig.editorconfig
     - esbenp.prettier-vscode
+    - golang.go
     - hbenl.test-adapter-converter
     - hbenl.vscode-mocha-test-adapter
     - hbenl.vscode-test-explorer

@@ -21,18 +21,14 @@
         "eamodio.gitlens",
         "editorconfig.editorconfig",
         "esbenp.prettier-vscode",
+        "golang.go",
         "hbenl.test-adapter-converter",
         "hbenl.vscode-mocha-test-adapter",
         "hbenl.vscode-test-explorer",
         "prisma.prisma",
         "rangav.vscode-thunder-client",
         "Vue.volar",
-        "Vue.vscode-typescript-vue-plugin",
-        "golang.go",
-        "golang.go-nightly",
-        "albert.TabOut",
-        "donjayamanne.githistory",
-        "eamodio.gitlens"
+        "Vue.vscode-typescript-vue-plugin"
       ]
     }
   },
