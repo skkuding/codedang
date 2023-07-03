@@ -188,7 +188,7 @@ export class ProblemService {
     return data
   }
 
-  async remove(deleteGroupProblemInput: DeleteGroupProblemDto) {
+  async delete(deleteGroupProblemInput: DeleteGroupProblemDto) {
     try {
       const deletedProblem = await this.prisma.problem.findUniqueOrThrow({
         where: {

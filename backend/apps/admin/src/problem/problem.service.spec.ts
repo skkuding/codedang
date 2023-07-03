@@ -110,7 +110,7 @@ describe('ProblemService', () => {
       db.problem.delete.resolves(mockProblem0)
 
       // when
-      const result = await service.remove({
+      const result = await service.delete({
         problemId: problemId
       })
 

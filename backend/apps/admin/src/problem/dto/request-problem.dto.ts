@@ -9,8 +9,8 @@ export class GetGroupProblemDto {
 
 @InputType()
 export class GetGroupProblemsDto {
-  @Field(() => Int, { nullable: true })
-  groupId?: number
+  @Field(() => Int)
+  groupId: number
 
   @Field(() => Int)
   cursor: number
@@ -32,4 +32,19 @@ export class GetGroupProblemsDto {
 export class DeleteGroupProblemDto extends GetGroupProblemDto {}
 
 @InputType()
-export class GetOpenSpaceProblemDto extends GetGroupProblemsDto {}
+export class GetOpenSpaceProblemsDto {
+  @Field(() => Int)
+  cursor: number
+
+  @Field(() => Int)
+  take: number
+
+  @Field(() => Int, { nullable: true })
+  createdById?: number
+
+  @Field(() => DifficultyInput, { nullable: true })
+  difficulty?: DifficultyInput
+
+  @Field(() => [LanguageInput], { nullable: true })
+  languages?: Array<LanguageInput>
+}
