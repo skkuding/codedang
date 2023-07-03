@@ -2,4 +2,3 @@ dist
 node_modules
 .pnpm-store
 @generated
-Iris

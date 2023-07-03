@@ -6,4 +6,5 @@ pnpm-lock.yaml
 thunder-tests/
 @generated/
 schema.gql
-Iris
+Iris/testcase/*.json
+Iris/tests/**/*.json
