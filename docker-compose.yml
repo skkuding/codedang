@@ -85,7 +85,7 @@ services:
     image: rabbitmq:3-management-alpine
     container_name: ${RABBITMQ_HOST}
     ports:
-      - ${RABBITMQ_ADMIN_PORT}:15672
+      - 25672:15672 # Admin Management
       - 5672:5672
     environment:
       RABBITMQ_ERLANG_COOKIE: RabbitMQ-My-Cookies
