@@ -1,4 +1,5 @@
 version: '3'
+
 services:
   app:
     profiles: ['devcontainer']
@@ -6,11 +7,11 @@ services:
     image: mcr.microsoft.com/vscode/devcontainers/typescript-node:18-bullseye
     volumes:
       - .:/workspace:cached
-    command: sleep infinity
     depends_on:
       - rabbitmq-dev
     stdin_open: true
     tty: true
+    env_file: .env.development
     environment:
       DEVCONTAINER: 1
       TESTCASE_SERVER_URL: http://testcase-server-dev:30000/problem/:id/testcase
@@ -19,14 +20,7 @@ services:
       TESTCASE_SERVER_AUTH_TOKEN: iris-token
       REDIS_HOST: skkuding-dev-cache
       REDIS_PORT: 6379
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-      RABBITMQ_HOST: ${RABBITMQ_HOST}
-      RABBITMQ_PORT: ${RABBITMQ_PORT}
-      RABBITMQ_CONSUMER_CONNECTION_NAME: ${RABBITMQ_CONSUMER_CONNECTION_NAME}
       RABBITMQ_CONSUMER_QUEUE_NAME: ${JUDGE_SUBMISSION_QUEUE_NAME}
-      RABBITMQ_CONSUMER_TAG: ${RABBITMQ_CONSUMER_TAG}
-      RABBITMQ_PRODUCER_CONNECTION_NAME: ${RABBITMQ_PRODUCER_CONNECTION_NAME}
       RABBITMQ_PRODUCER_EXCHANGE_NAME: ${JUDGE_EXCHANGE_NAME}
       RABBITMQ_PRODUCER_ROUTING_KEY: ${JUDGE_RESULT_ROUTING_KEY}
   testcase-server-dev:
@@ -69,16 +63,7 @@ services:
     volumes:
       - ./scripts/rabbitmq-setup.sh:/setup.sh
     container_name: setup
-    environment:
-      RABBITMQ_HOST: ${RABBITMQ_HOST}
-      RABBITMQ_PORT: ${RABBITMQ_PORT}
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-      JUDGE_EXCHANGE_NAME: ${JUDGE_EXCHANGE_NAME}
-      JUDGE_SUBMISSION_QUEUE_NAME: ${JUDGE_SUBMISSION_QUEUE_NAME}
-      JUDGE_SUBMISSION_ROUTING_KEY: ${JUDGE_SUBMISSION_ROUTING_KEY}
-      JUDGE_RESULT_QUEUE_NAME: ${JUDGE_RESULT_QUEUE_NAME}
-      JUDGE_RESULT_ROUTING_KEY: ${JUDGE_RESULT_ROUTING_KEY}
+    env_file: .env.development
     entrypoint:
       - /setup.sh
   rabbitmq-dev:
@@ -87,7 +72,6 @@ services:
     ports:
       - 25672:15672 # Admin Management
       - 5672:5672
+    env_file: .env.development
     environment:
       RABBITMQ_ERLANG_COOKIE: RabbitMQ-My-Cookies
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
