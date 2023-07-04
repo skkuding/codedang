@@ -13,10 +13,9 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common'
-import { Role, type Workbook } from '@prisma/client'
+import type { Workbook } from '@prisma/client'
 import {
   type AuthenticatedRequest,
-  Roles,
   RolesGuard,
   GroupLeaderGuard
 } from '@libs/auth'
@@ -64,8 +63,6 @@ export class WorkbookAdminController {
   }
 
   @Post()
-  @UseGuards(RolesGuard)
-  @Roles(Role.Manager)
   async createWorkbook(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId,

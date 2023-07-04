@@ -15,9 +15,9 @@ export class UserResolver {
     return this.userService.createUser(userCreateInput)
   }
 
-  @Query(() => [User], { name: 'getAllUsers' })
-  getAllUsers(): Promise<User[]> {
-    return this.userService.getAllUsers()
+  @Query(() => [User], { name: 'getUsers' })
+  getUsers(): Promise<User[]> {
+    return this.userService.getUsers()
   }
 
   @Query(() => User, { name: 'getUser' })
