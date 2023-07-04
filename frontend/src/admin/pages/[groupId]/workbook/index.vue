@@ -16,7 +16,7 @@ const onoff = ref(true)
 
 const show = ref(false)
 const title = ref('')
-const dateRange = ref<[number, number]>([1183135260000, Date.now()])
+const dateRange = ref<[number, number]>([Date.now(), Date.now()])
 const problemVisibleStat = ref(false)
 const difficultyVisibleStat = ref(false)
 </script>
