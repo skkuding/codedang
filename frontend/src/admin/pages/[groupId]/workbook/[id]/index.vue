@@ -199,7 +199,13 @@ const difficultyVisibleStat = ref(false)
         <div class="bg-gray mt-10 h-[1px]"></div>
         <div class="mt-8 flex justify-end">
           <div class="flex">
-            <Button class="mr-8 px-4 py-1" color="gray-dark">Cancel</Button>
+            <Button
+              class="mr-8 px-4 py-1"
+              color="gray-dark"
+              @click="show = false"
+            >
+              Cancel
+            </Button>
             <Button class="px-4 py-1">Next</Button>
           </div>
         </div>
