@@ -224,7 +224,7 @@ export class GroupService {
         joinGroupCacheKey(groupId)
       )
       if (joinGroupRequest !== undefined) {
-        if (userId in joinGroupRequest) {
+        if (joinGroupRequest.includes(userId)) {
           throw new ActionNotAllowedException(
             'duplicated join request',
             'group'
