@@ -5,154 +5,32 @@ import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import Pagination from '@/common/components/Molecule/Pagination.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
-import { ref, watch } from 'vue'
+import { useAuthStore } from '@/common/store/auth'
+import axios from 'axios'
+import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import IconGear from '~icons/fa6-solid/gear'
 import IconUserGroup from '~icons/fa6-solid/user-group'
 
 type Group = {
   id: number
-  createdBy: number
+  // createdBy: number
   groupName: string
-  groupAdmin: string
-  groupManager: string
-  isPrivate: boolean
-  invitationCode: string
+  // groupAdmin: string
+  // groupManager: string
+  isPrivate?: boolean
+  // invitationCode: string
   description: string
-  member: number
-  createdUser: string
-  belong: boolean
+  memberNum: number
+  createdBy: string
+  belong?: boolean
   groupImage?: string
+  isGroupLeader: boolean
 }
 
 //getMyGroups
-const myGroupList: Group[] = [
-  {
-    id: 1,
-    createdBy: 1,
-    groupName: 'SKKUDING',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'abcde',
-    description: '성균관대학교 개발동아리입니다 성균관대학교 개발동아리입니다',
-    member: 23,
-    createdUser: '구성현',
-    belong: true,
-    groupImage: 'https://www.skku.edu/_res/skku/img/skku_s.png'
-  },
-  {
-    id: 2,
-    createdBy: 1,
-    groupName: 'TSS',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'cdefg',
-    description: '성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: true
-  }
-]
-
-//getNonPrivateGroups
-const allGroupList: Group[] = [
-  {
-    id: 1,
-    createdBy: 1,
-    groupName: 'SKKUDING',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'abcde',
-    description: '성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: false,
-    groupImage: 'https://www.skku.edu/_res/skku/img/skku_s.png'
-  },
-  {
-    id: 2,
-    createdBy: 1,
-    groupName: 'TSS',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'cdefg',
-    description: '성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: false
-  },
-  {
-    id: 3,
-    createdBy: 1,
-    groupName: 'TSS',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'cdefg',
-    description:
-      '성균관대학교 개발동아리입니다, 성균관대학교 개발동아리입니다, 성균관대학교 개발동아리입니다, 성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: false,
-    groupImage: 'https://www.skku.edu/_res/skku/img/skku_s.png'
-  },
-  {
-    id: 4,
-    createdBy: 1,
-    groupName: 'TSS',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'cdefg',
-    description: '성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: false
-  },
-  {
-    id: 5,
-    createdBy: 1,
-    groupName: 'SKKUDING',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'abcde',
-    description: '성균관대학교 개발동아리입니다',
-    member: 23,
-    createdUser: '구성현',
-    belong: false,
-    groupImage: 'https://www.skku.edu/_res/skku/img/skku_s.png'
-  },
-  {
-    id: 6,
-    createdBy: 1,
-    groupName: 'TSS',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: true,
-    invitationCode: 'cdefg',
-    description: '성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: false
-  },
-  {
-    id: 7,
-    createdBy: 1,
-    groupName: 'TSS',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'cdefg',
-    description: '성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: false
-  }
-]
+const myGroupList = ref<Group[]>([])
+const allGroupList = ref<Group[]>([])
 
 const props = defineProps<{
   title: string
@@ -168,15 +46,35 @@ const COLOR_CLASS = [
   'bg-blue-dark',
   'bg-red'
 ]
+const cursor = ref(0)
+const take = ref(10)
+const hasNextPage = ref(true)
+const store = useAuthStore()
 
-const groupList = props.isMyGroup ? myGroupList : allGroupList // dummy data
-const selectedGroup = ref<Group | undefined>(groupList[0])
+const groupList = props.isMyGroup ? myGroupList : allGroupList
+onMounted(async () => {
+  if (!store.isLoggedIn) return // 비로그인 시
+  const { data } = await axios.get(
+    props.isMyGroup
+      ? `/api/group/joined`
+      : cursor.value
+      ? `/api/group?cursor=${cursor.value}&take=${take.value}`
+      : `/api/group?take=${take.value}`
+  )
+  console.log('props is', props.isMyGroup, 'data is ', data)
+  // props.isMyGroup ? myGroupList.push(...data) : allGroupList.push(...data)
+  groupList.value.push(...data)
+  if (data.length < take.value) {
+    hasNextPage.value = false
+  }
+})
+const selectedGroup = ref<Group | undefined>(groupList.value[0])
 const currentPage = ref(1)
 const modalVisible = ref(false)
 const modalType = ref('desc')
 const router = useRouter()
 const goGroup = (id: number) => {
-  const group = groupList.find((item) => item.id === id)
+  const group = groupList.value.find((item) => item.id === id)
   // 사용자가 해당 group에 소속되어 있으면
   if (group?.belong) router.push(`/group/${id}`)
   // 소속 되어 있지 않으면
@@ -190,8 +88,11 @@ watch(modalVisible, (value) => {
     modalType.value = 'desc'
   }
 })
-const joinGroup = () => {
+const joinGroup = (id: number) => {
   // call API
+  // const data = await axios.post(`/api/group/${id}/join`)
+  // 유저 정보 헤더에 담아서 보내야
+  console.log('id is ', id)
   modalType.value = 'info' // 성공 로직
 }
 </script>
@@ -213,7 +114,15 @@ const joinGroup = () => {
       <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
         <article
           v-for="(
-            { id, groupName, description, member, groupImage, createdUser },
+            {
+              id,
+              groupName,
+              description,
+              memberNum,
+              groupImage,
+              createdBy,
+              isGroupLeader
+            },
             index
           ) in groupList.filter((group) =>
             group.belong ? true : !group.isPrivate
@@ -222,14 +131,22 @@ const joinGroup = () => {
           class="border-gray hover:outline-gray relative flex cursor-pointer flex-col items-center gap-4 rounded-md border p-4 shadow-md hover:shadow-xl hover:outline hover:outline-1"
           @click="goGroup(id)"
         >
-          <img v-if="groupImage" :src="groupImage" class="h-16 w-16" />
-          <div
-            v-else
-            :class="COLOR_CLASS[index % COLOR_CLASS.length]"
-            class="flex h-16 w-16 items-center justify-center rounded text-white"
-          >
-            {{ groupName.slice(0, 2) }}
+          <div class="flex w-full flex-1 flex-row justify-center">
+            <img v-if="groupImage" :src="groupImage" class="h-16 w-16" />
+            <div
+              v-else
+              :class="COLOR_CLASS[index % COLOR_CLASS.length]"
+              class="flex h-16 w-16 items-center justify-center rounded text-white"
+            >
+              {{ groupName.slice(0, 2) }}
+            </div>
+            <IconGear
+              v-if="isGroupLeader"
+              class="border-pink absolute right-7 my-2 h-4 w-4"
+              @click="$router.push(`/admin/${id}`)"
+            />
           </div>
+
           <h1 class="text-center text-2xl font-bold">{{ groupName }}</h1>
           <p class="line-clamp-2 flex grow items-center text-center">
             {{ description }}
@@ -237,10 +154,10 @@ const joinGroup = () => {
           <div
             class="flex w-full flex-wrap items-center justify-between self-end text-sm"
           >
-            <p>Creator: {{ createdUser }}</p>
+            <p>Creator: {{ createdBy }}</p>
             <p class="text-text-subtitle flex gap-2 font-bold">
               <IconUserGroup />
-              {{ member }}
+              {{ memberNum }}
             </p>
           </div>
         </article>
@@ -275,19 +192,22 @@ const joinGroup = () => {
           <div class="border-green flex flex-col gap-6 border-l-2 py-4 pl-6">
             <div class="flex flex-col gap-1 font-bold">
               <PageSubtitle text="Member" />
-              {{ selectedGroup.member }}
+              {{ selectedGroup.memberNum }}
             </div>
-            <div class="flex flex-col gap-1 font-bold">
+            <!-- <div class="flex flex-col gap-1 font-bold">
               <PageSubtitle text="Group Admin" />
               {{ selectedGroup.groupAdmin }}
             </div>
             <div class="flex flex-col gap-1 font-bold">
               <PageSubtitle text="Group Manager" />
               {{ selectedGroup.groupManager }}
-            </div>
+            </div> -->
           </div>
         </div>
-        <Button class="absolute right-10 rounded-2xl px-4" @click="joinGroup">
+        <Button
+          class="absolute right-10 rounded-2xl px-4"
+          @click="joinGroup(selectedGroup.id)"
+        >
           Join
         </Button>
       </div>
