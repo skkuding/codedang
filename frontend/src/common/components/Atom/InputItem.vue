@@ -34,7 +34,10 @@ const shadowClass = computed(() =>
   <p v-show="required && !modelValue" class="text-red text-xs font-bold">
     {{ placeholder + ' is required' }}
   </p>
-  <p v-show="isValid !== '' && !modelValue" class="text-red text-xs font-bold">
+  <p
+    v-show="modelValue !== '' && isValid !== '' && !modelValue"
+    class="text-red text-xs font-bold"
+  >
     {{ isValid }}
   </p>
 </template>
