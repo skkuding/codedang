@@ -162,8 +162,8 @@ const difficultyVisibleStat = ref(false)
       </template>
     </PaginationTable>
   </div>
-  <Modal v-model="show" class="m-8 h-[96%] w-full px-40">
-    <div class="overflow-auto">
+  <Modal v-model="show" class="mx-8 h-[96%] w-full">
+    <div class="overflow-auto px-40">
       <div class="flex flex-col">
         <div class="mt-10">
           <h1 class="text-gray-dark mr-6 inline text-2xl font-semibold">
