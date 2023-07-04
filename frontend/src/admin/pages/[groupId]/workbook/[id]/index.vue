@@ -172,11 +172,11 @@ const difficultyVisibleStat = ref(false)
         </div>
         <div class="bg-gray h-[1px]"></div>
         <div class="mt-10 flex">
-          <h2 class="mr-10 text-lg">Group</h2>
-          <h2 class="text-lg">Title</h2>
+          <div class="w-20 text-lg font-bold">Group</div>
+          <div class="flex items-center">NPC 중급반</div>
         </div>
         <div class="mt-6 flex">
-          <div class="mr-10">NPC 중급반</div>
+          <div class="w-20 text-lg font-bold">Title</div>
           <InputItem v-model="title" required placeholder="Title" />
         </div>
         <h2 class="mt-8 text-lg">Description</h2>
