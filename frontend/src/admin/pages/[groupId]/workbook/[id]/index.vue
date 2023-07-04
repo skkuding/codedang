@@ -80,6 +80,12 @@ const props = defineProps<{
       :number-of-pages="3"
       :no-search-bar="true"
       :no-pagination="true"
+      @row-clicked="
+        (data) =>
+          $router.push(
+            `/admin/${props.groupId}/workbook/` + data.id + '/create'
+          )
+      "
     >
       <template #delete="{}">
         <Button class="flex h-[32px] w-[32px] items-center justify-center">

@@ -8,6 +8,8 @@ import { ref } from 'vue'
 
 const title = ref('')
 const dateRange = ref<[number, number]>([1183135260000, Date.now()])
+const problemVisibleStat = ref(false)
+const difficultyVisibleStat = ref(false)
 </script>
 
 <template>
@@ -35,8 +37,11 @@ const dateRange = ref<[number, number]>([1183135260000, Date.now()])
       <NDatePicker v-model:value="dateRange" type="datetimerange" clearable />
     </div>
     <div class="mt-16 flex">
-      <Switch class="mr-8" label="Visible" />
-      <Switch label="Problem Difficulty Visible" />
+      <Switch v-model="problemVisibleStat" class="mr-8" label="Visible" />
+      <Switch
+        v-model="difficultyVisibleStat"
+        label="Problem Difficulty Visible"
+      />
     </div>
     <div class="bg-gray mt-16 h-[1px]"></div>
     <div class="mt-8 flex justify-end">
