@@ -2,18 +2,6 @@
 
 set -ex
 
-# Add sandbox directory
-
-sudo mkdir -p /app/sandbox/policy \
-  && sudo mkdir /app/sandbox/results\
-  && sudo mkdir -p /app/sandbox/logs/run \
-  && sudo mkdir -p /app/sandbox/logs/compile
-
-sudo chmod -R 777 /app
-
-cp /workspace/Iris/lib/judger/policy/java_policy /app/sandbox/policy/
-cp /workspace/Iris/lib/judger/libjudger.so /app/sandbox/
-
 # Check requirements: npm
 if [ ! $(command -v npm) ]
 then
@@ -86,6 +74,10 @@ done
 # Install Go dependencies
 cd $BASEDIR/Iris
 go get
+
+# Setup sandbox
+cp $BASEDIR/Iris/lib/judger/policy/java_policy /app/sandbox/policy/
+cp $BASEDIR/Iris/lib/judger/libjudger.so /app/sandbox/
 
 # Check RabbitMQ connection
 while ! nc -z "$RABBITMQ_HOST" "$RABBITMQ_PORT"; do sleep 3; done
