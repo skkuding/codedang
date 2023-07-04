@@ -26,7 +26,7 @@ const editor = useEditor({
   editorProps: {
     attributes: {
       class:
-        'prose prose-sm md:prose-base ring-gray p-5 outline-none overflow-auto ring-1 focus:outline-none focus:ring h-[300px] w-full'
+        'prose prose-sm md:prose-base ring-gray p-5 outline-none overflow-auto ring-1 focus:outline-none focus:ring h-[300px] min-w-full'
     }
   }
 })
