@@ -11,7 +11,7 @@
     "watchAssets": true,
     "deleteOutDir": true,
     "plugins": ["@nestjs/swagger"],
-    "webpack": true,
+    "builder": "webpack",
     "tsConfigPath": "apps/client/tsconfig.app.json"
   },
   "monorepo": true,
