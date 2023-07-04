@@ -5107,6 +5107,38 @@
                 }
             ],
             "docs": "# Get Clarifications by Contest\n\n파라미터로 주어진 group contest의 problem에 등록된 clarification의 목록을 불러옵니다.  "
+        },
+        {
+            "_id": "86d2ae24-54f0-4567-9a3c-a993ac915ad4",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "dcc8290a-fa46-4ad9-b9a1-f2f422fe2006",
+            "name": "Log In as Manager",
+            "url": "/auth/login",
+            "method": "POST",
+            "sortNum": 70000,
+            "created": "2023-07-01T01:32:45.988Z",
+            "modified": "2023-07-01T01:36:06.576Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"username\": \"manager\",\n  \"password\": \"Managermanager\"\n}",
+                "form": []
+            },
+            "tests": [
+                {
+                    "type": "set-env-var",
+                    "custom": "header.authorization",
+                    "action": "setto",
+                    "value": "{{bearer_token}}"
+                },
+                {
+                    "type": "set-env-var",
+                    "custom": "cookie.refresh_token",
+                    "action": "setto",
+                    "value": "{{refresh_token}}"
+                }
+            ]
         }
     ]
 }
