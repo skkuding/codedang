@@ -67,7 +67,6 @@ go get
 
 # Setup sandbox
 cp $BASEDIR/Iris/lib/judger/policy/java_policy /app/sandbox/policy/
-cp $BASEDIR/Iris/lib/judger/libjudger.so /app/sandbox/
 
 # Check RabbitMQ connection
 while ! nc -z "$RABBITMQ_HOST" "$RABBITMQ_PORT"; do sleep 3; done
