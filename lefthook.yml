@@ -7,6 +7,9 @@ pre-commit:
     prettier:
       glob: '*.{js,ts,vue,css,yaml,yml}'
       run: pnpm prettier --check {staged_files}
+    gofmt:
+      glob: '*.go'
+      run: go fmt -n {staged_files}
 
 commit-msg:
   commands:
