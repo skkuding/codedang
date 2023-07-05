@@ -10,6 +10,9 @@ tasks:
   - name: Node.js
     init: ./scripts/setup.sh
 
+  - name: Load environment variables
+    init: source .env.development
+
 vscode:
   extensions:
     - bradlc.vscode-tailwindcss
