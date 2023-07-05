@@ -1,6 +1,5 @@
-import { Field, InputType, Int } from '@nestjs/graphql'
-import { ProblemTestcaseCreateWithoutProblemInput } from '@admin/@generated/problem-testcase/problem-testcase-create-without-problem.input'
-import { LanguageInput, DifficultyInput } from './update-problem.dto'
+import { Field, InputType } from '@nestjs/graphql'
+import { ProblemUncheckedCreateInput } from '@admin/@generated/problem/problem-unchecked-create.input'
 
 @InputType()
 export class TestCaseDto {
@@ -12,52 +11,45 @@ export class TestCaseDto {
 }
 
 @InputType()
-export class CreateGroupProblemDto {
-  @Field(() => Int)
-  createdById: number
-
-  @Field(() => Int)
-  groupId: number
-
-  @Field({ nullable: false })
-  title: string
-
-  @Field({ nullable: false })
-  description: string
-
-  @Field({ nullable: false })
-  inputDescription: string
-
-  @Field({ nullable: false })
-  outputDescription: string
-
-  @Field({ nullable: false })
-  hint: string
-
-  @Field(() => Int)
-  timeLimit: number
-
-  @Field(() => Int)
-  memoryLimit: number
-
-  @Field(() => DifficultyInput, { nullable: true })
-  difficulty: DifficultyInput // modify
-
-  @Field(() => [LanguageInput], { nullable: true })
-  languages?: Array<LanguageInput>
-
-  @Field({ nullable: false })
-  source: string
-
-  @Field(() => [String], { nullable: true })
-  inputExamples?: Array<string>
-
-  @Field(() => [String], { nullable: true })
-  outputExamples?: Array<string>
-
+export class CreateGroupProblemDto extends ProblemUncheckedCreateInput {
   @Field(() => [TestCaseDto], { nullable: true })
-  problemTestcase?: Array<TestCaseDto>
+  declare testcase?: Array<TestCaseDto>
 
-  @Field(() => [String], { nullable: true })
-  problemTag?: Array<string>
+  @Field(() => [Number], { nullable: true })
+  declare tag?: Array<number>
 }
+
+Object.defineProperties(CreateGroupProblemDto.prototype, {
+  createdById: {
+    value: undefined,
+    writable: false
+  },
+  createTime: {
+    value: undefined,
+    writable: false
+  },
+  updateTime: {
+    value: undefined,
+    writable: false
+  },
+  problemTestcase: {
+    value: undefined,
+    writable: false
+  },
+  problemTag: {
+    value: undefined,
+    writable: false
+  },
+  contestProblem: {
+    value: undefined,
+    writable: false
+  },
+  workbookProblem: {
+    value: undefined,
+    writable: false
+  },
+  submission: {
+    value: undefined,
+    writable: false
+  }
+})

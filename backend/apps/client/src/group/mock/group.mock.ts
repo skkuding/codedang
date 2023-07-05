@@ -14,7 +14,8 @@ export const groups: Group[] = [
     createdById: 1,
     groupName: 'mock public group',
     createTime: new Date('2023-02-22T00:00:00.000Z'),
-    updateTime: new Date('2023-02-22T:00:00.000Z')
+    updateTime: new Date('2023-02-22T:00:00.000Z'),
+    isDeleted: true // no commit
   },
   {
     id: 2,
@@ -28,7 +29,8 @@ export const groups: Group[] = [
     createdById: 1,
     groupName: 'mock public group 2',
     createTime: new Date('2023-02-22T00:00:00.000Z'),
-    updateTime: new Date('2023-02-22T10:00:00.000Z')
+    updateTime: new Date('2023-02-22T10:00:00.000Z'),
+    isDeleted: true // no commit
   },
   {
     id: 3,
@@ -42,7 +44,8 @@ export const groups: Group[] = [
     createdById: 1,
     groupName: 'mock public group 2',
     createTime: new Date('2023-02-22T00:00:00.000Z'),
-    updateTime: new Date('2023-02-22T10:00:00.000Z')
+    updateTime: new Date('2023-02-22T10:00:00.000Z'),
+    isDeleted: true // no commit
   }
 ]
 

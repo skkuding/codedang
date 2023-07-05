@@ -1,5 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
-import { LanguageInput, DifficultyInput } from './update-problem.dto'
+import { Language } from '@admin/@generated/prisma/language.enum'
+import { Level } from '@admin/@generated/prisma/level.enum'
 
 @InputType()
 export class GetGroupProblemDto {
@@ -21,11 +22,11 @@ export class GetGroupProblemsDto {
   @Field(() => Int, { nullable: true })
   createdById?: number
 
-  @Field(() => DifficultyInput, { nullable: true })
-  difficulty?: DifficultyInput
+  @Field(() => Level, { nullable: true })
+  difficulty?: Level
 
-  @Field(() => [LanguageInput], { nullable: true })
-  languages?: Array<LanguageInput>
+  @Field(() => [Language], { nullable: true })
+  languages?: Array<Language>
 }
 
 @InputType()
@@ -42,9 +43,9 @@ export class GetOpenSpaceProblemsDto {
   @Field(() => Int, { nullable: true })
   createdById?: number
 
-  @Field(() => DifficultyInput, { nullable: true })
-  difficulty?: DifficultyInput
+  @Field(() => Level, { nullable: true })
+  difficulty?: Level
 
-  @Field(() => [LanguageInput], { nullable: true })
-  languages?: Array<LanguageInput>
+  @Field(() => [Language], { nullable: true })
+  languages?: Array<Language>
 }

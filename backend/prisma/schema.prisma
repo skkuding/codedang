@@ -176,7 +176,7 @@ model ProblemTag {
   id        Int     @id @default(autoincrement())
   problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   problemId Int     @map("problem_id")
-  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   tagId     Int     @map("tag_id")
 
   @@map("problem_tag")
