@@ -1,6 +1,9 @@
 gitConfig:
   pull.rebase: 'true'
 
+image:
+  file: .gitpod.Dockerfile
+
 ports:
   - port: 4000 # Nest.js
     onOpen: ignore
@@ -9,9 +12,6 @@ ports:
 tasks:
   - name: Node.js
     init: ./scripts/setup.sh
-
-  - name: Load environment variables
-    init: source .env.development
 
 vscode:
   extensions:
