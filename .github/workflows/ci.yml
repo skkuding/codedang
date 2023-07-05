@@ -74,7 +74,12 @@ jobs:
         run: pnpm format:check
 
       - name: Check Style (Go)
-        run: go fmt -n ./...
+        run: |
+          if [ -n "$(gofmt -l .)" ]; then
+            echo "Go files must be formatted with gofmt. Please run:"
+            echo "  go fmt ./..."
+            exit 1
+          fi
         working-directory: ./Iris
 
       - name: Lint (Node.js)
