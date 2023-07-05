@@ -9,6 +9,8 @@ generator graphql {
   provider           = "prisma-nestjs-graphql"
   output             = "../apps/admin/src/@generated"
   noAtomicOperations = true
+  emitCompiled       = true
+  purgeOutput        = true
 }
 
 datasource db {
@@ -84,7 +86,6 @@ model Group {
   ///   "requireApprovalBeforeJoin": true
   /// }
   config      Json
-  isDeleted   Boolean  @default(false) @map("is_deleted")
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
