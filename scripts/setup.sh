@@ -23,16 +23,6 @@ else
   echo "DATABASE_URL=\"postgresql://postgres:1234@test-db:5432/skkuding?schema=public\"" > backend/.env.test.local
 fi
 
-# Save cache database URL and PORT to dotenv file
-if [ -z $DEVCONTAINER ]
-then
-  echo "CACHE_DATABASE_URL=\"localhost\"" >> backend/.env
-  echo "CACHE_DATABASE_PORT=6380" >> backend/.env
-else
-  echo "CACHE_DATABASE_URL=\"skkuding-dev-cache\"" >> backend/.env
-  echo "CACHE_DATABASE_PORT=6379" >> backend/.env
-fi
-
 # Save user account and password to dotenv file for nodemailer
 echo "NODEMAILER_HOST=\"email-smtp.ap-northeast-2.amazonaws.com\"" >> backend/.env
 echo "NODEMAILER_USER=\"\"" >> backend/.env
