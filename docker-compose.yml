@@ -16,7 +16,10 @@ services:
     tty: true
     env_file: .env.development
     environment:
+      # Override the default database url
+      DATABASE_URL: postgresql://postgres:1234@codedang-database:5432/skkuding?schema=public
       DEVCONTAINER: 1
+
   testcase:
     container_name: codedang-testcase
     build:
@@ -26,6 +29,7 @@ services:
     tty: true
     volumes:
       - ./Iris/testcase:/app/data
+
   database:
     container_name: codedang-database
     image: postgres:14-alpine
@@ -35,6 +39,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: skkuding
+
   database-test:
     profiles: ['test']
     container_name: codedang-database-test
@@ -45,11 +50,13 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: skkuding
+
   cache:
     container_name: codedang-cache
     image: redis:7-alpine
     ports:
       - 6380:6379
+
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: codedang-rabbitmq

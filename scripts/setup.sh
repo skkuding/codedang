@@ -13,29 +13,28 @@ BASEDIR=$(dirname $(dirname $(realpath $0)))
 
 cd $BASEDIR
 
-# Save database URL to dotenv file for Prisma
-if [ -z $DEVCONTAINER ]
-then
-  echo "DATABASE_URL=\"postgresql://postgres:1234@localhost:5433/skkuding?schema=public\"" > backend/.env
-  echo "DATABASE_URL=\"postgresql://postgres:1234@localhost:5434/skkuding?schema=public\"" > backend/.env.test.local
-else
-  echo "DATABASE_URL=\"postgresql://postgres:1234@codedang-database:5432/skkuding?schema=public\"" > backend/.env
-  echo "DATABASE_URL=\"postgresql://postgres:1234@codedang-database-test:5432/skkuding?schema=public\"" > backend/.env.test.local
-fi
-
-# Save user account and password to dotenv file for nodemailer
-echo "NODEMAILER_HOST=\"email-smtp.ap-northeast-2.amazonaws.com\"" >> backend/.env
-echo "NODEMAILER_USER=\"\"" >> backend/.env
-echo "NODEMAILER_PASS=\"\"" >> backend/.env
-echo "NODEMAILER_FROM=\"\"" >> backend/.env
-
 # Use docker-compose profile
 if [ -z $DEVCONTAINER ]
 then
   docker compose up -d
 fi
 
-echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum | head -c 64)" >> backend/.env
+# If dotenv schema is not updated, remove the file
+if [ -f backend/.env ] && grep -q DATABASE_URL backend/.env
+then
+  rm backend/.env
+fi
+
+# If .env does not exist, create one
+if [ ! -f backend/.env ]
+then
+  touch backend/.env
+  echo "NODEMAILER_HOST=\"email-smtp.ap-northeast-2.amazonaws.com\"" >> backend/.env
+  echo "NODEMAILER_USER=\"\"" >> backend/.env
+  echo "NODEMAILER_PASS=\"\"" >> backend/.env
+  echo "NODEMAILER_FROM=\"\"" >> backend/.env
+  echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum | head -c 64)" >> backend/.env
+fi
 
 # Generate thunder client environment
 # Since environment variable changes frequently, let git ignore actual environment variables
