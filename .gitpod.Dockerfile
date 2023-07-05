@@ -1,4 +1,5 @@
 FROM gitpod/workspace-full
 
-# load .env
-ENV $(grep -v '^#' .env.development | xargs)
+COPY .env.development /tmp/.env
+
+RUN cat /tmp/.env >> /etc/environment
