@@ -8,7 +8,7 @@ RUN chmod -R 777 /app/sandbox
 RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" ]; then \
   curl -L "https://github.com/skkuding/codedang/releases/download/alpha/libjudger-arm.so" -o "/app/sandbox/libjudger.so"; \
   else \
-  curl -L "https://github.com/skkuding/codedang/releases/download/alpha/libjudger-x86.so" -o "/app/sandbox/libjudger.so"; \
+  curl -L "https://github.com/skkuding/codedang/releases/download/alpha/libjudger-x64.so" -o "/app/sandbox/libjudger.so"; \
   fi
 RUN chmod 755 /app/sandbox/libjudger.so
 
