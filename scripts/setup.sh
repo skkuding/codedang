@@ -19,8 +19,8 @@ then
   echo "DATABASE_URL=\"postgresql://postgres:1234@localhost:5433/skkuding?schema=public\"" > backend/.env
   echo "DATABASE_URL=\"postgresql://postgres:1234@localhost:5434/skkuding?schema=public\"" > backend/.env.test.local
 else
-  echo "DATABASE_URL=\"postgresql://postgres:1234@dev-db:5432/skkuding?schema=public\"" > backend/.env
-  echo "DATABASE_URL=\"postgresql://postgres:1234@test-db:5432/skkuding?schema=public\"" > backend/.env.test.local
+  echo "DATABASE_URL=\"postgresql://postgres:1234@codedang-database:5432/skkuding?schema=public\"" > backend/.env
+  echo "DATABASE_URL=\"postgresql://postgres:1234@codedang-database-test:5432/skkuding?schema=public\"" > backend/.env.test.local
 fi
 
 # Save user account and password to dotenv file for nodemailer

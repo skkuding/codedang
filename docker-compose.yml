@@ -3,21 +3,22 @@ version: '3'
 services:
   app:
     profiles: ['devcontainer']
-    container_name: skkuding-dev
+    container_name: codedang-dev
     build:
       context: .
       dockerfile: .devcontainer/Dockerfile
     volumes:
       - .:/workspace:cached
     depends_on:
-      - rabbitmq-dev
+      - rabbitmq
+      - database
     stdin_open: true
     tty: true
     env_file: .env.development
     environment:
       DEVCONTAINER: 1
-  testcase-server-dev:
-    container_name: testcase-server-dev
+  testcase:
+    container_name: codedang-testcase
     build:
       context: ./Iris/tests/testcase-server
       dockerfile: Dockerfile
@@ -25,8 +26,8 @@ services:
     tty: true
     volumes:
       - ./Iris/testcase:/app/data
-  dev-db:
-    container_name: skkuding-dev-db
+  database:
+    container_name: codedang-database
     image: postgres:14-alpine
     ports:
       - 5433:5432
@@ -34,9 +35,9 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: skkuding
-  test-db:
+  database-test:
     profiles: ['test']
-    container_name: skkuding-test-db
+    container_name: codedang-database-test
     image: postgres:14-alpine
     ports:
       - 5434:5432
@@ -44,14 +45,14 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: skkuding
-  dev-cache:
-    container_name: skkuding-dev-cache
+  cache:
+    container_name: codedang-cache
     image: redis:7-alpine
     ports:
       - 6380:6379
-  rabbitmq-dev:
+  rabbitmq:
     image: rabbitmq:3-management-alpine
-    container_name: rabbitmq-dev
+    container_name: codedang-rabbitmq
     ports:
       - 25672:15672 # Admin Management
       - 5672:5672

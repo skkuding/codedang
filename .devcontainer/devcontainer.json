@@ -2,13 +2,7 @@
   "name": "codedang",
   "dockerComposeFile": "../docker-compose.yml",
   "service": "app",
-  "runServices": [
-    "app",
-    "dev-db",
-    "dev-cache",
-    "rabbitmq-dev",
-    "testcase-server-dev"
-  ],
+  "runServices": ["app", "database", "cache", "rabbitmq", "testcase"],
   "workspaceFolder": "/workspace",
   "postCreateCommand": "scripts/setup.sh",
   "customizations": {
