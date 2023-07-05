@@ -1,18 +1,8 @@
-import { IsString, IsBoolean, IsNotEmpty, IsNumber } from 'class-validator'
+import { IsNotEmpty, IsNumber } from 'class-validator'
+import { CreateWorkbookDto } from './create-workbook.dto'
 
-export class UpdateWorkbookDto {
+export class UpdateWorkbookDto extends CreateWorkbookDto {
   @IsNumber()
   @IsNotEmpty()
-  groupId: number
-
-  @IsString()
-  @IsNotEmpty()
-  title: string
-
-  @IsString()
-  @IsNotEmpty()
-  description: string
-
-  @IsBoolean()
-  isVisible: boolean
+  id: number
 }

@@ -35,6 +35,72 @@
                 }
             },
             "tests": []
+        },
+        {
+            "_id": "12def170-6042-4da1-b66e-e1513bb966ca",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "",
+            "name": "Update One Workbook",
+            "url": "http://localhost:3000/graphql",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2023-07-01T07:44:47.547Z",
+            "modified": "2023-07-05T17:08:50.293Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation {\n  updateWorkbook(\n    id: 39\n    groupId: 2\n    title: \"updated\"\n    description: \"updated\"\n    isVisible: false\n  ) {\n    title\n  }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "c2114d40-9e72-420c-bdcb-bc70022afcc4",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "",
+            "name": "Get Workbook",
+            "url": "http://localhost:3000/graphql",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2023-07-05T17:33:56.218Z",
+            "modified": "2023-07-05T17:51:12.807Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "{\n  getWorkbook(groupId: 1, cursor: 1, take: 2) {\n    title\n  }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "b67405fe-401a-4233-95a5-b94a5330b4b4",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "",
+            "name": "Delete One Workbook",
+            "url": "http://localhost:3000/graphql",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2023-07-05T17:51:29.597Z",
+            "modified": "2023-07-05T17:52:48.957Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation {\n  deleteWorkbook(groupId: 2, id: 39) {\n    title\n  }\n}"
+                }
+            },
+            "tests": []
         }
     ]
 }

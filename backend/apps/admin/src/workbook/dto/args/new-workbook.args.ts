@@ -1,7 +1,7 @@
 import { Field, ID, ArgsType, Int } from '@nestjs/graphql'
 
 @ArgsType()
-export class NewWorkbookInput {
+export class NewWorkbookArgs {
   @Field(() => String, { nullable: false })
   title: string
 

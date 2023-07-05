@@ -8,7 +8,10 @@ import {
   GroupLeaderGuard
 } from '@libs/auth'
 import { Workbook } from '@admin/@generated/workbook/workbook.model'
-import { NewWorkbookInput } from './dto/new-workbook.input'
+import { DeleteWorkbookArgs } from './dto/args/delete-workbook.args'
+import { GetWorkbookArgs } from './dto/args/get-workbook.args'
+import { NewWorkbookArgs } from './dto/args/new-workbook.args'
+import { UpdateWorkbookArgs } from './dto/args/update-workbook.args'
 import { WorkbookService } from './workbook.service'
 
 @Resolver(() => Workbook)
@@ -18,11 +21,11 @@ export class WorkbookResolver {
   @Mutation(() => Workbook, { name: 'createWorkbook' })
   async createWorkbook(
     @Context('req') req,
-    @Args() newWorkbookInput: NewWorkbookInput
+    @Args() newWorkbookArgs: NewWorkbookArgs
   ) {
     try {
       return await this.workbookService.createWorkbook(
-        newWorkbookInput,
+        newWorkbookArgs,
         req.user.id
       )
     } catch (error) {
@@ -30,28 +33,30 @@ export class WorkbookResolver {
     }
   }
 
-  // @Query(() => [Workbook], { name: 'workbook' })
-  // findAll() {
-  //   return this.workbookService.findAll()
-  // }
+  @Mutation(() => Workbook, { name: 'updateWorkbook' })
+  async updateWorkbook(@Args() updateWorkbookArgs: UpdateWorkbookArgs) {
+    try {
+      return this.workbookService.updateWorkbook(updateWorkbookArgs)
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
 
-  // @Query(() => Workbook, { name: 'workbook' })
-  // getWorkbookList(@Args('id', { type: () => Int }) id: number) {
-  //   return this.workbookService.findOne(id)
-  // }
+  @Query(() => [Workbook], { name: 'getWorkbook' })
+  async getWorkbookList(@Args() getWorkbookArgs: GetWorkbookArgs) {
+    try {
+      return this.workbookService.getAdminWorkbooksByGroupId(getWorkbookArgs)
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
 
-  // @Mutation(() => Workbook)
-  // updateWorkbook(
-  //   @Args('updateWorkbookInput') updateWorkbookInput: UpdateWorkbookInput
-  // ) {
-  //   return this.workbookService.updateWorkbook(
-  //     updateWorkbookInput.id,
-  //     updateWorkbookInput
-  //   )
-  // }
-
-  // @Mutation(() => Workbook)
-  // removeWorkbook(@Args('id', { type: () => Int }) id: number) {
-  //   return this.workbookService.deleteWorkbook(id)
-  // }
+  @Mutation(() => Workbook, { name: 'deleteWorkbook' })
+  async removeWorkbook(@Args() deleteWorkbookArgs: DeleteWorkbookArgs) {
+    try {
+      return this.workbookService.deleteWorkbook(deleteWorkbookArgs)
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
 }

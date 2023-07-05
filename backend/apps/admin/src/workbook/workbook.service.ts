@@ -4,6 +4,8 @@ import { OPEN_SPACE_ID } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { CreateWorkbookDto } from './dto/create-workbook.dto'
+import { DeleteWorkbookDto } from './dto/delete-workbook.dto'
+import { GetWorkbookDto } from './dto/get-workbook.dto'
 import { UpdateWorkbookDto } from './dto/update-workbook.dto'
 
 @Injectable()
@@ -35,10 +37,11 @@ export class WorkbookService {
   }
 
   async getAdminWorkbooksByGroupId(
-    cursor,
-    take,
-    groupId = OPEN_SPACE_ID
+    getWorkbookDto: GetWorkbookDto
   ): Promise<Partial<Workbook>[]> {
+    const groupId = getWorkbookDto.groupId
+    let cursor = getWorkbookDto.cursor
+    const take = getWorkbookDto.take
     let skip = 1
     if (!cursor) {
       cursor = 1
@@ -53,6 +56,7 @@ export class WorkbookService {
         id: cursor
       }
     })
+    console.log(workbooks)
     return workbooks
   }
 
@@ -130,17 +134,15 @@ export class WorkbookService {
   }
 
   async updateWorkbook(
-    workbookId: number,
     updateWorkbookDto: UpdateWorkbookDto
   ): Promise<Workbook> {
     try {
+      const { id, ...rest } = updateWorkbookDto
       const updatedWorkbook = await this.prisma.workbook.update({
         where: {
-          id: workbookId
+          id: id
         },
-        data: {
-          ...updateWorkbookDto
-        }
+        data: rest
       })
       return updatedWorkbook
     } catch (error) {
@@ -155,11 +157,14 @@ export class WorkbookService {
     }
   }
 
-  async deleteWorkbook(workbookId: number): Promise<Workbook> {
+  async deleteWorkbook(
+    deleteWorkbookDto: DeleteWorkbookDto
+  ): Promise<Workbook> {
     try {
+      const { groupId, id } = deleteWorkbookDto
       const deletedWorkbook = await this.prisma.workbook.delete({
         where: {
-          id: workbookId
+          id: id
         }
       })
       return deletedWorkbook
