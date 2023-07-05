@@ -9,7 +9,8 @@ pre-commit:
       run: pnpm prettier --check {staged_files}
     gofmt:
       glob: '*.go'
-      run: go fmt -n {staged_files}
+      run: go fmt -n ./...
+      root: Iris
 
 commit-msg:
   commands:

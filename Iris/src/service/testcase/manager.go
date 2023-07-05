@@ -44,7 +44,7 @@ func (t *testcaseManager) GetTestcase(problemId string) (Testcase, error) {
 		if err != nil {
 			return Testcase{}, fmt.Errorf("cache set: %w", err)
 		}
-		
+
 		return testcase, nil
 	}
 

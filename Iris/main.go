@@ -60,7 +60,7 @@ func main() {
 			utils.Getenv("TESTCASE_SERVER_URL_PLACEHOLDER", ":id"),
 			utils.Getenv("TESTCASE_SERVER_AUTH_TOKEN", "iris"),
 			utils.Getenv("TESTCASE_SERVER_AUTH_HEADER", "Authorization"),
-			time.Second * time.Duration(timeout),
+			time.Second*time.Duration(timeout),
 		)
 	}
 	testcaseManager := testcase.NewTestcaseManager(dataSource, cache)

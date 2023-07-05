@@ -12,7 +12,7 @@ import (
 type Language string
 
 func (l Language) IsValid() bool {
-	switch l{
+	switch l {
 	case "C", "Cpp", "Java", "Python3":
 		return true
 	}
@@ -20,9 +20,9 @@ func (l Language) IsValid() bool {
 }
 
 const (
-	C  Language  = "C"
-	CPP  Language = "Cpp"
-	JAVA Language = "Java"
+	C      Language = "C"
+	CPP    Language = "Cpp"
+	JAVA   Language = "Java"
 	PYTHON Language = "Python3"
 )
 

@@ -20,4 +20,3 @@ func (f *fileDataSource) Get(path string) ([]byte, error) {
 	}
 	return contents, nil
 }
-
