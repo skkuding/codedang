@@ -38,7 +38,7 @@ export class UserResolver {
     @Args('groupId', { type: () => Int }) groupId: number
   ): Promise<UserGroup> {
     try {
-      return this.userService.upOrDowngradeManager(userId, groupId, false)
+      return this.userService.downgradeManager(userId, groupId)
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw new NotFoundException(error.message)
@@ -53,10 +53,10 @@ export class UserResolver {
     @Args('groupId', { type: () => Int }) groupId: number
   ): Promise<UserGroup> {
     try {
-      return this.userService.upOrDowngradeManager(userId, groupId, true)
+      return this.userService.upgradeManager(userId, groupId)
     } catch (error) {
       if (error instanceof BadRequestException) {
-        throw new NotFoundException(error.message)
+        throw new BadRequestException()
       }
       throw new InternalServerErrorException()
     }
@@ -71,7 +71,7 @@ export class UserResolver {
       return this.userService.deleteGroupMember(userId, groupId)
     } catch (error) {
       if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message)
+        throw new BadRequestException()
       }
       throw new InternalServerErrorException()
     }
