@@ -8,13 +8,14 @@ import {
   JwtAuthModule,
   JwtAuthGuard,
   RolesModule,
-  RolesGuard
+  GroupLeaderGuard
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
 import { PrismaModule } from '@libs/prisma'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { ContestModule } from './contest/contest.module'
+import { GroupModule } from './group/group.module'
 import { UserModule } from './user/user.module'
 
 @Module({
@@ -33,13 +34,14 @@ import { UserModule } from './user/user.module'
     RolesModule,
     UserModule,
     PrismaModule,
-    ContestModule
+    ContestModule,
+    GroupModule
   ],
   controllers: [AdminController],
   providers: [
     AdminService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: RolesGuard }
+    { provide: APP_GUARD, useClass: GroupLeaderGuard }
   ]
 })
 export class AdminModule {}
