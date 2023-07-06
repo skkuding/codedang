@@ -4,8 +4,8 @@ import {
   ParseIntPipe,
   UnprocessableEntityException
 } from '@nestjs/common'
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { UseRolesGuard } from '@libs/auth'
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import {
   EntityNotExistException,
   UnprocessableDataException
@@ -43,10 +43,15 @@ export class ContestResolver {
   @Mutation(() => Contest)
   async createContest(
     @Args('groupId') groupId: number,
+    @Context('req') req: AuthenticatedRequest,
     @Args('input') input: ContestInput
   ) {
     try {
-      return await this.contestService.createContest(groupId, input)
+      return await this.contestService.createContest(
+        groupId,
+        req.user.id,
+        input
+      )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)

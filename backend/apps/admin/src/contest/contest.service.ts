@@ -43,6 +43,7 @@ export class ContestService {
 
   async createContest(
     groupId: number,
+    userId: number,
     contest: ContestInput
   ): Promise<Contest> {
     if (contest.startTime >= contest.endTime) {
@@ -61,7 +62,7 @@ export class ContestService {
           connect: { id: groupId }
         },
         createdBy: {
-          connect: { id: contest.createdById }
+          connect: { id: userId }
         },
         config: contest.config
       }
