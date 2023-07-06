@@ -3,8 +3,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
-  InternalServerErrorException,
-  NotFoundException
+  InternalServerErrorException
 } from '@nestjs/common'
 import { Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
@@ -13,7 +12,7 @@ import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 import type { UserGroup } from '@admin/@generated/user-group/user-group.model'
 import type { User } from '@admin/@generated/user/user.model'
-import { GroupMember } from './dto/groupMember.dto'
+import type { GroupMember } from './dto/groupMember.dto'
 
 @Injectable()
 export class UserService {
@@ -72,11 +71,22 @@ export class UserService {
     return processedGroupMembers
   }
 
-  async upOrDowngradeManager(
-    userId: number,
-    groupId: number,
-    isUpgrade: boolean
-  ): Promise<UserGroup> {
+  async upgradeManager(userId: number, groupId: number): Promise<UserGroup> {
+    return await this.prisma.userGroup.update({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId
+        }
+      },
+      data: {
+        isGroupLeader: true
+      }
+    })
+  }
+
+  async downgradeManager(userId: number, groupId: number): Promise<UserGroup> {
     const groupManagers = (
       await this.prisma.userGroup.findMany({
         where: {
@@ -97,14 +107,7 @@ export class UserService {
       }
     })
 
-    const doesTheManagerExist = groupManagers.length
-
-    let upgradeOrDowngrade = true
-    if (doesTheManagerExist >= 2 && !isUpgrade) {
-      upgradeOrDowngrade = false
-    } else if (isUpgrade) {
-      upgradeOrDowngrade = true
-    } else {
+    if (groupManagers.length <= 1) {
       throw new BadRequestException()
     }
     return await this.prisma.userGroup.update({
@@ -116,7 +119,7 @@ export class UserService {
         }
       },
       data: {
-        isGroupLeader: upgradeOrDowngrade
+        isGroupLeader: false
       }
     })
   }
