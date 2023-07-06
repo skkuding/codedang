@@ -1,10 +1,56 @@
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { PrismaService } from '@libs/prisma'
-import { DifficultyInput } from './dto/update-problem.dto'
-import { problems } from './mock/problem.mock'
+import { Language } from '@admin/@generated/prisma/language.enum'
+import { Level } from '@admin/@generated/prisma/level.enum'
+import type { Problem } from '@admin/@generated/problem/problem.model'
 import { ProblemService } from './problem.service'
+
+export const problems: Problem[] = [
+  {
+    id: 1,
+    createdById: 1,
+    groupId: 1,
+    title: 'group problem0',
+    description: 'description1',
+    inputDescription: 'inputDescription1',
+    outputDescription: 'outputDescription1',
+    hint: 'hit rather hint',
+    languages: [Language.Cpp],
+    timeLimit: 0,
+    memoryLimit: 0,
+    difficulty: Level.Level2,
+    source: 'mustard source',
+    createTime: undefined,
+    updateTime: undefined,
+    inputExamples: [],
+    outputExamples: [],
+    problemTestcase: [],
+    problemTag: []
+  },
+  {
+    id: 2,
+    createdById: 1,
+    groupId: 1,
+    title: 'group problem1',
+    description: 'description2',
+    inputDescription: 'inputDescription2',
+    outputDescription: 'outputDescription2',
+    hint: 'hit rather hint',
+    languages: [Language.Cpp],
+    timeLimit: 0,
+    memoryLimit: 0,
+    difficulty: Level.Level2,
+    source: 'soy source',
+    createTime: undefined,
+    updateTime: undefined,
+    inputExamples: [],
+    outputExamples: [],
+    problemTestcase: [],
+    problemTag: []
+  }
+]
 
 const db = {
   problem: {
@@ -50,7 +96,7 @@ describe('ProblemService', () => {
       db.problem.findMany.resolves(mockProblem1)
 
       // when
-      const result = await service.findAll({
+      const result = await service.getAll({
         groupId: groupId,
         cursor: ARBITRARY_VAL,
         take: ARBITRARY_VAL
@@ -67,7 +113,7 @@ describe('ProblemService', () => {
       db.problem.findUniqueOrThrow.resolves(mockProblem0)
 
       // when
-      const result = await service.findOne({
+      const result = await service.getOne({
         problemId: problemId
       })
 
@@ -82,7 +128,7 @@ describe('ProblemService', () => {
       db.problem.create.resolves(mockProblem0)
 
       // when
-      const result = await service.create({
+      const result = await service.create(mockProblem0.createdById, {
         createdById: mockProblem0.createdById,
         groupId: mockProblem0.groupId,
         title: mockProblem0.title,
@@ -92,14 +138,12 @@ describe('ProblemService', () => {
         hint: mockProblem0.hint,
         timeLimit: mockProblem0.timeLimit,
         memoryLimit: mockProblem0.memoryLimit,
-        difficulty: DifficultyInput.Level1,
+        difficulty: Level.Level1,
         source: mockProblem0.source
       })
 
       // then
-      expect(result).to.deep.equal(
-        `${mockProblem0.title} has been successfully created with ID numbered ${mockProblem0.id}!`
-      )
+      expect(result).to.deep.equal(mockProblem0)
     })
   })
 
@@ -115,9 +159,7 @@ describe('ProblemService', () => {
       })
 
       // then
-      expect(result).to.deep.equal(
-        `${mockProblem0.title} has been successfully deleted with ID numbered ${mockProblem0.id}!`
-      )
+      expect(result).to.deep.equal(mockProblem0)
     })
   })
 })

@@ -1,4 +1,4 @@
-import { NotFoundException, Res, UnauthorizedException } from '@nestjs/common'
+import { NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { Resolver, Mutation, Args, Query, Context } from '@nestjs/graphql'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'

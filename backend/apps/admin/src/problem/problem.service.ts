@@ -19,19 +19,16 @@ export class ProblemService {
       create: problemCreateInput.testcase
     }
 
-    const tagsId = problemCreateInput.tag.map((value) => {
-      return {
-        tagId: value
-      }
-    })
+    let tagsId
+    if (isDefined(problemCreateInput.tag)) {
+      tagsId = problemCreateInput.tag.map((value) => {
+        return {
+          tagId: value
+        }
+      })
+    }
 
-    const {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      testcase: _4,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      tag: _5,
-      ..._data
-    } = problemCreateInput
+    const { testcase, tag, ..._data } = problemCreateInput
 
     return await this.prisma.problem.create({
       data: {

@@ -158,7 +158,7 @@ enum Language {
 }
 
 model ProblemTestcase {
-  id          Int      @id @default(autoincrement()) // referential actions(modified)
+  id          Int      @id @default(autoincrement())
   problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   problemId   Int      @map("problem_id")
   input       String // url to corresponding file
