@@ -1,9 +1,10 @@
 FROM gitpod/workspace-full:latest
 
 # Install sandbox
-RUN mkdir -p /app/sandbox/policy /app/sandbox/results \
-  && mkdir -p /app/sandbox/logs/run /app/sandbox/logs/compile
-RUN chmod -R 777 /app/sandbox
+# FIXME: we don't need 777 permission
+RUN sudo mkdir -p /app/sandbox/policy /app/sandbox/results \
+  && sudo mkdir -p /app/sandbox/logs/run /app/sandbox/logs/compile
+RUN sudo chmod -R 777 /app/sandbox
 
 RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" ]; then \
   curl -L "https://github.com/skkuding/codedang/releases/download/alpha/libjudger-arm.so" -o "/app/sandbox/libjudger.so"; \
@@ -13,9 +14,9 @@ RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" 
 RUN chmod 755 /app/sandbox/libjudger.so
 
 # Install dependencies
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-  && apt-get -y install --no-install-recommends netcat
+RUN sudo apt-get update && export DEBIAN_FRONTEND=noninteractive \
+  && sudo apt-get -y install --no-install-recommends netcat
 
 # Add go binaries to secure path
-RUN echo 'Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/go/bin"' > /etc/sudoers.d/secure_path
-RUN chmod 440 /etc/sudoers.d/secure_path
+RUN sudo bash -c 'echo "Defaults secure_path=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/gitpod/go/bin\"" > /etc/sudoers.d/secure_path'
+RUN sudo chmod 440 /etc/sudoers.d/secure_path
