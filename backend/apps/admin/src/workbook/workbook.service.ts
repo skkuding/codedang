@@ -56,7 +56,6 @@ export class WorkbookService {
         id: cursor
       }
     })
-    console.log(workbooks)
     return workbooks
   }
 
