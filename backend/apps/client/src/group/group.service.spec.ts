@@ -5,6 +5,7 @@ import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { joinGroupCacheKey } from '@libs/cache'
+import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ActionNotAllowedException,
   EntityNotExistException
@@ -209,10 +210,11 @@ describe('GroupService', () => {
       expect(cacheSpyGet.calledWith(joinGroupCacheKey(groupId))).to.be.true
       expect(cacheSpyGet.calledOnce).to.be.true
       expect(
-        cacheSpySet.calledWith(joinGroupCacheKey(groupId), {
-          userId,
-          groupId
-        })
+        cacheSpySet.calledOnceWithExactly(
+          joinGroupCacheKey(groupId),
+          [userId],
+          JOIN_GROUP_REQUEST_EXPIRE_TIME
+        )
       ).to.be.true
       expect(cacheSpySet.calledOnce).to.be.true
       expect(result).to.deep.equal({
