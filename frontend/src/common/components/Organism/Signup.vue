@@ -7,8 +7,8 @@ import IconPaperPlane from '~icons/fa6-solid/paper-plane'
 import Button from '../Atom/Button.vue'
 import InputItem from '../Atom/InputItem.vue'
 
-defineEmits<{
-  (e: 'to', value: 'login' | 'signup' | 'password'): void
+const emit = defineEmits<{
+  (e: 'to', value: 'login' | 'signup' | 'password' | 'close'): void
 }>()
 
 const username = ref('')
@@ -75,6 +75,7 @@ const signup = async () => {
                 realName.value,
                 emailAuth.value
               )
+              emit('to', 'close')
             }
           }
         }
@@ -89,8 +90,8 @@ const verifyEmail = async () => {
       await axios.post('/api/email-auth/send-email/register-new', {
         email: emailVerify
       })
-      console.log('do you await')
       warningEmail.value = 'Email verification code sent'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       if (e.response.status === 422) {
         warningEmail.value = 'You have already signed up!'
