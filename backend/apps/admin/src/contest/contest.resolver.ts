@@ -12,9 +12,10 @@ import {
 } from '@libs/exception'
 import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
-import { Input } from './input_type/input'
-import { InputForDetail } from './input_type/input-for-detail'
-import { StoredPublicizingRequestOutput } from './model/stored-publicizing-request.model'
+import { ContestInput } from './model/contest-input.model'
+import { InputForDetail } from './model/input-for-detail.model'
+import { Input } from './model/input.model'
+import { PublicizingRequest } from './model/publicizing-request.model'
 
 @Resolver(() => Contest)
 export class ContestResolver {
@@ -29,7 +30,7 @@ export class ContestResolver {
     )
   }
 
-  @Query(() => [StoredPublicizingRequestOutput])
+  @Query(() => [PublicizingRequest])
   @UseRolesGuard()
   async getPublicRequests(input: Input) {
     return await this.contestService.getPublicRequests(
@@ -42,10 +43,10 @@ export class ContestResolver {
   @Mutation(() => Contest)
   async createContest(
     @Args('groupId') groupId: number,
-    @Args('input') input: Contest
+    @Args('input') input: ContestInput
   ) {
     try {
-      return await this.contestService.createContest(input)
+      return await this.contestService.createContest(groupId, input)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
@@ -57,7 +58,7 @@ export class ContestResolver {
   @Mutation(() => Contest)
   async updateContest(
     @Args('groupId') groupId: number,
-    @Args('input') input: Contest
+    @Args('input') input: ContestInput
   ) {
     try {
       return await this.contestService.updateContest(groupId, input)

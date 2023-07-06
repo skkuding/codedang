@@ -1,7 +1,7 @@
 import { Field, GraphQLISODateTime, Int, ObjectType } from '@nestjs/graphql'
 
-@ObjectType({ description: 'storedPublicizingRequest' })
-export class StoredPublicizingRequestOutput {
+@ObjectType({ description: 'publicizingRequest' })
+export class PublicizingRequest {
   @Field(() => Int)
   contest: number
 

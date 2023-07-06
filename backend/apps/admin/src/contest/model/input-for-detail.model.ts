@@ -1,7 +1,7 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql'
+import { Field, InputType, Int } from '@nestjs/graphql'
 import { IsNotEmpty } from 'class-validator'
 
-@ObjectType()
+@InputType()
 export class InputForDetail {
   @Field(() => Int)
   @IsNotEmpty()

@@ -1,6 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
-import type { Contest } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { contestPublicizingRequestKey } from '@libs/cache'
 import { OPEN_SPACE_ID, PUBLICIZING_REQUEST_EXPIRE_TIME } from '@libs/constants'
@@ -10,9 +9,10 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { StoredPublicizingRequest } from './class/publicizing-request.class'
+import type { Contest } from '@admin/@generated/contest/contest.model'
+import type { ContestInput } from './model/contest-input.model'
+import type { PublicizingRequest } from './model/publicizing-request.model'
 
-// 어드민
 @Injectable()
 export class ContestService {
   constructor(
@@ -41,7 +41,10 @@ export class ContestService {
     })
   }
 
-  async createContest(contest: Contest): Promise<Contest> {
+  async createContest(
+    groupId: number,
+    contest: ContestInput
+  ): Promise<Contest> {
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
@@ -55,7 +58,7 @@ export class ContestService {
         startTime: contest.startTime,
         endTime: contest.endTime,
         group: {
-          connect: { id: contest.groupId }
+          connect: { id: groupId }
         },
         createdBy: {
           connect: { id: contest.createdById }
@@ -67,7 +70,10 @@ export class ContestService {
     return newContest
   }
 
-  async updateContest(groupId: number, contest: Contest): Promise<Contest> {
+  async updateContest(
+    groupId: number,
+    contest: ContestInput
+  ): Promise<Contest> {
     await this.prisma.contest.findFirst({
       where: {
         id: contest.id,
@@ -118,7 +124,7 @@ export class ContestService {
     const keys = await this.cacheManager.store.keys()
     const filteredKeys = keys.filter((key) => key.includes(':publicize'))
     const requests = filteredKeys.map(
-      async (key) => await this.cacheManager.get<StoredPublicizingRequest>(key)
+      async (key) => await this.cacheManager.get<PublicizingRequest>(key)
     )
     return Promise.all(requests)
   }
