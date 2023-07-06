@@ -23,12 +23,12 @@ services:
   testcase:
     container_name: codedang-testcase
     build:
-      context: ./Iris/tests/testcase-server
+      context: ./testcase-server
       dockerfile: Dockerfile
     stdin_open: true
     tty: true
     volumes:
-      - ./Iris/testcase:/app/data
+      - ./testcase-server/data:/app/data
 
   database:
     container_name: codedang-database
