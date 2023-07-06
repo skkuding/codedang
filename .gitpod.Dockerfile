@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:18-bullseye
+FROM gitpod/workspace-full:latest
 
 # Install sandbox
 RUN mkdir -p /app/sandbox/policy /app/sandbox/results \

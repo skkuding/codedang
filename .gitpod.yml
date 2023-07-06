@@ -1,6 +1,9 @@
 gitConfig:
   pull.rebase: 'true'
 
+image:
+  file: .gitpod.Dockerfile
+
 ports:
   - port: 4000 # Nest.js
     onOpen: ignore

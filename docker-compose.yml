@@ -16,8 +16,12 @@ services:
     tty: true
     env_file: .env.development
     environment:
-      # Override the default database url
+      # Override environment variables in .env.development
+      RABBITMQ_HOST: codedang-rabbitmq
+      TESTCASE_SERVER_URL: http://codedang-testcase:30000/problem/:id/testcase
       DATABASE_URL: postgresql://postgres:1234@codedang-database:5432/skkuding?schema=public
+      REDIS_HOST: codedang-cache
+      REDIS_PORT: 6380
       DEVCONTAINER: 1
 
   testcase:
@@ -25,6 +29,8 @@ services:
     build:
       context: ./testcase-server
       dockerfile: Dockerfile
+    ports:
+      - 30000:30000
     stdin_open: true
     tty: true
     volumes:
