@@ -13,6 +13,7 @@ import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 import type { UserGroup } from '@admin/@generated/user-group/user-group.model'
 import type { User } from '@admin/@generated/user/user.model'
+import { GroupMember } from './dto/groupMember.dto'
 
 @Injectable()
 export class UserService {
@@ -21,11 +22,16 @@ export class UserService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getUsers(groupId: number, role: Role, cursor: number, take: number) {
-    if (role != Role.Manager && role != Role.User)
+  async getUsers(
+    groupId: number,
+    role: Role,
+    cursor: number,
+    take: number
+  ): Promise<GroupMember[]> {
+    if (role !== Role.Manager && role !== Role.User)
       throw new BadRequestException()
 
-    const isGroupLeader = role == Role.Manager
+    const isGroupLeader = role === Role.Manager
     const groupMembers = await this.prisma.userGroup.findMany({
       take,
       skip: cursor ? 1 : 0,
@@ -54,21 +60,13 @@ export class UserService {
     })
 
     const processedGroupMembers = groupMembers.map((userGroup) => {
-      const { username, id: userId, email, userProfile } = userGroup.user
-
-      if (userProfile == null) {
-        return {
-          studentId: username,
-          userId,
-          name: '',
-          email
-        }
-      } else {
-        return {
-          studentId: username,
-          userId,
-          name: userProfile.realName
-        }
+      return {
+        studentId: userGroup.user.username,
+        userId: userGroup.user.id,
+        name: userGroup.user.userProfile?.realName
+          ? userGroup.user.userProfile.realName
+          : '',
+        email: userGroup.user.email
       }
     })
     return processedGroupMembers
@@ -99,14 +97,12 @@ export class UserService {
       }
     })
 
-    const doesTheManagerExist = groupManagers.some(
-      (groupManager) => groupManager.userId === userId
-    )
+    const doesTheManagerExist = groupManagers.length
 
     let upgradeOrDowngrade = true
-    if (doesTheManagerExist == true && isUpgrade == false) {
+    if (doesTheManagerExist >= 2 && !isUpgrade) {
       upgradeOrDowngrade = false
-    } else if (doesTheManagerExist == false && isUpgrade == true) {
+    } else if (isUpgrade) {
       upgradeOrDowngrade = true
     } else {
       throw new BadRequestException()
@@ -147,22 +143,13 @@ export class UserService {
       }
     })
 
-    const doesTheMemberExist = groupManagers.some(
-      (groupMember) => groupMember.userId === userId
-    )
-
-    let managerNum = 0
-    groupManagers.forEach((groupMember) => {
-      if (groupMember.isGroupLeader) managerNum += 1
-    })
-
     const isItManager = groupManagers.some((groupMember) => {
       return groupMember.isGroupLeader === true && groupMember.userId === userId
     })
 
-    if (groupManagers.length <= 1 || !doesTheMemberExist || managerNum <= 1) {
-      throw new NotFoundException()
-    } else if (!isItManager || (isItManager && managerNum > 1)) {
+    if (groupManagers.length <= 1 && isItManager) {
+      throw new BadRequestException()
+    } else {
       return await this.prisma.userGroup.delete({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
