@@ -4,6 +4,7 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql'
+import { Prisma } from '@prisma/client'
 import { Role } from '@admin/@generated/prisma/role.enum'
 import { UserGroup } from '@admin/@generated/user-group/user-group.model'
 import { User } from '../@generated/user/user.model'
@@ -32,7 +33,7 @@ export class UserResolver {
     }
   }
 
-  @Query(() => UserGroup, { name: 'downgradeGroupManager' })
+  @Mutation(() => UserGroup, { name: 'downgradeGroupManager' })
   downgradeGroupManager(
     @Args('userId', { type: () => Int }) userId: number,
     @Args('groupId', { type: () => Int }) groupId: number
@@ -42,12 +43,18 @@ export class UserResolver {
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw new NotFoundException(error.message)
+      } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2015') {
+          console.log('A related record could not be found.')
+        } else {
+          console.log('Invalid userId of groupId')
+        }
       }
       throw new InternalServerErrorException()
     }
   }
 
-  @Query(() => UserGroup, { name: 'upgradeGroupMember' })
+  @Mutation(() => UserGroup, { name: 'upgradeGroupMember' })
   upgradeGroupMember(
     @Args('userId', { type: () => Int }) userId: number,
     @Args('groupId', { type: () => Int }) groupId: number
@@ -57,6 +64,10 @@ export class UserResolver {
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw new BadRequestException()
+      } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2015') {
+          console.log('A related record could not be found.')
+        }
       }
       throw new InternalServerErrorException()
     }

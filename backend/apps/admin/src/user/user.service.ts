@@ -106,7 +106,7 @@ export class UserService {
         userId: userGroup.user.id
       }
     })
-
+    // should check if the member is in
     if (groupManagers.length <= 1) {
       throw new BadRequestException()
     }
