@@ -67,7 +67,7 @@ services:
     image: rabbitmq:3-management-alpine
     container_name: codedang-rabbitmq
     ports:
-      - 25672:15672 # Admin Management
+      - 15672:15672 # Admin Management
       - 5672:5672
     env_file: .env.development
     environment:
