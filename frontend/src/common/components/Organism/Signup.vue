@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// import { useToast } from '@/common/composables/toast'
 import { useAuthStore } from '@/common/store/auth'
 import axios from 'axios'
 import { ref, watch } from 'vue'
@@ -8,9 +7,8 @@ import IconPaperPlane from '~icons/fa6-solid/paper-plane'
 import Button from '../Atom/Button.vue'
 import InputItem from '../Atom/InputItem.vue'
 
-// const openToast = useToast()
-const emit = defineEmits<{
-  (e: 'to', value: 'login' | 'signup' | 'password' | 'close'): void
+defineEmits<{
+  (e: 'to', value: 'login' | 'signup' | 'password'): void
 }>()
 
 const username = ref('')
@@ -77,7 +75,6 @@ const signup = async () => {
                 realName.value,
                 emailAuth.value
               )
-              emit('to', 'close')
             }
           }
         }
@@ -93,15 +90,11 @@ const verifyEmail = async () => {
         email: emailVerify
       })
       console.log('do you await')
-      // openToast({ message: 'Email verification code sent', type: 'success' })
       warningEmail.value = 'Email verification code sent'
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       if (e.response.status === 422) {
-        // openToast({ message: 'You have already signed up!', type: 'error' })
         warningEmail.value = 'You have already signed up!'
       }
-      // openToast({ message: 'Check your email again!', type: 'error' })
       warningEmail.value = 'Check your email again!'
       throw new Error('Email verification code sending failed')
     }
@@ -119,12 +112,10 @@ const verifyCode = async () => {
         pin,
         email: emailVerify
       })
-      // openToast({ message: 'Email verification succeed!', type: 'success' })
       warningCode.value = 'Email verification succeed!'
       emailAuth.value = res.headers['email-auth']
       verificationEmail.value = true
     } catch (e) {
-      // openToast({ message: 'Email verification failed!', type: 'error' })
       warningCode.value = 'Email verification failed!'
       throw new Error('Email verification failed')
     }
