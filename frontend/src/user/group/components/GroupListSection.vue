@@ -14,12 +14,8 @@ import IconUserGroup from '~icons/fa6-solid/user-group'
 
 type Group = {
   id: number
-  // createdBy: number
   groupName: string
-  // groupAdmin: string
-  // groupManager: string
   isPrivate?: boolean
-  // invitationCode: string
   description: string
   memberNum: number
   createdBy: string
@@ -62,7 +58,6 @@ onMounted(async () => {
       : `/api/group?take=${take.value}`
   )
   console.log('props is', props.isMyGroup, 'data is ', data)
-  // props.isMyGroup ? myGroupList.push(...data) : allGroupList.push(...data)
   groupList.value.push(...data)
   if (data.length < take.value) {
     hasNextPage.value = false
@@ -88,12 +83,17 @@ watch(modalVisible, (value) => {
     modalType.value = 'desc'
   }
 })
-const joinGroup = (id: number) => {
-  // call API
-  // const data = await axios.post(`/api/group/${id}/join`)
-  // 유저 정보 헤더에 담아서 보내야
-  console.log('id is ', id)
-  modalType.value = 'info' // 성공 로직
+const joinGroup = async (id: number) => {
+  const { data } = await axios.post(`/api/group/${id}/join`)
+  console.log('id is ', id, 'response is ', data)
+  if (data.statusCode === 400) {
+    modalType.value = 'error'
+  } else if (!data.isJoined) {
+    //need approval
+    modalType.value = 'wait'
+  } else {
+    modalType.value = 'info' // 성공 로직
+  }
 }
 </script>
 
@@ -194,14 +194,6 @@ const joinGroup = (id: number) => {
               <PageSubtitle text="Member" />
               {{ selectedGroup.memberNum }}
             </div>
-            <!-- <div class="flex flex-col gap-1 font-bold">
-              <PageSubtitle text="Group Admin" />
-              {{ selectedGroup.groupAdmin }}
-            </div>
-            <div class="flex flex-col gap-1 font-bold">
-              <PageSubtitle text="Group Manager" />
-              {{ selectedGroup.groupManager }}
-            </div> -->
           </div>
         </div>
         <Button
@@ -217,9 +209,29 @@ const joinGroup = (id: number) => {
         class="max-w-96 flex w-full items-center justify-center px-6 py-12"
       >
         <p class="text-center font-bold">
+          Invitation has been succeed!
+          <br />
+          Welcome to group {{ selectedGroup?.groupName }} :)
+        </p>
+      </div>
+      <div
+        v-else-if="modalType === 'wait'"
+        class="max-w-96 flex w-full items-center justify-center px-6 py-12"
+      >
+        <p class="text-center font-bold">
           Invitation succesfully requested!
           <br />
           Please wait for group manager’s approval :)
+        </p>
+      </div>
+      <div
+        v-else-if="modalType === 'error'"
+        class="max-w-96 flex w-full items-center justify-center px-6 py-12"
+      >
+        <p class="text-center font-bold">
+          You have already joined this groupd!
+          <br />
+          Duplicated join request is not allowed.
         </p>
       </div>
     </transition>
