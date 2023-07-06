@@ -11,9 +11,6 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { StoredPublicizingRequest } from './class/publicizing-request.class'
-import type { CreateContestDto } from './dto/create-contest.dto'
-import type { RespondContestPublicizingRequestDto } from './dto/respond-publicizing-request.dto'
-import type { UpdateContestDto } from './dto/update-contest.dto'
 
 // 어드민
 @Injectable()
@@ -23,18 +20,10 @@ export class ContestService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  private contestSelectOption = {
-    id: true,
-    title: true,
-    startTime: true,
-    endTime: true,
-    group: { select: { id: true, groupName: true } }
-  }
-
-  async getAdminContests(
-    cursor: number,
+  async getContests(
     take: number,
-    groupId = OPEN_SPACE_ID
+    groupId: number,
+    cursor?: number
   ): Promise<Partial<Contest>[]> {
     let skip = 1
     if (!cursor) {
@@ -44,7 +33,6 @@ export class ContestService {
 
     return await this.prisma.contest.findMany({
       where: { groupId },
-      select: { ...this.contestSelectOption, config: true },
       skip: skip,
       take: take,
       cursor: {
@@ -53,73 +41,41 @@ export class ContestService {
     })
   }
 
-  async getAdminOngoingContests(
-    cursor: number,
-    take: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Contest>[]> {
-    const now = new Date()
-    return await this.prisma.contest.findMany({
-      where: {
-        AND: [
-          { groupId: groupId },
-          { startTime: { lte: now } },
-          { endTime: { gte: now } }
-        ],
-        NOT: [{ id: cursor }]
-      },
-      select: this.contestSelectOption,
-      take: take,
-      cursor: {
-        id: cursor ? cursor : 1
-      }
-    })
-  }
-
-  async createContest(
-    contestDto: CreateContestDto,
-    userId: number
-  ): Promise<Contest> {
-    if (!this.isValidPeriod(contestDto.startTime, contestDto.endTime)) {
+  async createContest(contest: Contest): Promise<Contest> {
+    if (contest.startTime > contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
     }
 
-    const contest: Contest = await this.prisma.contest.create({
+    const newContest: Contest = await this.prisma.contest.create({
       data: {
-        title: contestDto.title,
-        description: contestDto.description,
-        startTime: contestDto.startTime,
-        endTime: contestDto.endTime,
-        config: {
-          isVisible: contestDto.isVisible,
-          isRankVisible: contestDto.isRankVisible
-        },
+        title: contest.title,
+        description: contest.description,
+        startTime: contest.startTime,
+        endTime: contest.endTime,
         group: {
-          connect: { id: contestDto.groupId }
+          connect: { id: contest.groupId }
         },
         createdBy: {
-          connect: { id: userId }
-        }
+          connect: { id: contest.createdById }
+        },
+        config: contest.config
       }
     })
 
-    return contest
+    return newContest
   }
 
-  async updateContest(
-    contestId: number,
-    contestDto: UpdateContestDto
-  ): Promise<Contest> {
+  async updateContest(contest: Contest): Promise<Contest> {
     await this.prisma.contest.findUnique({
       where: {
-        id: contestId
+        id: contest.id
       },
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
-    if (!this.isValidPeriod(contestDto.startTime, contestDto.endTime)) {
+    if (contest.startTime > contest.endTime) {
       throw new UnprocessableDataException(
         'start time must be earlier than end time'
       )
@@ -127,53 +83,37 @@ export class ContestService {
 
     return await this.prisma.contest.update({
       where: {
-        id: contestId
+        id: contest.id
       },
       data: {
-        title: contestDto.title,
-        description: contestDto.description,
-        startTime: contestDto.startTime,
-        endTime: contestDto.endTime,
-        config: {
-          isVisible: contestDto.isVisible,
-          isRankVisible: contestDto.isRankVisible
-        }
+        title: contest.title,
+        description: contest.description,
+        startTime: contest.startTime,
+        endTime: contest.endTime,
+        config: contest.config
       }
     })
   }
 
-  async deleteContest(id: number) {
-    const contest = await this.prisma.contest.findUnique({
+  async deleteContest(groupId: number, contestId: number) {
+    const contest = await this.prisma.contest.findFirst({
       where: {
-        id: id
+        id: contestId,
+        groupId: groupId
       },
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
     await this.prisma.contest.delete({
       where: {
-        id: id
+        id: contestId
       }
     })
 
     return contest
   }
 
-  async getAdminContest(contestId: number): Promise<Partial<Contest>> {
-    const contest = await this.prisma.contest.findUnique({
-      where: { id: contestId },
-      select: {
-        ...this.contestSelectOption,
-        config: true,
-        description: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('contest')
-    })
-
-    return contest
-  }
-
-  async getContestPublicizingRequests() {
+  async getPublicRequests(groupId: number, cursor: number, take: number) {
     const keys = await this.cacheManager.store.keys()
     const filteredKeys = keys.filter((key) => key.includes(':publicize'))
     const requests = filteredKeys.map(
@@ -182,23 +122,33 @@ export class ContestService {
     return Promise.all(requests)
   }
 
-  async respondContestPublicizingRequest(
-    contestId: number,
-    { accepted }: RespondContestPublicizingRequestDto
-  ) {
-    const requestKey = contestPublicizingRequestKey(contestId)
-    if (!(await this.cacheManager.get(requestKey))) {
+  async acceptPublic(groupId: number, contestId: number) {
+    const updatedContest = await this.updateContestToPublic(contestId)
+
+    if (!updatedContest) {
+      throw new EntityNotExistException('contest')
+    }
+    return updatedContest
+  }
+
+  async rejectPublic(groupId: number, contestId: number) {
+    const key = contestPublicizingRequestKey(contestId)
+
+    if (!(await this.cacheManager.get(key))) {
       throw new EntityNotExistException('ContestPublicizingRequest')
     }
+    await this.cacheManager.del(key)
 
-    if (accepted) {
-      await this.updateContestToPublic(contestId)
-    }
-    await this.cacheManager.del(contestPublicizingRequestKey(contestId))
+    return await this.prisma.contest.findUnique({
+      where: {
+        id: contestId
+      },
+      rejectOnNotFound: () => new EntityNotExistException('contest')
+    })
   }
 
   async updateContestToPublic(id: number) {
-    await this.prisma.contest.update({
+    return await this.prisma.contest.update({
       where: {
         id
       },
@@ -208,11 +158,19 @@ export class ContestService {
     })
   }
 
-  async createContestPublicizingRequest(contestId: number, userId: number) {
-    const duplicateRequest = await this.cacheManager.get(
+  async requestToPublic(groupId: number, contestId: number) {
+    const contest = await this.prisma.contest.findFirst({
+      where: {
+        id: contestId,
+        groupId: groupId
+      },
+      rejectOnNotFound: () => new EntityNotExistException('contest')
+    })
+
+    const duplicatedRequest = await this.cacheManager.get(
       contestPublicizingRequestKey(contestId)
     )
-    if (duplicateRequest) {
+    if (duplicatedRequest) {
       throw new ActionNotAllowedException(
         'duplicated request',
         'request converting contest to be public'
@@ -223,17 +181,12 @@ export class ContestService {
       contestPublicizingRequestKey(contestId),
       {
         contest: contestId,
-        user: userId,
+        user: contest.createdById,
         createTime: new Date()
       },
-      1000 * PUBLICIZING_REQUEST_EXPIRE_TIME
+      PUBLICIZING_REQUEST_EXPIRE_TIME
     )
-  }
 
-  isValidPeriod(startTime: Date, endTime: Date): boolean {
-    if (startTime > endTime) {
-      return false
-    }
-    return true
+    return contest
   }
 }

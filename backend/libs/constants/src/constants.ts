@@ -13,8 +13,8 @@ export const REFRESH_TOKEN_COOKIE_OPTIONS = {
 }
 export const EMAIL_AUTH_EXPIRE_TIME = 5 * SECONDS_PER_MINUTE
 
-/** Cache Expiration Settings */
-export const PUBLICIZING_REQUEST_EXPIRE_TIME = 7 * SECONDS_PER_DAY
-export const JOIN_GROUP_REQUEST_EXPIRE_TIME = 7 * SECONDS_PER_DAY
+/** Cache Expiration Settings (in milliseconds) */
+export const PUBLICIZING_REQUEST_EXPIRE_TIME = 7 * 1000 * SECONDS_PER_DAY
+export const JOIN_GROUP_REQUEST_EXPIRE_TIME = 7 * 1000 * SECONDS_PER_DAY
 
 export const OPEN_SPACE_ID = 1
