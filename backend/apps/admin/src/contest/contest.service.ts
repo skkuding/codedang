@@ -42,7 +42,7 @@ export class ContestService {
   }
 
   async createContest(contest: Contest): Promise<Contest> {
-    if (contest.startTime > contest.endTime) {
+    if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
       )
@@ -67,15 +67,16 @@ export class ContestService {
     return newContest
   }
 
-  async updateContest(contest: Contest): Promise<Contest> {
-    await this.prisma.contest.findUnique({
+  async updateContest(groupId: number, contest: Contest): Promise<Contest> {
+    await this.prisma.contest.findFirst({
       where: {
-        id: contest.id
+        id: contest.id,
+        groupId: groupId
       },
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
-    if (contest.startTime > contest.endTime) {
+    if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'start time must be earlier than end time'
       )

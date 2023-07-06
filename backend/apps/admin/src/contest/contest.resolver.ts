@@ -5,6 +5,7 @@ import {
   UnprocessableEntityException
 } from '@nestjs/common'
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { UseRolesGuard } from '@libs/auth'
 import {
   EntityNotExistException,
   UnprocessableDataException
@@ -28,8 +29,8 @@ export class ContestResolver {
     )
   }
 
-  // 협의 필요
   @Query(() => [StoredPublicizingRequestOutput])
+  @UseRolesGuard()
   async getPublicRequests(input: Input) {
     return await this.contestService.getPublicRequests(
       input.groupId,
@@ -59,7 +60,7 @@ export class ContestResolver {
     @Args('input') input: Contest
   ) {
     try {
-      return await this.contestService.updateContest(input)
+      return await this.contestService.updateContest(groupId, input)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -86,7 +87,10 @@ export class ContestResolver {
   }
 
   @Mutation(() => Contest)
-  async requestToPublic(@Args('input') input: InputForDetail) {
+  async requestToPublic(
+    @Args('groupId') groupId: number,
+    @Args('input') input: InputForDetail
+  ) {
     try {
       return await this.contestService.requestToPublic(
         input.groupId,
@@ -101,6 +105,7 @@ export class ContestResolver {
   }
 
   @Mutation(() => Contest)
+  @UseRolesGuard()
   async acceptPublic(@Args('input') input: InputForDetail) {
     try {
       return await this.contestService.acceptPublic(input.groupId, input.itemId)
@@ -113,6 +118,7 @@ export class ContestResolver {
   }
 
   @Mutation(() => Contest)
+  @UseRolesGuard()
   async rejectPublic(@Args('input') input: InputForDetail) {
     try {
       return await this.contestService.rejectPublic(input.groupId, input.itemId)
