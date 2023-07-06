@@ -84,15 +84,17 @@ watch(modalVisible, (value) => {
   }
 })
 const joinGroup = async (id: number) => {
-  const { data } = await axios.post(`/api/group/${id}/join`)
-  console.log('id is ', id, 'response is ', data)
-  if (data.statusCode === 400) {
+  try {
+    const { data } = await axios.post(`/api/group/${id}/join`)
+    console.log('id is ', id, 'response is ', data)
+    if (!data.isJoined) {
+      //need approval
+      modalType.value = 'wait'
+    } else {
+      modalType.value = 'info' // 성공 로직
+    }
+  } catch {
     modalType.value = 'error'
-  } else if (!data.isJoined) {
-    //need approval
-    modalType.value = 'wait'
-  } else {
-    modalType.value = 'info' // 성공 로직
   }
 }
 </script>
@@ -229,7 +231,7 @@ const joinGroup = async (id: number) => {
         class="max-w-96 flex w-full items-center justify-center px-6 py-12"
       >
         <p class="text-center font-bold">
-          You have already joined this groupd!
+          You have already joined or sent request to this group!
           <br />
           Duplicated join request is not allowed.
         </p>
