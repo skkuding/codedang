@@ -3,6 +3,7 @@ import Button from '@/common/components/Atom/Button.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { ref, type Ref } from 'vue'
+import IconPlus from '~icons/fa/plus'
 import IconXmark from '~icons/fa/times-circle'
 import IconTrash from '~icons/fa/trash-o'
 
@@ -134,7 +135,7 @@ const tags = [
           {
             key: 'title',
             label: 'Title',
-            width: '30%'
+            width: '25%'
           },
           {
             key: 'level',
@@ -149,18 +150,13 @@ const tags = [
           {
             key: 'tag',
             label: 'Tag',
-            width: '30%'
-          }
+            width: '25%'
+          },
+          { key: 'add', label: '', width: '10%' }
         ]"
         :items="problem"
         placeholder="keywords"
         :number-of-pages="3"
-        @row-clicked="
-          (item) => {
-            const index = problem.findIndex((a) => a.id === item.id)
-            problem[index].selected = !problem[index].selected
-          }
-        "
       >
         <template #level="{ row }">
           <div class="flex items-center gap-2">
@@ -172,6 +168,21 @@ const tags = [
               "
             />
             {{ row.level }}
+          </div>
+        </template>
+        <template #add="{ row }: { row: Row }">
+          <div class="flex items-center gap-2">
+            <Button
+              class="flex h-[32px] w-[32px] items-center justify-center"
+              @click="
+                () => {
+                  const index = problem.findIndex((a) => a.id === row.id)
+                  problem[index].selected = true
+                }
+              "
+            >
+              <IconPlus width="12px" />
+            </Button>
           </div>
         </template>
       </PaginationTable>
@@ -186,7 +197,7 @@ const tags = [
           {
             key: 'title',
             label: 'Title',
-            width: '30%'
+            width: '25%'
           },
           {
             key: 'level',
@@ -201,19 +212,18 @@ const tags = [
           {
             key: 'tag',
             label: 'Tag',
-            width: '30%'
+            width: '25%'
+          },
+          {
+            key: '_delete',
+            label: '',
+            width: '10%'
           }
         ]"
         :items="problem.filter((item) => item.selected)"
         placeholder="keywords"
         :number-of-pages="3"
         :no-search-bar="true"
-        @row-clicked="
-          (item) => {
-            const index = problem.findIndex((a) => a.id === item.id)
-            problem[index].selected = !problem[index].selected
-          }
-        "
       >
         <template #level="{ row }: { row: Row }">
           <div class="flex items-center gap-2">
@@ -225,6 +235,21 @@ const tags = [
               "
             />
             {{ row.level }}
+          </div>
+        </template>
+        <template #_delete="{ row }: { row: Row }">
+          <div class="flex items-center gap-2">
+            <Button
+              class="bg-red flex h-[32px] w-[32px] items-center justify-center"
+              @click="
+                () => {
+                  const index = problem.findIndex((a) => a.id === row.id)
+                  problem[index].selected = !problem[index].selected
+                }
+              "
+            >
+              <IconTrash></IconTrash>
+            </Button>
           </div>
         </template>
       </PaginationTable>
