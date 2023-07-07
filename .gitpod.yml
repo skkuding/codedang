@@ -13,6 +13,9 @@ tasks:
   - name: Node.js
     init: ./scripts/setup.sh
 
+  - name: Container
+    command: docker compose up -d
+
 vscode:
   extensions:
     - bradlc.vscode-tailwindcss
