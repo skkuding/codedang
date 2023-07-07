@@ -88,11 +88,11 @@ do
 done
 
 # Install Go dependencies
-cd $BASEDIR/Iris
+cd $BASEDIR/iris
 go get
 
 # Setup sandbox
-cp $BASEDIR/Iris/lib/judger/policy/java_policy /app/sandbox/policy/
+cp $BASEDIR/iris/lib/judger/policy/java_policy /app/sandbox/policy/
 
 # Check RabbitMQ connection
 while ! nc -z "$RABBITMQ_HOST" "$RABBITMQ_PORT"; do sleep 3; done

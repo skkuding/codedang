@@ -42,8 +42,8 @@
       "type": "go",
       "request": "launch",
       "name": "Iris 🐶",
-      "cwd": "${workspaceFolder}/Iris",
-      "program": "${workspaceFolder}/Iris/main.go",
+      "cwd": "${workspaceFolder}/iris",
+      "program": "${workspaceFolder}/iris/main.go",
       "console": "integratedTerminal",
       "asRoot": true,
       "envFile": "${workspaceFolder}/.env"

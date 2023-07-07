@@ -10,7 +10,7 @@ pre-commit:
     gofmt:
       glob: '*.go'
       run: go fmt -n ./...
-      root: Iris
+      root: iris
 
 commit-msg:
   commands:

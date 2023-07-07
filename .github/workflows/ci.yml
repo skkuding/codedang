@@ -80,7 +80,7 @@ jobs:
             echo "  go fmt ./..."
             exit 1
           fi
-        working-directory: ./Iris
+        working-directory: ./iris
 
       - name: Lint (Node.js)
         run: pnpm lint
