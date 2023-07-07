@@ -89,7 +89,8 @@ func main() {
 		utils.Getenv("RABBITMQ_DEFAULT_USER", "skku") + ":" +
 		utils.Getenv("RABBITMQ_DEFAULT_PASS", "1234") + "@" +
 		utils.Getenv("RABBITMQ_HOST", "localhost") + ":" +
-		utils.Getenv("RABBITMQ_PORT", "5672") + "/"
+		utils.Getenv("RABBITMQ_PORT", "5672") + "/" +
+		utils.Getenv("RABBITMQ_DEFAULT_VHOST", "")
 
 	connector.Factory(
 		connector.RABBIT_MQ,

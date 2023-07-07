@@ -20,3 +20,7 @@ RUN sudo apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # Add go binaries to secure path
 RUN sudo bash -c 'echo "Defaults secure_path=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/gitpod/go/bin\"" > /etc/sudoers.d/secure_path'
 RUN sudo chmod 440 /etc/sudoers.d/secure_path
+
+# Install RabbitMQ CLI tool
+RUN sudo curl https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/main/deps/rabbitmq_management/bin/rabbitmqadmin -o /usr/local/bin/rabbitmqadmin
+RUN sudo chmod 755 /usr/local/bin/rabbitmqadmin
