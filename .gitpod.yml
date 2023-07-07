@@ -27,6 +27,10 @@ tasks:
   - name: Container
     command: docker compose up -d
 
+github:
+  prebuilds:
+    addBadge: true
+
 vscode:
   extensions:
     - bradlc.vscode-tailwindcss
