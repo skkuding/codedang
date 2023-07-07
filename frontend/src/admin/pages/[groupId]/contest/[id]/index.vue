@@ -3,8 +3,8 @@ import Button from '@/common/components/Atom/Button.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { ref, type Ref } from 'vue'
+import IconXmark from '~icons/fa6-solid/xmark'
 import IconPlus from '~icons/fa/plus'
-import IconXmark from '~icons/fa/times-circle'
 import IconTrash from '~icons/fa/trash-o'
 
 interface Row {
