@@ -48,7 +48,10 @@ pnpm install
 pnpm exec lefthook install
 
 # Enable git auto completion
-echo "source /usr/share/bash-completion/completions/git" >> ~/.bashrc
+if ! grep -q "bash-completion/completions/git" ~/.bashrc
+then
+  echo "source /usr/share/bash-completion/completions/git" >> ~/.bashrc
+fi
 
 # Apply database migration
 for i in {1..5}
