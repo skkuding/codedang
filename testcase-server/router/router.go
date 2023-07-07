@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	hm "github.com/cranemont/iris/tests/testcase-server/router/method"
+	hm "github.com/skkuding/codedang/testcase-server/router/method"
 )
 
 type router struct {

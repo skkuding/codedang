@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/cranemont/iris/tests/testcase-server/handler/response"
-	"github.com/cranemont/iris/tests/testcase-server/utils"
+	"github.com/skkuding/codedang/testcase-server/handler/response"
+	"github.com/skkuding/codedang/testcase-server/utils"
 )
 
 type testcase struct {

@@ -3,7 +3,7 @@ package logger
 import (
 	"log"
 
-	"github.com/cranemont/iris/src/common/constants"
+	"github.com/skkuding/codedang/iris/src/common/constants"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

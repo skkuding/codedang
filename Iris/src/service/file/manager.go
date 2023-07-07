@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cranemont/iris/src/common/constants"
+	"github.com/skkuding/codedang/iris/src/common/constants"
 )
 
 type FileManager interface {

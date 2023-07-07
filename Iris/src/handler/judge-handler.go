@@ -6,14 +6,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/cranemont/iris/src/common/constants"
-	"github.com/cranemont/iris/src/common/result"
-	"github.com/cranemont/iris/src/service/file"
-	"github.com/cranemont/iris/src/service/grader"
-	"github.com/cranemont/iris/src/service/logger"
-	"github.com/cranemont/iris/src/service/sandbox"
-	"github.com/cranemont/iris/src/service/testcase"
-	"github.com/cranemont/iris/src/utils"
+	"github.com/skkuding/codedang/iris/src/common/constants"
+	"github.com/skkuding/codedang/iris/src/common/result"
+	"github.com/skkuding/codedang/iris/src/service/file"
+	"github.com/skkuding/codedang/iris/src/service/grader"
+	"github.com/skkuding/codedang/iris/src/service/logger"
+	"github.com/skkuding/codedang/iris/src/service/sandbox"
+	"github.com/skkuding/codedang/iris/src/service/testcase"
+	"github.com/skkuding/codedang/iris/src/utils"
 )
 
 type Request struct {

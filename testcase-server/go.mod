@@ -1,3 +1,3 @@
-module github.com/cranemont/iris/tests/testcase-server
+module github.com/skkuding/codedang/testcase-server
 
 go 1.20

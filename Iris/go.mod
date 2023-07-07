@@ -1,4 +1,4 @@
-module github.com/cranemont/iris
+module github.com/skkuding/codedang/iris
 
 go 1.20
 

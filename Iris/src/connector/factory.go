@@ -3,9 +3,9 @@ package connector
 import (
 	"fmt"
 
-	"github.com/cranemont/iris/src/connector/rabbitmq"
-	"github.com/cranemont/iris/src/router"
-	"github.com/cranemont/iris/src/service/logger"
+	"github.com/skkuding/codedang/iris/src/connector/rabbitmq"
+	"github.com/skkuding/codedang/iris/src/router"
+	"github.com/skkuding/codedang/iris/src/service/logger"
 )
 
 type Providers struct {

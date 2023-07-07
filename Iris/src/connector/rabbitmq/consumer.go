@@ -3,8 +3,8 @@ package rabbitmq
 import (
 	"fmt"
 
-	"github.com/cranemont/iris/src/service/logger"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/skkuding/codedang/iris/src/service/logger"
 )
 
 type Consumer interface {

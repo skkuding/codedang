@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/cranemont/iris/src/handler"
-	"github.com/cranemont/iris/src/service/logger"
+	"github.com/skkuding/codedang/iris/src/handler"
+	"github.com/skkuding/codedang/iris/src/service/logger"
 )
 
 const (

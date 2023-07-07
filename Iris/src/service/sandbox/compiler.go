@@ -3,8 +3,8 @@ package sandbox
 import (
 	"fmt"
 
-	"github.com/cranemont/iris/src/common/constants"
-	"github.com/cranemont/iris/src/service/file"
+	"github.com/skkuding/codedang/iris/src/common/constants"
+	"github.com/skkuding/codedang/iris/src/service/file"
 )
 
 type CompileResult struct {

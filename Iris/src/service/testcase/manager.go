@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	datasource "github.com/cranemont/iris/src/data_source"
-	"github.com/cranemont/iris/src/data_source/cache"
+	datasource "github.com/skkuding/codedang/iris/src/data_source"
+	"github.com/skkuding/codedang/iris/src/data_source/cache"
 )
 
 type TestcaseManager interface {

@@ -3,12 +3,12 @@ package main
 import (
 	"net/http"
 
-	"github.com/cranemont/iris/tests/testcase-server/handler"
-	"github.com/cranemont/iris/tests/testcase-server/handler/response"
-	"github.com/cranemont/iris/tests/testcase-server/middleware"
-	"github.com/cranemont/iris/tests/testcase-server/router"
-	"github.com/cranemont/iris/tests/testcase-server/router/method"
-	"github.com/cranemont/iris/tests/testcase-server/utils"
+	"github.com/skkuding/codedang/testcase-server/handler"
+	"github.com/skkuding/codedang/testcase-server/handler/response"
+	"github.com/skkuding/codedang/testcase-server/middleware"
+	"github.com/skkuding/codedang/testcase-server/router"
+	"github.com/skkuding/codedang/testcase-server/router/method"
+	"github.com/skkuding/codedang/testcase-server/utils"
 )
 
 func main() {
