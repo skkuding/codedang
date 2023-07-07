@@ -80,10 +80,8 @@ export class ProblemRepository {
     })
   }
 
-  async getProblemTags(
-    problemId: number
-  ): Promise<{ problemId: number; tags: Partial<Tag>[] }> {
-    const tags = (
+  async getProblemTags(problemId: number): Promise<Partial<Tag>[]> {
+    return (
       await this.prisma.problemTag.findMany({
         where: {
           problemId
@@ -98,11 +96,6 @@ export class ProblemRepository {
         }
       })
     ).map((tag) => tag.tag)
-
-    return {
-      problemId,
-      tags
-    }
   }
 
   async getProblem(
