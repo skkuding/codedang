@@ -19,6 +19,31 @@ then
   docker compose up -d
 fi
 
+# Write .env file from .env.development
+if [ -f .env ]
+then
+  rm .env
+fi
+
+while IFS= read -r line
+do
+  # Skip empty lines or comments
+  if [[ -z "$line" || ${line:0:1} == '#' ]]
+  then
+    continue
+  fi
+
+  name=${line%%=*}
+  value=${line#*=}
+
+  if [[ -v "$name" ]]
+  then
+      echo "$name=${!name}" >> .env
+  else
+      echo "$name=$value" >> .env
+  fi
+done < .env.development
+
 # If dotenv schema is not updated, remove the file
 if [ -f backend/.env ] && grep -q DATABASE_URL backend/.env
 then
@@ -28,7 +53,6 @@ fi
 # If .env does not exist, create one
 if [ ! -f backend/.env ]
 then
-  touch backend/.env
   echo "NODEMAILER_HOST=\"email-smtp.ap-northeast-2.amazonaws.com\"" >> backend/.env
   echo "NODEMAILER_USER=\"\"" >> backend/.env
   echo "NODEMAILER_PASS=\"\"" >> backend/.env

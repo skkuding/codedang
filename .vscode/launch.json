@@ -46,13 +46,7 @@
       "program": "${workspaceFolder}/Iris/main.go",
       "console": "integratedTerminal",
       "asRoot": true,
-      "envFile": "${workspaceFolder}/.env.development",
-      "env": {
-        // Workaround: vscode-go does not handle env assigned with dollar sign correctly
-        "RABBITMQ_CONSUMER_QUEUE_NAME": "client.q.judge.submission",
-        "RABBITMQ_PRODUCER_EXCHANGE_NAME": "iris.e.direct.judge",
-        "RABBITMQ_PRODUCER_ROUTING_KEY": "judge.result"
-      }
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }
