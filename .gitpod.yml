@@ -5,9 +5,20 @@ image:
   file: .gitpod.Dockerfile
 
 ports:
-  - port: 4000 # Nest.js
+  - port: 5433 # PostgreSQL
     onOpen: ignore
-    visibility: public
+
+  - port: 5672 # RabbitMQ
+    onOpen: ignore
+
+  - port: 6380 # Redis
+    onOpen: ignore
+
+  - port: 15672 # RabbitMQ Dashboard
+    onOpen: ignore
+
+  - port: 30000 # Testcase Server
+    onOpen: ignore
 
 tasks:
   - name: Node.js
