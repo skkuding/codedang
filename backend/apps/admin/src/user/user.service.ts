@@ -21,16 +21,12 @@ export class UserService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getUsers(
+  async getMembers(
     groupId: number,
-    role: Role,
     cursor: number,
-    take: number
+    take: number,
+    isGroupLeader: boolean
   ): Promise<GroupMember[]> {
-    if (role !== Role.Manager && role !== Role.User)
-      throw new BadRequestException()
-
-    const isGroupLeader = role === Role.Manager
     const groupMembers = await this.prisma.userGroup.findMany({
       take,
       skip: cursor ? 1 : 0,
@@ -71,7 +67,11 @@ export class UserService {
     return processedGroupMembers
   }
 
-  async upgradeManager(userId: number, groupId: number): Promise<UserGroup> {
+  async updateGroupMemberRole(
+    userId: number,
+    groupId: number,
+    isGroupLeader: boolean
+  ): Promise<UserGroup> {
     return await this.prisma.userGroup.update({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -81,9 +81,13 @@ export class UserService {
         }
       },
       data: {
-        isGroupLeader: true
+        isGroupLeader: isGroupLeader
       }
     })
+  }
+
+  async upgradeMember(userId: number, groupId: number): Promise<UserGroup> {
+    return await this.updateGroupMemberRole(userId, groupId, true)
   }
 
   async downgradeManager(userId: number, groupId: number): Promise<UserGroup> {
@@ -110,18 +114,7 @@ export class UserService {
     if (groupManagers.length <= 1) {
       throw new BadRequestException()
     }
-    return await this.prisma.userGroup.update({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        userId_groupId: {
-          userId,
-          groupId
-        }
-      },
-      data: {
-        isGroupLeader: false
-      }
-    })
+    return await this.updateGroupMemberRole(userId, groupId, false)
   }
 
   async deleteGroupMember(userId: number, groupId: number): Promise<UserGroup> {
@@ -181,7 +174,11 @@ export class UserService {
     })
   }
 
-  async acceptJoin(groupId: number, userId: number): Promise<UserGroup> {
+  async handleJoinRequest(
+    groupId: number,
+    userId: number,
+    isAccepted: boolean
+  ): Promise<UserGroup | number> {
     const joinGroupRequest: number[] = await this.cacheManager.get(
       joinGroupCacheKey(groupId)
     )
@@ -197,36 +194,20 @@ export class UserService {
       filtered,
       JOIN_GROUP_REQUEST_EXPIRE_TIME
     )
-
-    return await this.prisma.userGroup.create({
-      data: {
-        user: {
-          connect: { id: userId }
-        },
-        group: {
-          connect: { id: groupId }
-        },
-        isGroupLeader: false
-      }
-    })
-  }
-
-  async rejectJoin(groupId: number, userId: number): Promise<number> {
-    const joinGroupRequest: number[] = await this.cacheManager.get(
-      joinGroupCacheKey(groupId)
-    )
-    if (joinGroupRequest === undefined) {
-      throw new InternalServerErrorException()
+    if (isAccepted) {
+      return await this.prisma.userGroup.create({
+        data: {
+          user: {
+            connect: { id: userId }
+          },
+          group: {
+            connect: { id: groupId }
+          },
+          isGroupLeader: false
+        }
+      })
+    } else {
+      return userId
     }
-    if (!joinGroupRequest.includes(userId)) {
-      throw new BadRequestException()
-    }
-    const filtered = joinGroupRequest.filter((element) => element !== userId)
-    await this.cacheManager.set(
-      joinGroupCacheKey(groupId),
-      filtered,
-      JOIN_GROUP_REQUEST_EXPIRE_TIME
-    )
-    return userId
   }
 }

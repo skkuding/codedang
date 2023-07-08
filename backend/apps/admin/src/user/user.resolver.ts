@@ -1,14 +1,15 @@
 import {
   BadRequestException,
   InternalServerErrorException,
-  NotFoundException
+  NotFoundException,
+  ParseIntPipe
 } from '@nestjs/common'
-import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql'
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
 import { Prisma } from '@prisma/client'
-import { Role } from '@admin/@generated/prisma/role.enum'
+import { OPEN_SPACE_ID } from '@libs/constants'
+import { CursorValidationPipe } from '@libs/pipe'
 import { UserGroup } from '@admin/@generated/user-group/user-group.model'
 import { User } from '../@generated/user/user.model'
-import { GetUsersInput } from './dto/getUsersInput.dto'
 import { GroupMember } from './dto/groupMember.dto'
 import { JoinInput } from './dto/joinInput.dto'
 import { UserService } from './user.service'
@@ -17,14 +18,21 @@ import { UserService } from './user.service'
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @Query(() => [GroupMember], { name: 'getUsers' })
-  getUsers(
-    @Args('input', { type: () => GetUsersInput }) input,
-    @Args('role', { type: () => Role }) role
+  @Query(() => [GroupMember])
+  async getMembers(
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    groupId: number,
+    @Args('cursor', CursorValidationPipe) cursor: number,
+    @Args('take', ParseIntPipe) take: number,
+    @Args('isGroupLeader') isGroupLeader: boolean
   ): Promise<GroupMember[]> {
     try {
-      const { id, cursor, take } = input
-      return this.userService.getUsers(id, role, cursor, take)
+      return await this.userService.getMembers(
+        groupId,
+        cursor,
+        take,
+        isGroupLeader
+      )
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw new BadRequestException()
@@ -33,13 +41,13 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => UserGroup, { name: 'downgradeGroupManager' })
-  downgradeGroupManager(
-    @Args('userId', { type: () => Int }) userId: number,
-    @Args('groupId', { type: () => Int }) groupId: number
+  @Mutation(() => UserGroup)
+  async downgradeGroupManager(
+    @Args('userId') userId: number,
+    @Args('groupId') groupId: number
   ): Promise<UserGroup> {
     try {
-      return this.userService.downgradeManager(userId, groupId)
+      return await this.userService.downgradeManager(userId, groupId)
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw new NotFoundException(error.message)
@@ -54,13 +62,13 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => UserGroup, { name: 'upgradeGroupMember' })
-  upgradeGroupMember(
-    @Args('userId', { type: () => Int }) userId: number,
-    @Args('groupId', { type: () => Int }) groupId: number
+  @Mutation(() => UserGroup)
+  async upgradeGroupMember(
+    @Args('userId') userId: number,
+    @Args('groupId') groupId: number
   ): Promise<UserGroup> {
     try {
-      return this.userService.upgradeManager(userId, groupId)
+      return await this.userService.upgradeMember(userId, groupId)
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw new BadRequestException()
@@ -73,13 +81,13 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => UserGroup, { name: 'deleteGroupMember' })
-  deleteGroupMember(
-    @Args('userId', { type: () => Int }) userId: number,
-    @Args('groupId', { type: () => Int }) groupId: number
+  @Mutation(() => UserGroup)
+  async deleteGroupMember(
+    @Args('userId') userId: number,
+    @Args('groupId') groupId: number
   ): Promise<UserGroup> {
     try {
-      return this.userService.deleteGroupMember(userId, groupId)
+      return await this.userService.deleteGroupMember(userId, groupId)
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new BadRequestException()
@@ -88,32 +96,34 @@ export class UserResolver {
     }
   }
 
-  @Query(() => [User], { name: 'getNeededApproval' })
-  getNeededApproval(
-    @Args('groupId', { type: () => ID }) groupId: string
-  ): Promise<User[]> {
+  @Query(() => [User])
+  async getJoinRequests(@Args('groupId') groupId: string): Promise<User[]> {
     try {
-      return this.userService.getNeededApproval(groupId)
+      return await this.userService.getNeededApproval(groupId)
     } catch (error) {
       throw new InternalServerErrorException()
     }
   }
 
-  @Mutation(() => Number, { name: 'rejectJoin' })
-  rejectJoin(@Args('input') input: JoinInput): Promise<number> {
+  @Mutation(() => Number)
+  async rejectJoinRequest(
+    @Args('input') input: JoinInput
+  ): Promise<UserGroup | number> {
     try {
       const { groupId, userId } = input
-      return this.userService.rejectJoin(groupId, userId)
+      return await this.userService.handleJoinRequest(groupId, userId, false)
     } catch (error) {
       throw new InternalServerErrorException()
     }
   }
 
-  @Mutation(() => UserGroup, { name: 'acceptJoin' })
-  acceptJoin(@Args('input') input: JoinInput): Promise<UserGroup> {
+  @Mutation(() => UserGroup)
+  async acceptJoinRequest(
+    @Args('input') input: JoinInput
+  ): Promise<UserGroup | number> {
     try {
       const { groupId, userId } = input
-      return this.userService.acceptJoin(groupId, userId)
+      return await this.userService.handleJoinRequest(groupId, userId, true)
     } catch (error) {
       throw new InternalServerErrorException()
     }
