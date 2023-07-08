@@ -5,7 +5,6 @@ import {
   Injectable,
   InternalServerErrorException
 } from '@nestjs/common'
-import { Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
