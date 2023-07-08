@@ -36,6 +36,6 @@ export class ContestInput {
   @Field(() => Boolean, { nullable: false })
   difficultyVisible!: boolean
 
-  @Field(() => RequestStatus, { nullable: false })
+  @Field(() => String, { nullable: false })
   status!: RequestStatus
 }

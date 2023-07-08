@@ -63,17 +63,17 @@ export class ContestService {
 
     const newContest: Contest = await this.prisma.contest.create({
       data: {
+        groupName: contest.groupName,
+        type: contest.type,
         title: contest.title,
+        summary: contest.summary,
         description: contest.description,
         startTime: contest.startTime,
         endTime: contest.endTime,
-        group: {
-          connect: { id: groupId }
-        },
-        createdBy: {
-          connect: { id: userId }
-        },
-        config: contest.config
+        visible: contest.visible,
+        rankVisible: contest.rankVisible,
+        difficultyVisible: contest.difficultyVisible,
+        status: contest.status
       }
     })
 
@@ -103,11 +103,17 @@ export class ContestService {
         id: contest.id
       },
       data: {
+        groupName: contest.groupName,
+        type: contest.type,
         title: contest.title,
+        summary: contest.summary,
         description: contest.description,
         startTime: contest.startTime,
         endTime: contest.endTime,
-        config: contest.config
+        visible: contest.visible,
+        rankVisible: contest.rankVisible,
+        difficultyVisible: contest.difficultyVisible,
+        status: contest.status
       }
     })
   }
@@ -189,7 +195,7 @@ export class ContestService {
       contestPublicizingRequestKey(contestId),
       {
         contest: contestId,
-        user: contest.createdById,
+        user: contest.userId,
         createTime: new Date()
       },
       PUBLICIZING_REQUEST_EXPIRE_TIME
