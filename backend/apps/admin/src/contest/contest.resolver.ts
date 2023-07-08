@@ -12,9 +12,9 @@ import {
 } from '@libs/exception'
 import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
-import { ContestInput } from './model/contest-input.model'
-import { InputForDetail } from './model/input-for-detail.model'
-import { Input } from './model/input.model'
+import { ContestInput } from './model/contest.input'
+import { InputForDetail } from './model/input-for-detail.input'
+import { Input } from './model/input.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
 
 @Resolver(() => Contest)

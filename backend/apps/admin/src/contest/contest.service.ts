@@ -10,7 +10,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Contest } from '@admin/@generated/contest/contest.model'
-import type { ContestInput } from './model/contest-input.model'
+import type { ContestInput } from './model/contest.input'
 import type { PublicizingRequest } from './model/publicizing-request.model'
 
 @Injectable()
@@ -39,6 +39,15 @@ export class ContestService {
         id: cursor
       }
     })
+  }
+
+  async getPublicRequests(groupId: number, cursor: number, take: number) {
+    const keys = await this.cacheManager.store.keys()
+    const filteredKeys = keys.filter((key) => key.includes(':publicize'))
+    const requests = filteredKeys.map(
+      async (key) => await this.cacheManager.get<PublicizingRequest>(key)
+    )
+    return Promise.all(requests)
   }
 
   async createContest(
@@ -119,15 +128,6 @@ export class ContestService {
     })
 
     return contest
-  }
-
-  async getPublicRequests(groupId: number, cursor: number, take: number) {
-    const keys = await this.cacheManager.store.keys()
-    const filteredKeys = keys.filter((key) => key.includes(':publicize'))
-    const requests = filteredKeys.map(
-      async (key) => await this.cacheManager.get<PublicizingRequest>(key)
-    )
-    return Promise.all(requests)
   }
 
   async acceptPublic(groupId: number, contestId: number) {
