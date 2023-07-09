@@ -96,7 +96,7 @@ describe('ProblemService', () => {
       db.problem.findMany.resolves(mockProblem1)
 
       // when
-      const result = await service.getAll({
+      const result = await service.getGroupProblems({
         groupId: groupId,
         cursor: ARBITRARY_VAL,
         take: ARBITRARY_VAL
@@ -113,7 +113,7 @@ describe('ProblemService', () => {
       db.problem.findUniqueOrThrow.resolves(mockProblem0)
 
       // when
-      const result = await service.getOne({
+      const result = await service.getGroupProblem({
         problemId: problemId
       })
 
@@ -128,19 +128,23 @@ describe('ProblemService', () => {
       db.problem.create.resolves(mockProblem0)
 
       // when
-      const result = await service.create(mockProblem0.createdById, {
-        createdById: mockProblem0.createdById,
-        groupId: mockProblem0.groupId,
-        title: mockProblem0.title,
-        description: mockProblem0.description,
-        inputDescription: mockProblem0.inputDescription,
-        outputDescription: mockProblem0.outputDescription,
-        hint: mockProblem0.hint,
-        timeLimit: mockProblem0.timeLimit,
-        memoryLimit: mockProblem0.memoryLimit,
-        difficulty: Level.Level1,
-        source: mockProblem0.source
-      })
+      const result = await service.createGroupProblem(
+        mockProblem0.createdById,
+        {
+          groupId: mockProblem0.groupId,
+          title: mockProblem0.title,
+          description: mockProblem0.description,
+          inputDescription: mockProblem0.inputDescription,
+          outputDescription: mockProblem0.outputDescription,
+          hint: mockProblem0.hint,
+          timeLimit: mockProblem0.timeLimit,
+          memoryLimit: mockProblem0.memoryLimit,
+          difficulty: Level.Level1,
+          source: mockProblem0.source,
+          problemTestcase: [],
+          problemTag: []
+        }
+      )
 
       // then
       expect(result).to.deep.equal(mockProblem0)
@@ -154,7 +158,7 @@ describe('ProblemService', () => {
       db.problem.delete.resolves(mockProblem0)
 
       // when
-      const result = await service.delete({
+      const result = await service.deleteGroupProblem({
         problemId: problemId
       })
 
