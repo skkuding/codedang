@@ -15,9 +15,9 @@ module.exports = {
   ],
   importOrder: [
     '^@nestjs(.*)$',
+    '^@generated$',
     '<THIRD_PARTY_MODULES>',
     '^@libs/(.*)$',
-    '^@generated/(.*)$',
     '^@admin/(.*)$',
     '^@client/(.*)$',
     '^[./]'
