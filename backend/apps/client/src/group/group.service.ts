@@ -2,13 +2,13 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import type { UserGroup } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { PrismaService } from '@libs/prisma'
-import { joinGroupCacheKey } from '@client/common/cache/keys'
+import { joinGroupCacheKey } from '@libs/cache'
+import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ActionNotAllowedException,
   EntityNotExistException
-} from '@client/common/exception/business.exception'
-import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '../common/constants'
+} from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
 import type { GroupData } from './interface/group-data.interface'
 import type { GroupJoinRequest } from './interface/group-join-request.interface'
 import type { UserGroupData } from './interface/user-group-data.interface'
@@ -266,18 +266,6 @@ export class GroupService {
       }
     })
     return deletedUserGroup
-  }
-
-  async getUserGroup(userId: number, groupId: number) {
-    return await this.prisma.userGroup.findFirst({
-      where: {
-        userId: userId,
-        groupId: groupId
-      },
-      select: {
-        isGroupLeader: true
-      }
-    })
   }
 
   async getUserGroupLeaderList(userId: number): Promise<number[]> {

@@ -1,14 +1,35 @@
 gitConfig:
   pull.rebase: 'true'
 
+image:
+  file: .gitpod.Dockerfile
+
 ports:
-  - port: 4000 # Nest.js
+  - port: 5433 # PostgreSQL
     onOpen: ignore
-    visibility: public
+
+  - port: 5672 # RabbitMQ
+    onOpen: ignore
+
+  - port: 6380 # Redis
+    onOpen: ignore
+
+  - port: 15672 # RabbitMQ Dashboard
+    onOpen: ignore
+
+  - port: 30000 # Testcase Server
+    onOpen: ignore
 
 tasks:
   - name: Node.js
     init: ./scripts/setup.sh
+
+  - name: Container
+    command: docker compose up -d
+
+github:
+  prebuilds:
+    addBadge: true
 
 vscode:
   extensions:
@@ -18,11 +39,13 @@ vscode:
     - eamodio.gitlens
     - editorconfig.editorconfig
     - esbenp.prettier-vscode
+    - golang.go
     - hashicorp.terraform
     - hbenl.test-adapter-converter
     - hbenl.vscode-mocha-test-adapter
     - hbenl.vscode-test-explorer
     - johnsoncodehk.vscode-typescript-vue-plugin
+    - ms-azuretools.vscode-docker
     - prisma.prisma
     - rangav.vscode-thunder-client
     - Vue.volar

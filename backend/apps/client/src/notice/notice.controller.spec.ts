@@ -1,7 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { GroupService } from '@client/group/group.service'
-import { UserService } from '@client/user/user.service'
+import { RolesService } from '@libs/auth'
 import {
   GroupNoticeAdminController,
   NoticeAdminController
@@ -17,8 +16,7 @@ describe('NoticeController', () => {
       controllers: [NoticeController],
       providers: [
         { provide: NoticeService, useValue: {} },
-        { provide: UserService, useValue: {} },
-        { provide: GroupService, useValue: {} }
+        { provide: RolesService, useValue: {} }
       ]
     }).compile()
 
@@ -38,8 +36,7 @@ describe('GroupNoticeController', () => {
       controllers: [GroupNoticeController],
       providers: [
         { provide: NoticeService, useValue: {} },
-        { provide: UserService, useValue: {} },
-        { provide: GroupService, useValue: {} }
+        { provide: RolesService, useValue: {} }
       ]
     }).compile()
 
@@ -59,7 +56,7 @@ describe('NoticeAdminController', () => {
       controllers: [NoticeAdminController],
       providers: [
         { provide: NoticeService, useValue: {} },
-        { provide: UserService, useValue: {} }
+        { provide: RolesService, useValue: {} }
       ]
     }).compile()
 
@@ -79,8 +76,7 @@ describe('GroupNoticeAdminController', () => {
       controllers: [GroupNoticeAdminController],
       providers: [
         { provide: NoticeService, useValue: {} },
-        { provide: UserService, useValue: {} },
-        { provide: GroupService, useValue: {} }
+        { provide: RolesService, useValue: {} }
       ]
     }).compile()
 

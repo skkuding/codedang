@@ -1,8 +1,8 @@
 {
-  "name": "skkuding-next",
+  "name": "codedang",
   "dockerComposeFile": "../docker-compose.yml",
   "service": "app",
-  "runServices": ["app", "dev-db", "dev-cache"],
+  "runServices": ["app", "database", "cache", "rabbitmq", "testcase"],
   "workspaceFolder": "/workspace",
   "postCreateCommand": "scripts/setup.sh",
   "customizations": {
@@ -14,10 +14,12 @@
         "eamodio.gitlens",
         "editorconfig.editorconfig",
         "esbenp.prettier-vscode",
+        "golang.go",
         "hashicorp.terraform",
         "hbenl.test-adapter-converter",
         "hbenl.vscode-mocha-test-adapter",
         "hbenl.vscode-test-explorer",
+        "ms-azuretools.vscode-docker",
         "prisma.prisma",
         "rangav.vscode-thunder-client",
         "Vue.volar",
@@ -27,6 +29,7 @@
   },
   "features": {
     "ghcr.io/devcontainers-contrib/features/pnpm:2": {},
+    "ghcr.io/devcontainers/features/go:1": {},
     "ghcr.io/devcontainers/features/terraform:1": {}
   },
   "mounts": [

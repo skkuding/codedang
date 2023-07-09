@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
 import CardItem from '@/common/components/Molecule/CardItem.vue'
+import { useAuthStore } from '@/common/store/auth'
 import { useTimeAgo } from '@vueuse/core'
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import IconAnglesRight from '~icons/fa6-solid/angles-right'
 import IconCaretDown from '~icons/fa6-solid/caret-down'
 import IconCaretUp from '~icons/fa6-solid/caret-up'
@@ -13,11 +14,11 @@ interface Group {
   groupName: string
 }
 
-interface Contest {
+export interface Contest {
   id: number
   title: string
-  startTime: Date
-  endTime: Date
+  startTime: string
+  endTime: string
   type: string
   group: Group
 }
@@ -28,10 +29,27 @@ const items = ref<{ [key: string]: Contest[] }>({
   finished: []
 })
 
-onMounted(async () => {
-  const response = await axios.get('/api/contest')
-  items.value = response.data
+const auth = useAuthStore()
+
+if (auth.isLoggedIn) {
+  axios.get('/api/contest/auth').then((res) => {
+    items.value.ongoing = [...res.data.registeredOngoing, ...res.data.ongoing]
+    items.value.upcoming = [
+      ...res.data.registeredUpcoming,
+      ...res.data.upcoming
+    ]
+  })
+} else {
+  axios.get('/api/contest').then((res) => {
+    items.value.ongoing = res.data.ongoing
+    items.value.upcoming = res.data.upcoming
+  })
+}
+
+axios.get('/api/contest/finished', { params: { take: 10 } }).then((res) => {
+  items.value.finished = res.data.finished
 })
+
 const coloredText = (id: string, item: Contest) => {
   if (id === 'ongoing') return 'Started ' + useTimeAgo(item.startTime).value
   else if (id === 'upcoming') return 'Start ' + useTimeAgo(item.startTime).value

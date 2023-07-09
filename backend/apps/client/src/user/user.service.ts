@@ -1,28 +1,27 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { forwardRef, Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import type { User, UserProfile } from '@prisma/client'
+import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
 import type { Request } from 'express'
 import { ExtractJwt } from 'passport-jwt'
-import { PrismaService } from '@libs/prisma'
-import { AuthService } from '@client/auth/auth.service'
-import type { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
-import { emailAuthenticationPinCacheKey } from '@client/common/cache/keys'
+import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
+import { emailAuthenticationPinCacheKey } from '@libs/cache'
+import { EMAIL_AUTH_EXPIRE_TIME } from '@libs/constants'
 import {
   EntityNotExistException,
   InvalidJwtTokenException,
   InvalidPinException,
   InvalidUserException,
   UnprocessableDataException
-} from '@client/common/exception/business.exception'
-import { encrypt } from '@client/common/hash'
+} from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
 import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
 import type { UserGroupData } from '@client/group/interface/user-group-data.interface'
-import { EMAIL_AUTH_EXPIRE_TIME } from '../common/constants'
 import type { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
 import type { GetUserProfileDto } from './dto/get-userprofile.dto'
 import type { NewPasswordDto } from './dto/newPassword.dto'
@@ -47,19 +46,8 @@ export class UserService {
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
     private readonly groupService: GroupService,
-    @Inject(forwardRef(() => AuthService))
-    private readonly authService: AuthService
+    private readonly jwtAuthService: JwtAuthService
   ) {}
-
-  async getUserRole(userId: number): Promise<Partial<User>> {
-    return await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        role: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('user')
-    })
-  }
 
   async updateLastLogin(username: string) {
     await this.prisma.user.update({
@@ -153,7 +141,7 @@ export class UserService {
         email
       },
       data: {
-        password: await encrypt(newPassword)
+        password: await hash(newPassword)
       }
     })
   }
@@ -246,7 +234,7 @@ export class UserService {
   }
 
   async createUser(signUpDto: SignUpDto): Promise<User> {
-    const encryptedPassword = await encrypt(signUpDto.password)
+    const encryptedPassword = await hash(signUpDto.password)
 
     return await this.prisma.user.create({
       data: {
@@ -282,7 +270,9 @@ export class UserService {
   async withdrawal(username: string, withdrawalDto: WithdrawalDto) {
     const user: User = await this.getUserCredential(username)
 
-    if (!(await this.authService.isValidUser(user, withdrawalDto.password))) {
+    if (
+      !(await this.jwtAuthService.isValidUser(user, withdrawalDto.password))
+    ) {
       throw new InvalidUserException('Incorrect password')
     }
 

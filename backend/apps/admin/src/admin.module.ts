@@ -3,12 +3,16 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
 import { GraphQLModule } from '@nestjs/graphql'
+import {
+  JwtAuthModule,
+  JwtAuthGuard,
+  RolesModule,
+  GroupLeaderGuard
+} from '@libs/auth'
 import { PrismaModule } from '@libs/prisma'
-import { AuthModule } from '@admin/auth/auth.module'
-import { JwtAuthGuard } from '@admin/auth/guard/jwt-auth.guard'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
-import { RolesGuard } from './user/guard/roles.guard'
+import { GroupModule } from './group/group.module'
 import { UserModule } from './user/user.module'
 
 @Module({
@@ -19,15 +23,17 @@ import { UserModule } from './user/user.module'
       autoSchemaFile: 'schema.gql',
       sortSchema: true
     }),
+    JwtAuthModule,
+    RolesModule,
     UserModule,
     PrismaModule,
-    AuthModule
+    GroupModule
   ],
   controllers: [AdminController],
   providers: [
     AdminService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: RolesGuard }
+    { provide: APP_GUARD, useClass: GroupLeaderGuard }
   ]
 })
 export class AdminModule {}

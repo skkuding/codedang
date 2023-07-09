@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import Card from '@/common/components/Molecule/Card.vue'
+import type { Contest } from '@/user/contest/pages/index.vue'
+import type { Item } from '@/user/notice/composables/notice'
+import { useDateFormat } from '@vueuse/core'
+import axios from 'axios'
+import { ref } from 'vue'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
 import IconBars from '~icons/fa6-solid/bars'
 import IconCalendar from '~icons/fa6-solid/calendar'
@@ -7,46 +12,53 @@ import IconInfo from '~icons/fa6-solid/circle-info'
 import IconEllipsis from '~icons/fa6-solid/ellipsis'
 import IconMedal from '~icons/fa6-solid/medal'
 
-const noticeItems = [
-  {
-    title: 'SKKU Coding Platform 모의대회 결과 및 솔루션',
-    date: 'Jan 9,2021',
-    href: '/'
-  },
-  {
-    title: 'SKKU Coding Platform 모의대회 결과',
-    date: 'Dec 31,2020',
-    href: '/'
-  }
-]
+interface Post {
+  title: string
+  date: string
+  href: string
+  state?: string
+}
 
-const contestItems = [
-  {
-    title: 'SKKU Coding Platform 모의대회',
-    date: 'Jan 9,2021',
-    href: '/',
-    state: 'ongoing'
-  },
-  {
-    title: 'SKKU Coding Platform 1차 대회',
-    date: 'Dec 31,2020',
-    href: '/',
-    state: 'prearranged'
-  },
-  {
-    title: 'SKKU Coding Platform 2차 대회',
-    date: 'Dec 31,2020',
-    href: '/',
-    state: 'prearranged'
-  }
-]
+const notices = ref<Post[]>([])
+const contest = ref<Post[]>([])
+
+axios
+  .get('/api/notice', {
+    params: { take: 3 }
+  })
+  .then((res) => {
+    notices.value = res.data.map((element: Item) => ({
+      title: element.title,
+      date: useDateFormat(element.createTime, 'YYYY-MM-DD').value,
+      href: `/notice/${element.id}`
+    }))
+  })
+
+axios.get('api/contest').then((res) => {
+  res.data.ongoing.map((element: Contest) => {
+    contest.value.push({
+      title: element.title,
+      date: useDateFormat(element.startTime, 'YYYY-MM-DD').value,
+      href: `/contest/${element.id}`,
+      state: 'ongoing'
+    })
+  })
+  res.data.upcoming.map((element: Contest) => {
+    contest.value.push({
+      title: element.title,
+      date: useDateFormat(element.startTime, 'YYYY-MM-DD').value,
+      href: `/contest/${element.id}`,
+      state: 'upcoming'
+    })
+  })
+})
 </script>
 
 <template>
   <div
-    class="flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
+    class="mt-20 flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
   >
-    <Card href="/notice" :items="noticeItems" class="w-[36rem] max-w-full">
+    <Card href="/notice" :items="notices" class="w-[36rem] max-w-full">
       <template #title>
         <IconInfo />
         <h2 class="ml-2">Notice</h2>
@@ -56,7 +68,7 @@ const contestItems = [
         <IconAngleRight />
       </template>
     </Card>
-    <Card href="/contest" :items="contestItems" class="w-[36rem] max-w-full">
+    <Card href="/contest" :items="contest" class="w-[36rem] max-w-full">
       <template #title>
         <IconMedal />
         <h2 class="ml-2">Current/Upcoming Contests</h2>

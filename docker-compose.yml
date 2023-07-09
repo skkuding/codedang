@@ -1,18 +1,43 @@
 version: '3'
+
 services:
   app:
     profiles: ['devcontainer']
-    container_name: skkuding-dev
+    container_name: codedang-dev
     build:
       context: .
       dockerfile: .devcontainer/Dockerfile
     volumes:
       - .:/workspace:cached
-    command: sleep infinity
+    depends_on:
+      - rabbitmq
+      - database
+    stdin_open: true
+    tty: true
+    env_file: .env.development
     environment:
+      # Override environment variables in .env.development
+      RABBITMQ_HOST: codedang-rabbitmq
+      TESTCASE_SERVER_URL: http://codedang-testcase:30000/problem/:id/testcase
+      DATABASE_URL: postgresql://postgres:1234@codedang-database:5432/skkuding?schema=public
+      REDIS_HOST: codedang-cache
+      REDIS_PORT: 6379
       DEVCONTAINER: 1
-  dev-db:
-    container_name: skkuding-dev-db
+
+  testcase:
+    container_name: codedang-testcase
+    build:
+      context: ./testcase-server
+      dockerfile: Dockerfile
+    ports:
+      - 30000:30000
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./testcase-server/data:/app/data
+
+  database:
+    container_name: codedang-database
     image: postgres:14-alpine
     ports:
       - 5433:5432
@@ -20,9 +45,10 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: skkuding
-  test-db:
+
+  database-test:
     profiles: ['test']
-    container_name: skkuding-test-db
+    container_name: codedang-database-test
     image: postgres:14-alpine
     ports:
       - 5434:5432
@@ -30,8 +56,19 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: skkuding
-  dev-cache:
-    container_name: skkuding-dev-cache
+
+  cache:
+    container_name: codedang-cache
     image: redis:7-alpine
     ports:
       - 6380:6379
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: codedang-rabbitmq
+    ports:
+      - 15672:15672 # Admin Management
+      - 5672:5672
+    env_file: .env.development
+    environment:
+      RABBITMQ_ERLANG_COOKIE: RabbitMQ-My-Cookies

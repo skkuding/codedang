@@ -4,12 +4,12 @@ import type { UserGroup } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import { PrismaService } from '@libs/prisma'
-import { joinGroupCacheKey } from '@client/common/cache/keys'
+import { joinGroupCacheKey } from '@libs/cache'
 import {
   ActionNotAllowedException,
   EntityNotExistException
-} from '@client/common/exception/business.exception'
+} from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
 import { GroupService } from './group.service'
 import {
   groups,
@@ -287,28 +287,6 @@ describe('GroupService', () => {
 
       //then
       expect(result).to.deep.equal(userGroups[3])
-    })
-  })
-
-  describe('getUserGroup', () => {
-    it('should return isGroupLeader', async () => {
-      //given
-      const userId = 2
-      const groupId = 2
-      db.userGroup.findFirst.resolves(
-        userGroups
-          .filter(
-            (userGroup) =>
-              userGroup.userId == userId && userGroup.groupId === groupId
-          )
-          .pop().isGroupLeader
-      )
-
-      //when
-      const result = await service.getUserGroup(userId, groupId)
-
-      //then
-      expect(result).to.deep.equal(userGroups[3].isGroupLeader)
     })
   })
 

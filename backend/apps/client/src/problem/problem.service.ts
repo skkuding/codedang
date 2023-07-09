@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
-import { OPEN_SPACE_ID } from '@client/common/constants'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ForbiddenAccessException,
   EntityNotExistException
-} from '@client/common/exception/business.exception'
+} from '@libs/exception'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { ProblemResponseDto } from './dto/problem.response.dto'

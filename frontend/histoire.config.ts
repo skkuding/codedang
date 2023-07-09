@@ -6,5 +6,6 @@ export default defineConfig({
   setupFile: '/src/histoire.setup.ts',
   theme: {
     title: 'SKKUding Histoire'
-  }
+  },
+  viteIgnorePlugins: ['vite-plugin-checker']
 })

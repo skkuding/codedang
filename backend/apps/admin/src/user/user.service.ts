@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common'
+import type {
+  User,
+  UserCreateInput,
+  UserUpdateInput,
+  UserWhereInput
+} from '@generated'
 import { PrismaService } from '@libs/prisma'
-import type { User } from '@admin/@generated/user/user.model'
-import type { UserCreateInput } from '../@generated/user/user-create.input'
-import type { UserUpdateInput } from '../@generated/user/user-update.input'
 
 @Injectable()
 export class UserService {
@@ -18,8 +21,10 @@ export class UserService {
     })
   }
 
-  async getAllUsers(): Promise<User[]> {
-    return await this.prisma.user.findMany()
+  async getUsers(where: UserWhereInput = {}): Promise<User[]> {
+    return await this.prisma.user.findMany({
+      where
+    })
   }
 
   async getUser(id: number): Promise<User> {
