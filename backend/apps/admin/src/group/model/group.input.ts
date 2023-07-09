@@ -1,7 +1,6 @@
 import { Field } from '@nestjs/graphql'
 import { InputType } from '@nestjs/graphql'
-import { GroupCreateWithoutCreatedByInput } from '@admin/@generated/group/group-create-without-created-by.input'
-import { GroupUpdateInput } from '@admin/@generated/group/group-update.input'
+import { GroupCreateWithoutCreatedByInput, GroupUpdateInput } from '@generated'
 
 @InputType()
 class Config {

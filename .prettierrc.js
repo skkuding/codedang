@@ -17,6 +17,7 @@ module.exports = {
     '^@nestjs(.*)$',
     '<THIRD_PARTY_MODULES>',
     '^@libs/(.*)$',
+    '^@generated/(.*)$',
     '^@admin/(.*)$',
     '^@client/(.*)$',
     '^[./]'
