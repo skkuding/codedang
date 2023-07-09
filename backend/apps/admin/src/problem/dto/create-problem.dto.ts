@@ -1,55 +1,28 @@
-import { Field, InputType } from '@nestjs/graphql'
-import { ProblemUncheckedCreateInput } from '@admin/@generated/problem/problem-unchecked-create.input'
+import { Field, InputType, OmitType } from '@nestjs/graphql'
+import { ProblemTestcaseCreateWithoutProblemInput } from '@admin/@generated/problem-testcase/problem-testcase-create-without-problem.input'
+import { ProblemUncheckedCreateWithoutCreatedByInput } from '@admin/@generated/problem/problem-unchecked-create-without-created-by.input'
 
 @InputType()
-export class TestCaseDto {
-  @Field(() => String, { nullable: false })
-  input!: string
-
-  @Field(() => String, { nullable: false })
-  output!: string
-}
+export class TestCaseDto extends OmitType(
+  ProblemTestcaseCreateWithoutProblemInput,
+  ['createTime', 'updateTime', 'submissionResult']
+) {}
 
 @InputType()
-export class CreateGroupProblemDto extends ProblemUncheckedCreateInput {
+export class CreateGroupProblemInput extends OmitType(
+  ProblemUncheckedCreateWithoutCreatedByInput,
+  [
+    'contestProblem',
+    'createTime',
+    'problemTag',
+    'problemTestcase',
+    'workbookProblem',
+    'updateTime'
+  ] as const
+) {
   @Field(() => [TestCaseDto], { nullable: true })
-  declare testcase?: Array<TestCaseDto>
+  problemTestcase: Array<TestCaseDto>
 
   @Field(() => [Number], { nullable: true })
-  declare tag?: Array<number>
+  problemTag: Array<number>
 }
-
-Object.defineProperties(CreateGroupProblemDto.prototype, {
-  createdById: {
-    value: undefined,
-    writable: false
-  },
-  createTime: {
-    value: undefined,
-    writable: false
-  },
-  updateTime: {
-    value: undefined,
-    writable: false
-  },
-  problemTestcase: {
-    value: undefined,
-    writable: false
-  },
-  problemTag: {
-    value: undefined,
-    writable: false
-  },
-  contestProblem: {
-    value: undefined,
-    writable: false
-  },
-  workbookProblem: {
-    value: undefined,
-    writable: false
-  },
-  submission: {
-    value: undefined,
-    writable: false
-  }
-})

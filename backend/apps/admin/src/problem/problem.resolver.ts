@@ -1,72 +1,75 @@
 import { NotFoundException, UnauthorizedException } from '@nestjs/common'
+import { ParseIntPipe } from '@nestjs/common'
 import { Resolver, Mutation, Args, Query, Context } from '@nestjs/graphql'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { Problem } from '@admin/@generated/problem/problem.model'
-import { CreateGroupProblemDto } from './dto/create-problem.dto'
+import { CreateGroupProblemInput } from './dto/create-problem.dto'
 import {
-  GetGroupProblemDto,
-  GetGroupProblemsDto,
-  DeleteGroupProblemDto
+  GetGroupProblemInput,
+  GetGroupProblemsInput,
+  DeleteGroupProblemInput
 } from './dto/request-problem.dto'
-import { UpdateProblemDto } from './dto/update-problem.dto'
+import { UpdateProblemInput } from './dto/update-problem.dto'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => Problem)
 export class ProblemResolver {
   constructor(private readonly problemService: ProblemService) {}
 
-  @Query(() => Problem, { name: 'getGroupProblem' })
+  @Query(() => Problem)
   async getGroupProblem(
-    @Args('groupId') groupId: number,
-    @Args('input') getGroupProblemInput: GetGroupProblemDto
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    groupId: number,
+    @Args('input') input: GetGroupProblemInput
   ) {
-    const problem = await this.problemService.getOne(getGroupProblemInput)
-    if (groupId != problem.groupId && groupId != OPEN_SPACE_ID) {
-      throw new UnauthorizedException()
+    try {
+      const problem = await this.problemService.getGroupProblem(input)
+      if (groupId != problem.groupId && groupId != OPEN_SPACE_ID) {
+        throw new UnauthorizedException()
+      }
+      return problem
+    } catch {
+      throw new NotFoundException()
     }
-    return problem
   }
 
-  @Query(() => [Problem], { name: 'getGroupProblems' })
+  @Query(() => [Problem])
   async getGroupProblems(
-    @Args('groupId') groupId: number = OPEN_SPACE_ID,
-    @Args('input') getGroupProblemsInput: GetGroupProblemsDto
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    groupId: number,
+    @Args('input') input: GetGroupProblemsInput
   ) {
-    if (groupId != getGroupProblemsInput.groupId && groupId != OPEN_SPACE_ID) {
+    if (groupId != input.groupId && groupId != OPEN_SPACE_ID) {
       throw new UnauthorizedException()
     }
-    return await this.problemService.getAll(getGroupProblemsInput)
+    return await this.problemService.getGroupProblems(input)
   }
 
-  @Mutation(() => Problem, { name: 'createGroupProblem' })
+  @Mutation(() => Problem)
   async createGroupProblem(
     @Context('req') req: AuthenticatedRequest,
-    @Args('groupId') groupId: number,
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    groupId: number,
     @Args('input')
-    createGroupProblemInput: CreateGroupProblemDto
+    input: CreateGroupProblemInput
   ) {
-    if (
-      groupId != createGroupProblemInput.groupId &&
-      groupId != OPEN_SPACE_ID
-    ) {
+    if (groupId != input.groupId && groupId != OPEN_SPACE_ID) {
       throw new UnauthorizedException()
     }
-    return await this.problemService.create(
-      req.user.id,
-      createGroupProblemInput
-    )
+    return await this.problemService.createGroupProblem(req.user.id, input)
   }
 
-  @Mutation(() => Problem, { name: 'deleteGroupProblem' })
+  @Mutation(() => Problem)
   async deleteGroupProblem(
-    @Args('groupId') groupId: number,
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    groupId: number,
     @Args('input')
-    deleteGroupProblemInput: DeleteGroupProblemDto
+    input: DeleteGroupProblemInput
   ) {
     try {
-      const problem = await this.problemService.getOne({
-        problemId: deleteGroupProblemInput.problemId
+      const problem = await this.problemService.getGroupProblem({
+        problemId: input.problemId
       })
       if (problem.groupId != groupId && groupId != OPEN_SPACE_ID) {
         throw new UnauthorizedException()
@@ -75,17 +78,18 @@ export class ProblemResolver {
       throw new NotFoundException()
     }
 
-    return await this.problemService.delete(deleteGroupProblemInput)
+    return await this.problemService.deleteGroupProblem(input)
   }
 
-  @Mutation(() => Problem, { name: 'updateGroupProblem' })
+  @Mutation(() => Problem)
   async updateGroupProblem(
-    @Args('groupId') groupId: number,
-    @Args('input') updateGroupProblemInput: UpdateProblemDto
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    groupId: number,
+    @Args('input') input: UpdateProblemInput
   ) {
     try {
-      const problem = await this.problemService.getOne({
-        problemId: updateGroupProblemInput.problemId
+      const problem = await this.problemService.getGroupProblem({
+        problemId: input.problemId
       })
       if (problem.groupId != groupId && groupId != OPEN_SPACE_ID) {
         throw new UnauthorizedException()
@@ -93,6 +97,6 @@ export class ProblemResolver {
     } catch {
       throw new NotFoundException()
     }
-    return await this.problemService.update(updateGroupProblemInput)
+    return await this.problemService.updateGroupProblem(input)
   }
 }

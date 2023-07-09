@@ -3,13 +3,13 @@ import { Language } from '@admin/@generated/prisma/language.enum'
 import { Level } from '@admin/@generated/prisma/level.enum'
 
 @InputType()
-export class GetGroupProblemDto {
+export class GetGroupProblemInput {
   @Field(() => Int)
   problemId: number
 }
 
 @InputType()
-export class GetGroupProblemsDto {
+export class GetGroupProblemsInput {
   @Field(() => Int)
   groupId: number
 
@@ -22,18 +22,18 @@ export class GetGroupProblemsDto {
   @Field(() => Int, { nullable: true })
   createdById?: number
 
-  @Field(() => Level, { nullable: true })
-  difficulty?: Level
+  @Field(() => [Level], { nullable: true })
+  difficulty?: Array<Level>
 
   @Field(() => [Language], { nullable: true })
   languages?: Array<Language>
 }
 
 @InputType()
-export class DeleteGroupProblemDto extends GetGroupProblemDto {}
+export class DeleteGroupProblemInput extends GetGroupProblemInput {}
 
 @InputType()
-export class GetOpenSpaceProblemsDto {
+export class GetOpenSpaceProblemsInput {
   @Field(() => Int)
   cursor: number
 

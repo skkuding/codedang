@@ -3,7 +3,7 @@ import { ProblemUncheckedUpdateInput } from '@admin/@generated/problem/problem-u
 import { TestCaseDto } from './create-problem.dto'
 
 @InputType()
-export class UpdateProblemDto extends ProblemUncheckedUpdateInput {
+export class UpdateProblemInput extends ProblemUncheckedUpdateInput {
   @Field(() => Int, { nullable: false })
   declare problemId: number // modify
 
@@ -14,7 +14,7 @@ export class UpdateProblemDto extends ProblemUncheckedUpdateInput {
   declare tag?: Array<number>
 }
 
-Object.defineProperties(UpdateProblemDto.prototype, {
+Object.defineProperties(UpdateProblemInput.prototype, {
   createdById: {
     value: undefined,
     writable: false

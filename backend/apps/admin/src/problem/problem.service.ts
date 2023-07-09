@@ -2,39 +2,42 @@ import { Injectable } from '@nestjs/common'
 import { isDefined } from 'class-validator'
 import { PrismaService } from '@libs/prisma'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
-import type { CreateGroupProblemDto } from './dto/create-problem.dto'
+import type { CreateGroupProblemInput } from './dto/create-problem.dto'
 import type {
-  DeleteGroupProblemDto,
-  GetGroupProblemDto,
-  GetGroupProblemsDto
+  DeleteGroupProblemInput,
+  GetGroupProblemInput,
+  GetGroupProblemsInput
 } from './dto/request-problem.dto'
-import type { UpdateProblemDto } from './dto/update-problem.dto'
+import type { UpdateProblemInput } from './dto/update-problem.dto'
 
 @Injectable()
 export class ProblemService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createdById: number, problemCreateInput: CreateGroupProblemDto) {
-    const problemTestcase = {
-      create: problemCreateInput.testcase
+  async createGroupProblem(
+    createdById: number,
+    input: CreateGroupProblemInput
+  ) {
+    const problemTestcases = {
+      create: input.problemTestcase
     }
 
     let tagsId
-    if (isDefined(problemCreateInput.tag)) {
-      tagsId = problemCreateInput.tag.map((value) => {
+    if (isDefined(input.problemTag)) {
+      tagsId = input.problemTag.map((value) => {
         return {
           tagId: value
         }
       })
     }
 
-    const { testcase, tag, ..._data } = problemCreateInput
+    const { problemTag, problemTestcase, ...data } = input
 
     return await this.prisma.problem.create({
       data: {
-        ..._data,
+        ...data,
         createdById: createdById,
-        problemTestcase: problemTestcase,
+        problemTestcase: problemTestcases,
         problemTag: {
           create: tagsId
         }
@@ -42,23 +45,23 @@ export class ProblemService {
     })
   }
 
-  async getAll(getGroupProblemsInput: GetGroupProblemsDto) {
+  async getGroupProblems(input: GetGroupProblemsInput) {
     const whereOptions: ProblemWhereInput = {
-      groupId: { equals: getGroupProblemsInput.groupId }
+      groupId: { equals: input.groupId }
     }
 
-    if (isDefined(getGroupProblemsInput.createdById)) {
-      whereOptions.createdById = { equals: getGroupProblemsInput.createdById }
+    if (isDefined(input.createdById)) {
+      whereOptions.createdById = { equals: input.createdById }
     }
 
-    if (isDefined(getGroupProblemsInput.difficulty)) {
+    if (isDefined(input.difficulty)) {
       whereOptions.difficulty = {
-        equals: getGroupProblemsInput.difficulty
+        in: input.difficulty
       }
     }
 
-    if (isDefined(getGroupProblemsInput.languages)) {
-      whereOptions.languages = { hasSome: getGroupProblemsInput.languages }
+    if (isDefined(input.languages)) {
+      whereOptions.languages = { hasSome: input.languages }
     }
 
     return await this.prisma.problem.findMany({
@@ -66,23 +69,23 @@ export class ProblemService {
         ...whereOptions
       },
       cursor: {
-        id: getGroupProblemsInput.cursor < 1 ? 1 : getGroupProblemsInput.cursor
+        id: input.cursor < 1 ? 1 : input.cursor
       },
-      skip: getGroupProblemsInput.cursor < 1 ? 0 : 1,
-      take: getGroupProblemsInput.take
+      skip: input.cursor < 1 ? 0 : 1,
+      take: input.take
     })
   }
 
-  async getOne(getGroupProblemInput: GetGroupProblemDto) {
+  async getGroupProblem(input: GetGroupProblemInput) {
     return await this.prisma.problem.findUniqueOrThrow({
       where: {
-        id: getGroupProblemInput.problemId
+        id: input.problemId
       }
     })
   }
 
-  async update(updateProblemInput: UpdateProblemDto) {
-    const { problemId, ..._data } = updateProblemInput
+  async updateGroupProblem(input: UpdateProblemInput) {
+    const { problemId, ..._data } = input
 
     return await this.prisma.problem.update({
       where: {
@@ -94,10 +97,10 @@ export class ProblemService {
     })
   }
 
-  async delete(deleteGroupProblemInput: DeleteGroupProblemDto) {
+  async deleteGroupProblem(input: DeleteGroupProblemInput) {
     return await this.prisma.problem.delete({
       where: {
-        id: deleteGroupProblemInput.problemId
+        id: input.problemId
       }
     })
   }
