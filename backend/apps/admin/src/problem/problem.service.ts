@@ -99,6 +99,8 @@ export class ProblemService {
       where: {
         id: problemId
       },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
       data: {
         ...data
       }
