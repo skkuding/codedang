@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { isDefined } from 'class-validator'
 import { PrismaService } from '@libs/prisma'
-import { ProblemTestcaseUncheckedUpdateManyWithoutProblemNestedInput } from '@admin/@generated/problem-testcase/problem-testcase-unchecked-update-many-without-problem-nested.input'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 import type { CreateGroupProblemInput } from './dto/create-problem.dto'
 import type {
@@ -34,6 +33,8 @@ export class ProblemService {
 
     const { problemTag, problemTestcase, ...data } = input
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
     return await this.prisma.problem.create({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore
@@ -90,7 +91,11 @@ export class ProblemService {
   async updateGroupProblem(input: UpdateProblemInput) {
     const { problemId, ...data } = input
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
     return await this.prisma.problem.update({
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
       where: {
         id: problemId
       },
