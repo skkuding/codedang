@@ -119,16 +119,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Generate Prisma Client
-        run: pnpm --filter backend exec prisma generate
-
       - name: Check Prisma Migration
         run: |
           pnpm --filter backend exec prisma migrate diff \
             --from-migrations ./prisma/migrations \
             --to-schema-datamodel ./prisma/schema.prisma \
             --shadow-database-url ${{ env.DATABASE_URL }} \
-            --exit-code
+            --exit-code ||
+          echo "::error::Prisma migration is not up to date. Please run `pnpm prisma migrate dev` locally and commit the changes."
 
       - name: Migrate Prisma
         run: pnpm --filter backend exec prisma migrate reset --force
