@@ -28,8 +28,5 @@
       "@libs/pipe": ["libs/pipe/src/index.ts"],
       "@libs/constants": ["libs/constants/src/index.ts"]
     }
-  },
-  "ts-node": {
-    "swc": true
   }
 }
