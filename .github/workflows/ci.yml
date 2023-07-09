@@ -31,8 +31,13 @@ jobs:
       - name: Generate Prisma Client
         run: pnpm --filter backend exec prisma generate
 
-      - name: Build
-        run: pnpm -r build
+      - name: Build (Frontend)
+        run: pnpm --filter frontend build
+
+      - name: Build (Backend)
+        run: |
+          pnpm --filter backend build
+          pnpm --filter backend build admin
 
       - name: Cache dist
         uses: actions/cache@v3
