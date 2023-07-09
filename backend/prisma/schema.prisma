@@ -9,7 +9,7 @@ generator graphql {
   provider           = "prisma-nestjs-graphql"
   output             = "../apps/admin/src/@generated"
   noAtomicOperations = true
-  // emitCompiled       = true
+  emitCompiled       = true
   purgeOutput        = true
 }
 
