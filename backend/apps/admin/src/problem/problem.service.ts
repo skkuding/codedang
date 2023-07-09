@@ -33,6 +33,8 @@ export class ProblemService {
 
     const { problemTag, problemTestcase, ...data } = input
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
     return await this.prisma.problem.create({
       data: {
         ...data,
