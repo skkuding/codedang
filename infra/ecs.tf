@@ -105,8 +105,12 @@ resource "aws_ecs_task_definition" "api" {
   network_mode             = "awsvpc"
   cpu                      = 512
   memory                   = 1024
-  container_definitions    = file("backend/task-definition.json")
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  container_definitions = templatefile("backend/task-definition.json", {
+    database_url      = "postgresql://${var.postgres_username}:${var.postgres_password}@${aws_rds_cluster.cluster.endpoint}:${var.postgres_port}/skkuding?schema=public",
+    ecr_uri           = var.ecr_uri
+    cloudwatch_region = var.region
+  })
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 
   runtime_platform {
     operating_system_family = "LINUX"

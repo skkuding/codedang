@@ -1,7 +1,7 @@
 [
   {
     "name": "Codedang-Api",
-    "image": "219857217698.dkr.ecr.ap-northeast-1.amazonaws.com/codedang-api",
+    "image": "${ecr_uri}",
     "cpu": 256,
     "memory": 512,
     "essential": true,
@@ -13,14 +13,14 @@
     "environment": [
       {
         "name": "DATABASE_URL",
-        "value": "${local.postgres_url}"
+        "value": "${database_url}"
       }
     ],
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
         "awslogs-group": "ecs/Codedang-Api",
-        "awslogs-region": "ap-northeast-1",
+        "awslogs-region": "${cloudwatch_region}",
         "awslogs-stream-prefix": "ecs"
       }
     }

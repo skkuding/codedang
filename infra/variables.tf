@@ -8,6 +8,11 @@ variable "s3_bucket" {
   default = "codedang"
 }
 
+variable "ecr_uri" {
+  type    = string
+  default = "xxx"
+}
+
 variable "region" {
   type    = string
   default = "ap-northeast-2"
