@@ -11,7 +11,7 @@ resource "aws_subnet" "public_api1" {
 resource "aws_subnet" "public_api2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.2.0/24"
-  availability_zone = var.availability_zones[1]
+  availability_zone = var.availability_zones[2]
 
   tags = {
     Name = "Codedang-Api-Subnet2"
@@ -26,7 +26,7 @@ resource "aws_lb" "api" {
   name               = "Codedang-Api-Load-Balancer"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.allow_web.id]
+  security_groups    = [aws_security_group.lb.id]
   subnets            = [aws_subnet.public_api1.id, aws_subnet.public_api2.id]
   enable_http2       = true
 }
@@ -45,28 +45,30 @@ resource "aws_lb_listener" "api" {
 resource "aws_lb_target_group" "api" {
   name        = "Codedang-Api-Target-Group"
   target_type = "ip"
-  port        = 80
+  port        = 3000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
 }
 
 resource "aws_ecs_service" "api" {
-  name            = "Codedang-Api-Service"
-  cluster         = aws_ecs_cluster.api.id
-  task_definition = aws_ecs_task_definition.api.arn
-  desired_count   = 2
-  launch_type     = "FARGATE"
+  name                              = "Codedang-Api-Service"
+  cluster                           = aws_ecs_cluster.api.id
+  task_definition                   = aws_ecs_task_definition.api.arn
+  desired_count                     = 2
+  launch_type                       = "FARGATE"
+  health_check_grace_period_seconds = 300
+
 
   network_configuration {
     assign_public_ip = true
-    security_groups  = [aws_security_group.allow_web.id]
+    security_groups  = [aws_security_group.ecs.id]
     subnets          = [aws_subnet.public_api1.id, aws_subnet.public_api2.id]
   }
 
   load_balancer {
     target_group_arn = aws_lb_target_group.api.arn
     container_name   = "Codedang-Api"
-    container_port   = 80
+    container_port   = 3000
   }
 
   depends_on = [

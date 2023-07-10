@@ -7,11 +7,22 @@
     "essential": true,
     "portMappings": [
       {
-        "containerPort": 80
-      },
-      {
-        "containerPort": 443
+        "containerPort": 3000
       }
-    ]
+    ],
+    "environment": [
+      {
+        "name": "DATABASE_URL",
+        "value": "${local.postgres_url}"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "ecs/Codedang-Api",
+        "awslogs-region": "ap-northeast-1",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
   }
 ]
