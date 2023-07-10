@@ -60,8 +60,8 @@ importers:
   backend:
     dependencies:
       '@apollo/server':
-        specifier: ^4.7.4
-        version: 4.7.4(graphql@16.7.1)
+        specifier: ^4.7.5
+        version: 4.7.5(graphql@16.7.1)
       '@golevelup/nestjs-rabbitmq':
         specifier: ^3.6.0
         version: 3.6.0(@nestjs/common@10.0.4)(rxjs@7.8.1)
@@ -70,7 +70,7 @@ importers:
         version: 1.8.1(@nestjs/common@10.0.4)(@nestjs/core@10.0.4)(nodemailer@6.9.3)
       '@nestjs/apollo':
         specifier: ^12.0.7
-        version: 12.0.7(@apollo/server@4.7.4)(@nestjs/common@10.0.4)(@nestjs/core@10.0.4)(@nestjs/graphql@12.0.7)(graphql@16.7.1)
+        version: 12.0.7(@apollo/server@4.7.5)(@nestjs/common@10.0.4)(@nestjs/core@10.0.4)(@nestjs/graphql@12.0.7)(graphql@16.7.1)
       '@nestjs/cache-manager':
         specifier: ^2.0.1
         version: 2.0.1(@nestjs/common@10.0.4)(@nestjs/core@10.0.4)(cache-manager@5.2.3)(reflect-metadata@0.1.13)(rxjs@7.8.1)
@@ -227,7 +227,7 @@ importers:
         version: 6.3.3
       ts-loader:
         specifier: ^9.4.4
-        version: 9.4.4(typescript@5.1.6)(webpack@5.87.0)
+        version: 9.4.4(typescript@5.1.6)(webpack@5.88.1)
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@18.16.19)(typescript@5.1.6)
@@ -643,8 +643,8 @@ packages:
     resolution: {integrity: sha512-qe8Nmh9rYI/HIspLSTwtbMFPj6dISG6+dJnOguTlPNXtCvS2uezdxscVBb7/3DrmNbQK49TDqpkSQ1chbRGdpQ==}
     dev: true
 
-  /@apollo/cache-control-types@1.0.2(graphql@16.7.1):
-    resolution: {integrity: sha512-Por80co1eUm4ATsvjCOoS/tIR8PHxqVjsA6z76I6Vw0rFn4cgyVElQcmQDIZiYsy41k8e5xkrMRECkM2WR8pNw==}
+  /@apollo/cache-control-types@1.0.3(graphql@16.7.1):
+    resolution: {integrity: sha512-F17/vCp7QVwom9eG7ToauIKdAxpSoadsJnqIfyryLFSkLSOEqu+eC5Z3N8OXcUVStuOMcNHlyraRsA6rRICu4g==}
     peerDependencies:
       graphql: 14.x || 15.x || 16.x
     dependencies:
@@ -670,38 +670,38 @@ packages:
       long: 4.0.0
     dev: false
 
-  /@apollo/server-gateway-interface@1.1.0(graphql@16.7.1):
-    resolution: {integrity: sha512-0rhG++QtGfr4YhhIHgxZ9BdMFthaPY6LbhI9Au90osbfLMiZ7f8dmZsEX1mp7O1h8MJwCu6Dp0I/KcGbSvfUGA==}
+  /@apollo/server-gateway-interface@1.1.1(graphql@16.7.1):
+    resolution: {integrity: sha512-pGwCl/po6+rxRmDMFgozKQo2pbsSwE91TpsDBAOgf74CRDPXHHtM88wbwjab0wMMZh95QfR45GGyDIdhY24bkQ==}
     peerDependencies:
       graphql: 14.x || 15.x || 16.x
     dependencies:
-      '@apollo/usage-reporting-protobuf': 4.1.0
+      '@apollo/usage-reporting-protobuf': 4.1.1
       '@apollo/utils.fetcher': 2.0.1
       '@apollo/utils.keyvaluecache': 2.1.1
       '@apollo/utils.logger': 2.0.1
       graphql: 16.7.1
     dev: false
 
-  /@apollo/server-plugin-landing-page-graphql-playground@4.0.0(@apollo/server@4.7.4):
+  /@apollo/server-plugin-landing-page-graphql-playground@4.0.0(@apollo/server@4.7.5):
     resolution: {integrity: sha512-PBDtKI/chJ+hHeoJUUH9Kuqu58txQl00vUGuxqiC9XcReulIg7RjsyD0G1u3drX4V709bxkL5S0nTeXfRHD0qA==}
     engines: {node: '>=14.0'}
     deprecated: The use of GraphQL Playground in Apollo Server was supported in previous versions, but this is no longer the case as of December 31, 2022. This package exists for v4 migration purposes only. We do not intend to resolve security issues or other bugs with this package if they arise, so please migrate away from this to [Apollo Server's default Explorer](https://www.apollographql.com/docs/apollo-server/api/plugin/landing-pages) as soon as possible.
     peerDependencies:
       '@apollo/server': ^4.0.0
     dependencies:
-      '@apollo/server': 4.7.4(graphql@16.7.1)
+      '@apollo/server': 4.7.5(graphql@16.7.1)
       '@apollographql/graphql-playground-html': 1.6.29
     dev: false
 
-  /@apollo/server@4.7.4(graphql@16.7.1):
-    resolution: {integrity: sha512-7MwEsBR+4JRfjAzrFIOP0m/NdzNCyVOlRWCO/86zs73CC+trr08FklTD7JD0yx5BJDfyzjdhF2BZ1sEYvp/Waw==}
+  /@apollo/server@4.7.5(graphql@16.7.1):
+    resolution: {integrity: sha512-XobKpTnW/jbmr0DuJ+8zBzoeL6uEat4CkBN7kOCjhXEUuCNxiLrQGrWFVDqgV7bSdOJr6o2POmZYBPNQXLdyvA==}
     engines: {node: '>=14.16.0'}
     peerDependencies:
       graphql: ^16.6.0
     dependencies:
-      '@apollo/cache-control-types': 1.0.2(graphql@16.7.1)
-      '@apollo/server-gateway-interface': 1.1.0(graphql@16.7.1)
-      '@apollo/usage-reporting-protobuf': 4.1.0
+      '@apollo/cache-control-types': 1.0.3(graphql@16.7.1)
+      '@apollo/server-gateway-interface': 1.1.1(graphql@16.7.1)
+      '@apollo/usage-reporting-protobuf': 4.1.1
       '@apollo/utils.createhash': 2.0.1
       '@apollo/utils.fetcher': 2.0.1
       '@apollo/utils.isnodelike': 2.0.1
@@ -731,8 +731,8 @@ packages:
       - supports-color
     dev: false
 
-  /@apollo/usage-reporting-protobuf@4.1.0:
-    resolution: {integrity: sha512-hXouMuw5pQVkzi8dgMybmr6Y11+eRmMQVoB5TF0HyTwAg9SOq/v3OCuiYqcVUKdBcskU9Msp+XvjAk0GKpWCwQ==}
+  /@apollo/usage-reporting-protobuf@4.1.1:
+    resolution: {integrity: sha512-u40dIUePHaSKVshcedO7Wp+mPiZsaU6xjv9J+VyxpoU/zL6Jle+9zWeG98tr/+SZ0nZ4OXhrbb8SNr0rAPpIDA==}
     dependencies:
       '@apollo/protobufjs': 1.2.7
     dev: false
@@ -820,7 +820,7 @@ packages:
     peerDependencies:
       graphql: 14.x || 15.x || 16.x
     dependencies:
-      '@apollo/usage-reporting-protobuf': 4.1.0
+      '@apollo/usage-reporting-protobuf': 4.1.1
       '@apollo/utils.dropunuseddefinitions': 2.0.1(graphql@16.7.1)
       '@apollo/utils.printwithreducedwhitespace': 2.0.1(graphql@16.7.1)
       '@apollo/utils.removealiases': 2.0.1(graphql@16.7.1)
@@ -1934,7 +1934,7 @@ packages:
     dependencies:
       '@graphql-tools/utils': 9.2.1(graphql@16.7.1)
       graphql: 16.7.1
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: false
 
   /@graphql-tools/merge@9.0.0(graphql@16.7.1):
@@ -1969,7 +1969,7 @@ packages:
       '@graphql-tools/merge': 8.4.2(graphql@16.7.1)
       '@graphql-tools/utils': 9.2.1(graphql@16.7.1)
       graphql: 16.7.1
-      tslib: 2.5.3
+      tslib: 2.6.0
       value-or-promise: 1.0.12
     dev: false
 
@@ -1991,7 +1991,7 @@ packages:
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.7.1)
       graphql: 16.7.1
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: false
 
   /@graphql-typed-document-node/core@3.2.0(graphql@16.7.1):
@@ -2361,7 +2361,7 @@ packages:
       - supports-color
     dev: false
 
-  /@nestjs/apollo@12.0.7(@apollo/server@4.7.4)(@nestjs/common@10.0.4)(@nestjs/core@10.0.4)(@nestjs/graphql@12.0.7)(graphql@16.7.1):
+  /@nestjs/apollo@12.0.7(@apollo/server@4.7.5)(@nestjs/common@10.0.4)(@nestjs/core@10.0.4)(@nestjs/graphql@12.0.7)(graphql@16.7.1):
     resolution: {integrity: sha512-snY8uM/ypE5TZOVChIIuNlTFWGCrwJ8U/xq3EFYE6A+dIqY7/B9sou79snevCm3zTde69KdsOYg5FBmznasxNg==}
     peerDependencies:
       '@apollo/gateway': ^2.0.0
@@ -2380,8 +2380,8 @@ packages:
       '@as-integrations/fastify':
         optional: true
     dependencies:
-      '@apollo/server': 4.7.4(graphql@16.7.1)
-      '@apollo/server-plugin-landing-page-graphql-playground': 4.0.0(@apollo/server@4.7.4)
+      '@apollo/server': 4.7.5(graphql@16.7.1)
+      '@apollo/server-plugin-landing-page-graphql-playground': 4.0.0(@apollo/server@4.7.5)
       '@nestjs/common': 10.0.4(class-transformer@0.5.1)(class-validator@0.14.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
       '@nestjs/core': 10.0.4(@nestjs/common@10.0.4)(@nestjs/platform-express@10.0.4)(reflect-metadata@0.1.13)(rxjs@7.8.1)
       '@nestjs/graphql': 12.0.7(@nestjs/common@10.0.4)(@nestjs/core@10.0.4)(class-transformer@0.5.1)(class-validator@0.14.0)(graphql@16.7.1)(reflect-metadata@0.1.13)
@@ -4333,7 +4333,7 @@ packages:
     resolution: {integrity: sha512-x1FCFnFifvYDDzTaLII71vG5uvDwgtmDTEVWAxrgeiR8VjMONcCXJx7E+USjDtHlwFmt9MysbqgF9b9Vjr6w+w==}
     engines: {node: '>=4'}
     dependencies:
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: false
 
   /async-retry@1.3.3:
@@ -4614,7 +4614,7 @@ packages:
     resolution: {integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==}
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: true
 
   /camelcase-css@2.0.1:
@@ -4648,7 +4648,7 @@ packages:
     resolution: {integrity: sha512-ds37W8CytHgwnhGGTi88pcPyR15qoNkOpYwmMMfnWqqWgESapLqvDx6huFjQ5vqWSn2Z06173XNA7LtMOeUh1A==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.3
+      tslib: 2.6.0
       upper-case-first: 2.0.2
     dev: true
 
@@ -4955,7 +4955,7 @@ packages:
     resolution: {integrity: sha512-I2hSBi7Vvs7BEuJDr5dDHfzb/Ruj3FyvFyh7KLilAjNQw3Be+xgqUBA2W6scVEcL0hL1dwPRtIqEPVUCKkSsyQ==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.3
+      tslib: 2.6.0
       upper-case: 2.0.2
     dev: true
 
@@ -5466,7 +5466,7 @@ packages:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: true
 
   /dot-prop@5.3.0:
@@ -6625,7 +6625,7 @@ packages:
     resolution: {integrity: sha512-H/vuk5TEEVZwrR0lp2zed9OCo1uAILMlx0JEMgC26rzyJJ3N1v6XkwHHXJQdR2doSjcGPM6OKPYoJgf0plJ11Q==}
     dependencies:
       capital-case: 1.0.4
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: true
 
   /hexoid@1.0.0:
@@ -7717,7 +7717,7 @@ packages:
   /lower-case@2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
     dependencies:
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: true
 
   /lru-cache@4.1.5:
@@ -8565,7 +8565,7 @@ packages:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
     dependencies:
       lower-case: 2.0.2
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: true
 
   /node-abort-controller@3.1.1:
@@ -8888,7 +8888,7 @@ packages:
     resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: true
 
   /parent-module@1.0.1:
@@ -8940,7 +8940,7 @@ packages:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: true
 
   /passport-jwt@4.0.1:
@@ -8979,7 +8979,7 @@ packages:
     resolution: {integrity: sha512-qO4qCFjXqVTrcbPt/hQfhTQ+VhFsqNKOPtytgNKkKxSoEp3XPUQ8ObFuePylOIok5gjn69ry8XiULxCwot3Wfg==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: true
 
   /path-exists@4.0.0:
@@ -10001,7 +10001,7 @@ packages:
     resolution: {integrity: sha512-8LS0JInaQMCRoQ7YUytAo/xUu5W2XnQxV2HI/6uM6U7CITS1RqPElr30V6uIqyMKM9lJGRVFy5/4CuzcixNYSg==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.3
+      tslib: 2.6.0
       upper-case-first: 2.0.2
     dev: true
 
@@ -10139,7 +10139,7 @@ packages:
     resolution: {integrity: sha512-LAOh4z89bGQvl9pFfNF8V146i7o7/CqFPbqzYgP+yYzDIDeS9HaNFtXABamRW+AQzEVODcvE79ljJ+8a9YSdMg==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: true
 
   /socks-proxy-agent@5.0.1:
@@ -10494,30 +10494,6 @@ packages:
       yallist: 4.0.0
     dev: false
 
-  /terser-webpack-plugin@5.3.9(webpack@5.87.0):
-    resolution: {integrity: sha512-ZuXsqE07EcggTWQjXUj+Aot/OMcD0bMKGgF63f7UxYcu5/AJF53aIpK1YoP5xR9l6s/Hy2b+t1AM0bLNPRuhwA==}
-    engines: {node: '>= 10.13.0'}
-    peerDependencies:
-      '@swc/core': '*'
-      esbuild: '*'
-      uglify-js: '*'
-      webpack: ^5.1.0
-    peerDependenciesMeta:
-      '@swc/core':
-        optional: true
-      esbuild:
-        optional: true
-      uglify-js:
-        optional: true
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.18
-      jest-worker: 27.5.1
-      schema-utils: 3.3.0
-      serialize-javascript: 6.0.1
-      terser: 5.18.0
-      webpack: 5.87.0
-    dev: true
-
   /terser-webpack-plugin@5.3.9(webpack@5.88.1):
     resolution: {integrity: sha512-ZuXsqE07EcggTWQjXUj+Aot/OMcD0bMKGgF63f7UxYcu5/AJF53aIpK1YoP5xR9l6s/Hy2b+t1AM0bLNPRuhwA==}
     engines: {node: '>= 10.13.0'}
@@ -10680,7 +10656,7 @@ packages:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
     dev: true
 
-  /ts-loader@9.4.4(typescript@5.1.6)(webpack@5.87.0):
+  /ts-loader@9.4.4(typescript@5.1.6)(webpack@5.88.1):
     resolution: {integrity: sha512-MLukxDHBl8OJ5Dk3y69IsKVFRA/6MwzEqBgh+OXMPB/OD01KQuWPFd1WAQP8a5PeSCAxfnkhiuWqfmFJzJQt9w==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -10692,7 +10668,7 @@ packages:
       micromatch: 4.0.5
       semver: 7.5.2
       typescript: 5.1.6
-      webpack: 5.87.0
+      webpack: 5.88.1
     dev: true
 
   /ts-morph@16.0.0:
@@ -10922,7 +10898,7 @@ packages:
   /upper-case-first@2.0.2:
     resolution: {integrity: sha512-514ppYHBaKwfJRK/pNC6c/OxfGa0obSnAl106u97Ed0I625Nin96KAjttZF6ZL3e1XLtphxnqrOi9iWgm+u+bg==}
     dependencies:
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: true
 
   /upper-case@1.1.3:
@@ -10932,7 +10908,7 @@ packages:
   /upper-case@2.0.2:
     resolution: {integrity: sha512-KgdgDGJt2TpuwBUIjgG6lzw2GWFRCW9Qkfkiv0DxqHHLYJHmtmdUIKcZd8rHgFSjopVTlw6ggzCm1b8MFQwikg==}
     dependencies:
-      tslib: 2.5.3
+      tslib: 2.6.0
     dev: true
 
   /uri-js@4.4.1:
@@ -11456,46 +11432,6 @@ packages:
 
   /webpack-virtual-modules@0.5.0:
     resolution: {integrity: sha512-kyDivFZ7ZM0BVOUteVbDFhlRt7Ah/CSPwJdi8hBpkK7QLumUqdLtVfm/PX/hkcnrvr0i77fO5+TjZ94Pe+C9iw==}
-    dev: true
-
-  /webpack@5.87.0:
-    resolution: {integrity: sha512-GOu1tNbQ7p1bDEoFRs2YPcfyGs8xq52yyPBZ3m2VGnXGtV9MxjrkABHm4V9Ia280OefsSLzvbVoXcfLxjKY/Iw==}
-    engines: {node: '>=10.13.0'}
-    hasBin: true
-    peerDependencies:
-      webpack-cli: '*'
-    peerDependenciesMeta:
-      webpack-cli:
-        optional: true
-    dependencies:
-      '@types/eslint-scope': 3.7.4
-      '@types/estree': 1.0.1
-      '@webassemblyjs/ast': 1.11.6
-      '@webassemblyjs/wasm-edit': 1.11.6
-      '@webassemblyjs/wasm-parser': 1.11.6
-      acorn: 8.8.2
-      acorn-import-assertions: 1.9.0(acorn@8.8.2)
-      browserslist: 4.21.8
-      chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.15.0
-      es-module-lexer: 1.3.0
-      eslint-scope: 5.1.1
-      events: 3.3.0
-      glob-to-regexp: 0.4.1
-      graceful-fs: 4.2.11
-      json-parse-even-better-errors: 2.3.1
-      loader-runner: 4.3.0
-      mime-types: 2.1.35
-      neo-async: 2.6.2
-      schema-utils: 3.3.0
-      tapable: 2.2.1
-      terser-webpack-plugin: 5.3.9(webpack@5.87.0)
-      watchpack: 2.4.0
-      webpack-sources: 3.2.3
-    transitivePeerDependencies:
-      - '@swc/core'
-      - esbuild
-      - uglify-js
     dev: true
 
   /webpack@5.88.1:
