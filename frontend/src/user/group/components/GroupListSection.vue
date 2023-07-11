@@ -85,8 +85,10 @@ const goGroup = (id: number) => {
   }
 }
 watch(modalVisible, (value) => {
-  if (!value) {
+  if (!value && modalType.value === 'info') {
     router.go(0)
+    modalType.value = 'desc'
+  } else if (!value) {
     modalType.value = 'desc'
   }
 })
