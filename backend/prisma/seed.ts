@@ -57,7 +57,7 @@ const createUsers = async () => {
   managerUser = await prisma.user.create({
     data: {
       username: 'manager',
-      password: await hash('Manager'),
+      password: await hash('Managermanager'),
       email: 'manager@example.com',
       lastLogin: new Date(),
       role: Role.Manager
@@ -121,10 +121,17 @@ const createGroups = async () => {
       }
     }
   })
+  await prisma.userGroup.create({
+    data: {
+      userId: managerUser.id,
+      groupId: privateGroup.id,
+      isGroupLeader: true
+    }
+  })
 
   // create empty private group
   // 'showOnList'가 true 이면서 가입시 사전 승인이 필요한 그룹을 테스트할 때 사용합니다
-  await prisma.group.create({
+  let tempGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group 2',
       description:
@@ -138,10 +145,17 @@ const createGroups = async () => {
       }
     }
   })
+  await prisma.userGroup.create({
+    data: {
+      userId: managerUser.id,
+      groupId: tempGroup.id,
+      isGroupLeader: true
+    }
+  })
 
   // create empty private group
   // 'showOnList'가 true 이면서 가입시 사전 승인이 필요없는 그룹을 테스트할 때 사용합니다
-  await prisma.group.create({
+  tempGroup = await prisma.group.create({
     data: {
       groupName: 'Example Private Group 3',
       description:
@@ -153,6 +167,13 @@ const createGroups = async () => {
         allowJoinWithURL: true,
         requireApprovalBeforeJoin: false
       }
+    }
+  })
+  await prisma.userGroup.create({
+    data: {
+      userId: managerUser.id,
+      groupId: tempGroup.id,
+      isGroupLeader: true
     }
   })
 
@@ -182,14 +203,6 @@ const createGroups = async () => {
       }
     })
   }
-
-  await prisma.userGroup.create({
-    data: {
-      userId: managerUser.id,
-      groupId: 4,
-      isGroupLeader: true
-    }
-  })
 
   await prisma.userGroup.create({
     data: {
@@ -6808,6 +6821,12 @@ int main(void) {
       result: ResultStatus.Accepted
     }
   })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.Accepted }
+  })
 
   submissions.push(
     await prisma.submission.create({
@@ -6831,6 +6850,12 @@ int main(void) {
       problemTestcaseId: problemTestcases[1].id,
       result: ResultStatus.WrongAnswer
     }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.WrongAnswer }
   })
 
   submissions.push(
@@ -6856,6 +6881,12 @@ int main(void) {
       result: ResultStatus.CompileError
     }
   })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.CompileError }
+  })
 
   submissions.push(
     await prisma.submission.create({
@@ -6875,6 +6906,12 @@ int main(void) {
       problemTestcaseId: problemTestcases[3].id,
       result: ResultStatus.RuntimeError
     }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.RuntimeError }
   })
 
   submissions.push(
@@ -6900,6 +6937,12 @@ int main(void) {
       result: ResultStatus.TimeLimitExceeded
     }
   })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.TimeLimitExceeded }
+  })
 
   submissions.push(
     await prisma.submission.create({
@@ -6924,6 +6967,12 @@ int main(void) {
       result: ResultStatus.MemoryLimitExceeded
     }
   })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.MemoryLimitExceeded }
+  })
 
   submissions.push(
     await prisma.submission.create({
@@ -6943,6 +6992,12 @@ int main(void) {
       problemTestcaseId: problemTestcases[6].id,
       result: ResultStatus.OutputLimitExceeded
     }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.OutputLimitExceeded }
   })
 }
 
