@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import Button from '@/common/components/Atom/Button.vue'
+import Modal from '@/common/components/Molecule/Modal.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { onMounted, ref } from 'vue'
 import Fa6SolidAngleRight from '~icons/fa6-solid/angle-right'
 import Fa6SolidCircle from '~icons/fa6-solid/circle'
-import Fa6SolidPlus from '~icons/fa6-solid/plus'
 import IconTrash from '~icons/fa/trash-o'
 
 const props = defineProps<{
@@ -81,6 +81,13 @@ const pageSlot = 5
 const perPage = 5
 const totalPageContest = ref(3)
 const totalPageRequest = ref(3)
+
+const alreadyAccept = ref(false)
+const alreadyRequest = ref(false)
+const makePublic = ref(false)
+const cancelRequest = ref(false)
+
+const selectedContest = ref('소프트의 밤 프로그래밍 경진대회')
 
 const contestList = ref<Contest[][]>([])
 const requestList = ref<PublicRequest[][]>([])
@@ -175,18 +182,14 @@ onMounted(async () => {
   // call api
   await getContest(0)
   await getPublicRequest(0)
-  // get number of pages
 })
 </script>
 
 <template>
   <div class="flex flex-col">
-    <div class="flex items-center gap-2">
+    <div class="flex gap-2">
       <div class="text-2xl font-semibold">Contest List</div>
-      <Button color="green" class="flex items-center gap-1">
-        <Fa6SolidPlus class="item-center" />
-        Create
-      </Button>
+      <Button color="green" class="flex items-center gap-1">+ Create</Button>
     </div>
     <PaginationTable
       :fields="contestField"
@@ -266,6 +269,36 @@ onMounted(async () => {
       </template>
     </PaginationTable>
   </div>
+  <Modal v-model="alreadyAccept" class="text-center">
+    <p class="mb-5 text-xl font-bold">Request Failed</p>
+    <p>{{ selectedContest }} contest</p>
+    <p>is already accepted.</p>
+  </Modal>
+  <Modal v-model="alreadyRequest" class="text-center">
+    <p class="mb-5 text-xl font-bold">Request Failed</p>
+    <p>{{ selectedContest }} contest</p>
+    <p>is already requested.</p>
+    <p>Please wait some time to be approved.</p>
+  </Modal>
+  <Modal v-model="makePublic" class="text-center">
+    <p class="mb-5 text-xl font-bold">Make Public Contest</p>
+    <p>Do you really want to make</p>
+    <p>{{ selectedContest }} contest public?</p>
+    <p>It will take some time to be approved.</p>
+    <div class="mt-5 flex justify-evenly gap-4">
+      <Button color="green">Yes</Button>
+      <Button color="red">No</Button>
+    </div>
+  </Modal>
+  <Modal v-model="cancelRequest" class="text-center">
+    <p class="mb-5 text-xl font-bold">Request Cancel</p>
+    <p>Do you really want to cancel request to make</p>
+    <p>{{ selectedContest }} contest public?</p>
+    <div class="mt-5 flex justify-evenly gap-4">
+      <Button color="green">Yes</Button>
+      <Button color="red">No</Button>
+    </div>
+  </Modal>
 </template>
 
 <route lang="yaml">
