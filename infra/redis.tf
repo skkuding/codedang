@@ -7,7 +7,7 @@ resource "aws_elasticache_cluster" "codedang" {
   engine_version       = "3.2.10"
   port                 = 6379
   security_group_ids   = [aws_security_group.redis.id]
-  availability_zone    = var.availiability_zones[0]
+  availability_zone    = var.availability_zones[0]
   subnet_group_name    = aws_elasticache_subnet_group.private_db.name
 
   log_delivery_configuration {
