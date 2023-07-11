@@ -52,7 +52,7 @@ resource "aws_rds_cluster_instance" "cluster_instances" {
   count              = 2
   identifier         = "codedang-db-instance-${count.index}"
   cluster_identifier = aws_rds_cluster.cluster.id
-  instance_class     = "db.t3.medium"
+  instance_class     = "db.t4g.medium"
   engine             = aws_rds_cluster.cluster.engine
   engine_version     = aws_rds_cluster.cluster.engine_version
 
