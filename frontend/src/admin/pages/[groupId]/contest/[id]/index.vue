@@ -16,8 +16,8 @@ interface Row {
   selected: boolean
 }
 
-const toggle = ref(false)
-const toggleNotice = ref(false)
+const showImportModal = ref(false)
+const showNoticeModal = ref(false)
 const problem: Ref<Row[]> = ref([
   {
     id: '1',
@@ -55,11 +55,11 @@ const tags = [
 <template>
   <div class="flex flex-col">
     <Modal
-      :model-value="toggle"
+      :model-value="showImportModal"
       class="max-w-3xl"
       @update:model-value="
         () => {
-          toggle = !toggle
+          showImportModal = !showImportModal
         }
       "
     >
@@ -250,10 +250,10 @@ const tags = [
       </PaginationTable>
     </Modal>
     <CreateNoticeModal
-      :toggle="toggleNotice"
+      :toggle="showNoticeModal"
       :set-toggle="
         (a) => {
-          toggleNotice = !a
+          showNoticeModal = !a
         }
       "
     />
@@ -272,7 +272,7 @@ const tags = [
         <Button
           @click="
             () => {
-              toggle = !toggle
+              showImportModal = !showImportModal
             }
           "
         >
@@ -341,7 +341,7 @@ const tags = [
         <Button
           @click="
             () => {
-              toggleNotice = true
+              showNoticeModal = true
             }
           "
         >
