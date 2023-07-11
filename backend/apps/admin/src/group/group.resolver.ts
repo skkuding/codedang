@@ -4,6 +4,7 @@ import {
   UnprocessableEntityException
 } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
+import { Group } from '@generated'
 import { Role } from '@prisma/client'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import {
@@ -11,7 +12,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
-import { Group } from '@admin/@generated/group/group.model'
 import { GroupService } from './group.service'
 import { CreateGroupInput, UpdateGroupInput } from './model/group.input'
 import { DeletedUserGroup, FindGroup } from './model/group.output'

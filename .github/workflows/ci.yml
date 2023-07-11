@@ -31,8 +31,13 @@ jobs:
       - name: Generate Prisma Client
         run: pnpm --filter backend exec prisma generate
 
-      - name: Build
-        run: pnpm -r build
+      - name: Build (Frontend)
+        run: pnpm --filter frontend build
+
+      - name: Build (Backend)
+        run: |
+          pnpm --filter backend build
+          pnpm --filter backend build admin
 
       - name: Cache dist
         uses: actions/cache@v3
@@ -61,15 +66,29 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: go.work
+
       - name: Lint pull request title
         if: ${{ github.event_name == 'pull_request' }}
         run: echo "${{ github.event.pull_request.title }}" | pnpm commitlint --verbose
 
-      - name: Lint
-        run: pnpm lint
-
-      - name: Check style
+      - name: Check style (Node.js)
         run: pnpm format:check
+
+      - name: Check Style (Go)
+        run: |
+          if [ -n "$(gofmt -l .)" ]; then
+            echo "Go files must be formatted with gofmt. Please run:"
+            echo "  go fmt ./..."
+            exit 1
+          fi
+        working-directory: ./iris
+
+      - name: Lint (Node.js)
+        run: pnpm lint
 
   test:
     runs-on: ${{ matrix.os }}
@@ -105,16 +124,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Generate Prisma Client
-        run: pnpm --filter backend exec prisma generate
-
       - name: Check Prisma Migration
         run: |
           pnpm --filter backend exec prisma migrate diff \
             --from-migrations ./prisma/migrations \
             --to-schema-datamodel ./prisma/schema.prisma \
-            --shadow-database-url postgresql://postgres:1234@127.0.0.1:5432/skkuding?schema=public \
-            --exit-code
+            --shadow-database-url ${{ env.DATABASE_URL }} \
+            --exit-code ||
+          echo "::error::Prisma migration is not up to date. Please run `pnpm prisma migrate dev` locally and commit the changes."
 
       - name: Migrate Prisma
         run: pnpm --filter backend exec prisma migrate reset --force
