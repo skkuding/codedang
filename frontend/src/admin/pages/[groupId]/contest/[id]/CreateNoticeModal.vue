@@ -5,7 +5,7 @@ import Modal from '@/common/components/Molecule/Modal.vue'
 import TextEditor from '@/common/components/Organism/TextEditor.vue'
 import { ref } from 'vue'
 
-const props = defineProps<{
+defineProps<{
   toggle: boolean
   setToggle: (a: boolean) => void
 }>()
@@ -15,7 +15,7 @@ const problemId = ref('')
 
 <template>
   <Modal
-    :model-value="props.toggle"
+    :model-value="toggle"
     @update:model-value="
       () => {
         setToggle(toggle)
