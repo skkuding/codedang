@@ -240,11 +240,11 @@ const tags = [
         <template #_delete="{ row }: { row: Row }">
           <div class="flex items-center gap-2">
             <Button
-              class="bg-red hover:bg-red flex h-[32px] w-[32px] items-center justify-center"
+              class="bg-red hover:bg-red active:bg-red flex h-[32px] w-[32px] items-center justify-center"
               @click="
                 () => {
                   const index = problem.findIndex((a) => a.id === row.id)
-                  problem[index].selected = !problem[index].selected
+                  problem[index].selected = false
                 }
               "
             >
