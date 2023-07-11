@@ -53,8 +53,10 @@ const problemId = ref('')
       <TextEditor class="h-[360px] w-full" />
     </div>
     <div class="border-gray mt-10 flex justify-end gap-3 border-t py-5">
-      <Button class="text-sm font-normal" color="indigo">cancel</Button>
-      <Button class="text-sm font-normal">save</Button>
+      <Button class="text-sm font-normal capitalize" color="indigo">
+        cancel
+      </Button>
+      <Button class="text-sm font-normal capitalize">save</Button>
     </div>
   </Modal>
 </template>
