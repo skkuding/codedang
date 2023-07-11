@@ -49,7 +49,7 @@ resource "aws_rds_cluster" "cluster" {
 }
 
 resource "aws_rds_cluster_instance" "cluster_instances" {
-  count              = 2
+  count              = 1
   identifier         = "codedang-db-instance-${count.index}"
   cluster_identifier = aws_rds_cluster.cluster.id
   instance_class     = "db.t4g.medium"
