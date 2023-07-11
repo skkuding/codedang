@@ -3,7 +3,6 @@ import Button from '@/common/components/Atom/Button.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { ref, type Ref } from 'vue'
-import IconXmark from '~icons/fa6-solid/xmark'
 import IconPlus from '~icons/fa/plus'
 import IconTrash from '~icons/fa/trash-o'
 
@@ -46,7 +45,6 @@ const problem: Ref<Row[]> = ref([
 const selectedTags: Ref<string[]> = ref([])
 
 const tags = [
-  ['Problem Group', 'Public', 'NPC 초급반', 'My Problem'],
   ['Language', 'C', 'C++', 'Pypy', 'Java'],
   ['Level', 'Level1', 'Level2', 'Level3', 'Level4', 'Level5']
 ]
@@ -89,10 +87,6 @@ const tags = [
               "
             >
               {{ t }}
-              <IconXmark
-                v-if="selectedTags.findIndex((item) => item == t) != -1"
-                class="w-3"
-              />
             </div>
           </div>
         </div>
@@ -121,7 +115,6 @@ const tags = [
             "
           >
             {{ t }}
-            <IconXmark class="w-3" />
           </div>
         </div>
       </div>
