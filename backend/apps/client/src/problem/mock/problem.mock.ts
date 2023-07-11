@@ -84,3 +84,10 @@ export const workbookProblems = [
     updateTime: undefined
   }
 ]
+
+export const problemTag = {
+  tag: {
+    id: 1,
+    name: 'Tag'
+  }
+}

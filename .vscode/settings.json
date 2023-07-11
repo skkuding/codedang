@@ -3,6 +3,9 @@
   "editor.formatOnSave": true,
   "material-icon-theme.activeIconPack": "nest",
   "thunder-client.saveToWorkspace": true,
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  },
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   }
