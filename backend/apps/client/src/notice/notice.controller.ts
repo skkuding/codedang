@@ -8,14 +8,12 @@ import {
   NotFoundException,
   InternalServerErrorException
 } from '@nestjs/common'
+import type { Notice } from '@prisma/client'
+import { AuthNotNeeded, RolesGuard, GroupMemberGuard } from '@libs/auth'
+import { EntityNotExistException } from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
+import type { UserNotice } from './interface/user-notice.interface'
 import { NoticeService } from './notice.service'
-import { type Notice } from '@prisma/client'
-import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
-import { RolesGuard } from '@client/user/guard/roles.guard'
-import { GroupMemberGuard } from '@client/group/guard/group-member.guard'
-import { type UserNotice } from './interface/user-notice.interface'
-import { EntityNotExistException } from '@client/common/exception/business.exception'
-import { CursorValidationPipe } from '../common/pipe/cursor-validation.pipe'
 
 @Controller('notice')
 @AuthNotNeeded()

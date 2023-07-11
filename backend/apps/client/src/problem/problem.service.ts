@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common'
+import { ResultStatus } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
-import { OPEN_SPACE_ID } from '@client/common/constants'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ForbiddenAccessException,
   EntityNotExistException
-} from '@client/common/exception/business.exception'
+} from '@libs/exception'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
-import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
-import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
+import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
+import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemRepository } from './problem.repository'
 
 @Injectable()
@@ -19,10 +20,30 @@ export class ProblemService {
 
   async getProblems(
     cursor: number,
-    take: number
+    take: number,
+    groupId = OPEN_SPACE_ID
   ): Promise<ProblemsResponseDto[]> {
-    const data = await this.problemRepository.getProblems(cursor, take)
-    return plainToInstance(ProblemsResponseDto, data)
+    const problems = (
+      await this.problemRepository.getProblems(cursor, take, groupId)
+    ).map(async (problem) => {
+      const tags = await this.problemRepository.getProblemTags(problem.id)
+
+      const { submission, ...data } = problem
+      const submissionCount = submission.length
+      const acceptedRate =
+        submission.filter(
+          (submission) => submission.result === ResultStatus.Accepted
+        ).length / submissionCount
+
+      return {
+        ...data,
+        submissionCount,
+        acceptedRate,
+        tags
+      }
+    })
+
+    return plainToInstance(ProblemsResponseDto, await Promise.all(problems))
   }
 
   async getProblem(

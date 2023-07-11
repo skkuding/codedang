@@ -4,5 +4,22 @@ module.exports = {
   tabWidth: 2,
   trailingComma: 'none',
   htmlWhitespaceSensitivity: 'ignore',
-  plugins: [require('prettier-plugin-tailwindcss')]
+  plugins: [
+    require('@trivago/prettier-plugin-sort-imports'),
+    require('prettier-plugin-tailwindcss')
+  ],
+  importOrderParserPlugins: [
+    'typescript',
+    'classProperties',
+    'decorators-legacy'
+  ],
+  importOrder: [
+    '^@nestjs(.*)$',
+    '^@generated$',
+    '<THIRD_PARTY_MODULES>',
+    '^@libs/(.*)$',
+    '^@admin/(.*)$',
+    '^@client/(.*)$',
+    '^[./]'
+  ]
 }

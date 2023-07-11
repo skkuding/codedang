@@ -1,29 +1,27 @@
 import { MailerService } from '@nestjs-modules/mailer'
-import { UnauthorizedException } from '@nestjs/common'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { ConfigService } from '@nestjs/config'
+import { JwtService } from '@nestjs/jwt'
 import { Test, type TestingModule } from '@nestjs/testing'
+import type { User, UserProfile } from '@prisma/client'
 import { expect } from 'chai'
+import type { Request } from 'express'
+import { Exception } from 'handlebars'
+import { ExtractJwt } from 'passport-jwt'
 import { stub, spy, fake, type SinonStub, type SinonSpy } from 'sinon'
-import { type User, type UserProfile } from '@prisma/client'
-import { emailAuthenticationPinCacheKey } from '@client/common/cache/keys'
+import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
+import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import {
   EntityNotExistException,
   InvalidJwtTokenException,
   InvalidPinException,
   InvalidUserException,
   UnprocessableDataException
-} from '@client/common/exception/business.exception'
+} from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
 import { EmailService } from '@client/email/email.service'
-import { PrismaService } from '@client/prisma/prisma.service'
-import { UserService } from './user.service'
-import { JwtService } from '@nestjs/jwt'
-import { ConfigService } from '@nestjs/config'
-import { type Request } from 'express'
 import { GroupService } from '@client/group/group.service'
-import { AuthService } from '@client/auth/auth.service'
-import { ExtractJwt } from 'passport-jwt'
-import { Exception } from 'handlebars'
-import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
+import { UserService } from './user.service'
 
 const ID = 1
 const EMAIL_ADDRESS = 'email@email.com'
@@ -96,17 +94,17 @@ describe('UserService', () => {
   let service: UserService
   let emailService: EmailService
   let jwtService: JwtService
+  let jwtAuthService: JwtAuthService
   let groupService: GroupService
-  let authService: AuthService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
-        AuthService,
         EmailService,
         GroupService,
         JwtService,
+        JwtAuthService,
         ConfigService,
         { provide: PrismaService, useValue: db },
         { provide: CACHE_MANAGER, useValue: cacheMock },
@@ -117,27 +115,12 @@ describe('UserService', () => {
     service = module.get<UserService>(UserService)
     emailService = module.get<EmailService>(EmailService)
     jwtService = module.get<JwtService>(JwtService)
+    jwtAuthService = module.get<JwtAuthService>(JwtAuthService)
     groupService = module.get<GroupService>(GroupService)
-    authService = module.get<AuthService>(AuthService)
   })
 
   it('should be defined', () => {
     expect(service).to.be.ok
-  })
-
-  describe('getUserRole', () => {
-    it('return given user role', async () => {
-      db.user.findUnique.resolves(user.role)
-      const ret = await service.getUserRole(ID)
-      expect(ret).to.equal(user.role)
-    })
-
-    it('throw UnauthorizedException', async () => {
-      db.user.findUnique.rejects(new UnauthorizedException())
-      await expect(service.getUserRole(ID)).to.be.rejectedWith(
-        UnauthorizedException
-      )
-    })
   })
 
   describe('sendPinForRegisterNewEmail', () => {
@@ -286,7 +269,7 @@ describe('UserService', () => {
     let deletePinFromCacheSpy: SinonStub
     beforeEach(() => {
       deletePinFromCacheSpy = stub(service, 'deletePinFromCache')
-      jwtService.signAsync = fake.resolves('token')
+      jwtService.signAsync = stub().resolves('token')
     })
 
     it('should pass verification with valid pin', async () => {
@@ -450,7 +433,7 @@ describe('UserService', () => {
     })
 
     it('delete validated user', async () => {
-      isValidUserSpy = stub(authService, 'isValidUser').resolves(true)
+      isValidUserSpy = stub(jwtAuthService, 'isValidUser').resolves(true)
 
       await service.withdrawal(user.username, { password: user.password })
       expect(isValidUserSpy.calledOnce).to.be.true
@@ -458,7 +441,7 @@ describe('UserService', () => {
     })
 
     it('should not delete non-validated user', async () => {
-      isValidUserSpy = stub(authService, 'isValidUser').resolves(false)
+      isValidUserSpy = stub(jwtAuthService, 'isValidUser').resolves(false)
 
       await expect(
         service.withdrawal(user.username, { password: 'differentPassword' })

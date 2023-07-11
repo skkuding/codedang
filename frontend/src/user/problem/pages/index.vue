@@ -1,39 +1,37 @@
 <script setup lang="ts">
-import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
-import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
-import SearchBar from '@/common/components/Molecule/SearchBar.vue'
-import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
-import Switch from '@/common/components/Molecule/Switch.vue'
 import Button from '@/common/components/Atom/Button.vue'
-import { ref, computed, onMounted } from 'vue'
+import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
+import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
+import SearchBar from '@/common/components/Molecule/SearchBar.vue'
+import Switch from '@/common/components/Molecule/Switch.vue'
+import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useDateFormat } from '@vueuse/core'
-import { useWorkbook } from '../../workbook/composables/workbook'
 import { useWindowSize } from '@vueuse/core'
+import axios from 'axios'
+import { ref, computed, onMounted } from 'vue'
+import { useWorkbook } from '../../workbook/composables/workbook'
 
 interface Problem {
   id: number
   title: string
-  level: number
-  submissions: number
-  rate: string
-  tags: string
+  difficulty: string
 }
 
-const colorMapper = (level: number) => {
+const colorMapper = (level: string) => {
   switch (level) {
-    case 1:
+    case 'Level1':
       return 'bg-level-1'
-    case 2:
+    case 'Level2':
       return 'bg-level-2'
-    case 3:
+    case 'Level3':
       return 'bg-level-3'
-    case 4:
+    case 'Level4':
       return 'bg-level-4'
-    case 5:
+    case 'Level5':
       return 'bg-level-5'
-    case 6:
+    case 'Level6':
       return 'bg-level-6'
-    case 7:
+    case 'Level7':
       return 'bg-level-7'
     default:
       return 'bg-gray'
@@ -46,103 +44,56 @@ const fields = computed(() =>
     ? [
         { key: 'id', label: '#' },
         { key: 'title' },
-        { key: 'level' },
-        { key: 'submissions' },
-        { key: 'rate', label: 'AC Rate' },
-        { key: 'tags' }
+        { key: 'level' }
+        // { key: 'submissions' },
+        // { key: 'rate', label: 'AC Rate' },
+        // { key: 'tags' }
       ]
     : [
         { key: 'id', label: '#' },
         { key: 'title' },
-        { key: 'level' },
-        { key: 'submissions' },
-        { key: 'rate', label: 'AC Rate' }
+        { key: 'level' }
+        // { key: 'submissions' },
+        // { key: 'rate', label: 'AC Rate' }
       ]
 )
 
 const problemList = ref<Problem[]>([])
-problemList.value = [
-  {
-    id: 1,
-    title: '가파른 경사',
-    level: 1,
-    submissions: 132,
-    rate: '92.14%',
-    tags: 'A'
-  },
-  {
-    id: 1006,
-    title: '습격자 호루라기',
-    level: 2,
-    submissions: 561,
-    rate: '70%',
-    tags: 'B'
-  },
-  {
-    id: 10,
-    title: '아싸 홍삼',
-    level: 1,
-    submissions: 100,
-    rate: '90%',
-    tags: 'E'
-  },
-  {
-    id: 11,
-    title: '에브리바디 홍상',
-    level: 2,
-    submissions: 100,
-    rate: '83%',
-    tags: 'C'
-  },
-  {
-    id: 12,
-    title: '나는 토깽이',
-    level: 3,
-    submissions: 100,
-    rate: '72%',
-    tags: 'D'
-  },
-  {
-    id: 13,
-    title: '나는 거부깅',
-    level: 4,
-    submissions: 100,
-    rate: '65%',
-    tags: 'F'
-  },
-  {
-    id: 14,
-    title: '토깽이 둘',
-    level: 5,
-    submissions: 100,
-    rate: '52%',
-    tags: 'G'
-  },
-  {
-    id: 15,
-    title: '토깽이 토깽이',
-    level: 6,
-    submissions: 100,
-    rate: '1%',
-    tags: 'H'
-  },
-  {
-    id: 16,
-    title: '아싸 토깽 에브리바디 토깽',
-    level: 7,
-    submissions: 100,
-    rate: '1%',
-    tags: 'I'
-  },
-  {
-    id: 17,
-    title: '토깽이 토깽이',
-    level: 7,
-    submissions: 100,
-    rate: '1%',
-    tags: 'J'
-  }
-]
+problemList.value = []
+const take = ref(10) // 10개씩
+const cursor = ref(0)
+const hasNextPage = ref(true)
+
+onMounted(async () => {
+  axios
+    .get(
+      cursor.value
+        ? `/api/problem?cursor=${cursor.value}&take=${take.value}`
+        : `/api/problem?take=${take.value}`,
+      {
+        headers: {}
+      }
+    )
+    .then((res) => {
+      // for (let i = 0; i < res.data.length; i++) {
+      //   res.data[i].createTime = res.data[i].createTime.toString().slice(0, 10)
+      //   res.data[i].updateTime = res.data[i].updateTime.toString().slice(0, 10)
+      // }
+      console.log('res is ', res)
+      problemList.value.push(...res.data)
+      if (res.data.length < take.value) {
+        hasNextPage.value = false
+      }
+    })
+    .catch((err) => console.log('error is ', err))
+
+  // try {
+  //   const problemResponse = await axios.get(`/api/problem?offset=0&limit=10`)
+  //   problemList.value = problemResponse.data
+  // } catch (err) {
+  //   console.log(err)
+  // }
+})
 
 const CARD_COLOR = ['#FFE5CC', '#94D0AD', '#FFCDCD', '#B1DDEB']
 
@@ -168,8 +119,11 @@ onMounted(async () => {
     </template>
     <template #level="{ row }">
       <div class="flex items-center gap-2">
-        <span class="h-5 w-5 rounded-full" :class="colorMapper(row.level)" />
-        Level {{ row.level }}
+        <span
+          class="h-5 w-5 rounded-full"
+          :class="colorMapper(row.difficulty)"
+        />
+        {{ row.difficulty }}
       </div>
     </template>
   </PaginationTable>

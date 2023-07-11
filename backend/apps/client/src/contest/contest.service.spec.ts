@@ -1,26 +1,20 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
+import type { Contest, ContestRecord, Group, UserGroup } from '@prisma/client'
+import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
+import * as dayjs from 'dayjs'
 import { stub } from 'sinon'
-import {
-  type Contest,
-  type ContestRecord,
-  type Group,
-  type UserGroup
-} from '@prisma/client'
+import { contestPublicizingRequestKey } from '@libs/cache'
 import {
   ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
-} from '@client/common/exception/business.exception'
-import { GroupService } from '@client/group/group.service'
-import { PrismaService } from '@client/prisma/prisma.service'
+} from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
 import { ContestService } from './contest.service'
-import { type CreateContestDto } from './dto/create-contest.dto'
-import { type UpdateContestDto } from './dto/update-contest.dto'
-import { type Cache } from 'cache-manager'
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { contestPublicizingRequestKey } from '@client/common/cache/keys'
-import * as dayjs from 'dayjs'
+import type { CreateContestDto } from './dto/create-contest.dto'
+import type { UpdateContestDto } from './dto/update-contest.dto'
 
 const contestId = 1
 const userId = 1
@@ -237,7 +231,6 @@ describe('ContestService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ContestService,
-        GroupService,
         { provide: PrismaService, useValue: mockPrismaService },
         {
           provide: CACHE_MANAGER,
@@ -458,19 +451,18 @@ describe('ContestService', () => {
     })
   })
 
-  describe('getContests', () => {
-    it('should return ongoing, upcoming, finished contests when userId is undefined', async () => {
+  describe('getAliveContests', () => {
+    it('should return ongoing, upcoming contests when userId is undefined', async () => {
       mockPrismaService.contest.findMany.resolves(contests)
       expect(
         await service.getContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
         ongoing: ongoingContests,
-        upcoming: upcomingContests,
-        finished: finishedContests
+        upcoming: upcomingContests
       })
     })
 
-    it('should return registered ongoing, registered upcoming, ongoing, upcoming, finished contests', async () => {
+    it('should return registered ongoing, registered upcoming, ongoing, upcoming contests', async () => {
       mockPrismaService.user.findUnique.resolves(user)
       mockPrismaService.contest.findMany.resolves(contests)
       expect(await service.getContestsByGroupId(userId, groupId)).to.deep.equal(
@@ -478,10 +470,18 @@ describe('ContestService', () => {
           registeredOngoing: registeredOngoingContests,
           registeredUpcoming: registeredUpcomingContests,
           ongoing: ongoingContests,
-          upcoming: upcomingContests,
-          finished: finishedContests
+          upcoming: upcomingContests
         }
       )
+    })
+  })
+
+  describe('getFinishedContests', () => {
+    it('should return finished contests when cursor is 0', async () => {
+      mockPrismaService.contest.findMany.resolves(finishedContests)
+      expect(await service.getFinishedContestsByGroupId(0, 1)).to.deep.equal({
+        finished: finishedContests
+      })
     })
   })
 
@@ -517,20 +517,14 @@ describe('ContestService', () => {
     })
   })
 
-  describe('filterFinished', () => {
-    it('should return ongoing contests of the group', async () => {
-      expect(service.filterFinished(contests)).to.deep.equal(finishedContests)
-    })
-  })
-
   describe('getContestsByGroupId', () => {
     it('should return ongoing, upcoming, finished contests', async () => {
+      mockPrismaService.contest.findMany.resolves(contests)
       expect(
         await service.getContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
         ongoing: ongoingContests,
-        upcoming: upcomingContests,
-        finished: finishedContests
+        upcoming: upcomingContests
       })
     })
 

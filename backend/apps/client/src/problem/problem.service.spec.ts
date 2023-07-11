@@ -1,32 +1,34 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
+import { ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
-import { stub } from 'sinon'
+import { plainToInstance } from 'class-transformer'
 import * as dayjs from 'dayjs'
+import { stub } from 'sinon'
+import {
+  EntityNotExistException,
+  ForbiddenAccessException
+} from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
+import { ContestService } from '@client/contest/contest.service'
+import { GroupService } from '@client/group/group.service'
+import { WorkbookService } from '@client/workbook/workbook.service'
+import { ProblemResponseDto } from './dto/problem.response.dto'
+import { ProblemsResponseDto } from './dto/problems.response.dto'
+import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
+import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
+import {
+  contestProblems,
+  problemTag,
+  problems,
+  workbookProblems
+} from './mock/problem.mock'
+import { ProblemRepository } from './problem.repository'
 import {
   ContestProblemService,
   ProblemService,
   WorkbookProblemService
 } from './problem.service'
-import { ProblemRepository } from './problem.repository'
-import {
-  contestProblems,
-  problems,
-  workbookProblems
-} from './mock/problem.mock'
-import { PrismaService } from '@client/prisma/prisma.service'
-import { plainToInstance } from 'class-transformer'
-import { ProblemsResponseDto } from './dto/problems.response.dto'
-import { ProblemResponseDto } from './dto/problem.response.dto'
-import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
-import { ContestService } from '@client/contest/contest.service'
-import { GroupService } from '@client/group/group.service'
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import {
-  EntityNotExistException,
-  ForbiddenAccessException
-} from '@client/common/exception/business.exception'
-import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
-import { WorkbookService } from '@client/workbook/workbook.service'
 
 const db = {
   problem: {
@@ -40,6 +42,9 @@ const db = {
   workbookProblem: {
     findMany: stub(),
     findUnique: stub()
+  },
+  problemTag: {
+    findMany: stub()
   }
 }
 
@@ -48,11 +53,19 @@ const problemId = ARBITRARY_VAL
 const groupId = ARBITRARY_VAL
 const contestId = ARBITRARY_VAL
 const workbookId = ARBITRARY_VAL
+const mockProblem = Object.assign({}, problems[0])
 const mockProblems = problems.map((problem) => {
-  return Object.assign({}, problem)
+  return Object.assign(
+    {},
+    {
+      ...problem,
+      submission: [
+        { id: 1, result: ResultStatus.Accepted },
+        { id: 2, result: ResultStatus.WrongAnswer }
+      ]
+    }
+  )
 })
-
-const mockProblem = Object.assign({}, mockProblems[0])
 
 const mockContestProblem = {
   ...Object.assign({}, contestProblems[0]),
@@ -71,6 +84,8 @@ const mockWorkbookProblem = {
 const mockWorkbookProblems = workbookProblems.map((workbookProblem) => {
   return { ...workbookProblem, problem: Object.assign({}, mockProblems[0]) }
 })
+
+const mockProblemTag = Object.assign({}, problemTag)
 
 describe('ProblemService', () => {
   let service: ProblemService
@@ -101,13 +116,27 @@ describe('ProblemService', () => {
     it('should return public problems', async () => {
       // given
       db.problem.findMany.resolves(mockProblems)
+      db.problemTag.findMany.resolves([mockProblemTag])
 
       // when
-      const result = await service.getProblems(1, 1)
+      const result = await service.getProblems(1, 2)
 
       // then
       expect(result).to.deep.equal(
-        plainToInstance(ProblemsResponseDto, mockProblems)
+        plainToInstance(ProblemsResponseDto, [
+          {
+            ...mockProblems[0],
+            submissionCount: 2,
+            acceptedRate: 0.5,
+            tags: [mockProblemTag.tag]
+          },
+          {
+            ...mockProblems[1],
+            submissionCount: 2,
+            acceptedRate: 0.5,
+            tags: [mockProblemTag.tag]
+          }
+        ])
       )
     })
   })

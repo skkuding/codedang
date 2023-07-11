@@ -1,7 +1,7 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, ref, watch } from 'vue'
-import SearchBar from '../Molecule/SearchBar.vue'
 import Pagination from '../Molecule/Pagination.vue'
+import SearchBar from '../Molecule/SearchBar.vue'
 
 type SubfieldType = {
   key: string
@@ -15,9 +15,7 @@ type FieldType = SubfieldType & {
 
 const props = defineProps<{
   fields: FieldType[]
-  items: {
-    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any
-  }[]
+  items: T[]
   placeholder?: string
   numberOfPages: number
   text?: string // show if there's no data in item
@@ -27,7 +25,11 @@ const props = defineProps<{
   mode?: 'light' | 'dark'
 }>()
 
-const emit = defineEmits(['row-clicked', 'change-page', 'search'])
+const emit = defineEmits<{
+  (e: 'row-clicked', row: T): void
+  (e: 'change-page', page: number): void
+  (e: 'search', input: string): void
+}>()
 
 const subhead = computed(() => {
   return props.fields.reduce((prev: SubfieldType[], cur: FieldType) => {
@@ -147,25 +149,23 @@ watch(currentPage, (value) => {
               {{ text || 'No Data' }}
             </td>
           </tr>
-          <template v-else>
-            <tr
-              v-for="(row, index) in items"
-              :key="index"
-              class="border-gray cursor-pointer border-y"
-              :class="rowColor[mode || 'light']"
-              @click="$emit('row-clicked', row)"
+          <tr
+            v-for="(row, index) in items"
+            :key="index"
+            class="border-gray cursor-pointer border-y"
+            :class="rowColor[mode || 'light']"
+            @click="$emit('row-clicked', row)"
+          >
+            <td
+              v-for="(entry, idx) in entries"
+              :key="idx"
+              class="p-2.5 pl-4"
+              :class="responsiveStyle(idx)"
+              :style="entryStyle(entry.key)"
             >
-              <td
-                v-for="(entry, idx) in entries"
-                :key="idx"
-                class="p-2.5 pl-4"
-                :class="responsiveStyle(idx)"
-                :style="entryStyle(entry.key)"
-              >
-                <slot :name="entry.key" :row="row">{{ row[entry.key] }}</slot>
-              </td>
-            </tr>
-          </template>
+              <slot :name="entry.key" :row="row">{{ row[entry.key] }}</slot>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>

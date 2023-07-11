@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common'
-import { type Problem, type WorkbookProblem } from '@prisma/client'
-import { OPEN_SPACE_ID } from '@client/common/constants'
-import { EntityNotExistException } from '@client/common/exception/business.exception'
-import { PrismaService } from '@client/prisma/prisma.service'
+import type { Problem, Submission, Tag, WorkbookProblem } from '@prisma/client'
+import { EntityNotExistException } from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
 
 /**
  * repository에서는 partial entity를 반환합니다.
@@ -51,7 +50,11 @@ export class ProblemRepository {
     }
   }
 
-  async getProblems(cursor: number, take: number): Promise<Partial<Problem>[]> {
+  async getProblems(
+    cursor: number,
+    take: number,
+    groupId: number
+  ): Promise<(Partial<Problem> & { submission: Partial<Submission>[] })[]> {
     let skip = 1
     if (cursor === 0) {
       cursor = 1
@@ -64,12 +67,35 @@ export class ProblemRepository {
       skip: skip,
       take: take,
       where: {
-        groupId: OPEN_SPACE_ID
+        groupId
       },
       select: {
-        ...this.problemsSelectOption
+        ...this.problemsSelectOption,
+        submission: {
+          select: {
+            result: true
+          }
+        }
       }
     })
+  }
+
+  async getProblemTags(problemId: number): Promise<Partial<Tag>[]> {
+    return (
+      await this.prisma.problemTag.findMany({
+        where: {
+          problemId
+        },
+        select: {
+          tag: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      })
+    ).map((tag) => tag.tag)
   }
 
   async getProblem(

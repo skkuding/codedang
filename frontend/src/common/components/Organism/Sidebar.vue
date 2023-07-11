@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import IconBiHouse from '~icons/bi/house'
+import CodingPlatformLogo from '@/common/components/Atom/CodingPlatformLogo.vue'
+import { computed } from 'vue'
+import IconBox from '~icons/bi/box'
+import IconCode from '~icons/bi/code-square'
 import IconFile from '~icons/bi/file-text'
+import IconBiHouse from '~icons/bi/house'
+import IconBook from '~icons/bi/journals'
 import IconTrophy from '~icons/bi/trophy'
 import IconUser from '~icons/fa6-regular/user'
 import IconBrain from '~icons/fluent/brain-circuit-24-regular'
-import IconBox from '~icons/bi/box'
-import IconCode from '~icons/bi/code-square'
-import IconBook from '~icons/bi/journals'
-import { computed } from 'vue'
-import CodingPlatformLogo from '../Atom/CodingPlatformLogo.vue'
 
 // TODO: get group name and color
 const props = defineProps<{
@@ -24,20 +24,20 @@ const colorMapper = {
 }
 
 const commonItems = [
-  { to: '/notice', name: 'Notice', icon: IconFile },
-  { to: '/contest', name: 'Contest', icon: IconTrophy },
-  { to: '/workbook', name: 'Workbook', icon: IconBook },
-  { to: '/problem', name: 'Problem', icon: IconBrain },
-  { to: '/pool', name: 'Problem Pool', icon: IconBox }
+  { to: '/admin/notice', name: 'Notice', icon: IconFile },
+  { to: '/admin/contest', name: 'Contest', icon: IconTrophy },
+  { to: '/admin/workbook', name: 'Workbook', icon: IconBook },
+  { to: '/admin/problem', name: 'Problem', icon: IconBrain },
+  { to: '/admin/pool', name: 'Problem Pool', icon: IconBox }
 ]
 
 const items = computed(() =>
   props.group
     ? [
-        { to: '/', name: 'SKKUDING', icon: IconBiHouse },
+        { to: '/admin', name: 'SKKUDING', icon: IconBiHouse },
         ...commonItems,
-        { to: '/member', name: 'Member', icon: IconUser },
-        { to: '/submission', name: 'Submission', icon: IconCode }
+        { to: '/admin/member', name: 'Member', icon: IconUser },
+        { to: '/admin/submission', name: 'Submission', icon: IconCode }
       ]
     : commonItems
 )
@@ -45,7 +45,7 @@ const items = computed(() =>
 
 <template>
   <div class="bg-gray-light text-gray-dark h-screen w-48 overflow-auto">
-    <router-link to="/" class="align-center flex justify-center">
+    <router-link to="/admin" class="align-center flex justify-center">
       <CodingPlatformLogo class="my-8 w-32" />
     </router-link>
 

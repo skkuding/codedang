@@ -7,8 +7,8 @@ const group = ref(false)
 
 <template>
   <div class="flex w-full">
-    <Sidebar :group="group" class="flex-none" />
-    <main class="h-screen flex-1 overflow-auto">
+    <Sidebar :group="group" class="fixed bottom-0 left-0 top-0 flex-none" />
+    <main class="ml-48 w-[calc(100%-12rem)] flex-1 px-20 py-10">
       <router-view @toggle-group="(value: boolean) => (group = value)" />
     </main>
   </div>

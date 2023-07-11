@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import NameList from './NameList.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import { ref } from 'vue'
+import NameList from './NameList.vue'
 
 defineProps<{
   id: number
