@@ -27,7 +27,7 @@ defineOptions({ inheritAttrs: false })
       @click.self="$emit('update:modelValue', false)"
     >
       <section
-        class="p=5 relative max-h-[96%] overflow-y-auto rounded-lg bg-white p-10"
+        class="relative max-h-[96%] overflow-y-auto rounded-lg bg-white p-10"
         :class="$attrs.class"
       >
         <IconClose
