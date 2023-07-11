@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import Button from '@/common/components/Atom/Button.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
-import { ref } from 'vue'
+import { useToast } from '@/common/composables/toast'
+import axios from 'axios'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import NameList from './NameList.vue'
 
-defineProps<{
+const router = useRouter()
+const openToast = useToast()
+
+const props = defineProps<{
   id: number
   createdBy: number
 }>()
@@ -14,40 +20,51 @@ function close() {
   isModalVisible.value = false
 }
 // TODO : Yes 눌렀을때 API 호출하도록 변경 필요
+// {
+//   "userId": 2,
+//   "groupId": 4,
+//   "isGroupLeader": false,
+//   "createTime": "2023-07-11T09:44:39.089Z",
+//   "updateTime": "2023-07-11T09:44:39.089Z"
+// }
+const signout = async () => {
+  isModalVisible.value = false
+  try {
+    await axios.delete(`/api/group/${props.id}/leave`)
+    router.replace('/')
+    openToast({ message: 'Successfully left the group!', type: 'success' })
+  } catch (err) {
+    router.replace('/404')
+    openToast({ message: 'Something went wrong', type: 'error' })
+  }
+}
 
-// dummy data
-const groupAdmin = [
-  { id: 1, username: '하솔비', studentId: '201831xxxx', role: 'group_admin' },
-  { id: 3, username: '하솔비', studentId: '201833xxxx', role: 'group_admin' },
-  { id: 7, username: '하솔비', studentId: '201837xxxx', role: 'group_admin' },
-  { id: 8, username: '하솔비', studentId: '201838xxxx', role: 'group_admin' },
-  { id: 9, username: '아무이름', studentId: '201839xxxx', role: 'group_admin' },
-  { id: 11, username: '하하하', studentId: '201831xxxx', role: 'group_admin' }
-]
-const groupMember = [
-  { id: 2, username: 'David Kim', studentId: '201832xxxx', role: 'user' },
-  { id: 4, username: '하솔비', studentId: '201834xxxx', role: 'user' },
-  { id: 5, username: '하솔비', studentId: '201835xxxx', role: 'user' },
-  { id: 6, username: '하솔비', studentId: '201836xxxx', role: 'user' },
-  { id: 10, username: '하솔비', studentId: '201832xxxx', role: 'user' },
-  { id: 2, username: 'David Kim', studentId: '201832xxxx', role: 'user' },
-  { id: 2, username: 'David Kim', studentId: '201832xxxx', role: 'user' },
-  { id: 4, username: '하솔비', studentId: '201834xxxx', role: 'user' },
-  { id: 5, username: '하솔비', studentId: '201835xxxx', role: 'user' },
-  { id: 6, username: '하솔비', studentId: '201836xxxx', role: 'user' },
-  { id: 10, username: '하솔비', studentId: '201832xxxx', role: 'user' },
-  { id: 4, username: '하솔비', studentId: '201834xxxx', role: 'user' },
-  { id: 5, username: '하솔비', studentId: '201835xxxx', role: 'user' },
-  { id: 6, username: '하솔비', studentId: '201836xxxx', role: 'user' },
-  { id: 10, username: '하솔비', studentId: '201832xxxx', role: 'user' }
-]
+const groupAdmin = ref<string[]>([])
+const groupMember = ref<string[]>([])
+
+onMounted(async () => {
+  try {
+    await getList()
+  } catch (err) {
+    router.replace('/404')
+  }
+})
+
+const getList = async () => {
+  axios.get(`/api/group/${props.id}/members`).then((res) => {
+    groupMember.value = res.data
+  })
+  axios.get(`/api/group/${props.id}/leaders`).then((res) => {
+    groupAdmin.value = res.data
+  })
+}
 </script>
 
 <template>
   <div class="mx-auto mt-8 flex flex-col gap-20">
     <div class="flex flex-col justify-center gap-10">
-      <NameList title="Manager" :user-list="groupAdmin" :creator="createdBy" />
-      <NameList title="Member" :user-list="groupMember" :creator="createdBy" />
+      <NameList title="Manager" :user-list="groupAdmin" />
+      <NameList title="Member" :user-list="groupMember" />
     </div>
     <Button class="self-end" @click="isModalVisible = true">Leave Group</Button>
   </div>
@@ -56,7 +73,7 @@ const groupMember = [
       <h1 class="text-lg font-bold">Leave Group</h1>
       <p>Do you really want to leave group?</p>
       <div class="flex gap-8">
-        <Button class="w-20" @click="close">Yes</Button>
+        <Button class="w-20" @click="signout">Yes</Button>
         <Button class="w-20" @click="close">No</Button>
       </div>
     </div>
