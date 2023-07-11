@@ -5,154 +5,28 @@ import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import Pagination from '@/common/components/Molecule/Pagination.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
-import { ref, watch } from 'vue'
+import { useAuthStore } from '@/common/store/auth'
+import axios from 'axios'
+import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import IconGear from '~icons/fa6-solid/gear'
 import IconUserGroup from '~icons/fa6-solid/user-group'
 
 type Group = {
   id: number
-  createdBy: number
   groupName: string
-  groupAdmin: string
-  groupManager: string
-  isPrivate: boolean
-  invitationCode: string
+  isPrivate?: boolean
   description: string
-  member: number
-  createdUser: string
-  belong: boolean
+  memberNum: number
+  createdBy: string
+  belong?: boolean
   groupImage?: string
+  isGroupLeader: boolean
 }
 
 //getMyGroups
-const myGroupList: Group[] = [
-  {
-    id: 1,
-    createdBy: 1,
-    groupName: 'SKKUDING',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'abcde',
-    description: '성균관대학교 개발동아리입니다 성균관대학교 개발동아리입니다',
-    member: 23,
-    createdUser: '구성현',
-    belong: true,
-    groupImage: 'https://www.skku.edu/_res/skku/img/skku_s.png'
-  },
-  {
-    id: 2,
-    createdBy: 1,
-    groupName: 'TSS',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'cdefg',
-    description: '성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: true
-  }
-]
-
-//getNonPrivateGroups
-const allGroupList: Group[] = [
-  {
-    id: 1,
-    createdBy: 1,
-    groupName: 'SKKUDING',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'abcde',
-    description: '성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: false,
-    groupImage: 'https://www.skku.edu/_res/skku/img/skku_s.png'
-  },
-  {
-    id: 2,
-    createdBy: 1,
-    groupName: 'TSS',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'cdefg',
-    description: '성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: false
-  },
-  {
-    id: 3,
-    createdBy: 1,
-    groupName: 'TSS',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'cdefg',
-    description:
-      '성균관대학교 개발동아리입니다, 성균관대학교 개발동아리입니다, 성균관대학교 개발동아리입니다, 성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: false,
-    groupImage: 'https://www.skku.edu/_res/skku/img/skku_s.png'
-  },
-  {
-    id: 4,
-    createdBy: 1,
-    groupName: 'TSS',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'cdefg',
-    description: '성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: false
-  },
-  {
-    id: 5,
-    createdBy: 1,
-    groupName: 'SKKUDING',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'abcde',
-    description: '성균관대학교 개발동아리입니다',
-    member: 23,
-    createdUser: '구성현',
-    belong: false,
-    groupImage: 'https://www.skku.edu/_res/skku/img/skku_s.png'
-  },
-  {
-    id: 6,
-    createdBy: 1,
-    groupName: 'TSS',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: true,
-    invitationCode: 'cdefg',
-    description: '성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: false
-  },
-  {
-    id: 7,
-    createdBy: 1,
-    groupName: 'TSS',
-    groupAdmin: 'Prof. Kim',
-    groupManager: '홍길동',
-    isPrivate: false,
-    invitationCode: 'cdefg',
-    description: '성균관대학교 개발동아리입니다',
-    member: 10,
-    createdUser: '구성현',
-    belong: false
-  }
-]
+const myGroupList = ref<Group[]>([])
+const allGroupList = ref<Group[]>([])
 
 const props = defineProps<{
   title: string
@@ -168,15 +42,40 @@ const COLOR_CLASS = [
   'bg-blue-dark',
   'bg-red'
 ]
+const cursor = ref(0)
+const take = ref(5)
+const hasNextPage = ref(true)
+const store = useAuthStore()
+const perPage = 5
+const pageNumGroup = ref(1)
 
-const groupList = props.isMyGroup ? myGroupList : allGroupList // dummy data
-const selectedGroup = ref<Group | undefined>(groupList[0])
+const groupList = props.isMyGroup ? myGroupList : allGroupList
+onMounted(async () => {
+  if (!store.isLoggedIn) return // 비로그인 시
+  const { data } = await axios.get(
+    props.isMyGroup
+      ? `/api/group/joined`
+      : cursor.value
+      ? `/api/group?cursor=${cursor.value}&take=${take.value}`
+      : `/api/group?take=${take.value}`
+  )
+  groupList.value.push(...data)
+
+  pageNumGroup.value =
+    allGroupList.value.length % perPage === 0
+      ? allGroupList.value.length / perPage
+      : Math.floor(allGroupList.value.length / perPage) + 1
+  if (data.length < take.value) {
+    hasNextPage.value = false
+  }
+})
+const selectedGroup = ref<Group | undefined>(groupList.value[0])
 const currentPage = ref(1)
 const modalVisible = ref(false)
 const modalType = ref('desc')
 const router = useRouter()
 const goGroup = (id: number) => {
-  const group = groupList.find((item) => item.id === id)
+  const group = groupList.value.find((item) => item.id === id)
   // 사용자가 해당 group에 소속되어 있으면
   if (group?.belong) router.push(`/group/${id}`)
   // 소속 되어 있지 않으면
@@ -187,12 +86,22 @@ const goGroup = (id: number) => {
 }
 watch(modalVisible, (value) => {
   if (!value) {
+    router.go(0)
     modalType.value = 'desc'
   }
 })
-const joinGroup = () => {
-  // call API
-  modalType.value = 'info' // 성공 로직
+const joinGroup = async (id: number) => {
+  try {
+    const { data } = await axios.post(`/api/group/${id}/join`)
+    if (!data.isJoined) {
+      //need approval
+      modalType.value = 'wait'
+    } else {
+      modalType.value = 'info' // 성공 로직
+    }
+  } catch {
+    modalType.value = 'error'
+  }
 }
 </script>
 
@@ -213,7 +122,15 @@ const joinGroup = () => {
       <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
         <article
           v-for="(
-            { id, groupName, description, member, groupImage, createdUser },
+            {
+              id,
+              groupName,
+              description,
+              memberNum,
+              groupImage,
+              createdBy,
+              isGroupLeader
+            },
             index
           ) in groupList.filter((group) =>
             group.belong ? true : !group.isPrivate
@@ -222,14 +139,22 @@ const joinGroup = () => {
           class="border-gray hover:outline-gray relative flex cursor-pointer flex-col items-center gap-4 rounded-md border p-4 shadow-md hover:shadow-xl hover:outline hover:outline-1"
           @click="goGroup(id)"
         >
-          <img v-if="groupImage" :src="groupImage" class="h-16 w-16" />
-          <div
-            v-else
-            :class="COLOR_CLASS[index % COLOR_CLASS.length]"
-            class="flex h-16 w-16 items-center justify-center rounded text-white"
-          >
-            {{ groupName.slice(0, 2) }}
+          <div class="flex w-full flex-1 flex-row justify-center">
+            <img v-if="groupImage" :src="groupImage" class="h-16 w-16" />
+            <div
+              v-else
+              :class="COLOR_CLASS[index % COLOR_CLASS.length]"
+              class="flex h-16 w-16 items-center justify-center rounded text-white"
+            >
+              {{ groupName.slice(0, 2) }}
+            </div>
+            <IconGear
+              v-if="isGroupLeader"
+              class="border-pink absolute right-7 my-2 h-4 w-4"
+              @click="$router.push(`/admin/${id}`)"
+            />
           </div>
+
           <h1 class="text-center text-2xl font-bold">{{ groupName }}</h1>
           <p class="line-clamp-2 flex grow items-center text-center">
             {{ description }}
@@ -237,10 +162,10 @@ const joinGroup = () => {
           <div
             class="flex w-full flex-wrap items-center justify-between self-end text-sm"
           >
-            <p>Creator: {{ createdUser }}</p>
+            <p>Creator: {{ createdBy }}</p>
             <p class="text-text-subtitle flex gap-2 font-bold">
               <IconUserGroup />
-              {{ member }}
+              {{ memberNum }}
             </p>
           </div>
         </article>
@@ -248,7 +173,7 @@ const joinGroup = () => {
       <Pagination
         v-if="pagination"
         v-model="currentPage"
-        :number-of-pages="3"
+        :number-of-pages="pageNumGroup"
         class="self-center"
       />
     </div>
@@ -275,19 +200,14 @@ const joinGroup = () => {
           <div class="border-green flex flex-col gap-6 border-l-2 py-4 pl-6">
             <div class="flex flex-col gap-1 font-bold">
               <PageSubtitle text="Member" />
-              {{ selectedGroup.member }}
-            </div>
-            <div class="flex flex-col gap-1 font-bold">
-              <PageSubtitle text="Group Admin" />
-              {{ selectedGroup.groupAdmin }}
-            </div>
-            <div class="flex flex-col gap-1 font-bold">
-              <PageSubtitle text="Group Manager" />
-              {{ selectedGroup.groupManager }}
+              {{ selectedGroup.memberNum }}
             </div>
           </div>
         </div>
-        <Button class="absolute right-10 rounded-2xl px-4" @click="joinGroup">
+        <Button
+          class="absolute right-10 rounded-2xl px-4"
+          @click="joinGroup(selectedGroup.id)"
+        >
           Join
         </Button>
       </div>
@@ -297,9 +217,29 @@ const joinGroup = () => {
         class="max-w-96 flex w-full items-center justify-center px-6 py-12"
       >
         <p class="text-center font-bold">
+          Invitation has been succeed!
+          <br />
+          Welcome to group {{ selectedGroup?.groupName }} :)
+        </p>
+      </div>
+      <div
+        v-else-if="modalType === 'wait'"
+        class="max-w-96 flex w-full items-center justify-center px-6 py-12"
+      >
+        <p class="text-center font-bold">
           Invitation succesfully requested!
           <br />
           Please wait for group manager’s approval :)
+        </p>
+      </div>
+      <div
+        v-else-if="modalType === 'error'"
+        class="max-w-96 flex w-full items-center justify-center px-6 py-12"
+      >
+        <p class="text-center font-bold">
+          You have already joined or sent request to this group!
+          <br />
+          Duplicated join request is not allowed.
         </p>
       </div>
     </transition>
