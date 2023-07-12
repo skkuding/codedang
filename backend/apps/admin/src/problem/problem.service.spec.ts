@@ -55,8 +55,7 @@ export const problems: Problem[] = [
 const db = {
   problem: {
     findMany: stub(),
-    findUnique: stub(),
-    findUniqueOrThrow: stub(),
+    findFirstOrThrow: stub(),
     create: stub(),
     createMany: stub(),
     update: stub(),
@@ -96,8 +95,7 @@ describe('ProblemService', () => {
       db.problem.findMany.resolves(mockProblem1)
 
       // when
-      const result = await service.getGroupProblems({
-        groupId: groupId,
+      const result = await service.getGroupProblems(groupId, {
         cursor: ARBITRARY_VAL,
         take: ARBITRARY_VAL
       })
@@ -110,10 +108,10 @@ describe('ProblemService', () => {
   describe('getGroupProblem', () => {
     it('should return a group problem', async () => {
       // given
-      db.problem.findUniqueOrThrow.resolves(mockProblem0)
+      db.problem.findFirstOrThrow.resolves(mockProblem0)
 
       // when
-      const result = await service.getGroupProblem({
+      const result = await service.getGroupProblem(groupId, {
         problemId: problemId
       })
 
@@ -130,6 +128,7 @@ describe('ProblemService', () => {
       // when
       const result = await service.createGroupProblem(
         mockProblem0.createdById,
+        groupId,
         {
           groupId: mockProblem0.groupId,
           title: mockProblem0.title,
@@ -154,11 +153,11 @@ describe('ProblemService', () => {
   describe('deleteGroupProblem', () => {
     it('should return a success message', async () => {
       // given
-      db.problem.findUniqueOrThrow.resolves(mockProblem0)
+      db.problem.findFirstOrThrow.resolves(mockProblem0)
       db.problem.delete.resolves(mockProblem0)
 
       // when
-      const result = await service.deleteGroupProblem({
+      const result = await service.deleteGroupProblem(groupId, {
         problemId: problemId
       })
 
