@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { isDefined } from 'class-validator'
 import { PrismaService } from '@libs/prisma'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
@@ -16,8 +16,13 @@ export class ProblemService {
 
   async createGroupProblem(
     createdById: number,
+    groupId: number,
     input: CreateGroupProblemInput
   ) {
+    if (groupId != input.groupId) {
+      throw new UnauthorizedException()
+    }
+
     const problemTestcases = {
       create: input.problemTestcase
     }
@@ -49,10 +54,8 @@ export class ProblemService {
     })
   }
 
-  async getGroupProblems(input: GetGroupProblemsInput) {
-    const whereOptions: ProblemWhereInput = {
-      groupId: { equals: input.groupId }
-    }
+  async getGroupProblems(groupId: number, input: GetGroupProblemsInput) {
+    const whereOptions: ProblemWhereInput = {}
 
     if (isDefined(input.createdById)) {
       whereOptions.createdById = { equals: input.createdById }
@@ -70,7 +73,8 @@ export class ProblemService {
 
     return await this.prisma.problem.findMany({
       where: {
-        ...whereOptions
+        ...whereOptions,
+        groupId: groupId
       },
       cursor: {
         id: input.cursor < 1 ? 1 : input.cursor
@@ -80,16 +84,20 @@ export class ProblemService {
     })
   }
 
-  async getGroupProblem(input: GetGroupProblemInput) {
-    return await this.prisma.problem.findUniqueOrThrow({
+  async getGroupProblem(groupId: number, input: GetGroupProblemInput) {
+    const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
-        id: input.problemId
+        id: input.problemId,
+        groupId: groupId
       }
     })
+    return problem
   }
 
-  async updateGroupProblem(input: UpdateProblemInput) {
+  async updateGroupProblem(groupId: number, input: UpdateProblemInput) {
     const { problemId, ...data } = input
+
+    await this.getGroupProblem(groupId, { problemId: problemId })
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
@@ -107,7 +115,8 @@ export class ProblemService {
     })
   }
 
-  async deleteGroupProblem(input: DeleteGroupProblemInput) {
+  async deleteGroupProblem(groupId: number, input: DeleteGroupProblemInput) {
+    await this.getGroupProblem(groupId, { problemId: input.problemId })
     return await this.prisma.problem.delete({
       where: {
         id: input.problemId

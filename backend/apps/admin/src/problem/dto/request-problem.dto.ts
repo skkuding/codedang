@@ -11,9 +11,6 @@ export class GetGroupProblemInput {
 @InputType()
 export class GetGroupProblemsInput {
   @Field(() => Int)
-  groupId: number
-
-  @Field(() => Int)
   cursor: number
 
   @Field(() => Int)
@@ -31,21 +28,3 @@ export class GetGroupProblemsInput {
 
 @InputType()
 export class DeleteGroupProblemInput extends GetGroupProblemInput {}
-
-@InputType()
-export class GetOpenSpaceProblemsInput {
-  @Field(() => Int)
-  cursor: number
-
-  @Field(() => Int)
-  take: number
-
-  @Field(() => Int, { nullable: true })
-  createdById?: number
-
-  @Field(() => Level, { nullable: true })
-  difficulty?: Level
-
-  @Field(() => [Language], { nullable: true })
-  languages?: Array<Language>
-}
