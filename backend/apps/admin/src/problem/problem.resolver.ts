@@ -25,7 +25,7 @@ export class ProblemResolver {
   ) {
     try {
       const problem = await this.problemService.getGroupProblem(input)
-      if (groupId != problem.groupId && groupId != OPEN_SPACE_ID) {
+      if (groupId != problem.groupId) {
         throw new UnauthorizedException()
       }
       return problem
@@ -40,7 +40,7 @@ export class ProblemResolver {
     groupId: number,
     @Args('input') input: GetGroupProblemsInput
   ) {
-    if (groupId != input.groupId && groupId != OPEN_SPACE_ID) {
+    if (groupId != input.groupId) {
       throw new UnauthorizedException()
     }
     return await this.problemService.getGroupProblems(input)
@@ -54,7 +54,7 @@ export class ProblemResolver {
     @Args('input')
     input: CreateGroupProblemInput
   ) {
-    if (groupId != input.groupId && groupId != OPEN_SPACE_ID) {
+    if (groupId != input.groupId) {
       throw new UnauthorizedException()
     }
     return await this.problemService.createGroupProblem(req.user.id, input)
@@ -71,7 +71,7 @@ export class ProblemResolver {
       const problem = await this.problemService.getGroupProblem({
         problemId: input.problemId
       })
-      if (problem.groupId != groupId && groupId != OPEN_SPACE_ID) {
+      if (problem.groupId != groupId) {
         throw new UnauthorizedException()
       }
     } catch {
@@ -91,7 +91,7 @@ export class ProblemResolver {
       const problem = await this.problemService.getGroupProblem({
         problemId: input.problemId
       })
-      if (problem.groupId != groupId && groupId != OPEN_SPACE_ID) {
+      if (problem.groupId != groupId) {
         throw new UnauthorizedException()
       }
     } catch {
