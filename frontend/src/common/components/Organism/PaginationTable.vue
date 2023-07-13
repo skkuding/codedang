@@ -20,6 +20,7 @@ const props = defineProps<{
   numberOfPages: number
   text?: string // show if there's no data in item
   noHeader?: boolean
+  pageSlot?: number
   noSearchBar?: boolean
   noPagination?: boolean
   mode?: 'light' | 'dark'
@@ -174,6 +175,7 @@ watch(currentPage, (value) => {
         v-if="!noPagination"
         v-model="currentPage"
         class="mt-8"
+        :page-slot="pageSlot"
         :number-of-pages="numberOfPages"
         :mode="mode"
       />
