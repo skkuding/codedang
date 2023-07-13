@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
 import { User } from '@generated'
-import { Prisma } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe } from '@libs/pipe'
 import { UserGroup } from '@admin/@generated/user-group/user-group.model'
@@ -26,19 +25,12 @@ export class UserResolver {
     @Args('take', ParseIntPipe) take: number,
     @Args('isGroupLeader') isGroupLeader: boolean
   ): Promise<GroupMember[]> {
-    try {
-      return await this.userService.getGroupMembers(
-        groupId,
-        cursor,
-        take,
-        isGroupLeader
-      )
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new BadRequestException()
-      }
-      throw new InternalServerErrorException()
-    }
+    return await this.userService.getGroupMembers(
+      groupId,
+      cursor,
+      take,
+      isGroupLeader
+    )
   }
 
   @Mutation(() => UserGroup)
@@ -47,16 +39,14 @@ export class UserResolver {
     @Args('groupId') groupId: number
   ): Promise<UserGroup> {
     try {
-      return await this.userService.downgradeManager(userId, groupId)
+      return await this.userService.updateGroupMemberRole(
+        userId,
+        groupId,
+        false
+      )
     } catch (error) {
       if (error instanceof BadRequestException) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2015') {
-          console.log('A related record could not be found.')
-        } else {
-          console.log('Invalid userId of groupId')
-        }
+        throw new BadRequestException()
       }
       throw new InternalServerErrorException()
     }
@@ -68,14 +58,10 @@ export class UserResolver {
     @Args('groupId') groupId: number
   ): Promise<UserGroup> {
     try {
-      return await this.userService.upgradeMember(userId, groupId)
+      return await this.userService.updateGroupMemberRole(userId, groupId, true)
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw new BadRequestException()
-      } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2015') {
-          console.log('A related record could not be found.')
-        }
       }
       throw new InternalServerErrorException()
     }

@@ -70,6 +70,39 @@ export class UserService {
     groupId: number,
     isGroupLeader: boolean
   ): Promise<UserGroup> {
+    const groupMembers = (
+      await this.prisma.userGroup.findMany({
+        where: {
+          groupId: groupId
+        },
+        select: {
+          user: {
+            select: {
+              id: true
+            }
+          },
+          isGroupLeader: true
+        }
+      })
+    ).map((userGroup) => {
+      return {
+        userId: userGroup.user.id,
+        isGroupLeader: userGroup.isGroupLeader
+      }
+    })
+
+    const managerNum = groupMembers.filter(
+      (member) => true === member.isGroupLeader
+    ).length
+
+    const isGroupMember = groupMembers.some(
+      (member) => member.userId === userId
+    )
+
+    if ((managerNum <= 1 && !isGroupLeader) || !isGroupMember) {
+      throw new BadRequestException()
+    }
+
     return await this.prisma.userGroup.update({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -84,76 +117,53 @@ export class UserService {
     })
   }
 
-  async upgradeMember(userId: number, groupId: number): Promise<UserGroup> {
-    return await this.updateGroupMemberRole(userId, groupId, true)
-  }
-
-  async downgradeManager(userId: number, groupId: number): Promise<UserGroup> {
-    const groupManagers = (
-      await this.prisma.userGroup.findMany({
-        where: {
-          groupId: groupId,
-          isGroupLeader: true
-        },
-        select: {
-          user: {
-            select: {
-              id: true
-            }
-          }
-        }
-      })
-    ).map((userGroup) => {
-      return {
-        userId: userGroup.user.id
-      }
-    })
-    // should check if the member is in
-    if (groupManagers.length <= 1) {
-      throw new BadRequestException()
-    }
-    return await this.updateGroupMemberRole(userId, groupId, false)
-  }
-
   async deleteGroupMember(userId: number, groupId: number): Promise<UserGroup> {
-    const groupManagers = (
+    const groupMembers = (
       await this.prisma.userGroup.findMany({
         where: {
           groupId: groupId
         },
         select: {
-          isGroupLeader: true,
           user: {
             select: {
               id: true
             }
-          }
+          },
+          isGroupLeader: true
         }
       })
     ).map((userGroup) => {
       return {
-        isGroupLeader: userGroup.isGroupLeader,
-        userId: userGroup.user.id
+        userId: userGroup.user.id,
+        isGroupLeader: userGroup.isGroupLeader
       }
     })
 
-    const isItManager = groupManagers.some((groupMember) => {
+    const managerNum = groupMembers.filter(
+      (member) => true === member.isGroupLeader
+    ).length
+
+    const isGroupMember = groupMembers.some(
+      (member) => member.userId === userId
+    )
+
+    const isItManager = groupMembers.some((groupMember) => {
       return groupMember.isGroupLeader === true && groupMember.userId === userId
     })
 
-    if (groupManagers.length <= 1 && isItManager) {
+    if ((managerNum <= 1 && isItManager) || !isGroupMember) {
       throw new BadRequestException()
-    } else {
-      return await this.prisma.userGroup.delete({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          userId_groupId: {
-            userId,
-            groupId
-          }
-        }
-      })
     }
+
+    return await this.prisma.userGroup.delete({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId,
+          groupId
+        }
+      }
+    })
   }
 
   async getNeededApproval(groupId: string): Promise<User[]> {
