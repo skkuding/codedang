@@ -8,9 +8,9 @@ import {
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { GetWorkbookListInput } from './dto/input/workbook.input'
-import { CreateWorkbookInput } from './dto/input/workbook.input'
-import { UpdateWorkbookInput } from './dto/input/workbook.input'
+import { GetWorkbookListInput } from './model/input/workbook.input'
+import { CreateWorkbookInput } from './model/input/workbook.input'
+import { UpdateWorkbookInput } from './model/input/workbook.input'
 
 @Injectable()
 export class WorkbookService {

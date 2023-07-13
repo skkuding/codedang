@@ -14,10 +14,10 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { Workbook } from '@admin/@generated/workbook/workbook.model'
-import { GetWorkbookListInput } from './dto/input/workbook.input'
-import { CreateWorkbookInput } from './dto/input/workbook.input'
-import { UpdateWorkbookInput } from './dto/input/workbook.input'
-import { WorkbookDetail } from './dto/output/workbook.output'
+import { GetWorkbookListInput } from './model/input/workbook.input'
+import { CreateWorkbookInput } from './model/input/workbook.input'
+import { UpdateWorkbookInput } from './model/input/workbook.input'
+import { WorkbookDetail } from './model/output/workbook.output'
 import { WorkbookService } from './workbook.service'
 
 @Resolver(() => Workbook)
