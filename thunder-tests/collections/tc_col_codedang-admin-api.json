@@ -603,7 +603,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-07-05T12:16:57.576Z",
-            "modified": "2023-07-13T13:56:01.260Z",
+            "modified": "2023-07-13T14:01:09.641Z",
             "headers": [],
             "params": [],
             "body": {
@@ -616,7 +616,7 @@
                 }
             },
             "tests": [],
-            "docs": "# Create Problem\n\n새로운 문제를  생성합니다.\n\n### Constraints\n- 본인 그룹의 문제만 생성할 수 있습니다.\n  -  본인이 이끄는 그룹id를 인자로 넘겨주셔야 합니다.\n- problemTestcase와 problemTag를 입력하고 싶지 않을 경우, 입력을 생략하지 말고 빈 배열을 전달하십시오.\n- default 값은 다음과 같습니다.\n  ```json\n  problemTestcase: []\n  problemTag: []\n  ```\n"
+            "docs": "# Create Problem\n\n새로운 문제를  생성합니다.\n\n### Constraints\n- 본인 그룹의 문제만 생성할 수 있습니다.\n  -  본인이 이끄는 그룹id를 인자로 넘겨주셔야 합니다.\n- problemTestcase와 problemTag를 입력하고 싶지 않을 경우, 입력을 생략하지 말고 빈 배열을 전달하십시오.\n- default 값은 다음과 같습니다.\n  ```json\n  problemTestcase: []\n  problemTag: []\n  ```\n- 생성된 problem을 반환합니다."
         },
         {
             "_id": "319d43a7-84af-453f-a130-0591d5dae7c1",
@@ -650,7 +650,7 @@
             "method": "POST",
             "sortNum": 60000,
             "created": "2023-07-05T14:22:58.417Z",
-            "modified": "2023-07-13T13:59:35.682Z",
+            "modified": "2023-07-13T14:01:33.307Z",
             "headers": [],
             "params": [],
             "body": {
@@ -663,7 +663,7 @@
                 }
             },
             "tests": [],
-            "docs": "# Delete Problem\n\n문제를  삭제합니다.\n\n### Constraints\n- 본인 그룹의 문제만 삭제할 수 있습니다.\n  -  본인이 이끄는 그룹id를 인자로 넘겨주셔야 합니다."
+            "docs": "# Delete Problem\n\n문제를  삭제합니다.\n\n### Constraints\n- 본인 그룹의 문제만 삭제할 수 있습니다.\n  -  본인이 이끄는 그룹id를 인자로 넘겨주셔야 합니다.\n- 삭제된 problem의 정보를 반환합니다."
         },
         {
             "_id": "0a9d1ef4-339a-413f-85f9-a400a43a87f2",
