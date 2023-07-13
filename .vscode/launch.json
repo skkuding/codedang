@@ -7,9 +7,27 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Backend (Nest.js)",
+      "name": "Backend Client",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["run", "start:debug"],
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Backend Admin",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "start:debug", "admin"],
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Backend Test 🧪",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "test:debug"],
       "cwd": "${workspaceFolder}/backend",
       "console": "integratedTerminal"
     },

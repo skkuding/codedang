@@ -1,11 +1,19 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma, type Workbook, type Problem } from '@prisma/client'
+import {
+  Prisma,
+  type Workbook,
+  type Problem,
+  type Submission
+} from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { CreateWorkbookDto } from './dto/create-workbook.dto'
 import { DeleteWorkbookDto } from './dto/delete-workbook.dto'
 import { GetWorkbookDto } from './dto/get-workbook.dto'
+import { GetWorkbookListInput } from './dto/input/workbook.input'
+import { CreateWorkbookInput } from './dto/input/workbook.input'
+import { UpdateWorkbookInput } from './dto/input/workbook.input'
 import { UpdateWorkbookDto } from './dto/update-workbook.dto'
 
 @Injectable()
@@ -37,31 +45,41 @@ export class WorkbookService {
   }
 
   async getAdminWorkbooksByGroupId(
-    getWorkbookDto: GetWorkbookDto
+    getWorkbookListInput: GetWorkbookListInput
   ): Promise<Partial<Workbook>[]> {
-    const groupId = getWorkbookDto.groupId
-    let cursor = getWorkbookDto.cursor
-    const take = getWorkbookDto.take
+    const groupId = getWorkbookListInput.groupId
+    let cursor = getWorkbookListInput.cursor
+    const take = getWorkbookListInput.take
     let skip = 1
     if (!cursor) {
       cursor = 1
       skip = 0
     }
-    const workbooks = await this.prisma.workbook.findMany({
+    const workbookList = await this.prisma.workbook.findMany({
       where: { groupId },
-      select: { id: true, title: true, description: true, updateTime: true },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        isVisible: true,
+        createdBy: true,
+        updateTime: true
+      },
       skip: skip,
       take: take,
       cursor: {
         id: cursor
       }
     })
-    return workbooks
+    console.log(workbookList)
+    return workbookList
   }
 
-  async getWorkbookById(
-    workbookId: number
-  ): Promise<Partial<Workbook> & { problems: Partial<Problem>[] }> {
+  async getWorkbookById(workbookId: number): Promise<
+    Partial<Workbook> & { problems: Partial<Problem>[] } & {
+      submissions: Partial<Submission>[]
+    }
+  > {
     const workbook = await this.prisma.workbook.findFirst({
       where: { id: workbookId, isVisible: true },
       select: { id: true, title: true },
@@ -95,9 +113,27 @@ export class WorkbookService {
       tags: x.problem.problemTag.map((y) => y.tag.name)
     }))
 
+    const submissions = await this.prisma.submission.findMany({
+      where: { workbookId },
+      select: {
+        id: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        userId: true,
+        code: true,
+        language: true
+      }
+    })
+    console.log(workbook)
+    console.log(problems)
+    console.log(submissions)
     return {
       ...workbook,
-      problems
+      problems,
+      submissions
     }
   }
 
@@ -120,23 +156,27 @@ export class WorkbookService {
   }
 
   async createWorkbook(
-    createWorkbookDto: CreateWorkbookDto,
+    createWorkbookInput: CreateWorkbookInput,
     userId: number
   ): Promise<Workbook> {
+    console.log(createWorkbookInput)
     const newWorkbook = await this.prisma.workbook.create({
       data: {
         createdById: userId,
-        ...createWorkbookDto
+        groupId: createWorkbookInput.groupId,
+        title: createWorkbookInput.title,
+        description: createWorkbookInput.title,
+        isVisible: createWorkbookInput.isVisible
       }
     })
     return newWorkbook
   }
 
   async updateWorkbook(
-    updateWorkbookDto: UpdateWorkbookDto
+    updateWorkbookInput: UpdateWorkbookInput
   ): Promise<Workbook> {
     try {
-      const { id, ...rest } = updateWorkbookDto
+      const { id, ...rest } = updateWorkbookInput
       const updatedWorkbook = await this.prisma.workbook.update({
         where: {
           id: id
@@ -156,11 +196,8 @@ export class WorkbookService {
     }
   }
 
-  async deleteWorkbook(
-    deleteWorkbookDto: DeleteWorkbookDto
-  ): Promise<Workbook> {
+  async deleteWorkbook(id: number): Promise<Workbook> {
     try {
-      const { groupId, id } = deleteWorkbookDto
       const deletedWorkbook = await this.prisma.workbook.delete({
         where: {
           id: id
@@ -187,5 +224,25 @@ export class WorkbookService {
         isVisible: true
       }
     }))
+  }
+
+  async mapProblemstoWorkbook(
+    problemIds: number[],
+    workbookId: number
+  ): Promise<boolean> {
+    try {
+      for (const problemId of problemIds) {
+        await this.prisma.workbookProblem.create({
+          data: {
+            id: problemId.toString(),
+            workbookId: workbookId,
+            problemId: problemId
+          }
+        })
+      }
+      return true
+    } catch (error) {
+      return false
+    }
   }
 }
