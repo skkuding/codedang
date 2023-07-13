@@ -20,40 +20,40 @@ export class UserService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getMembers(
+  async getGroupMembers(
     groupId: number,
     cursor: number,
     take: number,
     isGroupLeader: boolean
   ): Promise<GroupMember[]> {
-    const groupMembers = await this.prisma.userGroup.findMany({
-      take,
-      skip: cursor ? 1 : 0,
-      ...(cursor && {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        cursor: { userId_groupId: { userId: cursor, groupId } }
-      }),
-      where: {
-        groupId: groupId,
-        isGroupLeader: isGroupLeader
-      },
-      select: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            userProfile: {
-              select: {
-                realName: true
-              }
-            },
-            email: true
+    return (
+      await this.prisma.userGroup.findMany({
+        take,
+        skip: cursor ? 1 : 0,
+        ...(cursor && {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          cursor: { userId_groupId: { userId: cursor, groupId } }
+        }),
+        where: {
+          groupId: groupId,
+          isGroupLeader: isGroupLeader
+        },
+        select: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              userProfile: {
+                select: {
+                  realName: true
+                }
+              },
+              email: true
+            }
           }
         }
-      }
-    })
-
-    const processedGroupMembers = groupMembers.map((userGroup) => {
+      })
+    ).map((userGroup) => {
       return {
         studentId: userGroup.user.username,
         userId: userGroup.user.id,
@@ -63,7 +63,6 @@ export class UserService {
         email: userGroup.user.email
       }
     })
-    return processedGroupMembers
   }
 
   async updateGroupMemberRole(
