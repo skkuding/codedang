@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CodingPlatformLogo from '@/common/components/Atom/CodingPlatformLogo.vue'
 import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import IconBox from '~icons/bi/box'
 import IconCode from '~icons/bi/code-square'
 import IconFile from '~icons/bi/file-text'
@@ -11,10 +12,16 @@ import IconUser from '~icons/fa6-regular/user'
 import IconBrain from '~icons/fluent/brain-circuit-24-regular'
 
 // TODO: get group name and color
-const props = defineProps<{
-  group?: boolean
-  color?: 'blue' | 'gray' | 'white'
-}>()
+withDefaults(
+  defineProps<{
+    color?: 'blue' | 'gray' | 'white'
+  }>(),
+  {
+    color: 'white'
+  }
+)
+
+const route = useRoute()
 
 const colorMapper = {
   blue: 'border-l-blue',
@@ -31,14 +38,20 @@ const commonItems = [
   { to: '/admin/pool', name: 'Problem Pool', icon: IconBox }
 ]
 
+const groupItems = (id: number) => [
+  { to: `/admin/${id}`, name: 'SKKUDING', icon: IconBiHouse },
+  { to: `/admin/${id}/notice`, name: 'Notice', icon: IconFile },
+  { to: `/admin/${id}/contest`, name: 'Contest', icon: IconTrophy },
+  { to: `/admin/${id}/workbook`, name: 'Workbook', icon: IconBook },
+  { to: `/admin/${id}/problem`, name: 'Problem', icon: IconBrain },
+  { to: `/admin/${id}/pool`, name: 'Problem Pool', icon: IconBox },
+  { to: `/admin/${id}/member`, name: 'Member', icon: IconUser },
+  { to: `/admin/${id}/submission`, name: 'Submission', icon: IconCode }
+]
+
 const items = computed(() =>
-  props.group
-    ? [
-        { to: '/admin', name: 'SKKUDING', icon: IconBiHouse },
-        ...commonItems,
-        { to: '/admin/member', name: 'Member', icon: IconUser },
-        { to: '/admin/submission', name: 'Submission', icon: IconCode }
-      ]
+  route.params.groupId
+    ? groupItems(parseInt(route.params.groupId as string))
     : commonItems
 )
 </script>
@@ -53,7 +66,7 @@ const items = computed(() =>
     <div v-for="{ to, name, icon } in items" :key="name">
       <router-link
         class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        :active-class="colorMapper[color || 'default'] + ' border-l-8 !pl-8'"
+        :active-class="colorMapper[color] + ' border-l-8 !pl-8'"
         :to="to"
       >
         <component :is="icon" class="mr-2 h-4" />
