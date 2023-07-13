@@ -7,11 +7,11 @@ import { ref, computed } from 'vue'
 import IconLock from '~icons/bi/lock'
 import IconUnlock from '~icons/bi/unlock'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
-import IconPlus from '~icons/fa6-solid/plus'
 
 type WorkBookItem = Record<string, string>
 const groupItems = [
   {
+    id: 1,
     href: '/admin/1',
     title: '초급반',
     scope: 'private',
@@ -25,7 +25,8 @@ const groupItems = [
     ]
   },
   {
-    href: '/',
+    id: 2,
+    href: '/admin/2',
     title: '중급반',
     scope: 'public',
     items: [
@@ -38,7 +39,8 @@ const groupItems = [
     ]
   },
   {
-    href: '/',
+    id: 3,
+    href: '/admin/3',
     title: '고급반',
     scope: 'private',
     items: [
@@ -160,8 +162,6 @@ const changeContest = (page: number) => {
 const changeWorkBook = (page: number) => {
   currentWorkBookP.value = page
 }
-const emits = defineEmits(['toggleGroup'])
-emits('toggleGroup', false)
 </script>
 
 <template>
@@ -176,8 +176,7 @@ emits('toggleGroup', false)
         }
       "
     >
-      <IconPlus />
-      Create
+      + Create
     </Button>
   </div>
   <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
