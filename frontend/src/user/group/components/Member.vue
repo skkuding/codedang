@@ -19,14 +19,6 @@ const isModalVisible = ref(false)
 function close() {
   isModalVisible.value = false
 }
-// TODO : Yes 눌렀을때 API 호출하도록 변경 필요
-// {
-//   "userId": 2,
-//   "groupId": 4,
-//   "isGroupLeader": false,
-//   "createTime": "2023-07-11T09:44:39.089Z",
-//   "updateTime": "2023-07-11T09:44:39.089Z"
-// }
 const signout = async () => {
   isModalVisible.value = false
   try {
