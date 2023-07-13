@@ -18,7 +18,7 @@ services:
     environment:
       # Override environment variables in .env.development
       RABBITMQ_HOST: codedang-rabbitmq
-      TESTCASE_SERVER_URL: http://codedang-testcase:30000/problem/:id/testcase
+      TESTCASE_SERVER_URL: http://codedang-testcase:9000/test-bucket/:id.json
       DATABASE_URL: postgresql://postgres:1234@codedang-database:5432/skkuding?schema=public
       REDIS_HOST: codedang-cache
       REDIS_PORT: 6379
