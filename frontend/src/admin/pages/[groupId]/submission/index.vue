@@ -44,7 +44,7 @@ const items: { [key: string]: Record<string, string>[] } = {
     {
       submissionTime: '2022.06.08 21:08:45',
       user: '2030319999 goo314',
-      contest: '솔방울코딩대회',
+      workbook: '솔방울코딩대회',
       problem: '사장님 올때',
       language: 'Java',
       result: 'Runtime error'
@@ -52,7 +52,7 @@ const items: { [key: string]: Record<string, string>[] } = {
     {
       submissionTime: '2022.06.08 21:08:45',
       user: '2024311234 minseo999',
-      contest: '솔방울대회',
+      workbook: '솔방울대회',
       problem: '가파른',
       language: 'Python',
       result: 'Compile error'
@@ -60,7 +60,7 @@ const items: { [key: string]: Record<string, string>[] } = {
     {
       submissionTime: '2022.06.08 21:08:45',
       user: '2030319999 cranemont',
-      contest: 'SCAT 대회',
+      workbook: 'SCAT 대회',
       problem: '연습',
       language: 'C',
       result: 'Wrong Answer'
@@ -68,7 +68,7 @@ const items: { [key: string]: Record<string, string>[] } = {
     {
       submissionTime: '2022.06.08 21:08:45',
       user: '2002310667 jimin',
-      contest: '솔방울코딩대회',
+      workbook: '솔방울코딩대회',
       problem: '사장님 올때 메로나',
       language: 'C++',
       result: 'Accepted'
@@ -102,8 +102,8 @@ const items: { [key: string]: Record<string, string>[] } = {
           width: '15%'
         },
         {
-          key: 'contest',
-          label: 'Contest',
+          key: selectedFilter.toLowerCase(),
+          label: selectedFilter,
           width: '20%'
         },
         {
