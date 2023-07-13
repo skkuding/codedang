@@ -26,15 +26,16 @@ services:
 
   testcase:
     container_name: codedang-testcase
-    build:
-      context: ./testcase-server
-      dockerfile: Dockerfile
+    image: minio/minio
     ports:
-      - 30000:30000
-    stdin_open: true
-    tty: true
+      - 9000:9000
+      - 9001:9001
+    command: server /data --console-address ":9001"
     volumes:
-      - ./testcase-server/data:/app/data
+      - ./mnt/testcase:/data
+    environment:
+      MINIO_ROOT_USER: skku
+      MINIO_ROOT_PASSWORD: skku1234
 
   database:
     container_name: codedang-database
