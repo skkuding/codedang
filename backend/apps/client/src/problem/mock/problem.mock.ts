@@ -18,7 +18,8 @@ export const problems: Problem[] = [
     createTime: undefined,
     updateTime: undefined,
     inputExamples: [],
-    outputExamples: []
+    outputExamples: [],
+    template: []
   },
   {
     id: 2,
@@ -37,7 +38,8 @@ export const problems: Problem[] = [
     createTime: undefined,
     updateTime: undefined,
     inputExamples: [],
-    outputExamples: []
+    outputExamples: [],
+    template: []
   }
 ]
 
