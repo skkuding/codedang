@@ -23,7 +23,7 @@ const signout = async () => {
   isModalVisible.value = false
   try {
     await axios.delete(`/api/group/${props.id}/leave`)
-    router.replace('/')
+    router.replace('/group')
     openToast({ message: 'Successfully left the group!', type: 'success' })
   } catch (err) {
     router.replace('/404')
