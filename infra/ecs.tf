@@ -45,9 +45,17 @@ resource "aws_lb_listener" "api" {
 resource "aws_lb_target_group" "api" {
   name        = "Codedang-Api-Target-Group"
   target_type = "ip"
-  port        = 3000
+  port        = 4000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
+
+  health_check {
+    interval            = 30
+    path                = "/api"
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    matcher             = "200-404"
+  }
 }
 
 resource "aws_ecs_service" "api" {
@@ -68,7 +76,7 @@ resource "aws_ecs_service" "api" {
   load_balancer {
     target_group_arn = aws_lb_target_group.api.arn
     container_name   = "Codedang-Api"
-    container_port   = 3000
+    container_port   = 4000
   }
 
   depends_on = [
@@ -106,9 +114,15 @@ resource "aws_ecs_task_definition" "api" {
   cpu                      = 512
   memory                   = 1024
   container_definitions = templatefile("backend/task-definition.json", {
-    database_url      = "postgresql://${var.postgres_username}:${var.postgres_password}@${aws_rds_cluster.cluster.endpoint}:${var.postgres_port}/skkuding?schema=public",
-    ecr_uri           = var.ecr_uri
-    cloudwatch_region = var.region
+    # aurora-posrgresql
+    # database_url      = "postgresql://${var.postgres_username}:${var.postgres_password}@${aws_rds_cluster.cluster.endpoint}:${var.postgres_port}/skkuding?schema=public",
+
+    # posrgresql (free tier)
+    database_url      = "postgresql://${var.postgres_username}:${var.postgres_password}@${aws_db_instance.db-test.endpoint}/skkuding?schema=public",
+    ecr_uri           = var.ecr_uri,
+    cloudwatch_region = var.region,
+    redis_host        = aws_elasticache_replication_group.db_cache.configuration_endpoint_address
+    redis_port        = var.redis_port,
   })
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 
