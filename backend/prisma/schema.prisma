@@ -222,35 +222,6 @@ model Contest {
   @@map("contest")
 }
 
-enum RequestStatus {
-  PENDING
-  ACCEPT
-  REJECT
-  NONE
-}
-
-model AdminContest {
-  id                Int              @id @default(autoincrement())
-  groupName         String
-  type              String
-  title             String
-  summary           String
-  description       String
-  startTime         DateTime         @map("start_time")
-  endTime           DateTime         @map("end_time")
-  visible           Boolean
-  rankVisible       Boolean
-  difficultyVisible Boolean
-  status            RequestStatus
-  User              User?            @relation(fields: [userId], references: [id])
-  userId            Int?
-  Group             Group?           @relation(fields: [groupId], references: [id])
-  groupId           Int?
-  ContestProblem    ContestProblem[]
-  ContestRecord     ContestRecord[]
-  Submission        Submission[]
-}
-
 model ContestProblem {
   id         String
   contest    Contest  @relation(fields: [contestId], references: [id])
