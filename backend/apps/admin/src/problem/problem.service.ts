@@ -14,17 +14,17 @@ export class ProblemService {
     groupId: number,
     input: CreateGroupProblemInput
   ) {
+    const { problemTag, problemTestcase, ...data } = input
+
     const problemTestcases = {
-      create: input.problemTestcase
+      create: problemTestcase
     }
 
-    const tagsId = input.problemTag.map((value) => {
+    const tagsId = problemTag.map((value) => {
       return {
         tagId: value
       }
     })
-
-    const { problemTag, problemTestcase, ...data } = input
 
     return await this.prisma.problem.create({
       data: {
