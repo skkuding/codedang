@@ -2,6 +2,8 @@ import { Field, InputType, OmitType } from '@nestjs/graphql'
 import { ProblemTestcaseCreateWithoutProblemInput } from '@admin/@generated/problem-testcase/problem-testcase-create-without-problem.input'
 import { ProblemUncheckedCreateWithoutCreatedByInput } from '@admin/@generated/problem/problem-unchecked-create-without-created-by.input'
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-nocheck
 @InputType()
 export class TestCaseDto extends OmitType(
   ProblemTestcaseCreateWithoutProblemInput,

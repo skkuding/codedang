@@ -715,11 +715,22 @@
             "containerId": "3eeedd48-2d7b-4174-ab10-c4108c0ed44c",
             "name": "Update Problem",
             "url": "",
-            "method": "GET",
+            "method": "POST",
             "sortNum": 110000,
             "created": "2023-07-13T12:50:23.837Z",
-            "modified": "2023-07-13T12:50:23.837Z",
-            "headers": []
+            "modified": "2023-07-13T12:55:03.705Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation Problem($updateInput: UpdateProblemInput!){\n    updateGroupProblem(\n        groupId: 1\n        input: $updateInput\n    ){\n        title\n    }\n}",
+                    "variables": "{\n  \"updateInput\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"description\": \"description0\",\n    \"inputDescription\": \"inputDescription0\",\n    \"outputDescription\": \"ouputDescription0\",\n    \"hint\": \"hint0\",\n    \"languages\": [\"C\",\"Java\"],\n    \"timeLimit\": 33,\n    \"memoryLimit\": 666,\n    \"difficulty\": \"Level1\",\n    \"source\": \"source0\",\n    \"problemTag\": []\n  }\n}"
+                }
+            },
+            "tests": []
         }
     ]
 }
