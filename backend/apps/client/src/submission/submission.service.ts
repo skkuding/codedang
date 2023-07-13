@@ -1,11 +1,15 @@
 import { Injectable, type OnModuleInit } from '@nestjs/common'
 import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
-import { type Problem, ResultStatus, type Submission } from '@prisma/client'
+import {
+  ResultStatus,
+  type Submission,
+  type SubmissionResult,
+  type Language,
+  type Problem
+} from '@prisma/client'
+import { plainToInstance } from 'class-transformer'
 import { type ValidationError, validate } from 'class-validator'
-import { ActionNotAllowedException, MessageFormatError } from '@libs/exception'
-import { PrismaService } from '@libs/prisma'
-import { calculateTimeLimit } from './constants/cpuLimit.constants'
-import { calculateMemoryLimit } from './constants/memoryLimit.constants'
+import { OPEN_SPACE_ID, Status } from '@libs/constants'
 import {
   CONSUME_CHANNEL,
   EXCHANGE,
@@ -14,12 +18,21 @@ import {
   RESULT_KEY,
   RESULT_QUEUE,
   SUBMISSION_KEY
-} from './constants/rabbitmq.constants'
-import { matchResultCode } from './constants/resultCode.constants'
-import type { CreateSubmissionDto } from './dto/create-submission.dto'
-import { JudgeRequestDto } from './dto/judge-request.dto'
-import type { SubmissionResultMessage } from './dto/submission-result-message'
-import type { SubmissionResultDTO } from './dto/submission-result.dto'
+} from '@libs/constants'
+import {
+  ActionNotAllowedException,
+  EntityNotExistException,
+  ForbiddenAccessException,
+  MessageFormatError
+} from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
+import {
+  type CreateSubmissionDto,
+  type Snippet,
+  Template
+} from './dto/create-submission.dto'
+import { JudgeRequest } from './dto/judge-request.class'
+import type { SubmissionResultMessage } from './dto/submission-result.dto'
 import { generateHash } from './hash/hash'
 
 @Injectable()
@@ -34,7 +47,7 @@ export class SubmissionService implements OnModuleInit {
       this.amqpConnection.createSubscriber(
         async (msg: SubmissionResultMessage) => {
           try {
-            await this.submissionResultHandler(msg)
+            await this.handleJudgerResponse(msg)
           } catch (error) {
             if (error instanceof MessageFormatError) {
               return new Nack()
@@ -56,194 +69,422 @@ export class SubmissionService implements OnModuleInit {
     }
   }
 
-  async getSubmissionResults(
-    submissionId: string
-  ): Promise<SubmissionResultDTO> {
-    const submissionResults = await this.prisma.submissionResult.findMany({
+  async submitToProblem(
+    submissionDto: CreateSubmissionDto,
+    userId: number,
+    groupId = OPEN_SPACE_ID
+  ) {
+    const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
-        submissionId
+        id: submissionDto.problemId,
+        groupId,
+        exposeTime: {
+          lt: new Date()
+        }
+      },
+      select: { languages: true, template: true }
+    })
+    return await this.createSubmission(submissionDto, problem, userId)
+  }
+
+  async submitToContest(
+    submissionDto: CreateSubmissionDto,
+    userId: number,
+    groupId = OPEN_SPACE_ID
+  ) {
+    const now = new Date()
+
+    const { contest } = await this.prisma.contestRecord.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_userId: {
+          contestId: submissionDto.contestId,
+          userId
+        }
+      },
+      select: {
+        contest: {
+          select: {
+            groupId: true,
+            startTime: true,
+            endTime: true
+          }
+        }
       }
     })
-
-    /*
-     TODO: 점수 계산 로직 추가
-    */
-    const score = 100
-    const passed =
-      submissionResults.filter(
-        (result) => result.result !== ResultStatus.Accepted
-      ).length === 0
-    const judgeFinished =
-      submissionResults.filter(
-        (result) => result.result === ResultStatus.Judging
-      ).length === 0
-
-    return {
-      submissionResults,
-      passed,
-      judgeFinished,
-      score
+    if (
+      contest.groupId !== groupId ||
+      contest.startTime > now ||
+      contest.endTime <= now
+    ) {
+      throw new ActionNotAllowedException('submission', 'contest')
     }
+
+    const { problem } = await this.prisma.contestProblem.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_problemId: {
+          problemId: submissionDto.problemId,
+          contestId: submissionDto.contestId
+        }
+      },
+      include: {
+        problem: true
+      }
+    })
+    if (problem.exposeTime >= now) {
+      throw new EntityNotExistException('problem')
+    }
+
+    return await this.createSubmission(submissionDto, problem, userId)
+  }
+
+  async submitToWorkbook(
+    submissionDto: CreateSubmissionDto,
+    userId: number,
+    groupId = OPEN_SPACE_ID
+  ) {
+    const { problem } = await this.prisma.workbookProblem.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        workbookId_problemId: {
+          problemId: submissionDto.problemId,
+          workbookId: submissionDto.workbookId
+        }
+      },
+      include: {
+        problem: true
+      }
+    })
+    if (problem.groupId !== groupId || problem.exposeTime >= new Date()) {
+      throw new EntityNotExistException('problem')
+    }
+
+    return await this.createSubmission(submissionDto, problem, userId)
   }
 
   async createSubmission(
-    createSubmissionDto: CreateSubmissionDto,
+    submissionDto: CreateSubmissionDto,
+    problem: Partial<Problem>,
     userId: number
-  ): Promise<Submission & { submissionResultIds: { id: number }[] }> {
-    const { languages } = await this.prisma.problem.findUnique({
-      where: { id: createSubmissionDto.problemId },
-      select: { languages: true }
-    })
-
-    if (!languages.includes(createSubmissionDto.language)) {
+  ) {
+    if (!problem.languages.includes(submissionDto.language)) {
       throw new ActionNotAllowedException(
-        `${createSubmissionDto.language}`,
+        `Submission in ${submissionDto.language}`,
         'problem'
       )
+    }
+    const { code, ...data } = submissionDto
+    if (
+      !this.isValidCode(
+        code,
+        submissionDto.language,
+        plainToInstance(Template, problem.template)
+      )
+    ) {
+      throw new ActionNotAllowedException('template modification', 'problem')
     }
 
     const submission: Submission = await this.prisma.submission.create({
       data: {
-        id: generateHash(),
-        ...createSubmissionDto,
-        userId
+        id: generateHash(), // TODO: generate hash 구분
+        code: JSON.stringify(code),
+        result: ResultStatus.Judging,
+        userId,
+        ...data
       }
     })
+    await this.publishJudgeRequestMessage(code, submission)
 
-    const submissionResultIds: { id: number }[] =
-      await this.createSubmissionResult(submission.id, submission.problemId)
-
-    await this.publishJudgeRequestMessage(submission)
-
-    return {
-      ...submission,
-      submissionResultIds
-    }
+    return submission
   }
 
-  private async createSubmissionResult(
-    submissionId: string,
-    problemId: number
-  ): Promise<{ id: number }[]> {
-    const testcaseIds = await this.prisma.problemTestcase.findMany({
-      where: {
-        problemId
-      },
-      select: {
-        id: true
-      }
-    })
+  isValidCode(code: Snippet[], language: Language, templates: Template[]) {
+    const template = templates.find((code) => code.language === language)?.code
+    if (!template || template.length === 0) return true
 
-    const submissionResults = testcaseIds.map((testcase) => {
-      return {
-        submissionId,
-        problemTestcaseId: testcase.id,
-        result: ResultStatus.Judging
-      }
-    })
+    if (template.length !== code.length) return false
+    template.sort(this.snippetOrderCompare)
+    code.sort(this.snippetOrderCompare)
 
-    await this.prisma.submissionResult.createMany({
-      data: submissionResults,
-      skipDuplicates: true
-    })
+    for (let i = 0; i < template.length; i++) {
+      if (template[i].id !== code[i].id) return false
+      else if (template[i].readonly && template[i].text !== code[i].text)
+        return false
+    } // TODO: 그냥 대체할까?
+    return true
+  }
 
-    return await this.prisma.submissionResult.findMany({
-      where: {
-        submissionId
-      },
-      select: {
-        id: true
-      }
-    })
+  snippetOrderCompare(a: Snippet, b: Snippet) {
+    if (a.id < b.id) {
+      return -1
+    } else if (a.id > b.id) {
+      return 1
+    }
+    return 0
   }
 
   private async publishJudgeRequestMessage(
+    code: Snippet[],
     submission: Submission
-  ): Promise<void> {
-    const problem: Partial<Problem> = await this.prisma.problem.findUnique({
+  ) {
+    const problem = await this.prisma.problem.findUniqueOrThrow({
       where: { id: submission.problemId },
       select: {
+        id: true,
         timeLimit: true,
         memoryLimit: true
       }
     })
-
-    const judgeRequest = new JudgeRequestDto(
-      submission.code,
-      submission.language,
-      submission.problemId,
-      calculateTimeLimit(submission.language, problem.timeLimit),
-      calculateMemoryLimit(submission.language, problem.memoryLimit)
-    )
-
-    /*
-      TODO: problem 단위가 아닌 testcase 단위로 채점하도록 변경
-    */
+    const judgeRequest = new JudgeRequest(code, submission.language, problem)
+    // TODO: problem 단위가 아닌 testcase 단위로 채점하도록 iris 수정
 
     this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
-      persistent: true,
       messageId: submission.id,
+      persistent: true,
       type: PUBLISH_TYPE
     })
   }
 
-  async submissionResultHandler(msg: SubmissionResultMessage): Promise<void> {
+  async handleJudgerResponse(msg: SubmissionResultMessage) {
+    console.log(msg.data.judgeResult) // TODO: Do we need this?
+
     const validationError: ValidationError[] = await validate(msg)
-
-    console.log(msg.data.judgeResult)
-
     if (validationError.length > 0) {
       throw new MessageFormatError({ ...validationError })
     }
 
-    const resultCode: ResultStatus = matchResultCode(msg.resultCode)
+    const resultStatus = Status(msg.resultCode)
     const submissionId = msg.submissionId
 
-    const judgeResults = msg.data.judgeResult.map((result) => {
+    const results = msg.data.judgeResult.map((result) => {
       return {
         problemTestcaseId: parseInt(result.testcaseId.split(':')[1], 10),
-        result: resultCode,
-        submissionId
+        result: Status(result.resultCode),
+        cpuTime: BigInt(result.cpuTime),
+        memoryUsage: result.memory
       }
     })
 
-    console.log(judgeResults)
-
-    await this.updateSubmissionResult(judgeResults)
+    console.log(results) // TODO: Do we need this?
+    await this.updateSubmissionResult(submissionId, resultStatus, results)
   }
 
-  private async updateSubmissionResult(
-    judgeResults: {
-      problemTestcaseId: number
-      result: ResultStatus
-      submissionId: string
-    }[]
-  ): Promise<void> {
-    for (const result of judgeResults) {
-      try {
-        const id = await this.prisma.submissionResult
-          .findFirst({
-            where: {
-              submissionId: result.submissionId,
-              problemTestcaseId: result.problemTestcaseId
-            },
-            select: {
-              id: true
+  async updateSubmissionResult(
+    id: string,
+    resultStatus: ResultStatus,
+    results: Partial<SubmissionResult>[]
+  ) {
+    await Promise.all(
+      results.map(
+        async (result) =>
+          await this.prisma.submissionResult.create({
+            data: {
+              submission: {
+                connect: { id }
+              },
+              problemTestcase: {
+                connect: { id: result.problemTestcaseId }
+              },
+              result: result.result,
+              cpuTime: result.cpuTime,
+              memoryUsage: result.memoryUsage
             }
           })
-          .then((result) => result.id)
+      )
+    )
 
-        await this.prisma.submissionResult.update({
-          where: {
-            id
-          },
-          data: {
-            result: result.result
-          }
-        })
-      } catch (e) {
-        console.log(e)
+    await this.prisma.submission.update({
+      where: {
+        id
+      },
+      data: {
+        result: resultStatus
       }
+    })
+  }
+
+  async hasPassedProblem(
+    userId: number,
+    where: { problemId: number; contestId?: number }
+  ): Promise<boolean> {
+    const submissions = await this.prisma.submission.findMany({
+      where: {
+        ...where,
+        userId
+      },
+      select: { result: true }
+    })
+
+    return submissions.some(
+      (submission) => submission.result === ResultStatus.Accepted
+    )
+  }
+
+  async getSubmissions(
+    problemId: number,
+    groupId = OPEN_SPACE_ID
+  ): Promise<Partial<Submission>[]> {
+    await this.prisma.problem.findFirstOrThrow({
+      where: {
+        id: problemId,
+        groupId,
+        exposeTime: {
+          lt: new Date()
+        }
+      }
+    })
+
+    return await this.prisma.submission.findMany({
+      where: {
+        problemId
+      },
+      select: {
+        id: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        createTime: true,
+        language: true,
+        result: true
+      }
+    })
+  }
+
+  async getSubmission(
+    id: string,
+    problemId: number,
+    userId: number,
+    groupId = OPEN_SPACE_ID
+  ): Promise<SubmissionResult[]> {
+    await this.prisma.problem.findFirstOrThrow({
+      where: {
+        id: problemId,
+        groupId,
+        exposeTime: {
+          lt: new Date()
+        }
+      }
+    })
+
+    const submission = await this.prisma.submission.findFirstOrThrow({
+      where: {
+        id,
+        problemId
+      },
+      select: {
+        userId: true,
+        submissionResult: true
+      }
+    })
+    if (
+      submission.userId === userId ||
+      this.hasPassedProblem(userId, { problemId })
+    ) {
+      return submission.submissionResult
     }
+    throw new ForbiddenAccessException(
+      "You must pass the problem first to browse other people's submissions"
+    )
+  }
+
+  async getContestSubmissions(
+    problemId: number,
+    contestId: number,
+    userId: number,
+    groupId = OPEN_SPACE_ID
+  ): Promise<Partial<Submission>[]> {
+    await this.prisma.contestRecord.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_userId: {
+          contestId,
+          userId
+        }
+      }
+    })
+    await this.prisma.contestProblem.findFirstOrThrow({
+      where: {
+        problem: {
+          id: problemId,
+          groupId
+        },
+        contestId
+      }
+    })
+
+    return await this.prisma.submission.findMany({
+      where: {
+        problemId,
+        contestId
+      },
+      select: {
+        id: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        createTime: true,
+        language: true,
+        result: true
+      }
+    })
+  }
+
+  async getContestSubmission(
+    id: string,
+    problemId: number,
+    contestId: number,
+    userId: number,
+    groupId = OPEN_SPACE_ID
+  ): Promise<SubmissionResult[]> {
+    const now = new Date()
+    const { contest } = await this.prisma.contestRecord.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_userId: {
+          contestId,
+          userId
+        }
+      },
+      select: {
+        contest: {
+          select: {
+            groupId: true,
+            startTime: true,
+            endTime: true
+          }
+        }
+      }
+    })
+    if (contest.groupId !== groupId) {
+      throw new EntityNotExistException('contest')
+    }
+
+    const submission = await this.prisma.submission.findFirstOrThrow({
+      where: {
+        id,
+        problemId,
+        contestId
+      },
+      select: {
+        userId: true,
+        submissionResult: true
+      }
+    })
+
+    if (
+      contest.startTime <= now &&
+      contest.endTime > now &&
+      submission.userId !== userId
+    ) {
+      throw new ForbiddenAccessException(
+        "Contest should end first before you browse other people's submissions"
+      )
+    }
+    return submission.submissionResult
   }
 }
