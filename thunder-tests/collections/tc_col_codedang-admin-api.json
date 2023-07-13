@@ -631,7 +631,7 @@
             "method": "POST",
             "sortNum": 50000,
             "created": "2023-07-13T12:00:14.545Z",
-            "modified": "2023-07-13T14:06:50.398Z",
+            "modified": "2023-07-13T17:33:18.903Z",
             "headers": [],
             "params": [],
             "body": {
@@ -639,7 +639,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query {\n    getContests(input: {\n        groupId: 2,\n        cursor: 0,\n        take: 100\n    }) {\n        id\n        createdById\n        groupId\n        title\n    }\n}"
+                    "query": "query {\n    getContests(input: {\n        groupId: 2,\n        cursor: 0,\n        take: 5\n    }) {\n        id\n        createdById\n        groupId\n        title\n    }\n}"
                 }
             },
             "tests": []
