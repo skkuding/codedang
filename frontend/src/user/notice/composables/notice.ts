@@ -11,7 +11,7 @@ export interface Field {
   label?: string
 }
 
-export interface Item {
+export interface NoticeItem {
   icon?: Component
   name?: 'prev' | 'next'
   id: number
@@ -22,7 +22,7 @@ export interface Item {
 }
 
 export const useNotice = () => {
-  const notices = ref<Item[]>([])
+  const notices = ref<NoticeItem[]>([])
   async function getNoticeList(numberOfPages: number) {
     const res = await axios.get('/api/notice', {
       params:
@@ -37,14 +37,14 @@ export const useNotice = () => {
   }
   // TODO: number of pages api로 받아오기
   const numberOfPages = 2
-  const currentNotice = ref<Item>()
-  const previousNotice = ref<Item>()
-  const nextNotice = ref<Item>()
-  const adjacentNotices = ref<Item[]>([])
+  const currentNotice = ref<NoticeItem>()
+  const previousNotice = ref<NoticeItem>()
+  const nextNotice = ref<NoticeItem>()
+  const adjacentNotices = ref<NoticeItem[]>([])
 
   const router = useRouter()
 
-  const goDetail = async ({ id }: Item) => {
+  const goDetail = async ({ id }: NoticeItem) => {
     await router.push({
       name: 'notice-id',
       params: { id }
