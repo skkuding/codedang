@@ -17,7 +17,7 @@ interface Problem {
   difficulty: string
   submissions: number
   rate: string
-  tags: string
+  tags: Record<string, string>[]
 }
 
 const colorMapper = (level: string) => {
@@ -46,23 +46,15 @@ const numberOfPages = ref(4)
 const currentPage = ref(1)
 const currentItems = ref<Problem[]>([])
 const showTags = ref(false)
+const commonField = [
+  { key: 'id', label: '#', width: '100px' },
+  { key: 'title' },
+  { key: 'level' },
+  { key: 'submissionCount', label: 'submissions' },
+  { key: 'acceptedRate', label: 'AC Rate' }
+]
 const fields = computed(() =>
-  showTags.value
-    ? [
-        { key: 'id', label: '#' },
-        { key: 'title' },
-        { key: 'level' }
-        // { key: 'submissions' },
-        // { key: 'rate', label: 'AC Rate' },
-        // { key: 'tags' }
-      ]
-    : [
-        { key: 'id', label: '#' },
-        { key: 'title' },
-        { key: 'level' }
-        // { key: 'submissions' },
-        // { key: 'rate', label: 'AC Rate' }
-      ]
+  showTags.value ? [...commonField, { key: 'tags', label: 'Tag' }] : commonField
 )
 
 const problemList = ref<Problem[][]>([])
@@ -133,6 +125,16 @@ onMounted(async () => {
           :class="colorMapper(row.difficulty)"
         />
         {{ row.difficulty }}
+      </div>
+    </template>
+    <template #tags="{ row }: { row: Problem }">
+      <div v-if="row.tags.length === 0" class="m-0.5">-</div>
+      <div v-else>
+        <div v-for="{ id, name } in row.tags" :key="id" class="flex">
+          <Button color="green" class="m-0.5 cursor-default" @click.stop="">
+            {{ name }}
+          </Button>
+        </div>
       </div>
     </template>
   </PaginationTable>
