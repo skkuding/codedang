@@ -27,6 +27,7 @@ const props = withDefaults(
   defineProps<{
     modelValue: string
     lang?: 'cpp' | 'python' | 'javascript' | 'java'
+    lock?: boolean
   }>(),
   { lang: 'cpp' }
 )
@@ -78,7 +79,8 @@ onMounted(async () => {
     drawSelection(),
     closeBrackets(),
     syntaxHighlighting(defaultHighlightStyle),
-    indentOnInput()
+    indentOnInput(),
+    EditorState.readOnly.of(props.lock)
   ]
 
   const state = EditorState.create({
