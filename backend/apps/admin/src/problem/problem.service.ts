@@ -101,20 +101,24 @@ export class ProblemService {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-nocheck
-    return await this.prisma.problem.update({
+    return await this.prisma.problem.update(
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-nocheck
-      where: {
-        id: id
-      },
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-nocheck
-      data: {
+      {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-nocheck
-        ...data
+        where: {
+          id: id
+        },
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-nocheck
+        data: {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-nocheck
+          ...data
+        }
       }
-    })
+    )
   }
 
   async deleteGroupProblem(groupId: number, input: number) {
