@@ -143,6 +143,8 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
                   ...data.sample.slice(0, index),
                   ...data.sample.slice(index + 1)
                 ]
+                if (data.sample.length == 0)
+                  data.sample = [{ input: '', output: '' }]
               }
             "
           >
@@ -199,6 +201,8 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
                   ...data.testcase.slice(0, index),
                   ...data.testcase.slice(index + 1)
                 ]
+                if (data.testcase.length == 0)
+                  data.testcase = [{ input: '', output: '' }]
               }
             "
           >
