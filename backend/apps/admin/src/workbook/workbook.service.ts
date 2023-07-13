@@ -8,43 +8,40 @@ import {
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { CreateWorkbookDto } from './dto/create-workbook.dto'
-import { DeleteWorkbookDto } from './dto/delete-workbook.dto'
-import { GetWorkbookDto } from './dto/get-workbook.dto'
 import { GetWorkbookListInput } from './dto/input/workbook.input'
 import { CreateWorkbookInput } from './dto/input/workbook.input'
 import { UpdateWorkbookInput } from './dto/input/workbook.input'
-import { UpdateWorkbookDto } from './dto/update-workbook.dto'
 
 @Injectable()
 export class WorkbookService {
   constructor(private readonly prisma: PrismaService) {}
-  async getWorkbooksByGroupId(
-    cursor: number,
-    take: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Workbook>[]> {
-    let skip = 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
-    const workbooks = await this.prisma.workbook.findMany({
-      where: {
-        groupId,
-        isVisible: true
-      },
-      select: { id: true, title: true, description: true, updateTime: true },
-      skip: skip,
-      take: take,
-      cursor: {
-        id: cursor
-      }
-    })
-    return workbooks
-  }
 
-  async getAdminWorkbooksByGroupId(
+  // async getWorkbooksByGroupId(
+  //   cursor: number,
+  //   take: number,
+  //   groupId = OPEN_SPACE_ID
+  // ): Promise<Partial<Workbook>[]> {
+  //   let skip = 1
+  //   if (!cursor) {
+  //     cursor = 1
+  //     skip = 0
+  //   }
+  //   const workbooks = await this.prisma.workbook.findMany({
+  //     where: {
+  //       groupId,
+  //       isVisible: true
+  //     },
+  //     select: { id: true, title: true, description: true, updateTime: true },
+  //     skip: skip,
+  //     take: take,
+  //     cursor: {
+  //       id: cursor
+  //     }
+  //   })
+  //   return workbooks
+  // }
+
+  async getWorkbookListByGroupId(
     getWorkbookListInput: GetWorkbookListInput
   ): Promise<Partial<Workbook>[]> {
     const groupId = getWorkbookListInput.groupId
@@ -57,14 +54,6 @@ export class WorkbookService {
     }
     const workbookList = await this.prisma.workbook.findMany({
       where: { groupId },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        isVisible: true,
-        createdBy: true,
-        updateTime: true
-      },
       skip: skip,
       take: take,
       cursor: {
@@ -75,13 +64,13 @@ export class WorkbookService {
     return workbookList
   }
 
-  async getWorkbookById(workbookId: number): Promise<
+  async getWorkbookDetailById(workbookId: number): Promise<
     Partial<Workbook> & { problems: Partial<Problem>[] } & {
       submissions: Partial<Submission>[]
     }
   > {
     const workbook = await this.prisma.workbook.findFirst({
-      where: { id: workbookId, isVisible: true },
+      where: { id: workbookId },
       select: { id: true, title: true },
       rejectOnNotFound: () => new EntityNotExistException('workbook')
     })
@@ -114,22 +103,9 @@ export class WorkbookService {
     }))
 
     const submissions = await this.prisma.submission.findMany({
-      where: { workbookId },
-      select: {
-        id: true,
-        user: {
-          select: {
-            username: true
-          }
-        },
-        userId: true,
-        code: true,
-        language: true
-      }
+      where: { workbookId }
     })
-    console.log(workbook)
-    console.log(problems)
-    console.log(submissions)
+
     return {
       ...workbook,
       problems,
@@ -137,39 +113,42 @@ export class WorkbookService {
     }
   }
 
-  async getAdminWorkbookById(workbookId: number): Promise<Partial<Workbook>> {
-    const workbook = await this.prisma.workbook.findFirst({
-      where: { id: workbookId },
-      select: {
-        id: true,
-        title: true,
-        createdBy: {
-          select: {
-            username: true
-          }
-        },
-        isVisible: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('workbook')
-    })
-    return workbook
-  }
+  // async getAdminWorkbookById(workbookId: number): Promise<Partial<Workbook>> {
+  //   const workbook = await this.prisma.workbook.findFirst({
+  //     where: { id: workbookId },
+  //     select: {
+  //       id: true,
+  //       title: true,
+  //       createdBy: {
+  //         select: {
+  //           username: true
+  //         }
+  //       },
+  //       isVisible: true
+  //     },
+  //     rejectOnNotFound: () => new EntityNotExistException('workbook')
+  //   })
+  //   return workbook
+  // }
 
   async createWorkbook(
     createWorkbookInput: CreateWorkbookInput,
     userId: number
   ): Promise<Workbook> {
-    console.log(createWorkbookInput)
-    const newWorkbook = await this.prisma.workbook.create({
-      data: {
-        createdById: userId,
-        groupId: createWorkbookInput.groupId,
-        title: createWorkbookInput.title,
-        description: createWorkbookInput.title,
-        isVisible: createWorkbookInput.isVisible
-      }
-    })
-    return newWorkbook
+    try {
+      const newWorkbook = await this.prisma.workbook.create({
+        data: {
+          createdById: userId,
+          groupId: createWorkbookInput.groupId,
+          title: createWorkbookInput.title,
+          description: createWorkbookInput.title,
+          isVisible: createWorkbookInput.isVisible
+        }
+      })
+      return newWorkbook
+    } catch (error) {
+      console.error('newWorkbook을 create하는 중에 문제 발생', error)
+    }
   }
 
   async updateWorkbook(
@@ -216,15 +195,15 @@ export class WorkbookService {
     }
   }
 
-  async isVisible(workbookId: number, groupId: number): Promise<boolean> {
-    return !!(await this.prisma.workbook.count({
-      where: {
-        id: workbookId,
-        groupId: groupId,
-        isVisible: true
-      }
-    }))
-  }
+  // async isVisible(workbookId: number, groupId: number): Promise<boolean> {
+  //   return !!(await this.prisma.workbook.count({
+  //     where: {
+  //       id: workbookId,
+  //       groupId: groupId,
+  //       isVisible: true
+  //     }
+  //   }))
+  // }
 
   async mapProblemstoWorkbook(
     problemIds: number[],
@@ -232,6 +211,21 @@ export class WorkbookService {
   ): Promise<boolean> {
     try {
       for (const problemId of problemIds) {
+        const existingRecord = await this.prisma.workbookProblem.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            workbookId_problemId: {
+              workbookId: workbookId,
+              problemId: problemId
+            }
+          }
+        })
+
+        if (existingRecord) {
+          throw new Error(
+            `레코드가 이미 존재합니다: workbookId=${workbookId}, problemId=${problemId}`
+          )
+        }
         await this.prisma.workbookProblem.create({
           data: {
             id: problemId.toString(),
@@ -242,6 +236,7 @@ export class WorkbookService {
       }
       return true
     } catch (error) {
+      console.error('problems을 workbook으로 import하는 중에 문제 발생', error)
       return false
     }
   }

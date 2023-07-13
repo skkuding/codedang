@@ -88,7 +88,7 @@
             "method": "POST",
             "sortNum": 20000,
             "created": "2023-07-01T07:44:47.547Z",
-            "modified": "2023-07-13T11:57:14.843Z",
+            "modified": "2023-07-13T17:08:02.031Z",
             "headers": [],
             "params": [],
             "body": {
@@ -96,7 +96,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation {\n  updateWorkbook(input:{\n    id: 10\n    title: \"updated\"\n    description: \"updated\"\n    isVisible: false}\n  ) {\n    title\n  }\n}"
+                    "query": "mutation {\n  updateWorkbook(\n    input: {id: 12, title: \"updated\", description: \"updated\", isVisible: false}\n  ) {\n    id\n    title\n  }\n}"
                 }
             },
             "tests": []
@@ -110,7 +110,7 @@
             "method": "POST",
             "sortNum": 30000,
             "created": "2023-07-05T17:33:56.218Z",
-            "modified": "2023-07-13T09:28:07.717Z",
+            "modified": "2023-07-13T17:13:43.213Z",
             "headers": [],
             "params": [],
             "body": {
@@ -118,7 +118,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "{\n  getWorkbookList(input:{groupId: 2, cursor: 1, take: 2}) {\n    id\n    title\n    description\n    createdBy {\n     username\n    }\n    isVisible\n  }\n \n}"
+                    "query": "{\n  getWorkbookList(input: {groupId: 2, cursor: 1, take: 2}) {\n    id\n    title\n    createdById\n    description\n    isVisible\n  }\n}"
                 }
             },
             "tests": []
@@ -132,7 +132,7 @@
             "method": "POST",
             "sortNum": 40000,
             "created": "2023-07-05T17:51:29.597Z",
-            "modified": "2023-07-13T11:46:31.112Z",
+            "modified": "2023-07-13T17:14:30.976Z",
             "headers": [],
             "params": [],
             "body": {
@@ -140,7 +140,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation {\n  deleteWorkbook(workbookId: 11) {\n    title\n  }\n}"
+                    "query": "mutation {\n  deleteWorkbook(workbookId: 12) {\n    title\n  }\n}"
                 }
             },
             "tests": []
@@ -154,7 +154,7 @@
             "method": "POST",
             "sortNum": 50000,
             "created": "2023-07-13T12:27:51.976Z",
-            "modified": "2023-07-13T12:29:39.524Z",
+            "modified": "2023-07-13T17:19:11.504Z",
             "headers": [],
             "params": [],
             "body": {
@@ -162,7 +162,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query {\n    getWorkbookDetail(workbookId: 1) {\n        problems {\n            id\n        }\n        submissions {\n            id\n        }\n    }\n}"
+                    "query": "query {\n    getWorkbookDetail(workbookId: 1) {\n        problems {\n            id\n            title\n            \n        }\n        submissions {\n            id\n            code\n        }\n    }\n}"
                 }
             },
             "tests": []

@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   InternalServerErrorException,
+  ParseIntPipe,
   Req,
   UnprocessableEntityException,
   UseGuards
@@ -13,10 +14,6 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { Workbook } from '@admin/@generated/workbook/workbook.model'
-import { DeleteWorkbookArgs } from './dto/args/delete-workbook.args'
-import { GetWorkbookArgs } from './dto/args/get-workbook.args'
-import { NewWorkbookArgs } from './dto/args/new-workbook.args'
-import { UpdateWorkbookArgs } from './dto/args/update-workbook.args'
 import { GetWorkbookListInput } from './dto/input/workbook.input'
 import { CreateWorkbookInput } from './dto/input/workbook.input'
 import { UpdateWorkbookInput } from './dto/input/workbook.input'
@@ -51,6 +48,11 @@ export class WorkbookResolver {
     try {
       return this.workbookService.updateWorkbook(input)
     } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      }
       throw new InternalServerErrorException()
     }
   }
@@ -58,38 +60,62 @@ export class WorkbookResolver {
   @Query(() => [Workbook], { name: 'getWorkbookList' })
   async getWorkbookList(@Args('input') input: GetWorkbookListInput) {
     try {
-      return this.workbookService.getAdminWorkbooksByGroupId(input)
+      return this.workbookService.getWorkbookListByGroupId(input)
     } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      }
       throw new InternalServerErrorException()
     }
   }
 
   @Mutation(() => Workbook, { name: 'deleteWorkbook' })
-  async removeWorkbook(@Args('workbookId', { type: () => Int }) id: number) {
+  async removeWorkbook(
+    @Args('workbookId', { type: () => Int }, ParseIntPipe) id: number
+  ) {
     try {
       return this.workbookService.deleteWorkbook(id)
     } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      }
       throw new InternalServerErrorException()
     }
   }
 
   @Query(() => WorkbookDetail, { name: 'getWorkbookDetail' })
-  async getWorkbookDetail(@Args('workbookId') id: number) {
+  async getWorkbookDetail(
+    @Args('workbookId', { type: () => Int }, ParseIntPipe) id: number
+  ) {
     try {
-      return this.workbookService.getWorkbookById(id)
+      return this.workbookService.getWorkbookDetailById(id)
     } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      }
       throw new InternalServerErrorException()
     }
   }
 
   @Mutation(() => Boolean, { name: 'importProblemsInWorkbook' })
   async importProblemsInWorkbook(
-    @Args('problemIds', { type: () => [Int] }) idList: number[],
-    @Args('workbookId', { type: () => Int }) id: number
+    @Args('problemIds', { type: () => [Int] }, ParseIntPipe) idList: number[],
+    @Args('workbookId', { type: () => Int }, ParseIntPipe) id: number
   ) {
     try {
       return this.workbookService.mapProblemstoWorkbook(idList, id)
     } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      }
       throw new InternalServerErrorException()
     }
   }
