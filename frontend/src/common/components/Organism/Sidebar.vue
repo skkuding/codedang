@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CodingPlatformLogo from '@/common/components/Atom/CodingPlatformLogo.vue'
-import { watch, computed } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import IconBox from '~icons/bi/box'
 import IconCode from '~icons/bi/code-square'
@@ -12,9 +12,14 @@ import IconUser from '~icons/fa6-regular/user'
 import IconBrain from '~icons/fluent/brain-circuit-24-regular'
 
 // TODO: get group name and color
-const props = defineProps<{
-  color?: 'blue' | 'gray' | 'white'
-}>()
+const props = withDefaults(
+  defineProps<{
+    color?: 'blue' | 'gray' | 'white'
+  }>(),
+  {
+    color: 'white'
+  }
+)
 
 const route = useRoute()
 
@@ -46,17 +51,8 @@ const groupItems = (id: number) => [
 
 const items = computed(() =>
   route.params.groupId
-    ? groupItems(parseInt(route.params.groupId[0]))
+    ? groupItems(parseInt(route.params.groupId as string))
     : commonItems
-)
-
-watch(
-  () => route.params.groupId,
-  () => {
-    route.params.groupId
-      ? groupItems(parseInt(route.params.groupId[0]))
-      : commonItems
-  }
 )
 </script>
 
@@ -70,9 +66,7 @@ watch(
     <div v-for="{ to, name, icon } in items" :key="name">
       <router-link
         class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        :active-class="
-          colorMapper[props.color || 'default'] + ' border-l-8 !pl-8'
-        "
+        :active-class="colorMapper[color || 'default'] + ' border-l-8 !pl-8'"
         :to="to"
       >
         <component :is="icon" class="mr-2 h-4" />
