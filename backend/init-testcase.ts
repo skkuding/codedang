@@ -19,6 +19,22 @@ const main = async () => {
   await client.makeBucket(bucketName, 'ap-northeast-2')
   console.log('Bucket created successfully.')
 
+  await client.setBucketPolicy(
+    bucketName,
+    JSON.stringify({
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Sid: 'AddPerm',
+          Effect: 'Allow',
+          Principal: '*',
+          Action: ['s3:GetObject'],
+          Resource: [`arn:aws:s3:::${bucketName}/*`]
+        }
+      ]
+    })
+  )
+
   const data = [
     {
       id: '1:1',
