@@ -2,6 +2,8 @@
 import { useAuthStore } from '@/common/store/auth'
 import axios from 'axios'
 import { ref, watch } from 'vue'
+import RegularEye from '~icons/fa6-regular/eye'
+import EyeSlash from '~icons/fa6-regular/eye-slash'
 import IconCheck from '~icons/fa6-solid/check'
 import IconPaperPlane from '~icons/fa6-solid/paper-plane'
 import Button from '../Atom/Button.vue'
@@ -25,6 +27,9 @@ const warningPassRe = ref('')
 const warningEmail = ref('')
 const warningName = ref('')
 const warningCode = ref('')
+
+const passwordVisible = ref(false)
+const passwordReVisible = ref(false)
 
 const auth = useAuthStore()
 const regex =
@@ -272,21 +277,33 @@ const validate = (key: string, type: string) => {
       <p class="text-red mb-4 text-xs font-bold">
         {{ warningName }}
       </p>
-      <InputItem
-        v-model="password"
-        type="password"
-        placeholder="Password"
-        class="mb-1 rounded-md"
-      />
+      <div class="mb-1 flex items-center justify-between">
+        <InputItem
+          v-model="password"
+          placeholder="Password"
+          class="rounded-md"
+          :type="passwordVisible ? 'text' : 'password'"
+        />
+        <component
+          :is="passwordVisible ? RegularEye : EyeSlash"
+          @click.stop="passwordVisible = !passwordVisible"
+        />
+      </div>
       <p class="text-red mb-4 text-xs font-bold">
         {{ warningPass }}
       </p>
-      <InputItem
-        v-model="passwordAgain"
-        type="password"
-        placeholder="Password Check"
-        class="mb-1 rounded-md"
-      />
+      <div class="mb-1 flex items-center justify-between">
+        <InputItem
+          v-model="passwordAgain"
+          placeholder="Password Check"
+          class="rounded-md"
+          :type="passwordReVisible ? 'text' : 'password'"
+        />
+        <component
+          :is="passwordReVisible ? RegularEye : EyeSlash"
+          @click.stop="passwordReVisible = !passwordReVisible"
+        />
+      </div>
       <p class="text-red mb-4 text-xs font-bold">
         {{ warningPassRe }}
       </p>
