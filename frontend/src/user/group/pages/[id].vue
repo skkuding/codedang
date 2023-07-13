@@ -20,7 +20,7 @@ interface Group {
   groupName: string
   isGroupLeader: boolean
   description: string
-  groupImage: string
+  groupImage?: string
   createdBy: number
 }
 const group = ref<Group>({
