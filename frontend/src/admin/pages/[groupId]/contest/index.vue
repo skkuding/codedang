@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import Button from '@/common/components/Atom/Button.vue'
-import Modal from '@/common/components/Molecule/Modal.vue'
+import Dialog from '@/common/components/Molecule/Dialog.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
+import { useDialog } from '@/common/composables/dialog'
 import { onMounted, ref } from 'vue'
 import Fa6SolidAngleRight from '~icons/fa6-solid/angle-right'
 import Fa6SolidCircle from '~icons/fa6-solid/circle'
@@ -74,6 +75,9 @@ const statusPool: Record<string, string> = {
   ACCEPT: 'text-green',
   REJECT: 'text-red'
 }
+
+const dialog = useDialog()
+
 const curContestPage = ref(1)
 const curRequestPage = ref(1)
 
@@ -82,11 +86,10 @@ const perPage = 5
 const totalPageContest = ref(3)
 const totalPageRequest = ref(3)
 
-const alreadyAccept = ref(false)
-const alreadyRequest = ref(false)
-const makePublic = ref(false)
-const cancelRequest = ref(false)
+const showMakePublicModal = ref(false)
+const showCancelRequestModal = ref(false)
 
+const selectedContestId = ref()
 const selectedContest = ref('소프트의 밤 프로그래밍 경진대회')
 
 const contestList = ref<Contest[][]>([])
@@ -119,11 +122,34 @@ const changeRequest = (page: number) => {
 const deleteContest = (id: string) => {
   console.log(id)
 }
-const switchToPublic = (id: string) => {
-  console.log(id)
+const makePublic = (id: string) => {
+  selectedContestId.value = id
+  showMakePublicModal.value = true
+  console.log(showMakePublicModal.value)
+  dialog.success({
+    title: 'Make Public Contest',
+    content: `Do you really want to make ${selectedContest.value} contest public? It will take some time to be approved.`,
+    yes: 'Yes',
+    no: 'No'
+  })
+
+  // TODO: API 연결 후 응답에 맞는 dialog 표시하기
+  // if(contest is already requested but approved yet){
+  //   dialog.error({
+  //     title: 'Request Failed',
+  //     content: `Request Failed ${selectedContest.value} contest is already requested. Please wait some time to be approved.`,
+  //     yes: 'OK'
+  //   })
+  // }
 }
 const deletePublicRequest = (id: string) => {
-  console.log(id)
+  selectedContestId.value = id
+  dialog.success({
+    title: 'Request Cancel',
+    content: `Do you really want to cancel request to make ${selectedContest.value} contest public?`,
+    yes: 'Yes',
+    no: 'No'
+  })
 }
 const getContest = (cursor: number) => {
   console.log(cursor)
@@ -178,6 +204,14 @@ const getPublicRequest = (cursor: number) => {
   currentRequest.value =
     requestList.value[(curContestPage.value - 1) % pageSlot]
 }
+const sendPublicRequest = () => {
+  // call api with selectedContestId
+  showCancelRequestModal.value = false
+}
+const cancelPublicRequest = () => {
+  // call api with selectedContestId
+  showCancelRequestModal.value = false
+}
 onMounted(async () => {
   // call api
   await getContest(0)
@@ -189,7 +223,7 @@ onMounted(async () => {
   <div class="flex flex-col">
     <div class="flex gap-2">
       <div class="text-2xl font-semibold">Contest List</div>
-      <Button color="green" class="flex items-center gap-1">+ Create</Button>
+      <Button color="green" class="items-center">+ Create</Button>
     </div>
     <PaginationTable
       :fields="contestField"
@@ -198,7 +232,7 @@ onMounted(async () => {
       :number-of-pages="totalPageContest"
       @change-page="changeContest"
       @row-clicked="
-        (data) => $router.push(`/admin/${props.groupId}/contest/` + data.id)
+        (data) => $router.push(`/admin/${props.groupId}/contest/${data.id}`)
       "
     >
       <template #visible="{ row }">
@@ -223,7 +257,7 @@ onMounted(async () => {
           <Button
             class="border-gray flex h-[32px] w-[32px] items-center justify-center border"
             color="white"
-            @click.stop="switchToPublic(row.id)"
+            @click.stop="makePublic(row.id)"
           >
             <Fa6SolidAngleRight />
           </Button>
@@ -239,7 +273,7 @@ onMounted(async () => {
       :number-of-pages="totalPageRequest"
       @change-page="changeRequest"
       @row-clicked="
-        (data) => $router.push(`/admin/${props.groupId}/contest/` + data.id)
+        (data) => $router.push(`/admin/${props.groupId}/contest/${data.id}`)
       "
     >
       <template #status="{ row }">
@@ -269,36 +303,17 @@ onMounted(async () => {
       </template>
     </PaginationTable>
   </div>
-  <Modal v-model="alreadyAccept" class="text-center">
-    <p class="mb-5 text-xl font-bold">Request Failed</p>
-    <p>{{ selectedContest }} contest</p>
-    <p>is already accepted.</p>
-  </Modal>
-  <Modal v-model="alreadyRequest" class="text-center">
-    <p class="mb-5 text-xl font-bold">Request Failed</p>
-    <p>{{ selectedContest }} contest</p>
-    <p>is already requested.</p>
-    <p>Please wait some time to be approved.</p>
-  </Modal>
-  <Modal v-model="makePublic" class="text-center">
-    <p class="mb-5 text-xl font-bold">Make Public Contest</p>
-    <p>Do you really want to make</p>
-    <p>{{ selectedContest }} contest public?</p>
-    <p>It will take some time to be approved.</p>
-    <div class="mt-5 flex justify-evenly gap-4">
-      <Button color="green">Yes</Button>
-      <Button color="red">No</Button>
-    </div>
-  </Modal>
-  <Modal v-model="cancelRequest" class="text-center">
-    <p class="mb-5 text-xl font-bold">Request Cancel</p>
-    <p>Do you really want to cancel request to make</p>
-    <p>{{ selectedContest }} contest public?</p>
-    <div class="mt-5 flex justify-evenly gap-4">
-      <Button color="green">Yes</Button>
-      <Button color="red">No</Button>
-    </div>
-  </Modal>
+  <Dialog
+    v-if="showMakePublicModal"
+    @yes="sendPublicRequest()"
+    @no="showMakePublicModal = false"
+  />
+  <Dialog
+    v-if="showCancelRequestModal"
+    @yes="cancelPublicRequest()"
+    @no="showCancelRequestModal = false"
+  />
+  <Dialog v-else />
 </template>
 
 <route lang="yaml">
