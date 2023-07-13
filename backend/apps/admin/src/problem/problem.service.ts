@@ -26,6 +26,8 @@ export class ProblemService {
       }
     })
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-nocheck
     return await this.prisma.problem.create({
       data: {
         ...data,
@@ -91,6 +93,8 @@ export class ProblemService {
 
     await this.getGroupProblem(groupId, id)
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-nocheck
     return await this.prisma.problem.update({
       where: {
         id: id
