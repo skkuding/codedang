@@ -1,10 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  InternalServerErrorException
-} from '@nestjs/common'
+import { BadRequestException, Inject, Injectable } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
@@ -190,10 +185,7 @@ export class UserService {
     const joinGroupRequest: number[] = await this.cacheManager.get(
       joinGroupCacheKey(groupId)
     )
-    if (joinGroupRequest === undefined) {
-      throw new InternalServerErrorException()
-    }
-    if (!joinGroupRequest.includes(userId)) {
+    if (joinGroupRequest === undefined || !joinGroupRequest.includes(userId)) {
       throw new BadRequestException()
     }
     const filtered = joinGroupRequest.filter((element) => element !== userId)

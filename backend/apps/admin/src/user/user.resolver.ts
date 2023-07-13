@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   InternalServerErrorException,
-  NotFoundException,
   ParseIntPipe
 } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
@@ -75,7 +74,7 @@ export class UserResolver {
     try {
       return await this.userService.deleteGroupMember(userId, groupId)
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (error instanceof BadRequestException) {
         throw new BadRequestException()
       }
       throw new InternalServerErrorException()
@@ -99,6 +98,9 @@ export class UserResolver {
       const { groupId, userId } = input
       return await this.userService.handleJoinRequest(groupId, userId, false)
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw new BadRequestException()
+      }
       throw new InternalServerErrorException()
     }
   }
@@ -111,6 +113,9 @@ export class UserResolver {
       const { groupId, userId } = input
       return await this.userService.handleJoinRequest(groupId, userId, true)
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw new BadRequestException()
+      }
       throw new InternalServerErrorException()
     }
   }
