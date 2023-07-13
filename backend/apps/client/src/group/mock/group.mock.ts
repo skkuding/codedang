@@ -176,6 +176,12 @@ export const mockGroupData = {
   id: 2,
   groupName: 'mock public group 2',
   description: 'mock public group with approval',
+  config: {
+    showOnList: true,
+    allowJoinFromSearch: true,
+    allowJoinWithURL: false,
+    requireApprovalBeforeJoin: false
+  },
   createdBy: {
     username: 'manager'
   },
