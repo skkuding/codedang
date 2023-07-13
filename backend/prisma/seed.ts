@@ -7119,7 +7119,8 @@ int main(void) {
     printf("Hello, World!\n");
     return 0;
 }`,
-        language: Language.C
+        language: Language.C,
+        result: ResultStatus.Judging
       }
     })
   )
@@ -7127,7 +7128,9 @@ int main(void) {
     data: {
       submissionId: submissions[0].id,
       problemTestcaseId: problemTestcases[0].id,
-      result: ResultStatus.Accepted
+      result: ResultStatus.Accepted,
+      cpuTime: 12345,
+      memoryUsage: 12345
     }
   })
   await prisma.submission.update({
@@ -7149,7 +7152,8 @@ int main(void) {
     std::cout << "Hello, World!" << endl;
     return 0;
 }`,
-        language: Language.Cpp
+        language: Language.Cpp,
+        result: ResultStatus.Judging
       }
     })
   )
@@ -7157,7 +7161,9 @@ int main(void) {
     data: {
       submissionId: submissions[1].id,
       problemTestcaseId: problemTestcases[1].id,
-      result: ResultStatus.WrongAnswer
+      result: ResultStatus.WrongAnswer,
+      cpuTime: 12345,
+      memoryUsage: 12345
     }
   })
   await prisma.submission.update({
@@ -7179,7 +7185,8 @@ int main(void) {
         System.out.println("Hello, World!");
     }
 }`,
-        language: Language.Java
+        language: Language.Java,
+        result: ResultStatus.Judging
       }
     })
   )
@@ -7187,7 +7194,9 @@ int main(void) {
     data: {
       submissionId: submissions[2].id,
       problemTestcaseId: problemTestcases[2].id,
-      result: ResultStatus.CompileError
+      result: ResultStatus.CompileError,
+      cpuTime: 12345,
+      memoryUsage: 12345
     }
   })
   await prisma.submission.update({
@@ -7205,7 +7214,8 @@ int main(void) {
         problemId: problems[3].id,
         contestId: contest.id,
         code: `print("Hello, World!")`,
-        language: Language.Python3
+        language: Language.Python3,
+        result: ResultStatus.Judging
       }
     })
   )
@@ -7213,7 +7223,9 @@ int main(void) {
     data: {
       submissionId: submissions[3].id,
       problemTestcaseId: problemTestcases[3].id,
-      result: ResultStatus.RuntimeError
+      result: ResultStatus.RuntimeError,
+      cpuTime: 12345,
+      memoryUsage: 12345
     }
   })
   await prisma.submission.update({
@@ -7235,7 +7247,8 @@ int main(void) {
     printf("Hello, World!\n");
     return 0;
 }`,
-        language: Language.C
+        language: Language.C,
+        result: ResultStatus.Judging
       }
     })
   )
@@ -7243,7 +7256,9 @@ int main(void) {
     data: {
       submissionId: submissions[4].id,
       problemTestcaseId: problemTestcases[4].id,
-      result: ResultStatus.TimeLimitExceeded
+      result: ResultStatus.TimeLimitExceeded,
+      cpuTime: 12345,
+      memoryUsage: 12345
     }
   })
   await prisma.submission.update({
@@ -7265,7 +7280,8 @@ int main(void) {
     std::cout << "Hello, World!" << endl;
     return 0;
 }`,
-        language: Language.Cpp
+        language: Language.Cpp,
+        result: ResultStatus.Judging
       }
     })
   )
@@ -7273,7 +7289,9 @@ int main(void) {
     data: {
       submissionId: submissions[5].id,
       problemTestcaseId: problemTestcases[5].id,
-      result: ResultStatus.MemoryLimitExceeded
+      result: ResultStatus.MemoryLimitExceeded,
+      cpuTime: 12345,
+      memoryUsage: 12345
     }
   })
   await prisma.submission.update({
@@ -7291,7 +7309,8 @@ int main(void) {
         problemId: problems[6].id,
         workbookId: workbooks[0].id,
         code: `print("Hello, World!")`,
-        language: Language.Python3
+        language: Language.Python3,
+        result: ResultStatus.Judging
       }
     })
   )
@@ -7299,7 +7318,9 @@ int main(void) {
     data: {
       submissionId: submissions[6].id,
       problemTestcaseId: problemTestcases[6].id,
-      result: ResultStatus.OutputLimitExceeded
+      result: ResultStatus.OutputLimitExceeded,
+      cpuTime: 12345,
+      memoryUsage: 12345
     }
   })
   await prisma.submission.update({
