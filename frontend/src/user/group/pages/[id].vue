@@ -19,14 +19,14 @@ interface Group {
   id: number
   groupName: string
   description: string
-  groupImage: string
+  groupImage?: string
   createdBy: number
 }
 const group = ref<Group>({
   id: 1,
-  groupName: 'skkuding',
-  description: 'skkuding description',
-  groupImage: '@/common/assets/logo.png',
+  groupName: '',
+  description: '',
+  groupImage: '',
   createdBy: 1
 })
 
@@ -46,7 +46,7 @@ onMounted(async () => {
       :id="Number(id)"
       :group-name="group.groupName"
       :description="group.description"
-      :group-image="group.groupImage"
+      :group-image="group.groupImage ? group.groupImage : ''"
     />
     <Tab :items="['notice', 'contest', 'workbook', 'member']">
       <template #notice><Notice :id="Number(id)" /></template>
