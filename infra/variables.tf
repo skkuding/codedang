@@ -41,3 +41,9 @@ variable "postgres_port" {
   type        = string
   default     = "5432"
 }
+
+variable "redis_port" {
+  description = "Port for Redis"
+  type        = string
+  default     = "6379"
+}

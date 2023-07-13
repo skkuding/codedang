@@ -110,8 +110,8 @@ resource "aws_security_group" "db" {
 
   ingress {
     description = "PostgreSQL"
-    from_port   = 5433
-    to_port     = 5433
+    from_port   = var.postgres_port
+    to_port     = var.postgres_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -130,12 +130,12 @@ resource "aws_security_group" "db" {
 }
 
 resource "aws_security_group" "redis" {
-  name        = "Codedang-SG-REDIS"
-  description = "Allow DB inbound traffic"
+  name        = "Codedang-SG-Redis"
+  description = "Allow Redis inbound traffic"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "REDIS"
+    description = "Redis"
     from_port   = 6379
     to_port     = 6379
     protocol    = "tcp"
@@ -151,6 +151,6 @@ resource "aws_security_group" "redis" {
   }
 
   tags = {
-    Name = "Codedang-SG-REDIS"
+    Name = "Codedang-SG-Redis"
   }
 }

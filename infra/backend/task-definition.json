@@ -7,13 +7,21 @@
     "essential": true,
     "portMappings": [
       {
-        "containerPort": 3000
+        "containerPort": 4000
       }
     ],
     "environment": [
       {
         "name": "DATABASE_URL",
         "value": "${database_url}"
+      },
+      {
+        "name": "REDIS_HOST",
+        "value": "${redis_host}"
+      },
+      {
+        "name": "REDIS_PORT",
+        "value": "${redis_port}"
       }
     ],
     "logConfiguration": {
