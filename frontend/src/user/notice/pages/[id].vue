@@ -4,7 +4,7 @@ import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import IconBars from '~icons/fa6-solid/bars'
-import { useNotice, type Field, type Item } from '../composables/notice'
+import { useNotice, type Field, type NoticeItem } from '../composables/notice'
 
 const props = defineProps<{
   id: string
@@ -23,7 +23,7 @@ onMounted(async () => {
   }
 })
 
-const changePage = async (item: Item) => {
+const changePage = async (item: NoticeItem) => {
   await goDetail(item)
   getNotice(parseInt(props.id))
   if (!currentNotice.value) {

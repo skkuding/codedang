@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
-import axios from 'axios'
-import { ref } from 'vue'
+import { useListAPI } from '@/common/composables/api'
 
 const props = defineProps<{
   id: number
@@ -13,25 +12,16 @@ interface Problem {
   title: string
 }
 const field = [{ key: 'id', label: '#', width: '40%' }, { key: 'title' }]
-const problemList = ref<Problem[]>([])
 
-axios
-  .get(`/api/contest/${props.id}/problem`, {
-    params: {
-      take: 10
-    }
-  })
-  .then((res) => {
-    problemList.value = res.data
-  })
+const { items, totalPages } = useListAPI<Problem>(`contest/${props.id}/problem`)
 </script>
 
 <template>
   <PaginationTable
     :fields="field"
-    :items="problemList"
+    :items="items"
     no-search-bar
-    :number-of-pages="1"
+    :number-of-pages="totalPages"
     @row-clicked="({ id }) => $router.push('/problem/' + id)"
   />
 </template>
