@@ -40,18 +40,20 @@ const PasswordReset = defineAsyncComponent(() => import('./PasswordReset.vue'))
       leave-to-class="opacity-0"
       mode="out-in"
     >
-      <Login
-        v-if="modelValue === 'login'"
-        @to="(value) => $emit('update:modelValue', value)"
-      />
-      <Signup
-        v-else-if="modelValue === 'signup'"
-        @to="(value) => $emit('update:modelValue', value)"
-      />
-      <PasswordReset
-        v-else-if="modelValue === 'password'"
-        @to="(value) => $emit('update:modelValue', value)"
-      />
+      <KeepAlive>
+        <Login
+          v-if="modelValue === 'login'"
+          @to="(value) => $emit('update:modelValue', value)"
+        />
+        <Signup
+          v-else-if="modelValue === 'signup'"
+          @to="(value) => $emit('update:modelValue', value)"
+        />
+        <PasswordReset
+          v-else-if="modelValue === 'password'"
+          @to="(value) => $emit('update:modelValue', value)"
+        />
+      </KeepAlive>
     </transition>
   </Modal>
 </template>
