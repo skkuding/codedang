@@ -131,7 +131,7 @@ model Problem {
   ///   "code": {
   ///             "id": number,
   ///             "text": string,
-  ///             "readonly": boolean
+  ///             "locked": boolean
   ///           }[]
   /// }
   template          Json[]
@@ -321,7 +321,7 @@ model Submission {
   /// {
   ///   "id": number,
   ///   "text": string,
-  ///   "readonly": boolean
+  ///   "locked": boolean
   /// }
   code       Json[]
   language   Language

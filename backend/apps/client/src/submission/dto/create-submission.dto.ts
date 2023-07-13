@@ -21,7 +21,7 @@ export class Snippet {
 
   @IsBoolean()
   @IsNotEmpty()
-  readonly: boolean
+  locked: boolean
 }
 
 export class Template {
