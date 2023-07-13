@@ -11,5 +11,7 @@ export class UpdateProblemInput extends OmitType(ProblemUncheckedUpdateInput, [
   'updateTime',
   'createdById',
   'groupId',
-  'submission'
+  'submission',
+  'problemTestcase',
+  'problemTag'
 ]) {}
