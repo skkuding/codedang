@@ -2,7 +2,7 @@ import axios from 'axios'
 import { ref, computed } from 'vue'
 
 interface Item {
-  id: number
+  id: unknown
 }
 
 export const useListAPI = <T extends Item>(model: string, take = 20) => {
