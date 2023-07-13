@@ -100,6 +100,7 @@ int main() {
           :number-of-pages="3"
           :no-search-bar="true"
           :no-pagination="true"
+          class="pointer-events-none"
         >
           <template #result="{ row }">
             <p :class="row.result === 'Accepted' ? 'text-green' : 'text-red'">
