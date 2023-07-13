@@ -5,10 +5,12 @@ import {
   Param,
   UseGuards,
   Body,
-  Req
+  Req,
+  BadRequestException
 } from '@nestjs/common'
 import type { Submission } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
+import { ActionNotAllowedException } from '@libs/exception'
 import { CreateSubmissionDto } from './dto/create-submission.dto'
 import type { SubmissionResultDTO } from './dto/submission-result.dto'
 import { ContestProblemSubmissionGuard } from './guard/contestProblemSubmission.guard'
@@ -35,10 +37,16 @@ export class SubmissionController {
     @Body() createSubmissionDTO: CreateSubmissionDto,
     @Req() req: AuthenticatedRequest
   ): Promise<Submission & { submissionResultIds: { id: number }[] }> {
-    return await this.submissionService.createSubmission(
-      createSubmissionDTO,
-      req.user.id
-    )
+    try {
+      return await this.submissionService.createSubmission(
+        createSubmissionDTO,
+        req.user.id
+      )
+    } catch (error) {
+      if (error instanceof ActionNotAllowedException) {
+        throw new BadRequestException(error.message)
+      }
+    }
   }
 
   @Post('contest/:contestId/problem/:problemId')

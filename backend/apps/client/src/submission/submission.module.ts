@@ -33,7 +33,17 @@ import { SubmissionService } from './submission.service'
               }
 
         return {
-          uri: config.get('AMQP_URI'),
+          uri:
+            'amqp://' +
+            config.get('RABBITMQ_DEFAULT_USER') +
+            ':' +
+            config.get('RABBITMQ_DEFAULT_PASS') +
+            '@' +
+            config.get('RABBITMQ_HOST') +
+            ':' +
+            config.get('RABBITMQ_PORT') +
+            '/' +
+            config.get('RABBITMQ_DEFAULT_VHOST'),
           channels,
           connectionInitOptions: { wait: false }
         }

@@ -6599,6 +6599,273 @@ const createProblems = async () => {
     })
   )
 
+  problems.push(
+    await prisma.problem.create({
+      data: {
+        title: '회전 표지판',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        description: `<p style="margin-left: 0px">
+  예술가 민정이는 바람에 자유롭게 회전해도 알아볼 수 있는 표지판을 만들려고
+  한다. 이러한 표지판을 만들기 위해 민정이는 180도 회전해도 변하지 않는 문자인
+  H, I, N, O, S, X, Z만을 사용할 수 있다.
+</p>
+<p>
+  단어를 보고, 그 단어가 회전 표지판에 사용될 수 있는지를 결정하는 프로그램을
+  작성하라.
+</p>`,
+        difficulty: Level.Level1,
+        inputDescription: `<p>
+  <span style="color: rgb(51, 51, 51)">
+    공백 없이 알파벳 대문자로만 이루어진 하나의 문자열
+    <span>
+      <span class="katex">
+        <span class="katex-mathml">
+          <math>
+            <semantics>
+              <mrow><mi>S</mi></mrow>
+              <annotation encoding="application/x-tex">S</annotation>
+            </semantics>
+          </math>
+        </span>
+        <span class="katex-html" aria-hidden="true">
+          <span class="base">
+            <span
+              class="strut"
+              style="height: 0.68333em; vertical-align: 0em"
+            ></span>
+            <span class="mord mathdefault" style="margin-right: 0.05764em">
+              S
+            </span>
+          </span>
+        </span>
+      </span>
+    </span>
+    가 주어진다. 문자열의 길이는 30을 넘지 않는다.
+  </span>
+  <br />
+</p>`,
+        outputDescription: `<p>
+  <span style="color: rgb(51, 51, 51)">
+    단어
+    <span>
+      <span class="katex">
+        <span class="katex-mathml">
+          <math>
+            <semantics>
+              <mrow><mi>S</mi></mrow>
+              <annotation encoding="application/x-tex">S</annotation>
+            </semantics>
+          </math>
+        </span>
+        <span class="katex-html" aria-hidden="true">
+          <span class="base">
+            <span
+              class="strut"
+              style="height: 0.68333em; vertical-align: 0em"
+            ></span>
+            <span class="mord mathdefault" style="margin-right: 0.05764em">
+              S
+            </span>
+          </span>
+        </span>
+      </span>
+    </span>
+    가 회전 표지판에 사용될 수 있다면
+    <code>YES</code>
+    를, 사용될 수 없다면
+    <code>NO</code>
+    를 출력한다.
+  </span>
+  <br />
+</p>`,
+        languages: [Language.Cpp],
+        hint: '',
+        timeLimit: 1000,
+        memoryLimit: 128,
+        source: 'Canadian Computing Competition(CCC) 2013 Junior 2번'
+      }
+    })
+  )
+
+  problems.push(
+    await prisma.problem.create({
+      data: {
+        title: '회전 표지판',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        description: `<p style="margin-left: 0px">
+  예술가 민정이는 바람에 자유롭게 회전해도 알아볼 수 있는 표지판을 만들려고
+  한다. 이러한 표지판을 만들기 위해 민정이는 180도 회전해도 변하지 않는 문자인
+  H, I, N, O, S, X, Z만을 사용할 수 있다.
+</p>
+<p>
+  단어를 보고, 그 단어가 회전 표지판에 사용될 수 있는지를 결정하는 프로그램을
+  작성하라.
+</p>`,
+        difficulty: Level.Level1,
+        inputDescription: `<p>
+  <span style="color: rgb(51, 51, 51)">
+    공백 없이 알파벳 대문자로만 이루어진 하나의 문자열
+    <span>
+      <span class="katex">
+        <span class="katex-mathml">
+          <math>
+            <semantics>
+              <mrow><mi>S</mi></mrow>
+              <annotation encoding="application/x-tex">S</annotation>
+            </semantics>
+          </math>
+        </span>
+        <span class="katex-html" aria-hidden="true">
+          <span class="base">
+            <span
+              class="strut"
+              style="height: 0.68333em; vertical-align: 0em"
+            ></span>
+            <span class="mord mathdefault" style="margin-right: 0.05764em">
+              S
+            </span>
+          </span>
+        </span>
+      </span>
+    </span>
+    가 주어진다. 문자열의 길이는 30을 넘지 않는다.
+  </span>
+  <br />
+</p>`,
+        outputDescription: `<p>
+  <span style="color: rgb(51, 51, 51)">
+    단어
+    <span>
+      <span class="katex">
+        <span class="katex-mathml">
+          <math>
+            <semantics>
+              <mrow><mi>S</mi></mrow>
+              <annotation encoding="application/x-tex">S</annotation>
+            </semantics>
+          </math>
+        </span>
+        <span class="katex-html" aria-hidden="true">
+          <span class="base">
+            <span
+              class="strut"
+              style="height: 0.68333em; vertical-align: 0em"
+            ></span>
+            <span class="mord mathdefault" style="margin-right: 0.05764em">
+              S
+            </span>
+          </span>
+        </span>
+      </span>
+    </span>
+    가 회전 표지판에 사용될 수 있다면
+    <code>YES</code>
+    를, 사용될 수 없다면
+    <code>NO</code>
+    를 출력한다.
+  </span>
+  <br />
+</p>`,
+        languages: [Language.Cpp],
+        hint: '',
+        timeLimit: 1000,
+        memoryLimit: 128,
+        source: 'Canadian Computing Competition(CCC) 2013 Junior 2번'
+      }
+    })
+  )
+
+  problems.push(
+    await prisma.problem.create({
+      data: {
+        title: '회전 표지판',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        description: `<p style="margin-left: 0px">
+  예술가 민정이는 바람에 자유롭게 회전해도 알아볼 수 있는 표지판을 만들려고
+  한다. 이러한 표지판을 만들기 위해 민정이는 180도 회전해도 변하지 않는 문자인
+  H, I, N, O, S, X, Z만을 사용할 수 있다.
+</p>
+<p>
+  단어를 보고, 그 단어가 회전 표지판에 사용될 수 있는지를 결정하는 프로그램을
+  작성하라.
+</p>`,
+        difficulty: Level.Level1,
+        inputDescription: `<p>
+  <span style="color: rgb(51, 51, 51)">
+    공백 없이 알파벳 대문자로만 이루어진 하나의 문자열
+    <span>
+      <span class="katex">
+        <span class="katex-mathml">
+          <math>
+            <semantics>
+              <mrow><mi>S</mi></mrow>
+              <annotation encoding="application/x-tex">S</annotation>
+            </semantics>
+          </math>
+        </span>
+        <span class="katex-html" aria-hidden="true">
+          <span class="base">
+            <span
+              class="strut"
+              style="height: 0.68333em; vertical-align: 0em"
+            ></span>
+            <span class="mord mathdefault" style="margin-right: 0.05764em">
+              S
+            </span>
+          </span>
+        </span>
+      </span>
+    </span>
+    가 주어진다. 문자열의 길이는 30을 넘지 않는다.
+  </span>
+  <br />
+</p>`,
+        outputDescription: `<p>
+  <span style="color: rgb(51, 51, 51)">
+    단어
+    <span>
+      <span class="katex">
+        <span class="katex-mathml">
+          <math>
+            <semantics>
+              <mrow><mi>S</mi></mrow>
+              <annotation encoding="application/x-tex">S</annotation>
+            </semantics>
+          </math>
+        </span>
+        <span class="katex-html" aria-hidden="true">
+          <span class="base">
+            <span
+              class="strut"
+              style="height: 0.68333em; vertical-align: 0em"
+            ></span>
+            <span class="mord mathdefault" style="margin-right: 0.05764em">
+              S
+            </span>
+          </span>
+        </span>
+      </span>
+    </span>
+    가 회전 표지판에 사용될 수 있다면
+    <code>YES</code>
+    를, 사용될 수 없다면
+    <code>NO</code>
+    를 출력한다.
+  </span>
+  <br />
+</p>`,
+        languages: [Language.Cpp],
+        hint: '',
+        timeLimit: 1000,
+        memoryLimit: 128,
+        source: 'Canadian Computing Competition(CCC) 2013 Junior 2번'
+      }
+    })
+  )
+
   // add simple testcases
   for (const problem of problems) {
     problemTestcases.push(
@@ -6611,6 +6878,41 @@ const createProblems = async () => {
       })
     )
   }
+
+  await prisma.problemTestcase.createMany({
+    data: [
+      {
+        problemId: 8,
+        input: 'input.in',
+        output: 'output.out'
+      },
+      {
+        problemId: 8,
+        input: 'input.in',
+        output: 'output.out'
+      },
+      {
+        problemId: 9,
+        input: 'input.in',
+        output: 'output.out'
+      },
+      {
+        problemId: 9,
+        input: 'input.in',
+        output: 'output.out'
+      },
+      {
+        problemId: 10,
+        input: 'input.in',
+        output: 'output.out'
+      },
+      {
+        problemId: 10,
+        input: 'input.in',
+        output: 'output.out'
+      }
+    ]
+  })
 
   const tagNames = [
     'If Statement',

@@ -1,9 +1,9 @@
 import { Language } from '@prisma/client'
 import {
+  IsEmpty,
   IsEnum,
   IsNotEmpty,
   IsNumber,
-  IsOptional,
   IsString
 } from 'class-validator'
 
@@ -20,11 +20,9 @@ export class CreateSubmissionDto {
   @IsNotEmpty()
   language: Language
 
-  @IsNumber()
-  @IsOptional()
+  @IsEmpty()
   contestId?: number
 
-  @IsNumber()
-  @IsOptional()
+  @IsEmpty()
   workbookId?: number
 }

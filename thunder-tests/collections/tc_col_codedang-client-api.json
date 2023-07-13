@@ -5135,6 +5135,141 @@
                 }
             ],
             "docs": "# Get Clarifications by Contest\n\n파라미터로 주어진 group contest의 problem에 등록된 clarification의 목록을 불러옵니다.  "
+        },
+        {
+            "_id": "bff40192-c6af-4f14-8315-1e9641299eea",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "b5637fa9-bc58-4ed0-ad12-9c163481d00b",
+            "name": "Succeed",
+            "url": "/submission/problem/8",
+            "method": "POST",
+            "sortNum": 680000,
+            "created": "2023-07-10T06:34:04.725Z",
+            "modified": "2023-07-13T11:52:06.449Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"problemId\": 8,\n  \"code\": \"#include<stdio.h>\\n\\n int main () {\\n  int a;\\n  scanf(\\\"%d\\\\n\\\", &a);\\n  printf(\\\"%d\\\\n\\\", a);\\n}\\n\",\n  \"language\": \"Cpp\"\n}",
+                "form": []
+            },
+            "tests": [],
+            "docs": "## Create Public Submission\n\n### URL\nPOST /submission/problem/{problemId} \n\n<br>\n\n### Parameters\nproblemId\n\n<br>\n\n### Description\nid가 {problemId}인 Problem에 작성한 코드를 제출합니다.\n\n<br>\n\n### Request Body\n```typescript\n{\n  \"problemId\": number,\n  \"code\": string,\n  \"language\": Language(string),\n}\n\nenum Language {\n  C\n  Cpp\n  Java\n  Python2\n  Python3\n  Golang\n}\n```\n\n<br>\n\n### Response Type\n```typescript\n{\n  id: number\n  submissionId: string\n  result: ResultStatus\n  createTime: Date\n  updateTime: Date\n  contestId?: number\n  workboodId?: number\n  submissionResultIds: { id: number }[]\n}\n\nenum ResultStatus {\n  Judging\n  Accepted\n  WrongAnswer\n  CompileError\n  RuntimeError\n  TimeLimitExceeded\n  MemoryLimitExceeded\n  OutputLimitExceeded\n  ServerError\n}\n```",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "b85da3d5-3690-4bbc-80ae-8174e880bf3b",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "b5637fa9-bc58-4ed0-ad12-9c163481d00b",
+            "name": "400: Bad Request",
+            "url": "/submission/problem/1",
+            "method": "POST",
+            "sortNum": 690000,
+            "created": "2023-07-10T07:29:02.314Z",
+            "modified": "2023-07-10T08:10:55.380Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"problemId\": 1,\n  \"code\": \"#include<stdio.h>\\n\\n int main () {\\n  int a;\\n  scanf(\\\"%d\\\\n\\\", &a);\\n  printf(\\\"%d\\\\n\\\", a);\\n}\\n\",\n  \"language\": \"Golang\"\n}",
+                "form": []
+            },
+            "tests": [],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "4e256cdb-a15c-4f8d-a5dc-313f58ad318a",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "da2d32fa-8b11-4404-8257-5298744eaf2c",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 700000,
+            "created": "2023-07-13T11:20:23.977Z",
+            "modified": "2023-07-13T11:20:28.338Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "12d104f6-4c5b-463a-aa9f-2f1842283981",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "ab0bbe00-536b-436e-aade-c5b842e205ae",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 710000,
+            "created": "2023-07-13T11:20:34.158Z",
+            "modified": "2023-07-13T11:20:36.602Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "6fb55a48-a824-46a7-b93a-d8ee29ca80e0",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "1ceeb6f0-ede0-4953-b535-921a95ff08af",
+            "name": "Succeed",
+            "url": "/submission/result/1d2d9f",
+            "method": "GET",
+            "sortNum": 720000,
+            "created": "2023-07-13T11:20:48.423Z",
+            "modified": "2023-07-13T11:34:02.771Z",
+            "headers": [],
+            "params": [],
+            "tests": [],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "f5e062a8-55e6-4462-97b6-6b594b6d1581",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "1ceeb6f0-ede0-4953-b535-921a95ff08af",
+            "name": "403: Forbidden",
+            "url": "/submission/result/1d2d9f",
+            "method": "GET",
+            "sortNum": 730000,
+            "created": "2023-07-13T11:30:37.433Z",
+            "modified": "2023-07-13T11:32:27.291Z",
+            "headers": [],
+            "params": [],
+            "tests": [],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         }
     ]
 }

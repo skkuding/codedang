@@ -143,7 +143,8 @@ export class SubmissionService implements OnModuleInit {
     })
 
     await this.prisma.submissionResult.createMany({
-      data: submissionResults
+      data: submissionResults,
+      skipDuplicates: true
     })
 
     return await this.prisma.submissionResult.findMany({
@@ -189,6 +190,8 @@ export class SubmissionService implements OnModuleInit {
   async submissionResultHandler(msg: SubmissionResultMessage): Promise<void> {
     const validationError: ValidationError[] = await validate(msg)
 
+    console.log(msg.data.judgeResult)
+
     if (validationError.length > 0) {
       throw new MessageFormatError({ ...validationError })
     }
@@ -203,6 +206,8 @@ export class SubmissionService implements OnModuleInit {
         submissionId
       }
     })
+
+    console.log(judgeResults)
 
     await this.updateSubmissionResult(judgeResults)
   }
