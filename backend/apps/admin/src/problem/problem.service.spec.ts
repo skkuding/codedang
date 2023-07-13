@@ -95,10 +95,12 @@ describe('ProblemService', () => {
       db.problem.findMany.resolves(mockProblem1)
 
       // when
-      const result = await service.getGroupProblems(groupId, {
-        cursor: ARBITRARY_VAL,
-        take: ARBITRARY_VAL
-      })
+      const result = await service.getGroupProblems(
+        groupId,
+        ARBITRARY_VAL,
+        ARBITRARY_VAL,
+        {}
+      )
 
       // then
       expect(result).to.deep.equal(mockProblem1)
@@ -111,9 +113,7 @@ describe('ProblemService', () => {
       db.problem.findFirstOrThrow.resolves(mockProblem0)
 
       // when
-      const result = await service.getGroupProblem(groupId, {
-        problemId: problemId
-      })
+      const result = await service.getGroupProblem(groupId, problemId)
 
       // then
       expect(result).to.deep.equal(mockProblem0)
@@ -130,7 +130,6 @@ describe('ProblemService', () => {
         mockProblem0.createdById,
         groupId,
         {
-          groupId: mockProblem0.groupId,
           title: mockProblem0.title,
           description: mockProblem0.description,
           inputDescription: mockProblem0.inputDescription,
@@ -157,9 +156,7 @@ describe('ProblemService', () => {
       db.problem.delete.resolves(mockProblem0)
 
       // when
-      const result = await service.deleteGroupProblem(groupId, {
-        problemId: problemId
-      })
+      const result = await service.deleteGroupProblem(groupId, problemId)
 
       // then
       expect(result).to.deep.equal(mockProblem0)

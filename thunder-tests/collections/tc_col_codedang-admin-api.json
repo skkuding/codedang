@@ -596,7 +596,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-07-05T12:16:57.576Z",
-            "modified": "2023-07-12T12:47:42.448Z",
+            "modified": "2023-07-13T11:23:57.492Z",
             "headers": [],
             "params": [],
             "body": {
@@ -604,8 +604,8 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation Problem($createInput: CreateGroupProblemInput!){\n    createGroupProblem(\n        groupId: 2\n        input: $createInput\n    ){\n        title\n    }\n}",
-                    "variables": "{\n  \"createInput\":{\n    \"groupId\": 2,\n    \"title\": \"title0\",\n    \"description\": \"description0\",\n    \"inputDescription\": \"inputDescription0\",\n    \"outputDescription\": \"ouputDescription0\",\n    \"hint\": \"hint0\",\n    \"languages\": [\"C\",\"Java\"],\n    \"timeLimit\": 666,\n    \"memoryLimit\": 33,\n    \"difficulty\": \"Level1\",\n    \"source\": \"source0\",\n    \"inputExamples\": [\"i0\",\"i1\"],\n    \"outputExamples\": [\"o0\",\"o1\"],\n    \"problemTestcase\": [\n      {\n        \"input\": \"input0\",\n        \"output\": \"output0\"\n      },{\n        \"input\": \"input1\",\n        \"output\": \"output1\"\n      }\n      ],\n    \"problemTag\":[1]\n  }\n}"
+                    "query": "mutation Problem($createInput: CreateGroupProblemInput!){\n    createGroupProblem(\n        groupId: 1\n        input: $createInput\n    ){\n        title\n    }\n}",
+                    "variables": "{\n  \"createInput\":{\n    \"title\": \"title0\",\n    \"description\": \"description0\",\n    \"inputDescription\": \"inputDescription0\",\n    \"outputDescription\": \"ouputDescription0\",\n    \"hint\": \"hint0\",\n    \"languages\": [\"C\",\"Java\"],\n    \"timeLimit\": 666,\n    \"memoryLimit\": 33,\n    \"difficulty\": \"Level1\",\n    \"source\": \"source0\",\n    \"inputExamples\": [\"i0\",\"i1\"],\n    \"outputExamples\": [\"o0\",\"o1\"],\n    \"problemTestcase\": [\n      {\n        \"input\": \"input0\",\n        \"output\": \"output0\"\n      },{\n        \"input\": \"input1\",\n        \"output\": \"output1\"\n      }\n      ],\n    \"problemTag\":[1]\n  }\n}"
                 }
             },
             "tests": []
@@ -619,7 +619,7 @@
             "method": "POST",
             "sortNum": 20000,
             "created": "2023-07-05T12:26:45.056Z",
-            "modified": "2023-07-12T12:47:52.039Z",
+            "modified": "2023-07-13T11:24:11.877Z",
             "headers": [],
             "params": [],
             "body": {
@@ -627,8 +627,8 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation Problem($createInput: CreateGroupProblemInput!){\n    createGroupProblem(\n        groupId:2\n        input: $createInput\n    ){\n        title\n        createTime\n    }\n}",
-                    "variables": "{\n  \"createInput\":{\n    \"groupId\": 1,\n    \"title\": \"title0\",\n    \"description\": \"description0\",\n    \"inputDescription\": \"inputDescription0\",\n    \"outputDescription\": \"ouputDescription0\",\n    \"hint\": \"hint0\",\n    \"languages\": [\"C\",\"Java\"],\n    \"timeLimit\": 666,\n    \"memoryLimit\": 33,\n    \"difficulty\": \"Level1\",\n    \"source\": \"source0\",\n    \"inputExamples\": [\"i0\",\"i1\"],\n    \"outputExamples\": [\"o0\",\"o1\"],\n    \"problemTestcase\": [\n      {\n        \"input\": \"input0\",\n        \"output\": \"output0\"\n      },{\n        \"input\": \"input1\",\n        \"output\": \"output1\"\n      }\n      ],\n      \"createTime\": \"2023.07.14\"\n  }\n}"
+                    "query": "mutation Problem($createInput: CreateGroupProblemInput!){\n    createGroupProblem(\n        groupId:1\n        input: $createInput\n    ){\n        title\n        createTime\n    }\n}",
+                    "variables": "{\n  \"createInput\":{\n    \"title\": \"title0\",\n    \"description\": \"description0\",\n    \"inputDescription\": \"inputDescription0\",\n    \"outputDescription\": \"ouputDescription0\",\n    \"hint\": \"hint0\",\n    \"languages\": [\"C\",\"Java\"],\n    \"timeLimit\": 666,\n    \"memoryLimit\": 33,\n    \"difficulty\": \"Level1\",\n    \"source\": \"source0\",\n    \"inputExamples\": [\"i0\",\"i1\"],\n    \"outputExamples\": [\"o0\",\"o1\"],\n    \"problemTestcase\": [\n      {\n        \"input\": \"input0\",\n        \"output\": \"output0\"\n      },{\n        \"input\": \"input1\",\n        \"output\": \"output1\"\n      }\n      ],\n      \"createTime\": \"2023.07.14\"\n  }\n}"
                 }
             },
             "tests": []
@@ -665,7 +665,7 @@
             "method": "POST",
             "sortNum": 80000,
             "created": "2023-07-08T08:34:20.899Z",
-            "modified": "2023-07-12T12:35:45.242Z",
+            "modified": "2023-07-13T11:29:01.118Z",
             "headers": [],
             "params": [],
             "body": {
@@ -673,8 +673,8 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query Problem($groupId:Float!, $input:GetGroupProblemInput!){\n    getGroupProblem(\n        groupId: $groupId\n        input: $input\n    ){\n        title\n    }\n}",
-                    "variables": "{\n  \"groupId\": 2,\n  \"input\":{\n    \"problemId\": 1\n  }\n}"
+                    "query": "query Problem($groupId:Float!, $input:Int!){\n    getGroupProblem(\n        groupId: $groupId\n        input: $input\n    ){\n        title\n    }\n}",
+                    "variables": "{\n  \"groupId\": 1,\n  \"input\": 10000\n}"
                 }
             },
             "tests": []

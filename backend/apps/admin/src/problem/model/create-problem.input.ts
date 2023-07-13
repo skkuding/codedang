@@ -17,12 +17,15 @@ export class CreateGroupProblemInput extends OmitType(
     'problemTag',
     'problemTestcase',
     'workbookProblem',
-    'updateTime'
+    'updateTime',
+    'groupId',
+    'id',
+    'submission'
   ] as const
 ) {
-  @Field(() => [TestCaseDto], { nullable: true })
+  @Field(() => [TestCaseDto], { nullable: false })
   problemTestcase: Array<TestCaseDto>
 
-  @Field(() => [Number], { nullable: true })
+  @Field(() => [Number], { nullable: false })
   problemTag: Array<number>
 }

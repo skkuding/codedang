@@ -8,8 +8,10 @@ export class UpdateProblemInput extends OmitType(ProblemUncheckedUpdateInput, [
   'workbookProblem',
   'updateTime',
   'id',
-  'createdById'
+  'createdById',
+  'groupId',
+  'submission'
 ]) {
   @Field(() => Int, { nullable: false })
-  problemId: number // modify
+  declare id: number
 }
