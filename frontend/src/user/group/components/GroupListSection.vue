@@ -163,7 +163,7 @@ const joinGroup = async (id: number) => {
           </div>
 
           <h1 class="text-center text-2xl font-bold">{{ groupName }}</h1>
-          <p class="line-clamp-2 flex grow items-center text-center">
+          <p class="line-clamp-3 items-center text-center">
             {{ description }}
           </p>
           <div
