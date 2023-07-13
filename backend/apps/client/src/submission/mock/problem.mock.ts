@@ -10,7 +10,15 @@ export const problems: Problem[] = [
     inputDescription: '',
     outputDescription: '',
     hint: '',
-    template: [],
+    template: [
+      {
+        language: Language.C,
+        code: [
+          { id: 1, text: 'code', locked: false },
+          { id: 2, text: 'unchanged', locked: true }
+        ]
+      }
+    ],
     languages: [Language.C],
     timeLimit: 1000,
     memoryLimit: 4096,

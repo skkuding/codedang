@@ -1,4 +1,5 @@
 import { ResultStatus, type SubmissionResult } from '@prisma/client'
+import { JudgerResponse } from '../dto/judger-response.dto'
 
 export const submissionResults: SubmissionResult[] = [
   {
@@ -25,7 +26,7 @@ export const submissionResults: SubmissionResult[] = [
     id: 3,
     createTime: new Date('2023-01-01'),
     problemTestcaseId: 3,
-    result: ResultStatus.Accepted,
+    result: ResultStatus.WrongAnswer,
     submissionId: 'test01',
     updateTime: new Date('2023-01-01'),
     cpuTime: BigInt(12345),
@@ -35,90 +36,62 @@ export const submissionResults: SubmissionResult[] = [
     id: 4,
     createTime: new Date('2023-01-01'),
     problemTestcaseId: 4,
-    result: ResultStatus.Accepted,
+    result: ResultStatus.CompileError,
     submissionId: 'test01',
-    updateTime: new Date('2023-01-01'),
-    cpuTime: BigInt(12345),
-    memoryUsage: 12345
-  },
-  {
-    id: 5,
-    createTime: new Date('2023-01-01'),
-    problemTestcaseId: 1,
-    result: ResultStatus.Accepted,
-    submissionId: 'test02',
-    updateTime: new Date('2023-01-01'),
-    cpuTime: BigInt(12345),
-    memoryUsage: 12345
-  },
-  {
-    id: 6,
-    createTime: new Date('2023-01-01'),
-    problemTestcaseId: 2,
-    result: ResultStatus.Accepted,
-    submissionId: 'test02',
-    updateTime: new Date('2023-01-01'),
-    cpuTime: BigInt(12345),
-    memoryUsage: 12345
-  },
-  {
-    id: 7,
-    createTime: new Date('2023-01-01'),
-    problemTestcaseId: 3,
-    result: ResultStatus.Accepted,
-    submissionId: 'test02',
-    updateTime: new Date('2023-01-01'),
-    cpuTime: BigInt(12345),
-    memoryUsage: 12345
-  },
-  {
-    id: 8,
-    createTime: new Date('2023-01-01'),
-    problemTestcaseId: 4,
-    result: ResultStatus.Judging,
-    submissionId: 'test02',
-    updateTime: new Date('2023-01-01'),
-    cpuTime: BigInt(12345),
-    memoryUsage: 12345
-  },
-  {
-    id: 9,
-    createTime: new Date('2023-01-01'),
-    problemTestcaseId: 1,
-    result: ResultStatus.Accepted,
-    submissionId: 'test03',
-    updateTime: new Date('2023-01-01'),
-    cpuTime: BigInt(12345),
-    memoryUsage: 12345
-  },
-  {
-    id: 10,
-    createTime: new Date('2023-01-01'),
-    problemTestcaseId: 2,
-    result: ResultStatus.Accepted,
-    submissionId: 'test03',
-    updateTime: new Date('2023-01-01'),
-    cpuTime: BigInt(12345),
-    memoryUsage: 12345
-  },
-  {
-    id: 11,
-    createTime: new Date('2023-01-01'),
-    problemTestcaseId: 3,
-    result: ResultStatus.RuntimeError,
-    submissionId: 'test03',
-    updateTime: new Date('2023-01-01'),
-    cpuTime: BigInt(12345),
-    memoryUsage: 12345
-  },
-  {
-    id: 12,
-    createTime: new Date('2023-01-01'),
-    problemTestcaseId: 4,
-    result: ResultStatus.MemoryLimitExceeded,
-    submissionId: 'test03',
     updateTime: new Date('2023-01-01'),
     cpuTime: BigInt(12345),
     memoryUsage: 12345
   }
 ]
+
+export const judgerResponse: JudgerResponse = {
+  resultCode: 6,
+  submissionId: 'test01',
+  error: '',
+  data: {
+    acceptedNum: 2,
+    totalTestcase: 4,
+    judgeResult: [
+      {
+        testcaseId: '1:1',
+        resultCode: 0,
+        cpuTime: 12345,
+        realTime: 20000,
+        memory: 12345,
+        signal: 0,
+        exitCode: 0,
+        errorCode: 0
+      },
+      {
+        testcaseId: '1:2',
+        resultCode: 0,
+        cpuTime: 12345,
+        realTime: 20000,
+        memory: 12345,
+        signal: 0,
+        exitCode: 0,
+        errorCode: 0
+      },
+      {
+        testcaseId: '1:3',
+        resultCode: 1,
+        cpuTime: 12345,
+        realTime: 20000,
+        memory: 12345,
+        signal: 0,
+        exitCode: 0,
+        errorCode: 0
+      },
+      {
+        testcaseId: '1:4',
+        resultCode: 6,
+        cpuTime: 12345,
+        realTime: 20000,
+        memory: 12345,
+        signal: 0,
+        exitCode: 0,
+        errorCode: 0
+      }
+    ]
+  }
+}

@@ -7114,11 +7114,17 @@ const createSubmissions = async () => {
         userId: users[0].id,
         problemId: problems[0].id,
         contestId: contest.id,
-        code: `#include <stdio.h>
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <stdio.h>
 int main(void) {
     printf("Hello, World!\n");
     return 0;
-}`,
+}`
+          }
+        ],
         language: Language.C,
         result: ResultStatus.Judging
       }
@@ -7147,11 +7153,17 @@ int main(void) {
         userId: users[1].id,
         problemId: problems[1].id,
         contestId: contest.id,
-        code: `#include <iostream>
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <iostream>
 int main(void) {
     std::cout << "Hello, World!" << endl;
     return 0;
-}`,
+}`
+          }
+        ],
         language: Language.Cpp,
         result: ResultStatus.Judging
       }
@@ -7180,11 +7192,17 @@ int main(void) {
         userId: users[2].id,
         problemId: problems[2].id,
         contestId: contest.id,
-        code: `class Main {
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `class Main {
     public static void main(String[] args) {
         System.out.println("Hello, World!");
     }
-}`,
+}`
+          }
+        ],
         language: Language.Java,
         result: ResultStatus.Judging
       }
@@ -7213,7 +7231,13 @@ int main(void) {
         userId: users[3].id,
         problemId: problems[3].id,
         contestId: contest.id,
-        code: `print("Hello, World!")`,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `print("Hello, World!")`
+          }
+        ],
         language: Language.Python3,
         result: ResultStatus.Judging
       }
@@ -7242,11 +7266,17 @@ int main(void) {
         userId: users[4].id,
         problemId: problems[4].id,
         contestId: contest.id,
-        code: `#include <stdio.h>
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <stdio.h>
 int main(void) {
     printf("Hello, World!\n");
     return 0;
-}`,
+}`
+          }
+        ],
         language: Language.C,
         result: ResultStatus.Judging
       }
@@ -7275,11 +7305,17 @@ int main(void) {
         userId: users[5].id,
         problemId: problems[5].id,
         workbookId: workbooks[0].id,
-        code: `#include <iostream>
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `#include <iostream>
 int main(void) {
     std::cout << "Hello, World!" << endl;
     return 0;
-}`,
+}`
+          }
+        ],
         language: Language.Cpp,
         result: ResultStatus.Judging
       }
@@ -7308,7 +7344,13 @@ int main(void) {
         userId: users[6].id,
         problemId: problems[6].id,
         workbookId: workbooks[0].id,
-        code: `print("Hello, World!")`,
+        code: [
+          {
+            id: 1,
+            locked: false,
+            text: `print("Hello, World!")`
+          }
+        ],
         language: Language.Python3,
         result: ResultStatus.Judging
       }
