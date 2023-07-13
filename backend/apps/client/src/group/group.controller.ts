@@ -12,17 +12,19 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common'
-import { type UserGroup } from '@prisma/client'
-import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
-import { AuthNotNeeded } from '@client/common/decorator/auth-ignore.decorator'
+import type { UserGroup } from '@prisma/client'
+import {
+  AuthenticatedRequest,
+  AuthNotNeeded,
+  GroupMemberGuard
+} from '@libs/auth'
 import {
   ActionNotAllowedException,
   EntityNotExistException
-} from '@client/common/exception/business.exception'
-import { CursorValidationPipe } from '@client/common/pipe/cursor-validation.pipe'
+} from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
-import { GroupMemberGuard } from './guard/group-member.guard'
-import { type GroupData } from './interface/group-data.interface'
+import type { GroupData } from './interface/group-data.interface'
 
 @Controller('group')
 export class GroupController {

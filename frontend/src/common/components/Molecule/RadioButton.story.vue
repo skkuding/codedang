@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import RadioButton from './RadioButton.vue'
 import { ref } from 'vue'
+import RadioButton from './RadioButton.vue'
 
 const filters = ['Latest', 'Ongoing']
 const selectedFilter = ref(filters[0])

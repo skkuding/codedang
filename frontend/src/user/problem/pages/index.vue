@@ -1,148 +1,105 @@
 <script setup lang="ts">
-import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
-import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
-import SearchBar from '@/common/components/Molecule/SearchBar.vue'
-import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
-import Switch from '@/common/components/Molecule/Switch.vue'
 import Button from '@/common/components/Atom/Button.vue'
-import { ref, computed, onMounted } from 'vue'
+import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
+import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
+import SearchBar from '@/common/components/Molecule/SearchBar.vue'
+import Switch from '@/common/components/Molecule/Switch.vue'
+import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useDateFormat } from '@vueuse/core'
-import { useWorkbook } from '../../workbook/composables/workbook'
 import { useWindowSize } from '@vueuse/core'
+import axios from 'axios'
+import { ref, computed, onMounted } from 'vue'
+import { useWorkbook } from '../../workbook/composables/workbook'
 
 interface Problem {
   id: number
   title: string
-  level: number
+  difficulty: string
   submissions: number
   rate: string
   tags: string
 }
 
-const colorMapper = (level: number) => {
+const colorMapper = (level: string) => {
   switch (level) {
-    case 1:
+    case 'Level1':
       return 'bg-level-1'
-    case 2:
+    case 'Level2':
       return 'bg-level-2'
-    case 3:
+    case 'Level3':
       return 'bg-level-3'
-    case 4:
+    case 'Level4':
       return 'bg-level-4'
-    case 5:
+    case 'Level5':
       return 'bg-level-5'
-    case 6:
+    case 'Level6':
       return 'bg-level-6'
-    case 7:
+    case 'Level7':
       return 'bg-level-7'
     default:
       return 'bg-gray'
   }
 }
-
+const perPage = 3
+const pageSlot = 3
+const numberOfPages = ref(4)
+const currentPage = ref(1)
+const currentItems = ref<Problem[]>([])
 const showTags = ref(false)
 const fields = computed(() =>
   showTags.value
     ? [
         { key: 'id', label: '#' },
         { key: 'title' },
-        { key: 'level' },
-        { key: 'submissions' },
-        { key: 'rate', label: 'AC Rate' },
-        { key: 'tags' }
+        { key: 'level' }
+        // { key: 'submissions' },
+        // { key: 'rate', label: 'AC Rate' },
+        // { key: 'tags' }
       ]
     : [
         { key: 'id', label: '#' },
         { key: 'title' },
-        { key: 'level' },
-        { key: 'submissions' },
-        { key: 'rate', label: 'AC Rate' }
+        { key: 'level' }
+        // { key: 'submissions' },
+        // { key: 'rate', label: 'AC Rate' }
       ]
 )
 
-const problemList = ref<Problem[]>([])
-problemList.value = [
-  {
-    id: 1,
-    title: '가파른 경사',
-    level: 1,
-    submissions: 132,
-    rate: '92.14%',
-    tags: 'A'
-  },
-  {
-    id: 1006,
-    title: '습격자 호루라기',
-    level: 2,
-    submissions: 561,
-    rate: '70%',
-    tags: 'B'
-  },
-  {
-    id: 10,
-    title: '아싸 홍삼',
-    level: 1,
-    submissions: 100,
-    rate: '90%',
-    tags: 'E'
-  },
-  {
-    id: 11,
-    title: '에브리바디 홍상',
-    level: 2,
-    submissions: 100,
-    rate: '83%',
-    tags: 'C'
-  },
-  {
-    id: 12,
-    title: '나는 토깽이',
-    level: 3,
-    submissions: 100,
-    rate: '72%',
-    tags: 'D'
-  },
-  {
-    id: 13,
-    title: '나는 거부깅',
-    level: 4,
-    submissions: 100,
-    rate: '65%',
-    tags: 'F'
-  },
-  {
-    id: 14,
-    title: '토깽이 둘',
-    level: 5,
-    submissions: 100,
-    rate: '52%',
-    tags: 'G'
-  },
-  {
-    id: 15,
-    title: '토깽이 토깽이',
-    level: 6,
-    submissions: 100,
-    rate: '1%',
-    tags: 'H'
-  },
-  {
-    id: 16,
-    title: '아싸 토깽 에브리바디 토깽',
-    level: 7,
-    submissions: 100,
-    rate: '1%',
-    tags: 'I'
-  },
-  {
-    id: 17,
-    title: '토깽이 토깽이',
-    level: 7,
-    submissions: 100,
-    rate: '1%',
-    tags: 'J'
+const problemList = ref<Problem[][]>([])
+
+const changePage = (page: number) => {
+  let q = Math.floor((currentPage.value - 1) / pageSlot) * pageSlot
+  if (q < page && page <= q + pageSlot) {
+    currentPage.value = page
+    currentItems.value = problemList.value[(page - 1) % pageSlot]
+  } else {
+    currentPage.value = page
+    getProblemList(Math.floor((page - 1) / pageSlot) * perPage * pageSlot)
   }
-]
+}
+
+const getProblemList = async (cursor: number) => {
+  const params =
+    cursor === 0
+      ? { take: perPage * pageSlot }
+      : { cursor: cursor, take: perPage * pageSlot }
+  const res = await axios.get('/api/problem', {
+    params: params
+  })
+  let problems = res.data
+  problemList.value = []
+  do {
+    if (problems.length === 0) return
+    else if (problems.length > perPage) {
+      problemList.value.push(problems.slice(0, perPage))
+      problems = problems.splice(perPage)
+    } else {
+      problemList.value.push(problems)
+      problems = problems.splice(problems.length + 1)
+    }
+  } while (problems.length > 0)
+  currentItems.value = problemList.value[(currentPage.value - 1) % pageSlot]
+}
 
 const CARD_COLOR = ['#FFE5CC', '#94D0AD', '#FFCDCD', '#B1DDEB']
 
@@ -151,6 +108,7 @@ const { containLastItem, workbookList, getWorkbooks, getMoreWorkbooks } =
 
 onMounted(async () => {
   await getWorkbooks()
+  await getProblemList(0)
 })
 </script>
 
@@ -158,9 +116,11 @@ onMounted(async () => {
   <PageSubtitle text="All Problem" class="mb-2 mt-10" />
   <PaginationTable
     :fields="fields"
-    :items="problemList"
+    :items="currentItems"
     placeholder="keywords"
-    :number-of-pages="1"
+    :number-of-pages="numberOfPages"
+    :page-slot="pageSlot"
+    @change-page="changePage"
     @row-clicked="({ id }) => $router.push('/problem/' + id)"
   >
     <template #option>
@@ -168,8 +128,11 @@ onMounted(async () => {
     </template>
     <template #level="{ row }">
       <div class="flex items-center gap-2">
-        <span class="h-5 w-5 rounded-full" :class="colorMapper(row.level)" />
-        Level {{ row.level }}
+        <span
+          class="h-5 w-5 rounded-full"
+          :class="colorMapper(row.difficulty)"
+        />
+        {{ row.difficulty }}
       </div>
     </template>
   </PaginationTable>

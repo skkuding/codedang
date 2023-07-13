@@ -13,15 +13,17 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common'
+import type { Workbook } from '@prisma/client'
+import {
+  type AuthenticatedRequest,
+  RolesGuard,
+  GroupLeaderGuard
+} from '@libs/auth'
+import { EntityNotExistException } from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
+import { CreateWorkbookDto } from './dto/create-workbook.dto'
+import { UpdateWorkbookDto } from './dto/update-workbook.dto'
 import { WorkbookService } from './workbook.service'
-import { type CreateWorkbookDto } from './dto/create-workbook.dto'
-import { type UpdateWorkbookDto } from './dto/update-workbook.dto'
-import { EntityNotExistException } from '@client/common/exception/business.exception'
-import { GroupLeaderGuard } from '@client/group/guard/group-leader.guard'
-import { RolesGuard } from '@client/user/guard/roles.guard'
-import { type Workbook } from '@prisma/client'
-import { type AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
-import { CursorValidationPipe } from '@client/common/pipe/cursor-validation.pipe'
 
 @Controller('admin/group/:groupId/workbook')
 @UseGuards(RolesGuard, GroupLeaderGuard)

@@ -12,6 +12,12 @@
     @apply h-full;
   }
 
+  body {
+    font-size: inherit;
+    font-family: inherit;
+    line-height: inherit;
+  }
+
   #app {
     @apply flex min-h-full flex-col;
   }

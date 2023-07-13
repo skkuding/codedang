@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, ref, watch } from 'vue'
-import SearchBar from '../Molecule/SearchBar.vue'
 import Pagination from '../Molecule/Pagination.vue'
+import SearchBar from '../Molecule/SearchBar.vue'
 
 type SubfieldType = {
   key: string
@@ -20,6 +20,7 @@ const props = defineProps<{
   numberOfPages: number
   text?: string // show if there's no data in item
   noHeader?: boolean
+  pageSlot?: number
   noSearchBar?: boolean
   noPagination?: boolean
   mode?: 'light' | 'dark'
@@ -174,6 +175,7 @@ watch(currentPage, (value) => {
         v-if="!noPagination"
         v-model="currentPage"
         class="mt-8"
+        :page-slot="pageSlot"
         :number-of-pages="numberOfPages"
         :mode="mode"
       />

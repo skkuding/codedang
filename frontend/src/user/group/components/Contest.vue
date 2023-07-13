@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
-import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import CardItem from '@/common/components/Molecule/CardItem.vue'
-import { onMounted, ref, watchEffect } from 'vue'
-import axios from 'axios'
+import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import { useAuthStore } from '@/common/store/auth'
 import { useNow, useTimeAgo, useIntersectionObserver } from '@vueuse/core'
+import axios from 'axios'
+import { onMounted, ref, watchEffect } from 'vue'
 
 const props = defineProps<{
   id: number

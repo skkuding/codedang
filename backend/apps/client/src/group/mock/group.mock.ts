@@ -1,5 +1,5 @@
 import { type Group, Role, type User, type UserGroup } from '@prisma/client'
-import { type GroupData } from '../interface/group-data.interface'
+import type { GroupData } from '../interface/group-data.interface'
 
 export const groups: Group[] = [
   {
@@ -13,7 +13,6 @@ export const groups: Group[] = [
     description: 'mock public group with no approval',
     createdById: 1,
     groupName: 'mock public group',
-    isDeleted: false,
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T:00:00.000Z')
   },
@@ -28,7 +27,6 @@ export const groups: Group[] = [
     description: 'mock public group with approval',
     createdById: 1,
     groupName: 'mock public group 2',
-    isDeleted: false,
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z')
   },
@@ -43,7 +41,6 @@ export const groups: Group[] = [
     description: 'mock public group with approval',
     createdById: 1,
     groupName: 'mock public group 2',
-    isDeleted: false,
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z')
   }
@@ -120,6 +117,41 @@ export const userGroups: UserGroup[] = [
     createTime: new Date('2023-02-22T00:00:00.000Z'),
     updateTime: new Date('2023-02-22T10:00:00.000Z'),
     isGroupLeader: false
+  }
+]
+
+export const userGroupsForJoinedGroups = [
+  {
+    ...userGroups[0],
+    group: {
+      ...groups[0],
+      createdBy: users[0],
+      userGroup: userGroups.slice(0, 2)
+    }
+  },
+  {
+    ...userGroups[1],
+    group: {
+      ...groups[0],
+      createdBy: users[0],
+      userGroup: userGroups.slice(0, 2)
+    }
+  },
+  {
+    ...userGroups[2],
+    group: {
+      ...groups[1],
+      createdBy: users[0],
+      userGroup: userGroups.slice(2)
+    }
+  },
+  {
+    ...userGroups[3],
+    group: {
+      ...groups[1],
+      createdBy: users[0],
+      userGroup: userGroups.slice(2)
+    }
   }
 ]
 
