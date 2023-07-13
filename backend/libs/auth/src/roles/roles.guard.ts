@@ -7,6 +7,7 @@ import { Reflector } from '@nestjs/core'
 import { type GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
 import { Role } from '@prisma/client'
 import type { AuthenticatedRequest } from '../authenticated-request.interface'
+import type { AuthenticatedUser } from '../authenticated-user.class'
 import { ROLES_KEY } from './roles.decorator'
 import { RolesService } from './roles.service'
 
@@ -25,22 +26,24 @@ export class RolesGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     let request: AuthenticatedRequest
-    let role = this.reflector.getAllAndOverride<Role>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass()
-    ])
-
     if (context.getType<GqlContextType>() === 'graphql') {
-      if (!role) role = Role.Admin
       request = GqlExecutionContext.create(context).getContext().req
     } else {
-      if (!role) role = Role.User
       request = context.switchToHttp().getRequest()
     }
-    const userRole = (await this.service.getUserRole(request.user.id)).role
 
-    if (this.#rolesHierarchy[userRole] >= this.#rolesHierarchy[role]) {
-      request.user.role = userRole
+    const role =
+      this.reflector.getAllAndOverride<Role>(ROLES_KEY, [
+        context.getHandler(),
+        context.getClass()
+      ]) ?? Role.User
+
+    const user: AuthenticatedUser = request.user
+    if (!user.role) {
+      const userRole = (await this.service.getUserRole(user.id)).role
+      user.role = userRole
+    }
+    if (this.#rolesHierarchy[user.role] >= this.#rolesHierarchy[role]) {
       return true
     }
     return false

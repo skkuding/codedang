@@ -10,6 +10,7 @@ export const problems: Problem[] = [
     inputDescription: '',
     outputDescription: '',
     hint: '',
+    template: [],
     languages: [Language.C],
     timeLimit: 0,
     memoryLimit: 0,
@@ -29,6 +30,7 @@ export const problems: Problem[] = [
     inputDescription: '',
     outputDescription: '',
     hint: '',
+    template: [],
     languages: [Language.Cpp],
     timeLimit: 0,
     memoryLimit: 0,
@@ -84,3 +86,10 @@ export const workbookProblems = [
     updateTime: undefined
   }
 ]
+
+export const problemTag = {
+  tag: {
+    id: 1,
+    name: 'Tag'
+  }
+}

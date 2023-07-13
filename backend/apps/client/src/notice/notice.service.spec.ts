@@ -54,7 +54,6 @@ const group: Group = {
   createdById: 1,
   groupName: 'group_name',
   description: 'description',
-  isDeleted: false,
   config: {
     showOnList: true,
     allowJoinFromSearch: true,
