@@ -119,7 +119,7 @@ const joinGroup = async (id: number) => {
       <SearchBar
         v-if="!isMyGroup && groupList.length !== 0"
         class="self-end"
-        placeholder="Search the name of groups!"
+        placeholder="Search group names!"
       />
     </div>
     <p v-if="groupList.length === 0" class="text-gray-dark py-6 text-center">
