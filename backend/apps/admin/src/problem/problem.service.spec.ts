@@ -8,6 +8,8 @@ import type { Problem } from '@admin/@generated/problem/problem.model'
 import { ProblemService } from './problem.service'
 
 export const problems: Problem[] = [
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-nocheck
   {
     id: 1,
     createdById: 1,
@@ -29,6 +31,8 @@ export const problems: Problem[] = [
     problemTestcase: [],
     problemTag: []
   },
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-nocheck
   {
     id: 2,
     createdById: 1,
