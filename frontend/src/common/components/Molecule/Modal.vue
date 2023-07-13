@@ -3,6 +3,7 @@ import IconClose from '~icons/fa6-solid/xmark'
 
 defineProps<{
   modelValue: boolean
+  dark?: boolean
 }>()
 
 defineEmits<{
@@ -27,11 +28,14 @@ defineOptions({ inheritAttrs: false })
       @mousedown.self="$emit('update:modelValue', false)"
     >
       <section
-        class="relative max-h-[96%] overflow-y-auto rounded-lg bg-white p-10"
-        :class="$attrs.class"
+        class="relative max-h-[96%] overflow-y-auto rounded-lg p-10"
+        :class="`${$attrs.class} ${
+          dark ? 'bg-default text-gray-light' : 'bg-white'
+        }`"
       >
         <IconClose
           class="text-gray absolute right-4 top-4 cursor-pointer text-xl hover:opacity-70 active:opacity-50"
+          :class="dark && 'text-gray-light'"
           @click="$emit('update:modelValue', false)"
         />
         <slot />
