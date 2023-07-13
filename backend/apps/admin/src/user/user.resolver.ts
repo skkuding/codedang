@@ -27,7 +27,7 @@ export class UserResolver {
     @Args('isGroupLeader') isGroupLeader: boolean
   ): Promise<GroupMember[]> {
     try {
-      return await this.userService.getMembers(
+      return await this.userService.getGroupMembers(
         groupId,
         cursor,
         take,
