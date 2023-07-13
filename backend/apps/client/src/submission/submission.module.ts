@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
+import { RolesModule } from '@libs/auth'
 import {
   CONSUME_CHANNEL,
   PUBLISH_CHANNEL
@@ -56,7 +57,8 @@ import { SubmissionService } from './submission.service'
         }
       },
       inject: [ConfigService]
-    })
+    }),
+    RolesModule
   ],
   controllers: [
     ProblemSubmissionController,

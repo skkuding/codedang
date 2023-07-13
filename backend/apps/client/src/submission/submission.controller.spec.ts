@@ -1,5 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
+import { RolesService } from '@libs/auth'
 import { PrismaService } from '@libs/prisma'
 import {
   ContestSubmissionController,
@@ -19,7 +20,7 @@ describe('ProblemSubmissionController', () => {
       controllers: [ProblemSubmissionController],
       providers: [
         { provide: SubmissionService, useValue: {} },
-        { provide: PrismaService, useValue: {} }
+        { provide: RolesService, useValue: {} }
       ]
     }).compile()
 
@@ -41,7 +42,7 @@ describe('GroupProblemSubmissionController', () => {
       controllers: [GroupProblemSubmissionController],
       providers: [
         { provide: SubmissionService, useValue: {} },
-        { provide: PrismaService, useValue: {} }
+        { provide: RolesService, useValue: {} }
       ]
     }).compile()
 
@@ -63,7 +64,7 @@ describe('ContestSubmissionController', () => {
       controllers: [ContestSubmissionController],
       providers: [
         { provide: SubmissionService, useValue: {} },
-        { provide: PrismaService, useValue: {} }
+        { provide: RolesService, useValue: {} }
       ]
     }).compile()
 
@@ -85,7 +86,7 @@ describe('GroupContestSubmissionController', () => {
       controllers: [GroupContestSubmissionController],
       providers: [
         { provide: SubmissionService, useValue: {} },
-        { provide: PrismaService, useValue: {} }
+        { provide: RolesService, useValue: {} }
       ]
     }).compile()
 
@@ -107,7 +108,7 @@ describe('WorkbookSubmissionController', () => {
       controllers: [WorkbookSubmissionController],
       providers: [
         { provide: SubmissionService, useValue: {} },
-        { provide: PrismaService, useValue: {} }
+        { provide: RolesService, useValue: {} }
       ]
     }).compile()
 
@@ -129,7 +130,7 @@ describe('GroupWorkbookSubmissionController', () => {
       controllers: [GroupWorkbookSubmissionController],
       providers: [
         { provide: SubmissionService, useValue: {} },
-        { provide: PrismaService, useValue: {} }
+        { provide: RolesService, useValue: {} }
       ]
     }).compile()
 
