@@ -6,7 +6,8 @@ import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 import type { UserGroup } from '@admin/@generated/user-group/user-group.model'
 import type { User } from '@admin/@generated/user/user.model'
-import type { GroupMember } from './dto/groupMember.dto'
+import type { GroupMember } from './model/groupMember.dto'
+import type { UpdateUserGroup } from './model/userGroup-update.model'
 
 @Injectable()
 export class UserService {
@@ -64,7 +65,7 @@ export class UserService {
     userId: number,
     groupId: number,
     isGroupLeader: boolean
-  ): Promise<UserGroup> {
+  ): Promise<UpdateUserGroup> {
     const groupMembers = (
       await this.prisma.userGroup.findMany({
         where: {
@@ -108,6 +109,11 @@ export class UserService {
       },
       data: {
         isGroupLeader: isGroupLeader
+      },
+      select: {
+        userId: true,
+        groupId: true,
+        isGroupLeader: true
       }
     })
   }

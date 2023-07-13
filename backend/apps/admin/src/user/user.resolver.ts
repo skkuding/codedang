@@ -8,8 +8,9 @@ import { User } from '@generated'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe } from '@libs/pipe'
 import { UserGroup } from '@admin/@generated/user-group/user-group.model'
-import { GroupMember } from './dto/groupMember.dto'
-import { JoinInput } from './dto/joinInput.dto'
+import { GroupMember } from './model/groupMember.dto'
+import { JoinInput } from './model/joinInput.dto'
+import type { UpdateUserGroup } from './model/userGroup-update.model'
 import { UserService } from './user.service'
 
 @Resolver(() => User)
@@ -36,7 +37,7 @@ export class UserResolver {
   async downgradeGroupManager(
     @Args('userId') userId: number,
     @Args('groupId') groupId: number
-  ): Promise<UserGroup> {
+  ): Promise<UpdateUserGroup> {
     try {
       return await this.userService.updateGroupMemberRole(
         userId,
@@ -55,7 +56,7 @@ export class UserResolver {
   async upgradeGroupMember(
     @Args('userId') userId: number,
     @Args('groupId') groupId: number
-  ): Promise<UserGroup> {
+  ): Promise<UpdateUserGroup> {
     try {
       return await this.userService.updateGroupMemberRole(userId, groupId, true)
     } catch (error) {
