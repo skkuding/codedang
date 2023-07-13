@@ -79,6 +79,7 @@ describe('GroupService', () => {
       //then
       expect(result).to.deep.equal({
         ...publicGroupDatas[1],
+        config: mockGroupData.config,
         leaders: ['manager']
       })
     })
