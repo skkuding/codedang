@@ -1,4 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
+import type { Group } from '@generated'
+import type { User } from '@generated'
 import { Role } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
@@ -9,8 +11,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { Group } from '@admin/@generated/group/group.model'
-import type { User } from '@admin/@generated/user/user.model'
 import { GroupService } from './group.service'
 
 const userId = 1

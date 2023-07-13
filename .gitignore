@@ -82,3 +82,9 @@ thunder-tests/environments
 # NestJS & GraphQL
 @generated/
 backend/schema.gql
+
+# Go Debugger
+__debug_bin*
+
+# Docker Mount
+/mnt

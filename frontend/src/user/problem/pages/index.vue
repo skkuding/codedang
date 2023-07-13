@@ -15,6 +15,9 @@ interface Problem {
   id: number
   title: string
   difficulty: string
+  submissions: number
+  rate: string
+  tags: string
 }
 
 const colorMapper = (level: string) => {
@@ -37,7 +40,11 @@ const colorMapper = (level: string) => {
       return 'bg-gray'
   }
 }
-
+const perPage = 3
+const pageSlot = 3
+const numberOfPages = ref(4)
+const currentPage = ref(1)
+const currentItems = ref<Problem[]>([])
 const showTags = ref(false)
 const fields = computed(() =>
   showTags.value
@@ -58,42 +65,41 @@ const fields = computed(() =>
       ]
 )
 
-const problemList = ref<Problem[]>([])
-problemList.value = []
-const take = ref(10) // 10개씩
-const cursor = ref(0)
-const hasNextPage = ref(true)
+const problemList = ref<Problem[][]>([])
 
-onMounted(async () => {
-  axios
-    .get(
-      cursor.value
-        ? `/api/problem?cursor=${cursor.value}&take=${take.value}`
-        : `/api/problem?take=${take.value}`,
-      {
-        headers: {}
-      }
-    )
-    .then((res) => {
-      // for (let i = 0; i < res.data.length; i++) {
-      //   res.data[i].createTime = res.data[i].createTime.toString().slice(0, 10)
-      //   res.data[i].updateTime = res.data[i].updateTime.toString().slice(0, 10)
-      // }
-      console.log('res is ', res)
-      problemList.value.push(...res.data)
-      if (res.data.length < take.value) {
-        hasNextPage.value = false
-      }
-    })
-    .catch((err) => console.log('error is ', err))
+const changePage = (page: number) => {
+  let q = Math.floor((currentPage.value - 1) / pageSlot) * pageSlot
+  if (q < page && page <= q + pageSlot) {
+    currentPage.value = page
+    currentItems.value = problemList.value[(page - 1) % pageSlot]
+  } else {
+    currentPage.value = page
+    getProblemList(Math.floor((page - 1) / pageSlot) * perPage * pageSlot)
+  }
+}
 
-  // try {
-  //   const problemResponse = await axios.get(`/api/problem?offset=0&limit=10`)
-  //   problemList.value = problemResponse.data
-  // } catch (err) {
-  //   console.log(err)
-  // }
-})
+const getProblemList = async (cursor: number) => {
+  const params =
+    cursor === 0
+      ? { take: perPage * pageSlot }
+      : { cursor: cursor, take: perPage * pageSlot }
+  const res = await axios.get('/api/problem', {
+    params: params
+  })
+  let problems = res.data
+  problemList.value = []
+  do {
+    if (problems.length === 0) return
+    else if (problems.length > perPage) {
+      problemList.value.push(problems.slice(0, perPage))
+      problems = problems.splice(perPage)
+    } else {
+      problemList.value.push(problems)
+      problems = problems.splice(problems.length + 1)
+    }
+  } while (problems.length > 0)
+  currentItems.value = problemList.value[(currentPage.value - 1) % pageSlot]
+}
 
 const CARD_COLOR = ['#FFE5CC', '#94D0AD', '#FFCDCD', '#B1DDEB']
 
@@ -102,6 +108,7 @@ const { containLastItem, workbookList, getWorkbooks, getMoreWorkbooks } =
 
 onMounted(async () => {
   await getWorkbooks()
+  await getProblemList(0)
 })
 </script>
 
@@ -109,9 +116,11 @@ onMounted(async () => {
   <PageSubtitle text="All Problem" class="mb-2 mt-10" />
   <PaginationTable
     :fields="fields"
-    :items="problemList"
+    :items="currentItems"
     placeholder="keywords"
-    :number-of-pages="1"
+    :number-of-pages="numberOfPages"
+    :page-slot="pageSlot"
+    @change-page="changePage"
     @row-clicked="({ id }) => $router.push('/problem/' + id)"
   >
     <template #option>

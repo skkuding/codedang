@@ -9,8 +9,8 @@ generator graphql {
   provider           = "prisma-nestjs-graphql"
   output             = "../apps/admin/src/@generated"
   noAtomicOperations = true
-  emitCompiled       = true
   purgeOutput        = true
+  reExport           = All
 }
 
 datasource db {
@@ -125,6 +125,15 @@ model Problem {
   inputDescription  String     @map("input_description")
   outputDescription String     @map("output_description")
   hint              String
+  /// template code item structure
+  /// {
+  ///   "lanaguage": Language,
+  ///   "code": {
+  ///             "text": string,
+  ///             "readonly": boolean
+  ///           }[]
+  /// }
+  template          Json[]
   languages         Language[]
   timeLimit         Int        @map("time_limit") // unit: MilliSeconds
   memoryLimit       Int        @map("memory_limit") // unit: MegaBytes
@@ -295,19 +304,25 @@ model WorkbookProblem {
 }
 
 model Submission {
-  id         String    @id // 6 digit hex hash
-  user       User      @relation(fields: [userId], references: [id])
-  userId     Int       @map("user_id")
-  problem    Problem   @relation(fields: [problemId], references: [id])
-  problemId  Int       @map("problem_id")
-  contest    Contest?  @relation(fields: [contestId], references: [id])
-  contestId  Int?      @map("contest_id")
-  workbook   Workbook? @relation(fields: [workbookId], references: [id])
-  workbookId Int?      @map("workbook_id")
-  code       String
+  id         String        @id // 6 digit hex hash
+  user       User          @relation(fields: [userId], references: [id])
+  userId     Int           @map("user_id")
+  problem    Problem       @relation(fields: [problemId], references: [id])
+  problemId  Int           @map("problem_id")
+  contest    Contest?      @relation(fields: [contestId], references: [id])
+  contestId  Int?          @map("contest_id")
+  workbook   Workbook?     @relation(fields: [workbookId], references: [id])
+  workbookId Int?          @map("workbook_id")
+  /// code item structure
+  /// {
+  ///   "text": string,
+  ///   "readonly": boolean
+  /// }
+  code       Json[]
   language   Language
-  createTime DateTime  @default(now()) @map("create_time")
-  updateTime DateTime  @updatedAt @map("update_time")
+  result     ResultStatus?
+  createTime DateTime      @default(now()) @map("create_time")
+  updateTime DateTime      @updatedAt @map("update_time")
 
   submissionResult SubmissionResult[]
 
