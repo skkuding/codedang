@@ -1,4 +1,4 @@
-import { Field, GraphQLISODateTime, ID, InputType } from '@nestjs/graphql'
+import { Field, ID, InputType } from '@nestjs/graphql'
 import { RequestStatus } from '../enum/request-status.enum'
 
 @InputType()
@@ -21,11 +21,11 @@ export class ContestInput {
   @Field(() => String, { nullable: false })
   description!: string
 
-  @Field(() => GraphQLISODateTime, { nullable: false })
-  startTime!: Date
+  @Field(() => String, { nullable: false })
+  startTime!: string
 
-  @Field(() => GraphQLISODateTime, { nullable: false })
-  endTime!: Date
+  @Field(() => String, { nullable: false })
+  endTime!: string
 
   @Field(() => Boolean, { nullable: false })
   visible!: boolean
