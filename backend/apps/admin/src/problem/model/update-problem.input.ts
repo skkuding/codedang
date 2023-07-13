@@ -4,6 +4,8 @@ import { ProblemUncheckedUpdateInput } from '@admin/@generated/problem/problem-u
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-nocheck
 @InputType()
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-nocheck
 export class UpdateProblemInput extends OmitType(ProblemUncheckedUpdateInput, [
   'contestProblem',
   'createTime',

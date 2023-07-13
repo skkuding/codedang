@@ -603,7 +603,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-07-05T12:16:57.576Z",
-            "modified": "2023-07-13T13:10:57.890Z",
+            "modified": "2023-07-13T13:56:01.260Z",
             "headers": [],
             "params": [],
             "body": {
@@ -616,7 +616,7 @@
                 }
             },
             "tests": [],
-            "docs": "# Create Problem\n\n새로운 문제를  생성합니다.\n\n### Constraints\n- 본인 그룹의 문제만 생성할 수 있습니다.\n- problemTestcase와 problemTag를 입력하고 싶지 않을 경우, 입력을 생략하지 말고 배열을 전달하되 비워두십시오.\n- default 값은 다음과 같습니다.\n  ```json\n  problemTestcase: []\n  problemTag: []\n  ```\n"
+            "docs": "# Create Problem\n\n새로운 문제를  생성합니다.\n\n### Constraints\n- 본인 그룹의 문제만 생성할 수 있습니다.\n  -  본인이 이끄는 그룹id를 인자로 넘겨주셔야 합니다.\n- problemTestcase와 problemTag를 입력하고 싶지 않을 경우, 입력을 생략하지 말고 빈 배열을 전달하십시오.\n- default 값은 다음과 같습니다.\n  ```json\n  problemTestcase: []\n  problemTag: []\n  ```\n"
         },
         {
             "_id": "319d43a7-84af-453f-a130-0591d5dae7c1",
@@ -650,7 +650,7 @@
             "method": "POST",
             "sortNum": 60000,
             "created": "2023-07-05T14:22:58.417Z",
-            "modified": "2023-07-12T12:43:57.560Z",
+            "modified": "2023-07-13T13:59:35.682Z",
             "headers": [],
             "params": [],
             "body": {
@@ -662,7 +662,8 @@
                     "variables": "{\n  \"deleteInput\":{\n    \"problemId\": 8\n  }\n}"
                 }
             },
-            "tests": []
+            "tests": [],
+            "docs": "# Delete Problem\n\n문제를  삭제합니다.\n\n### Constraints\n- 본인 그룹의 문제만 삭제할 수 있습니다.\n  -  본인이 이끄는 그룹id를 인자로 넘겨주셔야 합니다."
         },
         {
             "_id": "0a9d1ef4-339a-413f-85f9-a400a43a87f2",
@@ -673,7 +674,7 @@
             "method": "POST",
             "sortNum": 80000,
             "created": "2023-07-08T08:34:20.899Z",
-            "modified": "2023-07-13T11:29:01.118Z",
+            "modified": "2023-07-13T13:57:24.729Z",
             "headers": [],
             "params": [],
             "body": {
@@ -685,7 +686,8 @@
                     "variables": "{\n  \"groupId\": 1,\n  \"input\": 10000\n}"
                 }
             },
-            "tests": []
+            "tests": [],
+            "docs": "# Get Problem\n\n하나의 문제를  조회합니다.\n\n### Constraints\n- 본인 그룹의 문제만 조회할 수 있습니다.\n  -  본인이 이끄는 그룹id를 인자로 넘겨주셔야 합니다.\n- input에 찾고자 하는 problem 의 id를 넘겨주십시오."
         },
         {
             "_id": "fac8632a-f618-498a-be5d-013341f3f480",
@@ -696,7 +698,7 @@
             "method": "POST",
             "sortNum": 90000,
             "created": "2023-07-12T12:48:18.260Z",
-            "modified": "2023-07-12T12:56:34.981Z",
+            "modified": "2023-07-13T13:59:06.801Z",
             "headers": [],
             "params": [],
             "body": {
@@ -708,7 +710,8 @@
                     "variables": "{\n  \"groupId\": 1,\n  \"input\":{\n    \"cursor\": 0,\n    \"take\": 1,\n    \"difficulty\": [\"Level1\"]\n  }\n}"
                 }
             },
-            "tests": []
+            "tests": [],
+            "docs": "# Get Problems\n\n복수의 문제들을 조회합니다.\n\n### Constraints\n- 본인 그룹의 문제만 조회할 수 있습니다.\n  -  본인이 이끄는 그룹id를 인자로 넘겨주셔야 합니다.\n- cursor을 0을 설정할 경우, 처음부터 조회합니다.\n- difficulty와 language를 설정할 수 있습니다.\n  - language의 경우, 배열의 원소 중 하나만이라도 겹친다면 반환합니다."
         },
         {
             "_id": "93bfe8b6-d805-49c8-ac19-40c7c08924ce",
