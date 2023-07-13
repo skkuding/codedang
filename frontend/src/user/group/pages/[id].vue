@@ -43,6 +43,7 @@ onMounted(async () => {
 <template>
   <div class="mt-10 flex flex-col gap-4">
     <Profile
+      :id="Number(id)"
       :group-name="group.groupName"
       :description="group.description"
       :group-image="group.groupImage"

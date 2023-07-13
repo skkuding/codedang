@@ -3,7 +3,8 @@ import Button from '@/common/components/Atom/Button.vue'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import IconGear from '~icons/fa6-solid/gear'
 
-defineProps<{
+const props = defineProps<{
+  id: number
   groupName: string
   description: string
   groupImage: string
@@ -22,7 +23,10 @@ defineProps<{
       <div class="flex items-baseline gap-2">
         <PageTitle :text="groupName" />
         <Button color="gray-dark" class="px-1">
-          <IconGear class="h-3 w-3" />
+          <IconGear
+            class="h-3 w-3"
+            @click="$router.push(`/admin/${props.id}`)"
+          />
         </Button>
       </div>
       <div class="text-black">{{ description }}</div>
