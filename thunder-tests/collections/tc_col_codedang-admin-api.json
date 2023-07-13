@@ -45,6 +45,20 @@
             "containerId": "fe52bede-3550-4899-9738-50719d9b04ef",
             "created": "2023-07-01T08:39:04.697Z",
             "sortNum": 80000
+        },
+        {
+            "_id": "246d0955-f9e4-43af-a4bc-ce3d17a84120",
+            "name": "Problem",
+            "containerId": "",
+            "created": "2023-07-13T20:50:49.062Z",
+            "sortNum": 90000
+        },
+        {
+            "_id": "052b2adc-2583-4006-9d78-09138d4efbb1",
+            "name": "Upload File",
+            "containerId": "246d0955-f9e4-43af-a4bc-ce3d17a84120",
+            "created": "2023-07-13T20:55:09.917Z",
+            "sortNum": 100000
         }
     ],
     "settings": {
@@ -552,6 +566,55 @@
                 "runRequests": [
                     {
                         "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "7525ae4b-2105-4a82-ac26-8f19eed51554",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "052b2adc-2583-4006-9d78-09138d4efbb1",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 60000,
+            "created": "2023-07-13T20:55:25.664Z",
+            "modified": "2023-07-13T20:56:29.028Z",
+            "headers": [
+                {
+                    "name": "Apollo-Require-Preflight",
+                    "value": "true"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "operations",
+                        "value": "{\"query\": \"mutation($groupId: Float!, $input: FileUploadInput!) { uploadProblems(groupId: $groupId, input: $input){count}}\", \"variables\" : {\"groupId\": 2, \"input\": {\"file\": null}}}"
+                    },
+                    {
+                        "name": "map",
+                        "value": "{\"nfile\":[\"variables.input.file\"]}"
+                    }
+                ],
+                "files": [
+                    {
+                        "name": "nfile",
+                        "value": "../backend/apps/client/src/group/mock/group.mock.ts"
+                    }
+                ]
+            },
+            "tests": [],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
                         "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
                         "triggerCondition": "run-always",
                         "triggerValue": ""
