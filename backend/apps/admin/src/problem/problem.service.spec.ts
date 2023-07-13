@@ -27,9 +27,7 @@ export const problems: Problem[] = [
     createTime: undefined,
     updateTime: undefined,
     inputExamples: [],
-    outputExamples: [],
-    problemTestcase: [],
-    problemTag: []
+    outputExamples: []
   },
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-nocheck
@@ -50,9 +48,7 @@ export const problems: Problem[] = [
     createTime: undefined,
     updateTime: undefined,
     inputExamples: [],
-    outputExamples: [],
-    problemTestcase: [],
-    problemTag: []
+    outputExamples: []
   }
 ]
 
