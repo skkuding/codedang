@@ -182,6 +182,7 @@ const joinGroup = async (id: number) => {
   </section>
 
   <Modal v-model="modalVisible">
+    <!-- TODO: modal을 dialog로 변경 -->
     <transition
       enter-active-class="transition-opacity"
       leave-active-class="transition-opacity"
