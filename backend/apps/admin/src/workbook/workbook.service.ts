@@ -6,7 +6,10 @@ import {
   type Submission
 } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { GetWorkbookListInput } from './model/input/workbook.input'
 import { CreateWorkbookInput } from './model/input/workbook.input'
@@ -148,6 +151,7 @@ export class WorkbookService {
       return newWorkbook
     } catch (error) {
       console.error('newWorkbook을 create하는 중에 문제 발생', error)
+      throw new Error('record create failed!')
     }
   }
 
@@ -209,35 +213,36 @@ export class WorkbookService {
     problemIds: number[],
     workbookId: number
   ): Promise<boolean> {
-    try {
-      for (const problemId of problemIds) {
-        const existingRecord = await this.prisma.workbookProblem.findUnique({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            workbookId_problemId: {
-              workbookId: workbookId,
-              problemId: problemId
-            }
+    for (const problemId of problemIds) {
+      const existingRecord = await this.prisma.workbookProblem.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          workbookId_problemId: {
+            workbookId: workbookId,
+            problemId: problemId
           }
-        })
-
-        if (existingRecord) {
-          throw new Error(
-            `레코드가 이미 존재합니다: workbookId=${workbookId}, problemId=${problemId}`
-          )
         }
+      })
+
+      if (existingRecord) {
+        throw new UnprocessableDataException('the same record already exists')
+      }
+      try {
         await this.prisma.workbookProblem.create({
           data: {
+            // FE에서 넘겨주는 건지, 아니면 BE에서 problemID와 같게 Default로 설정해야 하는지 잘 모르겠음.
             id: problemId.toString(),
             workbookId: workbookId,
             problemId: problemId
           }
         })
+      } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          throw new Error('for some reason, creating record failed')
+        }
       }
-      return true
-    } catch (error) {
-      console.error('problems을 workbook으로 import하는 중에 문제 발생', error)
-      return false
     }
+
+    return true
   }
 }

@@ -116,7 +116,7 @@ export class WorkbookResolver {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
-      throw new InternalServerErrorException()
+      throw new InternalServerErrorException(error.message)
     }
   }
 }
