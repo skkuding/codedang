@@ -44,6 +44,7 @@ model User {
   contestRecord ContestRecord[]
   workbook      Workbook[]
   submission    Submission[]
+  AdminContest  AdminContest[]
 
   @@map("user")
 }
@@ -89,11 +90,12 @@ model Group {
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
-  userGroup UserGroup[]
-  notice    Notice[]
-  problem   Problem[]
-  contest   Contest[]
-  workbook  Workbook[]
+  userGroup    UserGroup[]
+  notice       Notice[]
+  problem      Problem[]
+  contest      Contest[]
+  workbook     Workbook[]
+  AdminContest AdminContest[]
 
   @@map("group")
 }
@@ -193,31 +195,31 @@ model Tag {
   @@map("tag")
 }
 
-// model Contest {
-//   id          Int      @id @default(autoincrement())
-//   createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
-//   createdById Int      @map("created_by_id")
-//   group       Group    @relation(fields: [groupId], references: [id])
-//   groupId     Int      @map("group_id")
-//   title       String
-//   description String
-//   startTime   DateTime @map("start_time")
-//   endTime     DateTime @map("end_time")
-//   /// config default value
-//   /// {
-//   ///   "isVisible": true,
-//   ///   "isRankVisible": true
-//   /// }
-//   config      Json
-//   createTime  DateTime @default(now()) @map("create_time")
-//   updateTime  DateTime @updatedAt @map("update_time")
+model Contest {
+  id          Int      @id @default(autoincrement())
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdById Int      @map("created_by_id")
+  group       Group    @relation(fields: [groupId], references: [id])
+  groupId     Int      @map("group_id")
+  title       String
+  description String
+  startTime   DateTime @map("start_time")
+  endTime     DateTime @map("end_time")
+  /// config default value
+  /// {
+  ///   "isVisible": true,
+  ///   "isRankVisible": true
+  /// }
+  config      Json
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
 
-//   contestProblem ContestProblem[]
-//   contestRecord  ContestRecord[]
-//   submission     Submission[]
+  contestProblem ContestProblem[]
+  contestRecord  ContestRecord[]
+  submission     Submission[]
 
-//   @@map("contest")
-// }
+  @@map("contest")
+}
 
 enum RequestStatus {
   PENDING
@@ -226,7 +228,7 @@ enum RequestStatus {
   NONE
 }
 
-model Contest {
+model AdminContest {
   id                Int              @id @default(autoincrement())
   groupName         String
   type              String
@@ -258,7 +260,9 @@ model ContestProblem {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  clarification Clarification[]
+  clarification  Clarification[]
+  AdminContest   AdminContest?   @relation(fields: [adminContestId], references: [id])
+  adminContestId Int?
 
   @@id([contestId, problemId])
   @@unique([contestId, id])
@@ -278,15 +282,17 @@ model Clarification {
 }
 
 model ContestRecord {
-  id                 Int      @id @default(autoincrement())
-  contest            Contest  @relation(fields: [contestId], references: [id])
-  contestId          Int      @map("contest_id")
-  user               User     @relation(fields: [userId], references: [id])
-  userId             Int      @map("user_id")
-  acceptedProblemNum Int      @default(0) @map("accepted_problem_num")
-  totalPenalty       Int      @default(0) @map("total_penalty")
-  createTime         DateTime @default(now()) @map("create_time")
-  updateTime         DateTime @updatedAt @map("update_time")
+  id                 Int           @id @default(autoincrement())
+  contest            Contest       @relation(fields: [contestId], references: [id])
+  contestId          Int           @map("contest_id")
+  user               User          @relation(fields: [userId], references: [id])
+  userId             Int           @map("user_id")
+  acceptedProblemNum Int           @default(0) @map("accepted_problem_num")
+  totalPenalty       Int           @default(0) @map("total_penalty")
+  createTime         DateTime      @default(now()) @map("create_time")
+  updateTime         DateTime      @updatedAt @map("update_time")
+  AdminContest       AdminContest? @relation(fields: [adminContestId], references: [id])
+  adminContestId     Int?
 
   @@map("contest_record")
 }
@@ -340,6 +346,8 @@ model Submission {
   updateTime DateTime      @updatedAt @map("update_time")
 
   submissionResult SubmissionResult[]
+  AdminContest     AdminContest?      @relation(fields: [adminContestId], references: [id])
+  adminContestId   Int?
 
   @@map("submission")
 }
