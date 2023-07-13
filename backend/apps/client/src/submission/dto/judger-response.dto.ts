@@ -34,7 +34,7 @@ class JudgeData {
   judgeResult: JudgeResult[]
 }
 
-export class SubmissionResultMessage {
+export class JudgerResponse {
   @Max(7)
   @Max(1)
   @IsInt()

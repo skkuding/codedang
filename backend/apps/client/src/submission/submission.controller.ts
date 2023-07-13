@@ -6,10 +6,20 @@ import {
   UseGuards,
   Body,
   Req,
-  ParseIntPipe
+  ParseIntPipe,
+  NotFoundException,
+  InternalServerErrorException,
+  MethodNotAllowedException,
+  ForbiddenException
 } from '@nestjs/common'
 import type { Submission, SubmissionResult } from '@prisma/client'
+import { NotFoundError } from 'rxjs'
 import { AuthenticatedRequest, GroupMemberGuard } from '@libs/auth'
+import {
+  ActionNotAllowedException,
+  EntityNotExistException,
+  ForbiddenAccessException
+} from '@libs/exception'
 import { CreateSubmissionDto } from './dto/create-submission.dto'
 import { SubmissionService } from './submission.service'
 
@@ -22,10 +32,17 @@ export class ProblemSubmissionController {
     @Req() req: AuthenticatedRequest,
     @Body() submissionDto: CreateSubmissionDto
   ): Promise<Submission> {
-    return await this.submissionService.submitToProblem(
-      submissionDto,
-      req.user.id
-    )
+    try {
+      return await this.submissionService.submitToProblem(
+        submissionDto,
+        req.user.id
+      )
+    } catch (error) {
+      if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get()
@@ -41,11 +58,20 @@ export class ProblemSubmissionController {
     @Param('problemId', ParseIntPipe) problemId: number,
     @Param('id') id: string
   ): Promise<SubmissionResult[]> {
-    return await this.submissionService.getSubmission(
-      id,
-      problemId,
-      req.user.id
-    )
+    try {
+      return await this.submissionService.getSubmission(
+        id,
+        problemId,
+        req.user.id
+      )
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 }
 
@@ -60,11 +86,18 @@ export class GroupProblemSubmissionController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Body() submissionDto: CreateSubmissionDto
   ): Promise<Submission> {
-    return await this.submissionService.submitToProblem(
-      submissionDto,
-      req.user.id,
-      groupId
-    )
+    try {
+      return await this.submissionService.submitToProblem(
+        submissionDto,
+        req.user.id,
+        groupId
+      )
+    } catch (error) {
+      if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get()
@@ -82,12 +115,21 @@ export class GroupProblemSubmissionController {
     @Param('problemId', ParseIntPipe) problemId: number,
     @Param('id') id: string
   ): Promise<SubmissionResult[]> {
-    return await this.submissionService.getSubmission(
-      id,
-      problemId,
-      req.user.id,
-      groupId
-    )
+    try {
+      return await this.submissionService.getSubmission(
+        id,
+        problemId,
+        req.user.id,
+        groupId
+      )
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 }
 
@@ -102,10 +144,19 @@ export class ContestSubmissionController {
     @Body() submissionDto: CreateSubmissionDto
   ): Promise<Submission> {
     submissionDto.contestId = contestId
-    return await this.submissionService.submitToContest(
-      submissionDto,
-      req.user.id
-    )
+    try {
+      return await this.submissionService.submitToContest(
+        submissionDto,
+        req.user.id
+      )
+    } catch (error) {
+      if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
+      } else if (error instanceof NotFoundError) {
+        throw new NotFoundException(error)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get()
@@ -128,12 +179,21 @@ export class ContestSubmissionController {
     @Param('problemId', ParseIntPipe) problemId: number,
     @Param('id') id: string
   ): Promise<SubmissionResult[]> {
-    return await this.submissionService.getContestSubmission(
-      id,
-      problemId,
-      contestId,
-      req.user.id
-    )
+    try {
+      return await this.submissionService.getContestSubmission(
+        id,
+        problemId,
+        contestId,
+        req.user.id
+      )
+    } catch (error) {
+      if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      } else if (error instanceof NotFoundError) {
+        throw new NotFoundException(error)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 }
 
@@ -150,11 +210,20 @@ export class GroupContestSubmissionController {
     @Body() submissionDto: CreateSubmissionDto
   ): Promise<Submission> {
     submissionDto.contestId = contestId
-    return await this.submissionService.submitToContest(
-      submissionDto,
-      req.user.id,
-      groupId
-    )
+    try {
+      return await this.submissionService.submitToContest(
+        submissionDto,
+        req.user.id,
+        groupId
+      )
+    } catch (error) {
+      if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
+      } else if (error instanceof NotFoundError) {
+        throw new NotFoundException(error)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get()
@@ -180,13 +249,22 @@ export class GroupContestSubmissionController {
     @Param('problemId', ParseIntPipe) problemId: number,
     @Param('id') id: string
   ): Promise<SubmissionResult[]> {
-    return await this.submissionService.getContestSubmission(
-      id,
-      problemId,
-      contestId,
-      req.user.id,
-      groupId
-    )
+    try {
+      return await this.submissionService.getContestSubmission(
+        id,
+        problemId,
+        contestId,
+        req.user.id,
+        groupId
+      )
+    } catch (error) {
+      if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      } else if (error instanceof NotFoundError) {
+        throw new NotFoundException(error)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 }
 
@@ -201,10 +279,19 @@ export class WorkbookSubmissionController {
     @Body() submissionDto: CreateSubmissionDto
   ): Promise<Submission> {
     submissionDto.workbookId = workbookId
-    return await this.submissionService.submitToWorkbook(
-      submissionDto,
-      req.user.id
-    )
+    try {
+      return await this.submissionService.submitToWorkbook(
+        submissionDto,
+        req.user.id
+      )
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get()
@@ -220,11 +307,20 @@ export class WorkbookSubmissionController {
     @Param('problemId', ParseIntPipe) problemId: number,
     @Param('id') id: string
   ): Promise<SubmissionResult[]> {
-    return await this.submissionService.getSubmission(
-      id,
-      problemId,
-      req.user.id
-    )
+    try {
+      return await this.submissionService.getSubmission(
+        id,
+        problemId,
+        req.user.id
+      )
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 }
 
@@ -241,11 +337,20 @@ export class GroupWorkbookSubmissionController {
     @Body() submissionDto: CreateSubmissionDto
   ): Promise<Submission> {
     submissionDto.workbookId = workbookId
-    return await this.submissionService.submitToWorkbook(
-      submissionDto,
-      req.user.id,
-      groupId
-    )
+    try {
+      return await this.submissionService.submitToWorkbook(
+        submissionDto,
+        req.user.id,
+        groupId
+      )
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ActionNotAllowedException) {
+        throw new MethodNotAllowedException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get()
@@ -263,11 +368,20 @@ export class GroupWorkbookSubmissionController {
     @Param('problemId', ParseIntPipe) problemId: number,
     @Param('id') id: string
   ): Promise<SubmissionResult[]> {
-    return await this.submissionService.getSubmission(
-      id,
-      problemId,
-      req.user.id,
-      groupId
-    )
+    try {
+      return await this.submissionService.getSubmission(
+        id,
+        problemId,
+        req.user.id,
+        groupId
+      )
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      }
+      throw new InternalServerErrorException()
+    }
   }
 }
