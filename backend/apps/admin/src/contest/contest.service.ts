@@ -1,5 +1,9 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException
+} from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import { contestPublicizingRequestKey } from '@libs/cache'
 import { OPEN_SPACE_ID, PUBLICIZING_REQUEST_EXPIRE_TIME } from '@libs/constants'
@@ -12,6 +16,7 @@ import { PrismaService } from '@libs/prisma'
 import type { Contest } from '@admin/@generated/contest/contest.model'
 import type { ContestInput } from './model/contest.input'
 import type { PublicizingRequest } from './model/publicizing-request.model'
+import type { UpdateContestInput } from './model/update-contest.input'
 
 @Injectable()
 export class ContestService {
@@ -41,12 +46,14 @@ export class ContestService {
     })
   }
 
-  async getPublicRequests(groupId: number, cursor: number, take: number) {
+  async getPublicRequests() {
     const keys = await this.cacheManager.store.keys()
     const filteredKeys = keys.filter((key) => key.includes(':publicize'))
-    const requests = filteredKeys.map(
-      async (key) => await this.cacheManager.get<PublicizingRequest>(key)
-    )
+    const requests = filteredKeys.map(async (key) => {
+      const r = await this.cacheManager.get<PublicizingRequest>(key)
+      r.createTime = new Date(r.createTime)
+      return r
+    })
     return Promise.all(requests)
   }
 
@@ -63,17 +70,13 @@ export class ContestService {
 
     const newContest: Contest = await this.prisma.contest.create({
       data: {
-        groupName: contest.groupName,
-        type: contest.type,
+        createdById: userId,
+        groupId: groupId,
         title: contest.title,
-        summary: contest.summary,
         description: contest.description,
         startTime: contest.startTime,
         endTime: contest.endTime,
-        visible: contest.visible,
-        rankVisible: contest.rankVisible,
-        difficultyVisible: contest.difficultyVisible,
-        status: contest.status
+        config: contest.config
       }
     })
 
@@ -82,7 +85,7 @@ export class ContestService {
 
   async updateContest(
     groupId: number,
-    contest: ContestInput
+    contest: UpdateContestInput
   ): Promise<Contest> {
     await this.prisma.contest.findFirst({
       where: {
@@ -103,17 +106,11 @@ export class ContestService {
         id: contest.id
       },
       data: {
-        groupName: contest.groupName,
-        type: contest.type,
         title: contest.title,
-        summary: contest.summary,
         description: contest.description,
         startTime: contest.startTime,
         endTime: contest.endTime,
-        visible: contest.visible,
-        rankVisible: contest.rankVisible,
-        difficultyVisible: contest.difficultyVisible,
-        status: contest.status
+        config: contest.config
       }
     })
   }
@@ -137,11 +134,26 @@ export class ContestService {
   }
 
   async acceptPublic(groupId: number, contestId: number) {
-    const updatedContest = await this.updateContestToPublic(contestId)
+    const updatedContest = await this.prisma.contest.update({
+      where: {
+        id: contestId
+      },
+      data: {
+        groupId: OPEN_SPACE_ID
+      }
+    })
 
     if (!updatedContest) {
       throw new EntityNotExistException('contest')
     }
+
+    const key = contestPublicizingRequestKey(contestId)
+
+    if (!(await this.cacheManager.get(key))) {
+      throw new EntityNotExistException('ContestPublicizingRequest')
+    }
+    await this.cacheManager.del(key)
+
     return updatedContest
   }
 
@@ -161,18 +173,11 @@ export class ContestService {
     })
   }
 
-  async updateContestToPublic(id: number) {
-    return await this.prisma.contest.update({
-      where: {
-        id
-      },
-      data: {
-        groupId: OPEN_SPACE_ID
-      }
-    })
-  }
-
   async requestToPublic(groupId: number, contestId: number) {
+    if (groupId == 1) {
+      throw new InternalServerErrorException()
+    }
+
     const contest = await this.prisma.contest.findFirst({
       where: {
         id: contestId,
@@ -195,7 +200,7 @@ export class ContestService {
       contestPublicizingRequestKey(contestId),
       {
         contest: contestId,
-        user: contest.userId,
+        user: contest.createdById,
         createTime: new Date()
       },
       PUBLICIZING_REQUEST_EXPIRE_TIME

@@ -3,7 +3,7 @@ import { Field, ID, InputType, Int } from '@nestjs/graphql'
 @InputType()
 export class Input {
   @Field(() => ID, { nullable: false })
-  groupId!: number
+  groupId!: string
 
   @Field(() => Int)
   cursor?: number

@@ -16,6 +16,7 @@ import { ContestInput } from './model/contest.input'
 import { InputForDetail } from './model/input-for-detail.input'
 import { Input } from './model/input.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
+import { UpdateContestInput } from './model/update-contest.input'
 
 @Resolver(() => Contest)
 export class ContestResolver {
@@ -25,19 +26,15 @@ export class ContestResolver {
   async getContests(@Args('input') input: Input) {
     return await this.contestService.getContests(
       input.take,
-      input.groupId,
+      parseInt(input.groupId),
       input.cursor
     )
   }
 
   @Query(() => [PublicizingRequest])
   @UseRolesGuard()
-  async getPublicRequests(input: Input) {
-    return await this.contestService.getPublicRequests(
-      input.groupId,
-      input.cursor,
-      input.take
-    )
+  async getPublicRequests() {
+    return await this.contestService.getPublicRequests()
   }
 
   @Mutation(() => Contest)
@@ -63,7 +60,7 @@ export class ContestResolver {
   @Mutation(() => Contest)
   async updateContest(
     @Args('groupId') groupId: number,
-    @Args('input') input: ContestInput
+    @Args('input') input: UpdateContestInput
   ) {
     try {
       return await this.contestService.updateContest(groupId, input)

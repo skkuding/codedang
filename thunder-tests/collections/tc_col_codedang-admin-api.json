@@ -45,6 +45,69 @@
             "containerId": "fe52bede-3550-4899-9738-50719d9b04ef",
             "created": "2023-07-01T08:39:04.697Z",
             "sortNum": 80000
+        },
+        {
+            "_id": "0d9f4339-a50a-495e-a790-e998f7db5f92",
+            "name": "Contest",
+            "containerId": "",
+            "created": "2023-07-13T12:00:00.047Z",
+            "sortNum": 90000
+        },
+        {
+            "_id": "6ecc2072-81d3-4785-adf3-fc04f8443178",
+            "name": "Get Contests",
+            "containerId": "0d9f4339-a50a-495e-a790-e998f7db5f92",
+            "created": "2023-07-13T12:00:08.350Z",
+            "sortNum": 100000
+        },
+        {
+            "_id": "14096886-1667-4723-a496-c3d5127a4a95",
+            "name": "Create Contest",
+            "containerId": "0d9f4339-a50a-495e-a790-e998f7db5f92",
+            "created": "2023-07-13T12:06:56.628Z",
+            "sortNum": 110000
+        },
+        {
+            "_id": "3023a28d-732b-48f7-999d-e1d620456602",
+            "name": "Update Contest",
+            "containerId": "0d9f4339-a50a-495e-a790-e998f7db5f92",
+            "created": "2023-07-13T12:11:18.338Z",
+            "sortNum": 130000
+        },
+        {
+            "_id": "ce343dbe-8fd1-41ea-9c0a-323265757482",
+            "name": "Delete Contest",
+            "containerId": "0d9f4339-a50a-495e-a790-e998f7db5f92",
+            "created": "2023-07-13T12:16:36.432Z",
+            "sortNum": 140000
+        },
+        {
+            "_id": "9fc6bef0-ed6d-43a6-a09c-652fdd0074c0",
+            "name": "Get Public Requests",
+            "containerId": "0d9f4339-a50a-495e-a790-e998f7db5f92",
+            "created": "2023-07-13T12:24:47.599Z",
+            "sortNum": 160000
+        },
+        {
+            "_id": "33e66082-5553-4ef8-901d-c26bd4f50775",
+            "name": "Request to Public",
+            "containerId": "0d9f4339-a50a-495e-a790-e998f7db5f92",
+            "created": "2023-07-13T12:25:11.046Z",
+            "sortNum": 170000
+        },
+        {
+            "_id": "6920af5c-ce95-4485-b9a8-5eb56312fddb",
+            "name": "Accept Public",
+            "containerId": "0d9f4339-a50a-495e-a790-e998f7db5f92",
+            "created": "2023-07-13T12:25:22.552Z",
+            "sortNum": 180000
+        },
+        {
+            "_id": "7df6cb1f-2243-4653-84a2-7d145ffc63d8",
+            "name": "Reject Public",
+            "containerId": "0d9f4339-a50a-495e-a790-e998f7db5f92",
+            "created": "2023-07-13T12:25:32.265Z",
+            "sortNum": 190000
         }
     ],
     "settings": {
@@ -558,6 +621,182 @@
                     }
                 ]
             }
+        },
+        {
+            "_id": "f16ff750-8b46-4c28-b7da-a676a88009b6",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "6ecc2072-81d3-4785-adf3-fc04f8443178",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 50000,
+            "created": "2023-07-13T12:00:14.545Z",
+            "modified": "2023-07-13T14:06:50.398Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query {\n    getContests(input: {\n        groupId: 2,\n        cursor: 0,\n        take: 100\n    }) {\n        id\n        createdById\n        groupId\n        title\n    }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "202a2696-fa13-40b6-9fa8-1fa4e94c0c83",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "14096886-1667-4723-a496-c3d5127a4a95",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 60000,
+            "created": "2023-07-13T12:07:19.048Z",
+            "modified": "2023-07-13T14:06:12.720Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation {\n    createContest(\n    groupId: 2,\n    input: {\n        title: \"test title10\",\n        description: \"test description\",\n        startTime: \"2023-08-01\",\n        endTime: \"2023-08-30\",\n        config: {\n            isVisible: false,\n            isRankVisible: false\n        }\n    }) {\n        id\n        createdById\n        groupId\n        title\n    }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "7c113c1d-2b10-42f5-8aa8-ff38ba8b4ea9",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "3023a28d-732b-48f7-999d-e1d620456602",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 70000,
+            "created": "2023-07-13T12:11:23.763Z",
+            "modified": "2023-07-13T12:14:43.094Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation {\n    updateContest(\n    groupId: 1,\n    input: {\n        id: 4,\n        title: \"updated title 1\",\n        description: \"updated description 1\",\n        startTime: \"2023-08-01\",\n        endTime: \"2023-08-30\",\n        config: {\n            isVisible: false,\n            isRankVisible: false\n        }\n    }) {\n        id\n        createdById\n        groupId\n        title\n    }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "b94f11a6-e1a7-40c2-906b-a6b160dfe224",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "ce343dbe-8fd1-41ea-9c0a-323265757482",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 80000,
+            "created": "2023-07-13T12:16:41.898Z",
+            "modified": "2023-07-13T12:17:27.822Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation {\n    deleteContest(\n    groupId: 1,\n    contestId: 4\n    ) {\n        id\n        createdById\n        groupId\n        title\n    }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "f7e06eda-8cc0-4462-ab28-221cc4dd3d59",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "33e66082-5553-4ef8-901d-c26bd4f50775",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 100000,
+            "created": "2023-07-13T12:25:57.565Z",
+            "modified": "2023-07-13T14:06:25.688Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation {\n    requestToPublic(\n    groupId: 2,\n    input: {\n        groupId: 2,\n        itemId: 9\n    }\n    ) {\n        id\n        createdById\n        groupId\n        title\n    }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "9327c6fd-e4ef-4150-b999-9dbdc9d47a59",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "9fc6bef0-ed6d-43a6-a09c-652fdd0074c0",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 110000,
+            "created": "2023-07-13T12:29:15.686Z",
+            "modified": "2023-07-13T13:54:31.929Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query {\n    getPublicRequests {\n        contest\n        user\n        createTime\n    }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "d20e6466-3923-4d8e-a7b0-1274bff52bac",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "6920af5c-ce95-4485-b9a8-5eb56312fddb",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 120000,
+            "created": "2023-07-13T12:59:26.726Z",
+            "modified": "2023-07-13T14:05:19.174Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation {\n    acceptPublic(input: {\n        groupId: 2,\n        itemId: 8\n    }) {\n        id\n        title\n        description\n    }\n}"
+                }
+            },
+            "tests": []
+        },
+        {
+            "_id": "974f9b3f-5625-49fd-a967-77d240685a95",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "7df6cb1f-2243-4653-84a2-7d145ffc63d8",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 130000,
+            "created": "2023-07-13T12:59:30.875Z",
+            "modified": "2023-07-13T14:06:36.370Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation {\n    rejectPublic(input: {\n        groupId: 2,\n        itemId: 9\n    }) {\n        id\n        groupId\n        title\n        description\n    }\n}"
+                }
+            },
+            "tests": []
         }
     ]
 }

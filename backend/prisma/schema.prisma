@@ -45,7 +45,6 @@ model User {
   contestRecord ContestRecord[]
   workbook      Workbook[]
   submission    Submission[]
-  AdminContest  AdminContest[]
 
   @@map("user")
 }
@@ -91,12 +90,11 @@ model Group {
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
-  userGroup    UserGroup[]
-  notice       Notice[]
-  problem      Problem[]
-  contest      Contest[]
-  workbook     Workbook[]
-  AdminContest AdminContest[]
+  userGroup UserGroup[]
+  notice    Notice[]
+  problem   Problem[]
+  contest   Contest[]
+  workbook  Workbook[]
 
   @@map("group")
 }
@@ -232,9 +230,7 @@ model ContestProblem {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  clarification  Clarification[]
-  AdminContest   AdminContest?   @relation(fields: [adminContestId], references: [id])
-  adminContestId Int?
+  clarification Clarification[]
 
   @@id([contestId, problemId])
   @@unique([contestId, id])
@@ -254,17 +250,15 @@ model Clarification {
 }
 
 model ContestRecord {
-  id                 Int           @id @default(autoincrement())
-  contest            Contest       @relation(fields: [contestId], references: [id])
-  contestId          Int           @map("contest_id")
-  user               User          @relation(fields: [userId], references: [id])
-  userId             Int           @map("user_id")
-  acceptedProblemNum Int           @default(0) @map("accepted_problem_num")
-  totalPenalty       Int           @default(0) @map("total_penalty")
-  createTime         DateTime      @default(now()) @map("create_time")
-  updateTime         DateTime      @updatedAt @map("update_time")
-  AdminContest       AdminContest? @relation(fields: [adminContestId], references: [id])
-  adminContestId     Int?
+  id                 Int      @id @default(autoincrement())
+  contest            Contest  @relation(fields: [contestId], references: [id])
+  contestId          Int      @map("contest_id")
+  user               User     @relation(fields: [userId], references: [id])
+  userId             Int      @map("user_id")
+  acceptedProblemNum Int      @default(0) @map("accepted_problem_num")
+  totalPenalty       Int      @default(0) @map("total_penalty")
+  createTime         DateTime @default(now()) @map("create_time")
+  updateTime         DateTime @updatedAt @map("update_time")
 
   @@map("contest_record")
 }
@@ -318,8 +312,6 @@ model Submission {
   updateTime DateTime      @updatedAt @map("update_time")
 
   submissionResult SubmissionResult[]
-  AdminContest     AdminContest?      @relation(fields: [adminContestId], references: [id])
-  adminContestId   Int?
 
   @@map("submission")
 }
