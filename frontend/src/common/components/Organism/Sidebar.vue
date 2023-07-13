@@ -12,7 +12,7 @@ import IconUser from '~icons/fa6-regular/user'
 import IconBrain from '~icons/fluent/brain-circuit-24-regular'
 
 // TODO: get group name and color
-const props = withDefaults(
+withDefaults(
   defineProps<{
     color?: 'blue' | 'gray' | 'white'
   }>(),
@@ -66,7 +66,7 @@ const items = computed(() =>
     <div v-for="{ to, name, icon } in items" :key="name">
       <router-link
         class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        :active-class="colorMapper[color || 'default'] + ' border-l-8 !pl-8'"
+        :active-class="colorMapper[color] + ' border-l-8 !pl-8'"
         :to="to"
       >
         <component :is="icon" class="mr-2 h-4" />
