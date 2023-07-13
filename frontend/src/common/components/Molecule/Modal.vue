@@ -24,7 +24,7 @@ defineOptions({ inheritAttrs: false })
     <div
       v-show="modelValue"
       class="fixed inset-0 z-40 flex h-full w-full items-center justify-center bg-black/25 p-5 backdrop-blur"
-      @click.self="$emit('update:modelValue', false)"
+      @mousedown.self="$emit('update:modelValue', false)"
     >
       <section
         class="relative max-h-[96%] overflow-y-auto rounded-lg bg-white p-10"
