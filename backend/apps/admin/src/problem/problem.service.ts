@@ -57,15 +57,21 @@ export class ProblemService {
       whereOptions.languages = { hasSome: input.languages }
     }
 
+    let skip = 1
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    }
+
     return await this.prisma.problem.findMany({
       where: {
         ...whereOptions,
         groupId: groupId
       },
       cursor: {
-        id: cursor < 1 ? 1 : cursor
+        id: cursor
       },
-      skip: cursor < 1 ? 0 : 1,
+      skip: skip,
       take: take
     })
   }
