@@ -5,6 +5,7 @@ import IconGear from '~icons/fa6-solid/gear'
 
 const props = defineProps<{
   id: number
+  isGroupLeader: boolean
   groupName: string
   description: string
   groupImage: string
@@ -24,6 +25,7 @@ const props = defineProps<{
         <PageTitle :text="groupName" />
         <Button color="gray-dark" class="px-1">
           <IconGear
+            v-if="props.isGroupLeader"
             class="h-3 w-3"
             @click="$router.push(`/admin/${props.id}`)"
           />

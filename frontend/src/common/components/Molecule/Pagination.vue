@@ -11,7 +11,7 @@ const props = withDefaults(
     numberOfPages: number
     pageSlot?: number
     modelValue: number
-    mode: 'light' | 'dark'
+    mode?: 'light' | 'dark'
   }>(),
   { pageSlot: 5, mode: 'light' }
 )

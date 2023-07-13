@@ -18,15 +18,17 @@ const props = defineProps<{
 interface Group {
   id: number
   groupName: string
+  isGroupLeader: boolean
   description: string
   groupImage: string
   createdBy: number
 }
 const group = ref<Group>({
   id: 1,
-  groupName: 'skkuding',
-  description: 'skkuding description',
-  groupImage: '@/common/assets/logo.png',
+  groupName: '',
+  isGroupLeader: false,
+  description: '',
+  groupImage: '',
   createdBy: 1
 })
 
@@ -44,9 +46,10 @@ onMounted(async () => {
   <div class="mt-10 flex flex-col gap-4">
     <Profile
       :id="Number(id)"
+      :is-group-leader="group.isGroupLeader"
       :group-name="group.groupName"
       :description="group.description"
-      :group-image="group.groupImage"
+      :group-image="group.groupImage ? group.groupImage : ''"
     />
     <Tab :items="['notice', 'contest', 'workbook', 'member']">
       <template #notice><Notice :id="Number(id)" /></template>
