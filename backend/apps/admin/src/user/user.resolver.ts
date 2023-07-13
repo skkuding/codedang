@@ -5,11 +5,11 @@ import {
   ParseIntPipe
 } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
+import { User } from '@generated'
 import { Prisma } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe } from '@libs/pipe'
 import { UserGroup } from '@admin/@generated/user-group/user-group.model'
-import { User } from '../@generated/user/user.model'
 import { GroupMember } from './dto/groupMember.dto'
 import { JoinInput } from './dto/joinInput.dto'
 import { UserService } from './user.service'
