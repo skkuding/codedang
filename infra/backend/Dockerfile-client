@@ -19,5 +19,6 @@ FROM node:18-alpine
 
 ENV NODE_ENV=production
 COPY --from=builder /build/out .
+COPY ./infra/backend/entrypoint.sh .
 
-CMD ["node", "dist/apps/client/main.js"]
+ENTRYPOINT ["./entrypoint.sh"]

@@ -4,6 +4,7 @@
 !package.json
 !pnpm-lock.yaml
 !pnpm-workspace.yaml
+!infra/backend/entrypoint.sh
 
 **/dist
 **/.env
