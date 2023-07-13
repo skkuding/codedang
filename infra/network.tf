@@ -32,18 +32,26 @@ resource "aws_route_table" "main" {
   }
 }
 
-resource "aws_route_table_association" "api1" {
-  subnet_id      = aws_subnet.public_api1.id
+resource "aws_route_table_association" "client_api1" {
+  subnet_id      = aws_subnet.public_client_api1.id
   route_table_id = aws_route_table.main.id
 }
 
-resource "aws_route_table_association" "api2" {
-  subnet_id      = aws_subnet.public_api2.id
+resource "aws_route_table_association" "client_api2" {
+  subnet_id      = aws_subnet.public_client_api2.id
+  route_table_id = aws_route_table.main.id
+}
+resource "aws_route_table_association" "admin_api1" {
+  subnet_id      = aws_subnet.public_admin_api1.id
+  route_table_id = aws_route_table.main.id
+}
+resource "aws_route_table_association" "admin_api2" {
+  subnet_id      = aws_subnet.public_admin_api2.id
   route_table_id = aws_route_table.main.id
 }
 
-resource "aws_security_group" "lb" {
-  name        = "Codedang-SG-LB"
+resource "aws_security_group" "client_lb" {
+  name        = "Codedang-SG-LB-Client"
   description = "Allow WEB inbound traffic"
   vpc_id      = aws_vpc.main.id
 
@@ -72,22 +80,29 @@ resource "aws_security_group" "lb" {
   }
 
   tags = {
-    Name = "Codedang-SG-LB"
+    Name = "Codedang-SG-LB-Client"
   }
 }
 
-
-resource "aws_security_group" "ecs" {
-  name        = "Codedang-SG-ECS"
-  description = "Allow ECS inbound traffic"
+resource "aws_security_group" "admin_lb" {
+  name        = "Codedang-SG-LB-Admin"
+  description = "Allow WEB inbound traffic"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description     = "From ALB"
-    from_port       = 0
-    to_port         = 63353
-    protocol        = "tcp"
-    security_groups = [aws_security_group.lb.id]
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -99,7 +114,59 @@ resource "aws_security_group" "ecs" {
   }
 
   tags = {
-    Name = "Codedang-SG-ECS"
+    Name = "Codedang-SG-LB-Admin"
+  }
+}
+
+resource "aws_security_group" "client_ecs" {
+  name        = "Codedang-SG-Client-ECS"
+  description = "Allow ECS inbound traffic"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description     = "From ALB"
+    from_port       = 0
+    to_port         = 63353
+    protocol        = "tcp"
+    security_groups = [aws_security_group.client_lb.id]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "Codedang-SG-Client-ECS"
+  }
+}
+
+resource "aws_security_group" "admin_ecs" {
+  name        = "Codedang-SG-Admin-ECS"
+  description = "Allow ECS inbound traffic"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description     = "From ALB"
+    from_port       = 0
+    to_port         = 63353
+    protocol        = "tcp"
+    security_groups = [aws_security_group.admin_lb.id]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "Codedang-SG-Admin-ECS"
   }
 }
 

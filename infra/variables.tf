@@ -8,7 +8,12 @@ variable "s3_bucket" {
   default = "codedang"
 }
 
-variable "ecr_uri" {
+variable "ecr_client_uri" {
+  type    = string
+  default = "xxx"
+}
+
+variable "ecr_admin_uri" {
   type    = string
   default = "xxx"
 }
