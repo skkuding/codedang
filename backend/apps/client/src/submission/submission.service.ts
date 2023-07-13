@@ -32,8 +32,7 @@ import {
   Template
 } from './dto/create-submission.dto'
 import { JudgeRequest } from './dto/judge-request.class'
-import type { SubmissionResultMessage } from './dto/submission-result.dto'
-import { generateHash } from './hash/hash'
+import type { JudgerResponse } from './dto/judger-response.dto'
 
 @Injectable()
 export class SubmissionService implements OnModuleInit {
@@ -45,9 +44,9 @@ export class SubmissionService implements OnModuleInit {
   onModuleInit() {
     if (process.env?.ENABLE_SUBSCRIBER === 'true') {
       this.amqpConnection.createSubscriber(
-        async (msg: SubmissionResultMessage) => {
+        async (msg: JudgerResponse) => {
           try {
-            await this.handleJudgerResponse(msg)
+            await this.handleJudgerMessage(msg)
           } catch (error) {
             if (error instanceof MessageFormatError) {
               return new Nack()
@@ -132,9 +131,6 @@ export class SubmissionService implements OnModuleInit {
         problem: true
       }
     })
-    if (problem.exposeTime >= now) {
-      throw new EntityNotExistException('problem')
-    }
 
     return await this.createSubmission(submissionDto, problem, userId)
   }
@@ -187,7 +183,7 @@ export class SubmissionService implements OnModuleInit {
 
     const submission: Submission = await this.prisma.submission.create({
       data: {
-        id: generateHash(), // TODO: generate hash 구분
+        id: this.hash(),
         code: JSON.stringify(code),
         result: ResultStatus.Judging,
         userId,
@@ -209,9 +205,9 @@ export class SubmissionService implements OnModuleInit {
 
     for (let i = 0; i < template.length; i++) {
       if (template[i].id !== code[i].id) return false
-      else if (template[i].readonly && template[i].text !== code[i].text)
+      else if (template[i].locked && template[i].text !== code[i].text)
         return false
-    } // TODO: 그냥 대체할까?
+    }
     return true
   }
 
@@ -224,11 +220,14 @@ export class SubmissionService implements OnModuleInit {
     return 0
   }
 
-  private async publishJudgeRequestMessage(
-    code: Snippet[],
-    submission: Submission
-  ) {
-    const problem = await this.prisma.problem.findUniqueOrThrow({
+  hash = () => {
+    return Math.floor(Math.random() * 16777215)
+      .toString(16)
+      .padStart(6, '0')
+  }
+
+  async publishJudgeRequestMessage(code: Snippet[], submission: Submission) {
+    const problem = await this.prisma.problem.findUnique({
       where: { id: submission.problemId },
       select: {
         id: true,
@@ -246,16 +245,16 @@ export class SubmissionService implements OnModuleInit {
     })
   }
 
-  async handleJudgerResponse(msg: SubmissionResultMessage) {
+  async handleJudgerMessage(msg: JudgerResponse) {
     console.log(msg.data.judgeResult) // TODO: Do we need this?
 
     const validationError: ValidationError[] = await validate(msg)
-    if (validationError.length > 0) {
+    if (!validationError) {
       throw new MessageFormatError({ ...validationError })
     }
 
-    const resultStatus = Status(msg.resultCode)
     const submissionId = msg.submissionId
+    const resultStatus = Status(msg.resultCode)
 
     const results = msg.data.judgeResult.map((result) => {
       return {
@@ -294,6 +293,8 @@ export class SubmissionService implements OnModuleInit {
       )
     )
 
+    // FIXME: 현재 코드는 message 하나에 특정 problem에 대한 모든 테스트케이스의 채점 결과가 전송된다고 가정하고, 이를 받아서 submission의 overall result를 업데이트합니다.
+    //        테스트케이스별로 DB 업데이트가 이루어진다면 아래 코드를 수정해야 합니다.
     await this.prisma.submission.update({
       where: {
         id
@@ -304,23 +305,7 @@ export class SubmissionService implements OnModuleInit {
     })
   }
 
-  async hasPassedProblem(
-    userId: number,
-    where: { problemId: number; contestId?: number }
-  ): Promise<boolean> {
-    const submissions = await this.prisma.submission.findMany({
-      where: {
-        ...where,
-        userId
-      },
-      select: { result: true }
-    })
-
-    return submissions.some(
-      (submission) => submission.result === ResultStatus.Accepted
-    )
-  }
-
+  // FIXME: Workbook 구분
   async getSubmissions(
     problemId: number,
     groupId = OPEN_SPACE_ID
@@ -381,12 +366,29 @@ export class SubmissionService implements OnModuleInit {
     })
     if (
       submission.userId === userId ||
-      this.hasPassedProblem(userId, { problemId })
+      (await this.hasPassedProblem(userId, { problemId }))
     ) {
       return submission.submissionResult
     }
     throw new ForbiddenAccessException(
       "You must pass the problem first to browse other people's submissions"
+    )
+  }
+
+  async hasPassedProblem(
+    userId: number,
+    where: { problemId: number; contestId?: number }
+  ): Promise<boolean> {
+    const submissions = await this.prisma.submission.findMany({
+      where: {
+        ...where,
+        userId
+      },
+      select: { result: true }
+    })
+
+    return submissions.some(
+      (submission) => submission.result === ResultStatus.Accepted
     )
   }
 
