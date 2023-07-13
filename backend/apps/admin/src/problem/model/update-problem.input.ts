@@ -1,11 +1,57 @@
-import { Field, InputType, OmitType } from '@nestjs/graphql'
-import {
-  ProblemTagUncheckedUpdateManyWithoutProblemNestedInput,
-  ProblemTestcaseUncheckedUpdateManyWithoutProblemNestedInput
-} from '@admin/@generated'
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { Field, InputType, Int, OmitType } from '@nestjs/graphql'
 import { ProblemUncheckedUpdateInput } from '@admin/@generated/problem/problem-unchecked-update.input'
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+@InputType()
+export class ProblemTestcaseCreateWithoutProblemInput {
+  @Field(() => String, { nullable: false })
+  input!: string
+
+  @Field(() => String, { nullable: false })
+  output!: string
+
+  @Field(() => Int, { nullable: true })
+  scoreWeight?: number
+}
+
+@InputType()
+export class ProblemTestcaseWhereUniqueInput {
+  @Field(() => Int, { nullable: true })
+  id?: number
+}
+
+@InputType()
+export class ProblemTestcaseCreateOrConnectWithoutProblemInput {
+  @Field(() => ProblemTestcaseWhereUniqueInput, { nullable: false })
+  where!: ProblemTestcaseWhereUniqueInput
+
+  @Field(() => ProblemTestcaseCreateWithoutProblemInput, { nullable: false })
+  create!: ProblemTestcaseCreateWithoutProblemInput
+}
+
+@InputType()
+export class ProblemTestcaseInput {
+  @Field(() => [ProblemTestcaseCreateWithoutProblemInput], { nullable: true })
+  create?: Array<ProblemTestcaseCreateWithoutProblemInput>
+
+  @Field(() => [ProblemTestcaseWhereUniqueInput], { nullable: true })
+  delete?: Array<ProblemTestcaseWhereUniqueInput>
+}
+
+@InputType()
+export class ProblemTagWhereUniqueInput {
+  @Field(() => Int, { nullable: true })
+  id?: number
+}
+
+@InputType()
+export class ProblemTagInput {
+  @Field(() => [ProblemTagWhereUniqueInput], { nullable: true })
+  disconnect?: Array<ProblemTagWhereUniqueInput>
+  @Field(() => [ProblemTagWhereUniqueInput], { nullable: true })
+  connect?: Array<ProblemTagWhereUniqueInput>
+}
+
 //@ts-nocheck
 @InputType()
 export class UpdateProblemInput extends OmitType(ProblemUncheckedUpdateInput, [
@@ -19,17 +65,15 @@ export class UpdateProblemInput extends OmitType(ProblemUncheckedUpdateInput, [
   'problemTestcase',
   'problemTag'
 ]) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-nocheck
-  @Field(() => ProblemTestcaseUncheckedUpdateManyWithoutProblemNestedInput, {
+  @Field(() => ProblemTestcaseInput, {
     nullable: false
   })
-  problemTestcase: ProblemTestcaseUncheckedUpdateManyWithoutProblemNestedInput
+  problemTestcase: ProblemTestcaseInput
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-nocheck
-  @Field(() => ProblemTagUncheckedUpdateManyWithoutProblemNestedInput, {
+  @Field(() => ProblemTagInput, {
     nullable: false
   })
-  problemTag: ProblemTagUncheckedUpdateManyWithoutProblemNestedInput
+  problemTag: ProblemTagInput
 }
