@@ -103,7 +103,6 @@ const changeContest = (page: number) => {
   if (q < page && page <= q + pageSlot) {
     curContestPage.value = page
     currentContest.value = contestList.value[(page - 1) % pageSlot]
-    console.log('page', curContestPage.value)
   } else {
     curContestPage.value = page
     getContest(Math.floor((page - 1) / pageSlot) * perPage * pageSlot)
@@ -125,7 +124,6 @@ const deleteContest = (id: string) => {
 const makePublic = (id: string) => {
   selectedContestId.value = id
   showMakePublicModal.value = true
-  console.log(showMakePublicModal.value)
   dialog.success({
     title: 'Make Public Contest',
     content: `Do you really want to make ${selectedContest.value} contest public? It will take some time to be approved.`,
