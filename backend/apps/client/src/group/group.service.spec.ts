@@ -92,8 +92,10 @@ describe('GroupService', () => {
         group: {
           id: mockGroup.id,
           groupName: mockGroup.groupName,
-          description: mockGroup.description
-        }
+          description: mockGroup.description,
+          config: mockGroup.config
+        },
+        isGroupLeader: true
       })
 
       //when
@@ -103,7 +105,9 @@ describe('GroupService', () => {
       expect(result).to.deep.equal({
         id: mockGroup.id,
         groupName: mockGroup.groupName,
-        description: mockGroup.description
+        description: mockGroup.description,
+        config: mockGroup.config,
+        isGroupLeader: true
       })
     })
 
