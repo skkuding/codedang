@@ -1,9 +1,10 @@
-import { Language, type Submission } from '@prisma/client'
+import { Language, ResultStatus, type Submission } from '@prisma/client'
 
 export const submissions: Submission[] = [
   {
     id: 'test01',
-    code: 'code',
+    code: [{ id: 1, text: 'code', readonly: false }],
+    result: ResultStatus.Judging,
     createTime: new Date('2023-01-01'),
     updateTime: new Date('2023-01-01'),
     language: Language.C,
@@ -14,7 +15,8 @@ export const submissions: Submission[] = [
   },
   {
     id: 'test02',
-    code: 'code',
+    code: [{ id: 1, text: 'code', readonly: false }],
+    result: ResultStatus.Judging,
     createTime: new Date('2023-01-01'),
     updateTime: new Date('2023-01-01'),
     language: Language.Python3,
