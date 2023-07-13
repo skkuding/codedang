@@ -82,7 +82,6 @@ const router = useRouter()
 const goGroup = (id: number) => {
   const group = groupList.value.find((item) => item.id === id)
   // 사용자가 해당 group에 소속되어 있으면
-  console.log('group is ', group)
   if (group?.belong) router.push(`/group/${id}`)
   // 소속 되어 있지 않으면
   else {

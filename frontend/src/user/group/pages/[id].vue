@@ -7,6 +7,9 @@ import Profile from '@/user/group/components/Profile.vue'
 import Workbook from '@/user/group/components/Workbook.vue'
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const props = defineProps<{
   id: string
@@ -30,11 +33,9 @@ const group = ref<Group>({
 onMounted(async () => {
   try {
     const { data } = await axios.get(`/api/group/${props.id}`)
-    console.log('response data is ', data)
     group.value = data
   } catch (err) {
-    // router.replace('/404')
-    console.log(err)
+    router.replace('/404')
   }
 })
 </script>
