@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Card from '@/common/components/Molecule/Card.vue'
 import type { Contest } from '@/user/contest/pages/index.vue'
-import type { Item } from '@/user/notice/composables/notice'
+import type { NoticeItem } from '@/user/notice/composables/notice'
 import { useDateFormat } from '@vueuse/core'
 import axios from 'axios'
 import { ref } from 'vue'
@@ -27,7 +27,7 @@ axios
     params: { take: 3 }
   })
   .then((res) => {
-    notices.value = res.data.map((element: Item) => ({
+    notices.value = res.data.map((element: NoticeItem) => ({
       title: element.title,
       date: useDateFormat(element.createTime, 'YYYY-MM-DD').value,
       href: `/notice/${element.id}`
