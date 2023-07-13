@@ -158,7 +158,7 @@ const joinGroup = async (id: number) => {
             <IconGear
               v-if="isGroupLeader"
               class="border-pink absolute right-7 my-2 h-4 w-4"
-              @click="$router.push(`/admin/${id}`)"
+              @click.stop="$router.push(`/admin/${id}`)"
             />
           </div>
 
