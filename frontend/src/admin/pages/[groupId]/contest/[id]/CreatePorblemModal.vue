@@ -139,12 +139,13 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
             class="flex h-[32px] items-center justify-center gap-2"
             @click="
               () => {
-                data.sample = [
-                  ...data.sample.slice(0, index),
-                  ...data.sample.slice(index + 1)
-                ]
-                if (data.sample.length == 0)
+                if (data.sample.length === 1)
                   data.sample = [{ input: '', output: '' }]
+                else
+                  data.sample = [
+                    ...data.sample.slice(0, index),
+                    ...data.sample.slice(index + 1)
+                  ]
               }
             "
           >
@@ -197,12 +198,13 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
             class="flex h-[32px] items-center justify-center gap-2"
             @click="
               () => {
-                data.testcase = [
-                  ...data.testcase.slice(0, index),
-                  ...data.testcase.slice(index + 1)
-                ]
-                if (data.testcase.length == 0)
+                if (data.testcase.length === 1)
                   data.testcase = [{ input: '', output: '' }]
+                else
+                  data.testcase = [
+                    ...data.testcase.slice(0, index),
+                    ...data.testcase.slice(index + 1)
+                  ]
               }
             "
           >

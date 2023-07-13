@@ -24,8 +24,6 @@ const props = defineProps<{
   height?: string
 }>()
 
-console.log(props.height)
-
 const editor = useEditor({
   content: '',
   extensions: [StarterKit],
