@@ -9,7 +9,7 @@ const items: { [key: string]: Record<string, string>[] } = {
   Contest: [
     {
       submissionTime: '2022.06.08 21:08:45',
-      user: '2030319999 goo314',
+      user: 'goo314',
       contest: '솔방울코딩대회',
       problem: '사장님 올때 메로나',
       language: 'Python3',
@@ -17,7 +17,7 @@ const items: { [key: string]: Record<string, string>[] } = {
     },
     {
       submissionTime: '2022.06.08 21:08:45',
-      user: '2024311234 minseo999',
+      user: 'minseo999',
       contest: '솔방울코딩대회',
       problem: '가파른 경사',
       language: 'Java',
@@ -25,7 +25,7 @@ const items: { [key: string]: Record<string, string>[] } = {
     },
     {
       submissionTime: '2022.06.08 21:08:45',
-      user: '2030319999 cranemont',
+      user: 'cranemont',
       contest: 'SCAT 대회',
       problem: '연습문제',
       language: 'C',
@@ -33,7 +33,7 @@ const items: { [key: string]: Record<string, string>[] } = {
     },
     {
       submissionTime: '2022.06.08 21:08:45',
-      user: '2002310667 jimin',
+      user: 'jimin',
       contest: '솔방울코딩대회',
       problem: '사장님 올때 메로나',
       language: 'C++',
@@ -43,7 +43,7 @@ const items: { [key: string]: Record<string, string>[] } = {
   Workbook: [
     {
       submissionTime: '2022.06.08 21:08:45',
-      user: '2030319999 goo314',
+      user: 'goo314',
       workbook: '솔방울코딩대회',
       problem: '사장님 올때',
       language: 'Java',
@@ -51,7 +51,7 @@ const items: { [key: string]: Record<string, string>[] } = {
     },
     {
       submissionTime: '2022.06.08 21:08:45',
-      user: '2024311234 minseo999',
+      user: 'minseo999',
       workbook: '솔방울대회',
       problem: '가파른',
       language: 'Python',
@@ -59,7 +59,7 @@ const items: { [key: string]: Record<string, string>[] } = {
     },
     {
       submissionTime: '2022.06.08 21:08:45',
-      user: '2030319999 cranemont',
+      user: 'cranemont',
       workbook: 'SCAT 대회',
       problem: '연습',
       language: 'C',
@@ -67,7 +67,7 @@ const items: { [key: string]: Record<string, string>[] } = {
     },
     {
       submissionTime: '2022.06.08 21:08:45',
-      user: '2002310667 jimin',
+      user: 'jimin',
       workbook: '솔방울코딩대회',
       problem: '사장님 올때 메로나',
       language: 'C++',
@@ -126,9 +126,6 @@ const items: { [key: string]: Record<string, string>[] } = {
       placeholder="keywords"
       :number-of-pages="3"
     >
-      <template #user="{ row }">
-        <p v-for="item in row.user.split(' ')" :key="item">{{ item }}</p>
-      </template>
       <template #result="{ row }">
         <span
           :class="
