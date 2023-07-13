@@ -59,6 +59,11 @@ onMounted(async () => {
       ? `/api/group?cursor=${cursor.value}&take=${take.value}`
       : `/api/group?take=${take.value}`
   )
+  if (props.isMyGroup) {
+    for (let i = 0; i < data.length; i++) {
+      data[i].belong = true
+    }
+  }
   groupList.value.push(...data)
 
   pageNumGroup.value =
@@ -77,6 +82,7 @@ const router = useRouter()
 const goGroup = (id: number) => {
   const group = groupList.value.find((item) => item.id === id)
   // 사용자가 해당 group에 소속되어 있으면
+  console.log('group is ', group)
   if (group?.belong) router.push(`/group/${id}`)
   // 소속 되어 있지 않으면
   else {

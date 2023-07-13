@@ -5,12 +5,22 @@ import Member from '@/user/group/components/Member.vue'
 import Notice from '@/user/group/components/Notice.vue'
 import Profile from '@/user/group/components/Profile.vue'
 import Workbook from '@/user/group/components/Workbook.vue'
+import axios from 'axios'
+import { onMounted } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   id: string
 }>()
 
 // dummy data
+// interface Group {
+//   id: number
+//   groupName: string
+//   description: string
+//   groupImage?: string
+//   createdBy: number
+// }
+// const group = ref<Group>()
 const group = {
   id: 1,
   groupName: 'skkuding',
@@ -18,6 +28,17 @@ const group = {
   groupImage: '@/common/assets/logo.png',
   createdBy: 1
 }
+
+onMounted(async () => {
+  try {
+    const { data } = await axios.get(`/api//group/${props.id}`)
+    console.log('response data is ', data)
+    // group.value = data
+  } catch (err) {
+    // router.replace('/404')
+    console.log(err)
+  }
+})
 </script>
 
 <template>
