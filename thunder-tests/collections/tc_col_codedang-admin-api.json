@@ -603,7 +603,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-07-05T12:16:57.576Z",
-            "modified": "2023-07-13T11:23:57.492Z",
+            "modified": "2023-07-13T13:10:57.890Z",
             "headers": [],
             "params": [],
             "body": {
@@ -615,7 +615,8 @@
                     "variables": "{\n  \"createInput\":{\n    \"title\": \"title0\",\n    \"description\": \"description0\",\n    \"inputDescription\": \"inputDescription0\",\n    \"outputDescription\": \"ouputDescription0\",\n    \"hint\": \"hint0\",\n    \"languages\": [\"C\",\"Java\"],\n    \"timeLimit\": 666,\n    \"memoryLimit\": 33,\n    \"difficulty\": \"Level1\",\n    \"source\": \"source0\",\n    \"inputExamples\": [\"i0\",\"i1\"],\n    \"outputExamples\": [\"o0\",\"o1\"],\n    \"problemTestcase\": [\n      {\n        \"input\": \"input0\",\n        \"output\": \"output0\"\n      },{\n        \"input\": \"input1\",\n        \"output\": \"output1\"\n      }\n      ],\n    \"problemTag\":[1]\n  }\n}"
                 }
             },
-            "tests": []
+            "tests": [],
+            "docs": "# Create Problem\n\n새로운 문제를  생성합니다.\n\n### Constraints\n- 본인 그룹의 문제만 생성할 수 있습니다.\n- problemTestcase와 problemTag를 입력하고 싶지 않을 경우, 입력을 생략하지 말고 배열을 전달하되 비워두십시오.\n- default 값은 다음과 같습니다.\n  ```json\n  problemTestcase: []\n  problemTag: []\n  ```\n"
         },
         {
             "_id": "319d43a7-84af-453f-a130-0591d5dae7c1",
