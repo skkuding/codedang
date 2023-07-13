@@ -6,6 +6,7 @@ import { ref, type Ref } from 'vue'
 import IconPlus from '~icons/fa/plus'
 import IconTrash from '~icons/fa/trash-o'
 import CreateNoticeModal from './CreateNoticeModal.vue'
+import CreatePorblemModal from './CreatePorblemModal.vue'
 
 interface Row {
   id: string
@@ -18,6 +19,7 @@ interface Row {
 
 const showImportModal = ref(false)
 const showNoticeModal = ref(false)
+const showProblemModal = ref(false)
 const problem: Ref<Row[]> = ref([
   {
     id: '1',
@@ -257,6 +259,14 @@ const tags = [
         }
       "
     />
+    <CreatePorblemModal
+      :toggle="showProblemModal"
+      :set-toggle="
+        (a) => {
+          showProblemModal = !a
+        }
+      "
+    />
     <div class="border-gray border-b text-right text-lg font-semibold">
       SKKUDING
     </div>
@@ -268,11 +278,19 @@ const tags = [
     <div class="mt-8 flex justify-between">
       <h2 class="text-lg font-semibold">Problem List</h2>
       <div class="flex gap-3 text-sm">
-        <Button>+ Create</Button>
         <Button
           @click="
             () => {
-              showImportModal = !showImportModal
+              showProblemModal = true
+            }
+          "
+        >
+          + Create
+        </Button>
+        <Button
+          @click="
+            () => {
+              showImportModal = true
             }
           "
         >
