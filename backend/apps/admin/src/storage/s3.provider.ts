@@ -25,8 +25,7 @@ export const S3Provider = {
     try {
       await client.send(
         new HeadBucketCommand({
-          Bucket: bucket,
-          ExpectedBucketOwner: 'skku'
+          Bucket: bucket
         })
       )
     } catch {
