@@ -1,9 +1,9 @@
-import { CacheModule } from '@nestjs/cache-manager'
-import { ConfigModule } from '@nestjs/config'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { CacheConfigService } from '@libs/cache'
+import { stub } from 'sinon'
 import { PrismaService } from '@libs/prisma'
+import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
 
 // const userId = 1
@@ -43,30 +43,37 @@ import { ContestService } from './contest.service'
 //   createTime: undefined
 // }
 
-// const db = {
-//   contest: {
-//     findFirst: stub(),
-//     findUnique: stub(),
-//     findMany: stub().resolves([Contest]),
-//     create: stub().resolves(Contest),
-//     update: stub(),
-//     delete: stub()
-//   }
-// }
+const db = {
+  contest: {
+    findFirst: stub().resolves(Contest),
+    findUnique: stub().resolves(Contest),
+    findMany: stub().resolves([Contest]),
+    create: stub().resolves(Contest),
+    update: stub().resolves(Contest),
+    delete: stub()
+  }
+}
 
 describe('ContestService', () => {
   let service: ContestService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({ isGlobal: true }),
-        CacheModule.registerAsync({
-          isGlobal: true,
-          useClass: CacheConfigService
-        })
-      ],
-      providers: [ContestService, { provide: PrismaService, useValue: {} }]
+      providers: [
+        ContestService,
+        { provide: PrismaService, useValue: db },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => [],
+            store: {
+              keys: () => []
+            }
+          })
+        }
+      ]
     }).compile()
 
     service = module.get<ContestService>(ContestService)
