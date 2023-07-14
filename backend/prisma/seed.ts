@@ -774,6 +774,7 @@ const createProblems = async () => {
   <code>Unknown</code>
   을 출력한다.
 </p>`,
+        template: [],
         languages: [Language.C],
         hint: '',
         timeLimit: 2000,
@@ -863,6 +864,7 @@ const createProblems = async () => {
   </span>
   <br />
 </p>`,
+        template: [],
         languages: [Language.Cpp],
         hint: '',
         timeLimit: 1000,
@@ -1308,6 +1310,7 @@ const createProblems = async () => {
   3개를 사려고 하는 사람을 줄에서 내보내면, 줄은 2, 7, 7, 7, 7, 5, 7이 된다. 이
   때 7개를 사려고 하는 사람 4명이 연속된 구간이 가장 길이가 긴 구간이다.
 </p>`,
+        template: [],
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'USACO 2012 US Open Bronze 1번'
@@ -1796,6 +1799,7 @@ const createProblems = async () => {
 </p>`,
         languages: [Language.Python3],
         hint: '',
+        template: [],
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'ICPC Regionals NCPC 2009 B번'
@@ -2573,6 +2577,7 @@ const createProblems = async () => {
   이 될 수 없는 경우는 -1을 출력한다.
 </p>`,
         languages: [Language.C, Language.Java],
+        template: [],
         hint: `<p>
   3개의 타일이 있고, 두 개의 타일은 길이가 3인 정사각형이고, 한 개의 타일은
   길이가 1인 정사각형이다. 이것들을 총면적이 6이 되도록 교환하려 한다.
@@ -3279,6 +3284,7 @@ const createProblems = async () => {
 </p>`,
         languages: [Language.Cpp, Language.Python3],
         hint: '',
+        template: [],
         timeLimit: 2000,
         memoryLimit: 512,
         source: 'COCI 2019/2020 Contest #3 2번'
@@ -5182,6 +5188,7 @@ const createProblems = async () => {
   첫째 줄에 그래프에 대한 '사이클 분할의 비용'의 최솟값을 하나의 정수로 출력한다.
 </p>`,
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
+        template: [],
         hint: `<p>
   예제에서 입력되는 순서대로 간선에 번호를 매겨보자.
   <span>
@@ -6821,6 +6828,12 @@ int main(void) {
       result: ResultStatus.Accepted
     }
   })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.Accepted }
+  })
 
   submissions.push(
     await prisma.submission.create({
@@ -6844,6 +6857,12 @@ int main(void) {
       problemTestcaseId: problemTestcases[1].id,
       result: ResultStatus.WrongAnswer
     }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.WrongAnswer }
   })
 
   submissions.push(
@@ -6869,6 +6888,12 @@ int main(void) {
       result: ResultStatus.CompileError
     }
   })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.CompileError }
+  })
 
   submissions.push(
     await prisma.submission.create({
@@ -6888,6 +6913,12 @@ int main(void) {
       problemTestcaseId: problemTestcases[3].id,
       result: ResultStatus.RuntimeError
     }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.RuntimeError }
   })
 
   submissions.push(
@@ -6913,6 +6944,12 @@ int main(void) {
       result: ResultStatus.TimeLimitExceeded
     }
   })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.TimeLimitExceeded }
+  })
 
   submissions.push(
     await prisma.submission.create({
@@ -6937,6 +6974,12 @@ int main(void) {
       result: ResultStatus.MemoryLimitExceeded
     }
   })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.MemoryLimitExceeded }
+  })
 
   submissions.push(
     await prisma.submission.create({
@@ -6956,6 +6999,12 @@ int main(void) {
       problemTestcaseId: problemTestcases[6].id,
       result: ResultStatus.OutputLimitExceeded
     }
+  })
+  await prisma.submission.update({
+    where: {
+      id: submissions[0].id
+    },
+    data: { result: ResultStatus.OutputLimitExceeded }
   })
 }
 

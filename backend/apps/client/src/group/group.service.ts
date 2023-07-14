@@ -31,9 +31,11 @@ export class GroupService {
           select: {
             id: true,
             groupName: true,
-            description: true
+            description: true,
+            config: true
           }
-        }
+        },
+        isGroupLeader: true
       }
     })
 
@@ -51,6 +53,7 @@ export class GroupService {
           groupName: true,
           description: true,
           userGroup: true,
+          config: true,
           createdBy: {
             select: {
               username: true
@@ -64,12 +67,13 @@ export class GroupService {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
+        config: group.config,
         createdBy: group.createdBy.username,
         memberNum: group.userGroup.length,
         leaders: await this.getGroupLeaders(groupId)
       }
     } else {
-      return isJoined.group
+      return { ...isJoined.group, isGroupLeader: isJoined.isGroupLeader }
     }
   }
 

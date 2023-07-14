@@ -16,7 +16,7 @@ defineEmits<{
    since `transition` cannot trigger `fit-content` */
 const height = {
   login: 'h-[30rem]',
-  signup: 'h-[36rem]',
+  signup: 'h-[42rem]',
   password: 'h-[24rem]',
   close: 'h-[18rem]' // set non-zero height for closing animation
 }
@@ -40,18 +40,20 @@ const PasswordReset = defineAsyncComponent(() => import('./PasswordReset.vue'))
       leave-to-class="opacity-0"
       mode="out-in"
     >
-      <Login
-        v-if="modelValue === 'login'"
-        @to="(value) => $emit('update:modelValue', value)"
-      />
-      <Signup
-        v-else-if="modelValue === 'signup'"
-        @to="(value) => $emit('update:modelValue', value)"
-      />
-      <PasswordReset
-        v-else-if="modelValue === 'password'"
-        @to="(value) => $emit('update:modelValue', value)"
-      />
+      <KeepAlive>
+        <Login
+          v-if="modelValue === 'login'"
+          @to="(value) => $emit('update:modelValue', value)"
+        />
+        <Signup
+          v-else-if="modelValue === 'signup'"
+          @to="(value) => $emit('update:modelValue', value)"
+        />
+        <PasswordReset
+          v-else-if="modelValue === 'password'"
+          @to="(value) => $emit('update:modelValue', value)"
+        />
+      </KeepAlive>
     </transition>
   </Modal>
 </template>
