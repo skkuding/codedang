@@ -26,7 +26,7 @@ const groupDescription = ref('')
     </div>
     <GroupListSection title="My Group" :is-my-group="true" />
     <div class="flex justify-end">
-      <Button class="py-2" @click="createModal = true">+ Create Group</Button>
+      <Button class="p-2" @click="createModal = true">+ Create Group</Button>
     </div>
     <GroupListSection title="All Group" pagination :is-my-group="false" />
   </div>
@@ -63,7 +63,7 @@ const groupDescription = ref('')
           <h2 class="mr-60 text-lg font-semibold">Group Image</h2>
           <h2 class="text-lg font-semibold">Group Color</h2>
         </div>
-        <div class="flex">
+        <div class="mb-6 flex">
           <NUpload
             action="https://www.mocky.io/v2/5e4bafc63100007100d8b70f"
             :headers="{
@@ -77,6 +77,9 @@ const groupDescription = ref('')
           </NUpload>
           <NColorPicker />
         </div>
+      </div>
+      <div class="flex justify-end">
+        <Button class="p-2">Save</Button>
       </div>
     </div>
   </Modal>
