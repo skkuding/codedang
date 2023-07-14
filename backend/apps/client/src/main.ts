@@ -21,6 +21,8 @@ async function bootstrap() {
         persistAuthorization: true
       }
     })
+  } else {
+    app.setGlobalPrefix('api')
   }
 
   await app.listen(4000)
