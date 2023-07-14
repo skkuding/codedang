@@ -5,9 +5,9 @@ import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
+import { useListAPI } from '@/common/composables/api'
 import { useDateFormat } from '@vueuse/core'
 import { useWindowSize } from '@vueuse/core'
-import axios from 'axios'
 import { ref, computed, onMounted } from 'vue'
 import { useWorkbook } from '../../workbook/composables/workbook'
 
@@ -15,6 +15,9 @@ interface Problem {
   id: number
   title: string
   difficulty: string
+  submissions: number
+  rate: string
+  tags: string
 }
 
 const colorMapper = (level: string) => {
@@ -58,42 +61,7 @@ const fields = computed(() =>
       ]
 )
 
-const problemList = ref<Problem[]>([])
-problemList.value = []
-const take = ref(10) // 10개씩
-const cursor = ref(0)
-const hasNextPage = ref(true)
-
-onMounted(async () => {
-  axios
-    .get(
-      cursor.value
-        ? `/api/problem?cursor=${cursor.value}&take=${take.value}`
-        : `/api/problem?take=${take.value}`,
-      {
-        headers: {}
-      }
-    )
-    .then((res) => {
-      // for (let i = 0; i < res.data.length; i++) {
-      //   res.data[i].createTime = res.data[i].createTime.toString().slice(0, 10)
-      //   res.data[i].updateTime = res.data[i].updateTime.toString().slice(0, 10)
-      // }
-      console.log('res is ', res)
-      problemList.value.push(...res.data)
-      if (res.data.length < take.value) {
-        hasNextPage.value = false
-      }
-    })
-    .catch((err) => console.log('error is ', err))
-
-  // try {
-  //   const problemResponse = await axios.get(`/api/problem?offset=0&limit=10`)
-  //   problemList.value = problemResponse.data
-  // } catch (err) {
-  //   console.log(err)
-  // }
-})
+const { items, totalPages, changePage } = useListAPI<Problem>('problem')
 
 const CARD_COLOR = ['#FFE5CC', '#94D0AD', '#FFCDCD', '#B1DDEB']
 
@@ -109,9 +77,10 @@ onMounted(async () => {
   <PageSubtitle text="All Problem" class="mb-2 mt-10" />
   <PaginationTable
     :fields="fields"
-    :items="problemList"
+    :items="items"
     placeholder="keywords"
-    :number-of-pages="1"
+    :number-of-pages="totalPages"
+    @change-page="changePage"
     @row-clicked="({ id }) => $router.push('/problem/' + id)"
   >
     <template #option>

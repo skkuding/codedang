@@ -25,8 +25,6 @@ const groupUpdateTimeFormat = useDateFormat(
   groupUpdateTime,
   'YYYY.MM.DD HH:mm:ss'
 )
-const emits = defineEmits(['toggleGroup'])
-emits('toggleGroup', true)
 </script>
 
 <template>

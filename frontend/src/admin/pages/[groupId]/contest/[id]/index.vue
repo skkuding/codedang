@@ -5,6 +5,8 @@ import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { ref, type Ref } from 'vue'
 import IconPlus from '~icons/fa/plus'
 import IconTrash from '~icons/fa/trash-o'
+import CreateNoticeModal from './CreateNoticeModal.vue'
+import CreatePorblemModal from './CreatePorblemModal.vue'
 
 interface Row {
   id: string
@@ -15,7 +17,9 @@ interface Row {
   selected: boolean
 }
 
-const toggle = ref(false)
+const showImportModal = ref(false)
+const showNoticeModal = ref(false)
+const showProblemModal = ref(false)
 const problem: Ref<Row[]> = ref([
   {
     id: '1',
@@ -53,11 +57,11 @@ const tags = [
 <template>
   <div class="flex flex-col">
     <Modal
-      :model-value="toggle"
+      :model-value="showImportModal"
       class="max-w-3xl"
       @update:model-value="
         () => {
-          toggle = !toggle
+          showImportModal = !showImportModal
         }
       "
     >
@@ -247,6 +251,22 @@ const tags = [
         </template>
       </PaginationTable>
     </Modal>
+    <CreateNoticeModal
+      :toggle="showNoticeModal"
+      :set-toggle="
+        (a) => {
+          showNoticeModal = !a
+        }
+      "
+    />
+    <CreatePorblemModal
+      :toggle="showProblemModal"
+      :set-toggle="
+        (a) => {
+          showProblemModal = !a
+        }
+      "
+    />
     <div class="border-gray border-b text-right text-lg font-semibold">
       SKKUDING
     </div>
@@ -258,11 +278,19 @@ const tags = [
     <div class="mt-8 flex justify-between">
       <h2 class="text-lg font-semibold">Problem List</h2>
       <div class="flex gap-3 text-sm">
-        <Button>+ Create</Button>
         <Button
           @click="
             () => {
-              toggle = !toggle
+              showProblemModal = true
+            }
+          "
+        >
+          + Create
+        </Button>
+        <Button
+          @click="
+            () => {
+              showImportModal = true
             }
           "
         >
@@ -328,7 +356,15 @@ const tags = [
     <div class="mt-16 flex justify-between">
       <h2 class="text-lg font-semibold">Notice List</h2>
       <div class="flex gap-3 text-sm">
-        <Button>+ Create</Button>
+        <Button
+          @click="
+            () => {
+              showNoticeModal = true
+            }
+          "
+        >
+          + Create
+        </Button>
       </div>
     </div>
     <PaginationTable
