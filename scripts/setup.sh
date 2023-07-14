@@ -57,6 +57,7 @@ then
   echo "NODEMAILER_USER=\"\"" >> backend/.env
   echo "NODEMAILER_PASS=\"\"" >> backend/.env
   echo "NODEMAILER_FROM=\"\"" >> backend/.env
+  echo "TESTCASE_BUCKET=\"testcase-bucket\"" >> backend/.env
   echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum | head -c 64)" >> backend/.env
 fi
 

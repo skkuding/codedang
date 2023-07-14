@@ -9,7 +9,7 @@ const main = async () => {
     secretKey: 'skku1234'
   })
 
-  const bucketName = 'test-bucket'
+  const bucketName = 'testcase-bucket'
 
   if (await client.bucketExists(bucketName)) {
     console.log('Bucket already exists.')
