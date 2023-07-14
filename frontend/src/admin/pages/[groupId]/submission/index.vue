@@ -2,12 +2,16 @@
 import RadioButton from '@/common/components/Molecule/RadioButton.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { ref, type Ref } from 'vue'
+import SubmissionDetailModal from './SubmissionDetailModal.vue'
 
 const selectedFilter: Ref<string> = ref('Contest')
+const showModal = ref(false)
+const selectRow = ref()
 
 const items: { [key: string]: Record<string, string>[] } = {
   Contest: [
     {
+      id: '1',
       submissionTime: '2022.06.08 21:08:45',
       user: 'goo314',
       contest: '솔방울코딩대회',
@@ -16,6 +20,7 @@ const items: { [key: string]: Record<string, string>[] } = {
       result: 'Runtime error'
     },
     {
+      id: '134',
       submissionTime: '2022.06.08 21:08:45',
       user: 'minseo999',
       contest: '솔방울코딩대회',
@@ -24,6 +29,7 @@ const items: { [key: string]: Record<string, string>[] } = {
       result: 'Compile error'
     },
     {
+      id: '123',
       submissionTime: '2022.06.08 21:08:45',
       user: 'cranemont',
       contest: 'SCAT 대회',
@@ -32,6 +38,7 @@ const items: { [key: string]: Record<string, string>[] } = {
       result: 'Wrong Answer'
     },
     {
+      id: '234',
       submissionTime: '2022.06.08 21:08:45',
       user: 'jimin',
       contest: '솔방울코딩대회',
@@ -42,6 +49,7 @@ const items: { [key: string]: Record<string, string>[] } = {
   ],
   Workbook: [
     {
+      id: '12354',
       submissionTime: '2022.06.08 21:08:45',
       user: 'goo314',
       workbook: '솔방울코딩대회',
@@ -50,6 +58,7 @@ const items: { [key: string]: Record<string, string>[] } = {
       result: 'Runtime error'
     },
     {
+      id: '112234',
       submissionTime: '2022.06.08 21:08:45',
       user: 'minseo999',
       workbook: '솔방울대회',
@@ -58,6 +67,7 @@ const items: { [key: string]: Record<string, string>[] } = {
       result: 'Compile error'
     },
     {
+      id: '124234',
       submissionTime: '2022.06.08 21:08:45',
       user: 'cranemont',
       workbook: 'SCAT 대회',
@@ -66,6 +76,7 @@ const items: { [key: string]: Record<string, string>[] } = {
       result: 'Wrong Answer'
     },
     {
+      id: '12334',
       submissionTime: '2022.06.08 21:08:45',
       user: 'jimin',
       workbook: '솔방울코딩대회',
@@ -78,6 +89,16 @@ const items: { [key: string]: Record<string, string>[] } = {
 </script>
 
 <template>
+  <SubmissionDetailModal
+    v-if="selectRow"
+    :item="selectRow"
+    :toggle="showModal"
+    :set-toggle="
+      () => {
+        showModal = !showModal
+      }
+    "
+  />
   <div class="flex flex-col">
     <div class="border-gray border-b text-right text-lg font-semibold">
       SKKUDING
@@ -125,6 +146,12 @@ const items: { [key: string]: Record<string, string>[] } = {
       :items="items[selectedFilter]"
       placeholder="keywords"
       :number-of-pages="3"
+      @row-clicked="
+        (row) => {
+          selectRow = row
+          showModal = true
+        }
+      "
     >
       <template #result="{ row }">
         <span
