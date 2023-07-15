@@ -35,7 +35,6 @@
     "dayjs": "^1.11.9",
     "graphql": "^16.7.1",
     "handlebars": "^4.7.7",
-    "minio": "^7.1.1",
     "nodemailer": "^6.9.3",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
