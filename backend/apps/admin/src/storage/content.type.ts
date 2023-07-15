@@ -1,5 +1,5 @@
-export const ContentType = {
+export const ContentTypes = {
   json: 'application/json',
   txt: 'text/plain'
 }
-export type Extension = keyof typeof ContentType
+export type ContentType = keyof typeof ContentTypes
