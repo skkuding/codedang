@@ -13,7 +13,7 @@ export class StorageService {
   async uploadObject(path: string, content: string, extension: Extension) {
     await this.client.send(
       new PutObjectCommand({
-        Bucket: this.config.get('TESTCASE_BUCKET'),
+        Bucket: this.config.get('TESTCASE_BUCKET_NAME'),
         Key: `${path}.${extension}`,
         Body: content,
         ContentType: ContentType[extension]

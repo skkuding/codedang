@@ -9,11 +9,11 @@ import {
 const main = async () => {
   const client = new S3Client({
     region: 'ap-northeast-2',
-    endpoint: 'http://codedang-testcase:9000',
+    endpoint: process.env.TESTCASE_ENDPOINT_URL,
     forcePathStyle: true, // required for minio
     credentials: {
-      accessKeyId: 'skku', // TODO: replace with env
-      secretAccessKey: 'skku1234'
+      accessKeyId: process.env.TESTCASE_ACCESS_KEY,
+      secretAccessKey: process.env.TESTCASE_SECRET_KEY
     }
   })
 

@@ -11,15 +11,15 @@ export const S3Provider = {
   import: [ConfigModule],
   inject: [ConfigService],
   useFactory: async (config: ConfigService) => {
-    const bucket = config.get('TESTCASE_BUCKET')
+    const bucket = config.get('TESTCASE_BUCKET_NAME')
     const client = new S3Client({
       region: 'ap-northeast-2',
       // TODO: production 환경에서는 endpoint, forcePathStyle 삭제
-      endpoint: 'http://localhost:9000',
+      endpoint: config.get('TESTCASE_ENDPOINT_URL'),
       forcePathStyle: true,
       credentials: {
-        accessKeyId: 'skku',
-        secretAccessKey: 'skku1234'
+        accessKeyId: config.get('TESTCASE_ACCESS_KEY'),
+        secretAccessKey: config.get('TESTCASE_SECRET_KEY')
       }
     })
     try {
