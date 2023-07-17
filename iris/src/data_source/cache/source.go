@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/go-redis/redis/v9"
 )
@@ -35,7 +36,7 @@ func (c *cache) Get(key string) ([]byte, error) {
 }
 
 func (c *cache) Set(key string, value interface{}) error {
-	err := c.client.Set(c.ctx, key, value, 0).Err()
+	err := c.client.Set(c.ctx, key, value, time.Hour*24).Err()
 	if err != nil {
 		return fmt.Errorf("failed to set key: %w", err)
 	}
