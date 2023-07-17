@@ -1,13 +1,13 @@
-module.exports = {
+import sortImports from '@trivago/prettier-plugin-sort-imports'
+import tailwindcss from 'prettier-plugin-tailwindcss'
+
+export default {
   semi: false,
   singleQuote: true,
   tabWidth: 2,
   trailingComma: 'none',
   htmlWhitespaceSensitivity: 'ignore',
-  plugins: [
-    require('@trivago/prettier-plugin-sort-imports'),
-    require('prettier-plugin-tailwindcss')
-  ],
+  plugins: [sortImports, tailwindcss],
   importOrderParserPlugins: [
     'typescript',
     'classProperties',
