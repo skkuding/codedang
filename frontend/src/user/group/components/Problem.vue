@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
-import { useListAPI } from '@/common/composables/api'
+
+// import { useListAPI } from '@/common/composables/api'
 
 defineProps<{
   id: number
@@ -23,11 +24,11 @@ const items1: Problem[] = [...Array(10).keys()].map((i) => {
   }
 })
 
-const filter = (keyword: string) => {
+const filter = () => {
   // TODO: connect api
 }
 
-const { items, totalPages, changePage } = useListAPI<Problem>('')
+//const { items, totalPages, changePage } = useListAPI<Problem>('')
 </script>
 
 <template>
