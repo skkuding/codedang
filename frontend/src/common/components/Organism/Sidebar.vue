@@ -58,20 +58,20 @@ const items = computed(() =>
 
 <template>
   <div class="bg-gray-light text-gray-dark h-screen w-48 overflow-auto">
-    <router-link to="/admin" class="align-center flex justify-center">
+    <RouterLink to="/admin" class="align-center flex justify-center">
       <CodingPlatformLogo class="my-8 w-32" />
-    </router-link>
+    </RouterLink>
 
     <hr class="bg-gray h-0.5 border-none opacity-25" />
     <div v-for="{ to, name, icon } in items" :key="name">
-      <router-link
+      <RouterLink
         class="flex items-center p-2 pl-10 font-medium hover:shadow"
         :active-class="colorMapper[color] + ' border-l-8 !pl-8'"
         :to="to"
       >
         <component :is="icon" class="mr-2 h-4" />
         {{ name }}
-      </router-link>
+      </RouterLink>
       <hr class="bg-gray h-0.5 border-none opacity-25" />
     </div>
   </div>
