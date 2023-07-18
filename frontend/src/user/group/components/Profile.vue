@@ -23,9 +23,8 @@ const props = defineProps<{
     <div class="flex flex-col gap-1">
       <div class="flex items-baseline gap-2">
         <PageTitle :text="groupName" />
-        <Button color="gray-dark" class="px-1">
+        <Button v-if="props.isGroupLeader" color="gray-dark" class="px-1">
           <IconGear
-            v-if="props.isGroupLeader"
             class="h-3 w-3"
             @click="$router.push(`/admin/${props.id}`)"
           />
