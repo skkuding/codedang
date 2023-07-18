@@ -223,6 +223,7 @@ const changeWorkBook = (page: number) => {
     @change-page="changeWorkBook"
   ></PaginationTable>
 </template>
+
 <route lang="yaml">
 meta:
   layout: admin
