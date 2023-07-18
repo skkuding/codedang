@@ -19,6 +19,7 @@ module.exports = {
       { ignores: ['/^n-/'] }
     ],
     'vue/define-props-declaration': 'error',
+    'vue/html-self-closing': ['error', { html: { void: 'always' } }], // compatibility with prettier
     'vue/no-empty-component-block': 'error',
     'vue/no-undef-components': [
       'error',

@@ -7,7 +7,7 @@ import IconTrash from '~icons/fa/trash-o'
 <template>
   <div class="flex flex-col">
     <div class="text-right text-lg font-semibold">SKKUDING</div>
-    <div class="bg-gray h-[1px]"></div>
+    <div class="bg-gray h-[1px]" />
     <div class="mt-10">
       <h1 class="text-gray-dark mr-6 inline text-2xl font-semibold">
         1주차 과제

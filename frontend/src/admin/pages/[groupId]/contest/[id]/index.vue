@@ -245,7 +245,7 @@ const tags = [
                 }
               "
             >
-              <IconTrash></IconTrash>
+              <IconTrash />
             </Button>
           </div>
         </template>
@@ -348,7 +348,7 @@ const tags = [
       <template #_delete="{}">
         <div class="flex items-center gap-2">
           <Button class="flex h-[32px] w-[32px] items-center justify-center">
-            <IconTrash></IconTrash>
+            <IconTrash />
           </Button>
         </div>
       </template>
@@ -411,7 +411,7 @@ const tags = [
       <template #_delete="{}">
         <div class="flex items-center gap-2">
           <Button class="flex h-[32px] w-[32px] items-center justify-center">
-            <IconTrash></IconTrash>
+            <IconTrash />
           </Button>
         </div>
       </template>

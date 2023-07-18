@@ -63,7 +63,7 @@ const field: Field[] = [
     <div
       v-dompurify-html="currentNotice?.content"
       class="prose min-h-[400px] w-full max-w-full break-all p-4"
-    ></div>
+    />
     <PaginationTable
       no-header
       no-pagination
