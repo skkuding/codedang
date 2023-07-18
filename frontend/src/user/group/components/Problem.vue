@@ -29,6 +29,12 @@ const filter = () => {
 }
 
 //const { items, totalPages, changePage } = useListAPI<Problem>('')
+const [totalPages, changePage] = [
+  3,
+  () => {
+    console.log('dummy')
+  }
+]
 </script>
 
 <template>
