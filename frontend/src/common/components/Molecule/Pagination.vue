@@ -55,9 +55,6 @@ const shownPages = computed(() => {
 })
 
 watch(currentPage, () => {
-  console.log('currentPage', currentPage.value)
-  console.log('start', start.value)
-  console.log('end', end.value)
   emit('update:modelValue', currentPage.value)
 })
 </script>

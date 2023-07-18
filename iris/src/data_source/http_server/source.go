@@ -11,17 +11,13 @@ import (
 type httpServerDataSource struct {
 	url            string
 	placeholder    string
-	authToken      string
-	authHeader     string
 	requestTimeout time.Duration
 }
 
-func NewHttpServerDataSource(url, placeholder, authToken, authHeader string, requestTimeout time.Duration) *httpServerDataSource {
+func NewHttpServerDataSource(url, placeholder string, requestTimeout time.Duration) *httpServerDataSource {
 	return &httpServerDataSource{
 		url:            url,
 		placeholder:    placeholder,
-		authToken:      authToken,
-		authHeader:     authHeader,
 		requestTimeout: requestTimeout,
 	}
 }
@@ -30,7 +26,6 @@ func (h *httpServerDataSource) Get(key string) ([]byte, error) {
 	url := strings.Replace(h.url, h.placeholder, key, 1)
 	fmt.Println(url)
 	req, err := http.NewRequest("GET", url, nil)
-	req.Header.Add(h.authHeader, h.authToken)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http request: %w", err)
 	}
