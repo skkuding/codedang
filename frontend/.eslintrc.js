@@ -38,6 +38,7 @@ module.exports = {
     ],
     'vue/padding-line-between-blocks': 'warn',
     'vue/prefer-true-attribute-shorthand': 'warn',
+    'vue/require-emit-validator': 'error',
     'vue/multi-word-component-names': 'off'
   }
 }
