@@ -79,5 +79,8 @@ const groupDescription = ref('')
         </div>
       </div>
     </div>
+    <div class="flex justify-end">
+      <Button class="px-4 py-2">Save</Button>
+    </div>
   </Modal>
 </template>
