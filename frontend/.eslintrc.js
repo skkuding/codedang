@@ -12,6 +12,7 @@ module.exports = {
   },
   extends: ['plugin:vue/vue3-recommended', 'plugin:prettier/recommended'],
   rules: {
+    'vue/component-api-style': ['error', ['script-setup']],
     'vue/no-empty-component-block': 'error',
     'vue/no-undef-components': [
       'error',
