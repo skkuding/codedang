@@ -13,6 +13,11 @@ module.exports = {
   extends: ['plugin:vue/vue3-recommended', 'plugin:prettier/recommended'],
   rules: {
     'vue/component-api-style': ['error', ['script-setup']],
+    'vue/component-name-in-template-casing': [
+      'error',
+      'PascalCase',
+      { ignores: ['/^n-/'] }
+    ],
     'vue/no-empty-component-block': 'error',
     'vue/no-undef-components': [
       'error',
