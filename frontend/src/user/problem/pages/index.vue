@@ -83,7 +83,7 @@ onMounted(async () => {
         {{ row.difficulty }}
       </div>
     </template>
-    <template #tags="{ row }: { row: Problem }">
+    <template #tags="{ row }">
       <div v-if="row.tags.length === 0" class="m-0.5">-</div>
       <div v-else>
         <div v-for="{ id, name } in row.tags" :key="id" class="flex">
