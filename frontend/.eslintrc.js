@@ -18,6 +18,7 @@ module.exports = {
       'PascalCase',
       { ignores: ['/^n-/'] }
     ],
+    'vue/define-props-declaration': 'error',
     'vue/no-empty-component-block': 'error',
     'vue/no-undef-components': [
       'error',
