@@ -24,7 +24,7 @@ const groupDescription = ref('')
       <InputItem v-model="invitationCode" placeholder="Invitation Code" />
       <Button class="py-2"><IconPaperPlane /></Button>
     </div>
-    <GroupListSection title="My Group" :is-my-group="true" />
+    <GroupListSection title="My Group" is-my-group />
     <div class="flex justify-end">
       <Button class="py-2" @click="createModal = true">+ Create Group</Button>
     </div>

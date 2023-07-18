@@ -220,7 +220,7 @@ const tags = [
         :items="problem.filter((item) => item.selected)"
         placeholder="keywords"
         :number-of-pages="3"
-        :no-search-bar="true"
+        no-search-bar
       >
         <template #level="{ row }: { row: Row }">
           <div class="flex items-center gap-2">
@@ -343,7 +343,7 @@ const tags = [
       ]"
       placeholder="keywords"
       :number-of-pages="3"
-      :no-search-bar="true"
+      no-search-bar
     >
       <template #_delete="{}">
         <div class="flex items-center gap-2">
@@ -406,7 +406,7 @@ const tags = [
       ]"
       placeholder="keywords"
       :number-of-pages="3"
-      :no-search-bar="true"
+      no-search-bar
     >
       <template #_delete="{}">
         <div class="flex items-center gap-2">

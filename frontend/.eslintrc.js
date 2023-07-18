@@ -37,6 +37,7 @@ module.exports = {
       }
     ],
     'vue/padding-line-between-blocks': 'warn',
+    'vue/prefer-true-attribute-shorthand': 'warn',
     'vue/multi-word-component-names': 'off'
   }
 }

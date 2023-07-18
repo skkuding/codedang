@@ -56,8 +56,8 @@ import IconTrash from '~icons/fa/trash-o'
       ]"
       placeholder="keywords"
       :number-of-pages="3"
-      :no-search-bar="true"
-      :no-pagination="true"
+      no-search-bar
+      no-pagination
     >
       <template #_option="{}">
         <div class="flex items-center gap-2">

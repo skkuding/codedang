@@ -74,8 +74,8 @@ import IconTrash from '~icons/fa/trash-o'
       ]"
       placeholder="keywords"
       :number-of-pages="3"
-      :no-search-bar="true"
-      :no-pagination="true"
+      no-search-bar
+      no-pagination
     >
       <template #delete="{}">
         <Button class="flex h-[32px] w-[32px] items-center justify-center">
