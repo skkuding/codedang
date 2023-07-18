@@ -22,7 +22,7 @@ int main() {
   <Modal
     class="bg-default w-full max-w-[70%]"
     :model-value="toggle"
-    :dark="true"
+    dark
     @update:model-value="
       () => {
         setToggle(toggle)
@@ -58,7 +58,7 @@ int main() {
           <h3 class="text-lg font-bold">Source Code</h3>
           <p class="text-gray">(612 Bytes)</p>
         </div>
-        <CodeEditor :model-value="code" lang="cpp" :lock="true" />
+        <CodeEditor :model-value="code" lang="cpp" lock />
         <PaginationTable
           :fields="[
             {
@@ -98,8 +98,8 @@ int main() {
           ]"
           mode="dark"
           :number-of-pages="3"
-          :no-search-bar="true"
-          :no-pagination="true"
+          no-search-bar
+          no-pagination
           class="pointer-events-none"
         >
           <template #result="{ row }">

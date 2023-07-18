@@ -41,10 +41,10 @@ const field: Field[] = [
 <template>
   <div class="mt-10">
     <div class="mb-4 flex justify-end">
-      <router-link to="/notice" class="flex items-center">
+      <RouterLink to="/notice" class="flex items-center">
         <IconBars />
         <div class="ml-2 hidden sm:block">List</div>
-      </router-link>
+      </RouterLink>
     </div>
     <div
       class="bg-gray-light border-gray flex w-full justify-between border-y p-4"
@@ -63,7 +63,7 @@ const field: Field[] = [
     <div
       v-dompurify-html="currentNotice?.content"
       class="prose min-h-[400px] w-full max-w-full break-all p-4"
-    ></div>
+    />
     <PaginationTable
       no-header
       no-pagination
