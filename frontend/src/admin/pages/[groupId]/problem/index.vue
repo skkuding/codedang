@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import CreatePorblemModal from '@/admin/components/CreatePorblemModal.vue'
+import ImportProblemModal from '@/admin/components/ImportProblemModal.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { ref } from 'vue'
 import IconTrash from '~icons/fa/trash-o'
-import CreatePorblemModal from '../contest/[id]/CreatePorblemModal.vue'
-import ImportProblemModal from '../contest/[id]/ImportProblemModal.vue'
 
 const showProblemModal = ref(false)
 const showImportModal = ref(false)

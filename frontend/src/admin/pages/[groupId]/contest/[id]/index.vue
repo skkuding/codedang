@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import CreateNoticeModal from '@/admin/components/CreateNoticeModal.vue'
+import CreatePorblemModal from '@/admin/components/CreatePorblemModal.vue'
+import ImportProblemModal from '@/admin/components/ImportProblemModal.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { ref } from 'vue'
 import IconTrash from '~icons/fa/trash-o'
-import CreateNoticeModal from './CreateNoticeModal.vue'
-import CreatePorblemModal from './CreatePorblemModal.vue'
-import ImportProblemModal from './ImportProblemModal.vue'
 
 const showImportModal = ref(false)
 const showNoticeModal = ref(false)
