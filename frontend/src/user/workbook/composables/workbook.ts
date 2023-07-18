@@ -14,7 +14,7 @@ export interface Workbook {
   }[]
 }
 
-export const useWorkbook = async () => {
+export const useWorkbook = () => {
   // TODO: workbookList에서 마지막 item 있는지 판별하기
   const containLastItem = ref(false)
   const workbookList = ref<Workbook[]>([])
