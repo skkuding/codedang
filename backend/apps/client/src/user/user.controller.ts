@@ -177,7 +177,8 @@ export class EmailAuthenticationController {
       } else if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
       }
-      throw new InternalServerErrorException()
+      console.error(error)
+      throw new InternalServerErrorException(error.message)
     }
   }
 
