@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
-// import RadioButton from '@/common/components/Molecule/RadioButton.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import { useAuthStore } from '@/common/store/auth'
 import { useIntersectionObserver } from '@vueuse/core'
