@@ -24,7 +24,7 @@ const difficultyVisibleStat = ref(false)
 <template>
   <div class="flex flex-col">
     <div class="text-right text-lg font-semibold">SKKUDING</div>
-    <div class="bg-gray h-[1px]"></div>
+    <div class="bg-gray h-[1px]" />
     <div class="mt-10">
       <h1 class="text-gray-dark mr-6 inline text-2xl font-semibold">
         Workbook List
@@ -101,7 +101,7 @@ const difficultyVisibleStat = ref(false)
             Create Workbook
           </h1>
         </div>
-        <div class="bg-gray mt-2 h-[1px]"></div>
+        <div class="bg-gray mt-2 h-[1px]" />
         <div class="mt-10 flex">
           <div class="w-20 text-lg font-bold">Group</div>
           <div class="flex items-center">NPC 중급반</div>
@@ -127,7 +127,7 @@ const difficultyVisibleStat = ref(false)
             label="Problem Difficulty Visible"
           />
         </div>
-        <div class="bg-gray mt-10 h-[1px]"></div>
+        <div class="bg-gray mt-10 h-[1px]" />
         <div class="mt-8 flex justify-end">
           <div class="flex">
             <Button

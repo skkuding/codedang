@@ -211,7 +211,7 @@ const changeWorkBook = (page: number) => {
     :number-of-pages="pageNumContest"
     @row-clicked="(data: WorkBookItem) => $router.push('/contest/' + data.id)"
     @change-page="changeContest"
-  ></PaginationTable>
+  />
   <PageTitle text="Ongoing Workbook" class="mb-4 mt-10" />
   <PaginationTable
     class="mb-4"
@@ -221,8 +221,9 @@ const changeWorkBook = (page: number) => {
     :number-of-pages="pageNumWorkBook"
     @row-clicked="(data: WorkBookItem) => $router.push('workbook/' + data.id)"
     @change-page="changeWorkBook"
-  ></PaginationTable>
+  />
 </template>
+
 <route lang="yaml">
 meta:
   layout: admin

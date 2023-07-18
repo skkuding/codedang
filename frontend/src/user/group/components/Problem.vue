@@ -47,6 +47,6 @@ const [totalPages, changePage] = [
       @search="filter"
       @change-page="changePage"
       @row-clicked="({ id }) => $router.push('/problem/' + id)"
-    ></PaginationTable>
+    />
   </div>
 </template>
