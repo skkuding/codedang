@@ -1,22 +1,17 @@
-import { PrismaService } from '@libs/prisma'
 import { Injectable } from '@nestjs/common'
 import { Workbook } from 'exceljs'
-import { type FileUploadInput } from './model/file-upload.input'
-import { type Prisma } from '@prisma/client'
+import { ActionNotAllowedException } from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
 import { Language } from '@admin/@generated/prisma/language.enum'
 import { Level } from '@admin/@generated/prisma/level.enum'
-import { type ProblemCreateManyInput } from '@admin/@generated/problem/problem-create-many.input'
-import { ActionNotAllowedException } from '@client/common/exception/business.exception'
+import type { ProblemCreateInput } from '@admin/@generated/problem/problem-create.input'
+import type { FileUploadInput } from './model/file-upload.input'
 
 @Injectable()
 export class ProblemService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async problemImport(
-    userId: number,
-    groupId: number,
-    input: FileUploadInput
-  ): Promise<Prisma.BatchPayload> {
+  async problemImport(userId: number, groupId: number, input: FileUploadInput) {
     const { mimetype, createReadStream } = await input.file
     if (
       [
@@ -32,7 +27,7 @@ export class ProblemService {
     const workbook = new Workbook()
     const worksheet = (await workbook.xlsx.read(createReadStream()))
       .worksheets[0]
-    const problems: ProblemCreateManyInput[] = []
+    const problems: ProblemCreateInput[] = []
     const goormHeader = {}
 
     worksheet.eachRow(function (row, rowNumber) {
@@ -87,44 +82,102 @@ export class ProblemService {
 
         templateCodes.push({
           language,
-          templateCode,
-          readonly: false
+          code: {
+            text: templateCode,
+            readonly: false
+          }
         })
         languages.push(language)
       }
-      //TODO: specify timeLimit, memoryLimit(default: 2sec, 512mb)
 
-      problems.push({
+      //TODO: specify timeLimit, memoryLimit(default: 2sec, 512mb)
+      const problem = {
         createdById: userId,
+        createdBy: {
+          connect: {
+            id: userId
+          }
+        },
         groupId,
+        group: {
+          connect: {
+            id: groupId
+          }
+        },
         title,
         description,
         inputDescription: '',
         outputDescription: '',
         hint: '',
+        template: templateCodes,
         languages,
         timeLimit: 2000,
         memoryLimit: 512,
         difficulty: level,
         source: ''
-      })
+      }
 
-      //TODO: implement testCaseUpload
       const testCnt = parseInt(row.getCell(goormHeader['TestCnt']).text)
-      const input = row.getCell(goormHeader['Input']).text.split('::')
+      const inputText = row.getCell(goormHeader['Input']).text
       const output = row.getCell(goormHeader['Output']).text.split('::')
       const scoreWeight = row.getCell(goormHeader['Score']).text.split('::')
 
-      if (input.length !== testCnt || output.length !== testCnt)
+      if (testCnt === 0) {
+        problems.push(problem)
+        return
+      }
+
+      let input: string[]
+      if (inputText === '' && testCnt !== 0) {
+        for (let i = 0; i < testCnt; i++) input.push('')
+      } else {
+        input = inputText.split('::')
+      }
+
+      if (
+        (input.length !== testCnt || output.length !== testCnt) &&
+        inputText != ''
+      ) {
         throw new ActionNotAllowedException(
-          'Testcase includes ::',
+          'Testcase including ::',
           'problem import function'
         )
+      }
+
+      const testcases = []
+      for (const idx in input) {
+        testcases.push({
+          input: input[idx],
+          output: output[idx]
+        })
+      }
+
+      //TODO: implement testCaseUpload
+      const url = 'sample'
+      const ProblemTestcases = []
+      for (const idx in input) {
+        ProblemTestcases.push({
+          input: url,
+          output: url,
+          scoreWeight: scoreWeight[idx]
+        })
+      }
+
+      problems.push({
+        ...problem,
+        problemTestcase: {
+          createMany: {
+            data: ProblemTestcases
+          }
+        }
+      })
     })
 
-    return await this.prisma.problem.createMany({
-      data: problems,
-      skipDuplicates: true
-    })
+    const results = []
+    for (const idx in problems) {
+      results.push(await this.prisma.problem.create({ data: problems[idx] }))
+    }
+
+    return results
   }
 }
