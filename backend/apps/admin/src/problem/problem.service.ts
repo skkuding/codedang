@@ -92,13 +92,11 @@ export class ProblemService {
 
       //TODO: specify timeLimit, memoryLimit(default: 2sec, 512mb)
       const problem = {
-        createdById: userId,
         createdBy: {
           connect: {
             id: userId
           }
         },
-        groupId,
         group: {
           connect: {
             id: groupId
@@ -159,7 +157,7 @@ export class ProblemService {
         ProblemTestcases.push({
           input: url,
           output: url,
-          scoreWeight: scoreWeight[idx]
+          scoreWeight: parseInt(scoreWeight[idx])
         })
       }
 
@@ -175,7 +173,11 @@ export class ProblemService {
 
     const results = []
     for (const idx in problems) {
-      results.push(await this.prisma.problem.create({ data: problems[idx] }))
+      results.push(
+        await this.prisma.problem.create({
+          data: problems[idx]
+        })
+      )
     }
 
     return results

@@ -1,7 +1,7 @@
-import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
-import { AdminModule } from './admin.module'
+import { NestFactory } from '@nestjs/core'
 import { graphqlUploadExpress } from 'graphql-upload'
+import { AdminModule } from './admin.module'
 
 async function bootstrap() {
   const app = await NestFactory.create(AdminModule)

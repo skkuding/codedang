@@ -1,6 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import { ProblemResolver } from './problem.resolver'
 import { expect } from 'chai'
+import { ProblemResolver } from './problem.resolver'
 
 describe('ProblemResolver', () => {
   let resolver: ProblemResolver
