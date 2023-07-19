@@ -1,16 +1,15 @@
-import { Args, Context, Mutation, Resolver } from '@nestjs/graphql'
-import { ProblemService } from './problem.service'
-import { Problem } from '@admin/@generated/problem/problem.model'
-import { AuthenticatedRequest } from '@client/auth/interface/authenticated-request.interface'
-import { FileUploadInput } from './model/file-upload.input'
 import {
   BadRequestException,
   InternalServerErrorException,
   ParseIntPipe
 } from '@nestjs/common'
-import { type Prisma } from '@prisma/client'
-import { ActionNotAllowedException } from '@client/common/exception/business.exception'
+import { Args, Context, Mutation, Resolver } from '@nestjs/graphql'
+import { Problem } from '@admin/@generated/problem/problem.model'
+import { AuthenticatedRequest } from '../../../../libs/auth/src/authenticated-request.interface'
+import { ActionNotAllowedException } from '../../../../libs/exception/src/business.exception'
+import { FileUploadInput } from './model/file-upload.input'
 import { UploadedProblems } from './model/file-upload.output'
+import { ProblemService } from './problem.service'
 
 @Resolver(() => Problem)
 export class ProblemResolver {
@@ -21,7 +20,7 @@ export class ProblemResolver {
     @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { nullable: false }, ParseIntPipe) groupId: number,
     @Args('input') input: FileUploadInput
-  ): Promise<Prisma.BatchPayload> {
+  ) {
     try {
       return await this.problemService.problemImport(
         req.user.id,
