@@ -5,11 +5,15 @@ import { PrismaService } from '@libs/prisma'
 import { Language } from '@admin/@generated/prisma/language.enum'
 import { Level } from '@admin/@generated/prisma/level.enum'
 import type { ProblemCreateInput } from '@admin/@generated/problem/problem-create.input'
+import { StorageService } from '@admin/storage/storage.service'
 import type { FileUploadInput } from './model/file-upload.input'
 
 @Injectable()
 export class ProblemService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storageService: StorageService
+  ) {}
 
   async problemImport(userId: number, groupId: number, input: FileUploadInput) {
     const { mimetype, createReadStream } = await input.file
@@ -30,7 +34,7 @@ export class ProblemService {
     const problems: ProblemCreateInput[] = []
     const goormHeader = {}
 
-    worksheet.eachRow(function (row, rowNumber) {
+    worksheet.eachRow(async function (row, rowNumber) {
       if (rowNumber === 1) {
         row.eachCell((cell, idx) => {
           goormHeader[cell.text] = idx
@@ -145,13 +149,18 @@ export class ProblemService {
       const testcases = []
       for (const idx in input) {
         testcases.push({
+          //id
           input: input[idx],
           output: output[idx]
         })
       }
 
       //TODO: implement testCaseUpload
-      const url = 'sample'
+      const url = await this.storageService.uploadObject(
+        'testUpload.json',
+        JSON.stringify(testcases),
+        'json'
+      )
       const ProblemTestcases = []
       for (const idx in input) {
         ProblemTestcases.push({
