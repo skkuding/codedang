@@ -215,7 +215,7 @@ defineProps<{
       :items="problem.filter((item) => item.selected)"
       placeholder="keywords"
       :number-of-pages="3"
-      :no-search-bar="true"
+      no-search-bar
     >
       <template #level="{ row }: { row: Row }">
         <div class="flex items-center gap-2">
@@ -240,7 +240,7 @@ defineProps<{
               }
             "
           >
-            <IconTrash></IconTrash>
+            <IconTrash />
           </Button>
         </div>
       </template>
