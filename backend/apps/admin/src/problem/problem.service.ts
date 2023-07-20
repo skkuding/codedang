@@ -117,6 +117,9 @@ export class ProblemService {
     const { id, template, testcases, tagIds, ...data } = input
     await this.getProblem(groupId, id)
 
+    await this.updateTestcases(id, testcases)
+    // FIXME: handle tags
+
     return await this.prisma.problem.update({
       where: { id },
       data: {
@@ -124,7 +127,6 @@ export class ProblemService {
         ...(template !== undefined && { template: JSON.stringify(template) })
       }
     })
-    // TODO: handle testcases & tags
   }
 
   async updateTestcases(
