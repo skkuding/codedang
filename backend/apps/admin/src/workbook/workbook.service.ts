@@ -63,7 +63,6 @@ export class WorkbookService {
         id: cursor
       }
     })
-    console.log(workbookList)
     return workbookList
   }
 
@@ -138,21 +137,16 @@ export class WorkbookService {
     createWorkbookInput: CreateWorkbookInput,
     userId: number
   ): Promise<Workbook> {
-    try {
-      const newWorkbook = await this.prisma.workbook.create({
-        data: {
-          createdById: userId,
-          groupId: createWorkbookInput.groupId,
-          title: createWorkbookInput.title,
-          description: createWorkbookInput.title,
-          isVisible: createWorkbookInput.isVisible
-        }
-      })
-      return newWorkbook
-    } catch (error) {
-      console.error('newWorkbook을 create하는 중에 문제 발생', error)
-      throw new Error('record create failed!')
-    }
+    const newWorkbook = await this.prisma.workbook.create({
+      data: {
+        createdById: userId,
+        groupId: createWorkbookInput.groupId,
+        title: createWorkbookInput.title,
+        description: createWorkbookInput.title,
+        isVisible: createWorkbookInput.isVisible
+      }
+    })
+    return newWorkbook
   }
 
   async updateWorkbook(

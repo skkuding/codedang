@@ -1,4 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { expect } from 'chai'
+import { PrismaService } from '@libs/prisma'
 import { WorkbookResolver } from './workbook.resolver'
 import { WorkbookService } from './workbook.service'
 
@@ -7,13 +9,17 @@ describe('WorkbookResolver', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [WorkbookResolver, WorkbookService]
+      providers: [
+        WorkbookResolver,
+        WorkbookService,
+        { provide: PrismaService, useValue: {} }
+      ]
     }).compile()
 
     resolver = module.get<WorkbookResolver>(WorkbookResolver)
   })
 
   it('should be defined', () => {
-    expect(resolver).toBeDefined()
+    expect(resolver).to.be.ok
   })
 })
