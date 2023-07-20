@@ -24,7 +24,7 @@ const noticeFixedStat = ref(false)
 <template>
   <div class="flex flex-col">
     <div class="text-right text-lg font-semibold">SKKUDING</div>
-    <div class="bg-gray h-[1px]"></div>
+    <div class="bg-gray h-[1px]" />
     <div class="mt-10">
       <h1 class="text-gray-dark mr-6 inline text-2xl font-semibold">Notice</h1>
       <Button @click="show = true">+ Create</Button>
@@ -102,7 +102,7 @@ const noticeFixedStat = ref(false)
             Create Notice
           </h1>
         </div>
-        <div class="bg-gray mt-2 h-[1px]"></div>
+        <div class="bg-gray mt-2 h-[1px]" />
         <div class="mt-10 flex">
           <div class="w-20 text-lg font-bold">Group</div>
           <div class="flex items-center">NPC 중급반</div>
@@ -124,7 +124,7 @@ const noticeFixedStat = ref(false)
           <Switch v-model="noticeVisibleStat" class="mr-8" label="Visible" />
           <Switch v-model="noticeFixedStat" label="Fixed" />
         </div>
-        <div class="bg-gray mt-10 h-[1px]"></div>
+        <div class="bg-gray mt-10 h-[1px]" />
         <div class="mt-8 flex justify-end">
           <div class="flex">
             <Button

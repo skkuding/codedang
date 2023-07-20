@@ -24,13 +24,13 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
   <OnClickOutside @trigger="isMenuOpen = false">
     <header class="border-b-gray grid h-14 place-items-center border-b px-8">
       <div class="flex w-full max-w-7xl items-center justify-between">
-        <router-link to="/">
+        <RouterLink to="/">
           <SignatureLogo
             class="w-40 cursor-pointer active:opacity-40 md:hover:opacity-60"
           />
-        </router-link>
+        </RouterLink>
         <nav class="text-text-title hidden gap-4 md:flex">
-          <router-link
+          <RouterLink
             v-for="{ to, name } in [
               { to: '/notice', name: 'Notice' },
               { to: '/contest', name: 'Contest' },
@@ -46,7 +46,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
             }"
           >
             {{ name }}
-          </router-link>
+          </RouterLink>
         </nav>
         <transition
           enter-active-class="transition-opacity duration-300"
@@ -103,7 +103,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
           class="absolute inset-x-0 top-14 z-30 flex w-full flex-col items-center justify-center gap-6 overflow-hidden bg-white/75 py-8 shadow-lg backdrop-blur md:hidden"
         >
           <nav class="text-text-title flex flex-col items-center gap-2">
-            <router-link
+            <RouterLink
               v-for="{ to, name } in [
                 { to: '/notice', name: 'Notice' },
                 { to: '/contest', name: 'Contest' },
@@ -116,7 +116,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
               :to="to"
             >
               {{ name }}
-            </router-link>
+            </RouterLink>
           </nav>
           <transition
             enter-active-class="transition-opacity duration-300"
