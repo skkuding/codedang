@@ -74,12 +74,12 @@ axios.get('api/contest').then((res) => {
         <h2 class="ml-2">Current/Upcoming Contests</h2>
       </template>
       <template #titleIcon>
-        <router-link
+        <RouterLink
           to="/"
           class="cursor-pointer hover:opacity-50 active:opacity-30"
         >
           <IconBars />
-        </router-link>
+        </RouterLink>
       </template>
       <template #icon="item">
         <IconEllipsis v-if="item.item === 'ongoing'" />

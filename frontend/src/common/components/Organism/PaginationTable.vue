@@ -82,14 +82,14 @@ watch(currentPage, (value) => {
 <template>
   <div>
     <div class="mb-5 flex justify-end">
-      <slot name="option"></slot>
+      <slot name="option" />
       <SearchBar
         v-if="!noSearchBar"
         :placeholder="placeholder"
         class="ml-5"
         :class="!mode || mode === 'light' ? '' : 'text-white'"
         @search="search"
-      ></SearchBar>
+      />
     </div>
     <div class="min-w-full overflow-x-scroll md:overflow-x-auto">
       <table
