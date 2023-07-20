@@ -21,6 +21,7 @@ type Group = {
   createdBy: string
   belong?: boolean
   groupImage?: string
+  allowJoinFromSearch: boolean
   isGroupLeader: boolean
 }
 
@@ -69,7 +70,7 @@ onMounted(async () => {
   pageNumGroup.value =
     allGroupList.value.length % perPage === 0
       ? allGroupList.value.length / perPage
-      : Math.floor(allGroupList.value.length / perPage) + 1
+      : Math.floor(allGroupList.value.length / perPage) + 12
   if (data.length < take.value) {
     hasNextPage.value = false
   }
@@ -213,6 +214,7 @@ const joinGroup = async (id: number) => {
           </div>
         </div>
         <Button
+          v-if="selectedGroup.allowJoinFromSearch"
           class="absolute right-10 rounded-2xl px-4"
           @click="joinGroup(selectedGroup.id)"
         >
