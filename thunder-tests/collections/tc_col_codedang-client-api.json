@@ -4439,7 +4439,7 @@
             "method": "GET",
             "sortNum": 575000,
             "created": "2023-02-28T03:58:46.391Z",
-            "modified": "2023-04-28T12:22:22.515Z",
+            "modified": "2023-07-20T12:42:25.857Z",
             "headers": [],
             "params": [
                 {
@@ -4473,7 +4473,7 @@
                     "value": "4"
                 }
             ],
-            "docs": "# Get groups\n\n### URL\nGET /group <br><br>\n\n### Query String\n|#|name|type|description|\n|-|--|--|--|\n|1|cursor|number?|전달하지 않을경우 처음부터 {take} 만큼 불러옵니다.|\n|2|take|number|한 번에 불러올 group의 개수|\n\n<br>\n\n### Description\n공개로 설정된 그룹 들의 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n   id: Number\n   groupName: String\n   description: String\n   createdBy: String\n   memberNum: Number\n} []\n```",
+            "docs": "# Get groups\n\n### URL\nGET /group <br><br>\n\n### Query String\n|#|name|type|description|\n|-|--|--|--|\n|1|cursor|number?|전달하지 않을경우 처음부터 {take} 만큼 불러옵니다.|\n|2|take|number|한 번에 불러올 group의 개수|\n\n<br>\n\n### Description\n공개로 설정된 그룹 들의 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n   id: Number\n   groupName: String\n   description: String\n   createdBy: String\n   memberNum: Number\n   allowJoinFromSearch: Boolean\n} []\n```",
             "preReq": {
                 "runRequests": [
                     {
