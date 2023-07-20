@@ -1,55 +1,76 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '@libs/prisma'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
-import type { CreateGroupProblemInput } from './model/create-problem.input'
-import type { GetGroupProblemsInput } from './model/request-problem.input'
+import { StorageService } from '@admin/storage/storage.service'
+import type { CreateProblemInput } from './model/create-problem.input'
+import type { GetProblemsInput } from './model/request-problem.input'
+import type { Testcase } from './model/testcase.input'
 import type { UpdateProblemInput } from './model/update-problem.input'
 
 @Injectable()
 export class ProblemService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storageService: StorageService
+  ) {}
 
   async createGroupProblem(
-    createdById: number,
+    userId: number,
     groupId: number,
-    input: CreateGroupProblemInput
+    input: CreateProblemInput
   ) {
-    const { problemTag, problemTestcase, ...data } = input
-
-    const problemTestcases = {
-      create: problemTestcase
-    }
-
-    const tagsId = problemTag.map((value) => {
-      return {
-        tagId: value
-      }
-    })
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-nocheck
-    return await this.prisma.problem.create({
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-nocheck
+    const { template, testcases, tagIds, ...data } = input
+    const problem = await this.prisma.problem.create({
       data: {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-nocheck
         ...data,
-        createdById: createdById,
-        problemTestcase: problemTestcases,
+        groupId: groupId,
+        createdById: userId,
+        template: JSON.stringify(template),
         problemTag: {
-          create: tagsId
-        },
-        groupId: groupId
+          create: tagIds.map((tagId) => {
+            return { tagId }
+          })
+        }
       }
     })
+    await this.createTestcases(problem.id, testcases)
+    return problem
+  }
+
+  // TODO: 테스트케이스별로 파일 따로 업로드 -> 수정 시 updateTestcases 로직 함께 정리
+  async createTestcases(problemId: number, testcases: Array<Testcase>) {
+    const filename = `${problemId}.json`
+    const testcaseIds = await Promise.all(
+      testcases.map(async (tc, index) => {
+        const problemTestcase = await this.prisma.problemTestcase.create({
+          data: {
+            problemId,
+            input: filename,
+            output: filename,
+            scoreWeight: tc.scoreWeight
+          }
+        })
+        return { index, id: problemTestcase.id }
+      })
+    )
+
+    const data = JSON.stringify(
+      testcases.map((tc, index) => {
+        return {
+          id: testcaseIds.find((record) => record.index === index),
+          input: tc.input,
+          output: tc.output
+        }
+      })
+    )
+    await this.storageService.uploadObject(filename, data, 'json')
   }
 
   async getGroupProblems(
     groupId: number,
     cursor: number,
     take: number,
-    input: GetGroupProblemsInput
+    input: GetProblemsInput
   ) {
     const whereOptions: ProblemWhereInput = {}
 
@@ -93,32 +114,90 @@ export class ProblemService {
   }
 
   async updateGroupProblem(groupId: number, input: UpdateProblemInput) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-nocheck
-    const { id, ...data } = input
-
+    const { id, template, testcases, tagIds, ...data } = input
     await this.getGroupProblem(groupId, id)
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-nocheck
-    return await this.prisma.problem.update(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-nocheck
-      {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-nocheck
-        where: {
-          id: id
-        },
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-nocheck
-        data: {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          //@ts-nocheck
-          ...data
-        }
+    return await this.prisma.problem.update({
+      where: { id },
+      data: {
+        ...data,
+        ...(template !== undefined && { template: JSON.stringify(template) })
       }
-    )
+    })
+    // TODO: handle testcases & tags
+  }
+
+  async updateTestcases(
+    problemId: number,
+    testcases: Array<Testcase & { id: number }>
+  ) {
+    const deletedIds = [],
+      createdOrUpdated = []
+
+    for (const tc of testcases) {
+      if (!tc.input && !tc.output) {
+        deletedIds.push(tc.id)
+      }
+      createdOrUpdated.push(tc)
+    }
+    if (deletedIds) {
+      await this.prisma.problemTestcase.deleteMany({
+        where: {
+          id: { in: deletedIds }
+        }
+      })
+    }
+    if (createdOrUpdated) {
+      const filename = `${problemId}.json`
+      const uploaded = JSON.parse(
+        await this.storageService.readObject(filename)
+      )
+
+      const updatedIds = (
+        await this.prisma.problemTestcase.findMany({
+          where: {
+            id: { in: createdOrUpdated.map((tc) => tc.id) }
+          }
+        })
+      ).map((tc) => tc.id)
+      await Promise.all(
+        createdOrUpdated
+          .filter((tc) => !updatedIds.includes(tc.id))
+          .map(async (tc) => {
+            await this.prisma.problemTestcase.update({
+              where: {
+                id: tc.id
+              },
+              data: {
+                scoreWeight: tc.scoreWeight
+              }
+            })
+          })
+      )
+
+      await Promise.all(
+        createdOrUpdated
+          .filter((tc) => !updatedIds.includes(tc.id))
+          .map(async (tc) => {
+            const problemTestcase = await this.prisma.problemTestcase.create({
+              data: {
+                problemId,
+                input: filename,
+                output: filename,
+                scoreWeight: tc.scoreWeight
+              }
+            })
+            uploaded.push({
+              id: problemTestcase.id,
+              input: tc.input,
+              output: tc.output
+            })
+          })
+      )
+
+      const data = JSON.stringify(uploaded)
+      await this.storageService.uploadObject(filename, data, 'json')
+    }
   }
 
   async deleteGroupProblem(groupId: number, input: number) {
@@ -128,5 +207,6 @@ export class ProblemService {
         id: input
       }
     })
+    // TODO: 테스트케이스 삭제
   }
 }

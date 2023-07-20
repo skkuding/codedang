@@ -5,6 +5,7 @@ import { PrismaService } from '@libs/prisma'
 import { Language } from '@admin/@generated/prisma/language.enum'
 import { Level } from '@admin/@generated/prisma/level.enum'
 import type { Problem } from '@admin/@generated/problem/problem.model'
+import { StorageService } from '@admin/storage/storage.service'
 import { ProblemService } from './problem.service'
 
 export const problems: Problem[] = [
@@ -81,7 +82,11 @@ describe('ProblemService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [{ provide: PrismaService, useValue: db }, ProblemService]
+      providers: [
+        { provide: PrismaService, useValue: db },
+        { provide: StorageService, useValue: {} },
+        ProblemService
+      ]
     }).compile()
 
     service = module.get<ProblemService>(ProblemService)
