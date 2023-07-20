@@ -12,6 +12,6 @@ const slides = [
 
 <template>
   <Story>
-    <Carousel :slides="slides"></Carousel>
+    <Carousel :slides="slides" />
   </Story>
 </template>
