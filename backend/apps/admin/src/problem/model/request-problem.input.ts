@@ -3,7 +3,7 @@ import { Language } from '@admin/@generated/prisma/language.enum'
 import { Level } from '@admin/@generated/prisma/level.enum'
 
 @InputType()
-export class GetGroupProblemsInput {
+export class GetProblemsInput {
   @Field(() => [Level], { nullable: true })
   difficulty?: Array<Level>
 

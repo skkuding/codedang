@@ -1,79 +1,55 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Field, InputType, Int, OmitType } from '@nestjs/graphql'
-import { ProblemUncheckedUpdateInput } from '@admin/@generated/problem/problem-unchecked-update.input'
+import { Field, InputType, Int } from '@nestjs/graphql'
+import { Language, Level } from '@prisma/client'
+import { Template } from './template.input'
+import { Testcase } from './testcase.input'
 
 @InputType()
-export class ProblemTestcaseCreateWithoutProblemInput {
-  @Field(() => String, { nullable: false })
-  input!: string
+export class UpdateProblemInput {
+  @Field(() => Int, { nullable: false })
+  id!: number
 
-  @Field(() => String, { nullable: false })
-  output!: string
+  @Field(() => String, { nullable: true })
+  title?: string
+
+  @Field(() => String, { nullable: true })
+  description?: string
+
+  @Field(() => String, { nullable: true })
+  inputDescription?: string
+
+  @Field(() => String, { nullable: true })
+  outputDescription?: string
+
+  @Field(() => String, { nullable: true })
+  hint?: string
+
+  @Field(() => [Template], { nullable: true })
+  template?: Array<Template>
+
+  @Field(() => [Language], { nullable: true })
+  languages?: Array<keyof typeof Language>
 
   @Field(() => Int, { nullable: true })
-  scoreWeight?: number
-}
+  timeLimit?: number
 
-@InputType()
-export class ProblemTestcaseWhereUniqueInput {
   @Field(() => Int, { nullable: true })
-  id?: number
-}
+  memoryLimit?: number
 
-@InputType()
-export class ProblemTestcaseCreateOrConnectWithoutProblemInput {
-  @Field(() => ProblemTestcaseWhereUniqueInput, { nullable: false })
-  where!: ProblemTestcaseWhereUniqueInput
+  @Field(() => Level, { nullable: true })
+  difficulty?: keyof typeof Level
 
-  @Field(() => ProblemTestcaseCreateWithoutProblemInput, { nullable: false })
-  create!: ProblemTestcaseCreateWithoutProblemInput
-}
+  @Field(() => String, { nullable: true })
+  source?: string
 
-@InputType()
-export class ProblemTestcaseInput {
-  @Field(() => [ProblemTestcaseCreateWithoutProblemInput], { nullable: true })
-  create?: Array<ProblemTestcaseCreateWithoutProblemInput>
+  @Field(() => [String], { nullable: true })
+  inputExamples?: Array<string>
 
-  @Field(() => [ProblemTestcaseWhereUniqueInput], { nullable: true })
-  delete?: Array<ProblemTestcaseWhereUniqueInput>
-}
+  @Field(() => [String], { nullable: true })
+  outputExamples?: Array<string>
 
-@InputType()
-export class ProblemTagWhereUniqueInput {
-  @Field(() => Int, { nullable: true })
-  id?: number
-}
+  @Field(() => [Testcase], { nullable: true })
+  testcases?: Array<Testcase & { id: number }>
 
-@InputType()
-export class ProblemTagInput {
-  @Field(() => [ProblemTagWhereUniqueInput], { nullable: true })
-  disconnect?: Array<ProblemTagWhereUniqueInput>
-  @Field(() => [ProblemTagWhereUniqueInput], { nullable: true })
-  connect?: Array<ProblemTagWhereUniqueInput>
-}
-
-//@ts-nocheck
-@InputType()
-export class UpdateProblemInput extends OmitType(ProblemUncheckedUpdateInput, [
-  'contestProblem',
-  'createTime',
-  'workbookProblem',
-  'updateTime',
-  'createdById',
-  'groupId',
-  'submission',
-  'problemTestcase',
-  'problemTag'
-]) {
-  //@ts-nocheck
-  @Field(() => ProblemTestcaseInput, {
-    nullable: false
-  })
-  problemTestcase: ProblemTestcaseInput
-
-  //@ts-nocheck
-  @Field(() => ProblemTagInput, {
-    nullable: false
-  })
-  problemTag: ProblemTagInput
+  @Field(() => [Int], { nullable: true })
+  tagIds?: Array<number>
 }
