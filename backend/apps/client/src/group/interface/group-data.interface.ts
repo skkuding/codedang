@@ -1,12 +1,10 @@
-import type { Prisma } from '@prisma/client'
-
 export interface GroupData {
   id: number
   groupName: string
   description: string
   memberNum: number
   createdBy: string
-  config?: Prisma.JsonValue
+  allowJoinFromSearch?: boolean
   leaders?: string[]
   isGroupLeader?: boolean
 }

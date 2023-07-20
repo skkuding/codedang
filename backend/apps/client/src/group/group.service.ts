@@ -138,7 +138,8 @@ export class GroupService {
           id: true,
           groupName: true,
           description: true,
-          userGroup: true
+          userGroup: true,
+          config: true
         }
       })
     ).map((group) => {
@@ -147,7 +148,8 @@ export class GroupService {
         groupName: group.groupName,
         description: group.description,
         createdBy: group.createdBy.username,
-        memberNum: group.userGroup.length
+        memberNum: group.userGroup.length,
+        allowJoinFromSearch: group.config['allowJoinFromSearch']
       }
     })
 
