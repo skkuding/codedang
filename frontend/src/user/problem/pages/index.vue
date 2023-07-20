@@ -5,9 +5,9 @@ import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
+import { useListAPI } from '@/common/composables/api'
 import { useDateFormat } from '@vueuse/core'
 import { useWindowSize } from '@vueuse/core'
-import axios from 'axios'
 import { ref, computed, onMounted } from 'vue'
 import { useWorkbook } from '../../workbook/composables/workbook'
 
@@ -40,11 +40,7 @@ const colorMapper = (level: string) => {
       return 'bg-gray'
   }
 }
-const perPage = 3
-const pageSlot = 3
-const numberOfPages = ref(4)
-const currentPage = ref(1)
-const currentItems = ref<Problem[]>([])
+
 const showTags = ref(false)
 const fields = computed(() =>
   showTags.value
@@ -65,41 +61,7 @@ const fields = computed(() =>
       ]
 )
 
-const problemList = ref<Problem[][]>([])
-
-const changePage = (page: number) => {
-  let q = Math.floor((currentPage.value - 1) / pageSlot) * pageSlot
-  if (q < page && page <= q + pageSlot) {
-    currentPage.value = page
-    currentItems.value = problemList.value[(page - 1) % pageSlot]
-  } else {
-    currentPage.value = page
-    getProblemList(Math.floor((page - 1) / pageSlot) * perPage * pageSlot)
-  }
-}
-
-const getProblemList = async (cursor: number) => {
-  const params =
-    cursor === 0
-      ? { take: perPage * pageSlot }
-      : { cursor: cursor, take: perPage * pageSlot }
-  const res = await axios.get('/api/problem', {
-    params: params
-  })
-  let problems = res.data
-  problemList.value = []
-  do {
-    if (problems.length === 0) return
-    else if (problems.length > perPage) {
-      problemList.value.push(problems.slice(0, perPage))
-      problems = problems.splice(perPage)
-    } else {
-      problemList.value.push(problems)
-      problems = problems.splice(problems.length + 1)
-    }
-  } while (problems.length > 0)
-  currentItems.value = problemList.value[(currentPage.value - 1) % pageSlot]
-}
+const { items, totalPages, changePage } = useListAPI<Problem>('problem')
 
 const CARD_COLOR = ['#FFE5CC', '#94D0AD', '#FFCDCD', '#B1DDEB']
 
@@ -108,7 +70,6 @@ const { containLastItem, workbookList, getWorkbooks, getMoreWorkbooks } =
 
 onMounted(async () => {
   await getWorkbooks()
-  await getProblemList(0)
 })
 </script>
 
@@ -116,10 +77,9 @@ onMounted(async () => {
   <PageSubtitle text="All Problem" class="mb-2 mt-10" />
   <PaginationTable
     :fields="fields"
-    :items="currentItems"
+    :items="items"
     placeholder="keywords"
-    :number-of-pages="numberOfPages"
-    :page-slot="pageSlot"
+    :number-of-pages="totalPages"
     @change-page="changePage"
     @row-clicked="({ id }) => $router.push('/problem/' + id)"
   >

@@ -3,6 +3,7 @@
     <slot />
   </div>
 </template>
+
 <style>
 .btn-group > button:not(:last-child) {
   border-top-right-radius: 0;

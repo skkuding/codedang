@@ -73,7 +73,6 @@ describe('RolesService', () => {
         userGroup.userId,
         userGroup.groupId
       )
-      console.log(isGroupLeader)
       expect(result).to.deep.equal(isGroupLeader)
     })
   })
