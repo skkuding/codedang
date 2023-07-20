@@ -14,7 +14,7 @@ export class ProblemService {
     private readonly storageService: StorageService
   ) {}
 
-  async createGroupProblem(
+  async createProblem(
     userId: number,
     groupId: number,
     input: CreateProblemInput
@@ -66,11 +66,11 @@ export class ProblemService {
     await this.storageService.uploadObject(filename, data, 'json')
   }
 
-  async getGroupProblems(
+  async getProblems(
     groupId: number,
+    input: GetProblemsInput,
     cursor: number,
-    take: number,
-    input: GetProblemsInput
+    take: number
   ) {
     const whereOptions: ProblemWhereInput = {}
 
@@ -103,7 +103,7 @@ export class ProblemService {
     })
   }
 
-  async getGroupProblem(groupId: number, input: number) {
+  async getProblem(groupId: number, input: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id: input,
@@ -113,9 +113,9 @@ export class ProblemService {
     return problem
   }
 
-  async updateGroupProblem(groupId: number, input: UpdateProblemInput) {
+  async updateProblem(groupId: number, input: UpdateProblemInput) {
     const { id, template, testcases, tagIds, ...data } = input
-    await this.getGroupProblem(groupId, id)
+    await this.getProblem(groupId, id)
 
     return await this.prisma.problem.update({
       where: { id },
@@ -200,8 +200,8 @@ export class ProblemService {
     }
   }
 
-  async deleteGroupProblem(groupId: number, input: number) {
-    await this.getGroupProblem(groupId, input)
+  async deleteProblem(groupId: number, input: number) {
+    await this.getProblem(groupId, input)
     return await this.prisma.problem.delete({
       where: {
         id: input
