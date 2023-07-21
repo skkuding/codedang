@@ -52,3 +52,55 @@ variable "redis_port" {
   type        = string
   default     = "6379"
 }
+
+
+variable "ecr_iris_uri" {
+  type    = string
+  default = "xxx"
+}
+
+variable "rabbitmq_port" {
+  type    = string
+  default = "5671"
+}
+
+variable "rabbitmq_username" {
+  type    = string
+  default = "skkuding"
+}
+
+variable "rabbitmq_password" {
+  type    = string
+  default = "abcd12345678"
+}
+
+variable "rabbitmq_vhost" {
+  type    = string
+  default = "vh"
+}
+
+variable "rabbitmq_exchage_name" {
+  type    = string
+  default = "iris.e.direct.judge"
+}
+
+variable "rabbitmq_result_queue_name" {
+  type    = string
+  default = "iris.q.judge.result"
+}
+
+variable "rabbitmq_consumer_queue_name" {
+  type    = string
+  default = "client.q.judge.submission"
+}
+
+variable "rabbitmq_result_routing_key" {
+  type    = string
+  default = "judge.result"
+}
+
+variable "rabbitmq_submission_routing_key" {
+  type    = string
+  default = "judge.submission"
+}
+
