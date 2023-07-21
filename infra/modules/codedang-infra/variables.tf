@@ -1,8 +1,3 @@
-variable "profile" {
-  type    = string
-  default = "default"
-}
-
 variable "s3_bucket" {
   type    = string
   default = "codedang"
@@ -19,8 +14,8 @@ variable "ecr_admin_uri" {
 }
 
 variable "region" {
-  type    = string
-  default = "ap-northeast-2"
+  type = string
+  # default = "ap-northeast-2"
 }
 
 variable "availability_zones" {

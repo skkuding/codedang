@@ -12,7 +12,7 @@ resource "aws_s3_object" "frontend" {
   bucket       = aws_s3_bucket.frontend.id
   key          = each.value
   source       = "../frontend/dist/${each.value}"
-  content_type = lookup(jsondecode(file("mime.json")), regex("\\.[^.]+$", each.key), null)
+  content_type = lookup(jsondecode(file("${path.module}/mime.json")), regex("\\.[^.]+$", each.key), null)
 }
 
 resource "aws_s3_bucket_website_configuration" "frontend" {

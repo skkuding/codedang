@@ -1,5 +1,5 @@
 # [NOTE] Build image from the root directory of this repository.
-# ex) ` docker build -f infra/backend/Dockerfile-admin .`
+# ex) ` docker build -f infra/builder/api/Dockerfile-client .`
 
 ### BUILDER ###
 FROM node:18-alpine AS builder
@@ -12,13 +12,13 @@ RUN pnpm --filter=backend deploy out
 
 WORKDIR /build/out
 RUN npx prisma generate
-RUN npm run build admin
+RUN npm run build client
 
 ### PRODUCTION ###
 FROM node:18-alpine
 
 ENV NODE_ENV=production
 COPY --from=builder /build/out .
-COPY ./infra/backend/entrypoint-admin.sh .
+COPY ./infra/builder/api/entrypoint-client.sh .
 
-ENTRYPOINT ["./entrypoint-admin.sh"]
+ENTRYPOINT ["./entrypoint-client.sh"]

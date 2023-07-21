@@ -4,8 +4,8 @@
 !package.json
 !pnpm-lock.yaml
 !pnpm-workspace.yaml
-!infra/backend/entrypoint-admin.sh
-!infra/backend/entrypoint-client.sh
+!infra/builder/api/entrypoint-admin.sh
+!infra/builder/api/entrypoint-client.sh
 
 **/dist
 **/.env

@@ -1,5 +1,5 @@
 # [NOTE] Build image from the root directory of this repository.
-# docker build -f infra/iris/Dockerfile .`
+# docker build -f infra/builder/iris/Dockerfile .`
 
 # Build Execute Binary File
 ### BUILDER ###
@@ -15,7 +15,7 @@ FROM golang:latest
 
 ENV APP_ENV=production
 COPY --from=builder /build/iris ./
-COPY ./infra/iris/entrypoint.sh .
+COPY ./infra/builder/iris/entrypoint.sh .
 
 RUN chmod 755 ./entrypoint.sh
 

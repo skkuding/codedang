@@ -46,7 +46,7 @@ resource "aws_ecs_task_definition" "iris" {
   network_mode             = "awsvpc"
   cpu                      = 512
   memory                   = 1024
-  container_definitions = templatefile("iris/task-definition.tftpl", {
+  container_definitions = templatefile("${path.module}/iris/task-definition.tftpl", {
     ecr_uri              = var.ecr_iris_uri,
     rabbitmq_host_id     = aws_mq_broker.judge_queue.id,
     rabbitmq_host_region = var.region,
