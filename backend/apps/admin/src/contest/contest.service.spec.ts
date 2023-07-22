@@ -2,6 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub } from 'sinon'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
@@ -121,6 +122,12 @@ describe('ContestService', () => {
       const res = await service.updateContest(groupId, updateInput)
       expect(res).to.deep.equal(contest)
     })
+
+    it('should throw error when groupId or contestId not exist', async () => {
+      expect(service.updateContest(1000, updateInput)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
   })
 
   describe('deleteContest', () => {
@@ -129,6 +136,12 @@ describe('ContestService', () => {
 
       const res = await service.deleteContest(groupId, contestId)
       expect(res).to.deep.equal(contest)
+    })
+
+    it('should throw error when groupId or contestId not exist', async () => {
+      expect(service.deleteContest(1000, 1000)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
   })
 
@@ -139,6 +152,18 @@ describe('ContestService', () => {
       const res = await service.acceptPublic(groupId, contestId)
       expect(res).to.deep.equal(contest)
     })
+
+    it('should throw error when groupId or contestId not exist', async () => {
+      expect(service.acceptPublic(1000, 1000)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
+
+    it('should throw error when the contest is not requested to public', async () => {
+      expect(service.acceptPublic(2, 3)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
   })
 
   describe('rejectPublic', () => {
@@ -147,6 +172,18 @@ describe('ContestService', () => {
 
       const res = await service.rejectPublic(groupId, contestId)
       expect(res).to.deep.equal(contest)
+    })
+
+    it('should throw error when the contest is not requested to public', async () => {
+      expect(service.rejectPublic(2, 3)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
+
+    it('should throw error when groupId or contestId not exist', async () => {
+      expect(service.rejectPublic(1000, 1000)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
   })
 })
