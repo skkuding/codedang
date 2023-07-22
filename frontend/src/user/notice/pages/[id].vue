@@ -4,7 +4,7 @@ import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import IconBars from '~icons/fa6-solid/bars'
-import { useNotice, type Field, type Item } from '../composables/notice'
+import { useNotice, type Field, type NoticeItem } from '../composables/notice'
 
 const props = defineProps<{
   id: string
@@ -23,7 +23,7 @@ onMounted(async () => {
   }
 })
 
-const changePage = async (item: Item) => {
+const changePage = async (item: NoticeItem) => {
   await goDetail(item)
   getNotice(parseInt(props.id))
   if (!currentNotice.value) {
@@ -41,10 +41,10 @@ const field: Field[] = [
 <template>
   <div class="mt-10">
     <div class="mb-4 flex justify-end">
-      <router-link to="/notice" class="flex items-center">
+      <RouterLink to="/notice" class="flex items-center">
         <IconBars />
         <div class="ml-2 hidden sm:block">List</div>
-      </router-link>
+      </RouterLink>
     </div>
     <div
       class="bg-gray-light border-gray flex w-full justify-between border-y p-4"
@@ -63,7 +63,7 @@ const field: Field[] = [
     <div
       v-dompurify-html="currentNotice?.content"
       class="prose min-h-[400px] w-full max-w-full break-all p-4"
-    ></div>
+    />
     <PaginationTable
       no-header
       no-pagination

@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json.schemastore.org/prettierrc",
+  "semi": false,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "none",
+  "htmlWhitespaceSensitivity": "ignore",
+  "plugins": [
+    "@trivago/prettier-plugin-sort-imports",
+    "prettier-plugin-tailwindcss"
+  ],
+  "importOrderParserPlugins": [
+    "typescript",
+    "classProperties",
+    "decorators-legacy"
+  ],
+  "importOrder": [
+    "^@nestjs(.*)$",
+    "^@generated$",
+    "<THIRD_PARTY_MODULES>",
+    "^@libs/(.*)$",
+    "^@admin/(.*)$",
+    "^@client/(.*)$",
+    "^[./]"
+  ]
+}

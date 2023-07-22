@@ -6,5 +6,6 @@
     "schedule:weekly",
     ":label(dependencies)"
   ],
-  "rangeStrategy": "bump"
+  "rangeStrategy": "bump",
+  "reviewers": ["dotoleeoak"]
 }

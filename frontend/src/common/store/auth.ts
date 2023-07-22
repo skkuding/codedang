@@ -41,6 +41,37 @@ export const useAuthStore = defineStore('auth', {
       } catch (e) {
         this.isLoggedIn = false
       }
+    },
+
+    async signup(
+      username: string,
+      password: string,
+      email: string,
+      realName: string,
+      emailAuth: string
+    ) {
+      try {
+        await axios.post(
+          '/api/user/sign-up',
+          {
+            username,
+            password,
+            email,
+            realName
+          },
+          {
+            headers: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              'email-auth': emailAuth
+            }
+          }
+        )
+        openToast({ message: 'Sign up succeed!', type: 'success' })
+      } catch (e) {
+        openToast({ message: 'Sign up failed!', type: 'error' })
+        console.log('error is ', e)
+        throw new Error('Sign up failed')
+      }
     }
   }
 })

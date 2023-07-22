@@ -96,14 +96,14 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
           <textarea
             v-model="data.inputDesc"
             class="border-gray focus:border-green focus:ring-green mt-3 h-[120px] w-full resize-none rounded-lg outline-none focus:ring-1"
-          ></textarea>
+          />
         </div>
         <div>
           <label class="text-lg font-bold">Output Description</label>
           <textarea
             v-model="data.outputDesc"
             class="border-gray focus:border-green focus:ring-green mt-3 h-[120px] w-full resize-none rounded-lg outline-none focus:ring-1"
-          ></textarea>
+          />
         </div>
       </div>
       <div class="grid grid-cols-2 gap-5">
@@ -149,7 +149,7 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
               }
             "
           >
-            <IconTrash></IconTrash>
+            <IconTrash />
             Delete
           </Button>
         </div>
@@ -162,7 +162,7 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
               <textarea
                 v-model="item.input"
                 class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
-              ></textarea>
+              />
             </div>
             <div>
               <label class="text-gray-dark text-lg font-bold">
@@ -171,7 +171,7 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
               <textarea
                 v-model="item.output"
                 class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
-              ></textarea>
+              />
             </div>
           </div>
         </div>
@@ -208,7 +208,7 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
               }
             "
           >
-            <IconTrash></IconTrash>
+            <IconTrash />
             Delete
           </Button>
         </div>
@@ -221,7 +221,7 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
               <textarea
                 v-model="item.input"
                 class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
-              ></textarea>
+              />
             </div>
             <div>
               <label class="text-gray-dark text-lg font-bold">
@@ -230,7 +230,7 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
               <textarea
                 v-model="item.output"
                 class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
-              ></textarea>
+              />
             </div>
           </div>
         </div>
