@@ -3,10 +3,10 @@ import Logo from '@/common/assets/codedang_logo.png'
 import { useAuthStore } from '@/common/store/auth'
 import { OnClickOutside } from '@vueuse/components'
 import { ref } from 'vue'
-import IconUser from '~icons/fa6-regular/user'
 import IconArrowRightFromBracket from '~icons/fa6-solid/arrow-right-from-bracket'
 import IconBars from '~icons/fa6-solid/bars'
 import IconSliders from '~icons/fa6-solid/sliders'
+import IconUser from '~icons/fa6-solid/user'
 import IconUserGear from '~icons/fa6-solid/user-gear'
 import Button from '../Atom/Button.vue'
 import ListItem from '../Atom/ListItem.vue'
@@ -24,8 +24,8 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
     @trigger="isMenuOpen = false"
   >
     <header class="border-b-gray grid h-20 place-items-center border-b px-8">
-      <div class="flex w-full max-w-7xl items-center justify-between">
-        <div class="flex items-center gap-20 lg:gap-32">
+      <div class="flex w-full max-w-7xl items-center justify-between gap-5">
+        <div class="flex items-center gap-32">
           <RouterLink to="/">
             <div class="flex items-center gap-1">
               <img :src="Logo" alt="logo" width="45" />
@@ -60,9 +60,11 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
           <Dropdown v-if="auth.isLoggedIn" class="hidden md:inline-block">
             <template #button>
               <!-- add left margin to center navigation -->
-              <IconUser
-                class="text-text-title ml-[8.5rem] text-xl hover:opacity-60 active:opacity-40"
-              />
+              <div
+                class="flex h-10 w-10 items-end justify-center overflow-hidden rounded-full bg-slate-50"
+              >
+                <IconUser class="text-2xl text-slate-300" />
+              </div>
             </template>
             <template #items>
               <ListItem>Management</ListItem>
