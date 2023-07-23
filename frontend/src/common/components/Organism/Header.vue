@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import Logo from '@/common/assets/codedang_logo.png'
 import { useAuthStore } from '@/common/store/auth'
 import { OnClickOutside } from '@vueuse/components'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import IconUser from '~icons/fa6-regular/user'
 import IconArrowRightFromBracket from '~icons/fa6-solid/arrow-right-from-bracket'
 import IconBars from '~icons/fa6-solid/bars'
@@ -10,44 +10,46 @@ import IconSliders from '~icons/fa6-solid/sliders'
 import IconUserGear from '~icons/fa6-solid/user-gear'
 import Button from '../Atom/Button.vue'
 import ListItem from '../Atom/ListItem.vue'
-import SignatureLogo from '../Atom/SignatureLogo.vue'
 import Dropdown from '../Molecule/Dropdown.vue'
 import AuthModal from './AuthModal.vue'
 
 const auth = useAuthStore()
-const router = useRouter()
 const isMenuOpen = ref(false)
 const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 </script>
 
 <template>
-  <OnClickOutside @trigger="isMenuOpen = false">
-    <header class="border-b-gray grid h-14 place-items-center border-b px-8">
+  <OnClickOutside
+    class="sticky top-0 z-[9999] bg-white"
+    @trigger="isMenuOpen = false"
+  >
+    <header class="border-b-gray grid h-20 place-items-center border-b px-8">
       <div class="flex w-full max-w-7xl items-center justify-between">
-        <RouterLink to="/">
-          <SignatureLogo
-            class="w-40 cursor-pointer active:opacity-40 md:hover:opacity-60"
-          />
-        </RouterLink>
-        <nav class="text-text-title hidden gap-4 md:flex">
-          <RouterLink
-            v-for="{ to, name } in [
-              { to: '/notice', name: 'Notice' },
-              { to: '/contest', name: 'Contest' },
-              { to: '/problem', name: 'Problem' },
-              { to: '/group', name: 'Group' }
-            ]"
-            :key="name"
-            class="cursor-pointer text-lg font-semibold hover:opacity-60 active:opacity-40"
-            :to="to"
-            :class="{
-              'text-green hover:opacity-70 active:opacity-50':
-                router.currentRoute.value.fullPath.startsWith(to)
-            }"
-          >
-            {{ name }}
+        <div class="flex items-center gap-20 lg:gap-32">
+          <RouterLink to="/">
+            <div class="flex items-center gap-1">
+              <img :src="Logo" alt="logo" width="45" />
+              <h1 class="text-2xl font-bold">Codedang</h1>
+            </div>
           </RouterLink>
-        </nav>
+          <nav class="hidden gap-10 capitalize md:flex">
+            <RouterLink
+              v-for="{ to, name } in [
+                { to: '/notice', name: 'notice' },
+                { to: '/contest', name: 'contest' },
+                { to: '/problem', name: 'problem' },
+                { to: '/group', name: 'group' }
+              ]"
+              :key="name"
+              active-class="text-green"
+              class="cursor-pointer text-lg hover:opacity-60 active:opacity-40"
+              :to="to"
+            >
+              {{ name }}
+            </RouterLink>
+          </nav>
+        </div>
+
         <transition
           enter-active-class="transition-opacity duration-300"
           leave-active-class="transition-opacity duration-300"
@@ -68,23 +70,20 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
               <ListItem @click="auth.logout()">Logout</ListItem>
             </template>
           </Dropdown>
-          <div v-else class="ml-2 hidden gap-2 md:flex">
+          <div v-else class="ml-2 hidden items-center gap-2 md:flex">
             <Button
-              outline
-              color="gray-dark"
-              class="w-20"
-              @click="modalContent = 'signup'"
-            >
-              Sign Up
-            </Button>
-            <Button
-              outline
-              color="gray-dark"
-              class="w-16"
+              color="white"
+              class="whitespace-nowrap"
               @click="modalContent = 'login'"
             >
-              Log In
+              Sign in
             </Button>
+            <button
+              class="whitespace-nowrap rounded-md border border-slate-100 bg-transparent px-3 py-2 font-bold text-black hover:bg-slate-100 hover:bg-opacity-20"
+              @click="modalContent = 'signup'"
+            >
+              Sign up
+            </button>
           </div>
         </transition>
         <IconBars
