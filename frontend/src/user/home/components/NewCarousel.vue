@@ -46,7 +46,7 @@ onMounted(() => {
 <template>
   <div
     class="relative h-[450px] md:h-[400px]"
-    :class="bgColors[slides[(currentSlideIndex + 1) % slides.length].color]"
+    :class="bgColors[slides[currentSlideIndex].color]"
   >
     <div
       v-for="(item, index) in slides"
