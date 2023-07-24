@@ -2,8 +2,6 @@ resource "aws_ecs_cluster" "api" {
   name = "Codedang-Api"
 }
 
-
-
 data "aws_iam_policy_document" "ecs_task_execution_role" {
   statement {
     actions = ["sts:AssumeRole"]
