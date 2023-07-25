@@ -79,7 +79,7 @@ const clickRight = () => {
         }`"
       >
         <div
-          class="flex w-full max-w-7xl flex-col-reverse justify-between gap-5 p-8 py-14 md:flex-row md:items-center md:px-16 md:py-0"
+          class="flex w-full max-w-7xl flex-col-reverse justify-between gap-5 p-8 py-14 md:flex-row md:items-center md:px-14 md:py-0"
         >
           <div class="flex flex-col items-start justify-center gap-3">
             <div :class="textColors[item.color]">
@@ -99,7 +99,7 @@ const clickRight = () => {
           <img
             :src="item.img"
             :alt="item.imgAlt"
-            class="h-[200px] object-contain md:h-[350px]"
+            class="h-[200px] object-contain md:h-[300px]"
           />
         </div>
       </div>
