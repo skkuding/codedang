@@ -6,11 +6,13 @@ variable "s3_bucket" {
 variable "ecr_client_uri" {
   type    = string
   default = "xxx"
+  sensitive   = true
 }
 
 variable "ecr_admin_uri" {
   type    = string
   default = "xxx"
+  sensitive   = true
 }
 
 variable "region" {
@@ -34,29 +36,34 @@ variable "postgres_password" {
   description = "Password for Postgres DB"
   type        = string
   default     = "password"
+  sensitive   = true
 }
 
 variable "postgres_port" {
   description = "Port for Postgres DB"
   type        = string
   default     = "5432"
+  sensitive   = true
 }
 
 variable "redis_port" {
   description = "Port for Redis"
   type        = string
   default     = "6379"
+  sensitive   = true
 }
 
 
 variable "ecr_iris_uri" {
   type    = string
   default = "xxx"
+  sensitive   = true
 }
 
 variable "rabbitmq_port" {
   type    = string
   default = "5671"
+  sensitive   = true
 }
 
 variable "rabbitmq_username" {
@@ -67,11 +74,13 @@ variable "rabbitmq_username" {
 variable "rabbitmq_password" {
   type    = string
   default = "abcd12345678"
+  sensitive   = true
 }
 
 variable "rabbitmq_vhost" {
   type    = string
   default = "vh"
+  sensitive   = true
 }
 
 variable "rabbitmq_exchage_name" {

@@ -15,9 +15,12 @@ permissions: # permissions to the job (for the OpenID Connection)
   contents: read
 
 jobs:
-  Build-Image:
-    name: Build and Push Images
+  Deploy:
+    name: Deploy
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Checkout
@@ -41,7 +44,7 @@ jobs:
           echo "Build Admin Api Image..."
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f infra/builder/api/Dockerfile-admin .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "Build Complele"
+          echo "Build Complete"
 
       - name: Build, tag, and push image to Amazon ECR - client
         env:
@@ -51,17 +54,8 @@ jobs:
           echo "Build Clinet Api Image..."
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f infra/builder/api/Dockerfile-client .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "Build Complele"
+          echo "Build Complete"
 
-  deploy:
-    name: Terraform Apply
-    needs: [Build-Image]
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-
-    steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -78,7 +72,7 @@ jobs:
 
       - name: Create Var files
         working-directory: ./infra/test
-        run: echo $TFVARS > terraform.tfvars
+        run: echo "$TFVARS" > terraform.tfvars
         env:
           TFVARS: ${{ secrets.TF_TFVARS }}
 
