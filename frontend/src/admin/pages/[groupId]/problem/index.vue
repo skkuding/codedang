@@ -12,12 +12,10 @@ import IconTrash from '~icons/fa/trash-o'
 
 const showProblemModal = ref(false)
 const showImportModal = ref(false)
-const showFileErrorModal = ref(false)
-const { open, reset, onChange } = useFileDialog()
+const { open, onChange } = useFileDialog()
 const dialog = useDialog()
 
 onChange((files) => {
-  showFileErrorModal.value = true
   if (!files![0].name.toLowerCase().endsWith('.csv')) {
     dialog.error({
       title: 'Unsupported extension',
@@ -47,7 +45,7 @@ onChange((files) => {
       }
     "
   />
-  <Dialog v-if="showFileErrorModal" @yes="reset()" />
+  <Dialog />
   <div class="flex flex-col">
     <div class="border-gray border-b text-right text-lg font-semibold">
       SKKUDING
