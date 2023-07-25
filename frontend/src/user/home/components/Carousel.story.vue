@@ -33,7 +33,7 @@ import Carousel from './Carousel.vue'
           sub: '무박 2일, 1등 100만원',
           img: dummyImg2,
           imgAlt: 'dummy',
-          color: 'white',
+          color: 'yellow',
           href: '/'
         }
       ]"

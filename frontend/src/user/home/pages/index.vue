@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import dummyImg from '@/common/assets/dummy.png'
+import dummyImg2 from '@/common/assets/skkudingLogo.png'
 import Card from '@/common/components/Molecule/Card.vue'
 import type { Contest } from '@/user/contest/pages/index.vue'
 import type { NoticeItem } from '@/user/notice/composables/notice'
 import { useDateFormat } from '@vueuse/core'
 import axios from 'axios'
-import { ref } from 'vue'
+import { defineAsyncComponent, ref } from 'vue'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
 import IconBars from '~icons/fa6-solid/bars'
 import IconCalendar from '~icons/fa6-solid/calendar'
@@ -21,6 +23,10 @@ interface Post {
 
 const notices = ref<Post[]>([])
 const contest = ref<Post[]>([])
+
+const Carousel = defineAsyncComponent(
+  () => import('@/user/home/components/Carousel.vue')
+)
 
 axios
   .get('/api/notice', {
@@ -55,6 +61,38 @@ axios.get('api/contest').then((res) => {
 </script>
 
 <template>
+  <Carousel
+    v-if="$router.currentRoute.value.meta.home"
+    :slides="[
+      {
+        topTitle: '성균관대학교',
+        bottomTitle: '제 1회 청정수컵',
+        sub: '첫 번째 우승자가 될 기회!',
+        img: dummyImg,
+        imgAlt: 'dummy',
+        color: 'green',
+        href: '/group'
+      },
+      {
+        topTitle: 'SKKUDING',
+        bottomTitle: '스꾸딩 23-2 신입부원 모집',
+        sub: '프론트엔드 0명, 백엔드 0명',
+        img: dummyImg2,
+        imgAlt: 'dummy',
+        color: 'black',
+        href: '/group'
+      },
+      {
+        topTitle: 'SKKUDING',
+        bottomTitle: '제 1회 해커톤',
+        sub: '무박 2일, 1등 100만원',
+        img: dummyImg,
+        imgAlt: 'dummy',
+        color: 'yellow',
+        href: '/group'
+      }
+    ]"
+  />
   <div
     class="mt-20 flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
   >
