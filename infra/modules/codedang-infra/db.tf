@@ -61,7 +61,7 @@ resource "aws_db_instance" "db-test" {
   engine            = "postgres"
   engine_version    = "14.7"
   allocated_storage = 5
-  instance_class    = "db.t3.micro"
+  instance_class    = "db.t4g.small"
 
   username = var.postgres_username
   password = var.postgres_password
