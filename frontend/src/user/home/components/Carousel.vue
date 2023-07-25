@@ -52,7 +52,7 @@ const clickRight = () => {
     class="relative h-[400px] overflow-hidden rounded-3xl"
     :class="bgColors[slides[currentSlideIndex].color]"
   >
-    <div class="absolute bottom-0 left-0 right-0 z-50 mb-3 flex justify-center">
+    <div class="absolute bottom-0 left-0 right-0 z-10 mb-3 flex justify-center">
       <div
         class="flex items-center justify-center gap-2 rounded-full bg-black bg-opacity-70 px-3 py-1.5 text-sm font-bold text-white"
       >
