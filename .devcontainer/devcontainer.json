@@ -8,6 +8,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "42crunch.vscode-openapi",
         "bradlc.vscode-tailwindcss",
         "csstools.postcss",
         "dbaeumer.vscode-eslint",
@@ -22,6 +23,7 @@
         "ms-azuretools.vscode-docker",
         "prisma.prisma",
         "rangav.vscode-thunder-client",
+        "redhat.vscode-yaml",
         "Vue.volar",
         "Vue.vscode-typescript-vue-plugin"
       ]

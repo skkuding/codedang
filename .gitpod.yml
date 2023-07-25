@@ -37,6 +37,7 @@ github:
 
 vscode:
   extensions:
+    - 42crunch.vscode-openapi
     - bradlc.vscode-tailwindcss
     - csstools.postcss
     - dbaeumer.vscode-eslint
@@ -52,4 +53,5 @@ vscode:
     - ms-azuretools.vscode-docker
     - prisma.prisma
     - rangav.vscode-thunder-client
+    - redhat.vscode-yaml # dependency of openapi
     - Vue.volar
