@@ -7,11 +7,11 @@ resource "aws_s3_bucket" "frontend" {
 }
 
 resource "aws_s3_object" "frontend" {
-  for_each = fileset("../frontend/dist", "**")
+  for_each = fileset("../../frontend/dist", "**")
 
   bucket       = aws_s3_bucket.frontend.id
   key          = each.value
-  source       = "../frontend/dist/${each.value}"
+  source       = "../../frontend/dist/${each.value}"
   content_type = lookup(jsondecode(file("${path.module}/mime.json")), regex("\\.[^.]+$", each.key), null)
 }
 
