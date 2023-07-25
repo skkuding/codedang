@@ -55,7 +55,7 @@ jobs:
 
   deploy:
     name: Terraform Apply
-    # needs : [Build-Static, Build-Image]
+    needs: [Build-Image]
     runs-on: ubuntu-latest
     defaults:
       run:
