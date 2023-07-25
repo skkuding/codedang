@@ -25,10 +25,10 @@ module "codedang" {
   ecr_admin_uri     = var.ecr_admin_uri
   ecr_iris_uri      = var.ecr_iris_uri
   postgres_username = var.postgres_username
-  postgres_password = var.postgres_password
+  # postgres_password = var.postgres_password
   postgres_port     = var.postgres_port
   rabbitmq_username = var.rabbitmq_username
-  rabbitmq_password = var.rabbitmq_password
+  # rabbitmq_password = var.rabbitmq_password
 }
 
 # module "tf-backend" {

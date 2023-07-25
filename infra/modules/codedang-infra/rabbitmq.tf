@@ -35,6 +35,7 @@ provider "rabbitmq" {
   username = var.rabbitmq_username
   password = var.rabbitmq_password
 }
+
 resource "rabbitmq_vhost" "vh" {
   name = "vh"
 }

@@ -4,5 +4,9 @@ terraform {
       source  = "cyrilgdn/rabbitmq"
       version = "1.8.0"
     }
+    random = {
+      source = "hashicorp/random"
+      version = "3.0.0"
+    }
   }
 }

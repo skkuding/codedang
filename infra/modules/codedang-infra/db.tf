@@ -64,7 +64,7 @@ resource "aws_db_instance" "db-test" {
   instance_class    = "db.t4g.small"
 
   username = var.postgres_username
-  password = var.postgres_password
+  password = random_password.postgres_password.result
   port     = var.postgres_port
 
   vpc_security_group_ids = [aws_security_group.db.id]

@@ -91,15 +91,16 @@ resource "aws_ecs_task_definition" "admin_api" {
   container_definitions = templatefile("${path.module}/backend/task-definition.tftpl", {
     task_name = "Codedang-Admin-Api",
     # aurora-posrgresql
-    # database_url      = "postgresql://${var.postgres_username}:${var.postgres_password}@${aws_rds_cluster.cluster.endpoint}:${var.postgres_port}/skkuding?schema=public",
+    # database_url      = "postgresql://${var.postgres_username}:${random_password.postgres_password.result}@${aws_rds_cluster.cluster.endpoint}:${var.postgres_port}/skkuding?schema=public",
 
     # posrgresql (free tier)
-    database_url      = "postgresql://${var.postgres_username}:${var.postgres_password}@${aws_db_instance.db-test.endpoint}/skkuding?schema=public",
+    database_url      = "postgresql://${var.postgres_username}:${random_password.postgres_password.result}@${aws_db_instance.db-test.endpoint}/skkuding?schema=public",
     ecr_uri           = var.ecr_admin_uri,
     container_port    = 3000
     cloudwatch_region = var.region,
     redis_host        = aws_elasticache_replication_group.db_cache.configuration_endpoint_address
     redis_port        = var.redis_port,
+    jwt_secret = random_password.jwt_secret.result,
   })
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 
