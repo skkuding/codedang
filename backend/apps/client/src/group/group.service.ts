@@ -52,6 +52,7 @@ export class GroupService {
           groupName: true,
           description: true,
           userGroup: true,
+          config: true,
           createdBy: {
             select: {
               username: true
@@ -65,12 +66,18 @@ export class GroupService {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
+        allowJoinFromSearch: group.config['allowJoinFromSearch'],
         createdBy: group.createdBy.username,
         memberNum: group.userGroup.length,
-        leaders: await this.getGroupLeaders(groupId)
+        leaders: await this.getGroupLeaders(groupId),
+        isJoined: false
       }
     } else {
-      return { ...isJoined.group, isGroupLeader: isJoined.isGroupLeader }
+      return {
+        ...isJoined.group,
+        isGroupLeader: isJoined.isGroupLeader,
+        isJoined: true
+      }
     }
   }
 
@@ -138,8 +145,7 @@ export class GroupService {
           id: true,
           groupName: true,
           description: true,
-          userGroup: true,
-          config: true
+          userGroup: true
         }
       })
     ).map((group) => {
@@ -148,8 +154,7 @@ export class GroupService {
         groupName: group.groupName,
         description: group.description,
         createdBy: group.createdBy.username,
-        memberNum: group.userGroup.length,
-        allowJoinFromSearch: group.config['allowJoinFromSearch']
+        memberNum: group.userGroup.length
       }
     })
 

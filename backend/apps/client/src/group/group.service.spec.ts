@@ -79,7 +79,8 @@ describe('GroupService', () => {
       //then
       expect(result).to.deep.equal({
         ...publicGroupDatas[1],
-        leaders: ['manager']
+        leaders: ['manager'],
+        isJoined: false
       })
     })
 
@@ -92,7 +93,8 @@ describe('GroupService', () => {
         group: {
           id: mockGroup.id,
           groupName: mockGroup.groupName,
-          description: mockGroup.description
+          description: mockGroup.description,
+          config: mockGroup.config
         },
         isGroupLeader: true
       })
@@ -105,7 +107,9 @@ describe('GroupService', () => {
         id: mockGroup.id,
         groupName: mockGroup.groupName,
         description: mockGroup.description,
-        isGroupLeader: true
+        config: mockGroup.config['allowJoinFromSearch'],
+        isGroupLeader: true,
+        isJoined: true
       })
     })
 
@@ -136,9 +140,7 @@ describe('GroupService', () => {
       const result = await service.getGroups(cursor, take)
 
       //then
-      expect(result).to.deep.equal([
-        { ...publicGroupDatas[1], allowJoinFromSearch: true }
-      ])
+      expect(result).to.deep.equal([publicGroupDatas[1]])
     })
   })
 

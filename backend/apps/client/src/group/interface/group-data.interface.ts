@@ -7,4 +7,5 @@ export interface GroupData {
   allowJoinFromSearch?: boolean
   leaders?: string[]
   isGroupLeader?: boolean
+  isJoined?: boolean
 }
