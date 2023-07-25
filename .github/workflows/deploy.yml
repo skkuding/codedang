@@ -1,0 +1,112 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - deploy
+      - 329-cd-pipeline
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECS_CLUSTER: Codedang-Api
+
+permissions: # permissions to the job (for the OpenID Connection)
+  id-token: write
+  contents: read
+
+jobs:
+  Build-Image:
+    name: Build and Push Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR - admin
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: codedang-admin-api
+        run: |
+          echo "Build Admin Api Image..."
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f infra/builder/api/Dockerfile-admin .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "Build Complele"
+
+      - name: Build, tag, and push image to Amazon ECR - client
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: codedang-client-api
+        run: |
+          echo "Build Clinet Api Image..."
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f infra/builder/api/Dockerfile-client .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "Build Complele"
+
+  deploy:
+    name: Terraform Apply
+    # needs : [Build-Static, Build-Image]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.2
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create Var files
+        working-directory: ./infra/modules/codedang-infra
+        run: echo $TFVARS > terraform.tfvars
+        env:
+          TFVARS: ${{ secrets.TF_TFVARS }}
+
+      - name: Build Static - Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Build Static - Install Dependencies
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'pnpm'
+
+      - name: Build Static - Install dependencies
+        run: pnpm install
+
+      - name: Build Static(Frontend)
+        run: pnpm --filter frontend build
+
+      - name: Terraform Init
+        working-directory: ./infra/test
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: ./infra/test
+        run: terraform plan -target=module.codedang -input=false
+
+      - name: Terraform Apply
+        working-directory: ./infra/test
+        run: terraform apply -target=module.codedang -auto-approve -input=false
