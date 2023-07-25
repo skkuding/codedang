@@ -79,7 +79,7 @@ const clickRight = () => {
         }`"
       >
         <div
-          class="flex w-full max-w-7xl flex-col-reverse items-center justify-between gap-5 p-8 py-14 md:flex-row md:px-16 md:py-0"
+          class="flex w-full max-w-7xl flex-col-reverse justify-between gap-5 p-8 py-14 md:flex-row md:items-center md:px-16 md:py-0"
         >
           <div class="flex flex-col items-start justify-center md:gap-5">
             <div :class="textColors[item.color]">
