@@ -1,4 +1,4 @@
-import type { Language } from '@prisma/client'
+import { Language } from '@prisma/client'
 import { calculateMemoryLimit, calculateTimeLimit } from '@libs/constants'
 import type { Snippet } from './create-submission.dto'
 

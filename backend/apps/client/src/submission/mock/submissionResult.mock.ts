@@ -1,5 +1,5 @@
 import { ResultStatus, type SubmissionResult } from '@prisma/client'
-import { JudgerResponse } from '../dto/judger-response.dto'
+import type { JudgerResponse } from '../dto/judger-response.dto'
 
 export const submissionResults: SubmissionResult[] = [
   {

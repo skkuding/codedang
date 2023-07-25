@@ -1,7 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { RolesService } from '@libs/auth'
-import { PrismaService } from '@libs/prisma'
 import {
   ContestSubmissionController,
   GroupContestSubmissionController,
