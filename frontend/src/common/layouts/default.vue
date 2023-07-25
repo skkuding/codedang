@@ -12,24 +12,14 @@ import Header from '../components/Organism/Header.vue'
 const BoxTitle = defineAsyncComponent(
   () => import('@/common/components/Atom/BoxTitle.vue')
 )
-const NewCarousel = defineAsyncComponent(
-  () => import('@/user/home/components/NewCarousel.vue')
+const Carousel = defineAsyncComponent(
+  () => import('@/user/home/components/Carousel.vue')
 )
 </script>
 
 <template>
   <Header />
-  <!-- <Carousel
-    v-if="$router.currentRoute.value.meta.home"
-    :slides="[
-      'https://picsum.photos/id/1032/900/400',
-      'https://picsum.photos/id/1033/900/400',
-      'https://picsum.photos/id/1037/900/400',
-      'https://picsum.photos/id/1035/900/400',
-      'https://picsum.photos/id/1036/900/400'
-    ]"
-  /> -->
-  <NewCarousel
+  <Carousel
     v-if="$router.currentRoute.value.meta.home"
     :slides="[
       {

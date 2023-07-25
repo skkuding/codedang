@@ -1,62 +1,99 @@
 <script setup lang="ts">
 import { useIntervalFn } from '@vueuse/core'
 import { ref } from 'vue'
+import Fa6SolidAngleLeft from '~icons/fa6-solid/angle-left'
+import Fa6SolidAngleRight from '~icons/fa6-solid/angle-right'
 
-const props = defineProps<{
-  slides: string[]
-}>()
+interface Slide {
+  topTitle: string
+  bottomTitle: string
+  sub: string
+  img: string
+  imgAlt: string
+  color: 'green' | 'black' | 'white'
+}
+const props = defineProps<{ slides: Slide[] }>()
 
-const currentSlide = ref(0)
-const direction = ref<'right' | 'left'>('right')
+const bgColors: { [key: string]: string } = {
+  green: 'bg-[#2e4e3f]',
+  black: 'bg-[#333333]',
+  white: 'bg-[#ffffff]'
+}
+const textColors: { [key: string]: string } = {
+  green: 'text-white',
+  black: 'text-white',
+  white: 'text-black'
+}
 
-const switchSlide = (index: number) => {
-  direction.value = index - currentSlide.value > 0 ? 'right' : 'left'
-  currentSlide.value = index
+const currentSlideIndex = ref(0)
+const { pause, resume } = useIntervalFn(() => {
+  currentSlideIndex.value = (currentSlideIndex.value + 1) % props.slides.length
+}, 5000)
+
+const clickLeft = () => {
+  currentSlideIndex.value =
+    (currentSlideIndex.value - 1 + props.slides.length) % props.slides.length
+  pause()
   resume()
 }
 
-const { pause, resume } = useIntervalFn(() => {
-  switchSlide((currentSlide.value + 1) % props.slides.length)
-}, 5000)
+const clickRight = () => {
+  currentSlideIndex.value = (currentSlideIndex.value + 1) % props.slides.length
+  pause()
+  resume()
+}
 </script>
 
 <template>
   <div
-    class="bg-gray/50 relative h-80 w-full overflow-hidden md:h-96 lg:h-[30rem]"
+    class="relative h-[450px] md:h-[400px]"
+    :class="bgColors[slides[currentSlideIndex].color]"
   >
-    <div class="absolute bottom-5 left-1/2 z-10 flex -translate-x-1/2 gap-2">
-      <button
-        v-for="index in slides.length"
-        :key="index"
-        class="h-4 w-4 cursor-pointer rounded-full border-none"
-        :class="currentSlide === index - 1 ? 'bg-white' : 'bg-white/50'"
-        @click="switchSlide(index - 1)"
-        @mouseenter="pause"
-        @mouseout="resume"
-      />
-    </div>
-    <transition
-      enter-active-class="transition-transform duration-1000"
-      leave-active-class="transition-transform duration-1000"
-      :enter-from-class="
-        direction === 'right' ? 'translate-x-full' : '-translate-x-full'
+    <div
+      v-for="(item, index) in slides"
+      :key="index"
+      class="absolute left-0 top-0 flex h-full w-full justify-center opacity-0 transition-opacity duration-1000 ease-in-out"
+      :class="
+        (index === currentSlideIndex ? 'opacity-100' : '') +
+        ' ' +
+        bgColors[item.color]
       "
-      :leave-to-class="
-        direction === 'right' ? '-translate-x-full' : 'translate-x-full'
-      "
-      @mouseenter="pause"
-      @mouseout="resume"
     >
       <div
-        :key="currentSlide"
-        class="absolute inset-0 bg-cover bg-center"
-        :style="{ backgroundImage: `url(${slides[currentSlide]})` }"
+        class="flex w-full max-w-7xl flex-col-reverse justify-between gap-5 p-8 md:flex-row md:px-16"
       >
+        <div class="flex flex-col items-start justify-center gap-5">
+          <div :class="textColors[item.color]">
+            <p class="mb-2 whitespace-nowrap text-3xl font-semibold">
+              {{ item.topTitle }}
+            </p>
+            <p class="whitespace-nowrap text-3xl font-semibold">
+              {{ item.bottomTitle }}
+            </p>
+          </div>
+          <p class="text-lg" :class="textColors[item.color]">{{ item.sub }}</p>
+          <div
+            class="mix-blend- flex items-center justify-center gap-2 rounded-full bg-black bg-opacity-70 px-3 py-1.5 text-sm font-bold text-white"
+          >
+            <button class="opacity-70 hover:opacity-100" @click="clickLeft">
+              <Fa6SolidAngleLeft class="text-xs" />
+            </button>
+            <p class="flex gap-1">
+              <span>{{ index + 1 }}</span>
+              <span class="font-thin text-slate-300">/</span>
+              <span>{{ slides.length }}</span>
+            </p>
+            <button class="opacity-70 hover:opacity-100" @click="clickRight">
+              <Fa6SolidAngleRight class="text-xs" />
+            </button>
+          </div>
+        </div>
         <img
-          class="h-full w-full object-contain backdrop-blur"
-          :src="slides[currentSlide]"
+          :src="item.img"
+          :alt="item.imgAlt"
+          class="h-[200px] object-contain md:h-[350px]"
         />
       </div>
-    </transition>
+    </div>
   </div>
 </template>
