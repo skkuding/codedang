@@ -27,7 +27,7 @@ onChange((files) => {
   } else {
     dialog.success({
       title: 'Success',
-      content: 'Successfully Upload',
+      content: 'Successfully Uploaded',
       yes: 'OK'
     })
   }
