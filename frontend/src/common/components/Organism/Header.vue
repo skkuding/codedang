@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import Logo from '@/common/assets/skkudingLogo.png'
 import { useAuthStore } from '@/common/store/auth'
 import { OnClickOutside } from '@vueuse/components'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import IconUser from '~icons/fa6-regular/user'
 import IconArrowRightFromBracket from '~icons/fa6-solid/arrow-right-from-bracket'
 import IconBars from '~icons/fa6-solid/bars'
 import IconSliders from '~icons/fa6-solid/sliders'
+import IconUser from '~icons/fa6-solid/user'
 import IconUserGear from '~icons/fa6-solid/user-gear'
 import Button from '../Atom/Button.vue'
 import ListItem from '../Atom/ListItem.vue'
-import SignatureLogo from '../Atom/SignatureLogo.vue'
 import Dropdown from '../Molecule/Dropdown.vue'
 import AuthModal from './AuthModal.vue'
 
@@ -22,32 +22,35 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 
 <template>
   <OnClickOutside @trigger="isMenuOpen = false">
-    <header class="border-b-gray grid h-14 place-items-center border-b px-8">
-      <div class="flex w-full max-w-7xl items-center justify-between">
-        <router-link to="/">
-          <SignatureLogo
-            class="w-40 cursor-pointer active:opacity-40 md:hover:opacity-60"
-          />
-        </router-link>
-        <nav class="text-text-title hidden gap-4 md:flex">
-          <router-link
-            v-for="{ to, name } in [
-              { to: '/notice', name: 'Notice' },
-              { to: '/contest', name: 'Contest' },
-              { to: '/problem', name: 'Problem' },
-              { to: '/group', name: 'Group' }
-            ]"
-            :key="name"
-            class="cursor-pointer text-lg font-semibold hover:opacity-60 active:opacity-40"
-            :to="to"
-            :class="{
-              'text-green hover:opacity-70 active:opacity-50':
-                router.currentRoute.value.fullPath.startsWith(to)
-            }"
-          >
-            {{ name }}
-          </router-link>
-        </nav>
+    <header
+      class="border-b-gray grid h-16 place-items-center border-b bg-white px-8"
+    >
+      <div class="flex w-full max-w-7xl items-center justify-between gap-5">
+        <div class="flex items-center gap-32">
+          <RouterLink to="/" class="flex items-center gap-1">
+            <img :src="Logo" alt="logo" width="45" />
+            <h1 class="text-2xl font-bold">Codedang</h1>
+          </RouterLink>
+          <nav class="hidden gap-10 capitalize md:flex">
+            <RouterLink
+              v-for="{ to, name } in [
+                { to: '/notice', name: 'notice' },
+                { to: '/contest', name: 'contest' },
+                { to: '/problem', name: 'problem' },
+                { to: '/group', name: 'group' }
+              ]"
+              :key="name"
+              class="cursor-pointer text-lg hover:opacity-60 active:opacity-40"
+              :class="{
+                'text-green': router.currentRoute.value.fullPath.startsWith(to)
+              }"
+              :to="to"
+            >
+              {{ name }}
+            </RouterLink>
+          </nav>
+        </div>
+
         <transition
           enter-active-class="transition-opacity duration-300"
           leave-active-class="transition-opacity duration-300"
@@ -58,9 +61,11 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
           <Dropdown v-if="auth.isLoggedIn" class="hidden md:inline-block">
             <template #button>
               <!-- add left margin to center navigation -->
-              <IconUser
-                class="text-text-title ml-[8.5rem] text-xl hover:opacity-60 active:opacity-40"
-              />
+              <div
+                class="flex h-10 w-10 items-end justify-center overflow-hidden rounded-full bg-slate-50"
+              >
+                <IconUser class="text-2xl text-slate-300" />
+              </div>
             </template>
             <template #items>
               <ListItem>Management</ListItem>
@@ -68,23 +73,21 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
               <ListItem @click="auth.logout()">Logout</ListItem>
             </template>
           </Dropdown>
-          <div v-else class="ml-2 hidden gap-2 md:flex">
+          <div v-else class="ml-2 hidden items-center gap-2 md:flex">
             <Button
-              outline
-              color="gray-dark"
-              class="w-20"
-              @click="modalContent = 'signup'"
-            >
-              Sign Up
-            </Button>
-            <Button
-              outline
-              color="gray-dark"
-              class="w-16"
+              color="white"
+              class="whitespace-nowrap hover:opacity-80"
               @click="modalContent = 'login'"
             >
-              Log In
+              Sign in
             </Button>
+            <!-- TODO: 추후에 NewButton component 새로 만들면 바꾸기 -->
+            <button
+              class="whitespace-nowrap rounded-md border border-slate-100 bg-transparent px-2 py-1 font-bold text-black hover:bg-slate-100 hover:bg-opacity-20"
+              @click="modalContent = 'signup'"
+            >
+              Sign up
+            </button>
           </div>
         </transition>
         <IconBars
@@ -103,7 +106,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
           class="absolute inset-x-0 top-14 z-30 flex w-full flex-col items-center justify-center gap-6 overflow-hidden bg-white/75 py-8 shadow-lg backdrop-blur md:hidden"
         >
           <nav class="text-text-title flex flex-col items-center gap-2">
-            <router-link
+            <RouterLink
               v-for="{ to, name } in [
                 { to: '/notice', name: 'Notice' },
                 { to: '/contest', name: 'Contest' },
@@ -116,7 +119,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
               :to="to"
             >
               {{ name }}
-            </router-link>
+            </RouterLink>
           </nav>
           <transition
             enter-active-class="transition-opacity duration-300"
