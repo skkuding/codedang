@@ -107,7 +107,7 @@ describe('GroupService', () => {
         id: mockGroup.id,
         groupName: mockGroup.groupName,
         description: mockGroup.description,
-        config: mockGroup.config['allowJoinFromSearch'],
+        allowJoinFromSearch: mockGroup.config['allowJoinFromSearch'],
         isGroupLeader: true,
         isJoined: true
       })
