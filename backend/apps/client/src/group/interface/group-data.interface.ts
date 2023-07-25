@@ -3,7 +3,6 @@ export interface GroupData {
   groupName: string
   description: string
   memberNum: number
-  createdBy: string
   allowJoinFromSearch?: boolean
   leaders?: string[]
   isGroupLeader?: boolean

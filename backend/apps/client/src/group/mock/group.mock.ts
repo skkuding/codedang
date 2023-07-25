@@ -160,14 +160,12 @@ export const publicGroupDatas: GroupData[] = [
     id: 1,
     groupName: 'mock public group',
     description: 'mock public group with no approval',
-    createdBy: 'manager',
     memberNum: 2
   },
   {
     id: 2,
     groupName: 'mock public group 2',
     description: 'mock public group with approval',
-    createdBy: 'manager',
     memberNum: 2
   }
 ]

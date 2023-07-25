@@ -52,12 +52,7 @@ export class GroupService {
           groupName: true,
           description: true,
           userGroup: true,
-          config: true,
-          createdBy: {
-            select: {
-              username: true
-            }
-          }
+          config: true
         },
         rejectOnNotFound: () => new EntityNotExistException('group')
       })
@@ -67,7 +62,6 @@ export class GroupService {
         groupName: group.groupName,
         description: group.description,
         allowJoinFromSearch: group.config['allowJoinFromSearch'],
-        createdBy: group.createdBy.username,
         memberNum: group.userGroup.length,
         leaders: await this.getGroupLeaders(groupId),
         isJoined: false
@@ -137,11 +131,6 @@ export class GroupService {
           }
         },
         select: {
-          createdBy: {
-            select: {
-              username: true
-            }
-          },
           id: true,
           groupName: true,
           description: true,
@@ -153,7 +142,6 @@ export class GroupService {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
-        createdBy: group.createdBy.username,
         memberNum: group.userGroup.length
       }
     })
@@ -173,11 +161,6 @@ export class GroupService {
         select: {
           group: {
             select: {
-              createdBy: {
-                select: {
-                  username: true
-                }
-              },
               id: true,
               groupName: true,
               description: true,
@@ -193,7 +176,6 @@ export class GroupService {
         groupName: userGroup.group.groupName,
         description: userGroup.group.description,
         memberNum: userGroup.group.userGroup.length,
-        createdBy: userGroup.group.createdBy.username,
         isGroupLeader: userGroup.isGroupLeader
       }
     })
