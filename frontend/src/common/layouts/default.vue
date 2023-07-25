@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import dummyImg2 from '@/common/assets/codedang_logo.png'
 import dummyImg from '@/common/assets/dummy.png'
+import dummyImg2 from '@/common/assets/skkudingLogo.png'
 import { defineAsyncComponent } from 'vue'
 import Footer from '../components/Organism/Footer.vue'
 import Header from '../components/Organism/Header.vue'
