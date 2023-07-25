@@ -81,16 +81,14 @@ const clickRight = () => {
         <div
           class="flex w-full max-w-7xl flex-col-reverse justify-between gap-5 p-8 py-14 md:flex-row md:items-center md:px-16 md:py-0"
         >
-          <div class="flex flex-col items-start justify-center md:gap-5">
+          <div class="flex flex-col items-start justify-center gap-3">
             <div :class="textColors[item.color]">
               <p
-                class="mb-2 whitespace-nowrap text-2xl font-semibold md:text-3xl"
+                class="mb-1 whitespace-nowrap text-2xl font-semibold md:text-3xl"
               >
                 {{ item.topTitle }}
               </p>
-              <p
-                class="mb-2 whitespace-nowrap text-2xl font-semibold md:text-3xl"
-              >
+              <p class="whitespace-nowrap text-2xl font-semibold md:text-3xl">
                 {{ item.bottomTitle }}
               </p>
             </div>
