@@ -77,7 +77,7 @@ const clickRight = () => {
               {{ item.sub }}
             </p>
             <div
-              class="mix-blend- flex items-center justify-center gap-2 rounded-full bg-black bg-opacity-70 px-3 py-1.5 text-sm font-bold text-white"
+              class="flex items-center justify-center gap-2 rounded-full bg-black bg-opacity-70 px-3 py-1.5 text-sm font-bold text-white"
             >
               <button class="opacity-70 hover:opacity-100" @click="clickLeft">
                 <Fa6SolidAngleLeft class="text-xs" />
