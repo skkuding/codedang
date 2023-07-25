@@ -81,6 +81,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
             >
               Sign in
             </Button>
+            <!-- TODO: 추후에 NewButton component 새로 만들면 바꾸기 -->
             <button
               class="whitespace-nowrap rounded-md border border-slate-100 bg-transparent px-2 py-1 font-bold text-black hover:bg-slate-100 hover:bg-opacity-20"
               @click="modalContent = 'signup'"
