@@ -5,15 +5,12 @@ import { defineAsyncComponent } from 'vue'
 import Footer from '../components/Organism/Footer.vue'
 import Header from '../components/Organism/Header.vue'
 
-// const Carousel = defineAsyncComponent(
-//   () => import('@/user/home/components/Carousel.vue')
-// )
+const Carousel = defineAsyncComponent(
+  () => import('@/user/home/components/Carousel.vue')
+)
 
 const BoxTitle = defineAsyncComponent(
   () => import('@/common/components/Atom/BoxTitle.vue')
-)
-const Carousel = defineAsyncComponent(
-  () => import('@/user/home/components/Carousel.vue')
 )
 </script>
 
