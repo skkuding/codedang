@@ -2,12 +2,36 @@
 import CreatePorblemModal from '@/admin/components/CreatePorblemModal.vue'
 import ImportProblemModal from '@/admin/components/ImportProblemModal.vue'
 import Button from '@/common/components/Atom/Button.vue'
+import Dialog from '@/common/components/Molecule/Dialog.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
+import { useDialog } from '@/common/composables/dialog'
+import { useFileDialog } from '@vueuse/core'
 import { ref } from 'vue'
+import CloudArrowDown from '~icons/fa6-solid/cloud-arrow-down'
 import IconTrash from '~icons/fa/trash-o'
 
 const showProblemModal = ref(false)
 const showImportModal = ref(false)
+const showFileErrorModal = ref(false)
+const { files, open, reset, onChange } = useFileDialog()
+const dialog = useDialog()
+
+onChange((files) => {
+  if (!files![0].name.toLowerCase().endsWith('.csv')) {
+    showFileErrorModal.value = true
+    dialog.error({
+      title: 'Unsupported extension',
+      content: "Only support '.csv'",
+      yes: 'OK'
+    })
+  } else {
+    dialog.success({
+      title: 'Success',
+      content: 'Successfully Upload',
+      yes: 'OK'
+    })
+  }
+})
 </script>
 
 <template>
@@ -23,15 +47,21 @@ const showImportModal = ref(false)
       }
     "
   />
+  <Dialog v-if="showFileErrorModal" @yes="reset()" />
   <div class="flex flex-col">
     <div class="border-gray border-b text-right text-lg font-semibold">
       SKKUDING
     </div>
-    <div class="mt-10 flex justify-between gap-5">
+    <div class="mt-10 flex gap-5">
       <h1 class="text-gray-dark mr-6 inline text-2xl font-semibold">Problem</h1>
-      <div class="flex gap-5">
+      <div class="flex items-center gap-3">
         <Button @click="() => (showProblemModal = true)">+ Create</Button>
         <Button @click="() => (showImportModal = true)">Import</Button>
+        <Button type="Button" class="flex items-center gap-2" @click="open()">
+          <CloudArrowDown />
+          File Upload
+        </Button>
+        <template v-if="files">selected file: {{ files[0].name }}</template>
       </div>
     </div>
     <PaginationTable
