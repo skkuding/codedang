@@ -43,7 +43,7 @@ export class GroupService {
         where: {
           id: groupId,
           config: {
-            path: ['allowJoinFromSearch'],
+            path: ['showOnList'],
             equals: true
           }
         },
