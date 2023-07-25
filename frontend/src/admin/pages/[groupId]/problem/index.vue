@@ -13,12 +13,12 @@ import IconTrash from '~icons/fa/trash-o'
 const showProblemModal = ref(false)
 const showImportModal = ref(false)
 const showFileErrorModal = ref(false)
-const { files, open, reset, onChange } = useFileDialog()
+const { open, reset, onChange } = useFileDialog()
 const dialog = useDialog()
 
 onChange((files) => {
+  showFileErrorModal.value = true
   if (!files![0].name.toLowerCase().endsWith('.csv')) {
-    showFileErrorModal.value = true
     dialog.error({
       title: 'Unsupported extension',
       content: "Only support '.csv'",
@@ -61,7 +61,6 @@ onChange((files) => {
           <CloudArrowDown />
           File Upload
         </Button>
-        <template v-if="files">selected file: {{ files[0].name }}</template>
       </div>
     </div>
     <PaginationTable
