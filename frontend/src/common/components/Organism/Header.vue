@@ -27,7 +27,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
     >
       <div class="flex w-full max-w-7xl items-center justify-between gap-5">
         <div class="flex items-center gap-32">
-          <RouterLink to="/" class="flex items-center gap-1 hover:opacity-80">
+          <RouterLink to="/" class="flex items-center gap-1">
             <img :src="Logo" alt="logo" width="45" />
             <h1 class="text-2xl font-bold">Codedang</h1>
           </RouterLink>
