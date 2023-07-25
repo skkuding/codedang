@@ -15,7 +15,8 @@ import Carousel from './Carousel.vue'
           sub: '첫 번째 우승자가 될 기회!',
           img: dummyImg,
           imgAlt: 'dummy',
-          color: 'green'
+          color: 'green',
+          href: '/'
         },
         {
           topTitle: 'SKKUDING',
@@ -23,7 +24,8 @@ import Carousel from './Carousel.vue'
           sub: '프론트엔드 0명, 백엔드 0명',
           img: dummyImg2,
           imgAlt: 'dummy',
-          color: 'black'
+          color: 'black',
+          href: '/'
         },
         {
           topTitle: 'SKKUDING',
@@ -31,7 +33,8 @@ import Carousel from './Carousel.vue'
           sub: '무박 2일, 1등 100만원',
           img: dummyImg2,
           imgAlt: 'dummy',
-          color: 'white'
+          color: 'white',
+          href: '/'
         }
       ]"
     />
