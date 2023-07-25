@@ -59,7 +59,7 @@ onMounted(() => {
       "
     >
       <div
-        class="flex w-full max-w-7xl flex-col-reverse justify-between gap-5 p-8 md:flex-row lg:px-16"
+        class="flex w-full max-w-7xl flex-col-reverse justify-between gap-5 p-8 md:flex-row md:px-16"
       >
         <div class="flex flex-col items-start justify-center gap-5">
           <div :class="textColors[item.color]">
