@@ -99,8 +99,8 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ./infra/deploy
-        run: terraform plan -target=module.codedang -input=false
+        run: terraform plan -target=module.codedang-infra -input=false
 
       - name: Terraform Apply
         working-directory: ./infra/deploy
-        run: terraform apply -target=module.codedang -auto-approve -input=false
+        run: terraform apply -target=module.codedang-infra -auto-approve -input=false
