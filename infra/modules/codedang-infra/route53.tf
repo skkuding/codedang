@@ -2,6 +2,11 @@ resource "aws_route53_zone" "main" {
   name = "codedang.com"
 }
 
+import {
+  to = aws_route53_zone.main
+  id = "Z02931601ELG5RAXUQ69W"
+}
+
 resource "aws_acm_certificate" "main" {
   domain_name       = "codedang.com"
   validation_method = "DNS"
