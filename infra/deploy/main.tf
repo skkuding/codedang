@@ -16,7 +16,7 @@ terraform {
   }
 }
 
-module "codedang" {
+module "codedang-infra" {
   source = "../modules/codedang-infra"
 
   region            = var.region
@@ -31,6 +31,6 @@ module "codedang" {
   # rabbitmq_password = var.rabbitmq_password
 }
 
-# module "tf-backend" {
+# module "codedang-tf-backend" {
 #   source = "../modules/codedang-tf-backend"
 # }
