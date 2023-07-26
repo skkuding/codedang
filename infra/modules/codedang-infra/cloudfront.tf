@@ -97,6 +97,7 @@ resource "aws_cloudfront_distribution" "main" {
 
   viewer_certificate {
     acm_certificate_arn = aws_acm_certificate.main.arn # Certificate for codedang.com
+    ssl_support_method  = "sni-only"
   }
 
   # Redirect non-root path to root path (need for SPA)
