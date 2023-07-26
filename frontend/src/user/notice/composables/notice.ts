@@ -23,7 +23,7 @@ export interface NoticeItem {
 
 export const useNotice = () => {
   const notices = ref<NoticeItem[]>([])
-  async function getNoticeList(numberOfPages: number) {
+  const getNoticeList = async (numberOfPages: number) => {
     const res = await axios.get('/api/notice', {
       params:
         numberOfPages == 1
@@ -51,7 +51,7 @@ export const useNotice = () => {
     })
   }
 
-  async function getNotice(id: number) {
+  const getNotice = async (id: number) => {
     const res = await axios.get('/api/notice/' + id)
 
     res.data.current.createTime = useDateFormat(

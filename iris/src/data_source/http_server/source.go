@@ -11,17 +11,13 @@ import (
 type httpServerDataSource struct {
 	url            string
 	placeholder    string
-	authToken      string
-	authHeader     string
 	requestTimeout time.Duration
 }
 
-func NewHttpServerDataSource(url, placeholder, authToken, authHeader string, requestTimeout time.Duration) *httpServerDataSource {
+func NewHttpServerDataSource(url, placeholder string, requestTimeout time.Duration) *httpServerDataSource {
 	return &httpServerDataSource{
 		url:            url,
 		placeholder:    placeholder,
-		authToken:      authToken,
-		authHeader:     authHeader,
 		requestTimeout: requestTimeout,
 	}
 }

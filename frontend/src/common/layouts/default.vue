@@ -39,7 +39,7 @@ const BoxTitle = defineAsyncComponent(
     </template>
   </BoxTitle>
   <main class="mx-auto mb-20 w-4/5 max-w-7xl">
-    <router-view />
+    <RouterView />
   </main>
   <Footer />
 </template>

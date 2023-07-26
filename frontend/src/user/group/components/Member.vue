@@ -10,9 +10,9 @@ defineProps<{
 }>()
 
 const isModalVisible = ref(false)
-function close() {
-  isModalVisible.value = false
-}
+
+const close = () => (isModalVisible.value = false)
+
 // TODO : Yes 눌렀을때 API 호출하도록 변경 필요
 
 // dummy data

@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import * as cookieParser from 'cookie-parser'
 import { AppModule } from './app.module'
 
-async function bootstrap() {
+const bootstrap = async () => {
   const app = await NestFactory.create(AppModule)
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
   app.use(cookieParser())
@@ -27,4 +27,5 @@ async function bootstrap() {
 
   await app.listen(4000)
 }
+
 bootstrap()
