@@ -16,6 +16,13 @@ resource "aws_route53_record" "cert" {
       value   = dvo.resource_record_value
     }
   }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.value]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = each.value.zone_id
 }
 
 resource "aws_route53_record" "main" {
