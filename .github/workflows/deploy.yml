@@ -71,7 +71,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Create Var files
-        working-directory: ./infra/test
+        working-directory: ./infra/deploy
         run: echo "$TFVARS" > terraform.tfvars
         env:
           TFVARS: ${{ secrets.TF_TFVARS }}
@@ -94,13 +94,13 @@ jobs:
         run: pnpm --filter frontend build
 
       - name: Terraform Init
-        working-directory: ./infra/test
+        working-directory: ./infra/deploy
         run: terraform init
 
       - name: Terraform Plan
-        working-directory: ./infra/test
+        working-directory: ./infra/deploy
         run: terraform plan -target=module.codedang -input=false
 
       - name: Terraform Apply
-        working-directory: ./infra/test
+        working-directory: ./infra/deploy
         run: terraform apply -target=module.codedang -auto-approve -input=false
