@@ -96,7 +96,7 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true # Enforce HTTPS
+    acm_certificate_arn = aws_acm_certificate.main.arn # Certificate for codedang.com
   }
 
   # Redirect non-root path to root path (need for SPA)
