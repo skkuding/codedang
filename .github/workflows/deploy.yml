@@ -93,6 +93,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: frontend-bundle
+          path: ./frontend/dist
 
       - name: Create Terraform variable file
         working-directory: ./infra/deploy
