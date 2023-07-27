@@ -20,7 +20,7 @@
     "@codemirror/state": "^6.2.1",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@codemirror/view": "^6.15.3",
-    "@tiptap/starter-kit": "^2.0.4",
+    "@tiptap/starter-kit": "^2.0.3",
     "@tiptap/vue-3": "^2.0.4",
     "@vueuse/components": "^10.2.1",
     "@vueuse/core": "^10.2.1",
