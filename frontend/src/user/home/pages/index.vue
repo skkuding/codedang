@@ -104,7 +104,9 @@ axios.get('api/contest').then((res) => {
         :key="index"
         class="g border-b border-slate-50 py-5 last:border-none last:pb-0"
       >
-        <p>{{ item.title }}</p>
+        <RouterLink :to="item.href">
+          {{ item.title }}
+        </RouterLink>
         <p class="text-gray mt-1 text-sm">
           {{ item.date }}
         </p>
@@ -118,6 +120,7 @@ axios.get('api/contest').then((res) => {
         :start-time="item.startTime"
         :end-time="item.endTime"
         :state="item.state"
+        :href="item.href"
       />
     </NewCard>
   </div>

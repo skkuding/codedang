@@ -8,21 +8,26 @@ const props = defineProps<{
   startTime: string
   endTime: string
   state: string
+  href: string
 }>()
 
-const percentage = ref(0)
-
-useIntervalFn(() => {
+const getPercentage = () => {
   const now = Date.now()
   const start = new Date(props.startTime).getTime()
   const end = new Date(props.endTime).getTime()
   if (now < start) {
-    percentage.value = 0
+    return 0
   } else if (now > end) {
-    percentage.value = 100
+    return 100
   } else {
-    percentage.value = ((now - start) / (end - start)) * 100
+    return ((now - start) / (end - start)) * 100
   }
+}
+
+const percentage = ref(getPercentage())
+
+useIntervalFn(() => {
+  percentage.value = getPercentage()
 }, 1000)
 
 const timeAgo = useTimeAgo(
@@ -35,9 +40,9 @@ const timeAgo = useTimeAgo(
     class="flex flex-wrap justify-between gap-2 border-b border-slate-50 py-5 last:border-none last:pb-0"
   >
     <div class="flex items-center gap-2">
-      <p>
+      <RouterLink :to="href">
         {{ title }}
-      </p>
+      </RouterLink>
       <div
         :class="`${
           state === 'ongoing' ? 'bg-green' : 'bg-yellow'
@@ -47,16 +52,14 @@ const timeAgo = useTimeAgo(
     <p class="shrink-0 text-right text-sm text-slate-300">
       {{ `${state === 'ongoing' ? 'Ends in ' : 'Start in'} ${timeAgo}` }}
     </p>
-    <div class="flex w-full gap-5">
-      <NProgress
-        v-if="state === 'ongoing'"
-        :percentage="percentage"
-        color="#8DC63F"
-        type="line"
-        :height="10"
-        :show-indicator="false"
-        class="mt-2"
-      />
-    </div>
+    <NProgress
+      v-if="state === 'ongoing'"
+      :percentage="percentage"
+      color="#8DC63F"
+      type="line"
+      :height="10"
+      :show-indicator="false"
+      class="mt-2"
+    />
   </div>
 </template>
