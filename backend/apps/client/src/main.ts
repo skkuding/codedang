@@ -21,6 +21,8 @@ const bootstrap = async () => {
         persistAuthorization: true
       }
     })
+  } else {
+    app.setGlobalPrefix('api')
   }
 
   await app.listen(4000)
