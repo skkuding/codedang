@@ -18,14 +18,29 @@ type Group = {
   isPrivate?: boolean
   description: string
   memberNum: number
-  createdBy: string
-  belong?: boolean
+  isBelong?: boolean
   groupImage?: string
-  allowJoinFromSearch: boolean
   isGroupLeader: boolean
 }
 
-//getMyGroups
+type OneGroup = {
+  id: number
+  groupName: string
+  description: string
+  isGroupLeader?: boolean
+  allowJoinFromSearch?: boolean
+  memberNum?: number
+  leaders?: string[]
+  config?: Config
+}
+
+type Config = {
+  allowJoinFromSearch: boolean
+  allowJoinWithURL: boolean
+  requireApprovalBeforeJoin: boolean
+  showOnList: boolean
+}
+
 const myGroupList = ref<Group[]>([])
 const allGroupList = ref<Group[]>([])
 
@@ -52,7 +67,7 @@ const pageNumGroup = ref(1)
 
 const groupList = props.isMyGroup ? myGroupList : allGroupList
 onMounted(async () => {
-  if (!store.isLoggedIn) return // 비로그인 시
+  if (!store.isLoggedIn) return // 비로그인
   const { data } = await axios.get(
     props.isMyGroup
       ? `/api/group/joined`
@@ -62,7 +77,7 @@ onMounted(async () => {
   )
   if (props.isMyGroup) {
     for (let i = 0; i < data.length; i++) {
-      data[i].belong = true
+      data[i].isBelong = true
     }
   }
   groupList.value.push(...data)
@@ -70,23 +85,28 @@ onMounted(async () => {
   pageNumGroup.value =
     allGroupList.value.length % perPage === 0
       ? allGroupList.value.length / perPage
-      : Math.floor(allGroupList.value.length / perPage) + 12
+      : Math.floor(allGroupList.value.length / perPage) + 1
   if (data.length < take.value) {
     hasNextPage.value = false
   }
 })
-const selectedGroup = ref<Group | undefined>(groupList.value[0])
+const selectedGroup = ref<OneGroup | undefined>({
+  id: 1,
+  groupName: '',
+  description: '',
+  memberNum: 0
+})
 const currentPage = ref(1)
 const modalVisible = ref(false)
 const modalType = ref('desc')
 const router = useRouter()
-const goGroup = (id: number) => {
-  const group = groupList.value.find((item) => item.id === id)
+const goGroup = async (id: number) => {
+  const { data } = await axios.get(`/api/group/${id}`)
   // 사용자가 해당 group에 소속되어 있으면
-  if (group?.belong) router.push(`/group/${id}`)
+  if (!data.memberNum) router.push(`/group/${id}`)
   // 소속 되어 있지 않으면
   else {
-    selectedGroup.value = group
+    selectedGroup.value = data
     modalVisible.value = true
   }
 }
@@ -101,7 +121,7 @@ watch(modalVisible, (value) => {
 const joinGroup = async (id: number) => {
   try {
     const { data } = await axios.post(`/api/group/${id}/join`)
-    if (!data.isJoined) {
+    if (!data.memberNum && !data.config.allowJoinFromSearch) {
       //need approval
       modalType.value = 'wait'
     } else {
@@ -136,12 +156,11 @@ const joinGroup = async (id: number) => {
               description,
               memberNum,
               groupImage,
-              createdBy,
               isGroupLeader
             },
             index
           ) in groupList.filter((group) =>
-            group.belong ? true : !group.isPrivate
+            group.isBelong ? true : !group.isPrivate
           )"
           :key="id"
           class="border-gray hover:outline-gray relative flex cursor-pointer flex-col items-center gap-4 rounded-md border p-4 shadow-md hover:shadow-xl hover:outline hover:outline-1"
@@ -170,7 +189,6 @@ const joinGroup = async (id: number) => {
           <div
             class="flex w-full flex-wrap items-center justify-between self-end text-sm"
           >
-            <p>Creator: {{ createdBy }}</p>
             <p class="text-text-subtitle flex gap-2 font-bold">
               <IconUserGroup />
               {{ memberNum }}
@@ -209,7 +227,15 @@ const joinGroup = async (id: number) => {
           <div class="border-green flex flex-col gap-6 border-l-2 py-4 pl-6">
             <div class="flex flex-col gap-1 font-bold">
               <PageSubtitle text="Member" />
-              {{ selectedGroup.memberNum }}
+              <p class="mb-4">{{ selectedGroup.memberNum || 1 }}</p>
+              <PageSubtitle text="Group Manager" />
+              <span
+                v-for="(item, index) in selectedGroup.leaders"
+                :key="index"
+                class="border-green border-1 w-17 mb-1 rounded-lg border px-2 py-0.5"
+              >
+                {{ item }}
+              </span>
             </div>
           </div>
         </div>
