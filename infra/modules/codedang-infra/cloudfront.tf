@@ -40,7 +40,7 @@ resource "aws_cloudfront_distribution" "main" {
   comment             = "Codedang Cloudfront"
   default_root_object = "index.html"
 
-  aliases = ["codedang.com"]
+  # aliases = ["codedang.com"]
 
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD", "OPTIONS"]
@@ -96,8 +96,9 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate.main.arn # Certificate for codedang.com
-    ssl_support_method  = "sni-only"
+    cloudfront_default_certificate = true
+    # acm_certificate_arn = aws_acm_certificate.main.arn # Certificate for codedang.com
+    # ssl_support_method  = "sni-only"
   }
 
   # Redirect non-root path to root path (need for SPA)
@@ -107,6 +108,4 @@ resource "aws_cloudfront_distribution" "main" {
     response_page_path    = "/index.html"
     error_caching_min_ttl = 0
   }
-
-  depends_on          = [aws_acm_certificate_validation.main]
 }
