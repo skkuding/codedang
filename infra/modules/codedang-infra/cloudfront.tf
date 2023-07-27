@@ -107,4 +107,6 @@ resource "aws_cloudfront_distribution" "main" {
     response_page_path    = "/index.html"
     error_caching_min_ttl = 0
   }
+
+  depends_on          = [aws_acm_certificate_validation.main]
 }
