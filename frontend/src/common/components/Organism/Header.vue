@@ -23,15 +23,15 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 <template>
   <OnClickOutside @trigger="isMenuOpen = false">
     <header
-      class="border-b-gray grid h-16 place-items-center border-b bg-white px-8"
+      class="border-b-gray grid h-16 place-items-center border-b bg-white px-5"
     >
       <div class="flex w-full max-w-7xl items-center justify-between gap-5">
-        <div class="flex items-center gap-32">
+        <div class="flex w-1/2 min-w-fit items-center justify-between gap-8">
           <RouterLink to="/" class="flex items-center gap-1">
             <img :src="Logo" alt="logo" width="45" />
             <h1 class="text-2xl font-bold">Codedang</h1>
           </RouterLink>
-          <nav class="hidden gap-10 capitalize md:flex">
+          <nav class="hidden gap-8 capitalize md:flex">
             <RouterLink
               v-for="{ to, name } in [
                 { to: '/notice', name: 'notice' },
