@@ -8,6 +8,7 @@ import { setupLayouts } from 'virtual:generated-layouts'
 import generatedRoutes from 'virtual:generated-pages'
 import { createApp } from 'vue'
 import VueDOMPurifyHTML from 'vue-dompurify-html'
+import { VueQueryPlugin } from 'vue-query'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import './common/styles/style.css'
@@ -40,4 +41,5 @@ router.afterEach(() => {
 app.use(router)
 app.use(createPinia())
 app.use(VueDOMPurifyHTML)
+app.use(VueQueryPlugin)
 app.mount('#app')

@@ -33,6 +33,7 @@
     "pinia": "^2.1.4",
     "vue": "^3.3.4",
     "vue-dompurify-html": "^4.1.4",
+    "vue-query": "^1.26.0",
     "vue-router": "^4.2.4"
   },
   "devDependencies": {
