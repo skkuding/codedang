@@ -9,8 +9,26 @@ resource "aws_route53_zone" "main" {
 
 resource "aws_acm_certificate" "main" {
   domain_name       = "codedang.com"
-  validation_method = "EMAIL"
+  validation_method = "DNS"
   provider          = aws.us-east-1
+}
+
+esource "aws_route53_record" "cert" {
+  for_each = {
+    for dvo in aws_acm_certificate.main.domain_validation_options : dvo.domain_name => {
+      name    = dvo.resource_record_name
+      zone_id = aws_route53_zone.main.zone_id
+      type    = dvo.resource_record_type
+      value   = dvo.resource_record_value
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.value]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = each.value.zone_id
 }
 
 resource "aws_route53_record" "main" {
@@ -23,4 +41,11 @@ resource "aws_route53_record" "main" {
     zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
     evaluate_target_health = false
   }
+}
+
+resource "aws_acm_certificate_validation" "main" {
+  certificate_arn = aws_acm_certificate.main.arn
+  validation_record_fqdns = [
+    for record in aws_route53_record.cert : record.fqdn
+  ]
 }
