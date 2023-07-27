@@ -1,6 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import { ProblemService } from './problem.service'
 import { expect } from 'chai'
+import { ProblemService } from './problem.service'
 
 describe('ProblemService', () => {
   let service: ProblemService

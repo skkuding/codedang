@@ -582,7 +582,7 @@
             "method": "POST",
             "sortNum": 60000,
             "created": "2023-07-13T20:55:25.664Z",
-            "modified": "2023-07-19T17:38:45.571Z",
+            "modified": "2023-07-27T11:23:38.602Z",
             "headers": [
                 {
                     "name": "Apollo-Require-Preflight",
@@ -596,7 +596,7 @@
                 "form": [
                     {
                         "name": "operations",
-                        "value": "{\"query\": \"mutation($groupId: Float!, $input: FileUploadInput!) { uploadProblems(groupId: $groupId, input: $input){id title description languages}}\", \"variables\" : {\"groupId\": 2, \"input\": {\"file\": null}}}"
+                        "value": "{\"query\": \"mutation($groupId: Float!, $input: FileUploadInput!) { uploadProblems(groupId: $groupId, input: $input){id title description languages template}}\", \"variables\" : {\"groupId\": 2, \"input\": {\"file\": null}}}"
                     },
                     {
                         "name": "map",

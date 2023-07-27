@@ -20,7 +20,7 @@ export class ProblemResolver {
     @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { nullable: false }, ParseIntPipe) groupId: number,
     @Args('input') input: FileUploadInput
-  ) {
+  ): Promise<Problem[]> {
     try {
       return await this.problemService.problemImport(
         req.user.id,

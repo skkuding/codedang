@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { Workbook } from 'exceljs'
 import { ActionNotAllowedException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { ProblemTestcaseCreateManyInput } from '@admin/@generated'
 import { Language } from '@admin/@generated/prisma/language.enum'
 import { Level } from '@admin/@generated/prisma/level.enum'
 import type { ProblemCreateInput } from '@admin/@generated/problem/problem-create.input'
@@ -12,7 +13,7 @@ import type { FileUploadInput } from './model/file-upload.input'
 export class ProblemService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly storageService: StorageService
+    @Inject(StorageService) private readonly storageService: StorageService
   ) {}
 
   async problemImport(userId: number, groupId: number, input: FileUploadInput) {
@@ -33,6 +34,7 @@ export class ProblemService {
       .worksheets[0]
     const problems: ProblemCreateInput[] = []
     const goormHeader = {}
+    const ProblemTestcases = {}
 
     worksheet.eachRow(async function (row, rowNumber) {
       if (rowNumber === 1) {
@@ -146,47 +148,52 @@ export class ProblemService {
         )
       }
 
-      const testcases = []
-      for (const idx in input) {
-        testcases.push({
-          //id
-          input: input[idx],
-          output: output[idx]
-        })
+      ProblemTestcases[(rowNumber - 2).toString()] = {
+        testCnt,
+        input,
+        output,
+        scoreWeight
       }
 
-      //TODO: implement testCaseUpload
-      const url = await this.storageService.uploadObject(
-        'testUpload.json',
-        JSON.stringify(testcases),
-        'json'
-      )
-      const ProblemTestcases = []
-      for (const idx in input) {
-        ProblemTestcases.push({
-          input: url,
-          output: url,
-          scoreWeight: parseInt(scoreWeight[idx])
-        })
-      }
-
-      problems.push({
-        ...problem,
-        problemTestcase: {
-          createMany: {
-            data: ProblemTestcases
-          }
-        }
-      })
+      problems.push(problem)
     })
 
     const results = []
-    for (const idx in problems) {
-      results.push(
-        await this.prisma.problem.create({
-          data: problems[idx]
+    for (const problemIdx in problems) {
+      const result = await this.prisma.problem.create({
+        data: problems[problemIdx]
+      })
+      results.push(result)
+
+      const testcaseIdx = problemIdx.toString()
+      if (!(testcaseIdx in ProblemTestcases)) continue
+
+      const testcases = []
+      const ProblemTestcase = ProblemTestcases[testcaseIdx]
+      for (const idx in ProblemTestcase['input']) {
+        testcases.push({
+          id: result.id + ':' + idx,
+          input: ProblemTestcase['input'][idx],
+          output: ProblemTestcase['output'][idx]
         })
+      }
+
+      await this.storageService.uploadObject(
+        result.id + '.json',
+        JSON.stringify(testcases),
+        'json'
       )
+
+      const data: ProblemTestcaseCreateManyInput[] = []
+      for (const idx in ProblemTestcase['input']) {
+        data.push({
+          problemId: result.id,
+          input: result.id + '.json',
+          output: result.id + '.json',
+          scoreWeight: parseInt(ProblemTestcase['scoreWeight'][idx])
+        })
+      }
+      await this.prisma.problemTestcase.createMany({ data })
     }
 
     return results
