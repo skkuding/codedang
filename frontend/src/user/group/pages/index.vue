@@ -7,11 +7,11 @@ import { NUpload, NButton, NColorPicker } from 'naive-ui'
 import { ref } from 'vue'
 import IconLock from '~icons/bi/lock'
 import IconUnlock from '~icons/bi/unlock'
-import IconPaperPlane from '~icons/fa6-solid/paper-plane'
+// import IconPaperPlane from '~icons/fa6-solid/paper-plane'
 import GroupListSection from '../components/GroupListSection.vue'
 
 //TODO: invitation 검색 API 연결 후 noInvitation 값을 변경하는 function 구현 필요
-const invitationCode = ref('')
+// const invitationCode = ref('')
 const createModal = ref(false)
 const groupName = ref('')
 const groupPrivate = ref(false)
@@ -21,8 +21,8 @@ const groupDescription = ref('')
 <template>
   <div class="mt-10 flex flex-col gap-4">
     <div class="flex items-start justify-end gap-2">
-      <InputItem v-model="invitationCode" placeholder="Invitation Code" />
-      <Button class="py-2"><IconPaperPlane /></Button>
+      <!-- <InputItem v-model="invitationCode" placeholder="Invitation Code" /> -->
+      <!-- <Button class="py-2"><IconPaperPlane /></Button> -->
     </div>
     <GroupListSection title="My Group" is-my-group />
     <div class="flex justify-end">

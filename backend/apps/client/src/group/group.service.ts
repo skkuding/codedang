@@ -31,8 +31,7 @@ export class GroupService {
           select: {
             id: true,
             groupName: true,
-            description: true,
-            config: true
+            description: true
           }
         },
         isGroupLeader: true
@@ -44,7 +43,7 @@ export class GroupService {
         where: {
           id: groupId,
           config: {
-            path: ['allowJoinFromSearch'],
+            path: ['showOnList'],
             equals: true
           }
         },
@@ -53,12 +52,7 @@ export class GroupService {
           groupName: true,
           description: true,
           userGroup: true,
-          config: true,
-          createdBy: {
-            select: {
-              username: true
-            }
-          }
+          config: true
         },
         rejectOnNotFound: () => new EntityNotExistException('group')
       })
@@ -67,13 +61,17 @@ export class GroupService {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
-        config: group.config,
-        createdBy: group.createdBy.username,
+        allowJoinFromSearch: group.config['allowJoinFromSearch'],
         memberNum: group.userGroup.length,
-        leaders: await this.getGroupLeaders(groupId)
+        leaders: await this.getGroupLeaders(groupId),
+        isJoined: false
       }
     } else {
-      return { ...isJoined.group, isGroupLeader: isJoined.isGroupLeader }
+      return {
+        ...isJoined.group,
+        isGroupLeader: isJoined.isGroupLeader,
+        isJoined: true
+      }
     }
   }
 
@@ -133,11 +131,6 @@ export class GroupService {
           }
         },
         select: {
-          createdBy: {
-            select: {
-              username: true
-            }
-          },
           id: true,
           groupName: true,
           description: true,
@@ -149,7 +142,6 @@ export class GroupService {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
-        createdBy: group.createdBy.username,
         memberNum: group.userGroup.length
       }
     })
@@ -169,11 +161,6 @@ export class GroupService {
         select: {
           group: {
             select: {
-              createdBy: {
-                select: {
-                  username: true
-                }
-              },
               id: true,
               groupName: true,
               description: true,
@@ -189,7 +176,6 @@ export class GroupService {
         groupName: userGroup.group.groupName,
         description: userGroup.group.description,
         memberNum: userGroup.group.userGroup.length,
-        createdBy: userGroup.group.createdBy.username,
         isGroupLeader: userGroup.isGroupLeader
       }
     })

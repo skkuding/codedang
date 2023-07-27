@@ -67,7 +67,7 @@ const pageNumGroup = ref(1)
 
 const groupList = props.isMyGroup ? myGroupList : allGroupList
 onMounted(async () => {
-  if (!store.isLoggedIn) return // 비로그인
+  if (!store.isLoggedIn && props.isMyGroup) return // 비로그인
   const { data } = await axios.get(
     props.isMyGroup
       ? `/api/group/joined`
@@ -75,6 +75,8 @@ onMounted(async () => {
       ? `/api/group?cursor=${cursor.value}&take=${take.value}`
       : `/api/group?take=${take.value}`
   )
+  console.log('data is ', data)
+
   if (props.isMyGroup) {
     for (let i = 0; i < data.length; i++) {
       data[i].isBelong = true
