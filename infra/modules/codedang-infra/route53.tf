@@ -5,6 +5,7 @@ resource "aws_route53_zone" "main" {
 resource "aws_acm_certificate" "main" {
   domain_name       = "codedang.com"
   validation_method = "DNS"
+  provider          = "aws.us-east-1"
 }
 
 resource "aws_route53_record" "cert" {
