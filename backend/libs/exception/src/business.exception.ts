@@ -32,6 +32,11 @@ export class ActionNotAllowedException extends BusinessException {
 
 /** Throw when data is invalid or processing logic is missing. */
 export class UnprocessableDataException extends BusinessException {}
+export class InvalidFileFormatException extends BusinessException {
+  constructor(message, fileName, rowNumber) {
+    super(`${message}(${fileName}:${rowNumber})`)
+  }
+}
 
 /** Throw when a user should not access due to lack of permission */
 export class ForbiddenAccessException extends BusinessException {}

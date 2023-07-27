@@ -1,13 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Workbook } from 'exceljs'
-import { ActionNotAllowedException } from '@libs/exception'
+import {
+  InvalidFileFormatException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { ProblemTestcaseCreateManyInput } from '@admin/@generated'
 import { Language } from '@admin/@generated/prisma/language.enum'
 import { Level } from '@admin/@generated/prisma/level.enum'
 import type { ProblemCreateInput } from '@admin/@generated/problem/problem-create.input'
 import { StorageService } from '@admin/storage/storage.service'
-import type { FileUploadInput } from './model/file-upload.input'
+import { GoormHeader } from './model/problem.constants'
+import type { FileUploadInput } from './model/problem.input'
 
 @Injectable()
 export class ProblemService {
@@ -17,16 +21,15 @@ export class ProblemService {
   ) {}
 
   async problemImport(userId: number, groupId: number, input: FileUploadInput) {
-    const { mimetype, createReadStream } = await input.file
+    const { filename, mimetype, createReadStream } = await input.file
     if (
       [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'application/vnd.ms-excel'
       ].includes(mimetype) === false
     )
-      throw new ActionNotAllowedException(
-        'Importing files except Excel(.xlsx, .xls)',
-        'problem import function'
+      throw new UnprocessableDataException(
+        'Files except Excel(.xlsx, .xls) are not supported.'
       )
 
     const workbook = new Workbook()
@@ -39,21 +42,28 @@ export class ProblemService {
     worksheet.eachRow(async function (row, rowNumber) {
       if (rowNumber === 1) {
         row.eachCell((cell, idx) => {
+          if (!GoormHeader.includes(cell.text))
+            throw new InvalidFileFormatException(
+              'Only goorm export files are supported',
+              filename,
+              rowNumber
+            )
           goormHeader[cell.text] = idx
         })
         return
       }
 
-      for (const idx of [
+      for (const colNumber of [
         goormHeader['InputFileName'],
         goormHeader['InputFilePath'],
         goormHeader['OutputFileName'],
         goormHeader['OutputFilePath']
       ]) {
-        if (row.getCell(idx).text !== '')
-          throw new ActionNotAllowedException(
-            'Using inputFile, outputFile',
-            'problem import function'
+        if (row.getCell(colNumber).text !== '')
+          throw new InvalidFileFormatException(
+            'Using inputFile, outputFile is not supported',
+            filename,
+            rowNumber
           )
       }
 
@@ -142,9 +152,10 @@ export class ProblemService {
         (input.length !== testCnt || output.length !== testCnt) &&
         inputText != ''
       ) {
-        throw new ActionNotAllowedException(
-          'Testcase including ::',
-          'problem import function'
+        throw new InvalidFileFormatException(
+          'TestCount must match the length of Input and Output. Or Testcases should not include ::.',
+          filename,
+          rowNumber
         )
       }
 

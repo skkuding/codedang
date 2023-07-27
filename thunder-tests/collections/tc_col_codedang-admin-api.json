@@ -677,6 +677,69 @@
                     }
                 ]
             }
+        },
+        {
+            "_id": "63a87433-61f1-4a70-afc7-2991fb3f084c",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "052b2adc-2583-4006-9d78-09138d4efbb1",
+            "name": "400: Unsupported file",
+            "url": "",
+            "method": "POST",
+            "sortNum": 70000,
+            "created": "2023-07-27T12:48:14.751Z",
+            "modified": "2023-07-27T12:52:30.540Z",
+            "headers": [
+                {
+                    "name": "Apollo-Require-Preflight",
+                    "value": "true"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "operations",
+                        "value": "{\"query\": \"mutation($groupId: Float!, $input: FileUploadInput!) { uploadProblems(groupId: $groupId, input: $input){id createdById groupId title description template languages difficulty}}\", \"variables\" : {\"groupId\": 2, \"input\": {\"file\": null}}}"
+                    },
+                    {
+                        "name": "map",
+                        "value": "{\"nfile\":[\"variables.input.file\"]}"
+                    }
+                ],
+                "files": [
+                    {
+                        "name": "nfile",
+                        "value": "../README.md"
+                    }
+                ]
+            },
+            "tests": [
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].extensions.originalError.statusCode",
+                    "action": "equal",
+                    "value": "400"
+                },
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].message",
+                    "action": "equal",
+                    "value": "Files except Excel(.xlsx, .xls) are not supported."
+                }
+            ],
+            "docs": "# Upload file\n\n## Input Specification\n\n### Query\n```GraphQL\nmutation ($groupId: Float!, $input: FileUploadInput!) {\n  uploadProblems (\n    groupId: $groupId,\n    input: $input\n  }) {\n    id\n    createdById\n    groupId\n    title\n    description\n    languages\n    template\n    difficulty\n  }\n}\n```\n\n### Variables\n```GraphQL\n{\n  \"groupId\": 2,\n  \"input\": {\n     \"file\": null\n  }\n}\n```\n\n자세한 Input specification은 <br>\nhttps://github.com/jaydenseric/graphql-multipart-request-spec 를 참고해주세요.\n\n<br>\n\n### Description\n구름에서 export한 excel 파일(.xlsx)을 통해 problem들을 업로드할 수 있도록 합니다.<br><br>\n\n\n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         }
     ]
 }

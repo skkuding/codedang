@@ -1,7 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql'
-import { GraphQLUpload } from 'graphql-upload'
-import { type FileUploadDto } from '../dto/file-upload.dto'
 import { ValidatePromise } from 'class-validator'
+import { GraphQLUpload } from 'graphql-upload'
+import type { FileUploadDto } from '../dto/file-upload.dto'
 
 @InputType()
 export class FileUploadInput {

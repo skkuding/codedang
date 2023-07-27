@@ -5,10 +5,13 @@ import {
 } from '@nestjs/common'
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql'
 import { AuthenticatedRequest } from '@libs/auth'
-import { ActionNotAllowedException } from '@libs/exception'
+import {
+  InvalidFileFormatException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { Problem } from '@admin/@generated/problem/problem.model'
-import { FileUploadInput } from './model/file-upload.input'
-import { FileUploadOutput } from './model/file-upload.output'
+import { FileUploadInput } from './model/problem.input'
+import { FileUploadOutput } from './model/problem.output'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => Problem)
@@ -28,10 +31,12 @@ export class ProblemResolver {
         input
       )
     } catch (error) {
-      if (error instanceof ActionNotAllowedException) {
+      if (error instanceof UnprocessableDataException) {
+        throw new BadRequestException(error.message)
+      } else if (error instanceof InvalidFileFormatException) {
         throw new BadRequestException(error.message)
       }
-      throw new InternalServerErrorException(error)
+      throw new InternalServerErrorException()
     }
   }
 }
