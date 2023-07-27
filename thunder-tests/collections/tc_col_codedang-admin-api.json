@@ -582,7 +582,7 @@
             "method": "POST",
             "sortNum": 60000,
             "created": "2023-07-13T20:55:25.664Z",
-            "modified": "2023-07-27T11:23:38.602Z",
+            "modified": "2023-07-27T12:11:22.247Z",
             "headers": [
                 {
                     "name": "Apollo-Require-Preflight",
@@ -596,7 +596,7 @@
                 "form": [
                     {
                         "name": "operations",
-                        "value": "{\"query\": \"mutation($groupId: Float!, $input: FileUploadInput!) { uploadProblems(groupId: $groupId, input: $input){id title description languages template}}\", \"variables\" : {\"groupId\": 2, \"input\": {\"file\": null}}}"
+                        "value": "{\"query\": \"mutation($groupId: Float!, $input: FileUploadInput!) { uploadProblems(groupId: $groupId, input: $input){id createdById groupId title description template languages difficulty}}\", \"variables\" : {\"groupId\": 2, \"input\": {\"file\": null}}}"
                     },
                     {
                         "name": "map",
@@ -610,7 +610,63 @@
                     }
                 ]
             },
-            "tests": [],
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "id"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "createdById"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "groupId"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "title"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "description"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "languages"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "template"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "difficulty"
+                },
+                {
+                    "type": "json-query",
+                    "custom": "json.data.uploadProblems.id | length",
+                    "action": "equal",
+                    "value": "2"
+                }
+            ],
+            "docs": "# Upload file\n\n## Input Specification\n\n### Query\n```GraphQL\nmutation ($groupId: Float!, $input: FileUploadInput!) {\n  uploadProblems (\n    groupId: $groupId,\n    input: $input\n  }) {\n    id\n    createdById\n    groupId\n    title\n    description\n    languages\n    template\n    difficulty\n  }\n}\n```\n\n### Variables\n```GraphQL\n{\n  \"groupId\": 2,\n  \"input\": {\n     \"file\": null\n  }\n}\n```\n\n자세한 Input specification은 <br>\nhttps://github.com/jaydenseric/graphql-multipart-request-spec 를 참고해주세요.\n\n<br>\n\n### Description\n구름에서 export한 excel 파일(.xlsx)을 통해 problem들을 업로드할 수 있도록 합니다.<br><br>\n\n\n",
             "preReq": {
                 "runRequests": [
                     {
