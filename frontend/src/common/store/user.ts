@@ -1,9 +1,11 @@
 import axios from 'axios'
 import { useQuery } from 'vue-query'
 
+type Role = 'User' | 'Manager' | 'Admin' | 'SuperAdmin'
+
 interface User {
   username: string
-  role: string
+  role: Role
   email: string
   lastLogin: string
   updateTime: string
