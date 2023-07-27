@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import dummyImg from '@/common/assets/dummy.png'
-import dummyImg2 from '@/common/assets/skkudingLogo.png'
+import GithubLogo from '@/common/assets/github.svg'
+import SkkudingLogo from '@/common/assets/skkudingLogo.png'
 import Card from '@/common/components/Molecule/Card.vue'
 import type { Contest } from '@/user/contest/pages/index.vue'
 import type { NoticeItem } from '@/user/notice/composables/notice'
@@ -65,31 +66,31 @@ axios.get('api/contest').then((res) => {
     v-if="$router.currentRoute.value.meta.home"
     :slides="[
       {
-        topTitle: '성균관대학교',
-        bottomTitle: '제 1회 청정수컵',
-        sub: '첫 번째 우승자가 될 기회!',
+        topTitle: 'Codedang,',
+        bottomTitle: 'Online Judge for SKKU',
+        sub: 'Level up your coding skills with us',
         img: dummyImg,
         imgAlt: 'dummy',
-        color: 'green',
+        color: 'blue',
         href: '/group'
       },
       {
         topTitle: 'SKKUDING',
         bottomTitle: '스꾸딩 23-2 신입부원 모집',
         sub: '프론트엔드 0명, 백엔드 0명',
-        img: dummyImg2,
+        img: SkkudingLogo,
         imgAlt: 'dummy',
         color: 'black',
         href: '/group'
       },
       {
-        topTitle: 'SKKUDING',
-        bottomTitle: '제 1회 해커톤',
-        sub: '무박 2일, 1등 100만원',
-        img: dummyImg,
+        topTitle: 'Contribute to',
+        bottomTitle: 'Codedang on GitHub',
+        sub: 'Our project is open source!',
+        img: GithubLogo,
         imgAlt: 'dummy',
         color: 'yellow',
-        href: '/group'
+        href: '' // TODO: add github link
       }
     ]"
   />

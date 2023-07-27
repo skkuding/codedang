@@ -10,7 +10,7 @@ interface Slide {
   sub: string
   img: string
   imgAlt: string
-  color: 'green' | 'black' | 'white' | 'yellow'
+  color: keyof typeof bgColors
   href: string
 }
 const props = defineProps<{ slides: Slide[] }>()
@@ -19,13 +19,15 @@ const bgColors: { [key: string]: string } = {
   green: 'bg-[#2e4e3f]',
   black: 'bg-[#333333]',
   white: 'bg-[#ffffff]',
-  yellow: 'bg-[#f9de4a]'
+  yellow: 'bg-[#f9de4a]',
+  blue: 'bg-[#3581FA]'
 }
 const textColors: { [key: string]: string } = {
   green: 'text-white',
   black: 'text-white',
   white: 'text-black',
-  yellow: 'text-black'
+  yellow: 'text-black',
+  blue: 'text-white'
 }
 
 const currentSlideIndex = ref(0)
