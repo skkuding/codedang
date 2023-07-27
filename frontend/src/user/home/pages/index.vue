@@ -4,10 +4,11 @@ import GithubLogo from '@/common/assets/github.svg'
 import SkkudingLogo from '@/common/assets/skkudingLogo.png'
 import Card from '@/common/components/Molecule/Card.vue'
 import type { Contest } from '@/user/contest/pages/index.vue'
+import Carousel from '@/user/home/components/Carousel.vue'
 import type { NoticeItem } from '@/user/notice/composables/notice'
 import { useDateFormat } from '@vueuse/core'
 import axios from 'axios'
-import { defineAsyncComponent, ref } from 'vue'
+import { ref } from 'vue'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
 import IconBars from '~icons/fa6-solid/bars'
 import IconCalendar from '~icons/fa6-solid/calendar'
@@ -24,10 +25,6 @@ interface Post {
 
 const notices = ref<Post[]>([])
 const contest = ref<Post[]>([])
-
-const Carousel = defineAsyncComponent(
-  () => import('@/user/home/components/Carousel.vue')
-)
 
 axios
   .get('/api/notice', {
