@@ -1,10 +1,6 @@
 name: Deploy
 
 on:
-  push:
-    branches:
-      - deploy
-      - 329-cd-pipeline
   workflow_dispatch:
 
 env:
@@ -74,6 +70,7 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     needs: [build-frontend, build-backend]
+    environment: production
     defaults:
       run:
         shell: bash
