@@ -5,6 +5,7 @@ on:
     branches:
       - deploy
       - 329-cd-pipeline
+  workflow_dispatch:
 
 env:
   AWS_REGION: ap-northeast-2
