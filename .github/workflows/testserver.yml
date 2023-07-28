@@ -2,7 +2,7 @@ name: Run Test server
 
 on:
   push:
-    branches: [main]
+    branches: [main, 681-setup-test-server]
 
 jobs:
   build-frontend:
