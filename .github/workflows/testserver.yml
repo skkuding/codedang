@@ -5,6 +5,16 @@ on:
     branches: [main]
 
 jobs:
+  upload-files:
+    name: Upload necessary files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dev-files
+          path: ./infra/dev
+
   build-frontend:
     name: Build frontend bundle
     runs-on: ubuntu-latest
@@ -62,7 +72,7 @@ jobs:
   run-server:
     name: Run development server
     runs-on: self-hosted
-    needs: [build-frontend, build-backend]
+    needs: [upload-files, build-frontend, build-backend]
     environment: development
     steps:
       - name: Load frontend static bundle
@@ -70,6 +80,11 @@ jobs:
         with:
           name: frontend-bundle
           path: ./frontend/dist
+
+      - name: Load necessary files
+        uses: actions/download-artifact@v3
+        with:
+          name: dev-files
 
       - name: Pull docker images
         run: |
