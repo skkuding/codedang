@@ -9,7 +9,6 @@ import {
   EntityNotExistException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { GroupData } from './interface/group-data.interface'
 import type { GroupJoinRequest } from './interface/group-join-request.interface'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
@@ -20,7 +19,7 @@ export class GroupService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getGroup(userId: number, groupId: number): Promise<Partial<GroupData>> {
+  async getGroup(userId: number, groupId: number) {
     const isJoined = await this.prisma.userGroup.findFirst({
       where: {
         userId: userId,
@@ -115,7 +114,7 @@ export class GroupService {
     return members
   }
 
-  async getGroups(cursor: number, take: number): Promise<GroupData[]> {
+  async getGroups(cursor: number, take: number) {
     const groups = (
       await this.prisma.group.findMany({
         take,
@@ -149,7 +148,7 @@ export class GroupService {
     return groups
   }
 
-  async getJoinedGroups(userId: number): Promise<GroupData[]> {
+  async getJoinedGroups(userId: number) {
     return (
       await this.prisma.userGroup.findMany({
         where: {

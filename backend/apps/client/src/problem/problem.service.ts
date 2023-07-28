@@ -18,11 +18,7 @@ import { ProblemRepository } from './problem.repository'
 export class ProblemService {
   constructor(private readonly problemRepository: ProblemRepository) {}
 
-  async getProblems(
-    cursor: number,
-    take: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<ProblemsResponseDto[]> {
+  async getProblems(cursor: number, take: number, groupId = OPEN_SPACE_ID) {
     const problems = (
       await this.problemRepository.getProblems(cursor, take, groupId)
     ).map(async (problem) => {
@@ -46,10 +42,7 @@ export class ProblemService {
     return plainToInstance(ProblemsResponseDto, await Promise.all(problems))
   }
 
-  async getProblem(
-    problemId: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<ProblemResponseDto> {
+  async getProblem(problemId: number, groupId = OPEN_SPACE_ID) {
     const data = await this.problemRepository.getProblem(problemId, groupId)
     return plainToInstance(ProblemResponseDto, data)
   }
@@ -67,7 +60,7 @@ export class ContestProblemService {
     cursor: number,
     take: number,
     groupId = OPEN_SPACE_ID
-  ): Promise<RelatedProblemsResponseDto[]> {
+  ) {
     if (!(await this.contestService.isVisible(contestId, groupId))) {
       throw new EntityNotExistException('Contest')
     }
@@ -86,7 +79,7 @@ export class ContestProblemService {
     contestId: number,
     problemId: number,
     groupId = OPEN_SPACE_ID
-  ): Promise<RelatedProblemResponseDto> {
+  ) {
     if (!(await this.contestService.isVisible(contestId, groupId))) {
       throw new EntityNotExistException('Contest')
     }
@@ -113,7 +106,7 @@ export class WorkbookProblemService {
     cursor: number,
     take: number,
     groupId = OPEN_SPACE_ID
-  ): Promise<RelatedProblemsResponseDto[]> {
+  ) {
     if (!(await this.workbookService.isVisible(workbookId, groupId))) {
       throw new EntityNotExistException('Workbook')
     }
@@ -129,7 +122,7 @@ export class WorkbookProblemService {
     workbookId: number,
     problemId: number,
     groupId = OPEN_SPACE_ID
-  ): Promise<RelatedProblemResponseDto> {
+  ) {
     if (!(await this.workbookService.isVisible(workbookId, groupId))) {
       throw new EntityNotExistException('Workbook')
     }
