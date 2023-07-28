@@ -1,4 +1,4 @@
-name: Run Test server
+name: Run Development server
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
           name: frontend-bundle
           path: ./frontend/dist
 
-  build-backend-img:
+  build-backend:
     name: Build backend docker image
     runs-on: ubuntu-latest
     steps:
@@ -59,10 +59,11 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
 
-  test:
-    name: Test backend
+  run-server:
+    name: Run development server
     runs-on: self-hosted
-    needs: [build-frontend, build-backend-img]
+    needs: [build-frontend, build-backend]
+    environment: development
     steps:
       - name: Load frontend static bundle
         uses: actions/download-artifact@v3
@@ -75,6 +76,6 @@ jobs:
           docker pull ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
           docker pull ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
 
-      - name: Test backend
+      - name: Run docker compose up
         run: |
           docker compose up -d
