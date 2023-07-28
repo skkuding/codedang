@@ -24,7 +24,7 @@ const BoxTitle = defineAsyncComponent(
       {{ $router.currentRoute.value.meta.subtitle }}
     </template>
   </BoxTitle>
-  <main class="mx-auto mb-20 w-full max-w-7xl p-5">
+  <main class="mx-auto mb-20 h-[calc(100%-6rem)] w-full max-w-7xl p-5">
     <RouterView />
   </main>
   <Footer />
