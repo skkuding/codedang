@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// import Logo from '@/common/assets/skkudingLogo.png'
 import Logo from '@/common/assets/codedang.svg'
 import { useAuthStore } from '@/common/store/auth'
 import { OnClickOutside } from '@vueuse/components'
