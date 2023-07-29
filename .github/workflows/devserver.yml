@@ -2,7 +2,7 @@ name: Run Development server
 
 on:
   push:
-    branches: [main]
+    branches: [main, 681-setup-test-server]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
