@@ -1,5 +1,5 @@
 import { IsMimeType, IsNotEmpty, IsString } from 'class-validator'
-import { type ReadStream } from 'fs'
+import type { ReadStream } from 'fs'
 
 export class FileUploadDto {
   @IsString()

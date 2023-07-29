@@ -71,13 +71,14 @@ export class ProblemService {
       const description = row.getCell(goormHeader['문제내용']).text
       const languagesText = row.getCell(goormHeader['지원언어']).text.split(',')
       const levelText = row.getCell(goormHeader['난이도']).text
-
       const templateCodes = []
       const languages: Language[] = []
       const level: Level = Level['Level' + levelText]
+
       for (const idx in languagesText) {
         let templateCode: string
         let language: Language
+
         switch (languagesText[idx]) {
           case 'C':
             language = Language.C
@@ -130,16 +131,14 @@ export class ProblemService {
         difficulty: level,
         source: ''
       }
+      problems.push(problem)
 
       const testCnt = parseInt(row.getCell(goormHeader['TestCnt']).text)
       const inputText = row.getCell(goormHeader['Input']).text
       const output = row.getCell(goormHeader['Output']).text.split('::')
       const scoreWeight = row.getCell(goormHeader['Score']).text.split('::')
 
-      if (testCnt === 0) {
-        problems.push(problem)
-        return
-      }
+      if (testCnt === 0) return
 
       let input: string[]
       if (inputText === '' && testCnt !== 0) {
@@ -165,8 +164,6 @@ export class ProblemService {
         output,
         scoreWeight
       }
-
-      problems.push(problem)
     })
 
     const results = []
