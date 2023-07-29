@@ -1,7 +1,8 @@
 import {
   ForbiddenException,
   InternalServerErrorException,
-  UnprocessableEntityException
+  UnprocessableEntityException,
+  Logger
 } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
 import { Group } from '@generated'
@@ -18,14 +19,17 @@ import { DeletedUserGroup, FindGroup } from './model/group.output'
 
 @Resolver(() => Group)
 export class GroupResolver {
-  constructor(private readonly groupService: GroupService) {}
+  constructor(
+    private readonly logger = new Logger(GroupResolver.name),
+    private readonly groupService: GroupService
+  ) {}
 
   @Mutation(() => Group)
   @UseRolesGuard(Role.Manager)
   async createGroup(
     @Context('req') req: AuthenticatedRequest,
     @Args('input') input: CreateGroupInput
-  ): Promise<Group> {
+  ) {
     try {
       return await this.groupService.createGroup(input, req.user.id)
     } catch (error) {
@@ -41,14 +45,12 @@ export class GroupResolver {
   async getGroups(
     @Args('cursor', { nullable: true }, CursorValidationPipe) cursor: number,
     @Args('take', { type: () => Int }) take: number
-  ): Promise<Partial<FindGroup>[]> {
+  ) {
     return await this.groupService.getGroups(cursor, take)
   }
 
   @Query(() => FindGroup)
-  async getGroup(
-    @Args('groupId', { type: () => Int }) id: number
-  ): Promise<FindGroup> {
+  async getGroup(@Args('groupId', { type: () => Int }) id: number) {
     return await this.groupService.getGroup(id)
   }
 
@@ -56,7 +58,7 @@ export class GroupResolver {
   async updateGroup(
     @Args('groupId', { type: () => Int }) id: number,
     @Args('input') input: UpdateGroupInput
-  ): Promise<Group> {
+  ) {
     try {
       return await this.groupService.updateGroup(id, input)
     } catch (error) {
@@ -65,6 +67,7 @@ export class GroupResolver {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -73,13 +76,14 @@ export class GroupResolver {
   async deleteGroup(
     @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { type: () => Int }) id: number
-  ): Promise<DeletedUserGroup> {
+  ) {
     try {
       return await this.groupService.deleteGroup(id, req.user)
     } catch (error) {
       if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
