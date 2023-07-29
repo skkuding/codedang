@@ -1,4 +1,4 @@
-export const GoormHeader = [
+export const GoormHeader: string[] = [
   'No',
   '문제ID',
   '문제유형',

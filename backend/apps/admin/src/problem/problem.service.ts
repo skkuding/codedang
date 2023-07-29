@@ -20,7 +20,11 @@ export class ProblemService {
     @Inject(StorageService) private readonly storageService: StorageService
   ) {}
 
-  async problemImport(userId: number, groupId: number, input: FileUploadInput) {
+  async importProblems(
+    userId: number,
+    groupId: number,
+    input: FileUploadInput
+  ) {
     const { filename, mimetype, createReadStream } = await input.file
     if (
       [
@@ -203,7 +207,6 @@ export class ProblemService {
       }
       await this.prisma.problemTestcase.createMany({ data })
     }
-
     return results
   }
 }

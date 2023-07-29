@@ -25,7 +25,7 @@ export class ProblemResolver {
     @Args('input') input: FileUploadInput
   ): Promise<Problem[]> {
     try {
-      return await this.problemService.problemImport(
+      return await this.problemService.importProblems(
         req.user.id,
         groupId,
         input
