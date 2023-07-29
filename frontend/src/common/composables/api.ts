@@ -48,8 +48,10 @@ export const useListAPI = <T extends Item>(
       totalPages.value = currentSlot.value * pagesPerSlot + 1
       slotItems.value = data.slice(0, take * pagesPerSlot)
     } else {
-      totalPages.value =
-        (currentSlot.value - 1) * pagesPerSlot + Math.ceil(data.length / take)
+      totalPages.value = Math.max(
+        (currentSlot.value - 1) * pagesPerSlot + Math.ceil(data.length / take),
+        1
+      )
       slotItems.value = data
     }
   }
