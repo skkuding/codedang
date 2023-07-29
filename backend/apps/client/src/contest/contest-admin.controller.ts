@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   InternalServerErrorException,
+  Logger,
   MethodNotAllowedException,
   NotFoundException,
   Param,
@@ -15,7 +16,7 @@ import {
   UnprocessableEntityException,
   UseGuards
 } from '@nestjs/common'
-import { type Contest, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
 import {
   AuthenticatedRequest,
   RolesGuard,
@@ -37,41 +38,56 @@ import { UpdateContestDto } from './dto/update-contest.dto'
 @UseGuards(RolesGuard)
 @Roles(Role.Admin)
 export class ContestAdminController {
+  private readonly logger = new Logger(ContestAdminController.name)
+
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
   async getAdminContests(
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
-  ): Promise<Partial<Contest>[]> {
-    return await this.contestService.getAdminContests(cursor, take)
+  ) {
+    try {
+      return await this.contestService.getAdminContests(cursor, take)
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get('ongoing')
   async getAdminOngoingContests(
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
-  ): Promise<Partial<Contest>[]> {
-    return await this.contestService.getAdminOngoingContests(cursor, take)
+  ) {
+    try {
+      return await this.contestService.getAdminOngoingContests(cursor, take)
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
   }
 }
 
 @Controller('admin/group/:groupId/contest')
 @UseGuards(RolesGuard, GroupLeaderGuard)
 export class GroupContestAdminController {
+  private readonly logger = new Logger(GroupContestAdminController.name)
+
   constructor(private readonly contestService: ContestService) {}
 
   @Post()
   async createContest(
     @Req() req: AuthenticatedRequest,
     @Body() contestDto: CreateContestDto
-  ): Promise<Contest> {
+  ) {
     try {
       return await this.contestService.createContest(contestDto, req.user.id)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -80,7 +96,7 @@ export class GroupContestAdminController {
   async updateContest(
     @Param('id', ParseIntPipe) id: number,
     @Body() contestDto: UpdateContestDto
-  ): Promise<Contest> {
+  ) {
     try {
       return await this.contestService.updateContest(id, contestDto)
     } catch (error) {
@@ -89,6 +105,7 @@ export class GroupContestAdminController {
       } else if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -101,20 +118,20 @@ export class GroupContestAdminController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
 
   @Get(':id')
-  async getAdminContest(
-    @Param('id', ParseIntPipe) contestId: number
-  ): Promise<Partial<Contest>> {
+  async getAdminContest(@Param('id', ParseIntPipe) contestId: number) {
     try {
       return await this.contestService.getAdminContest(contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -124,8 +141,13 @@ export class GroupContestAdminController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
-  ): Promise<Partial<Contest>[]> {
-    return await this.contestService.getAdminContests(cursor, take, groupId)
+  ) {
+    try {
+      return await this.contestService.getAdminContests(cursor, take, groupId)
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
   }
 }
 
@@ -133,6 +155,10 @@ export class GroupContestAdminController {
 @UseGuards(RolesGuard)
 @Roles(Role.Admin)
 export class ContestPublicizingRequestAdminController {
+  private readonly logger = new Logger(
+    ContestPublicizingRequestAdminController.name
+  )
+
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
@@ -140,25 +166,26 @@ export class ContestPublicizingRequestAdminController {
     try {
       return await this.contestService.getContestPublicizingRequests()
     } catch (error) {
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
 
-  @Patch('/:id')
+  @Patch(':id')
   async respondContestPublicizingRequest(
     @Param('id', ParseIntPipe) contestId: number,
-    @Body()
-    respondContestPublicizingRequestDto: RespondContestPublicizingRequestDto
+    @Body() body: RespondContestPublicizingRequestDto
   ) {
     try {
       await this.contestService.respondContestPublicizingRequest(
         contestId,
-        respondContestPublicizingRequestDto
+        body
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -167,6 +194,8 @@ export class ContestPublicizingRequestAdminController {
 @Controller('admin/group/:groupId/contest/:contestId/publicizing-request')
 @UseGuards(RolesGuard, GroupLeaderGuard)
 export class ContestPublicizingRequestController {
+  private readonly logger = new Logger(ContestPublicizingRequestController.name)
+
   constructor(private readonly contestService: ContestService) {}
 
   @Post()
@@ -183,6 +212,7 @@ export class ContestPublicizingRequestController {
       if (error instanceof ActionNotAllowedException) {
         throw new MethodNotAllowedException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
