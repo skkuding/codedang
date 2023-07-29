@@ -1,4 +1,4 @@
-localhost {
+dev.codedang.com {
     root * /var/www/html
     file_server
 
