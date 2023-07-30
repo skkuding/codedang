@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import dummyImg from '@/common/assets/dummy.png'
+import GithubLogo from '@/common/assets/github.svg'
+import SkkudingLogo from '@/common/assets/skkudingLogo.png'
 import Card from '@/common/components/Molecule/Card.vue'
 import type { Contest } from '@/user/contest/pages/index.vue'
-import type { Item } from '@/user/notice/composables/notice'
+import Carousel from '@/user/home/components/Carousel.vue'
+import type { NoticeItem } from '@/user/notice/composables/notice'
 import { useDateFormat } from '@vueuse/core'
 import axios from 'axios'
 import { ref } from 'vue'
@@ -27,7 +31,7 @@ axios
     params: { take: 3 }
   })
   .then((res) => {
-    notices.value = res.data.map((element: Item) => ({
+    notices.value = res.data.map((element: NoticeItem) => ({
       title: element.title,
       date: useDateFormat(element.createTime, 'YYYY-MM-DD').value,
       href: `/notice/${element.id}`
@@ -55,6 +59,38 @@ axios.get('api/contest').then((res) => {
 </script>
 
 <template>
+  <Carousel
+    v-if="$router.currentRoute.value.meta.home"
+    :slides="[
+      {
+        topTitle: 'Codedang,',
+        bottomTitle: 'Online Judge for SKKU',
+        sub: 'Level up your coding skills with us',
+        img: dummyImg,
+        imgAlt: 'dummy',
+        color: 'blue',
+        href: '/group'
+      },
+      {
+        topTitle: 'SKKUDING',
+        bottomTitle: '스꾸딩 23-2 신입부원 모집',
+        sub: '프론트엔드 0명, 백엔드 0명',
+        img: SkkudingLogo,
+        imgAlt: 'dummy',
+        color: 'black',
+        href: '/group'
+      },
+      {
+        topTitle: 'Contribute to',
+        bottomTitle: 'Codedang on GitHub',
+        sub: 'Our project is open source!',
+        img: GithubLogo,
+        imgAlt: 'dummy',
+        color: 'yellow',
+        href: '' // TODO: add github link
+      }
+    ]"
+  />
   <div
     class="mt-20 flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
   >
@@ -74,12 +110,12 @@ axios.get('api/contest').then((res) => {
         <h2 class="ml-2">Current/Upcoming Contests</h2>
       </template>
       <template #titleIcon>
-        <router-link
+        <RouterLink
           to="/"
           class="cursor-pointer hover:opacity-50 active:opacity-30"
         >
           <IconBars />
-        </router-link>
+        </RouterLink>
       </template>
       <template #icon="item">
         <IconEllipsis v-if="item.item === 'ongoing'" />

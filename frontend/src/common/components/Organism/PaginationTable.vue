@@ -20,6 +20,7 @@ const props = defineProps<{
   numberOfPages: number
   text?: string // show if there's no data in item
   noHeader?: boolean
+  pageSlot?: number
   noSearchBar?: boolean
   noPagination?: boolean
   mode?: 'light' | 'dark'
@@ -81,14 +82,14 @@ watch(currentPage, (value) => {
 <template>
   <div>
     <div class="mb-5 flex justify-end">
-      <slot name="option"></slot>
+      <slot name="option" />
       <SearchBar
         v-if="!noSearchBar"
         :placeholder="placeholder"
         class="ml-5"
         :class="!mode || mode === 'light' ? '' : 'text-white'"
         @search="search"
-      ></SearchBar>
+      />
     </div>
     <div class="min-w-full overflow-x-scroll md:overflow-x-auto">
       <table
@@ -174,6 +175,7 @@ watch(currentPage, (value) => {
         v-if="!noPagination"
         v-model="currentPage"
         class="mt-8"
+        :page-slot="pageSlot"
         :number-of-pages="numberOfPages"
         :mode="mode"
       />

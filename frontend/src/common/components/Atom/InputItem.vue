@@ -3,8 +3,9 @@ import { computed } from 'vue'
 
 const props = defineProps<{
   placeholder?: string
-  required?: boolean
   shadow?: boolean
+  required?: boolean
+  isValid?: string
   modelValue: string
 }>()
 
@@ -32,5 +33,11 @@ const shadowClass = computed(() =>
   />
   <p v-show="required && !modelValue" class="text-red text-xs font-bold">
     {{ placeholder + ' is required' }}
+  </p>
+  <p
+    v-show="modelValue !== '' && isValid !== '' && !modelValue"
+    class="text-red text-xs font-bold"
+  >
+    {{ isValid }}
   </p>
 </template>
