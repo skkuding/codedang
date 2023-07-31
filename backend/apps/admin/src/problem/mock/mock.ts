@@ -1,6 +1,6 @@
 import type { Problem } from '@prisma/client'
 
-export const problems: Problem[] = [
+export const importedProblems: Problem[] = [
   {
     id: 32,
     createdById: 2,

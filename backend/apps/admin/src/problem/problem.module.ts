@@ -5,6 +5,6 @@ import { ProblemService } from './problem.service'
 
 @Module({
   imports: [StorageModule],
-  providers: [ProblemService, ProblemResolver]
+  providers: [ProblemResolver, ProblemService]
 })
 export class ProblemModule {}

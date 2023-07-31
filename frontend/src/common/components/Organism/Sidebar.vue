@@ -2,7 +2,6 @@
 import CodingPlatformLogo from '@/common/components/Atom/CodingPlatformLogo.vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import IconBox from '~icons/bi/box'
 import IconCode from '~icons/bi/code-square'
 import IconFile from '~icons/bi/file-text'
 import IconBiHouse from '~icons/bi/house'
@@ -34,8 +33,7 @@ const commonItems = [
   { to: '/admin/notice', name: 'Notice', icon: IconFile },
   { to: '/admin/contest', name: 'Contest', icon: IconTrophy },
   { to: '/admin/workbook', name: 'Workbook', icon: IconBook },
-  { to: '/admin/problem', name: 'Problem', icon: IconBrain },
-  { to: '/admin/pool', name: 'Problem Pool', icon: IconBox }
+  { to: '/admin/problem', name: 'Problem', icon: IconBrain }
 ]
 
 const groupItems = (id: number) => [
@@ -44,7 +42,6 @@ const groupItems = (id: number) => [
   { to: `/admin/${id}/contest`, name: 'Contest', icon: IconTrophy },
   { to: `/admin/${id}/workbook`, name: 'Workbook', icon: IconBook },
   { to: `/admin/${id}/problem`, name: 'Problem', icon: IconBrain },
-  { to: `/admin/${id}/pool`, name: 'Problem Pool', icon: IconBox },
   { to: `/admin/${id}/member`, name: 'Member', icon: IconUser },
   { to: `/admin/${id}/submission`, name: 'Submission', icon: IconCode }
 ]

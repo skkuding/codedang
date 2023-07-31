@@ -502,7 +502,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-01-04T03:25:24.818Z",
-            "modified": "2023-02-21T01:20:16.961Z",
+            "modified": "2023-07-12T12:49:00.500Z",
             "headers": [],
             "params": [],
             "body": {
@@ -4006,7 +4006,7 @@
             "method": "GET",
             "sortNum": 580000,
             "created": "2023-02-21T06:36:54.399Z",
-            "modified": "2023-06-24T09:02:30.579Z",
+            "modified": "2023-07-25T12:44:50.484Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -4038,12 +4038,6 @@
                     "type": "res-body",
                     "custom": "",
                     "action": "contains",
-                    "value": "createdBy"
-                },
-                {
-                    "type": "res-body",
-                    "custom": "",
-                    "action": "contains",
                     "value": "memberNum"
                 },
                 {
@@ -4053,7 +4047,7 @@
                     "value": "isGroupLeader"
                 }
             ],
-            "docs": "# Get joined groups\n\n### URL\nGET /group/joined <br><br>\n\n### Description\n가입한 그룹의 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n   id: Number\n   groupName: String\n   description: String\n   memberNum: Number\n   createdBy: String\n   isGroupLeader: Boolean\n} []\n```",
+            "docs": "# Get joined groups\n\n### URL\nGET /group/joined <br><br>\n\n### Description\n가입한 그룹의 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n   id: Number\n   groupName: String\n   description: String\n   memberNum: Number\n   isGroupLeader: Boolean\n} []\n```",
             "preReq": {
                 "runRequests": [
                     {
@@ -4074,7 +4068,7 @@
             "method": "GET",
             "sortNum": 590000,
             "created": "2023-02-21T07:00:09.919Z",
-            "modified": "2023-07-13T20:10:37.344Z",
+            "modified": "2023-07-25T12:38:07.558Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -4124,16 +4118,16 @@
                     "type": "res-body",
                     "custom": "",
                     "action": "contains",
-                    "value": "\"config\""
+                    "value": "\"isGroupLeader\""
                 },
                 {
                     "type": "res-body",
                     "custom": "",
                     "action": "contains",
-                    "value": "\"isGroupLeader\""
+                    "value": "\"isJoined\""
                 }
             ],
-            "docs": "# Get group\n\n### Notice\n이 메서드에는 유저의 그룹 가입 여부에 따른 2개의 Success Cases 및 Response Types들이 존재합니다.<br><br>\n\n### URL\nGET /group/{groupId}<br><br>\n\n### Description\n그룹의 id가 {groupId}인 그룹의 정보를 불러옵니다.<br><br>\n\n### Response Type (Joined group)\n```typscript\n{\n  id: Number\n  groupName: String\n  description: String\n  config: Json\n  isGroupLeader: boolean\n}\n\n```\n<br>\n\n### Response Type (Not joined group)\n```typscript\n{\n  id: Number\n  groupName: String\n  description: String\n  config: Json\n  createdBy: String\n  memberNum: Number\n  leaders: String[]\n}\n\n```\n<br>\n\n### Success Cases\n**Joined group**: `가입한` 그룹의 정보를 요청하는 경우<br>\n**Not Joined group**: `가입하지 않은` 그룹의 정보를 요청하는 경우\n<br><br>",
+            "docs": "# Get group\n\n### Notice\n이 메서드에는 유저의 그룹 가입 여부에 따른 2개의 Success Cases 및 Response Types들이 존재합니다.<br><br>\n\n### URL\nGET /group/{groupId}<br><br>\n\n### Description\n그룹의 id가 {groupId}인 그룹의 정보를 불러옵니다.<br><br>\n\n### Response Type (Joined group)\n```typscript\n{\n  id: Number\n  groupName: String\n  description: String\n  isGroupLeader: boolean\n  isJoined: boolean\n}\n\n```\n<br>\n\n### Response Type (Not joined group)\n```typscript\n{\n  id: Number\n  groupName: String\n  description: String\n  memberNum: Number\n  leaders: String[]\n  isJoined: boolean\n}\n\n```\n<br>\n\n### Success Cases\n**Joined group**: `가입한` 그룹의 정보를 요청하는 경우<br>\n**Not Joined group**: `가입하지 않은` 그룹의 정보를 요청하는 경우\n<br><br>",
             "preReq": {
                 "runRequests": [
                     {
@@ -4377,7 +4371,7 @@
             "method": "GET",
             "sortNum": 592500,
             "created": "2023-02-21T17:23:38.437Z",
-            "modified": "2023-07-13T20:10:33.795Z",
+            "modified": "2023-07-25T12:38:16.391Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -4427,10 +4421,10 @@
                     "type": "res-body",
                     "custom": "",
                     "action": "contains",
-                    "value": "\"config\""
+                    "value": "\"isJoined\""
                 }
             ],
-            "docs": "# Get group\n\n### URL\nGET /group/{groupId}<br><br>\n\n### Description\n그룹의 id가 {groupId}인 그룹의 정보를 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n  id: Number\n  groupName: String\n  description: String\n  config: Json\n  isGroupLeader: boolean\n}\n\n```",
+            "docs": "# Get group\n\n### Notice\n이 메서드에는 유저의 그룹 가입 여부에 따른 2개의 Success Cases 및 Response Types들이 존재합니다.<br><br>\n\n### URL\nGET /group/{groupId}<br><br>\n\n### Description\n그룹의 id가 {groupId}인 그룹의 정보를 불러옵니다.<br><br>\n\n### Response Type (Joined group)\n```typscript\n{\n  id: Number\n  groupName: String\n  description: String\n  isGroupLeader: boolean\n  isJoined: boolean\n}\n\n```\n<br>\n\n### Response Type (Not joined group)\n```typscript\n{\n  id: Number\n  groupName: String\n  description: String\n  memberNum: Number\n  leaders: String[]\n  isJoined: boolean\n}\n\n```\n<br>\n\n### Success Cases\n**Joined group**: `가입한` 그룹의 정보를 요청하는 경우<br>\n**Not Joined group**: `가입하지 않은` 그룹의 정보를 요청하는 경우\n<br><br>",
             "preReq": {
                 "runRequests": [
                     {
@@ -4451,7 +4445,7 @@
             "method": "GET",
             "sortNum": 575000,
             "created": "2023-02-28T03:58:46.391Z",
-            "modified": "2023-04-28T12:22:22.515Z",
+            "modified": "2023-07-25T12:44:18.961Z",
             "headers": [],
             "params": [
                 {
@@ -4485,7 +4479,7 @@
                     "value": "4"
                 }
             ],
-            "docs": "# Get groups\n\n### URL\nGET /group <br><br>\n\n### Query String\n|#|name|type|description|\n|-|--|--|--|\n|1|cursor|number?|전달하지 않을경우 처음부터 {take} 만큼 불러옵니다.|\n|2|take|number|한 번에 불러올 group의 개수|\n\n<br>\n\n### Description\n공개로 설정된 그룹 들의 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n   id: Number\n   groupName: String\n   description: String\n   createdBy: String\n   memberNum: Number\n} []\n```",
+            "docs": "# Get groups\n\n### URL\nGET /group <br><br>\n\n### Query String\n|#|name|type|description|\n|-|--|--|--|\n|1|cursor|number?|전달하지 않을경우 처음부터 {take} 만큼 불러옵니다.|\n|2|take|number|한 번에 불러올 group의 개수|\n\n<br>\n\n### Description\n공개로 설정된 그룹 들의 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\n{\n   id: Number\n   groupName: String\n   description: String\n   memberNum: Number\n} []\n```",
             "preReq": {
                 "runRequests": [
                     {

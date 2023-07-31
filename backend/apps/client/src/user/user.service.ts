@@ -23,7 +23,6 @@ import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
 import type { UserGroupData } from '@client/group/interface/user-group-data.interface'
 import type { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
-import type { GetUserProfileDto } from './dto/get-userprofile.dto'
 import type { NewPasswordDto } from './dto/newPassword.dto'
 import type { SignUpDto } from './dto/signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
@@ -300,7 +299,7 @@ export class UserService {
     })
   }
 
-  async getUserProfile(username: string): Promise<GetUserProfileDto> {
+  async getUserProfile(username: string) {
     return await this.prisma.user.findUnique({
       where: { username },
       select: {

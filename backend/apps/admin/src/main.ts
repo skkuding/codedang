@@ -7,6 +7,11 @@ const bootstrap = async () => {
   const app = await NestFactory.create(AdminModule)
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 2 }))
+  app.enableCors({
+    allowedHeaders: ['*'],
+    exposedHeaders: ['authorization'],
+    credentials: true
+  })
   await app.listen(3000)
 }
 
