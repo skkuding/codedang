@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   InternalServerErrorException,
   NotFoundException,
   ParseIntPipe,
@@ -9,16 +8,14 @@ import { Args, Context, Query, Int, Mutation, Resolver } from '@nestjs/graphql'
 import { Prisma } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import {
-  InvalidFileFormatException,
-  UnprocessableDataException
-} from '@libs/exception'
+import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { Problem } from '@admin/@generated'
-import { CreateProblemInput } from './model/create-problem.input'
-import { FilterProblemsInput } from './model/filter-problem.input'
-import { FileUploadInput } from './model/problem.input'
-import { FileUploadOutput } from './model/problem.output'
+import {
+  CreateProblemInput,
+  ImportProblemsInput,
+  FilterProblemsInput
+} from './model/problem.input'
 import { UpdateProblemInput } from './model/update-problem.input'
 import { ProblemService } from './problem.service'
 
@@ -52,24 +49,24 @@ export class ProblemResolver {
     }
   }
 
-  @Mutation(() => [FileUploadOutput])
-  async uploadProblems(
+  @Mutation(() => [Problem])
+  async importProblems(
     @Context('req') req: AuthenticatedRequest,
-    @Args('groupId', { nullable: false }, ParseIntPipe) groupId: number,
-    @Args('input') input: FileUploadInput
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    groupId: number,
+    @Args('input') input: ImportProblemsInput
   ): Promise<Problem[]> {
     try {
       return await this.problemService.importProblems(
+        input,
         req.user.id,
-        groupId,
-        input
+        groupId
       )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
-        throw new BadRequestException(error.message)
-      } else if (error instanceof InvalidFileFormatException) {
-        throw new BadRequestException(error.message)
+        throw new UnprocessableEntityException(error.message)
       }
+      throw new InternalServerErrorException()
     }
   }
 

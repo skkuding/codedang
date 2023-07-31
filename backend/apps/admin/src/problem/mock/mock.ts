@@ -1,5 +1,83 @@
-import type { Problem } from '@prisma/client'
+import { createReadStream } from 'fs'
+import { Language, Level } from '@admin/@generated'
+import type { Problem } from '@admin/@generated/problem/problem.model'
+import type { FileUploadDto } from '../dto/file-upload.dto'
+import type { ImportProblemsInput } from '../model/problem.input'
+import type { Template } from '../model/template.input'
+import type { Testcase } from '../model/testcase.input'
 
+export const problemId = 1
+export const groupId = 1
+export const template: Template = {
+  language: Language.Cpp,
+  code: [
+    {
+      id: 1,
+      text: 'int main(void) {}',
+      locked: false
+    }
+  ]
+}
+export const problems: Problem[] = [
+  {
+    id: 1,
+    createdById: 1,
+    groupId: 1,
+    title: 'group problem0',
+    description: 'description1',
+    inputDescription: 'inputDescription1',
+    outputDescription: 'outputDescription1',
+    hint: 'hit rather hint',
+    template: [template],
+    languages: [Language.Cpp],
+    timeLimit: 0,
+    memoryLimit: 0,
+    difficulty: Level.Level2,
+    source: 'mustard source',
+    createTime: undefined,
+    updateTime: undefined,
+    inputExamples: [],
+    outputExamples: []
+  },
+  {
+    id: 2,
+    createdById: 1,
+    groupId: 1,
+    title: 'group problem1',
+    description: 'description2',
+    inputDescription: 'inputDescription2',
+    outputDescription: 'outputDescription2',
+    hint: 'hit rather hint',
+    template: [template],
+    languages: [Language.Cpp],
+    timeLimit: 0,
+    memoryLimit: 0,
+    difficulty: Level.Level2,
+    source: 'soy source',
+    createTime: undefined,
+    updateTime: undefined,
+    inputExamples: [],
+    outputExamples: []
+  }
+]
+
+export const testcaseInput: Testcase = {
+  input: "wake up, daddy's home",
+  output: 'welcome home, sir'
+}
+
+const file: Promise<FileUploadDto> = new Promise((resolve) => {
+  const data = {
+    createReadStream: () =>
+      createReadStream('apps/admin/src/problem/mock/testdata.xlsx'),
+    filename: 'testdata.xlsx',
+    mimetype:
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    encoding: '7bit'
+  }
+  resolve(data)
+})
+export const fileUploadInput: ImportProblemsInput = { file }
 export const importedProblems: Problem[] = [
   {
     id: 32,
