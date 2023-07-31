@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common'
+import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 import { StorageService } from '@admin/storage/storage.service'
 import type { CreateProblemInput } from './model/create-problem.input'
-import type { GetProblemsInput } from './model/request-problem.input'
+import type { FilterProblemsInput } from './model/filter-problem.input'
 import type { Testcase } from './model/testcase.input'
 import type { UpdateProblemInput } from './model/update-problem.input'
 
@@ -15,16 +16,30 @@ export class ProblemService {
   ) {}
 
   async createProblem(
+    input: CreateProblemInput,
     userId: number,
-    groupId: number,
-    input: CreateProblemInput
+    groupId: number
   ) {
-    const { template, testcases, tagIds, ...data } = input
+    const { languages, template, tagIds, testcases, ...data } = input
+    if (!languages.length) {
+      throw new UnprocessableDataException(
+        'A problem should support at least one language'
+      )
+    }
+    template.forEach((template) => {
+      if (!languages.includes(template.language)) {
+        throw new UnprocessableDataException(
+          `This problem does not support ${template.language}`
+        )
+      }
+    })
+
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
         groupId: groupId,
         createdById: userId,
+        languages,
         template: JSON.stringify(template),
         problemTag: {
           create: tagIds.map((tagId) => {
@@ -37,7 +52,7 @@ export class ProblemService {
     return problem
   }
 
-  // TODO: 테스트케이스별로 파일 따로 업로드 -> 수정 시 updateTestcases 로직 함께 정리
+  // TODO: 테스트케이스별로 파일 따로 업로드 -> 수정 시 updateTestcases, deleteProblem 로직 함께 정리
   async createTestcases(problemId: number, testcases: Array<Testcase>) {
     const filename = `${problemId}.json`
     const testcaseIds = await Promise.all(
@@ -67,27 +82,25 @@ export class ProblemService {
   }
 
   async getProblems(
+    input: FilterProblemsInput,
     groupId: number,
-    input: GetProblemsInput,
     cursor: number,
     take: number
   ) {
-    const whereOptions: ProblemWhereInput = {}
-
-    if (!input.difficulty) {
-      whereOptions.difficulty = {
-        in: input.difficulty
-      }
-    }
-
-    if (!input.languages) {
-      whereOptions.languages = { hasSome: input.languages }
-    }
-
     let skip = 1
     if (cursor === 0) {
       cursor = 1
       skip = 0
+    }
+
+    const whereOptions: ProblemWhereInput = {}
+    if (input.difficulty) {
+      whereOptions.difficulty = {
+        in: input.difficulty
+      }
+    }
+    if (input.languages) {
+      whereOptions.languages = { hasSome: input.languages }
     }
 
     return await this.prisma.problem.findMany({
@@ -103,30 +116,51 @@ export class ProblemService {
     })
   }
 
-  async getProblem(groupId: number, input: number) {
-    const problem = await this.prisma.problem.findFirstOrThrow({
+  async getProblem(id: number, groupId: number) {
+    return await this.prisma.problem.findFirstOrThrow({
       where: {
-        id: input,
-        groupId: groupId
+        id,
+        groupId
+      },
+      include: {
+        problemTestcase: true,
+        problemTag: {
+          include: {
+            tag: true
+          }
+        }
       }
     })
-    return problem
   }
 
-  async updateProblem(groupId: number, input: UpdateProblemInput) {
-    const { id, template, testcases, tagIds, ...data } = input
-    await this.getProblem(groupId, id)
+  async updateProblem(input: UpdateProblemInput, groupId: number) {
+    const { id, languages, template, tagIds, testcases, ...data } = input
+    await this.getProblem(id, groupId)
 
-    await this.updateTestcases(id, testcases)
+    if (languages && !languages.length) {
+      throw new UnprocessableDataException(
+        'A problem should support at least one language'
+      )
+    }
+    template?.forEach((template) => {
+      if (!languages.includes(template.language)) {
+        throw new UnprocessableDataException(
+          `This problem does not support ${template.language}`
+        )
+      }
+    })
+
     // FIXME: handle tags
 
-    return await this.prisma.problem.update({
+    const problem = await this.prisma.problem.update({
       where: { id },
       data: {
         ...data,
         ...(template !== undefined && { template: JSON.stringify(template) })
       }
     })
+    if (testcases?.length) await this.updateTestcases(id, testcases)
+    return problem
   }
 
   async updateTestcases(
@@ -151,7 +185,7 @@ export class ProblemService {
     }
     if (createdOrUpdated) {
       const filename = `${problemId}.json`
-      const uploaded = JSON.parse(
+      const uploaded: Array<Testcase & { id: number }> = JSON.parse(
         await this.storageService.readObject(filename)
       )
 
@@ -174,6 +208,13 @@ export class ProblemService {
                 scoreWeight: tc.scoreWeight
               }
             })
+
+            const i = uploaded.findIndex((record) => record.id === tc.id)
+            uploaded[i] = {
+              id: tc.id,
+              input: tc.output,
+              output: tc.output
+            }
           })
       )
 
@@ -202,13 +243,12 @@ export class ProblemService {
     }
   }
 
-  async deleteProblem(groupId: number, input: number) {
-    await this.getProblem(groupId, input)
+  async deleteProblem(id: number, groupId: number) {
+    await this.getProblem(id, groupId)
+    await this.storageService.deleteObject(`${id}.json`)
+
     return await this.prisma.problem.delete({
-      where: {
-        id: input
-      }
+      where: { id }
     })
-    // TODO: 테스트케이스 삭제
   }
 }

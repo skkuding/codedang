@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client
@@ -35,5 +36,14 @@ export class StorageService {
       })
     )
     return res.Body.transformToString()
+  }
+
+  async deleteObject(filename: string) {
+    await this.client.send(
+      new DeleteObjectCommand({
+        Bucket: this.config.get('TESTCASE_BUCKET_NAME'),
+        Key: filename
+      })
+    )
   }
 }
