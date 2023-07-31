@@ -134,6 +134,7 @@ export class ProblemService {
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, languages, template, tagIds, testcases, ...data } = input
     const problem = await this.getProblem(id, groupId)
 
@@ -151,7 +152,7 @@ export class ProblemService {
       }
     })
 
-    // FIXME: handle tags
+    // FIXME: handle tags -> remove eslint-disable after fix
     if (testcases?.length) await this.updateTestcases(id, testcases)
 
     return await this.prisma.problem.update({
