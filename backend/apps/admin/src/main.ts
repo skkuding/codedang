@@ -4,7 +4,7 @@ import { AdminModule } from './admin.module'
 const bootstrap = async () => {
   const app = await NestFactory.create(AdminModule)
   app.enableCors({
-    allowedHeaders: ['authorization'],
+    allowedHeaders: ['*'],
     exposedHeaders: ['authorization'],
     credentials: true
   })
