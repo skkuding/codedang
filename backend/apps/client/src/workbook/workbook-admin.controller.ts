@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -13,7 +14,6 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common'
-import type { Workbook } from '@prisma/client'
 import {
   type AuthenticatedRequest,
   RolesGuard,
@@ -28,6 +28,8 @@ import { WorkbookService } from './workbook.service'
 @Controller('admin/group/:groupId/workbook')
 @UseGuards(RolesGuard, GroupLeaderGuard)
 export class WorkbookAdminController {
+  private readonly logger = new Logger(WorkbookAdminController.name)
+
   constructor(private readonly workbookService: WorkbookService) {}
 
   @Get()
@@ -35,7 +37,7 @@ export class WorkbookAdminController {
     @Param('groupId', ParseIntPipe) groupId,
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
-  ): Promise<Partial<Workbook>[]> {
+  ) {
     try {
       return await this.workbookService.getAdminWorkbooksByGroupId(
         cursor,
@@ -43,22 +45,21 @@ export class WorkbookAdminController {
         groupId
       )
     } catch (error) {
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
 
-  @Get('/:workbookId')
-  async getWorkbook(
-    @Param('workbookId', ParseIntPipe) workbookId
-  ): Promise<Partial<Workbook>> {
+  @Get(':workbookId')
+  async getWorkbook(@Param('workbookId', ParseIntPipe) workbookId) {
     try {
       return await this.workbookService.getAdminWorkbookById(workbookId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      } else {
-        throw new InternalServerErrorException()
       }
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
     }
   }
 
@@ -67,7 +68,7 @@ export class WorkbookAdminController {
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId,
     @Body() createWorkbookDto: CreateWorkbookDto
-  ): Promise<Workbook> {
+  ) {
     try {
       return await this.workbookService.createWorkbook(
         createWorkbookDto,
@@ -75,15 +76,16 @@ export class WorkbookAdminController {
         groupId
       )
     } catch (error) {
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
 
-  @Put('/:workbookId')
+  @Put(':workbookId')
   async updateWorkbook(
     @Param('workbookId', ParseIntPipe) workbookId,
     @Body() updateWorkbookDto: UpdateWorkbookDto
-  ): Promise<Workbook> {
+  ) {
     try {
       return await this.workbookService.updateWorkbook(
         workbookId,
@@ -92,24 +94,22 @@ export class WorkbookAdminController {
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      } else {
-        throw new InternalServerErrorException()
       }
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
     }
   }
 
-  @Delete('/:workbookId')
-  async deleteWorkbook(
-    @Param('workbookId', ParseIntPipe) workbookId
-  ): Promise<Workbook> {
+  @Delete(':workbookId')
+  async deleteWorkbook(@Param('workbookId', ParseIntPipe) workbookId) {
     try {
       return await this.workbookService.deleteWorkbook(workbookId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      } else {
-        throw new InternalServerErrorException()
       }
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
     }
   }
 }
