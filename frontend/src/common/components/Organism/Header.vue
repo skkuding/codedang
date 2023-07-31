@@ -28,7 +28,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
       <div class="flex w-full max-w-7xl items-center justify-between gap-5">
         <div class="flex w-1/2 min-w-fit items-center justify-between gap-8">
           <RouterLink to="/">
-            <img :src="Logo" alt="logo" height="1" />
+            <img :src="Logo" alt="logo" width="90" />
           </RouterLink>
           <nav class="hidden gap-8 capitalize md:flex">
             <RouterLink
