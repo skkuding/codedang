@@ -217,13 +217,13 @@ const createNotices = async () => {
   await prisma.notice.createMany({
     data: [
       {
-        title: '아주 중요한 공지사항',
+        title: '아주 중요한 공지사항 (1)',
         content: '<p>사실 별 내용 없어요 😇</p>',
         createdById: superAdminUser.id,
         groupId: 1
       },
       {
-        title: '더 중요한 공지사항',
+        title: '더 중요한 공지사항 (2)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
 <p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
@@ -236,7 +236,7 @@ const createNotices = async () => {
         groupId: 1
       },
       {
-        title: '제일 중요한 공지사항',
+        title: '제일 중요한 공지사항 (3)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
 <p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
@@ -249,7 +249,7 @@ const createNotices = async () => {
         groupId: 1
       },
       {
-        title: 'HTML element들 테스트해봐요',
+        title: 'HTML element들 테스트해봐요 (4)',
         content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <p>Simple Text</p>
@@ -278,13 +278,13 @@ int main() {
         groupId: 1
       },
       {
-        title: '아주 중요한 공지사항',
+        title: '아주 중요한 공지사항 (5)',
         content: '<p>사실 별 내용 없어요 😇</p>',
         createdById: superAdminUser.id,
         groupId: 1
       },
       {
-        title: '더 중요한 공지사항',
+        title: '더 중요한 공지사항 (6)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
 <p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
@@ -297,7 +297,7 @@ int main() {
         groupId: 1
       },
       {
-        title: '제일 중요한 공지사항',
+        title: '제일 중요한 공지사항 (7)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
 <p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
@@ -310,7 +310,7 @@ int main() {
         groupId: 1
       },
       {
-        title: 'HTML element들 테스트해봐요',
+        title: 'HTML element들 테스트해봐요 (8)',
         content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <p>Simple Text</p>
@@ -339,13 +339,13 @@ int main() {
         groupId: 1
       },
       {
-        title: '아주 중요한 공지사항',
+        title: '아주 중요한 공지사항 (9)',
         content: '<p>사실 별 내용 없어요 😇</p>',
         createdById: superAdminUser.id,
         groupId: 1
       },
       {
-        title: '더 중요한 공지사항',
+        title: '더 중요한 공지사항 (10)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
 <p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
@@ -358,7 +358,7 @@ int main() {
         groupId: 1
       },
       {
-        title: '제일 중요한 공지사항',
+        title: '제일 중요한 공지사항 (11)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
 <p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
@@ -371,7 +371,7 @@ int main() {
         groupId: 1
       },
       {
-        title: 'HTML element들 테스트해봐요',
+        title: 'HTML element들 테스트해봐요 (12)',
         content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <p>Simple Text</p>
@@ -400,13 +400,13 @@ int main() {
         groupId: 1
       },
       {
-        title: '아주 중요한 공지사항',
+        title: '아주 중요한 공지사항 (13)',
         content: '<p>사실 별 내용 없어요 😇</p>',
         createdById: superAdminUser.id,
         groupId: 1
       },
       {
-        title: '더 중요한 공지사항',
+        title: '더 중요한 공지사항 (14)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
 <p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
@@ -419,7 +419,7 @@ int main() {
         groupId: 1
       },
       {
-        title: '제일 중요한 공지사항',
+        title: '제일 중요한 공지사항 (15)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
 <p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
@@ -432,7 +432,7 @@ int main() {
         groupId: 1
       },
       {
-        title: 'HTML element들 테스트해봐요',
+        title: 'HTML element들 테스트해봐요 (16)',
         content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <p>Simple Text</p>
@@ -461,13 +461,13 @@ int main() {
         groupId: 1
       },
       {
-        title: '아주 중요한 공지사항',
+        title: '아주 중요한 공지사항 (17)',
         content: '<p>사실 별 내용 없어요 😇</p>',
         createdById: superAdminUser.id,
         groupId: 1
       },
       {
-        title: '더 중요한 공지사항',
+        title: '더 중요한 공지사항 (18)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
 <p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
@@ -480,7 +480,7 @@ int main() {
         groupId: 1
       },
       {
-        title: '제일 중요한 공지사항',
+        title: '제일 중요한 공지사항 (19)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
 <p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
@@ -493,7 +493,7 @@ int main() {
         groupId: 1
       },
       {
-        title: 'HTML element들 테스트해봐요',
+        title: 'HTML element들 테스트해봐요 (20)',
         content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <p>Simple Text</p>
@@ -522,13 +522,13 @@ int main() {
         groupId: 1
       },
       {
-        title: '아주 중요한 공지사항',
+        title: '아주 중요한 공지사항 (21)',
         content: '<p>사실 별 내용 없어요 😇</p>',
         createdById: superAdminUser.id,
         groupId: 1
       },
       {
-        title: '더 중요한 공지사항',
+        title: '더 중요한 공지사항 (22)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
 <p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
@@ -541,7 +541,7 @@ int main() {
         groupId: 1
       },
       {
-        title: '제일 중요한 공지사항',
+        title: '제일 중요한 공지사항 (23)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
 <p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
@@ -554,7 +554,7 @@ int main() {
         groupId: 1
       },
       {
-        title: 'HTML element들 테스트해봐요',
+        title: 'HTML element들 테스트해봐요 (24)',
         content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <p>Simple Text</p>

@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import dummyImg from '@/common/assets/dummy.png'
+import GithubLogo from '@/common/assets/github.svg'
+import SkkudingLogo from '@/common/assets/skkudingLogo.png'
 import Card from '@/common/components/Molecule/Card.vue'
 import type { Contest } from '@/user/contest/pages/index.vue'
+import Carousel from '@/user/home/components/Carousel.vue'
 import type { NoticeItem } from '@/user/notice/composables/notice'
 import { useDateFormat } from '@vueuse/core'
 import axios from 'axios'
@@ -55,6 +59,38 @@ axios.get('api/contest').then((res) => {
 </script>
 
 <template>
+  <Carousel
+    v-if="$router.currentRoute.value.meta.home"
+    :slides="[
+      {
+        topTitle: 'Codedang,',
+        bottomTitle: 'Online Judge for SKKU',
+        sub: 'Level up your coding skills with us',
+        img: dummyImg,
+        imgAlt: 'dummy',
+        color: 'blue',
+        href: '/group'
+      },
+      {
+        topTitle: 'SKKUDING',
+        bottomTitle: '스꾸딩 23-2 신입부원 모집',
+        sub: '프론트엔드 0명, 백엔드 0명',
+        img: SkkudingLogo,
+        imgAlt: 'dummy',
+        color: 'black',
+        href: '/group'
+      },
+      {
+        topTitle: 'Contribute to',
+        bottomTitle: 'Codedang on GitHub',
+        sub: 'Our project is open source!',
+        img: GithubLogo,
+        imgAlt: 'dummy',
+        color: 'yellow',
+        href: '' // TODO: add github link
+      }
+    ]"
+  />
   <div
     class="mt-20 flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
   >

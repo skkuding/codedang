@@ -5,9 +5,12 @@ import * as cookieParser from 'cookie-parser'
 import { AppModule } from './app.module'
 
 const bootstrap = async () => {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'log']
+  })
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
   app.use(cookieParser())
+  app.enableCors()
 
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
@@ -21,6 +24,8 @@ const bootstrap = async () => {
         persistAuthorization: true
       }
     })
+  } else {
+    app.setGlobalPrefix('api')
   }
 
   await app.listen(4000)

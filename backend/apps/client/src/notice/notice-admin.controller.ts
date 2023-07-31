@@ -11,9 +11,10 @@ import {
   ParseIntPipe,
   UseGuards,
   InternalServerErrorException,
-  NotFoundException
+  NotFoundException,
+  Logger
 } from '@nestjs/common'
-import { type Notice, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
 import {
   AuthenticatedRequest,
   RolesGuard,
@@ -30,20 +31,29 @@ import { NoticeService } from './notice.service'
 @UseGuards(RolesGuard)
 @Roles(Role.Admin)
 export class NoticeAdminController {
+  private readonly logger = new Logger(NoticeAdminController.name)
+
   constructor(private readonly noticeService: NoticeService) {}
 
   @Get()
   async getAdminNotices(
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
-  ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getAdminNoticesByGroupId(cursor, take)
+  ) {
+    try {
+      return await this.noticeService.getAdminNoticesByGroupId(cursor, take)
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
   }
 }
 
 @Controller('admin/group/:groupId/notice')
 @UseGuards(RolesGuard, GroupLeaderGuard)
 export class GroupNoticeAdminController {
+  private readonly logger = new Logger(GroupNoticeAdminController.name)
+
   constructor(private readonly noticeService: NoticeService) {}
 
   @Post()
@@ -51,7 +61,7 @@ export class GroupNoticeAdminController {
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number,
     @Body() createNoticeDto: CreateNoticeDto
-  ): Promise<Notice> {
+  ) {
     try {
       return await this.noticeService.createNotice(
         createNoticeDto,
@@ -62,6 +72,7 @@ export class GroupNoticeAdminController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -71,24 +82,28 @@ export class GroupNoticeAdminController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
-  ): Promise<Partial<Notice>[]> {
-    return await this.noticeService.getAdminNoticesByGroupId(
-      cursor,
-      take,
-      groupId
-    )
+  ) {
+    try {
+      return await this.noticeService.getAdminNoticesByGroupId(
+        cursor,
+        take,
+        groupId
+      )
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get(':id')
-  async getAdminNotice(
-    @Param('id', ParseIntPipe) id: number
-  ): Promise<Partial<Notice>> {
+  async getAdminNotice(@Param('id', ParseIntPipe) id: number) {
     try {
       return await this.noticeService.getAdminNotice(id)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -97,13 +112,14 @@ export class GroupNoticeAdminController {
   async updateNotice(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateNoticeDto: UpdateNoticeDto
-  ): Promise<Notice> {
+  ) {
     try {
       return await this.noticeService.updateNotice(id, updateNoticeDto)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -116,7 +132,8 @@ export class GroupNoticeAdminController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      throw new InternalServerErrorException('fail to delete')
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
     }
   }
 }
