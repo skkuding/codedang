@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Logo from '@/common/assets/skkudingLogo.png'
+import Logo from '@/common/assets/codedang.svg'
 import { useAuthStore } from '@/common/store/auth'
 import { OnClickOutside } from '@vueuse/components'
 import { ref } from 'vue'
@@ -27,9 +27,8 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
     >
       <div class="flex w-full max-w-7xl items-center justify-between gap-5">
         <div class="flex w-1/2 min-w-fit items-center justify-between gap-8">
-          <RouterLink to="/" class="flex items-center gap-1">
-            <img :src="Logo" alt="logo" width="45" />
-            <h1 class="text-2xl font-bold">Codedang</h1>
+          <RouterLink to="/">
+            <img :src="Logo" alt="logo" width="90" />
           </RouterLink>
           <nav class="hidden gap-8 capitalize md:flex">
             <RouterLink

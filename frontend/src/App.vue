@@ -26,7 +26,7 @@ useAuthStore().reissue()
 </script>
 
 <template>
-  <n-config-provider :theme-overrides="themeOverrides">
+  <n-config-provider class="h-full" :theme-overrides="themeOverrides">
     <RouterView />
     <Toast />
   </n-config-provider>
