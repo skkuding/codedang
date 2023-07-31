@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
-import { Language, Level } from '@prisma/client'
+import { Language, Level } from '@admin/@generated'
 import { Template } from './template.input'
 import { Testcase } from './testcase.input'
 
