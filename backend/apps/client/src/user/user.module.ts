@@ -28,8 +28,7 @@ import { UserService } from './user.service'
       inject: [ConfigService]
     }),
     JwtAuthModule,
-    GroupModule,
-    EmailModule
+    GroupModule
   ],
   controllers: [UserController, EmailAuthenticationController],
   providers: [UserService],
