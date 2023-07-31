@@ -200,7 +200,7 @@ describe('ProblemService', () => {
         JSON.stringify([testcase])
       )
       const uploadSpy = stub(storageService, 'uploadObject').resolves()
-      db.problem.findFirstOrThrow.resolves()
+      db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.update.resolves({ ...problems[0], title: 'revised' })
       db.problemTestcase.deleteMany.resolves()
       db.problemTestcase.findMany.resolves([])
@@ -225,7 +225,7 @@ describe('ProblemService', () => {
         JSON.stringify([testcase])
       )
       const uploadSpy = stub(storageService, 'uploadObject').resolves()
-      db.problem.findFirstOrThrow.resolves()
+      db.problem.findFirstOrThrow.resolves(problems[0])
 
       await expect(
         service.updateProblem(
@@ -245,7 +245,7 @@ describe('ProblemService', () => {
         JSON.stringify([testcase])
       )
       const uploadSpy = stub(storageService, 'uploadObject').resolves()
-      db.problem.findFirstOrThrow.resolves()
+      db.problem.findFirstOrThrow.resolves(problems[0])
 
       await expect(
         service.updateProblem(

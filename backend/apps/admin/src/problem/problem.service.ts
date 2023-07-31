@@ -159,7 +159,8 @@ export class ProblemService {
       where: { id },
       data: {
         ...data,
-        ...(template !== undefined && { template: JSON.stringify(template) })
+        ...(languages && { languages: languages }),
+        ...(template && { template: JSON.stringify(template) })
       }
     })
   }
