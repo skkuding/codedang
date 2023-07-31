@@ -19,10 +19,9 @@ import { DeletedUserGroup, FindGroup } from './model/group.output'
 
 @Resolver(() => Group)
 export class GroupResolver {
-  constructor(
-    private readonly logger = new Logger(GroupResolver.name),
-    private readonly groupService: GroupService
-  ) {}
+  private readonly logger = new Logger(GroupResolver.name)
+
+  constructor(private readonly groupService: GroupService) {}
 
   @Mutation(() => Group)
   @UseRolesGuard(Role.Manager)
