@@ -83,7 +83,7 @@
         },
         {
             "_id": "052b2adc-2583-4006-9d78-09138d4efbb1",
-            "name": "Import Problems",
+            "name": "Upload Problems",
             "containerId": "419a4432-6b41-4cd0-a04e-f302e7be447b",
             "created": "2023-07-13T20:55:09.917Z",
             "sortNum": 100000
@@ -897,7 +897,7 @@
                 "form": [
                     {
                         "name": "operations",
-                        "value": "{\"query\": \"mutation($groupId: Float!, $input: ImportProblemsInput!) { importProblems(groupId: $groupId, input: $input){id createdById groupId title description template languages difficulty}}\", \"variables\" : {\"groupId\": 2, \"input\": {\"file\": null}}}"
+                        "value": "{\"query\": \"mutation($groupId: Float!, $input: UploadFileInput!) { uploadProblems(groupId: $groupId, input: $input){id createdById groupId title description template languages difficulty}}\", \"variables\" : {\"groupId\": 2, \"input\": {\"file\": null}}}"
                     },
                     {
                         "name": "map",
@@ -967,7 +967,7 @@
                     "value": "2"
                 }
             ],
-            "docs": "# Upload file\n\n## Input Specification\n\n### Query\n```GraphQL\nmutation ($groupId: Float!, $input: ImportProblemsInput!) {\n  importProblems (\n    groupId: $groupId,\n    input: $input\n  }) {\n    id\n    createdById\n    groupId\n    title\n    description\n    languages\n    template\n    difficulty\n  }\n}\n```\n\n### Variables\n```GraphQL\n{\n  \"groupId\": 2,\n  \"input\": {\n     \"file\": null\n  }\n}\n```\n\n자세한 Input specification은 <br>\nhttps://github.com/jaydenseric/graphql-multipart-request-spec 를 참고해주세요.\n\n<br>\n\n### Description\nExcel 파일(.xlsx)을 통해 problem을 업로드할 수 있도록 합니다.  \n파일의 확장자가 엑셀이 아니거나, 파일 내 특정 데이터가 형식에 맞지 않을 경우 줄 번호와 함께 422을 반환합니다.",
+            "docs": "# Upload file\n\n## Input Specification\n\n### Query\n```GraphQL\nmutation ($groupId: Float!, $input: UploadFileInput!) {\n  uploadProblems (\n    groupId: $groupId,\n    input: $input\n  }) {\n    id\n    createdById\n    groupId\n    title\n    description\n    languages\n    template\n    difficulty\n  }\n}\n```\n\n### Variables\n```GraphQL\n{\n  \"groupId\": 2,\n  \"input\": {\n     \"file\": null\n  }\n}\n```\n\n자세한 Input specification은 <br>\nhttps://github.com/jaydenseric/graphql-multipart-request-spec 를 참고해주세요.\n\n<br>\n\n### Description\nExcel 파일(.xlsx)을 통해 problem을 업로드할 수 있도록 합니다.  \n파일의 확장자가 엑셀이 아니거나, 파일 내 특정 데이터가 형식에 맞지 않을 경우 줄 번호와 함께 422을 반환합니다.",
             "preReq": {
                 "runRequests": [
                     {

@@ -2,7 +2,7 @@ import { createReadStream } from 'fs'
 import { Language, Level } from '@admin/@generated'
 import type { Problem } from '@admin/@generated/problem/problem.model'
 import type { FileUploadDto } from '../dto/file-upload.dto'
-import type { ImportProblemsInput } from '../model/problem.input'
+import type { UploadFileInput } from '../model/problem.input'
 import type { Template } from '../model/template.input'
 import type { Testcase } from '../model/testcase.input'
 
@@ -77,7 +77,7 @@ const file: Promise<FileUploadDto> = new Promise((resolve) => {
   }
   resolve(data)
 })
-export const fileUploadInput: ImportProblemsInput = { file }
+export const fileUploadInput: UploadFileInput = { file }
 export const importedProblems: Problem[] = [
   {
     id: 32,

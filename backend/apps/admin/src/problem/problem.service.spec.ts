@@ -119,17 +119,18 @@ describe('ProblemService', () => {
     })
   })
 
-  describe('importProblems', () => {
+  describe('uploadProblems', () => {
     it('shoule return imported problems', async () => {
       const userId = 2
       const groupId = 2
       const s3UploadCache = stub(storageService, 'uploadObject').resolves()
       const createTestcasesSpy = spy(service, 'createTestcases')
-      db.problem.create.onSecondCall().resolves(importedProblems[0])
-      db.problem.create.onThirdCall().resolves(importedProblems[1])
+      db.problem.create.resetHistory()
+      db.problem.create.onCall(0).resolves(importedProblems[0])
+      db.problem.create.onCall(1).resolves(importedProblems[1])
       db.problemTestcase.create.resolves({ index: 1, id: 1 })
 
-      const res = await service.importProblems(fileUploadInput, userId, groupId)
+      const res = await service.uploadProblems(fileUploadInput, userId, groupId)
 
       expect(s3UploadCache.calledTwice).to.be.true
       expect(createTestcasesSpy.calledTwice).to.be.true

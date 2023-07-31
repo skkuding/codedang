@@ -13,7 +13,7 @@ import { CursorValidationPipe } from '@libs/pipe'
 import { Problem } from '@admin/@generated'
 import {
   CreateProblemInput,
-  ImportProblemsInput,
+  UploadFileInput,
   FilterProblemsInput
 } from './model/problem.input'
 import { UpdateProblemInput } from './model/update-problem.input'
@@ -50,14 +50,14 @@ export class ProblemResolver {
   }
 
   @Mutation(() => [Problem])
-  async importProblems(
+  async uploadProblems(
     @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
     groupId: number,
-    @Args('input') input: ImportProblemsInput
+    @Args('input') input: UploadFileInput
   ): Promise<Problem[]> {
     try {
-      return await this.problemService.importProblems(
+      return await this.problemService.uploadProblems(
         input,
         req.user.id,
         groupId

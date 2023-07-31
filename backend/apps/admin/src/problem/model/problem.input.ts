@@ -55,10 +55,26 @@ export class CreateProblemInput {
 }
 
 @InputType()
-export class ImportProblemsInput {
+export class UploadFileInput {
   @Field(() => GraphQLUpload, { nullable: false })
   @ValidatePromise()
   declare file: Promise<FileUploadDto>
+}
+
+export interface UploadProblemInput {
+  title: string
+  description: string
+  inputDescription: string
+  outputDescription: string
+  hint: string
+  template: Array<Template>
+  languages: Array<keyof typeof Language>
+  timeLimit: number
+  memoryLimit: number
+  difficulty: keyof typeof Level
+  source: string
+  inputExamples: Array<string>
+  outputExamples: Array<string>
 }
 
 @InputType()

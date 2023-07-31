@@ -7,14 +7,14 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { Language } from '@admin/@generated/prisma/language.enum'
 import { Level } from '@admin/@generated/prisma/level.enum'
-import type { ProblemCreateInput } from '@admin/@generated/problem/problem-create.input'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
 import type {
   CreateProblemInput,
-  ImportProblemsInput,
-  FilterProblemsInput
+  UploadFileInput,
+  FilterProblemsInput,
+  UploadProblemInput
 } from './model/problem.input'
 import type { Testcase } from './model/testcase.input'
 import type { UpdateProblemInput } from './model/update-problem.input'
@@ -48,7 +48,7 @@ export class ProblemService {
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
-        groupId: groupId,
+        groupId,
         createdById: userId,
         languages,
         template: JSON.stringify(template),
@@ -92,8 +92,8 @@ export class ProblemService {
     await this.storageService.uploadObject(filename, data, 'json')
   }
 
-  async importProblems(
-    input: ImportProblemsInput,
+  async uploadProblems(
+    input: UploadFileInput,
     userId: number,
     groupId: number
   ) {
@@ -109,7 +109,7 @@ export class ProblemService {
       )
 
     const header = {}
-    const problems: { index: number; data: ProblemCreateInput }[] = []
+    const problems: { index: number; data: UploadProblemInput }[] = []
     const testcases: { [key: number]: Testcase[] } = {}
 
     const workbook = new Workbook()
@@ -148,25 +148,25 @@ export class ProblemService {
       const levelText = row.getCell(header['난이도']).text
       const languages: Language[] = []
       const level: Level = Level['Level' + levelText]
-      const templateCodes = []
+      const template = []
 
       for (let language of languagesText) {
-        let templateCode: string
+        let code: string
         switch (language) {
           case 'Python':
             language = 'Python3'
             break
           default:
             if (!(language in Language)) continue
-            templateCode = row.getCell(header[`${language}SampleCode`]).text
+            code = row.getCell(header[`${language}SampleCode`]).text
         }
-        if (templateCode) {
-          templateCodes.push({
+        if (code) {
+          template.push({
             language,
             code: [
               {
                 id: 1,
-                text: templateCode,
+                text: code,
                 locked: false
               }
             ]
@@ -184,27 +184,19 @@ export class ProblemService {
 
       //TODO: specify timeLimit, memoryLimit(default: 2sec, 512mb)
       const problemInput = {
-        createdBy: {
-          connect: {
-            id: userId
-          }
-        },
-        group: {
-          connect: {
-            id: groupId
-          }
-        },
         title,
         description,
         inputDescription: '',
         outputDescription: '',
         hint: '',
-        template: templateCodes,
+        template: template,
         languages,
         timeLimit: 2000,
         memoryLimit: 512,
         difficulty: level,
-        source: ''
+        source: '',
+        inputExamples: [],
+        outputExamples: []
       }
       problems.push({ index: rowNumber, data: problemInput })
 
@@ -247,7 +239,22 @@ export class ProblemService {
     return await Promise.all(
       problems.map(async (problemInput) => {
         const { index, data } = problemInput
-        const problem = await this.prisma.problem.create({ data })
+        const problem = await this.prisma.problem.create({
+          data: {
+            ...data,
+            createdBy: {
+              connect: {
+                id: userId
+              }
+            },
+            group: {
+              connect: {
+                id: groupId
+              }
+            },
+            template: JSON.stringify(data.template)
+          }
+        })
         if (index in testcases) {
           await this.createTestcases(problem.id, testcases[index])
         }
