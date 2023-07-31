@@ -1,0 +1,12 @@
+dev.codedang.com {
+    root * /var/www/html
+    file_server
+
+    handle /api* {
+        reverse_proxy backend-client:4000
+    }
+
+    handle /graphql* {
+        reverse_proxy backend-admin:3000
+    }
+}

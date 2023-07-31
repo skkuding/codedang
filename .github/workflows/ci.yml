@@ -141,5 +141,3 @@ jobs:
 
       - name: Test
         run: pnpm -r test
-
-  # TODO: deploy
