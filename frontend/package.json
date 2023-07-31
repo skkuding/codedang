@@ -10,6 +10,7 @@
     "story:build": "histoire build"
   },
   "dependencies": {
+    "@apollo/client": "^3.7.17",
     "@codemirror/autocomplete": "^6.9.0",
     "@codemirror/commands": "^6.2.4",
     "@codemirror/lang-cpp": "^6.0.2",
