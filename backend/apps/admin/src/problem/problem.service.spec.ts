@@ -1,94 +1,22 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { createReadStream } from 'fs'
-import { stub } from 'sinon'
+import { spy, stub } from 'sinon'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { Language } from '@admin/@generated/prisma/language.enum'
 import { Level } from '@admin/@generated/prisma/level.enum'
-import type { Problem } from '@admin/@generated/problem/problem.model'
 import { S3Provider } from '@admin/storage/s3.provider'
 import { StorageService } from '@admin/storage/storage.service'
-import type { FileUploadDto } from './dto/file-upload.dto'
-import { importedProblems } from './mock/mock'
-import type { FileUploadInput } from './model/problem.input'
-import type { Template } from './model/template.input'
-import type { Testcase } from './model/testcase.input'
+import {
+  fileUploadInput,
+  groupId,
+  importedProblems,
+  problemId,
+  problems,
+  template,
+  testcaseInput
+} from './mock/mock'
 import { ProblemService } from './problem.service'
-
-const template: Template = {
-  language: Language.Cpp,
-  code: [
-    {
-      id: 1,
-      text: 'int main(void) {}',
-      locked: false
-    }
-  ]
-}
-const problems: Problem[] = [
-  {
-    id: 1,
-    createdById: 1,
-    groupId: 1,
-    title: 'group problem0',
-    description: 'description1',
-    inputDescription: 'inputDescription1',
-    outputDescription: 'outputDescription1',
-    hint: 'hit rather hint',
-    template: [template],
-    languages: [Language.Cpp],
-    timeLimit: 0,
-    memoryLimit: 0,
-    difficulty: Level.Level2,
-    source: 'mustard source',
-    createTime: undefined,
-    updateTime: undefined,
-    inputExamples: [],
-    outputExamples: []
-  },
-  {
-    id: 2,
-    createdById: 1,
-    groupId: 1,
-    title: 'group problem1',
-    description: 'description2',
-    inputDescription: 'inputDescription2',
-    outputDescription: 'outputDescription2',
-    hint: 'hit rather hint',
-    template: [template],
-    languages: [Language.Cpp],
-    timeLimit: 0,
-    memoryLimit: 0,
-    difficulty: Level.Level2,
-    source: 'soy source',
-    createTime: undefined,
-    updateTime: undefined,
-    inputExamples: [],
-    outputExamples: []
-  }
-]
-
-const testcaseInput: Testcase = {
-  input: "wake up, daddy's home",
-  output: 'welcome home, sir'
-}
-
-const file: Promise<FileUploadDto> = new Promise((resolve) => {
-  const data = {
-    createReadStream: () =>
-      createReadStream('apps/admin/src/problem/mock/testdata.xlsx'),
-    filename: 'testdata.xlsx',
-    mimetype:
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    encoding: '7bit'
-  }
-  resolve(data)
-})
-const fileUploadInput: FileUploadInput = {
-  file
-}
 
 const db = {
   problem: {
@@ -107,9 +35,6 @@ const db = {
     update: stub()
   }
 }
-
-const problemId = 1
-const groupId = 1
 
 describe('ProblemService', () => {
   let service: ProblemService
@@ -199,13 +124,15 @@ describe('ProblemService', () => {
       const userId = 2
       const groupId = 2
       const s3UploadCache = stub(storageService, 'uploadObject').resolves()
-      db.problem.create.onCall(0).resolves(importedProblems[0])
-      db.problem.create.onCall(1).resolves(importedProblems[1])
-      db.problemTestcase.createMany.resolves()
+      const createTestcasesSpy = spy(service, 'createTestcases')
+      db.problem.create.onSecondCall().resolves(importedProblems[0])
+      db.problem.create.onThirdCall().resolves(importedProblems[1])
+      db.problemTestcase.create.resolves({ index: 1, id: 1 })
 
-      const res = await service.importProblems(userId, groupId, fileUploadInput)
+      const res = await service.importProblems(fileUploadInput, userId, groupId)
 
       expect(s3UploadCache.calledTwice).to.be.true
+      expect(createTestcasesSpy.calledTwice).to.be.true
       expect(res).to.deep.equal(importedProblems)
     })
   })
