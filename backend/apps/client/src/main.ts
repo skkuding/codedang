@@ -10,6 +10,7 @@ const bootstrap = async () => {
   })
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
   app.use(cookieParser())
+  app.enableCors()
 
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
