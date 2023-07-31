@@ -42,6 +42,10 @@ export default defineConfig({
       '/api': {
         target: 'http://dev.codedang.com',
         changeOrigin: true
+      },
+      '/graphql': {
+        target: 'http://dev.codedang.com',
+        changeOrigin: true
       }
     }
   },

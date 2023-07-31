@@ -3,54 +3,64 @@ import Button from '@/common/components/Atom/Button.vue'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import Card from '@/common/components/Molecule/Card.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
-import { ref, computed } from 'vue'
-import IconLock from '~icons/bi/lock'
-import IconUnlock from '~icons/bi/unlock'
+import { useToast } from '@/common/composables/toast'
+import { useQuery } from '@vue/apollo-composable'
+import axios from 'axios'
+import gql from 'graphql-tag'
+import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import IconAngleRight from '~icons/fa6-solid/angle-right'
 
+// Types
+type GetGroupsResponse = {
+  getGroups: {
+    id: string
+    groupName: string
+    description: string
+    memberNum: number
+    config: {
+      showOnList: boolean
+      allowJoinWithURL: boolean
+      allowJoinFromSearch: boolean
+      requireApprovalBeforeJoin: boolean
+    }
+  }[]
+}
 type WorkBookItem = Record<string, string>
-const groupItems = [
-  {
-    id: 1,
-    href: '/admin/1',
-    title: '초급반',
-    scope: 'private',
-    items: [
-      {
-        title: 'npc 초급반 학생들이 있는 곳'
-      },
-      {
-        title: 'member: 20'
+
+const openToast = useToast()
+const router = useRouter()
+const authorization = axios.defaults.headers.common.authorization
+if (authorization === undefined) {
+  router.push('/')
+}
+const { result, error } = useQuery<GetGroupsResponse>(
+  gql`
+    query Group {
+      getGroups(take: 3) {
+        id
+        groupName
+        description
+        config
+        memberNum
       }
-    ]
-  },
+    }
+  `,
+  null,
   {
-    id: 2,
-    href: '/admin/2',
-    title: '중급반',
-    scope: 'public',
-    items: [
-      {
-        title: 'npc 중급반 학생들이 있는 곳'
-      },
-      {
-        title: '20'
+    errorPolicy: 'all',
+    context: {
+      headers: {
+        Authorization: axios.defaults.headers.common.authorization
       }
-    ]
-  },
-  {
-    id: 3,
-    href: '/admin/3',
-    title: '고급반',
-    scope: 'private',
-    items: [
-      {
-        title: 'npc 고급반 학생들이 있는 곳'
-      },
-      { title: '20' }
-    ]
+    }
   }
-]
+)
+watch(error, (value) => {
+  if (value) {
+    router.push('/')
+  }
+})
 const contestFields = [
   { key: 'index', label: '#' },
   { key: 'title' },
@@ -172,7 +182,7 @@ const changeWorkBook = (page: number) => {
       color="green"
       @click="
         () => {
-          $router.push('/')
+          openToast({ message: '아직 구현되지 않았습니다ㅜㅜ', type: 'warn' })
         }
       "
     >
@@ -180,21 +190,17 @@ const changeWorkBook = (page: number) => {
     </Button>
   </div>
   <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-    <div v-for="group in groupItems" :key="group.title">
-      <Card :items="group.items" :href="group.href">
+    <div v-for="group in result ? result.getGroups : []" :key="group.id">
+      <Card
+        :items="[
+          { title: group.description },
+          { title: `member: ${group.memberNum}명` }
+        ]"
+        :href="`/admin/${group.id}`"
+      >
         <template #title>
           <div class="cursor-pointer hover:opacity-50 active:opacity-30">
-            {{ group.title }}
-          </div>
-        </template>
-        <template #titleIcon>
-          <div v-if="group.scope === 'private'" class="ml-auto flex">
-            <IconLock />
-            <span>Private</span>
-          </div>
-          <div v-if="group.scope === 'public'" class="flex">
-            <IconUnlock />
-            <span>Public</span>
+            {{ group.groupName }}
           </div>
         </template>
         <template #icon>
