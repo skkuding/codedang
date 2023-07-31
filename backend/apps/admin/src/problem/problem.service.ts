@@ -1,20 +1,21 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Workbook } from 'exceljs'
 import {
-  InvalidFileFormatException,
-  UnprocessableDataException
+  UnprocessableDataException,
+  UnprocessableFileException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { ProblemTestcaseCreateManyInput } from '@admin/@generated'
 import { Language } from '@admin/@generated/prisma/language.enum'
 import { Level } from '@admin/@generated/prisma/level.enum'
 import type { ProblemCreateInput } from '@admin/@generated/problem/problem-create.input'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 import { StorageService } from '@admin/storage/storage.service'
-import type { CreateProblemInput } from './model/create-problem.input'
-import type { FilterProblemsInput } from './model/filter-problem.input'
-import { GoormHeader } from './model/problem.constants'
-import type { FileUploadInput } from './model/problem.input'
+import { ImportedProblemHeader } from './model/problem.constants'
+import type {
+  CreateProblemInput,
+  ImportProblemsInput,
+  FilterProblemsInput
+} from './model/problem.input'
 import type { Testcase } from './model/testcase.input'
 import type { UpdateProblemInput } from './model/update-problem.input'
 
@@ -22,7 +23,7 @@ import type { UpdateProblemInput } from './model/update-problem.input'
 export class ProblemService {
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(StorageService) private readonly storageService: StorageService
+    private readonly storageService: StorageService
   ) {}
 
   async createProblem(
@@ -92,9 +93,9 @@ export class ProblemService {
   }
 
   async importProblems(
+    input: ImportProblemsInput,
     userId: number,
-    groupId: number,
-    input: FileUploadInput
+    groupId: number
   ) {
     const { filename, mimetype, createReadStream } = await input.file
     if (
@@ -104,86 +105,85 @@ export class ProblemService {
       ].includes(mimetype) === false
     )
       throw new UnprocessableDataException(
-        'Files except Excel(.xlsx, .xls) are not supported.'
+        'Extensions except Excel(.xlsx, .xls) are not supported.'
       )
+
+    const header = {}
+    const problems: { index: number; data: ProblemCreateInput }[] = []
+    const testcases: { [key: number]: Testcase[] } = {}
 
     const workbook = new Workbook()
     const worksheet = (await workbook.xlsx.read(createReadStream()))
       .worksheets[0]
-    const problems: ProblemCreateInput[] = []
-    const goormHeader = {}
-    const ProblemTestcases = {}
 
+    worksheet.getRow(1).eachCell((cell, idx) => {
+      if (!ImportedProblemHeader.includes(cell.text))
+        throw new UnprocessableFileException(
+          `Field ${cell.text} is not supported`,
+          filename,
+          1
+        )
+      header[cell.text] = idx
+    })
+    worksheet.spliceRows(1, 1)
+
+    const unsupportedFields = [
+      header['InputFileName'],
+      header['InputFilePath'],
+      header['OutputFileName'],
+      header['OutputFilePath']
+    ]
     worksheet.eachRow(async function (row, rowNumber) {
-      if (rowNumber === 1) {
-        row.eachCell((cell, idx) => {
-          if (!GoormHeader.includes(cell.text))
-            throw new InvalidFileFormatException(
-              'Only goorm export files are supported',
-              filename,
-              rowNumber
-            )
-          goormHeader[cell.text] = idx
-        })
-        return
-      }
-
-      for (const colNumber of [
-        goormHeader['InputFileName'],
-        goormHeader['InputFilePath'],
-        goormHeader['OutputFileName'],
-        goormHeader['OutputFilePath']
-      ]) {
+      for (const colNumber of unsupportedFields) {
         if (row.getCell(colNumber).text !== '')
-          throw new InvalidFileFormatException(
+          throw new UnprocessableFileException(
             'Using inputFile, outputFile is not supported',
             filename,
-            rowNumber
+            rowNumber + 1
           )
       }
-
-      const title = row.getCell(goormHeader['문제제목']).text
-      const description = row.getCell(goormHeader['문제내용']).text
-      const languagesText = row.getCell(goormHeader['지원언어']).text.split(',')
-      const levelText = row.getCell(goormHeader['난이도']).text
-      const templateCodes = []
+      const title = row.getCell(header['문제제목']).text
+      const description = row.getCell(header['문제내용']).text
+      const languagesText = row.getCell(header['지원언어']).text.split(',')
+      const levelText = row.getCell(header['난이도']).text
       const languages: Language[] = []
       const level: Level = Level['Level' + levelText]
+      const templateCodes = []
 
-      for (const idx in languagesText) {
+      for (let language of languagesText) {
         let templateCode: string
-        let language: Language
-
-        switch (languagesText[idx]) {
-          case 'C':
-            language = Language.C
-            templateCode = row.getCell(goormHeader['CSampleCode']).text
-            break
-          case 'Cpp':
-            language = Language.Cpp
-            templateCode = row.getCell(goormHeader['CppSampleCode']).text
-            break
-          case 'Java':
-            language = Language.Java
-            templateCode = row.getCell(goormHeader['JavaSampleCode']).text
-            break
+        switch (language) {
           case 'Python':
-            language = Language.Python3
+            language = 'Python3'
             break
+          default:
+            if (!(language in Language)) continue
+            templateCode = row.getCell(header[`${language}SampleCode`]).text
         }
-
-        templateCodes.push({
-          language,
-          code: {
-            text: templateCode,
-            readonly: false
-          }
-        })
-        languages.push(language)
+        if (templateCode) {
+          templateCodes.push({
+            language,
+            code: [
+              {
+                id: 1,
+                text: templateCode,
+                locked: false
+              }
+            ]
+          })
+        }
+        languages.push(Language[language])
+      }
+      if (!languages.length) {
+        throw new UnprocessableFileException(
+          'A problem should support at least one language',
+          filename,
+          rowNumber + 1
+        )
       }
 
       //TODO: specify timeLimit, memoryLimit(default: 2sec, 512mb)
-      const problem = {
+      const problemInput = {
         createdBy: {
           connect: {
             id: userId
@@ -206,79 +206,54 @@ export class ProblemService {
         difficulty: level,
         source: ''
       }
-      problems.push(problem)
+      problems.push({ index: rowNumber, data: problemInput })
 
-      const testCnt = parseInt(row.getCell(goormHeader['TestCnt']).text)
-      const inputText = row.getCell(goormHeader['Input']).text
-      const output = row.getCell(goormHeader['Output']).text.split('::')
-      const scoreWeight = row.getCell(goormHeader['Score']).text.split('::')
+      const testCnt = parseInt(row.getCell(header['TestCnt']).text)
+      const inputText = row.getCell(header['Input']).text
+      const outputs = row.getCell(header['Output']).text.split('::')
+      const scoreWeights = row.getCell(header['Score']).text.split('::')
 
       if (testCnt === 0) return
 
-      let input: string[]
+      let inputs: string[]
       if (inputText === '' && testCnt !== 0) {
-        for (let i = 0; i < testCnt; i++) input.push('')
+        for (let i = 0; i < testCnt; i++) inputs.push('')
       } else {
-        input = inputText.split('::')
+        inputs = inputText.split('::')
       }
 
       if (
-        (input.length !== testCnt || output.length !== testCnt) &&
+        (inputs.length !== testCnt || outputs.length !== testCnt) &&
         inputText != ''
       ) {
-        throw new InvalidFileFormatException(
-          'TestCount must match the length of Input and Output. Or Testcases should not include ::.',
+        throw new UnprocessableFileException(
+          'TestCnt must match the length of Input and Output. Or Testcases should not include ::.',
           filename,
-          rowNumber
+          rowNumber + 1
         )
       }
 
-      ProblemTestcases[(rowNumber - 2).toString()] = {
-        testCnt,
-        input,
-        output,
-        scoreWeight
+      const testcaseInput = []
+      for (let i = 0; i < testCnt; i++) {
+        testcaseInput.push({
+          input: inputs[i],
+          output: outputs[i],
+          scoreWeight: parseInt(scoreWeights[i])
+        })
       }
+      testcases[rowNumber] = testcaseInput
     })
 
-    const results = []
-    for (const problemIdx in problems) {
-      const result = await this.prisma.problem.create({
-        data: problems[problemIdx]
+    return await Promise.all(
+      problems.map(async (problemInput) => {
+        const { index, data } = problemInput
+        const problem = await this.prisma.problem.create({ data })
+        if (index in testcases) {
+          await this.createTestcases(problem.id, testcases[index])
+        }
+        return problem
       })
-      results.push(result)
-
-      const testcaseIdx = problemIdx.toString()
-      if (!(testcaseIdx in ProblemTestcases)) continue
-
-      const testcases = []
-      const ProblemTestcase = ProblemTestcases[testcaseIdx]
-      for (const idx in ProblemTestcase['input']) {
-        testcases.push({
-          id: result.id + ':' + idx,
-          input: ProblemTestcase['input'][idx],
-          output: ProblemTestcase['output'][idx]
-        })
-      }
-
-      await this.storageService.uploadObject(
-        result.id + '.json',
-        JSON.stringify(testcases),
-        'json'
-      )
-
-      const data: ProblemTestcaseCreateManyInput[] = []
-      for (const idx in ProblemTestcase['input']) {
-        data.push({
-          problemId: result.id,
-          input: result.id + '.json',
-          output: result.id + '.json',
-          scoreWeight: parseInt(ProblemTestcase['scoreWeight'][idx])
-        })
-      }
-      await this.prisma.problemTestcase.createMany({ data })
-    }
-    return results
+    )
   }
 
   async getProblems(
