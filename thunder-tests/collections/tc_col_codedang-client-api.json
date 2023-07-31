@@ -489,7 +489,7 @@
         },
         "tests": [],
         "options": {
-            "baseUrl": "http://localhost:4000"
+            "baseUrl": "https://dev.codedang.com/api"
         }
     },
     "requests": [
