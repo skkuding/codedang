@@ -135,15 +135,16 @@ export class ProblemService {
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
     const { id, languages, template, tagIds, testcases, ...data } = input
-    await this.getProblem(id, groupId)
+    const problem = await this.getProblem(id, groupId)
 
     if (languages && !languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
       )
     }
+    const supportedLangs = languages ?? problem.languages
     template?.forEach((template) => {
-      if (!languages.includes(template.language)) {
+      if (!supportedLangs.includes(template.language)) {
         throw new UnprocessableDataException(
           `This problem does not support ${template.language}`
         )
@@ -151,16 +152,15 @@ export class ProblemService {
     })
 
     // FIXME: handle tags
+    if (testcases?.length) await this.updateTestcases(id, testcases)
 
-    const problem = await this.prisma.problem.update({
+    return await this.prisma.problem.update({
       where: { id },
       data: {
         ...data,
         ...(template !== undefined && { template: JSON.stringify(template) })
       }
     })
-    if (testcases?.length) await this.updateTestcases(id, testcases)
-    return problem
   }
 
   async updateTestcases(
