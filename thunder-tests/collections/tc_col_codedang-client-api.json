@@ -4690,11 +4690,11 @@
             "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
             "containerId": "5c0a9108-1d33-407e-91bc-ae25b89bcfe7",
             "name": "403: Forbidden",
-            "url": "/group/1/contest",
+            "url": "/group/3/contest",
             "method": "GET",
             "sortNum": 20000,
             "created": "2023-05-01T11:09:01.740Z",
-            "modified": "2023-05-01T11:14:09.112Z",
+            "modified": "2023-08-01T11:16:11.371Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -4715,113 +4715,10 @@
             "preReq": {
                 "runRequests": [
                     {
-                        "_id": "0b535a1b-4437-4f59-af29-c04fde974b01",
+                        "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
                         "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-                        "containerId": "8b4393e5-4001-4f7d-9f41-cce5ef02a10b",
-                        "name": "401: Unauthorized",
-                        "url": "/contest/auth",
-                        "method": "GET",
-                        "sortNum": 500000,
-                        "created": "2023-03-02T11:15:12.248Z",
-                        "modified": "2023-05-01T11:13:13.838Z",
-                        "headers": [],
-                        "params": [],
-                        "tests": [
-                            {
-                                "type": "res-code",
-                                "custom": "",
-                                "action": "equal",
-                                "value": "401"
-                            },
-                            {
-                                "type": "res-body",
-                                "custom": "",
-                                "action": "contains",
-                                "value": "Unauthorized"
-                            }
-                        ],
-                        "docs": "# Get all contests\n## 401: Unauthorized\n\n로그인되지 않은 사용자가 이 요청을 보내면 401로 실패를 합니다.",
-                        "preReq": {
-                            "runRequests": [
-                                {
-                                    "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
-                                    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-                                    "triggerCondition": "run-always",
-                                    "triggerValue": ""
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "_id": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
-                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-                        "containerId": "dcc8290a-fa46-4ad9-b9a1-f2f422fe2006",
-                        "name": "Log In as User (user02)",
-                        "url": "/auth/login",
-                        "method": "POST",
-                        "sortNum": 77500,
-                        "created": "2023-05-01T11:08:34.294Z",
-                        "modified": "2023-05-01T11:10:21.674Z",
-                        "headers": [],
-                        "params": [],
-                        "body": {
-                            "type": "json",
-                            "raw": "{\n  \"username\": \"user02\",\n  \"password\": \"Useruser\"\n}",
-                            "form": []
-                        },
-                        "tests": [
-                            {
-                                "type": "set-env-var",
-                                "custom": "header.authorization",
-                                "action": "setto",
-                                "value": "{{bearer_token}}"
-                            },
-                            {
-                                "type": "set-env-var",
-                                "custom": "cookie.refresh_token",
-                                "action": "setto",
-                                "value": "{{refresh_token}}"
-                            }
-                        ],
-                        "docs": "User/Delete Own Account/Succeed 리퀘스트 전송 후에는 작동하지 않을 유틸 리퀘스트입니다.  \n복구를 원한다면 `npx prisma migrate reset`을 실행해주세요."
-                    },
-                    {
-                        "_id": "9ba3bbcf-db6f-41a8-acf1-322e6b5735b3",
-                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-                        "containerId": "5c0a9108-1d33-407e-91bc-ae25b89bcfe7",
-                        "name": "403: Forbidden",
-                        "url": "/group/1/contest",
-                        "method": "GET",
-                        "sortNum": 20000,
-                        "created": "2023-05-01T11:09:01.740Z",
-                        "modified": "2023-05-01T11:14:09.112Z",
-                        "headers": [],
-                        "params": [],
-                        "tests": [
-                            {
-                                "type": "res-code",
-                                "custom": "",
-                                "action": "equal",
-                                "value": "403"
-                            },
-                            {
-                                "type": "res-body",
-                                "custom": "",
-                                "action": "contains",
-                                "value": "Forbidden"
-                            }
-                        ],
-                        "docs": "# Get group's all contests\n## 403: Forbidden\n\n만약 요청을 보낸 user가 해당 그룹에 소속되지 않았을 경우 403: Forbidden 에러를 띄웁니다.\n",
-                        "preReq": {
-                            "runRequests": [
-                                {
-                                    "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
-                                    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-                                    "triggerCondition": "run-always",
-                                    "triggerValue": ""
-                                }
-                            ]
-                        }
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
                     }
                 ]
             }

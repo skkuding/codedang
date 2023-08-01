@@ -24,8 +24,8 @@ export class WorkbookService {
         isVisible: true
       },
       select: { id: true, title: true, description: true, updateTime: true },
-      skip: skip,
-      take: take,
+      skip,
+      take,
       cursor: {
         id: cursor
       }
@@ -38,7 +38,7 @@ export class WorkbookService {
     groupId = OPEN_SPACE_ID
   ): Promise<Partial<Workbook> & { problems: Partial<Problem>[] }> {
     const workbook = await this.prisma.workbook.findFirst({
-      where: { id: workbookId, groupId: groupId, isVisible: true },
+      where: { id: workbookId, groupId, isVisible: true },
       select: { id: true, title: true },
       rejectOnNotFound: () => new EntityNotExistException('workbook')
     })
@@ -76,13 +76,9 @@ export class WorkbookService {
     }
   }
 
-  async isVisible(workbookId: number, groupId: number): Promise<boolean> {
+  async isVisible(id: number, groupId: number): Promise<boolean> {
     return !!(await this.prisma.workbook.count({
-      where: {
-        id: workbookId,
-        groupId: groupId,
-        isVisible: true
-      }
+      where: { id, groupId, isVisible: true }
     }))
   }
 }

@@ -3,18 +3,20 @@ import { RolesModule } from '@libs/auth'
 import { ContestModule } from '@client/contest/contest.module'
 import { WorkbookModule } from '@client/workbook/workbook.module'
 import {
-  GroupContestProblemController,
-  GroupWorkbookProblemController,
   ContestProblemController,
-  ProblemController,
-  WorkbookProblemController
-} from './problem.controller'
+  GroupContestProblemController
+} from './contest-problem.controller'
+import { ProblemController } from './problem.controller'
 import { ProblemRepository } from './problem.repository'
 import {
   ContestProblemService,
   ProblemService,
   WorkbookProblemService
 } from './problem.service'
+import {
+  WorkbookProblemController,
+  GroupWorkbookProblemController
+} from './workbook-problem.controller'
 
 @Module({
   imports: [RolesModule, ContestModule, WorkbookModule],

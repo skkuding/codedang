@@ -20,7 +20,7 @@ export class NoticeService {
     }
     return await this.prisma.notice.findMany({
       where: {
-        groupId: groupId,
+        groupId,
         isVisible: true
       },
       select: {
@@ -62,7 +62,7 @@ export class NoticeService {
       return {
         where: {
           id: options.compare,
-          groupId: groupId,
+          groupId,
           isVisible: true
         },
         orderBy: {

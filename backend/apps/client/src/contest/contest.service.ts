@@ -181,13 +181,13 @@ export class ContestService {
   }
 
   async getContest(
-    contestId: number,
+    id: number,
     groupId = OPEN_SPACE_ID
   ): Promise<Partial<Contest>> {
     const contest = await this.prisma.contest.findFirst({
       where: {
-        id: contestId,
-        groupId: groupId,
+        id,
+        groupId,
         config: {
           path: ['isVisible'],
           equals: true
@@ -209,10 +209,7 @@ export class ContestService {
     groupId = OPEN_SPACE_ID
   ) {
     const contest = await this.prisma.contest.findFirst({
-      where: {
-        id: contestId,
-        groupId: groupId
-      },
+      where: { id: contestId, groupId },
       select: { startTime: true, endTime: true, groupId: true }
     })
     if (!contest) {
