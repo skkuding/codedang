@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client'
 import GraphQLJSON from 'graphql-type-json'
 
 @InputType()
-export class ContestInput {
+export class CreateContestInput {
   @Field(() => String, { nullable: false })
   title!: string
 

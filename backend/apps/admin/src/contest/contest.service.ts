@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import {
   Inject,
   Injectable,
-  InternalServerErrorException
+  UnprocessableEntityException
 } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import { contestPublicizingRequestKey } from '@libs/cache'
@@ -14,7 +14,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Contest } from '@admin/@generated/contest/contest.model'
-import type { ContestInput } from './model/contest.input'
+import type { CreateContestInput } from './model/create-contest.input'
 import type { PublicizingRequest } from './model/publicizing-request.model'
 import type { UpdateContestInput } from './model/update-contest.input'
 
@@ -60,7 +60,7 @@ export class ContestService {
   async createContest(
     groupId: number,
     userId: number,
-    contest: ContestInput
+    contest: CreateContestInput
   ): Promise<Contest> {
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
@@ -175,7 +175,9 @@ export class ContestService {
 
   async requestToPublic(groupId: number, contestId: number) {
     if (groupId == 1) {
-      throw new InternalServerErrorException()
+      throw new UnprocessableEntityException(
+        'This contest is already publicized'
+      )
     }
 
     const contest = await this.prisma.contest.findFirst({

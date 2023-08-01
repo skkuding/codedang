@@ -1,9 +1,9 @@
-import { Field, ID, InputType, Int } from '@nestjs/graphql'
+import { Field, InputType, Int } from '@nestjs/graphql'
 
 @InputType()
 export class Input {
-  @Field(() => ID, { nullable: false })
-  groupId!: string
+  @Field(() => Int, { nullable: false })
+  groupId!: number
 
   @Field(() => Int)
   cursor?: number

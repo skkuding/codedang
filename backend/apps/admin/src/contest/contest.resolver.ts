@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   InternalServerErrorException,
   NotFoundException,
   ParseIntPipe,
@@ -7,12 +8,13 @@ import {
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import {
+  ActionNotAllowedException,
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
 import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
-import { ContestInput } from './model/contest.input'
+import { CreateContestInput } from './model/create-contest.input'
 import { InputForDetail } from './model/input-for-detail.input'
 import { Input } from './model/input.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
@@ -26,7 +28,7 @@ export class ContestResolver {
   async getContests(@Args('input') input: Input) {
     return await this.contestService.getContests(
       input.take,
-      parseInt(input.groupId),
+      input.groupId,
       input.cursor
     )
   }
@@ -41,7 +43,7 @@ export class ContestResolver {
   async createContest(
     @Args('groupId') groupId: number,
     @Context('req') req: AuthenticatedRequest,
-    @Args('input') input: ContestInput
+    @Args('input') input: CreateContestInput
   ) {
     try {
       return await this.contestService.createContest(
@@ -97,11 +99,13 @@ export class ContestResolver {
     try {
       return await this.contestService.requestToPublic(
         input.groupId,
-        input.itemId
+        input.contestId
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
+      } else if (error instanceof ActionNotAllowedException) {
+        throw new BadRequestException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -111,7 +115,10 @@ export class ContestResolver {
   @UseRolesGuard()
   async acceptPublic(@Args('input') input: InputForDetail) {
     try {
-      return await this.contestService.acceptPublic(input.groupId, input.itemId)
+      return await this.contestService.acceptPublic(
+        input.groupId,
+        input.contestId
+      )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -124,7 +131,10 @@ export class ContestResolver {
   @UseRolesGuard()
   async rejectPublic(@Args('input') input: InputForDetail) {
     try {
-      return await this.contestService.rejectPublic(input.groupId, input.itemId)
+      return await this.contestService.rejectPublic(
+        input.groupId,
+        input.contestId
+      )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

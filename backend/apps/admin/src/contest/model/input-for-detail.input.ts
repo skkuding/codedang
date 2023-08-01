@@ -6,5 +6,5 @@ export class InputForDetail {
   groupId!: number
 
   @Field(() => Int, { nullable: false })
-  itemId!: number
+  contestId!: number
 }
