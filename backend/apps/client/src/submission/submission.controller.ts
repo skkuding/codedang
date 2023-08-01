@@ -10,9 +10,9 @@ import {
   NotFoundException,
   InternalServerErrorException,
   MethodNotAllowedException,
-  ForbiddenException
+  ForbiddenException,
+  Logger
 } from '@nestjs/common'
-import type { Submission, SubmissionResult } from '@prisma/client'
 import { NotFoundError } from 'rxjs'
 import { AuthenticatedRequest, GroupMemberGuard } from '@libs/auth'
 import {
@@ -25,13 +25,15 @@ import { SubmissionService } from './submission.service'
 
 @Controller('problem/:problemId/submission')
 export class ProblemSubmissionController {
+  private readonly logger = new Logger(ProblemSubmissionController.name)
+
   constructor(private readonly submissionService: SubmissionService) {}
 
   @Post()
   async createSubmission(
     @Req() req: AuthenticatedRequest,
     @Body() submissionDto: CreateSubmissionDto
-  ): Promise<Submission> {
+  ) {
     try {
       return await this.submissionService.submitToProblem(
         submissionDto,
@@ -41,14 +43,13 @@ export class ProblemSubmissionController {
       if (error instanceof ActionNotAllowedException) {
         throw new MethodNotAllowedException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
 
   @Get()
-  async getSubmissions(
-    @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<Partial<Submission>[]> {
+  async getSubmissions(@Param('problemId', ParseIntPipe) problemId: number) {
     return await this.submissionService.getSubmissions(problemId)
   }
 
@@ -57,7 +58,7 @@ export class ProblemSubmissionController {
     @Req() req: AuthenticatedRequest,
     @Param('problemId', ParseIntPipe) problemId: number,
     @Param('id') id: string
-  ): Promise<SubmissionResult[]> {
+  ) {
     try {
       return await this.submissionService.getSubmission(
         id,
@@ -70,6 +71,7 @@ export class ProblemSubmissionController {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -78,6 +80,8 @@ export class ProblemSubmissionController {
 @Controller('group/:groupId/problem/:problemId/submission')
 @UseGuards(GroupMemberGuard)
 export class GroupProblemSubmissionController {
+  private readonly logger = new Logger(GroupProblemSubmissionController.name)
+
   constructor(private readonly submissionService: SubmissionService) {}
 
   @Post()
@@ -85,7 +89,7 @@ export class GroupProblemSubmissionController {
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number,
     @Body() submissionDto: CreateSubmissionDto
-  ): Promise<Submission> {
+  ) {
     try {
       return await this.submissionService.submitToProblem(
         submissionDto,
@@ -96,6 +100,7 @@ export class GroupProblemSubmissionController {
       if (error instanceof ActionNotAllowedException) {
         throw new MethodNotAllowedException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -104,7 +109,7 @@ export class GroupProblemSubmissionController {
   async getSubmissions(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<Partial<Submission>[]> {
+  ) {
     return await this.submissionService.getSubmissions(problemId, groupId)
   }
 
@@ -114,7 +119,7 @@ export class GroupProblemSubmissionController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('problemId', ParseIntPipe) problemId: number,
     @Param('id') id: string
-  ): Promise<SubmissionResult[]> {
+  ) {
     try {
       return await this.submissionService.getSubmission(
         id,
@@ -128,6 +133,7 @@ export class GroupProblemSubmissionController {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -135,6 +141,8 @@ export class GroupProblemSubmissionController {
 
 @Controller('contest/:contestId/problem/:problemId/submission')
 export class ContestSubmissionController {
+  private readonly logger = new Logger(ContestSubmissionController.name)
+
   constructor(private readonly submissionService: SubmissionService) {}
 
   @Post()
@@ -142,7 +150,7 @@ export class ContestSubmissionController {
     @Req() req: AuthenticatedRequest,
     @Param('contestId', ParseIntPipe) contestId: number,
     @Body() submissionDto: CreateSubmissionDto
-  ): Promise<Submission> {
+  ) {
     submissionDto.contestId = contestId
     try {
       return await this.submissionService.submitToContest(
@@ -155,6 +163,7 @@ export class ContestSubmissionController {
       } else if (error instanceof NotFoundError) {
         throw new NotFoundException(error)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -164,7 +173,7 @@ export class ContestSubmissionController {
     @Req() req: AuthenticatedRequest,
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<Partial<Submission>[]> {
+  ) {
     return await this.submissionService.getContestSubmissions(
       problemId,
       contestId,
@@ -178,7 +187,7 @@ export class ContestSubmissionController {
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number,
     @Param('id') id: string
-  ): Promise<SubmissionResult[]> {
+  ) {
     try {
       return await this.submissionService.getContestSubmission(
         id,
@@ -192,6 +201,7 @@ export class ContestSubmissionController {
       } else if (error instanceof NotFoundError) {
         throw new NotFoundException(error)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -200,6 +210,8 @@ export class ContestSubmissionController {
 @Controller('group/:groupId/contest/:contestId/problem/:problemId/submission')
 @UseGuards(GroupMemberGuard)
 export class GroupContestSubmissionController {
+  private readonly logger = new Logger(GroupContestSubmissionController.name)
+
   constructor(private readonly submissionService: SubmissionService) {}
 
   @Post()
@@ -208,7 +220,7 @@ export class GroupContestSubmissionController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
     @Body() submissionDto: CreateSubmissionDto
-  ): Promise<Submission> {
+  ) {
     submissionDto.contestId = contestId
     try {
       return await this.submissionService.submitToContest(
@@ -222,6 +234,7 @@ export class GroupContestSubmissionController {
       } else if (error instanceof NotFoundError) {
         throw new NotFoundException(error)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -232,7 +245,7 @@ export class GroupContestSubmissionController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<Partial<Submission>[]> {
+  ) {
     return await this.submissionService.getContestSubmissions(
       problemId,
       contestId,
@@ -248,7 +261,7 @@ export class GroupContestSubmissionController {
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number,
     @Param('id') id: string
-  ): Promise<SubmissionResult[]> {
+  ) {
     try {
       return await this.submissionService.getContestSubmission(
         id,
@@ -263,6 +276,7 @@ export class GroupContestSubmissionController {
       } else if (error instanceof NotFoundError) {
         throw new NotFoundException(error)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -270,6 +284,8 @@ export class GroupContestSubmissionController {
 
 @Controller('workbook/:workbookId/problem/:problemId/submission')
 export class WorkbookSubmissionController {
+  private readonly logger = new Logger(WorkbookSubmissionController.name)
+
   constructor(private readonly submissionService: SubmissionService) {}
 
   @Post()
@@ -277,7 +293,7 @@ export class WorkbookSubmissionController {
     @Req() req: AuthenticatedRequest,
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Body() submissionDto: CreateSubmissionDto
-  ): Promise<Submission> {
+  ) {
     submissionDto.workbookId = workbookId
     try {
       return await this.submissionService.submitToWorkbook(
@@ -290,14 +306,13 @@ export class WorkbookSubmissionController {
       } else if (error instanceof ActionNotAllowedException) {
         throw new MethodNotAllowedException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
 
   @Get()
-  async getSubmissions(
-    @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<Partial<Submission>[]> {
+  async getSubmissions(@Param('problemId', ParseIntPipe) problemId: number) {
     return await this.submissionService.getSubmissions(problemId)
   }
 
@@ -306,7 +321,7 @@ export class WorkbookSubmissionController {
     @Req() req: AuthenticatedRequest,
     @Param('problemId', ParseIntPipe) problemId: number,
     @Param('id') id: string
-  ): Promise<SubmissionResult[]> {
+  ) {
     try {
       return await this.submissionService.getSubmission(
         id,
@@ -319,6 +334,7 @@ export class WorkbookSubmissionController {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -327,6 +343,8 @@ export class WorkbookSubmissionController {
 @Controller('group/:groupId/workbook/:workbookId/problem/:problemId/submission')
 @UseGuards(GroupMemberGuard)
 export class GroupWorkbookSubmissionController {
+  private readonly logger = new Logger(GroupWorkbookSubmissionController.name)
+
   constructor(private readonly submissionService: SubmissionService) {}
 
   @Post()
@@ -335,7 +353,7 @@ export class GroupWorkbookSubmissionController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Body() submissionDto: CreateSubmissionDto
-  ): Promise<Submission> {
+  ) {
     submissionDto.workbookId = workbookId
     try {
       return await this.submissionService.submitToWorkbook(
@@ -349,6 +367,7 @@ export class GroupWorkbookSubmissionController {
       } else if (error instanceof ActionNotAllowedException) {
         throw new MethodNotAllowedException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -357,7 +376,7 @@ export class GroupWorkbookSubmissionController {
   async getSubmissions(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<Partial<Submission>[]> {
+  ) {
     return await this.submissionService.getSubmissions(problemId, groupId)
   }
 
@@ -367,7 +386,7 @@ export class GroupWorkbookSubmissionController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('problemId', ParseIntPipe) problemId: number,
     @Param('id') id: string
-  ): Promise<SubmissionResult[]> {
+  ) {
     try {
       return await this.submissionService.getSubmission(
         id,
@@ -381,6 +400,7 @@ export class GroupWorkbookSubmissionController {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
