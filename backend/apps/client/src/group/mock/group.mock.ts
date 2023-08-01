@@ -1,5 +1,4 @@
 import { type Group, Role, type User, type UserGroup } from '@prisma/client'
-import type { GroupData } from '../interface/group-data.interface'
 
 export const groups: Group[] = [
   {
@@ -155,7 +154,7 @@ export const userGroupsForJoinedGroups = [
   }
 ]
 
-export const publicGroupDatas: GroupData[] = [
+export const publicGroupDatas = [
   {
     id: 1,
     groupName: 'mock public group',

@@ -217,13 +217,13 @@ const createNotices = async () => {
   await prisma.notice.createMany({
     data: [
       {
-        title: '아주 중요한 공지사항',
+        title: '아주 중요한 공지사항 (1)',
         content: '<p>사실 별 내용 없어요 😇</p>',
         createdById: superAdminUser.id,
         groupId: 1
       },
       {
-        title: '더 중요한 공지사항',
+        title: '더 중요한 공지사항 (2)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
 <p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
@@ -236,7 +236,7 @@ const createNotices = async () => {
         groupId: 1
       },
       {
-        title: '제일 중요한 공지사항',
+        title: '제일 중요한 공지사항 (3)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
 <p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
@@ -249,7 +249,7 @@ const createNotices = async () => {
         groupId: 1
       },
       {
-        title: 'HTML element들 테스트해봐요',
+        title: 'HTML element들 테스트해봐요 (4)',
         content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <p>Simple Text</p>
@@ -278,13 +278,13 @@ int main() {
         groupId: 1
       },
       {
-        title: '아주 중요한 공지사항',
+        title: '아주 중요한 공지사항 (5)',
         content: '<p>사실 별 내용 없어요 😇</p>',
         createdById: superAdminUser.id,
         groupId: 1
       },
       {
-        title: '더 중요한 공지사항',
+        title: '더 중요한 공지사항 (6)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
 <p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
@@ -297,7 +297,7 @@ int main() {
         groupId: 1
       },
       {
-        title: '제일 중요한 공지사항',
+        title: '제일 중요한 공지사항 (7)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
 <p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
@@ -310,7 +310,7 @@ int main() {
         groupId: 1
       },
       {
-        title: 'HTML element들 테스트해봐요',
+        title: 'HTML element들 테스트해봐요 (8)',
         content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <p>Simple Text</p>
@@ -339,13 +339,13 @@ int main() {
         groupId: 1
       },
       {
-        title: '아주 중요한 공지사항',
+        title: '아주 중요한 공지사항 (9)',
         content: '<p>사실 별 내용 없어요 😇</p>',
         createdById: superAdminUser.id,
         groupId: 1
       },
       {
-        title: '더 중요한 공지사항',
+        title: '더 중요한 공지사항 (10)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
 <p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
@@ -358,7 +358,7 @@ int main() {
         groupId: 1
       },
       {
-        title: '제일 중요한 공지사항',
+        title: '제일 중요한 공지사항 (11)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
 <p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
@@ -371,7 +371,7 @@ int main() {
         groupId: 1
       },
       {
-        title: 'HTML element들 테스트해봐요',
+        title: 'HTML element들 테스트해봐요 (12)',
         content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <p>Simple Text</p>
@@ -400,13 +400,13 @@ int main() {
         groupId: 1
       },
       {
-        title: '아주 중요한 공지사항',
+        title: '아주 중요한 공지사항 (13)',
         content: '<p>사실 별 내용 없어요 😇</p>',
         createdById: superAdminUser.id,
         groupId: 1
       },
       {
-        title: '더 중요한 공지사항',
+        title: '더 중요한 공지사항 (14)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
 <p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
@@ -419,7 +419,7 @@ int main() {
         groupId: 1
       },
       {
-        title: '제일 중요한 공지사항',
+        title: '제일 중요한 공지사항 (15)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
 <p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
@@ -432,7 +432,7 @@ int main() {
         groupId: 1
       },
       {
-        title: 'HTML element들 테스트해봐요',
+        title: 'HTML element들 테스트해봐요 (16)',
         content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <p>Simple Text</p>
@@ -461,13 +461,13 @@ int main() {
         groupId: 1
       },
       {
-        title: '아주 중요한 공지사항',
+        title: '아주 중요한 공지사항 (17)',
         content: '<p>사실 별 내용 없어요 😇</p>',
         createdById: superAdminUser.id,
         groupId: 1
       },
       {
-        title: '더 중요한 공지사항',
+        title: '더 중요한 공지사항 (18)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
 <p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
@@ -480,7 +480,7 @@ int main() {
         groupId: 1
       },
       {
-        title: '제일 중요한 공지사항',
+        title: '제일 중요한 공지사항 (19)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
 <p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
@@ -493,7 +493,7 @@ int main() {
         groupId: 1
       },
       {
-        title: 'HTML element들 테스트해봐요',
+        title: 'HTML element들 테스트해봐요 (20)',
         content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <p>Simple Text</p>
@@ -522,13 +522,13 @@ int main() {
         groupId: 1
       },
       {
-        title: '아주 중요한 공지사항',
+        title: '아주 중요한 공지사항 (21)',
         content: '<p>사실 별 내용 없어요 😇</p>',
         createdById: superAdminUser.id,
         groupId: 1
       },
       {
-        title: '더 중요한 공지사항',
+        title: '더 중요한 공지사항 (22)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.</p>
 <p>법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.</p>
@@ -541,7 +541,7 @@ int main() {
         groupId: 1
       },
       {
-        title: '제일 중요한 공지사항',
+        title: '제일 중요한 공지사항 (23)',
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
 <p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
@@ -554,7 +554,7 @@ int main() {
         groupId: 1
       },
       {
-        title: 'HTML element들 테스트해봐요',
+        title: 'HTML element들 테스트해봐요 (24)',
         content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <p>Simple Text</p>
@@ -774,7 +774,6 @@ const createProblems = async () => {
   <code>Unknown</code>
   을 출력한다.
 </p>`,
-        template: [],
         languages: [Language.C],
         hint: '',
         timeLimit: 2000,
@@ -864,7 +863,6 @@ const createProblems = async () => {
   </span>
   <br />
 </p>`,
-        template: [],
         languages: [Language.Cpp],
         hint: '',
         timeLimit: 1000,
@@ -1310,7 +1308,6 @@ const createProblems = async () => {
   3개를 사려고 하는 사람을 줄에서 내보내면, 줄은 2, 7, 7, 7, 7, 5, 7이 된다. 이
   때 7개를 사려고 하는 사람 4명이 연속된 구간이 가장 길이가 긴 구간이다.
 </p>`,
-        template: [],
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'USACO 2012 US Open Bronze 1번'
@@ -1799,7 +1796,6 @@ const createProblems = async () => {
 </p>`,
         languages: [Language.Python3],
         hint: '',
-        template: [],
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'ICPC Regionals NCPC 2009 B번'
@@ -2577,7 +2573,6 @@ const createProblems = async () => {
   이 될 수 없는 경우는 -1을 출력한다.
 </p>`,
         languages: [Language.C, Language.Java],
-        template: [],
         hint: `<p>
   3개의 타일이 있고, 두 개의 타일은 길이가 3인 정사각형이고, 한 개의 타일은
   길이가 1인 정사각형이다. 이것들을 총면적이 6이 되도록 교환하려 한다.
@@ -3284,7 +3279,6 @@ const createProblems = async () => {
 </p>`,
         languages: [Language.Cpp, Language.Python3],
         hint: '',
-        template: [],
         timeLimit: 2000,
         memoryLimit: 512,
         source: 'COCI 2019/2020 Contest #3 2번'
@@ -5188,7 +5182,6 @@ const createProblems = async () => {
   첫째 줄에 그래프에 대한 '사이클 분할의 비용'의 최솟값을 하나의 정수로 출력한다.
 </p>`,
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
-        template: [],
         hint: `<p>
   예제에서 입력되는 순서대로 간선에 번호를 매겨보자.
   <span>

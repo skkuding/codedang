@@ -1,4 +1,12 @@
 import { useAuthStore } from '@/common/store/auth'
+import {
+  ApolloClient,
+  ApolloLink,
+  from,
+  HttpLink,
+  InMemoryCache
+} from '@apollo/client/core'
+import { ApolloClients } from '@vue/apollo-composable'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import NProgress from 'nprogress'
@@ -6,7 +14,7 @@ import 'nprogress/nprogress.css'
 import { createPinia } from 'pinia'
 import { setupLayouts } from 'virtual:generated-layouts'
 import generatedRoutes from 'virtual:generated-pages'
-import { createApp } from 'vue'
+import { createApp, provide, h } from 'vue'
 import VueDOMPurifyHTML from 'vue-dompurify-html'
 import { VueQueryPlugin } from 'vue-query'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -24,8 +32,33 @@ axiosRetry(axios, {
     await useAuthStore().reissue()
   }
 })
+// const apolloClient = new ApolloClient({
+//   // You should use an absolute URL here
+//   uri: 'https://dev.codedang.com/graphql'
+// })
+const link = from([
+  new ApolloLink((operation, forward) => {
+    operation.setContext(({ headers }: { headers: object }) => ({
+      headers: {
+        ...headers,
+        authorization: axios.defaults.headers.common.authorization
+      }
+    }))
+    return forward(operation) // Go to the next link in the chain. Similar to `next` in Express.js middleware.
+  }),
+  new HttpLink({ uri: 'https://dev.codedang.com/graphql' })
+])
+const cache = new InMemoryCache()
+const apolloClient = new ApolloClient({ link, cache })
+const app = createApp({
+  setup() {
+    provide(ApolloClients, {
+      default: apolloClient
+    })
+  },
+  render: () => h(App)
+})
 
-const app = createApp(App)
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: setupLayouts(generatedRoutes)

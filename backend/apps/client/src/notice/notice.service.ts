@@ -5,7 +5,6 @@ import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { CreateNoticeDto } from './dto/create-notice.dto'
 import type { UpdateNoticeDto } from './dto/update-notice.dto'
-import type { UserNotice } from './interface/user-notice.interface'
 
 @Injectable()
 export class NoticeService {
@@ -70,7 +69,7 @@ export class NoticeService {
     })
   }
 
-  async getNotice(id: number, groupId = OPEN_SPACE_ID): Promise<UserNotice> {
+  async getNotice(id: number, groupId = OPEN_SPACE_ID) {
     const current = await this.prisma.notice.findFirst({
       where: {
         id: id,

@@ -2,29 +2,31 @@
 import dummyImg from '@/common/assets/dummy.png'
 import GithubLogo from '@/common/assets/github.svg'
 import SkkudingLogo from '@/common/assets/skkudingLogo.png'
-import Card from '@/common/components/Molecule/Card.vue'
+import NewCard from '@/common/components/Molecule/NewCard.vue'
 import type { Contest } from '@/user/contest/pages/index.vue'
 import Carousel from '@/user/home/components/Carousel.vue'
 import type { NoticeItem } from '@/user/notice/composables/notice'
 import { useDateFormat } from '@vueuse/core'
 import axios from 'axios'
 import { ref } from 'vue'
-import IconAngleRight from '~icons/fa6-solid/angle-right'
-import IconBars from '~icons/fa6-solid/bars'
-import IconCalendar from '~icons/fa6-solid/calendar'
-import IconInfo from '~icons/fa6-solid/circle-info'
-import IconEllipsis from '~icons/fa6-solid/ellipsis'
-import IconMedal from '~icons/fa6-solid/medal'
+import ContestItem from '../components/ContestItem.vue'
 
 interface Post {
   title: string
-  date: string
   href: string
-  state?: string
+  date: string
+}
+
+interface ContestPost {
+  title: string
+  href: string
+  state: string
+  startTime: string
+  endTime: string
 }
 
 const notices = ref<Post[]>([])
-const contest = ref<Post[]>([])
+const contest = ref<ContestPost[]>([])
 
 axios
   .get('/api/notice', {
@@ -42,7 +44,8 @@ axios.get('api/contest').then((res) => {
   res.data.ongoing.map((element: Contest) => {
     contest.value.push({
       title: element.title,
-      date: useDateFormat(element.startTime, 'YYYY-MM-DD').value,
+      startTime: element.startTime,
+      endTime: element.endTime,
       href: `/contest/${element.id}`,
       state: 'ongoing'
     })
@@ -50,7 +53,8 @@ axios.get('api/contest').then((res) => {
   res.data.upcoming.map((element: Contest) => {
     contest.value.push({
       title: element.title,
-      date: useDateFormat(element.startTime, 'YYYY-MM-DD').value,
+      startTime: element.startTime,
+      endTime: element.endTime,
       href: `/contest/${element.id}`,
       state: 'upcoming'
     })
@@ -92,36 +96,33 @@ axios.get('api/contest').then((res) => {
     ]"
   />
   <div
-    class="mt-20 flex flex-col items-center justify-center gap-12 lg:flex-row lg:items-start"
+    class="mt-8 flex flex-wrap items-start justify-between gap-5 md:flex-nowrap"
   >
-    <Card href="/notice" :items="notices" class="w-[36rem] max-w-full">
-      <template #title>
-        <IconInfo />
-        <h2 class="ml-2">Notice</h2>
-      </template>
-
-      <template #icon>
-        <IconAngleRight />
-      </template>
-    </Card>
-    <Card href="/contest" :items="contest" class="w-[36rem] max-w-full">
-      <template #title>
-        <IconMedal />
-        <h2 class="ml-2">Current/Upcoming Contests</h2>
-      </template>
-      <template #titleIcon>
-        <RouterLink
-          to="/"
-          class="cursor-pointer hover:opacity-50 active:opacity-30"
-        >
-          <IconBars />
+    <NewCard title="notices">
+      <div
+        v-for="(item, index) in notices"
+        :key="index"
+        class="g border-b border-slate-50 py-5 last:border-none last:pb-0"
+      >
+        <RouterLink :to="item.href">
+          {{ item.title }}
         </RouterLink>
-      </template>
-      <template #icon="item">
-        <IconEllipsis v-if="item.item === 'ongoing'" />
-        <IconCalendar v-else />
-      </template>
-    </Card>
+        <p class="text-gray mt-1 text-sm">
+          {{ item.date }}
+        </p>
+      </div>
+    </NewCard>
+    <NewCard title="contests">
+      <ContestItem
+        v-for="(item, index) in contest"
+        :key="index"
+        :title="item.title"
+        :start-time="item.startTime"
+        :end-time="item.endTime"
+        :state="item.state"
+        :href="item.href"
+      />
+    </NewCard>
   </div>
 </template>
 
