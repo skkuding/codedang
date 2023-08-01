@@ -5,27 +5,11 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { CreateNoticeDto } from './dto/create-notice.dto'
-import type { UpdateNoticeDto } from './dto/update-notice.dto'
 import { NoticeService } from './notice.service'
 
 const noticeId = 2
 const userId = 1
 const groupId = 1
-
-const createNoticeDto: CreateNoticeDto = {
-  title: 'Title',
-  content: 'Content',
-  isVisible: true,
-  isFixed: true
-}
-
-const updateNoticeDto: UpdateNoticeDto = {
-  title: 'Title',
-  content: 'Content',
-  isVisible: true,
-  isFixed: true
-}
 
 const notice: Notice = {
   id: noticeId,
@@ -110,28 +94,6 @@ describe('NoticeService', () => {
     expect(service).to.be.ok
   })
 
-  describe('createNotice', () => {
-    beforeEach(() => {
-      db.group.findUnique.resolves(group)
-    })
-
-    it('should return new created notice data', async () => {
-      const createResult = await service.createNotice(
-        createNoticeDto,
-        userId,
-        groupId
-      )
-      expect(createResult).to.deep.equal(notice)
-    })
-
-    it('should throw error when given group does not exist', async () => {
-      db.group.findUnique.rejects(new EntityNotExistException('group'))
-      await expect(
-        service.createNotice(createNoticeDto, userId, groupId)
-      ).to.be.rejectedWith(EntityNotExistException)
-    })
-  })
-
   describe('getNoticesByGroupId', () => {
     const noticeArray = [
       {
@@ -203,115 +165,6 @@ describe('NoticeService', () => {
       await expect(service.getNotice(noticeId, group.id)).to.be.rejectedWith(
         EntityNotExistException
       )
-    })
-  })
-
-  describe('getAdminNoticesByGroupId', () => {
-    const noticeArray = [
-      {
-        id: noticePrev.id,
-        title: noticePrev.title,
-        createdBy: noticePrev.createdById,
-        updateTime: noticePrev.updateTime,
-        isVisible: noticePrev.isVisible,
-        isFixed: noticePrev.isFixed
-      },
-      {
-        id: notice.id,
-        title: notice.title,
-        createdBy: notice.createdById,
-        updateTime: notice.updateTime,
-        isVisible: notice.isVisible,
-        isFixed: notice.isFixed
-      },
-      {
-        id: noticeNext.id,
-        title: noticeNext.title,
-        createdBy: noticeNext.createdById,
-        updateTime: noticeNext.updateTime,
-        isVisible: noticeNext.isVisible,
-        isFixed: noticeNext.isFixed
-      }
-    ]
-
-    it('should return notice list of the group', async () => {
-      db.notice.findMany.resolves(noticeArray)
-
-      const getNoticesByGroupId = await service.getAdminNoticesByGroupId(
-        0,
-        3,
-        groupId
-      )
-      expect(getNoticesByGroupId).to.deep.equal(noticeArray)
-    })
-  })
-
-  describe('getAdminNotice', () => {
-    const adminNotice = {
-      group: {
-        groupName: group.groupName
-      },
-      title: notice.title,
-      content: notice.content,
-      isVisible: notice.isVisible,
-      isFixed: notice.isFixed
-    }
-
-    it('should return a notice', async () => {
-      db.notice.findUnique.onFirstCall().resolves(adminNotice)
-
-      const getNotice = await service.getAdminNotice(noticeId)
-      expect(getNotice).to.deep.equal(adminNotice)
-      db.notice.findUnique.reset()
-    })
-
-    it('should throw error when given notice does not exist', async () => {
-      db.notice.findUnique
-        .onFirstCall()
-        .rejects(new EntityNotExistException('notice'))
-
-      await expect(service.getAdminNotice(noticeId)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-      db.notice.findUnique.reset()
-    })
-  })
-
-  describe('updateNotice', () => {
-    afterEach(() => {
-      db.notice.findUnique.resolves(notice)
-    })
-
-    it('should return updated Notice', async () => {
-      const updateResult = await service.updateNotice(noticeId, updateNoticeDto)
-      expect(updateResult).to.deep.equal(notice)
-    })
-
-    it('should throw error when given notice does not exist', async () => {
-      db.notice.findUnique.rejects(new EntityNotExistException('notice'))
-      await expect(
-        service.updateNotice(noticeId, updateNoticeDto)
-      ).to.be.rejectedWith(EntityNotExistException)
-    })
-  })
-
-  describe('deleteContest', () => {
-    afterEach(() => {
-      db.notice.delete.reset()
-    })
-
-    it('should successfully delete given notice', async () => {
-      await service.deleteNotice(noticeId)
-      expect(db.notice.delete.calledOnce).to.be.true
-    })
-
-    it('should throw error when given notice does not exist', async () => {
-      db.notice.findUnique.rejects(new EntityNotExistException('notice'))
-
-      await expect(service.deleteNotice(noticeId)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-      expect(db.notice.delete.called).to.be.false
     })
   })
 })
