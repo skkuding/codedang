@@ -51,10 +51,7 @@ const db = {
   notice: {
     findMany: stub(),
     findUnique: stub().resolves(notice),
-    findFirst: stub(),
-    create: stub().resolves(notice),
-    update: stub().resolves(notice),
-    delete: stub()
+    findFirst: stub()
   },
   group: {
     findUnique: stub().resolves(group)

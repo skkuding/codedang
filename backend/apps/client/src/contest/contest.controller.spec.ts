@@ -1,7 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { PrismaService } from '@libs/prisma'
-import { GroupService } from '@client/group/group.service'
+import { RolesService } from '@libs/auth'
 import { ContestController, GroupContestController } from './contest.controller'
 import { ContestService } from './contest.service'
 
@@ -11,11 +10,7 @@ describe('ContestController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ContestController],
-      providers: [
-        { provide: GroupService, useValue: {} },
-        { provide: ContestService, useValue: {} },
-        { provide: PrismaService, useValue: {} }
-      ]
+      providers: [{ provide: ContestService, useValue: {} }]
     }).compile()
 
     controller = module.get<ContestController>(ContestController)
@@ -31,11 +26,10 @@ describe('GroupContestController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [ContestController],
+      controllers: [GroupContestController],
       providers: [
-        { provide: GroupService, useValue: {} },
-        { provide: ContestService, useValue: {} },
-        { provide: PrismaService, useValue: {} }
+        { provide: RolesService, useValue: {} },
+        { provide: ContestService, useValue: {} }
       ]
     }).compile()
 
