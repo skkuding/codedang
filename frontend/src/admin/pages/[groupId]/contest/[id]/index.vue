@@ -94,7 +94,7 @@ const problemList = ref([
             }
           "
         >
-          Sort Edit
+          Edit Sort
         </Button>
         <Button
           v-else
