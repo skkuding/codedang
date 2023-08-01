@@ -19,7 +19,7 @@
   }
 
   #app {
-    @apply flex min-h-full flex-col;
+    @apply flex h-full flex-col;
   }
 }
 
