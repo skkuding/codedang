@@ -108,6 +108,48 @@
             "containerId": "0d9f4339-a50a-495e-a790-e998f7db5f92",
             "created": "2023-07-13T12:25:32.265Z",
             "sortNum": 190000
+        },
+        {
+            "_id": "419a4432-6b41-4cd0-a04e-f302e7be447b",
+            "name": "Problem",
+            "containerId": "",
+            "created": "2023-07-05T12:16:41.472Z",
+            "sortNum": 90000
+        },
+        {
+            "_id": "c9bbfd01-d3e3-460c-9625-94ec0de174c4",
+            "name": "Create Problem",
+            "containerId": "419a4432-6b41-4cd0-a04e-f302e7be447b",
+            "created": "2023-07-05T12:28:24.255Z",
+            "sortNum": 110000
+        },
+        {
+            "_id": "91157119-135b-4089-a02e-9c91b41fda30",
+            "name": "Get Problem",
+            "containerId": "419a4432-6b41-4cd0-a04e-f302e7be447b",
+            "created": "2023-07-05T12:28:42.507Z",
+            "sortNum": 120000
+        },
+        {
+            "_id": "ed6b8f9d-1688-452b-a730-155899a617fa",
+            "name": "Delete Problem",
+            "containerId": "419a4432-6b41-4cd0-a04e-f302e7be447b",
+            "created": "2023-07-05T14:22:50.261Z",
+            "sortNum": 130000
+        },
+        {
+            "_id": "3eeedd48-2d7b-4174-ab10-c4108c0ed44c",
+            "name": "Update Problem",
+            "containerId": "419a4432-6b41-4cd0-a04e-f302e7be447b",
+            "created": "2023-07-13T12:50:04.924Z",
+            "sortNum": 140000
+        },
+        {
+            "_id": "b235e35a-63de-40d9-ae62-5086e1131d08",
+            "name": "Get Problems",
+            "containerId": "419a4432-6b41-4cd0-a04e-f302e7be447b",
+            "created": "2023-07-31T17:53:40.907Z",
+            "sortNum": 115000
         }
     ],
     "settings": {
@@ -116,7 +158,7 @@
             "bearer": "{{bearer_token}}"
         },
         "options": {
-            "baseUrl": "http://localhost:3000/graphql"
+            "baseUrl": "https://dev.codedang.com/graphql"
         }
     },
     "requests": [
@@ -129,7 +171,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-07-01T08:39:22.506Z",
-            "modified": "2023-07-01T15:35:06.098Z",
+            "modified": "2023-07-31T18:16:57.814Z",
             "headers": [],
             "params": [],
             "body": {
@@ -178,7 +220,7 @@
                     "value": "3"
                 }
             ],
-            "docs": "# Get Groups [어드민 대시보드]\n\n모든 그룹의 목록을 가져옵니다.\n\n## Query\n\n- `cursor`: (optional) 가져올 아이템의 기준점으로, take 값에 따라 기준점의 앞뒤에 있는 아이템을 가져오게 됩니다. cursor 값은 항상 양수여야 하며, 값을 넘겨주지 않으면 자동으로 첫번째 아이템부터 반환됩니다.\n- `take`: 가져올 아이템의 개수를 지정합니다.",
+            "docs": "# Get Groups [어드민 대시보드]\n\n모든 그룹의 목록을 가져옵니다.\n\n### Query\n- `cursor`: (optional) 가져올 아이템의 기준점으로, take 값에 따라 기준점의 앞뒤에 있는 아이템을 가져오게 됩니다. cursor 값은 항상 양수여야 하며, 값을 넘겨주지 않으면 자동으로 첫번째 아이템부터 반환됩니다.\n- `take`: 가져올 아이템의 개수를 지정합니다.",
             "preReq": {
                 "runRequests": [
                     {
@@ -284,7 +326,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-07-01T09:28:51.000Z",
-            "modified": "2023-07-01T13:32:14.311Z",
+            "modified": "2023-07-31T17:33:19.718Z",
             "headers": [],
             "params": [],
             "body": {
@@ -292,7 +334,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query Group {\n  getGroup(groupId: 1) {\n    id\n    groupName\n    description\n    config\n    createTime\n    memberNum\n    managers\n  }\n}"
+                    "query": "query Group {\n  getGroup(groupId: 1) {\n    id\n    groupName\n    description\n    config\n    createTime\n    memberNum\n  }\n}"
                 }
             },
             "tests": [
@@ -632,6 +674,17 @@
             "sortNum": 50000,
             "created": "2023-07-13T12:00:14.545Z",
             "modified": "2023-07-20T12:24:07.293Z",
+        },
+      {
+            "_id": "54c1397a-722c-4d58-a608-1938b644ab7d",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "c9bbfd01-d3e3-460c-9625-94ec0de174c4",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2023-07-05T12:16:57.576Z",
+            "modified": "2023-07-31T19:06:26.619Z",
             "headers": [],
             "params": [],
             "body": {
@@ -654,6 +707,40 @@
             "sortNum": 60000,
             "created": "2023-07-13T12:07:19.048Z",
             "modified": "2023-07-13T14:06:12.720Z",
+                    "query": "mutation Problem($input: CreateProblemInput!){\n    createProblem(\n        input: $input\n    ){\n        id\n    }\n}",
+                    "variables": "{\n  \"input\": {\n    \"title\": \"title0\",\n    \"description\": \"description0\",\n    \"inputDescription\": \"inputDescription0\",\n    \"outputDescription\": \"ouputDescription0\",\n    \"hint\": \"hint0\",\n    \"template\": [{\n      \"language\": \"C\",\n      \"code\": [{\n        \"id\": 1,\n        \"text\": \"int main(void) {}\",\n        \"locked\": false\n      }]\n    }],\n    \"languages\": [\"C\",\"Java\"],\n    \"timeLimit\": 666,\n    \"memoryLimit\": 33,\n    \"difficulty\": \"Level1\",\n    \"source\": \"source0\",\n    \"inputExamples\": [\"i0\",\"i1\"],\n    \"outputExamples\": [\"o0\",\"o1\"],\n    \"testcases\": [\n      {\n        \"input\": \"input0\",\n        \"output\": \"output0\"\n      },{\n        \"input\": \"input1\",\n        \"output\": \"output1\"\n      }\n      ],\n      \"tagIds\": []\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "id"
+                }
+            ],
+            "docs": "# Create Problem\n\n새로운 문제를 생성합니다.  \n그룹이 존재하지 않거나 유저에게 그룹 관리 권한이 없는 경우 403이 반환됩니다.  \n\n### Query\n- `groupId`를 설정하지 않으면 Open Space로 인식합니다.\n- 테스트케이스와 태그를 설정하지 않으려면, 각각 `problemTestcase`와 `tagIds`에 빈 배열을 넘겨주세요.\n\n### Constraints\n- 현재 시스템에서 지원하는 언어는 C, Cpp, Java, Python3뿐입니다.\n- 아래의 세 가지 제약 조건을 어길 시 422가 반환됩니다:\n- `languages`는 빈 배열일 수 없습니다(= 아무 언어도 지원하지 않는 문제는 만들 수 없습니다).\n- `template`의 기반 언어는 `languages`에 속해 있어야 합니다.\n- 존재하지 않는 태그의 ID는 `tagIds`에 포함될 수 없습니다.\n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "319d43a7-84af-453f-a130-0591d5dae7c1",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "c9bbfd01-d3e3-460c-9625-94ec0de174c4",
+            "name": "422: No Language Supported",
+            "url": "",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2023-07-05T12:26:45.056Z",
+            "modified": "2023-07-31T19:05:35.968Z",
             "headers": [],
             "params": [],
             "body": {
@@ -676,6 +763,45 @@
             "sortNum": 70000,
             "created": "2023-07-13T12:11:23.763Z",
             "modified": "2023-07-13T12:14:43.094Z",
+                    "query": "mutation Problem($input: CreateProblemInput!){\n    createProblem(\n        input: $input\n    ){\n        id\n    }\n}",
+                    "variables": "{\n  \"input\": {\n    \"title\": \"title0\",\n    \"description\": \"description0\",\n    \"inputDescription\": \"inputDescription0\",\n    \"outputDescription\": \"ouputDescription0\",\n    \"hint\": \"hint0\",\n    \"template\": [{\n      \"language\": \"C\",\n      \"code\": [{\n        \"id\": 1,\n        \"text\": \"int main(void) {}\",\n        \"locked\": false\n      }]\n    }],\n    \"languages\": [],\n    \"timeLimit\": 666,\n    \"memoryLimit\": 33,\n    \"difficulty\": \"Level1\",\n    \"source\": \"source0\",\n    \"inputExamples\": [\"i0\",\"i1\"],\n    \"outputExamples\": [\"o0\",\"o1\"],\n    \"testcases\": [\n      {\n        \"input\": \"input0\",\n        \"output\": \"output0\"\n      },{\n        \"input\": \"input1\",\n        \"output\": \"output1\"\n      }\n      ],\n      \"tagIds\": [1]\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"statusCode\": 422"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"message\": \"A problem should support at least one language\""
+                }
+            ],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "4040e773-ed8d-4560-a4b6-7b7736c6ff52",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "ed6b8f9d-1688-452b-a730-155899a617fa",
+            "name": "Delete Problem",
+            "url": "",
+            "method": "POST",
+            "sortNum": 60000,
+            "created": "2023-07-05T14:22:58.417Z",
+            "modified": "2023-07-31T17:57:28.218Z",
             "headers": [],
             "params": [],
             "body": {
@@ -692,6 +818,26 @@
             "_id": "b94f11a6-e1a7-40c2-906b-a6b160dfe224",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
             "containerId": "ce343dbe-8fd1-41ea-9c0a-323265757482",
+                    "query": "mutation Problem {\n    deleteProblem(\n        groupId: 1\n        id: 1\n    ){\n        title\n    }\n}"
+                }
+            },
+            "tests": [],
+            "docs": "# Delete Problem [그룹 대시보드]\n\n**⚠️ 최초 1번만 동작할 리퀘스트입니다. 다시 성공 응답을 받으려면 `npx prisma migrate reset`을 실행해주세요.**  \n\n문제를 삭제합니다. \n그룹이 존재하지 않거나 유저에게 그룹 관리 권한이 없는 경우 403이 반환됩니다.  \n관리 권한이 있지만 ID에 해당하는 문제가 존재하지 않는다면 404가 반환됩니다.\n\n### Query\n- `groupId`를 설정하지 않으면 Open Space로 인식합니다.",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "0a9d1ef4-339a-413f-85f9-a400a43a87f2",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "91157119-135b-4089-a02e-9c91b41fda30",
             "name": "Succeed",
             "url": "",
             "method": "POST",
@@ -705,21 +851,57 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation {\n    deleteContest(\n    groupId: 1,\n    contestId: 4\n    ) {\n        id\n        createdById\n        groupId\n        title\n    }\n}"
+                    "query": "query Problem {\n    getProblem(\n        id: 1\n        groupId: 1\n    ){\n        id\n        title\n        problemTestcase {\n            id\n            input\n            output\n            scoreWeight\n        }\n        problemTag {\n            tag {\n                id\n                name\n            }\n        }\n    }\n}"
                 }
             },
-            "tests": []
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "id"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "title"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "problemTestcase"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "problemTag"
+                }
+            ],
+            "docs": "# Get Problem [그룹 대시보드]\n\n하나의 문제를  조회합니다.  \n그룹이 존재하지 않거나 유저에게 그룹 관리 권한이 없는 경우 403이 반환됩니다.  \n관리 권한이 있지만 ID에 해당하는 문제가 존재하지 않는다면 404가 반환됩니다.\n\n### Query\n- `groupId`를 설정하지 않으면 Open Space로 인식합니다.",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         },
         {
-            "_id": "f7e06eda-8cc0-4462-ab28-221cc4dd3d59",
+            "_id": "fac8632a-f618-498a-be5d-013341f3f480",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
-            "containerId": "33e66082-5553-4ef8-901d-c26bd4f50775",
+            "containerId": "b235e35a-63de-40d9-ae62-5086e1131d08",
             "name": "Succeed",
             "url": "",
             "method": "POST",
-            "sortNum": 100000,
-            "created": "2023-07-13T12:25:57.565Z",
-            "modified": "2023-07-20T12:01:32.465Z",
+            "sortNum": 10000,
+            "created": "2023-07-12T12:48:18.260Z",
+            "modified": "2023-07-31T18:55:32.177Z",
             "headers": [],
             "params": [],
             "body": {
@@ -727,21 +909,40 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation {\n    requestToPublic(\n    groupId: 2,\n    input: {\n        groupId: 2,\n        itemId: 3\n    }\n    ) {\n        id\n        createdById\n        groupId\n        title\n    }\n}"
+                    "query": "query Problem($input:FilterProblemsInput!){\n    getProblems(\n        groupId: 1\n        input: $input\n        take: 1\n    ){\n        id\n        title\n    }\n}",
+                    "variables": "{\n  \"input\": {\n    \"difficulty\": [\"Level1\"]\n  }\n}"
                 }
             },
-            "tests": []
+            "tests": [
+                {
+                    "type": "json-query",
+                    "custom": "json.data.getProblems.id | length",
+                    "action": "<=",
+                    "value": "1"
+                }
+            ],
+            "docs": "# Get Problems\n\n그룹의 모든 문제를 조회합니다. `input`이 설정되어 있을 경우, 주어진 조건을 만족하는 문제만을 반환합니다.  \n그룹이 존재하지 않거나 유저에게 그룹 관리 권한이 없는 경우 403이 반환됩니다.  \n\n### Query\n- `groupId`를 설정하지 않으면 Open Space로 인식합니다.\n- `cursor`는 (optional) 가져올 아이템의 기준점으로, take 값에 따라 기준점의 앞뒤에 있는 아이템을 가져오게 됩니다. cursor 값은 항상 양수여야 하며, 값을 넘겨주지 않으면 자동으로 첫번째 아이템부터 반환됩니다.\n- `take`로 가져올 아이템의 개수를 지정합니다.\n- `languages`의 언어 중 하나 이상의 언어를 지원하는 문제를 모두 반환합니다.\n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         },
         {
-            "_id": "9327c6fd-e4ef-4150-b999-9dbdc9d47a59",
+            "_id": "93bfe8b6-d805-49c8-ac19-40c7c08924ce",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
-            "containerId": "9fc6bef0-ed6d-43a6-a09c-652fdd0074c0",
-            "name": "Succeed",
+            "containerId": "3eeedd48-2d7b-4174-ab10-c4108c0ed44c",
+            "name": "Update Problem",
             "url": "",
             "method": "POST",
             "sortNum": 110000,
-            "created": "2023-07-13T12:29:15.686Z",
-            "modified": "2023-07-20T12:16:22.221Z",
+            "created": "2023-07-13T12:50:23.837Z",
+            "modified": "2023-07-31T19:30:25.248Z",
             "headers": [],
             "params": [],
             "body": {
@@ -749,21 +950,112 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query {\n    getPublicRequests {\n        contest\n        user\n        createTime\n    }\n}"
+                    "query": "mutation Problem($input: UpdateProblemInput!){\n    updateProblem(\n        groupId: 1\n        input: $input\n    ){\n        id\n        title\n    }\n}",
+                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [],\n    \"tagIds\": []\n  }\n}"
                 }
             },
-            "tests": []
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"statusCode\": 422"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"message\": \"A problem should support at least one language\""
+                }
+            ],
+            "docs": "# Update Problem\n\n문제를 수정합니다.  \n그룹이 존재하지 않거나 유저에게 그룹 관리 권한이 없는 경우 403이 반환됩니다.  \n\n### Query\n- `groupId`를 설정하지 않으면 Open Space로 인식합니다.\n- 테스트케이스는 수정할 테이스케이스만 `testcases` 배열에 담아주세요.\n  + 기존에 있던 테이스케이스의 내용을 수정하려면, `id`, `input`, `output`, `scoreWeight`를 필드로 갖는 아이템을 배열에 넣어야 합니다. 존재하지 않는 테스트케이스 ID가 `id`로 설정되어 있을 경우, 새로운 테스트케이스로 간주됩니다.\n  + 새로운 테스트케이스를 추가하려면, 아이템이 `id`는 제외하고 나머지만을 필드로 갖도록 합니다.\n  + 수정하지 않을 테스트케이스는 전송하지 말아주세요.\n\n### Constraints\n- 현재 시스템에서 지원하는 언어는 C, Cpp, Java, Python3뿐입니다.\n- 아래의 세 가지 제약 조건을 어길 시 422가 반환됩니다:\n- `languages`는 빈 배열일 수 없습니다(= 아무 언어도 지원하지 않는 문제는 만들 수 없습니다).\n- `template`의 기반 언어는 `languages`에 속해 있어야 합니다.\n- 존재하지 않는 태그의 ID는 `tagIds`에 포함될 수 없습니다.\n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         },
         {
-            "_id": "d20e6466-3923-4d8e-a7b0-1274bff52bac",
+            "_id": "820eb328-e510-43a1-a8cf-1dc021525d2b",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
-            "containerId": "6920af5c-ce95-4485-b9a8-5eb56312fddb",
-            "name": "Succeed",
+            "containerId": "c9bbfd01-d3e3-460c-9625-94ec0de174c4",
+            "name": "422: Template in Not Supported Language",
+            "url": "",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2023-07-31T18:47:36.003Z",
+            "modified": "2023-07-31T19:06:04.166Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation Problem($input: CreateProblemInput!){\n    createProblem(\n        input: $input\n    ){\n        id\n    }\n}",
+                    "variables": "{\n  \"input\": {\n    \"title\": \"title0\",\n    \"description\": \"description0\",\n    \"inputDescription\": \"inputDescription0\",\n    \"outputDescription\": \"ouputDescription0\",\n    \"hint\": \"hint0\",\n    \"template\": [{\n      \"language\": \"Python3\",\n      \"code\": [{\n        \"id\": 1,\n        \"text\": \"int main(void) {}\",\n        \"locked\": false\n      }]\n    }],\n    \"languages\": [\"C\",\"Java\"],\n    \"timeLimit\": 666,\n    \"memoryLimit\": 33,\n    \"difficulty\": \"Level1\",\n    \"source\": \"source0\",\n    \"inputExamples\": [\"i0\",\"i1\"],\n    \"outputExamples\": [\"o0\",\"o1\"],\n    \"testcases\": [\n      {\n        \"input\": \"input0\",\n        \"output\": \"output0\"\n      },{\n        \"input\": \"input1\",\n        \"output\": \"output1\"\n      }\n      ],\n      \"tagIds\": [1]\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"statusCode\": 422"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"message\": \"This problem does not support Python3\""
+                }
+            ]
+        },
+        {
+            "_id": "89c0be54-fb24-4a85-b826-5fdc58c8de30",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "c9bbfd01-d3e3-460c-9625-94ec0de174c4",
+            "name": "422: Non-existent Tags",
+            "url": "",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2023-07-31T18:47:38.241Z",
+            "modified": "2023-07-31T19:04:59.631Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation Problem($input: CreateProblemInput!){\n    createProblem(\n        input: $input\n    ){\n        id\n    }\n}",
+                    "variables": "{\n  \"input\": {\n    \"title\": \"title0\",\n    \"description\": \"description0\",\n    \"inputDescription\": \"inputDescription0\",\n    \"outputDescription\": \"ouputDescription0\",\n    \"hint\": \"hint0\",\n    \"template\": [{\n      \"language\": \"C\",\n      \"code\": [{\n        \"id\": 1,\n        \"text\": \"int main(void) {}\",\n        \"locked\": false\n      }]\n    }],\n    \"languages\": [\"C\",\"Java\"],\n    \"timeLimit\": 666,\n    \"memoryLimit\": 33,\n    \"difficulty\": \"Level1\",\n    \"source\": \"source0\",\n    \"inputExamples\": [\"i0\",\"i1\"],\n    \"outputExamples\": [\"o0\",\"o1\"],\n    \"testcases\": [\n      {\n        \"input\": \"input0\",\n        \"output\": \"output0\"\n      },{\n        \"input\": \"input1\",\n        \"output\": \"output1\"\n      }\n      ],\n      \"tagIds\": [0]\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"statusCode\": 422"
+                }
+            ]
+        },
+        {
+            "_id": "29b5feb2-e730-4f5d-b647-9c6ce2b23ab7",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "3eeedd48-2d7b-4174-ab10-c4108c0ed44c",
+            "name": "422: No Language Supported",
             "url": "",
             "method": "POST",
             "sortNum": 120000,
-            "created": "2023-07-13T12:59:26.726Z",
-            "modified": "2023-07-13T14:05:19.174Z",
+            "created": "2023-07-31T19:29:28.071Z",
+            "modified": "2023-07-31T19:33:10.982Z",
             "headers": [],
             "params": [],
             "body": {
@@ -771,21 +1063,45 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation {\n    acceptPublic(input: {\n        groupId: 2,\n        itemId: 8\n    }) {\n        id\n        title\n        description\n    }\n}"
+                    "query": "mutation Problem($input: UpdateProblemInput!){\n    updateProblem(\n        groupId: 1\n        input: $input\n    ){\n        id\n        title\n    }\n}",
+                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [],\n    \"tagIds\": []\n  }\n}"
                 }
             },
-            "tests": []
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"statusCode\": 422"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"message\": \"A problem should support at least one language\""
+                }
+            ],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         },
         {
-            "_id": "974f9b3f-5625-49fd-a967-77d240685a95",
+            "_id": "ff63ade5-b512-4018-a91a-66b2dd1c18fe",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
-            "containerId": "7df6cb1f-2243-4653-84a2-7d145ffc63d8",
-            "name": "Succeed",
+            "containerId": "3eeedd48-2d7b-4174-ab10-c4108c0ed44c",
+            "name": "422: Template in Not Supported Language",
             "url": "",
             "method": "POST",
             "sortNum": 130000,
-            "created": "2023-07-13T12:59:30.875Z",
-            "modified": "2023-07-20T12:07:23.587Z",
+            "created": "2023-07-31T19:29:30.308Z",
+            "modified": "2023-07-31T19:32:39.130Z",
             "headers": [],
             "params": [],
             "body": {
@@ -793,10 +1109,75 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation {\n    rejectPublic(input: {\n        groupId: 2,\n        itemId: 3\n    }) {\n        id\n        groupId\n        title\n        description\n    }\n}"
+                    "query": "mutation Problem($input: UpdateProblemInput!){\n    updateProblem(\n        groupId: 1\n        input: $input\n    ){\n        id\n        title\n    }\n}",
+                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [\"C\",\"Java\"],\n    \"template\": [{\n      \"language\": \"Python3\",\n      \"code\": [{\n        \"id\": 1,\n        \"text\": \"int main(void) {}\",\n        \"locked\": false\n      }]\n    }],\n    \"tagIds\": []\n  }\n}"
                 }
             },
-            "tests": []
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"statusCode\": 422"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"message\": \"This problem does not support Python3\""
+                }
+            ],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "600c274b-bc5d-404e-83d8-c6e3465bb13d",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "3eeedd48-2d7b-4174-ab10-c4108c0ed44c",
+            "name": "422: Non-existent Tags",
+            "url": "",
+            "method": "POST",
+            "sortNum": 140000,
+            "created": "2023-07-31T19:29:32.585Z",
+            "modified": "2023-07-31T19:33:58.199Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation Problem($input: UpdateProblemInput!){\n    updateProblem(\n        groupId: 1\n        input: $input\n    ){\n        id\n        title\n    }\n}",
+                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [\"C\",\"Java\"],\n    \"tagIds\": [0]\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"statusCode\": 422"
+                }
+            ],
+            "docs": "# Update Problem\n\n문제를 수정합니다.  \n그룹이 존재하지 않거나 유저에게 그룹 관리 권한이 없는 경우 403이 반환됩니다.  \n\n### Query\n- `groupId`를 설정하지 않으면 Open Space로 인식합니다.\n- 테스트케이스는 수정할 테이스케이스만 `testcases` 배열에 담아주세요.\n  + 기존에 있던 테이스케이스의 내용을 수정하려면, `id`, `input`, `output`, `scoreWeight`를 필드로 갖는 아이템을 배열에 넣어야 합니다. 존재하지 않는 테스트케이스 ID가 `id`로 설정되어 있을 경우, 새로운 테스트케이스로 간주됩니다.\n  + 새로운 테스트케이스를 추가하려면, 아이템이 `id`는 제외하고 나머지만을 필드로 갖도록 합니다.\n  + 수정하지 않을 테스트케이스는 전송하지 말아주세요.\n\n### Constraints\n- 현재 시스템에서 지원하는 언어는 C, Cpp, Java, Python3뿐입니다.\n- 아래의 세 가지 제약 조건을 어길 시 422가 반환됩니다:\n- `languages`는 빈 배열일 수 없습니다(= 아무 언어도 지원하지 않는 문제는 만들 수 없습니다).\n- `template`의 기반 언어는 `languages`에 속해 있어야 합니다.\n- 존재하지 않는 태그의 ID는 `tagIds`에 포함될 수 없습니다.\n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         }
     ]
 }
