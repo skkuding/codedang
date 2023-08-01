@@ -82,6 +82,13 @@
             "sortNum": 140000
         },
         {
+            "_id": "052b2adc-2583-4006-9d78-09138d4efbb1",
+            "name": "Upload Problems",
+            "containerId": "419a4432-6b41-4cd0-a04e-f302e7be447b",
+            "created": "2023-07-13T20:55:09.917Z",
+            "sortNum": 100000
+        },
+        {
             "_id": "b235e35a-63de-40d9-ae62-5086e1131d08",
             "name": "Get Problems",
             "containerId": "419a4432-6b41-4cd0-a04e-f302e7be447b",
@@ -95,7 +102,7 @@
             "bearer": "{{bearer_token}}"
         },
         "options": {
-            "baseUrl": "https://dev.codedang.com/graphql"
+            "baseUrl": "localhost:3000/graphql"
         }
     },
     "requests": [
@@ -856,6 +863,174 @@
                 }
             ],
             "docs": "# Update Problem\n\n문제를 수정합니다.  \n그룹이 존재하지 않거나 유저에게 그룹 관리 권한이 없는 경우 403이 반환됩니다.  \n\n### Query\n- `groupId`를 설정하지 않으면 Open Space로 인식합니다.\n- 테스트케이스는 수정할 테이스케이스만 `testcases` 배열에 담아주세요.\n  + 기존에 있던 테이스케이스의 내용을 수정하려면, `id`, `input`, `output`, `scoreWeight`를 필드로 갖는 아이템을 배열에 넣어야 합니다. 존재하지 않는 테스트케이스 ID가 `id`로 설정되어 있을 경우, 새로운 테스트케이스로 간주됩니다.\n  + 새로운 테스트케이스를 추가하려면, 아이템이 `id`는 제외하고 나머지만을 필드로 갖도록 합니다.\n  + 수정하지 않을 테스트케이스는 전송하지 말아주세요.\n\n### Constraints\n- 현재 시스템에서 지원하는 언어는 C, Cpp, Java, Python3뿐입니다.\n- 아래의 세 가지 제약 조건을 어길 시 422가 반환됩니다:\n- `languages`는 빈 배열일 수 없습니다(= 아무 언어도 지원하지 않는 문제는 만들 수 없습니다).\n- `template`의 기반 언어는 `languages`에 속해 있어야 합니다.\n- 존재하지 않는 태그의 ID는 `tagIds`에 포함될 수 없습니다.\n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "7525ae4b-2105-4a82-ac26-8f19eed51554",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "052b2adc-2583-4006-9d78-09138d4efbb1",
+            "name": "Succeed",
+            "url": "",
+            "method": "POST",
+            "sortNum": 60000,
+            "created": "2023-07-13T20:55:25.664Z",
+            "modified": "2023-07-31T22:43:46.988Z",
+            "headers": [
+                {
+                    "name": "Apollo-Require-Preflight",
+                    "value": "true"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "operations",
+                        "value": "{\"query\": \"mutation($groupId: Float!, $input: UploadFileInput!) { uploadProblems(groupId: $groupId, input: $input){id createdById groupId title description template languages difficulty}}\", \"variables\" : {\"groupId\": 2, \"input\": {\"file\": null}}}"
+                    },
+                    {
+                        "name": "map",
+                        "value": "{\"nfile\":[\"variables.input.file\"]}"
+                    }
+                ],
+                "files": [
+                    {
+                        "name": "nfile",
+                        "value": "../backend/apps/admin/src/problem/mock/testdata.xlsx"
+                    }
+                ]
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "id"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "createdById"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "groupId"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "title"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "description"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "languages"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "template"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "difficulty"
+                },
+                {
+                    "type": "json-query",
+                    "custom": "json.data.uploadProblems.id | length",
+                    "action": "equal",
+                    "value": "2"
+                }
+            ],
+            "docs": "# Upload file\n\n## Input Specification\n\n### Query\n```GraphQL\nmutation ($groupId: Float!, $input: UploadFileInput!) {\n  uploadProblems (\n    groupId: $groupId,\n    input: $input\n  }) {\n    id\n    createdById\n    groupId\n    title\n    description\n    languages\n    template\n    difficulty\n  }\n}\n```\n\n### Variables\n```GraphQL\n{\n  \"groupId\": 2,\n  \"input\": {\n     \"file\": null\n  }\n}\n```\n\n자세한 Input specification은 <br>\nhttps://github.com/jaydenseric/graphql-multipart-request-spec 를 참고해주세요.\n\n<br>\n\n### Description\nExcel 파일(.xlsx)을 통해 problem을 업로드할 수 있도록 합니다.  \n파일의 확장자가 엑셀이 아니거나, 파일 내 특정 데이터가 형식에 맞지 않을 경우 줄 번호와 함께 422을 반환합니다.",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "63a87433-61f1-4a70-afc7-2991fb3f084c",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "052b2adc-2583-4006-9d78-09138d4efbb1",
+            "name": "422: Unsupported file",
+            "url": "",
+            "method": "POST",
+            "sortNum": 70000,
+            "created": "2023-07-27T12:48:14.751Z",
+            "modified": "2023-07-31T21:57:24.408Z",
+            "headers": [
+                {
+                    "name": "Apollo-Require-Preflight",
+                    "value": "true"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "operations",
+                        "value": "{\"query\": \"mutation($groupId: Float!, $input: FileUploadInput!) { uploadProblems(groupId: $groupId, input: $input){id createdById groupId title description template languages difficulty}}\", \"variables\" : {\"groupId\": 2, \"input\": {\"file\": null}}}"
+                    },
+                    {
+                        "name": "map",
+                        "value": "{\"nfile\":[\"variables.input.file\"]}"
+                    }
+                ],
+                "files": [
+                    {
+                        "name": "nfile",
+                        "value": "../README.md"
+                    }
+                ]
+            },
+            "tests": [
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].extensions.originalError.statusCode",
+                    "action": "equal",
+                    "value": "422"
+                },
+                {
+                    "type": "json-query",
+                    "custom": "json.errors[0].message",
+                    "action": "equal",
+                    "value": "Extensions except Excel(.xlsx, .xls) are not supported."
+                }
+            ],
+            "docs": "# Upload file\n\n## Input Specification\n\n### Query\n```GraphQL\nmutation ($groupId: Float!, $input: FileUploadInput!) {\n  uploadProblems (\n    groupId: $groupId,\n    input: $input\n  }) {\n    id\n    createdById\n    groupId\n    title\n    description\n    languages\n    template\n    difficulty\n  }\n}\n```\n\n### Variables\n```GraphQL\n{\n  \"groupId\": 2,\n  \"input\": {\n     \"file\": null\n  }\n}\n```\n\n자세한 Input specification은 <br>\nhttps://github.com/jaydenseric/graphql-multipart-request-spec 를 참고해주세요.\n\n<br>\n\n### Description\n구름에서 export한 excel 파일(.xlsx)을 통해 problem들을 업로드할 수 있도록 합니다.<br><br>\n\n\n",
             "preReq": {
                 "runRequests": [
                     {

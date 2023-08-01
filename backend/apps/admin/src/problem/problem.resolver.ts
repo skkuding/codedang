@@ -1,23 +1,29 @@
 import {
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   ParseIntPipe,
   UnprocessableEntityException
 } from '@nestjs/common'
-import { Resolver, Mutation, Args, Query, Context, Int } from '@nestjs/graphql'
+import { Args, Context, Query, Int, Mutation, Resolver } from '@nestjs/graphql'
 import { Prisma } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
-import { Problem } from '@admin/@generated/problem/problem.model'
-import { CreateProblemInput } from './model/create-problem.input'
-import { FilterProblemsInput } from './model/filter-problem.input'
+import { Problem } from '@admin/@generated'
+import {
+  CreateProblemInput,
+  UploadFileInput,
+  FilterProblemsInput
+} from './model/problem.input'
 import { UpdateProblemInput } from './model/update-problem.input'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => Problem)
 export class ProblemResolver {
+  private readonly logger = new Logger(ProblemResolver.name)
+
   constructor(private readonly problemService: ProblemService) {}
 
   @Mutation(() => Problem)
@@ -33,15 +39,38 @@ export class ProblemResolver {
         req.user.id,
         groupId
       )
-    } catch (err) {
-      if (err instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(err.message)
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
       } else if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2003'
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2003'
       ) {
-        throw new UnprocessableEntityException(err.message)
+        throw new UnprocessableEntityException(error.message)
       }
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Mutation(() => [Problem])
+  async uploadProblems(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    groupId: number,
+    @Args('input') input: UploadFileInput
+  ) {
+    try {
+      return await this.problemService.uploadProblems(
+        input,
+        req.user.id,
+        groupId
+      )
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -65,13 +94,14 @@ export class ProblemResolver {
   ) {
     try {
       return await this.problemService.getProblem(id, groupId)
-    } catch (err) {
+    } catch (error) {
       if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.name == 'NotFoundError'
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
       ) {
-        throw new NotFoundException(err.message)
+        throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -84,16 +114,17 @@ export class ProblemResolver {
   ) {
     try {
       return await this.problemService.updateProblem(input, groupId)
-    } catch (err) {
-      if (err instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(err.message)
-      } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
-        if (err.name == 'NotFoundError') {
-          throw new NotFoundException(err.message)
-        } else if (err.code === 'P2003') {
-          throw new UnprocessableEntityException(err.message)
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.name == 'NotFoundError') {
+          throw new NotFoundException(error.message)
+        } else if (error.code === 'P2003') {
+          throw new UnprocessableEntityException(error.message)
         }
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -106,13 +137,14 @@ export class ProblemResolver {
   ) {
     try {
       return await this.problemService.deleteProblem(id, groupId)
-    } catch (err) {
+    } catch (error) {
       if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.name == 'NotFoundError'
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
       ) {
-        throw new NotFoundException(err.message)
+        throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }

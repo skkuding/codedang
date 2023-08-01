@@ -1,8 +1,12 @@
+import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
+import { graphqlUploadExpress } from 'graphql-upload'
 import { AdminModule } from './admin.module'
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AdminModule)
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
+  app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 2 }))
   app.enableCors({
     allowedHeaders: ['*'],
     exposedHeaders: ['authorization'],

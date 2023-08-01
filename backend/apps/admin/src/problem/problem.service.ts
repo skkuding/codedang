@@ -1,10 +1,21 @@
 import { Injectable } from '@nestjs/common'
-import { UnprocessableDataException } from '@libs/exception'
+import { Workbook } from 'exceljs'
+import {
+  UnprocessableDataException,
+  UnprocessableFileException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { Language } from '@admin/@generated/prisma/language.enum'
+import { Level } from '@admin/@generated/prisma/level.enum'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 import { StorageService } from '@admin/storage/storage.service'
-import type { CreateProblemInput } from './model/create-problem.input'
-import type { FilterProblemsInput } from './model/filter-problem.input'
+import { ImportedProblemHeader } from './model/problem.constants'
+import type {
+  CreateProblemInput,
+  UploadFileInput,
+  FilterProblemsInput,
+  UploadProblemInput
+} from './model/problem.input'
 import type { Testcase } from './model/testcase.input'
 import type { UpdateProblemInput } from './model/update-problem.input'
 
@@ -37,7 +48,7 @@ export class ProblemService {
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
-        groupId: groupId,
+        groupId,
         createdById: userId,
         languages,
         template: JSON.stringify(template),
@@ -79,6 +90,177 @@ export class ProblemService {
       })
     )
     await this.storageService.uploadObject(filename, data, 'json')
+  }
+
+  async uploadProblems(
+    input: UploadFileInput,
+    userId: number,
+    groupId: number
+  ) {
+    const { filename, mimetype, createReadStream } = await input.file
+    if (
+      [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-excel'
+      ].includes(mimetype) === false
+    )
+      throw new UnprocessableDataException(
+        'Extensions except Excel(.xlsx, .xls) are not supported.'
+      )
+
+    const header = {}
+    const problems: { index: number; data: UploadProblemInput }[] = []
+    const testcases: { [key: number]: Testcase[] } = {}
+
+    const workbook = new Workbook()
+    const worksheet = (await workbook.xlsx.read(createReadStream()))
+      .worksheets[0]
+
+    worksheet.getRow(1).eachCell((cell, idx) => {
+      if (!ImportedProblemHeader.includes(cell.text))
+        throw new UnprocessableFileException(
+          `Field ${cell.text} is not supported`,
+          filename,
+          1
+        )
+      header[cell.text] = idx
+    })
+    worksheet.spliceRows(1, 1)
+
+    const unsupportedFields = [
+      header['InputFileName'],
+      header['InputFilePath'],
+      header['OutputFileName'],
+      header['OutputFilePath']
+    ]
+    worksheet.eachRow(async function (row, rowNumber) {
+      for (const colNumber of unsupportedFields) {
+        if (row.getCell(colNumber).text !== '')
+          throw new UnprocessableFileException(
+            'Using inputFile, outputFile is not supported',
+            filename,
+            rowNumber + 1
+          )
+      }
+      const title = row.getCell(header['문제제목']).text
+      const description = row.getCell(header['문제내용']).text
+      const languagesText = row.getCell(header['지원언어']).text.split(',')
+      const levelText = row.getCell(header['난이도']).text
+      const languages: Language[] = []
+      const level: Level = Level['Level' + levelText]
+      const template = []
+
+      for (let language of languagesText) {
+        let code: string
+        switch (language) {
+          case 'Python':
+            language = 'Python3'
+            break
+          default:
+            if (!(language in Language)) continue
+            code = row.getCell(header[`${language}SampleCode`]).text
+        }
+        if (code) {
+          template.push({
+            language,
+            code: [
+              {
+                id: 1,
+                text: code,
+                locked: false
+              }
+            ]
+          })
+        }
+        languages.push(Language[language])
+      }
+      if (!languages.length) {
+        throw new UnprocessableFileException(
+          'A problem should support at least one language',
+          filename,
+          rowNumber + 1
+        )
+      }
+
+      //TODO: specify timeLimit, memoryLimit(default: 2sec, 512mb)
+      const problemInput = {
+        title,
+        description,
+        inputDescription: '',
+        outputDescription: '',
+        hint: '',
+        template: template,
+        languages,
+        timeLimit: 2000,
+        memoryLimit: 512,
+        difficulty: level,
+        source: '',
+        inputExamples: [],
+        outputExamples: []
+      }
+      problems.push({ index: rowNumber, data: problemInput })
+
+      const testCnt = parseInt(row.getCell(header['TestCnt']).text)
+      const inputText = row.getCell(header['Input']).text
+      const outputs = row.getCell(header['Output']).text.split('::')
+      const scoreWeights = row.getCell(header['Score']).text.split('::')
+
+      if (testCnt === 0) return
+
+      let inputs: string[]
+      if (inputText === '' && testCnt !== 0) {
+        for (let i = 0; i < testCnt; i++) inputs.push('')
+      } else {
+        inputs = inputText.split('::')
+      }
+
+      if (
+        (inputs.length !== testCnt || outputs.length !== testCnt) &&
+        inputText != ''
+      ) {
+        throw new UnprocessableFileException(
+          'TestCnt must match the length of Input and Output. Or Testcases should not include ::.',
+          filename,
+          rowNumber + 1
+        )
+      }
+
+      const testcaseInput = []
+      for (let i = 0; i < testCnt; i++) {
+        testcaseInput.push({
+          input: inputs[i],
+          output: outputs[i],
+          scoreWeight: parseInt(scoreWeights[i])
+        })
+      }
+      testcases[rowNumber] = testcaseInput
+    })
+
+    return await Promise.all(
+      problems.map(async (problemInput) => {
+        const { index, data } = problemInput
+        const problem = await this.prisma.problem.create({
+          data: {
+            ...data,
+            createdBy: {
+              connect: {
+                id: userId
+              }
+            },
+            group: {
+              connect: {
+                id: groupId
+              }
+            },
+            template: JSON.stringify(data.template)
+          }
+        })
+        if (index in testcases) {
+          await this.createTestcases(problem.id, testcases[index])
+        }
+        return problem
+      })
+    )
   }
 
   async getProblems(
