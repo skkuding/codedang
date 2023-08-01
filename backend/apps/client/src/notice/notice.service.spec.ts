@@ -1,4 +1,3 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
 import type { Group, Notice } from '@prisma/client'
 import { expect } from 'chai'
@@ -70,21 +69,7 @@ describe('NoticeService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        NoticeService,
-        { provide: PrismaService, useValue: db },
-        {
-          provide: CACHE_MANAGER,
-          useFactory: () => ({
-            set: () => [],
-            get: () => [],
-            del: () => [],
-            store: {
-              keys: () => []
-            }
-          })
-        }
-      ]
+      providers: [NoticeService, { provide: PrismaService, useValue: db }]
     }).compile()
 
     service = module.get<NoticeService>(NoticeService)
