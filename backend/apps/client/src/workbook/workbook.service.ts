@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma, type Workbook, type Problem } from '@prisma/client'
+import type { Workbook, Problem } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { CreateWorkbookDto } from './dto/create-workbook.dto'
-import type { UpdateWorkbookDto } from './dto/update-workbook.dto'
 
 @Injectable()
 export class WorkbookService {
@@ -25,28 +23,6 @@ export class WorkbookService {
         groupId,
         isVisible: true
       },
-      select: { id: true, title: true, description: true, updateTime: true },
-      skip: skip,
-      take: take,
-      cursor: {
-        id: cursor
-      }
-    })
-    return workbooks
-  }
-
-  async getAdminWorkbooksByGroupId(
-    cursor,
-    take,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Workbook>[]> {
-    let skip = 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
-    const workbooks = await this.prisma.workbook.findMany({
-      where: { groupId },
       select: { id: true, title: true, description: true, updateTime: true },
       skip: skip,
       take: take,
@@ -97,85 +73,6 @@ export class WorkbookService {
     return {
       ...workbook,
       problems
-    }
-  }
-
-  async getAdminWorkbookById(workbookId: number): Promise<Partial<Workbook>> {
-    const workbook = await this.prisma.workbook.findFirst({
-      where: { id: workbookId },
-      select: {
-        id: true,
-        title: true,
-        createdBy: {
-          select: {
-            username: true
-          }
-        },
-        isVisible: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('workbook')
-    })
-    return workbook
-  }
-
-  async createWorkbook(
-    createWorkbookDto: CreateWorkbookDto,
-    userId: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Workbook> {
-    const newWorkbook = await this.prisma.workbook.create({
-      data: {
-        groupId,
-        createdById: userId,
-        ...createWorkbookDto
-      }
-    })
-    return newWorkbook
-  }
-
-  async updateWorkbook(
-    workbookId: number,
-    updateWorkbookDto: UpdateWorkbookDto
-  ): Promise<Workbook> {
-    try {
-      const updatedWorkbook = await this.prisma.workbook.update({
-        where: {
-          id: workbookId
-        },
-        data: {
-          ...updateWorkbookDto
-        }
-      })
-      return updatedWorkbook
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('workbook')
-      } else {
-        throw error
-      }
-    }
-  }
-
-  async deleteWorkbook(workbookId: number): Promise<Workbook> {
-    try {
-      const deletedWorkbook = await this.prisma.workbook.delete({
-        where: {
-          id: workbookId
-        }
-      })
-      return deletedWorkbook
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('workbook')
-      } else {
-        throw error
-      }
     }
   }
 
