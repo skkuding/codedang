@@ -10,7 +10,7 @@ import {
   UseGuards
 } from '@nestjs/common'
 import type { Workbook } from '@prisma/client'
-import { AuthNotNeeded, GroupMemberGuard, RolesGuard } from '@libs/auth'
+import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { WorkbookService } from './workbook.service'
@@ -50,7 +50,7 @@ export class WorkbookController {
 }
 
 @Controller('group/:groupId/workbook')
-@UseGuards(RolesGuard, GroupMemberGuard)
+@UseGuards(GroupMemberGuard)
 export class GroupWorkbookController {
   private readonly logger = new Logger(GroupWorkbookController.name)
 
