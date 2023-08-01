@@ -31,10 +31,7 @@ axiosRetry(axios, {
     await useAuthStore().reissue()
   }
 })
-// const apolloClient = new ApolloClient({
-//   // You should use an absolute URL here
-//   uri: 'https://dev.codedang.com/graphql'
-// })
+
 const link = from([
   new ApolloLink((operation, forward) => {
     operation.setContext(({ headers }: { headers: object }) => ({
@@ -43,12 +40,13 @@ const link = from([
         authorization: axios.defaults.headers.common.authorization
       }
     }))
-    return forward(operation) // Go to the next link in the chain. Similar to `next` in Express.js middleware.
+    return forward(operation)
   }),
-  new HttpLink({ uri: 'https://dev.codedang.com/graphql' })
+  new HttpLink({ uri: '/graphql' })
 ])
 const cache = new InMemoryCache()
 const apolloClient = new ApolloClient({ link, cache })
+
 const app = createApp({
   setup() {
     provide(ApolloClients, {
