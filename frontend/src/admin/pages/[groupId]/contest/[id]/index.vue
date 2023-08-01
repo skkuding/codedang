@@ -10,7 +10,7 @@ import IconTrash from '~icons/fa/trash-o'
 const showImportModal = ref(false)
 const showNoticeModal = ref(false)
 const showProblemModal = ref(false)
-const sortable = ref(false)
+const editing = ref(false)
 
 const problemList = ref([
   {
@@ -86,11 +86,11 @@ const problemList = ref([
           Import
         </Button>
         <Button
-          v-if="!sortable"
+          v-if="!editing"
           color="gray-dark"
           @click="
             () => {
-              sortable = true
+              editing = true
             }
           "
         >
@@ -101,7 +101,7 @@ const problemList = ref([
           color="red"
           @click="
             () => {
-              sortable = false
+              editing = false
               // TODO: api 요청
             }
           "
@@ -112,7 +112,7 @@ const problemList = ref([
     </div>
     <PaginationTable
       v-model="problemList"
-      :sortable="sortable"
+      :editing="editing"
       :fields="[
         {
           key: 'title',

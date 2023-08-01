@@ -27,7 +27,7 @@ const props = defineProps<{
   noSearchBar?: boolean
   noPagination?: boolean
   mode?: 'light' | 'dark'
-  sortable?: boolean
+  editing?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -115,7 +115,7 @@ if (props?.modelValue)
               headerColor[mode || 'light']
             ]"
           >
-            <th v-if="sortable" class="w-1" />
+            <th v-if="editing" class="w-1" />
             <th
               v-for="(field, index) in fields"
               :key="index"
@@ -170,7 +170,7 @@ if (props?.modelValue)
             :class="rowColor[mode || 'light']"
             @click="$emit('row-clicked', row)"
           >
-            <td v-if="sortable" class="handle p-2.5 pl-4">
+            <td v-if="editing" class="handle p-2.5 pl-4">
               <Fa6SolidEquals class="text-slate-300" />
             </td>
             <td
