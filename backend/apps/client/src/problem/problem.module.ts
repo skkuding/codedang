@@ -6,7 +6,7 @@ import {
   ContestProblemController,
   GroupContestProblemController
 } from './contest-problem.controller'
-import { ProblemController } from './problem.controller'
+import { GroupProblemController, ProblemController } from './problem.controller'
 import { ProblemRepository } from './problem.repository'
 import {
   ContestProblemService,
@@ -22,9 +22,10 @@ import {
   imports: [RolesModule, ContestModule, WorkbookModule],
   controllers: [
     ProblemController,
+    GroupProblemController,
     ContestProblemController,
-    WorkbookProblemController,
     GroupContestProblemController,
+    WorkbookProblemController,
     GroupWorkbookProblemController
   ],
   providers: [
