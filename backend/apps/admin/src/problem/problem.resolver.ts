@@ -9,10 +9,7 @@ import { Args, Context, Query, Int, Mutation, Resolver } from '@nestjs/graphql'
 import { Prisma } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import {
-  UnprocessableDataException,
-  UnprocessableFileException
-} from '@libs/exception'
+import { UnprocessableDataException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { Problem } from '@admin/@generated'
 import {
@@ -71,8 +68,6 @@ export class ProblemResolver {
       )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof UnprocessableFileException) {
         throw new UnprocessableEntityException(error.message)
       }
       this.logger.error(error.message, error.stack)
