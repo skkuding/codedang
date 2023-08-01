@@ -1,5 +1,6 @@
 import {
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   ParseIntPipe,
   UnprocessableEntityException
@@ -21,6 +22,8 @@ import { ProblemService } from './problem.service'
 
 @Resolver(() => Problem)
 export class ProblemResolver {
+  private readonly logger = new Logger(ProblemResolver.name)
+
   constructor(private readonly problemService: ProblemService) {}
 
   @Mutation(() => Problem)
@@ -36,15 +39,16 @@ export class ProblemResolver {
         req.user.id,
         groupId
       )
-    } catch (err) {
-      if (err instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(err.message)
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
       } else if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2003'
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2003'
       ) {
-        throw new UnprocessableEntityException(err.message)
+        throw new UnprocessableEntityException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -55,7 +59,7 @@ export class ProblemResolver {
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
     groupId: number,
     @Args('input') input: UploadFileInput
-  ): Promise<Problem[]> {
+  ) {
     try {
       return await this.problemService.uploadProblems(
         input,
@@ -66,6 +70,7 @@ export class ProblemResolver {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -89,13 +94,14 @@ export class ProblemResolver {
   ) {
     try {
       return await this.problemService.getProblem(id, groupId)
-    } catch (err) {
+    } catch (error) {
       if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.name == 'NotFoundError'
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
       ) {
-        throw new NotFoundException(err.message)
+        throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -108,16 +114,17 @@ export class ProblemResolver {
   ) {
     try {
       return await this.problemService.updateProblem(input, groupId)
-    } catch (err) {
-      if (err instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(err.message)
-      } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
-        if (err.name == 'NotFoundError') {
-          throw new NotFoundException(err.message)
-        } else if (err.code === 'P2003') {
-          throw new UnprocessableEntityException(err.message)
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.name == 'NotFoundError') {
+          throw new NotFoundException(error.message)
+        } else if (error.code === 'P2003') {
+          throw new UnprocessableEntityException(error.message)
         }
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -130,13 +137,14 @@ export class ProblemResolver {
   ) {
     try {
       return await this.problemService.deleteProblem(id, groupId)
-    } catch (err) {
+    } catch (error) {
       if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.name == 'NotFoundError'
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
       ) {
-        throw new NotFoundException(err.message)
+        throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
