@@ -36,10 +36,10 @@ import { UserModule } from './user/user.module'
     RolesModule,
     PrismaModule,
     ContestModule,
+    ProblemModule,
     StorageModule,
     GroupModule,
-    UserModule,
-    ProblemModule
+    UserModule
   ],
   controllers: [AdminController],
   providers: [
