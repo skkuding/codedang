@@ -13,6 +13,7 @@ import {
   ForbiddenException,
   Logger
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { NotFoundError } from 'rxjs'
 import { AuthenticatedRequest, GroupMemberGuard } from '@libs/auth'
 import {
@@ -66,7 +67,10 @@ export class ProblemSubmissionController {
         req.user.id
       )
     } catch (error) {
-      if (error instanceof NotFoundError) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
@@ -128,7 +132,10 @@ export class GroupProblemSubmissionController {
         groupId
       )
     } catch (error) {
-      if (error instanceof NotFoundError) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
@@ -196,10 +203,13 @@ export class ContestSubmissionController {
         req.user.id
       )
     } catch (error) {
-      if (error instanceof ForbiddenAccessException) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
-      } else if (error instanceof NotFoundError) {
-        throw new NotFoundException(error)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -271,10 +281,13 @@ export class GroupContestSubmissionController {
         groupId
       )
     } catch (error) {
-      if (error instanceof ForbiddenAccessException) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
-      } else if (error instanceof NotFoundError) {
-        throw new NotFoundException(error)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -329,7 +342,10 @@ export class WorkbookSubmissionController {
         req.user.id
       )
     } catch (error) {
-      if (error instanceof NotFoundError) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
@@ -395,7 +411,10 @@ export class GroupWorkbookSubmissionController {
         groupId
       )
     } catch (error) {
-      if (error instanceof NotFoundError) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)

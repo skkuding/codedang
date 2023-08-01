@@ -1,9 +1,9 @@
+import { NotFoundException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { Language, ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
-import { NotFoundError } from 'rxjs'
 import { spy, stub } from 'sinon'
 import {
   ActionNotAllowedException,
@@ -85,7 +85,7 @@ describe('SubmissionService', () => {
 
     it('should throw exception if problem is not found', async () => {
       db.problem.findFirstOrThrow.rejects(
-        new NotFoundError('No problem found error')
+        new NotFoundException('No problem found error')
       )
       const createSpy = stub(service, 'createSubmission')
 
@@ -95,7 +95,7 @@ describe('SubmissionService', () => {
           submissions[0].userId,
           problems[0].groupId
         )
-      ).to.be.rejectedWith(NotFoundError)
+      ).to.be.rejectedWith(NotFoundException)
       expect(createSpy.called).to.be.false
     })
   })
@@ -260,11 +260,11 @@ describe('SubmissionService', () => {
 
     it('should throw not found error', async () => {
       db.problem.findFirstOrThrow.rejects(
-        new NotFoundError('No problem found error')
+        new NotFoundException('No problem found error')
       )
 
       await expect(service.getSubmissions(problems[0].id)).to.be.rejectedWith(
-        NotFoundError
+        NotFoundException
       )
     })
   })
@@ -290,7 +290,7 @@ describe('SubmissionService', () => {
 
     it('should throw exception if problem is not found', async () => {
       db.problem.findFirstOrThrow.rejects(
-        new NotFoundError('No problem found error')
+        new NotFoundException('No problem found error')
       )
 
       await expect(
@@ -299,13 +299,13 @@ describe('SubmissionService', () => {
           problems[0].id,
           submissions[0].userId
         )
-      ).to.be.rejectedWith(NotFoundError)
+      ).to.be.rejectedWith(NotFoundException)
     })
 
     it('should throw exception if submission is not found', async () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.submission.findFirstOrThrow.rejects(
-        new NotFoundError('No submission found error')
+        new NotFoundException('No submission found error')
       )
 
       await expect(
@@ -314,7 +314,7 @@ describe('SubmissionService', () => {
           problems[0].id,
           submissions[0].userId
         )
-      ).to.be.rejectedWith(NotFoundError)
+      ).to.be.rejectedWith(NotFoundException)
     })
 
     it("should throw exception if submission is not user's and user has not passed this problem", async () => {
@@ -351,23 +351,23 @@ describe('SubmissionService', () => {
 
     it('should throw exception if user is not registered to contest', async () => {
       db.contestRecord.findUniqueOrThrow.rejects(
-        new NotFoundError('No contestRecord found error')
+        new NotFoundException('No contestRecord found error')
       )
 
       await expect(
         service.getContestSubmissions(problems[0].id, 1, submissions[0].userId)
-      ).to.be.rejectedWith(NotFoundError)
+      ).to.be.rejectedWith(NotFoundException)
     })
 
     it("should throw exception if contest doesn't have this problem", async () => {
       db.contestRecord.findUniqueOrThrow.resolves()
       db.contestProblem.findFirstOrThrow.rejects(
-        new NotFoundError('No contestProblem found error')
+        new NotFoundException('No contestProblem found error')
       )
 
       await expect(
         service.getContestSubmissions(problems[0].id, 1, submissions[0].userId)
-      ).to.be.rejectedWith(NotFoundError)
+      ).to.be.rejectedWith(NotFoundException)
     })
   })
 
@@ -397,7 +397,7 @@ describe('SubmissionService', () => {
 
     it('should throw exception if user is not registered to contest', async () => {
       db.contestRecord.findUniqueOrThrow.rejects(
-        new NotFoundError('No contestRecord found error')
+        new NotFoundException('No contestRecord found error')
       )
 
       await expect(
@@ -407,7 +407,7 @@ describe('SubmissionService', () => {
           1,
           submissions[0].userId
         )
-      ).to.be.rejectedWith(NotFoundError)
+      ).to.be.rejectedWith(NotFoundException)
     })
 
     it('should throw exception if the contest belong to different groups', async () => {
@@ -428,7 +428,7 @@ describe('SubmissionService', () => {
         contest: { groupId: problems[0].groupId }
       })
       db.submission.findFirstOrThrow.rejects(
-        new NotFoundError('No submission found error')
+        new NotFoundException('No submission found error')
       )
 
       await expect(
@@ -438,7 +438,7 @@ describe('SubmissionService', () => {
           1,
           submissions[0].userId
         )
-      ).to.be.rejectedWith(NotFoundError)
+      ).to.be.rejectedWith(NotFoundException)
     })
 
     it('should throw exception if contest is ongoing and the submission does not belong to this user', async () => {
