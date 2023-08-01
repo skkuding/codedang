@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BoxTitle from './BoxTitle.vue'
 </script>
+
 <template>
   <Story :layout="{ type: 'grid', width: '100%' }">
     <Variant title="default">

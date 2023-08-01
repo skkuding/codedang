@@ -16,6 +16,7 @@ const props = defineProps<{
 }>()
 
 const isModalVisible = ref(false)
+
 function close() {
   isModalVisible.value = false
 }

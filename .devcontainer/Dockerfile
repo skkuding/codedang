@@ -23,3 +23,13 @@ RUN chmod 440 /etc/sudoers.d/secure_path
 # Install RabbitMQ CLI tool
 RUN curl https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/main/deps/rabbitmq_management/bin/rabbitmqadmin -o /usr/local/bin/rabbitmqadmin
 RUN chmod 755 /usr/local/bin/rabbitmqadmin
+
+# Install AWS CLI
+RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" ]; then \
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscli.zip"; \
+    else \
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscli.zip"; \
+    fi \
+    && unzip awscli.zip \
+    && ./aws/install \
+    && rm -rf aws awscli.zip

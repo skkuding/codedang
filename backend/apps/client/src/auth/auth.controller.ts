@@ -6,7 +6,8 @@ import {
   Req,
   Res,
   UnauthorizedException,
-  InternalServerErrorException
+  InternalServerErrorException,
+  Logger
 } from '@nestjs/common'
 import { Request, Response } from 'express'
 import { AuthenticatedRequest, AuthNotNeeded, type JwtTokens } from '@libs/auth'
@@ -17,6 +18,8 @@ import { LoginUserDto } from './dto/login-user.dto'
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name)
+
   constructor(private readonly authService: AuthService) {}
 
   setJwtResponse = (res: Response, jwtTokens: JwtTokens) => {
@@ -37,11 +40,11 @@ export class AuthController {
     try {
       const jwtTokens = await this.authService.issueJwtTokens(loginUserDto)
       this.setJwtResponse(res, jwtTokens)
-      return
     } catch (error) {
       if (error instanceof InvalidUserException) {
         throw new UnauthorizedException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException('Login failed')
     }
   }
@@ -54,8 +57,8 @@ export class AuthController {
     try {
       await this.authService.deleteRefreshToken(req.user.id)
       res.clearCookie('refresh_token', REFRESH_TOKEN_COOKIE_OPTIONS)
-      return
     } catch (error) {
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -72,11 +75,11 @@ export class AuthController {
     try {
       const newJwtTokens = await this.authService.updateJwtTokens(refreshToken)
       this.setJwtResponse(res, newJwtTokens)
-      return
     } catch (error) {
       if (error instanceof InvalidJwtTokenException) {
         throw new UnauthorizedException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException('Failed to reissue tokens')
     }
   }

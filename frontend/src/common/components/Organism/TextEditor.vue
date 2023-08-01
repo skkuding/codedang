@@ -172,5 +172,5 @@ const editor = useEditor({
       </Button>
     </ButtonGroup>
   </div>
-  <editor-content :editor="editor" class="p-0.5" />
+  <EditorContent :editor="editor" class="p-0.5" />
 </template>

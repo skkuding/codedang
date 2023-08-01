@@ -83,6 +83,6 @@ const clickRow = (row: Item) => {
       @search="filter"
       @change-page="changeItems"
       @row-clicked="clickRow"
-    ></PaginationTable>
+    />
   </div>
 </template>
