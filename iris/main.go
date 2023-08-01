@@ -58,8 +58,6 @@ func main() {
 		dataSource = httpserver.NewHttpServerDataSource(
 			serverUrl,
 			utils.Getenv("TESTCASE_SERVER_URL_PLACEHOLDER", ":id"),
-			utils.Getenv("TESTCASE_SERVER_AUTH_TOKEN", "iris"),
-			utils.Getenv("TESTCASE_SERVER_AUTH_HEADER", "Authorization"),
 			time.Second*time.Duration(timeout),
 		)
 	}
@@ -85,12 +83,24 @@ func main() {
 
 	logProvider.Log(logger.INFO, "Server Started")
 
-	uri := "amqp://" +
-		utils.Getenv("RABBITMQ_DEFAULT_USER", "skku") + ":" +
-		utils.Getenv("RABBITMQ_DEFAULT_PASS", "1234") + "@" +
-		utils.Getenv("RABBITMQ_HOST", "localhost") + ":" +
-		utils.Getenv("RABBITMQ_PORT", "5672") + "/" +
-		utils.Getenv("RABBITMQ_DEFAULT_VHOST", "")
+	// amqps://skku:1234@broker-id.mq.us-west-2.amazonaws.com:5671
+	var uri string
+	if env == "production" {
+		uri = "amqps://" +
+			utils.Getenv("RABBITMQ_DEFAULT_USER", "skku") + ":" +
+			utils.Getenv("RABBITMQ_DEFAULT_PASS", "1234") + "@" +
+			utils.Getenv("RABBITMQ_HOST_ID", "localhost") + ".mq." +
+			utils.Getenv("RABBITMQ_HOST_REGION", "ap-northeast-2") + ".amazonaws.com:" +
+			utils.Getenv("RABBITMQ_PORT", "5672") + "/" +
+			utils.Getenv("RABBITMQ_DEFAULT_VHOST", "")
+	} else {
+		uri = "amqp://" +
+			utils.Getenv("RABBITMQ_DEFAULT_USER", "skku") + ":" +
+			utils.Getenv("RABBITMQ_DEFAULT_PASS", "1234") + "@" +
+			utils.Getenv("RABBITMQ_HOST", "localhost") + ":" +
+			utils.Getenv("RABBITMQ_PORT", "5672") + "/" +
+			utils.Getenv("RABBITMQ_DEFAULT_VHOST", "")
+	}
 
 	connector.Factory(
 		connector.RABBIT_MQ,

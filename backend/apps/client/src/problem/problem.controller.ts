@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Get,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -16,10 +17,6 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
-import type { ProblemResponseDto } from './dto/problem.response.dto'
-import type { ProblemsResponseDto } from './dto/problems.response.dto'
-import type { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
-import type { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import {
   ContestProblemService,
   ProblemService,
@@ -29,30 +26,32 @@ import {
 @Controller('problem')
 @AuthNotNeeded()
 export class ProblemController {
+  private readonly logger = new Logger(ProblemController.name)
+
   constructor(private readonly problemService: ProblemService) {}
 
   @Get()
   async getProblems(
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
-  ): Promise<ProblemsResponseDto[]> {
+  ) {
     try {
       return await this.problemService.getProblems(cursor, take)
     } catch (err) {
+      this.logger.error(err.message, err.stack)
       throw new InternalServerErrorException()
     }
   }
 
   @Get(':problemId')
-  async getProblem(
-    @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<ProblemResponseDto> {
+  async getProblem(@Param('problemId', ParseIntPipe) problemId: number) {
     try {
       return await this.problemService.getProblem(problemId)
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
+      this.logger.error(err.message, err.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -61,6 +60,8 @@ export class ProblemController {
 @Controller('contest/:contestId/problem')
 @AuthNotNeeded()
 export class ContestProblemController {
+  private readonly logger = new Logger(ContestProblemController.name)
+
   constructor(private readonly contestProblemService: ContestProblemService) {}
 
   @Get()
@@ -68,7 +69,7 @@ export class ContestProblemController {
     @Param('contestId', ParseIntPipe) contestId: number,
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
-  ): Promise<RelatedProblemsResponseDto[]> {
+  ) {
     try {
       return await this.contestProblemService.getContestProblems(
         contestId,
@@ -81,6 +82,7 @@ export class ContestProblemController {
       } else if (err instanceof ForbiddenAccessException) {
         throw new ForbiddenException(err.message)
       }
+      this.logger.error(err.message, err.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -89,7 +91,7 @@ export class ContestProblemController {
   async getContestProblem(
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<RelatedProblemResponseDto> {
+  ) {
     try {
       return await this.contestProblemService.getContestProblem(
         contestId,
@@ -101,6 +103,7 @@ export class ContestProblemController {
       } else if (err instanceof ForbiddenAccessException) {
         throw new BadRequestException(err.message)
       }
+      this.logger.error(err.message, err.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -109,6 +112,8 @@ export class ContestProblemController {
 @Controller('group/:groupId/contest/:contestId/problem')
 @UseGuards(RolesGuard, GroupMemberGuard)
 export class GroupContestProblemController {
+  private readonly logger = new Logger(GroupContestProblemController.name)
+
   constructor(private readonly contestProblemService: ContestProblemService) {}
 
   @Get()
@@ -117,7 +122,7 @@ export class GroupContestProblemController {
     @Param('contestId', ParseIntPipe) contestId: number,
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
-  ): Promise<RelatedProblemsResponseDto[]> {
+  ) {
     try {
       return await this.contestProblemService.getContestProblems(
         contestId,
@@ -129,6 +134,7 @@ export class GroupContestProblemController {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
+      this.logger.error(err.message, err.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -138,7 +144,7 @@ export class GroupContestProblemController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<RelatedProblemResponseDto> {
+  ) {
     try {
       return await this.contestProblemService.getContestProblem(
         contestId,
@@ -149,6 +155,7 @@ export class GroupContestProblemController {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
+      this.logger.error(err.message, err.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -157,6 +164,8 @@ export class GroupContestProblemController {
 @AuthNotNeeded()
 @Controller('workbook/:workbookId/problem')
 export class WorkbookProblemController {
+  private readonly logger = new Logger(WorkbookProblemController.name)
+
   constructor(
     private readonly workbookProblemService: WorkbookProblemService
   ) {}
@@ -166,7 +175,7 @@ export class WorkbookProblemController {
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
-  ): Promise<RelatedProblemsResponseDto[]> {
+  ) {
     try {
       return await this.workbookProblemService.getWorkbookProblems(
         workbookId,
@@ -177,6 +186,7 @@ export class WorkbookProblemController {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
+      this.logger.error(err.message, err.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -185,7 +195,7 @@ export class WorkbookProblemController {
   async getWorkbookProblem(
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<RelatedProblemResponseDto> {
+  ) {
     try {
       return await this.workbookProblemService.getWorkbookProblem(
         workbookId,
@@ -195,6 +205,7 @@ export class WorkbookProblemController {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
+      this.logger.error(err.message, err.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -203,6 +214,8 @@ export class WorkbookProblemController {
 @Controller('group/:groupId/workbook/:workbookId/problem')
 @UseGuards(RolesGuard, GroupMemberGuard)
 export class GroupWorkbookProblemController {
+  private readonly logger = new Logger(GroupWorkbookProblemController.name)
+
   constructor(
     private readonly workbookProblemService: WorkbookProblemService
   ) {}
@@ -213,7 +226,7 @@ export class GroupWorkbookProblemController {
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
-  ): Promise<RelatedProblemsResponseDto[]> {
+  ) {
     try {
       return await this.workbookProblemService.getWorkbookProblems(
         workbookId,
@@ -225,6 +238,7 @@ export class GroupWorkbookProblemController {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
+      this.logger.error(err.message, err.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -234,7 +248,7 @@ export class GroupWorkbookProblemController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<RelatedProblemResponseDto> {
+  ) {
     try {
       return await this.workbookProblemService.getWorkbookProblem(
         workbookId,
@@ -245,6 +259,7 @@ export class GroupWorkbookProblemController {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
+      this.logger.error(err.message, err.stack)
       throw new InternalServerErrorException()
     }
   }

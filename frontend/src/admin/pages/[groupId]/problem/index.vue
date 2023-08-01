@@ -1,7 +1,125 @@
 <script setup lang="ts">
-// write script code
+import CreatePorblemModal from '@/admin/components/CreatePorblemModal.vue'
+import ImportProblemModal from '@/admin/components/ImportProblemModal.vue'
+import Button from '@/common/components/Atom/Button.vue'
+import Dialog from '@/common/components/Molecule/Dialog.vue'
+import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
+import { useDialog } from '@/common/composables/dialog'
+import { useFileDialog } from '@vueuse/core'
+import { ref } from 'vue'
+import CloudArrowDown from '~icons/fa6-solid/cloud-arrow-down'
+import IconTrash from '~icons/fa/trash-o'
+
+const showProblemModal = ref(false)
+const showImportModal = ref(false)
+const { open, onChange } = useFileDialog()
+const dialog = useDialog()
+
+onChange((files) => {
+  if (!files![0].name.toLowerCase().endsWith('.csv')) {
+    dialog.error({
+      title: 'Unsupported extension',
+      content: "Only support '.csv'",
+      yes: 'OK'
+    })
+  } else {
+    dialog.success({
+      title: 'Success',
+      content: 'Successfully Uploaded',
+      yes: 'OK'
+    })
+  }
+})
 </script>
 
 <template>
-  <div>write template code</div>
+  <ImportProblemModal
+    :toggle="showImportModal"
+    :set-toggle="() => (showImportModal = !showImportModal)"
+  />
+  <CreatePorblemModal
+    :toggle="showProblemModal"
+    :set-toggle="
+      (a) => {
+        showProblemModal = !a
+      }
+    "
+  />
+  <Dialog />
+  <div class="flex flex-col">
+    <div class="border-gray border-b text-right text-lg font-semibold">
+      SKKUDING
+    </div>
+    <div class="mt-10 flex gap-5">
+      <h1 class="text-gray-dark mr-6 inline text-2xl font-semibold">Problem</h1>
+      <div class="flex items-center gap-3">
+        <Button @click="() => (showProblemModal = true)">+ Create</Button>
+        <Button @click="() => (showImportModal = true)">Import</Button>
+        <Button type="Button" class="flex items-center gap-2" @click="open()">
+          <CloudArrowDown />
+          File Upload
+        </Button>
+      </div>
+    </div>
+    <PaginationTable
+      :fields="[
+        {
+          key: 'id',
+          label: 'ID',
+          width: '8%'
+        },
+        {
+          key: 'displayId',
+          label: 'Display Id',
+          width: '12%'
+        },
+        {
+          key: 'title',
+          label: 'Title',
+          width: '30%'
+        },
+        {
+          key: 'difficulty',
+          label: 'Difficulty',
+          width: '15%'
+        },
+        {
+          key: 'lastUpdated',
+          label: 'Last Updated',
+          width: '25%'
+        },
+        {
+          key: '_delete',
+          label: 'Delete',
+          width: '10%'
+        }
+      ]"
+      :items="[
+        {
+          id: '1',
+          displayId: 'A',
+          title: '가파른 경사',
+          difficulty: 'Level1',
+          lastUpdated: '2021-12-31 08:30:45',
+          option: '123'
+        }
+      ]"
+      placeholder="keywords"
+      :number-of-pages="3"
+      no-search-bar
+    >
+      <template #_delete="{}">
+        <div class="flex items-center gap-2">
+          <Button class="flex h-[32px] w-[32px] items-center justify-center">
+            <IconTrash />
+          </Button>
+        </div>
+      </template>
+    </PaginationTable>
+  </div>
 </template>
+
+<route lang="yaml">
+meta:
+  layout: admin
+</route>
