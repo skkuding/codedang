@@ -17,7 +17,7 @@ const props = defineProps<{
 
 const isModalVisible = ref(false)
 
-function close() {
+const close = () => {
   isModalVisible.value = false
 }
 const signout = async () => {
@@ -35,15 +35,15 @@ const signout = async () => {
 const groupAdmin = ref<string[]>([])
 const groupMember = ref<string[]>([])
 
-onMounted(async () => {
+onMounted(() => {
   try {
-    await getList()
+    getList()
   } catch (err) {
     router.replace('/404')
   }
 })
 
-const getList = async () => {
+const getList = () => {
   axios.get(`/api/group/${props.id}/members`).then((res) => {
     groupMember.value = res.data
   })
