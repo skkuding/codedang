@@ -67,7 +67,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
               </div>
             </template>
             <template #items>
-              <ListItem>Management</ListItem>
+              <ListItem @click="$router.push('/admin')">Management</ListItem>
               <ListItem>Settings</ListItem>
               <ListItem @click="auth.logout()">Logout</ListItem>
             </template>
