@@ -9,7 +9,6 @@ import {
   EntityNotExistException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { GroupData } from './interface/group-data.interface'
 import type { GroupJoinRequest } from './interface/group-join-request.interface'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
@@ -20,7 +19,7 @@ export class GroupService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getGroup(userId: number, groupId: number): Promise<Partial<GroupData>> {
+  async getGroup(userId: number, groupId: number) {
     const isJoined = await this.prisma.userGroup.findFirst({
       where: {
         userId: userId,
@@ -31,8 +30,7 @@ export class GroupService {
           select: {
             id: true,
             groupName: true,
-            description: true,
-            config: true
+            description: true
           }
         },
         isGroupLeader: true
@@ -44,7 +42,7 @@ export class GroupService {
         where: {
           id: groupId,
           config: {
-            path: ['allowJoinFromSearch'],
+            path: ['showOnList'],
             equals: true
           }
         },
@@ -53,12 +51,7 @@ export class GroupService {
           groupName: true,
           description: true,
           userGroup: true,
-          config: true,
-          createdBy: {
-            select: {
-              username: true
-            }
-          }
+          config: true
         },
         rejectOnNotFound: () => new EntityNotExistException('group')
       })
@@ -67,13 +60,17 @@ export class GroupService {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
-        config: group.config,
-        createdBy: group.createdBy.username,
+        allowJoinFromSearch: group.config['allowJoinFromSearch'],
         memberNum: group.userGroup.length,
-        leaders: await this.getGroupLeaders(groupId)
+        leaders: await this.getGroupLeaders(groupId),
+        isJoined: false
       }
     } else {
-      return { ...isJoined.group, isGroupLeader: isJoined.isGroupLeader }
+      return {
+        ...isJoined.group,
+        isGroupLeader: isJoined.isGroupLeader,
+        isJoined: true
+      }
     }
   }
 
@@ -117,7 +114,7 @@ export class GroupService {
     return members
   }
 
-  async getGroups(cursor: number, take: number): Promise<GroupData[]> {
+  async getGroups(cursor: number, take: number) {
     const groups = (
       await this.prisma.group.findMany({
         take,
@@ -133,11 +130,6 @@ export class GroupService {
           }
         },
         select: {
-          createdBy: {
-            select: {
-              username: true
-            }
-          },
           id: true,
           groupName: true,
           description: true,
@@ -149,7 +141,6 @@ export class GroupService {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
-        createdBy: group.createdBy.username,
         memberNum: group.userGroup.length
       }
     })
@@ -157,7 +148,7 @@ export class GroupService {
     return groups
   }
 
-  async getJoinedGroups(userId: number): Promise<GroupData[]> {
+  async getJoinedGroups(userId: number) {
     return (
       await this.prisma.userGroup.findMany({
         where: {
@@ -169,11 +160,6 @@ export class GroupService {
         select: {
           group: {
             select: {
-              createdBy: {
-                select: {
-                  username: true
-                }
-              },
               id: true,
               groupName: true,
               description: true,
@@ -189,7 +175,6 @@ export class GroupService {
         groupName: userGroup.group.groupName,
         description: userGroup.group.description,
         memberNum: userGroup.group.userGroup.length,
-        createdBy: userGroup.group.createdBy.username,
         isGroupLeader: userGroup.isGroupLeader
       }
     })

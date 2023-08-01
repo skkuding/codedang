@@ -2,12 +2,12 @@ import {
   Controller,
   Get,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   Param,
   ParseIntPipe,
   UseGuards
 } from '@nestjs/common'
-import type { Clarification } from '@prisma/client'
 import { AuthNotNeeded, RolesGuard, GroupMemberGuard } from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
 import { ClarificationService } from './clarification.service'
@@ -15,12 +15,14 @@ import { ClarificationService } from './clarification.service'
 @Controller('contest/:contestId')
 @AuthNotNeeded()
 export class ClarificationController {
+  private readonly logger = new Logger(ClarificationController.name)
+
   constructor(private readonly clarificationService: ClarificationService) {}
 
   @Get('clarification')
   async getClarificationsByContest(
     @Param('contestId', ParseIntPipe) contestId: number
-  ): Promise<Partial<Clarification>[]> {
+  ) {
     try {
       return await this.clarificationService.getClarificationsByContest(
         contestId
@@ -29,6 +31,7 @@ export class ClarificationController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -37,7 +40,7 @@ export class ClarificationController {
   async getClarificationsByProblem(
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<Partial<Clarification>[]> {
+  ) {
     try {
       return await this.clarificationService.getClarificationsByProblem(
         contestId,
@@ -47,6 +50,7 @@ export class ClarificationController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -55,13 +59,14 @@ export class ClarificationController {
 @Controller('group/:groupId/contest/:contestId')
 @UseGuards(RolesGuard, GroupMemberGuard)
 export class GroupClarificationController {
+  private readonly logger = new Logger(GroupClarificationController.name)
   constructor(private readonly clarificationService: ClarificationService) {}
 
   @Get('clarification')
   async getClarificationsByContest(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number
-  ): Promise<Partial<Clarification>[]> {
+  ) {
     try {
       return await this.clarificationService.getClarificationsByContest(
         contestId,
@@ -71,6 +76,7 @@ export class GroupClarificationController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -80,7 +86,7 @@ export class GroupClarificationController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<Partial<Clarification>[]> {
+  ) {
     try {
       return await this.clarificationService.getClarificationsByProblem(
         contestId,
@@ -91,6 +97,7 @@ export class GroupClarificationController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
