@@ -8,6 +8,7 @@ import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import AuthModal from '@/common/components/Organism/AuthModal.vue'
 import { useAuthStore } from '@/common/store/auth'
 import { OnClickOutside } from '@vueuse/components'
+import { useIntersectionObserver } from '@vueuse/core'
 import axios from 'axios'
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -62,6 +63,12 @@ const hasNextPage = ref(true)
 const store = useAuthStore()
 const perPage = 5
 const pageNumGroup = ref(1)
+const target = ref(null)
+useIntersectionObserver(target, ([{ isIntersecting }]) => {
+  if (isIntersecting && groupList.value && groupList.value.length > 0) {
+    cursor.value = Number(groupList.value[groupList.value.length - 1].id)
+  }
+})
 
 const groupList = props.isMyGroup ? myGroupList : allGroupList
 onMounted(async () => {
@@ -103,7 +110,7 @@ const router = useRouter()
 const goGroup = async (id: number) => {
   const { data } = await axios.get(`/api/group/${id}`)
   // 사용자가 해당 group에 소속되어 있으면
-  if (!data.isJoined) router.push(`/group/${id}`)
+  if (data.isJoined) router.push(`/group/${id}`)
   // 소속 되어 있지 않으면
   else {
     selectedGroup.value = data

@@ -3,6 +3,7 @@ import Button from '@/common/components/Atom/Button.vue'
 import InputItem from '@/common/components/Atom/InputItem.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
+import { useAuthStore } from '@/common/store/auth'
 import { NUpload, NButton, NColorPicker } from 'naive-ui'
 import { ref } from 'vue'
 import IconLock from '~icons/bi/lock'
@@ -12,6 +13,7 @@ import GroupListSection from '../components/GroupListSection.vue'
 
 //TODO: invitation 검색 API 연결 후 noInvitation 값을 변경하는 function 구현 필요
 // const invitationCode = ref('')
+const auth = useAuthStore()
 const createModal = ref(false)
 const groupName = ref('')
 const groupPrivate = ref(false)
@@ -24,7 +26,7 @@ const groupDescription = ref('')
       <!-- <InputItem v-model="invitationCode" placeholder="Invitation Code" /> -->
       <!-- <Button class="py-2"><IconPaperPlane /></Button> -->
     </div>
-    <GroupListSection title="My Group" is-my-group />
+    <GroupListSection v-if="auth.isLoggedIn" title="My Group" is-my-group />
     <div class="flex justify-end">
       <Button class="py-2" @click="createModal = true">+ Create Group</Button>
     </div>
