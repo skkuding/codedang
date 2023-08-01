@@ -102,7 +102,7 @@
             "bearer": "{{bearer_token}}"
         },
         "options": {
-            "baseUrl": "https://dev.codedang.com/graphql"
+            "baseUrl": "localhost:3000/graphql"
         }
     },
     "requests": [
