@@ -22,7 +22,7 @@ interface Group {
   isGroupLeader: boolean
   description: string
   groupImage?: string
-  createdBy: number
+  isJoined: boolean
 }
 const group = ref<Group>({
   id: 1,
@@ -30,13 +30,17 @@ const group = ref<Group>({
   isGroupLeader: false,
   description: '',
   groupImage: '',
-  createdBy: 1
+  isJoined: true
 })
 
 onMounted(async () => {
   try {
     const { data } = await axios.get(`/api/group/${props.id}`)
-    group.value = data
+    if (!data.isJoined) {
+      router.go(-1)
+    } else {
+      group.value = data
+    }
   } catch (err) {
     router.replace('/404')
   }
@@ -60,7 +64,7 @@ onMounted(async () => {
         <Workbook :id="Number(id)" />
       </template>
       <template #member>
-        <Member :id="Number(id)" :created-by="group.createdBy" />
+        <Member :id="Number(id)" />
       </template>
     </Tab>
   </div>

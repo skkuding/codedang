@@ -15,7 +15,7 @@ import IconGear from '~icons/fa6-solid/gear'
 import IconUserGroup from '~icons/fa6-solid/user-group'
 
 const isMenuOpen = ref(false)
-const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
+const modalContent = ref<'login' | 'close'>('close')
 
 type Group = {
   id: number
@@ -35,15 +35,8 @@ type OneGroup = {
   isGroupLeader?: boolean
   allowJoinFromSearch?: boolean
   memberNum?: number
+  isJoined: boolean
   leaders?: string[]
-  config?: Config
-}
-
-type Config = {
-  allowJoinFromSearch: boolean
-  allowJoinWithURL: boolean
-  requireApprovalBeforeJoin: boolean
-  showOnList: boolean
 }
 
 const myGroupList = ref<Group[]>([])
@@ -100,6 +93,7 @@ const selectedGroup = ref<OneGroup | undefined>({
   id: 1,
   groupName: '',
   description: '',
+  isJoined: false,
   memberNum: 0
 })
 const currentPage = ref(1)
@@ -109,7 +103,7 @@ const router = useRouter()
 const goGroup = async (id: number) => {
   const { data } = await axios.get(`/api/group/${id}`)
   // 사용자가 해당 group에 소속되어 있으면
-  if (!data.memberNum) router.push(`/group/${id}`)
+  if (!data.isJoined) router.push(`/group/${id}`)
   // 소속 되어 있지 않으면
   else {
     selectedGroup.value = data
@@ -127,7 +121,7 @@ watch(modalVisible, (value) => {
 const joinGroup = async (id: number) => {
   try {
     const { data } = await axios.post(`/api/group/${id}/join`)
-    if (!data.memberNum && !data.config.allowJoinFromSearch) {
+    if (!data.isJoined && !data.allowJoinFromSearch) {
       //need approval
       modalType.value = 'wait'
     } else {
@@ -234,7 +228,7 @@ const joinGroup = async (id: number) => {
             <div class="border-green flex flex-col gap-6 border-l-2 py-4 pl-6">
               <div class="flex flex-col gap-1 font-bold">
                 <PageSubtitle text="Member" />
-                <p class="mb-4">{{ selectedGroup.memberNum || 1 }}</p>
+                <p class="mb-4">{{ selectedGroup.memberNum || 0 }}</p>
                 <PageSubtitle text="Group Manager" />
                 <span
                   v-for="(item, index) in selectedGroup.leaders"

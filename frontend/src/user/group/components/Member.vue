@@ -6,7 +6,6 @@ import NameList from './NameList.vue'
 
 defineProps<{
   id: number
-  createdBy: number
 }>()
 
 const isModalVisible = ref(false)
@@ -46,8 +45,8 @@ const groupMember = [
 <template>
   <div class="mx-auto mt-8 flex flex-col gap-20">
     <div class="flex flex-col justify-center gap-10">
-      <NameList title="Manager" :user-list="groupAdmin" :creator="createdBy" />
-      <NameList title="Member" :user-list="groupMember" :creator="createdBy" />
+      <NameList title="Manager" :user-list="groupAdmin" />
+      <NameList title="Member" :user-list="groupMember" />
     </div>
     <Button class="self-end" @click="isModalVisible = true">Leave Group</Button>
   </div>
