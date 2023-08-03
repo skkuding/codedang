@@ -16,6 +16,7 @@ import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { ContestModule } from './contest/contest.module'
 import { GroupModule } from './group/group.module'
+import { ProblemModule } from './problem/problem.module'
 import { StorageModule } from './storage/storage.module'
 import { UserModule } from './user/user.module'
 
@@ -33,11 +34,12 @@ import { UserModule } from './user/user.module'
     }),
     JwtAuthModule,
     RolesModule,
-    UserModule,
     PrismaModule,
     ContestModule,
+    ProblemModule,
+    StorageModule,
     GroupModule,
-    StorageModule
+    UserModule
   ],
   controllers: [AdminController],
   providers: [

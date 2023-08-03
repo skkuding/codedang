@@ -482,14 +482,12 @@
         }
     ],
     "settings": {
-        "headers": [],
         "auth": {
             "type": "bearer",
             "bearer": "{{bearer_token}}"
         },
-        "tests": [],
         "options": {
-            "baseUrl": "http://localhost:4000"
+            "baseUrl": "localhost:4000"
         }
     },
     "requests": [
@@ -502,7 +500,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-01-04T03:25:24.818Z",
-            "modified": "2023-02-21T01:20:16.961Z",
+            "modified": "2023-07-12T12:49:00.500Z",
             "headers": [],
             "params": [],
             "body": {
