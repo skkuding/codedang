@@ -109,12 +109,15 @@ export class ContestResolver {
 
   @Mutation(() => Contest)
   @UseRolesGuard()
-  async acceptPublic(
+  async acceptPublicizingRequest(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('contestId', ParseIntPipe) contestId: number
   ) {
     try {
-      return await this.contestService.acceptPublic(groupId, contestId)
+      return await this.contestService.acceptPublicizingRequest(
+        groupId,
+        contestId
+      )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -125,12 +128,15 @@ export class ContestResolver {
 
   @Mutation(() => Contest)
   @UseRolesGuard()
-  async rejectPublic(
+  async rejectPublicizingRequest(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('contestId', ParseIntPipe) contestId: number
   ) {
     try {
-      return await this.contestService.rejectPublic(groupId, contestId)
+      return await this.contestService.rejectPublicizingRequest(
+        groupId,
+        contestId
+      )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

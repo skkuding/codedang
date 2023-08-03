@@ -133,7 +133,7 @@ export class ContestService {
     return contest
   }
 
-  async acceptPublic(groupId: number, contestId: number) {
+  async acceptPublicizingRequest(groupId: number, contestId: number) {
     const updatedContest = await this.prisma.contest.update({
       where: {
         id: contestId
@@ -157,7 +157,7 @@ export class ContestService {
     return updatedContest
   }
 
-  async rejectPublic(groupId: number, contestId: number) {
+  async rejectPublicizingRequest(groupId: number, contestId: number) {
     const key = contestPublicizingRequestKey(contestId)
 
     if (!(await this.cacheManager.get(key))) {
