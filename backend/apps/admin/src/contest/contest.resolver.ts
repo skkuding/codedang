@@ -12,11 +12,10 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
 import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
 import { CreateContestInput } from './model/create-contest.input'
-import { InputForDetail } from './model/input-for-detail.input'
-import { Input } from './model/input.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
 import { UpdateContestInput } from './model/update-contest.input'
 
@@ -25,12 +24,12 @@ export class ContestResolver {
   constructor(private readonly contestService: ContestService) {}
 
   @Query(() => [Contest])
-  async getContests(@Args('input') input: Input) {
-    return await this.contestService.getContests(
-      input.take,
-      input.groupId,
-      input.cursor
-    )
+  async getContests(
+    @Args('take', ParseIntPipe) take: number,
+    @Args('groupId', ParseIntPipe) groupId: number,
+    @Args('cursor', CursorValidationPipe) cursor: number
+  ) {
+    return await this.contestService.getContests(take, groupId, cursor)
   }
 
   @Query(() => [PublicizingRequest])
@@ -41,9 +40,9 @@ export class ContestResolver {
 
   @Mutation(() => Contest)
   async createContest(
-    @Args('groupId') groupId: number,
-    @Context('req') req: AuthenticatedRequest,
-    @Args('input') input: CreateContestInput
+    @Args('groupId', ParseIntPipe) groupId: number,
+    @Args('input') input: CreateContestInput,
+    @Context('req') req: AuthenticatedRequest
   ) {
     try {
       return await this.contestService.createContest(
@@ -61,7 +60,7 @@ export class ContestResolver {
 
   @Mutation(() => Contest)
   async updateContest(
-    @Args('groupId') groupId: number,
+    @Args('groupId', ParseIntPipe) groupId: number,
     @Args('input') input: UpdateContestInput
   ) {
     try {
@@ -93,14 +92,11 @@ export class ContestResolver {
 
   @Mutation(() => Contest)
   async requestToPublic(
-    @Args('groupId') groupId: number,
-    @Args('input') input: InputForDetail
+    @Args('groupId', ParseIntPipe) groupId: number,
+    @Args('contestId', ParseIntPipe) contestId: number
   ) {
     try {
-      return await this.contestService.requestToPublic(
-        input.groupId,
-        input.contestId
-      )
+      return await this.contestService.requestToPublic(groupId, contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -113,12 +109,12 @@ export class ContestResolver {
 
   @Mutation(() => Contest)
   @UseRolesGuard()
-  async acceptPublic(@Args('input') input: InputForDetail) {
+  async acceptPublic(
+    @Args('groupId', ParseIntPipe) groupId: number,
+    @Args('contestId', ParseIntPipe) contestId: number
+  ) {
     try {
-      return await this.contestService.acceptPublic(
-        input.groupId,
-        input.contestId
-      )
+      return await this.contestService.acceptPublic(groupId, contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -129,12 +125,12 @@ export class ContestResolver {
 
   @Mutation(() => Contest)
   @UseRolesGuard()
-  async rejectPublic(@Args('input') input: InputForDetail) {
+  async rejectPublic(
+    @Args('groupId', ParseIntPipe) groupId: number,
+    @Args('contestId', ParseIntPipe) contestId: number
+  ) {
     try {
-      return await this.contestService.rejectPublic(
-        input.groupId,
-        input.contestId
-      )
+      return await this.contestService.rejectPublic(groupId, contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
