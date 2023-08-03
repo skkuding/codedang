@@ -40,7 +40,7 @@ defineProps<{
       </div>
       <div>
         <h2 class="text-lg font-bold">Description</h2>
-        <TextEditor class="h-[240px] w-full" />
+        <TextEditor size="lg" />
       </div>
       <div class="flex flex-col gap-3">
         <h2 class="text-lg font-bold">Period</h2>

@@ -112,7 +112,7 @@ const noticeFixedStat = ref(false)
           <InputItem v-model="title" required placeholder="Title" />
         </div>
         <h2 class="mt-8 text-lg font-bold">Description</h2>
-        <TextEditor class="h-[360px] w-full" />
+        <TextEditor size="lg" />
         <div>
           <NDatePicker
             v-model:value="dateRange"
