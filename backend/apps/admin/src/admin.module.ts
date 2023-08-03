@@ -13,6 +13,7 @@ import { PrismaModule } from '@libs/prisma'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { GroupModule } from './group/group.module'
+import { ProblemModule } from './problem/problem.module'
 import { StorageModule } from './storage/storage.module'
 import { UserModule } from './user/user.module'
 import { WorkbookModule } from './workbook/workbook.module'
@@ -27,11 +28,12 @@ import { WorkbookModule } from './workbook/workbook.module'
     }),
     JwtAuthModule,
     RolesModule,
-    UserModule,
     PrismaModule,
     WorkbookModule,
+    ProblemModule,
+    StorageModule,
     GroupModule,
-    StorageModule
+    UserModule
   ],
   controllers: [AdminController],
   providers: [

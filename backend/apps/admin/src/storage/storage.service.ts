@@ -1,6 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client
+} from '@aws-sdk/client-s3'
 import { type ContentType, ContentTypes } from './content.type'
 
 @Injectable()
@@ -22,5 +27,23 @@ export class StorageService {
   }
 
   // TODO: uploadFile
-  // TODO: readFile
+
+  async readObject(filename: string) {
+    const res = await this.client.send(
+      new GetObjectCommand({
+        Bucket: this.config.get('TESTCASE_BUCKET_NAME'),
+        Key: filename
+      })
+    )
+    return res.Body.transformToString()
+  }
+
+  async deleteObject(filename: string) {
+    await this.client.send(
+      new DeleteObjectCommand({
+        Bucket: this.config.get('TESTCASE_BUCKET_NAME'),
+        Key: filename
+      })
+    )
+  }
 }

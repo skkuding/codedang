@@ -98,3 +98,7 @@ jobs:
       - name: Run docker compose up
         run: |
           docker compose up -d
+
+      - name: Remove unused docker storages
+        run: |
+          docker system prune -f
