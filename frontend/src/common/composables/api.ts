@@ -81,7 +81,6 @@ export const useListAPI = <T extends Item>(
       ((currentPage.value - 1) % pagesPerSlot) + take
     )
   })
-  console.log('did you get the data is ', items)
 
   return {
     items,
