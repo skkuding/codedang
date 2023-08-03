@@ -784,118 +784,6 @@
             }
         },
         {
-            "_id": "af8a1447-ee6c-4e13-bf24-7617ffde6f25",
-            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-            "containerId": "4b515a9e-2c7f-46c3-aef5-809b6f2c322f",
-            "name": "Succeed",
-            "url": "/group/1/contest/2",
-            "method": "GET",
-            "sortNum": 10000,
-            "created": "2023-01-04T03:44:47.207Z",
-            "modified": "2023-03-02T11:03:49.619Z",
-            "headers": [],
-            "params": [],
-            "tests": [
-                {
-                    "type": "res-code",
-                    "custom": "",
-                    "action": "equal",
-                    "value": "200"
-                },
-                {
-                    "type": "res-body",
-                    "custom": "",
-                    "action": "contains",
-                    "value": "\"title\""
-                },
-                {
-                    "type": "res-body",
-                    "custom": "",
-                    "action": "contains",
-                    "value": "\"startTime\""
-                },
-                {
-                    "type": "res-body",
-                    "custom": "",
-                    "action": "contains",
-                    "value": "\"endTime\""
-                },
-                {
-                    "type": "res-body",
-                    "custom": "",
-                    "action": "contains",
-                    "value": "\"group\""
-                }
-            ],
-            "docs": "# Get group's all contests\n\n그룹의 종료된 대회를 제외한 목록을 가져옵니다.",
-            "preReq": {
-                "runRequests": [
-                    {
-                        "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
-                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-                        "triggerCondition": "run-always",
-                        "triggerValue": ""
-                    }
-                ]
-            }
-        },
-        {
-            "_id": "af8a1447-ee6c-4e13-bf24-7617ffde6f25",
-            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-            "containerId": "4b515a9e-2c7f-46c3-aef5-809b6f2c322f",
-            "name": "Succeed",
-            "url": "/group/1/contest/2",
-            "method": "GET",
-            "sortNum": 10000,
-            "created": "2023-01-04T03:44:47.207Z",
-            "modified": "2023-02-15T05:05:08.839Z",
-            "headers": [],
-            "params": [],
-            "tests": [
-                {
-                    "type": "res-code",
-                    "custom": "",
-                    "action": "equal",
-                    "value": "200"
-                },
-                {
-                    "type": "res-body",
-                    "custom": "",
-                    "action": "contains",
-                    "value": "\"title\""
-                },
-                {
-                    "type": "res-body",
-                    "custom": "",
-                    "action": "contains",
-                    "value": "\"startTime\""
-                },
-                {
-                    "type": "res-body",
-                    "custom": "",
-                    "action": "contains",
-                    "value": "\"endTime\""
-                },
-                {
-                    "type": "res-body",
-                    "custom": "",
-                    "action": "contains",
-                    "value": "\"description\""
-                }
-            ],
-            "docs": "# Get group's contest by ID\n\nGroup의 대회 하나의 정보를 가져옵니다.",
-            "preReq": {
-                "runRequests": [
-                    {
-                        "reqId": "de1639a5-d9da-4397-8a13-ae1fc61b849b",
-                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-                        "triggerCondition": "run-always",
-                        "triggerValue": ""
-                    }
-                ]
-            }
-        },
-        {
             "_id": "989c4ce8-2ca8-4b07-847f-4fb37eac729c",
             "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
             "containerId": "fee4c6ed-cf6b-45c1-830b-ae840a325a19",
@@ -1105,7 +993,7 @@
             "method": "GET",
             "sortNum": 20000,
             "created": "2023-01-15T15:41:35.396Z",
-            "modified": "2023-03-02T11:31:28.501Z",
+            "modified": "2023-08-03T13:02:37.187Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -1119,7 +1007,7 @@
                     "type": "res-body",
                     "custom": "",
                     "action": "contains",
-                    "value": "contest does not exist"
+                    "value": "Contest does not exist"
                 }
             ]
         },
@@ -1132,7 +1020,7 @@
             "method": "GET",
             "sortNum": 20000,
             "created": "2023-01-15T15:50:08.931Z",
-            "modified": "2023-02-15T05:05:19.512Z",
+            "modified": "2023-08-03T13:05:44.016Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -1146,7 +1034,7 @@
                     "type": "res-body",
                     "custom": "",
                     "action": "contains",
-                    "value": "contest does not exist"
+                    "value": "Contest does not exist"
                 }
             ],
             "preReq": {
@@ -1164,12 +1052,12 @@
             "_id": "8526d2dc-b8f5-4dc6-873f-09f411e6ca31",
             "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
             "containerId": "fee4c6ed-cf6b-45c1-830b-ae840a325a19",
-            "name": "403: Already participated",
+            "name": "409: Already participated",
             "url": "/group/1/contest/1/participation",
             "method": "POST",
-            "sortNum": 20000,
+            "sortNum": 40000,
             "created": "2023-01-18T07:58:25.651Z",
-            "modified": "2023-02-15T05:08:22.517Z",
+            "modified": "2023-08-03T13:04:59.365Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -1177,7 +1065,7 @@
                     "type": "res-code",
                     "custom": "",
                     "action": "equal",
-                    "value": "403"
+                    "value": "409"
                 }
             ],
             "preReq": {
@@ -1200,7 +1088,7 @@
             "method": "POST",
             "sortNum": 30000,
             "created": "2023-01-18T07:59:40.454Z",
-            "modified": "2023-02-15T05:08:36.120Z",
+            "modified": "2023-08-03T13:05:33.212Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -1214,7 +1102,7 @@
                     "type": "res-body",
                     "custom": "",
                     "action": "contains",
-                    "value": "contest does not exist"
+                    "value": "Contest does not exist"
                 }
             ],
             "preReq": {
@@ -1232,12 +1120,12 @@
             "_id": "6614b869-9477-48ac-89e3-610433d1d510",
             "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
             "containerId": "fee4c6ed-cf6b-45c1-830b-ae840a325a19",
-            "name": "403: Ended contest",
+            "name": "409: Ended contest",
             "url": "/group/1/contest/2/participation",
             "method": "POST",
-            "sortNum": 25000,
+            "sortNum": 50000,
             "created": "2023-01-18T08:00:24.978Z",
-            "modified": "2023-02-15T05:08:29.218Z",
+            "modified": "2023-08-03T13:05:21.996Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -1245,7 +1133,7 @@
                     "type": "res-code",
                     "custom": "",
                     "action": "equal",
-                    "value": "403"
+                    "value": "409"
                 },
                 {
                     "type": "res-body",
@@ -2138,12 +2026,12 @@
             "_id": "6584d0c4-0f1c-4b8a-8649-94d3e6d71d30",
             "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
             "containerId": "50cd7ae2-a924-4930-a42b-ed37e850f6fe",
-            "name": "422: Duplicate Email",
+            "name": "409: Duplicate Email",
             "url": "/email-auth/send-email/register-new",
             "method": "POST",
             "sortNum": 20000,
             "created": "2023-02-04T12:44:36.428Z",
-            "modified": "2023-02-04T12:45:14.432Z",
+            "modified": "2023-08-03T13:10:41.095Z",
             "headers": [],
             "params": [],
             "body": {
@@ -2156,13 +2044,13 @@
                     "type": "res-code",
                     "custom": "",
                     "action": "equal",
-                    "value": "422"
+                    "value": "409"
                 },
                 {
                     "type": "res-body",
                     "custom": "",
                     "action": "contains",
-                    "value": "This email is already used"
+                    "value": "Email is already in use"
                 }
             ]
         },
@@ -2175,7 +2063,7 @@
             "method": "POST",
             "sortNum": 20000,
             "created": "2023-02-04T12:46:01.478Z",
-            "modified": "2023-02-15T05:47:12.268Z",
+            "modified": "2023-08-03T13:10:18.031Z",
             "headers": [],
             "params": [],
             "body": {
@@ -2194,7 +2082,7 @@
                     "type": "res-body",
                     "custom": "",
                     "action": "contains",
-                    "value": "Cannot find a registered user whose email address is"
+                    "value": "Incorrect email"
                 }
             ]
         },
@@ -2267,12 +2155,12 @@
             "_id": "4e632b66-abd9-4416-a70b-138e9bb6056e",
             "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
             "containerId": "3a424d2b-2fb8-4b0a-8b1d-772d11597261",
-            "name": "500: Invalid Pin",
+            "name": "401: Invalid Pin",
             "url": "/email-auth/verify-pin",
             "method": "POST",
             "sortNum": 200000,
             "created": "2023-02-15T03:36:24.801Z",
-            "modified": "2023-02-15T03:51:53.040Z",
+            "modified": "2023-08-03T13:13:33.313Z",
             "headers": [],
             "params": [],
             "body": {
@@ -2285,13 +2173,13 @@
                     "type": "res-code",
                     "custom": "",
                     "action": "equal",
-                    "value": "500"
+                    "value": "401"
                 },
                 {
                     "type": "res-body",
                     "custom": "",
                     "action": "contains",
-                    "value": "PIN not found or invalid PIN"
+                    "value": "Incorrect pin"
                 }
             ]
         },
@@ -2476,10 +2364,10 @@
             "_id": "2902f14c-3e97-4dbd-b520-84898231a7c7",
             "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
             "containerId": "b2a0a2ac-e83c-4e01-816c-b402fc61b190",
-            "name": "422: Duplicate Username",
+            "name": "409: Duplicate Username",
             "url": "/user/sign-up",
             "method": "POST",
-            "sortNum": 206875,
+            "sortNum": 205625,
             "created": "2023-02-15T04:09:02.244Z",
             "modified": "2023-02-15T12:33:50.818Z",
             "headers": [
@@ -3806,12 +3694,12 @@
             "_id": "8ac61468-d539-4085-97a4-cac31d977444",
             "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
             "containerId": "e69f258a-3604-45e3-92fd-f87e9f25c64a",
-            "name": "400: Duplicated join request",
+            "name": "409: Duplicate join request",
             "url": "/group/3/join",
             "method": "POST",
             "sortNum": 500000,
             "created": "2023-02-21T01:44:32.310Z",
-            "modified": "2023-05-11T11:03:04.433Z",
+            "modified": "2023-08-03T13:08:59.386Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -3819,13 +3707,7 @@
                     "type": "res-code",
                     "custom": "",
                     "action": "equal",
-                    "value": "400"
-                },
-                {
-                    "type": "json-query",
-                    "custom": "json.message",
-                    "action": "equal",
-                    "value": "duplicated join request is not allowed to this group"
+                    "value": "409"
                 }
             ]
         },
@@ -3838,7 +3720,7 @@
             "method": "POST",
             "sortNum": 510000,
             "created": "2023-02-21T02:00:24.137Z",
-            "modified": "2023-02-21T06:07:04.159Z",
+            "modified": "2023-08-03T13:09:50.429Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -3852,7 +3734,7 @@
                     "type": "json-query",
                     "custom": "json.message",
                     "action": "equal",
-                    "value": "group does not exist"
+                    "value": "Group does not exist"
                 }
             ],
             "preReq": {
@@ -4190,7 +4072,7 @@
             "method": "GET",
             "sortNum": 10000,
             "created": "2023-02-21T08:19:28.677Z",
-            "modified": "2023-04-28T12:21:13.139Z",
+            "modified": "2023-08-03T13:07:38.252Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -4207,17 +4089,7 @@
                     "value": "9"
                 }
             ],
-            "docs": "# Get group members\n\n### URL\nGET /group/{groupId}/members <br><br>\n\n### Description\n가입한 그룹의 멤버들의 username 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\nString[]\n```",
-            "preReq": {
-                "runRequests": [
-                    {
-                        "reqId": "9dffba42-be8a-48c1-8243-e327ce99589b",
-                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-                        "triggerCondition": "run-always",
-                        "triggerValue": ""
-                    }
-                ]
-            }
+            "docs": "# Get group members\n\n### URL\nGET /group/{groupId}/members <br><br>\n\n### Description\n가입한 그룹의 멤버들의 username 목록을 불러옵니다.<br><br>\n\n### Response Type\n```typscript\nString[]\n```"
         },
         {
             "_id": "92244561-e2a3-4bb5-952d-f6a8053ee40a",
@@ -4332,7 +4204,7 @@
             "method": "GET",
             "sortNum": 605000,
             "created": "2023-02-21T17:03:18.161Z",
-            "modified": "2023-02-21T17:33:16.101Z",
+            "modified": "2023-08-03T13:07:17.603Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -4346,7 +4218,7 @@
                     "type": "json-query",
                     "custom": "json.message",
                     "action": "equal",
-                    "value": "group does not exist"
+                    "value": "Group does not exist"
                 }
             ],
             "preReq": {
@@ -4682,147 +4554,6 @@
                 }
             ],
             "docs": "User/Delete Own Account/Succeed 리퀘스트 전송 후에는 작동하지 않을 유틸 리퀘스트입니다.  \n복구를 원한다면 `npx prisma migrate reset`을 실행해주세요."
-        },
-        {
-            "_id": "9ba3bbcf-db6f-41a8-acf1-322e6b5735b3",
-            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-            "containerId": "5c0a9108-1d33-407e-91bc-ae25b89bcfe7",
-            "name": "403: Forbidden",
-            "url": "/group/1/contest",
-            "method": "GET",
-            "sortNum": 20000,
-            "created": "2023-05-01T11:09:01.740Z",
-            "modified": "2023-05-01T11:14:09.112Z",
-            "headers": [],
-            "params": [],
-            "tests": [
-                {
-                    "type": "res-code",
-                    "custom": "",
-                    "action": "equal",
-                    "value": "403"
-                },
-                {
-                    "type": "res-body",
-                    "custom": "",
-                    "action": "contains",
-                    "value": "Forbidden"
-                }
-            ],
-            "docs": "# Get group's all contests\n## 403: Forbidden\n\n만약 요청을 보낸 user가 해당 그룹에 소속되지 않았을 경우 403: Forbidden 에러를 띄웁니다.\n",
-            "preReq": {
-                "runRequests": [
-                    {
-                        "_id": "0b535a1b-4437-4f59-af29-c04fde974b01",
-                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-                        "containerId": "8b4393e5-4001-4f7d-9f41-cce5ef02a10b",
-                        "name": "401: Unauthorized",
-                        "url": "/contest/auth",
-                        "method": "GET",
-                        "sortNum": 500000,
-                        "created": "2023-03-02T11:15:12.248Z",
-                        "modified": "2023-05-01T11:13:13.838Z",
-                        "headers": [],
-                        "params": [],
-                        "tests": [
-                            {
-                                "type": "res-code",
-                                "custom": "",
-                                "action": "equal",
-                                "value": "401"
-                            },
-                            {
-                                "type": "res-body",
-                                "custom": "",
-                                "action": "contains",
-                                "value": "Unauthorized"
-                            }
-                        ],
-                        "docs": "# Get all contests\n## 401: Unauthorized\n\n로그인되지 않은 사용자가 이 요청을 보내면 401로 실패를 합니다.",
-                        "preReq": {
-                            "runRequests": [
-                                {
-                                    "reqId": "5a59c618-44a1-40e7-899d-c4edab0095c3",
-                                    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-                                    "triggerCondition": "run-always",
-                                    "triggerValue": ""
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "_id": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
-                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-                        "containerId": "dcc8290a-fa46-4ad9-b9a1-f2f422fe2006",
-                        "name": "Log In as User (user02)",
-                        "url": "/auth/login",
-                        "method": "POST",
-                        "sortNum": 77500,
-                        "created": "2023-05-01T11:08:34.294Z",
-                        "modified": "2023-05-01T11:10:21.674Z",
-                        "headers": [],
-                        "params": [],
-                        "body": {
-                            "type": "json",
-                            "raw": "{\n  \"username\": \"user02\",\n  \"password\": \"Useruser\"\n}",
-                            "form": []
-                        },
-                        "tests": [
-                            {
-                                "type": "set-env-var",
-                                "custom": "header.authorization",
-                                "action": "setto",
-                                "value": "{{bearer_token}}"
-                            },
-                            {
-                                "type": "set-env-var",
-                                "custom": "cookie.refresh_token",
-                                "action": "setto",
-                                "value": "{{refresh_token}}"
-                            }
-                        ],
-                        "docs": "User/Delete Own Account/Succeed 리퀘스트 전송 후에는 작동하지 않을 유틸 리퀘스트입니다.  \n복구를 원한다면 `npx prisma migrate reset`을 실행해주세요."
-                    },
-                    {
-                        "_id": "9ba3bbcf-db6f-41a8-acf1-322e6b5735b3",
-                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-                        "containerId": "5c0a9108-1d33-407e-91bc-ae25b89bcfe7",
-                        "name": "403: Forbidden",
-                        "url": "/group/1/contest",
-                        "method": "GET",
-                        "sortNum": 20000,
-                        "created": "2023-05-01T11:09:01.740Z",
-                        "modified": "2023-05-01T11:14:09.112Z",
-                        "headers": [],
-                        "params": [],
-                        "tests": [
-                            {
-                                "type": "res-code",
-                                "custom": "",
-                                "action": "equal",
-                                "value": "403"
-                            },
-                            {
-                                "type": "res-body",
-                                "custom": "",
-                                "action": "contains",
-                                "value": "Forbidden"
-                            }
-                        ],
-                        "docs": "# Get group's all contests\n## 403: Forbidden\n\n만약 요청을 보낸 user가 해당 그룹에 소속되지 않았을 경우 403: Forbidden 에러를 띄웁니다.\n",
-                        "preReq": {
-                            "runRequests": [
-                                {
-                                    "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
-                                    "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-                                    "triggerCondition": "run-always",
-                                    "triggerValue": ""
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
         },
         {
             "_id": "7037c9dd-a8f2-498f-9cb1-0bdbaab07241",
