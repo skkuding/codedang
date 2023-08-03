@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import CreatePorblemModal from '@/admin/components/CreatePorblemModal.vue'
+import CreatePorblemModal from '@/admin/components/CreateProblemModal.vue'
 import ImportProblemModal from '@/admin/components/ImportProblemModal.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import Dialog from '@/common/components/Molecule/Dialog.vue'
