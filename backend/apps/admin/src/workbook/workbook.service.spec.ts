@@ -42,11 +42,7 @@ describe('WorkbookService', () => {
       db.workbook.findMany.resolves([exampleWorkbook])
 
       //when
-      const result = await service.getWorkbookListByGroupId({
-        groupId: 1,
-        cursor: 1,
-        take: 1
-      })
+      const result = await service.getWorkbooks(1, 1, 1)
 
       //then
       expect(result).to.deep.equals([exampleWorkbook])

@@ -1,24 +1,42 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
-import { WorkbookUpdateInput } from '@admin/@generated/workbook/workbook-update.input'
+
+// import { WorkbookUpdateInput } from '@admin/@generated/workbook/workbook-update.input';
 
 @InputType()
-export class UpdateWorkbookInput extends WorkbookUpdateInput {
+export class UpdateWorkbookInput {
   @Field(() => Int, { nullable: false })
   declare id: number
+
+  @Field(() => String, { nullable: true })
+  title?: string
+
+  @Field(() => String, { nullable: true })
+  description?: string
+
+  @Field(() => Boolean, { nullable: true })
+  isVisible?: boolean
+
+  @Field(() => Date, { nullable: true })
+  createTime?: Date | string
+
+  @Field(() => Date, { nullable: true })
+  updateTime?: Date | string
 }
 
 @InputType()
-export class CreateWorkbookInput extends WorkbookUpdateInput {
-  @Field(() => Int, { nullable: false })
-  declare groupId: number
-}
+export class CreateWorkbookInput {
+  @Field(() => String, { nullable: true })
+  title?: string
 
-@InputType()
-export class GetWorkbookListInput {
-  @Field(() => Int, { nullable: false })
-  groupId: number
-  @Field(() => Int, { nullable: false })
-  cursor: number
-  @Field(() => Int, { nullable: false })
-  take: number
+  @Field(() => String, { nullable: true })
+  description?: string
+
+  @Field(() => Boolean, { nullable: true })
+  isVisible?: boolean
+
+  @Field(() => Date, { nullable: true })
+  createTime?: Date | string
+
+  @Field(() => Date, { nullable: true })
+  updateTime?: Date | string
 }

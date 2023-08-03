@@ -1,20 +1,22 @@
 import {
   ForbiddenException,
   InternalServerErrorException,
-  ParseIntPipe,
-  Req,
-  UnprocessableEntityException,
-  UseGuards
+  ParseArrayPipe,
+  ParseIntPipe, // Req,
+  UnprocessableEntityException // UseGuards
 } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql'
-import { Role } from '@prisma/client'
-import { type AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
+// import { Role } from '@prisma/client'
+import type { AuthenticatedRequest } from '@libs/auth'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   UnprocessableDataException,
   ForbiddenAccessException
 } from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
+import { WorkbookProblem } from '@admin/@generated/workbook-problem/workbook-problem.model'
 import { Workbook } from '@admin/@generated/workbook/workbook.model'
-import { GetWorkbookListInput } from './model/input/workbook.input'
+// import { GetWorkbookListInput } from './model/input/workbook.input'
 import { CreateWorkbookInput } from './model/input/workbook.input'
 import { UpdateWorkbookInput } from './model/input/workbook.input'
 import { WorkbookDetail } from './model/output/workbook.output'
@@ -29,10 +31,17 @@ export class WorkbookResolver {
   @Mutation(() => Workbook, { name: 'createWorkbook' })
   async createWorkbook(
     @Context('req') req: AuthenticatedRequest,
-    @Args('input') input: CreateWorkbookInput
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    groupId: number,
+    @Args('input')
+    input: CreateWorkbookInput
   ) {
     try {
-      return await this.workbookService.createWorkbook(input, req.user.id)
+      return await this.workbookService.createWorkbook(
+        groupId,
+        input,
+        req.user.id
+      )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
@@ -44,9 +53,12 @@ export class WorkbookResolver {
   }
 
   @Mutation(() => Workbook, { name: 'updateWorkbook' })
-  async updateWorkbook(@Args('input') input: UpdateWorkbookInput) {
+  async updateWorkbook(
+    @Args('groupId', { type: () => Int }, ParseIntPipe) groupdId: number,
+    @Args('input') input: UpdateWorkbookInput
+  ) {
     try {
-      return this.workbookService.updateWorkbook(input)
+      return this.workbookService.updateWorkbook(groupdId, input)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
@@ -57,10 +69,15 @@ export class WorkbookResolver {
     }
   }
 
-  @Query(() => [Workbook], { name: 'getWorkbookList' })
-  async getWorkbookList(@Args('input') input: GetWorkbookListInput) {
+  @Query(() => [Workbook], { name: 'getWorkbooks' })
+  async getWorkbooks(
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    groupId: number,
+    @Args('cursor', { nullable: true }, CursorValidationPipe) cursor: number,
+    @Args('take', ParseIntPipe) take: number
+  ) {
     try {
-      return this.workbookService.getWorkbookListByGroupId(input)
+      return this.workbookService.getWorkbooks(groupId, cursor, take)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
@@ -72,7 +89,7 @@ export class WorkbookResolver {
   }
 
   @Mutation(() => Workbook, { name: 'deleteWorkbook' })
-  async removeWorkbook(
+  async deleteWorkbook(
     @Args('workbookId', { type: () => Int }, ParseIntPipe) id: number
   ) {
     try {
@@ -87,12 +104,13 @@ export class WorkbookResolver {
     }
   }
 
-  @Query(() => WorkbookDetail, { name: 'getWorkbookDetail' })
-  async getWorkbookDetail(
+  @Query(() => WorkbookDetail, { name: 'getWorkbook' })
+  async getWorkbook(
+    @Args('groupId', { type: () => Int }, ParseIntPipe) groupId: number,
     @Args('workbookId', { type: () => Int }, ParseIntPipe) id: number
   ) {
     try {
-      return this.workbookService.getWorkbookDetailById(id)
+      return this.workbookService.getWorkbook(groupId, id)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
@@ -103,13 +121,19 @@ export class WorkbookResolver {
     }
   }
 
-  @Mutation(() => Boolean, { name: 'importProblemsInWorkbook' })
-  async importProblemsInWorkbook(
-    @Args('problemIds', { type: () => [Int] }, ParseIntPipe) idList: number[],
-    @Args('workbookId', { type: () => Int }, ParseIntPipe) id: number
+  @Mutation(() => [WorkbookProblem], { name: 'createWorkbookProblem' })
+  async createWorkbookProblem(
+    @Args('groupId', { type: () => Int }, ParseIntPipe) groupId: number,
+    @Args('problemIds', { type: () => [Int] }, ParseArrayPipe)
+    problemIds: number[],
+    @Args('workbookId', { type: () => Int }, ParseIntPipe) workbookId: number
   ) {
     try {
-      return this.workbookService.mapProblemstoWorkbook(idList, id)
+      return this.workbookService.createWorkbookProblem(
+        groupId,
+        problemIds,
+        workbookId
+      )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)

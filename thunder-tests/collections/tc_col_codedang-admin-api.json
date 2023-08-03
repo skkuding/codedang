@@ -66,7 +66,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-07-01T05:32:46.013Z",
-            "modified": "2023-07-13T11:35:43.142Z",
+            "modified": "2023-08-03T10:34:42.359Z",
             "headers": [],
             "params": [],
             "body": {
@@ -74,7 +74,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation {\n  createWorkbook(input: {groupId: 2, title: \"test\", description: \"test\", isVisible: true}) {\n    title\n  }\n}"
+                    "query": "mutation {\n  createWorkbook(\n    groupId: 2\n    input: {title: \"test\", description: \"test\", isVisible: true}\n  ) {\n    title\n  }\n}"
                 }
             },
             "tests": []
@@ -88,7 +88,7 @@
             "method": "POST",
             "sortNum": 20000,
             "created": "2023-07-01T07:44:47.547Z",
-            "modified": "2023-07-13T17:08:02.031Z",
+            "modified": "2023-08-03T10:35:51.189Z",
             "headers": [],
             "params": [],
             "body": {
@@ -96,7 +96,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation {\n  updateWorkbook(\n    input: {id: 12, title: \"updated\", description: \"updated\", isVisible: false}\n  ) {\n    id\n    title\n  }\n}"
+                    "query": "mutation {\n  updateWorkbook(\n    groupId: 2\n    input: {id: 8, title: \"updated\", description: \"updated\", isVisible: false}\n  ) {\n    id\n    title\n  }\n}"
                 }
             },
             "tests": []
@@ -105,12 +105,12 @@
             "_id": "c2114d40-9e72-420c-bdcb-bc70022afcc4",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
             "containerId": "",
-            "name": "Get Workbook",
+            "name": "Get Workbooks",
             "url": "http://localhost:3000/graphql",
             "method": "POST",
             "sortNum": 30000,
             "created": "2023-07-05T17:33:56.218Z",
-            "modified": "2023-07-13T17:13:43.213Z",
+            "modified": "2023-08-03T10:36:45.779Z",
             "headers": [],
             "params": [],
             "body": {
@@ -118,7 +118,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "{\n  getWorkbookList(input: {groupId: 2, cursor: 1, take: 2}) {\n    id\n    title\n    createdById\n    description\n    isVisible\n  }\n}"
+                    "query": "{\n  getWorkbooks(groupId: 2, cursor: 2, take: 2) {\n    id\n    title\n    createdById\n    description\n    isVisible\n  }\n}"
                 }
             },
             "tests": []
@@ -132,7 +132,7 @@
             "method": "POST",
             "sortNum": 40000,
             "created": "2023-07-05T17:51:29.597Z",
-            "modified": "2023-07-13T17:14:30.976Z",
+            "modified": "2023-08-03T10:38:46.084Z",
             "headers": [],
             "params": [],
             "body": {
@@ -140,7 +140,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation {\n  deleteWorkbook(workbookId: 12) {\n    title\n  }\n}"
+                    "query": "mutation {\n  deleteWorkbook(workbookId: 8) {\n    title\n  }\n}"
                 }
             },
             "tests": []
@@ -149,12 +149,12 @@
             "_id": "936cd772-213d-4047-a997-69c480e1347e",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
             "containerId": "",
-            "name": "Get Workbook Detail",
+            "name": "Get One Workbook ",
             "url": "http://localhost:3000/graphql",
             "method": "POST",
             "sortNum": 50000,
             "created": "2023-07-13T12:27:51.976Z",
-            "modified": "2023-07-13T17:19:11.504Z",
+            "modified": "2023-08-03T10:59:26.782Z",
             "headers": [],
             "params": [],
             "body": {
@@ -162,7 +162,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query {\n    getWorkbookDetail(workbookId: 1) {\n        problems {\n            id\n            title\n            \n        }\n        submissions {\n            id\n            code\n        }\n    }\n}"
+                    "query": "{\n  getWorkbook(groupId: 1, workbookId: 1) {\n    problems {\n      id\n      title\n    }\n    submissions {\n      id\n      code\n    }\n  }\n}"
                 }
             },
             "tests": []
@@ -171,12 +171,12 @@
             "_id": "fda510b4-83c5-4bc8-9023-13be005bc08b",
             "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
             "containerId": "",
-            "name": "Import Problem to Workbook",
+            "name": "Create WorkbookProblem",
             "url": "http://localhost:3000/graphql",
             "method": "POST",
             "sortNum": 60000,
             "created": "2023-07-13T14:19:44.450Z",
-            "modified": "2023-07-13T14:50:05.907Z",
+            "modified": "2023-08-03T10:44:53.123Z",
             "headers": [],
             "params": [],
             "body": {
@@ -184,7 +184,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation {\n    importProblemsInWorkbook(problemIds: [1,2,3,4,5], workbookId: 3)\n}"
+                    "query": "mutation {\n  createWorkbookProblem(groupId: 2, problemIds: [1, 2, 3, 4, 5], workbookId: 6) {\n    id\n  }\n}"
                 }
             },
             "tests": []
