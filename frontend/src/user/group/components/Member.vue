@@ -23,7 +23,7 @@ const user = ref({ leader: [], member: [] })
 const leave = async () => {
   showLeaveModal.value = false
   try {
-    await axios.get(`/api/group/${props.id}/leave`)
+    await axios.delete(`/api/group/${props.id}/leave`)
     router.push('/group')
   } catch (e) {
     showErrorModal.value = true
