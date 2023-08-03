@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Controller,
   ForbiddenException,
   Get,
@@ -37,8 +36,8 @@ export class ProblemController {
   ) {
     try {
       return await this.problemService.getProblems(cursor, take)
-    } catch (err) {
-      this.logger.error(err.message, err.stack)
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -47,11 +46,11 @@ export class ProblemController {
   async getProblem(@Param('problemId', ParseIntPipe) problemId: number) {
     try {
       return await this.problemService.getProblem(problemId)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -76,13 +75,13 @@ export class ContestProblemController {
         cursor,
         take
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      } else if (err instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -97,13 +96,13 @@ export class ContestProblemController {
         contestId,
         problemId
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      } else if (err instanceof ForbiddenAccessException) {
-        throw new BadRequestException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -130,11 +129,11 @@ export class GroupContestProblemController {
         take,
         groupId
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -151,11 +150,11 @@ export class GroupContestProblemController {
         problemId,
         groupId
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -182,11 +181,11 @@ export class WorkbookProblemController {
         cursor,
         take
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -201,11 +200,11 @@ export class WorkbookProblemController {
         workbookId,
         problemId
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -234,11 +233,11 @@ export class GroupWorkbookProblemController {
         take,
         groupId
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -255,11 +254,11 @@ export class GroupWorkbookProblemController {
         problemId,
         groupId
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }

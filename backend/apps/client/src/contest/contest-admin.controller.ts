@@ -5,7 +5,7 @@ import {
   Get,
   InternalServerErrorException,
   Logger,
-  MethodNotAllowedException,
+  ConflictException,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -24,7 +24,7 @@ import {
   GroupLeaderGuard
 } from '@libs/auth'
 import {
-  ActionNotAllowedException,
+  ConflictFoundException,
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -209,8 +209,8 @@ export class ContestPublicizingRequestController {
         req.user.id
       )
     } catch (error) {
-      if (error instanceof ActionNotAllowedException) {
-        throw new MethodNotAllowedException(error.message)
+      if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()

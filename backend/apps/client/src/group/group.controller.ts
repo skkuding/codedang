@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  ConflictException,
   Controller,
   Delete,
   Get,
@@ -19,7 +19,7 @@ import {
   GroupMemberGuard
 } from '@libs/auth'
 import {
-  ActionNotAllowedException,
+  DuplicateFoundException,
   EntityNotExistException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
@@ -81,8 +81,8 @@ export class GroupController {
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof ActionNotAllowedException) {
-        throw new BadRequestException(error.message)
+      } else if (error instanceof DuplicateFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()

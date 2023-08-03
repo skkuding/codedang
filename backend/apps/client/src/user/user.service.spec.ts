@@ -12,10 +12,10 @@ import { stub, spy, fake, type SinonStub, type SinonSpy } from 'sinon'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import {
+  DuplicateFoundException,
   EntityNotExistException,
   InvalidJwtTokenException,
-  InvalidPinException,
-  InvalidUserException,
+  UnidentifiedException,
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -141,7 +141,7 @@ describe('UserService', () => {
 
       await expect(
         service.sendPinForRegisterNewEmail(emailAuthJwtPayload)
-      ).to.be.rejectedWith(UnprocessableDataException)
+      ).to.be.rejectedWith(DuplicateFoundException)
       expect(createPinAndSendEmailSpy.called).to.be.false
     })
   })
@@ -164,7 +164,7 @@ describe('UserService', () => {
 
       await expect(
         service.sendPinForPasswordReset(emailAuthJwtPayload)
-      ).to.be.rejectedWith(InvalidUserException)
+      ).to.be.rejectedWith(UnidentifiedException)
       expect(createPinAndSendEmailSpy.called).to.be.false
     })
   })
@@ -296,13 +296,13 @@ describe('UserService', () => {
           pin: PASSWORD_RESET_PIN,
           email: EMAIL_ADDRESS
         })
-      ).to.be.rejectedWith(InvalidPinException)
+      ).to.be.rejectedWith(UnidentifiedException)
       await expect(
         service.verifyPinAndIssueJwt({
           pin: PASSWORD_RESET_PIN,
           email: EMAIL_ADDRESS
         })
-      ).to.be.rejectedWith(InvalidPinException)
+      ).to.be.rejectedWith(UnidentifiedException)
       expect(deletePinFromCacheSpy.called).to.be.false
     })
   })
@@ -392,7 +392,7 @@ describe('UserService', () => {
 
       await expect(
         service.signUp(authRequestObject, signUpDto)
-      ).to.be.rejectedWith(UnprocessableDataException)
+      ).to.be.rejectedWith(DuplicateFoundException)
       expect(createUserSpy.calledOnce).to.be.false
     })
 
@@ -445,7 +445,7 @@ describe('UserService', () => {
 
       await expect(
         service.withdrawal(user.username, { password: 'differentPassword' })
-      ).to.be.rejectedWith(InvalidUserException)
+      ).to.be.rejectedWith(UnidentifiedException)
       expect(isValidUserSpy.calledOnce).to.be.true
       expect(deleteUserSpy.called).to.be.false
     })

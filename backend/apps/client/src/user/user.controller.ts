@@ -10,17 +10,18 @@ import {
   UnauthorizedException,
   Controller,
   NotFoundException,
-  Logger
+  Logger,
+  ConflictException
 } from '@nestjs/common'
 import { Request, type Response } from 'express'
 import { AuthenticatedRequest, AuthNotNeeded } from '@libs/auth'
 import {
   EntityNotExistException,
-  InvalidUserException,
   UnprocessableDataException,
   EmailTransmissionFailedException,
   InvalidJwtTokenException,
-  InvalidPinException
+  DuplicateFoundException,
+  UnidentifiedException
 } from '@libs/exception'
 import { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
@@ -46,7 +47,7 @@ export class UserController {
     try {
       return await this.userService.updatePassword(newPasswordDto, req)
     } catch (error) {
-      if (error instanceof InvalidJwtTokenException) {
+      if (error instanceof UnidentifiedException) {
         throw new UnauthorizedException(error.message)
       } else if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
@@ -64,6 +65,8 @@ export class UserController {
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof DuplicateFoundException) {
+        throw new ConflictException(error.message)
       } else if (error instanceof InvalidJwtTokenException) {
         throw new UnauthorizedException(error.message)
       }
@@ -81,7 +84,7 @@ export class UserController {
       await this.userService.withdrawal(req.user.username, withdrawalDto)
     } catch (error) {
       if (
-        error instanceof InvalidUserException ||
+        error instanceof UnidentifiedException ||
         error instanceof EntityNotExistException
       ) {
         throw new UnauthorizedException(error.message)
@@ -160,7 +163,7 @@ export class EmailAuthenticationController {
     try {
       return await this.userService.sendPinForPasswordReset(userEmailDto)
     } catch (error) {
-      if (error instanceof InvalidUserException) {
+      if (error instanceof UnidentifiedException) {
         throw new UnauthorizedException(error.message)
       } else if (error instanceof EmailTransmissionFailedException) {
         this.logger.error(error.message, error.stack)
@@ -178,8 +181,8 @@ export class EmailAuthenticationController {
     } catch (error) {
       if (error instanceof EmailTransmissionFailedException) {
         throw new InternalServerErrorException(error.message)
-      } else if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof DuplicateFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException(error.message)
@@ -197,7 +200,7 @@ export class EmailAuthenticationController {
       )
       this.setJwtInHeader(res, jwt)
     } catch (error) {
-      if (error instanceof InvalidPinException) {
+      if (error instanceof UnidentifiedException) {
         throw new InternalServerErrorException(error.message)
       }
       this.logger.error(error.message, error.stack)

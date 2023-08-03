@@ -5,7 +5,7 @@ import { Cache } from 'cache-manager'
 import { contestPublicizingRequestKey } from '@libs/cache'
 import { OPEN_SPACE_ID, PUBLICIZING_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
-  ActionNotAllowedException,
+  ConflictFoundException,
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -36,7 +36,7 @@ export class ContestService {
   ): Promise<Contest> {
     if (!this.isValidPeriod(contestDto.startTime, contestDto.endTime)) {
       throw new UnprocessableDataException(
-        'The start time must be earlier than the end time'
+        'Start time must be earlier than end time'
       )
     }
 
@@ -70,12 +70,12 @@ export class ContestService {
       where: {
         id: contestId
       },
-      rejectOnNotFound: () => new EntityNotExistException('contest')
+      rejectOnNotFound: () => new EntityNotExistException('Contest')
     })
 
     if (!this.isValidPeriod(contestDto.startTime, contestDto.endTime)) {
       throw new UnprocessableDataException(
-        'start time must be earlier than end time'
+        'Start time must be earlier than end time'
       )
     }
 
@@ -108,7 +108,7 @@ export class ContestService {
       where: {
         id: contestId
       },
-      rejectOnNotFound: () => new EntityNotExistException('contest')
+      rejectOnNotFound: () => new EntityNotExistException('Contest')
     })
 
     await this.prisma.contest.delete({
@@ -296,7 +296,7 @@ export class ContestService {
         ...this.contestSelectOption,
         description: true
       },
-      rejectOnNotFound: () => new EntityNotExistException('contest')
+      rejectOnNotFound: () => new EntityNotExistException('Contest')
     })
 
     return contest
@@ -354,7 +354,7 @@ export class ContestService {
         config: true,
         description: true
       },
-      rejectOnNotFound: () => new EntityNotExistException('contest')
+      rejectOnNotFound: () => new EntityNotExistException('Contest')
     })
 
     return contest
@@ -365,9 +365,8 @@ export class ContestService {
       contestPublicizingRequestKey(contestId)
     )
     if (duplicateRequest) {
-      throw new ActionNotAllowedException(
-        'duplicated request',
-        'request converting contest to be public'
+      throw new ConflictFoundException(
+        'Already requested to publicize this contest'
       )
     }
 
@@ -397,7 +396,7 @@ export class ContestService {
   ) {
     const requestKey = contestPublicizingRequestKey(contestId)
     if (!(await this.cacheManager.get(requestKey))) {
-      throw new EntityNotExistException('ContestPublicizingRequest')
+      throw new EntityNotExistException('Request to publicizie contest')
     }
 
     if (accepted) {
@@ -430,7 +429,7 @@ export class ContestService {
       select: { startTime: true, endTime: true, groupId: true }
     })
     if (!contest) {
-      throw new EntityNotExistException('contest')
+      throw new EntityNotExistException('Contest')
     }
 
     const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
@@ -438,11 +437,11 @@ export class ContestService {
       select: { id: true }
     })
     if (isAlreadyRecord) {
-      throw new ActionNotAllowedException('repetitive participation', 'contest')
+      throw new ConflictFoundException('Already participated this contest')
     }
     const now = new Date()
     if (now < contest.startTime || now >= contest.endTime) {
-      throw new ActionNotAllowedException('participation', 'ended contest')
+      throw new ConflictFoundException('Cannot participate ended contest')
     }
 
     return await this.prisma.contestRecord.create({

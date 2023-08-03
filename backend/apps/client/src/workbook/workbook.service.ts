@@ -63,7 +63,7 @@ export class WorkbookService {
     const workbook = await this.prisma.workbook.findFirst({
       where: { id: workbookId, isVisible: true },
       select: { id: true, title: true },
-      rejectOnNotFound: () => new EntityNotExistException('workbook')
+      rejectOnNotFound: () => new EntityNotExistException('Workbook')
     })
 
     const rawProblems = await this.prisma.workbookProblem.findMany({
@@ -112,7 +112,7 @@ export class WorkbookService {
         },
         isVisible: true
       },
-      rejectOnNotFound: () => new EntityNotExistException('workbook')
+      rejectOnNotFound: () => new EntityNotExistException('Workbook')
     })
     return workbook
   }
@@ -151,7 +151,7 @@ export class WorkbookService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new EntityNotExistException('workbook')
+        throw new EntityNotExistException('Workbook')
       } else {
         throw error
       }
@@ -171,7 +171,7 @@ export class WorkbookService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new EntityNotExistException('workbook')
+        throw new EntityNotExistException('Workbook')
       } else {
         throw error
       }

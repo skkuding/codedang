@@ -6,7 +6,7 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { joinGroupCacheKey } from '@libs/cache'
 import {
-  ActionNotAllowedException,
+  ConflictFoundException,
   EntityNotExistException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -230,7 +230,7 @@ describe('GroupService', () => {
       })
     })
 
-    it('should throw ActionNotAllowedException when user is already group memeber', async () => {
+    it('should throw ConflictFoundException when user is already group memeber', async () => {
       //given
       const userId = 2
       const groupId = 2
@@ -245,10 +245,10 @@ describe('GroupService', () => {
       const result = async () => await service.joinGroupById(userId, groupId)
 
       //then
-      expect(result()).to.be.rejectedWith(ActionNotAllowedException)
+      expect(result()).to.be.rejectedWith(ConflictFoundException)
     })
 
-    it('should throw ActionNotAllowedException when join request already exists in cache', async () => {
+    it('should throw ConflictFoundException when join request already exists in cache', async () => {
       //given
       const userId = 3
       const groupId = 2
@@ -264,7 +264,7 @@ describe('GroupService', () => {
 
       //when
       await expect(service.joinGroupById(userId, groupId)).to.be.rejectedWith(
-        ActionNotAllowedException
+        ConflictFoundException
       )
 
       //then

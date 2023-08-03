@@ -19,7 +19,7 @@ export class NoticeService {
       where: {
         id: groupId
       },
-      rejectOnNotFound: () => new EntityNotExistException('group')
+      rejectOnNotFound: () => new EntityNotExistException('Group')
     })
 
     const notice = await this.prisma.notice.create({
@@ -81,7 +81,7 @@ export class NoticeService {
         createTime: true,
         updateTime: true
       },
-      rejectOnNotFound: () => new EntityNotExistException('notice')
+      rejectOnNotFound: () => new EntityNotExistException('Notice')
     })
 
     const navigate = (pos: 'prev' | 'next') => {
@@ -157,7 +157,7 @@ export class NoticeService {
         isVisible: true,
         isFixed: true
       },
-      rejectOnNotFound: () => new EntityNotExistException('notice')
+      rejectOnNotFound: () => new EntityNotExistException('Notice')
     })
   }
 
@@ -166,7 +166,7 @@ export class NoticeService {
       where: {
         id: id
       },
-      rejectOnNotFound: () => new EntityNotExistException('notice')
+      rejectOnNotFound: () => new EntityNotExistException('Notice')
     })
 
     const notice = await this.prisma.notice.update({
@@ -186,7 +186,7 @@ export class NoticeService {
       where: {
         id: id
       },
-      rejectOnNotFound: () => new EntityNotExistException('notice')
+      rejectOnNotFound: () => new EntityNotExistException('Notice')
     })
 
     await this.prisma.notice.delete({

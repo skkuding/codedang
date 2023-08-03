@@ -5,7 +5,7 @@ import { Cache } from 'cache-manager'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
-  ActionNotAllowedException,
+  ConflictFoundException,
   EntityNotExistException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -53,7 +53,7 @@ export class GroupService {
           userGroup: true,
           config: true
         },
-        rejectOnNotFound: () => new EntityNotExistException('group')
+        rejectOnNotFound: () => new EntityNotExistException('Group')
       })
 
       return {
@@ -200,7 +200,7 @@ export class GroupService {
           }
         }
       },
-      rejectOnNotFound: () => new EntityNotExistException('group')
+      rejectOnNotFound: () => new EntityNotExistException('Group')
     })
 
     const isJoined = group.userGroup.some(
@@ -208,13 +208,13 @@ export class GroupService {
     )
 
     if (isJoined) {
-      throw new ActionNotAllowedException('join request', 'group')
+      throw new ConflictFoundException('Already joined this group')
     } else if (group.config['requireApprovalBeforeJoin']) {
       const joinGroupRequest = await this.cacheManager.get(
         joinGroupCacheKey(userId, groupId)
       )
       if (joinGroupRequest) {
-        throw new ActionNotAllowedException('duplicated join request', 'group')
+        throw new ConflictFoundException('Already requested to join this group')
       }
 
       const userGroupValue: GroupJoinRequest = { userId, groupId }
