@@ -482,14 +482,12 @@
         }
     ],
     "settings": {
-        "headers": [],
         "auth": {
             "type": "bearer",
             "bearer": "{{bearer_token}}"
         },
-        "tests": [],
         "options": {
-            "baseUrl": "https://dev.codedang.com/api"
+            "baseUrl": "localhost:4000"
         }
     },
     "requests": [

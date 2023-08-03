@@ -28,10 +28,10 @@ import { UserModule } from './user/user.module'
     JwtAuthModule,
     RolesModule,
     PrismaModule,
+    ProblemModule,
     StorageModule,
     GroupModule,
-    UserModule,
-    ProblemModule
+    UserModule
   ],
   controllers: [AdminController],
   providers: [
