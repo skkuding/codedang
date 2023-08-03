@@ -9,8 +9,8 @@ export class BusinessException extends Error {
 
 /** [401] Throw when a user cannot be identified with given credential. */
 export class UnidentifiedException extends BusinessException {
-  constructor(type, credential = '') {
-    super(`Incorrect ${type} ${credential}`)
+  constructor(credential) {
+    super(`Incorrect ${credential}`)
   }
 }
 

@@ -22,7 +22,7 @@ import { PrismaService } from '@libs/prisma'
 import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
 import type { UserGroupData } from '@client/group/interface/user-group-data.interface'
-import type { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
+import type { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import type { NewPasswordDto } from './dto/newPassword.dto'
 import type { SignUpDto } from './dto/signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
@@ -67,7 +67,7 @@ export class UserService {
   async sendPinForPasswordReset({ email }: UserEmailDto): Promise<string> {
     const user = await this.getUserCredentialByEmail(email)
     if (!user) {
-      throw new UnidentifiedException('email', email)
+      throw new UnidentifiedException(`email ${email}`)
     }
 
     return this.createPinAndSendEmail(user.email)
@@ -146,7 +146,7 @@ export class UserService {
   async verifyPinAndIssueJwt({
     pin,
     email
-  }: EmailAuthensticationPinDto): Promise<string> {
+  }: EmailAuthenticationPinDto): Promise<string> {
     await this.verifyPin(pin, email)
     await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
@@ -162,7 +162,7 @@ export class UserService {
     )
 
     if (!storedResetPin || pin !== storedResetPin) {
-      throw new UnidentifiedException('pin', pin)
+      throw new UnidentifiedException(`pin ${pin}`)
     }
     return true
   }

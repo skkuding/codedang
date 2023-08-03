@@ -19,7 +19,7 @@ import {
   GroupMemberGuard
 } from '@libs/auth'
 import {
-  DuplicateFoundException,
+  ConflictFoundException,
   EntityNotExistException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
@@ -81,7 +81,7 @@ export class GroupController {
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof DuplicateFoundException) {
+      } else if (error instanceof ConflictFoundException) {
         throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)

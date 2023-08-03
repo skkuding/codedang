@@ -23,7 +23,7 @@ import {
   DuplicateFoundException,
   UnidentifiedException
 } from '@libs/exception'
-import { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
+import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
 import { SignUpDto } from './dto/signup.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
@@ -192,7 +192,7 @@ export class EmailAuthenticationController {
   @Post('verify-pin')
   async verifyPinAndIssueJwt(
     @Res({ passthrough: true }) res,
-    @Body() emailAuthenticationpinDto: EmailAuthensticationPinDto
+    @Body() emailAuthenticationpinDto: EmailAuthenticationPinDto
   ) {
     try {
       const jwt = await this.userService.verifyPinAndIssueJwt(
@@ -201,7 +201,7 @@ export class EmailAuthenticationController {
       this.setJwtInHeader(res, jwt)
     } catch (error) {
       if (error instanceof UnidentifiedException) {
-        throw new InternalServerErrorException(error.message)
+        throw new UnauthorizedException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
