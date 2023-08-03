@@ -7,47 +7,53 @@ export class BusinessException extends Error {
   }
 }
 
-/** Throw when a user cannot be found with wrong usernmae or password. */
-export class InvalidUserException extends BusinessException {}
+/** [401] Throw when a user cannot be identified with given credential. */
+export class UnidentifiedException extends BusinessException {
+  constructor(type, credential = '') {
+    super(`Incorrect ${type} ${credential}`)
+  }
+}
+
+/** [401] Throw when JWT token is invalid. */
 export class InvalidJwtTokenException extends BusinessException {
   constructor(message) {
     super(`Invalid token: ${message}`)
   }
 }
 
+/** [404] Throw when requested entity is not found. */
 export class EntityNotExistException extends BusinessException {
   constructor(entity) {
     super(`${entity} does not exist`)
   }
 }
 
-/** Throw when invalid action is attemped, such as joining ended contest.
- * This exception may be thrown if a trial by an user is invalid.
+/** [409] Throw when the request has a conflict with relevant entities.
+ * e.g., participation is not allowed to ended contest.
  */
-export class ActionNotAllowedException extends BusinessException {
-  constructor(action, entity) {
-    super(`${action} is not allowed to this ${entity}`)
+export class ConflictFoundException extends BusinessException {}
+
+/** [409] Throw when the request has a conflict with relevant entities.
+ * e.g., participation is not allowed to ended contest.
+ */
+export class DuplicateFoundException extends ConflictFoundException {
+  constructor(entity) {
+    super(`${entity} is already in use`)
   }
 }
 
-/** Throw when data is invalid or processing logic is missing. */
+/** [422] Throw when data is invalid or cannot be processed. */
 export class UnprocessableDataException extends BusinessException {}
-export class UnprocessableFileException extends UnprocessableDataException {
+
+/** [422] Throw when file data is invalid or cannot be processed. */
+export class UnprocessableFileDataException extends UnprocessableDataException {
   constructor(message, fileName, rowNumber) {
     super(`${message} @${fileName}:${rowNumber}`)
   }
 }
 
-/** Throw when a user should not access due to lack of permission */
+/** [403] Throw when request cannot be carried due to lack of permission. */
 export class ForbiddenAccessException extends BusinessException {}
-
-export class InvalidMailTransporterException extends BusinessException {}
-
-export class InvalidPinException extends BusinessException {
-  constructor(message = 'PIN not found or invalid PIN') {
-    super(message)
-  }
-}
 
 export class EmailTransmissionFailedException extends BusinessException {
   constructor(message = 'Email transmission failed') {
