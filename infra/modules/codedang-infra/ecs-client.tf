@@ -106,5 +106,6 @@ resource "aws_ecs_task_definition" "client_api" {
 
   runtime_platform {
     operating_system_family = "LINUX"
+    cpu_architecture        = "ARM64"
   }
 }
