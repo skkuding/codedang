@@ -6,6 +6,7 @@ import Modal from '@/common/components/Molecule/Modal.vue'
 import Pagination from '@/common/components/Molecule/Pagination.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import AuthModal from '@/common/components/Organism/AuthModal.vue'
+import { useListAPI } from '@/common/composables/api'
 import { useAuthStore } from '@/common/store/auth'
 import { OnClickOutside } from '@vueuse/components'
 import axios from 'axios'
@@ -39,8 +40,7 @@ type OneGroup = {
   leaders?: string[]
 }
 
-const myGroupList = ref<Group[]>([])
-const allGroupList = ref<Group[]>([])
+const groupList = ref<Group[]>([])
 
 const props = defineProps<{
   title: string
@@ -56,39 +56,28 @@ const COLOR_CLASS = [
   'bg-blue-dark',
   'bg-red'
 ]
-const cursor = ref(0)
-const take = ref(5)
-const hasNextPage = ref(true)
 const store = useAuthStore()
-const perPage = 5
-const pageNumGroup = ref(1)
+// const perPage = 5
+// const pageNumGroup = ref(1)
+const { items, totalPages, changePage } = useListAPI<Group>('group', 8, 5)
 
-const groupList = props.isMyGroup ? myGroupList : allGroupList
 onMounted(async () => {
   if (!store.isLoggedIn && props.isMyGroup) return // 비로그인
-  const { data } = await axios.get(
-    props.isMyGroup
-      ? `/api/group/joined`
-      : cursor.value
-      ? `/api/group?cursor=${cursor.value}&take=${take.value}`
-      : `/api/group?take=${take.value}`
-  )
-
   if (props.isMyGroup) {
+    const { data } = await axios.get('/api/group/joined')
     for (let i = 0; i < data.length; i++) {
       data[i].isBelong = true
     }
-  }
-  groupList.value.push(...data)
-
-  pageNumGroup.value =
-    allGroupList.value.length % perPage === 0
-      ? allGroupList.value.length / perPage
-      : Math.floor(allGroupList.value.length / perPage) + 1
-  if (data.length < take.value) {
-    hasNextPage.value = false
+    groupList.value.push(...data)
+  } else {
+    watch(items, () => {
+      if (items.value.length !== 0) {
+        groupList.value.push(...items.value)
+      }
+    })
   }
 })
+
 const selectedGroup = ref<OneGroup | undefined>({
   id: 1,
   groupName: '',
@@ -99,6 +88,7 @@ const selectedGroup = ref<OneGroup | undefined>({
 const currentPage = ref(1)
 const modalVisible = ref(false)
 const modalType = ref('desc')
+// const { changePage } = useListAPI<Group>('group', 8)
 const router = useRouter()
 const goGroup = async (id: number) => {
   const { data } = await axios.get(`/api/group/${id}`)
@@ -200,8 +190,9 @@ const joinGroup = async (id: number) => {
         <Pagination
           v-if="pagination"
           v-model="currentPage"
-          :number-of-pages="pageNumGroup"
+          :number-of-pages="totalPages"
           class="self-center"
+          @change-page="changePage"
         />
       </div>
     </section>
