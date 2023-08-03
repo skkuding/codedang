@@ -15,7 +15,10 @@ import TextEditorButton from '../Atom/TextEditorButton.vue'
 
 const props = defineProps<{
   size?: 'sm' | 'md' | 'lg'
+  modelValue?: string
 }>()
+
+const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>()
 
 const sizes = {
   sm: 'min-h-[100px]',
@@ -29,6 +32,9 @@ const editor = useEditor({
     attributes: {
       class: `prose p-5 outline-none prose-p:m-0 max-w-full`
     }
+  },
+  onUpdate({ editor }) {
+    emit('update:modelValue', editor.getHTML())
   }
 })
 </script>

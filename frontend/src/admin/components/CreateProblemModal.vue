@@ -22,6 +22,7 @@ const data = ref({
   sample: [{ input: '', output: '' }],
   testcase: [{ input: '', output: '' }]
 })
+const description = ref('')
 const levelItems = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
 const languageItems = ['C', 'C++', 'Python3', 'Java']
 </script>
@@ -88,7 +89,7 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
       </div>
       <div>
         <h2 class="mb-3 text-lg font-bold">Description</h2>
-        <TextEditor size="lg" />
+        <TextEditor v-model="description" size="lg" />
       </div>
       <div class="grid grid-cols-2 gap-5">
         <div>
