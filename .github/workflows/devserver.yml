@@ -61,7 +61,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./infra/builder/api/Dockerfile-admin
+          file: ./infra/builder/api/Dockerfile.admin
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
 
@@ -69,7 +69,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./infra/builder/api/Dockerfile-client
+          file: ./infra/builder/api/Dockerfile.client
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
 
