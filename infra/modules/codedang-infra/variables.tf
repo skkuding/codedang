@@ -20,13 +20,6 @@ variable "postgres_username" {
   default     = "skkuding"
 }
 
-variable "postgres_password" {
-  description = "Password for Postgres DB"
-  type        = string
-  default     = "password"
-  sensitive   = true
-}
-
 variable "postgres_port" {
   description = "Port for Postgres DB"
   type        = string
@@ -50,12 +43,6 @@ variable "rabbitmq_port" {
 variable "rabbitmq_username" {
   type    = string
   default = "skkuding"
-}
-
-variable "rabbitmq_password" {
-  type      = string
-  default   = "abcd12345678"
-  sensitive = true
 }
 
 variable "rabbitmq_vhost" {
@@ -88,4 +75,3 @@ variable "rabbitmq_submission_routing_key" {
   type    = string
   default = "judge.submission"
 }
-
