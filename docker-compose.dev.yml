@@ -11,6 +11,7 @@ services:
     volumes:
       - $PWD/Caddyfile:/etc/caddy/Caddyfile
       - $PWD/dist:/var/www/html
+    network_mode: host
 
   backend-client:
     image: ghcr.io/skkuding/codedang-client-api:latest
