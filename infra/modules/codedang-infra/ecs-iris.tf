@@ -39,6 +39,9 @@ resource "aws_ecs_service" "iris" {
   }
 }
 
+data "aws_ecr_repository" "iris" {
+  name = "codedang-iris"
+}
 
 resource "aws_ecs_task_definition" "iris" {
   family                   = "Codedang-Iris-Api"
@@ -47,7 +50,7 @@ resource "aws_ecs_task_definition" "iris" {
   cpu                      = 512
   memory                   = 1024
   container_definitions = templatefile("${path.module}/iris/task-definition.tftpl", {
-    ecr_uri              = var.ecr_iris_uri,
+    ecr_uri              = data.aws_ecr_repository.iris.repository_url,
     rabbitmq_host_id     = aws_mq_broker.judge_queue.id,
     rabbitmq_host_region = var.region,
     rabbitmq_port        = var.rabbitmq_port,

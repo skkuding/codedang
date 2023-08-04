@@ -3,18 +3,6 @@ variable "s3_bucket" {
   default = "codedang"
 }
 
-variable "ecr_client_uri" {
-  type    = string
-  default = "xxx"
-  sensitive   = true
-}
-
-variable "ecr_admin_uri" {
-  type    = string
-  default = "xxx"
-  sensitive   = true
-}
-
 variable "region" {
   type = string
   # default = "ap-northeast-2"
@@ -53,17 +41,10 @@ variable "redis_port" {
   sensitive   = true
 }
 
-
-variable "ecr_iris_uri" {
-  type    = string
-  default = "xxx"
-  sensitive   = true
-}
-
 variable "rabbitmq_port" {
-  type    = string
-  default = "5671"
-  sensitive   = true
+  type      = string
+  default   = "5671"
+  sensitive = true
 }
 
 variable "rabbitmq_username" {
@@ -72,15 +53,15 @@ variable "rabbitmq_username" {
 }
 
 variable "rabbitmq_password" {
-  type    = string
-  default = "abcd12345678"
-  sensitive   = true
+  type      = string
+  default   = "abcd12345678"
+  sensitive = true
 }
 
 variable "rabbitmq_vhost" {
-  type    = string
-  default = "vh"
-  sensitive   = true
+  type      = string
+  default   = "vh"
+  sensitive = true
 }
 
 variable "rabbitmq_exchage_name" {
