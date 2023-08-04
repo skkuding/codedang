@@ -29,3 +29,12 @@ services:
       - database
     env_file: .env.development
     network_mode: host
+
+  iris:
+    image: ghcr.io/skkuding/codedang-iris:latest
+    container_name: iris
+    depends_on:
+      - rabbitmq
+      - database
+    env_file: .env.development
+    network_mode: host
