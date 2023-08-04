@@ -20,6 +20,8 @@ services:
       - rabbitmq
       - database
     env_file: .env.development
+    environment:
+      JWT_SECRET: fb503fae3c40b700d7f10ca32f24b5bc10f78979cd0e8aa73fab076a5fb9e2a3
     network_mode: host
 
   backend-admin:
@@ -29,6 +31,8 @@ services:
       - rabbitmq
       - database
     env_file: .env.development
+    environment:
+      JWT_SECRET: fb503fae3c40b700d7f10ca32f24b5bc10f78979cd0e8aa73fab076a5fb9e2a3
     network_mode: host
 
   iris:
