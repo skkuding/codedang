@@ -42,17 +42,6 @@ services:
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: skkuding
 
-  database-test:
-    profiles: ['test']
-    container_name: codedang-database-test
-    image: postgres:14-alpine
-    ports:
-      - 5434:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: skkuding
-
   cache:
     container_name: codedang-cache
     image: redis:7-alpine

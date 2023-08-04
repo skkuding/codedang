@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  caddy:
+    image: caddy:2.6.4-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - $PWD/Caddyfile:/etc/caddy/Caddyfile
+      - $PWD/dist:/var/www/html
+
+  backend-client:
+    image: ghcr.io/skkuding/codedang-client-api:latest
+    container_name: backend-client
+    depends_on:
+      - rabbitmq
+      - database
+    env_file: .env.development
+    network_mode: host
+
+  backend-admin:
+    image: ghcr.io/skkuding/codedang-admin-api:latest
+    container_name: backend-admin
+    depends_on:
+      - rabbitmq
+      - database
+    env_file: .env.development
+    network_mode: host
