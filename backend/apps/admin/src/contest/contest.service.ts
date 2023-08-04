@@ -14,9 +14,9 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Contest } from '@admin/@generated/contest/contest.model'
-import type { CreateContestInput } from './model/create-contest.input'
+import type { CreateContestInput } from './model/contest.input'
+import type { UpdateContestInput } from './model/contest.input'
 import type { PublicizingRequest } from './model/publicizing-request.model'
-import type { UpdateContestInput } from './model/update-contest.input'
 
 @Injectable()
 export class ContestService {
@@ -62,6 +62,10 @@ export class ContestService {
     userId: number,
     contest: CreateContestInput
   ): Promise<Contest> {
+    console.log(contest)
+    console.log(contest.description)
+    console.log(contest.startTime)
+    console.log(contest.config)
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
@@ -209,5 +213,27 @@ export class ContestService {
     )
 
     return contest
+  }
+
+  async importGroupProblemsToContest(groupId: number, contestId: number) {
+    const problems = await this.prisma.problem.findMany({
+      where: {
+        groupId: groupId
+      }
+    })
+
+    const contestProblems = []
+    for (const p of problems) {
+      contestProblems.push(
+        await this.prisma.contestProblem.create({
+          data: {
+            id: 'temp',
+            contestId: contestId,
+            problemId: p.id
+          }
+        })
+      )
+    }
+    return contestProblems
   }
 }

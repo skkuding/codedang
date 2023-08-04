@@ -12,12 +12,14 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
-import { CursorValidationPipe } from '@libs/pipe'
+// import { CursorValidationPipe } from '@libs/pipe'
+import { Problem } from '@admin/@generated'
 import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
-import { CreateContestInput } from './model/create-contest.input'
+import { CreateContestInput } from './model/contest.input'
+import { UpdateContestInput } from './model/contest.input'
+import { Input } from './model/input.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
-import { UpdateContestInput } from './model/update-contest.input'
 
 @Resolver(() => Contest)
 export class ContestResolver {
@@ -25,11 +27,20 @@ export class ContestResolver {
 
   @Query(() => [Contest])
   async getContests(
-    @Args('take', ParseIntPipe) take: number,
-    @Args('groupId', ParseIntPipe) groupId: number,
-    @Args('cursor', CursorValidationPipe) cursor: number
+    // @Args('take', ParseIntPipe) take: number,
+    // @Args('groupId', ParseIntPipe) groupId: number,
+    // @Args('cursor', { nullable: true }, CursorValidationPipe) cursor?: number
+    @Args('input') input: Input
   ) {
-    return await this.contestService.getContests(take, groupId, cursor)
+    console.log(input)
+    console.log(input.take)
+    console.log(input.groupId)
+    console.log(input.cursor)
+    return await this.contestService.getContests(
+      input.take,
+      input.groupId,
+      input.cursor
+    )
   }
 
   @Query(() => [PublicizingRequest])
@@ -40,10 +51,16 @@ export class ContestResolver {
 
   @Mutation(() => Contest)
   async createContest(
-    @Args('groupId', ParseIntPipe) groupId: number,
     @Args('input') input: CreateContestInput,
+    @Args('groupId', ParseIntPipe) groupId: number,
     @Context('req') req: AuthenticatedRequest
   ) {
+    console.log(input)
+    console.log(input.description)
+    console.log(input.title)
+    console.log(input.config)
+    console.log(groupId)
+    console.log(req.user.id)
     try {
       return await this.contestService.createContest(
         groupId,
@@ -52,9 +69,11 @@ export class ContestResolver {
       )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
+        console.log(error.message)
         throw new UnprocessableEntityException(error.message)
       }
-      throw new InternalServerErrorException()
+      console.log(error.message)
+      throw new InternalServerErrorException(error.message)
     }
   }
 
@@ -143,5 +162,16 @@ export class ContestResolver {
       }
       throw new InternalServerErrorException()
     }
+  }
+
+  @Mutation(() => [Problem])
+  async importGroupProblemsToContest(
+    @Args('groupId', ParseIntPipe) groupId: number,
+    @Args('contestId', ParseIntPipe) contestId: number
+  ) {
+    return await this.contestService.importGroupProblemsToContest(
+      groupId,
+      contestId
+    )
   }
 }
