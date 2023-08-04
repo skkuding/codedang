@@ -13,12 +13,6 @@ BASEDIR=$(dirname $(dirname $(realpath $0)))
 
 cd $BASEDIR
 
-# Use docker-compose profile
-if [ -z $DEVCONTAINER ]
-then
-  docker compose up -d
-fi
-
 # Write .env file from .env.development
 if [ -f .env ]
 then
