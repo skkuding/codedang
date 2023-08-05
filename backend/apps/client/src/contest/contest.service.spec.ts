@@ -1,5 +1,11 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import type { Contest, ContestRecord, Group, UserGroup } from '@prisma/client'
+import {
+  Prisma,
+  type Contest,
+  type ContestRecord,
+  type Group,
+  type UserGroup
+} from '@prisma/client'
 import { expect } from 'chai'
 import * as dayjs from 'dayjs'
 import { stub } from 'sinon'
@@ -171,7 +177,9 @@ const record: ContestRecord = {
 const mockPrismaService = {
   contest: {
     findUnique: stub().resolves(contest),
+    findUniqueOrThrow: stub().resolves(contest),
     findFirst: stub().resolves(contest),
+    findFirstOrThrow: stub().resolves(contest),
     findMany: stub().resolves(contests)
   },
   contestRecord: {
@@ -285,17 +293,20 @@ describe('ContestService', () => {
 
   describe('getContest', () => {
     it('should throw error when contest does not exist', async () => {
-      mockPrismaService.contest.findFirst.rejects(
-        new EntityNotExistException('contest')
+      mockPrismaService.contest.findUniqueOrThrow.rejects(
+        new Prisma.PrismaClientKnownRequestError('contest', {
+          code: 'P2002',
+          clientVersion: '5.1.1'
+        })
       )
 
       await expect(service.getContest(contestId, groupId)).to.be.rejectedWith(
-        EntityNotExistException
+        Prisma.PrismaClientKnownRequestError
       )
     })
 
     it('should return contest', async () => {
-      mockPrismaService.contest.findFirst.resolves(contestDetail)
+      mockPrismaService.contest.findUniqueOrThrow.resolves(contestDetail)
 
       expect(await service.getContest(groupId, contestId)).to.deep.equal(
         contestDetail

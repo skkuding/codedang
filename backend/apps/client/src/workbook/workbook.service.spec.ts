@@ -1,8 +1,7 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import type { Workbook } from '@prisma/client'
+import { Prisma, type Workbook } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { WorkbookService } from './workbook.service'
 
@@ -103,6 +102,7 @@ const db = {
   workbook: {
     findMany: stub(),
     findUnique: stub(),
+    findUniqueOrThrow: stub(),
     findFirst: stub(),
     create: stub(),
     update: stub(),
@@ -151,12 +151,17 @@ describe('WorkbookService', () => {
 
   it('get details of a workbook (user)', async () => {
     let workbookId = 1
-    db.workbook.findFirst.reset()
-    db.workbook.findFirst
+    db.workbook.findUniqueOrThrow.reset()
+    db.workbook.findUniqueOrThrow
       .onFirstCall()
       .resolves(visibleOnePublicWorkbook)
       .onSecondCall()
-      .rejects(new EntityNotExistException('workbook'))
+      .rejects(
+        new Prisma.PrismaClientKnownRequestError('workbook', {
+          code: 'P2002',
+          clientVersion: '5.1.1'
+        })
+      )
 
     db.workbookProblem.findMany.reset()
     db.workbookProblem.findMany
@@ -170,7 +175,7 @@ describe('WorkbookService', () => {
 
     workbookId = 9999999
     await expect(workbookService.getWorkbook(workbookId)).to.be.rejectedWith(
-      EntityNotExistException
+      Prisma.PrismaClientKnownRequestError
     )
   })
 })
