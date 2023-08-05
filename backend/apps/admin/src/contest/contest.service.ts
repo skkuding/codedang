@@ -46,17 +46,6 @@ export class ContestService {
     })
   }
 
-  async getPublicRequests() {
-    const keys = await this.cacheManager.store.keys()
-    const filteredKeys = keys.filter((key) => key.includes(':publicize'))
-    const requests = filteredKeys.map(async (key) => {
-      const r = await this.cacheManager.get<PublicizingRequest>(key)
-      r.createTime = new Date(r.createTime)
-      return r
-    })
-    return Promise.all(requests)
-  }
-
   async createContest(
     groupId: number,
     userId: number,
@@ -142,6 +131,17 @@ export class ContestService {
     return contest
   }
 
+  async getPublicRequests() {
+    const keys = await this.cacheManager.store.keys()
+    const filteredKeys = keys.filter((key) => key.includes(':publicize'))
+    const requests = filteredKeys.map(async (key) => {
+      const r = await this.cacheManager.get<PublicizingRequest>(key)
+      r.createTime = new Date(r.createTime)
+      return r
+    })
+    return Promise.all(requests)
+  }
+
   async acceptPublicizingRequest(groupId: number, contestId: number) {
     const updatedContest = await this.prisma.contest.update({
       where: {
@@ -183,7 +183,7 @@ export class ContestService {
   }
 
   async requestToPublic(groupId: number, contestId: number) {
-    if (groupId == 1) {
+    if (groupId == OPEN_SPACE_ID) {
       throw new UnprocessableEntityException(
         'This contest is already publicized'
       )
@@ -197,18 +197,18 @@ export class ContestService {
       rejectOnNotFound: () => new EntityNotExistException('contest')
     })
 
-    const duplicatedRequest = await this.cacheManager.get(
-      contestPublicizingRequestKey(contestId)
-    )
+    const key = contestPublicizingRequestKey(contestId)
+
+    const duplicatedRequest = await this.cacheManager.get(key)
     if (duplicatedRequest) {
       throw new ActionNotAllowedException(
-        'duplicated request',
-        'request converting contest to be public'
+        'duplicated publicizing request',
+        'contest'
       )
     }
 
     await this.cacheManager.set(
-      contestPublicizingRequestKey(contestId),
+      key,
       {
         contest: contestId,
         user: contest.createdById,
@@ -217,7 +217,7 @@ export class ContestService {
       PUBLICIZING_REQUEST_EXPIRE_TIME
     )
 
-    return contest
+    return await this.cacheManager.get(key)
   }
 
   async importGroupProblemsToContest(groupId: number, contestId: number) {
@@ -226,6 +226,9 @@ export class ContestService {
         groupId: groupId
       }
     })
+    if (!problems) {
+      throw new EntityNotExistException('problems not exist')
+    }
 
     const contestProblems = []
     for (const p of problems) {

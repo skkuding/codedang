@@ -33,23 +33,12 @@ export class ContestResolver {
     return await this.contestService.getContests(take, groupId, cursor)
   }
 
-  @Query(() => [PublicizingRequest])
-  @UseRolesGuard()
-  async getPublicRequests() {
-    return await this.contestService.getPublicRequests()
-  }
-
   @Mutation(() => Contest)
   async createContest(
     @Args('input') input: CreateContestInput,
     @Args('groupId', ParseIntPipe) groupId: number,
     @Context('req') req: AuthenticatedRequest
   ) {
-    console.log(input)
-    console.log(input.title)
-    console.log(input.config)
-    console.log(groupId)
-    console.log(req.user.id)
     try {
       return await this.contestService.createContest(
         groupId,
@@ -98,7 +87,13 @@ export class ContestResolver {
     }
   }
 
-  @Mutation(() => Contest)
+  @Query(() => [PublicizingRequest])
+  @UseRolesGuard()
+  async getPublicRequests() {
+    return await this.contestService.getPublicRequests()
+  }
+
+  @Mutation(() => PublicizingRequest)
   async requestToPublic(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('contestId', ParseIntPipe) contestId: number
