@@ -9,7 +9,7 @@ import {
   InternalServerErrorException,
   Logger
 } from '@nestjs/common'
-import { AuthNotNeeded, RolesGuard, GroupMemberGuard } from '@libs/auth'
+import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { NoticeService } from './notice.service'
@@ -49,7 +49,7 @@ export class NoticeController {
 }
 
 @Controller('group/:groupId/notice')
-@UseGuards(RolesGuard, GroupMemberGuard)
+@UseGuards(GroupMemberGuard)
 export class GroupNoticeController {
   private readonly logger = new Logger(GroupNoticeController.name)
 

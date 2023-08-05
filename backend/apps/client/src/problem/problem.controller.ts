@@ -1,7 +1,5 @@
 import {
-  BadRequestException,
   Controller,
-  ForbiddenException,
   Get,
   InternalServerErrorException,
   Logger,
@@ -11,17 +9,10 @@ import {
   Query,
   UseGuards
 } from '@nestjs/common'
-import { AuthNotNeeded, RolesGuard, GroupMemberGuard } from '@libs/auth'
-import {
-  EntityNotExistException,
-  ForbiddenAccessException
-} from '@libs/exception'
+import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
+import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
-import {
-  ContestProblemService,
-  ProblemService,
-  WorkbookProblemService
-} from './problem.service'
+import { ProblemService } from './problem.service'
 
 @Controller('problem')
 @AuthNotNeeded()
@@ -57,204 +48,34 @@ export class ProblemController {
   }
 }
 
-@Controller('contest/:contestId/problem')
-@AuthNotNeeded()
-export class ContestProblemController {
-  private readonly logger = new Logger(ContestProblemController.name)
+@Controller('group/:groupId/problem')
+@UseGuards(GroupMemberGuard)
+export class GroupProblemController {
+  private readonly logger = new Logger(GroupProblemController.name)
 
-  constructor(private readonly contestProblemService: ContestProblemService) {}
+  constructor(private readonly problemService: ProblemService) {}
 
   @Get()
-  async getContestProblems(
-    @Param('contestId', ParseIntPipe) contestId: number,
+  async getProblems(
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
-      return await this.contestProblemService.getContestProblems(
-        contestId,
-        cursor,
-        take
-      )
+      return await this.problemService.getProblems(cursor, take, groupId)
     } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      } else if (err instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(err.message)
-      }
       this.logger.error(err.message, err.stack)
       throw new InternalServerErrorException()
     }
   }
 
   @Get(':problemId')
-  async getContestProblem(
-    @Param('contestId', ParseIntPipe) contestId: number,
+  async getProblem(
+    @Param('groupId', ParseIntPipe) groupId: number,
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {
-      return await this.contestProblemService.getContestProblem(
-        contestId,
-        problemId
-      )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      } else if (err instanceof ForbiddenAccessException) {
-        throw new BadRequestException(err.message)
-      }
-      this.logger.error(err.message, err.stack)
-      throw new InternalServerErrorException()
-    }
-  }
-}
-
-@Controller('group/:groupId/contest/:contestId/problem')
-@UseGuards(RolesGuard, GroupMemberGuard)
-export class GroupContestProblemController {
-  private readonly logger = new Logger(GroupContestProblemController.name)
-
-  constructor(private readonly contestProblemService: ContestProblemService) {}
-
-  @Get()
-  async getContestProblems(
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('contestId', ParseIntPipe) contestId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
-    @Query('take', ParseIntPipe) take: number
-  ) {
-    try {
-      return await this.contestProblemService.getContestProblems(
-        contestId,
-        cursor,
-        take,
-        groupId
-      )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      }
-      this.logger.error(err.message, err.stack)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get(':problemId')
-  async getContestProblem(
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('contestId', ParseIntPipe) contestId: number,
-    @Param('problemId', ParseIntPipe) problemId: number
-  ) {
-    try {
-      return await this.contestProblemService.getContestProblem(
-        contestId,
-        problemId,
-        groupId
-      )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      }
-      this.logger.error(err.message, err.stack)
-      throw new InternalServerErrorException()
-    }
-  }
-}
-
-@AuthNotNeeded()
-@Controller('workbook/:workbookId/problem')
-export class WorkbookProblemController {
-  private readonly logger = new Logger(WorkbookProblemController.name)
-
-  constructor(
-    private readonly workbookProblemService: WorkbookProblemService
-  ) {}
-
-  @Get()
-  async getWorkbookProblems(
-    @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
-    @Query('take', ParseIntPipe) take: number
-  ) {
-    try {
-      return await this.workbookProblemService.getWorkbookProblems(
-        workbookId,
-        cursor,
-        take
-      )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      }
-      this.logger.error(err.message, err.stack)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get(':problemId')
-  async getWorkbookProblem(
-    @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Param('problemId', ParseIntPipe) problemId: number
-  ) {
-    try {
-      return await this.workbookProblemService.getWorkbookProblem(
-        workbookId,
-        problemId
-      )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      }
-      this.logger.error(err.message, err.stack)
-      throw new InternalServerErrorException()
-    }
-  }
-}
-
-@Controller('group/:groupId/workbook/:workbookId/problem')
-@UseGuards(RolesGuard, GroupMemberGuard)
-export class GroupWorkbookProblemController {
-  private readonly logger = new Logger(GroupWorkbookProblemController.name)
-
-  constructor(
-    private readonly workbookProblemService: WorkbookProblemService
-  ) {}
-
-  @Get()
-  async getWorkbookProblems(
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
-    @Query('take', ParseIntPipe) take: number
-  ) {
-    try {
-      return await this.workbookProblemService.getWorkbookProblems(
-        workbookId,
-        cursor,
-        take,
-        groupId
-      )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      }
-      this.logger.error(err.message, err.stack)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get(':problemId')
-  async getWorkbookProblem(
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Param('problemId', ParseIntPipe) problemId: number
-  ) {
-    try {
-      return await this.workbookProblemService.getWorkbookProblem(
-        workbookId,
-        problemId,
-        groupId
-      )
+      return await this.problemService.getProblem(problemId, groupId)
     } catch (err) {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
