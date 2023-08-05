@@ -9,7 +9,6 @@ import {
   EntityNotExistException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { GroupJoinRequest } from './interface/group-join-request.interface'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
 @Injectable()
