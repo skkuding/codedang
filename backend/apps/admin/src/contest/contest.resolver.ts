@@ -153,9 +153,13 @@ export class ContestResolver {
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('contestId', ParseIntPipe) contestId: number
   ) {
-    return await this.contestService.importGroupProblemsToContest(
-      groupId,
-      contestId
-    )
+    try {
+      return await this.contestService.importGroupProblemsToContest(
+        groupId,
+        contestId
+      )
+    } catch (error) {
+      throw new NotFoundException(error.message)
+    }
   }
 }
