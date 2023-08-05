@@ -184,7 +184,7 @@ export class ContestService {
     id: number,
     groupId = OPEN_SPACE_ID
   ): Promise<Partial<Contest>> {
-    const contest = await this.prisma.contest.findFirst({
+    const contest = await this.prisma.contest.findUniqueOrThrow({
       where: {
         id,
         groupId,
@@ -196,8 +196,7 @@ export class ContestService {
       select: {
         ...this.contestSelectOption,
         description: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('contest')
+      }
     })
 
     return contest

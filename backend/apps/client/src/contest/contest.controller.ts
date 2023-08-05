@@ -12,6 +12,7 @@ import {
   Query,
   Logger
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import {
   AuthenticatedRequest,
   AuthNotNeeded,
@@ -74,7 +75,10 @@ export class ContestController {
     try {
       return await this.contestService.getContest(id)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
