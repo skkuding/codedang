@@ -4,10 +4,17 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import * as cookieParser from 'cookie-parser'
 import { AppModule } from './app.module'
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+const bootstrap = async () => {
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'log']
+  })
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
   app.use(cookieParser())
+  app.enableCors({
+    allowedHeaders: ['*'],
+    exposedHeaders: ['authorization'],
+    credentials: true
+  })
 
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
@@ -21,8 +28,11 @@ async function bootstrap() {
         persistAuthorization: true
       }
     })
+  } else {
+    app.setGlobalPrefix('api')
   }
 
   await app.listen(4000)
 }
+
 bootstrap()

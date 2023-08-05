@@ -14,6 +14,12 @@ ports:
   - port: 6380 # Redis
     onOpen: ignore
 
+  - port: 9000 # MinIO
+    onOpen: ignore
+
+  - port: 9001 # MinIO Dashboard
+    onOpen: ignore
+
   - port: 15672 # RabbitMQ Dashboard
     onOpen: ignore
 
@@ -40,6 +46,7 @@ vscode:
     - editorconfig.editorconfig
     - esbenp.prettier-vscode
     - golang.go
+    - hashicorp.terraform
     - hbenl.test-adapter-converter
     - hbenl.vscode-mocha-test-adapter
     - hbenl.vscode-test-explorer

@@ -1,32 +1,61 @@
 <script setup lang="ts">
 import groupImage from '@/common/assets/logo.png'
 import Button from '@/common/components/Atom/Button.vue'
+import { useQuery } from '@vue/apollo-composable'
 import { useDateFormat } from '@vueuse/core'
+import gql from 'graphql-tag'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import IconLock from '~icons/bi/lock'
 import IconUnlock from '~icons/bi/unlock'
 import IconPenToSquare from '~icons/fa6-solid/pen-to-square'
 import IconTrashCan from '~icons/fa6-solid/trash-can'
 
-const groupName = ref('SKKUDING')
-const description = ref('SKKU 개발동아리입니다.')
-const members = ref(16)
+const props = defineProps<{
+  groupId: string
+}>()
+
+interface Response {
+  getGroup: {
+    id: string
+    groupName: string
+    description: string
+    memberNum: number
+    createTime: string
+    updateTime: string
+    config: {
+      showOnList: boolean
+      allowJoinWithURL: boolean
+      allowJoinFromSearch: boolean
+      requireApprovalBeforeJoin: boolean
+    }
+  }
+}
+const router = useRouter()
+const group = ref<Response['getGroup']>()
+const { onResult, onError } = useQuery<Response>(gql`
+  query Group {
+    getGroup(groupId: ${props.groupId}) {
+      id
+      groupName
+      description
+      config
+      createTime
+      updateTime
+      memberNum
+    }
+  }
+`)
+onResult(({ data }) => {
+  if (data) {
+    group.value = data.getGroup
+  }
+})
+onError(() => {
+  router.push('/')
+})
 const invitationCode = ref('ABCDEF')
 const groupMangers = ref(['홍길동', '하설빙', '방미서'])
-
-const groupCreateTime = ref('2022-03-02 12:00:00')
-const groupCreateTimeFormat = useDateFormat(
-  groupCreateTime,
-  'YYYY.MM.DD HH:mm:ss'
-)
-
-const groupUpdateTime = ref('2022-09-02 12:00:00')
-const groupUpdateTimeFormat = useDateFormat(
-  groupUpdateTime,
-  'YYYY.MM.DD HH:mm:ss'
-)
-const emits = defineEmits(['toggleGroup'])
-emits('toggleGroup', true)
 </script>
 
 <template>
@@ -35,7 +64,7 @@ emits('toggleGroup', true)
     <h1
       class="text-text-title border-green flex w-2/3 items-center border-b-8 pb-4 text-3xl font-extrabold"
     >
-      {{ groupName }}
+      {{ group?.groupName }}
       <IconPenToSquare
         class="ml-6 cursor-pointer text-xl hover:opacity-60 active:opacity-40"
       />
@@ -44,7 +73,7 @@ emits('toggleGroup', true)
     <article class="flex w-full py-12">
       <div class="border-r-gray flex-1 justify-between border-r">
         <h2 class="text-text-subtitle text-xl font-bold">Description</h2>
-        <p>{{ description }}</p>
+        <p>{{ group?.description }}</p>
         <h2 class="text-text-subtitle mt-12 text-xl font-bold">
           Public / Private
         </h2>
@@ -57,11 +86,13 @@ emits('toggleGroup', true)
         <h2 class="text-text-subtitle mt-12 text-xl font-bold">
           Total Members
         </h2>
-        <p>{{ members }}</p>
+        <p>{{ group?.memberNum }}</p>
         <h2 class="text-text-subtitle mt-12 text-xl font-bold">
           Group Create Time
         </h2>
-        <p>{{ groupCreateTimeFormat }}</p>
+        <p>
+          {{ useDateFormat(group?.createTime, 'YYYY.MM.DD HH:mm:ss').value }}
+        </p>
       </div>
       <div class="ml-8 flex-1">
         <h2 class="text-text-subtitle text-xl font-bold">
@@ -84,7 +115,9 @@ emits('toggleGroup', true)
         <h2 class="text-text-subtitle mt-12 text-xl font-bold">
           Group Update Time
         </h2>
-        <p>{{ groupUpdateTimeFormat }}</p>
+        <p>
+          {{ useDateFormat(group?.updateTime, 'YYYY.MM.DD HH:mm:ss').value }}
+        </p>
       </div>
     </article>
     <!-- TODO: dialog verifying group deletion -->

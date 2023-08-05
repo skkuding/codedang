@@ -1,6 +1,6 @@
 import { use } from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
 
-export async function mochaGlobalSetup() {
+export const mochaGlobalSetup = async () => {
   use(chaiAsPromised)
 }

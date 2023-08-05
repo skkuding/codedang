@@ -15,6 +15,8 @@ import { PrismaModule } from '@libs/prisma'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { GroupModule } from './group/group.module'
+import { ProblemModule } from './problem/problem.module'
+import { StorageModule } from './storage/storage.module'
 import { UserModule } from './user/user.module'
 
 @Module({
@@ -31,9 +33,11 @@ import { UserModule } from './user/user.module'
     }),
     JwtAuthModule,
     RolesModule,
-    UserModule,
     PrismaModule,
-    GroupModule
+    ProblemModule,
+    StorageModule,
+    GroupModule,
+    UserModule
   ],
   controllers: [AdminController],
   providers: [

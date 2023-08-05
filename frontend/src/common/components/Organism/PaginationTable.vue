@@ -1,5 +1,7 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
+import { useSortable } from '@vueuse/integrations/useSortable'
 import { computed, ref, watch } from 'vue'
+import Fa6SolidEquals from '~icons/fa6-solid/equals'
 import Pagination from '../Molecule/Pagination.vue'
 import SearchBar from '../Molecule/SearchBar.vue'
 
@@ -15,20 +17,24 @@ type FieldType = SubfieldType & {
 
 const props = defineProps<{
   fields: FieldType[]
-  items: T[]
+  items?: T[]
+  modelValue?: T[]
   placeholder?: string
   numberOfPages: number
   text?: string // show if there's no data in item
   noHeader?: boolean
+  pageSlot?: number
   noSearchBar?: boolean
   noPagination?: boolean
   mode?: 'light' | 'dark'
+  editing?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'row-clicked', row: T): void
   (e: 'change-page', page: number): void
   (e: 'search', input: string): void
+  (e: 'update:modelValue'): void
 }>()
 
 const subhead = computed(() => {
@@ -76,19 +82,26 @@ const search = (inputData: string) => {
 watch(currentPage, (value) => {
   emit('change-page', value)
 })
+
+const el = ref<HTMLElement | null>(null)
+if (props?.modelValue)
+  useSortable(el, props.modelValue, {
+    handle: '.handle',
+    animation: 200
+  })
 </script>
 
 <template>
   <div>
     <div class="mb-5 flex justify-end">
-      <slot name="option"></slot>
+      <slot name="option" />
       <SearchBar
         v-if="!noSearchBar"
         :placeholder="placeholder"
         class="ml-5"
         :class="!mode || mode === 'light' ? '' : 'text-white'"
         @search="search"
-      ></SearchBar>
+      />
     </div>
     <div class="min-w-full overflow-x-scroll md:overflow-x-auto">
       <table
@@ -102,6 +115,7 @@ watch(currentPage, (value) => {
               headerColor[mode || 'light']
             ]"
           >
+            <th v-if="editing" class="w-1" />
             <th
               v-for="(field, index) in fields"
               :key="index"
@@ -139,8 +153,8 @@ watch(currentPage, (value) => {
             </th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-if="items.length === 0">
+        <tbody ref="el">
+          <tr v-if="items?.length === 0 || modelValue?.length === 0">
             <td
               :colspan="entries.length"
               class="p-2.5 pl-4"
@@ -150,12 +164,15 @@ watch(currentPage, (value) => {
             </td>
           </tr>
           <tr
-            v-for="(row, index) in items"
-            :key="index"
+            v-for="row in items || modelValue"
+            :key="row.id"
             class="border-gray cursor-pointer border-y"
             :class="rowColor[mode || 'light']"
             @click="$emit('row-clicked', row)"
           >
+            <td v-if="editing" class="handle p-2.5 pl-4">
+              <Fa6SolidEquals class="text-slate-300" />
+            </td>
             <td
               v-for="(entry, idx) in entries"
               :key="idx"
@@ -174,6 +191,7 @@ watch(currentPage, (value) => {
         v-if="!noPagination"
         v-model="currentPage"
         class="mt-8"
+        :page-slot="pageSlot"
         :number-of-pages="numberOfPages"
         :mode="mode"
       />
