@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
@@ -55,7 +56,10 @@ export class WorkbookProblemController {
         problemId
       )
     } catch (err) {
-      if (err instanceof EntityNotExistException) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.name === 'NotFoundError'
+      ) {
         throw new NotFoundException(err.message)
       }
       this.logger.error(err.message, err.stack)

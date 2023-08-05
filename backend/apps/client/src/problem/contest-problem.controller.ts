@@ -11,6 +11,7 @@ import {
   Query,
   UseGuards
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
 import {
   EntityNotExistException,
@@ -60,7 +61,10 @@ export class ContestProblemController {
         problemId
       )
     } catch (err) {
-      if (err instanceof EntityNotExistException) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.name === 'NotFoundError'
+      ) {
         throw new NotFoundException(err.message)
       } else if (err instanceof ForbiddenAccessException) {
         throw new BadRequestException(err.message)
