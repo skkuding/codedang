@@ -9,9 +9,8 @@ import {
   Query,
   UseGuards
 } from '@nestjs/common'
-import type { Workbook } from '@prisma/client'
+import { Prisma, type Workbook } from '@prisma/client'
 import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
-import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { WorkbookService } from './workbook.service'
 
@@ -40,7 +39,10 @@ export class WorkbookController {
     try {
       return await this.workbookService.getWorkbook(workbookId)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
@@ -82,7 +84,10 @@ export class GroupWorkbookController {
     try {
       return await this.workbookService.getWorkbook(workbookId, groupId)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)

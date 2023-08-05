@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import type { Workbook, Problem } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
 @Injectable()
@@ -37,10 +36,9 @@ export class WorkbookService {
     workbookId: number,
     groupId = OPEN_SPACE_ID
   ): Promise<Partial<Workbook> & { problems: Partial<Problem>[] }> {
-    const workbook = await this.prisma.workbook.findFirst({
+    const workbook = await this.prisma.workbook.findUniqueOrThrow({
       where: { id: workbookId, groupId, isVisible: true },
-      select: { id: true, title: true },
-      rejectOnNotFound: () => new EntityNotExistException('workbook')
+      select: { id: true, title: true }
     })
 
     const rawProblems = await this.prisma.workbookProblem.findMany({
