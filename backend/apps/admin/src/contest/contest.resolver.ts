@@ -12,13 +12,12 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
-// import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe } from '@libs/pipe'
 import { Problem } from '@admin/@generated'
 import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
-import { Input } from './model/input.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
 
 @Resolver(() => Contest)
@@ -27,20 +26,11 @@ export class ContestResolver {
 
   @Query(() => [Contest])
   async getContests(
-    // @Args('take', ParseIntPipe) take: number,
-    // @Args('groupId', ParseIntPipe) groupId: number,
-    // @Args('cursor', { nullable: true }, CursorValidationPipe) cursor?: number
-    @Args('input') input: Input
+    @Args('take', ParseIntPipe) take: number,
+    @Args('groupId', ParseIntPipe) groupId: number,
+    @Args('cursor', { nullable: true }, CursorValidationPipe) cursor?: number
   ) {
-    console.log(input)
-    console.log(input.take)
-    console.log(input.groupId)
-    console.log(input.cursor)
-    return await this.contestService.getContests(
-      input.take,
-      input.groupId,
-      input.cursor
-    )
+    return await this.contestService.getContests(take, groupId, cursor)
   }
 
   @Query(() => [PublicizingRequest])
@@ -56,7 +46,6 @@ export class ContestResolver {
     @Context('req') req: AuthenticatedRequest
   ) {
     console.log(input)
-    console.log(input.description)
     console.log(input.title)
     console.log(input.config)
     console.log(groupId)

@@ -1,15 +1,13 @@
 import { Field, GraphQLISODateTime, InputType, Int } from '@nestjs/graphql'
-import { Prisma } from '@prisma/client'
-import GraphQLJSON from 'graphql-type-json'
 
-// @InputType()
-// export class ContestConfig {
-//   @Field(() => Boolean, { nullable: false })
-//   isVisible!: boolean
+@InputType()
+export class ContestConfig {
+  @Field(() => Boolean, { nullable: false })
+  isVisible!: boolean
 
-//   @Field(() => Boolean, { nullable: false })
-//   isRankVisible!: boolean
-// }
+  @Field(() => Boolean, { nullable: false })
+  isRankVisible!: boolean
+}
 
 @InputType()
 export class CreateContestInput {
@@ -25,8 +23,8 @@ export class CreateContestInput {
   @Field(() => GraphQLISODateTime, { nullable: false })
   endTime!: Date
 
-  @Field(() => GraphQLJSON, { nullable: false })
-  config!: Prisma.JsonValue
+  @Field(() => ContestConfig, { nullable: false })
+  config!: ContestConfig
 }
 
 @InputType()
@@ -46,6 +44,6 @@ export class UpdateContestInput {
   @Field(() => GraphQLISODateTime, { nullable: false })
   endTime!: Date
 
-  @Field(() => GraphQLJSON, { nullable: false })
-  config!: Prisma.JsonValue
+  @Field(() => ContestConfig, { nullable: false })
+  config!: ContestConfig
 }

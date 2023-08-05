@@ -62,10 +62,9 @@ export class ContestService {
     userId: number,
     contest: CreateContestInput
   ): Promise<Contest> {
-    console.log(contest)
-    console.log(contest.description)
-    console.log(contest.startTime)
-    console.log(contest.config)
+    console.log(contest) // 확인용
+    console.log(contest.title)
+
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
@@ -80,7 +79,10 @@ export class ContestService {
         description: contest.description,
         startTime: contest.startTime,
         endTime: contest.endTime,
-        config: contest.config
+        config: {
+          isVisible: contest.config.isVisible,
+          isRankVisible: contest.config.isRankVisible
+        }
       }
     })
 
@@ -114,7 +116,10 @@ export class ContestService {
         description: contest.description,
         startTime: contest.startTime,
         endTime: contest.endTime,
-        config: contest.config
+        config: {
+          isVisible: contest.config.isVisible,
+          isRankVisible: contest.config.isRankVisible
+        }
       }
     })
   }
