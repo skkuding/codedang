@@ -94,14 +94,14 @@ resource "aws_ecs_task_definition" "admin_api" {
     # database_url      = "postgresql://${var.postgres_username}:${random_password.postgres_password.result}@${aws_rds_cluster.cluster.endpoint}:${var.postgres_port}/skkuding?schema=public",
 
     # posrgresql (free tier)
-    database_url      = "postgresql://${var.postgres_username}:${random_password.postgres_password.result}@${aws_db_instance.db-test.endpoint}/skkuding?schema=public",
-    ecr_uri           = var.ecr_admin_uri,
-    container_port    = 3000
-    cloudwatch_region = var.region,
-    redis_host        = aws_elasticache_replication_group.db_cache.configuration_endpoint_address
-    redis_port        = var.redis_port,
-    jwt_secret        = random_password.jwt_secret.result,
-    testcase_bucket_name = aws_iam_user.testcase.name,
+    database_url         = "postgresql://${var.postgres_username}:${random_password.postgres_password.result}@${aws_db_instance.db-test.endpoint}/skkuding?schema=public",
+    ecr_uri              = var.ecr_admin_uri,
+    container_port       = 3000
+    cloudwatch_region    = var.region,
+    redis_host           = aws_elasticache_replication_group.db_cache.configuration_endpoint_address
+    redis_port           = var.redis_port,
+    jwt_secret           = random_password.jwt_secret.result,
+    testcase_bucket_name = aws_s3_bucket.testcase.id,
     testcase_access_key  = aws_iam_access_key.testcase.id,
     testcase_secret_key  = aws_iam_access_key.testcase.secret,
   })
