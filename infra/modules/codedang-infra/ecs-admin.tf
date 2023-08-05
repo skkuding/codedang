@@ -88,7 +88,7 @@ resource "aws_ecs_task_definition" "admin_api" {
   network_mode             = "awsvpc"
   cpu                      = 512
   memory                   = 1024
-  container_definitions = templatefile("${path.module}/backend/task-definition.tftpl", {
+  container_definitions = templatefile("${path.module}/backend/admin-task-definition.tftpl", {
     task_name = "Codedang-Admin-Api",
     # aurora-posrgresql
     # database_url      = "postgresql://${var.postgres_username}:${random_password.postgres_password.result}@${aws_rds_cluster.cluster.endpoint}:${var.postgres_port}/skkuding?schema=public",
@@ -101,6 +101,9 @@ resource "aws_ecs_task_definition" "admin_api" {
     redis_host        = aws_elasticache_replication_group.db_cache.configuration_endpoint_address
     redis_port        = var.redis_port,
     jwt_secret        = random_password.jwt_secret.result,
+    testcase_bucket_name = aws_iam_user.testcase.name,
+    testcase_access_key  = aws_iam_access_key.testcase.id,
+    testcase_secret_key  = aws_iam_access_key.testcase.secret,
   })
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 
