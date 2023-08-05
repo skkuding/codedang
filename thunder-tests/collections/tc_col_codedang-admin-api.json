@@ -638,7 +638,7 @@
             "method": "POST",
             "sortNum": 50000,
             "created": "2023-07-13T12:00:14.545Z",
-            "modified": "2023-08-04T09:43:31.708Z",
+            "modified": "2023-08-05T15:04:26.551Z",
             "headers": [],
             "params": [],
             "body": {
@@ -646,7 +646,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query {\n    getContests(\n        input: {\n            take: 1,\n            groupId: 1,\n            cursor: 1\n        }\n        ) {\n        id\n        createdById\n        groupId\n        title\n    }\n}"
+                    "query": "query {\n    getContests(\n            take: 6,\n            groupId: 2\n        ) {\n        id\n        createdById\n        groupId\n        title\n    }\n}"
                 }
             },
             "tests": []
@@ -660,7 +660,7 @@
             "method": "POST",
             "sortNum": 60000,
             "created": "2023-07-13T12:07:19.048Z",
-            "modified": "2023-08-04T11:05:43.195Z",
+            "modified": "2023-08-05T15:04:38.562Z",
             "headers": [],
             "params": [],
             "body": {
@@ -668,7 +668,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation Contest {\n    createContest(\n        groupId: 2,\n        input: {\n            title: \"title1\",\n            description: \"description1\",\n            startTime: \"2023-08-05\",\n            endTime: \"2023-08-10\",\n            config: {\n                isVisible: true,\n                isRankVisible: false\n            }\n        }\n    ) {\n        title\n        description\n    }\n}"
+                    "query": "mutation Contest {\n    createContest(\n        groupId: 2,\n        input: {\n            title: \"title2\",\n            description: \"description1\",\n            startTime: \"2023-08-05\",\n            endTime: \"2023-08-10\",\n            config: {\n                isVisible: true,\n                isRankVisible: false\n            }\n        }\n    ) {\n        title\n        description\n    }\n}"
                 }
             },
             "tests": []
@@ -726,7 +726,7 @@
             "method": "POST",
             "sortNum": 100000,
             "created": "2023-07-13T12:25:57.565Z",
-            "modified": "2023-07-13T14:06:25.688Z",
+            "modified": "2023-08-05T15:22:00.114Z",
             "headers": [],
             "params": [],
             "body": {
@@ -734,7 +734,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation {\n    requestToPublic(\n    groupId: 2,\n    input: {\n        groupId: 2,\n        itemId: 9\n    }\n    ) {\n        id\n        createdById\n        groupId\n        title\n    }\n}"
+                    "query": "mutation {\n    requestToPublic(\n    groupId: 2,\n    contestId: 4\n    ) {\n        contestId,\n        userId\n        createTime\n    }\n}"
                 }
             },
             "tests": []
@@ -748,7 +748,7 @@
             "method": "POST",
             "sortNum": 110000,
             "created": "2023-07-13T12:29:15.686Z",
-            "modified": "2023-07-13T13:54:31.929Z",
+            "modified": "2023-08-05T15:12:42.101Z",
             "headers": [],
             "params": [],
             "body": {
@@ -756,7 +756,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "query {\n    getPublicRequests {\n        contest\n        user\n        createTime\n    }\n}"
+                    "query": "query {\n    getPublicRequests {\n        contestId\n        userId\n        createTime\n    }\n}"
                 }
             },
             "tests": []
@@ -792,7 +792,7 @@
             "method": "POST",
             "sortNum": 130000,
             "created": "2023-07-13T12:59:30.875Z",
-            "modified": "2023-07-13T14:06:36.370Z",
+            "modified": "2023-08-05T15:12:16.986Z",
             "headers": [],
             "params": [],
             "body": {
@@ -800,7 +800,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation {\n    rejectPublic(input: {\n        groupId: 2,\n        itemId: 9\n    }) {\n        id\n        groupId\n        title\n        description\n    }\n}"
+                    "query": "mutation {\n    rejectPublicizingRequest(\n        groupId: 2,\n        contestId: 4\n    ) {\n        id\n        groupId\n        title\n        description\n    }\n}"
                 }
             },
             "tests": []

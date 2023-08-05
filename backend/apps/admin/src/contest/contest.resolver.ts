@@ -47,10 +47,8 @@ export class ContestResolver {
       )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
-        console.log(error.message)
         throw new UnprocessableEntityException(error.message)
       }
-      console.log(error.message)
       throw new InternalServerErrorException(error.message)
     }
   }

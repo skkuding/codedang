@@ -51,9 +51,6 @@ export class ContestService {
     userId: number,
     contest: CreateContestInput
   ): Promise<Contest> {
-    console.log(contest) // 확인용
-    console.log(contest.title)
-
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
@@ -139,7 +136,7 @@ export class ContestService {
       r.createTime = new Date(r.createTime)
       return r
     })
-    return Promise.all(requests)
+    return await Promise.all(requests)
   }
 
   async acceptPublicizingRequest(groupId: number, contestId: number) {
@@ -210,14 +207,16 @@ export class ContestService {
     await this.cacheManager.set(
       key,
       {
-        contest: contestId,
-        user: contest.createdById,
+        contestId: contestId,
+        userId: contest.createdById,
         createTime: new Date()
       },
       PUBLICIZING_REQUEST_EXPIRE_TIME
     )
 
-    return await this.cacheManager.get(key)
+    const pr = await this.cacheManager.get<PublicizingRequest>(key)
+    pr.createTime = new Date(pr.createTime)
+    return pr
   }
 
   async importGroupProblemsToContest(groupId: number, contestId: number) {
