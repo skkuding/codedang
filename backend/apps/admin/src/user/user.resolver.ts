@@ -8,8 +8,7 @@ import { User } from '@generated'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe } from '@libs/pipe'
 import { UserGroup } from '@admin/@generated/user-group/user-group.model'
-import { GroupMember } from './model/groupMember.dto'
-import { JoinInput } from './model/joinInput.dto'
+import { GroupMember } from './model/groupMember.model'
 import type { UpdateUserGroup } from './model/userGroup-update.model'
 import { UserService } from './user.service'
 
@@ -18,7 +17,7 @@ export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Query(() => [GroupMember])
-  async getMembers(
+  async getGroupMembers(
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
     groupId: number,
     @Args('cursor', CursorValidationPipe) cursor: number,
@@ -46,7 +45,7 @@ export class UserResolver {
       )
     } catch (error) {
       if (error instanceof BadRequestException) {
-        throw new BadRequestException()
+        throw new BadRequestException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -61,7 +60,7 @@ export class UserResolver {
       return await this.userService.updateGroupMemberRole(userId, groupId, true)
     } catch (error) {
       if (error instanceof BadRequestException) {
-        throw new BadRequestException()
+        throw new BadRequestException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -76,14 +75,14 @@ export class UserResolver {
       return await this.userService.deleteGroupMember(userId, groupId)
     } catch (error) {
       if (error instanceof BadRequestException) {
-        throw new BadRequestException()
+        throw new BadRequestException(error.message)
       }
       throw new InternalServerErrorException()
     }
   }
 
   @Query(() => [User])
-  async getJoinRequests(@Args('groupId') groupId: string): Promise<User[]> {
+  async getJoinRequests(@Args('groupId') groupId: number): Promise<User[]> {
     try {
       return await this.userService.getNeededApproval(groupId)
     } catch (error) {
@@ -91,16 +90,16 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => Number)
+  @Mutation(() => UserGroup)
   async rejectJoinRequest(
-    @Args('input') input: JoinInput
+    @Args('groupId') groupId: number,
+    @Args('userId') userId: number
   ): Promise<UserGroup | number> {
     try {
-      const { groupId, userId } = input
       return await this.userService.handleJoinRequest(groupId, userId, false)
     } catch (error) {
       if (error instanceof BadRequestException) {
-        throw new BadRequestException()
+        throw new BadRequestException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -108,14 +107,14 @@ export class UserResolver {
 
   @Mutation(() => UserGroup)
   async acceptJoinRequest(
-    @Args('input') input: JoinInput
+    @Args('groupId') groupId: number,
+    @Args('userId') userId: number
   ): Promise<UserGroup | number> {
     try {
-      const { groupId, userId } = input
       return await this.userService.handleJoinRequest(groupId, userId, true)
     } catch (error) {
       if (error instanceof BadRequestException) {
-        throw new BadRequestException()
+        throw new BadRequestException(error.message)
       }
       throw new InternalServerErrorException()
     }

@@ -94,6 +94,69 @@
             "containerId": "419a4432-6b41-4cd0-a04e-f302e7be447b",
             "created": "2023-07-31T17:53:40.907Z",
             "sortNum": 115000
+        },
+        {
+            "_id": "562fb70d-2dec-46ee-83cb-786d2e3418e2",
+            "name": "User",
+            "containerId": "",
+            "created": "2023-08-05T05:31:22.066Z",
+            "sortNum": 150000
+        },
+        {
+            "_id": "047d96ae-ba0b-4995-a715-d457e5b08f59",
+            "name": "Get Group Managers",
+            "containerId": "562fb70d-2dec-46ee-83cb-786d2e3418e2",
+            "created": "2023-08-05T05:31:37.098Z",
+            "sortNum": 160000
+        },
+        {
+            "_id": "20101765-3b20-426b-bea5-f9d47a86d437",
+            "name": "Get Group Members",
+            "containerId": "562fb70d-2dec-46ee-83cb-786d2e3418e2",
+            "created": "2023-08-05T05:32:02.427Z",
+            "sortNum": 170000
+        },
+        {
+            "_id": "b9ec981e-1de6-45f0-8bc9-3a37fc74bfd3",
+            "name": "Group Manager Downgrade",
+            "containerId": "562fb70d-2dec-46ee-83cb-786d2e3418e2",
+            "created": "2023-08-05T06:16:21.519Z",
+            "sortNum": 190000
+        },
+        {
+            "_id": "b20a8657-c759-4a0a-a866-d32099e1d096",
+            "name": "Group Member Upgrade",
+            "containerId": "562fb70d-2dec-46ee-83cb-786d2e3418e2",
+            "created": "2023-08-05T06:17:04.777Z",
+            "sortNum": 200000
+        },
+        {
+            "_id": "7abcb9af-88e0-43a9-ae09-95add69542ab",
+            "name": "Delete Group Manager/Member",
+            "containerId": "562fb70d-2dec-46ee-83cb-786d2e3418e2",
+            "created": "2023-08-05T06:21:39.428Z",
+            "sortNum": 220000
+        },
+        {
+            "_id": "da9c3bf9-7e8b-4376-a96d-d6c76c0d2887",
+            "name": "Group Member Needed Approval",
+            "containerId": "562fb70d-2dec-46ee-83cb-786d2e3418e2",
+            "created": "2023-08-05T06:25:48.734Z",
+            "sortNum": 230000
+        },
+        {
+            "_id": "a8701057-30cc-4ad0-8408-efddc31dc8af",
+            "name": "Reject Join",
+            "containerId": "562fb70d-2dec-46ee-83cb-786d2e3418e2",
+            "created": "2023-08-05T06:33:39.294Z",
+            "sortNum": 240000
+        },
+        {
+            "_id": "4fc80d84-d9af-48b3-8078-c3669de19055",
+            "name": "Accept Join",
+            "containerId": "562fb70d-2dec-46ee-83cb-786d2e3418e2",
+            "created": "2023-08-05T06:46:56.182Z",
+            "sortNum": 260000
         }
     ],
     "settings": {
@@ -1234,6 +1297,655 @@
                 "runRequests": [
                     {
                         "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "3d4f5017-0936-41ab-94fe-9e57f02a7e5f",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "047d96ae-ba0b-4995-a715-d457e5b08f59",
+            "name": "Success",
+            "url": "",
+            "method": "POST",
+            "sortNum": 160000,
+            "created": "2023-08-05T05:31:44.277Z",
+            "modified": "2023-08-05T08:47:23.552Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query {\n  getGroupMembers(\n\t\tgroupId: 1,\n\t\tcursor: 1,\n\t\ttake: 5,\n\t\tisGroupLeader: true\n\t){\n    studentId\n    userId\n    name\n    email\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "getGroupMembers"
+                }
+            ],
+            "docs": "# Get Group Managers\n\nquery의 이름은 getGroupMembers입니다.\n\n주어지는 parameter는 groupId, cursor, take, isGroupLeader입니다.\nisGroupLeader = false일 경우 group member 리스트를 불러오고,\nisGroupLeader = true일 경우 group manaber 리스트를 불러옵니다.\n\n가져오는 정보는 studentId, userId, name(실명), email이 있습니다.\n\n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "92e7e40a-3bfb-488f-8bce-c257f362ebbd",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "20101765-3b20-426b-bea5-f9d47a86d437",
+            "name": "Success",
+            "url": "",
+            "method": "POST",
+            "sortNum": 170000,
+            "created": "2023-08-05T05:32:10.642Z",
+            "modified": "2023-08-05T08:47:42.645Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query {\n  getGroupMembers(\n\t\tgroupId: 1,\n\t\tcursor: 1,\n\t\ttake: 5,\n\t\tisGroupLeader: false\n\t){ \n    studentId\n    userId\n    name\n    email\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "getGroupMembers"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "studentId"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "userId"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "name"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "email"
+                }
+            ],
+            "docs": "# Get Group Members\n\nquery의 이름은 getGroupMembers입니다.\n\n주어지는 parameter는 groupId, cursor, take, isGroupLeader입니다.\nisGroupLeader = false일 경우 group member 리스트를 불러오고,\nisGroupLeader = true일 경우 group manaber 리스트를 불러옵니다.\n\n가져오는 정보는 studentId, userId, name(실명), email이 있습니다.\n\n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "80f80da4-9506-4f94-8b39-aff72ae11ef5",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "b9ec981e-1de6-45f0-8bc9-3a37fc74bfd3",
+            "name": "Success",
+            "url": "",
+            "method": "POST",
+            "sortNum": 180000,
+            "created": "2023-08-05T06:16:39.156Z",
+            "modified": "2023-08-05T08:49:32.172Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation User {\n  downgradeGroupManager(userId: 3, groupId: 1){\n    userId\n    groupId\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "downgradeGroupManager"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "userId"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "groupId"
+                }
+            ],
+            "docs": "# Group Manager Downgrade\n\nquery의 이름은 downgradeGroupManager입니다.\n필요한 인자는 userId, groupId가 있습니다.\n\n성공할 시 userId와 groupId를 그대로 반환합니다.",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    },
+                    {
+                        "reqId": "e3c0ee94-a7bc-4d5b-b906-4546231b12af",
+                        "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "e3c0ee94-a7bc-4d5b-b906-4546231b12af",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "b20a8657-c759-4a0a-a866-d32099e1d096",
+            "name": "Success",
+            "url": "",
+            "method": "POST",
+            "sortNum": 190000,
+            "created": "2023-08-05T06:17:11.199Z",
+            "modified": "2023-08-05T08:52:41.408Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation User {\n  upgradeGroupMember(userId: 3, groupId: 1){\n    userId\n    groupId\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "upgradeGroupMember"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "userId"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "groupId"
+                }
+            ],
+            "docs": "# Group Manager Upgrade \n\nquery의 이름은 upgradeGroupMember입니다.\n필요한 인자는 userId, groupId가 있습니다.\n\n실패 시 실패한 이유를 error message로 남깁니다.\n\n1. 이미 manager라서 실패\n"
+        },
+        {
+            "_id": "778ca0df-0320-42c2-b9fb-b7b99f638f4e",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "7abcb9af-88e0-43a9-ae09-95add69542ab",
+            "name": "Success",
+            "url": "",
+            "method": "POST",
+            "sortNum": 200000,
+            "created": "2023-08-05T06:21:49.318Z",
+            "modified": "2023-08-05T08:54:18.105Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation User {\n  deleteGroupMember(userId: 3, groupId: 1){\n    userId\n    groupId\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "deleteGroupMember"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "userId"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "groupId"
+                }
+            ],
+            "docs": "# Delete Group Manager/Member\n\nquery의 이름은 deleteGroupMember입니다.\n필요한 인자는 userId, groupId가 있습니다.\n\n성공 시 userId와 groupId를 다시 반환합니다.\n\n실패 시 실패한 이유를 error message로 남깁니다.\n\n1. 해당 그룹에 속하지 않은 user일 경우.\n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "8ddc7099-686d-47db-8c72-d56bff9e7311",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "da9c3bf9-7e8b-4376-a96d-d6c76c0d2887",
+            "name": "Success",
+            "url": "",
+            "method": "POST",
+            "sortNum": 210000,
+            "created": "2023-08-05T06:25:57.329Z",
+            "modified": "2023-08-05T08:59:23.433Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "query User {\n  getJoinRequests(groupId: 3) {\n    id,\n    username\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "getJoinRequests"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "id"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "username"
+                }
+            ],
+            "docs": "# Group Member Needed Approval\n\nquery의 이름은 getJoinRequests입니다.\n필요한 인자는 groupId입니다.\n\n해당 그룹에 join 요청을 보낸 user 목록을 가져옵니다.\n\nid, username 등으로 필요한 user 정보를 가져올 수 있습니다. <br>\n\ngetJoinRequests로 받아올 user 정보를 명확히 정해야 할 것 같습니다.",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "8cceddf6-30c9-466c-9272-865743d06f47",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "a8701057-30cc-4ad0-8408-efddc31dc8af",
+            "name": "Failed: the user didn't request",
+            "url": "",
+            "method": "POST",
+            "sortNum": 220000,
+            "created": "2023-08-05T06:34:13.725Z",
+            "modified": "2023-08-05T09:01:16.650Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation User {\n  rejectJoinRequest(\n    groupId: 3,\n    userId: 13\n  ) {\n    userId\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "errors"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "userId 13 didn't request join to groupId 3"
+                }
+            ],
+            "docs": "# Reject Join\n\n쿼리의 이름은 rejectJoinRequest입니다. \n\n필요한 인자는 groupId와 userId입니다.\n\n그룹 조인 요청을 거절합니다.\n\n만약 해당 그룹에 요청하지 않은 유저를 거절하는 요청이 오면\n\n에러 메세지를 보냅니다. \n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "a90c5cc2-8902-4f1c-a130-f20339ee11fd",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "4fc80d84-d9af-48b3-8078-c3669de19055",
+            "name": "Success",
+            "url": "",
+            "method": "POST",
+            "sortNum": 230000,
+            "created": "2023-08-05T06:47:04.171Z",
+            "modified": "2023-08-05T09:01:48.078Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation User {\n  acceptJoinRequest(groupId: 3, userId: 13) {\n    userId\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "acceptJoinRequest"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "userId"
+                }
+            ],
+            "docs": "# Accept Join\n\n쿼리의 이름은 acceptJoinRequest입니다. \n\n필요한 인자는 groupId와 userId입니다.\n\n그룹 조인 요청을 수락합니다.\n\n만약 해당 그룹에 요청하지 않은 유저를 수락하는 요청이 오면\n\n에러 메세지를 보냅니다. \n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "6e604128-6658-4086-88d9-233cd0e9d4ef",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "b9ec981e-1de6-45f0-8bc9-3a37fc74bfd3",
+            "name": "Failed: already member",
+            "url": "",
+            "method": "POST",
+            "sortNum": 240000,
+            "created": "2023-08-05T08:06:14.432Z",
+            "modified": "2023-08-05T08:50:59.269Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation User {\n  downgradeGroupManager(userId: 3, groupId: 1){\n    userId\n    groupId\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "errors"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"message\": \"userId 3 is already member\""
+                }
+            ],
+            "docs": "# Group Manager Downgrade Failed\n\nquery의 이름은 downgradeGroupManager입니다.\n필요한 인자는 userId, groupId가 있습니다.\n\n실패 시 실패한 이유를 error message로 남깁니다.\n\n1. 이미 manager가 아니라서 실패\n2. downgrade시 남은 manager의 수가 없어서 실패",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "cbb93742-007b-438e-ae02-c0115ad691a3",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "b9ec981e-1de6-45f0-8bc9-3a37fc74bfd3",
+            "name": "Failed: There is no manager",
+            "url": "",
+            "method": "POST",
+            "sortNum": 250000,
+            "created": "2023-08-05T08:08:19.205Z",
+            "modified": "2023-08-05T08:51:07.118Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation User {\n  downgradeGroupManager(userId: 4, groupId: 1){\n    userId\n    groupId\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "errors"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"message\": \"One or more managers are required\""
+                }
+            ],
+            "docs": "# Group Manager Downgrade Failed\n\nquery의 이름은 downgradeGroupManager입니다.\n필요한 인자는 userId, groupId가 있습니다.\n\n실패 시 실패한 이유를 error message로 남깁니다.\n\n1. 이미 manager가 아니라서 실패\n2. downgrade시 남은 manager의 수가 없어서 실패",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "54da2dfa-38c2-435a-8fc9-3ee29efc7db7",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "b20a8657-c759-4a0a-a866-d32099e1d096",
+            "name": "Failed: already manager",
+            "url": "",
+            "method": "POST",
+            "sortNum": 260000,
+            "created": "2023-08-05T08:10:59.517Z",
+            "modified": "2023-08-05T08:52:57.003Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation User {\n  upgradeGroupMember(userId: 4, groupId: 1){\n    userId\n    groupId\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "errors"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"message\": \"userId 4 is already manager\""
+                }
+            ],
+            "docs": "# Group Manager Upgrade \n\nquery의 이름은 upgradeGroupMember입니다.\n필요한 인자는 userId, groupId가 있습니다.\n\n실패 시 실패한 이유를 error message로 남깁니다.\n\n1. 이미 manager라서 실패\n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "1761f0f7-0f8a-4729-b73c-35c2820bfee0",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "7abcb9af-88e0-43a9-ae09-95add69542ab",
+            "name": "Failed: the user is not group member",
+            "url": "",
+            "method": "POST",
+            "sortNum": 280000,
+            "created": "2023-08-05T08:18:55.590Z",
+            "modified": "2023-08-05T08:54:30.862Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation User {\n  deleteGroupMember(userId: 3, groupId: 1){\n    userId\n    groupId\n  }\n}"
+                }
+            },
+            "tests": [
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "errors"
+                },
+                {
+                    "type": "res-body",
+                    "custom": "",
+                    "action": "contains",
+                    "value": "\"message\": \"userId 3 is not a group member of groupId 1\""
+                }
+            ],
+            "docs": "# Delete Group Manager/Member\n\nquery의 이름은 deleteGroupMember입니다.\n필요한 인자는 userId, groupId가 있습니다.\n\n성공 시 userId와 groupId를 다시 반환합니다.\n\n실패 시 실패한 이유를 error message로 남깁니다.\n\n1. 해당 그룹에 속하지 않은 user일 경우.\n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "5ff0ec18-8a2e-4e64-a3d8-20575b783b2c",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "a8701057-30cc-4ad0-8408-efddc31dc8af",
+            "name": "Success",
+            "url": "",
+            "method": "POST",
+            "sortNum": 110000,
+            "created": "2023-08-05T08:31:21.326Z",
+            "modified": "2023-08-05T09:01:11.645Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation User {\n  rejectJoinRequest(\n    groupId: 3,\n    userId: 13\n  ) {\n    userId\n  }\n}"
+                }
+            },
+            "tests": [],
+            "docs": "# Reject Join\n\n쿼리의 이름은 rejectJoinRequest입니다. \n\n필요한 인자는 groupId와 userId입니다.\n\n그룹 조인 요청을 거절합니다.\n\n만약 해당 그룹에 요청하지 않은 유저를 거절하는 요청이 오면 에러 메세지를 보냅니다. \n",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "0342c97f-5b41-44ba-8756-a7fd8340cc3c",
+            "colId": "089b01d8-96da-497e-8921-f5df86e4d23c",
+            "containerId": "4fc80d84-d9af-48b3-8078-c3669de19055",
+            "name": "Failed: the user didn't request",
+            "url": "",
+            "method": "POST",
+            "sortNum": 300000,
+            "created": "2023-08-05T08:32:00.098Z",
+            "modified": "2023-08-05T08:32:53.149Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "graphql",
+                "raw": "",
+                "form": [],
+                "graphql": {
+                    "query": "mutation User {\n  acceptJoinRequest(groupId: 3, userId: 13) {\n    userId\n  }\n}"
+                }
+            },
+            "tests": [],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a62bc1b-fbff-4f01-bbb8-bbf08974ea80",
                         "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
                         "triggerCondition": "run-always",
                         "triggerValue": ""

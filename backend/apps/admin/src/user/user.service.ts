@@ -6,7 +6,7 @@ import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 import type { UserGroup } from '@admin/@generated/user-group/user-group.model'
 import type { User } from '@admin/@generated/user/user.model'
-import type { GroupMember } from './model/groupMember.dto'
+import type { GroupMember } from './model/groupMember.model'
 import type { UpdateUserGroup } from './model/userGroup-update.model'
 
 @Injectable()
@@ -22,6 +22,7 @@ export class UserService {
     take: number,
     isGroupLeader: boolean
   ): Promise<GroupMember[]> {
+    cursor = cursor ? cursor : cursor - 1
     return (
       await this.prisma.userGroup.findMany({
         take,
@@ -87,16 +88,30 @@ export class UserService {
       }
     })
 
-    const managerNum = groupMembers.filter(
-      (member) => true === member.isGroupLeader
-    ).length
-
     const isGroupMember = groupMembers.some(
       (member) => member.userId === userId
     )
 
-    if ((managerNum <= 1 && !isGroupLeader) || !isGroupMember) {
-      throw new BadRequestException()
+    if (!isGroupMember) {
+      throw new BadRequestException(
+        `userId ${userId} is not a group member of groupId ${groupId}`
+      )
+    }
+
+    const manager = groupMembers
+      .filter((member) => true === member.isGroupLeader)
+      .map((member) => member.userId)
+
+    if (!manager.includes(userId) && !isGroupLeader) {
+      throw new BadRequestException(`userId ${userId} is already member`)
+    }
+
+    if (manager.includes(userId) && isGroupLeader) {
+      throw new BadRequestException(`userId ${userId} is already manager`)
+    }
+
+    if (manager.length <= 1 && !isGroupLeader) {
+      throw new BadRequestException('One or more managers are required')
     }
 
     return await this.prisma.userGroup.update({
@@ -140,20 +155,22 @@ export class UserService {
       }
     })
 
-    const managerNum = groupMembers.filter(
-      (member) => true === member.isGroupLeader
-    ).length
-
     const isGroupMember = groupMembers.some(
       (member) => member.userId === userId
     )
 
-    const isItManager = groupMembers.some((groupMember) => {
-      return groupMember.isGroupLeader === true && groupMember.userId === userId
-    })
+    if (!isGroupMember) {
+      throw new BadRequestException(
+        `userId ${userId} is not a group member of groupId ${groupId}`
+      )
+    }
 
-    if ((managerNum <= 1 && isItManager) || !isGroupMember) {
-      throw new BadRequestException()
+    const manager = groupMembers
+      .filter((member) => true === member.isGroupLeader)
+      .map((member) => member.userId)
+
+    if (manager.length <= 1 && manager.includes(userId)) {
+      throw new BadRequestException('One or more managers are required')
     }
 
     return await this.prisma.userGroup.delete({
@@ -167,9 +184,9 @@ export class UserService {
     })
   }
 
-  async getNeededApproval(groupId: string): Promise<User[]> {
+  async getNeededApproval(groupId: number): Promise<User[]> {
     const joinGroupRequest: number[] = await this.cacheManager.get(
-      joinGroupCacheKey(parseInt(groupId))
+      joinGroupCacheKey(groupId)
     )
     if (joinGroupRequest === undefined) {
       return []
@@ -192,7 +209,9 @@ export class UserService {
       joinGroupCacheKey(groupId)
     )
     if (joinGroupRequest === undefined || !joinGroupRequest.includes(userId)) {
-      throw new BadRequestException()
+      throw new BadRequestException(
+        `userId ${userId} didn't request join to groupId ${groupId}`
+      )
     }
     const filtered = joinGroupRequest.filter((element) => element !== userId)
     await this.cacheManager.set(
