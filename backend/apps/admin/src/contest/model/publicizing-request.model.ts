@@ -9,5 +9,5 @@ export class PublicizingRequest {
   userId: number
 
   @Field(() => GraphQLISODateTime)
-  createTime: Date
+  expireTime: Date
 }
