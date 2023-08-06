@@ -89,7 +89,7 @@ export class ContestService {
 
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
-        'start time must be earlier than end time'
+        'The start time must be earlier than the end time'
       )
     }
 
@@ -128,18 +128,18 @@ export class ContestService {
     return contest
   }
 
-  async getPublicRequests() {
+  async getPublicizingRequests() {
     const keys = await this.cacheManager.store.keys()
     const filteredKeys = keys.filter((key) => key.includes(':publicize'))
     const requests = filteredKeys.map(async (key) => {
       const r = await this.cacheManager.get<PublicizingRequest>(key)
-      r.createTime = new Date(r.createTime)
+      r.expireTime = new Date(r.expireTime)
       return r
     })
     return await Promise.all(requests)
   }
 
-  async acceptPublicizingRequest(groupId: number, contestId: number) {
+  async acceptPublicizingRequest(contestId: number) {
     const updatedContest = await this.prisma.contest.update({
       where: {
         id: contestId
@@ -163,7 +163,7 @@ export class ContestService {
     return updatedContest
   }
 
-  async rejectPublicizingRequest(groupId: number, contestId: number) {
+  async rejectPublicizingRequest(contestId: number) {
     const key = contestPublicizingRequestKey(contestId)
 
     if (!(await this.cacheManager.get(key))) {
@@ -179,7 +179,7 @@ export class ContestService {
     })
   }
 
-  async requestToPublic(groupId: number, contestId: number) {
+  async createPublicizingRequest(groupId: number, contestId: number) {
     if (groupId == OPEN_SPACE_ID) {
       throw new UnprocessableEntityException(
         'This contest is already publicized'
@@ -209,38 +209,59 @@ export class ContestService {
       {
         contestId: contestId,
         userId: contest.createdById,
-        createTime: new Date()
+        expireTime: new Date(Date.now() + PUBLICIZING_REQUEST_EXPIRE_TIME)
       },
       PUBLICIZING_REQUEST_EXPIRE_TIME
     )
 
     const pr = await this.cacheManager.get<PublicizingRequest>(key)
-    pr.createTime = new Date(pr.createTime)
+    pr.expireTime = new Date(pr.expireTime)
     return pr
   }
 
-  async importGroupProblemsToContest(groupId: number, contestId: number) {
-    const problems = await this.prisma.problem.findMany({
+  async importProblems(
+    groupId: number,
+    contestId: number,
+    problemIds: number[]
+  ) {
+    const contest = await this.prisma.contest.findUnique({
       where: {
-        groupId: groupId
-      }
+        id: contestId
+      },
+      rejectOnNotFound: () => new EntityNotExistException('contest')
     })
-    if (!problems) {
-      throw new EntityNotExistException('problems not exist')
+
+    if (contest.groupId != groupId) {
+      throw new ActionNotAllowedException(
+        'contest must be in the group',
+        'contest'
+      )
     }
 
     const contestProblems = []
-    for (const p of problems) {
+    for (const problemId of problemIds) {
+      const problem = await this.prisma.problem.findUnique({
+        where: {
+          id: problemId
+        },
+        rejectOnNotFound: () => new EntityNotExistException('problem')
+      })
+
+      if (problem.groupId != groupId) {
+        continue
+      }
+
       contestProblems.push(
         await this.prisma.contestProblem.create({
           data: {
             id: 'temp',
             contestId: contestId,
-            problemId: p.id
+            problemId: problemId
           }
         })
       )
     }
+
     return contestProblems
   }
 }

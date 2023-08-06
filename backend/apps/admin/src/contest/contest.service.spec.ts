@@ -101,7 +101,7 @@ describe('ContestService', () => {
 
   describe('getPublicRequests', () => {
     it('should return an array of PublicizingRequest', async () => {
-      const res = await service.getPublicRequests()
+      const res = await service.getPublicizingRequests()
       expect(res).to.deep.equal([])
     })
   })
