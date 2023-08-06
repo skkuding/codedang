@@ -149,18 +149,18 @@ describe('ContestService', () => {
     it('should return accepted contest', async () => {
       db.contest.update.resolves(contest)
 
-      const res = await service.acceptPublicizingRequest(groupId, contestId)
+      const res = await service.acceptPublicizingRequest(contestId)
       expect(res).to.deep.equal(contest)
     })
 
     it('should throw error when groupId or contestId not exist', async () => {
-      expect(service.acceptPublicizingRequest(1000, 1000)).to.be.rejectedWith(
+      expect(service.acceptPublicizingRequest(1000)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
 
     it('should throw error when the contest is not requested to public', async () => {
-      expect(service.acceptPublicizingRequest(2, 3)).to.be.rejectedWith(
+      expect(service.acceptPublicizingRequest(3)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
@@ -170,18 +170,18 @@ describe('ContestService', () => {
     it('should return rejected contest', async () => {
       db.contest.findUnique.resolves(contest)
 
-      const res = await service.rejectPublicizingRequest(groupId, contestId)
+      const res = await service.rejectPublicizingRequest(contestId)
       expect(res).to.deep.equal(contest)
     })
 
     it('should throw error when the contest is not requested to public', async () => {
-      expect(service.rejectPublicizingRequest(2, 3)).to.be.rejectedWith(
+      expect(service.rejectPublicizingRequest(3)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
 
     it('should throw error when groupId or contestId not exist', async () => {
-      expect(service.rejectPublicizingRequest(1000, 1000)).to.be.rejectedWith(
+      expect(service.rejectPublicizingRequest(1000)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
