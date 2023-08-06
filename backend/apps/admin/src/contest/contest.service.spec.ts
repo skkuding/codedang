@@ -99,7 +99,7 @@ describe('ContestService', () => {
     })
   })
 
-  describe('getPublicRequests', () => {
+  describe('getPublicizingRequests', () => {
     it('should return an array of PublicizingRequest', async () => {
       const res = await service.getPublicizingRequests()
       expect(res).to.deep.equal([])
@@ -166,7 +166,7 @@ describe('ContestService', () => {
     })
   })
 
-  describe('rejectPublic', () => {
+  describe('rejectPublicizingRequest', () => {
     it('should return rejected contest', async () => {
       db.contest.findUnique.resolves(contest)
 

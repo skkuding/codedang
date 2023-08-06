@@ -79,13 +79,15 @@ export class ContestService {
     groupId: number,
     contest: UpdateContestInput
   ): Promise<Contest> {
-    await this.prisma.contest.findFirst({
+    const contestFound = await this.prisma.contest.findFirst({
       where: {
         id: contest.id,
         groupId: groupId
-      },
-      rejectOnNotFound: () => new EntityNotExistException('contest')
+      }
     })
+    if (!contestFound) {
+      throw new EntityNotExistException('contest')
+    }
 
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
@@ -115,9 +117,11 @@ export class ContestService {
       where: {
         id: contestId,
         groupId: groupId
-      },
-      rejectOnNotFound: () => new EntityNotExistException('contest')
+      }
     })
+    if (!contest) {
+      throw new EntityNotExistException('contest')
+    }
 
     await this.prisma.contest.delete({
       where: {
@@ -171,12 +175,16 @@ export class ContestService {
     }
     await this.cacheManager.del(key)
 
-    return await this.prisma.contest.findUnique({
+    const contest = await this.prisma.contest.findUnique({
       where: {
         id: contestId
-      },
-      rejectOnNotFound: () => new EntityNotExistException('contest')
+      }
     })
+    if (!contest) {
+      throw new EntityNotExistException('contest')
+    }
+
+    return contest
   }
 
   async createPublicizingRequest(groupId: number, contestId: number) {
@@ -190,9 +198,11 @@ export class ContestService {
       where: {
         id: contestId,
         groupId: groupId
-      },
-      rejectOnNotFound: () => new EntityNotExistException('contest')
+      }
     })
+    if (!contest) {
+      throw new EntityNotExistException('contest')
+    }
 
     const key = contestPublicizingRequestKey(contestId)
 
@@ -227,9 +237,11 @@ export class ContestService {
     const contest = await this.prisma.contest.findUnique({
       where: {
         id: contestId
-      },
-      rejectOnNotFound: () => new EntityNotExistException('contest')
+      }
     })
+    if (!contest) {
+      throw new EntityNotExistException('contest')
+    }
 
     if (contest.groupId != groupId) {
       throw new ActionNotAllowedException(
@@ -243,9 +255,11 @@ export class ContestService {
       const problem = await this.prisma.problem.findUnique({
         where: {
           id: problemId
-        },
-        rejectOnNotFound: () => new EntityNotExistException('problem')
+        }
       })
+      if (!problem) {
+        throw new EntityNotExistException('problem')
+      }
 
       if (problem.groupId != groupId) {
         continue
