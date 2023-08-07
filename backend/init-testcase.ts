@@ -17,7 +17,8 @@ const main = async () => {
     }
   })
 
-  const bucketName = 'testcase-bucket'
+  const bucketName = process.env.TESTCASE_BUCKET_NAME
+  if (!bucketName) throw new Error('TESTCASE_BUCKET_NAME is not defined')
 
   // Check if target bucket exists
   const bucketList = await client.send(new ListBucketsCommand({}))
