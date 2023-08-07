@@ -105,6 +105,7 @@ resource "aws_ecs_task_definition" "client_api" {
     redis_host        = aws_elasticache_replication_group.db_cache.configuration_endpoint_address
     redis_port        = var.redis_port,
     jwt_secret        = random_password.jwt_secret.result,
+    nodemailer_from   = "Codedang <noreply@codedang.com>"
   })
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 

@@ -34,6 +34,12 @@ variable "redis_port" {
   sensitive   = true
 }
 
+variable "nodemailer_from" {
+  description = "Email address for nodemailer"
+  type        = string
+  default     = "Codedang <noreply@codedang.com>"
+}
+
 variable "rabbitmq_port" {
   type      = string
   default   = "5671"
