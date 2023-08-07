@@ -33,19 +33,25 @@ interface Response {
 }
 const router = useRouter()
 const group = ref<Response['getGroup']>()
-const { onResult, onError } = useQuery<Response>(gql`
-  query Group {
-    getGroup(groupId: ${props.groupId}) {
-      id
-      groupName
-      description
-      config
-      createTime
-      updateTime
-      memberNum
+const { onResult, onError } = useQuery<Response>(
+  gql`
+    query Group {
+      getGroup(groupId: $groupId) {
+        id
+        groupName
+        description
+        config
+        createTime
+        updateTime
+        memberNum
+      }
     }
-  }
-`)
+  `,
+  () => ({
+    groupId: props.groupId
+  })
+)
+
 onResult(({ data }) => {
   if (data) {
     group.value = data.getGroup
