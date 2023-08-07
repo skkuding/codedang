@@ -8,11 +8,11 @@
     "data": [
         {
             "name": "bearer_token",
-            "value": ""
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoic3VwZXIiLCJpYXQiOjE2OTEwNjQ4MTcsImV4cCI6MTY5MTA2NjYxNywiaXNzIjoic2trdWRpbmcuZGV2In0.w1sqXcZmgln1uvCXXrWBBhoDaM3ED21mw9v7uDIgPXA"
         },
         {
             "name": "refresh_token",
-            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoic3VwZXIiLCJpYXQiOjE2OTEwNTg4MzEsImV4cCI6MTY5MTE0NTIzMSwiaXNzIjoic2trdWRpbmcuZGV2In0.25S96W9qSu-Dgd0rF8ZJVG8_sZa-BrqZSRb1Awtjr2A"
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoic3VwZXIiLCJpYXQiOjE2OTEwNjQ4MTcsImV4cCI6MTY5MTE1MTIxNywiaXNzIjoic2trdWRpbmcuZGV2In0.RW1KltPSh3OWXunJRTpIrhOkbYzQ_G4doHMQw0L8qO4"
         }
     ]
 }
