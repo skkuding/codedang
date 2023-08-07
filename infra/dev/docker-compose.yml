@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   caddy:
-    image: caddy:2.6.4-alpine
+    image: caddy:2.7.2-alpine
     container_name: caddy
     restart: unless-stopped
     ports:

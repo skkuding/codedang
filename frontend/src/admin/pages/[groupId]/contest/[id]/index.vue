@@ -111,7 +111,7 @@ const problemList = ref([
       </div>
     </div>
     <PaginationTable
-      v-model="problemList"
+      v-model:items="problemList"
       :editing="editing"
       :fields="[
         {
