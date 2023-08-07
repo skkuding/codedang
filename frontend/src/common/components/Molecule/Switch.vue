@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useVModel } from '@vueuse/core'
 
 const props = defineProps<{
   label?: string
@@ -10,11 +10,10 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
 }>()
 
-const data = ref(props.modelValue)
+const modelValue = useVModel(props, 'modelValue', emit)
 
 const switchData = () => {
-  data.value = !data.value
-  emit('update:modelValue', data.value)
+  modelValue.value = !modelValue.value
 }
 </script>
 
@@ -24,12 +23,14 @@ const switchData = () => {
     <button
       role="switch"
       class="flex h-6 w-12 items-center justify-center rounded-full border hover:opacity-70 active:opacity-50"
-      :class="data ? 'border-green' : 'border-gray'"
+      :class="modelValue ? 'border-green' : 'border-gray'"
       @click="switchData"
     >
       <span
         class="inline-block h-4 w-4 rounded-full transition-transform"
-        :class="data ? 'bg-green translate-x-3' : 'bg-gray -translate-x-3'"
+        :class="
+          modelValue ? 'bg-green translate-x-3' : 'bg-gray -translate-x-3'
+        "
       />
     </button>
   </label>

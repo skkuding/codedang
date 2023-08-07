@@ -51,7 +51,7 @@ export class ProblemService {
         groupId,
         createdById: userId,
         languages,
-        template: JSON.stringify(template),
+        template: [JSON.stringify(template)],
         problemTag: {
           create: tagIds.map((tagId) => {
             return { tagId }
@@ -252,7 +252,7 @@ export class ProblemService {
                 id: groupId
               }
             },
-            template: JSON.stringify(data.template)
+            template: [JSON.stringify(data.template)]
           }
         })
         if (index in testcases) {
@@ -342,7 +342,7 @@ export class ProblemService {
       data: {
         ...data,
         ...(languages && { languages: languages }),
-        ...(template && { template: JSON.stringify(template) })
+        ...(template && { template: [JSON.stringify(template)] })
       }
     })
   }
