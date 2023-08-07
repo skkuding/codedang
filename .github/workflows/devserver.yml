@@ -90,6 +90,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          sparse-checkout: |
+            docker-compose.yml
+            docker-compose.dev.yml
+            .env.development
+            Caddyfile
 
       - name: Load frontend static bundle
         uses: actions/download-artifact@v3
