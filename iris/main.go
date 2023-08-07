@@ -51,16 +51,6 @@ func main() {
 		dataSource = fileDataSource.NewFileDataSource(os.DirFS("./testcase"))
 		logProvider.Log(logger.INFO, "Cannot find TESTCASE_SERVER_URL. It will read testcase from the \"./testcase\" directory")
 	} else {
-		// add https:// to serverUrl if it doesn't have
-		if serverUrl[:8] != "https://" {
-			// if http:// is used, replace it with https://
-			if serverUrl[:7] == "http://" {
-				serverUrl = "https://" + serverUrl[7:]
-			} else {
-				serverUrl = "https://" + serverUrl
-			}
-		}
-
 		timeout, err := strconv.Atoi(utils.Getenv("TESTCASE_SERVER_TIMEOUT", "5"))
 		if err != nil {
 			timeout = 5
