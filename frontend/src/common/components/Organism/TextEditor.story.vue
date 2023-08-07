@@ -4,6 +4,11 @@ import TextEditor from './TextEditor.vue'
 
 <template>
   <Story>
-    <TextEditor class="m-3" />
+    <Variant name="Default">
+      <TextEditor />
+    </Variant>
+    <Variant name="Large">
+      <TextEditor class="lg" />
+    </Variant>
   </Story>
 </template>

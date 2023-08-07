@@ -22,6 +22,7 @@ const data = ref({
   sample: [{ input: '', output: '' }],
   testcase: [{ input: '', output: '' }]
 })
+const description = ref('')
 const levelItems = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
 const languageItems = ['C', 'C++', 'Python3', 'Java']
 </script>
@@ -87,8 +88,8 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
         </div>
       </div>
       <div>
-        <h2 class="text-lg font-bold">Description</h2>
-        <TextEditor class="h-[360px] w-full" />
+        <h2 class="mb-3 text-lg font-bold">Description</h2>
+        <TextEditor v-model="description" size="lg" />
       </div>
       <div class="grid grid-cols-2 gap-5">
         <div>
@@ -126,7 +127,7 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
       </div>
       <div>
         <label class="text-lg font-bold">Hint</label>
-        <TextEditor class="h-[360px] w-full" height="120px" />
+        <TextEditor size="lg" />
       </div>
       <div
         v-for="(item, index) in data.sample"

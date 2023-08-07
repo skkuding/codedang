@@ -12,11 +12,8 @@ describe('WorkbookController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [WorkbookController, GroupWorkbookController],
-      providers: [
-        { provide: WorkbookService, useValue: {} },
-        { provide: RolesService, useValue: {} }
-      ]
+      controllers: [WorkbookController],
+      providers: [{ provide: WorkbookService, useValue: {} }]
     }).compile()
 
     controller = module.get<WorkbookController>(WorkbookController)
