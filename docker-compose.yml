@@ -16,14 +16,8 @@ services:
     tty: true
     env_file: .env.development
     environment:
-      # Override environment variables in .env.development
-      RABBITMQ_HOST: codedang-rabbitmq
-      TESTCASE_ENDPOINT_URL: http://codedang-testcase:9000
-      TESTCASE_SERVER_URL: http://codedang-testcase:9000/test-bucket/:id.json
-      DATABASE_URL: postgresql://postgres:1234@codedang-database:5432/skkuding?schema=public
-      REDIS_HOST: codedang-cache
-      REDIS_PORT: 6379
       DEVCONTAINER: 1
+    network_mode: host
 
   testcase:
     container_name: codedang-testcase
@@ -43,17 +37,6 @@ services:
     image: postgres:14-alpine
     ports:
       - 5433:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: skkuding
-
-  database-test:
-    profiles: ['test']
-    container_name: codedang-database-test
-    image: postgres:14-alpine
-    ports:
-      - 5434:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
