@@ -51,12 +51,6 @@ variable "rabbitmq_username" {
   default = "skkuding"
 }
 
-variable "rabbitmq_vhost" {
-  type      = string
-  default   = "vh"
-  sensitive = true
-}
-
 variable "rabbitmq_exchage_name" {
   type    = string
   default = "iris.e.direct.judge"

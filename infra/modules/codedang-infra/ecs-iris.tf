@@ -56,7 +56,7 @@ resource "aws_ecs_task_definition" "iris" {
     rabbitmq_port        = var.rabbitmq_port,
     rabbitmq_username    = var.rabbitmq_username,
     rabbitmq_password    = random_password.rabbitmq_password.result,
-    rabbitmq_vhost       = var.rabbitmq_vhost,
+    rabbitmq_vhost       = rabbitmq_vhost.vh.name,
     cloudwatch_region    = var.region,
   })
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
