@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { ref, computed } from 'vue'
+import { ref, computed, type ComputedRef, toValue } from 'vue'
 
 /**
  * Single item of the list
@@ -10,12 +10,12 @@ interface Item {
 }
 
 /**
- * @param path: url path to call (ex: 'user', 'group/1/user')
+ * @param path: url path to call (ex: 'user', () => `group/${id}/user`)
  * @param take: number of items to take per page
  * @param pagesPerSlot: number of pages per slot
  */
 export const useListAPI = <T extends Item>(
-  path: string,
+  path: string | ComputedRef<string>,
   take = 20,
   pagesPerSlot = 5
 ) => {
@@ -38,7 +38,7 @@ export const useListAPI = <T extends Item>(
 
   /** Call list API from server */
   const getList = async () => {
-    const { data } = await axios.get(`/api/${path}`, {
+    const { data } = await axios.get(`/api/${toValue(path)}`, {
       params: {
         take: take * pagesPerSlot + 1,
         cursor: cursor.value

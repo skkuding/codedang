@@ -12,10 +12,10 @@ import {
   NotFoundException,
   Logger
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { Request, type Response } from 'express'
 import { AuthenticatedRequest, AuthNotNeeded } from '@libs/auth'
 import {
-  EntityNotExistException,
   InvalidUserException,
   UnprocessableDataException,
   EmailTransmissionFailedException,
@@ -82,7 +82,8 @@ export class UserController {
     } catch (error) {
       if (
         error instanceof InvalidUserException ||
-        error instanceof EntityNotExistException
+        (error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.name === 'NotFoundError')
       ) {
         throw new UnauthorizedException(error.message)
       }
@@ -96,8 +97,11 @@ export class UserController {
     try {
       return await this.userService.getUserProfile(req.user.username)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new UnauthorizedException(error.message)
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -116,7 +120,10 @@ export class UserController {
         throw new UnprocessableEntityException(error.message)
       } else if (error instanceof InvalidJwtTokenException) {
         throw new UnauthorizedException(error.message)
-      } else if (error instanceof EntityNotExistException) {
+      } else if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
@@ -135,8 +142,11 @@ export class UserController {
         updateUserProfileRealNameDto
       )
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new UnauthorizedException(error.message)
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()

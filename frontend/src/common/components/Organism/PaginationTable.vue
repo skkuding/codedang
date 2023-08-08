@@ -1,5 +1,7 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
-import { computed, ref, watch } from 'vue'
+import { useSortable } from '@vueuse/integrations/useSortable'
+import { computed, ref, toRefs, watch } from 'vue'
+import Fa6SolidEquals from '~icons/fa6-solid/equals'
 import Pagination from '../Molecule/Pagination.vue'
 import SearchBar from '../Molecule/SearchBar.vue'
 
@@ -24,22 +26,25 @@ const props = defineProps<{
   noSearchBar?: boolean
   noPagination?: boolean
   mode?: 'light' | 'dark'
+  editing?: boolean
 }>()
+const { fields, items } = toRefs(props)
 
 const emit = defineEmits<{
   (e: 'row-clicked', row: T): void
   (e: 'change-page', page: number): void
   (e: 'search', input: string): void
+  (e: 'update:items'): void
 }>()
 
 const subhead = computed(() => {
-  return props.fields.reduce((prev: SubfieldType[], cur: FieldType) => {
+  return fields.value.reduce((prev: SubfieldType[], cur: FieldType) => {
     return prev.concat(cur.subfields || [])
   }, [])
 })
 
 const entries = computed(() => {
-  return props.fields.reduce(
+  return fields.value.reduce(
     (prev: (SubfieldType | FieldType)[], cur: FieldType) => {
       return prev.concat(cur.subfields || cur)
     },
@@ -48,7 +53,7 @@ const entries = computed(() => {
 })
 
 const entryStyle = (key: string) => {
-  let field = props.fields.find((x) => x.key === key)
+  let field = fields.value.find((x) => x.key === key)
   if (field && field.width) return 'width: ' + field.width
   else return ''
 }
@@ -77,6 +82,12 @@ const search = (inputData: string) => {
 watch(currentPage, (value) => {
   emit('change-page', value)
 })
+
+const el = ref<HTMLElement | null>(null)
+useSortable(el, items, {
+  handle: '.handle',
+  animation: 200
+})
 </script>
 
 <template>
@@ -103,6 +114,7 @@ watch(currentPage, (value) => {
               headerColor[mode || 'light']
             ]"
           >
+            <th v-if="editing" class="w-1" />
             <th
               v-for="(field, index) in fields"
               :key="index"
@@ -140,7 +152,7 @@ watch(currentPage, (value) => {
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody ref="el">
           <tr v-if="items.length === 0">
             <td
               :colspan="entries.length"
@@ -151,12 +163,15 @@ watch(currentPage, (value) => {
             </td>
           </tr>
           <tr
-            v-for="(row, index) in items"
-            :key="index"
+            v-for="row in items"
+            :key="row.id"
             class="border-gray cursor-pointer border-y"
             :class="rowColor[mode || 'light']"
             @click="$emit('row-clicked', row)"
           >
+            <td v-if="editing" class="handle p-2.5 pl-4">
+              <Fa6SolidEquals class="text-slate-300" />
+            </td>
             <td
               v-for="(entry, idx) in entries"
               :key="idx"

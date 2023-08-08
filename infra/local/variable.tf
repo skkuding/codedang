@@ -9,9 +9,8 @@ variable "region" {
 }
 
 variable "s3_bucket" {}
-variable "ecr_client_uri" {}
-variable "ecr_admin_uri" {}
-variable "ecr_iris_uri" {}
 variable "postgres_username" {}
 variable "postgres_port" {}
+variable "redis_port" {}
 variable "rabbitmq_username" {}
+variable "rabbitmq_port" {}

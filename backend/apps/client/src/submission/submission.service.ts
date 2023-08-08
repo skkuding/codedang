@@ -181,10 +181,10 @@ export class SubmissionService implements OnModuleInit {
       throw new ActionNotAllowedException('template modification', 'problem')
     }
 
-    const submission: Submission = await this.prisma.submission.create({
+    const submission = await this.prisma.submission.create({
       data: {
         id: this.hash(),
-        code: JSON.stringify(code),
+        code: code.map((snippet) => ({ ...snippet })), // convert to plain object
         result: ResultStatus.Judging,
         userId,
         ...data

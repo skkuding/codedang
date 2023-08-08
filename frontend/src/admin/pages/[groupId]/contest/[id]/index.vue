@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CreateNoticeModal from '@/admin/components/CreateNoticeModal.vue'
-import CreatePorblemModal from '@/admin/components/CreatePorblemModal.vue'
+import CreatePorblemModal from '@/admin/components/CreateProblemModal.vue'
 import ImportProblemModal from '@/admin/components/ImportProblemModal.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
@@ -10,6 +10,28 @@ import IconTrash from '~icons/fa/trash-o'
 const showImportModal = ref(false)
 const showNoticeModal = ref(false)
 const showProblemModal = ref(false)
+const editing = ref(false)
+
+const problemList = ref([
+  {
+    id: '1',
+    title: '가파른 경사',
+    difficulty: 'Level1',
+    lastUpdated: '2021-12-31 08:30:45'
+  },
+  {
+    id: '2',
+    title: '가파른 경사2',
+    difficulty: 'Level1',
+    lastUpdated: '2021-12-31 08:30:45'
+  },
+  {
+    id: '3',
+    title: '가파른 경사3',
+    difficulty: 'Level1',
+    lastUpdated: '2021-12-31 08:30:45'
+  }
+])
 </script>
 
 <template>
@@ -63,49 +85,54 @@ const showProblemModal = ref(false)
         >
           Import
         </Button>
+        <Button
+          v-if="!editing"
+          color="gray-dark"
+          @click="
+            () => {
+              editing = true
+            }
+          "
+        >
+          Edit Sort
+        </Button>
+        <Button
+          v-else
+          color="red"
+          @click="
+            () => {
+              editing = false
+              // TODO: api 요청
+            }
+          "
+        >
+          Submit
+        </Button>
       </div>
     </div>
     <PaginationTable
+      v-model:items="problemList"
+      :editing="editing"
       :fields="[
-        {
-          key: 'id',
-          label: 'ID',
-          width: '8%'
-        },
-        {
-          key: 'displayId',
-          label: 'Display Id',
-          width: '12%'
-        },
         {
           key: 'title',
           label: 'Title',
-          width: '30%'
+          width: '35%'
         },
         {
           key: 'difficulty',
           label: 'Difficulty',
-          width: '15%'
+          width: '20%'
         },
         {
           key: 'lastUpdated',
           label: 'Last Updated',
-          width: '25%'
+          width: '30%'
         },
         {
           key: '_delete',
           label: 'Delete',
           width: '10%'
-        }
-      ]"
-      :items="[
-        {
-          id: '1',
-          displayId: 'A',
-          title: '가파른 경사',
-          difficulty: 'Level1',
-          lastUpdated: '2021-12-31 08:30:45',
-          option: '123'
         }
       ]"
       placeholder="keywords"

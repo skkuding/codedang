@@ -50,7 +50,7 @@ const problemId = ref('')
         </div>
       </div>
       <h2 class="mt-8 text-lg font-bold">Content</h2>
-      <TextEditor class="h-[360px] w-full" />
+      <TextEditor size="lg" />
     </div>
     <div class="border-gray mt-10 flex justify-end gap-3 border-t py-5">
       <Button class="text-sm font-normal capitalize" color="gray-dark">
