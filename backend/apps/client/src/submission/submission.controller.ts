@@ -14,7 +14,6 @@ import {
   Logger
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { NotFoundError } from 'rxjs'
 import { AuthenticatedRequest, GroupMemberGuard } from '@libs/auth'
 import {
   ActionNotAllowedException,
@@ -43,6 +42,12 @@ export class ProblemSubmissionController {
     } catch (error) {
       if (error instanceof ActionNotAllowedException) {
         throw new MethodNotAllowedException(error.message)
+      }
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
