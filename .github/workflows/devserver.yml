@@ -85,7 +85,7 @@ jobs:
   run-server:
     name: Run development server
     runs-on: self-hosted
-    needs: [build-frontend, build-backend]
+    needs: [build-frontend, build-backend, build-iris]
     environment: development
     steps:
       - name: Checkout repository
