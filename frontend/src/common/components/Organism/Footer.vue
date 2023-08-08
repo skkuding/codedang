@@ -1,40 +1,51 @@
 <script setup lang="ts">
-import { useToast } from '@/common/composables/toast'
 import { useClipboard } from '@vueuse/core'
-import IconGithub from '~icons/fa6-brands/github'
-import IconEnvelope from '~icons/fa6-solid/envelope'
-import IconLink from '~icons/fa6-solid/link'
-import IconKakaoTalk from '~icons/ri/kakao-talk-fill'
+import { useMessage } from 'naive-ui'
+import Fa6BrandsGithub from '~icons/fa6-brands/github'
+import Fa6SolidB from '~icons/fa6-solid/b'
+import Fa6SolidEnvelope from '~icons/fa6-solid/envelope'
+import MaterialSymbolsChatBubbleRounded from '~icons/material-symbols/chat-bubble-rounded'
 
 const { copy } = useClipboard()
-const openToast = useToast()
+const message = useMessage()
 
 const copyEmail = () => {
   copy('skkucodingplatform@gmail.com')
-  openToast({ message: 'Email copied!', type: 'success' })
+  message.success('Copied "skkucodingplatform@gmail.com"')
 }
+
+const buttonClass =
+  'bg-slate-50 bg-opacity-60 inline-block rounded-full p-3 text-sm hover:opacity-80'
 </script>
 
 <template>
-  <footer
-    class="bg-gray-light text-gray-dark mb-0 mt-auto flex w-full flex-col items-center gap-y-2 py-4"
-  >
+  <footer class="flex shrink-0 justify-center">
     <div
-      class="[&>a:hover]:text-gray [&>a:active]:text-gray-light flex flex-row gap-x-4 text-xl [&>a]:cursor-pointer [&>a]:transition"
+      class="text-text-title flex w-full max-w-7xl flex-col items-center gap-5 px-5 py-10"
     >
-      <a href="https://github.com/skkuding/skku-coding-platform">
-        <IconGithub />
-      </a>
-      <a @click="copyEmail">
-        <IconEnvelope />
-      </a>
-      <a href="http://pf.kakao.com/_UKraK/chat">
-        <IconKakaoTalk />
-      </a>
-      <a href="https://npc.skku.edu">
-        <IconLink />
-      </a>
+      <div class="flex gap-3">
+        <a
+          href="https://pf.kakao.com/_UKraK/chat"
+          :class="buttonClass"
+          target="_blank"
+        >
+          <MaterialSymbolsChatBubbleRounded />
+        </a>
+        <button :class="buttonClass" target="_blank" @click="copyEmail">
+          <Fa6SolidEnvelope />
+        </button>
+        <a
+          href="https://github.com/skkuding/codedang"
+          :class="buttonClass"
+          target="_blank"
+        >
+          <Fa6BrandsGithub />
+        </a>
+        <a href="https://skkuding.dev/" :class="buttonClass" target="_blank">
+          <Fa6SolidB />
+        </a>
+      </div>
+      <p class="text-sm font-bold text-slate-200">ⓒ SKKUDING / 2021 - 2023</p>
     </div>
-    <div>© 2020-2022 SKKUDING</div>
   </footer>
 </template>
