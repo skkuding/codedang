@@ -22,23 +22,15 @@ import { SubmissionService } from './submission.service'
     RabbitMQModule.forRootAsync(RabbitMQModule, {
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => {
-        const channels =
-          process.env?.ENABLE_SUBSCRIBER === 'true'
-            ? {
-                [PUBLISH_CHANNEL]: {
-                  prefetchCount: 1,
-                  default: true
-                },
-                [CONSUME_CHANNEL]: {
-                  prefetchCount: 1
-                }
-              }
-            : {
-                [PUBLISH_CHANNEL]: {
-                  prefetchCount: 1,
-                  default: true
-                }
-              }
+        const channels = {
+          [PUBLISH_CHANNEL]: {
+            prefetchCount: 1,
+            default: true
+          },
+          [CONSUME_CHANNEL]: {
+            prefetchCount: 1
+          }
+        }
 
         return {
           uri:

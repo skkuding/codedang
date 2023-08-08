@@ -44,32 +44,30 @@ export class SubmissionService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    if (process.env?.ENABLE_SUBSCRIBER === 'true') {
-      this.amqpConnection.createSubscriber(
-        async (msg: JudgerResponse) => {
-          try {
-            await this.handleJudgerMessage(msg)
-          } catch (error) {
-            if (error instanceof MessageFormatError) {
-              this.logger.error('Message format error', error)
-              return new Nack()
-            } else {
-              this.logger.error('Unexpected error', error)
-              return new Nack()
-            }
+    this.amqpConnection.createSubscriber(
+      async (msg: JudgerResponse) => {
+        try {
+          await this.handleJudgerMessage(msg)
+        } catch (error) {
+          if (error instanceof MessageFormatError) {
+            this.logger.error('Message format error', error)
+            return new Nack()
+          } else {
+            this.logger.error('Unexpected error', error)
+            return new Nack()
           }
-        },
-        {
-          exchange: EXCHANGE,
-          routingKey: RESULT_KEY,
-          queue: RESULT_QUEUE,
-          queueOptions: {
-            channel: CONSUME_CHANNEL
-          }
-        },
-        ORIGIN_HANDLER_NAME
-      )
-    }
+        }
+      },
+      {
+        exchange: EXCHANGE,
+        routingKey: RESULT_KEY,
+        queue: RESULT_QUEUE,
+        queueOptions: {
+          channel: CONSUME_CHANNEL
+        }
+      },
+      ORIGIN_HANDLER_NAME
+    )
   }
 
   async submitToProblem(
