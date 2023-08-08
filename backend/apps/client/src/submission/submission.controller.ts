@@ -172,7 +172,10 @@ export class ContestSubmissionController {
     } catch (error) {
       if (error instanceof ActionNotAllowedException) {
         throw new MethodNotAllowedException(error.message)
-      } else if (error instanceof NotFoundError) {
+      } else if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
         throw new NotFoundException(error)
       }
       this.logger.error(error.message, error.stack)
@@ -246,7 +249,10 @@ export class GroupContestSubmissionController {
     } catch (error) {
       if (error instanceof ActionNotAllowedException) {
         throw new MethodNotAllowedException(error.message)
-      } else if (error instanceof NotFoundError) {
+      } else if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
         throw new NotFoundException(error)
       }
       this.logger.error(error.message, error.stack)
