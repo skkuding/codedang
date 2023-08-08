@@ -1,17 +1,17 @@
 <script setup lang="ts">
+import { useToast } from '@/common/composables/toast'
 import { useClipboard } from '@vueuse/core'
-import { useMessage } from 'naive-ui'
 import Fa6BrandsGithub from '~icons/fa6-brands/github'
 import Fa6SolidB from '~icons/fa6-solid/b'
 import Fa6SolidEnvelope from '~icons/fa6-solid/envelope'
 import MaterialSymbolsChatBubbleRounded from '~icons/material-symbols/chat-bubble-rounded'
 
 const { copy } = useClipboard()
-const message = useMessage()
+const openToast = useToast()
 
 const copyEmail = () => {
   copy('skkucodingplatform@gmail.com')
-  message.success('Copied "skkucodingplatform@gmail.com"')
+  openToast({ message: 'Email copied!', type: 'success' })
 }
 
 const buttonClass =
