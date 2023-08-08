@@ -4,7 +4,7 @@ import { useClipboard } from '@vueuse/core'
 import Fa6BrandsGithub from '~icons/fa6-brands/github'
 import Fa6SolidB from '~icons/fa6-solid/b'
 import Fa6SolidEnvelope from '~icons/fa6-solid/envelope'
-import MaterialSymbolsChatBubbleRounded from '~icons/material-symbols/chat-bubble-rounded'
+import RiKakaoTalkFill from '~icons/ri/kakao-talk-fill'
 
 const { copy } = useClipboard()
 const openToast = useToast()
@@ -15,7 +15,7 @@ const copyEmail = () => {
 }
 
 const buttonClass =
-  'bg-slate-50 bg-opacity-60 inline-block rounded-full p-3 text-sm hover:opacity-80'
+  'flex items-center justify-center rounded-full bg-slate-50 bg-opacity-60 p-3 text-sm hover:opacity-80'
 </script>
 
 <template>
@@ -23,13 +23,13 @@ const buttonClass =
     <div
       class="text-text-title flex w-full max-w-7xl flex-col items-center gap-5 px-5 py-10"
     >
-      <div class="flex gap-3">
+      <div class="grid grid-cols-4 gap-3">
         <a
           href="https://pf.kakao.com/_UKraK/chat"
-          :class="buttonClass"
+          class="inline-block rounded-full bg-slate-50 bg-opacity-60 p-3 text-lg hover:opacity-80"
           target="_blank"
         >
-          <MaterialSymbolsChatBubbleRounded />
+          <RiKakaoTalkFill />
         </a>
         <button :class="buttonClass" target="_blank" @click="copyEmail">
           <Fa6SolidEnvelope />
