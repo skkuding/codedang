@@ -1,4 +1,4 @@
-import { Injectable, type OnModuleInit } from '@nestjs/common'
+import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
 import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
 import {
   ResultStatus,
@@ -36,6 +36,8 @@ import type { JudgerResponse } from './dto/judger-response.dto'
 
 @Injectable()
 export class SubmissionService implements OnModuleInit {
+  private readonly logger = new Logger(SubmissionService.name)
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly amqpConnection: AmqpConnection
@@ -49,8 +51,10 @@ export class SubmissionService implements OnModuleInit {
             await this.handleJudgerMessage(msg)
           } catch (error) {
             if (error instanceof MessageFormatError) {
+              this.logger.error('Message format error', error)
               return new Nack()
             } else {
+              this.logger.error('Unexpected error', error)
               return new Nack()
             }
           }
