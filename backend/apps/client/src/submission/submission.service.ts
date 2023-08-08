@@ -246,8 +246,6 @@ export class SubmissionService implements OnModuleInit {
   }
 
   async handleJudgerMessage(msg: JudgerResponse) {
-    console.log(msg.data.judgeResult) // TODO: Do we need this?
-
     const validationError: ValidationError[] = await validate(msg)
     if (!validationError) {
       throw new MessageFormatError({ ...validationError })
@@ -265,7 +263,6 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    console.log(results) // TODO: Do we need this?
     await this.updateSubmissionResult(submissionId, resultStatus, results)
   }
 
