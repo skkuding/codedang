@@ -2,16 +2,16 @@
 import groupImage from '@/common/assets/logo.png'
 import Button from '@/common/components/Atom/Button.vue'
 import InputItem from '@/common/components/Atom/InputItem.vue'
+import Dialog from '@/common/components/Molecule/Dialog.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
+import { useDialog } from '@/common/composables/dialog'
 import { useDateFormat } from '@vueuse/core'
-import { NUpload, NButton, NColorPicker } from 'naive-ui'
 import { ref } from 'vue'
-import IconLock from '~icons/bi/lock'
-import IconUnlock from '~icons/bi/unlock'
 import IconPenToSquare from '~icons/fa6-solid/pen-to-square'
 import IconTrashCan from '~icons/fa6-solid/trash-can'
 
+const dialog = useDialog()
 const groupName = ref('SKKUDING')
 const description = ref('SKKU 개발동아리입니다.')
 const members = ref(16)
@@ -30,9 +30,20 @@ const groupUpdateTimeFormat = useDateFormat(
   'YYYY.MM.DD HH:mm:ss'
 )
 const editModal = ref(false)
-const groupPrivate = ref(false)
+const groupConfig = ref({
+  showOnList: false,
+  allowJoinFromSearch: true,
+  allowJoinWithURL: false,
+  requireApprovalBeforeJoin: true
+})
 const groupDescription = ref('')
-const deleteModal = ref(false)
+
+const showDeleteModal = () => {
+  dialog.confirm({
+    title: 'Delete Group',
+    content: 'Do you really want to delete group?'
+  })
+}
 </script>
 
 <template>
@@ -53,14 +64,17 @@ const deleteModal = ref(false)
         <h2 class="text-text-subtitle text-xl font-bold">Description</h2>
         <p>{{ description }}</p>
         <h2 class="text-text-subtitle mt-12 text-xl font-bold">
-          Public / Private
+          Group Configuration
         </h2>
-        <div class="flex flex-row items-center gap-2">
-          <IconUnlock />
-          Public
-          <IconLock class="ml-4" />
-          Private
+
+        <div>Show On List: {{ groupConfig.showOnList }}</div>
+        <div>Allow Join From Search: {{ groupConfig.allowJoinFromSearch }}</div>
+        <div>Allow Join With URL: {{ groupConfig.allowJoinWithURL }}</div>
+        <div>
+          Require Approval Before Join:
+          {{ groupConfig.requireApprovalBeforeJoin }}
         </div>
+
         <h2 class="text-text-subtitle mt-12 text-xl font-bold">
           Total Members
         </h2>
@@ -95,73 +109,68 @@ const deleteModal = ref(false)
       </div>
     </article>
     <!-- TODO: dialog verifying group deletion -->
-    <Button class="ml-auto flex items-center" @click="deleteModal = true">
+    <Button class="ml-auto flex items-center" @click="showDeleteModal">
       <IconTrashCan class="mr-2" />
       Delete
     </Button>
     <Modal v-model="editModal" class="shadow-md">
-      <div class="flex flex-col px-8 py-12">
+      <div class="flex flex-col px-8 pb-12">
         <h1 class="text-gray-dark mb-2 text-2xl font-bold">Edit Group</h1>
         <div class="bg-gray-light mb-6 h-[1px] w-full"></div>
+        <div class="mb-6 flex">
+          <h2 class="mr-10 text-lg font-semibold">Group Name</h2>
+          <InputItem v-model="groupName" class="shadow" />
+        </div>
         <div class="mb-6">
+          <h2 class="mb-2 mr-10 text-lg font-semibold">Group Configuration</h2>
           <div class="mb-2 flex">
-            <h2 class="mr-60 text-lg font-semibold">Group Name</h2>
-            <h2 class="text-lg font-semibold">Public / Private</h2>
+            Show on list
+            <Switch
+              v-model="groupConfig.showOnList"
+              class="ml-auto mr-0"
+              :class="[groupConfig.showOnList ? '' : 'text-green']"
+            />
           </div>
-          <div class="flex items-center">
-            <InputItem v-model="groupName" class="mr-36 shadow" />
-            <div class="flex" :class="[groupPrivate ? '' : 'text-green']">
-              <IconUnlock class="h-5 w-5" />
-              <span>Public</span>
-            </div>
-            <Switch v-model="groupPrivate" class="mx-2" />
-            <div class="flex" :class="[groupPrivate ? 'text-green' : '']">
-              <IconLock class="h-5 w-5" />
-              <span>Private</span>
-            </div>
+          <div class="mb-2 flex">
+            Allow join from search
+            <Switch
+              v-model="groupConfig.allowJoinFromSearch"
+              class="ml-auto mr-0"
+              :class="[groupConfig.allowJoinFromSearch ? '' : 'text-green']"
+            />
           </div>
-        </div>
-        <div class="mb-6">
-          <h2 class="mb-2 text-lg font-semibold">
-            Description ({{ groupDescription.length }}/50)
-          </h2>
-          <InputItem v-model="groupDescription" class="w-full shadow" />
-        </div>
-        <div>
-          <div class="flex">
-            <h2 class="mr-60 text-lg font-semibold">Group Image</h2>
-            <h2 class="text-lg font-semibold">Group Color</h2>
+          <div class="mb-2 flex">
+            Allow join with url
+            <Switch
+              v-model="groupConfig.allowJoinWithURL"
+              class="ml-auto mr-0"
+              :class="[groupConfig.allowJoinWithURL ? '' : 'text-green']"
+            />
           </div>
           <div class="flex">
-            <NUpload
-              action="https://www.mocky.io/v2/5e4bafc63100007100d8b70f"
-              :headers="{
-                'naive-info': 'hello!'
-              }"
-              :data="{
-                'naive-data': 'cool! naive!'
-              }"
-            >
-              <NButton>Upload File</NButton>
-            </NUpload>
-            <NColorPicker />
+            Require approval before join
+            <Switch
+              v-model="groupConfig.requireApprovalBeforeJoin"
+              class="ml-auto mr-0"
+              :class="[
+                groupConfig.requireApprovalBeforeJoin ? '' : 'text-green'
+              ]"
+            />
           </div>
         </div>
+
+        <h2 class="mb-2 text-lg font-semibold">Description</h2>
+        <InputItem
+          v-model="groupDescription"
+          class="w-full break-normal shadow"
+        />
       </div>
       <div class="flex justify-end">
-        <Button class="px-4 py-2">Save</Button>
+        <Button class="mr-8 px-4 py-2">Save</Button>
       </div>
     </Modal>
-    <Modal v-model="deleteModal">
-      <div class="flex flex-col items-center gap-10">
-        <h1 class="text-xl font-semibold">Delete Group</h1>
-        <div>Do you really want to delete group?</div>
-        <div class="flex">
-          <Button class="mr-4 px-8 py-2">Yes</Button>
-          <Button class="px-8 py-2">No</Button>
-        </div>
-      </div>
-    </Modal>
+    <!-- TODO: enter group name if leader want to delete -->
+    <Dialog />
   </main>
 </template>
 
