@@ -19,7 +19,6 @@ resource "aws_subnet" "private_iris2" {
   }
 }
 
-
 resource "aws_ecs_cluster" "iris" {
   name = "Codedang-Iris"
 }
@@ -30,7 +29,6 @@ resource "aws_ecs_service" "iris" {
   task_definition = aws_ecs_task_definition.iris.arn
   desired_count   = 2
   launch_type     = "FARGATE"
-
 
   network_configuration {
     assign_public_ip = true
@@ -58,8 +56,9 @@ resource "aws_ecs_task_definition" "iris" {
     rabbitmq_password    = random_password.rabbitmq_password.result,
     rabbitmq_vhost       = rabbitmq_vhost.vh.name,
     cloudwatch_region    = var.region,
+    testcase_server_url  = aws_s3_bucket.testcase.bucket_domain_name,
   })
-  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  execution_role_arn = aws_iam_role.ecs_iris_task_execution_role.arn
 
   runtime_platform {
     operating_system_family = "LINUX"
