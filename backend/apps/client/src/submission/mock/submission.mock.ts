@@ -36,7 +36,6 @@ export const submissions: Submission[] = [
 ]
 
 export const submissionDto: CreateSubmissionDto = {
-  problemId: 1,
   code: plainToInstance(Snippet, submissions[0].code),
   language: Language.C
 }
