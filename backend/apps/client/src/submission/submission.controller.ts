@@ -20,6 +20,7 @@ import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
+import { groupId } from '@admin/problem/mock/mock'
 import { CreateSubmissionDto } from './dto/create-submission.dto'
 import { SubmissionService } from './submission.service'
 
@@ -32,12 +33,14 @@ export class ProblemSubmissionController {
   @Post()
   async createSubmission(
     @Req() req: AuthenticatedRequest,
+    @Param('problemId', ParseIntPipe) problemId: number,
     @Body() submissionDto: CreateSubmissionDto
   ) {
     try {
       return await this.submissionService.submitToProblem(
         submissionDto,
-        req.user.id
+        req.user.id,
+        problemId
       )
     } catch (error) {
       if (error instanceof ActionNotAllowedException) {
@@ -97,12 +100,14 @@ export class GroupProblemSubmissionController {
   async createSubmission(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number,
+    @Param('problemId', ParseIntPipe) problemId: number,
     @Body() submissionDto: CreateSubmissionDto
   ) {
     try {
       return await this.submissionService.submitToProblem(
         submissionDto,
         req.user.id,
+        problemId,
         groupId
       )
     } catch (error) {
@@ -161,13 +166,15 @@ export class ContestSubmissionController {
   async createSubmission(
     @Req() req: AuthenticatedRequest,
     @Param('contestId', ParseIntPipe) contestId: number,
+    @Param('problemId', ParseIntPipe) problemId: number,
     @Body() submissionDto: CreateSubmissionDto
   ) {
-    submissionDto.contestId = contestId
     try {
       return await this.submissionService.submitToContest(
         submissionDto,
-        req.user.id
+        req.user.id,
+        problemId,
+        contestId
       )
     } catch (error) {
       if (error instanceof ActionNotAllowedException) {
@@ -237,13 +244,15 @@ export class GroupContestSubmissionController {
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
+    @Param('problemId', ParseIntPipe) problemId: number,
     @Body() submissionDto: CreateSubmissionDto
   ) {
-    submissionDto.contestId = contestId
     try {
       return await this.submissionService.submitToContest(
         submissionDto,
         req.user.id,
+        problemId,
+        contestId,
         groupId
       )
     } catch (error) {
@@ -315,14 +324,17 @@ export class WorkbookSubmissionController {
   @Post()
   async createSubmission(
     @Req() req: AuthenticatedRequest,
+    @Param('problemId', ParseIntPipe) problemId: number,
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Body() submissionDto: CreateSubmissionDto
   ) {
-    submissionDto.workbookId = workbookId
     try {
       return await this.submissionService.submitToWorkbook(
         submissionDto,
-        req.user.id
+        req.user.id,
+        problemId,
+        workbookId,
+        groupId
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
@@ -379,13 +391,15 @@ export class GroupWorkbookSubmissionController {
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('workbookId', ParseIntPipe) workbookId: number,
+    @Param('problemId', ParseIntPipe) problemId: number,
     @Body() submissionDto: CreateSubmissionDto
   ) {
-    submissionDto.workbookId = workbookId
     try {
       return await this.submissionService.submitToWorkbook(
         submissionDto,
         req.user.id,
+        problemId,
+        workbookId,
         groupId
       )
     } catch (error) {

@@ -73,17 +73,17 @@ export class SubmissionService implements OnModuleInit {
   async submitToProblem(
     submissionDto: CreateSubmissionDto,
     userId: number,
+    problemId: number,
     groupId = OPEN_SPACE_ID
   ) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
-        id: submissionDto.problemId,
+        id: problemId,
         groupId,
         exposeTime: {
           lt: new Date()
         }
-      },
-      select: { languages: true, template: true }
+      }
     })
     return await this.createSubmission(submissionDto, problem, userId)
   }
@@ -91,6 +91,8 @@ export class SubmissionService implements OnModuleInit {
   async submitToContest(
     submissionDto: CreateSubmissionDto,
     userId: number,
+    problemId: number,
+    contestId: number,
     groupId = OPEN_SPACE_ID
   ) {
     const now = new Date()
@@ -99,7 +101,7 @@ export class SubmissionService implements OnModuleInit {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_userId: {
-          contestId: submissionDto.contestId,
+          contestId: contestId,
           userId
         }
       },
@@ -125,8 +127,8 @@ export class SubmissionService implements OnModuleInit {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_problemId: {
-          problemId: submissionDto.problemId,
-          contestId: submissionDto.contestId
+          problemId: problemId,
+          contestId: contestId
         }
       },
       include: {
@@ -140,14 +142,16 @@ export class SubmissionService implements OnModuleInit {
   async submitToWorkbook(
     submissionDto: CreateSubmissionDto,
     userId: number,
+    problemId: number,
+    workbookId: number,
     groupId = OPEN_SPACE_ID
   ) {
     const { problem } = await this.prisma.workbookProblem.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
-          problemId: submissionDto.problemId,
-          workbookId: submissionDto.workbookId
+          problemId: problemId,
+          workbookId: workbookId
         }
       },
       include: {
@@ -163,7 +167,7 @@ export class SubmissionService implements OnModuleInit {
 
   async createSubmission(
     submissionDto: CreateSubmissionDto,
-    problem: Partial<Problem>,
+    problem: Problem,
     userId: number
   ) {
     if (!problem.languages.includes(submissionDto.language)) {
@@ -189,6 +193,7 @@ export class SubmissionService implements OnModuleInit {
         code: code.map((snippet) => ({ ...snippet })), // convert to plain object
         result: ResultStatus.Judging,
         userId,
+        problemId: problem.id,
         ...data
       }
     })

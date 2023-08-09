@@ -2,7 +2,6 @@ import { Language } from '@prisma/client'
 import { Type } from 'class-transformer'
 import {
   IsBoolean,
-  IsEmpty,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -30,10 +29,6 @@ export class Template {
 }
 
 export class CreateSubmissionDto {
-  @IsNumber()
-  @IsNotEmpty()
-  problemId: number
-
   @ValidateNested({ each: true })
   @Type(() => Snippet)
   code: Snippet[]
@@ -41,10 +36,4 @@ export class CreateSubmissionDto {
   @IsEnum(Language)
   @IsNotEmpty()
   language: Language
-
-  @IsEmpty()
-  contestId?: number
-
-  @IsEmpty()
-  workbookId?: number
 }
