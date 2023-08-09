@@ -106,6 +106,11 @@ resource "aws_ecs_task_definition" "client_api" {
     redis_port        = var.redis_port,
     jwt_secret        = random_password.jwt_secret.result,
     nodemailer_from   = "Codedang <noreply@codedang.com>"
+    rabbitmq_host     = "${aws_mq_broker.judge_queue.id}.mq.${var.region}.amazonaws.com}"
+    rabbitmq_port     = var.rabbitmq_port,
+    rabbitmq_username = var.rabbitmq_username,
+    rabbitmq_password = random_password.rabbitmq_password.result,
+    rabbitmq_vhost    = rabbitmq_vhost.vh.name,
   })
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 
