@@ -10,7 +10,7 @@ generator graphql {
   output             = "../apps/admin/src/@generated"
   noAtomicOperations = true
   purgeOutput        = true
-  reExport           = All
+  reExport           = Single
 }
 
 datasource db {
