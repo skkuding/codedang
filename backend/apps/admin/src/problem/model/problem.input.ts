@@ -3,7 +3,6 @@ import { ValidatePromise } from 'class-validator'
 import { GraphQLUpload } from 'graphql-upload'
 import { Language, Level } from '@admin/@generated'
 import type { FileUploadDto } from '../dto/file-upload.dto'
-import { LAction } from './problem.enum'
 import { Template } from './template.input'
 import { Testcase } from './testcase.input'
 
@@ -89,11 +88,11 @@ export class FilterProblemsInput {
 
 @InputType()
 export class UpdateProblemTagInput {
-  @Field(() => Int, { nullable: false })
-  id!: number
+  @Field(() => [Int], { nullable: true })
+  create!: Array<number>
 
-  @Field(() => LAction, { nullable: false })
-  action!: LAction
+  @Field(() => [Int], { nullable: true })
+  delete!: Array<number>
 }
 
 @InputType()
@@ -143,6 +142,6 @@ export class UpdateProblemInput {
   @Field(() => [Testcase], { nullable: true })
   testcases?: Array<Testcase & { id: number }>
 
-  @Field(() => [UpdateProblemTagInput], { nullable: true })
-  tags?: Array<UpdateProblemTagInput>
+  @Field(() => UpdateProblemTagInput, { nullable: true })
+  tags?: UpdateProblemTagInput
 }

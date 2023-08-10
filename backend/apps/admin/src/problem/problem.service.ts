@@ -14,7 +14,6 @@ import { Level } from '@admin/@generated/prisma/level.enum'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
-import { LAction } from './model/problem.enum'
 import type {
   CreateProblemInput,
   UploadFileInput,
@@ -363,33 +362,34 @@ export class ProblemService {
 
   async updatePorblemTag(
     problemId: number,
-    problemTags: Array<UpdateProblemTagInput>
+    problemTags: UpdateProblemTagInput
   ): Promise<ProblemTagUncheckedUpdateManyWithoutProblemNestedInput> {
     const createIds: Array<ProblemTagCreateWithoutProblemInput> = []
     const deleteIds = []
     await Promise.all(
-      problemTags.map(async (problemTag) => {
-        if (problemTag.action === LAction.Create) {
-          const check = await this.prisma.problemTag.findFirst({
-            where: {
-              tagId: problemTag.id,
-              problemId: problemId
-            }
-          })
-          if (check) {
-            throw new UnprocessableDataException('duplicated request')
+      problemTags.create.map(async (tagId) => {
+        const check = await this.prisma.problemTag.findFirst({
+          where: {
+            tagId: tagId,
+            problemId: problemId
           }
-          createIds.push({ tag: { connect: { id: problemTag.id } } })
-        } else {
-          const check = await this.prisma.problemTag.findFirstOrThrow({
-            where: {
-              id: problemTag.id,
-              problemId: problemId
-            },
-            select: { id: true }
-          })
-          deleteIds.push({ id: check.id })
+        })
+        if (check) {
+          throw new UnprocessableDataException('duplicated request')
         }
+        createIds.push({ tag: { connect: { id: tagId } } })
+      })
+    )
+    await Promise.all(
+      problemTags.delete.map(async (tagId) => {
+        const check = await this.prisma.problemTag.findFirstOrThrow({
+          where: {
+            tagId: tagId,
+            problemId: problemId
+          },
+          select: { id: true }
+        })
+        deleteIds.push({ id: check.id })
       })
     )
 
