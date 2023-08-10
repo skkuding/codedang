@@ -7,9 +7,8 @@ export const ACCESS_TOKEN_EXPIRE_TIME = 30 * SECONDS_PER_MINUTE
 export const REFRESH_TOKEN_EXPIRE_TIME = SECONDS_PER_DAY
 export const REFRESH_TOKEN_COOKIE_OPTIONS = {
   maxAge: 1000 * SECONDS_PER_DAY,
-  httpOnly: true
-  // TODO: production 환경에서는 secure, signed cookie 사용하기
-  // secure: true,
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production'
 }
 export const EMAIL_AUTH_EXPIRE_TIME = 5 * SECONDS_PER_MINUTE
 
