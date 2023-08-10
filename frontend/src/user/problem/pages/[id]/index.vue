@@ -5,7 +5,7 @@ import { useClipboard, useDraggable } from '@vueuse/core'
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import IconCopy from '~icons/fa6-regular/copy'
-import Clarification from '../../components/Clarification.vue'
+// import Clarification from '../../components/Clarification.vue'
 import { useProblemStore } from '../../store/problem'
 
 const props = defineProps<{
@@ -82,22 +82,22 @@ onMounted(async () => {
 
 <template>
   <main class="flex h-[calc(100vh-112px)] border-t border-slate-400">
-    <Clarification v-model="x" />
+    <!-- <Clarification v-model="x" /> -->
     <div
       class="flex w-[600px] min-w-[400px] flex-col gap-4 overflow-y-auto bg-slate-700 p-8 text-white"
       :style="{ width: x + 'px' }"
     >
       <h1 class="text-xl font-bold">{{ problem?.title }}</h1>
-      <div v-dompurify-html="problem?.description" class="prose text-white" />
+      <div v-dompurify-html="problem?.description" class="prose prose-invert" />
       <h2 class="mt-4 text-lg font-bold">Input</h2>
       <div
         v-dompurify-html="problem?.inputDescription"
-        class="prose text-white"
+        class="prose prose-invert"
       />
       <h2 class="mt-4 text-lg font-bold">Output</h2>
       <div
         v-dompurify-html="problem?.outputDescription"
-        class="prose text-white"
+        class="prose prose-invert"
       />
       <div v-for="(sample, index) in samples" :key="index">
         <div class="flex items-end justify-between">
