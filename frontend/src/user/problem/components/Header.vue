@@ -4,11 +4,12 @@ import ListItem from '@/common/components/Atom/ListItem.vue'
 import SymbolLogo from '@/common/components/Atom/SymbolLogo.vue'
 import Dropdown from '@/common/components/Molecule/Dropdown.vue'
 import AuthModal from '@/common/components/Organism/AuthModal.vue'
+import { useAuthStore } from '@/common/store/auth'
 import { ref } from 'vue'
 import IconUser from '~icons/fa6-regular/user'
 import Fa6SolidAngleRight from '~icons/fa6-solid/angle-right'
 
-const auth = ref(true)
+const store = useAuthStore()
 const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 </script>
 
@@ -44,16 +45,14 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
         leave-to-class="opacity-0"
         mode="out-in"
       >
-        <div v-if="auth">
+        <div v-if="store.isLoggedIn">
           <Dropdown>
             <template #button>
               <IconUser class="text-xl text-white" />
             </template>
             <template #items>
               <!-- TODO: change text color after PR #316 -->
-              <ListItem>Management</ListItem>
-              <ListItem>My Page</ListItem>
-              <ListItem @click="auth = false">Log Out</ListItem>
+              <ListItem @click="store.logout">Log Out</ListItem>
             </template>
           </Dropdown>
         </div>
