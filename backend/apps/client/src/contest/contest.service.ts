@@ -215,11 +215,10 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
-    const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
-      where: { userId, contestId },
-      select: { id: true }
+    const hasRegistered = await this.prisma.contestRecord.findFirst({
+      where: { userId, contestId }
     })
-    if (isAlreadyRecord) {
+    if (hasRegistered) {
       throw new ActionNotAllowedException('repetitive participation', 'contest')
     }
     const now = new Date()
