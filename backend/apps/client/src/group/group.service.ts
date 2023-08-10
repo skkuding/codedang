@@ -240,24 +240,17 @@ export class GroupService {
   }
 
   async leaveGroup(userId: number, groupId: number): Promise<UserGroup> {
-    const currentUserGroup = await this.prisma.userGroup.findFirst({
+    const groupLeaders = await this.prisma.userGroup.findMany({
       where: {
-        userId: userId,
-        isGroupLeader: true
+        isGroupLeader: true,
+        groupId: groupId
       }
     })
-
-    if (currentUserGroup) {
-      const groupLeaders = await this.prisma.userGroup.findMany({
-        where: {
-          isGroupLeader: true,
-          groupId: groupId
-        }
-      })
-
-      if (groupLeaders.length < 2) {
-        throw new ActionNotAllowedException('last group leader leave', 'group')
-      }
+    if (groupLeaders.length == 1 && groupLeaders[0].userId == userId) {
+      throw new ActionNotAllowedException(
+        'One or more group leaders are required',
+        'group'
+      )
     }
 
     const deletedUserGroup = await this.prisma.userGroup.delete({

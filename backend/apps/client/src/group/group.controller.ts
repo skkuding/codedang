@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   InternalServerErrorException,
   Logger,
@@ -104,7 +103,7 @@ export class GroupController {
       return await this.groupService.leaveGroup(req.user.id, groupId)
     } catch (error) {
       if (error instanceof ActionNotAllowedException) {
-        throw new ForbiddenException(error.message)
+        throw new BadRequestException(error.message)
       }
 
       this.logger.error(error.message, error.stack)
