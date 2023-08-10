@@ -12,7 +12,6 @@ const openToast = useToast()
 
 const props = defineProps<{
   id: number
-  createdBy: number
 }>()
 
 const isModalVisible = ref(false)

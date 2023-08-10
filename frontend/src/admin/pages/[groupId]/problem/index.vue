@@ -28,6 +28,7 @@ onChange(async (files) => {
       yes: 'OK'
     })
   } else {
+    // TODO: use apollo-upload-client
     const operations = {
       query:
         'mutation($groupId: Float!, $input: UploadFileInput!) { uploadProblems(groupId: $groupId, input: $input){id createdById groupId title description template languages difficulty}}',

@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { useSortable } from '@vueuse/integrations/useSortable'
-import { computed, ref, toRefs, watch } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import Fa6SolidEquals from '~icons/fa6-solid/equals'
 import Pagination from '../Molecule/Pagination.vue'
 import SearchBar from '../Molecule/SearchBar.vue'
@@ -78,10 +78,6 @@ const search = (inputData: string) => {
   currentPage.value = 1
   emit('search', inputData)
 }
-
-watch(currentPage, (value) => {
-  emit('change-page', value)
-})
 
 const el = ref<HTMLElement | null>(null)
 useSortable(el, items, {
@@ -193,6 +189,7 @@ useSortable(el, items, {
         :page-slot="pageSlot"
         :number-of-pages="numberOfPages"
         :mode="mode"
+        @change-page="(page) => emit('change-page', page)"
       />
     </div>
   </div>
