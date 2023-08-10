@@ -479,6 +479,27 @@
             "containerId": "48547883-d35f-483f-a8d4-87a746611eb7",
             "created": "2023-06-24T07:15:39.073Z",
             "sortNum": 500000
+        },
+        {
+            "_id": "1ceeb6f0-ede0-4953-b535-921a95ff08af",
+            "name": "Get Submission Results",
+            "containerId": "6dae5743-bac8-4ce4-a198-1ddf8d324346",
+            "created": "2023-07-01T07:37:26.261Z",
+            "sortNum": 510000
+        },
+        {
+            "_id": "b5637fa9-bc58-4ed0-ad12-9c163481d00b",
+            "name": "Create Submission",
+            "containerId": "6dae5743-bac8-4ce4-a198-1ddf8d324346",
+            "created": "2023-07-01T07:37:52.040Z",
+            "sortNum": 520000
+        },
+        {
+            "_id": "3ef551e9-00ef-4c56-bc38-fa8ae83b81bf",
+            "name": "Get Submissions",
+            "containerId": "6dae5743-bac8-4ce4-a198-1ddf8d324346",
+            "created": "2023-08-08T11:18:37.309Z",
+            "sortNum": 255000
         }
     ],
     "settings": {
@@ -5013,36 +5034,135 @@
             "docs": "# Get Clarifications by Contest\n\n파라미터로 주어진 group contest의 problem에 등록된 clarification의 목록을 불러옵니다.  "
         },
         {
-            "_id": "86d2ae24-54f0-4567-9a3c-a993ac915ad4",
+            "_id": "bff40192-c6af-4f14-8315-1e9641299eea",
             "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
-            "containerId": "dcc8290a-fa46-4ad9-b9a1-f2f422fe2006",
-            "name": "Log In as Manager",
-            "url": "/auth/login",
+            "containerId": "b5637fa9-bc58-4ed0-ad12-9c163481d00b",
+            "name": "Succeed",
+            "url": "/problem/8/submission",
             "method": "POST",
-            "sortNum": 70000,
-            "created": "2023-07-01T01:32:45.988Z",
-            "modified": "2023-07-01T01:36:06.576Z",
+            "sortNum": 680000,
+            "created": "2023-07-10T06:34:04.725Z",
+            "modified": "2023-08-09T08:03:20.924Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"username\": \"manager\",\n  \"password\": \"Managermanager\"\n}",
+                "raw": "{\n  \"problemId\": 8,\n  \"code\": [\n    {\n      \"id\": 1,\n      \"text\": \"#include<stdio.h>\\n\\n int main () {\\n  int a;\\n  scanf(\\\"%d\\\\n\\\", &a);\\n  printf(\\\"%d\\\\n\\\", a);\\n}\\n\",\n      \"locked\": false\n    }\n  ],\n  \"language\": \"Cpp\"\n}",
                 "form": []
             },
-            "tests": [
-                {
-                    "type": "set-env-var",
-                    "custom": "header.authorization",
-                    "action": "setto",
-                    "value": "{{bearer_token}}"
-                },
-                {
-                    "type": "set-env-var",
-                    "custom": "cookie.refresh_token",
-                    "action": "setto",
-                    "value": "{{refresh_token}}"
-                }
-            ]
+            "tests": [],
+            "docs": "## Create Public Submission\n\n### URL\nPOST /submission/problem/{problemId} \n\n<br>\n\n### Parameters\nproblemId\n\n<br>\n\n### Description\nid가 {problemId}인 Problem에 작성한 코드를 제출합니다.\n\n<br>\n\n### Request Body\n```typescript\n{\n  \"problemId\": number,\n  \"code\": string,\n  \"language\": Language(string),\n}\n\nenum Language {\n  C\n  Cpp\n  Java\n  Python2\n  Python3\n  Golang\n}\n```\n\n<br>\n\n### Response Type\n```typescript\n{\n  id: number\n  submissionId: string\n  result: ResultStatus\n  createTime: Date\n  updateTime: Date\n  contestId?: number\n  workboodId?: number\n  submissionResultIds: { id: number }[]\n}\n\nenum ResultStatus {\n  Judging\n  Accepted\n  WrongAnswer\n  CompileError\n  RuntimeError\n  TimeLimitExceeded\n  MemoryLimitExceeded\n  OutputLimitExceeded\n  ServerError\n}\n```",
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "b85da3d5-3690-4bbc-80ae-8174e880bf3b",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "b5637fa9-bc58-4ed0-ad12-9c163481d00b",
+            "name": "400: Bad Request",
+            "url": "/submission/problem/1",
+            "method": "POST",
+            "sortNum": 690000,
+            "created": "2023-07-10T07:29:02.314Z",
+            "modified": "2023-07-10T08:10:55.380Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"problemId\": 1,\n  \"code\": \"#include<stdio.h>\\n\\n int main () {\\n  int a;\\n  scanf(\\\"%d\\\\n\\\", &a);\\n  printf(\\\"%d\\\\n\\\", a);\\n}\\n\",\n  \"language\": \"Golang\"\n}",
+                "form": []
+            },
+            "tests": [],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "6fc7d51f-fdb2-4b95-a3f5-f8de95ccc8b2",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "6fb55a48-a824-46a7-b93a-d8ee29ca80e0",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "1ceeb6f0-ede0-4953-b535-921a95ff08af",
+            "name": "Succeed",
+            "url": "/problem/1/submission/d735c1",
+            "method": "GET",
+            "sortNum": 720000,
+            "created": "2023-07-13T11:20:48.423Z",
+            "modified": "2023-08-10T07:38:17.374Z",
+            "headers": [],
+            "params": [],
+            "tests": [],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "f5e062a8-55e6-4462-97b6-6b594b6d1581",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "1ceeb6f0-ede0-4953-b535-921a95ff08af",
+            "name": "403: Forbidden",
+            "url": "/problem/1/submission/d735c1",
+            "method": "GET",
+            "sortNum": 730000,
+            "created": "2023-07-13T11:30:37.433Z",
+            "modified": "2023-08-10T07:38:35.633Z",
+            "headers": [],
+            "params": [],
+            "tests": [],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "1a8e1d5f-2951-4aca-84b5-3b086055097b",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
+        },
+        {
+            "_id": "13c22c61-a5cc-4406-8319-a096d758f2b8",
+            "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+            "containerId": "3ef551e9-00ef-4c56-bc38-fa8ae83b81bf",
+            "name": "Succeed",
+            "url": "/problem/1/submission",
+            "method": "GET",
+            "sortNum": 740000,
+            "created": "2023-08-08T11:18:49.097Z",
+            "modified": "2023-08-10T07:37:30.068Z",
+            "headers": [],
+            "params": [],
+            "tests": [],
+            "preReq": {
+                "runRequests": [
+                    {
+                        "reqId": "fd33c48d-00af-4dea-b600-449bef7e5bea",
+                        "colId": "07dc2986-f7a6-4827-8ec2-cb288e3de5e7",
+                        "triggerCondition": "run-always",
+                        "triggerValue": ""
+                    }
+                ]
+            }
         }
     ]
 }
