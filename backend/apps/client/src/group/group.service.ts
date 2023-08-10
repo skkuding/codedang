@@ -240,6 +240,16 @@ export class GroupService {
   }
 
   async leaveGroup(userId: number, groupId: number): Promise<UserGroup> {
+    const groupLeaders = await this.prisma.userGroup.findMany({
+      where: {
+        isGroupLeader: true,
+        groupId: groupId
+      }
+    })
+    if (groupLeaders.length == 1 && groupLeaders[0].userId == userId) {
+      throw new ConflictFoundException('One or more managers are required')
+    }
+
     const deletedUserGroup = await this.prisma.userGroup.delete({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
