@@ -14,29 +14,34 @@ int main() {
 const pythonCode = ref(`print("Hello, world!")
 `)
 
-const javascriptCode = ref(`console.log('Hello, world!')
-`)
-
 const javaCode = ref(`class Main {
     public static void main(String[] args) {
         System.out.println("Hello, World!");
     }
 }`)
+
+const goCode = ref(`package main
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, world!")
+}
+`)
 </script>
 
 <template>
   <Story>
     <Variant title="C/C++">
-      <CodeEditor v-model="cppCode" lang="cpp" />
+      <CodeEditor v-model="cppCode" lang="Cpp" />
     </Variant>
     <Variant title="Python">
-      <CodeEditor v-model="pythonCode" lang="python" />
-    </Variant>
-    <Variant title="Javascript">
-      <CodeEditor v-model="javascriptCode" lang="javascript" />
+      <CodeEditor v-model="pythonCode" lang="Python3" />
     </Variant>
     <Variant title="Java">
-      <CodeEditor v-model="javaCode" lang="java" />
+      <CodeEditor v-model="javaCode" lang="Java" />
+    </Variant>
+    <Variant title="Go">
+      <CodeEditor v-model="goCode" lang="Golang" />
     </Variant>
   </Story>
 </template>
