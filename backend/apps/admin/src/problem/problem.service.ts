@@ -347,7 +347,7 @@ export class ProblemService {
 
     let problemTag: ProblemTagUncheckedUpdateManyWithoutProblemNestedInput
     if (tags) {
-      problemTag = await this.updatePorblemTag(tags)
+      problemTag = await this.updatePorblemTag(id, tags)
     }
 
     return await this.prisma.problem.update({
@@ -362,17 +362,35 @@ export class ProblemService {
   }
 
   async updatePorblemTag(
+    problemId: number,
     problemTags: Array<UpdateProblemTagInput>
   ): Promise<ProblemTagUncheckedUpdateManyWithoutProblemNestedInput> {
     const createIds: Array<ProblemTagCreateWithoutProblemInput> = []
     const deleteIds = []
-    problemTags.map((problemTag) => {
-      if (problemTag.action == LAction.Create) {
-        createIds.push({ tag: { connect: { id: problemTag.id } } })
-      } else {
-        deleteIds.push({ id: problemTag.id })
-      }
-    })
+    await Promise.all(
+      problemTags.map(async (problemTag) => {
+        if (problemTag.action === LAction.Create) {
+          const check = await this.prisma.problemTag.findFirst({
+            where: {
+              tagId: problemTag.id,
+              problemId: problemId
+            }
+          })
+          if (check) {
+            throw new UnprocessableDataException('duplicated request')
+          }
+          createIds.push({ tag: { connect: { id: problemTag.id } } })
+        } else {
+          await this.prisma.problemTag.findFirstOrThrow({
+            where: {
+              id: problemTag.id,
+              problemId: problemId
+            }
+          })
+          deleteIds.push({ id: problemTag.id })
+        }
+      })
+    )
 
     return {
       create: createIds,

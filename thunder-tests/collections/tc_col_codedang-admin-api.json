@@ -836,7 +836,7 @@
             "method": "POST",
             "sortNum": 110000,
             "created": "2023-07-13T12:50:23.837Z",
-            "modified": "2023-08-10T10:53:45.791Z",
+            "modified": "2023-08-10T13:04:38.932Z",
             "headers": [],
             "params": [],
             "body": {
@@ -845,7 +845,7 @@
                 "form": [],
                 "graphql": {
                     "query": "mutation Problem($input: UpdateProblemInput!){\n    updateProblem(\n        groupId: 1\n        input: $input\n    ){\n        id\n        title\n    }\n}",
-                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [\"C\"]\n    }\n}"
+                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [\"C\"],\n    \"tags\":[{\"id\":2,\"action\":\"Create\"}]\n    }\n}"
                 }
             },
             "tests": [

@@ -116,8 +116,6 @@ export class ProblemResolver {
     @Args('input') input: UpdateProblemInput
   ) {
     try {
-      console.log('resolver: ', input, groupId)
-
       return await this.problemService.updateProblem(input, groupId)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
