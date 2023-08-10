@@ -111,7 +111,7 @@ const submit = async () => {
       })
       pause()
     }
-  })
+  }, 500)
 }
 </script>
 
