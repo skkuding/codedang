@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import Button from '@/common/components/Atom/Button.vue'
 import ListItem from '@/common/components/Atom/ListItem.vue'
+import Dialog from '@/common/components/Molecule/Dialog.vue'
 import Dropdown from '@/common/components/Molecule/Dropdown.vue'
+import { useDialog } from '@/common/composables/dialog'
 import { useRoute } from 'vue-router'
-import IconRun from '~icons/bi/play'
+// import IconRun from '~icons/bi/play'
 import IconDown from '~icons/fa6-solid/angle-down'
 import IconRefresh from '~icons/fa6-solid/arrow-rotate-right'
 import IconCaretDown from '~icons/fa6-solid/caret-down'
@@ -31,12 +33,23 @@ const activeClass = (name: string) =>
   route.name === name
     ? 'border-white cursor-default'
     : 'border-transparent active:bg-white/40 cursor-pointer' // use transparent border for color transition effect
+
+const dialog = useDialog()
+
+const reset = () => {
+  dialog.confirm({
+    title: 'Reset',
+    content: 'Are you sure to reset your code?'
+  })
+}
 </script>
 
 <template>
   <nav
     class="flex h-14 w-full items-center justify-between gap-x-20 bg-slate-700 px-6"
   >
+    <Dialog @yes="store.reset" />
+    <!-- TODO: handle yes/no event in composable -->
     <div class="flex h-full shrink-0 items-center justify-start gap-x-4">
       <Dropdown class="mr-3">
         <template #button>
@@ -73,15 +86,15 @@ const activeClass = (name: string) =>
         v-if="$route.name === 'problem-id'"
         class="hidden justify-end gap-x-4 min-[950px]:flex"
       >
-        <Button color="gray-dark" class="h-9">
+        <Button color="gray-dark" class="h-9" @click="reset">
           <IconRefresh />
         </Button>
-        <Button color="green" class="h-9">
+        <!-- <Button color="green" class="h-9">
           <div class="item-center flex">
             <IconRun class="h-6 w-6" />
             <span class="px-1">Run</span>
           </div>
-        </Button>
+        </Button> -->
         <Button color="blue" class="h-9">
           <span class="px-1">Submit</span>
         </Button>

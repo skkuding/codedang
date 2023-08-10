@@ -4,8 +4,15 @@ import type { Language } from '../types'
 
 export const useProblemStore = defineStore('problem', () => {
   const language = ref<Language>('cpp')
+  const code = ref('')
+
+  const reset = () => {
+    code.value = ''
+  }
 
   return {
-    language
+    code,
+    language,
+    reset
   }
 })

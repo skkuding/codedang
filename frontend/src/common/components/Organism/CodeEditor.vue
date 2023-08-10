@@ -21,7 +21,7 @@ import {
   lineNumbers,
   drawSelection
 } from '@codemirror/view'
-import { ref, shallowRef, watch, onMounted } from 'vue'
+import { ref, shallowRef, watch, onMounted, toRefs } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -54,17 +54,18 @@ const languageExtensions: Record<string, () => Promise<LanguageSupport>> = {
   java: () => import('@codemirror/lang-java').then((x) => x.java())
 }
 
+const modelValue = toRefs(props).modelValue
 watch(
-  () => props.modelValue,
+  modelValue,
   (value) => {
     if (view.value.state.doc.toString() === value) {
       return
     }
     view.value.dispatch({
-      changes: { from: 0, to: view.value.state.doc.length, insert: value },
-      selection: view.value.state.selection
+      changes: { from: 0, to: view.value.state.doc.length, insert: value }
     })
-  }
+  },
+  { immediate: true }
 )
 
 onMounted(async () => {
@@ -83,13 +84,11 @@ onMounted(async () => {
     EditorState.readOnly.of(props.lock)
   ]
 
-  const state = EditorState.create({
-    doc: props.modelValue,
-    extensions
-  })
-
   view.value = new EditorView({
-    state,
+    state: EditorState.create({
+      doc: modelValue.value,
+      extensions
+    }),
     parent: editor.value,
     dispatch: (tr: Transaction) => {
       view.value.update([tr])

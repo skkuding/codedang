@@ -34,7 +34,6 @@ interface Sample {
   output: string
 }
 
-const code = ref('')
 const problem = ref<Problem>()
 const store = useProblemStore()
 
@@ -58,15 +57,15 @@ const { x } = useDraggable(resizingBarX, {
   }
 })
 const codeBlockHeight = ref<number>(window.innerHeight - 112 - 236 - 24)
-const resizingBarY = ref<HTMLDivElement>()
-const { y } = useDraggable(resizingBarY, {
-  initialValue: { x: 0, y: 240 },
-  onMove: (p) => {
-    p.y = window.innerHeight - p.y - 24
-    codeBlockHeight.value = window.innerHeight - 112 - p.y - 24
-    if (p.y < 4) p.y = 4
-  }
-})
+// const resizingBarY = ref<HTMLDivElement>()
+// const { y } = useDraggable(resizingBarY, {
+//   initialValue: { x: 0, y: 240 },
+//   onMove: (p) => {
+//     p.y = window.innerHeight - p.y - 24
+//     codeBlockHeight.value = window.innerHeight - 112 - p.y - 24
+//     if (p.y < 4) p.y = 4
+//   }
+// })
 
 onMounted(async () => {
   const res = await axios.get(`/api/problem/${props.id}`)
@@ -132,13 +131,13 @@ onMounted(async () => {
       class="flex min-w-[400px] grow flex-col justify-between overflow-hidden bg-[#292c33]"
     >
       <CodeEditor
-        v-model="code"
+        v-model="store.code"
         :lang="store.language"
         class="overflow-auto"
         :style="{ height: codeBlockHeight + 'px' }"
       />
 
-      <div :style="{ height: y + 'px' }">
+      <!-- <div :style="{ height: y + 'px' }">
         <div
           ref="resizingBarY"
           class="hover:bg-blue mt-[3px] h-px cursor-ns-resize bg-slate-400 hover:mt-0 hover:h-1"
@@ -185,7 +184,7 @@ onMounted(async () => {
       >
         <div>{{ problem?.languages[0] }}</div>
         <div>-O2 -Wall -std=gnu++17</div>
-      </div>
+      </div> -->
     </div>
   </main>
 </template>
