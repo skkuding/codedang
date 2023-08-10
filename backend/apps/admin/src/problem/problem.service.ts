@@ -352,12 +352,10 @@ export class ProblemService {
 
     return await this.prisma.problem.update({
       where: { id },
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-nocheck
       data: {
         ...data,
         ...(languages && { languages: languages }),
-        ...(template && { template: JSON.stringify(template) }),
+        ...(template && { template: [JSON.stringify(template)] }),
         problemTag: problemTag
       }
     })
