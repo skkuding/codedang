@@ -3,38 +3,22 @@ import CodeEditor from '@/common/components/Organism/CodeEditor.vue'
 import { useToast } from '@/common/composables/toast'
 import { useClipboard, useDraggable } from '@vueuse/core'
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, toRefs } from 'vue'
 import IconCopy from '~icons/fa6-regular/copy'
 // import Clarification from '../../components/Clarification.vue'
-import { useProblemStore } from '../../store/problem'
+import { useProblemStore, type Problem } from '../../store/problem'
 
 const props = defineProps<{
   id: string
 }>()
-
-interface Problem {
-  id: string
-  title: string
-  description: string
-  inputDescription: string
-  outputDescription: string
-  hint: string
-  languages: string[]
-  timeLimit: number
-  memoryLimit: number
-  difficulty: string
-  source: string
-  inputExamples: string[]
-  outputExamples: string[]
-}
 
 interface Sample {
   input: string
   output: string
 }
 
-const problem = ref<Problem>()
 const store = useProblemStore()
+const { problem } = toRefs(store)
 
 const { copy } = useClipboard()
 const openToast = useToast()
@@ -67,16 +51,13 @@ const { x } = useDraggable(resizingBarX, {
 // })
 
 onMounted(async () => {
-  const res = await axios.get(`/api/problem/${props.id}`)
-  problem.value = res.data
-  samples.value = [...Array(problem.value?.inputExamples.length).keys()].map(
-    (i) => {
-      return {
-        input: problem.value?.inputExamples[i] || '',
-        output: problem.value?.outputExamples[i] || ''
-      }
-    }
-  )
+  const { data } = await axios.get<Problem>(`/api/problem/${props.id}`)
+  problem.value = data
+  store.type = 'problem'
+  samples.value = problem.value.inputExamples.map((input, index) => ({
+    input,
+    output: problem.value.outputExamples[index]
+  }))
 })
 </script>
 
@@ -87,16 +68,16 @@ onMounted(async () => {
       class="flex w-[600px] min-w-[400px] flex-col gap-4 overflow-y-auto bg-slate-700 p-8 text-white"
       :style="{ width: x + 'px' }"
     >
-      <h1 class="text-xl font-bold">{{ problem?.title }}</h1>
-      <div v-dompurify-html="problem?.description" class="prose prose-invert" />
+      <h1 class="text-xl font-bold">{{ problem.title }}</h1>
+      <div v-dompurify-html="problem.description" class="prose prose-invert" />
       <h2 class="mt-4 text-lg font-bold">Input</h2>
       <div
-        v-dompurify-html="problem?.inputDescription"
+        v-dompurify-html="problem.inputDescription"
         class="prose prose-invert"
       />
       <h2 class="mt-4 text-lg font-bold">Output</h2>
       <div
-        v-dompurify-html="problem?.outputDescription"
+        v-dompurify-html="problem.outputDescription"
         class="prose prose-invert"
       />
       <div v-for="(sample, index) in samples" :key="index">

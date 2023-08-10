@@ -8,8 +8,10 @@ import { useAuthStore } from '@/common/store/auth'
 import { ref } from 'vue'
 import IconUser from '~icons/fa6-regular/user'
 import Fa6SolidAngleRight from '~icons/fa6-solid/angle-right'
+import { useProblemStore } from '../store/problem'
 
-const store = useAuthStore()
+const auth = useAuthStore()
+const problem = useProblemStore()
 const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 </script>
 
@@ -23,20 +25,26 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
           />
         </RouterLink>
         <RouterLink
-          class="hidden text-lg font-bold text-white/60 transition-colors hover:text-white active:text-white/80 md:inline"
-          to="/contest"
+          class="hidden text-lg font-bold capitalize text-white/60 transition-colors hover:text-white active:text-white/80 md:inline"
+          :to="'/' + problem.type"
         >
-          Contents
+          {{ problem.type }}
         </RouterLink>
-        <Fa6SolidAngleRight class="mx-2 hidden text-white/60 md:inline" />
-        <RouterLink
-          class="hidden text-lg font-bold text-white/60 transition-colors hover:text-white active:text-white/80 md:inline"
-          to="/contest/1"
+        <template
+          v-if="problem.type === 'contest' || problem.type === 'workbook'"
         >
-          SKKU 코딩 플랫폼 대회
-        </RouterLink>
+          <Fa6SolidAngleRight class="mx-2 hidden text-white/60 md:inline" />
+          <RouterLink
+            class="hidden text-lg font-bold text-white/60 transition-colors hover:text-white active:text-white/80 md:inline"
+            to="/contest/1"
+          >
+            SKKU 코딩 플랫폼 대회
+          </RouterLink>
+        </template>
         <Fa6SolidAngleRight class="mx-2 hidden text-white/60 md:inline" />
-        <span class="text-lg font-semibold text-white">가파른 경사</span>
+        <span class="text-lg font-semibold text-white">
+          {{ problem.problem.title }}
+        </span>
       </div>
       <Transition
         enter-active-class="transition-opacity duration-300"
@@ -45,14 +53,14 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
         leave-to-class="opacity-0"
         mode="out-in"
       >
-        <div v-if="store.isLoggedIn">
+        <div v-if="auth.isLoggedIn">
           <Dropdown>
             <template #button>
               <IconUser class="text-xl text-white" />
             </template>
             <template #items>
               <!-- TODO: change text color after PR #316 -->
-              <ListItem @click="store.logout">Log Out</ListItem>
+              <ListItem @click="auth.logout">Log Out</ListItem>
             </template>
           </Dropdown>
         </div>
