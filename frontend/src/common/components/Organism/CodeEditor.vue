@@ -1,4 +1,6 @@
 <script setup lang="ts">
+/* eslint-disable @typescript-eslint/naming-convention */
+import type { Language } from '@/user/problem/types'
 import { closeBrackets } from '@codemirror/autocomplete'
 import {
   defaultKeymap,
@@ -12,6 +14,7 @@ import {
   indentOnInput,
   type LanguageSupport
 } from '@codemirror/language'
+import { StreamLanguage } from '@codemirror/language'
 import { EditorState, type Transaction } from '@codemirror/state'
 import { oneDark } from '@codemirror/theme-one-dark'
 import {
@@ -26,10 +29,10 @@ import { ref, shallowRef, watch, onMounted, toRefs } from 'vue'
 const props = withDefaults(
   defineProps<{
     modelValue: string
-    lang?: 'cpp' | 'python' | 'javascript' | 'java'
+    lang?: Language
     lock?: boolean
   }>(),
-  { lang: 'cpp' }
+  { lang: 'Cpp' }
 )
 
 const emit = defineEmits<{
@@ -46,15 +49,23 @@ const font = EditorView.theme({
   }
 })
 
-const languageExtensions: Record<string, () => Promise<LanguageSupport>> = {
-  cpp: () => import('@codemirror/lang-cpp').then((x) => x.cpp()),
-  python: () => import('@codemirror/lang-python').then((x) => x.python()),
-  javascript: () =>
-    import('@codemirror/lang-javascript').then((x) => x.javascript()),
-  java: () => import('@codemirror/lang-java').then((x) => x.java())
+const languageExtensions: Record<Language, () => Promise<LanguageSupport>> = {
+  C: () => import('@codemirror/lang-cpp').then((x) => x.cpp()),
+  Cpp: () => import('@codemirror/lang-cpp').then((x) => x.cpp()),
+  Python3: () => import('@codemirror/lang-python').then((x) => x.python()),
+  Java: () => import('@codemirror/lang-java').then((x) => x.java()),
+  // Since Go is not supported by CodeMirror, we use the legacy mode.
+  // Legacy mode does not have type definition, so we have to use @ts-ignore.
+  Golang: () =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    import('@codemirror/legacy-modes/mode/go').then((x) =>
+      StreamLanguage.define(x.go)
+    )
 }
 
-const modelValue = toRefs(props).modelValue
+const { modelValue } = toRefs(props)
+
 watch(
   modelValue,
   (value) => {
@@ -73,6 +84,7 @@ onMounted(async () => {
     keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
     oneDark,
     font,
+    // TODO: watch props.lang
     await languageExtensions[props.lang](),
     history(),
     lineNumbers(),
