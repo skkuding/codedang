@@ -14,7 +14,6 @@ import IconTrash from '~icons/fa/trash-o'
 const props = defineProps<{
   groupId: string
 }>()
-console.log(props)
 const showProblemModal = ref(false)
 const showImportModal = ref(false)
 const { open, onChange } = useFileDialog()
@@ -29,13 +28,12 @@ onChange(async (files) => {
       yes: 'OK'
     })
   } else {
-    console.log(files[0])
     const operations = {
       query:
         'mutation($groupId: Float!, $input: UploadFileInput!) { uploadProblems(groupId: $groupId, input: $input){id createdById groupId title description template languages difficulty}}',
       variables: { groupId: Number(props.groupId), input: { file: null } }
     }
-    const map = { nfile: ['variables.input.file'] }
+    const map = { files: ['variables.input.file'] }
     const formData = new FormData()
     formData.append('operations', JSON.stringify(operations))
     formData.append('map', JSON.stringify(map))
@@ -49,14 +47,26 @@ onChange(async (files) => {
           'Apollo-Require-Preflight': true
         }
       })
-      console.log(data)
-      dialog.success({
-        title: 'Success',
-        content: 'Successfully Uploaded',
-        yes: 'OK'
-      })
+      if (data.data) {
+        dialog.success({
+          title: 'Success',
+          content: 'Successfully Uploaded',
+          yes: 'OK'
+        })
+      } else {
+        dialog.error({
+          title: 'Someting went wrong',
+          content: 'Please try again',
+          yes: 'OK'
+        })
+      }
     } catch (e) {
       console.log(e)
+      dialog.error({
+        title: 'Someting went wrong',
+        content: 'Please try again',
+        yes: 'OK'
+      })
     }
   }
 })
