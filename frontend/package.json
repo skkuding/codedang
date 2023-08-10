@@ -54,6 +54,7 @@
     "@iconify-json/fa6-solid": "^1.1.15",
     "@iconify-json/fluent": "^1.1.30",
     "@iconify-json/iconoir": "^1.1.32",
+    "@iconify-json/material-symbols": "^1.1.54",
     "@iconify-json/ri": "^1.1.12",
     "@tailwindcss/forms": "^0.5.4",
     "@tailwindcss/typography": "^0.5.9",
