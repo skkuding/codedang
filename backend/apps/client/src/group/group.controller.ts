@@ -102,8 +102,8 @@ export class GroupController {
     try {
       return await this.groupService.leaveGroup(req.user.id, groupId)
     } catch (error) {
-      if (error instanceof ActionNotAllowedException) {
-        throw new BadRequestException(error.message)
+      if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
 
       this.logger.error(error.message, error.stack)

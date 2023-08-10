@@ -247,10 +247,7 @@ export class GroupService {
       }
     })
     if (groupLeaders.length == 1 && groupLeaders[0].userId == userId) {
-      throw new ActionNotAllowedException(
-        'One or more group leaders are required',
-        'group'
-      )
+      throw new ConflictFoundException('One or more managers are required')
     }
 
     const deletedUserGroup = await this.prisma.userGroup.delete({
