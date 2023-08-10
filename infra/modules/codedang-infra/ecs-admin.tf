@@ -100,11 +100,12 @@ resource "aws_ecs_task_definition" "admin_api" {
     cloudwatch_region = var.region,
     redis_host        = aws_elasticache_replication_group.db_cache.configuration_endpoint_address
     redis_port        = var.redis_port,
-    jwt_secret = random_password.jwt_secret.result,
+    jwt_secret        = random_password.jwt_secret.result,
   })
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 
   runtime_platform {
     operating_system_family = "LINUX"
+    cpu_architecture        = "ARM64"
   }
 }

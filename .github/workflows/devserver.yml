@@ -47,6 +47,9 @@ jobs:
     name: Build backend docker image
     runs-on: ubuntu-latest
     steps:
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
@@ -54,22 +57,17 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout code
-        uses: actions/checkout@v3
-
       - name: Build and push admin-api image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
-          context: .
-          file: ./infra/builder/api/Dockerfile-admin
+          file: ./infra/builder/api/Dockerfile.admin
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
 
       - name: Build and push client-api image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
-          context: .
-          file: ./infra/builder/api/Dockerfile-client
+          file: ./infra/builder/api/Dockerfile.client
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
 

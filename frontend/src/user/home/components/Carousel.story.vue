@@ -7,7 +7,6 @@ import Carousel from './Carousel.vue'
 <template>
   <Story>
     <Carousel
-      v-if="$router.currentRoute.value.meta.home"
       :slides="[
         {
           topTitle: '성균관대학교',
