@@ -11,7 +11,8 @@ import type { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   UnprocessableDataException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  EntityNotExistException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { WorkbookProblem } from '@admin/@generated/workbook-problem/workbook-problem.model'
@@ -83,6 +84,8 @@ export class WorkbookResolver {
         throw new UnprocessableEntityException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
+      } else if (error.code == 'P2025') {
+        throw new EntityNotExistException(error.message)
       }
       throw new InternalServerErrorException()
     }

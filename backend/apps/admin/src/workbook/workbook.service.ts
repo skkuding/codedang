@@ -19,31 +19,6 @@ import type { UpdateWorkbookInput } from './model/input/workbook.input'
 export class WorkbookService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // async getWorkbooksByGroupId(
-  //   cursor: number,
-  //   take: number,
-  //   groupId = OPEN_SPACE_ID
-  // ): Promise<Partial<Workbook>[]> {
-  //   let skip = 1
-  //   if (!cursor) {
-  //     cursor = 1
-  //     skip = 0
-  //   }
-  //   const workbooks = await this.prisma.workbook.findMany({
-  //     where: {
-  //       groupId,
-  //       isVisible: true
-  //     },
-  //     select: { id: true, title: true, description: true, updateTime: true },
-  //     skip: skip,
-  //     take: take,
-  //     cursor: {
-  //       id: cursor
-  //     }
-  //   })
-  //   return workbooks
-  // }
-
   async getWorkbooks(
     groupId: number,
     cursor: number,
@@ -85,15 +60,6 @@ export class WorkbookService {
           select: {
             id: true,
             title: true
-            // problemTag: {
-            //   select: {
-            //     tag: {
-            //       select: {
-            //         name: true
-            //       }
-            //     }
-            //   }
-            // }
           }
         }
       }
@@ -102,7 +68,6 @@ export class WorkbookService {
     const problems = rawProblems.map((x) => ({
       id: x.problem.id,
       title: x.problem.title
-      // tags: x.problem.problemTag.map((y) => y.tag.name)
     }))
 
     const submissions = await this.prisma.submission.findMany({
@@ -115,24 +80,6 @@ export class WorkbookService {
       submissions
     }
   }
-
-  // async getAdminWorkbookById(workbookId: number): Promise<Partial<Workbook>> {
-  //   const workbook = await this.prisma.workbook.findFirst({
-  //     where: { id: workbookId },
-  //     select: {
-  //       id: true,
-  //       title: true,
-  //       createdBy: {
-  //         select: {
-  //           username: true
-  //         }
-  //       },
-  //       isVisible: true
-  //     },
-  //     rejectOnNotFound: () => new EntityNotExistException('workbook')
-  //   })
-  //   return workbook
-  // }
 
   async createWorkbook(
     groupId: number,
@@ -180,16 +127,6 @@ export class WorkbookService {
     })
     return deletedWorkbook
   }
-
-  // async isVisible(workbookId: number, groupId: number): Promise<boolean> {
-  //   return !!(await this.prisma.workbook.count({
-  //     where: {
-  //       id: workbookId,
-  //       groupId: groupId,
-  //       isVisible: true
-  //     }
-  //   }))
-  // }
 
   async createWorkbookProblem(
     groupId: number,
