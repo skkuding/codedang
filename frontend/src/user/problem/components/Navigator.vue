@@ -4,6 +4,10 @@ import ListItem from '@/common/components/Atom/ListItem.vue'
 import Dialog from '@/common/components/Molecule/Dialog.vue'
 import Dropdown from '@/common/components/Molecule/Dropdown.vue'
 import { useDialog } from '@/common/composables/dialog'
+import { useToast } from '@/common/composables/toast'
+import { useIntervalFn } from '@vueuse/core'
+import axios from 'axios'
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 // import IconRun from '~icons/bi/play'
 import IconDown from '~icons/fa6-solid/angle-down'
@@ -12,11 +16,27 @@ import IconCaretDown from '~icons/fa6-solid/caret-down'
 import { useProblemStore } from '../store/problem'
 import type { Language } from '../types'
 
+interface User {
+  username: string
+}
+
+interface SubmissionResult {
+  id: string
+  user: User
+  createTime: string
+  language: string
+  result: string
+}
+
+const props = defineProps<{
+  id: string
+}>()
+
 const languages: Array<{ label: string; value: Language }> = [
-  { label: 'C++', value: 'cpp' },
-  { label: 'Python', value: 'python' },
-  { label: 'Javascript', value: 'javascript' },
-  { label: 'Java', value: 'java' }
+  { label: 'C++', value: 'Cpp' },
+  { label: 'Python', value: 'Python3' },
+  { label: 'Java', value: 'Java' },
+  { label: 'Go', value: 'Golang' }
 ]
 
 const store = useProblemStore()
@@ -35,11 +55,62 @@ const activeClass = (name: string) =>
     : 'border-transparent active:bg-white/40 cursor-pointer' // use transparent border for color transition effect
 
 const dialog = useDialog()
+const toast = useToast()
 
 const reset = () => {
   dialog.confirm({
     title: 'Reset',
     content: 'Are you sure to reset your code?'
+  })
+}
+
+const loading = ref(false)
+
+const submit = async () => {
+  loading.value = true
+  let submissionId: string
+
+  // Submit code to server
+  try {
+    const { data } = await axios.post(`/api/problem/${props.id}/submission`, {
+      language: store.language,
+      // TODO: template lock
+      code: [
+        {
+          id: 1,
+          text: store.code,
+          locked: false
+        }
+      ]
+    })
+    submissionId = data.id
+  } catch (error) {
+    loading.value = false
+    toast({
+      message: 'Failed to submit: ' + error,
+      type: 'error'
+    })
+    return
+  }
+  toast({
+    message: 'Submitted!',
+    type: 'success'
+  })
+
+  // Wait for the result
+  const { pause } = useIntervalFn(async () => {
+    const { data } = await axios.get<SubmissionResult[]>(
+      `/api/problem/${props.id}/submission`
+    )
+    const result = data.find(({ id }) => id === submissionId)
+    if (result && result.result !== 'Judging') {
+      loading.value = false
+      toast({
+        message: 'Result: ' + result.result,
+        type: result.result === 'Accepted' ? 'success' : 'error'
+      })
+      pause()
+    }
   })
 }
 </script>
@@ -86,7 +157,7 @@ const reset = () => {
         v-if="$route.name === 'problem-id'"
         class="hidden justify-end gap-x-4 min-[950px]:flex"
       >
-        <Button color="gray-dark" class="h-9" @click="reset">
+        <Button color="gray-dark" @click="reset">
           <IconRefresh />
         </Button>
         <!-- <Button color="green" class="h-9">
@@ -95,8 +166,9 @@ const reset = () => {
             <span class="px-1">Run</span>
           </div>
         </Button> -->
-        <Button color="blue" class="h-9">
-          <span class="px-1">Submit</span>
+        <Button color="blue" class="w-20" @click="submit">
+          <span v-if="loading" class="loader" />
+          <span v-else>Submit</span>
         </Button>
         <Dropdown color="slate">
           <template #button>
@@ -124,3 +196,25 @@ const reset = () => {
     </Transition>
   </nav>
 </template>
+
+<style scoped>
+.loader {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #fff;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+</style>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import CodeEditor from '@/common/components/Organism/CodeEditor.vue'
 import { useToast } from '@/common/composables/toast'
-//import type { StringStream } from '@codemirror/language'
 import { useClipboard, useDraggable } from '@vueuse/core'
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
@@ -56,7 +55,7 @@ const { x } = useDraggable(resizingBarX, {
     if (window.innerWidth - 400 < p.x) p.x = window.innerWidth - 400
   }
 })
-const codeBlockHeight = ref<number>(window.innerHeight - 112 - 236 - 24)
+// const codeBlockHeight = ref<number>(window.innerHeight - 112 - 236 - 24)
 // const resizingBarY = ref<HTMLDivElement>()
 // const { y } = useDraggable(resizingBarY, {
 //   initialValue: { x: 0, y: 240 },
@@ -134,7 +133,6 @@ onMounted(async () => {
         v-model="store.code"
         :lang="store.language"
         class="overflow-auto"
-        :style="{ height: codeBlockHeight + 'px' }"
       />
 
       <!-- <div :style="{ height: y + 'px' }">
