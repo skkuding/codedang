@@ -15,7 +15,7 @@ import {
   type LanguageSupport
 } from '@codemirror/language'
 import { StreamLanguage } from '@codemirror/language'
-import { EditorState, type Transaction } from '@codemirror/state'
+import { EditorState, StateEffect, type Transaction } from '@codemirror/state'
 import { oneDark } from '@codemirror/theme-one-dark'
 import {
   EditorView,
@@ -64,7 +64,7 @@ const languageExtensions: Record<Language, () => Promise<LanguageSupport>> = {
     )
 }
 
-const { modelValue } = toRefs(props)
+const { modelValue, lang, lock } = toRefs(props)
 
 watch(
   modelValue,
@@ -79,27 +79,34 @@ watch(
   { immediate: true }
 )
 
-onMounted(async () => {
-  const extensions = [
-    keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
-    oneDark,
-    font,
-    // TODO: watch props.lang
-    await languageExtensions[props.lang](),
-    history(),
-    lineNumbers(),
-    highlightActiveLine(),
-    drawSelection(),
-    closeBrackets(),
-    syntaxHighlighting(defaultHighlightStyle),
-    indentOnInput(),
-    EditorState.readOnly.of(props.lock)
-  ]
+const extensions = [
+  keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
+  oneDark,
+  font,
+  history(),
+  lineNumbers(),
+  highlightActiveLine(),
+  drawSelection(),
+  closeBrackets(),
+  syntaxHighlighting(defaultHighlightStyle),
+  indentOnInput(),
+  EditorState.readOnly.of(lock.value)
+]
 
+watch(lang, async (lang) => {
+  view.value?.dispatch({
+    effects: StateEffect.reconfigure.of([
+      ...extensions,
+      await languageExtensions[lang]()
+    ])
+  })
+})
+
+onMounted(async () => {
   view.value = new EditorView({
     state: EditorState.create({
       doc: modelValue.value,
-      extensions
+      extensions: [...extensions, await languageExtensions[lang.value]()]
     }),
     parent: editor.value,
     dispatch: (tr: Transaction) => {
