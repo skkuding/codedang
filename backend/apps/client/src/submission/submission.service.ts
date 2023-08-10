@@ -20,7 +20,7 @@ import {
   SUBMISSION_KEY
 } from '@libs/constants'
 import {
-  ActionNotAllowedException,
+  ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException,
   MessageFormatError
@@ -115,12 +115,12 @@ export class SubmissionService implements OnModuleInit {
         }
       }
     })
-    if (
-      contest.groupId !== groupId ||
-      contest.startTime > now ||
-      contest.endTime <= now
-    ) {
-      throw new ActionNotAllowedException('submission', 'contest')
+    if (contest.groupId !== groupId) {
+      throw new EntityNotExistException('Contest Not Found')
+    } else if (contest.startTime > now || contest.endTime <= now) {
+      throw new ConflictFoundException(
+        'Submission is only allowed to ongoing contests'
+      )
     }
 
     const { problem } = await this.prisma.contestProblem.findUniqueOrThrow({
@@ -171,9 +171,8 @@ export class SubmissionService implements OnModuleInit {
     userId: number
   ) {
     if (!problem.languages.includes(submissionDto.language)) {
-      throw new ActionNotAllowedException(
-        `Submission in ${submissionDto.language}`,
-        'problem'
+      throw new ConflictFoundException(
+        `This problem does not support language ${submissionDto.language}`
       )
     }
     const { code, ...data } = submissionDto
@@ -184,7 +183,7 @@ export class SubmissionService implements OnModuleInit {
         plainToInstance(Template, problem.template)
       )
     ) {
-      throw new ActionNotAllowedException('template modification', 'problem')
+      throw new ConflictFoundException('Modifying template is not allowed')
     }
 
     const submission = await this.prisma.submission.create({

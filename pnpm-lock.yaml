@@ -379,6 +379,9 @@ importers:
       '@iconify-json/iconoir':
         specifier: ^1.1.32
         version: 1.1.32
+      '@iconify-json/material-symbols':
+        specifier: ^1.1.54
+        version: 1.1.54
       '@iconify-json/ri':
         specifier: ^1.1.12
         version: 1.1.12
@@ -2455,6 +2458,12 @@ packages:
 
   /@iconify-json/iconoir@1.1.32:
     resolution: {integrity: sha512-z12EzOZsqatGuCAc7CzYpxufVoexRKC910ZouB29sDT8lJiGUSVCmrhgqZSz4M7PIeqaN6YUuE6jNRgH7Wal+A==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
+  /@iconify-json/material-symbols@1.1.54:
+    resolution: {integrity: sha512-10DL3dbp5/at3D55df4L5geM+vNf7v/SsF3YHTTN49xWSXGQVWRDEr508RmbCJxUQ1TZb3dHU/n/4VQDbBudCA==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true

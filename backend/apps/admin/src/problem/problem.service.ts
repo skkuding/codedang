@@ -3,7 +3,7 @@ import { Language } from '@generated'
 import { Workbook } from 'exceljs'
 import {
   UnprocessableDataException,
-  UnprocessableFileException
+  UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type {
@@ -124,7 +124,7 @@ export class ProblemService {
 
     worksheet.getRow(1).eachCell((cell, idx) => {
       if (!ImportedProblemHeader.includes(cell.text))
-        throw new UnprocessableFileException(
+        throw new UnprocessableFileDataException(
           `Field ${cell.text} is not supported`,
           filename,
           1
@@ -142,7 +142,7 @@ export class ProblemService {
     worksheet.eachRow(async function (row, rowNumber) {
       for (const colNumber of unsupportedFields) {
         if (row.getCell(colNumber).text !== '')
-          throw new UnprocessableFileException(
+          throw new UnprocessableFileDataException(
             'Using inputFile, outputFile is not supported',
             filename,
             rowNumber + 1
@@ -181,7 +181,7 @@ export class ProblemService {
         languages.push(Language[language])
       }
       if (!languages.length) {
-        throw new UnprocessableFileException(
+        throw new UnprocessableFileDataException(
           'A problem should support at least one language',
           filename,
           rowNumber + 1
@@ -224,7 +224,7 @@ export class ProblemService {
         (inputs.length !== testCnt || outputs.length !== testCnt) &&
         inputText != ''
       ) {
-        throw new UnprocessableFileException(
+        throw new UnprocessableFileDataException(
           'TestCnt must match the length of Input and Output. Or Testcases should not include ::.',
           filename,
           rowNumber + 1
