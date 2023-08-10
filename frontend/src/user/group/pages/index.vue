@@ -8,16 +8,30 @@ import { NUpload, NButton, NColorPicker } from 'naive-ui'
 import { ref } from 'vue'
 import IconLock from '~icons/bi/lock'
 import IconUnlock from '~icons/bi/unlock'
-// import IconPaperPlane from '~icons/fa6-solid/paper-plane'
+import IconPaperPlane from '~icons/fa6-solid/paper-plane'
 import GroupListSection from '../components/GroupListSection.vue'
 
 //TODO: invitation 검색 API 연결 후 noInvitation 값을 변경하는 function 구현 필요
 // const invitationCode = ref('')
 const auth = useAuthStore()
 const createModal = ref(false)
-const groupName = ref('')
-const groupPrivate = ref(false)
-const groupDescription = ref('')
+const group = ref({
+  groupName: '',
+  description: '',
+  config: {
+    showOnList: false,
+    allowJoinFromSearch: true,
+    allowJoinWithURL: false,
+    requireApprovalBeforeJoin: true
+  }
+})
+const invitationCode = ref('')
+const configNameMap = {
+  showOnList: 'Show On List',
+  allowJoinFromSearch: 'Allow Join From Search',
+  allowJoinWithURL: 'Allow Join With URL',
+  requireApprovalBeforeJoin: 'Require Approval Before Join'
+}
 </script>
 
 <template>
@@ -26,60 +40,41 @@ const groupDescription = ref('')
       <!-- <InputItem v-model="invitationCode" placeholder="Invitation Code" /> -->
       <!-- <Button class="py-2"><IconPaperPlane /></Button> -->
     </div>
-    <GroupListSection v-if="auth.isLoggedIn" title="My Group" is-my-group />
+    <GroupListSection v-if="
+    .isLoggedIn" title="My Group" is-my-group />
     <div class="flex justify-end">
       <Button class="py-2" @click="createModal = true">+ Create Group</Button>
     </div>
     <GroupListSection title="All Group" :is-my-group="false" />
   </div>
   <Modal v-model="createModal" class="shadow-md">
-    <div class="flex flex-col px-8 py-12">
+    <div class="flex flex-col px-8 pb-12">
       <h1 class="text-gray-dark mb-2 text-2xl font-bold">Create Group</h1>
       <div class="bg-gray-light mb-6 h-[1px] w-full" />
-      <div class="mb-6">
-        <div class="mb-2 flex">
-          <h2 class="mr-60 text-lg font-semibold">Group Name</h2>
-          <h2 class="text-lg font-semibold">Public / Private</h2>
-        </div>
-        <div class="flex items-center">
-          <InputItem v-model="groupName" class="mr-36 shadow" />
-          <div class="flex" :class="[groupPrivate ? '' : 'text-green']">
-            <IconUnlock class="h-5 w-5" />
-            <span>Public</span>
-          </div>
-          <Switch v-model="groupPrivate" class="mx-2" />
-          <div class="flex" :class="[groupPrivate ? 'text-green' : '']">
-            <IconLock class="h-5 w-5" />
-            <span>Private</span>
-          </div>
-        </div>
+      <div class="mb-6 flex">
+        <h2 class="mr-10 text-lg font-semibold">Group Name</h2>
+        <InputItem v-model="group.groupName" class="shadow" />
       </div>
       <div class="mb-6">
-        <h2 class="mb-2 text-lg font-semibold">
-          Description ({{ groupDescription.length }}/50)
-        </h2>
-        <InputItem v-model="groupDescription" class="w-full shadow" />
+        <h2 class="mb-2 mr-10 text-lg font-semibold">Group Configuration</h2>
+        <p
+          v-for="(key, value, index) in configNameMap"
+          :key="index"
+          class="mt-1 flex"
+        >
+          {{ key }}
+          <Switch v-model="group.config[value]" class="ml-auto mr-0" />
+        </p>
       </div>
-      <div>
-        <div class="flex">
-          <h2 class="mr-60 text-lg font-semibold">Group Image</h2>
-          <h2 class="text-lg font-semibold">Group Color</h2>
-        </div>
-        <div class="flex">
-          <NUpload
-            action="https://www.mocky.io/v2/5e4bafc63100007100d8b70f"
-            :headers="{
-              'naive-info': 'hello!'
-            }"
-            :data="{
-              'naive-data': 'cool! naive!'
-            }"
-          >
-            <NButton>Upload File</NButton>
-          </NUpload>
-          <NColorPicker />
-        </div>
-      </div>
+
+      <h2 class="mb-2 text-lg font-semibold">Description</h2>
+      <InputItem
+        v-model="group.description"
+        class="w-full break-normal shadow"
+      />
+    </div>
+    <div class="flex justify-end">
+      <Button class="mr-8 px-4 py-2">Save</Button>
     </div>
   </Modal>
 </template>

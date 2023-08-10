@@ -9,7 +9,10 @@ import { expect } from 'chai'
 import type Sinon from 'sinon'
 import { stub } from 'sinon'
 import { JwtAuthService } from '@libs/auth'
-import { InvalidJwtTokenException, InvalidUserException } from '@libs/exception'
+import {
+  InvalidJwtTokenException,
+  UnidentifiedException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { EmailService } from '@client/email/email.service'
 import { UserService } from '@client/user/user.service'
@@ -104,7 +107,7 @@ describe('AuthService', () => {
 
       //when
       await expect(service.issueJwtTokens(loginUserDto)).to.be.rejectedWith(
-        InvalidUserException
+        UnidentifiedException
       )
 
       //then
