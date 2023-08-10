@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
-import { Language } from '@prisma/client'
+import { Language } from '@admin/@generated'
 
 @InputType()
 class Snippet {
