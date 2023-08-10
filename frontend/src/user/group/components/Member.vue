@@ -33,6 +33,7 @@ const clickLeave = () => {
 }
 
 const leave = async () => {
+  showLeaveModal.value = false
   try {
     await axios.delete(`/api/group/${props.id}/leave`)
     router.replace('/group')
@@ -69,6 +70,6 @@ onMounted(() => {
     </div>
     <Button class="self-end" @click="clickLeave">Leave Group</Button>
   </div>
-  <Dialog v-if="showLeaveModal" @yes="leave" />
-  <Dialog v-if="showErrorModal" />
+  <Dialog v-if="showLeaveModal" @yes="leave" @no="showLeaveModal = false" />
+  <Dialog v-if="showErrorModal" @yes="showErrorModal = false" />
 </template>
