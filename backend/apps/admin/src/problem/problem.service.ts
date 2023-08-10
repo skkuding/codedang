@@ -381,13 +381,14 @@ export class ProblemService {
           }
           createIds.push({ tag: { connect: { id: problemTag.id } } })
         } else {
-          await this.prisma.problemTag.findFirstOrThrow({
+          const check = await this.prisma.problemTag.findFirstOrThrow({
             where: {
               id: problemTag.id,
               problemId: problemId
-            }
+            },
+            select: { id: true }
           })
-          deleteIds.push({ id: problemTag.id })
+          deleteIds.push({ id: check.id })
         }
       })
     )
