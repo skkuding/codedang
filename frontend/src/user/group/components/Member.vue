@@ -28,7 +28,7 @@ const clickLeave = () => {
   dialog.confirm({
     title: 'Leave Group',
     content: 'Do you really want to leave group?',
-    yes: 'yes'
+    yes: 'Yes'
   })
 }
 
@@ -48,14 +48,13 @@ const leave = async () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   try {
-    axios.get(`/api/group/${props.id}/members`).then((res) => {
-      groupMember.value = res.data
-    })
-    axios.get(`/api/group/${props.id}/leaders`).then((res) => {
-      groupLeader.value = res.data
-    })
+    const { data: member } = await axios.get(`/api/group/${props.id}/members`)
+    const { data: leader } = await axios.get(`/api/group/${props.id}/leaders`)
+
+    groupMember.value = member
+    groupLeader.value = leader
   } catch (err) {
     router.replace('/404')
   }
