@@ -32,14 +32,20 @@ const props = defineProps<{
   id: string
 }>()
 
-const languages: Array<{ label: string; value: Language }> = [
-  { label: 'C++', value: 'Cpp' },
-  { label: 'Python', value: 'Python3' },
-  { label: 'Java', value: 'Java' },
-  { label: 'Go', value: 'Golang' }
-]
-
 const store = useProblemStore()
+
+const languageLabels: Record<Language, string> = {
+  C: 'C',
+  Cpp: 'C++',
+  Python3: 'Python',
+  Java: 'Java',
+  Golang: 'Go'
+}
+
+const languageOptions = store.problem.languages.map((x) => ({
+  label: languageLabels[x],
+  value: x
+}))
 
 const navigations = [
   { label: 'Editor', to: { name: 'problem-id' } },
@@ -176,14 +182,14 @@ const submit = async () => {
               class="flex h-9 w-fit items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white hover:bg-slate-500/80 active:bg-slate-500/60"
             >
               <span class="font-semibold">
-                {{ languages.find((x) => x.value === store.language)?.label }}
+                {{ languageLabels[store.language] }}
               </span>
               <IconDown class="h-4 w-4" />
             </div>
           </template>
           <template #items>
             <ListItem
-              v-for="{ label, value } in languages"
+              v-for="{ label, value } in languageOptions"
               :key="value"
               color="slate"
               @click="store.language = value"

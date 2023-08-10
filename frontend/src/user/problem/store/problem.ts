@@ -9,7 +9,7 @@ export interface Problem {
   inputDescription: string
   outputDescription: string
   hint: string
-  languages: string[]
+  languages: Language[]
   timeLimit: number
   memoryLimit: number
   difficulty: string
