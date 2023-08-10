@@ -1,176 +1,116 @@
 <script setup lang="ts">
-import Button from '@/common/components/Atom/Button.vue'
-import ButtonGroup from '@/common/components/Molecule/ButtonGroup.vue'
 import StarterKit from '@tiptap/starter-kit'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
-import IconArrowClockwise from '~icons/bi/arrow-clockwise'
-import IconArrowCounterClockwise from '~icons/bi/arrow-counterclockwise'
-import IconReturn from '~icons/bi/arrow-return-left'
-import IconCode from '~icons/bi/code-slash'
-import IconCodeSquare from '~icons/bi/code-square'
-import IconHr from '~icons/bi/hr'
-import IconList from '~icons/bi/list'
-import IconListUl from '~icons/bi/list-ul'
-import IconParagraph from '~icons/bi/paragraph'
-import IconRoundBlockQuote from '~icons/bi/quote'
-import IconBold from '~icons/bi/type-bold'
-import IconH1 from '~icons/bi/type-h1'
-import IconH2 from '~icons/bi/type-h2'
-import IconItalic from '~icons/bi/type-italic'
-import IconStrikethrough from '~icons/bi/type-strikethrough'
-import IconTextSlash from '~icons/fa6-solid/text-slash'
+import RiBold from '~icons/ri/bold'
+import RiCodeBoxFill from '~icons/ri/code-box-fill'
+import RiCodeFill from '~icons/ri/code-fill'
+import RiDoubleQuotesL from '~icons/ri/double-quotes-l'
+import RiH1 from '~icons/ri/h-1'
+import RiH2 from '~icons/ri/h-2'
+import RiItalic from '~icons/ri/italic'
+import RiListOrdered from '~icons/ri/list-ordered'
+import RiListUnordered from '~icons/ri/list-unordered'
+import RiStrikethrough from '~icons/ri/strikethrough'
+import TextEditorButton from '../Atom/TextEditorButton.vue'
 
 const props = defineProps<{
-  height?: string
+  size?: 'sm' | 'md' | 'lg'
+  modelValue?: string
 }>()
 
+const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>()
+
+const sizes = {
+  sm: 'min-h-[100px]',
+  md: 'min-h-[200px]',
+  lg: 'min-h-[300px]'
+}
+
 const editor = useEditor({
-  content: '',
   extensions: [StarterKit],
   editorProps: {
     attributes: {
-      class:
-        'prose prose-sm md:prose-base ring-gray p-5 outline-none overflow-auto ring-1 focus:outline-none focus:ring min-w-full ' +
-        (props.height ? `h-[${props.height}]` : 'h-[300px]')
+      class: `prose p-5 outline-none prose-p:m-0 max-w-full`
     }
+  },
+  onUpdate({ editor }) {
+    emit('update:modelValue', editor.getHTML())
   }
 })
 </script>
 
 <template>
-  <div class="pb-2 text-center sm:max-w-[34rem] md:w-fit md:max-w-none">
-    <ButtonGroup class="mt-2 inline-block">
-      <Button
-        :pressed="editor?.isActive('bold')"
-        outline
-        color="gray-dark"
-        @click="editor?.chain().focus().toggleBold().run()"
-      >
-        <IconBold />
-      </Button>
-      <Button
-        :pressed="editor?.isActive('italic')"
-        outline
-        color="gray-dark"
-        @click="editor?.chain().focus().toggleItalic().run()"
-      >
-        <IconItalic />
-      </Button>
-      <Button
-        :pressed="editor?.isActive('strike')"
-        outline
-        color="gray-dark"
-        @click="editor?.chain().focus().toggleStrike().run()"
-      >
-        <IconStrikethrough />
-      </Button>
-      <Button
-        :pressed="editor?.isActive('code')"
-        outline
-        color="gray-dark"
-        @click="editor?.chain().focus().toggleCode().run()"
-      >
-        <IconCode />
-      </Button>
-      <Button
-        outline
-        color="gray-dark"
-        class="p-0.5"
-        @click="editor?.chain().focus().unsetAllMarks().run()"
-      >
-        <IconTextSlash />
-      </Button>
-    </ButtonGroup>
-    <ButtonGroup class="mx-2 mt-2 inline-block">
-      <Button
-        :pressed="editor?.isActive('heading', { level: 1 })"
-        outline
-        color="gray-dark"
+  <div
+    class="rounded-xl border border-slate-50 shadow-sm"
+    :class="sizes[props.size || 'md']"
+  >
+    <div
+      class="text-text flex items-center gap-1 border-b border-slate-50 p-2 shadow-sm"
+    >
+      <TextEditorButton
+        :is-active="editor?.isActive('heading', { level: 1 })"
         @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"
       >
-        <IconH1 />
-      </Button>
-      <Button
-        :pressed="editor?.isActive('heading', { level: 2 })"
-        outline
-        color="gray-dark"
+        <RiH1 />
+      </TextEditorButton>
+      <TextEditorButton
+        :is-active="editor?.isActive('heading', { level: 2 })"
         @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
       >
-        <IconH2 />
-      </Button>
-      <Button
-        :pressed="editor?.isActive('paragraph')"
-        outline
-        color="gray-dark"
-        @click="editor?.chain().focus().setParagraph().run()"
+        <RiH2 />
+      </TextEditorButton>
+      <div class="h-5 w-[1px] bg-slate-100" />
+      <TextEditorButton
+        :is-active="editor?.isActive('bold')"
+        @click="editor?.chain().focus().toggleBold().run()"
       >
-        <IconParagraph />
-      </Button>
-      <Button
-        :pressed="editor?.isActive('bulletList')"
-        outline
-        color="gray-dark"
+        <RiBold />
+      </TextEditorButton>
+      <TextEditorButton
+        :is-active="editor?.isActive('italic')"
+        @click="editor?.chain().focus().toggleItalic().run()"
+      >
+        <RiItalic />
+      </TextEditorButton>
+      <TextEditorButton
+        :is-active="editor?.isActive('strike')"
+        @click="editor?.chain().focus().toggleStrike().run()"
+      >
+        <RiStrikethrough />
+      </TextEditorButton>
+      <TextEditorButton
+        :is-active="editor?.isActive('code')"
+        @click="editor?.chain().focus().toggleCode().run()"
+      >
+        <RiCodeFill />
+      </TextEditorButton>
+      <div class="h-5 w-[1px] bg-slate-100" />
+      <TextEditorButton
+        :is-active="editor?.isActive('bulletList')"
         @click="editor?.chain().focus().toggleBulletList().run()"
       >
-        <IconListUl />
-      </Button>
-      <Button
-        :pressed="editor?.isActive('orderedList')"
-        outline
-        color="gray-dark"
+        <RiListUnordered />
+      </TextEditorButton>
+      <TextEditorButton
+        :is-active="editor?.isActive('orderedList')"
         @click="editor?.chain().focus().toggleOrderedList().run()"
       >
-        <IconList />
-      </Button>
-      <Button
-        :pressed="editor?.isActive('codeBlock')"
-        outline
-        color="gray-dark"
+        <RiListOrdered />
+      </TextEditorButton>
+      <div class="h-5 w-[1px] bg-slate-100" />
+      <TextEditorButton
+        :is-active="editor?.isActive('codeBlock')"
         @click="editor?.chain().focus().toggleCodeBlock().run()"
       >
-        <IconCodeSquare />
-      </Button>
-    </ButtonGroup>
-    <ButtonGroup class="mx-2 mt-2 inline-block">
-      <Button
-        outline
-        color="gray-dark"
-        @click="editor?.chain().focus().setHardBreak().run()"
-      >
-        <IconReturn />
-      </Button>
-      <Button
-        :pressed="editor?.isActive('blockquote')"
-        outline
-        color="gray-dark"
+        <RiCodeBoxFill />
+      </TextEditorButton>
+      <TextEditorButton
+        :is-active="editor?.isActive('blockquote')"
         @click="editor?.chain().focus().toggleBlockquote().run()"
       >
-        <IconRoundBlockQuote />
-      </Button>
-      <Button
-        outline
-        color="gray-dark"
-        @click="editor?.chain().focus().setHorizontalRule().run()"
-      >
-        <IconHr />
-      </Button>
-    </ButtonGroup>
-    <ButtonGroup class="mx-2 mt-2 inline-block">
-      <Button
-        outline
-        color="gray-dark"
-        @click="editor?.chain().focus().undo().run()"
-      >
-        <IconArrowCounterClockwise />
-      </Button>
-      <Button
-        outline
-        color="gray-dark"
-        @click="editor?.chain().focus().redo().run()"
-      >
-        <IconArrowClockwise />
-      </Button>
-    </ButtonGroup>
+        <RiDoubleQuotesL />
+      </TextEditorButton>
+    </div>
+    <EditorContent :editor="editor" />
   </div>
-  <editor-content :editor="editor" class="p-0.5" />
 </template>

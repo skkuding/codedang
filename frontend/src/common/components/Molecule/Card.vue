@@ -12,15 +12,15 @@ defineProps<{
 
 <template>
   <section class="border-gray/25 w-full rounded-lg border-2 p-5 shadow-xl">
-    <router-link :to="href" class="mb-4 flex justify-between text-xl font-bold">
+    <RouterLink :to="href" class="mb-4 flex justify-between text-xl font-bold">
       <span class="flex items-center">
         <slot name="title" />
       </span>
       <slot name="titleIcon" />
-    </router-link>
+    </RouterLink>
     <div class="flex flex-col gap-1">
       <template v-for="(item, index) in items">
-        <router-link
+        <RouterLink
           v-if="item.href"
           :key="item.title"
           :to="item.href"
@@ -29,7 +29,7 @@ defineProps<{
           <span><slot name="icon" :item="item.state" /></span>
           <span class="ml-2 mr-auto">{{ item.title }}</span>
           <span class="text-right">{{ item.date }}</span>
-        </router-link>
+        </RouterLink>
         <div v-else :key="index" class="flex items-center rounded p-1">
           <span><slot name="icon" :item="item.state" /></span>
           <span class="ml-2 mr-auto">{{ item.title }}</span>

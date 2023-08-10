@@ -90,20 +90,17 @@ onMounted(async () => {
       :style="{ width: x + 'px' }"
     >
       <h1 class="text-xl font-bold">{{ problem?.title }}</h1>
-      <div
-        v-dompurify-html="problem?.description"
-        class="prose text-white"
-      ></div>
+      <div v-dompurify-html="problem?.description" class="prose text-white" />
       <h2 class="mt-4 text-lg font-bold">Input</h2>
       <div
         v-dompurify-html="problem?.inputDescription"
         class="prose text-white"
-      ></div>
+      />
       <h2 class="mt-4 text-lg font-bold">Output</h2>
       <div
         v-dompurify-html="problem?.outputDescription"
         class="prose text-white"
-      ></div>
+      />
       <div v-for="(sample, index) in samples" :key="index">
         <div class="flex items-end justify-between">
           <h2 class="mt-4 text-lg font-bold">Sample Input {{ index + 1 }}</h2>

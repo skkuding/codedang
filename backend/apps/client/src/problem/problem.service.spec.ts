@@ -1,6 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { ResultStatus } from '@prisma/client'
+import { Prisma, ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import * as dayjs from 'dayjs'
@@ -33,15 +33,18 @@ import {
 const db = {
   problem: {
     findMany: stub(),
-    findFirst: stub()
+    findFirst: stub(),
+    findUniqueOrThrow: stub()
   },
   contestProblem: {
     findMany: stub(),
-    findUnique: stub()
+    findUnique: stub(),
+    findUniqueOrThrow: stub()
   },
   workbookProblem: {
     findMany: stub(),
-    findUnique: stub()
+    findUnique: stub(),
+    findUniqueOrThrow: stub()
   },
   problemTag: {
     findMany: stub()
@@ -144,7 +147,7 @@ describe('ProblemService', () => {
   describe('getProblem', () => {
     it('should return the public problem', async () => {
       // given
-      db.problem.findFirst.resolves(mockProblem)
+      db.problem.findUniqueOrThrow.resolves(mockProblem)
 
       // when
       const result = await service.getProblem(problemId)
@@ -157,11 +160,16 @@ describe('ProblemService', () => {
 
     it('should throw error when the problem does not exist', async () => {
       // given
-      db.problem.findFirst.rejects(new EntityNotExistException('Problem'))
+      db.problem.findUniqueOrThrow.rejects(
+        new Prisma.PrismaClientKnownRequestError('problem', {
+          code: 'P2002',
+          clientVersion: '5.1.1'
+        })
+      )
 
       // then
       await expect(service.getProblem(problemId)).to.be.rejectedWith(
-        EntityNotExistException
+        Prisma.PrismaClientKnownRequestError
       )
     })
   })
@@ -266,7 +274,7 @@ describe('ContestProblemService', () => {
     it('should return the public contest problem', async () => {
       // given
       stub(contestService, 'isVisible').resolves(true)
-      db.contestProblem.findUnique.resolves(mockContestProblem)
+      db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
 
       // when
       const result = await service.getContestProblem(contestId, problemId)
@@ -280,7 +288,7 @@ describe('ContestProblemService', () => {
     it('should return the group contest problem', async () => {
       // given
       stub(contestService, 'isVisible').resolves(true)
-      db.contestProblem.findUnique.resolves(mockContestProblem)
+      db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
 
       // when
       const result = await service.getContestProblem(
@@ -315,7 +323,7 @@ describe('ContestProblemService', () => {
         startTime: dayjs().add(1, 'day')
       }
     }
-    db.contestProblem.findUnique.resolves(notStartedContestProblem)
+    db.contestProblem.findUniqueOrThrow.resolves(notStartedContestProblem)
     await expect(
       service.getContestProblem(contestId, problemId)
     ).to.be.rejectedWith(ForbiddenAccessException)
@@ -415,7 +423,7 @@ describe('WorkbookProblemService', () => {
     it('should return the public workbook problem', async () => {
       // given
       stub(workbookService, 'isVisible').resolves(true)
-      db.workbookProblem.findUnique.resolves(mockWorkbookProblem)
+      db.workbookProblem.findUniqueOrThrow.resolves(mockWorkbookProblem)
 
       // when
       const result = await service.getWorkbookProblem(workbookId, problemId)
@@ -429,7 +437,7 @@ describe('WorkbookProblemService', () => {
     it('should return the group workbook problem', async () => {
       // given
       stub(workbookService, 'isVisible').resolves(true)
-      db.workbookProblem.findUnique.resolves(mockWorkbookProblem)
+      db.workbookProblem.findUniqueOrThrow.resolves(mockWorkbookProblem)
 
       // when
       const result = await service.getWorkbookProblem(

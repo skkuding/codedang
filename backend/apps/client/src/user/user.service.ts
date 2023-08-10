@@ -12,7 +12,6 @@ import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import { EMAIL_AUTH_EXPIRE_TIME } from '@libs/constants'
 import {
-  EntityNotExistException,
   InvalidJwtTokenException,
   InvalidPinException,
   InvalidUserException,
@@ -23,7 +22,6 @@ import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
 import type { UserGroupData } from '@client/group/interface/user-group-data.interface'
 import type { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
-import type { GetUserProfileDto } from './dto/get-userprofile.dto'
 import type { NewPasswordDto } from './dto/newPassword.dto'
 import type { SignUpDto } from './dto/signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
@@ -286,11 +284,10 @@ export class UserService {
   }
 
   async deleteUser(username: string) {
-    await this.prisma.user.findUnique({
+    await this.prisma.user.findUniqueOrThrow({
       where: {
         username
-      },
-      rejectOnNotFound: () => new EntityNotExistException('user')
+      }
     })
 
     await this.prisma.user.delete({
@@ -300,8 +297,8 @@ export class UserService {
     })
   }
 
-  async getUserProfile(username: string): Promise<GetUserProfileDto> {
-    return await this.prisma.user.findUnique({
+  async getUserProfile(username: string) {
+    return await this.prisma.user.findUniqueOrThrow({
       where: { username },
       select: {
         username: true,
@@ -314,8 +311,7 @@ export class UserService {
             realName: true
           }
         }
-      },
-      rejectOnNotFound: () => new EntityNotExistException('user')
+      }
     })
   }
 
@@ -328,9 +324,8 @@ export class UserService {
       throw new UnprocessableDataException('The email is not authenticated one')
     }
 
-    await this.prisma.user.findUnique({
-      where: { id: req.user.id },
-      rejectOnNotFound: () => new EntityNotExistException('user')
+    await this.prisma.user.findUniqueOrThrow({
+      where: { id: req.user.id }
     })
 
     return await this.prisma.user.update({
@@ -345,9 +340,8 @@ export class UserService {
     userId: number,
     updateUserProfileRealNameDto: UpdateUserProfileRealNameDto
   ): Promise<UserProfile> {
-    await this.prisma.userProfile.findUnique({
-      where: { userId },
-      rejectOnNotFound: () => new EntityNotExistException('user profile')
+    await this.prisma.userProfile.findUniqueOrThrow({
+      where: { userId }
     })
 
     return await this.prisma.userProfile.update({

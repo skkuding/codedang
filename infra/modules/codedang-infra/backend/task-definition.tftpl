@@ -1,0 +1,44 @@
+[
+  {
+    "name": "${task_name}",
+    "image": "${ecr_uri}",
+    "cpu": 256,
+    "memory": 512,
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": ${container_port}
+      }
+    ],
+    "environment": [
+      {
+        "name": "DATABASE_URL",
+        "value": "${database_url}"
+      },
+      {
+        "name": "REDIS_HOST",
+        "value": "${redis_host}"
+      },
+      {
+        "name": "REDIS_PORT",
+        "value": "${redis_port}"
+      },
+      {
+        "name": "JWT_SECRET",
+        "value": "${jwt_secret}"
+      },
+      {
+        "name": "NODEMAILER_FROM",
+        "value": "${nodemailer_from}"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "ecs/Codedang-Api",
+        "awslogs-region": "${cloudwatch_region}",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
+  }
+]

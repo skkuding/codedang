@@ -1,14 +1,11 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
-import type { UserGroup } from '@prisma/client'
+import { Prisma, type UserGroup } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { joinGroupCacheKey } from '@libs/cache'
-import {
-  ActionNotAllowedException,
-  EntityNotExistException
-} from '@libs/exception'
+import { ActionNotAllowedException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { GroupService } from './group.service'
 import {
@@ -23,12 +20,16 @@ const db = {
   user: {
     findMany: stub(),
     findFirst: stub(),
-    findUnique: stub()
+    findFirstOrThrow: stub(),
+    findUnique: stub(),
+    findUniqueOrThrow: stub()
   },
   group: {
     findMany: stub(),
     findFirst: stub(),
-    findUnique: stub()
+    findFirstOrThrow: stub(),
+    findUnique: stub(),
+    findUniqueOrThrow: stub()
   },
   userGroup: {
     create: stub(),
@@ -70,7 +71,7 @@ describe('GroupService', () => {
       const userId = 3
       const groupId = 2
       db.userGroup.findFirst.resolves(null)
-      db.group.findFirst.resolves(mockGroupData)
+      db.group.findUniqueOrThrow.resolves(mockGroupData)
       stub(service, 'getGroupLeaders').resolves(['manager'])
 
       //when
@@ -79,8 +80,9 @@ describe('GroupService', () => {
       //then
       expect(result).to.deep.equal({
         ...publicGroupDatas[1],
-        config: mockGroupData.config,
-        leaders: ['manager']
+        allowJoinFromSearch: true,
+        leaders: ['manager'],
+        isJoined: false
       })
     })
 
@@ -93,8 +95,7 @@ describe('GroupService', () => {
         group: {
           id: mockGroup.id,
           groupName: mockGroup.groupName,
-          description: mockGroup.description,
-          config: mockGroup.config
+          description: mockGroup.description
         },
         isGroupLeader: true
       })
@@ -107,23 +108,28 @@ describe('GroupService', () => {
         id: mockGroup.id,
         groupName: mockGroup.groupName,
         description: mockGroup.description,
-        config: mockGroup.config,
-        isGroupLeader: true
+        isGroupLeader: true,
+        isJoined: true
       })
     })
 
-    it('should throw EntityNotExistException when group not exists', async () => {
+    it('should throw PrismaClientKnownRequestError when group not exists', async () => {
       //given
       const userId = 1
       const groupId = 4
       db.userGroup.findFirst.resolves(null)
-      db.group.findFirst.rejects(new EntityNotExistException('group'))
+      db.group.findUniqueOrThrow.rejects(
+        new Prisma.PrismaClientKnownRequestError('group', {
+          code: 'P2002',
+          clientVersion: '5.1.1'
+        })
+      )
 
       //when
 
       //then
       await expect(service.getGroup(userId, groupId)).to.be.rejectedWith(
-        EntityNotExistException
+        Prisma.PrismaClientKnownRequestError
       )
     })
   })
@@ -176,7 +182,7 @@ describe('GroupService', () => {
         createTime: new Date('2023-02-22T00:00:00.000Z'),
         updateTime: new Date('2023-02-22T0:00:00.000Z')
       }
-      db.group.findFirst.resolves({
+      db.group.findUniqueOrThrow.resolves({
         config: groups[0].config,
         userGroup: userGroups.filter(
           (userGroup) => userGroup.groupId === groupId
@@ -198,7 +204,7 @@ describe('GroupService', () => {
       //given
       const userId = 3
       const groupId = 2
-      db.group.findFirst.resolves({
+      db.group.findUniqueOrThrow.resolves({
         config: groups[1].config,
         userGroup: userGroups.filter(
           (userGroup) => userGroup.groupId === groupId
@@ -234,7 +240,7 @@ describe('GroupService', () => {
       //given
       const userId = 2
       const groupId = 2
-      db.group.findFirst.resolves({
+      db.group.findUniqueOrThrow.resolves({
         config: groups[1].config,
         userGroup: userGroups.filter(
           (userGroup) => userGroup.groupId === groupId
