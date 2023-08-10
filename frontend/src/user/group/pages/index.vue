@@ -30,7 +30,7 @@ const groupDescription = ref('')
     <div class="flex justify-end">
       <Button class="py-2" @click="createModal = true">+ Create Group</Button>
     </div>
-    <GroupListSection title="All Group" pagination :is-my-group="false" />
+    <GroupListSection title="All Group" :is-my-group="false" />
   </div>
   <Modal v-model="createModal" class="shadow-md">
     <div class="flex flex-col px-8 py-12">

@@ -10,7 +10,7 @@ import { useListAPI } from '@/common/composables/api'
 import { useAuthStore } from '@/common/store/auth'
 import { OnClickOutside } from '@vueuse/components'
 import axios from 'axios'
-import { onMounted, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import IconGear from '~icons/fa6-solid/gear'
 import IconUserGroup from '~icons/fa6-solid/user-group'
@@ -21,10 +21,8 @@ const modalContent = ref<'login' | 'close'>('close')
 type Group = {
   id: number
   groupName: string
-  isPrivate?: boolean
   description: string
   memberNum: number
-  isBelong?: boolean
   groupImage?: string
   isGroupLeader: boolean
 }
@@ -40,14 +38,6 @@ type OneGroup = {
   leaders?: string[]
 }
 
-const groupList = ref<Group[]>([])
-
-const props = defineProps<{
-  title: string
-  pagination?: boolean
-  isMyGroup: boolean
-}>()
-
 const COLOR_CLASS = [
   'bg-green-dark',
   'bg-green',
@@ -56,28 +46,38 @@ const COLOR_CLASS = [
   'bg-blue-dark',
   'bg-red'
 ]
+
+const props = defineProps<{
+  title: string
+  isMyGroup: boolean
+}>()
+const groupList = ref<Group[]>([])
 const store = useAuthStore()
-// const perPage = 5
-// const pageNumGroup = ref(1)
-const { items, totalPages, changePage } = useListAPI<Group>('group', 8, 5)
+const currentPage = ref(1)
+const totalPages = ref(0)
 
-onMounted(async () => {
-  if (!store.isLoggedIn && props.isMyGroup) return // 비로그인
-  if (props.isMyGroup) {
-    const { data } = await axios.get('/api/group/joined')
-    for (let i = 0; i < data.length; i++) {
-      data[i].isBelong = true
-    }
+if (props.isMyGroup) {
+  axios.get('/api/group/joined').then(({ data }) => {
     groupList.value.push(...data)
-  } else {
-    watch(items, () => {
-      if (items.value.length !== 0) {
-        groupList.value.push(...items.value)
-      }
-    })
-  }
-})
-
+  })
+} else {
+  const {
+    items,
+    totalPages: totalPageCnt,
+    changePage
+  } = useListAPI<Group>('group', 8, 5)
+  watch(totalPageCnt, (newValue) => {
+    totalPages.value = newValue
+  })
+  watch(items, (newValue) => {
+    if (newValue.length !== 0) {
+      groupList.value = [...newValue]
+    }
+  })
+  watch(currentPage, (page) => {
+    changePage(page)
+  })
+}
 const selectedGroup = ref<OneGroup | undefined>({
   id: 1,
   groupName: '',
@@ -85,10 +85,9 @@ const selectedGroup = ref<OneGroup | undefined>({
   isJoined: false,
   memberNum: 0
 })
-const currentPage = ref(1)
+
 const modalVisible = ref(false)
 const modalType = ref('desc')
-// const { changePage } = useListAPI<Group>('group', 8)
 const router = useRouter()
 const goGroup = async (id: number) => {
   const { data } = await axios.get(`/api/group/${id}`)
@@ -150,9 +149,7 @@ const joinGroup = async (id: number) => {
                 isGroupLeader
               },
               index
-            ) in groupList.filter((group) =>
-              group.isBelong ? true : !group.isPrivate
-            )"
+            ) in groupList"
             :key="id"
             class="border-gray hover:outline-gray relative flex cursor-pointer flex-col items-center gap-4 rounded-md border p-4 shadow-md hover:shadow-xl hover:outline hover:outline-1"
             @click="!store.isLoggedIn ? (modalContent = 'login') : goGroup(id)"
@@ -188,11 +185,10 @@ const joinGroup = async (id: number) => {
           </article>
         </div>
         <Pagination
-          v-if="pagination"
+          v-if="!isMyGroup"
           v-model="currentPage"
           :number-of-pages="totalPages"
           class="self-center"
-          @change-page="changePage"
         />
       </div>
     </section>

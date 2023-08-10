@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { useSortable } from '@vueuse/integrations/useSortable'
-import { computed, ref, toRefs, watch } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import Fa6SolidEquals from '~icons/fa6-solid/equals'
 import Pagination from '../Molecule/Pagination.vue'
 import SearchBar from '../Molecule/SearchBar.vue'
