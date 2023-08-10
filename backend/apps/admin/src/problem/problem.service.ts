@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { Language } from '@generated'
 import { Workbook } from 'exceljs'
 import {
   UnprocessableDataException,
@@ -9,7 +10,6 @@ import type {
   ProblemTagCreateWithoutProblemInput,
   ProblemTagUncheckedUpdateManyWithoutProblemNestedInput
 } from '@admin/@generated'
-import { Language } from '@admin/@generated/prisma/language.enum'
 import { Level } from '@admin/@generated/prisma/level.enum'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 import { StorageService } from '@admin/storage/storage.service'
