@@ -166,6 +166,8 @@ export class ContestResolver {
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
+      } else if (error instanceof ActionNotAllowedException) {
+        throw new BadRequestException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
