@@ -6,28 +6,67 @@ import Dialog from '@/common/components/Molecule/Dialog.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useDialog } from '@/common/composables/dialog'
 import { useFileDialog } from '@vueuse/core'
+import axios from 'axios'
 import { ref } from 'vue'
 import CloudArrowDown from '~icons/fa6-solid/cloud-arrow-down'
 import IconTrash from '~icons/fa/trash-o'
 
+const props = defineProps<{
+  groupId: string
+}>()
 const showProblemModal = ref(false)
 const showImportModal = ref(false)
 const { open, onChange } = useFileDialog()
 const dialog = useDialog()
-
-onChange((files) => {
-  if (!files![0].name.toLowerCase().endsWith('.csv')) {
+const extension = '.xlsx'
+onChange(async (files) => {
+  if (!files) return
+  if (!files![0].name.toLowerCase().endsWith(extension)) {
     dialog.error({
       title: 'Unsupported extension',
-      content: "Only support '.csv'",
+      content: `Only support ${extension}`,
       yes: 'OK'
     })
   } else {
-    dialog.success({
-      title: 'Success',
-      content: 'Successfully Uploaded',
-      yes: 'OK'
-    })
+    const operations = {
+      query:
+        'mutation($groupId: Float!, $input: UploadFileInput!) { uploadProblems(groupId: $groupId, input: $input){id createdById groupId title description template languages difficulty}}',
+      variables: { groupId: Number(props.groupId), input: { file: null } }
+    }
+    const map = { files: ['variables.input.file'] }
+    const formData = new FormData()
+    formData.append('operations', JSON.stringify(operations))
+    formData.append('map', JSON.stringify(map))
+    formData.append('files', files[0])
+    try {
+      const { data } = await axios.post('/graphql', formData, {
+        headers: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          'Content-Type': 'multipart/form-data',
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          'Apollo-Require-Preflight': true
+        }
+      })
+      if (data.data) {
+        dialog.success({
+          title: 'Success',
+          content: 'Successfully Uploaded',
+          yes: 'OK'
+        })
+      } else {
+        dialog.error({
+          title: 'Someting went wrong',
+          content: 'Please try again',
+          yes: 'OK'
+        })
+      }
+    } catch (e) {
+      dialog.error({
+        title: 'Someting went wrong',
+        content: 'Please try again',
+        yes: 'OK'
+      })
+    }
   }
 })
 </script>
