@@ -10,19 +10,20 @@ import {
   UnauthorizedException,
   Controller,
   NotFoundException,
-  Logger
+  Logger,
+  ConflictException
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { Request, type Response } from 'express'
 import { AuthenticatedRequest, AuthNotNeeded } from '@libs/auth'
 import {
-  InvalidUserException,
   UnprocessableDataException,
   EmailTransmissionFailedException,
   InvalidJwtTokenException,
-  InvalidPinException
+  DuplicateFoundException,
+  UnidentifiedException
 } from '@libs/exception'
-import { EmailAuthensticationPinDto } from './dto/email-auth-pin.dto'
+import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
 import { SignUpDto } from './dto/signup.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
@@ -46,7 +47,7 @@ export class UserController {
     try {
       return await this.userService.updatePassword(newPasswordDto, req)
     } catch (error) {
-      if (error instanceof InvalidJwtTokenException) {
+      if (error instanceof UnidentifiedException) {
         throw new UnauthorizedException(error.message)
       } else if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
@@ -64,6 +65,8 @@ export class UserController {
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof DuplicateFoundException) {
+        throw new ConflictException(error.message)
       } else if (error instanceof InvalidJwtTokenException) {
         throw new UnauthorizedException(error.message)
       }
@@ -81,7 +84,7 @@ export class UserController {
       await this.userService.withdrawal(req.user.username, withdrawalDto)
     } catch (error) {
       if (
-        error instanceof InvalidUserException ||
+        error instanceof UnidentifiedException ||
         (error instanceof Prisma.PrismaClientKnownRequestError &&
           error.name === 'NotFoundError')
       ) {
@@ -170,7 +173,7 @@ export class EmailAuthenticationController {
     try {
       return await this.userService.sendPinForPasswordReset(userEmailDto)
     } catch (error) {
-      if (error instanceof InvalidUserException) {
+      if (error instanceof UnidentifiedException) {
         throw new UnauthorizedException(error.message)
       } else if (error instanceof EmailTransmissionFailedException) {
         this.logger.error(error.message, error.stack)
@@ -188,8 +191,8 @@ export class EmailAuthenticationController {
     } catch (error) {
       if (error instanceof EmailTransmissionFailedException) {
         throw new InternalServerErrorException(error.message)
-      } else if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof DuplicateFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException(error.message)
@@ -199,7 +202,7 @@ export class EmailAuthenticationController {
   @Post('verify-pin')
   async verifyPinAndIssueJwt(
     @Res({ passthrough: true }) res,
-    @Body() emailAuthenticationpinDto: EmailAuthensticationPinDto
+    @Body() emailAuthenticationpinDto: EmailAuthenticationPinDto
   ) {
     try {
       const jwt = await this.userService.verifyPinAndIssueJwt(
@@ -207,8 +210,8 @@ export class EmailAuthenticationController {
       )
       this.setJwtInHeader(res, jwt)
     } catch (error) {
-      if (error instanceof InvalidPinException) {
-        throw new InternalServerErrorException(error.message)
+      if (error instanceof UnidentifiedException) {
+        throw new UnauthorizedException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()

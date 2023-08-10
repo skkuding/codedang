@@ -3,7 +3,7 @@ import { ValidatePromise } from 'class-validator'
 import { GraphQLUpload } from 'graphql-upload'
 import { Language, Level } from '@admin/@generated'
 import type { FileUploadDto } from '../dto/file-upload.dto'
-import { LAction, LLanguage, LLevel } from './problem.enum'
+import { LAction } from './problem.enum'
 import { Template } from './template.input'
 import { Testcase } from './testcase.input'
 
@@ -119,8 +119,8 @@ export class UpdateProblemInput {
   @Field(() => [Template], { nullable: true })
   template?: Array<Template>
 
-  @Field(() => [LLanguage], { nullable: true })
-  languages?: Array<keyof typeof LLanguage>
+  @Field(() => [Language], { nullable: true })
+  languages?: Array<keyof typeof Language>
 
   @Field(() => Int, { nullable: true })
   timeLimit?: number
@@ -128,8 +128,8 @@ export class UpdateProblemInput {
   @Field(() => Int, { nullable: true })
   memoryLimit?: number
 
-  @Field(() => LLevel, { nullable: true })
-  difficulty?: keyof typeof LLevel
+  @Field(() => Level, { nullable: true })
+  difficulty?: keyof typeof Level
 
   @Field(() => String, { nullable: true })
   source?: string

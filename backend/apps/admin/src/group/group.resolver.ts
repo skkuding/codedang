@@ -1,7 +1,7 @@
 import {
+  ConflictException,
   ForbiddenException,
   InternalServerErrorException,
-  UnprocessableEntityException,
   Logger
 } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
@@ -9,8 +9,8 @@ import { Group } from '@generated'
 import { Role } from '@prisma/client'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import {
-  ForbiddenAccessException,
-  UnprocessableDataException
+  DuplicateFoundException,
+  ForbiddenAccessException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
@@ -32,8 +32,8 @@ export class GroupResolver {
     try {
       return await this.groupService.createGroup(input, req.user.id)
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+      if (error instanceof DuplicateFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -62,8 +62,8 @@ export class GroupResolver {
     try {
       return await this.groupService.updateGroup(id, input)
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+      if (error instanceof DuplicateFoundException) {
+        throw new ConflictException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }

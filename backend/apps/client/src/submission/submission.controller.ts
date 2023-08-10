@@ -9,14 +9,14 @@ import {
   ParseIntPipe,
   NotFoundException,
   InternalServerErrorException,
-  MethodNotAllowedException,
+  ConflictException,
   ForbiddenException,
   Logger
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthenticatedRequest, GroupMemberGuard } from '@libs/auth'
 import {
-  ActionNotAllowedException,
+  ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
@@ -43,8 +43,8 @@ export class ProblemSubmissionController {
         problemId
       )
     } catch (error) {
-      if (error instanceof ActionNotAllowedException) {
-        throw new MethodNotAllowedException(error.message)
+      if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -111,8 +111,8 @@ export class GroupProblemSubmissionController {
         groupId
       )
     } catch (error) {
-      if (error instanceof ActionNotAllowedException) {
-        throw new MethodNotAllowedException(error.message)
+      if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -177,11 +177,12 @@ export class ContestSubmissionController {
         contestId
       )
     } catch (error) {
-      if (error instanceof ActionNotAllowedException) {
-        throw new MethodNotAllowedException(error.message)
+      if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       } else if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
+        error instanceof EntityNotExistException ||
+        (error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.name == 'NotFoundError')
       ) {
         throw new NotFoundException(error)
       }
@@ -256,11 +257,12 @@ export class GroupContestSubmissionController {
         groupId
       )
     } catch (error) {
-      if (error instanceof ActionNotAllowedException) {
-        throw new MethodNotAllowedException(error.message)
+      if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       } else if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
+        error instanceof EntityNotExistException ||
+        (error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.name == 'NotFoundError')
       ) {
         throw new NotFoundException(error)
       }
@@ -339,8 +341,8 @@ export class WorkbookSubmissionController {
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof ActionNotAllowedException) {
-        throw new MethodNotAllowedException(error.message)
+      } else if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -405,8 +407,8 @@ export class GroupWorkbookSubmissionController {
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof ActionNotAllowedException) {
-        throw new MethodNotAllowedException(error.message)
+      } else if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
