@@ -3,7 +3,9 @@ import {
   Logger,
   NotFoundException,
   ParseIntPipe,
-  UnprocessableEntityException
+  UnprocessableEntityException,
+  UsePipes,
+  ValidationPipe
 } from '@nestjs/common'
 import { Args, Context, Query, Int, Mutation, Resolver } from '@nestjs/graphql'
 import { Prisma } from '@prisma/client'
@@ -15,9 +17,9 @@ import { Problem } from '@admin/@generated'
 import {
   CreateProblemInput,
   UploadFileInput,
-  FilterProblemsInput
+  FilterProblemsInput,
+  UpdateProblemInput
 } from './model/problem.input'
-import { UpdateProblemInput } from './model/update-problem.input'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => Problem)
@@ -54,6 +56,7 @@ export class ProblemResolver {
   }
 
   @Mutation(() => [Problem])
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async uploadProblems(
     @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
@@ -113,6 +116,8 @@ export class ProblemResolver {
     @Args('input') input: UpdateProblemInput
   ) {
     try {
+      console.log('resolver: ', input, groupId)
+
       return await this.problemService.updateProblem(input, groupId)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {

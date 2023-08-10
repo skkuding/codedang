@@ -3,6 +3,7 @@ import { ValidatePromise } from 'class-validator'
 import { GraphQLUpload } from 'graphql-upload'
 import { Language, Level } from '@admin/@generated'
 import type { FileUploadDto } from '../dto/file-upload.dto'
+import { LAction, LLanguage, LLevel } from './problem.enum'
 import { Template } from './template.input'
 import { Testcase } from './testcase.input'
 
@@ -84,4 +85,64 @@ export class FilterProblemsInput {
 
   @Field(() => [Language], { nullable: true })
   languages?: Array<keyof typeof Language>
+}
+
+@InputType()
+export class UpdateProblemTagInput {
+  @Field(() => Int, { nullable: false })
+  id!: number
+
+  @Field(() => LAction, { nullable: false })
+  action!: LAction
+}
+
+@InputType()
+export class UpdateProblemInput {
+  @Field(() => Int, { nullable: false })
+  id!: number
+
+  @Field(() => String, { nullable: true })
+  title?: string
+
+  @Field(() => String, { nullable: true })
+  description?: string
+
+  @Field(() => String, { nullable: true })
+  inputDescription?: string
+
+  @Field(() => String, { nullable: true })
+  outputDescription?: string
+
+  @Field(() => String, { nullable: true })
+  hint?: string
+
+  @Field(() => [Template], { nullable: true })
+  template?: Array<Template>
+
+  @Field(() => [LLanguage], { nullable: true })
+  languages?: Array<keyof typeof LLanguage>
+
+  @Field(() => Int, { nullable: true })
+  timeLimit?: number
+
+  @Field(() => Int, { nullable: true })
+  memoryLimit?: number
+
+  @Field(() => LLevel, { nullable: true })
+  difficulty?: keyof typeof LLevel
+
+  @Field(() => String, { nullable: true })
+  source?: string
+
+  @Field(() => [String], { nullable: true })
+  inputExamples?: Array<string>
+
+  @Field(() => [String], { nullable: true })
+  outputExamples?: Array<string>
+
+  @Field(() => [Testcase], { nullable: true })
+  testcases?: Array<Testcase & { id: number }>
+
+  @Field(() => [UpdateProblemTagInput], { nullable: true })
+  tags?: Array<UpdateProblemTagInput>
 }

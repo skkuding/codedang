@@ -5,19 +5,25 @@ import {
   UnprocessableFileException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type {
+  ProblemTagCreateWithoutProblemInput,
+  ProblemTagUncheckedUpdateManyWithoutProblemNestedInput
+} from '@admin/@generated'
 import { Language } from '@admin/@generated/prisma/language.enum'
 import { Level } from '@admin/@generated/prisma/level.enum'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
+import { LAction } from './model/problem.enum'
 import type {
   CreateProblemInput,
   UploadFileInput,
   FilterProblemsInput,
-  UploadProblemInput
+  UploadProblemInput,
+  UpdateProblemInput,
+  UpdateProblemTagInput
 } from './model/problem.input'
 import type { Testcase } from './model/testcase.input'
-import type { UpdateProblemInput } from './model/update-problem.input'
 
 @Injectable()
 export class ProblemService {
@@ -317,7 +323,7 @@ export class ProblemService {
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, languages, template, tagIds, testcases, ...data } = input
+    const { id, languages, template, tags, testcases, ...data } = input
     const problem = await this.getProblem(id, groupId)
 
     if (languages && !languages.length) {
@@ -335,16 +341,44 @@ export class ProblemService {
     })
 
     // FIXME: handle tags -> remove eslint-disable after fix
-    if (testcases?.length) await this.updateTestcases(id, testcases)
+    if (testcases?.length) {
+      await this.updateTestcases(id, testcases)
+    }
+
+    let problemTag: ProblemTagUncheckedUpdateManyWithoutProblemNestedInput
+    if (tags) {
+      problemTag = await this.updatePorblemTag(tags)
+    }
 
     return await this.prisma.problem.update({
       where: { id },
       data: {
         ...data,
         ...(languages && { languages: languages }),
-        ...(template && { template: JSON.stringify(template) })
+        ...(template && { template: JSON.stringify(template) }),
+        problemTag: problemTag
       }
     })
+  }
+
+  async updatePorblemTag(
+    problemTags: Array<UpdateProblemTagInput>
+  ): Promise<ProblemTagUncheckedUpdateManyWithoutProblemNestedInput> {
+    const createIds: Array<ProblemTagCreateWithoutProblemInput> = []
+    const deleteIds = []
+    console.log(problemTags)
+    problemTags.map((problemTag) => {
+      if (problemTag.action == LAction.Create) {
+        createIds.push({ tag: { connect: { id: problemTag.id } } })
+      } else {
+        deleteIds.push({ id: problemTag.id })
+      }
+    })
+
+    return {
+      create: createIds,
+      delete: deleteIds
+    }
   }
 
   async updateTestcases(

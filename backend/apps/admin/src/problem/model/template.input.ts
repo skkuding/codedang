@@ -1,5 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
-import { Language } from '@admin/@generated'
+// import { Language } from '@prisma/client'
+import { LLanguage } from './problem.enum'
 
 @InputType()
 class Snippet {
@@ -15,8 +16,8 @@ class Snippet {
 
 @InputType()
 export class Template {
-  @Field(() => Language, { nullable: false })
-  language: keyof typeof Language
+  @Field(() => LLanguage, { nullable: false })
+  language: keyof typeof LLanguage
 
   @Field(() => [Snippet], { nullable: false })
   code: Snippet[]
