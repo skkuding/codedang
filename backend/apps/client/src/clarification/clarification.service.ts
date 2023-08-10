@@ -17,7 +17,7 @@ export class ClarificationService {
     groupId = OPEN_SPACE_ID
   ): Promise<Partial<Clarification>[]> {
     if (!(await this.contestService.isVisible(contestId, groupId))) {
-      throw new EntityNotExistException('contest')
+      throw new EntityNotExistException('Contest')
     }
 
     return await this.prisma.clarification.findMany({
@@ -44,7 +44,7 @@ export class ClarificationService {
     groupId = OPEN_SPACE_ID
   ): Promise<Partial<Clarification>[]> {
     if (!(await this.contestService.isVisible(contestId, groupId))) {
-      throw new EntityNotExistException('contest')
+      throw new EntityNotExistException('Contest')
     }
 
     return await this.prisma.clarification.findMany({

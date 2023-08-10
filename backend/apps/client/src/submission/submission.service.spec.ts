@@ -6,7 +6,7 @@ import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { spy, stub } from 'sinon'
 import {
-  ActionNotAllowedException,
+  ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
@@ -146,7 +146,7 @@ describe('SubmissionService', () => {
           CONTEST_ID,
           problems[0].groupId
         )
-      ).to.be.rejectedWith(ActionNotAllowedException)
+      ).to.be.rejectedWith(ConflictFoundException)
       expect(createSpy.called).to.be.false
     })
   })
@@ -211,7 +211,7 @@ describe('SubmissionService', () => {
           problems[0],
           submissions[0].userId
         )
-      ).to.be.rejectedWith(ActionNotAllowedException)
+      ).to.be.rejectedWith(ConflictFoundException)
       expect(publishSpy.calledOnce).to.be.false
     })
 
@@ -229,7 +229,7 @@ describe('SubmissionService', () => {
           problems[0],
           submissions[0].userId
         )
-      ).to.be.rejectedWith(ActionNotAllowedException)
+      ).to.be.rejectedWith(ConflictFoundException)
       expect(validateSpy.returnValues[0]).to.be.false
       expect(publishSpy.calledOnce).to.be.false
     })
