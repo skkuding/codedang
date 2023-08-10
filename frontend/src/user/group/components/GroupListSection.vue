@@ -54,7 +54,7 @@ const props = defineProps<{
 const groupList = ref<Group[]>([])
 const store = useAuthStore()
 const currentPage = ref(1)
-const totalPages = ref(0)
+const totalPages = ref(1)
 
 if (props.isMyGroup) {
   axios.get('/api/group/joined').then(({ data }) => {
