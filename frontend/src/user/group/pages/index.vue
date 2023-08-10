@@ -3,11 +3,13 @@ import Button from '@/common/components/Atom/Button.vue'
 import InputItem from '@/common/components/Atom/InputItem.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
+import { useAuthStore } from '@/common/store/auth'
 import { ref } from 'vue'
-import IconPaperPlane from '~icons/fa6-solid/paper-plane'
 import GroupListSection from '../components/GroupListSection.vue'
 
 //TODO: invitation 검색 API 연결 후 noInvitation 값을 변경하는 function 구현 필요
+// const invitationCode = ref('')
+const auth = useAuthStore()
 const createModal = ref(false)
 const group = ref({
   groupName: '',
@@ -19,7 +21,6 @@ const group = ref({
     requireApprovalBeforeJoin: true
   }
 })
-const invitationCode = ref('')
 const configNameMap = {
   showOnList: 'Show On List',
   allowJoinFromSearch: 'Allow Join From Search',
@@ -31,14 +32,14 @@ const configNameMap = {
 <template>
   <div class="mt-10 flex flex-col gap-4">
     <div class="flex items-start justify-end gap-2">
-      <InputItem v-model="invitationCode" placeholder="Invitation Code" />
-      <Button class="py-2"><IconPaperPlane /></Button>
+      <!-- <InputItem v-model="invitationCode" placeholder="Invitation Code" /> -->
+      <!-- <Button class="py-2"><IconPaperPlane /></Button> -->
     </div>
-    <GroupListSection title="My Group" is-my-group />
+    <GroupListSection v-if="auth.isLoggedIn" title="My Group" is-my-group />
     <div class="flex justify-end">
       <Button class="py-2" @click="createModal = true">+ Create Group</Button>
     </div>
-    <GroupListSection title="All Group" pagination :is-my-group="false" />
+    <GroupListSection title="All Group" :is-my-group="false" />
   </div>
   <Modal v-model="createModal" class="shadow-md">
     <div class="flex flex-col px-8 pb-12">
