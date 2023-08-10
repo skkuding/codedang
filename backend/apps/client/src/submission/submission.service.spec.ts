@@ -43,6 +43,9 @@ const db = {
   }
 }
 
+const CONTEST_ID = 1
+const WORKBOOK_ID = 1
+
 describe('SubmissionService', () => {
   let service: SubmissionService
   let amqpConnection: AmqpConnection
@@ -113,8 +116,10 @@ describe('SubmissionService', () => {
       db.contestProblem.findUniqueOrThrow.resolves({ problem: problems[0] })
 
       await service.submitToContest(
-        { ...submissionDto, contestId: 1 },
+        submissionDto,
         submissions[0].userId,
+        problems[0].id,
+        CONTEST_ID,
         problems[0].groupId
       )
       expect(createSpy.calledOnce).to.be.true
@@ -135,8 +140,10 @@ describe('SubmissionService', () => {
 
       await expect(
         service.submitToContest(
-          { ...submissionDto, contestId: 1 },
+          submissionDto,
           submissions[0].userId,
+          problems[0].id,
+          CONTEST_ID,
           problems[0].groupId
         )
       ).to.be.rejectedWith(ActionNotAllowedException)
@@ -150,8 +157,10 @@ describe('SubmissionService', () => {
       db.workbookProblem.findUniqueOrThrow.resolves({ problem: problems[0] })
 
       await service.submitToWorkbook(
-        { ...submissionDto, workbookId: 1 },
+        submissionDto,
         submissions[0].userId,
+        problems[0].id,
+        WORKBOOK_ID,
         problems[0].groupId
       )
       expect(createSpy.calledOnce).to.be.true
@@ -165,8 +174,10 @@ describe('SubmissionService', () => {
 
       await expect(
         service.submitToWorkbook(
-          { ...submissionDto, workbookId: 1 },
+          submissionDto,
           submissions[0].userId,
+          problems[0].id,
+          WORKBOOK_ID,
           problems[0].groupId
         )
       ).to.be.rejectedWith(EntityNotExistException)
@@ -183,7 +194,7 @@ describe('SubmissionService', () => {
       expect(
         await service.createSubmission(
           submissionDto,
-          { languages: problems[0].languages, template: problems[0].template },
+          problems[0],
           submissions[0].userId
         )
       ).to.be.deep.equal(submissions[0])
@@ -197,7 +208,7 @@ describe('SubmissionService', () => {
       await expect(
         service.createSubmission(
           { ...submissionDto, language: Language.Python3 },
-          { languages: problems[0].languages, template: problems[0].template },
+          problems[0],
           submissions[0].userId
         )
       ).to.be.rejectedWith(ActionNotAllowedException)
@@ -215,7 +226,7 @@ describe('SubmissionService', () => {
             ...submissionDto,
             code: plainToInstance(Snippet, submissions[1].code)
           },
-          { languages: problems[0].languages, template: problems[0].template },
+          problems[0],
           submissions[0].userId
         )
       ).to.be.rejectedWith(ActionNotAllowedException)
