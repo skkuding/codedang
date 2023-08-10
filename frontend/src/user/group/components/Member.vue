@@ -10,7 +10,6 @@ import NameList from './NameList.vue'
 
 const props = defineProps<{
   id: number
-  createdBy: number
 }>()
 
 const showLeaveModal = ref(false)
