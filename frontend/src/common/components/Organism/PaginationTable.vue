@@ -79,10 +79,6 @@ const search = (inputData: string) => {
   emit('search', inputData)
 }
 
-watch(currentPage, (value) => {
-  emit('change-page', value)
-})
-
 const el = ref<HTMLElement | null>(null)
 useSortable(el, items, {
   handle: '.handle',
@@ -193,6 +189,7 @@ useSortable(el, items, {
         :page-slot="pageSlot"
         :number-of-pages="numberOfPages"
         :mode="mode"
+        @change-page="(page) => emit('change-page', page)"
       />
     </div>
   </div>
