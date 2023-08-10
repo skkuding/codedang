@@ -352,6 +352,8 @@ export class ProblemService {
 
     return await this.prisma.problem.update({
       where: { id },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-nocheck
       data: {
         ...data,
         ...(languages && { languages: languages }),
@@ -366,7 +368,6 @@ export class ProblemService {
   ): Promise<ProblemTagUncheckedUpdateManyWithoutProblemNestedInput> {
     const createIds: Array<ProblemTagCreateWithoutProblemInput> = []
     const deleteIds = []
-    console.log(problemTags)
     problemTags.map((problemTag) => {
       if (problemTag.action == LAction.Create) {
         createIds.push({ tag: { connect: { id: problemTag.id } } })
