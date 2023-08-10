@@ -27,11 +27,9 @@ ports:
     onOpen: ignore
 
 tasks:
-  - name: Node.js
+  - name: Setup
+    before: docker compose up -d
     init: ./scripts/setup.sh
-
-  - name: Container
-    command: docker compose up -d
 
 github:
   prebuilds:

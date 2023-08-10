@@ -3,7 +3,9 @@ import {
   Logger,
   NotFoundException,
   ParseIntPipe,
-  UnprocessableEntityException
+  UnprocessableEntityException,
+  UsePipes,
+  ValidationPipe
 } from '@nestjs/common'
 import { Args, Context, Query, Int, Mutation, Resolver } from '@nestjs/graphql'
 import { Prisma } from '@prisma/client'
@@ -54,6 +56,7 @@ export class ProblemResolver {
   }
 
   @Mutation(() => [Problem])
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async uploadProblems(
     @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)

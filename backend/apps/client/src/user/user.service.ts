@@ -13,7 +13,6 @@ import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import { EMAIL_AUTH_EXPIRE_TIME } from '@libs/constants'
 import {
   DuplicateFoundException,
-  EntityNotExistException,
   InvalidJwtTokenException,
   UnidentifiedException,
   UnprocessableDataException
@@ -283,11 +282,10 @@ export class UserService {
   }
 
   async deleteUser(username: string) {
-    await this.prisma.user.findUnique({
+    await this.prisma.user.findUniqueOrThrow({
       where: {
         username
-      },
-      rejectOnNotFound: () => new EntityNotExistException('User')
+      }
     })
 
     await this.prisma.user.delete({
@@ -298,7 +296,7 @@ export class UserService {
   }
 
   async getUserProfile(username: string) {
-    return await this.prisma.user.findUnique({
+    return await this.prisma.user.findUniqueOrThrow({
       where: { username },
       select: {
         username: true,
@@ -311,8 +309,7 @@ export class UserService {
             realName: true
           }
         }
-      },
-      rejectOnNotFound: () => new EntityNotExistException('User')
+      }
     })
   }
 
@@ -325,9 +322,8 @@ export class UserService {
       throw new UnprocessableDataException('The email is not authenticated one')
     }
 
-    await this.prisma.user.findUnique({
-      where: { id: req.user.id },
-      rejectOnNotFound: () => new EntityNotExistException('User')
+    await this.prisma.user.findUniqueOrThrow({
+      where: { id: req.user.id }
     })
 
     return await this.prisma.user.update({
@@ -342,9 +338,8 @@ export class UserService {
     userId: number,
     updateUserProfileRealNameDto: UpdateUserProfileRealNameDto
   ): Promise<UserProfile> {
-    await this.prisma.userProfile.findUnique({
-      where: { userId },
-      rejectOnNotFound: () => new EntityNotExistException('User profile')
+    await this.prisma.userProfile.findUniqueOrThrow({
+      where: { userId }
     })
 
     return await this.prisma.userProfile.update({
