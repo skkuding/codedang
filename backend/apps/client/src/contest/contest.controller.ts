@@ -12,10 +12,10 @@ import {
   Query,
   Logger
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import {
   AuthenticatedRequest,
   AuthNotNeeded,
-  RolesGuard,
   GroupMemberGuard
 } from '@libs/auth'
 import {
@@ -69,13 +69,16 @@ export class ContestController {
     }
   }
 
-  @Get(':contestId')
+  @Get(':id')
   @AuthNotNeeded()
-  async getContest(@Param('contestId', ParseIntPipe) contestId: number) {
+  async getContest(@Param('id', ParseIntPipe) id: number) {
     try {
-      return await this.contestService.getContest(contestId)
+      return await this.contestService.getContest(id)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
@@ -103,7 +106,7 @@ export class ContestController {
 }
 
 @Controller('group/:groupId/contest')
-@UseGuards(RolesGuard, GroupMemberGuard)
+@UseGuards(GroupMemberGuard)
 export class GroupContestController {
   private readonly logger = new Logger(GroupContestController.name)
 
@@ -146,10 +149,10 @@ export class GroupContestController {
   @Get(':id')
   async getContest(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('id', ParseIntPipe) contestId: number
+    @Param('id', ParseIntPipe) id: number
   ) {
     try {
-      return await this.contestService.getContest(contestId, groupId)
+      return await this.contestService.getContest(id, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

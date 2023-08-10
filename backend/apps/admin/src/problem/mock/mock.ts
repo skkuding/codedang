@@ -36,6 +36,7 @@ export const problems: Problem[] = [
     source: 'mustard source',
     createTime: undefined,
     updateTime: undefined,
+    exposeTime: undefined,
     inputExamples: [],
     outputExamples: []
   },
@@ -56,6 +57,7 @@ export const problems: Problem[] = [
     source: 'soy source',
     createTime: undefined,
     updateTime: undefined,
+    exposeTime: undefined,
     inputExamples: [],
     outputExamples: []
   }
@@ -105,6 +107,7 @@ export const importedProblems: Problem[] = [
     source: '',
     createTime: undefined,
     updateTime: undefined,
+    exposeTime: undefined,
     inputExamples: [],
     outputExamples: []
   },
@@ -141,6 +144,7 @@ export const importedProblems: Problem[] = [
     source: '',
     createTime: undefined,
     updateTime: undefined,
+    exposeTime: undefined,
     inputExamples: [],
     outputExamples: []
   }

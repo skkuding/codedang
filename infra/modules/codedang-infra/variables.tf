@@ -3,18 +3,6 @@ variable "s3_bucket" {
   default = "codedang"
 }
 
-variable "ecr_client_uri" {
-  type    = string
-  default = "xxx"
-  sensitive   = true
-}
-
-variable "ecr_admin_uri" {
-  type    = string
-  default = "xxx"
-  sensitive   = true
-}
-
 variable "region" {
   type = string
   # default = "ap-northeast-2"
@@ -32,13 +20,6 @@ variable "postgres_username" {
   default     = "skkuding"
 }
 
-variable "postgres_password" {
-  description = "Password for Postgres DB"
-  type        = string
-  default     = "password"
-  sensitive   = true
-}
-
 variable "postgres_port" {
   description = "Port for Postgres DB"
   type        = string
@@ -53,34 +34,21 @@ variable "redis_port" {
   sensitive   = true
 }
 
-
-variable "ecr_iris_uri" {
-  type    = string
-  default = "xxx"
-  sensitive   = true
+variable "nodemailer_from" {
+  description = "Email address for nodemailer"
+  type        = string
+  default     = "Codedang <noreply@codedang.com>"
 }
 
 variable "rabbitmq_port" {
-  type    = string
-  default = "5671"
-  sensitive   = true
+  type      = string
+  default   = "5671"
+  sensitive = true
 }
 
 variable "rabbitmq_username" {
   type    = string
   default = "skkuding"
-}
-
-variable "rabbitmq_password" {
-  type    = string
-  default = "abcd12345678"
-  sensitive   = true
-}
-
-variable "rabbitmq_vhost" {
-  type    = string
-  default = "vh"
-  sensitive   = true
 }
 
 variable "rabbitmq_exchage_name" {
@@ -107,4 +75,3 @@ variable "rabbitmq_submission_routing_key" {
   type    = string
   default = "judge.submission"
 }
-
