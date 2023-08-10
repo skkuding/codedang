@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  ConflictException,
   Controller,
   Delete,
   Get,
@@ -13,15 +13,13 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import {
   AuthenticatedRequest,
   AuthNotNeeded,
   GroupMemberGuard
 } from '@libs/auth'
-import {
-  ActionNotAllowedException,
-  EntityNotExistException
-} from '@libs/exception'
+import { ConflictFoundException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
 
@@ -63,7 +61,10 @@ export class GroupController {
     try {
       return await this.groupService.getGroup(req.user.id, groupId)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
@@ -79,10 +80,13 @@ export class GroupController {
     try {
       return await this.groupService.joinGroupById(req.user.id, groupId)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof ActionNotAllowedException) {
-        throw new BadRequestException(error.message)
+      } else if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Workbook } from 'exceljs'
 import {
   UnprocessableDataException,
-  UnprocessableFileException
+  UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { Language } from '@admin/@generated/prisma/language.enum'
@@ -51,7 +51,7 @@ export class ProblemService {
         groupId,
         createdById: userId,
         languages,
-        template: JSON.stringify(template),
+        template: [JSON.stringify(template)],
         problemTag: {
           create: tagIds.map((tagId) => {
             return { tagId }
@@ -118,7 +118,7 @@ export class ProblemService {
 
     worksheet.getRow(1).eachCell((cell, idx) => {
       if (!ImportedProblemHeader.includes(cell.text))
-        throw new UnprocessableFileException(
+        throw new UnprocessableFileDataException(
           `Field ${cell.text} is not supported`,
           filename,
           1
@@ -136,7 +136,7 @@ export class ProblemService {
     worksheet.eachRow(async function (row, rowNumber) {
       for (const colNumber of unsupportedFields) {
         if (row.getCell(colNumber).text !== '')
-          throw new UnprocessableFileException(
+          throw new UnprocessableFileDataException(
             'Using inputFile, outputFile is not supported',
             filename,
             rowNumber + 1
@@ -175,7 +175,7 @@ export class ProblemService {
         languages.push(Language[language])
       }
       if (!languages.length) {
-        throw new UnprocessableFileException(
+        throw new UnprocessableFileDataException(
           'A problem should support at least one language',
           filename,
           rowNumber + 1
@@ -218,7 +218,7 @@ export class ProblemService {
         (inputs.length !== testCnt || outputs.length !== testCnt) &&
         inputText != ''
       ) {
-        throw new UnprocessableFileException(
+        throw new UnprocessableFileDataException(
           'TestCnt must match the length of Input and Output. Or Testcases should not include ::.',
           filename,
           rowNumber + 1
@@ -252,7 +252,7 @@ export class ProblemService {
                 id: groupId
               }
             },
-            template: JSON.stringify(data.template)
+            template: [JSON.stringify(data.template)]
           }
         })
         if (index in testcases) {
@@ -342,7 +342,7 @@ export class ProblemService {
       data: {
         ...data,
         ...(languages && { languages: languages }),
-        ...(template && { template: JSON.stringify(template) })
+        ...(template && { template: [JSON.stringify(template)] })
       }
     })
   }

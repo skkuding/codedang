@@ -24,7 +24,7 @@ resource "aws_mq_broker" "judge_queue" {
 
   user {
     username = var.rabbitmq_username
-    password = var.rabbitmq_password
+    password = random_password.rabbitmq_password.result
   }
 }
 
@@ -33,7 +33,7 @@ provider "rabbitmq" {
   # Configuration options
   endpoint = aws_mq_broker.judge_queue.instances.0.console_url
   username = var.rabbitmq_username
-  password = var.rabbitmq_password
+  password = random_password.rabbitmq_password.result
 }
 
 resource "rabbitmq_vhost" "vh" {

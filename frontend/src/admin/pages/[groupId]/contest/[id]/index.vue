@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CreateNoticeModal from '@/admin/components/CreateNoticeModal.vue'
-import CreatePorblemModal from '@/admin/components/CreatePorblemModal.vue'
+import CreatePorblemModal from '@/admin/components/CreateProblemModal.vue'
 import ImportProblemModal from '@/admin/components/ImportProblemModal.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
@@ -111,7 +111,7 @@ const problemList = ref([
       </div>
     </div>
     <PaginationTable
-      v-model="problemList"
+      v-model:items="problemList"
       :editing="editing"
       :fields="[
         {
