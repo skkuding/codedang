@@ -8,11 +8,11 @@
     "data": [
         {
             "name": "bearer_token",
-            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoic3VwZXIiLCJpYXQiOjE2OTEwNjQ4MTcsImV4cCI6MTY5MTA2NjYxNywiaXNzIjoic2trdWRpbmcuZGV2In0.w1sqXcZmgln1uvCXXrWBBhoDaM3ED21mw9v7uDIgPXA"
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoic3VwZXIiLCJpYXQiOjE2OTE2NzI3MjIsImV4cCI6MTY5MTY3NDUyMiwiaXNzIjoic2trdWRpbmcuZGV2In0.49pWsz--Z3ItoQo003Y1cl59rseh_3zOKWXpvuLNmYc"
         },
         {
             "name": "refresh_token",
-            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoic3VwZXIiLCJpYXQiOjE2OTEwNjQ4MTcsImV4cCI6MTY5MTE1MTIxNywiaXNzIjoic2trdWRpbmcuZGV2In0.RW1KltPSh3OWXunJRTpIrhOkbYzQ_G4doHMQw0L8qO4"
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoic3VwZXIiLCJpYXQiOjE2OTE2NzI3MjIsImV4cCI6MTY5MTc1OTEyMiwiaXNzIjoic2trdWRpbmcuZGV2In0.HMaaK8QXGTYVyXJMcHx3rSH_jlBejKloCfh2UC8FjS4"
         }
     ]
 }
