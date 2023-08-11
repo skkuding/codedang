@@ -3,7 +3,9 @@ import Button from '@/common/components/Atom/Button.vue'
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
 import IconGear from '~icons/fa6-solid/gear'
 
-defineProps<{
+const props = defineProps<{
+  id: number
+  isGroupLeader: boolean
   groupName: string
   description: string
   groupImage: string
@@ -21,8 +23,11 @@ defineProps<{
     <div class="flex flex-col gap-1">
       <div class="flex items-baseline gap-2">
         <PageTitle :text="groupName" />
-        <Button color="gray-dark" class="px-1">
-          <IconGear class="h-3 w-3" />
+        <Button v-if="props.isGroupLeader" color="gray-dark" class="px-1">
+          <IconGear
+            class="h-3 w-3"
+            @click="$router.push(`/admin/${props.id}`)"
+          />
         </Button>
       </div>
       <div class="text-black">{{ description }}</div>

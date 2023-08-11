@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  ConflictException,
   Controller,
   Delete,
   Get,
@@ -19,7 +19,7 @@ import {
   AuthNotNeeded,
   GroupMemberGuard
 } from '@libs/auth'
-import { ActionNotAllowedException } from '@libs/exception'
+import { ConflictFoundException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
 
@@ -85,8 +85,8 @@ export class GroupController {
         error.name === 'NotFoundError'
       ) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof ActionNotAllowedException) {
-        throw new BadRequestException(error.message)
+      } else if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -102,6 +102,10 @@ export class GroupController {
     try {
       return await this.groupService.leaveGroup(req.user.id, groupId)
     } catch (error) {
+      if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
+      }
+
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }

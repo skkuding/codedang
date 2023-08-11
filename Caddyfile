@@ -1,10 +1,10 @@
 dev.codedang.com {
     handle /api/* {
-        reverse_proxy backend-client:4000
+        reverse_proxy 127.0.0.1:4000
     }
 
     handle /graphql {
-        reverse_proxy backend-admin:3000
+        reverse_proxy 127.0.0.1:3000
     }
 
     handle {

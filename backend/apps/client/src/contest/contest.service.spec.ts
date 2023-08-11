@@ -9,10 +9,7 @@ import {
 import { expect } from 'chai'
 import * as dayjs from 'dayjs'
 import { stub } from 'sinon'
-import {
-  ActionNotAllowedException,
-  EntityNotExistException
-} from '@libs/exception'
+import { ConflictFoundException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { ContestService } from './contest.service'
 
@@ -165,7 +162,6 @@ const userGroups: UserGroup[] = [
   }
 ]
 const record: ContestRecord = {
-  id: 1,
   contestId: contestId,
   userId: userId,
   acceptedProblemNum: 0,
@@ -316,36 +312,38 @@ describe('ContestService', () => {
 
   describe('createContestRecord', () => {
     beforeEach(() => {
-      mockPrismaService.contest.findFirst.resolves(ongoingContest)
+      mockPrismaService.contest.findUniqueOrThrow.resolves(ongoingContest)
       mockPrismaService.contestRecord.findFirst.resolves(null)
     })
     afterEach(() => {
-      mockPrismaService.contest.findFirst.resolves(contest)
+      mockPrismaService.contest.findUniqueOrThrow.resolves(contest)
       mockPrismaService.contestRecord.findFirst.resolves(null)
     })
 
     it('should throw error when the contest does not exist', async () => {
-      mockPrismaService.contest.findFirst.resolves(null)
+      mockPrismaService.contest.findUniqueOrThrow.rejects(
+        new Prisma.PrismaClientKnownRequestError('contest', {
+          code: 'P2002',
+          clientVersion: '5.1.1'
+        })
+      )
       await expect(
         service.createContestRecord(contestId, userId)
-      ).to.be.rejectedWith(EntityNotExistException, 'contest')
+      ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })
 
     it('should throw error when user is participated in contest again', async () => {
       mockPrismaService.contestRecord.findFirst.resolves(record)
       await expect(
         service.createContestRecord(contestId, userId)
-      ).to.be.rejectedWith(
-        ActionNotAllowedException,
-        'repetitive participation'
-      )
+      ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should throw error when contest is not ongoing', async () => {
-      mockPrismaService.contest.findFirst.resolves(finishedContests[0])
+      mockPrismaService.contest.findUniqueOrThrow.resolves(finishedContests[0])
       await expect(
         service.createContestRecord(contestId, userId)
-      ).to.be.rejectedWith(ActionNotAllowedException, 'participation')
+      ).to.be.rejectedWith(ConflictFoundException)
     })
 
     it('should successfully create contestRankACM', async () => {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -22,13 +21,6 @@ import (
 	"github.com/skkuding/codedang/iris/src/service/testcase"
 	"github.com/skkuding/codedang/iris/src/utils"
 )
-
-func profile() {
-	go func() {
-		http.ListenAndServe("localhost:6060", nil)
-		// use <go tool pprof -http :8080 http://localhost:6060/debug/pprof/profile\?seconds\=30> to profile
-	}()
-}
 
 type Env string
 
@@ -85,22 +77,17 @@ func main() {
 
 	// amqps://skku:1234@broker-id.mq.us-west-2.amazonaws.com:5671
 	var uri string
-	if env == "production" {
-		uri = "amqps://" +
-			utils.Getenv("RABBITMQ_DEFAULT_USER", "skku") + ":" +
-			utils.Getenv("RABBITMQ_DEFAULT_PASS", "1234") + "@" +
-			utils.Getenv("RABBITMQ_HOST_ID", "localhost") + ".mq." +
-			utils.Getenv("RABBITMQ_HOST_REGION", "ap-northeast-2") + ".amazonaws.com:" +
-			utils.Getenv("RABBITMQ_PORT", "5672") + "/" +
-			utils.Getenv("RABBITMQ_DEFAULT_VHOST", "")
+	if utils.Getenv("RABBITMQ_SSL", "") != "" {
+		uri = "amqps://"
 	} else {
-		uri = "amqp://" +
-			utils.Getenv("RABBITMQ_DEFAULT_USER", "skku") + ":" +
+		uri = "amqp://"
+	}
+	uri +=
+		utils.Getenv("RABBITMQ_DEFAULT_USER", "skku") + ":" +
 			utils.Getenv("RABBITMQ_DEFAULT_PASS", "1234") + "@" +
 			utils.Getenv("RABBITMQ_HOST", "localhost") + ":" +
 			utils.Getenv("RABBITMQ_PORT", "5672") + "/" +
 			utils.Getenv("RABBITMQ_DEFAULT_VHOST", "")
-	}
 
 	connector.Factory(
 		connector.RABBIT_MQ,

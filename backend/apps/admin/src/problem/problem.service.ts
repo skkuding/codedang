@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Workbook } from 'exceljs'
 import {
   UnprocessableDataException,
-  UnprocessableFileException
+  UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { Language } from '@admin/@generated/prisma/language.enum'
@@ -66,9 +66,9 @@ export class ProblemService {
   // TODO: 테스트케이스별로 파일 따로 업로드 -> 수정 시 updateTestcases, deleteProblem 로직 함께 정리
   async createTestcases(problemId: number, testcases: Array<Testcase>) {
     const filename = `${problemId}.json`
-    const testcaseIds = await Promise.all(
-      testcases.map(async (tc, index) => {
-        const problemTestcase = await this.prisma.problemTestcase.create({
+    await Promise.all(
+      testcases.map(async (tc) => {
+        await this.prisma.problemTestcase.create({
           data: {
             problemId,
             input: filename,
@@ -76,14 +76,13 @@ export class ProblemService {
             scoreWeight: tc.scoreWeight
           }
         })
-        return { index, id: problemTestcase.id }
       })
     )
 
     const data = JSON.stringify(
       testcases.map((tc, index) => {
         return {
-          id: testcaseIds.find((record) => record.index === index),
+          id: problemId.toString() + ':' + index.toString(),
           input: tc.input,
           output: tc.output
         }
@@ -118,7 +117,7 @@ export class ProblemService {
 
     worksheet.getRow(1).eachCell((cell, idx) => {
       if (!ImportedProblemHeader.includes(cell.text))
-        throw new UnprocessableFileException(
+        throw new UnprocessableFileDataException(
           `Field ${cell.text} is not supported`,
           filename,
           1
@@ -136,7 +135,7 @@ export class ProblemService {
     worksheet.eachRow(async function (row, rowNumber) {
       for (const colNumber of unsupportedFields) {
         if (row.getCell(colNumber).text !== '')
-          throw new UnprocessableFileException(
+          throw new UnprocessableFileDataException(
             'Using inputFile, outputFile is not supported',
             filename,
             rowNumber + 1
@@ -175,7 +174,7 @@ export class ProblemService {
         languages.push(Language[language])
       }
       if (!languages.length) {
-        throw new UnprocessableFileException(
+        throw new UnprocessableFileDataException(
           'A problem should support at least one language',
           filename,
           rowNumber + 1
@@ -218,7 +217,7 @@ export class ProblemService {
         (inputs.length !== testCnt || outputs.length !== testCnt) &&
         inputText != ''
       ) {
-        throw new UnprocessableFileException(
+        throw new UnprocessableFileDataException(
           'TestCnt must match the length of Input and Output. Or Testcases should not include ::.',
           filename,
           rowNumber + 1

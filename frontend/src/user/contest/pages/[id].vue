@@ -4,27 +4,34 @@ import Badge from '@/common/components/Molecule/Badge.vue'
 import Tab from '@/common/components/Molecule/Tab.vue'
 import { useDateFormat, useNow } from '@vueuse/core'
 import axios from 'axios'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import Notice from '../components/Notice.vue'
 import Problem from '../components/Problem.vue'
 // import Ranking from '../components/Ranking.vue'
 import Top from '../components/Top.vue'
 
+interface Contest {
+  title: string
+  description: string
+  startTime: string
+  endTime: string
+}
+
 const props = defineProps<{
   id: string
 }>()
 
-const contest = ref({
+const contest = ref<Contest>({
   title: '',
   description: '',
   startTime: '',
   endTime: ''
 })
-const formatter = ref('YYYY-MM-DD HH:mm:ss')
-const time = useDateFormat(useNow(), formatter)
+const time = useDateFormat(useNow(), 'YYYY-MM-DD HH:mm:ss')
 
-axios.get(`/api/contest/${props.id}`).then((res) => {
-  contest.value = res.data
+onMounted(async () => {
+  const { data } = await axios.get<Contest>(`/api/contest/${props.id}`)
+  contest.value = data
 })
 </script>
 

@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import type { Prisma, Contest } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import {
-  ActionNotAllowedException,
-  EntityNotExistException
-} from '@libs/exception'
+import { ConflictFoundException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
 @Injectable()
@@ -207,24 +204,20 @@ export class ContestService {
     userId: number,
     groupId = OPEN_SPACE_ID
   ) {
-    const contest = await this.prisma.contest.findFirst({
+    const contest = await this.prisma.contest.findUniqueOrThrow({
       where: { id: contestId, groupId },
       select: { startTime: true, endTime: true, groupId: true }
     })
-    if (!contest) {
-      throw new EntityNotExistException('contest')
-    }
 
-    const isAlreadyRecord = await this.prisma.contestRecord.findFirst({
-      where: { userId, contestId },
-      select: { id: true }
+    const hasRegistered = await this.prisma.contestRecord.findFirst({
+      where: { userId, contestId }
     })
-    if (isAlreadyRecord) {
-      throw new ActionNotAllowedException('repetitive participation', 'contest')
+    if (hasRegistered) {
+      throw new ConflictFoundException('Already participated this contest')
     }
     const now = new Date()
     if (now < contest.startTime || now >= contest.endTime) {
-      throw new ActionNotAllowedException('participation', 'ended contest')
+      throw new ConflictFoundException('Cannot participate ended contest')
     }
 
     return await this.prisma.contestRecord.create({
