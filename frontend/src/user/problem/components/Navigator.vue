@@ -7,7 +7,7 @@ import { useDialog } from '@/common/composables/dialog'
 import { useToast } from '@/common/composables/toast'
 import { useIntervalFn } from '@vueuse/core'
 import axios from 'axios'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 // import IconRun from '~icons/bi/play'
 import IconDown from '~icons/fa6-solid/angle-down'
@@ -42,10 +42,12 @@ const languageLabels: Record<Language, string> = {
   Golang: 'Go'
 }
 
-const languageOptions = store.problem.languages.map((x) => ({
-  label: languageLabels[x],
-  value: x
-}))
+const languageOptions = computed(() =>
+  store.problem.languages.map((x) => ({
+    label: languageLabels[x],
+    value: x
+  }))
+)
 
 const navigations = [
   { label: 'Editor', to: { name: 'problem-id' } },
