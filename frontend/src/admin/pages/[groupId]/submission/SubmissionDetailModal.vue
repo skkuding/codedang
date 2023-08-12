@@ -58,7 +58,7 @@ int main() {
           <h3 class="text-lg font-bold">Source Code</h3>
           <p class="text-gray">(612 Bytes)</p>
         </div>
-        <CodeEditor :model-value="code" lang="cpp" lock />
+        <CodeEditor :model-value="code" lang="Cpp" lock />
         <PaginationTable
           :fields="[
             {
