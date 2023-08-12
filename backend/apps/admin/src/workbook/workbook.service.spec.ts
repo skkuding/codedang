@@ -3,14 +3,15 @@ import type { Problem, Submission, Workbook, WorkbookProblem } from '@generated'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import {
-  ActionNotAllowedException,
-  EntityNotExistException
+  ConflictFoundException,
+  EntityNotExistException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type {
   CreateWorkbookInput,
   UpdateWorkbookInput
-} from './model/input/workbook.input'
+} from './model/workbook.input'
 import { WorkbookService } from './workbook.service'
 
 const db = {
@@ -329,7 +330,8 @@ describe('WorkbookService', () => {
         createTime: new Date(),
         updateTime: new Date(),
         inputExamples: [],
-        outputExamples: []
+        outputExamples: [],
+        exposeTime: new Date()
       }
       const exampleWorkbookProblem: WorkbookProblem = {
         id: 'test',
@@ -385,6 +387,47 @@ describe('WorkbookService', () => {
         service.createWorkbookProblem(1, [10, 11, 12], 10)
       ).to.be.rejectedWith(EntityNotExistException)
     })
+    it('should handle Problem not beloning to the Group', async () => {
+      // given
+      const exampleWorkbook: Workbook = {
+        id: 1,
+        createdById: 1,
+        groupId: 1,
+        title: 'test',
+        description: 'test',
+        isVisible: true,
+        createTime: new Date(),
+        updateTime: new Date()
+      }
+      const exampleProblem: Problem = {
+        id: 1,
+        createdById: 1,
+        groupId: 1,
+        title: 'test',
+        description: 'test',
+        inputDescription: 'test',
+        outputDescription: 'test',
+        hint: 'test',
+        template: [],
+        languages: ['C'],
+        timeLimit: 1000,
+        memoryLimit: 512,
+        difficulty: 'Level1',
+        source: 'test',
+        createTime: new Date(),
+        updateTime: new Date(),
+        inputExamples: [],
+        outputExamples: [],
+        exposeTime: new Date()
+      }
+      db.workbook.findFirstOrThrow.resolves(exampleWorkbook)
+      db.problem.findFirstOrThrow.resolves(exampleProblem)
+
+      // when & then
+      await expect(
+        service.createWorkbookProblem(2, [10, 11, 12], 10)
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
 
     it('should throw error when given WorkbookProblem record already exists', async () => {
       // given
@@ -416,7 +459,8 @@ describe('WorkbookService', () => {
         createTime: new Date(),
         updateTime: new Date(),
         inputExamples: [],
-        outputExamples: []
+        outputExamples: [],
+        exposeTime: new Date()
       }
       const exampleWorkbookProblem: WorkbookProblem = {
         id: 'test',
@@ -432,7 +476,7 @@ describe('WorkbookService', () => {
       // when & then
       await expect(
         service.createWorkbookProblem(1, [1, 2, 3, 4, 5], 1)
-      ).to.be.rejectedWith(ActionNotAllowedException)
+      ).to.be.rejectedWith(ConflictFoundException)
     })
   })
 })

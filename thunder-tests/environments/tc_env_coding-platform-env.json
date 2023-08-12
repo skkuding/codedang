@@ -1,18 +1,9 @@
 {
-    "_id": "0ea6f937-c505-41ea-948a-39b0eb7b50e6",
-    "name": "Coding Platform Env",
-    "default": true,
-    "sortNum": 10000,
-    "created": "2023-01-15T13:19:23.832Z",
-    "modified": "2023-01-15T13:19:23.833Z",
-    "data": [
-        {
-            "name": "bearer_token",
-            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoic3VwZXIiLCJpYXQiOjE2OTE2NzI3MjIsImV4cCI6MTY5MTY3NDUyMiwiaXNzIjoic2trdWRpbmcuZGV2In0.49pWsz--Z3ItoQo003Y1cl59rseh_3zOKWXpvuLNmYc"
-        },
-        {
-            "name": "refresh_token",
-            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoic3VwZXIiLCJpYXQiOjE2OTE2NzI3MjIsImV4cCI6MTY5MTc1OTEyMiwiaXNzIjoic2trdWRpbmcuZGV2In0.HMaaK8QXGTYVyXJMcHx3rSH_jlBejKloCfh2UC8FjS4"
-        }
-    ]
+  "_id": "0ea6f937-c505-41ea-948a-39b0eb7b50e6",
+  "name": "Coding Platform Env",
+  "default": true,
+  "sortNum": 10000,
+  "created": "2023-01-15T13:19:23.832Z",
+  "modified": "2023-01-15T13:19:23.833Z",
+  "data": []
 }

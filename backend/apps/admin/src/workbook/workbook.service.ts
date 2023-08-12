@@ -7,13 +7,14 @@ import type {
 } from '@prisma/client'
 // import { OPEN_SPACE_ID } from '@libs/constants'
 import {
-  ActionNotAllowedException // EntityNotExistException // UnprocessableDataException
+  ConflictFoundException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 // import type { WorkbookUpdateInput } from '@admin/@generated'
 // import type { GetWorkbookListInput } from './model/input/workbook.input'
-import type { CreateWorkbookInput } from './model/input/workbook.input'
-import type { UpdateWorkbookInput } from './model/input/workbook.input'
+import type { CreateWorkbookInput } from './model/workbook.input'
+import type { UpdateWorkbookInput } from './model/workbook.input'
 
 @Injectable()
 export class WorkbookService {
@@ -141,10 +142,14 @@ export class WorkbookService {
     })
     const newWorkbookProblems: WorkbookProblem[] = []
     for (const problemId of problemIds) {
-      await this.prisma.problem.findFirstOrThrow({
+      const problem = await this.prisma.problem.findFirstOrThrow({
         where: { id: problemId }
       })
-
+      if (problem.groupId !== groupId) {
+        throw new UnprocessableDataException(
+          'problem does not belong to the group'
+        )
+      }
       const existingRecord = await this.prisma.workbookProblem.findUnique({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -156,10 +161,7 @@ export class WorkbookService {
       })
 
       if (existingRecord) {
-        throw new ActionNotAllowedException(
-          'exisiting record',
-          'WorkbookProblem'
-        )
+        throw new ConflictFoundException('already exisiting record')
       }
       newWorkbookProblems.push(
         await this.prisma.workbookProblem.create({
