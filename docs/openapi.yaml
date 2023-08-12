@@ -5,7 +5,7 @@ info:
   summary: REST API for Codedang Client
   description: |
     ## 🎈 Overview
-    Codedang is an online judge for students to practice their coding skills.  
+    Codedang is an online judge for students to practice their coding skills.
     Codedang client API can be used by general users.
 servers:
   - url: http://localhost:4000
@@ -13,17 +13,499 @@ servers:
 paths:
   /auth/login:
     post:
-      summary: Login
-      description: Login to Codedang
+      summary: Log In
+      description: |
+        사용자가 올바른 정보로 로그인하면 JWT를 발행합니다.
+        보안을 위해 만료 시간이 짧은 access token과, 이 토큰의 재발행에 사용할 만료 시간이 긴 refresh token을 발행합니다.
+
+        ### Access Token
+        - `Authorization` header를 통해 bearer token을 발급합니다.
+        - Header로 발급되기 때문에, client에 token을 직접 저장하는 코드가 필요합니다.
+        - 30분 후 만료됩니다.
+
+        ### Refresh Token
+        - Cookie를 통해 발급되어 브라우저에 자동으로 저장됩니다.
+        - `/auth/reissue`를 통해 access token을 재발행할 때 필요합니다.
+        - **가장 유출에 조심해야 하는 값입니다.**
+        - 24시간 후 만료됩니다.
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  example: admin
-                password:
-                  type: string
-                  example: Adminadmin
+              $ref: '#/components/schemas/LoginUserDto'
+      responses:
+        '201':
+          description: Succeed
+        '400':
+          description: Bad Request; Username/Password should not be empty
+        '401':
+          description: Unauthorized; Incorrect username or password
+  /auth/logout:
+    post:
+      summary: Log Out
+      description: |
+        Refresh token을 무효화하고 cookie에서 삭제합니다.
+        Access token은 만료 전까지 유효하며, client에서 직접 삭제해야 합니다.
+      security:
+        - bearer: []
+      responses:
+        '201':
+          description: Succeed
+        '401':
+          description: Unauthorized
+            (로그인되어 있지 않은 유저의 로그아웃 시도)
+  /auth/reissue:
+    get:
+      summary: Reissue Access Token
+      description: |
+        Refresh token을 이용해 access token을 재발급합니다.
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Succeed
+        '401':
+          description: Unauthorized; Invalid Token
+            (유효하지 않은 refresh token으로 재발급 시도)
+  /group:
+    get:
+      summary: Get Groups
+      description: |
+        공개로 설정된 그룹의 목록을 불러옵니다.
+      parameters:
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/take'
+      responses:
+        '200':
+          description: Succeed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  groupName:
+                    type: string
+                  description:
+                    type: string
+                  memberNum:
+                    type: number
+                    description: 그룹의 총 멤버 수
+        '400':
+          description: Bad Request; Invalid Cursor
+  /group/joined:
+    get:
+      summary: Get Joined Groups
+      description: |
+        가입한 그룹의 목록을 불러옵니다.
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Succeed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  groupName:
+                    type: string
+                  description:
+                    type: string
+                  memberNum:
+                    type: number
+                    description: 그룹의 총 멤버 수
+                  isGroupLeader:
+                    type: boolean
+                    description: 그룹 리더 여부
+  /group/{groupId}:
+    get:
+      summary: Get Group
+      description: |
+        그룹을 조회합니다.
+        요청된 그룹에 대한 가입 여부에 따라 response가 달라짐에 유의하세요.
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: number
+          example: 4
+      security:
+        - bearer: []
+      responses:
+        '200 (joined)':
+          description: Succeed on Retrieving Joined Group
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  groupName:
+                    type: string
+                  description:
+                    type: string
+                  isJoined:
+                    type: boolean
+                    description: 그룹 가입 여부
+                    default: true
+                  isGroupLeader:
+                    type: boolean
+                    description: 그룹 리더 여부
+        '200 (not joined)':
+          description: Succeed on Retrieving Not Joined Group
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  groupName:
+                    type: string
+                  description:
+                    type: string
+                  isJoined:
+                    type: boolean
+                    description: 그룹 가입 여부
+                    default: false
+                  leaders:
+                    type: array
+                    items:
+                      type: string
+                    description: 그룹 리더의 username 목록
+        '404':
+          description: Not Found; Group Not Found
+  /group/{groupId}/members:
+    get:
+      summary: Get Group Members
+      description: |
+        그룹 멤버들의 username 목록을 불러옵니다.
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: number
+          example: 4
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Succeed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  - type: string
+                description: username 목록
+        '403':
+          description: Forbidden; Forbidden Resource
+            (가입되지 않은 그룹에 대한 상세 조회 시도)
+  /group/{groupId}/leaders:
+    get:
+      summary: Get Group Leaders
+      description: |
+        그룹 리더들의 username 목록을 불러옵니다.
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: number
+          example: 4
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Succeed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  - type: string
+                description: username 목록
+        '403':
+          description: Forbidden; Forbidden Resource
+            (가입되지 않은 그룹에 대한 상세 조회 시도)
+
+  /group/{groupId}/join:
+    post:
+      summary: TODO
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: number
+          example: 4
+  /group/{groupId}/leave:
+    delete:
+      summary: Leave Group
+      description: |
+        그룹을 탈퇴합니다.
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: number
+          example: 4
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Succeed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: number
+                  groupId:
+                    type: number
+                  isGroupLeader:
+                    type: boolean
+                  createTime:
+                    type: string
+                    format: date-time
+                  updateTime:
+                    type: string
+                    format: date-time
+        '403':
+          description: Forbidden; Forbidden Resource
+            (가입되지 않은 그룹에 대한 탈퇴 시도)
+
+components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+  parameters:
+    cursor:
+      name: cursor
+      description: |
+        가져올 아이템의 기준점
+
+        지정하지 않으면 자동으로 첫번째 아이템부터 반환하며, 값이 양수가 아니면 400 에러가 반환됩니다.
+      required: false
+      in: query
+      schema:
+        type: number
+      example: 3
+    take:
+      name: take
+      description: |
+        가져올 아이템의 최대 개수
+
+        양수면 `cursor` 뒤의 아이템을, 음수면 `cursor` 앞의 아이템을 절댓값만큼 반환합니다.
+      required: true
+      in: query
+      schema:
+        type: number
+      example: 5
+  schemas:
+    LoginUserDto:
+      type: object
+      properties:
+        username:
+          type: string
+          example: admin
+        password:
+          type: string
+          example: Adminadmin
+      required:
+        - username
+        - password
+    NewPasswordDto:
+      type: object
+      properties:
+        newPassword:
+          type: string
+      required:
+        - newPassword
+    SignUpDto:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+        realName:
+          type: string
+          pattern: /^[a-zA-Z\s]+$/
+      required:
+        - username
+        - password
+        - email
+        - realName
+    WithdrawalDto:
+      type: object
+      properties:
+        password:
+          type: string
+      required:
+        - password
+    UpdateUserEmailDto:
+      type: object
+      properties:
+        email:
+          type: string
+      required:
+        - email
+    UpdateUserProfileRealNameDto:
+      type: object
+      properties:
+        realName:
+          type: string
+      required:
+        - realName
+    UserEmailDto:
+      type: object
+      properties:
+        email:
+          type: string
+      required:
+        - email
+    EmailAuthenticationPinDto:
+      type: object
+      properties:
+        pin:
+          type: string
+        email:
+          type: string
+      required:
+        - pin
+        - email
+    ProblemsResponseDto:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        difficulty:
+          type: object
+        submissionCount:
+          type: number
+        acceptedRate:
+          type: number
+        tags:
+          type: object
+      required:
+        - id
+        - title
+        - difficulty
+        - submissionCount
+        - acceptedRate
+        - tags
+    ProblemResponseDto:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        description:
+          type: string
+        inputDescription:
+          type: string
+        outputDescription:
+          type: string
+        hint:
+          type: string
+        languages:
+          type: array
+          items:
+            type: object
+        timeLimit:
+          type: number
+        memoryLimit:
+          type: number
+        difficulty:
+          type: object
+        source:
+          type: array
+          items:
+            type: string
+        inputExamples:
+          type: array
+          items:
+            type: string
+        outputExamples:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - title
+        - description
+        - inputDescription
+        - outputDescription
+        - hint
+        - languages
+        - timeLimit
+        - memoryLimit
+        - difficulty
+        - source
+        - inputExamples
+        - outputExamples
+    RelatedProblemsResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+        problemId:
+          type: number
+        title:
+          type: string
+      required:
+        - id
+        - problemId
+        - title
+    RelatedProblemResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+        problem:
+          type: object
+      required:
+        - id
+        - problem
+    Snippet:
+      type: object
+      properties:
+        id:
+          type: number
+        text:
+          type: string
+        locked:
+          type: boolean
+      required:
+        - id
+        - text
+        - locked
+    CreateSubmissionDto:
+      type: object
+      properties:
+        code:
+          type: array
+          items:
+            $ref: '#/components/schemas/Snippet'
+        language:
+          type: object
+      required:
+        - code
+        - language
