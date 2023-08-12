@@ -8,17 +8,18 @@ import {
   Req,
   Get,
   UseGuards,
-  ForbiddenException,
   Query,
-  Logger
+  Logger,
+  ConflictException
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import {
   AuthenticatedRequest,
   AuthNotNeeded,
   GroupMemberGuard
 } from '@libs/auth'
 import {
-  ActionNotAllowedException,
+  ConflictFoundException,
   EntityNotExistException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
@@ -74,7 +75,10 @@ export class ContestController {
     try {
       return await this.contestService.getContest(id)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
@@ -89,14 +93,17 @@ export class ContestController {
   ) {
     try {
       await this.contestService.createContestRecord(contestId, req.user.id)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      } else if (err instanceof ActionNotAllowedException) {
-        throw new ForbiddenException(err.message)
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
-      this.logger.error(err.message, err.stack)
-      throw new InternalServerErrorException(err.message)
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException(error.message)
     }
   }
 }
@@ -170,14 +177,16 @@ export class GroupContestController {
         req.user.id,
         groupId
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
-      if (err instanceof ActionNotAllowedException) {
-        throw new ForbiddenException(err.message)
-      }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }

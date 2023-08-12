@@ -7,8 +7,8 @@ import { stub } from 'sinon'
 import { AuthenticatedUser } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
-  ForbiddenAccessException,
-  UnprocessableDataException
+  DuplicateFoundException,
+  ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { GroupService } from './group.service'
@@ -107,7 +107,7 @@ describe('GroupService', () => {
       db.group.findUnique.resolves(group)
 
       await expect(service.createGroup(input, userId)).to.be.rejectedWith(
-        UnprocessableDataException
+        DuplicateFoundException
       )
     })
   })
@@ -150,7 +150,7 @@ describe('GroupService', () => {
       db.group.findFirst.resolves(group)
 
       await expect(service.updateGroup(groupId, input)).to.be.rejectedWith(
-        UnprocessableDataException
+        DuplicateFoundException
       )
     })
   })

@@ -9,8 +9,8 @@ import {
   InternalServerErrorException,
   Logger
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
-import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { NoticeService } from './notice.service'
 
@@ -39,7 +39,10 @@ export class NoticeController {
     try {
       return await this.noticeService.getNotice(id)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
@@ -77,7 +80,10 @@ export class GroupNoticeController {
     try {
       return await this.noticeService.getNotice(id, groupId)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)

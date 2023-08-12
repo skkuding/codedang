@@ -1,8 +1,7 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import type { Group, Notice } from '@prisma/client'
+import { Prisma, type Group, type Notice } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { NoticeService } from './notice.service'
 
@@ -51,7 +50,9 @@ const db = {
   notice: {
     findMany: stub(),
     findUnique: stub().resolves(notice),
-    findFirst: stub()
+    findUniqueOrThrow: stub().resolves(notice),
+    findFirst: stub(),
+    findFirstOrThrow: stub()
   },
   group: {
     findUnique: stub().resolves(group)
@@ -129,23 +130,24 @@ describe('NoticeService', () => {
     }
 
     it('should return a notice and previews', async () => {
-      db.notice.findFirst
-        .onFirstCall()
-        .resolves(userNotice.current)
-        .onSecondCall()
-        .resolves(userNotice.prev)
-        .onThirdCall()
-        .resolves(userNotice.next)
+      db.notice.findUniqueOrThrow.resolves(userNotice.current)
+      db.notice.findFirst.onFirstCall().resolves(userNotice.prev)
+      db.notice.findFirst.onSecondCall().resolves(userNotice.next)
 
       const getNotice = await service.getNotice(noticeId, group.id)
       expect(getNotice).to.deep.equal(userNotice)
     })
 
-    it('should throw error when the notice does not exist', async () => {
-      db.notice.findFirst.rejects(new EntityNotExistException('notice'))
+    it('should throw PrismaClientKnownRequestError when the notice does not exist', async () => {
+      db.notice.findUniqueOrThrow.rejects(
+        new Prisma.PrismaClientKnownRequestError('notice', {
+          code: 'P2002',
+          clientVersion: '5.1.1'
+        })
+      )
 
       await expect(service.getNotice(noticeId, group.id)).to.be.rejectedWith(
-        EntityNotExistException
+        Prisma.PrismaClientKnownRequestError
       )
     })
   })

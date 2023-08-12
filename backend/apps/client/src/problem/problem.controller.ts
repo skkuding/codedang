@@ -9,8 +9,8 @@ import {
   Query,
   UseGuards
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
-import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { ProblemService } from './problem.service'
 
@@ -28,8 +28,8 @@ export class ProblemController {
   ) {
     try {
       return await this.problemService.getProblems(cursor, take)
-    } catch (err) {
-      this.logger.error(err.message, err.stack)
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -38,11 +38,14 @@ export class ProblemController {
   async getProblem(@Param('problemId', ParseIntPipe) problemId: number) {
     try {
       return await this.problemService.getProblem(problemId)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -63,8 +66,8 @@ export class GroupProblemController {
   ) {
     try {
       return await this.problemService.getProblems(cursor, take, groupId)
-    } catch (err) {
-      this.logger.error(err.message, err.stack)
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -76,11 +79,14 @@ export class GroupProblemController {
   ) {
     try {
       return await this.problemService.getProblem(problemId, groupId)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }

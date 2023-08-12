@@ -11,7 +11,7 @@ const props = withDefaults(
     numberOfPages: number
     pageSlot?: number
     modelValue: number
-    mode: 'light' | 'dark'
+    mode?: 'light' | 'dark'
   }>(),
   { pageSlot: 5, mode: 'light' }
 )
@@ -20,9 +20,13 @@ const { numberOfPages, pageSlot, modelValue, mode } = toRefs(props)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void
+  (e: 'change-page', page: number): void
 }>()
 
 const currentPage = useClamp(modelValue.value, 1, numberOfPages)
+watch(currentPage, (value) => {
+  emit('change-page', value)
+})
 
 const dark = useDark()
 watch(

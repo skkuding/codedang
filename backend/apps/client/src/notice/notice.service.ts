@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import type { Notice } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
 @Injectable()
@@ -38,7 +37,7 @@ export class NoticeService {
   }
 
   async getNotice(id: number, groupId = OPEN_SPACE_ID) {
-    const current = await this.prisma.notice.findFirst({
+    const current = await this.prisma.notice.findUniqueOrThrow({
       where: {
         id,
         groupId,
@@ -49,8 +48,7 @@ export class NoticeService {
         content: true,
         createTime: true,
         updateTime: true
-      },
-      rejectOnNotFound: () => new EntityNotExistException('notice')
+      }
     })
 
     const navigate = (pos: 'prev' | 'next') => {
