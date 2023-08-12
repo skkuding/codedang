@@ -2,6 +2,7 @@ import {
   ConflictException,
   ForbiddenException,
   InternalServerErrorException,
+  Logger,
   ParseArrayPipe,
   ParseIntPipe, // Req,
   UnprocessableEntityException // UseGuards
@@ -29,6 +30,7 @@ import { WorkbookService } from './workbook.service'
 // Admin 권한이 필요한 Query에 한 해 @UseRolesGuard() 데코레이터 (Role.Admin이 Default) 향후 추가
 // @UseRolesGuard(Role.Admin)
 export class WorkbookResolver {
+  private readonly logger = new Logger(WorkbookResolver.name)
   constructor(private readonly workbookService: WorkbookService) {}
 
   @Query(() => [Workbook], { name: 'getWorkbooks' })
@@ -65,6 +67,7 @@ export class WorkbookResolver {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -89,6 +92,7 @@ export class WorkbookResolver {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -106,6 +110,7 @@ export class WorkbookResolver {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -122,6 +127,7 @@ export class WorkbookResolver {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -147,6 +153,7 @@ export class WorkbookResolver {
       } else if (error instanceof ConflictFoundException) {
         throw new ConflictException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException(error.message)
     }
   }
