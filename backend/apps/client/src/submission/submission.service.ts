@@ -22,7 +22,8 @@ import {
 import {
   ConflictFoundException,
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
@@ -54,6 +55,9 @@ export class SubmissionService implements OnModuleInit {
             error.every((e) => e instanceof ValidationError)
           ) {
             this.logger.error('Message format error', { ...error })
+            return new Nack()
+          } else if (error instanceof UnprocessableDataException) {
+            this.logger.error('Iris exception', error)
             return new Nack()
           } else {
             this.logger.error('Unexpected error', error)
@@ -268,6 +272,12 @@ export class SubmissionService implements OnModuleInit {
   async handleJudgerMessage(msg: JudgerResponse) {
     const submissionId = msg.submissionId
     const resultStatus = Status(msg.resultCode)
+
+    if (resultStatus === ResultStatus.ServerError) {
+      throw new UnprocessableDataException(
+        `${msg.submissionId} ${msg.error} ${msg.data}`
+      )
+    }
 
     const results = msg.data.judgeResult.map((result) => {
       return {
