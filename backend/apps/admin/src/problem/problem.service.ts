@@ -2,14 +2,12 @@ import { Injectable } from '@nestjs/common'
 import { Language } from '@generated'
 import { Workbook } from 'exceljs'
 import {
+  DuplicateFoundException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type {
-  ProblemTagCreateWithoutProblemInput,
-  ProblemTagUncheckedUpdateManyWithoutProblemNestedInput
-} from '@admin/@generated'
+import type { ProblemTagUncheckedUpdateManyWithoutProblemNestedInput } from '@admin/@generated'
 import { Level } from '@admin/@generated/prisma/level.enum'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 import { StorageService } from '@admin/storage/storage.service'
@@ -320,7 +318,6 @@ export class ProblemService {
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, languages, template, tags, testcases, ...data } = input
     const problem = await this.getProblem(id, groupId)
 
@@ -338,14 +335,14 @@ export class ProblemService {
       }
     })
 
+    let problemTag: ProblemTagUncheckedUpdateManyWithoutProblemNestedInput
+    if (tags) {
+      problemTag = await this.updateProblemTag(id, tags)
+    }
+
     // FIXME: handle tags -> remove eslint-disable after fix
     if (testcases?.length) {
       await this.updateTestcases(id, testcases)
-    }
-
-    let problemTag: ProblemTagUncheckedUpdateManyWithoutProblemNestedInput
-    if (tags) {
-      problemTag = await this.updatePorblemTag(id, tags)
     }
 
     return await this.prisma.problem.update({
@@ -359,13 +356,13 @@ export class ProblemService {
     })
   }
 
-  async updatePorblemTag(
+  async updateProblemTag(
     problemId: number,
     problemTags: UpdateProblemTagInput
-  ): Promise<ProblemTagUncheckedUpdateManyWithoutProblemNestedInput> {
-    const createIds: Array<ProblemTagCreateWithoutProblemInput> = []
+  ) {
+    const createIds = []
     const deleteIds = []
-    await Promise.all(
+    Promise.all(
       problemTags.create.map(async (tagId) => {
         const check = await this.prisma.problemTag.findFirst({
           where: {
@@ -374,12 +371,12 @@ export class ProblemService {
           }
         })
         if (check) {
-          throw new UnprocessableDataException('duplicated request')
+          throw new DuplicateFoundException(`${tagId} tag`)
         }
         createIds.push({ tag: { connect: { id: tagId } } })
       })
     )
-    await Promise.all(
+    Promise.all(
       problemTags.delete.map(async (tagId) => {
         const check = await this.prisma.problemTag.findFirstOrThrow({
           where: {
@@ -392,7 +389,7 @@ export class ProblemService {
       })
     )
 
-    return {
+    return await {
       create: createIds,
       delete: deleteIds
     }

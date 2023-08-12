@@ -88,10 +88,10 @@ export class FilterProblemsInput {
 
 @InputType()
 export class UpdateProblemTagInput {
-  @Field(() => [Int], { nullable: true })
+  @Field(() => [Int], { nullable: false })
   create!: Array<number>
 
-  @Field(() => [Int], { nullable: true })
+  @Field(() => [Int], { nullable: false })
   delete!: Array<number>
 }
 
