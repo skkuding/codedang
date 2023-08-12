@@ -11,7 +11,8 @@ import {
   type Contest,
   type Workbook,
   type Submission,
-  type ProblemTestcase
+  type ProblemTestcase,
+  type Announcement
 } from '@prisma/client'
 import { hash } from 'argon2'
 import * as dayjs from 'dayjs'
@@ -29,6 +30,7 @@ let contest: Contest
 const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
+const announcements: Announcement[] = []
 
 const createUsers = async () => {
   // create super admin user
@@ -7035,15 +7037,6 @@ const createContests = async () => {
         problemId: problem.id
       }
     })
-
-    // add clarifications to contestProblem
-    await prisma.clarification.create({
-      data: {
-        content: `${problem.id}번 문제가 blah blah 수정되었습니다.`,
-        contestId: contest.id,
-        problemId: problem.id
-      }
-    })
   }
 
   // TODO: add records and ranks
@@ -7366,6 +7359,42 @@ int main(void) {
   })
 }
 
+const createAnnouncements = async () => {
+  for (let i = 0; i < 10; ++i) {
+    announcements.push(
+      await prisma.announcement.create({
+        data: {
+          content: `Announcement_${i}`
+        }
+      })
+    )
+  }
+
+  for (let i = 0; i < 5; ++i) {
+    if (!problems[i] || !announcements[i]) {
+      continue
+    }
+    await prisma.problemAnnouncement.create({
+      data: {
+        problemId: problems[i].id,
+        announcementId: announcements[i].id
+      }
+    })
+  }
+
+  for (let i = 0; i < 5; ++i) {
+    if (!contest || !announcements[i]) {
+      continue
+    }
+    await prisma.contestAnnouncement.create({
+      data: {
+        contestId: contest.id,
+        announcementId: announcements[i].id
+      }
+    })
+  }
+}
+
 const main = async () => {
   await createUsers()
   await createGroups()
@@ -7374,6 +7403,7 @@ const main = async () => {
   await createContests()
   await createWorkbooks()
   await createSubmissions()
+  await createAnnouncements()
 }
 
 main()
