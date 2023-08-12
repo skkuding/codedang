@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common'
+import { Language } from '@generated'
 import { Workbook } from 'exceljs'
 import {
+  DuplicateFoundException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { Language } from '@admin/@generated/prisma/language.enum'
+import type { ProblemTagUncheckedUpdateManyWithoutProblemNestedInput } from '@admin/@generated'
 import { Level } from '@admin/@generated/prisma/level.enum'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 import { StorageService } from '@admin/storage/storage.service'
@@ -14,10 +16,11 @@ import type {
   CreateProblemInput,
   UploadFileInput,
   FilterProblemsInput,
-  UploadProblemInput
+  UploadProblemInput,
+  UpdateProblemInput,
+  UpdateProblemTagInput
 } from './model/problem.input'
 import type { Testcase } from './model/testcase.input'
-import type { UpdateProblemInput } from './model/update-problem.input'
 
 @Injectable()
 export class ProblemService {
@@ -315,8 +318,7 @@ export class ProblemService {
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, languages, template, tagIds, testcases, ...data } = input
+    const { id, languages, template, tags, testcases, ...data } = input
     const problem = await this.getProblem(id, groupId)
 
     if (languages && !languages.length) {
@@ -333,17 +335,58 @@ export class ProblemService {
       }
     })
 
-    // FIXME: handle tags -> remove eslint-disable after fix
-    if (testcases?.length) await this.updateTestcases(id, testcases)
+    let problemTag: ProblemTagUncheckedUpdateManyWithoutProblemNestedInput
+    if (tags) {
+      problemTag = await this.updateProblemTag(id, tags)
+    }
+
+    if (testcases?.length) {
+      await this.updateTestcases(id, testcases)
+    }
 
     return await this.prisma.problem.update({
       where: { id },
       data: {
         ...data,
         ...(languages && { languages: languages }),
-        ...(template && { template: [JSON.stringify(template)] })
+        ...(template && { template: [JSON.stringify(template)] }),
+        problemTag: problemTag
       }
     })
+  }
+
+  async updateProblemTag(
+    problemId: number,
+    problemTags: UpdateProblemTagInput
+  ) {
+    const createIds = problemTags.create.map(async (tagId) => {
+      const check = await this.prisma.problemTag.findFirst({
+        where: {
+          tagId: tagId,
+          problemId: problemId
+        }
+      })
+      if (check) {
+        throw new DuplicateFoundException(`${tagId} tag`)
+      }
+      return { tag: { connect: { id: tagId } } }
+    })
+
+    const deleteIds = problemTags.delete.map(async (tagId) => {
+      const check = await this.prisma.problemTag.findFirstOrThrow({
+        where: {
+          tagId: tagId,
+          problemId: problemId
+        },
+        select: { id: true }
+      })
+      return { id: check.id }
+    })
+
+    return await {
+      create: await Promise.all(createIds),
+      delete: await Promise.all(deleteIds)
+    }
   }
 
   async updateTestcases(
