@@ -66,9 +66,9 @@ export class ProblemService {
   // TODO: 테스트케이스별로 파일 따로 업로드 -> 수정 시 updateTestcases, deleteProblem 로직 함께 정리
   async createTestcases(problemId: number, testcases: Array<Testcase>) {
     const filename = `${problemId}.json`
-    await Promise.all(
-      testcases.map(async (tc) => {
-        await this.prisma.problemTestcase.create({
+    const testcaseIds = await Promise.all(
+      testcases.map(async (tc, index) => {
+        const problemTestcase = await this.prisma.problemTestcase.create({
           data: {
             problemId,
             input: filename,
@@ -76,13 +76,16 @@ export class ProblemService {
             scoreWeight: tc.scoreWeight
           }
         })
+        return { index, id: problemTestcase.id }
       })
     )
 
     const data = JSON.stringify(
       testcases.map((tc, index) => {
         return {
-          id: problemId.toString() + ':' + index.toString(),
+          id: `${problemId}:${
+            testcaseIds.find((record) => record.index === index).id
+          }`,
           input: tc.input,
           output: tc.output
         }
