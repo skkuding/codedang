@@ -4,7 +4,8 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  Max
+  Max,
+  Min
 } from 'class-validator'
 
 class JudgeResult {
@@ -34,7 +35,7 @@ class JudgeData {
 
 export class JudgerResponse {
   @Max(7)
-  @Max(1)
+  @Min(1)
   @IsNumber()
   @IsNotEmpty()
   resultCode: number
