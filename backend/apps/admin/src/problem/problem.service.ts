@@ -340,7 +340,6 @@ export class ProblemService {
       problemTag = await this.updateProblemTag(id, tags)
     }
 
-    // FIXME: handle tags -> remove eslint-disable after fix
     if (testcases?.length) {
       await this.updateTestcases(id, testcases)
     }
@@ -362,36 +361,33 @@ export class ProblemService {
   ) {
     const createIds = []
     const deleteIds = []
-    Promise.all(
-      problemTags.create.map(async (tagId) => {
-        const check = await this.prisma.problemTag.findFirst({
-          where: {
-            tagId: tagId,
-            problemId: problemId
-          }
-        })
-        if (check) {
-          throw new DuplicateFoundException(`${tagId} tag`)
+    problemTags.create.map(async (tagId) => {
+      const check = await this.prisma.problemTag.findFirst({
+        where: {
+          tagId: tagId,
+          problemId: problemId
         }
-        createIds.push({ tag: { connect: { id: tagId } } })
       })
-    )
-    Promise.all(
-      problemTags.delete.map(async (tagId) => {
-        const check = await this.prisma.problemTag.findFirstOrThrow({
-          where: {
-            tagId: tagId,
-            problemId: problemId
-          },
-          select: { id: true }
-        })
-        deleteIds.push({ id: check.id })
+      if (check) {
+        throw new DuplicateFoundException(`${tagId} tag`)
+      }
+      createIds.push({ tag: { connect: { id: tagId } } })
+    })
+
+    problemTags.delete.map(async (tagId) => {
+      const check = await this.prisma.problemTag.findFirstOrThrow({
+        where: {
+          tagId: tagId,
+          problemId: problemId
+        },
+        select: { id: true }
       })
-    )
+      deleteIds.push({ id: check.id })
+    })
 
     return await {
-      create: createIds,
-      delete: deleteIds
+      create: await Promise.all(createIds),
+      delete: await Promise.all(deleteIds)
     }
   }
 
