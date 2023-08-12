@@ -1,11 +1,13 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
+import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
+import type { PublicizingRequest } from './model/publicizing-request.model'
 
 const contestId = 1
 const userId = 1
@@ -25,6 +27,12 @@ const contest: Contest = {
   },
   createTime: undefined,
   updateTime: undefined
+}
+
+const publicizingRequest: PublicizingRequest = {
+  contestId: contestId,
+  userId: userId,
+  expireTime: new Date('2023-08-19T07:32:07.533Z')
 }
 
 const input = {
@@ -63,6 +71,7 @@ const db = {
 
 describe('ContestService', () => {
   let service: ContestService
+  let cache: Cache
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -84,6 +93,8 @@ describe('ContestService', () => {
     }).compile()
 
     service = module.get<ContestService>(ContestService)
+    cache = module.get<Cache>(CACHE_MANAGER)
+    stub(cache.store, 'keys').resolves(['contest:1:publicize'])
   })
 
   it('should be defined', () => {
@@ -101,8 +112,11 @@ describe('ContestService', () => {
 
   describe('getPublicizingRequests', () => {
     it('should return an array of PublicizingRequest', async () => {
+      const cacheSpyGet = stub(cache, 'get').resolves(publicizingRequest)
       const res = await service.getPublicizingRequests()
-      expect(res).to.deep.equal([])
+
+      expect(cacheSpyGet.called).to.be.true
+      expect(res).to.deep.equal([publicizingRequest])
     })
   })
 
@@ -149,7 +163,12 @@ describe('ContestService', () => {
     it('should return accepted contest', async () => {
       db.contest.update.resolves(contest)
 
+      const cacheSpyGet = stub(cache, 'get').resolves(publicizingRequest)
+      const cacheSpyDel = stub(cache, 'del').resolves()
       const res = await service.acceptPublicizingRequest(contestId)
+
+      expect(cacheSpyGet.called).to.be.true
+      expect(cacheSpyDel.called).to.be.true
       expect(res).to.deep.equal(contest)
     })
 
@@ -170,7 +189,12 @@ describe('ContestService', () => {
     it('should return rejected contest', async () => {
       db.contest.findUnique.resolves(contest)
 
+      const cacheSpyGet = stub(cache, 'get').resolves(publicizingRequest)
+      const cacheSpyDel = stub(cache, 'del').resolves()
       const res = await service.rejectPublicizingRequest(contestId)
+
+      expect(cacheSpyGet.called).to.be.true
+      expect(cacheSpyDel.called).to.be.true
       expect(res).to.deep.equal(contest)
     })
 
