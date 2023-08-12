@@ -359,9 +359,7 @@ export class ProblemService {
     problemId: number,
     problemTags: UpdateProblemTagInput
   ) {
-    const createIds = []
-    const deleteIds = []
-    problemTags.create.map(async (tagId) => {
+    const createIds = problemTags.create.map(async (tagId) => {
       const check = await this.prisma.problemTag.findFirst({
         where: {
           tagId: tagId,
@@ -371,10 +369,10 @@ export class ProblemService {
       if (check) {
         throw new DuplicateFoundException(`${tagId} tag`)
       }
-      createIds.push({ tag: { connect: { id: tagId } } })
+      return { tag: { connect: { id: tagId } } }
     })
 
-    problemTags.delete.map(async (tagId) => {
+    const deleteIds = problemTags.delete.map(async (tagId) => {
       const check = await this.prisma.problemTag.findFirstOrThrow({
         where: {
           tagId: tagId,
@@ -382,7 +380,7 @@ export class ProblemService {
         },
         select: { id: true }
       })
-      deleteIds.push({ id: check.id })
+      return { id: check.id }
     })
 
     return await {
