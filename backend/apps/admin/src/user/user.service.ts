@@ -227,6 +227,15 @@ export class UserService {
       JOIN_GROUP_REQUEST_EXPIRE_TIME
     )
     if (isAccepted) {
+      const requestedUser = await this.prisma.user.findUnique({
+        where: {
+          id: userId
+        },
+        select: {
+          role: true
+        }
+      })
+
       return await this.prisma.userGroup.create({
         data: {
           user: {
@@ -235,7 +244,9 @@ export class UserService {
           group: {
             connect: { id: groupId }
           },
-          isGroupLeader: false
+          isGroupLeader:
+            requestedUser.role == Role.Admin ||
+            requestedUser.role == Role.SuperAdmin
         }
       })
     } else {
