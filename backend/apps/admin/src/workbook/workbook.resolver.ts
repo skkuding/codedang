@@ -126,15 +126,15 @@ export class WorkbookResolver {
     }
   }
 
-  @Mutation(() => [WorkbookProblem], { name: 'createWorkbookProblem' })
-  async createWorkbookProblem(
+  @Mutation(() => [WorkbookProblem], { name: 'createWorkbookProblems' })
+  async createWorkbookProblems(
     @Args('groupId', { type: () => Int }, ParseIntPipe) groupId: number,
     @Args('problemIds', { type: () => [Int] }, ParseArrayPipe)
     problemIds: number[],
     @Args('workbookId', { type: () => Int }, ParseIntPipe) workbookId: number
   ) {
     try {
-      return this.workbookService.createWorkbookProblem(
+      return this.workbookService.createWorkbookProblems(
         groupId,
         problemIds,
         workbookId

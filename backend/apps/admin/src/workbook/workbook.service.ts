@@ -129,7 +129,7 @@ export class WorkbookService {
     return deletedWorkbook
   }
 
-  async createWorkbookProblem(
+  async createWorkbookProblems(
     groupId: number,
     problemIds: number[],
     workbookId: number

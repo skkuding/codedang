@@ -346,7 +346,7 @@ describe('WorkbookService', () => {
       db.workbookProblem.findUnique.resolves(null)
       db.workbookProblem.create.resolves(exampleWorkbookProblem)
       //when
-      const result = await service.createWorkbookProblem(1, [1], 1)
+      const result = await service.createWorkbookProblems(1, [1], 1)
 
       //then
       expect(result).to.deep.equals([exampleWorkbookProblem])
@@ -361,7 +361,7 @@ describe('WorkbookService', () => {
 
       // when & then
       await expect(
-        service.createWorkbookProblem(1, [1, 2, 3, 4, 5], 10)
+        service.createWorkbookProblems(1, [1, 2, 3, 4, 5], 10)
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
@@ -384,7 +384,7 @@ describe('WorkbookService', () => {
 
       // when & then
       await expect(
-        service.createWorkbookProblem(1, [10, 11, 12], 10)
+        service.createWorkbookProblems(1, [10, 11, 12], 10)
       ).to.be.rejectedWith(EntityNotExistException)
     })
     it('should handle Problem not beloning to the Group', async () => {
@@ -425,7 +425,7 @@ describe('WorkbookService', () => {
 
       // when & then
       await expect(
-        service.createWorkbookProblem(2, [10, 11, 12], 10)
+        service.createWorkbookProblems(2, [10, 11, 12], 10)
       ).to.be.rejectedWith(UnprocessableDataException)
     })
 
@@ -475,7 +475,7 @@ describe('WorkbookService', () => {
 
       // when & then
       await expect(
-        service.createWorkbookProblem(1, [1, 2, 3, 4, 5], 1)
+        service.createWorkbookProblems(1, [1, 2, 3, 4, 5], 1)
       ).to.be.rejectedWith(ConflictFoundException)
     })
   })
