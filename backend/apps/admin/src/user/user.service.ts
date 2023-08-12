@@ -1,13 +1,11 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { BadRequestException, Inject, Injectable } from '@nestjs/common'
+import { Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 import type { UserGroup } from '@admin/@generated/user-group/user-group.model'
-import type { User } from '@admin/@generated/user/user.model'
-import type { GroupMember } from './model/groupMember.model'
-import type { UpdateUserGroup } from './model/userGroup-update.model'
 
 @Injectable()
 export class UserService {
@@ -21,8 +19,8 @@ export class UserService {
     cursor: number,
     take: number,
     isGroupLeader: boolean
-  ): Promise<GroupMember[]> {
-    cursor = cursor ? cursor : cursor - 1
+  ) {
+    cursor = cursor - 1
     return (
       await this.prisma.userGroup.findMany({
         take,
@@ -66,16 +64,17 @@ export class UserService {
     userId: number,
     groupId: number,
     isGroupLeader: boolean
-  ): Promise<UpdateUserGroup> {
+  ) {
     const groupMembers = (
       await this.prisma.userGroup.findMany({
         where: {
           groupId: groupId
         },
         select: {
+          userId: true,
           user: {
             select: {
-              id: true
+              role: true
             }
           },
           isGroupLeader: true
@@ -83,7 +82,8 @@ export class UserService {
       })
     ).map((userGroup) => {
       return {
-        userId: userGroup.user.id,
+        userId: userGroup.userId,
+        userRole: userGroup.user.role,
         isGroupLeader: userGroup.isGroupLeader
       }
     })
@@ -96,6 +96,18 @@ export class UserService {
       throw new BadRequestException(
         `userId ${userId} is not a group member of groupId ${groupId}`
       )
+    }
+
+    if (!isGroupLeader) {
+      const isAdmin = groupMembers.some(
+        (member) =>
+          member.userId === userId &&
+          (member.userRole == Role.Admin || member.userRole == Role.SuperAdmin)
+      )
+
+      if (isAdmin) {
+        throw new BadRequestException(`userId ${userId} is admin`)
+      }
     }
 
     const manager = groupMembers
@@ -124,16 +136,11 @@ export class UserService {
       },
       data: {
         isGroupLeader: isGroupLeader
-      },
-      select: {
-        userId: true,
-        groupId: true,
-        isGroupLeader: true
       }
     })
   }
 
-  async deleteGroupMember(userId: number, groupId: number): Promise<UserGroup> {
+  async deleteGroupMember(userId: number, groupId: number) {
     const groupMembers = (
       await this.prisma.userGroup.findMany({
         where: {
@@ -184,7 +191,7 @@ export class UserService {
     })
   }
 
-  async getNeededApproval(groupId: number): Promise<User[]> {
+  async getNeededApproval(groupId: number) {
     const joinGroupRequest: number[] = await this.cacheManager.get(
       joinGroupCacheKey(groupId)
     )

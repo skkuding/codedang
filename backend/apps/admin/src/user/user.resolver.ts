@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   InternalServerErrorException,
+  Logger,
   ParseIntPipe
 } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
@@ -9,12 +10,12 @@ import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe } from '@libs/pipe'
 import { UserGroup } from '@admin/@generated/user-group/user-group.model'
 import { GroupMember } from './model/groupMember.model'
-import type { UpdateUserGroup } from './model/userGroup-update.model'
 import { UserService } from './user.service'
 
 @Resolver(() => User)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
+  private readonly logger = new Logger(UserResolver.name)
 
   @Query(() => [GroupMember])
   async getGroupMembers(
@@ -23,7 +24,7 @@ export class UserResolver {
     @Args('cursor', CursorValidationPipe) cursor: number,
     @Args('take', ParseIntPipe) take: number,
     @Args('isGroupLeader') isGroupLeader: boolean
-  ): Promise<GroupMember[]> {
+  ) {
     return await this.userService.getGroupMembers(
       groupId,
       cursor,
@@ -36,7 +37,7 @@ export class UserResolver {
   async downgradeGroupManager(
     @Args('userId') userId: number,
     @Args('groupId') groupId: number
-  ): Promise<UpdateUserGroup> {
+  ) {
     try {
       return await this.userService.updateGroupMemberRole(
         userId,
@@ -44,6 +45,7 @@ export class UserResolver {
         false
       )
     } catch (error) {
+      this.logger.error(error.message, error.stack)
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message)
       }
@@ -55,10 +57,11 @@ export class UserResolver {
   async upgradeGroupMember(
     @Args('userId') userId: number,
     @Args('groupId') groupId: number
-  ): Promise<UpdateUserGroup> {
+  ) {
     try {
       return await this.userService.updateGroupMemberRole(userId, groupId, true)
     } catch (error) {
+      this.logger.error(error.message, error.stack)
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message)
       }
@@ -70,10 +73,11 @@ export class UserResolver {
   async deleteGroupMember(
     @Args('userId') userId: number,
     @Args('groupId') groupId: number
-  ): Promise<UserGroup> {
+  ) {
     try {
       return await this.userService.deleteGroupMember(userId, groupId)
     } catch (error) {
+      this.logger.error(error.message, error.stack)
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message)
       }
@@ -82,10 +86,11 @@ export class UserResolver {
   }
 
   @Query(() => [User])
-  async getJoinRequests(@Args('groupId') groupId: number): Promise<User[]> {
+  async getJoinRequests(@Args('groupId') groupId: number) {
     try {
       return await this.userService.getNeededApproval(groupId)
     } catch (error) {
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -94,10 +99,11 @@ export class UserResolver {
   async rejectJoinRequest(
     @Args('groupId') groupId: number,
     @Args('userId') userId: number
-  ): Promise<UserGroup | number> {
+  ) {
     try {
       return await this.userService.handleJoinRequest(groupId, userId, false)
     } catch (error) {
+      this.logger.error(error.message, error.stack)
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message)
       }
@@ -109,10 +115,11 @@ export class UserResolver {
   async acceptJoinRequest(
     @Args('groupId') groupId: number,
     @Args('userId') userId: number
-  ): Promise<UserGroup | number> {
+  ) {
     try {
       return await this.userService.handleJoinRequest(groupId, userId, true)
     } catch (error) {
+      this.logger.error(error.message, error.stack)
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message)
       }
