@@ -10,7 +10,7 @@ import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
-  ActionNotAllowedException,
+  ConflictFoundException,
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -111,7 +111,7 @@ export class ContestResolver {
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof ActionNotAllowedException) {
+      } else if (error instanceof ConflictFoundException) {
         throw new BadRequestException(error.message)
       }
       this.logger.error(error.message, error.stack)
@@ -166,7 +166,7 @@ export class ContestResolver {
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof ActionNotAllowedException) {
+      } else if (error instanceof ConflictFoundException) {
         throw new BadRequestException(error.message)
       }
       this.logger.error(error.message, error.stack)

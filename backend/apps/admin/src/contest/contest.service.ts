@@ -8,7 +8,7 @@ import { Cache } from 'cache-manager'
 import { contestPublicizingRequestKey } from '@libs/cache'
 import { OPEN_SPACE_ID, PUBLICIZING_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
-  ActionNotAllowedException,
+  ConflictFoundException,
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -208,10 +208,7 @@ export class ContestService {
 
     const duplicatedRequest = await this.cacheManager.get(key)
     if (duplicatedRequest) {
-      throw new ActionNotAllowedException(
-        'duplicated publicizing request',
-        'contest'
-      )
+      throw new ConflictFoundException('duplicated publicizing request')
     }
 
     await this.cacheManager.set(
@@ -244,10 +241,7 @@ export class ContestService {
     }
 
     if (contest.groupId != groupId) {
-      throw new ActionNotAllowedException(
-        'contest must be in the group',
-        'contest'
-      )
+      throw new ConflictFoundException('contest must be in the group')
     }
 
     const contestProblems = []
