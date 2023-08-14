@@ -1,15 +1,39 @@
+(cors) {
+  @cors_preflight method OPTIONS
+  @cors header Origin {args[0]}
+
+  handle @cors_preflight {
+	  header Access-Control-Allow-Credentials true
+    header Access-Control-Allow-Origin "{args[0]}"
+    header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+    header Access-Control-Allow-Headers "Content-Type, Authorization"
+    respond "" 204
+  }
+
+  handle @cors {
+    header Access-Control-Allow-Origin "{args[0]}"
+  }
+}
+
 dev.codedang.com {
-    handle /api/* {
-        reverse_proxy 127.0.0.1:4000
+  handle /api/* {
+	  import cors http://localhost:5173
+    reverse_proxy 127.0.0.1:4000 {
+      header_down -Access-Control-Allow-Origin *
+	  }
+	  header {
+      Set-Cookie (.*) "$1; SameSite=None; Secure"
+      defer
     }
+  }
 
-    handle /graphql {
-        reverse_proxy 127.0.0.1:3000
-    }
+  handle /graphql {
+    reverse_proxy 127.0.0.1:3000
+  }
 
-    handle {
-        root * /var/www/html
-        try_files {path} /index.html
-        file_server
-    }
+  handle {
+    root * /var/www/html
+    try_files {path} /index.html
+    file_server
+  }
 }
