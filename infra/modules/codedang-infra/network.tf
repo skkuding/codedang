@@ -284,3 +284,28 @@ resource "aws_security_group" "iris" {
     Name = "Codedang-SG-Iris"
   }
 }
+
+resource "aws_security_group" "ecs_sg" {
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # cloud front로 하려면 수정할수도 -> ALB security group 으로 변경해야할 것 같음
+  }
+  # Inbound traffic is narrowed to two ports: 22 for SSH and 443 for HTTPS needed to download the docker image from ECR. public이 필수인가..?
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # cloud front로 하려면 수정할수도 -> ALB security group 으로 변경해야할 것 같음
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # cloud front로 하려면 수정할수도 -> ALB security group 으로 변경해야할 것 같음
+  }
+}
