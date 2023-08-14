@@ -8,18 +8,18 @@ import {
   Req,
   Get,
   UseGuards,
-  ForbiddenException,
-  Query
+  Query,
+  Logger,
+  ConflictException
 } from '@nestjs/common'
-import type { Contest } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import {
   AuthenticatedRequest,
   AuthNotNeeded,
-  RolesGuard,
   GroupMemberGuard
 } from '@libs/auth'
 import {
-  ActionNotAllowedException,
+  ConflictFoundException,
   EntityNotExistException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
@@ -27,25 +27,29 @@ import { ContestService } from './contest.service'
 
 @Controller('contest')
 export class ContestController {
+  private readonly logger = new Logger(ContestController.name)
+
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
   @AuthNotNeeded()
-  async getContests(): Promise<{
-    ongoing: Partial<Contest>[]
-    upcoming: Partial<Contest>[]
-  }> {
-    return await this.contestService.getContestsByGroupId()
+  async getContests() {
+    try {
+      return await this.contestService.getContestsByGroupId()
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get('auth')
-  async authGetContests(@Req() req: AuthenticatedRequest): Promise<{
-    registeredOngoing: Partial<Contest>[]
-    registeredUpcoming: Partial<Contest>[]
-    ongoing: Partial<Contest>[]
-    upcoming: Partial<Contest>[]
-  }> {
-    return await this.contestService.getContestsByGroupId(req.user?.id)
+  async authGetContests(@Req() req: AuthenticatedRequest) {
+    try {
+      return await this.contestService.getContestsByGroupId(req.user?.id)
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get('finished')
@@ -53,23 +57,31 @@ export class ContestController {
   async getFinishedContests(
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
-  ): Promise<{
-    finished: Partial<Contest>[]
-  }> {
-    return await this.contestService.getFinishedContestsByGroupId(cursor, take)
+  ) {
+    try {
+      return await this.contestService.getFinishedContestsByGroupId(
+        cursor,
+        take
+      )
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
   }
 
-  @Get(':contestId')
+  @Get(':id')
   @AuthNotNeeded()
-  async getContest(
-    @Param('contestId', ParseIntPipe) contestId: number
-  ): Promise<Partial<Contest>> {
+  async getContest(@Param('id', ParseIntPipe) id: number) {
     try {
-      return await this.contestService.getContest(contestId)
+      return await this.contestService.getContest(id)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -81,33 +93,42 @@ export class ContestController {
   ) {
     try {
       await this.contestService.createContestRecord(contestId, req.user.id)
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      } else if (err instanceof ActionNotAllowedException) {
-        throw new ForbiddenException(err.message)
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
-      throw new InternalServerErrorException(err.message)
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException(error.message)
     }
   }
 }
 
 @Controller('group/:groupId/contest')
-@UseGuards(RolesGuard, GroupMemberGuard)
+@UseGuards(GroupMemberGuard)
 export class GroupContestController {
+  private readonly logger = new Logger(GroupContestController.name)
+
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
   async getContests(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number
-  ): Promise<{
-    registeredOngoing?: Partial<Contest>[]
-    registeredUpcoming?: Partial<Contest>[]
-    ongoing: Partial<Contest>[]
-    upcoming: Partial<Contest>[]
-  }> {
-    return await this.contestService.getContestsByGroupId(req.user.id, groupId)
+  ) {
+    try {
+      return await this.contestService.getContestsByGroupId(
+        req.user.id,
+        groupId
+      )
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get('finished')
@@ -115,27 +136,31 @@ export class GroupContestController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
-  ): Promise<{
-    finished: Partial<Contest>[]
-  }> {
-    return await this.contestService.getFinishedContestsByGroupId(
-      cursor,
-      take,
-      groupId
-    )
+  ) {
+    try {
+      return await this.contestService.getFinishedContestsByGroupId(
+        cursor,
+        take,
+        groupId
+      )
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
   }
 
   @Get(':id')
   async getContest(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('id', ParseIntPipe) contestId: number
-  ): Promise<Partial<Contest>> {
+    @Param('id', ParseIntPipe) id: number
+  ) {
     try {
-      return await this.contestService.getContest(contestId, groupId)
+      return await this.contestService.getContest(id, groupId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -152,13 +177,16 @@ export class GroupContestController {
         req.user.id,
         groupId
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
-      if (err instanceof ActionNotAllowedException) {
-        throw new ForbiddenException(err.message)
-      }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }

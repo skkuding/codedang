@@ -7,28 +7,32 @@
     "essential": true,
     "environment": [
       {
-        "name":"RABBITMQ_HOST_ID",
-        "value": "${rabbitmq_host_id}"
+        "name": "RABBITMQ_SSL",
+        "value": "true"
       },
       {
-        "name":"RABBITMQ_HOST_REGION",
-        "value": "${rabbitmq_host_region}"
+        "name": "RABBITMQ_HOST",
+        "value": "${rabbitmq_host}"
       },
       {
-        "name":"RABBITMQ_PORT",
+        "name": "RABBITMQ_PORT",
         "value": "${rabbitmq_port}"
       },
       {
-        "name":"RABBITMQ_DEFAULT_USER",
+        "name": "RABBITMQ_DEFAULT_USER",
         "value": "${rabbitmq_username}"
       },
       {
-        "name":"RABBITMQ_DEFAULT_PASS",
+        "name": "RABBITMQ_DEFAULT_PASS",
         "value": "${rabbitmq_password}"
       },
       {
-        "name":"RABBITMQ_DEFAULT_VHOST",
+        "name": "RABBITMQ_DEFAULT_VHOST",
         "value": "${rabbitmq_vhost}"
+      },
+      {
+        "name": "TESTCASE_SERVER_URL",
+        "value": "https://${testcase_server_url}/:id.json"
       }
     ],
     "logConfiguration": {

@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common'
 import type { AuthenticatedUser } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
-  ForbiddenAccessException,
-  UnprocessableDataException
+  DuplicateFoundException,
+  ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { CreateGroupInput, UpdateGroupInput } from './model/group.input'
@@ -19,7 +19,7 @@ export class GroupService {
       }
     })
     if (duplicateName) {
-      throw new UnprocessableDataException('Group name already exists')
+      throw new DuplicateFoundException('Group name')
     }
     if (!input.config.showOnList) {
       input.config.allowJoinFromSearch = false
@@ -109,7 +109,7 @@ export class GroupService {
       }
     })
     if (duplicateName) {
-      throw new UnprocessableDataException('Group name already exists')
+      throw new DuplicateFoundException('Group name')
     }
 
     if (!input.config.showOnList) {

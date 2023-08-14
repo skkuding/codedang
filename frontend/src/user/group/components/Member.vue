@@ -1,64 +1,73 @@
 <script setup lang="ts">
 import Button from '@/common/components/Atom/Button.vue'
-import Modal from '@/common/components/Molecule/Modal.vue'
-import { ref } from 'vue'
+import Dialog from '@/common/components/Molecule/Dialog.vue'
+import { useDialog } from '@/common/composables/dialog'
+import { useToast } from '@/common/composables/toast'
+import axios from 'axios'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import NameList from './NameList.vue'
 
-defineProps<{
+const props = defineProps<{
   id: number
-  createdBy: number
 }>()
 
-const isModalVisible = ref(false)
+const showLeaveModal = ref(false)
+const showErrorModal = ref(false)
 
-const close = () => (isModalVisible.value = false)
+const groupLeader = ref<string[]>([])
+const groupMember = ref<string[]>([])
 
-// TODO : Yes 눌렀을때 API 호출하도록 변경 필요
+const openToast = useToast()
+const dialog = useDialog()
+const router = useRouter()
 
-// dummy data
-const groupAdmin = [
-  { id: 1, username: '하솔비', studentId: '201831xxxx', role: 'group_admin' },
-  { id: 3, username: '하솔비', studentId: '201833xxxx', role: 'group_admin' },
-  { id: 7, username: '하솔비', studentId: '201837xxxx', role: 'group_admin' },
-  { id: 8, username: '하솔비', studentId: '201838xxxx', role: 'group_admin' },
-  { id: 9, username: '아무이름', studentId: '201839xxxx', role: 'group_admin' },
-  { id: 11, username: '하하하', studentId: '201831xxxx', role: 'group_admin' }
-]
-const groupMember = [
-  { id: 2, username: 'David Kim', studentId: '201832xxxx', role: 'user' },
-  { id: 4, username: '하솔비', studentId: '201834xxxx', role: 'user' },
-  { id: 5, username: '하솔비', studentId: '201835xxxx', role: 'user' },
-  { id: 6, username: '하솔비', studentId: '201836xxxx', role: 'user' },
-  { id: 10, username: '하솔비', studentId: '201832xxxx', role: 'user' },
-  { id: 2, username: 'David Kim', studentId: '201832xxxx', role: 'user' },
-  { id: 2, username: 'David Kim', studentId: '201832xxxx', role: 'user' },
-  { id: 4, username: '하솔비', studentId: '201834xxxx', role: 'user' },
-  { id: 5, username: '하솔비', studentId: '201835xxxx', role: 'user' },
-  { id: 6, username: '하솔비', studentId: '201836xxxx', role: 'user' },
-  { id: 10, username: '하솔비', studentId: '201832xxxx', role: 'user' },
-  { id: 4, username: '하솔비', studentId: '201834xxxx', role: 'user' },
-  { id: 5, username: '하솔비', studentId: '201835xxxx', role: 'user' },
-  { id: 6, username: '하솔비', studentId: '201836xxxx', role: 'user' },
-  { id: 10, username: '하솔비', studentId: '201832xxxx', role: 'user' }
-]
+const clickLeave = () => {
+  showLeaveModal.value = true
+  dialog.confirm({
+    title: 'Leave Group',
+    content: 'Do you really want to leave group?',
+    yes: 'Yes'
+  })
+}
+
+const leave = async () => {
+  showLeaveModal.value = false
+  try {
+    await axios.delete(`/api/group/${props.id}/leave`)
+    router.replace('/group')
+    openToast({ message: 'Successfully left the group!', type: 'success' })
+  } catch (err) {
+    // when the last leader tries to leave a group
+    showErrorModal.value = true
+    dialog.error({
+      title: 'Request Failed',
+      content: "You can't leave this group"
+    })
+  }
+}
+
+onMounted(async () => {
+  try {
+    const { data: member } = await axios.get(`/api/group/${props.id}/members`)
+    const { data: leader } = await axios.get(`/api/group/${props.id}/leaders`)
+
+    groupMember.value = member
+    groupLeader.value = leader
+  } catch (err) {
+    router.replace('/404')
+  }
+})
 </script>
 
 <template>
   <div class="mx-auto mt-8 flex flex-col gap-20">
     <div class="flex flex-col justify-center gap-10">
-      <NameList title="Manager" :user-list="groupAdmin" :creator="createdBy" />
-      <NameList title="Member" :user-list="groupMember" :creator="createdBy" />
+      <NameList title="Leader" :user-list="groupLeader" />
+      <NameList title="Member" :user-list="groupMember" />
     </div>
-    <Button class="self-end" @click="isModalVisible = true">Leave Group</Button>
+    <Button class="self-end" @click="clickLeave">Leave Group</Button>
   </div>
-  <Modal v-model="isModalVisible" class="shadow-md">
-    <div class="flex flex-col items-center justify-center gap-6 p-8">
-      <h1 class="text-lg font-bold">Leave Group</h1>
-      <p>Do you really want to leave group?</p>
-      <div class="flex gap-8">
-        <Button class="w-20" @click="close">Yes</Button>
-        <Button class="w-20" @click="close">No</Button>
-      </div>
-    </div>
-  </Modal>
+  <Dialog v-if="showLeaveModal" @yes="leave" @no="showLeaveModal = false" />
+  <Dialog v-if="showErrorModal" @yes="showErrorModal = false" />
 </template>

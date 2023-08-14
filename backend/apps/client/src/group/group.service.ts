@@ -1,15 +1,11 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
-import type { UserGroup } from '@prisma/client'
+import { Role, type UserGroup } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { joinGroupCacheKey } from '@libs/cache'
-import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
-import {
-  ActionNotAllowedException,
-  EntityNotExistException
-} from '@libs/exception'
+import { JOIN_GROUP_REQUEST_EXPIRE_TIME, OPEN_SPACE_ID } from '@libs/constants'
+import { ConflictFoundException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { GroupData } from './interface/group-data.interface'
 import type { GroupJoinRequest } from './interface/group-join-request.interface'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
@@ -20,7 +16,7 @@ export class GroupService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getGroup(userId: number, groupId: number): Promise<Partial<GroupData>> {
+  async getGroup(userId: number, groupId: number) {
     const isJoined = await this.prisma.userGroup.findFirst({
       where: {
         userId: userId,
@@ -39,7 +35,7 @@ export class GroupService {
     })
 
     if (!isJoined) {
-      const group = await this.prisma.group.findFirst({
+      const group = await this.prisma.group.findUniqueOrThrow({
         where: {
           id: groupId,
           config: {
@@ -53,8 +49,7 @@ export class GroupService {
           description: true,
           userGroup: true,
           config: true
-        },
-        rejectOnNotFound: () => new EntityNotExistException('group')
+        }
       })
 
       return {
@@ -115,7 +110,7 @@ export class GroupService {
     return members
   }
 
-  async getGroups(cursor: number, take: number): Promise<GroupData[]> {
+  async getGroups(cursor: number, take: number) {
     const groups = (
       await this.prisma.group.findMany({
         take,
@@ -149,7 +144,7 @@ export class GroupService {
     return groups
   }
 
-  async getJoinedGroups(userId: number): Promise<GroupData[]> {
+  async getJoinedGroups(userId: number) {
     return (
       await this.prisma.userGroup.findMany({
         where: {
@@ -185,7 +180,7 @@ export class GroupService {
     userId: number,
     groupId: number
   ): Promise<{ userGroupData: Partial<UserGroup>; isJoined: boolean }> {
-    const group = await this.prisma.group.findFirst({
+    const group = await this.prisma.group.findUniqueOrThrow({
       where: {
         id: groupId,
         config: {
@@ -200,8 +195,7 @@ export class GroupService {
             userId: true
           }
         }
-      },
-      rejectOnNotFound: () => new EntityNotExistException('group')
+      }
     })
 
     const isJoined = group.userGroup.some(
@@ -209,13 +203,13 @@ export class GroupService {
     )
 
     if (isJoined) {
-      throw new ActionNotAllowedException('join request', 'group')
+      throw new ConflictFoundException('Already joined this group')
     } else if (group.config['requireApprovalBeforeJoin']) {
       const joinGroupRequest = await this.cacheManager.get(
         joinGroupCacheKey(userId, groupId)
       )
       if (joinGroupRequest) {
-        throw new ActionNotAllowedException('duplicated join request', 'group')
+        throw new ConflictFoundException('Already requested to join this group')
       }
 
       const userGroupValue: GroupJoinRequest = { userId, groupId }
@@ -246,6 +240,16 @@ export class GroupService {
   }
 
   async leaveGroup(userId: number, groupId: number): Promise<UserGroup> {
+    const groupLeaders = await this.prisma.userGroup.findMany({
+      where: {
+        isGroupLeader: true,
+        groupId: groupId
+      }
+    })
+    if (groupLeaders.length == 1 && groupLeaders[0].userId == userId) {
+      throw new ConflictFoundException('One or more managers are required')
+    }
+
     const deletedUserGroup = await this.prisma.userGroup.delete({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -273,6 +277,20 @@ export class GroupService {
   }
 
   async createUserGroup(userGroupData: UserGroupData): Promise<UserGroup> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userGroupData.userId
+      }
+    })
+
+    if (
+      user &&
+      (user.role === Role.SuperAdmin || user.role === Role.Admin) &&
+      userGroupData.groupId != OPEN_SPACE_ID
+    ) {
+      userGroupData.isGroupLeader = true
+    }
+
     return await this.prisma.userGroup.create({
       data: {
         user: {
