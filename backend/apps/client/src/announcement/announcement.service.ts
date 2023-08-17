@@ -7,18 +7,23 @@ export class AnnouncementService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getContestAnnouncements(
-    contestId: number
+    contestId: number,
+    groupId?: number
   ): Promise<Partial<ContestAnnouncement>[]> {
     return await this.prisma.contestAnnouncement.findMany({
       where: {
-        contestId: contestId
+        contestId: contestId,
+        contest: {
+          groupId
+        }
       }
     })
   }
 
   async getProblemAnnouncements(
     contestId = 0,
-    problemId = 0
+    problemId = 0,
+    groupId?: number
   ): Promise<Partial<ProblemAnnouncement>[]> {
     interface ProblemAnnouncementWhereInput {
       problemId: number
@@ -41,7 +46,10 @@ export class AnnouncementService {
 
     const result = await this.prisma.problemAnnouncement.findMany({
       where: {
-        OR: problemsId
+        OR: problemsId,
+        problem: {
+          groupId
+        }
       }
     })
 
