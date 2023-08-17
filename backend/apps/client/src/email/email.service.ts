@@ -1,18 +1,13 @@
 import { MailerService } from '@nestjs-modules/mailer'
 import { Injectable } from '@nestjs/common'
-import type { SentMessageInfo } from 'nodemailer'
 import * as path from 'path'
-import { EmailTransmissionFailedException } from '@libs/exception'
 
 @Injectable()
 export class EmailService {
   constructor(private readonly mailerService: MailerService) {}
 
-  async sendEmailAuthenticationPin(
-    email: string,
-    pin: string
-  ): Promise<SentMessageInfo> {
-    const sentEmailInfo = await this.mailerService.sendMail({
+  async sendEmailAuthenticationPin(email: string, pin: string) {
+    await this.mailerService.sendMail({
       to: email,
       subject: '[Codedang] Authentication',
       template: path.join(__dirname, 'email/templates/email-auth'),
@@ -25,11 +20,5 @@ export class EmailService {
         }
       ]
     })
-
-    if (sentEmailInfo.accepted.length === 0) {
-      throw new EmailTransmissionFailedException()
-    }
-
-    return sentEmailInfo
   }
 }
