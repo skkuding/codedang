@@ -30,8 +30,10 @@ useIntervalFn(() => {
   percentage.value = getPercentage()
 }, 1000)
 
-const timeAgo = computed(() =>
-  useTimeAgo(props.state === 'ongoing' ? props.endTime : props.startTime)
+const timeAgo = computed(
+  () =>
+    useTimeAgo(props.state === 'ongoing' ? props.endTime : props.startTime)
+      .value
 )
 </script>
 
