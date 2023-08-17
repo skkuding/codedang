@@ -12,17 +12,17 @@ import {
   ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
-import { Workbookproblem } from './entities/workbookproblem.entity'
+import { WorkbookProblem } from '@admin/@generated'
 import { WorkbookproblemService } from './workbookproblem.service'
 
-@Resolver(() => Workbookproblem)
+@Resolver(() => WorkbookProblem)
 export class WorkbookproblemResolver {
-  private readonly logger = new Logger(Workbookproblem.name)
+  private readonly logger = new Logger(WorkbookproblemResolver.name)
   constructor(
     private readonly workbookproblemService: WorkbookproblemService
   ) {}
 
-  @Query(() => [Workbookproblem], { name: 'workbookproblem' })
+  @Query(() => [WorkbookProblem], { name: 'workbookproblem' })
   async getWorkbookProblems(
     @Args('workbookId', { type: () => Int }, ParseIntPipe) workbookId: number
   ) {
@@ -41,7 +41,7 @@ export class WorkbookproblemResolver {
     }
   }
 
-  @Mutation(() => [Workbookproblem])
+  @Mutation(() => [WorkbookProblem])
   async updateWorkbookProblemsOrder(
     @Args('workbookId', { type: () => Int }, ParseIntPipe) workbookId: number,
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
