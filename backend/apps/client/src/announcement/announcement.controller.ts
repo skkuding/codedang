@@ -67,7 +67,10 @@ export class ProblemAnnouncementController {
     @Param('problemId', ParseIntPipe) problemId: number
   ): Promise<Partial<ProblemAnnouncement>[]> {
     try {
-      return await this.announcementService.getProblemAnnouncements(problemId)
+      return await this.announcementService.getProblemAnnouncements(
+        0,
+        problemId
+      )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -140,6 +143,7 @@ export class GroupProblemAnnouncementController {
   ): Promise<Partial<ProblemAnnouncement>[]> {
     try {
       return await this.announcementService.getProblemAnnouncements(
+        0,
         problemId,
         groupId
       )

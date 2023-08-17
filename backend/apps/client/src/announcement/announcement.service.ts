@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import type { ProblemAnnouncement, ContestAnnouncement } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
+import { SortOrder } from '@admin/@generated'
 
 @Injectable()
 export class AnnouncementService {
@@ -10,13 +11,18 @@ export class AnnouncementService {
     contestId: number,
     groupId?: number
   ): Promise<Partial<ContestAnnouncement>[]> {
-    return await this.prisma.contestAnnouncement.findMany({
+    return await this.prisma.announcement.findMany({
       where: {
-        contestId: contestId,
-        contest: {
-          groupId
+        contestAnnouncement: {
+          some: {
+            contestId,
+            contest: {
+              groupId
+            }
+          }
         }
-      }
+      },
+      orderBy: { id: SortOrder.asc }
     })
   }
 
@@ -29,7 +35,7 @@ export class AnnouncementService {
       problemId: number
     }
 
-    let problemsId: Array<ProblemAnnouncementWhereInput>
+    let problemsId: Array<ProblemAnnouncementWhereInput> = []
     if (contestId) {
       const contestProblem = await this.prisma.contest.findUniqueOrThrow({
         where: { id: contestId },
@@ -40,17 +46,22 @@ export class AnnouncementService {
       })
     }
 
-    if (!problemsId.includes({ problemId })) {
+    if (problemId != 0 && !problemsId.includes({ problemId })) {
       problemsId.push({ problemId })
     }
 
-    const result = await this.prisma.problemAnnouncement.findMany({
+    const result = await this.prisma.announcement.findMany({
       where: {
-        OR: problemsId,
-        problem: {
-          groupId
+        problemAnnouncement: {
+          some: {
+            problemId,
+            problem: {
+              groupId
+            }
+          }
         }
-      }
+      },
+      orderBy: { id: SortOrder.asc }
     })
 
     if (!result) {
