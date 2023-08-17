@@ -144,6 +144,12 @@ export class ContestService {
   }
 
   async acceptPublicizingRequest(contestId: number) {
+    const key = contestPublicizingRequestKey(contestId)
+    if (!(await this.cacheManager.get(key))) {
+      throw new EntityNotExistException('ContestPublicizingRequest')
+    }
+    await this.cacheManager.del(key)
+
     const updatedContest = await this.prisma.contest.update({
       where: {
         id: contestId
@@ -152,17 +158,9 @@ export class ContestService {
         groupId: OPEN_SPACE_ID
       }
     })
-
     if (!updatedContest) {
       throw new EntityNotExistException('contest')
     }
-
-    const key = contestPublicizingRequestKey(contestId)
-
-    if (!(await this.cacheManager.get(key))) {
-      throw new EntityNotExistException('ContestPublicizingRequest')
-    }
-    await this.cacheManager.del(key)
 
     return updatedContest
   }
