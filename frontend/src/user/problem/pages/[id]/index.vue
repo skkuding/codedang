@@ -52,6 +52,9 @@ const { x } = useDraggable(resizingBarX, {
 
 onMounted(async () => {
   const { data } = await axios.get<Problem>(`/api/problem/${props.id}`)
+  if (!store.language || problem.value.title != data.title) {
+    store.language = data.languages[0]
+  }
   problem.value = data
   store.type = 'problem'
   samples.value = problem.value.inputExamples.map((input, index) => ({
