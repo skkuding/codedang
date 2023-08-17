@@ -27,6 +27,7 @@ resource "aws_elasticache_replication_group" "db_cache" {
   parameter_group_name     = "default.redis7.cluster.on"
   engine_version           = "7.0"
   port                     = var.redis_port
+  apply_immediately        = true
   snapshot_retention_limit = 0 # no backup
 
   num_node_groups         = 1 # number of shards
