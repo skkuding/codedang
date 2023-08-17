@@ -246,24 +246,10 @@ model ContestProblem {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  // clarification Clarification[]
-
   @@id([contestId, problemId])
   @@unique([contestId, id])
   @@map("contest_problem")
 }
-
-// model Clarification {
-//   id         Int            @id @default(autoincrement())
-//   problem    ContestProblem @relation(fields: [contestId, problemId], references: [contestId, problemId], onDelete: Cascade)
-//   contestId  Int            @map("contest_id")
-//   problemId  Int            @map("problem_id")
-//   content    String
-//   createTime DateTime       @default(now()) @map("create_time")
-//   updateTime DateTime       @updatedAt @map("update_time")
-
-//   @@map("contest_notice")
-// }
 
 model Announcement {
   id         Int      @id @default(autoincrement())

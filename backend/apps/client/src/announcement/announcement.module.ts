@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common'
-import { AnnouncementController } from './announcement.controller'
+import {
+  ContestAnnouncementController,
+  ProblemAnnouncementController
+} from './announcement.controller'
 import { AnnouncementService } from './announcement.service'
 
 @Module({
-  controllers: [AnnouncementController],
+  controllers: [ContestAnnouncementController, ProblemAnnouncementController],
   providers: [AnnouncementService]
 })
 export class AnnouncementModule {}

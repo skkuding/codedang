@@ -12,6 +12,7 @@ import {
 import { PrismaModule } from '@libs/prisma'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
+import { AnnouncementModule } from './announcement/announcement.module'
 import { GroupModule } from './group/group.module'
 import { ProblemModule } from './problem/problem.module'
 import { StorageModule } from './storage/storage.module'
@@ -31,7 +32,8 @@ import { UserModule } from './user/user.module'
     ProblemModule,
     StorageModule,
     GroupModule,
-    UserModule
+    UserModule,
+    AnnouncementModule
   ],
   controllers: [AdminController],
   providers: [

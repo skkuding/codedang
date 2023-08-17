@@ -1,45 +1,78 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
-  Delete
+  Logger,
+  ParseIntPipe,
+  NotFoundException,
+  InternalServerErrorException
 } from '@nestjs/common'
+import { AuthNotNeeded } from '@libs/auth'
+import { EntityNotExistException } from '@libs/exception'
+import { ProblemAnnouncement } from '@admin/@generated'
 import { AnnouncementService } from './announcement.service'
-import { CreateAnnouncementDto } from './dto/create-announcement.dto'
-import { UpdateAnnouncementDto } from './dto/update-announcement.dto'
 
-@Controller('announcement')
-export class AnnouncementController {
+@Controller('contest/:contestId')
+@AuthNotNeeded()
+export class ContestAnnouncementController {
+  private readonly logger = new Logger(ContestAnnouncementController.name)
+
   constructor(private readonly announcementService: AnnouncementService) {}
 
-  @Post()
-  create(@Body() createAnnouncementDto: CreateAnnouncementDto) {
-    return this.announcementService.create(createAnnouncementDto)
+  @Get()
+  async getContestAnnouncementsByContest(
+    @Param('contestId', ParseIntPipe) contestId: number
+  ) {
+    try {
+      return await this.announcementService.getContestAnnouncements(contestId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
   }
+
+  @Get('problem/:problemId?')
+  async getProblemAnnouncementByContest(
+    @Param('contestId', ParseIntPipe) contestId = 0,
+    @Param('problemId', ParseIntPipe) problemId = 0
+  ): Promise<Partial<ProblemAnnouncement>[]> {
+    try {
+      return await this.announcementService.getProblemAnnouncements(
+        contestId,
+        problemId
+      )
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
+  }
+}
+
+@Controller('problem/:problemId')
+@AuthNotNeeded()
+export class ProblemAnnouncementController {
+  private readonly logger = new Logger(ContestAnnouncementController.name)
+
+  constructor(private readonly announcementService: AnnouncementService) {}
 
   @Get()
-  findAll() {
-    return this.announcementService.findAll()
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.announcementService.findOne(+id)
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateAnnouncementDto: UpdateAnnouncementDto
-  ) {
-    return this.announcementService.update(+id, updateAnnouncementDto)
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.announcementService.remove(+id)
+  async getProblemAnnouncementsByProblem(
+    @Param('problemId', ParseIntPipe) problemId: number
+  ): Promise<Partial<ProblemAnnouncement>[]> {
+    try {
+      return await this.announcementService.getProblemAnnouncements(problemId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
   }
 }

@@ -1,28 +1,54 @@
-import { Injectable } from '@nestjs/common'
-import { CreateAnnouncementDto } from './dto/create-announcement.dto'
-import { UpdateAnnouncementDto } from './dto/update-announcement.dto'
+import { Injectable, NotFoundException } from '@nestjs/common'
+import type { ProblemAnnouncement, ContestAnnouncement } from '@prisma/client'
+import { PrismaService } from '@libs/prisma'
 
 @Injectable()
 export class AnnouncementService {
-  create(createAnnouncementDto: CreateAnnouncementDto) {
-    console.log(createAnnouncementDto)
-    return 'This action adds a new announcement'
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getContestAnnouncements(
+    contestId: number
+  ): Promise<Partial<ContestAnnouncement>[]> {
+    return await this.prisma.contestAnnouncement.findMany({
+      where: {
+        contestId: contestId
+      }
+    })
   }
 
-  findAll() {
-    return `This action returns all announcement`
-  }
+  async getProblemAnnouncements(
+    contestId = 0,
+    problemId = 0
+  ): Promise<Partial<ProblemAnnouncement>[]> {
+    interface ProblemAnnouncementWhereInput {
+      problemId: number
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} announcement`
-  }
+    let problemsId: Array<ProblemAnnouncementWhereInput>
+    if (contestId) {
+      const contestProblem = await this.prisma.contest.findUniqueOrThrow({
+        where: { id: contestId },
+        select: { contestProblem: true }
+      })
+      problemsId = contestProblem.contestProblem.map((problem) => {
+        return { problemId: Number(problem.id) }
+      })
+    }
 
-  update(id: number, updateAnnouncementDto: UpdateAnnouncementDto) {
-    console.log(updateAnnouncementDto)
-    return `This action updates a #${id} announcement`
-  }
+    if (!problemsId.includes({ problemId })) {
+      problemsId.push({ problemId })
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} announcement`
+    const result = await this.prisma.problemAnnouncement.findMany({
+      where: {
+        OR: problemsId
+      }
+    })
+
+    if (!result) {
+      throw new NotFoundException('no corresponding announcement')
+    }
+
+    return result
   }
 }
