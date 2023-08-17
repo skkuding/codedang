@@ -8,9 +8,7 @@ import Fa6RegularTrashCan from '~icons/fa6-regular/trash-can'
 
 interface Workbook {
   id: number
-  group: string
   title: string
-  period: string
   visible: boolean
 }
 
@@ -29,18 +27,8 @@ const columns = [
     minWidth: 80
   },
   {
-    title: 'Group',
-    key: 'group',
-    minWidth: 150
-  },
-  {
     title: 'Title',
     key: 'title'
-  },
-  {
-    title: 'Period',
-    key: 'period',
-    width: 220
   },
   {
     title: 'Visible',
@@ -84,9 +72,7 @@ const data = ref(
   Array(104)
     .fill({
       id: 1,
-      group: 'NPC 초급반',
       title: 'SKKU Coding Platform 2차모의대회',
-      period: '2022-08-28 18:00:00 ~ 2022-08-28 22:00:00',
       visible: false
     })
     .map((item, index) => ({
