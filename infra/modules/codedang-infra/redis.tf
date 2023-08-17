@@ -39,14 +39,14 @@ resource "aws_elasticache_replication_group" "db_cache" {
   log_delivery_configuration {
     destination      = "/elasticache/redis"
     destination_type = "cloudwatch-logs"
-    log_format       = "json"
+    log_format       = "text"
     log_type         = "slow-log"
   }
 
   log_delivery_configuration {
     destination      = "/elasticache/redis"
     destination_type = "cloudwatch-logs"
-    log_format       = "json"
+    log_format       = "text"
     log_type         = "engine-log"
   }
 }
