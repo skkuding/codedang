@@ -38,6 +38,7 @@ export default defineConfig({
     }
   },
   server: {
+    host: true,
     proxy: {
       '/api': {
         target: 'http://dev.codedang.com',

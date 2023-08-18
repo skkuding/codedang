@@ -206,7 +206,7 @@ const getPublicRequest = (cursor: number) => {
 }
 const sendPublicRequest = () => {
   // call api with selectedContestId
-  showCancelRequestModal.value = false
+  showMakePublicModal.value = false
 }
 const cancelPublicRequest = () => {
   // call api with selectedContestId

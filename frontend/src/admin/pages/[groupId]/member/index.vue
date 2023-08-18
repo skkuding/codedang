@@ -184,9 +184,21 @@ const approveOption = (row: Row, stat: 'approve' | 'disapprove') => {
     </PaginationTable>
   </div>
 
-  <Dialog v-if="changeModal" />
-  <Dialog v-if="deleteModal" />
-  <Dialog v-if="approvalModal" />
+  <Dialog
+    v-if="changeModal"
+    @yes="changeModal = false"
+    @no="changeModal = false"
+  />
+  <Dialog
+    v-if="deleteModal"
+    @yes="deleteModal = false"
+    @no="deleteModal = false"
+  />
+  <Dialog
+    v-if="approvalModal"
+    @yes="approvalModal = false"
+    @no="approvalModal = false"
+  />
 </template>
 
 <route lang="yaml">

@@ -27,6 +27,7 @@ resource "aws_elasticache_replication_group" "db_cache" {
   parameter_group_name     = "default.redis7.cluster.on"
   engine_version           = "7.0"
   port                     = var.redis_port
+  apply_immediately        = true
   snapshot_retention_limit = 0 # no backup
 
   num_node_groups         = 1 # number of shards
@@ -37,10 +38,17 @@ resource "aws_elasticache_replication_group" "db_cache" {
 
 
   log_delivery_configuration {
-    destination      = "ecs/Codedang-Api"
+    destination      = "/elasticache/redis"
     destination_type = "cloudwatch-logs"
     log_format       = "text"
     log_type         = "slow-log"
+  }
+
+  log_delivery_configuration {
+    destination      = "/elasticache/redis"
+    destination_type = "cloudwatch-logs"
+    log_format       = "text"
+    log_type         = "engine-log"
   }
 }
 
