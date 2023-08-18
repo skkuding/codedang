@@ -49,7 +49,7 @@ resource "aws_ecs_task_definition" "iris" {
   memory                   = 1024
   container_definitions = templatefile("${path.module}/iris/task-definition.tftpl", {
     ecr_uri             = data.aws_ecr_repository.iris.repository_url,
-    rabbitmq_host       = "${aws_mq_broker.judge_queue.id}.mq.${var.region}.amazonaws.com}"
+    rabbitmq_host       = "${aws_mq_broker.judge_queue.id}.mq.${var.region}.amazonaws.com"
     rabbitmq_port       = var.rabbitmq_port,
     rabbitmq_username   = var.rabbitmq_username,
     rabbitmq_password   = random_password.rabbitmq_password.result,
