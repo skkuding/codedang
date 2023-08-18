@@ -6,6 +6,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as aws from '@aws-sdk/client-ses'
+import { defaultProvider } from '@aws-sdk/credential-provider-node'
 
 @Injectable()
 export class MailerConfigService implements MailerOptionsFactory {
@@ -19,7 +20,8 @@ export class MailerConfigService implements MailerOptionsFactory {
               SES: {
                 ses: new aws.SES({
                   apiVersion: '2010-12-01',
-                  region: 'ap-northeast-2'
+                  region: 'ap-northeast-2',
+                  credentialDefaultProvider: defaultProvider
                 }),
                 aws
               }
