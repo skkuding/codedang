@@ -39,7 +39,7 @@
         "config": ["postcss.config.js", "package.json"]
       },
       "tailwind": {
-        "config": ".eslintrc.json"
+        "config": "tailind.config.ts"
       }
     }
   },
