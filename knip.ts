@@ -6,23 +6,35 @@ const config: KnipConfig = {
     backend: {
       entry: [
         'apps/{admin,client}/**/{main.ts,app.module.ts}',
-        'libs/**/index.ts'
+        'prisma/seed.ts'
       ],
       project: ['**/*.ts'],
-      mocha: {
-        config: ['.mocharc.json', 'package.json', 'mocha-fixture.ts']
+      paths: {
+        '@admin/*': ['apps/admin/src/*'],
+        '@client/*': ['apps/client/src/*'],
+        '@generated': ['apps/admin/src/@generated'],
+        '@libs/prisma': ['libs/prisma/src/index.ts'],
+        '@libs/cache': ['libs/cache/src/index.ts'],
+        '@libs/auth': ['libs/auth/src/index.ts'],
+        '@libs/exception': ['libs/exception/src/index.ts'],
+        '@libs/pipe': ['libs/pipe/src/index.ts'],
+        '@libs/constants': ['libs/constants/src/index.ts']
       }
     },
     frontend: {
       entry: ['src/main.ts'],
-      project: ['**/*.{vue,ts}']
+      project: ['**/*.{vue,ts}'],
+      ignore: ['**/*.story.vue'],
+      ignoreDependencies: ['virtual:*', '~icons/*', '@iconify-json/*'], // TODO: handle icon packages
+      paths: {
+        '@/*': ['src/*']
+      }
     },
     'testcase-server': {
       entry: 'init-testcase.ts'
     }
   },
   ignore: ['**/*.d.ts'],
-  ignoreDependencies: ['__fixture__', '__virtual__'],
   ignoreBinaries: ['docker-compose'],
   rules: {
     classMembers: 'off',
