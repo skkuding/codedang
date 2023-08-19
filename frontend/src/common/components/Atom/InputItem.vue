@@ -6,11 +6,11 @@ const props = defineProps<{
   shadow?: boolean
   required?: boolean
   isValid?: string
-  modelValue: string
+  modelValue: string | number
 }>()
 
 defineEmits<{
-  (e: 'update:modelValue', value: string): void
+  (e: 'update:modelValue', value: string | number): void
 }>()
 
 const shadowClass = computed(() =>
@@ -26,7 +26,7 @@ const shadowClass = computed(() =>
     :value="modelValue"
     :placeholder="placeholder"
     :class="shadowClass"
-    class="rounded px-3 py-1 outline-none"
+    class="placeholder-gray rounded px-3 py-1 outline-none"
     @input="
       $emit('update:modelValue', ($event.target as HTMLInputElement).value)
     "

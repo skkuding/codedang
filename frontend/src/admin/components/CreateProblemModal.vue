@@ -3,6 +3,7 @@ import Button from '@/common/components/Atom/Button.vue'
 import InputItem from '@/common/components/Atom/InputItem.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import TextEditor from '@/common/components/Organism/TextEditor.vue'
+import type { Language, Level } from '@/user/problem/types'
 import { ref } from 'vue'
 import IconTrash from '~icons/fa/trash-o'
 
@@ -10,21 +11,75 @@ defineProps<{
   toggle: boolean
   setToggle: (a: boolean) => void
 }>()
-const data = ref({
-  displayId: '',
+
+interface Snippet {
+  id: number
+  text: string
+  locked: boolean
+}
+
+interface Template {
+  language: Language
+  code: Snippet[]
+}
+
+interface Testcase {
+  input: string
+  output: string
+  scoreWeight?: number
+}
+
+interface Problem {
+  title: string
+  description: string
+  inputDescription: string
+  outputDescription: string
+  hint: string
+  template: Template[]
+  languages: Language[]
+  timeLimit: number
+  memoryLimit: number
+  difficulty: Level
+  source: string
+  inputExamples: string[]
+  outputExamples: string[]
+  testcases: Testcase[]
+  tagIds: number[]
+}
+
+const data = ref<Problem>({
   title: '',
+  description: '',
+  inputDescription: '',
+  outputDescription: '',
+  hint: '',
+  template: [],
+  languages: [],
+  timeLimit: 2000,
+  memoryLimit: 512,
   difficulty: 'Level1',
-  language: 'C',
-  timeLimit: '',
-  memoryLimit: '',
-  inputDesc: '',
-  outputDesc: '',
-  sample: [{ input: '', output: '' }],
-  testcase: [{ input: '', output: '' }]
+  source: '',
+  inputExamples: [''],
+  outputExamples: [''],
+  testcases: [{ input: '', output: '' }],
+  tagIds: []
 })
-const description = ref('')
-const levelItems = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
-const languageItems = ['C', 'C++', 'Python3', 'Java']
+
+const levelLabels: Record<Level, string> = {
+  Level1: 'Level 1',
+  Level2: 'Level 2',
+  Level3: 'Level 3',
+  Level4: 'Level 4',
+  Level5: 'Level 5'
+}
+
+const languageLabels: Record<Language, string> = {
+  C: 'C',
+  Cpp: 'C++',
+  Python3: 'Python',
+  Java: 'Java',
+  Golang: 'Go'
+}
 </script>
 
 <template>
@@ -39,10 +94,6 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
   >
     <div class="flex flex-col gap-8">
       <h1 class="text-gray-dark text-2xl font-semibold">Create Problem</h1>
-      <h2 class="text-gray-dark border-gray border-b pb-5 font-semibold">
-        SKKU 프로그래밍 대회 - SKKUDING
-      </h2>
-
       <div class="col-span-3">
         <label class="text-lg font-bold">Title</label>
         <InputItem
@@ -51,16 +102,8 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
           placeholder="Title"
         />
       </div>
-      <div class="grid grid-cols-3 gap-5">
-        <div class="flex flex-col gap-3">
-          <label class="text-lg font-bold">Display ID</label>
-          <InputItem
-            v-model="data.displayId"
-            placeholder="Display ID"
-            class="w-full"
-          />
-        </div>
-        <div class="flex flex-col gap-3">
+      <div class="flex justify-between gap-5">
+        <div class="flex flex-1 flex-col gap-3">
           <label class="text-lg font-bold">Difficulty</label>
           <select
             id="difficulty"
@@ -68,41 +111,49 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
             name="difficulty"
             class="border-gray focus:border-green focus:ring-green w-full rounded border px-3 py-1 outline-none focus:ring-1"
           >
-            <option v-for="item in levelItems" :key="item" :value="item">
-              {{ item }}
+            <option
+              v-for="(label, value) in levelLabels"
+              :key="value"
+              :value="value"
+            >
+              {{ label }}
             </option>
           </select>
         </div>
-        <div class="flex flex-col gap-3">
+        <div class="flex flex-1 flex-col gap-3">
           <label class="text-lg font-bold">Language</label>
           <select
             id="language"
-            v-model="data.language"
+            v-model="data.languages"
             name="language"
             class="border-gray focus:border-green focus:ring-green w-full rounded border px-3 py-1 outline-none focus:ring-1"
           >
-            <option v-for="item in languageItems" :key="item" :value="item">
-              {{ item }}
+            <option
+              v-for="(label, value) in languageLabels"
+              :key="value"
+              :value="value"
+            >
+              {{ label }}
             </option>
           </select>
         </div>
       </div>
       <div>
         <h2 class="mb-3 text-lg font-bold">Description</h2>
-        <TextEditor v-model="description" size="lg" />
+        <TextEditor v-model="data.description" size="lg" />
       </div>
       <div class="grid grid-cols-2 gap-5">
         <div>
           <label class="mb-3 text-lg font-bold">Input Description</label>
           <textarea
-            v-model="data.inputDesc"
+            v-model="data.inputDescription"
             class="border-gray focus:border-green focus:ring-green mt-3 h-[120px] w-full resize-none rounded-lg outline-none focus:ring-1"
           />
         </div>
         <div>
           <label class="text-lg font-bold">Output Description</label>
           <textarea
-            v-model="data.outputDesc"
+            v-model="data.outputDescription"
             class="border-gray focus:border-green focus:ring-green mt-3 h-[120px] w-full resize-none rounded-lg outline-none focus:ring-1"
           />
         </div>
@@ -114,6 +165,7 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
             v-model="data.timeLimit"
             placeholder="Time Limit (ms)"
             class="mt-3 w-full"
+            type="number"
           />
         </div>
         <div>
@@ -122,31 +174,28 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
             v-model="data.memoryLimit"
             placeholder="Memory Limit (MB)"
             class="mt-3 w-full"
+            type="number"
           />
         </div>
       </div>
       <div>
-        <label class="text-lg font-bold">Hint</label>
+        <h2 class="mb-3 text-lg font-bold">Hint</h2>
         <TextEditor size="lg" />
       </div>
       <div
-        v-for="(item, index) in data.sample"
+        v-for="(_, index) in data.inputExamples"
         :key="index"
         class="flex flex-col gap-5"
       >
         <div class="flex justify-between">
           <h2 class="text-lg font-bold">Sample {{ index + 1 }}</h2>
           <Button
-            class="flex h-[32px] items-center justify-center gap-2"
+            v-if="data.inputExamples.length > 1"
+            class="flexitems-center justify-center gap-2"
             @click="
               () => {
-                if (data.sample.length === 1)
-                  data.sample = [{ input: '', output: '' }]
-                else
-                  data.sample = [
-                    ...data.sample.slice(0, index),
-                    ...data.sample.slice(index + 1)
-                  ]
+                data.inputExamples.splice(index, 1)
+                data.outputExamples.splice(index, 1)
               }
             "
           >
@@ -161,7 +210,7 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
                 Input Sample
               </label>
               <textarea
-                v-model="item.input"
+                v-model="data.inputExamples[index]"
                 class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
               />
             </div>
@@ -170,7 +219,7 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
                 Output Sample
               </label>
               <textarea
-                v-model="item.output"
+                v-model="data.outputExamples[index]"
                 class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
               />
             </div>
@@ -182,32 +231,24 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
         color="white"
         @click="
           () => {
-            data.sample = [...data.sample, { input: '', output: '' }]
+            data.inputExamples.push('')
+            data.outputExamples.push('')
           }
         "
       >
         Add Sample
       </Button>
       <div
-        v-for="(item, index) in data.testcase"
+        v-for="(item, index) in data.testcases"
         :key="index"
         class="flex flex-col gap-5"
       >
         <div class="flex justify-between">
           <h2 class="text-lg font-bold">Testcase {{ index + 1 }}</h2>
           <Button
+            v-if="data.testcases.length > 1"
             class="flex h-[32px] items-center justify-center gap-2"
-            @click="
-              () => {
-                if (data.testcase.length === 1)
-                  data.testcase = [{ input: '', output: '' }]
-                else
-                  data.testcase = [
-                    ...data.testcase.slice(0, index),
-                    ...data.testcase.slice(index + 1)
-                  ]
-              }
-            "
+            @click="data.testcases.splice(index, 1)"
           >
             <IconTrash />
             Delete
@@ -239,18 +280,14 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
       <Button
         class="border-gray text-gray-dark flex h-[45px] items-center justify-center border"
         color="white"
-        @click="
-          () => {
-            data.testcase = [...data.testcase, { input: '', output: '' }]
-          }
-        "
+        @click="data.testcases.push({ input: '', output: '' })"
       >
         Add Testcase
       </Button>
     </div>
-    <div class="border-gray mt-10 flex justify-end gap-3 border-t py-5">
-      <Button class="font-normal capitalize" color="gray-dark">cancel</Button>
-      <Button class="font-normal capitalize">save</Button>
+    <div class="mt-10 flex justify-end gap-3 py-5">
+      <Button color="gray-dark">Cancel</Button>
+      <Button>Save</Button>
     </div>
   </Modal>
 </template>
