@@ -8,6 +8,10 @@ info:
     Codedang is an online judge for students to practice their coding skills.
     Codedang client API can be used by general users.
 servers:
+  - url: https://dev.codedang.com/api
+    description: Development server
+  - url: https://codedang.com/api
+    description: Production server
   - url: http://localhost:4000
     description: Local server
 paths:
