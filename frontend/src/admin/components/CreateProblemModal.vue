@@ -80,6 +80,14 @@ const languageLabels: Record<Language, string> = {
   Java: 'Java',
   Golang: 'Go'
 }
+
+const toggleLanguage = (language: Language) => {
+  if (data.value.languages.includes(language)) {
+    data.value.languages.splice(data.value.languages.indexOf(language), 1)
+  } else {
+    data.value.languages.push(language)
+  }
+}
 </script>
 
 <template>
@@ -122,20 +130,21 @@ const languageLabels: Record<Language, string> = {
         </div>
         <div class="flex flex-1 flex-col gap-3">
           <label class="text-lg font-bold">Language</label>
-          <select
-            id="language"
-            v-model="data.languages"
-            name="language"
-            class="border-gray focus:border-green focus:ring-green w-full rounded border px-3 py-1 outline-none focus:ring-1"
-          >
-            <option
+          <div class="flex gap-3">
+            <button
               v-for="(label, value) in languageLabels"
               :key="value"
-              :value="value"
+              class="rounded px-3 py-1 font-medium"
+              :class="
+                data.languages.includes(value)
+                  ? 'bg-blue hover:bg-blue/90 text-white'
+                  : 'bg-gray/25 hover:bg-gray/40 text-text/50'
+              "
+              @click="toggleLanguage(value)"
             >
               {{ label }}
-            </option>
-          </select>
+            </button>
+          </div>
         </div>
       </div>
       <div>
