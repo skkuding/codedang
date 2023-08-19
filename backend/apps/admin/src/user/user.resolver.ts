@@ -88,7 +88,7 @@ export class UserResolver {
   @Query(() => [User])
   async getJoinRequests(@Args('groupId') groupId: number) {
     try {
-      return await this.userService.getNeededApproval(groupId)
+      return await this.userService.getJoinRequests(groupId)
     } catch (error) {
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
