@@ -20,7 +20,7 @@ const commonItems = [
 ]
 
 const groupItems = (id: number) => [
-  { to: `/admin/${id}`, name: 'SKKUDING', icon: IconBiHouse },
+  { to: `/admin/${id}`, name: 'Main', icon: IconBiHouse },
   { to: `/admin/${id}/notice`, name: 'Notice', icon: IconFile },
   { to: `/admin/${id}/contest`, name: 'Contest', icon: IconTrophy },
   { to: `/admin/${id}/workbook`, name: 'Workbook', icon: IconBook },
@@ -41,7 +41,6 @@ const items = computed(() =>
     <RouterLink to="/admin" class="align-center flex justify-center">
       <img :src="Logo" class="my-8 w-32" />
     </RouterLink>
-
     <hr class="bg-gray h-0.5 border-none opacity-25" />
     <div v-for="{ to, name, icon } in items" :key="name">
       <RouterLink
