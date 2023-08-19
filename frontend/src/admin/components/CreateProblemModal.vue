@@ -1,16 +1,23 @@
 <script setup lang="ts">
+/* eslint-disable @typescript-eslint/naming-convention */
 import Button from '@/common/components/Atom/Button.vue'
 import InputItem from '@/common/components/Atom/InputItem.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import TextEditor from '@/common/components/Organism/TextEditor.vue'
 import type { Language, Level } from '@/user/problem/types'
+import { useVModel } from '@vueuse/core'
 import { ref } from 'vue'
 import IconTrash from '~icons/fa/trash-o'
 
-defineProps<{
-  toggle: boolean
-  setToggle: (a: boolean) => void
+const props = defineProps<{
+  modelValue: boolean
 }>()
+
+const emit = defineEmits<{
+  'update:modelValue': [boolean]
+}>()
+
+const showModal = useVModel(props, 'modelValue', emit)
 
 interface Snippet {
   id: number
@@ -91,15 +98,7 @@ const toggleLanguage = (language: Language) => {
 </script>
 
 <template>
-  <Modal
-    class="w-full max-w-[70%]"
-    :model-value="toggle"
-    @update:model-value="
-      () => {
-        setToggle(toggle)
-      }
-    "
-  >
+  <Modal v-model="showModal" class="w-full max-w-[70%]">
     <div class="flex flex-col gap-8">
       <h1 class="text-gray-dark text-2xl font-semibold">Create Problem</h1>
       <div class="col-span-3">
