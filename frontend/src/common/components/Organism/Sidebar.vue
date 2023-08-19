@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import CodingPlatformLogo from '@/common/components/Atom/CodingPlatformLogo.vue'
+import Logo from '@/common/assets/codedang.svg'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import IconCode from '~icons/bi/code-square'
@@ -56,7 +56,7 @@ const items = computed(() =>
 <template>
   <div class="bg-gray-light text-gray-dark h-screen w-48 overflow-auto">
     <RouterLink to="/admin" class="align-center flex justify-center">
-      <CodingPlatformLogo class="my-8 w-32" />
+      <img :src="Logo" class="my-8 w-32" />
     </RouterLink>
 
     <hr class="bg-gray h-0.5 border-none opacity-25" />
