@@ -211,7 +211,7 @@ const languageLabels: Record<Language, string> = {
               </label>
               <textarea
                 v-model="data.inputExamples[index]"
-                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
+                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
               />
             </div>
             <div>
@@ -220,7 +220,7 @@ const languageLabels: Record<Language, string> = {
               </label>
               <textarea
                 v-model="data.outputExamples[index]"
-                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
+                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
               />
             </div>
           </div>
@@ -262,7 +262,7 @@ const languageLabels: Record<Language, string> = {
               </label>
               <textarea
                 v-model="item.input"
-                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
+                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
               />
             </div>
             <div>
@@ -271,7 +271,7 @@ const languageLabels: Record<Language, string> = {
               </label>
               <textarea
                 v-model="item.output"
-                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
+                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
               />
             </div>
           </div>
