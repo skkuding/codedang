@@ -1,15 +1,14 @@
+import { Type } from 'class-transformer'
 import {
-  IsArray,
-  IsInstance,
-  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
-  Max
+  Max,
+  Min
 } from 'class-validator'
 
-interface JudgeResult {
+class JudgeResult {
   testcaseId: string
   resultCode: number
   cpuTime: number
@@ -29,15 +28,15 @@ class JudgeData {
   @IsNotEmpty()
   totalTestcase: number
 
-  @IsArray()
+  @Type(() => JudgeResult)
   @IsNotEmpty()
   judgeResult: JudgeResult[]
 }
 
 export class JudgerResponse {
   @Max(7)
-  @Max(1)
-  @IsInt()
+  @Min(1)
+  @IsNumber()
   @IsNotEmpty()
   resultCode: number
 
@@ -49,7 +48,7 @@ export class JudgerResponse {
   @IsNotEmpty()
   error: string
 
-  @IsInstance(JudgeData)
+  @Type(() => JudgeData)
   @IsOptional()
   data: JudgeData
 }
