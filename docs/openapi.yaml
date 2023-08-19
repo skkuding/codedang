@@ -14,10 +14,21 @@ servers:
     description: Production server
   - url: http://localhost:4000
     description: Local server
+tags:
+  - name: auth
+  - name: user
+  - name: group
+  - name: problem
+  - name: contest
+  - name: submission
+  - name: notice
+  - name: workbook
 paths:
   /auth/login:
     post:
       summary: Log In
+      tags:
+        - auth
       description: |
         사용자가 올바른 정보로 로그인하면 JWT를 발행합니다.
         보안을 위해 만료 시간이 짧은 access token과, 이 토큰의 재발행에 사용할 만료 시간이 긴 refresh token을 발행합니다.
@@ -47,6 +58,8 @@ paths:
   /auth/logout:
     post:
       summary: Log Out
+      tags:
+        - auth
       description: |
         Refresh token을 무효화하고 cookie에서 삭제합니다.
         Access token은 만료 전까지 유효하며, client에서 직접 삭제해야 합니다.
@@ -61,6 +74,8 @@ paths:
   /auth/reissue:
     get:
       summary: Reissue Access Token
+      tags:
+        - auth
       description: |
         Refresh token을 이용해 access token을 재발급합니다.
       security:
@@ -74,6 +89,8 @@ paths:
   /group:
     get:
       summary: Get Groups
+      tags:
+        - group
       description: |
         공개로 설정된 그룹의 목록을 불러옵니다.
       parameters:
@@ -101,6 +118,8 @@ paths:
   /group/joined:
     get:
       summary: Get Joined Groups
+      tags:
+        - group
       description: |
         가입한 그룹의 목록을 불러옵니다.
       security:
@@ -128,6 +147,8 @@ paths:
   /group/{groupId}:
     get:
       summary: Get Group
+      tags:
+        - group
       description: |
         그룹을 조회합니다.
         요청된 그룹에 대한 가입 여부에 따라 response가 달라짐에 유의하세요.
@@ -188,6 +209,8 @@ paths:
   /group/{groupId}/members:
     get:
       summary: Get Group Members
+      tags:
+        - group
       description: |
         그룹 멤버들의 username 목록을 불러옵니다.
       parameters:
@@ -215,6 +238,8 @@ paths:
   /group/{groupId}/leaders:
     get:
       summary: Get Group Leaders
+      tags:
+        - group
       description: |
         그룹 리더들의 username 목록을 불러옵니다.
       parameters:
@@ -243,6 +268,8 @@ paths:
   /group/{groupId}/join:
     post:
       summary: TODO
+      tags:
+        - group
       parameters:
         - name: groupId
           in: path
@@ -253,6 +280,8 @@ paths:
   /group/{groupId}/leave:
     delete:
       summary: Leave Group
+      tags:
+        - group
       description: |
         그룹을 탈퇴합니다.
       parameters:
