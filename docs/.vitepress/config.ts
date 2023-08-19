@@ -1,8 +1,8 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'Coding Platform DEV',
-  description: 'Coding Platform Document for Developers',
+  title: 'Codedang',
+  description: 'Codedang Document for Developers',
   titleTemplate: false,
   lastUpdated: true,
 
@@ -32,12 +32,8 @@ export default defineConfig({
         link: '/intro/'
       },
       {
-        text: '🧭 Roadmap',
-        link: '/project/roadmap'
-      },
-      {
-        text: '💡 Demo',
-        link: 'https://npc.skku.edu'
+        text: '📦 API',
+        link: '/api/'
       }
     ],
     socialLinks: [{ icon: 'github', link: 'https://github.com/skkuding/next' }],
