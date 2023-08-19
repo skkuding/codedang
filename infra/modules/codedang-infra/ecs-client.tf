@@ -61,7 +61,7 @@ resource "aws_ecs_service" "client_api" {
   cluster                           = aws_ecs_cluster.api.id
   task_definition                   = aws_ecs_task_definition.client_api.arn
   desired_count                     = 2
-  launch_type                       = "FARGATE"
+  launch_type                       = "EC2"
   health_check_grace_period_seconds = 300
 
 
@@ -88,10 +88,10 @@ data "aws_ecr_repository" "client_api" {
 
 resource "aws_ecs_task_definition" "client_api" {
   family                   = "Codedang-Client-Api"
-  requires_compatibilities = ["FARGATE"]
+  requires_compatibilities = ["EC2"]
   network_mode             = "awsvpc"
-  cpu                      = 512
-  memory                   = 1024
+  cpu                      = 2048
+  memory                   = 2048
   container_definitions = templatefile("${path.module}/backend/task-definition.tftpl", {
     task_name = "Codedang-Client-Api",
     # aurora-posrgresql
@@ -112,10 +112,6 @@ resource "aws_ecs_task_definition" "client_api" {
     rabbitmq_password = random_password.rabbitmq_password.result,
     rabbitmq_vhost    = rabbitmq_vhost.vh.name,
   })
-  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 
-  runtime_platform {
-    operating_system_family = "LINUX"
-    cpu_architecture        = "ARM64"
-  }
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 }

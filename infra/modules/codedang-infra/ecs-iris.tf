@@ -28,7 +28,7 @@ resource "aws_ecs_service" "iris" {
   cluster         = aws_ecs_cluster.iris.id
   task_definition = aws_ecs_task_definition.iris.arn
   desired_count   = 2
-  launch_type     = "FARGATE"
+  launch_type     = "EC2"
 
   network_configuration {
     assign_public_ip = true
@@ -43,10 +43,10 @@ data "aws_ecr_repository" "iris" {
 
 resource "aws_ecs_task_definition" "iris" {
   family                   = "Codedang-Iris-Api"
-  requires_compatibilities = ["FARGATE"]
+  requires_compatibilities = ["EC2"]
   network_mode             = "awsvpc"
-  cpu                      = 512
-  memory                   = 1024
+  cpu                      = 2048
+  memory                   = 2048
   container_definitions = templatefile("${path.module}/iris/task-definition.tftpl", {
     ecr_uri             = data.aws_ecr_repository.iris.repository_url,
     rabbitmq_host       = "${aws_mq_broker.judge_queue.id}.mq.${var.region}.amazonaws.com}"

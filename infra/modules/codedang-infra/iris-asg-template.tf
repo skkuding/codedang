@@ -1,7 +1,23 @@
-#client 용
-resource "aws_launch_template" "ecs-codedang-template-client" {
+data "cloudinit_config" "config" {
+  gzip          = false
+  base64_encode = true
+
+  part {
+    content_type = "text/x-shellscript"
+    content      = <<EOF
+    #!/bin/bash
+    echo ECS_CLUSTER="${aws_ecs_service.iris.name}" >> /etc/ecs/ecs.config
+    ECS_ENABLE_TASK_IAM_ROLE=true
+    echo ECS_ENABLE_CONTAINER_METADATA=true >> /etc/ecs/ecs.config
+    echo ECS_CONTAINER_INSTANCE_PROPAGATE_TAGS_FROM=ec2_instance >> /etc/ecs/ecs.config
+    EOF
+  }
+}
+
+#iris 용
+resource "aws_launch_template" "ecs-codedang-template-iris" {
   # Name of the launch template
-  name = "codedang-template-client"
+  name = "codedang-iris-template"
 
   # arm64기반 ecs 최적화 이미지 사용
   image_id = "ami-01287572b99f45fc2"
@@ -15,7 +31,7 @@ resource "aws_launch_template" "ecs-codedang-template-client" {
   instance_type = "t4g.small"
 
   # SSH key pair name for connecting to the instance
-  key_name = "codedang-ecs-client"
+  key_name = "codedang-ecs-iris"
 
   # Block device mappings for the instance
   block_device_mappings {
@@ -32,8 +48,10 @@ resource "aws_launch_template" "ecs-codedang-template-client" {
 
   # Network interface configuration
   network_interfaces {
-    security_groups = [aws_security_group.client_ecs.id]
+    security_groups = [aws_security_group.iris.id]
   }
+
+  user_data = data.cloudinit_config.config.rendered
 
   # Tag specifications for the instance
   tag_specifications {
@@ -42,7 +60,7 @@ resource "aws_launch_template" "ecs-codedang-template-client" {
 
     # Tags to apply to the instance
     tags = {
-      Name = "launch template for codedang-ecs-client"
+      Name = "launch template for codedang-ecs-iris"
     }
   }
 }
@@ -50,15 +68,18 @@ resource "aws_launch_template" "ecs-codedang-template-client" {
 resource "aws_autoscaling_group" "codedang-asg" {
   # Name of the Auto Scaling Group
   name                  = "codedang-autoscaling-group"
-  vpc_zone_identifier   = [aws_subnet.public_client_api1.id, aws_subnet.public_client_api2.id]
+  vpc_zone_identifier   = [aws_subnet.private_iris1.id, aws_subnet.private_iris2.id]
   protect_from_scale_in = true
+
+  target_group_arns = [aws_lb_target_group.private_api]
+  health_check_type = "ELB"
 
   # Desired number of instances in the Autoscaling Group
   desired_capacity = 1
 
   # Minimum and maximum number of instances in the Autoscaling Group
   min_size = 1
-  max_size = 3
+  max_size = 10
 
   lifecycle {
     create_before_destroy = true
