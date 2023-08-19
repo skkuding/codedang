@@ -1,0 +1,63 @@
+{
+  "$schema": "https://unpkg.com/knip@2/schema.json",
+  "workspaces": {
+    ".": {
+      "github-actions": {
+        "config": [".github/workflows/*.yml"]
+      },
+      "lefthook": {
+        "config": ["lefthook.yml"]
+      },
+      "prettier": {
+        "config": [".prettierrc", "package.json"]
+      },
+      "eslint": {
+        "config": [".eslintrc.{js,json,cjs}", "package.json"],
+        "entry": ["eslint.config.js"]
+      },
+      "commitlint": {
+        "config": ["commitlint.config.{js,cjs,ts,cts}", "package.json"]
+      }
+    },
+    "backend": {
+      "entry": [
+        "apps/{admin,client}/**/{main.ts, app.module.ts}",
+        "libs/**/index.ts"
+      ],
+      "project": ["**/*.ts"],
+      "mocha": {
+        "config": [".mocharc.json", "package.json", "mocha-fixture.ts"]
+      }
+    },
+    "frontend": {
+      "entry": ["src/**/main.ts", "src/**/App.vue"],
+      "project": ["**/*.{vue,ts}"],
+      "vite": {
+        "entry": ["vite.config.ts"]
+      },
+      "postcss": {
+        "config": ["postcss.config.js", "package.json"]
+      },
+      "tailwind": {
+        "config": ".eslintrc.json"
+      }
+    }
+  },
+  "ignore": ["**/*.d.ts"],
+  "ignoreDependencies": ["__fixture__", "__virtual__"],
+  "ignoreWorkspaces": ["testcase-server"],
+  "ignoreBinaries": ["docker-compose"],
+  "rules": {
+    "classMembers": "off",
+    "unlisted": "warn",
+    "binaries": "warn",
+    "unresolved": "warn"
+  },
+  "ignoreExportsUsedInFile": {
+    "interface": true,
+    "type": true
+  },
+  "typescript": {
+    "config": ["tsconfig{,.*}.json"]
+  }
+}
