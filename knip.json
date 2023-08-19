@@ -41,11 +41,13 @@
       "tailwind": {
         "config": "tailind.config.ts"
       }
+    },
+    "testcase-server": {
+      "entry": "init-testcase.ts"
     }
   },
   "ignore": ["**/*.d.ts"],
   "ignoreDependencies": ["__fixture__", "__virtual__"],
-  "ignoreWorkspaces": ["testcase-server"],
   "ignoreBinaries": ["docker-compose"],
   "rules": {
     "classMembers": "off",
