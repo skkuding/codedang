@@ -10,24 +10,7 @@ import IconTrophy from '~icons/bi/trophy'
 import IconUser from '~icons/fa6-regular/user'
 import IconBrain from '~icons/fluent/brain-circuit-24-regular'
 
-// TODO: get group name and color
-withDefaults(
-  defineProps<{
-    color?: 'blue' | 'gray' | 'white'
-  }>(),
-  {
-    color: 'white'
-  }
-)
-
 const route = useRoute()
-
-const colorMapper = {
-  blue: 'border-l-blue',
-  gray: 'border-l-gray',
-  white: 'border-l-white',
-  default: 'border-l-green'
-}
 
 const commonItems = [
   { to: '/admin/notice', name: 'Notice', icon: IconFile },
@@ -63,7 +46,7 @@ const items = computed(() =>
     <div v-for="{ to, name, icon } in items" :key="name">
       <RouterLink
         class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        :active-class="colorMapper[color] + ' border-l-8 !pl-8'"
+        active-class="text-blue"
         :to="to"
       >
         <component :is="icon" class="mr-2 h-4" />
