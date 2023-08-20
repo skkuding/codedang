@@ -5,8 +5,8 @@ const props = defineProps<{
   placeholder?: string
   shadow?: boolean
   required?: boolean
-  isValid?: string
-  modelValue: string | number
+  error?: string
+  modelValue?: string | number
 }>()
 
 defineEmits<{
@@ -16,8 +16,10 @@ defineEmits<{
 const shadowClass = computed(() =>
   props.shadow
     ? 'shadow-md focus:shadow-green'
-    : 'border-gray border focus:border-green focus:ring-1 focus:ring-green'
+    : 'border-gray border focus:border-blue focus:ring-1 focus:ring-blue'
 )
+
+const errorClass = computed(() => (props.error ? 'border-red' : ''))
 </script>
 
 <template>
@@ -25,7 +27,7 @@ const shadowClass = computed(() =>
     v-bind="$attrs"
     :value="modelValue"
     :placeholder="placeholder"
-    :class="shadowClass"
+    :class="shadowClass + ' ' + errorClass"
     class="placeholder-gray rounded px-3 py-1 outline-none"
     @input="
       $emit('update:modelValue', ($event.target as HTMLInputElement).value)
@@ -34,10 +36,7 @@ const shadowClass = computed(() =>
   <p v-show="required && !modelValue" class="text-red text-xs font-bold">
     {{ placeholder + ' is required' }}
   </p>
-  <p
-    v-show="modelValue !== '' && isValid !== '' && !modelValue"
-    class="text-red text-xs font-bold"
-  >
-    {{ isValid }}
+  <p v-show="error" class="text-red mt-1 text-xs">
+    {{ error }}
   </p>
 </template>

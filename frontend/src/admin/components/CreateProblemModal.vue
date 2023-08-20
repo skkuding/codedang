@@ -4,9 +4,12 @@ import Button from '@/common/components/Atom/Button.vue'
 import InputItem from '@/common/components/Atom/InputItem.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import TextEditor from '@/common/components/Organism/TextEditor.vue'
+import { useToast } from '@/common/composables/toast'
 import type { Language, Level } from '@/user/problem/types'
+import { toTypedSchema } from '@vee-validate/zod'
 import { useVModel } from '@vueuse/core'
-import { ref } from 'vue'
+import { useForm } from 'vee-validate'
+import { z } from 'zod'
 import IconTrash from '~icons/fa/trash-o'
 
 const props = defineProps<{
@@ -19,58 +22,92 @@ const emit = defineEmits<{
 
 const showModal = useVModel(props, 'modelValue', emit)
 
-interface Snippet {
-  id: number
-  text: string
-  locked: boolean
-}
-
-interface Template {
-  language: Language
-  code: Snippet[]
-}
-
-interface Testcase {
-  input: string
-  output: string
-  scoreWeight?: number
-}
-
-interface Problem {
-  title: string
-  description: string
-  inputDescription: string
-  outputDescription: string
-  hint: string
-  template: Template[]
-  languages: Language[]
-  timeLimit: number
-  memoryLimit: number
-  difficulty: Level
-  source: string
-  inputExamples: string[]
-  outputExamples: string[]
-  testcases: Testcase[]
-  tagIds: number[]
-}
-
-const data = ref<Problem>({
-  title: '',
-  description: '',
-  inputDescription: '',
-  outputDescription: '',
-  hint: '',
-  template: [],
-  languages: [],
-  timeLimit: 2000,
-  memoryLimit: 512,
-  difficulty: 'Level1',
-  source: '',
-  inputExamples: [''],
-  outputExamples: [''],
-  testcases: [{ input: '', output: '' }],
-  tagIds: []
+const schema = z.object({
+  title: z.string().min(1),
+  description: z.string(),
+  inputDescription: z.string(),
+  outputDescription: z.string(),
+  hint: z.string().default(''),
+  source: z.string().default(''),
+  template: z
+    .array(
+      z.object({
+        language: z.enum(['C', 'Cpp', 'Python3', 'Java', 'Golang']),
+        code: z.array(
+          z.object({
+            id: z.number(),
+            text: z.string(),
+            locked: z.boolean()
+          })
+        )
+      })
+    )
+    .default([]),
+  languages: z
+    .array(z.enum(['C', 'Cpp', 'Python3', 'Java', 'Golang']))
+    .min(1, 'At least one language is required.')
+    .default([]),
+  timeLimit: z.number().default(2000),
+  memoryLimit: z.number().default(512),
+  difficulty: z
+    .enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5'])
+    .default('Level1'),
+  inputExamples: z.array(z.string()).default(['']),
+  outputExamples: z.array(z.string()).default(['']),
+  testcases: z
+    .array(
+      z.object({
+        input: z.string(),
+        output: z.string(),
+        scoreWeight: z.number().optional()
+      })
+    )
+    .default([{ input: '', output: '' }]),
+  tagIds: z.array(z.number()).default([])
 })
+
+const {
+  defineInputBinds,
+  defineComponentBinds,
+  setFieldValue,
+  values,
+  errors,
+  handleSubmit,
+  resetForm
+} = useForm({
+  validationSchema: toTypedSchema(schema)
+})
+
+const title = defineComponentBinds('title')
+const difficulty = defineInputBinds('difficulty')
+const description = defineComponentBinds('description')
+const inputDescription = defineInputBinds('inputDescription')
+const outputDescription = defineInputBinds('outputDescription')
+const timeLimit = defineComponentBinds('timeLimit')
+const memoryLimit = defineComponentBinds('memoryLimit')
+const hint = defineComponentBinds('hint')
+const inputExamples = defineComponentBinds('inputExamples')
+const outputExamples = defineComponentBinds('outputExamples')
+const testcases = defineComponentBinds('testcases')
+
+const toast = useToast()
+
+const submit = handleSubmit(
+  () => {
+    // TODO: call API
+    toast({
+      message: 'Created problem successfully',
+      type: 'success'
+    })
+    resetForm()
+  },
+  (error) => {
+    console.log(error)
+    const key = Object.keys(error.errors)[0]
+    const message = `Invalid ${key}: ` + Object.values(error.errors)[0]
+    toast({ message, type: 'error' })
+  }
+)
 
 const levelLabels: Record<Level, string> = {
   Level1: 'Level 1',
@@ -89,24 +126,55 @@ const languageLabels: Record<Language, string> = {
 }
 
 const toggleLanguage = (language: Language) => {
-  if (data.value.languages.includes(language)) {
-    data.value.languages.splice(data.value.languages.indexOf(language), 1)
+  if (values.languages?.includes(language)) {
+    setFieldValue(
+      'languages',
+      values.languages.filter((l) => l !== language)
+    )
   } else {
-    data.value.languages.push(language)
+    setFieldValue(
+      'languages',
+      values.languages ? [...values.languages, language] : [language]
+    )
   }
+}
+
+const addExample = () => {
+  setFieldValue('inputExamples', [...values.inputExamples!, ''])
+  setFieldValue('outputExamples', [...values.outputExamples!, ''])
+}
+
+const removeExample = (index: number) => {
+  setFieldValue(
+    'inputExamples',
+    values.inputExamples?.filter((_, i) => i !== index)
+  )
+  setFieldValue(
+    'outputExamples',
+    values.outputExamples?.filter((_, i) => i !== index)
+  )
+}
+
+const addTestcase = () => {
+  setFieldValue('testcases', [...values.testcases!, { input: '', output: '' }])
+}
+
+const removeTestcase = (index: number) => {
+  setFieldValue('testcases', values.testcases?.filter((_, i) => i !== index))
 }
 </script>
 
 <template>
   <Modal v-model="showModal" class="w-full max-w-[70%]">
-    <div class="flex flex-col gap-8">
+    <form class="flex flex-col gap-8" @submit.prevent="submit">
       <h1 class="text-gray-dark text-2xl font-semibold">Create Problem</h1>
       <div class="col-span-3">
         <label class="text-lg font-bold">Title</label>
         <InputItem
-          v-model="data.title"
+          v-bind="title"
           class="mt-3 w-full"
           placeholder="Title"
+          :error="errors.title"
         />
       </div>
       <div class="flex justify-between gap-5">
@@ -114,7 +182,7 @@ const toggleLanguage = (language: Language) => {
           <label class="text-lg font-bold">Difficulty</label>
           <select
             id="difficulty"
-            v-model="data.difficulty"
+            v-bind="difficulty"
             name="difficulty"
             class="border-gray focus:border-green focus:ring-green w-full rounded border px-3 py-1 outline-none focus:ring-1"
           >
@@ -133,9 +201,10 @@ const toggleLanguage = (language: Language) => {
             <button
               v-for="(label, value) in languageLabels"
               :key="value"
+              type="button"
               class="rounded px-3 py-1 font-medium"
               :class="
-                data.languages.includes(value)
+                values.languages?.includes(value)
                   ? 'bg-blue hover:bg-blue/90 text-white'
                   : 'bg-gray/25 hover:bg-gray/40 text-text/50'
               "
@@ -144,24 +213,25 @@ const toggleLanguage = (language: Language) => {
               {{ label }}
             </button>
           </div>
+          <p class="text-red text-xs">{{ errors.languages }}</p>
         </div>
       </div>
       <div>
         <h2 class="mb-3 text-lg font-bold">Description</h2>
-        <TextEditor v-model="data.description" size="lg" />
+        <TextEditor v-bind="description" size="lg" />
       </div>
       <div class="grid grid-cols-2 gap-5">
         <div>
           <label class="mb-3 text-lg font-bold">Input Description</label>
           <textarea
-            v-model="data.inputDescription"
+            v-bind="inputDescription"
             class="border-gray focus:border-green focus:ring-green mt-3 h-[120px] w-full resize-none rounded-lg outline-none focus:ring-1"
           />
         </div>
         <div>
           <label class="text-lg font-bold">Output Description</label>
           <textarea
-            v-model="data.outputDescription"
+            v-bind="outputDescription"
             class="border-gray focus:border-green focus:ring-green mt-3 h-[120px] w-full resize-none rounded-lg outline-none focus:ring-1"
           />
         </div>
@@ -170,7 +240,7 @@ const toggleLanguage = (language: Language) => {
         <div>
           <label class="mb-3 text-lg font-bold">Time Limit (ms)</label>
           <InputItem
-            v-model="data.timeLimit"
+            v-bind="timeLimit"
             placeholder="Time Limit (ms)"
             class="mt-3 w-full"
             type="number"
@@ -179,7 +249,7 @@ const toggleLanguage = (language: Language) => {
         <div>
           <label class="mb-3 text-lg font-bold">Memory Limit (MB)</label>
           <InputItem
-            v-model="data.memoryLimit"
+            v-bind="memoryLimit"
             placeholder="Memory Limit (MB)"
             class="mt-3 w-full"
             type="number"
@@ -188,24 +258,20 @@ const toggleLanguage = (language: Language) => {
       </div>
       <div>
         <h2 class="mb-3 text-lg font-bold">Hint</h2>
-        <TextEditor size="lg" />
+        <TextEditor v-bind="hint" size="lg" />
       </div>
       <div
-        v-for="(_, index) in data.inputExamples"
+        v-for="(_, index) in values.inputExamples"
         :key="index"
         class="flex flex-col gap-5"
       >
         <div class="flex justify-between">
           <h2 class="text-lg font-bold">Sample {{ index + 1 }}</h2>
           <Button
-            v-if="data.inputExamples.length > 1"
+            v-if="inputExamples.length > 1"
+            type="button"
             class="flexitems-center justify-center gap-2"
-            @click="
-              () => {
-                data.inputExamples.splice(index, 1)
-                data.outputExamples.splice(index, 1)
-              }
-            "
+            @click="removeExample(index)"
           >
             <IconTrash />
             Delete
@@ -218,7 +284,7 @@ const toggleLanguage = (language: Language) => {
                 Input Sample
               </label>
               <textarea
-                v-model="data.inputExamples[index]"
+                v-bind="inputExamples[index]"
                 class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
               />
             </div>
@@ -227,7 +293,7 @@ const toggleLanguage = (language: Language) => {
                 Output Sample
               </label>
               <textarea
-                v-model="data.outputExamples[index]"
+                v-bind="outputExamples[index]"
                 class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
               />
             </div>
@@ -235,28 +301,25 @@ const toggleLanguage = (language: Language) => {
         </div>
       </div>
       <Button
+        type="button"
         class="border-gray text-gray-dark flex h-[45px] items-center justify-center border"
         color="white"
-        @click="
-          () => {
-            data.inputExamples.push('')
-            data.outputExamples.push('')
-          }
-        "
+        @click="addExample"
       >
         Add Sample
       </Button>
       <div
-        v-for="(item, index) in data.testcases"
+        v-for="(item, index) in values.testcases"
         :key="index"
         class="flex flex-col gap-5"
       >
         <div class="flex justify-between">
           <h2 class="text-lg font-bold">Testcase {{ index + 1 }}</h2>
           <Button
-            v-if="data.testcases.length > 1"
+            v-if="testcases.length > 1"
+            type="button"
             class="flex h-[32px] items-center justify-center gap-2"
-            @click="data.testcases.splice(index, 1)"
+            @click="removeTestcase(index)"
           >
             <IconTrash />
             Delete
@@ -269,7 +332,7 @@ const toggleLanguage = (language: Language) => {
                 Input Testcase
               </label>
               <textarea
-                v-model="item.input"
+                v-bind="item.input"
                 class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
               />
             </div>
@@ -278,7 +341,7 @@ const toggleLanguage = (language: Language) => {
                 Output Testcase
               </label>
               <textarea
-                v-model="item.output"
+                v-bind="item.output"
                 class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
               />
             </div>
@@ -286,16 +349,17 @@ const toggleLanguage = (language: Language) => {
         </div>
       </div>
       <Button
+        type="button"
         class="border-gray text-gray-dark flex h-[45px] items-center justify-center border"
         color="white"
-        @click="data.testcases.push({ input: '', output: '' })"
+        @click="addTestcase"
       >
         Add Testcase
       </Button>
-    </div>
-    <div class="mt-10 flex justify-end gap-3 py-5">
-      <Button color="gray-dark">Cancel</Button>
-      <Button>Save</Button>
-    </div>
+      <div class="flex justify-end gap-3 py-5">
+        <Button type="button" color="gray-dark">Cancel</Button>
+        <Button type="submit">Create</Button>
+      </div>
+    </form>
   </Modal>
 </template>
