@@ -7,7 +7,9 @@ import TextEditor from '@/common/components/Organism/TextEditor.vue'
 import { useToast } from '@/common/composables/toast'
 import type { Language, Level } from '@/user/problem/types'
 import { toTypedSchema } from '@vee-validate/zod'
+import { useMutation } from '@vue/apollo-composable'
 import { useVModel } from '@vueuse/core'
+import { gql } from 'graphql-tag'
 import { useForm } from 'vee-validate'
 import { z } from 'zod'
 import IconTrash from '~icons/fa/trash-o'
@@ -92,17 +94,35 @@ const testcases = defineComponentBinds('testcases')
 
 const toast = useToast()
 
+const { mutate, onError, onDone } = useMutation(gql`
+  mutation CreateProblem($input: CreateProblemInput!) {
+    createProblem(input: $input) {
+      id
+    }
+  }
+`)
+
+onError(() => {
+  toast({
+    message: 'Failed to create problem',
+    type: 'error'
+  })
+})
+
+onDone(() => {
+  toast({
+    message: 'Created problem successfully',
+    type: 'success'
+  })
+  resetForm()
+  showModal.value = false
+})
+
 const submit = handleSubmit(
-  () => {
-    // TODO: call API
-    toast({
-      message: 'Created problem successfully',
-      type: 'success'
-    })
-    resetForm()
+  (input) => {
+    mutate({ input })
   },
   (error) => {
-    console.log(error)
     const key = Object.keys(error.errors)[0]
     const message = `Invalid ${key}: ` + Object.values(error.errors)[0]
     toast({ message, type: 'error' })
