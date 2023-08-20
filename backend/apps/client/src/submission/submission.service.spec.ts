@@ -453,6 +453,34 @@ describe('SubmissionService', () => {
     })
   })
 
+  it('should handle message without error', async () => {
+    const target = {
+      resultCode: 1,
+      submissionId: 'ea953b',
+      error: '',
+      data: {
+        acceptedNum: 0,
+        totalTestcase: 1,
+        judgeResult: [
+          {
+            testcaseId: '18:30',
+            resultCode: 1,
+            cpuTime: 0,
+            realTime: 0,
+            memory: 1417216,
+            signal: 0,
+            exitCode: 0,
+            errorCode: 0
+          }
+        ]
+      }
+    }
+
+    const result = await service.judgerResponseTypeValidation(target)
+
+    expect(result).to.be.deep.equal(target)
+  })
+
   describe('getContestSubmisssion', () => {
     it('should return submission', async () => {
       db.contestRecord.findUniqueOrThrow.resolves({

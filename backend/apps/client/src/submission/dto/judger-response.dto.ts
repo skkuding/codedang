@@ -45,7 +45,6 @@ export class JudgerResponse {
   submissionId: string
 
   @IsString()
-  @IsNotEmpty()
   error: string
 
   @Type(() => JudgeData)
