@@ -7,8 +7,10 @@ import {
   Res,
   UnauthorizedException,
   InternalServerErrorException,
-  Logger
+  Logger,
+  UseGuards
 } from '@nestjs/common'
+import { AuthGuard } from '@nestjs/passport'
 import { Request, Response } from 'express'
 import { AuthenticatedRequest, AuthNotNeeded, type JwtTokens } from '@libs/auth'
 import { REFRESH_TOKEN_COOKIE_OPTIONS } from '@libs/constants'
@@ -50,6 +52,13 @@ export class AuthController {
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException('Login failed')
     }
+  }
+
+  @AuthNotNeeded()
+  @Get('login/github')
+  @UseGuards(AuthGuard('github'))
+  async githubLogin() {
+    // 자동으로 github login page로 redirection 됨
   }
 
   @Post('logout')
