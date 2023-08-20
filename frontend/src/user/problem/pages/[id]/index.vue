@@ -52,6 +52,9 @@ const { x } = useDraggable(resizingBarX, {
 
 onMounted(async () => {
   const { data } = await axios.get<Problem>(`/api/problem/${props.id}`)
+  if (!store.language || problem.value.title != data.title) {
+    store.language = data.languages[0]
+  }
   problem.value = data
   store.type = 'problem'
   samples.value = problem.value.inputExamples.map((input, index) => ({
@@ -65,24 +68,24 @@ onMounted(async () => {
   <main class="flex h-[calc(100vh-112px)] border-t border-slate-400">
     <!-- <Clarification v-model="x" /> -->
     <div
-      class="flex w-[600px] min-w-[400px] flex-col gap-4 overflow-y-auto bg-slate-700 p-8 text-white"
+      class="flex w-[600px] min-w-[400px] flex-col gap-8 overflow-y-auto bg-slate-700 p-8 text-white"
       :style="{ width: x + 'px' }"
     >
       <h1 class="text-xl font-bold">{{ problem.title }}</h1>
       <div v-dompurify-html="problem.description" class="prose prose-invert" />
-      <h2 class="mt-4 text-lg font-bold">Input</h2>
+      <h2 class="text-lg font-bold">Input</h2>
       <div
         v-dompurify-html="problem.inputDescription"
         class="prose prose-invert"
       />
-      <h2 class="mt-4 text-lg font-bold">Output</h2>
+      <h2 class="text-lg font-bold">Output</h2>
       <div
         v-dompurify-html="problem.outputDescription"
         class="prose prose-invert"
       />
       <div v-for="(sample, index) in samples" :key="index">
         <div class="flex items-end justify-between">
-          <h2 class="mt-4 text-lg font-bold">Sample Input {{ index + 1 }}</h2>
+          <h2 class="text-lg font-bold">Sample Input {{ index + 1 }}</h2>
           <IconCopy
             class="cursor-pointer hover:text-white/75 active:text-white/50"
             @click="copySample(index, 'input')"
@@ -92,7 +95,7 @@ onMounted(async () => {
           {{ sample.input }}
         </div>
         <div class="flex items-end justify-between">
-          <h2 class="mt-4 text-lg font-bold">Sample Output {{ index + 1 }}</h2>
+          <h2 class="text-lg font-bold">Sample Output {{ index + 1 }}</h2>
           <IconCopy
             class="cursor-pointer hover:text-white/75 active:text-white/50"
             @click="copySample(index, 'output')"
@@ -102,6 +105,14 @@ onMounted(async () => {
           {{ sample.output }}
         </div>
       </div>
+      <h2 class="text-lg font-bold">
+        Time Limit:
+        <span class="font-normal">{{ problem.timeLimit }} ms</span>
+      </h2>
+      <h2 class="text-lg font-bold">
+        Memory Limit:
+        <span class="font-normal">{{ problem.memoryLimit }} MB</span>
+      </h2>
     </div>
     <div
       ref="resizingBarX"
