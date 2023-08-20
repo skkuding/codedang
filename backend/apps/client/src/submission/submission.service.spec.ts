@@ -455,19 +455,19 @@ describe('SubmissionService', () => {
 
   it('should handle message without error', async () => {
     const target = {
-      resultCode: 1,
-      submissionId: 'ea953b',
+      resultCode: 0,
+      submissionId: 'a84f8d',
       error: '',
       data: {
-        acceptedNum: 0,
+        acceptedNum: 1,
         totalTestcase: 1,
         judgeResult: [
           {
             testcaseId: '18:30',
-            resultCode: 1,
+            resultCode: 0,
             cpuTime: 0,
             realTime: 0,
-            memory: 1417216,
+            memory: 1044480,
             signal: 0,
             exitCode: 0,
             errorCode: 0
