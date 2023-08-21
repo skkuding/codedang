@@ -5,7 +5,7 @@ import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
 @Injectable()
-export class WorkbookproblemService {
+export class WorkbookProblemService {
   constructor(private readonly prisma: PrismaService) {}
   async getWorkbookProblems(
     workbookId: number

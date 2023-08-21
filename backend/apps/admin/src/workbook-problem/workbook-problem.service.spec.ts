@@ -5,7 +5,7 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { WorkbookproblemService } from './workbookproblem.service'
+import { WorkbookProblemService } from './workbook-problem.service'
 
 const db = {
   workbookProblem: {
@@ -87,18 +87,18 @@ const exampleWorkbookProblems: WorkbookProblem[] = [
   }
 ]
 
-describe('WorkbookproblemService', () => {
-  let service: WorkbookproblemService
+describe('WorkbookProblemService', () => {
+  let service: WorkbookProblemService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        WorkbookproblemService,
+        WorkbookProblemService,
         { provide: PrismaService, useValue: db }
       ]
     }).compile()
 
-    service = module.get<WorkbookproblemService>(WorkbookproblemService)
+    service = module.get<WorkbookProblemService>(WorkbookProblemService)
   })
 
   it('should be defined', () => {

@@ -13,13 +13,13 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { WorkbookProblem } from '@admin/@generated'
-import { WorkbookproblemService } from './workbookproblem.service'
+import { WorkbookProblemService } from './workbook-problem.service'
 
 @Resolver(() => WorkbookProblem)
-export class WorkbookproblemResolver {
-  private readonly logger = new Logger(WorkbookproblemResolver.name)
+export class WorkbookProblemResolver {
+  private readonly logger = new Logger(WorkbookProblemResolver.name)
   constructor(
-    private readonly workbookproblemService: WorkbookproblemService
+    private readonly workbookProblemService: WorkbookProblemService
   ) {}
 
   @Query(() => [WorkbookProblem], { name: 'workbookproblem' })
@@ -27,7 +27,7 @@ export class WorkbookproblemResolver {
     @Args('workbookId', { type: () => Int }, ParseIntPipe) workbookId: number
   ) {
     try {
-      return this.workbookproblemService.getWorkbookProblems(workbookId)
+      return this.workbookProblemService.getWorkbookProblems(workbookId)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
@@ -47,7 +47,7 @@ export class WorkbookproblemResolver {
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
     try {
-      return this.workbookproblemService.updateWorkbookProblemsOrder(
+      return this.workbookProblemService.updateWorkbookProblemsOrder(
         workbookId,
         orders
       )

@@ -12,11 +12,12 @@ import {
 import { PrismaModule } from '@libs/prisma'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
-import { ContestproblemModule } from './contestproblem/contestproblem.module'
+import { ContestProblemModule } from './contest-problem/contest-problem.module'
 import { GroupModule } from './group/group.module'
 import { ProblemModule } from './problem/problem.module'
 import { StorageModule } from './storage/storage.module'
 import { UserModule } from './user/user.module'
+import { WorkbookProblemModule } from './workbook-problem/workbook-problem.module'
 import { WorkbookproblemModule } from './workbookproblem/workbookproblem.module'
 
 @Module({
@@ -35,7 +36,8 @@ import { WorkbookproblemModule } from './workbookproblem/workbookproblem.module'
     GroupModule,
     UserModule,
     WorkbookproblemModule,
-    ContestproblemModule
+    WorkbookProblemModule,
+    ContestProblemModule
   ],
   controllers: [AdminController],
   providers: [
