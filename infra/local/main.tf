@@ -8,8 +8,10 @@ terraform {
 }
 
 module "codedang-infra" {
-  source = "../modules/codedang-infra"
-
+  source            = "../modules/codedang-infra"
+  ecr_admin_uri     = var.ecr_admin_uri
+  ecr_client_uri    = var.ecr_client_uri
+  ecr_iris_uri      = var.ecr_iris_uri
   region            = var.region
   s3_bucket         = var.s3_bucket
   postgres_username = var.postgres_username
