@@ -18,7 +18,6 @@ import { Request, type Response } from 'express'
 import { AuthenticatedRequest, AuthNotNeeded } from '@libs/auth'
 import {
   UnprocessableDataException,
-  EmailTransmissionFailedException,
   InvalidJwtTokenException,
   DuplicateFoundException,
   UnidentifiedException
@@ -175,9 +174,6 @@ export class EmailAuthenticationController {
     } catch (error) {
       if (error instanceof UnidentifiedException) {
         throw new UnauthorizedException(error.message)
-      } else if (error instanceof EmailTransmissionFailedException) {
-        this.logger.error(error.message, error.stack)
-        throw new InternalServerErrorException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -189,9 +185,7 @@ export class EmailAuthenticationController {
     try {
       return await this.userService.sendPinForRegisterNewEmail(userEmailDto)
     } catch (error) {
-      if (error instanceof EmailTransmissionFailedException) {
-        throw new InternalServerErrorException(error.message)
-      } else if (error instanceof DuplicateFoundException) {
+      if (error instanceof DuplicateFoundException) {
         throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
