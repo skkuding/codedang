@@ -18,7 +18,6 @@ import { ProblemModule } from './problem/problem.module'
 import { StorageModule } from './storage/storage.module'
 import { UserModule } from './user/user.module'
 import { WorkbookProblemModule } from './workbook-problem/workbook-problem.module'
-import { WorkbookproblemModule } from './workbookproblem/workbookproblem.module'
 
 @Module({
   imports: [
@@ -35,7 +34,6 @@ import { WorkbookproblemModule } from './workbookproblem/workbookproblem.module'
     StorageModule,
     GroupModule,
     UserModule,
-    WorkbookproblemModule,
     WorkbookProblemModule,
     ContestProblemModule
   ],
