@@ -390,7 +390,9 @@ export class SubmissionService implements OnModuleInit {
       submission.userId === userId ||
       (await this.hasPassedProblem(userId, { problemId }))
     ) {
-      return submission.submissionResult
+      const result = submission.submissionResult
+      result.cpuTime = result.cpuTime.toString()
+      return result
     }
     throw new ForbiddenAccessException(
       "You must pass the problem first to browse other people's submissions"
