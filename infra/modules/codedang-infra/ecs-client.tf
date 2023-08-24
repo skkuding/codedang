@@ -102,7 +102,7 @@ resource "aws_ecs_task_definition" "client_api" {
     ecr_uri           = data.aws_ecr_repository.client_api.repository_url,
     container_port    = 4000
     cloudwatch_region = var.region,
-    redis_host        = aws_elasticache_replication_group.db_cache.configuration_endpoint_address
+    redis_host        = aws_elasticache_cluster.db_cache.cache_nodes.0.address,
     redis_port        = var.redis_port,
     jwt_secret        = random_password.jwt_secret.result,
     nodemailer_from   = "Codedang <noreply@codedang.com>"
