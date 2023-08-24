@@ -1,5 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
 import type { Problem, Submission, Workbook, WorkbookProblem } from '@generated'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import {
@@ -70,6 +71,16 @@ describe('WorkbookService', () => {
 
       //then
       expect(result).to.deep.equals([exampleWorkbook])
+    })
+
+    it('should handle NotFound error', async () => {
+      //given
+      db.workbook.findMany.resolves([])
+
+      //when & then
+      await expect(service.getWorkbooks(-1, 1, 1)).to.be.rejectedWith(
+        PrismaClientKnownRequestError
+      )
     })
   })
 
@@ -147,8 +158,48 @@ describe('WorkbookService', () => {
       )
 
       // when & then
-      await expect(service.getWorkbook(1, 10)).to.be.rejectedWith(
+      await expect(service.getWorkbook(1, -1)).to.be.rejectedWith(
         EntityNotExistException
+      )
+    })
+
+    it('should handle rawProblem NotFoundError', async () => {
+      // given
+      //given
+      const exampleWorkbook: Partial<Workbook> = {
+        id: 1,
+        title: 'test'
+      }
+      db.workbook.findFirstOrThrow.resolves(exampleWorkbook)
+      db.workbookProblem.findMany.resolves([])
+
+      // when & then
+      await expect(service.getWorkbook(1, -1)).to.be.rejectedWith(
+        PrismaClientKnownRequestError
+      )
+    })
+
+    it('should handle submission NotFoundError', async () => {
+      // given
+      //given
+      const exampleWorkbook: Partial<Workbook> = {
+        id: 1,
+        title: 'test'
+      }
+      const exampleRawProblems: { problem: Partial<Problem> }[] = [
+        {
+          problem: {
+            id: 1,
+            title: 'test'
+          }
+        }
+      ]
+      db.workbook.findFirstOrThrow.resolves(exampleWorkbook)
+      db.workbookProblem.findMany.resolves(exampleRawProblems)
+      db.submission.findMany.resolves([])
+      // when & then
+      await expect(service.getWorkbook(1, -1)).to.be.rejectedWith(
+        PrismaClientKnownRequestError
       )
     })
   })

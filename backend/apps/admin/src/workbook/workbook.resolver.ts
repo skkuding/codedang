@@ -8,7 +8,6 @@ import {
   UnprocessableEntityException // UseGuards
 } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql'
-// import { Role } from '@prisma/client'
 import type { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
@@ -20,7 +19,6 @@ import {
 import { CursorValidationPipe } from '@libs/pipe'
 import { WorkbookProblem } from '@admin/@generated/workbook-problem/workbook-problem.model'
 import { Workbook } from '@admin/@generated/workbook/workbook.model'
-// import { GetWorkbookListInput } from './model/input/workbook.input'
 import { CreateWorkbookInput } from './model/workbook.input'
 import { UpdateWorkbookInput } from './model/workbook.input'
 import { WorkbookDetail } from './model/workbook.output'
@@ -50,6 +48,7 @@ export class WorkbookResolver {
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
+      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }

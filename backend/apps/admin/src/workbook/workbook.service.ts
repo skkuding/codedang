@@ -1,18 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import type {
-  Workbook,
-  Problem,
-  Submission,
-  WorkbookProblem
-} from '@prisma/client'
-// import { OPEN_SPACE_ID } from '@libs/constants'
+import type { Workbook, Problem, Submission, WorkbookProblem } from '@generated'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import {
   ConflictFoundException,
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-// import type { WorkbookUpdateInput } from '@admin/@generated'
-// import type { GetWorkbookListInput } from './model/input/workbook.input'
 import type { CreateWorkbookInput } from './model/workbook.input'
 import type { UpdateWorkbookInput } from './model/workbook.input'
 
@@ -38,6 +31,13 @@ export class WorkbookService {
         id: cursor
       }
     })
+    if (workbooks.length <= 0) {
+      throw new PrismaClientKnownRequestError('records NotFound', {
+        code: 'P2025',
+        meta: { target: ['workbook'] },
+        clientVersion: '5.1.1'
+      })
+    }
     return workbooks
   }
 
@@ -66,6 +66,14 @@ export class WorkbookService {
       }
     })
 
+    if (rawProblems.length <= 0) {
+      throw new PrismaClientKnownRequestError('records NotFound', {
+        code: 'P2025',
+        meta: { target: ['rawproblem'] },
+        clientVersion: '5.1.1'
+      })
+    }
+
     const problems = rawProblems.map((x) => ({
       id: x.problem.id,
       title: x.problem.title
@@ -74,6 +82,14 @@ export class WorkbookService {
     const submissions = await this.prisma.submission.findMany({
       where: { workbookId }
     })
+
+    if (submissions.length <= 0) {
+      throw new PrismaClientKnownRequestError('records NotFound', {
+        code: 'P2025',
+        meta: { target: ['submission'] },
+        clientVersion: '5.1.1'
+      })
+    }
 
     return {
       ...workbook,
