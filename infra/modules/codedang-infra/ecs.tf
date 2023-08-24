@@ -39,14 +39,14 @@ resource "aws_iam_instance_profile" "codedang-ecs" {
 }
 
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name               = "Codedang-Api-Task-Execution-Role"
+  name               = "Codedang-Api-Task-Execution-Role-test"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_execution_role.json
 }
 
 resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
-  name = "test-codedang-capacity-provider"
+  name = "test-codedang-capacity-provider1"
   auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.codedang-asg.arn
+    auto_scaling_group_arn         = aws_autoscaling_group.codedang-asg-admin.arn
     managed_termination_protection = "ENABLED"
 
 
@@ -74,4 +74,20 @@ resource "aws_iam_role_policy_attachment" "ecs_ses" {
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
+data "cloudinit_config" "config" {
+  gzip          = false
+  base64_encode = true
+
+  part {
+    content_type = "text/x-shellscript"
+    content      = <<EOF
+    #!/bin/bash
+    echo ECS_CLUSTER="${aws_ecs_service.iris.name}" >> /etc/ecs/ecs.config
+    ECS_ENABLE_TASK_IAM_ROLE=true
+    echo ECS_ENABLE_CONTAINER_METADATA=true >> /etc/ecs/ecs.config
+    echo ECS_CONTAINER_INSTANCE_PROPAGATE_TAGS_FROM=ec2_instance >> /etc/ecs/ecs.config
+    EOF
+  }
 }

@@ -11,7 +11,7 @@ variable "region" {
 variable "availability_zones" {
   description = "List of availability zones"
   type        = list(string)
-  default     = ["ap-northeast-2a", "ap-northeast-2b", "ap-northeast-2c"] # 추가 서브넷에 대한 가용 영역 목록을 지정합니다.
+  default     = ["ap-northeast-1a", "ap-northeast-1d", "ap-northeast-1c"] # 추가 서브넷에 대한 가용 영역 목록을 지정합니다.
 }
 
 variable "postgres_username" {
@@ -74,4 +74,17 @@ variable "rabbitmq_result_routing_key" {
 variable "rabbitmq_submission_routing_key" {
   type    = string
   default = "judge.submission"
+}
+
+
+variable "ecr_client_uri" {
+  type = string
+}
+
+variable "ecr_admin_uri" {
+  type = string
+}
+
+variable "ecr_iris_uri" {
+  type = string
 }

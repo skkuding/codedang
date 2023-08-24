@@ -41,8 +41,8 @@ resource "aws_lb_listener" "api" {
 }
 
 resource "aws_lb_target_group" "client_api" {
-  name        = "Codedang-Client-Api-Target-Group"
-  target_type = "ip"
+  name        = "Codedang-Client-Api-tg-instance"
+  target_type = "instance"
   port        = 4000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
@@ -65,11 +65,12 @@ resource "aws_ecs_service" "client_api" {
   health_check_grace_period_seconds = 300
 
 
-  network_configuration {
-    assign_public_ip = true
-    security_groups  = [aws_security_group.client_ecs.id]
-    subnets          = [aws_subnet.public_client_api1.id, aws_subnet.public_client_api2.id]
-  }
+  # EC2 기반의 ECS라 필요 없을듯
+  # network_configuration {
+  #   # assign_public_ip = true # awsvpc 모드라 ENI기반으로 작동해서 public ip 할당받는게 이상함.
+  #   security_groups = [aws_security_group.client_ecs.id]
+  #   subnets         = [aws_subnet.public_client_api1.id, aws_subnet.public_client_api2.id]
+  # }
 
   load_balancer {
     target_group_arn = aws_lb_target_group.client_api.arn
@@ -82,16 +83,14 @@ resource "aws_ecs_service" "client_api" {
   ]
 }
 
-data "aws_ecr_repository" "client_api" {
-  name = "codedang-client-api"
-}
+# data "aws_ecr_repository" "client-test" {
+#   name = "codedang-client-api"
+# }
 
 resource "aws_ecs_task_definition" "client_api" {
   family                   = "Codedang-Client-Api"
   requires_compatibilities = ["EC2"]
-  network_mode             = "awsvpc"
-  cpu                      = 2048
-  memory                   = 2048
+  network_mode             = "bridge"
   container_definitions = templatefile("${path.module}/backend/task-definition.tftpl", {
     task_name = "Codedang-Client-Api",
     # aurora-posrgresql
@@ -99,14 +98,14 @@ resource "aws_ecs_task_definition" "client_api" {
 
     # posrgresql (free tier)
     database_url      = "postgresql://${var.postgres_username}:${random_password.postgres_password.result}@${aws_db_instance.db-test.endpoint}/skkuding?schema=public",
-    ecr_uri           = data.aws_ecr_repository.client_api.repository_url,
-    container_port    = 4000
+    ecr_uri           = var.ecr_client_uri,
+    container_port    = 4000,
     cloudwatch_region = var.region,
-    redis_host        = aws_elasticache_replication_group.db_cache.configuration_endpoint_address
+    redis_host        = aws_elasticache_replication_group.db_cache.configuration_endpoint_address,
     redis_port        = var.redis_port,
     jwt_secret        = random_password.jwt_secret.result,
-    nodemailer_from   = "Codedang <noreply@codedang.com>"
-    rabbitmq_host     = "${aws_mq_broker.judge_queue.id}.mq.${var.region}.amazonaws.com}"
+    nodemailer_from   = "Codedang <noreply@codedang.com>",
+    rabbitmq_host     = "${aws_mq_broker.judge_queue.id}.mq.${var.region}.amazonaws.com}",
     rabbitmq_port     = var.rabbitmq_port,
     rabbitmq_username = var.rabbitmq_username,
     rabbitmq_password = random_password.rabbitmq_password.result,

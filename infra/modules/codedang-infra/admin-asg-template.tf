@@ -1,26 +1,12 @@
-data "cloudinit_config" "config" {
-  gzip          = false
-  base64_encode = true
-
-  part {
-    content_type = "text/x-shellscript"
-    content      = <<EOF
-    #!/bin/bash
-    echo ECS_CLUSTER="${aws_ecs_service.admin_api.name}" >> /etc/ecs/ecs.config
-    ECS_ENABLE_TASK_IAM_ROLE=true
-    echo ECS_ENABLE_CONTAINER_METADATA=true >> /etc/ecs/ecs.config
-    echo ECS_CONTAINER_INSTANCE_PROPAGATE_TAGS_FROM=ec2_instance >> /etc/ecs/ecs.config
-    EOF
-  }
-}
-
 #admin 용
 resource "aws_launch_template" "ecs-codedang-template-admin" {
   # Name of the launch template
   name = "codedang-admin-template"
 
+  # # arm64기반 ecs 최적화 이미지 사용
+  # image_id = "ami-01287572b99f45fc2" 한국거
   # arm64기반 ecs 최적화 이미지 사용
-  image_id = "ami-01287572b99f45fc2"
+  image_id = "ami-0879857690d02a38c" # 도쿄 az ami는 이것만 지원. 한국 az에서 바꿀것
 
   # ecs에서 해당 템플릿을 사용하기 위한 설정. 인스턴스 시작을 위한 ECS IAM 프로필에 템플릿을 적용
   iam_instance_profile {
@@ -31,7 +17,10 @@ resource "aws_launch_template" "ecs-codedang-template-admin" {
   instance_type = "t4g.small"
 
   # SSH key pair name for connecting to the instance
+  # 미리 만들어 놓아야 합니다.
   key_name = "codedang-ecs-admin"
+
+  user_data = data.cloudinit_config.config.rendered
 
   # Block device mappings for the instance
   block_device_mappings {
@@ -63,11 +52,15 @@ resource "aws_launch_template" "ecs-codedang-template-admin" {
   }
 }
 
-resource "aws_autoscaling_group" "codedang-asg" {
+resource "aws_autoscaling_group" "codedang-asg-admin" {
   # Name of the Auto Scaling Group
   name                  = "codedang-autoscaling-group-admin"
   vpc_zone_identifier   = [aws_subnet.public_admin_api1.id, aws_subnet.public_admin_api2.id]
   protect_from_scale_in = true
+
+
+  target_group_arns = [aws_lb_target_group.admin_api.id]
+  health_check_type = "ELB"
 
   # Desired number of instances in the Autoscaling Group
   desired_capacity = 1
@@ -79,8 +72,6 @@ resource "aws_autoscaling_group" "codedang-asg" {
   lifecycle {
     create_before_destroy = true
   }
-
-
 
   # mixed_instances_policy 섹션 추가 -> provider의 manged_termination_protection 이 enable 되었으므로, 추가적으로 해당 설정을 해주어야함.
   mixed_instances_policy {
@@ -96,5 +87,4 @@ resource "aws_autoscaling_group" "codedang-asg" {
       }
     }
   }
-
 }

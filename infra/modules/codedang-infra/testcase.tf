@@ -1,14 +1,14 @@
 resource "aws_s3_bucket" "testcase" {
-  bucket = "codedang-testcase"
+  bucket = "codedang-testcase-test"
 
   tags = {
-    Name = "Codedang-Testcase"
+    Name = "Codedang-Testcase-test"
   }
 }
 
 # user
 resource "aws_iam_user" "testcase" {
-  name = "user-codedang-testcase"
+  name = "user-codedang-testcase-test"
 }
 
 data "aws_iam_policy_document" "testcase_s3" {
@@ -30,8 +30,8 @@ resource "aws_iam_access_key" "testcase" {
 
 # role
 resource "aws_iam_role" "ecs_iris_task_execution_role" {
-  name                = "Codedang-Iris-Task-Execution-Role"
-  assume_role_policy  = data.aws_iam_policy_document.ecs_task_execution_role.json
+  name               = "Codedang-Iris-Task-Execution-Role-test"
+  assume_role_policy = data.aws_iam_policy_document.ecs_task_execution_role.json
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_iris_task_execution_role" {
@@ -47,7 +47,7 @@ data "aws_iam_policy_document" "iris_testcase_access" {
 }
 
 resource "aws_iam_policy" "iris_testcase_access" {
-  name = "IrisAccessTestcasebucketPolicy"
+  name   = "IrisAccessTestcasebucketPolicy-test"
   policy = data.aws_iam_policy_document.iris_testcase_access.json
 }
 

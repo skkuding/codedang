@@ -19,37 +19,35 @@ resource "aws_subnet" "private_iris2" {
   }
 }
 
-resource "aws_ecs_cluster" "iris" {
+resource "aws_ecs_cluster" "test" {
   name = "Codedang-Iris"
 }
 
 resource "aws_ecs_service" "iris" {
   name            = "Codedang-Iris-Service"
-  cluster         = aws_ecs_cluster.iris.id
+  cluster         = aws_ecs_cluster.test.id
   task_definition = aws_ecs_task_definition.iris.arn
   desired_count   = 2
   launch_type     = "EC2"
 
   network_configuration {
-    assign_public_ip = true
-    security_groups  = [aws_security_group.iris.id]
-    subnets          = [aws_subnet.private_iris1.id, aws_subnet.private_iris2.id]
+    # assign_public_ip = true  # awsvpc 모드라 ENI기반으로 작동해서 public ip 할당받는게 이상함.
+    security_groups = [aws_security_group.iris.id]
+    subnets         = [aws_subnet.private_iris1.id, aws_subnet.private_iris2.id]
   }
 }
 
-data "aws_ecr_repository" "iris" {
-  name = "codedang-iris"
-}
+# data "aws_ecr_repository" "iris" {
+#   name = "codedang-iris"
+# }
 
 resource "aws_ecs_task_definition" "iris" {
   family                   = "Codedang-Iris-Api"
   requires_compatibilities = ["EC2"]
   network_mode             = "awsvpc"
-  cpu                      = 2048
-  memory                   = 2048
   container_definitions = templatefile("${path.module}/iris/task-definition.tftpl", {
-    ecr_uri             = data.aws_ecr_repository.iris.repository_url,
-    rabbitmq_host       = "${aws_mq_broker.judge_queue.id}.mq.${var.region}.amazonaws.com}"
+    ecr_uri             = var.ecr_iris_uri,
+    rabbitmq_host       = "${aws_mq_broker.judge_queue.id}.mq.${var.region}.amazonaws.com",
     rabbitmq_port       = var.rabbitmq_port,
     rabbitmq_username   = var.rabbitmq_username,
     rabbitmq_password   = random_password.rabbitmq_password.result,
