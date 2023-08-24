@@ -189,7 +189,10 @@ const removeTestcase = (index: number) => {
     <form class="flex flex-col gap-8" @submit.prevent="submit">
       <h1 class="text-gray-dark text-2xl font-semibold">Create Problem</h1>
       <div class="col-span-3">
-        <label class="text-lg font-bold">Title</label>
+        <label class="text-lg font-bold">
+          Title
+          <span class="text-red">*</span>
+        </label>
         <InputItem
           v-bind="title"
           class="mt-3 w-full"
@@ -199,7 +202,10 @@ const removeTestcase = (index: number) => {
       </div>
       <div class="flex justify-between gap-5">
         <div class="flex flex-1 flex-col gap-3">
-          <label class="text-lg font-bold">Difficulty</label>
+          <label class="text-lg font-bold">
+            Difficulty
+            <span class="text-red">*</span>
+          </label>
           <select
             id="difficulty"
             v-bind="difficulty"
@@ -216,7 +222,10 @@ const removeTestcase = (index: number) => {
           </select>
         </div>
         <div class="flex flex-1 flex-col gap-3">
-          <label class="text-lg font-bold">Language</label>
+          <label class="text-lg font-bold">
+            Language
+            <span class="text-red">*</span>
+          </label>
           <div class="flex gap-3">
             <button
               v-for="(label, value) in languageLabels"
@@ -237,19 +246,28 @@ const removeTestcase = (index: number) => {
         </div>
       </div>
       <div>
-        <h2 class="mb-3 text-lg font-bold">Description</h2>
+        <h2 class="mb-3 text-lg font-bold">
+          Description
+          <span class="text-red">*</span>
+        </h2>
         <TextEditor v-bind="description" size="lg" />
       </div>
       <div class="grid grid-cols-2 gap-5">
         <div>
-          <label class="mb-3 text-lg font-bold">Input Description</label>
+          <label class="mb-3 text-lg font-bold">
+            Input Description
+            <span class="text-red">*</span>
+          </label>
           <textarea
             v-bind="inputDescription"
             class="border-gray focus:border-green focus:ring-green mt-3 h-[120px] w-full resize-none rounded-lg outline-none focus:ring-1"
           />
         </div>
         <div>
-          <label class="text-lg font-bold">Output Description</label>
+          <label class="text-lg font-bold">
+            Output Description
+            <span class="text-red">*</span>
+          </label>
           <textarea
             v-bind="outputDescription"
             class="border-gray focus:border-green focus:ring-green mt-3 h-[120px] w-full resize-none rounded-lg outline-none focus:ring-1"
@@ -258,7 +276,10 @@ const removeTestcase = (index: number) => {
       </div>
       <div class="grid grid-cols-2 gap-5">
         <div>
-          <label class="mb-3 text-lg font-bold">Time Limit (ms)</label>
+          <label class="mb-3 text-lg font-bold">
+            Time Limit (ms)
+            <span class="text-red">*</span>
+          </label>
           <InputItem
             v-bind="timeLimit"
             placeholder="Time Limit (ms)"
@@ -267,7 +288,10 @@ const removeTestcase = (index: number) => {
           />
         </div>
         <div>
-          <label class="mb-3 text-lg font-bold">Memory Limit (MB)</label>
+          <label class="mb-3 text-lg font-bold">
+            Memory Limit (MB)
+            <span class="text-red">*</span>
+          </label>
           <InputItem
             v-bind="memoryLimit"
             placeholder="Memory Limit (MB)"
@@ -277,7 +301,10 @@ const removeTestcase = (index: number) => {
         </div>
       </div>
       <div>
-        <h2 class="mb-3 text-lg font-bold">Hint</h2>
+        <h2 class="mb-3 text-lg font-bold">
+          Hint
+          <span class="text-red">*</span>
+        </h2>
         <TextEditor v-bind="hint" size="lg" />
       </div>
       <div
@@ -286,7 +313,10 @@ const removeTestcase = (index: number) => {
         class="flex flex-col gap-5"
       >
         <div class="flex justify-between">
-          <h2 class="text-lg font-bold">Sample {{ index + 1 }}</h2>
+          <h2 class="text-lg font-bold">
+            Sample {{ index + 1 }}
+            <span class="text-red">*</span>
+          </h2>
           <Button
             v-if="inputExamples.length > 1"
             type="button"
@@ -334,7 +364,10 @@ const removeTestcase = (index: number) => {
         class="flex flex-col gap-5"
       >
         <div class="flex justify-between">
-          <h2 class="text-lg font-bold">Testcase {{ index + 1 }}</h2>
+          <h2 class="text-lg font-bold">
+            Testcase {{ index + 1 }}
+            <span class="text-red">*</span>
+          </h2>
           <Button
             v-if="testcases.length > 1"
             type="button"
