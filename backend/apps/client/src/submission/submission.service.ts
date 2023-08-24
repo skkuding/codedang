@@ -361,7 +361,7 @@ export class SubmissionService implements OnModuleInit {
     problemId: number,
     userId: number,
     groupId = OPEN_SPACE_ID
-  ): Promise<SubmissionResult[]> {
+  ) {
     await this.prisma.problem.findFirstOrThrow({
       where: {
         id: problemId,
