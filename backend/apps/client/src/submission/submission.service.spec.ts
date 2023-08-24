@@ -413,7 +413,7 @@ describe('SubmissionService', () => {
   })
 
   describe('judgerMessageTypeHandler', () => {
-    it('should throw Error when resultCode is invalid', async () => {
+    it('should throw error when resultCode is invalid', async () => {
       const target = {
         resultCode: 8,
         data: 'Test Error',
@@ -421,7 +421,7 @@ describe('SubmissionService', () => {
         submissionId: 'abc123'
       }
 
-      await expect(service.judgerResponseTypeValidation(target)).to.be.rejected
+      await expect(service.validateJudgerResponse(target)).to.be.rejected
     })
 
     it('should return message object', async () => {
@@ -447,7 +447,7 @@ describe('SubmissionService', () => {
         }
       }
 
-      const result = await service.judgerResponseTypeValidation(target)
+      const result = await service.validateJudgerResponse(target)
 
       expect(result).to.be.deep.equal(target)
     })
@@ -476,7 +476,7 @@ describe('SubmissionService', () => {
       }
     }
 
-    const result = await service.judgerResponseTypeValidation(target)
+    const result = await service.validateJudgerResponse(target)
 
     expect(result).to.be.deep.equal(target)
   })
