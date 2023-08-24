@@ -711,7 +711,7 @@
             "method": "POST",
             "sortNum": 110000,
             "created": "2023-07-13T12:50:23.837Z",
-            "modified": "2023-07-31T19:30:25.248Z",
+            "modified": "2023-08-12T08:09:13.116Z",
             "headers": [],
             "params": [],
             "body": {
@@ -720,7 +720,7 @@
                 "form": [],
                 "graphql": {
                     "query": "mutation Problem($input: UpdateProblemInput!){\n    updateProblem(\n        groupId: 1\n        input: $input\n    ){\n        id\n        title\n    }\n}",
-                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [],\n    \"tagIds\": []\n  }\n}"
+                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [\"C\"],\n    \"tags\":{\n      \"create\":[1],\n      \"delete\":[]\n    }\n    }\n}"
                 }
             },
             "tests": [
@@ -737,7 +737,7 @@
                     "value": "\"message\": \"A problem should support at least one language\""
                 }
             ],
-            "docs": "# Update Problem\n\n문제를 수정합니다.  \n그룹이 존재하지 않거나 유저에게 그룹 관리 권한이 없는 경우 403이 반환됩니다.  \n\n### Query\n- `groupId`를 설정하지 않으면 Open Space로 인식합니다.\n- 테스트케이스는 수정할 테이스케이스만 `testcases` 배열에 담아주세요.\n  + 기존에 있던 테이스케이스의 내용을 수정하려면, `id`, `input`, `output`, `scoreWeight`를 필드로 갖는 아이템을 배열에 넣어야 합니다. 존재하지 않는 테스트케이스 ID가 `id`로 설정되어 있을 경우, 새로운 테스트케이스로 간주됩니다.\n  + 새로운 테스트케이스를 추가하려면, 아이템이 `id`는 제외하고 나머지만을 필드로 갖도록 합니다.\n  + 수정하지 않을 테스트케이스는 전송하지 말아주세요.\n\n### Constraints\n- 현재 시스템에서 지원하는 언어는 C, Cpp, Java, Python3뿐입니다.\n- 아래의 세 가지 제약 조건을 어길 시 422가 반환됩니다:\n- `languages`는 빈 배열일 수 없습니다(= 아무 언어도 지원하지 않는 문제는 만들 수 없습니다).\n- `template`의 기반 언어는 `languages`에 속해 있어야 합니다.\n- 존재하지 않는 태그의 ID는 `tagIds`에 포함될 수 없습니다.\n",
+            "docs": "# Update Problem\n\n문제를 수정합니다.  \n그룹이 존재하지 않거나 유저에게 그룹 관리 권한이 없는 경우 403이 반환됩니다.  \n\n### Query\n- `groupId`를 설정하지 않으면 Open Space로 인식합니다.\n- 테스트케이스는 수정할 테이스케이스만 `testcases` 배열에 담아주세요.\n  + 기존에 있던 테이스케이스의 내용을 수정하려면, `id`, `input`, `output`, `scoreWeight`를 필드로 갖는 아이템을 배열에 넣어야 합니다. 존재하지 않는 테스트케이스 ID가 `id`로 설정되어 있을 경우, 새로운 테스트케이스로 간주됩니다.\n  + 새로운 테스트케이스를 추가하려면, 아이템이 `id`는 제외하고 나머지만을 필드로 갖도록 합니다.\n  + 수정하지 않을 테스트케이스는 전송하지 말아주세요.\n- `tags`를 통해 기존 tag를 연결해 problemTag를 생성하거나, 존재하던 problemTag를 삭제할 수 있습니다.\n\n\n### Constraints\n- 현재 시스템에서 지원하는 언어는 C, Cpp, Java, Python3뿐입니다.\n- 아래의 세 가지 제약 조건을 어길 시 422가 반환됩니다:\n- `languages`는 빈 배열일 수 없습니다(= 아무 언어도 지원하지 않는 문제는 만들 수 없습니다).\n- `template`의 기반 언어는 `languages`에 속해 있어야 합니다.\n- `tags`의 자료형은 `[UpdateProblemTagInput]`이며 `id`와 `action`으로 구성됩니다.\n   +  `id`은 number로, 새로 생성하거나 지울 problemTag를 지정합니다.\n         - `Create`시에는 연결할 `tag`의 `id` 기술\n         - `Delete`시에는 삭제할 `problemTag`의 `id` 기술\n   +  `action`은 `String(enum)`으로, `Create`와 `Delete` 두개의 값만 가질 수 있습니다.\n",
             "preReq": {
                 "runRequests": [
                     {
@@ -1037,7 +1037,7 @@
             "method": "POST",
             "sortNum": 120000,
             "created": "2023-07-31T19:29:28.071Z",
-            "modified": "2023-07-31T19:33:10.982Z",
+            "modified": "2023-08-10T10:35:08.936Z",
             "headers": [],
             "params": [],
             "body": {
@@ -1046,7 +1046,7 @@
                 "form": [],
                 "graphql": {
                     "query": "mutation Problem($input: UpdateProblemInput!){\n    updateProblem(\n        groupId: 1\n        input: $input\n    ){\n        id\n        title\n    }\n}",
-                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [],\n    \"tagIds\": []\n  }\n}"
+                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [],\n    \"tags\": []\n  }\n}"
                 }
             },
             "tests": [
@@ -1083,7 +1083,7 @@
             "method": "POST",
             "sortNum": 130000,
             "created": "2023-07-31T19:29:30.308Z",
-            "modified": "2023-07-31T19:32:39.130Z",
+            "modified": "2023-08-10T10:35:05.257Z",
             "headers": [],
             "params": [],
             "body": {
@@ -1092,7 +1092,7 @@
                 "form": [],
                 "graphql": {
                     "query": "mutation Problem($input: UpdateProblemInput!){\n    updateProblem(\n        groupId: 1\n        input: $input\n    ){\n        id\n        title\n    }\n}",
-                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [\"C\",\"Java\"],\n    \"template\": [{\n      \"language\": \"Python3\",\n      \"code\": [{\n        \"id\": 1,\n        \"text\": \"int main(void) {}\",\n        \"locked\": false\n      }]\n    }],\n    \"tagIds\": []\n  }\n}"
+                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [\"C\",\"Java\"],\n    \"template\": [{\n      \"language\": \"Python3\",\n      \"code\": [{\n        \"id\": 1,\n        \"text\": \"int main(void) {}\",\n        \"locked\": false\n      }]\n    }],\n    \"tags\": []\n  }\n}"
                 }
             },
             "tests": [
@@ -1129,7 +1129,7 @@
             "method": "POST",
             "sortNum": 140000,
             "created": "2023-07-31T19:29:32.585Z",
-            "modified": "2023-07-31T19:33:58.199Z",
+            "modified": "2023-08-10T10:35:01.029Z",
             "headers": [],
             "params": [],
             "body": {
@@ -1138,7 +1138,7 @@
                 "form": [],
                 "graphql": {
                     "query": "mutation Problem($input: UpdateProblemInput!){\n    updateProblem(\n        groupId: 1\n        input: $input\n    ){\n        id\n        title\n    }\n}",
-                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [\"C\",\"Java\"],\n    \"tagIds\": [0]\n  }\n}"
+                    "variables": "{\n  \"input\":{\n    \"id\": 1,\n    \"title\": \"title0\",\n    \"languages\": [\"C\",\"Java\"],\n    \"tags\": [0]\n  }\n}"
                 }
             },
             "tests": [

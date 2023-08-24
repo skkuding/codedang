@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
+import Pagination from '@/common/components/Molecule/Pagination.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import { NButton, NSwitch, NIcon, NDataTable } from 'naive-ui'
 import { h, ref } from 'vue'
@@ -7,9 +8,7 @@ import Fa6RegularTrashCan from '~icons/fa6-regular/trash-can'
 
 interface Workbook {
   id: number
-  group: string
   title: string
-  period: string
   visible: boolean
 }
 
@@ -28,18 +27,8 @@ const columns = [
     minWidth: 80
   },
   {
-    title: 'Group',
-    key: 'group',
-    minWidth: 150
-  },
-  {
     title: 'Title',
     key: 'title'
-  },
-  {
-    title: 'Period',
-    key: 'period',
-    width: 220
   },
   {
     title: 'Visible',
@@ -77,13 +66,13 @@ const columns = [
   }
 ]
 const loading = ref(false)
+const currentPage = ref(1)
+
 const data = ref(
   Array(104)
     .fill({
       id: 1,
-      group: 'NPC 초급반',
       title: 'SKKU Coding Platform 2차모의대회',
-      period: '2022-08-28 18:00:00 ~ 2022-08-28 22:00:00',
       visible: false
     })
     .map((item, index) => ({
@@ -100,15 +89,17 @@ const data = ref(
     <SearchBar placeholder="keywords" class="mb-5 self-end" />
     <n-data-table
       :columns="columns"
-      :data="data"
+      :data="data.slice((currentPage - 1) * 5, currentPage * 5)"
       :loading="loading"
-      :pagination="{
-        pageSize: 5
-      }"
       :scroll-x="1100"
       :bordered="false"
       class="text-xl"
       row-class-name="text-base"
+    />
+    <Pagination
+      v-model="currentPage"
+      :number-of-pages="6"
+      class="mt-10 self-end"
     />
   </div>
 </template>

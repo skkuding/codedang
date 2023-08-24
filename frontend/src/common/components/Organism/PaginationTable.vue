@@ -189,7 +189,7 @@ useSortable(el, items, {
         :page-slot="pageSlot"
         :number-of-pages="numberOfPages"
         :mode="mode"
-        @change-page="(page) => emit('change-page', page)"
+        @change-page="(page: number) => emit('change-page', page)"
       />
     </div>
   </div>

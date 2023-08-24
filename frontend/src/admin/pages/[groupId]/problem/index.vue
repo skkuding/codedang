@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import CreatePorblemModal from '@/admin/components/CreateProblemModal.vue'
+import CreateProblemModal from '@/admin/components/CreateProblemModal.vue'
 import ImportProblemModal from '@/admin/components/ImportProblemModal.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import Dialog from '@/common/components/Molecule/Dialog.vue'
@@ -77,14 +77,7 @@ onChange(async (files) => {
     :toggle="showImportModal"
     :set-toggle="() => (showImportModal = !showImportModal)"
   />
-  <CreatePorblemModal
-    :toggle="showProblemModal"
-    :set-toggle="
-      (a) => {
-        showProblemModal = !a
-      }
-    "
-  />
+  <CreateProblemModal v-model="showProblemModal" />
   <Dialog />
   <div class="flex flex-col">
     <div class="border-gray border-b text-right text-lg font-semibold">
