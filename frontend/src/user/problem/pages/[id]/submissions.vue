@@ -24,12 +24,11 @@ import SubmissionList from '../../components/SubmissionList.vue'
 const submissionId = ref('')
 const getId = (id: string) => {
   submissionId.value = id
-  console.log(submissionId.value)
 }
 </script>
 
 <template>
-  <div class="flex flex-row">
+  <div class="flex flex-row border-t border-slate-400">
     <SubmissionList @id="getId" />
     <SubmissionDetail :id="submissionId" />
   </div>

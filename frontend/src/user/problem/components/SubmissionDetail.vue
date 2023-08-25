@@ -2,12 +2,12 @@
 import CodeEditor from '@/common/components/Organism/CodeEditor.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import axios from 'axios'
-import { onUpdated, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useProblemStore } from '../store/problem'
 
-const props = defineProps<{
-  id: string
-}>()
+// const props = defineProps<{
+//   id: string
+// }>()
 
 type Submission = {
   id: string
@@ -58,19 +58,32 @@ const item = ref<Submission>({
     username: ''
   }
 })
+// const submissionItem = ref<Record<string, string>>({})
 const getSubmission = async () => {
-  const { data: item } = await axios.get(
-    '/api/problem/1/submission/' + props.id
-  )
-  console.log(item)
+  const { data } = await axios.get('/api/problem/1/submission/7c3326')
+  item.value = data
+  console.log('subission11', data)
 }
-onUpdated(() => {
-  getSubmission()
+watch(item, () => {
+  console.log('subission', item.value)
+  // submissionItem.value = { ...item, user: item.value.user.username }
+})
+// { user: string;
+//   value: {
+//     id: string;
+//     createTime: string;
+//     language: string;
+//     result: string;
+//     user: { username: string; };
+//    };
+//   [RefSymbol]: true; }
+onMounted(async () => {
+  await getSubmission()
 })
 </script>
 
 <template>
-  <div class="bg-default flex flex-col gap-8">
+  <div class="bg-default flex flex-col gap-8 text-white">
     <h2 class="text-3xl font-bold">Submission #{{ item.id }}</h2>
     <table class="text-center">
       <thead class="font-bold">
@@ -84,7 +97,7 @@ onUpdated(() => {
       </thead>
       <tbody>
         <tr>
-          <td>{{ store.problem }}</td>
+          <td>{{ store.problem.title }}</td>
           <td>{{ item.createTime }}</td>
           <td>{{ item.user }}</td>
           <td>{{ item.language }}</td>
