@@ -1417,7 +1417,7 @@
             "method": "POST",
             "sortNum": 180000,
             "created": "2023-08-05T06:16:39.156Z",
-            "modified": "2023-08-12T04:33:58.234Z",
+            "modified": "2023-08-14T10:21:40.792Z",
             "headers": [],
             "params": [],
             "body": {
@@ -1475,7 +1475,7 @@
             "method": "POST",
             "sortNum": 190000,
             "created": "2023-08-05T06:17:11.199Z",
-            "modified": "2023-08-12T04:33:52.067Z",
+            "modified": "2023-08-14T10:21:50.966Z",
             "headers": [],
             "params": [],
             "body": {
@@ -1527,7 +1527,7 @@
             "method": "POST",
             "sortNum": 200000,
             "created": "2023-08-05T06:21:49.318Z",
-            "modified": "2023-08-05T08:54:18.105Z",
+            "modified": "2023-08-14T10:36:20.269Z",
             "headers": [],
             "params": [],
             "body": {
@@ -1535,7 +1535,7 @@
                 "raw": "",
                 "form": [],
                 "graphql": {
-                    "query": "mutation User {\n  deleteGroupMember(userId: 3, groupId: 1){\n    userId\n    groupId\n  }\n}"
+                    "query": "mutation User {\n  deleteGroupMember(userId: 3, groupId: 2){\n    userId\n    groupId\n  }\n}"
                 }
             },
             "tests": [
