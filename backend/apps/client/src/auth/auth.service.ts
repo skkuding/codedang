@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import { Cache } from 'cache-manager'
+import type { Response } from 'express'
 import {
   JwtAuthService,
   type JwtObject,
@@ -12,14 +13,17 @@ import {
 import { refreshTokenCacheKey } from '@libs/cache'
 import {
   ACCESS_TOKEN_EXPIRE_TIME,
+  REFRESH_TOKEN_COOKIE_OPTIONS,
   REFRESH_TOKEN_EXPIRE_TIME
 } from '@libs/constants'
 import {
   InvalidJwtTokenException,
   UnidentifiedException
 } from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
 import { UserService } from '@client/user/user.service'
 import type { LoginUserDto } from './dto/login-user.dto'
+import type { GithubUser } from './interface/social-user.interface'
 
 @Injectable()
 export class AuthService {
@@ -28,6 +32,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly jwtAuthService: JwtAuthService,
     private readonly userService: UserService,
+    private readonly prisma: PrismaService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -94,5 +99,32 @@ export class AuthService {
 
   async deleteRefreshToken(userId: number) {
     return await this.cacheManager.del(refreshTokenCacheKey(userId))
+  }
+
+  async githubLogin(res: Response, githubUser: GithubUser) {
+    const username = githubUser.username + '-github' // github 로그인한 유저는 username 뒤에 '-github' 붙여서 지정
+    const user = await this.prisma.user.findFirst({
+      where: {
+        username: username
+      }
+    })
+
+    if (!user) {
+      // TODO: github로 회원가입 한 적 없는 유저에 대한 회원가입 로직 구현
+    }
+
+    const jwtTokens = await this.issueJwtTokens({
+      username: username,
+      password: user.password
+    })
+
+    res.setHeader('authorization', `Bearer ${jwtTokens.accessToken}`)
+    res.cookie(
+      'refresh_token',
+      jwtTokens.refreshToken,
+      REFRESH_TOKEN_COOKIE_OPTIONS
+    )
+
+    res.send({ message: 'login succeed' })
   }
 }

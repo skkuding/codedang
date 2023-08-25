@@ -20,11 +20,10 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     profile: any
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
-    // You can customize the validation process here
-    const user = {
+    const githubUser = {
       githubId: profile.id,
       username: profile.username
     }
-    return user
+    return githubUser
   }
 }

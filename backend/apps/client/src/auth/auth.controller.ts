@@ -20,6 +20,7 @@ import {
 } from '@libs/exception'
 import { AuthService } from './auth.service'
 import { LoginUserDto } from './dto/login-user.dto'
+import type { GithubUser } from './interface/social-user.interface'
 
 @Controller('auth')
 export class AuthController {
@@ -54,13 +55,6 @@ export class AuthController {
     }
   }
 
-  @AuthNotNeeded()
-  @Get('login/github')
-  @UseGuards(AuthGuard('github'))
-  async githubLogin() {
-    // 자동으로 github login page로 redirection 됨
-  }
-
   @Post('logout')
   async logout(
     @Req() req: AuthenticatedRequest,
@@ -93,6 +87,33 @@ export class AuthController {
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException('Failed to reissue tokens')
+    }
+  }
+
+  @AuthNotNeeded()
+  @Get('github')
+  @UseGuards(AuthGuard('github'))
+  async moveToGithubLogin() {
+    /* 자동으로 github login page로 redirection */
+  }
+
+  /** github login page에서 로그인에 성공한 후 이 endpoint로 redirection */
+  @AuthNotNeeded()
+  @Get('github-callback')
+  @UseGuards(AuthGuard('github'))
+  async githubLogin(
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: Request
+  ) {
+    try {
+      const githubUser = req.user as GithubUser
+      return await this.authService.githubLogin(res, githubUser)
+    } catch (error) {
+      if (error instanceof UnidentifiedException) {
+        throw new UnauthorizedException(error.message)
+      }
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException('Login failed')
     }
   }
 }
