@@ -361,7 +361,7 @@ export class SubmissionService implements OnModuleInit {
     problemId: number,
     userId: number,
     groupId = OPEN_SPACE_ID
-  ): Promise<SubmissionResult[]> {
+  ) {
     await this.prisma.problem.findFirstOrThrow({
       where: {
         id: problemId,
@@ -386,7 +386,13 @@ export class SubmissionService implements OnModuleInit {
       submission.userId === userId ||
       (await this.hasPassedProblem(userId, { problemId }))
     ) {
-      return submission.submissionResult
+      const results = submission.submissionResult
+      return results.map((result) => {
+        return {
+          ...result,
+          cpuTime: result.cpuTime.toString()
+        }
+      })
     }
     throw new ForbiddenAccessException(
       "You must pass the problem first to browse other people's submissions"
