@@ -1,9 +1,9 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
-import type { UserGroup } from '@prisma/client'
+import { Role, type UserGroup } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { joinGroupCacheKey } from '@libs/cache'
-import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
+import { JOIN_GROUP_REQUEST_EXPIRE_TIME, OPEN_SPACE_ID } from '@libs/constants'
 import { ConflictFoundException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { GroupJoinRequest } from './interface/group-join-request.interface'
@@ -277,6 +277,20 @@ export class GroupService {
   }
 
   async createUserGroup(userGroupData: UserGroupData): Promise<UserGroup> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userGroupData.userId
+      }
+    })
+
+    if (
+      user &&
+      (user.role === Role.SuperAdmin || user.role === Role.Admin) &&
+      userGroupData.groupId != OPEN_SPACE_ID
+    ) {
+      userGroupData.isGroupLeader = true
+    }
+
     return await this.prisma.userGroup.create({
       data: {
         user: {

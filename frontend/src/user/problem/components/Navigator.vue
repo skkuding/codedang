@@ -183,7 +183,7 @@ const submit = async () => {
             <div
               class="flex h-9 w-fit items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white hover:bg-slate-500/80 active:bg-slate-500/60"
             >
-              <span class="font-semibold">
+              <span v-if="store.language" class="font-semibold">
                 {{ languageLabels[store.language] }}
               </span>
               <IconDown class="h-4 w-4" />

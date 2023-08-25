@@ -8,7 +8,7 @@ import {
   type Problem
 } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
-import { type ValidationError, validate } from 'class-validator'
+import { ValidationError, validateOrReject } from 'class-validator'
 import { OPEN_SPACE_ID, Status } from '@libs/constants'
 import {
   CONSUME_CHANNEL,
@@ -23,7 +23,7 @@ import {
   ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException,
-  MessageFormatError
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
@@ -32,7 +32,7 @@ import {
   Template
 } from './dto/create-submission.dto'
 import { JudgeRequest } from './dto/judge-request.class'
-import type { JudgerResponse } from './dto/judger-response.dto'
+import { JudgerResponse } from './dto/judger-response.dto'
 
 @Injectable()
 export class SubmissionService implements OnModuleInit {
@@ -45,12 +45,19 @@ export class SubmissionService implements OnModuleInit {
 
   onModuleInit() {
     this.amqpConnection.createSubscriber(
-      async (msg: JudgerResponse) => {
+      async (msg: object) => {
         try {
-          await this.handleJudgerMessage(msg)
+          const res = await this.validateJudgerResponse(msg)
+          await this.handleJudgerMessage(res)
         } catch (error) {
-          if (error instanceof MessageFormatError) {
-            this.logger.error('Message format error', error)
+          if (
+            Array.isArray(error) &&
+            error.every((e) => e instanceof ValidationError)
+          ) {
+            this.logger.error('Message format error', { ...error })
+            return new Nack()
+          } else if (error instanceof UnprocessableDataException) {
+            this.logger.error('Iris exception', error)
             return new Nack()
           } else {
             this.logger.error('Unexpected error', error)
@@ -251,14 +258,22 @@ export class SubmissionService implements OnModuleInit {
     })
   }
 
-  async handleJudgerMessage(msg: JudgerResponse) {
-    const validationError: ValidationError[] = await validate(msg)
-    if (!validationError) {
-      throw new MessageFormatError({ ...validationError })
-    }
+  async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
+    const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
+    await validateOrReject(res)
 
+    return res
+  }
+
+  async handleJudgerMessage(msg: JudgerResponse) {
     const submissionId = msg.submissionId
     const resultStatus = Status(msg.resultCode)
+
+    if (resultStatus === ResultStatus.ServerError) {
+      throw new UnprocessableDataException(
+        `${msg.submissionId} ${msg.error} ${msg.data}`
+      )
+    }
 
     const results = msg.data.judgeResult.map((result) => {
       return {
