@@ -312,6 +312,13 @@ describe('SubmissionService', () => {
 
   describe('getSubmission', () => {
     it('should return submission', async () => {
+      const serialized = submissionResults.map((result) => {
+        return {
+          ...result,
+          cpuTime: result.cpuTime.toString()
+        }
+      })
+
       const passSpy = spy(service, 'hasPassedProblem')
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.submission.findFirstOrThrow.resolves({
@@ -325,7 +332,7 @@ describe('SubmissionService', () => {
           problems[0].id,
           submissions[0].userId
         )
-      ).to.be.deep.equal(submissionResults)
+      ).to.be.deep.equal(serialized)
       expect(passSpy.called).to.be.false
     })
 
