@@ -147,17 +147,13 @@ export class UserService {
           groupId: groupId
         },
         select: {
-          user: {
-            select: {
-              id: true
-            }
-          },
+          userId: true,
           isGroupLeader: true
         }
       })
     ).map((userGroup) => {
       return {
-        userId: userGroup.user.id,
+        userId: userGroup.userId,
         isGroupLeader: userGroup.isGroupLeader
       }
     })
@@ -191,7 +187,7 @@ export class UserService {
     })
   }
 
-  async getNeededApproval(groupId: number) {
+  async getJoinRequests(groupId: number) {
     const joinGroupRequest: number[] = await this.cacheManager.get(
       joinGroupCacheKey(groupId)
     )

@@ -3,15 +3,18 @@ import { BadRequestException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
 import type { User, UserGroup } from '@prisma/client'
 import { Role } from '@prisma/client'
+import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
+import { joinGroupCacheKey } from '@libs/cache'
+import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 import { UserService } from './user.service'
 
 const groupId = 2
 
 const user1: User = {
-  id: 1,
+  id: 3,
   username: 'user1',
   email: 'example@codedang.com',
   password: 'password',
@@ -22,18 +25,18 @@ const user1: User = {
 }
 
 const user2: User = {
-  id: 2,
+  id: 4,
   username: 'user2',
   email: 'example@codedang.com',
   password: 'password',
-  role: Role.User,
+  role: Role.Admin,
   lastLogin: undefined,
   createTime: undefined,
   updateTime: undefined
 }
 
 const user3: User = {
-  id: 3,
+  id: 5,
   username: 'user3',
   email: 'example@codedang.com',
   password: 'password',
@@ -44,22 +47,6 @@ const user3: User = {
 }
 
 const userGroup1: UserGroup = {
-  userId: 1,
-  groupId: 2,
-  isGroupLeader: true,
-  createTime: undefined,
-  updateTime: undefined
-}
-
-const userGroup2: UserGroup = {
-  userId: 2,
-  groupId: 2,
-  isGroupLeader: false,
-  createTime: undefined,
-  updateTime: undefined
-}
-
-const userGroup3: UserGroup = {
   userId: 3,
   groupId: 2,
   isGroupLeader: true,
@@ -67,22 +54,58 @@ const userGroup3: UserGroup = {
   updateTime: undefined
 }
 
-const findResult = [
+const userGroup2: UserGroup = {
+  userId: 4,
+  groupId: 2,
+  isGroupLeader: true,
+  createTime: undefined,
+  updateTime: undefined
+}
+
+const userGroup3: UserGroup = {
+  userId: 5,
+  groupId: 2,
+  isGroupLeader: false,
+  createTime: undefined,
+  updateTime: undefined
+}
+
+const updateFindResult = [
   {
+    userId: user1.id,
     user: {
-      id: user1.id
+      role: user1.role
     },
     isGroupLeader: userGroup1.isGroupLeader
   },
   {
+    userId: user2.id,
     user: {
-      id: user2.id
+      role: user2.role
     },
     isGroupLeader: userGroup2.isGroupLeader
   },
   {
+    userId: user3.id,
     user: {
-      id: user3.id
+      role: user3.role
+    },
+    isGroupLeader: userGroup3.isGroupLeader
+  }
+]
+
+const deleteFindResult = [
+  {
+    userId: user1.id,
+    user: {
+      role: user1.role
+    },
+    isGroupLeader: userGroup1.isGroupLeader
+  },
+  {
+    userId: user3.id,
+    user: {
+      role: user3.role
     },
     isGroupLeader: userGroup3.isGroupLeader
   }
@@ -96,13 +119,14 @@ const db = {
     create: stub()
   },
   user: {
+    findUnique: stub(),
     findMany: stub()
   }
 }
 
 describe('UserService', () => {
   let service: UserService
-  // let cache: Cache
+  let cache: Cache
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -119,7 +143,7 @@ describe('UserService', () => {
     }).compile()
 
     service = module.get<UserService>(UserService)
-    // cache = module.get<Cache>(CACHE_MANAGER)
+    cache = module.get<Cache>(CACHE_MANAGER)
   })
 
   it('should be defined', () => {
@@ -142,7 +166,7 @@ describe('UserService', () => {
       ]
       db.userGroup.findMany.resolves(result)
 
-      const res = await service.getGroupMembers(groupId, 0, 2, true)
+      const res = await service.getGroupMembers(groupId, 1, 2, true)
       expect(res).to.deep.equal([
         {
           studentId: user1.username,
@@ -168,7 +192,7 @@ describe('UserService', () => {
       ]
       db.userGroup.findMany.resolves(result)
 
-      const res = await service.getGroupMembers(groupId, 0, 2, true)
+      const res = await service.getGroupMembers(groupId, 1, 2, true)
       expect(res).to.deep.equal([
         {
           studentId: user2.username,
@@ -182,27 +206,27 @@ describe('UserService', () => {
 
   describe('updateGroupMemberRole', () => {
     it("should upgrade group member's role", async () => {
-      db.userGroup.findMany.resolves(findResult)
+      db.userGroup.findMany.resolves(updateFindResult)
       db.userGroup.update.resolves({
-        userId: userGroup2.userId,
-        groupId: userGroup2.groupId,
-        isGroupLeader: !userGroup2.isGroupLeader
+        userId: userGroup3.userId,
+        groupId: userGroup3.groupId,
+        isGroupLeader: !userGroup3.isGroupLeader
       })
 
       const res = await service.updateGroupMemberRole(
-        userGroup2.userId,
+        userGroup3.userId,
         groupId,
         true
       )
       expect(res).to.deep.equal({
-        userId: userGroup2.userId,
-        groupId: userGroup2.groupId,
-        isGroupLeader: !userGroup2.isGroupLeader
+        userId: userGroup3.userId,
+        groupId: userGroup3.groupId,
+        isGroupLeader: !userGroup3.isGroupLeader
       })
     })
 
     it("should downgrade group member's role", async () => {
-      db.userGroup.findMany.resolves(findResult)
+      db.userGroup.findMany.resolves(updateFindResult)
       db.userGroup.update.resolves({
         userId: userGroup1.userId,
         groupId: userGroup1.groupId,
@@ -221,8 +245,32 @@ describe('UserService', () => {
       })
     })
 
+    it('should throw BadRequestException when the member to downgrade is already not manager', async () => {
+      db.userGroup.findMany.resolves(updateFindResult)
+
+      const res = async () =>
+        await service.updateGroupMemberRole(userGroup3.userId, groupId, false)
+      expect(res()).to.be.rejectedWith(BadRequestException)
+    })
+
+    it('should throw BadRequestException when the member to upgrade is already manager', async () => {
+      db.userGroup.findMany.resolves(updateFindResult)
+
+      const res = async () =>
+        await service.updateGroupMemberRole(userGroup2.userId, groupId, false)
+      expect(res()).to.be.rejectedWith(BadRequestException)
+    })
+
+    it('should throw BadRequestException when the member is Admin', async () => {
+      db.userGroup.findMany.resolves(updateFindResult)
+
+      const res = async () =>
+        await service.updateGroupMemberRole(userGroup2.userId, groupId, false)
+      expect(res()).to.be.rejectedWith(BadRequestException)
+    })
+
     it('should throw BadRequestException when group leader is less than 2', async () => {
-      db.userGroup.findMany.resolves(findResult)
+      db.userGroup.findMany.resolves(updateFindResult)
 
       const res = async () =>
         await service.updateGroupMemberRole(userGroup1.userId, groupId, false)
@@ -232,14 +280,138 @@ describe('UserService', () => {
 
   describe('deleteGroupMember', () => {
     it('should return userGroup', async () => {
-      db.userGroup.findMany.resolves(findResult)
-      db.userGroup.delete.resolves(userGroup2)
+      db.userGroup.findMany.resolves(deleteFindResult)
+      db.userGroup.delete.resolves(userGroup3)
 
       const res = await service.deleteGroupMember(
-        userGroup2.userId,
-        userGroup2.groupId
+        userGroup3.userId,
+        userGroup3.groupId
       )
-      expect(res).to.deep.equal(userGroup2)
+      expect(res).to.deep.equal(userGroup3)
+    })
+
+    it('should throw BadRequestException when the userId is not member', async () => {
+      db.userGroup.findMany.resolves(deleteFindResult)
+
+      const res = async () =>
+        await service.deleteGroupMember(userGroup2.userId, userGroup2.groupId)
+      expect(res()).to.be.rejectedWith(BadRequestException)
+    })
+
+    it('should throw BadRequestException when you try to delete manager but there is only one manager', async () => {
+      db.userGroup.findMany.resolves(deleteFindResult)
+
+      const res = async () =>
+        await service.deleteGroupMember(userGroup1.userId, userGroup1.groupId)
+      expect(res()).to.be.rejectedWith(BadRequestException)
+    })
+  })
+
+  describe('getJoinRequests', () => {
+    it('should return user array', async () => {
+      const groupId = 1
+      db.user.findMany.resolves([user1, user2, user3])
+      const cacheSpyGet = stub(cache, 'get').resolves([
+        userGroup1.userId,
+        userGroup2.userId,
+        userGroup3.userId
+      ])
+      const res = await service.getJoinRequests(groupId)
+
+      expect(cacheSpyGet.calledWith(joinGroupCacheKey(groupId))).to.be.true
+      expect(cacheSpyGet.calledOnce).to.be.true
+
+      expect(res).to.deep.equal([user1, user2, user3])
+    })
+  })
+
+  describe('handleJoinRequest', () => {
+    it('should return created userGroup when accepted', async () => {
+      const groupId = 1
+      const cacheSpyGet = stub(cache, 'get').resolves([
+        userGroup1.userId,
+        userGroup2.userId,
+        userGroup3.userId
+      ])
+      const cacheSpySet = stub(cache, 'set').resolves()
+
+      db.user.findUnique.resolves({
+        role: user3.role
+      })
+
+      db.userGroup.create.resolves({
+        userId: userGroup3.userId,
+        groupId: 1,
+        isGroupLeader: false,
+        createTime: undefined,
+        updateTime: undefined
+      })
+      const res = await service.handleJoinRequest(
+        groupId,
+        userGroup3.userId,
+        true
+      )
+
+      expect(cacheSpyGet.calledWith(joinGroupCacheKey(groupId))).to.be.true
+      expect(cacheSpyGet.calledOnce).to.be.true
+      expect(
+        cacheSpySet.calledOnceWithExactly(
+          joinGroupCacheKey(groupId),
+          [userGroup1.userId, userGroup2.userId],
+          JOIN_GROUP_REQUEST_EXPIRE_TIME
+        )
+      ).to.be.true
+      expect(cacheSpySet.calledOnce).to.be.true
+
+      expect(res).to.deep.equal({
+        userId: userGroup3.userId,
+        groupId: 1,
+        isGroupLeader: false,
+        createTime: undefined,
+        updateTime: undefined
+      })
+    })
+
+    it('should return userId when rejected', async () => {
+      const groupId = 1
+      const cacheSpyGet = stub(cache, 'get').resolves([
+        userGroup1.userId,
+        userGroup2.userId,
+        userGroup3.userId
+      ])
+      const cacheSpySet = stub(cache, 'set').resolves()
+      const res = await service.handleJoinRequest(
+        groupId,
+        userGroup3.userId,
+        false
+      )
+
+      expect(cacheSpyGet.calledWith(joinGroupCacheKey(groupId))).to.be.true
+      expect(cacheSpyGet.calledOnce).to.be.true
+      expect(
+        cacheSpySet.calledOnceWithExactly(
+          joinGroupCacheKey(groupId),
+          [userGroup1.userId, userGroup2.userId],
+          JOIN_GROUP_REQUEST_EXPIRE_TIME
+        )
+      ).to.be.true
+      expect(cacheSpySet.calledOnce).to.be.true
+
+      expect(res).to.deep.equal(userGroup3.userId)
+    })
+
+    it('should throw BadRequestException when the userId did not request join', async () => {
+      const groupId = 1
+      const cacheSpyGet = stub(cache, 'get').resolves([
+        userGroup1.userId,
+        userGroup2.userId
+      ])
+
+      const res = async () =>
+        await service.handleJoinRequest(groupId, userGroup3.userId, false)
+
+      expect(res()).to.be.rejectedWith(BadRequestException)
+      expect(cacheSpyGet.calledWith(joinGroupCacheKey(groupId))).to.be.true
     })
   })
 })
