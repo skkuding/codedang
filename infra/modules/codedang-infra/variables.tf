@@ -88,3 +88,4 @@ variable "ecr_admin_uri" {
 variable "ecr_iris_uri" {
   type = string
 }
+

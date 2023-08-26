@@ -1,5 +1,5 @@
 # Subnet
-resource "aws_subnet" "public_admin_api1" {
+resource "aws_subnet" "private_admin_api1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.3.0/24"
   availability_zone = var.availability_zones[0]
@@ -9,7 +9,7 @@ resource "aws_subnet" "public_admin_api1" {
   }
 }
 
-resource "aws_subnet" "public_admin_api2" {
+resource "aws_subnet" "private_admin_api2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.4.0/24"
   availability_zone = var.availability_zones[2]
@@ -25,7 +25,7 @@ resource "aws_lb" "admin_api" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.admin_lb.id]
-  subnets            = [aws_subnet.public_admin_api1.id, aws_subnet.public_admin_api2.id]
+  subnets            = [aws_subnet.private_admin_api1.id, aws_subnet.private_admin_api2.id]
   enable_http2       = true
 }
 
@@ -40,8 +40,22 @@ resource "aws_lb_listener" "admin_api" {
   }
 }
 
+
+resource "aws_ecs_capacity_provider" "ecs_capacity_provider-admin" {
+  name = "codedang-capacity-provider-admin"
+  auto_scaling_group_provider {
+    auto_scaling_group_arn         = aws_autoscaling_group.codedang-asg-admin.arn
+    managed_termination_protection = "ENABLED"
+  }
+}
+
+resource "aws_ecs_cluster_capacity_providers" "ecs-admin" {
+  cluster_name       = aws_ecs_cluster.api.name
+  capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider-admin.name]
+}
+
 resource "aws_lb_target_group" "admin_api" {
-  name        = "Codedang-Admin-Api-tg-instance"
+  name        = "Codedang-Admin-Api-tg-instance1"
   target_type = "instance"
   port        = 3000
   protocol    = "HTTP"

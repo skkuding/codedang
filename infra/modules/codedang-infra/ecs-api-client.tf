@@ -1,5 +1,5 @@
 # Subnet
-resource "aws_subnet" "public_client_api1" {
+resource "aws_subnet" "private_client_api1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.1.0/24"
   availability_zone = var.availability_zones[0]
@@ -9,7 +9,7 @@ resource "aws_subnet" "public_client_api1" {
   }
 }
 
-resource "aws_subnet" "public_client_api2" {
+resource "aws_subnet" "private_client_api2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.2.0/24"
   availability_zone = var.availability_zones[2]
@@ -25,7 +25,7 @@ resource "aws_lb" "client_api" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.client_lb.id]
-  subnets            = [aws_subnet.public_client_api1.id, aws_subnet.public_client_api2.id]
+  subnets            = [aws_subnet.private_client_api1.id, aws_subnet.private_client_api2.id]
   enable_http2       = true
 }
 
@@ -41,7 +41,7 @@ resource "aws_lb_listener" "api" {
 }
 
 resource "aws_lb_target_group" "client_api" {
-  name        = "Codedang-Client-Api-tg-instance"
+  name        = "Codedang-Client-Api-tg-instance1"
   target_type = "instance"
   port        = 4000
   protocol    = "HTTP"
@@ -54,6 +54,20 @@ resource "aws_lb_target_group" "client_api" {
     unhealthy_threshold = 3
     matcher             = "200-404"
   }
+}
+
+
+resource "aws_ecs_capacity_provider" "ecs_capacity_provider-client" {
+  name = "codedang-capacity-provider-client"
+  auto_scaling_group_provider {
+    auto_scaling_group_arn         = aws_autoscaling_group.codedang-asg-client.arn
+    managed_termination_protection = "ENABLED"
+  }
+}
+
+resource "aws_ecs_cluster_capacity_providers" "ecs-client" {
+  cluster_name       = aws_ecs_cluster.api.name
+  capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider-client.name]
 }
 
 resource "aws_ecs_service" "client_api" {

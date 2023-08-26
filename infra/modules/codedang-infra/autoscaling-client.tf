@@ -1,3 +1,5 @@
+
+
 #client 용
 resource "aws_launch_template" "ecs-codedang-template-client" {
   # Name of the launch template
@@ -26,7 +28,7 @@ resource "aws_launch_template" "ecs-codedang-template-client" {
 
     ebs {
       # Size of the EBS volume in GB
-      volume_size = 30 # 최대 값 30
+      volume_size = 8 # 최대 값 30
 
       # Type of EBS volume (General Purpose SSD in this case)
       volume_type = "gp2"
@@ -38,7 +40,7 @@ resource "aws_launch_template" "ecs-codedang-template-client" {
     security_groups = [aws_security_group.client_ecs.id]
   }
 
-  user_data = data.cloudinit_config.config.rendered
+  user_data = data.template_cloudinit_config.api_config.rendered
 
   # Tag specifications for the instance
   tag_specifications {
@@ -55,7 +57,7 @@ resource "aws_launch_template" "ecs-codedang-template-client" {
 resource "aws_autoscaling_group" "codedang-asg-client" {
   # Name of the Auto Scaling Group
   name                  = "codedang-autoscaling-group-t1"
-  vpc_zone_identifier   = [aws_subnet.public_client_api1.id, aws_subnet.public_client_api2.id]
+  vpc_zone_identifier   = [aws_subnet.private_client_api1.id, aws_subnet.private_client_api2.id]
   protect_from_scale_in = true
 
   target_group_arns = [aws_lb_target_group.client_api.id]

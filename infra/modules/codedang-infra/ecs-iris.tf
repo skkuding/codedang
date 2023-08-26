@@ -19,13 +19,22 @@ resource "aws_subnet" "private_iris2" {
   }
 }
 
-resource "aws_ecs_cluster" "test" {
-  name = "Codedang-Iris"
+resource "aws_ecs_capacity_provider" "ecs_capacity_provider-iris" {
+  name = "codedang-capacity-provider-iris"
+  auto_scaling_group_provider {
+    auto_scaling_group_arn         = aws_autoscaling_group.codedang-asg-iris.arn
+    managed_termination_protection = "ENABLED"
+  }
+}
+
+resource "aws_ecs_cluster_capacity_providers" "ecs-iris" {
+  cluster_name       = aws_ecs_cluster.iris.name
+  capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider-iris.name]
 }
 
 resource "aws_ecs_service" "iris" {
   name            = "Codedang-Iris-Service"
-  cluster         = aws_ecs_cluster.test.id
+  cluster         = aws_ecs_cluster.iris.id
   task_definition = aws_ecs_task_definition.iris.arn
   desired_count   = 2
   launch_type     = "EC2"

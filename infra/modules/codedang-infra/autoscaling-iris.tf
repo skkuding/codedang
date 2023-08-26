@@ -1,7 +1,7 @@
-#admin 용
-resource "aws_launch_template" "ecs-codedang-template-admin" {
+#iris 용
+resource "aws_launch_template" "ecs-codedang-template-iris" {
   # Name of the launch template
-  name = "codedang-admin-template"
+  name = "codedang-iris-template"
 
   # # arm64기반 ecs 최적화 이미지 사용
   # image_id = "ami-01287572b99f45fc2" 한국거
@@ -18,9 +18,10 @@ resource "aws_launch_template" "ecs-codedang-template-admin" {
 
   # SSH key pair name for connecting to the instance
   # 미리 만들어 놓아야 합니다.
-  key_name = "codedang-ecs-admin"
+  key_name = "codedang-ecs-iris"
 
-  user_data = data.cloudinit_config.config.rendered
+  user_data = data.template_cloudinit_config.iris_config.rendered
+
 
   # Block device mappings for the instance
   block_device_mappings {
@@ -28,7 +29,7 @@ resource "aws_launch_template" "ecs-codedang-template-admin" {
 
     ebs {
       # Size of the EBS volume in GB
-      volume_size = 30 # 최대 값 30
+      volume_size = 8 # 최대 값 30
 
       # Type of EBS volume (General Purpose SSD in this case)
       volume_type = "gp2"
@@ -37,8 +38,9 @@ resource "aws_launch_template" "ecs-codedang-template-admin" {
 
   # Network interface configuration
   network_interfaces {
-    security_groups = [aws_security_group.admin_ecs.id]
+    security_groups = [aws_security_group.iris.id]
   }
+
 
   # Tag specifications for the instance
   tag_specifications {
@@ -47,38 +49,43 @@ resource "aws_launch_template" "ecs-codedang-template-admin" {
 
     # Tags to apply to the instance
     tags = {
-      Name = "launch template for codedang-ecs-admin"
+      Name = "launch template for codedang-ecs-iris"
     }
   }
 }
 
-resource "aws_autoscaling_group" "codedang-asg-admin" {
+resource "aws_autoscaling_group" "codedang-asg-iris" {
   # Name of the Auto Scaling Group
-  name                  = "codedang-autoscaling-group-admin"
-  vpc_zone_identifier   = [aws_subnet.public_admin_api1.id, aws_subnet.public_admin_api2.id]
+  name                  = "codedang-autoscaling-group"
+  vpc_zone_identifier   = [aws_subnet.private_iris1.id, aws_subnet.private_iris2.id]
   protect_from_scale_in = true
 
-
-  target_group_arns = [aws_lb_target_group.admin_api.id]
-  health_check_type = "ELB"
+  # target_group_arns = [aws_lb_target_group.private_api]
+  # health_check_type = "ELB"
 
   # Desired number of instances in the Autoscaling Group
   desired_capacity = 1
 
   # Minimum and maximum number of instances in the Autoscaling Group
   min_size = 1
-  max_size = 3
+  max_size = 1
 
   lifecycle {
     create_before_destroy = true
   }
+
+
+  # # Availability Zone(s) whe  re instances will be launched
+
+  # availability_zones = ["ap-northeast-2a", "ap-northeast-2b"] # 실제 deploy에선 variable 처리
+
 
   # mixed_instances_policy 섹션 추가 -> provider의 manged_termination_protection 이 enable 되었으므로, 추가적으로 해당 설정을 해주어야함.
   mixed_instances_policy {
     # ID of the launch template to use for launching instances in the Autoscaling Group
     launch_template {
       launch_template_specification {
-        launch_template_id = aws_launch_template.ecs-codedang-template-admin.id
+        launch_template_id = aws_launch_template.ecs-codedang-template-client.id
         version            = "$Latest"
       }
       override {
@@ -87,4 +94,5 @@ resource "aws_autoscaling_group" "codedang-asg-admin" {
       }
     }
   }
+
 }
