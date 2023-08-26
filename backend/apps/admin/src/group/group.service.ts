@@ -171,9 +171,14 @@ export class GroupService {
       )
     }
 
-    await this.revokeInvitation(id)
-    const invitation = Math.floor((Math.random() + id) * 36 ** 5).toString(36)
+    let invitation
+    do {
+      invitation = Math.floor(Math.random() * 16 ** 6)
+        .toString(16)
+        .padStart(6, '0')
+    } while (await this.cacheManager.get(invitationCodeKey(invitation)))
 
+    await this.revokeInvitation(id)
     await this.cacheManager.set(
       invitationCodeKey(invitation),
       id,

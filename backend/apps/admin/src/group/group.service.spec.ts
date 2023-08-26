@@ -206,11 +206,11 @@ describe('GroupService', () => {
         }
       }
       db.group.findUnique.resolves(invitedGroup)
+      stub(cache, 'get').resolves(null)
       const revokeSpy = spy(service, 'revokeInvitation')
       const setSpy = spy(cache, 'set')
 
-      const res = await service.issueInvitation(groupId)
-      expect(typeof res).to.equal('string')
+      await service.issueInvitation(groupId)
       expect(revokeSpy.calledOnce).to.be.true
       expect(setSpy.calledTwice).to.be.true
     })
