@@ -186,7 +186,7 @@ describe('GroupService', () => {
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
 
-    it('should return ', async () => {
+    it('should return throw error when either user role is not higher than Admin or the group is not created by the user', async () => {
       const userReq = new AuthenticatedUser(2, user.username)
       db.group.findUnique.resolves(group)
 
