@@ -5,8 +5,11 @@ import {
   UnprocessableEntityException
 } from '@nestjs/common'
 import { Cache } from 'cache-manager'
-import { contestPublicizingRequestKey } from '@libs/cache'
-import { OPEN_SPACE_ID, PUBLICIZING_REQUEST_EXPIRE_TIME } from '@libs/constants'
+import {
+  OPEN_SPACE_ID,
+  PUBLICIZING_REQUEST_EXPIRE_TIME,
+  PUBLICIZING_REQUEST_KEY
+} from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -133,22 +136,47 @@ export class ContestService {
   }
 
   async getPublicizingRequests() {
-    const keys = await this.cacheManager.store.keys()
-    const filteredKeys = keys.filter((key) => key.includes(':publicize'))
-    const requests = filteredKeys.map(async (key) => {
-      const r = await this.cacheManager.get<PublicizingRequest>(key)
-      r.expireTime = new Date(r.expireTime)
-      return r
-    })
-    return await Promise.all(requests)
+    const requests = (await this.cacheManager.get(
+      PUBLICIZING_REQUEST_KEY
+    )) as Array<PublicizingRequest>
+
+    if (!requests) {
+      return []
+    }
+
+    const filteredRequests = requests.filter(
+      (req) => new Date(req.expireTime) > new Date()
+    )
+
+    if (requests.length != filteredRequests.length) {
+      await this.cacheManager.set(
+        PUBLICIZING_REQUEST_KEY,
+        filteredRequests,
+        PUBLICIZING_REQUEST_EXPIRE_TIME
+      )
+    }
+
+    return filteredRequests
   }
 
   async acceptPublicizingRequest(contestId: number) {
-    const key = contestPublicizingRequestKey(contestId)
-    if (!(await this.cacheManager.get(key))) {
+    const requests = (await this.cacheManager.get(
+      PUBLICIZING_REQUEST_KEY
+    )) as Array<PublicizingRequest>
+    if (!requests) {
       throw new EntityNotExistException('ContestPublicizingRequest')
     }
-    await this.cacheManager.del(key)
+
+    const request = requests.find((req) => req.contestId === contestId)
+    if (!request || new Date(request.expireTime) < new Date()) {
+      throw new EntityNotExistException('ContestPublicizingRequest')
+    }
+
+    await this.cacheManager.set(
+      PUBLICIZING_REQUEST_KEY,
+      requests.filter((req) => req.contestId != contestId),
+      PUBLICIZING_REQUEST_EXPIRE_TIME
+    )
 
     const updatedContest = await this.prisma.contest.update({
       where: {
@@ -166,12 +194,23 @@ export class ContestService {
   }
 
   async rejectPublicizingRequest(contestId: number) {
-    const key = contestPublicizingRequestKey(contestId)
-
-    if (!(await this.cacheManager.get(key))) {
+    const requests = (await this.cacheManager.get(
+      PUBLICIZING_REQUEST_KEY
+    )) as Array<PublicizingRequest>
+    if (!requests) {
       throw new EntityNotExistException('ContestPublicizingRequest')
     }
-    await this.cacheManager.del(key)
+
+    const request = requests.find((req) => req.contestId === contestId)
+    if (!request || new Date(request.expireTime) < new Date()) {
+      throw new EntityNotExistException('ContestPublicizingRequest')
+    }
+
+    await this.cacheManager.set(
+      PUBLICIZING_REQUEST_KEY,
+      requests.filter((req) => req.contestId != contestId),
+      PUBLICIZING_REQUEST_EXPIRE_TIME
+    )
 
     const contest = await this.prisma.contest.findUnique({
       where: {
@@ -202,26 +241,32 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
-    const key = contestPublicizingRequestKey(contestId)
+    let requests = (await this.cacheManager.get(
+      PUBLICIZING_REQUEST_KEY
+    )) as Array<PublicizingRequest>
+    if (!requests) {
+      requests = []
+    }
 
-    const duplicatedRequest = await this.cacheManager.get(key)
+    const duplicatedRequest = requests.find((req) => req.contestId == contestId)
     if (duplicatedRequest) {
       throw new ConflictFoundException('duplicated publicizing request')
     }
 
+    const newRequest: PublicizingRequest = {
+      contestId: contestId,
+      userId: contest.createdById,
+      expireTime: new Date(Date.now() + PUBLICIZING_REQUEST_EXPIRE_TIME)
+    }
+    requests.push(newRequest)
+
     await this.cacheManager.set(
-      key,
-      {
-        contestId: contestId,
-        userId: contest.createdById,
-        expireTime: new Date(Date.now() + PUBLICIZING_REQUEST_EXPIRE_TIME)
-      },
+      PUBLICIZING_REQUEST_KEY,
+      requests,
       PUBLICIZING_REQUEST_EXPIRE_TIME
     )
 
-    const pr = await this.cacheManager.get<PublicizingRequest>(key)
-    pr.expireTime = new Date(pr.expireTime)
-    return pr
+    return newRequest
   }
 
   async importProblems(
@@ -231,15 +276,12 @@ export class ContestService {
   ) {
     const contest = await this.prisma.contest.findUnique({
       where: {
-        id: contestId
+        id: contestId,
+        groupId: groupId
       }
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
-    }
-
-    if (contest.groupId != groupId) {
-      throw new ConflictFoundException('contest must be in the group')
     }
 
     const contestProblems = []
