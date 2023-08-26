@@ -1,12 +1,15 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
 import type { Group } from '@generated'
 import type { User } from '@generated'
 import { Role } from '@prisma/client'
+import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
-import { stub } from 'sinon'
+import { spy, stub } from 'sinon'
 import { AuthenticatedUser } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
+  ConflictFoundException,
   DuplicateFoundException,
   ForbiddenAccessException
 } from '@libs/exception'
@@ -82,13 +85,26 @@ const db = {
 
 describe('GroupService', () => {
   let service: GroupService
+  let cache: Cache
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GroupService, { provide: PrismaService, useValue: db }]
+      providers: [
+        GroupService,
+        { provide: PrismaService, useValue: db },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => [],
+            del: () => []
+          })
+        }
+      ]
     }).compile()
 
     service = module.get<GroupService>(GroupService)
+    cache = module.get<Cache>(CACHE_MANAGER)
   })
 
   it('should be defined', () => {
@@ -170,13 +186,63 @@ describe('GroupService', () => {
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
 
-    it('should throw error when either user role is not higher than Admin or the group is not created by the user', async () => {
+    it('should return ', async () => {
       const userReq = new AuthenticatedUser(2, user.username)
       db.group.findUnique.resolves(group)
 
       await expect(service.deleteGroup(groupId, userReq)).to.be.rejectedWith(
         ForbiddenAccessException
       )
+    })
+  })
+
+  describe('issueInvitation', () => {
+    it('should issue invitation for the group', async () => {
+      const invitedGroup = {
+        ...group,
+        config: {
+          ...group.config,
+          allowJoinWithURL: true
+        }
+      }
+      db.group.findUnique.resolves(invitedGroup)
+      const revokeSpy = spy(service, 'revokeInvitation')
+      const setSpy = spy(cache, 'set')
+
+      const res = await service.issueInvitation(groupId)
+      expect(typeof res).to.equal('string')
+      expect(revokeSpy.calledOnce).to.be.true
+      expect(setSpy.calledTwice).to.be.true
+    })
+
+    it('should throw error if group config does not allow invitation', async () => {
+      db.group.findUnique.resolves(group)
+      const setSpy = spy(cache, 'set')
+
+      await expect(service.issueInvitation(groupId)).to.be.rejectedWith(
+        ConflictFoundException
+      )
+      expect(setSpy.called).to.be.false
+    })
+  })
+
+  describe('revokeInvitation', () => {
+    it('should revoke invitation for the group', async () => {
+      stub(cache, 'get').resolves('abcdef')
+      const delSpy = spy(cache, 'del')
+
+      const res = await service.revokeInvitation(groupId)
+      expect(res).to.equal('Revoked invitation code: abcdef')
+      expect(delSpy.calledTwice).to.be.true
+    })
+
+    it('should throw error if group config does not allow invitation', async () => {
+      stub(cache, 'get').resolves(null)
+      const delSpy = spy(cache, 'del')
+
+      const res = await service.revokeInvitation(groupId)
+      expect(res).to.equal('This group has no invitation to be revoked')
+      expect(delSpy.called).to.be.false
     })
   })
 })

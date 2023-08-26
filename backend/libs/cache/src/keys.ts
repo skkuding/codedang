@@ -9,3 +9,6 @@ export const contestPublicizingRequestKey = (contestId: number) =>
 
 export const joinGroupCacheKey = (userId: number, groupId: number) =>
   `user:${userId}:group:${groupId}`
+
+export const invitationCodeKey = (hash: string) => `invite_code:${hash}`
+export const invitationGroupKey = (groupId: number) => `invite_group:${groupId}`
