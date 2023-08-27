@@ -1,4 +1,4 @@
-# Subnet
+###################### Subnet ######################
 resource "aws_subnet" "private_client_api1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.1.0/24"
@@ -19,7 +19,7 @@ resource "aws_subnet" "private_client_api2" {
   }
 }
 
-# Application Load Balancer
+###################### Application Load Balancer ######################
 resource "aws_lb" "client_api" {
   name               = "Codedang-Client-Api-LB"
   internal           = false
@@ -56,20 +56,7 @@ resource "aws_lb_target_group" "client_api" {
   }
 }
 
-
-resource "aws_ecs_capacity_provider" "ecs_capacity_provider_client" {
-  name = "codedang-capacity-provider-client"
-  auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.asg_client.arn
-    managed_termination_protection = "ENABLED"
-  }
-}
-
-# resource "aws_ecs_cluster_capacity_providers" "ecs_client" {
-#   cluster_name       = aws_ecs_cluster.api.name
-#   capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider_client.name]
-# }
-
+###################### ECS Service ######################
 resource "aws_ecs_service" "client_api" {
   name                              = "Codedang-Client-Api-Service"
   cluster                           = aws_ecs_cluster.api.id
@@ -101,6 +88,7 @@ resource "aws_ecs_service" "client_api" {
 #   name = "codedang-client-api"
 # }
 
+###################### ECS Task Definition ######################
 resource "aws_ecs_task_definition" "client_api" {
   family                   = "Codedang-Client-Api"
   requires_compatibilities = ["EC2"]

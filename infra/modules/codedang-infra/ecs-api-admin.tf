@@ -1,4 +1,4 @@
-# Subnet
+###################### Subnet ######################
 resource "aws_subnet" "private_admin_api1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.3.0/24"
@@ -19,7 +19,7 @@ resource "aws_subnet" "private_admin_api2" {
   }
 }
 
-# Application Load Balancer
+###################### Application Load Balancer ######################
 resource "aws_lb" "admin_api" {
   name               = "Codedang-Admin-Api-LB"
   internal           = false
@@ -56,19 +56,7 @@ resource "aws_lb_target_group" "admin_api" {
   }
 }
 
-# resource "aws_ecs_capacity_provider" "ecs_capacity_provider_admin" {
-#   name = "codedang-capacity-provider-admin"
-#   auto_scaling_group_provider {
-#     auto_scaling_group_arn         = aws_autoscaling_group.asg_admin.arn
-#     managed_termination_protection = "ENABLED"
-#   }
-# }
-
-# resource "aws_ecs_cluster_capacity_providers" "ecs_admin" {
-#   cluster_name       = aws_ecs_cluster.api.name
-#   capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider_admin.name]
-# }
-
+###################### ECS Service ######################
 resource "aws_ecs_service" "admin_api" {
   name                              = "Codedang-Admin-Api-Service"
   cluster                           = aws_ecs_cluster.api.id
@@ -100,6 +88,7 @@ resource "aws_ecs_service" "admin_api" {
 #   name = "codedang-admin-api"
 # }
 
+###################### ECS Task Definition ######################
 resource "aws_ecs_task_definition" "admin_api" {
   family                   = "Codedang-Admin-Api"
   requires_compatibilities = ["EC2"]

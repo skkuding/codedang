@@ -66,8 +66,8 @@ resource "aws_security_group" "admin_lb" {
   }
 }
 
-resource "aws_security_group" "client_ecs" {
-  name        = "Codedang-SG-Client-ECS"
+resource "aws_security_group" "ecs_api" {
+  name        = "Codedang-SG-ECS-Api"
   description = "Allow ECS inbound traffic"
   vpc_id      = aws_vpc.main.id
 
@@ -99,32 +99,21 @@ resource "aws_security_group" "client_ecs" {
   }
 
   tags = {
-    Name = "Codedang-SG-Client-ECS"
+    Name = "Codedang-SG-ECS-API"
   }
 }
 
-resource "aws_security_group" "admin_ecs" {
-  name        = "Codedang-SG-Admin-ECS"
-  description = "Allow ECS inbound traffic"
+resource "aws_security_group" "iris" {
+  name        = "Codedang-SG-Iris"
+  description = "Allow Message Queue inbound traffic"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
+    description = "Iris"
+    from_port   = var.rabbitmq_port
+    to_port     = var.rabbitmq_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "From ALB"
-    from_port   = 32768
-    to_port     = 65535
-    protocol    = "tcp"
-    security_groups = [
-      aws_security_group.client_lb.id,
-      aws_security_group.admin_lb.id
-    ]
   }
 
   egress {
@@ -136,7 +125,7 @@ resource "aws_security_group" "admin_ecs" {
   }
 
   tags = {
-    Name = "Codedang-SG-Admin-ECS"
+    Name = "Codedang-SG-Iris"
   }
 }
 
@@ -215,31 +204,5 @@ resource "aws_security_group" "mq" {
 
   tags = {
     Name = "Codedang-SG-MQ"
-  }
-}
-
-resource "aws_security_group" "iris" {
-  name        = "Codedang-SG-Iris"
-  description = "Allow Message Queue inbound traffic"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    description = "Iris"
-    from_port   = var.rabbitmq_port
-    to_port     = var.rabbitmq_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  tags = {
-    Name = "Codedang-SG-Iris"
   }
 }
