@@ -19,17 +19,17 @@ resource "aws_subnet" "private_iris2" {
   }
 }
 
-resource "aws_ecs_capacity_provider" "ecs_capacity_provider-iris" {
+resource "aws_ecs_capacity_provider" "ecs_capacity_provider_iris" {
   name = "codedang-capacity-provider-iris"
   auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.codedang-asg-iris.arn
+    auto_scaling_group_arn         = aws_autoscaling_group.asg_iris.arn
     managed_termination_protection = "ENABLED"
   }
 }
 
-resource "aws_ecs_cluster_capacity_providers" "ecs-iris" {
+resource "aws_ecs_cluster_capacity_providers" "ecs_iris" {
   cluster_name       = aws_ecs_cluster.iris.name
-  capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider-iris.name]
+  capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider_iris.name]
 }
 
 resource "aws_ecs_service" "iris" {
@@ -39,11 +39,10 @@ resource "aws_ecs_service" "iris" {
   desired_count   = 2
   launch_type     = "EC2"
 
-  network_configuration {
-    # assign_public_ip = true  # awsvpc 모드라 ENI기반으로 작동해서 public ip 할당받는게 이상함.
-    security_groups = [aws_security_group.iris.id]
-    subnets         = [aws_subnet.private_iris1.id, aws_subnet.private_iris2.id]
-  }
+  # network_configuration {
+  #   security_groups = [aws_security_group.iris.id]
+  #   subnets         = [aws_subnet.private_iris1.id, aws_subnet.private_iris2.id]
+  # }
 }
 
 # data "aws_ecr_repository" "iris" {
@@ -53,7 +52,7 @@ resource "aws_ecs_service" "iris" {
 resource "aws_ecs_task_definition" "iris" {
   family                   = "Codedang-Iris-Api"
   requires_compatibilities = ["EC2"]
-  network_mode             = "awsvpc"
+  network_mode             = "bridge"
   container_definitions = templatefile("${path.module}/iris/task-definition.tftpl", {
     ecr_uri             = var.ecr_iris_uri,
     rabbitmq_host       = "${aws_mq_broker.judge_queue.id}.mq.${var.region}.amazonaws.com",
@@ -66,8 +65,8 @@ resource "aws_ecs_task_definition" "iris" {
   })
   execution_role_arn = aws_iam_role.ecs_iris_task_execution_role.arn
 
-  runtime_platform {
-    operating_system_family = "LINUX"
-    cpu_architecture        = "ARM64"
-  }
+  # runtime_platform {
+  #   operating_system_family = "LINUX"
+  #   cpu_architecture        = "ARM64"
+  # }
 }

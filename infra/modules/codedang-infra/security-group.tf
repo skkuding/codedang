@@ -80,11 +80,14 @@ resource "aws_security_group" "client_ecs" {
   }
 
   ingress {
-    description     = "From ALB"
-    from_port       = 32768
-    to_port         = 65535
-    protocol        = "tcp"
-    security_groups = [aws_security_group.client_lb.id]
+    description = "From ALB"
+    from_port   = 32768
+    to_port     = 65535
+    protocol    = "tcp"
+    security_groups = [
+      aws_security_group.client_lb.id,
+      aws_security_group.admin_lb.id
+    ]
   }
 
   egress {
@@ -114,11 +117,14 @@ resource "aws_security_group" "admin_ecs" {
   }
 
   ingress {
-    description     = "From ALB"
-    from_port       = 32768
-    to_port         = 65535
-    protocol        = "tcp"
-    security_groups = [aws_security_group.admin_lb.id]
+    description = "From ALB"
+    from_port   = 32768
+    to_port     = 65535
+    protocol    = "tcp"
+    security_groups = [
+      aws_security_group.client_lb.id,
+      aws_security_group.admin_lb.id
+    ]
   }
 
   egress {

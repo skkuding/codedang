@@ -41,7 +41,7 @@ resource "aws_lb_listener" "api" {
 }
 
 resource "aws_lb_target_group" "client_api" {
-  name        = "Codedang-Client-Api-tg-instance1"
+  name        = "Codedang-Client-Api-TG"
   target_type = "instance"
   port        = 4000
   protocol    = "HTTP"
@@ -57,18 +57,18 @@ resource "aws_lb_target_group" "client_api" {
 }
 
 
-resource "aws_ecs_capacity_provider" "ecs_capacity_provider-client" {
+resource "aws_ecs_capacity_provider" "ecs_capacity_provider_client" {
   name = "codedang-capacity-provider-client"
   auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.codedang-asg-client.arn
+    auto_scaling_group_arn         = aws_autoscaling_group.asg_client.arn
     managed_termination_protection = "ENABLED"
   }
 }
 
-resource "aws_ecs_cluster_capacity_providers" "ecs-client" {
-  cluster_name       = aws_ecs_cluster.api.name
-  capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider-client.name]
-}
+# resource "aws_ecs_cluster_capacity_providers" "ecs_client" {
+#   cluster_name       = aws_ecs_cluster.api.name
+#   capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider_client.name]
+# }
 
 resource "aws_ecs_service" "client_api" {
   name                              = "Codedang-Client-Api-Service"

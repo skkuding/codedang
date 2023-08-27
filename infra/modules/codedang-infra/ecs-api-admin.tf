@@ -40,22 +40,8 @@ resource "aws_lb_listener" "admin_api" {
   }
 }
 
-
-resource "aws_ecs_capacity_provider" "ecs_capacity_provider-admin" {
-  name = "codedang-capacity-provider-admin"
-  auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.codedang-asg-admin.arn
-    managed_termination_protection = "ENABLED"
-  }
-}
-
-resource "aws_ecs_cluster_capacity_providers" "ecs-admin" {
-  cluster_name       = aws_ecs_cluster.api.name
-  capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider-admin.name]
-}
-
 resource "aws_lb_target_group" "admin_api" {
-  name        = "Codedang-Admin-Api-tg-instance1"
+  name        = "Codedang-Admin-Api-TG"
   target_type = "instance"
   port        = 3000
   protocol    = "HTTP"
@@ -69,6 +55,19 @@ resource "aws_lb_target_group" "admin_api" {
     matcher             = "200-404"
   }
 }
+
+# resource "aws_ecs_capacity_provider" "ecs_capacity_provider_admin" {
+#   name = "codedang-capacity-provider-admin"
+#   auto_scaling_group_provider {
+#     auto_scaling_group_arn         = aws_autoscaling_group.asg_admin.arn
+#     managed_termination_protection = "ENABLED"
+#   }
+# }
+
+# resource "aws_ecs_cluster_capacity_providers" "ecs_admin" {
+#   cluster_name       = aws_ecs_cluster.api.name
+#   capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider_admin.name]
+# }
 
 resource "aws_ecs_service" "admin_api" {
   name                              = "Codedang-Admin-Api-Service"

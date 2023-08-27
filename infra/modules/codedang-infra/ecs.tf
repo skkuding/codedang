@@ -6,16 +6,58 @@ resource "aws_ecs_cluster" "iris" {
   name = "Codedang-Iris"
 }
 
-resource "aws_iam_instance_profile" "codedang-ecs" {
-  name = "ECS-codedang"
+################# Capacity Provider #################
+# resource "aws_ecs_cluster_capacity_providers" "ecs_api" {
+#   cluster_name       = aws_ecs_cluster.api.name
+#   capacity_providers = [
+#     aws_ecs_capacity_provider.ecs_capacity_provider_client.name,
+#     aws_ecs_capacity_provider.ecs_capacity_provider_admin.name,
+#     ]
+# }
+
+resource "aws_ecs_cluster_capacity_providers" "ecs_api" {
+  cluster_name = aws_ecs_cluster.api.name
+  capacity_providers = [
+    aws_ecs_capacity_provider.ecs_capacity_provider_client.name,
+  ]
+}
+
+################# IAM Role - ecs container instance #################
+resource "aws_iam_instance_profile" "ecs_container_instance_role" {
+  name = "Codedang-ECS-Container-Instance-Profile"
+  role = aws_iam_role.ecs_container_instance_role.name
+}
+
+resource "aws_iam_role" "ecs_container_instance_role" {
+  name               = "Codedang-ECS-Container-Instance-Role"
+  assume_role_policy = data.aws_iam_policy_document.ecs_container_instance_role.json
+}
+data "aws_iam_policy_document" "ecs_container_instance_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_container_instance_role" {
+  role       = aws_iam_role.ecs_container_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
+################# IAM Role - task execution #################
+resource "aws_iam_instance_profile" "ecs_task_execution_role" {
+  name = "Codedang-ECS-Task-Execution-Profile"
   role = aws_iam_role.ecs_task_execution_role.name
 }
 
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name               = "Codedang-Api-Task-Execution-Role-test"
+  name               = "Codedang-Api-Task-Execution-Role-Test"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_execution_role.json
 }
-
 data "aws_iam_policy_document" "ecs_task_execution_role" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -27,12 +69,39 @@ data "aws_iam_policy_document" "ecs_task_execution_role" {
   }
 }
 
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = aws_iam_policy.ecs_task_execution_role.arn
+}
+
+resource "aws_iam_policy" "ecs_task_execution_role" {
+  name        = "AllowEcrPull"
+  description = "Allows ECS tasks to pull images from ECR"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        Effect   = "Allow",
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# IAM Policy to allow sending emails via SES
 resource "aws_iam_role_policy_attachment" "ecs_ses" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = aws_iam_policy.ses_send_email.arn
 }
-
-# IAM Policy to allow sending emails via SES
 resource "aws_iam_policy" "ses_send_email" {
   name        = "AllowSESSendEmail"
   description = "Allows sending emails via SES"
@@ -52,11 +121,7 @@ resource "aws_iam_policy" "ses_send_email" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
-}
-
+################# cloudinit config #################
 data "template_cloudinit_config" "api_config" {
   gzip          = false
   base64_encode = true

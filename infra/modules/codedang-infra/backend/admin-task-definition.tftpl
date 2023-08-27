@@ -3,7 +3,7 @@
     "name": "${task_name}",
     "image": "${ecr_uri}",
     "cpu": 1024,
-    "memory": 1024,
+    "memory": 512,
     "essential": true,
     "portMappings": [
       {
@@ -43,14 +43,6 @@
         "name" : "TESTCASE_SECRET_KEY",
         "value" : "${testcase_secret_key}"
       }
-    ],
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "ecs/Codedang-Api",
-        "awslogs-region": "${cloudwatch_region}",
-        "awslogs-stream-prefix": "ecs"
-      }
-    }
+    ]
   }
 ]
