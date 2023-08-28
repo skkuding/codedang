@@ -25,7 +25,7 @@ resource "aws_lb" "client_api" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.client_lb.id]
-  subnets            = [aws_subnet.private_client_api1.id, aws_subnet.private_client_api2.id]
+  subnets            = [aws_subnet.public_subnet1.id, aws_subnet.public_subnet2.id]
   enable_http2       = true
 }
 
