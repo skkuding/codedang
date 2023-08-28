@@ -107,7 +107,7 @@ resource "aws_iam_policy" "ses_send_email" {
 }
 
 ################# cloudinit config #################
-data "template_cloudinit_config" "api_config" {
+data "cloudinit_config" "api_config" {
   gzip          = false
   base64_encode = true
 
@@ -123,7 +123,7 @@ data "template_cloudinit_config" "api_config" {
   }
 }
 
-data "template_cloudinit_config" "iris_config" {
+data "cloudinit_config" "iris_config" {
   gzip          = false
   base64_encode = true
 

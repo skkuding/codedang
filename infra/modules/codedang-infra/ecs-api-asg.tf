@@ -70,7 +70,7 @@ resource "aws_launch_template" "ec2_template_api" {
 
   # 미리 만들어 놓아야 합니다.
   key_name  = "codedang-ecs-api-instance"
-  user_data = data.template_cloudinit_config.api_config.rendered
+  user_data = data.cloudinit_config.api_config.rendered
 
   # Block device mappings for the instance
   # block_device_mappings {
