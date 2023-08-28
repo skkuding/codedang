@@ -8,8 +8,7 @@ terraform {
 }
 
 module "codedang-infra" {
-  source = "../modules/codedang-infra"
-
+  source            = "../modules/codedang-infra"
   region            = var.region
   s3_bucket         = var.s3_bucket
   postgres_username = var.postgres_username
