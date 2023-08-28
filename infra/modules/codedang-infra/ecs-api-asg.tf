@@ -61,7 +61,7 @@ resource "aws_autoscaling_policy" "asp_api" {
 ###################### Launch Template ######################
 resource "aws_launch_template" "ec2_template_api" {
   name          = "Codedang-LaunchTemplate-Api"
-  image_id      = "ami-0879857690d02a38c" # image_id = "ami-01287572b99f45fc2" 한국
+  image_id      = "ami-01287572b99f45fc2" # 한국
   instance_type = "t4g.small"             # 2vCPU, 2GiB Mem
 
   iam_instance_profile {
@@ -69,7 +69,7 @@ resource "aws_launch_template" "ec2_template_api" {
   }
 
   # 미리 만들어 놓아야 합니다.
-  key_name  = "codedang-ecs-client"
+  key_name  = "codedang-ecs-api-instance"
   user_data = data.template_cloudinit_config.api_config.rendered
 
   # Block device mappings for the instance

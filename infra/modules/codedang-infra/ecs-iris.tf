@@ -28,9 +28,9 @@ resource "aws_ecs_service" "iris" {
   launch_type     = "EC2"
 }
 
-# data "aws_ecr_repository" "iris" {
-#   name = "codedang-iris"
-# }
+data "aws_ecr_repository" "iris" {
+  name = "codedang-iris"
+}
 
 
 ###################### ECS Task Definition ######################
@@ -39,7 +39,7 @@ resource "aws_ecs_task_definition" "iris" {
   requires_compatibilities = ["EC2"]
   network_mode             = "bridge"
   container_definitions = templatefile("${path.module}/iris/task-definition.tftpl", {
-    ecr_uri             = var.ecr_iris_uri,
+    ecr_uri             = data.aws_ecr_repository.iris.repository_url,
     rabbitmq_host       = "${aws_mq_broker.judge_queue.id}.mq.${var.region}.amazonaws.com",
     rabbitmq_port       = var.rabbitmq_port,
     rabbitmq_username   = var.rabbitmq_username,

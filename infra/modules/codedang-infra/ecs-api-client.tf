@@ -84,9 +84,9 @@ resource "aws_ecs_service" "client_api" {
   ]
 }
 
-# data "aws_ecr_repository" "client-test" {
-#   name = "codedang-client-api"
-# }
+data "aws_ecr_repository" "client_api" {
+  name = "codedang-client-api"
+}
 
 ###################### ECS Task Definition ######################
 resource "aws_ecs_task_definition" "client_api" {
@@ -100,7 +100,7 @@ resource "aws_ecs_task_definition" "client_api" {
 
     # posrgresql (free tier)
     database_url      = "postgresql://${var.postgres_username}:${random_password.postgres_password.result}@${aws_db_instance.db-test.endpoint}/skkuding?schema=public",
-    ecr_uri           = var.ecr_client_uri,
+    ecr_uri           = data.aws_ecr_repository.client_api.repository_url,
     container_port    = 4000,
     cloudwatch_region = var.region,
     redis_host        = aws_elasticache_replication_group.db_cache.configuration_endpoint_address,

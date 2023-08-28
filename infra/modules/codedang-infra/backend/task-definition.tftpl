@@ -55,6 +55,14 @@
         "name":"RABBITMQ_DEFAULT_VHOST",
         "value": "${rabbitmq_vhost}"
       }
-    ]
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "ecs/Codedang-Api",
+        "awslogs-region": "${cloudwatch_region}",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
   }
 ]

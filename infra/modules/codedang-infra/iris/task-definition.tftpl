@@ -34,6 +34,14 @@
         "name" : "TESTCASE_SERVER_URL",
         "value" : "https://${testcase_server_url}/:id.json"
       }
-    ]
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "ecs/Codedang-Iris",
+        "awslogs-region": "${cloudwatch_region}",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
   }
 ]
