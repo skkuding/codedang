@@ -112,5 +112,8 @@ jobs:
       - name: Run docker compose up
         run: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 
+      - name: Graceful reload Caddy
+        run: docker exec -w /etc/caddy caddy caddy reload
+
       - name: Remove unused docker storages
         run: docker system prune -a -f --volumes

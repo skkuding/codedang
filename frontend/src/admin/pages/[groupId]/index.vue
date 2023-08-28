@@ -137,10 +137,10 @@ onError(() => {
               v-for="(key, value) in configNameMap"
               :key="key"
               :class="{
-                'text-green': group!.config[value]
+                'text-green': group?.config[value]
               }"
             >
-              {{ group!.config[value] }}
+              {{ group?.config[value] }}
             </div>
           </div>
         </div>
@@ -151,7 +151,7 @@ onError(() => {
         <h2 class="text-text-subtitle mt-12 text-xl font-bold">
           Invitation URL
         </h2>
-        <div v-if="group!.invitationUrl">{{ group!.invitationUrl }}</div>
+        <div v-if="group?.invitationUrl">{{ group?.invitationUrl }}</div>
         <Button color="green" @click="createUrl">Create URL</Button>
 
         <h2 class="text-text-subtitle mt-12 text-xl font-bold">
@@ -179,7 +179,11 @@ onError(() => {
         <div class="bg-gray-light mb-6 h-[1px] w-full" />
         <div class="mb-6 flex">
           <h2 class="mr-10 text-lg font-semibold">Group Name</h2>
-          <InputItem v-model="editGroup!.groupName" class="shadow" />
+          <InputItem
+            v-if="editGroup"
+            v-model="editGroup.groupName"
+            class="shadow"
+          />
         </div>
         <div class="mb-6">
           <h2 class="mb-2 mr-10 text-lg font-semibold">Group Configuration</h2>
@@ -189,13 +193,18 @@ onError(() => {
             class="mt-1 flex"
           >
             {{ key }}
-            <Switch v-model="editGroup!.config[value]" class="ml-auto mr-0" />
+            <Switch
+              v-if="editGroup"
+              v-model="editGroup.config[value]"
+              class="ml-auto mr-0"
+            />
           </p>
         </div>
 
         <h2 class="mb-2 text-lg font-semibold">Description</h2>
         <InputItem
-          v-model="group!.description"
+          v-if="group"
+          v-model="group.description"
           class="w-full break-normal shadow"
         />
       </div>

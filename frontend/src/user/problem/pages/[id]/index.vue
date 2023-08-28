@@ -1,42 +1,24 @@
 <script setup lang="ts">
 import CodeEditor from '@/common/components/Organism/CodeEditor.vue'
 import { useToast } from '@/common/composables/toast'
-//import type { StringStream } from '@codemirror/language'
 import { useClipboard, useDraggable } from '@vueuse/core'
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, toRefs } from 'vue'
 import IconCopy from '~icons/fa6-regular/copy'
-import Clarification from '../../components/Clarification.vue'
-import { useProblemStore } from '../../store/problem'
+// import Clarification from '../../components/Clarification.vue'
+import { useProblemStore, type Problem } from '../../store/problem'
 
 const props = defineProps<{
   id: string
 }>()
-
-interface Problem {
-  id: string
-  title: string
-  description: string
-  inputDescription: string
-  outputDescription: string
-  hint: string
-  languages: string[]
-  timeLimit: number
-  memoryLimit: number
-  difficulty: string
-  source: string
-  inputExamples: string[]
-  outputExamples: string[]
-}
 
 interface Sample {
   input: string
   output: string
 }
 
-const code = ref('')
-const problem = ref<Problem>()
 const store = useProblemStore()
+const { problem } = toRefs(store)
 
 const { copy } = useClipboard()
 const openToast = useToast()
@@ -57,53 +39,53 @@ const { x } = useDraggable(resizingBarX, {
     if (window.innerWidth - 400 < p.x) p.x = window.innerWidth - 400
   }
 })
-const codeBlockHeight = ref<number>(window.innerHeight - 112 - 236 - 24)
-const resizingBarY = ref<HTMLDivElement>()
-const { y } = useDraggable(resizingBarY, {
-  initialValue: { x: 0, y: 240 },
-  onMove: (p) => {
-    p.y = window.innerHeight - p.y - 24
-    codeBlockHeight.value = window.innerHeight - 112 - p.y - 24
-    if (p.y < 4) p.y = 4
-  }
-})
+// const codeBlockHeight = ref<number>(window.innerHeight - 112 - 236 - 24)
+// const resizingBarY = ref<HTMLDivElement>()
+// const { y } = useDraggable(resizingBarY, {
+//   initialValue: { x: 0, y: 240 },
+//   onMove: (p) => {
+//     p.y = window.innerHeight - p.y - 24
+//     codeBlockHeight.value = window.innerHeight - 112 - p.y - 24
+//     if (p.y < 4) p.y = 4
+//   }
+// })
 
 onMounted(async () => {
-  const res = await axios.get(`/api/problem/${props.id}`)
-  problem.value = res.data
-  samples.value = [...Array(problem.value?.inputExamples.length).keys()].map(
-    (i) => {
-      return {
-        input: problem.value?.inputExamples[i] || '',
-        output: problem.value?.outputExamples[i] || ''
-      }
-    }
-  )
+  const { data } = await axios.get<Problem>(`/api/problem/${props.id}`)
+  if (!store.language || problem.value.title != data.title) {
+    store.language = data.languages[0]
+  }
+  problem.value = data
+  store.type = 'problem'
+  samples.value = problem.value.inputExamples.map((input, index) => ({
+    input,
+    output: problem.value.outputExamples[index]
+  }))
 })
 </script>
 
 <template>
   <main class="flex h-[calc(100vh-112px)] border-t border-slate-400">
-    <Clarification v-model="x" />
+    <!-- <Clarification v-model="x" /> -->
     <div
-      class="flex w-[600px] min-w-[400px] flex-col gap-4 overflow-y-auto bg-slate-700 p-8 text-white"
+      class="flex w-[600px] min-w-[400px] flex-col gap-8 overflow-y-auto bg-slate-700 p-8 text-white"
       :style="{ width: x + 'px' }"
     >
-      <h1 class="text-xl font-bold">{{ problem?.title }}</h1>
-      <div v-dompurify-html="problem?.description" class="prose text-white" />
-      <h2 class="mt-4 text-lg font-bold">Input</h2>
+      <h1 class="text-xl font-bold">{{ problem.title }}</h1>
+      <div v-dompurify-html="problem.description" class="prose prose-invert" />
+      <h2 class="text-lg font-bold">Input</h2>
       <div
-        v-dompurify-html="problem?.inputDescription"
-        class="prose text-white"
+        v-dompurify-html="problem.inputDescription"
+        class="prose prose-invert"
       />
-      <h2 class="mt-4 text-lg font-bold">Output</h2>
+      <h2 class="text-lg font-bold">Output</h2>
       <div
-        v-dompurify-html="problem?.outputDescription"
-        class="prose text-white"
+        v-dompurify-html="problem.outputDescription"
+        class="prose prose-invert"
       />
       <div v-for="(sample, index) in samples" :key="index">
         <div class="flex items-end justify-between">
-          <h2 class="mt-4 text-lg font-bold">Sample Input {{ index + 1 }}</h2>
+          <h2 class="text-lg font-bold">Sample Input {{ index + 1 }}</h2>
           <IconCopy
             class="cursor-pointer hover:text-white/75 active:text-white/50"
             @click="copySample(index, 'input')"
@@ -113,7 +95,7 @@ onMounted(async () => {
           {{ sample.input }}
         </div>
         <div class="flex items-end justify-between">
-          <h2 class="mt-4 text-lg font-bold">Sample Output {{ index + 1 }}</h2>
+          <h2 class="text-lg font-bold">Sample Output {{ index + 1 }}</h2>
           <IconCopy
             class="cursor-pointer hover:text-white/75 active:text-white/50"
             @click="copySample(index, 'output')"
@@ -123,6 +105,14 @@ onMounted(async () => {
           {{ sample.output }}
         </div>
       </div>
+      <h2 class="text-lg font-bold">
+        Time Limit:
+        <span class="font-normal">{{ problem.timeLimit }} ms</span>
+      </h2>
+      <h2 class="text-lg font-bold">
+        Memory Limit:
+        <span class="font-normal">{{ problem.memoryLimit }} MB</span>
+      </h2>
     </div>
     <div
       ref="resizingBarX"
@@ -132,13 +122,12 @@ onMounted(async () => {
       class="flex min-w-[400px] grow flex-col justify-between overflow-hidden bg-[#292c33]"
     >
       <CodeEditor
-        v-model="code"
+        v-model="store.code"
         :lang="store.language"
         class="overflow-auto"
-        :style="{ height: codeBlockHeight + 'px' }"
       />
 
-      <div :style="{ height: y + 'px' }">
+      <!-- <div :style="{ height: y + 'px' }">
         <div
           ref="resizingBarY"
           class="hover:bg-blue mt-[3px] h-px cursor-ns-resize bg-slate-400 hover:mt-0 hover:h-1"
@@ -185,7 +174,7 @@ onMounted(async () => {
       >
         <div>{{ problem?.languages[0] }}</div>
         <div>-O2 -Wall -std=gnu++17</div>
-      </div>
+      </div> -->
     </div>
   </main>
 </template>

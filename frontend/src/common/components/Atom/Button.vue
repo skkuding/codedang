@@ -66,7 +66,10 @@ const classNames = computed(() =>
 </script>
 
 <template>
-  <button class="rounded px-2 py-1 font-semibold" :class="classNames">
+  <button
+    class="flex items-center justify-center rounded px-2 py-1 font-semibold"
+    :class="classNames"
+  >
     <slot />
   </button>
 </template>
