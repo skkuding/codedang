@@ -58,8 +58,8 @@ resource "aws_autoscaling_policy" "asp_iris" {
 ###################### Launch Template ######################
 resource "aws_launch_template" "ec2_template_iris" {
   name          = "Codedang-LaunchTemplate-Iris"
-  image_id      = "ami-0879857690d02a38c" # image_id = "ami-01287572b99f45fc2" 한국
-  instance_type = "t4g.small"             # 2vCPU, 2GiB Mem
+  image_id      = "ami-01287572b99f45fc2"
+  instance_type = "t4g.small" # 2vCPU, 2GiB Mem
 
   iam_instance_profile {
     name = aws_iam_instance_profile.ecs_container_instance_role.name
