@@ -93,7 +93,7 @@ resource "aws_ecs_task_definition" "client_api" {
   family                   = "Codedang-Client-Api"
   requires_compatibilities = ["EC2"]
   network_mode             = "bridge"
-  container_definitions = templatefile("${path.module}/backend/task-definition.tftpl", {
+  container_definitions = templatefile("${path.module}/backend/client-task-definition.tftpl", {
     task_name = "Codedang-Client-Api",
     # aurora-posrgresql
     # database_url      = "postgresql://${var.postgres_username}:${random_password.postgres_password.result}@${aws_rds_cluster.cluster.endpoint}:${var.postgres_port}/skkuding?schema=public",
@@ -103,7 +103,7 @@ resource "aws_ecs_task_definition" "client_api" {
     ecr_uri           = data.aws_ecr_repository.client_api.repository_url,
     container_port    = 4000,
     cloudwatch_region = var.region,
-    redis_host        = aws_elasticache_replication_group.db_cache.configuration_endpoint_address,
+    redis_host        = aws_elasticache_cluster.db_cache.cache_nodes.0.address,
     redis_port        = var.redis_port,
     jwt_secret        = random_password.jwt_secret.result,
     nodemailer_from   = "Codedang <noreply@codedang.com>",
