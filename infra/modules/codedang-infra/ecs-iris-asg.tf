@@ -67,7 +67,7 @@ resource "aws_launch_template" "ec2_template_iris" {
 
   # 미리 만들어 놓아야 합니다.
   key_name  = "codedang-ecs-iris-instance"
-  user_data = data.template_cloudinit_config.iris_config.rendered
+  user_data = data.cloudinit_config.iris_config.rendered
 
   # Block device mappings for the instance
   # block_device_mappings {
