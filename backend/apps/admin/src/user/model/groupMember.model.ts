@@ -3,7 +3,7 @@ import { ObjectType, Field, ID } from '@nestjs/graphql'
 @ObjectType()
 export class GroupMember {
   @Field(() => ID)
-  studentId: string
+  username: string
 
   @Field(() => ID)
   userId: number

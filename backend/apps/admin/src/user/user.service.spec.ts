@@ -213,7 +213,7 @@ describe('UserService', () => {
         isGroupLeader: !userGroup3.isGroupLeader
       })
 
-      const res = await service.updateGroupMemberRole(
+      const res = await service.updateGroupRole(
         userGroup3.userId,
         groupId,
         true
@@ -233,7 +233,7 @@ describe('UserService', () => {
         isGroupLeader: !userGroup1.isGroupLeader
       })
 
-      const res = await service.updateGroupMemberRole(
+      const res = await service.updateGroupRole(
         userGroup1.userId,
         groupId,
         false
@@ -249,7 +249,7 @@ describe('UserService', () => {
       db.userGroup.findMany.resolves(updateFindResult)
 
       const res = async () =>
-        await service.updateGroupMemberRole(userGroup3.userId, groupId, false)
+        await service.updateGroupRole(userGroup3.userId, groupId, false)
       expect(res()).to.be.rejectedWith(BadRequestException)
     })
 
@@ -257,7 +257,7 @@ describe('UserService', () => {
       db.userGroup.findMany.resolves(updateFindResult)
 
       const res = async () =>
-        await service.updateGroupMemberRole(userGroup2.userId, groupId, false)
+        await service.updateGroupRole(userGroup2.userId, groupId, false)
       expect(res()).to.be.rejectedWith(BadRequestException)
     })
 
@@ -265,7 +265,7 @@ describe('UserService', () => {
       db.userGroup.findMany.resolves(updateFindResult)
 
       const res = async () =>
-        await service.updateGroupMemberRole(userGroup2.userId, groupId, false)
+        await service.updateGroupRole(userGroup2.userId, groupId, false)
       expect(res()).to.be.rejectedWith(BadRequestException)
     })
 
@@ -273,7 +273,7 @@ describe('UserService', () => {
       db.userGroup.findMany.resolves(updateFindResult)
 
       const res = async () =>
-        await service.updateGroupMemberRole(userGroup1.userId, groupId, false)
+        await service.updateGroupRole(userGroup1.userId, groupId, false)
       expect(res()).to.be.rejectedWith(BadRequestException)
     })
   })

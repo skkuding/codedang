@@ -1,8 +1,10 @@
 import {
   BadRequestException,
   InternalServerErrorException,
+  ConflictException,
   Logger,
-  ParseIntPipe
+  ParseIntPipe,
+  NotFoundException
 } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
 import { User } from '@generated'
@@ -23,47 +25,30 @@ export class UserResolver {
     groupId: number,
     @Args('cursor', CursorValidationPipe) cursor: number,
     @Args('take', ParseIntPipe) take: number,
-    @Args('isGroupLeader') isGroupLeader: boolean
+    @Args('leaderOnly', { defaultValue: false }) leaderOnly: boolean
   ) {
     return await this.userService.getGroupMembers(
       groupId,
       cursor,
       take,
-      isGroupLeader
+      leaderOnly
     )
   }
 
   @Mutation(() => UserGroup)
-  async downgradeGroupManager(
+  async updateGroupMember(
     @Args('userId') userId: number,
-    @Args('groupId') groupId: number
+    @Args('groupId') groupId: number,
+    @Args('upgrade') upgrade: boolean
   ) {
     try {
-      return await this.userService.updateGroupMemberRole(
-        userId,
-        groupId,
-        false
-      )
+      return await this.userService.updateGroupRole(userId, groupId, upgrade)
     } catch (error) {
       this.logger.error(error.message, error.stack)
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message)
-      }
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Mutation(() => UserGroup)
-  async upgradeGroupMember(
-    @Args('userId') userId: number,
-    @Args('groupId') groupId: number
-  ) {
-    try {
-      return await this.userService.updateGroupMemberRole(userId, groupId, true)
-    } catch (error) {
-      this.logger.error(error.message, error.stack)
-      if (error instanceof BadRequestException) {
-        throw new BadRequestException(error.message)
+      } else if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -80,6 +65,8 @@ export class UserResolver {
       this.logger.error(error.message, error.stack)
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message)
+      } else if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message)
       }
       throw new InternalServerErrorException()
     }
@@ -96,32 +83,17 @@ export class UserResolver {
   }
 
   @Mutation(() => UserGroup)
-  async rejectJoinRequest(
+  async handleJoinRequest(
     @Args('groupId') groupId: number,
-    @Args('userId') userId: number
+    @Args('userId') userId: number,
+    @Args('accept') accept: boolean
   ) {
     try {
-      return await this.userService.handleJoinRequest(groupId, userId, false)
+      return await this.userService.handleJoinRequest(groupId, userId, accept)
     } catch (error) {
       this.logger.error(error.message, error.stack)
-      if (error instanceof BadRequestException) {
-        throw new BadRequestException(error.message)
-      }
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Mutation(() => UserGroup)
-  async acceptJoinRequest(
-    @Args('groupId') groupId: number,
-    @Args('userId') userId: number
-  ) {
-    try {
-      return await this.userService.handleJoinRequest(groupId, userId, true)
-    } catch (error) {
-      this.logger.error(error.message, error.stack)
-      if (error instanceof BadRequestException) {
-        throw new BadRequestException(error.message)
+      if (error instanceof ConflictException) {
+        throw new ConflictException(error.message)
       }
       throw new InternalServerErrorException()
     }
