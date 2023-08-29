@@ -7,6 +7,7 @@ export default defineConfig({
   lastUpdated: true,
 
   head: [
+    ['link', { rel: 'icon', href: '/logo.png' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     [
       'link',
@@ -26,6 +27,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
+    logo: '/logo.png',
     nav: [
       {
         text: '📌 Guide',
