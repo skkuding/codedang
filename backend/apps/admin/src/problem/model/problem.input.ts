@@ -1,6 +1,8 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
 import { ValidatePromise } from 'class-validator'
-import { GraphQLUpload } from 'graphql-upload'
+// Workaround: NestJS does not support ESM
+// https://github.com/jaydenseric/graphql-upload/issues/305
+import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
 import { Language, Level } from '@admin/@generated'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import { Template } from './template.input'
