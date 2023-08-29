@@ -1,10 +1,10 @@
 module github.com/skkuding/codedang/iris
 
-go 1.20
+go 1.21
 
 require (
 	github.com/rabbitmq/amqp091-go v1.8.1
-	github.com/redis/go-redis/v9 v9.0.5
+	github.com/redis/go-redis/v9 v9.1.0
 	go.uber.org/zap v1.25.0
 )
 
