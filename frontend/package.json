@@ -22,6 +22,7 @@
     "@codemirror/state": "^6.2.1",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@codemirror/view": "^6.17.0",
+    "@tiptap/pm": "^2.1.7",
     "@tiptap/starter-kit": "^2.1.7",
     "@tiptap/vue-3": "^2.1.7",
     "@vee-validate/zod": "^4.11.3",
