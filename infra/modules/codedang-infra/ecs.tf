@@ -107,34 +107,34 @@ resource "aws_iam_policy" "ses_send_email" {
 }
 
 ################# cloudinit config #################
-data "cloudinit_config" "api_config" {
-  gzip          = false
-  base64_encode = true
+# data "cloudinit_config" "api_config" {
+#   gzip          = false
+#   base64_encode = true
 
-  part {
-    content_type = "text/x-shellscript"
-    content      = <<EOF
-    #!/bin/bash
-    echo ECS_CLUSTER="${aws_ecs_cluster.api.name}" >> /etc/ecs/ecs.config
-    ECS_ENABLE_TASK_IAM_ROLE=true
-    ECS_ENABLE_CONTAINER_METADATA=true
-    ECS_CONTAINER_INSTANCE_PROPAGATE_TAGS_FROM=ec2_instance
-    EOF
-  }
-}
+#   part {
+#     content_type = "text/x-shellscript"
+#     content      = <<EOF
+#     #!/bin/bash
+#     echo ECS_CLUSTER="${aws_ecs_cluster.api.name}" >> /etc/ecs/ecs.config
+#     ECS_ENABLE_TASK_IAM_ROLE=true
+#     ECS_ENABLE_CONTAINER_METADATA=true
+#     ECS_CONTAINER_INSTANCE_PROPAGATE_TAGS_FROM=ec2_instance
+#     EOF
+#   }
+# }
 
-data "cloudinit_config" "iris_config" {
-  gzip          = false
-  base64_encode = true
+# data "cloudinit_config" "iris_config" {
+#   gzip          = false
+#   base64_encode = true
 
-  part {
-    content_type = "text/x-shellscript"
-    content      = <<EOF
-    #!/bin/bash
-    echo ECS_CLUSTER="${aws_ecs_cluster.iris.name}" >> /etc/ecs/ecs.config
-    ECS_ENABLE_TASK_IAM_ROLE=true
-    ECS_ENABLE_CONTAINER_METADATA=true
-    ECS_CONTAINER_INSTANCE_PROPAGATE_TAGS_FROM=ec2_instance
-    EOF
-  }
-}
+#   part {
+#     content_type = "text/x-shellscript"
+#     content      = <<EOF
+#     #!/bin/bash
+#     echo ECS_CLUSTER="${aws_ecs_cluster.iris.name}" >> /etc/ecs/ecs.config
+#     ECS_ENABLE_TASK_IAM_ROLE=true
+#     ECS_ENABLE_CONTAINER_METADATA=true
+#     ECS_CONTAINER_INSTANCE_PROPAGATE_TAGS_FROM=ec2_instance
+#     EOF
+#   }
+# }
