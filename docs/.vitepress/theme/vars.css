@@ -2,6 +2,7 @@
   --c-blue: #3581fa;
   --c-blue-dark: #2e6de9;
   --c-blue-light: #4d9dfc;
+  --c-green-light: #30d7ae;
 
   --vp-font-family-base: 'Inter var experimental', 'Inter var', 'Noto Sans KR',
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
@@ -11,7 +12,7 @@
   --vp-home-hero-name-background: linear-gradient(
     135deg,
     var(--c-blue-dark) 20%,
-    var(--c-blue-light)
+    var(--c-green-light)
   );
 
   --vp-c-brand: var(--c-blue);
