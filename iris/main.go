@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+	"os"
 
 	"github.com/skkuding/codedang/iris/src/connector"
 	"github.com/skkuding/codedang/iris/src/connector/rabbitmq"
 	"github.com/skkuding/codedang/iris/src/handler"
-	"github.com/skkuding/codedang/iris/src/loader"
 	"github.com/skkuding/codedang/iris/src/loader/cache"
+	"github.com/skkuding/codedang/iris/src/loader/s3"
 	"github.com/skkuding/codedang/iris/src/router"
 	"github.com/skkuding/codedang/iris/src/service/file"
 	"github.com/skkuding/codedang/iris/src/service/logger"
@@ -31,8 +32,12 @@ func main() {
 	ctx := context.Background()
 	cache := cache.NewCache(ctx)
 
-	var source loader.Read
-	// TODO: add dataSource for S3
+	bucketName := os.Getenv("TESTCASE_BUCKET_NAME")
+	if bucketName == "" {
+		logProvider.Log(logger.ERROR, "Cannot find TESTCASE_BUCKET_NAME")
+		return
+	}
+	source := s3.NewS3DataSource(bucketName)
 	testcaseManager := testcase.NewTestcaseManager(source, cache)
 
 	fileManager := file.NewFileManager("/app/sandbox/results")
