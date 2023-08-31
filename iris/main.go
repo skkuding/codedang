@@ -2,18 +2,12 @@ package main
 
 import (
 	"context"
-	"os"
-	"strconv"
-	"time"
 
-	// _ "net/http/pprof"
 	"github.com/skkuding/codedang/iris/src/connector"
 	"github.com/skkuding/codedang/iris/src/connector/rabbitmq"
-	datasource "github.com/skkuding/codedang/iris/src/data_source"
-	"github.com/skkuding/codedang/iris/src/data_source/cache"
-	fileDataSource "github.com/skkuding/codedang/iris/src/data_source/file"
-	httpserver "github.com/skkuding/codedang/iris/src/data_source/http_server"
 	"github.com/skkuding/codedang/iris/src/handler"
+	"github.com/skkuding/codedang/iris/src/loader"
+	"github.com/skkuding/codedang/iris/src/loader/cache"
 	"github.com/skkuding/codedang/iris/src/router"
 	"github.com/skkuding/codedang/iris/src/service/file"
 	"github.com/skkuding/codedang/iris/src/service/logger"
@@ -37,23 +31,9 @@ func main() {
 	ctx := context.Background()
 	cache := cache.NewCache(ctx)
 
-	var dataSource datasource.Read
-	serverUrl := os.Getenv("TESTCASE_SERVER_URL")
-	if serverUrl == "" {
-		dataSource = fileDataSource.NewFileDataSource(os.DirFS("./testcase"))
-		logProvider.Log(logger.INFO, "Cannot find TESTCASE_SERVER_URL. It will read testcase from the \"./testcase\" directory")
-	} else {
-		timeout, err := strconv.Atoi(utils.Getenv("TESTCASE_SERVER_TIMEOUT", "5"))
-		if err != nil {
-			timeout = 5
-		}
-		dataSource = httpserver.NewHttpServerDataSource(
-			serverUrl,
-			utils.Getenv("TESTCASE_SERVER_URL_PLACEHOLDER", ":id"),
-			time.Second*time.Duration(timeout),
-		)
-	}
-	testcaseManager := testcase.NewTestcaseManager(dataSource, cache)
+	var source loader.Read
+	// TODO: add dataSource for S3
+	testcaseManager := testcase.NewTestcaseManager(source, cache)
 
 	fileManager := file.NewFileManager("/app/sandbox/results")
 	langConfig := sandbox.NewLangConfig(fileManager, "/app/sandbox/policy/java_policy")
