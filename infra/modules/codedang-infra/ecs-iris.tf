@@ -49,4 +49,5 @@ resource "aws_ecs_task_definition" "iris" {
     testcase_server_url = aws_s3_bucket.testcase.bucket_domain_name,
   })
   execution_role_arn = aws_iam_role.ecs_iris_task_execution_role.arn
+  task_role_arn      = aws_iam_role.ecs_iris_task_role.arn
 }
