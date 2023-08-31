@@ -39,14 +39,15 @@ resource "aws_ecs_task_definition" "iris" {
   requires_compatibilities = ["EC2"]
   network_mode             = "bridge"
   container_definitions = templatefile("${path.module}/iris/task-definition.tftpl", {
-    ecr_uri             = data.aws_ecr_repository.iris.repository_url,
-    rabbitmq_host       = "${aws_mq_broker.judge_queue.id}.mq.${var.region}.amazonaws.com",
-    rabbitmq_port       = var.rabbitmq_port,
-    rabbitmq_username   = var.rabbitmq_username,
-    rabbitmq_password   = random_password.rabbitmq_password.result,
-    rabbitmq_vhost      = rabbitmq_vhost.vh.name,
-    cloudwatch_region   = var.region,
-    testcase_server_url = aws_s3_bucket.testcase.bucket_domain_name,
+    ecr_uri           = data.aws_ecr_repository.iris.repository_url,
+    rabbitmq_host     = "${aws_mq_broker.judge_queue.id}.mq.${var.region}.amazonaws.com",
+    rabbitmq_port     = var.rabbitmq_port,
+    rabbitmq_username = var.rabbitmq_username,
+    rabbitmq_password = random_password.rabbitmq_password.result,
+    rabbitmq_vhost    = rabbitmq_vhost.vh.name,
+    cloudwatch_region = var.region,
+    redis_host        = aws_elasticache_cluster.db_cache.cache_nodes.0.address,
+    redis_port        = var.redis_port,
   })
   execution_role_arn = aws_iam_role.ecs_iris_task_execution_role.arn
   task_role_arn      = aws_iam_role.ecs_iris_task_role.arn

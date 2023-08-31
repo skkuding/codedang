@@ -7,6 +7,10 @@
     "essential": true,
     "environment": [
       {
+        "name": "APP_ENV",
+        "value": "production"
+      },
+      {
         "name": "RABBITMQ_SSL",
         "value": "true"
       },
@@ -31,8 +35,12 @@
         "value": "${rabbitmq_vhost}"
       },
       {
-        "name": "TESTCASE_SERVER_URL",
-        "value": "https://${testcase_server_url}/:id.json"
+        "name": "REDIS_HOST",
+        "value": "${redis_host}"
+      },
+      {
+        "name": "REDIST_PORT",
+        "value": "${redis_port}"
       }
     ],
     "logConfiguration": {
