@@ -68,7 +68,7 @@ resource "aws_cloudfront_distribution" "main" {
   ordered_cache_behavior {
     path_pattern             = "/api/*"
     allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods           = []
+    cached_methods           = ["GET", "HEAD", "OPTIONS"]
     target_origin_id         = aws_lb.client_api.id
     viewer_protocol_policy   = "redirect-to-https"
     cache_policy_id          = data.aws_cloudfront_cache_policy.disable.id
@@ -78,7 +78,7 @@ resource "aws_cloudfront_distribution" "main" {
   ordered_cache_behavior {
     path_pattern             = "/graphql"
     allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods           = []
+    cached_methods           = ["GET", "HEAD", "OPTIONS"]
     target_origin_id         = aws_lb.admin_api.id
     viewer_protocol_policy   = "redirect-to-https"
     cache_policy_id          = data.aws_cloudfront_cache_policy.disable.id
