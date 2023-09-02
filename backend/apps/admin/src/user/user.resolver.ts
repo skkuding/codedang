@@ -23,7 +23,7 @@ export class UserResolver {
   async getGroupMembers(
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
     groupId: number,
-    @Args('cursor', CursorValidationPipe) cursor: number,
+    @Args('cursor', { nullable: true }, CursorValidationPipe) cursor: number,
     @Args('take', ParseIntPipe) take: number,
     @Args('leaderOnly', { defaultValue: false }) leaderOnly: boolean
   ) {
@@ -39,10 +39,14 @@ export class UserResolver {
   async updateGroupMember(
     @Args('userId') userId: number,
     @Args('groupId') groupId: number,
-    @Args('upgrade') upgrade: boolean
+    @Args('toGroupLeader') toGroupLeader: boolean
   ) {
     try {
-      return await this.userService.updateGroupRole(userId, groupId, upgrade)
+      return await this.userService.updateGroupRole(
+        userId,
+        groupId,
+        toGroupLeader
+      )
     } catch (error) {
       this.logger.error(error.message, error.stack)
       if (error instanceof BadRequestException) {

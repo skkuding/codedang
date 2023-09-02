@@ -26,8 +26,6 @@ export class UserService {
     take: number,
     leaderOnly: boolean
   ) {
-    cursor = cursor - 1
-
     if (leaderOnly) {
       return (
         await this.prisma.userGroup.findMany({

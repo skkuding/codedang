@@ -151,7 +151,7 @@ describe('UserService', () => {
   })
 
   describe('getGroupMembers', () => {
-    it('should return userGroup of groupLeader', async () => {
+    it('should return userGroups of groupLeaders', async () => {
       const result = [
         {
           user: {
@@ -166,10 +166,10 @@ describe('UserService', () => {
       ]
       db.userGroup.findMany.resolves(result)
 
-      const res = await service.getGroupMembers(groupId, 1, 2, true)
+      const res = await service.getGroupMembers(groupId, null, 2, true)
       expect(res).to.deep.equal([
         {
-          studentId: user1.username,
+          username: user1.username,
           userId: userGroup1.userId,
           name: '',
           email: user1.email
@@ -177,7 +177,7 @@ describe('UserService', () => {
       ])
     })
 
-    it('should return userGroup of groupMember', async () => {
+    it('should return userGroups of groupMembers', async () => {
       const result = [
         {
           user: {
@@ -195,7 +195,7 @@ describe('UserService', () => {
       const res = await service.getGroupMembers(groupId, 1, 2, true)
       expect(res).to.deep.equal([
         {
-          studentId: user2.username,
+          username: user2.username,
           userId: userGroup2.userId,
           name: '',
           email: user2.email
