@@ -6,6 +6,29 @@ resource "aws_s3_bucket" "testcase" {
   }
 }
 
+data "aws_iam_policy_document" "testcase_permissions" {
+  statement {
+    actions   = ["s3:ListBucket", "s3:GetObject"]
+    resources = [aws_s3_bucket.frontend.arn, "${aws_s3_bucket.frontend.arn}/*"]
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    condition {
+      test     = "IpAddress"
+      variable = "AWS:SourceIp"
+      values   = [aws_eip.nat_eip.public_ip]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "testcase" {
+  bucket = aws_s3_bucket.testcase.id
+  policy = data.aws_iam_policy_document.testcase_permissions.json
+}
+
 # user
 # TODO: do not create IAM user, use EC2 instance profile instead
 resource "aws_iam_user" "testcase" {
