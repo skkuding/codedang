@@ -49,9 +49,9 @@ export class WorkbookProblemService {
     //problemId 기준으로 오름차순 정렬
     workbookProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
     const promisesToBeResolved = workbookProblemsToBeUpdated.map(
-      (record, idx) => {
+      async (record, idx) => {
         const newOrder = orders[idx]
-        return this.prisma.workbookProblem.update({
+        return await this.prisma.workbookProblem.update({
           where: {
             // eslint-disable-next-line @typescript-eslint/naming-convention
             workbookId_problemId: {

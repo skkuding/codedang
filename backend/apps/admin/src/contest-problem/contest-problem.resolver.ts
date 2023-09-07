@@ -40,7 +40,7 @@ export class ContestProblemResolver {
   }
 
   @Mutation(() => [ContestProblem])
-  async updateWorkbookProblemsOrder(
+  async updateContestProblemsOrder(
     @Args('contestId', { type: () => Int }, ParseIntPipe) contestId: number,
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {

@@ -50,9 +50,9 @@ export class ContestProblemService {
     //problemId 기준으로 오름차순 정렬
     contestProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
     const promisesToBeResolved = contestProblemsToBeUpdated.map(
-      (record, idx) => {
+      async (record, idx) => {
         const newOrder = orders[idx]
-        return this.prisma.contestProblem.update({
+        return await this.prisma.contestProblem.update({
           where: {
             // eslint-disable-next-line @typescript-eslint/naming-convention
             contestId_problemId: {
