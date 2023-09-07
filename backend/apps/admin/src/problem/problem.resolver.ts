@@ -199,7 +199,11 @@ export class ProblemResolver {
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
     try {
-      return this.problemService.updateWorkbookProblemsOrder(workbookId, orders)
+      return this.problemService.updateWorkbookProblemsOrder(
+        groupId,
+        workbookId,
+        orders
+      )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
@@ -224,7 +228,7 @@ export class ProblemResolver {
     @Args('contestId', { type: () => Int }, ParseIntPipe) contestId: number
   ) {
     try {
-      return this.problemService.getContestProblems(contestId)
+      return this.problemService.getContestProblems(groupId, contestId)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
@@ -250,7 +254,11 @@ export class ProblemResolver {
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
     try {
-      return this.problemService.updateContestProblemsOrder(contestId, orders)
+      return this.problemService.updateContestProblemsOrder(
+        groupId,
+        contestId,
+        orders
+      )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)

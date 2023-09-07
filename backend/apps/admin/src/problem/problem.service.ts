@@ -501,21 +501,18 @@ export class ProblemService {
   }
 
   async updateWorkbookProblemsOrder(
-    workbookId,
-    orders
+    groupId: number,
+    workbookId: number,
+    orders: number[]
   ): Promise<Partial<WorkbookProblem>[]> {
+    await this.prisma.workbook.findFirstOrThrow({
+      where: { id: workbookId, groupId: groupId }
+    })
     const workbookProblemsToBeUpdated =
       await this.prisma.workbookProblem.findMany({
         where: { workbookId }
       })
 
-    // if (workbookProblemsToBeUpdated.length <= 0) {
-    //   throw new PrismaClientKnownRequestError('records NotFound', {
-    //     code: 'P2025',
-    //     meta: { target: ['workbookproblem'] },
-    //     clientVersion: '5.1.1'
-    //   })
-    // }
     if (orders.length <= 0) {
       throw new UnprocessableDataException('the len of orders is lt 0')
     }
@@ -545,8 +542,12 @@ export class ProblemService {
   }
 
   async getContestProblems(
+    groupId: number,
     contestId: number
   ): Promise<Partial<ContestProblem>[]> {
+    await this.prisma.contest.findFirstOrThrow({
+      where: { id: contestId, groupId: groupId }
+    })
     const contestProblems = await this.prisma.contestProblem.findMany({
       where: { contestId }
     })
@@ -554,21 +555,19 @@ export class ProblemService {
   }
 
   async updateContestProblemsOrder(
-    contestId,
-    orders
+    groupId: number,
+    contestId: number,
+    orders: number[]
   ): Promise<Partial<ContestProblem>[]> {
+    await this.prisma.contest.findFirstOrThrow({
+      where: { id: contestId, groupId: groupId }
+    })
+
     const contestProblemsToBeUpdated =
       await this.prisma.contestProblem.findMany({
         where: { contestId }
       })
 
-    // if (contestProblemsToBeUpdated.length <= 0) {
-    //   throw new PrismaClientKnownRequestError('records NotFound', {
-    //     code: 'P2025',
-    //     meta: { target: ['ContestProblem'] },
-    //     clientVersion: '5.1.1'
-    //   })
-    // }
     if (orders.length <= 0) {
       throw new UnprocessableDataException('the len of orders is lt 0')
     }
