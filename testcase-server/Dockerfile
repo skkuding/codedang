@@ -1,5 +1,5 @@
 # build
-FROM golang:1.20-alpine AS builder
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /build
 COPY . .
@@ -7,7 +7,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./main ./main.go
 
 # deploy
-FROM golang:1.20-alpine3.17
+FROM golang:1.21-alpine3.17
 
 WORKDIR /app
 COPY --from=builder /build/main main

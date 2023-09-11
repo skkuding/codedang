@@ -1,4 +1,4 @@
-package datasource
+package loader
 
 type Read interface {
 	Get(key string) ([]byte, error)

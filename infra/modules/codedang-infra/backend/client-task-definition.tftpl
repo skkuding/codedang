@@ -2,7 +2,7 @@
   {
     "name": "${task_name}",
     "image": "${ecr_uri}",
-    "cpu": 256,
+    "cpu": 512,
     "memory": 512,
     "essential": true,
     "portMappings": [
@@ -59,7 +59,7 @@
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-group": "ecs/Codedang-Api",
+        "awslogs-group": "ecs/Codedang-Api-Client",
         "awslogs-region": "${cloudwatch_region}",
         "awslogs-stream-prefix": "ecs"
       }
