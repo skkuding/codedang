@@ -5,8 +5,11 @@ import Button from '@/common/components/Atom/Button.vue'
 import Dialog from '@/common/components/Molecule/Dialog.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useDialog } from '@/common/composables/dialog'
+// import { useListAPI } from '@/common/composables/graphql-api'
+import { useQuery } from '@vue/apollo-composable'
 import { useFileDialog } from '@vueuse/core'
 import axios from 'axios'
+import gql from 'graphql-tag'
 import { ref } from 'vue'
 import CloudArrowDown from '~icons/fa6-solid/cloud-arrow-down'
 import IconTrash from '~icons/fa/trash-o'
@@ -14,10 +17,19 @@ import IconTrash from '~icons/fa/trash-o'
 const props = defineProps<{
   groupId: string
 }>()
+// type ProblemItem = {
+//   id: string
+//   displayId: string
+//   title: string
+//   difficulty: string
+//   lastUpdated: string
+//   option: string
+// }
 const showProblemModal = ref(false)
 const showImportModal = ref(false)
 const { open, onChange } = useFileDialog()
 const dialog = useDialog()
+// const cursor = ref(0)
 const extension = '.xlsx'
 onChange(async (files) => {
   if (!files) return
@@ -70,6 +82,50 @@ onChange(async (files) => {
     }
   }
 })
+type GetGroupsResponse = {
+  getGroups: {
+    id: string
+    groupName: string
+    description: string
+    memberNum: number
+    config: {
+      showOnList: boolean
+      allowJoinWithURL: boolean
+      allowJoinFromSearch: boolean
+      requireApprovalBeforeJoin: boolean
+    }
+  }
+}
+//const { items, totalPages, changePage } = useListAPI<
+const { onError, onResult } = useQuery<GetGroupsResponse['getGroups']>(
+  gql`
+    query Group {
+      getGroups(...$gqlparameter) {
+        id
+        groupName
+        description
+        config
+        memberNum
+      }
+    }
+  `,
+  () => ({
+    cursor: 1,
+    take: 10
+  })
+)
+onError((err) => {
+  console.log(err)
+})
+onResult(({ data }) => {
+  console.log(data)
+})
+// const problemList = ref<ProblemItem[]>([])
+// const getProblemList =
+
+// watch(showProblemModal, () => {
+//   console.log(showImportModal)
+// })
 </script>
 
 <template>
@@ -80,13 +136,10 @@ onChange(async (files) => {
   <CreateProblemModal v-model="showProblemModal" />
   <Dialog />
   <div class="flex flex-col">
-    <div class="border-gray border-b text-right text-lg font-semibold">
-      SKKUDING
-    </div>
     <div class="mt-10 flex gap-5">
       <h1 class="text-gray-dark mr-6 inline text-2xl font-semibold">Problem</h1>
       <div class="flex items-center gap-3">
-        <Button @click="() => (showProblemModal = true)">+ Create</Button>
+        <Button @click="() => $router.push('problem/create')">+ Create</Button>
         <Button @click="() => (showImportModal = true)">Import</Button>
         <Button type="Button" class="flex items-center gap-2" @click="open()">
           <CloudArrowDown />
@@ -98,7 +151,7 @@ onChange(async (files) => {
       :fields="[
         {
           key: 'id',
-          label: 'ID',
+          label: '#',
           width: '8%'
         },
         {
@@ -127,16 +180,7 @@ onChange(async (files) => {
           width: '10%'
         }
       ]"
-      :items="[
-        {
-          id: '1',
-          displayId: 'A',
-          title: '가파른 경사',
-          difficulty: 'Level1',
-          lastUpdated: '2021-12-31 08:30:45',
-          option: '123'
-        }
-      ]"
+      :items="[]"
       placeholder="keywords"
       :number-of-pages="3"
       no-search-bar
