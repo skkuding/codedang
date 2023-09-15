@@ -75,10 +75,8 @@ export class GroupService {
     }
   }
 
-  async getGroupByInvitation(invitation: string, userId: number) {
-    const groupId: number = await this.cacheManager.get(
-      invitationCodeKey(invitation)
-    )
+  async getGroupByInvitation(code: string, userId: number) {
+    const groupId: number = await this.cacheManager.get(invitationCodeKey(code))
 
     if (!groupId) {
       throw new EntityNotExistException('Invalid invitation')

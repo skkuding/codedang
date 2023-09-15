@@ -99,7 +99,9 @@ export class GroupService {
 
     return {
       ...group,
-      memberNum: userGroup.length
+      memberNum: userGroup.length,
+      invitation:
+        '/invite/' + (await this.cacheManager.get(invitationGroupKey(id)))
     }
   }
 
