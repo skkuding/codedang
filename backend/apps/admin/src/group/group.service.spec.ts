@@ -138,11 +138,23 @@ describe('GroupService', () => {
   })
 
   describe('getGroup', () => {
-    const group = { ...simpleGroup, memberNum: userGroup.length }
+    const group = {
+      ...simpleGroup,
+      memberNum: userGroup.length
+    }
 
-    it('should return a group', async () => {
+    it('should return a group without invitation', async () => {
+      stub(cache, 'get').resolves(null)
+
       const res = await service.getGroup(groupId)
       expect(res).to.deep.equal(group)
+    })
+
+    it('should return a group with invitation', async () => {
+      stub(cache, 'get').resolves('123456')
+
+      const res = await service.getGroup(groupId)
+      expect(res).to.deep.equal({ ...group, invitationURL: '/invite/123456' })
     })
   })
 

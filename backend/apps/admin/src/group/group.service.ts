@@ -97,11 +97,12 @@ export class GroupService {
       }
     })
 
+    const code: string = await this.cacheManager.get(invitationGroupKey(id))
+
     return {
       ...group,
       memberNum: userGroup.length,
-      invitation:
-        '/invite/' + (await this.cacheManager.get(invitationGroupKey(id)))
+      ...(code && { invitationURL: '/invite/' + code })
     }
   }
 
