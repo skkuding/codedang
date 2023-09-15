@@ -8,10 +8,11 @@
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useListAPI } from '@/common/composables/api'
 import { watch, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useProblemStore } from '../store/problem'
 
 const emit = defineEmits<{
-  (e: 'id', value: string): void
+  (e: 'item', value: Submission & { user: string }): void
 }>()
 
 type Submission = {
@@ -19,14 +20,21 @@ type Submission = {
   createTime: string
   language: string
   result: string
+  // user: string or user: { username: string }
+}
+
+type User = {
   user: {
     username: string
   }
 }
-
 // const showOnlyMine = ref(true)
 const store = useProblemStore()
-const submissionItem = ref<Record<string, string>[]>([])
+const router = useRouter()
+const submissionItem = ref<(Submission & { user: string })[]>([])
+const problemId = store.problem.id
+  ? store.problem.id
+  : router.currentRoute.value.params.id
 const fields = [
   {
     key: 'id',
@@ -49,19 +57,22 @@ const fields = [
     label: 'Result'
   }
 ]
-const { items, totalPages, changePage } = useListAPI<Submission>(
-  'problem/1/submission',
+const { items, totalPages, changePage } = useListAPI<Submission & User>(
+  'problem/' + problemId + '/submission',
   10
 )
-const clickRow = (row: Record<string, string>) => {
-  emit('id', row.id)
+const clickRow = (row: Submission & { user: string }) => {
+  emit('item', row)
 }
 
 watch(items, () => {
-  submissionItem.value = items.value.map((item: Submission) => {
+  submissionItem.value = items.value.map((item: Submission & User) => {
     return { ...item, user: item.user.username }
   })
 })
+// watch(store.problem.id, () => {
+//   console.log('id ', store.problem.id)
+// })
 </script>
 
 <template>

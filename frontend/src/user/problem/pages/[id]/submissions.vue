@@ -1,35 +1,34 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import SubmissionDetail from '../../components/SubmissionDetail.vue'
 import SubmissionList from '../../components/SubmissionList.vue'
 
-// type Submission = {
-//   id: string
-//   createTime: string
-//   language: string
-//   result: string
-//   user: {
-//     username: string
-//   }
-// }
-// const submissionData = ref<Submission>({
-//   id: '',
-//   createTime: '',
-//   language: '',
-//   result: '',
-//   user: {
-//     username: ''
-//   }
-// })
-const submissionId = ref('')
-const getId = (id: string) => {
-  submissionId.value = id
+type Submission = {
+  id: string
+  createTime: string
+  language: string
+  result: string
+  user: string
 }
+const submissionData = ref<Submission>({
+  id: '',
+  createTime: '',
+  language: '',
+  result: '',
+  user: ''
+})
+const getSubmission = (item: Submission) => {
+  console.log('list', item)
+  submissionData.value = item
+}
+watch(submissionData, () => {
+  console.log('watch', submissionData.value)
+})
 </script>
 
 <template>
   <div class="flex flex-row border-t border-slate-400">
-    <SubmissionList @id="getId" />
-    <SubmissionDetail :id="submissionId" />
+    <SubmissionList @item="getSubmission" />
+    <SubmissionDetail :id="submissionData.id" :item="submissionData" />
   </div>
 </template>

@@ -33,6 +33,7 @@ const props = defineProps<{
 }>()
 
 const store = useProblemStore()
+// const { problem } = toRefs(store)
 
 const languageLabels: Record<Language, string> = {
   C: 'C',
@@ -121,6 +122,14 @@ const submit = async () => {
     }
   }, 500)
 }
+// onUpdated(async () => {
+//   const { data } = await axios.get<Problem>(`/api/problem/1`)
+//   if (!store.language || problem.value.title != data.title) {
+//     store.language = data.languages[0]
+//   }
+//   problem.value = data
+//   store.type = 'problem'
+// })
 </script>
 
 <template>
@@ -136,10 +145,11 @@ const submit = async () => {
             class="flex h-9 w-fit select-none items-center gap-x-2 rounded px-2 text-white transition hover:bg-white/20 active:bg-white/40"
           >
             <IconCaretDown class="h-4 w-4" />
-            <span>가파른 경사</span>
+            <span>{{ store.problem.title }}</span>
           </div>
         </template>
         <template #items>
+          <!-- 왜 있지? -->
           <ListItem>습격자 초라기</ListItem>
           <ListItem>채권관계</ListItem>
         </template>
