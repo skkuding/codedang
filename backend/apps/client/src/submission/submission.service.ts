@@ -28,7 +28,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import {
   type CreateSubmissionDto,
-  type Snippet,
+  Snippet,
   Template
 } from './dto/create-submission.dto'
 import { JudgeRequest } from './dto/judge-request.class'
@@ -379,6 +379,15 @@ export class SubmissionService implements OnModuleInit {
       },
       select: {
         userId: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        language: true,
+        code: true,
+        createTime: true,
+        result: true,
         submissionResult: true
       }
     })
@@ -386,13 +395,23 @@ export class SubmissionService implements OnModuleInit {
       submission.userId === userId ||
       (await this.hasPassedProblem(userId, { problemId }))
     ) {
-      const results = submission.submissionResult
-      return results.map((result) => {
+      const code = plainToInstance(Snippet, submission.code)
+      const results = submission.submissionResult.map((result) => {
         return {
           ...result,
           cpuTime: result.cpuTime.toString()
         }
       })
+
+      return {
+        problemId,
+        username: submission.user.username,
+        code: code.map((snippet) => snippet.text).join('\n'),
+        language: submission.language,
+        createTime: submission.createTime,
+        result: submission.result,
+        testcaseResult: results
+      }
     }
     throw new ForbiddenAccessException(
       "You must pass the problem first to browse other people's submissions"
