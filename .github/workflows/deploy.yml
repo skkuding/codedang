@@ -38,6 +38,7 @@ jobs:
 
   build-backend:
     name: Build backend Docker image
+    runs-on: ubuntu-latest
     steps:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v2
