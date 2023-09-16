@@ -22,9 +22,9 @@ resource "aws_autoscaling_group" "asg_api" {
   health_check_type = "ELB"
 
   # Desired number of instances in the Autoscaling Group
-  desired_capacity = 2
+  desired_capacity = 1
   # Minimum and maximum number of instances in the Autoscaling Group
-  min_size = 2
+  min_size = 1
   max_size = 10
 
   lifecycle {
