@@ -107,5 +107,5 @@ rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_P
   declare binding source="$JUDGE_EXCHANGE_NAME" destination_type=queue destination="$JUDGE_SUBMISSION_QUEUE_NAME" routing_key="$JUDGE_SUBMISSION_ROUTING_KEY"
 
 # Initialize testcase storage
-cd $BASEDIR/scripts
-pnpm exec ts-node init-testcase.ts
+cd $BASEDIR
+pnpm exec ts-node scripts/init-testcase.ts

@@ -6,6 +6,7 @@ import {
   PutObjectCommand
 } from '@aws-sdk/client-s3'
 import { readdir, readFile } from 'fs/promises'
+import { resolve, basename } from 'path'
 
 const main = async () => {
   const client = new S3Client({
@@ -53,9 +54,10 @@ const main = async () => {
   }
 
   // upload example testcase files
-  const files = await readdir('../iris/tests/data/testcase')
+  const dir = resolve(basename(__dirname), '../iris/tests/data/testcase')
+  const files = await readdir(dir)
   for (const file of files) {
-    const data = await readFile(`../iris/tests/data/testcase/${file}`, {
+    const data = await readFile(resolve(dir, file), {
       encoding: 'utf-8'
     })
     await client.send(
