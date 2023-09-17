@@ -53,9 +53,11 @@ const main = async () => {
   }
 
   // upload example testcase files
-  const files = await readdir('./data')
+  const files = await readdir('../iris/tests/data/testcase')
   for (const file of files) {
-    const data = await readFile(`./data/${file}`, { encoding: 'utf-8' })
+    const data = await readFile(`../iris/tests/data/testcase/${file}`, {
+      encoding: 'utf-8'
+    })
     await client.send(
       new PutObjectCommand({
         Bucket: bucketName,

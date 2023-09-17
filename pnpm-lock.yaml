@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.405.0
+        version: 3.405.0
       '@commitlint/cli':
         specifier: ^17.7.1
         version: 17.7.1
@@ -47,12 +50,15 @@ importers:
       prettier-plugin-tailwindcss:
         specifier: ^0.5.4
         version: 0.5.4(@trivago/prettier-plugin-sort-imports@4.2.0)(prettier@3.0.3)
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@20.5.9)(typescript@5.2.2)
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
       vitepress:
         specifier: 1.0.0-rc.10
-        version: 1.0.0-rc.10(@algolia/client-search@4.19.1)(@types/node@20.4.7)(search-insights@2.6.0)
+        version: 1.0.0-rc.10(@algolia/client-search@4.19.1)(@types/node@20.5.9)(search-insights@2.6.0)
       vue-eslint-parser:
         specifier: ^9.3.1
         version: 9.3.1(eslint@8.48.0)
@@ -451,18 +457,6 @@ importers:
       vue-tsc:
         specifier: ^1.8.8
         version: 1.8.8(typescript@5.2.2)
-
-  testcase-server:
-    devDependencies:
-      '@aws-sdk/client-s3':
-        specifier: ^3.405.0
-        version: 3.405.0
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.1(@types/node@20.5.9)(typescript@5.2.2)
-      typescript:
-        specifier: ^5.2.2
-        version: 5.2.2
 
 packages:
 
@@ -1354,7 +1348,7 @@ packages:
     engines: {node: '>=14.0.0'}
     dependencies:
       '@aws-sdk/types': 3.398.0
-      '@smithy/property-provider': 2.0.5
+      '@smithy/property-provider': 2.0.6
       '@smithy/protocol-http': 2.0.5
       '@smithy/signature-v4': 2.0.1
       '@smithy/types': 2.2.2
@@ -10669,7 +10663,7 @@ packages:
     dependencies:
       lilconfig: 2.1.0
       postcss: 8.4.29
-      ts-node: 10.9.1(@types/node@20.4.7)(typescript@5.2.2)
+      ts-node: 10.9.1(@types/node@20.5.9)(typescript@5.2.2)
       yaml: 2.3.1
     dev: true
 
@@ -12966,42 +12960,6 @@ packages:
       - supports-color
     dev: true
 
-  /vite@4.4.9(@types/node@20.4.7):
-    resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      lightningcss: ^1.21.0
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      '@types/node': 20.4.7
-      esbuild: 0.18.11
-      postcss: 8.4.29
-      rollup: 3.28.1
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
-
   /vite@4.4.9(@types/node@20.5.9):
     resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -13038,7 +12996,7 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitepress@1.0.0-rc.10(@algolia/client-search@4.19.1)(@types/node@20.4.7)(search-insights@2.6.0):
+  /vitepress@1.0.0-rc.10(@algolia/client-search@4.19.1)(@types/node@20.5.9)(search-insights@2.6.0):
     resolution: {integrity: sha512-+MsahIWqq5WUEmj6MR4obcKYbT7im07jZPCQPdNJExkeOSbOAJ4xypSLx88x7rvtzWHhHc5aXbOhCRvGEGjFrw==}
     hasBin: true
     dependencies:
@@ -13051,7 +13009,7 @@ packages:
       mark.js: 8.11.1
       minisearch: 6.1.0
       shiki: 0.14.3
-      vite: 4.4.9(@types/node@20.4.7)
+      vite: 4.4.9(@types/node@20.5.9)
       vue: 3.3.4
     transitivePeerDependencies:
       - '@algolia/client-search'

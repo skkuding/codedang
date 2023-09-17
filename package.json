@@ -7,6 +7,7 @@
     "docs:build": "vitepress build docs"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.405.0",
     "@commitlint/cli": "^17.7.1",
     "@commitlint/config-conventional": "^17.7.0",
     "@commitlint/types": "^17.4.4",
@@ -20,6 +21,7 @@
     "lefthook": "^1.4.9",
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "^0.5.4",
+    "ts-node": "^10.9.1",
     "typescript": "^5.2.2",
     "vitepress": "1.0.0-rc.10",
     "vue-eslint-parser": "^9.3.1"
