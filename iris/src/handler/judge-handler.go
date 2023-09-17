@@ -265,6 +265,7 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 		}, []byte(tc.Elements[i].In))
 
 		if err != nil {
+			j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
 			res.JudgeResult[i].ResultCode = SYSTEM_ERROR
 			continue
 		}
