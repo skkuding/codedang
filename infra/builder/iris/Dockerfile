@@ -22,7 +22,7 @@ RUN chmod 755 ./entrypoint.sh
 # Install sandbox
 RUN mkdir -p /app/sandbox/policy /app/sandbox/results \
   && mkdir -p /app/sandbox/logs/run /app/sandbox/logs/compile
-RUN chmod -R 755 /app/sandbox
+RUN chmod -R 777 /app/sandbox
 
 RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" ]; then \
   curl -L "https://github.com/skkuding/codedang/releases/download/alpha/libjudger-arm.so" -o "/app/sandbox/libjudger.so"; \
