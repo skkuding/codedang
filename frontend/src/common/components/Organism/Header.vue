@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useToast } from '@/common/composables/toast'
 import { useAuthStore } from '@/common/store/auth'
 import { OnClickOutside } from '@vueuse/components'
 import { ref } from 'vue'
@@ -17,7 +18,16 @@ import AuthModal from './AuthModal.vue'
 const auth = useAuthStore()
 const router = useRouter()
 const isMenuOpen = ref(false)
+const openToast = useToast()
 const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
+
+// hide
+const hide = () => {
+  openToast({
+    message: 'This feature is under renovation',
+    type: 'info'
+  })
+}
 </script>
 
 <template>
@@ -64,7 +74,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
             </template>
             <template #items>
               <ListItem>Management</ListItem>
-              <ListItem>Settings</ListItem>
+              <ListItem @click="hide">Settings</ListItem>
               <ListItem @click="auth.logout()">Logout</ListItem>
             </template>
           </Dropdown>
