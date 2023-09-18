@@ -34,7 +34,7 @@ class JudgeData {
 }
 
 export class JudgerResponse {
-  @Max(7)
+  @Max(8)
   @Min(0)
   @IsNumber()
   @IsNotEmpty()

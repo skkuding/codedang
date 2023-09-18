@@ -63,6 +63,10 @@ func (r *runner) Run(req RunRequest, input []byte) (RunResult, error) {
 		ExecResult: execResult,
 	}
 
+	if execResult.ErrorCode != SUCCESS {
+		return RunResult{}, fmt.Errorf("execution failed (error code %d)", execResult.ErrorCode)
+	}
+
 	orderStr := strconv.Itoa(req.Order)
 	if execResult.ResultCode != RUN_SUCCESS {
 		errorPath := r.file.MakeFilePath(req.Dir, orderStr+".error").String()

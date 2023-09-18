@@ -431,7 +431,7 @@ describe('SubmissionService', () => {
   describe('judgerMessageTypeHandler', () => {
     it('should throw error when resultCode is invalid', async () => {
       const target = {
-        resultCode: 8,
+        resultCode: -1,
         data: 'Test Error',
         error: 'Test Error',
         submissionId: 'abc123'
