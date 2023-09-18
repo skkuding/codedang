@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Logo from '@/common/assets/codedang.svg'
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import IconCode from '~icons/bi/code-square'
 import IconFile from '~icons/bi/file-text'
 import IconHome from '~icons/bi/house'
@@ -11,6 +11,15 @@ import IconUser from '~icons/fa6-regular/user'
 import IconBrain from '~icons/fluent/brain-circuit-24-regular'
 
 const route = useRoute()
+const router = useRouter()
+
+const isActive = (to: string) => {
+  const path = router.currentRoute.value.fullPath
+  const group = route.params.groupId
+  const base = `/admin${group && `/${group}`}`
+  if (to === base) return path === base
+  else return path.startsWith(to)
+}
 
 const commonItems = [
   { to: '/admin', name: 'Main', icon: IconHome },
@@ -46,7 +55,7 @@ const items = computed(() =>
     <div v-for="{ to, name, icon } in items" :key="name">
       <RouterLink
         class="flex items-center p-2 pl-10 font-medium hover:shadow"
-        active-class="text-blue"
+        :class="isActive(to) && 'text-blue'"
         :to="to"
       >
         <component :is="icon" class="mr-2 h-4" />
