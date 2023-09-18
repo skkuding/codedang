@@ -3,7 +3,6 @@ package rabbitmq
 import (
 	"context"
 	"fmt"
-	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/skkuding/codedang/iris/src/service/logger"
@@ -102,7 +101,8 @@ func (p *producer) confirmHandler(confirms chan amqp.Confirmation) {
 func (p *producer) Publish(result []byte, ctx context.Context) error {
 
 	seqNo := p.channel.GetNextPublishSeqNo()
-	log.Printf("publishing %dB body (%q)", len(result), result)
+	p.logger.Log(logger.INFO, fmt.Sprintf("publishing %dB body", len(result)))
+	p.logger.Log(logger.INFO, string(result))
 
 	// https://www.rabbitmq.com/publishers.html
 	if err := p.channel.PublishWithContext(ctx,
