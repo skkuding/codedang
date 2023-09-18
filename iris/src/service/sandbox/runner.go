@@ -64,7 +64,7 @@ func (r *runner) Run(req RunRequest, input []byte) (RunResult, error) {
 	}
 
 	if execResult.ErrorCode != SUCCESS {
-		return RunResult{}, fmt.Errorf("execution failed (error code %d)", execResult.ErrorCode)
+		return runResult, fmt.Errorf("execution failed (error code %d)", execResult.ErrorCode)
 	}
 
 	orderStr := strconv.Itoa(req.Order)
@@ -72,14 +72,14 @@ func (r *runner) Run(req RunRequest, input []byte) (RunResult, error) {
 		errorPath := r.file.MakeFilePath(req.Dir, orderStr+".error").String()
 		errData, err := r.file.ReadFile(errorPath)
 		if err != nil {
-			return RunResult{}, fmt.Errorf("reading error output file: %w", err)
+			return runResult, fmt.Errorf("reading error output file: %w", err)
 		}
 		runResult.ErrOutput = errData
 	}
 	outputPath := r.file.MakeFilePath(req.Dir, orderStr+".out").String()
 	outputData, err := r.file.ReadFile(outputPath)
 	if err != nil {
-		return RunResult{}, fmt.Errorf("reading output file: %w", err)
+		return runResult, fmt.Errorf("reading output file: %w", err)
 	}
 	runResult.Output = outputData
 	return runResult, nil
