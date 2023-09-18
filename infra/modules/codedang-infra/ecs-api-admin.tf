@@ -1,5 +1,5 @@
-# Subnet
-resource "aws_subnet" "public_admin_api1" {
+###################### Subnet ######################
+resource "aws_subnet" "private_admin_api1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.3.0/24"
   availability_zone = var.availability_zones[0]
@@ -9,7 +9,7 @@ resource "aws_subnet" "public_admin_api1" {
   }
 }
 
-resource "aws_subnet" "public_admin_api2" {
+resource "aws_subnet" "private_admin_api2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.4.0/24"
   availability_zone = var.availability_zones[2]
@@ -19,13 +19,13 @@ resource "aws_subnet" "public_admin_api2" {
   }
 }
 
-# Application Load Balancer
+###################### Application Load Balancer ######################
 resource "aws_lb" "admin_api" {
   name               = "Codedang-Admin-Api-LB"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.admin_lb.id]
-  subnets            = [aws_subnet.public_admin_api1.id, aws_subnet.public_admin_api2.id]
+  subnets            = [aws_subnet.public_subnet1.id, aws_subnet.public_subnet2.id]
   enable_http2       = true
 }
 
@@ -41,8 +41,8 @@ resource "aws_lb_listener" "admin_api" {
 }
 
 resource "aws_lb_target_group" "admin_api" {
-  name        = "Codedang-Admin-Api-Target-Group"
-  target_type = "ip"
+  name        = "Codedang-Admin-Api-TG"
+  target_type = "instance"
   port        = 3000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
@@ -56,20 +56,22 @@ resource "aws_lb_target_group" "admin_api" {
   }
 }
 
+###################### ECS Service ######################
 resource "aws_ecs_service" "admin_api" {
   name                              = "Codedang-Admin-Api-Service"
   cluster                           = aws_ecs_cluster.api.id
   task_definition                   = aws_ecs_task_definition.admin_api.arn
-  desired_count                     = 2
-  launch_type                       = "FARGATE"
+  desired_count                     = 1
+  launch_type                       = "EC2"
   health_check_grace_period_seconds = 300
 
 
-  network_configuration {
-    assign_public_ip = true
-    security_groups  = [aws_security_group.admin_ecs.id]
-    subnets          = [aws_subnet.public_admin_api1.id, aws_subnet.public_admin_api2.id]
-  }
+  # EC2 기반의 ECS라 필요 없을듯
+  # network_configuration {
+  #   # assign_public_ip = true
+  #   # security_groups = [aws_security_group.admin_ecs.id]
+  #   subnets = [aws_subnet.public_admin_api1.id, aws_subnet.public_admin_api2.id]
+  # }
 
   load_balancer {
     target_group_arn = aws_lb_target_group.admin_api.arn
@@ -86,12 +88,11 @@ data "aws_ecr_repository" "admin_api" {
   name = "codedang-admin-api"
 }
 
+###################### ECS Task Definition ######################
 resource "aws_ecs_task_definition" "admin_api" {
   family                   = "Codedang-Admin-Api"
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  cpu                      = 512
-  memory                   = 1024
+  requires_compatibilities = ["EC2"]
+  network_mode             = "bridge"
   container_definitions = templatefile("${path.module}/backend/admin-task-definition.tftpl", {
     task_name = "Codedang-Admin-Api",
     # aurora-posrgresql
@@ -100,7 +101,7 @@ resource "aws_ecs_task_definition" "admin_api" {
     # posrgresql (free tier)
     database_url         = "postgresql://${var.postgres_username}:${random_password.postgres_password.result}@${aws_db_instance.db-test.endpoint}/skkuding?schema=public",
     ecr_uri              = data.aws_ecr_repository.admin_api.repository_url,
-    container_port       = 3000
+    container_port       = 3000,
     cloudwatch_region    = var.region,
     redis_host           = aws_elasticache_cluster.db_cache.cache_nodes.0.address,
     redis_port           = var.redis_port,
@@ -112,9 +113,4 @@ resource "aws_ecs_task_definition" "admin_api" {
     testcase_secret_key  = aws_iam_access_key.testcase.secret,
   })
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
-
-  runtime_platform {
-    operating_system_family = "LINUX"
-    cpu_architecture        = "ARM64"
-  }
 }

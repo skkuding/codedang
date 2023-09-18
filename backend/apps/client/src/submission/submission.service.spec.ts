@@ -312,10 +312,18 @@ describe('SubmissionService', () => {
 
   describe('getSubmission', () => {
     it('should return submission', async () => {
+      const testcaseResult = submissionResults.map((result) => {
+        return {
+          ...result,
+          cpuTime: result.cpuTime.toString()
+        }
+      })
+
       const passSpy = spy(service, 'hasPassedProblem')
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.submission.findFirstOrThrow.resolves({
         ...submissions[0],
+        user: { username: 'username' },
         submissionResult: submissionResults
       })
 
@@ -325,7 +333,15 @@ describe('SubmissionService', () => {
           problems[0].id,
           submissions[0].userId
         )
-      ).to.be.deep.equal(submissionResults)
+      ).to.be.deep.equal({
+        problemId: problems[0].id,
+        username: 'username',
+        code: submissions[0].code.map((snippet) => snippet.text).join('\n'),
+        language: submissions[0].language,
+        createTime: submissions[0].createTime,
+        result: submissions[0].result,
+        testcaseResult
+      })
       expect(passSpy.called).to.be.false
     })
 
@@ -413,7 +429,7 @@ describe('SubmissionService', () => {
   })
 
   describe('judgerMessageTypeHandler', () => {
-    it('should throw Error when resultCode is invalid', async () => {
+    it('should throw error when resultCode is invalid', async () => {
       const target = {
         resultCode: 8,
         data: 'Test Error',
@@ -421,7 +437,7 @@ describe('SubmissionService', () => {
         submissionId: 'abc123'
       }
 
-      await expect(service.judgerResponseTypeValidation(target)).to.be.rejected
+      await expect(service.validateJudgerResponse(target)).to.be.rejected
     })
 
     it('should return message object', async () => {
@@ -447,7 +463,7 @@ describe('SubmissionService', () => {
         }
       }
 
-      const result = await service.judgerResponseTypeValidation(target)
+      const result = await service.validateJudgerResponse(target)
 
       expect(result).to.be.deep.equal(target)
     })
@@ -476,7 +492,7 @@ describe('SubmissionService', () => {
       }
     }
 
-    const result = await service.judgerResponseTypeValidation(target)
+    const result = await service.validateJudgerResponse(target)
 
     expect(result).to.be.deep.equal(target)
   })

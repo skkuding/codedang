@@ -28,7 +28,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import {
   type CreateSubmissionDto,
-  type Snippet,
+  Snippet,
   Template
 } from './dto/create-submission.dto'
 import { JudgeRequest } from './dto/judge-request.class'
@@ -45,10 +45,10 @@ export class SubmissionService implements OnModuleInit {
 
   onModuleInit() {
     this.amqpConnection.createSubscriber(
-      async (target: object) => {
+      async (msg: object) => {
         try {
-          const msg = await this.judgerResponseTypeValidation(target)
-          await this.handleJudgerMessage(msg)
+          const res = await this.validateJudgerResponse(msg)
+          await this.handleJudgerMessage(res)
         } catch (error) {
           if (
             Array.isArray(error) &&
@@ -258,15 +258,11 @@ export class SubmissionService implements OnModuleInit {
     })
   }
 
-  async judgerResponseTypeValidation(target: object): Promise<JudgerResponse> {
-    const msg: JudgerResponse = plainToInstance<JudgerResponse, object>(
-      JudgerResponse,
-      target
-    )
+  async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
+    const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
+    await validateOrReject(res)
 
-    await validateOrReject(msg)
-
-    return msg
+    return res
   }
 
   async handleJudgerMessage(msg: JudgerResponse) {
@@ -365,7 +361,7 @@ export class SubmissionService implements OnModuleInit {
     problemId: number,
     userId: number,
     groupId = OPEN_SPACE_ID
-  ): Promise<SubmissionResult[]> {
+  ) {
     await this.prisma.problem.findFirstOrThrow({
       where: {
         id: problemId,
@@ -383,6 +379,15 @@ export class SubmissionService implements OnModuleInit {
       },
       select: {
         userId: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        language: true,
+        code: true,
+        createTime: true,
+        result: true,
         submissionResult: true
       }
     })
@@ -390,7 +395,23 @@ export class SubmissionService implements OnModuleInit {
       submission.userId === userId ||
       (await this.hasPassedProblem(userId, { problemId }))
     ) {
-      return submission.submissionResult
+      const code = plainToInstance(Snippet, submission.code)
+      const results = submission.submissionResult.map((result) => {
+        return {
+          ...result,
+          cpuTime: result.cpuTime.toString()
+        }
+      })
+
+      return {
+        problemId,
+        username: submission.user.username,
+        code: code.map((snippet) => snippet.text).join('\n'),
+        language: submission.language,
+        createTime: submission.createTime,
+        result: submission.result,
+        testcaseResult: results
+      }
     }
     throw new ForbiddenAccessException(
       "You must pass the problem first to browse other people's submissions"
