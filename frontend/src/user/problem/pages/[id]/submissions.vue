@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import SubmissionDetail from '../../components/SubmissionDetail.vue'
 import SubmissionList from '../../components/SubmissionList.vue'
 
@@ -17,18 +17,11 @@ const submissionData = ref<Submission>({
   result: '',
   user: ''
 })
-const getSubmission = (item: Submission) => {
-  console.log('list', item)
-  submissionData.value = item
-}
-watch(submissionData, () => {
-  console.log('watch', submissionData.value)
-})
 </script>
 
 <template>
-  <div class="flex flex-row border-t border-slate-400">
-    <SubmissionList @item="getSubmission" />
-    <SubmissionDetail :id="submissionData.id" :item="submissionData" />
+  <div class="flex min-h-full flex-row border-t border-slate-400">
+    <SubmissionList @item="(item) => (submissionData = item)" />
+    <SubmissionDetail :item="submissionData" />
   </div>
 </template>

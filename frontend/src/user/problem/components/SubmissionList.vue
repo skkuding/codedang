@@ -7,9 +7,12 @@
 // import IconDown from '~icons/fa6-solid/angle-down'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useListAPI } from '@/common/composables/api'
-import { watch, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useProblemStore } from '../store/problem'
+import { useDateFormat } from '@vueuse/core'
+import axios from 'axios'
+import { watch, ref, toRefs } from 'vue'
+import { onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useProblemStore, type Problem } from '../store/problem'
 
 const emit = defineEmits<{
   (e: 'item', value: Submission & { user: string }): void
@@ -22,23 +25,25 @@ type Submission = {
   result: string
   // user: string or user: { username: string }
 }
-
 type User = {
   user: {
     username: string
   }
 }
-// const showOnlyMine = ref(true)
+
 const store = useProblemStore()
-const router = useRouter()
+const { problem } = toRefs(store)
+
+const route = useRoute()
+
 const submissionItem = ref<(Submission & { user: string })[]>([])
-const problemId = store.problem.id
-  ? store.problem.id
-  : router.currentRoute.value.params.id
+const problemId = problem.value.id ? problem.value.id : route.params.id
+
 const fields = [
   {
     key: 'id',
-    label: '#'
+    label: '#',
+    width: '15%'
   },
   {
     key: 'createTime',
@@ -46,7 +51,8 @@ const fields = [
   },
   {
     key: 'language',
-    label: 'Language'
+    label: 'Language',
+    width: '15%'
   },
   {
     key: 'user',
@@ -57,27 +63,45 @@ const fields = [
     label: 'Result'
   }
 ]
+
 const { items, totalPages, changePage } = useListAPI<Submission & User>(
   'problem/' + problemId + '/submission',
   10
 )
+
 const clickRow = (row: Submission & { user: string }) => {
   emit('item', row)
 }
 
 watch(items, () => {
   submissionItem.value = items.value.map((item: Submission & User) => {
-    return { ...item, user: item.user.username }
+    return {
+      ...item,
+      createTime: (item.createTime = useDateFormat(
+        item.createTime,
+        'YYYY-MM-DD hh:mm:ss'
+      ).value),
+      user: item.user.username
+    }
   })
 })
-// watch(store.problem.id, () => {
-//   console.log('id ', store.problem.id)
-// })
+onMounted(async () => {
+  if (!problem.value.id) {
+    const { data } = await axios.get<Problem>(`/api/problem/${problemId}`)
+    if (!store.language || problem.value.title != data.title) {
+      store.language = data.languages[0]
+    }
+    problem.value = data
+    store.type = 'problem'
+  }
+})
 </script>
 
 <template>
   <div class="border-r border-slate-400 bg-slate-700 p-5">
-    <div class="mb-5 text-3xl text-white">{{ store.problem.title }}</div>
+    <div class="mb-5 text-3xl text-white">
+      Submissions of #{{ problem.id }} {{ problem.title }}
+    </div>
     <PaginationTable
       :fields="fields"
       :items="submissionItem"
@@ -88,6 +112,11 @@ watch(items, () => {
       @change-page="changePage"
       @row-clicked="clickRow"
     >
+      <template #result="{ row }">
+        <p :class="row.result === 'Accepted' ? 'text-green' : 'text-red'">
+          {{ row.result }}
+        </p>
+      </template>
       <!--
         TODO: 각종 filtering api 구현되면 주석 해제
         <template #option>

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import CodeEditor from '@/common/components/Organism/CodeEditor.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
-import axios from 'axios'
-import { onMounted, ref, watch } from 'vue'
+import { useToast } from '@/common/composables/toast'
+import { useDateFormat } from '@vueuse/core'
+import axios, { type AxiosError } from 'axios'
+import { ref, watch } from 'vue'
 import { useProblemStore } from '../store/problem'
 
 const props = defineProps<{
@@ -13,92 +15,105 @@ const props = defineProps<{
     result: string
     user: string
   }
-  id: string
 }>()
-// const item = toRefs(props.item)
-console.log('detail item', props.item)
-console.log('detail id', props.id)
-// type Submission = {
-//   id: 13
-//   submissionId: '692c41'
-//   problemTestcaseId: 1
-//   result: 'WrongAnswer'
-//   cpuTime: '0'
-//   memoryUsage: 0
-//   createTime: '2023-09-11T15:32:08.947Z'
-//   updateTime: '2023-09-11T15:32:08.947Z'
-// }
+watch(props, () => getSubmission())
+type TestcaseResult = {
+  id: number
+  submissionId: string
+  problemTestcaseId: number
+  result: string
+  cpuTime: string
+  memoryUsage: number
+  createTime: string
+  updateTime: string
+}
+type Submission = {
+  problemId: number
+  username: string
+  code: string
+  language: string
+  createTime: string
+  result: string
+  testcaseResult: TestcaseResult[]
+}
 const store = useProblemStore()
-const code = ref(`#include <iostream>
-using namespace std;
-
-int main() {
-    cout << "Hello, world!" << endl;
-    return 0;
-}`)
-
-const fields = [
+const toast = useToast()
+const testCaseFields = [
   {
-    key: 'index',
+    key: 'problemTestcaseId',
     label: '#',
     width: '10%'
   },
   {
     key: 'result',
-    label: 'Result',
     width: '30%'
   },
   {
-    key: 'execTime',
-    label: 'Exec Time',
+    key: 'cpuTime',
+    label: 'Exec Time (ms)',
     width: '30%'
   },
   {
-    key: 'memory',
-    label: 'Memory',
+    key: 'memoryUsage',
+    label: 'Memory (Byte)',
     width: '30%'
   }
 ]
-// const item = ref<Submission>({
-//   id: '',
-//   createTime: '',
-//   language: '',
-//   result: '',
-//   user: {
-//     username: ''
-//   }
-// })
-const submissionItem = ref<Record<string, string>>({
-  id: '',
-  createTime: '',
+const submissionItem = ref<Submission>({
+  problemId: 0,
+  username: '',
+  code: '',
   language: '',
+  createTime: '',
   result: '',
-  user: ''
+  testcaseResult: [
+    {
+      id: 0,
+      submissionId: '',
+      problemTestcaseId: 0,
+      result: '',
+      cpuTime: '',
+      memoryUsage: 0,
+      createTime: '',
+      updateTime: ''
+    }
+  ]
 })
 const getSubmission = async () => {
-  // const { data } = await axios.get('/api/problem/1/submission/7c3326')
-  await axios
-    .get(`/api/problem/${store.problem.id}/submission/${props.item.id}`)
-    .then(({ data }) => {
-      submissionItem.value = data // { ...res.data, user: res.data.user.username }
-    })
+  try {
+    await axios
+      .get(`/api/problem/${store.problem.id}/submission/${props.item.id}`)
+      .then(({ data }) => {
+        submissionItem.value = data
+        submissionItem.value.createTime = useDateFormat(
+          submissionItem.value.createTime,
+          'YYYY-MM-DD hh:mm:ss'
+        ).value
+        submissionItem.value.testcaseResult =
+          submissionItem.value.testcaseResult.sort(
+            (a, b) => a.problemTestcaseId - b.problemTestcaseId
+          )
+      })
+  } catch (err) {
+    const { response } = err as unknown as AxiosError
+    if (response!.status === 403) {
+      console.log(response)
+      toast({ message: 'You must pass the problem first', type: 'error' })
+    }
+  }
 }
 watch(props.item, () => getSubmission())
-onMounted(async () => {
-  await getSubmission()
-})
-// onBeforeUpdate(async () => {
-//   await getSubmission()
-// })
 </script>
 
 <template>
-  <div class="bg-default flex flex-col gap-8 text-white">
-    <h2 class="text-3xl font-bold">Submission #{{ submissionItem.id }}</h2>
+  <div class="bg-default flex flex-col gap-8 p-5 text-white">
+    <h2 class="text-3xl font-bold">
+      Submission #{{ submissionItem.testcaseResult[0].submissionId }}
+    </h2>
     <table class="text-center">
       <thead class="font-bold">
         <tr>
-          <th>Problem</th>
+          <th>Problem Id</th>
           <th>Submission Time</th>
           <th>User</th>
           <th>Language</th>
@@ -107,9 +122,9 @@ onMounted(async () => {
       </thead>
       <tbody>
         <tr>
-          <td>{{ store.problem.title }}</td>
+          <td>{{ submissionItem.problemId }}</td>
           <td>{{ submissionItem.createTime }}</td>
-          <td>{{ submissionItem.user }}</td>
+          <td>{{ submissionItem.username }}</td>
           <td>{{ submissionItem.language }}</td>
           <td
             :class="
@@ -122,27 +137,11 @@ onMounted(async () => {
       </tbody>
     </table>
     <div class="flex flex-col gap-3">
-      <div class="flex items-center gap-3">
-        <h3 class="text-lg font-bold">Source Code</h3>
-        <p class="text-gray">(612 Bytes)</p>
-      </div>
-      <CodeEditor :model-value="code" lang="Cpp" lock />
+      <h3 class="flex items-center gap-3 text-lg font-bold">Source Code</h3>
+      <CodeEditor :model-value="submissionItem.code" lang="Cpp" lock />
       <PaginationTable
-        :fields="fields"
-        :items="[
-          {
-            index: '1',
-            result: 'Accepted',
-            execTime: '36ms',
-            memory: '29468KB'
-          },
-          {
-            index: '2',
-            result: 'Wrong Answer',
-            execTime: '36ms',
-            memory: '29468KB'
-          }
-        ]"
+        :fields="testCaseFields"
+        :items="submissionItem.testcaseResult"
         mode="dark"
         :number-of-pages="3"
         no-search-bar
