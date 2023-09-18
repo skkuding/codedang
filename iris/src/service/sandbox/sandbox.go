@@ -64,8 +64,8 @@ type ExecResult struct {
 	RealTime   int        `json:"realTime"`
 	Memory     int        `json:"memory"`
 	Signal     int        `json:"signal"`
-	ErrorCode  int        `json:"exitCode"`
-	ExitCode   int        `json:"errorCode"`
+	ExitCode   int        `json:"exitCode"`
+	ErrorCode  int        `json:"errorCode"`
 	ResultCode ResultCode `json:"resultCode"`
 }
 
