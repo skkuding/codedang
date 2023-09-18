@@ -16,7 +16,8 @@ ENV APP_ENV=production
 COPY --from=builder /build/iris .
 
 # Install dependencies
-RUN apt-get update && apt-get install -y curl \
+RUN apt update && apt install -y \
+  curl gcc g++ openjdk-17-jdk python3 \
   && rm -rf /var/lib/apt/lists/*
 
 # Install sandbox
