@@ -1,20 +1,21 @@
-# [NOTE] Build image from the root directory of this repository.
-# docker build -f infra/builder/iris/Dockerfile .`
-
-# Build Execute Binary File
 ### BUILDER ###
-FROM golang:latest AS builder
+FROM golang:1.21 AS builder
 
-COPY ./iris /build
+COPY . /build
 WORKDIR /build
 
 RUN go build
 
 ### PRODUCTION ###
-FROM golang:latest
+FROM ubuntu:22.04
 
 ENV APP_ENV=production
 COPY --from=builder /build/iris .
+
+# Install dependencies
+RUN apt update && apt install -y \
+  curl gcc g++ openjdk-17-jdk python3 \
+  && rm -rf /var/lib/apt/lists/*
 
 # Install sandbox
 RUN mkdir -p /app/sandbox/policy /app/sandbox/results \
