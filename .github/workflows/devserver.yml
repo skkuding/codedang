@@ -79,7 +79,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          context: ./iris
+          context: '{{defaultContext}}:iris'
           tags: ghcr.io/${{ github.repository_owner }}/codedang-iris:latest
 
   run-server:
