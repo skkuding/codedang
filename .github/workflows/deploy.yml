@@ -84,8 +84,8 @@ jobs:
 
       - name: Build and push image (iris)
         uses: docker/build-push-action@v5
+        working-directory: ./iris
         with:
-          file: ./infra/builder/iris/Dockerfile
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/codedang-iris:latest
 

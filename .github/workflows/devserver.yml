@@ -77,8 +77,8 @@ jobs:
 
       - name: Build and push iris image
         uses: docker/build-push-action@v5
+        working-directory: ./iris
         with:
-          file: ./infra/builder/iris/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/codedang-iris:latest
 

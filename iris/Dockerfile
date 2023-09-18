@@ -1,10 +1,7 @@
-# [NOTE] Build image from the root directory of this repository.
-# docker build -f infra/builder/iris/Dockerfile .`
-
 ### BUILDER ###
 FROM golang:1.21 AS builder
 
-COPY ./iris /build
+COPY . /build
 WORKDIR /build
 
 RUN go build
