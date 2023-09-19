@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/skkuding/codedang/iris/src/service/file"
+	"github.com/skkuding/codedang/iris/src/service/logger"
 )
 
 type RunResult struct {
@@ -30,10 +31,11 @@ type runner struct {
 	sandbox    Sandbox
 	langConfig LangConfig
 	file       file.FileManager
+	logger     logger.Logger
 }
 
-func NewRunner(sandbox Sandbox, langConfig LangConfig, file file.FileManager) *runner {
-	return &runner{sandbox, langConfig, file}
+func NewRunner(sandbox Sandbox, langConfig LangConfig, file file.FileManager, logger logger.Logger) *runner {
+	return &runner{sandbox, langConfig, file, logger}
 }
 
 func (r *runner) Run(req RunRequest, input []byte) (RunResult, error) {
