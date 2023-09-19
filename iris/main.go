@@ -44,8 +44,8 @@ func main() {
 	langConfig := sandbox.NewLangConfig(fileManager, "/app/sandbox/policy/java_policy")
 
 	sb := sandbox.NewSandbox("/app/sandbox/libjudger.so", logProvider)
-	compiler := sandbox.NewCompiler(sb, langConfig, fileManager)
-	runner := sandbox.NewRunner(sb, langConfig, fileManager)
+	compiler := sandbox.NewCompiler(sb, langConfig, fileManager, logProvider)
+	runner := sandbox.NewRunner(sb, langConfig, fileManager, logProvider)
 
 	judgeHandler := handler.NewJudgeHandler(
 		compiler,
