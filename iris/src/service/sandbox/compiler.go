@@ -47,19 +47,25 @@ func (c *compiler) Compile(dto CompileRequest) (CompileResult, error) {
 		return CompileResult{}, err
 	}
 
+	if execResult.ResultCode == SYSTEM_ERROR {
+		c.logger.Log(logger.ERROR, fmt.Sprintf("Compile failed: %+v", execResult))
+		data, err := c.file.ReadFile(constants.COMPILE_LOG_PATH)
+		if err != nil {
+			return CompileResult{}, fmt.Errorf("failed to read output file: %w", err)
+		}
+		c.logger.Log(logger.ERROR, fmt.Sprintf("Compile Log: %s", string(data)))
+		return CompileResult{}, fmt.Errorf("system error: %v", execResult)
+	}
+
 	compileResult := CompileResult{}
+	compileResult.ExecResult = execResult
 	if execResult.ResultCode != RUN_SUCCESS {
-		c.logger.Log(logger.INFO, fmt.Sprintf("Compile failed: %+v", execResult))
 		compileOutputPath := c.file.MakeFilePath(dir, constants.COMPILE_OUT_FILE).String()
 		data, err := c.file.ReadFile(compileOutputPath)
 		if err != nil {
 			return CompileResult{}, fmt.Errorf("failed to read output file: %w", err)
 		}
-		compileResult.ExecResult = execResult
 		compileResult.ErrOutput = string(data)
-		if execResult.ResultCode == SYSTEM_ERROR {
-			return CompileResult{}, fmt.Errorf("system error: %v", compileResult)
-		}
 	}
 	return compileResult, nil
 }
