@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string | number">
 import { computed } from 'vue'
 
 const props = defineProps<{
@@ -6,11 +6,11 @@ const props = defineProps<{
   shadow?: boolean
   required?: boolean
   error?: string
-  modelValue?: string | number
+  modelValue?: T
 }>()
 
 defineEmits<{
-  (e: 'update:modelValue', value: string | number): void
+  (e: 'update:modelValue', value: T): void
 }>()
 
 const shadowClass = computed(() =>
@@ -33,7 +33,7 @@ const errorClass = computed(() => (props.error ? 'border-red' : ''))
       $emit('update:modelValue', ($event.target as HTMLInputElement).value)
     "
   />
-  <p v-show="required && !modelValue" class="text-red text-xs font-bold">
+  <p v-show="required && modelValue" class="text-red text-xs font-bold">
     {{ placeholder + ' is required' }}
   </p>
   <p v-show="error" class="text-red mt-1 text-xs">
