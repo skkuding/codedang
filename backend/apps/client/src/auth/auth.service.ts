@@ -111,6 +111,9 @@ export class AuthService {
 
     if (!user) {
       // TODO: github로 회원가입 한 적 없는 유저에 대한 회원가입 로직 구현
+      // - 회원가입 페이지에서 미리 username이 채워져있고, 편집이 불가능하도록 설정
+      res.redirect('https://codedang.com/' + '?username=' + username)
+      return
     }
 
     const jwtTokens = await this.issueJwtTokens({
@@ -124,7 +127,5 @@ export class AuthService {
       jwtTokens.refreshToken,
       REFRESH_TOKEN_COOKIE_OPTIONS
     )
-
-    res.send({ message: 'login succeed' })
   }
 }

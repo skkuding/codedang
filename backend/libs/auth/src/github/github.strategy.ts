@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
+import { GITHUB_CALLBACK_URL } from 'libs/constants/src/oauth.constants'
 import { Strategy } from 'passport-github2'
 
 @Injectable()
@@ -9,7 +10,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     super({
       clientID: config.get('GITHUB_CLIENT_ID'),
       clientSecret: config.get('GITHUB_CLIENT_SECRET'),
-      callbackURL: 'http://localhost:4000/auth/github-callback'
+      callbackURL: GITHUB_CALLBACK_URL
     })
   }
 
