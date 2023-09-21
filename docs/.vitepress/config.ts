@@ -79,7 +79,7 @@ export default defineConfig({
         ]
       },
       {
-        text: 'User Use case',
+        text: '학생 매뉴얼',
         items: [
           {
             text: 'Main',
@@ -94,20 +94,20 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Group Admin Use case',
+        text: '관리자 매뉴얼',
         items: [
           {
-            text: 'Main',
-            link: '/group-admin/main'
+            text: '가입 및 로그인',
+            link: '/group-admin/login'
           },
+          { text: '그룹 및 멤버 관리', link: '/group-admin/group' },
+          { text: '문제 생성 및 관리', link: '/group-admin/problem' },
           {
             text: 'Notice',
             link: '/group-admin/notice'
           },
-          { text: 'Problem', link: '/group-admin/problem' },
           { text: 'Contest', link: '/group-admin/contest' },
-          { text: 'Workbook', link: '/group-admin/workbook' },
-          { text: 'Group', link: '/group-admin/group' }
+          { text: 'Workbook', link: '/group-admin/workbook' }
         ]
       }
     ]

@@ -51,7 +51,7 @@ const languageOptions = computed(() =>
 
 const navigations = [
   { label: 'Editor', to: { name: 'problem-id' } },
-  { label: 'Standings', to: { name: 'problem-id-standings' } },
+  // { label: 'Standings', to: { name: 'problem-id-standings' } },
   { label: 'Submissions', to: { name: 'problem-id-submissions' } }
 ]
 
@@ -120,6 +120,15 @@ const submit = async () => {
       pause()
     }
   }, 500)
+
+  setTimeout(() => {
+    loading.value = false
+    toast({
+      message: 'Timeout',
+      type: 'error'
+    })
+    pause()
+  }, 30000)
 }
 </script>
 
@@ -130,13 +139,13 @@ const submit = async () => {
     <Dialog @yes="store.reset" />
     <!-- TODO: handle yes/no event in composable -->
     <div class="flex h-full shrink-0 items-center justify-start gap-x-4">
-      <Dropdown class="mr-3">
+      <Dropdown v-if="store.type !== 'problem'" class="mr-3">
         <template #button>
           <div
             class="flex h-9 w-fit select-none items-center gap-x-2 rounded px-2 text-white transition hover:bg-white/20 active:bg-white/40"
           >
             <IconCaretDown class="h-4 w-4" />
-            <span>가파른 경사</span>
+            <span>{{ store.problem.title }}</span>
           </div>
         </template>
         <template #items>
@@ -174,7 +183,13 @@ const submit = async () => {
             <span class="px-1">Run</span>
           </div>
         </Button> -->
-        <Button color="blue" class="w-20" @click="submit">
+        <Button
+          color="blue"
+          class="w-20"
+          :disabled="loading"
+          :pressed="loading"
+          @click="submit"
+        >
           <span v-if="loading" class="loader" />
           <span v-else>Submit</span>
         </Button>

@@ -20,15 +20,16 @@ const memoryLimitTable = {
 export const calculateMemoryLimit = (language: Language, memory: number) =>
   memoryLimitTable[language](memory)
 
+// ref: https://github.com/skkuding/codedang/blob/033c3bb5fd7c75cf40de6adea6f05e403f55518f/iris/src/router/response.go#L19-L29
 export const Status = (code: number) => {
   switch (code) {
     case 0:
       return ResultStatus.Accepted
     case 1:
       return ResultStatus.WrongAnswer
-    case 2:
+    case 2: // CPU_TIME_LIMIT_EXCEEDED
       return ResultStatus.TimeLimitExceeded
-    case 3:
+    case 3: // REAL_TIME_LIMIT_EXCEEDED
       return ResultStatus.TimeLimitExceeded
     case 4:
       return ResultStatus.MemoryLimitExceeded
@@ -36,6 +37,10 @@ export const Status = (code: number) => {
       return ResultStatus.RuntimeError
     case 6:
       return ResultStatus.CompileError
+    case 7: // TESTCASE_ERROR
+      return ResultStatus.ServerError
+    case 8: // SERVER_ERROR
+      return ResultStatus.ServerError
     default:
       return ResultStatus.ServerError
   }

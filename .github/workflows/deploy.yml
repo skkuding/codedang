@@ -16,13 +16,13 @@ jobs:
     name: Build frontend bundle
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
         with:
           version: 8
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -38,14 +38,12 @@ jobs:
 
   build-backend:
     name: Build backend Docker image
-    # Using QEMU to build Docker image in x64 is too slow.
-    # Let's use self-hosted ARM machine instead.
-    runs-on: [self-hosted, linux, ARM64]
+    runs-on: ubuntu-latest
     steps:
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
-      - uses: aws-actions/configure-aws-credentials@v2
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_DEPLOY }}
           aws-region: ${{ env.AWS_REGION }}
@@ -55,14 +53,14 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build and push image (Admin)
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           file: ./infra/builder/api/Dockerfile.admin
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/codedang-admin-api:latest
 
       - name: Build and push image (Client)
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           file: ./infra/builder/api/Dockerfile.client
           push: true
@@ -72,13 +70,10 @@ jobs:
     name: Build iris Docker image
     runs-on: ubuntu-latest
     steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
-      - uses: aws-actions/configure-aws-credentials@v2
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_DEPLOY }}
           aws-region: ${{ env.AWS_REGION }}
@@ -88,12 +83,11 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build and push image (iris)
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
-          file: ./infra/builder/iris/Dockerfile
           push: true
+          context: '{{defaultContext}}:iris'
           tags: ${{ steps.login-ecr.outputs.registry }}/codedang-iris:latest
-          platforms: linux/arm64
 
   deploy:
     name: Deploy
@@ -105,9 +99,9 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: aws-actions/configure-aws-credentials@v2
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_DEPLOY }}
           aws-region: ${{ env.AWS_REGION }}
