@@ -51,7 +51,7 @@ const languageOptions = computed(() =>
 
 const navigations = [
   { label: 'Editor', to: { name: 'problem-id' } },
-  { label: 'Standings', to: { name: 'problem-id-standings' } },
+  // { label: 'Standings', to: { name: 'problem-id-standings' } },
   { label: 'Submissions', to: { name: 'problem-id-submissions' } }
 ]
 
@@ -120,6 +120,15 @@ const submit = async () => {
       pause()
     }
   }, 500)
+
+  setTimeout(() => {
+    loading.value = false
+    toast({
+      message: 'Timeout',
+      type: 'error'
+    })
+    pause()
+  }, 30000)
 }
 </script>
 
@@ -174,7 +183,13 @@ const submit = async () => {
             <span class="px-1">Run</span>
           </div>
         </Button> -->
-        <Button color="blue" class="w-20" @click="submit">
+        <Button
+          color="blue"
+          class="w-20"
+          :disabled="loading"
+          :pressed="loading"
+          @click="submit"
+        >
           <span v-if="loading" class="loader" />
           <span v-else>Submit</span>
         </Button>

@@ -99,8 +99,8 @@ onMounted(async () => {
 
 <template>
   <div class="border-r border-slate-400 bg-slate-700 p-5">
-    <div class="mb-5 text-3xl text-white">
-      Submissions of #{{ problem.id }} {{ problem.title }}
+    <div class="mb-5 text-2xl font-bold text-white">
+      Submissions of {{ problem.title }}
     </div>
     <PaginationTable
       :fields="fields"

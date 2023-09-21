@@ -270,9 +270,16 @@ export class SubmissionService implements OnModuleInit {
     const resultStatus = Status(msg.resultCode)
 
     if (resultStatus === ResultStatus.ServerError) {
+      await this.updateSubmissionResult(submissionId, resultStatus, [])
       throw new UnprocessableDataException(
         `${msg.submissionId} ${msg.error} ${msg.data}`
       )
+    }
+
+    // TODO: 컴파일 메시지 데이터베이스에 저장하기
+    if (resultStatus === ResultStatus.CompileError) {
+      await this.updateSubmissionResult(submissionId, resultStatus, [])
+      return
     }
 
     const results = msg.data.judgeResult.map((result) => {
