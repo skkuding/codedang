@@ -51,7 +51,7 @@ const languageOptions = computed(() =>
 
 const navigations = [
   { label: 'Editor', to: { name: 'problem-id' } },
-  { label: 'Standings', to: { name: 'problem-id-standings' } },
+  // { label: 'Standings', to: { name: 'problem-id-standings' } },
   { label: 'Submissions', to: { name: 'problem-id-submissions' } }
 ]
 
