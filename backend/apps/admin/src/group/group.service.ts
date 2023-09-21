@@ -96,8 +96,7 @@ export class GroupService {
         userGroup: true
       }
     })
-
-    const code: string = await this.cacheManager.get(invitationGroupKey(id))
+    const code = await this.cacheManager.get<string>(invitationGroupKey(id))
 
     return {
       ...group,

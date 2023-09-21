@@ -196,7 +196,7 @@ export class GroupService {
     invitation?: string
   ): Promise<{ userGroupData: Partial<UserGroup>; isJoined: boolean }> {
     if (invitation) {
-      const invitedGroupId: number = await this.cacheManager.get(
+      const invitedGroupId = await this.cacheManager.get<number>(
         invitationCodeKey(invitation)
       )
       if (!invitedGroupId || groupId !== invitedGroupId) {
