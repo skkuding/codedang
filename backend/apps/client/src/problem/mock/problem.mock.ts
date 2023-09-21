@@ -10,16 +10,17 @@ export const problems: Problem[] = [
     inputDescription: '',
     outputDescription: '',
     hint: '',
-    template: [],
     languages: [Language.C],
     timeLimit: 0,
     memoryLimit: 0,
     difficulty: Level.Level1,
     source: '',
+    exposeTime: undefined,
     createTime: undefined,
     updateTime: undefined,
     inputExamples: [],
-    outputExamples: []
+    outputExamples: [],
+    template: []
   },
   {
     id: 2,
@@ -30,16 +31,17 @@ export const problems: Problem[] = [
     inputDescription: '',
     outputDescription: '',
     hint: '',
-    template: [],
     languages: [Language.Cpp],
     timeLimit: 0,
     memoryLimit: 0,
     difficulty: Level.Level2,
     source: '',
+    exposeTime: undefined,
     createTime: undefined,
     updateTime: undefined,
     inputExamples: [],
-    outputExamples: []
+    outputExamples: [],
+    template: []
   }
 ]
 

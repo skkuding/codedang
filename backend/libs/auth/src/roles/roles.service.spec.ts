@@ -27,7 +27,8 @@ const userGroup: UserGroup = {
 
 const db = {
   user: {
-    findUnique: stub()
+    findUnique: stub(),
+    findUniqueOrThrow: stub()
   },
   userGroup: {
     findFirst: stub()
@@ -51,13 +52,13 @@ describe('RolesService', () => {
 
   describe('getUserRole', () => {
     it('return given user role', async () => {
-      db.user.findUnique.resolves(user.role)
+      db.user.findUniqueOrThrow.resolves(user.role)
       const result = await service.getUserRole(user.id)
       expect(result).to.equal(user.role)
     })
 
     it('throw UnauthorizedException', async () => {
-      db.user.findUnique.rejects(new UnauthorizedException())
+      db.user.findUniqueOrThrow.rejects(new UnauthorizedException())
       await expect(service.getUserRole(user.id)).to.be.rejectedWith(
         UnauthorizedException
       )

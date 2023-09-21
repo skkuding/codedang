@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import type { Problem, Submission, Tag, WorkbookProblem } from '@prisma/client'
-import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
 /**
@@ -102,13 +101,12 @@ export class ProblemRepository {
     problemId: number,
     groupId: number
   ): Promise<Partial<Problem>> {
-    return await this.prisma.problem.findFirst({
+    return await this.prisma.problem.findUniqueOrThrow({
       where: {
         id: problemId,
         groupId: groupId
       },
-      select: this.problemSelectOption,
-      rejectOnNotFound: () => new EntityNotExistException('Problem')
+      select: this.problemSelectOption
     })
   }
 
@@ -141,7 +139,7 @@ export class ProblemRepository {
   }
 
   async getContestProblem(contestId: number, problemId: number) {
-    return await this.prisma.contestProblem.findUnique({
+    return await this.prisma.contestProblem.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_problemId: {
@@ -156,8 +154,7 @@ export class ProblemRepository {
             startTime: true
           }
         }
-      },
-      rejectOnNotFound: () => new EntityNotExistException('Problem')
+      }
     })
   }
 
@@ -187,7 +184,7 @@ export class ProblemRepository {
   }
 
   async getWorkbookProblem(workbookId: number, problemId: number) {
-    return await this.prisma.workbookProblem.findUnique({
+    return await this.prisma.workbookProblem.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
@@ -195,8 +192,7 @@ export class ProblemRepository {
           problemId: problemId
         }
       },
-      select: this.relatedProblemSelectOption,
-      rejectOnNotFound: () => new EntityNotExistException('Problem')
+      select: this.relatedProblemSelectOption
     })
   }
 }

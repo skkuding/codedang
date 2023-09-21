@@ -14,7 +14,10 @@ import {
   ACCESS_TOKEN_EXPIRE_TIME,
   REFRESH_TOKEN_EXPIRE_TIME
 } from '@libs/constants'
-import { InvalidUserException, InvalidJwtTokenException } from '@libs/exception'
+import {
+  InvalidJwtTokenException,
+  UnidentifiedException
+} from '@libs/exception'
 import { UserService } from '@client/user/user.service'
 import type { LoginUserDto } from './dto/login-user.dto'
 
@@ -31,7 +34,7 @@ export class AuthService {
   async issueJwtTokens(loginUserDto: LoginUserDto): Promise<JwtTokens> {
     const user = await this.userService.getUserCredential(loginUserDto.username)
     if (!(await this.jwtAuthService.isValidUser(user, loginUserDto.password))) {
-      throw new InvalidUserException('Incorrect username or password')
+      throw new UnidentifiedException('username or password')
     }
     await this.userService.updateLastLogin(user.username)
 
