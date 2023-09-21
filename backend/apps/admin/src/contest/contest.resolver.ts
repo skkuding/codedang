@@ -59,6 +59,7 @@ export class ContestResolver {
   }
 
   @Mutation(() => Contest)
+  @UseRolesGuard()
   async updateContest(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('input') input: UpdateContestInput
@@ -77,6 +78,7 @@ export class ContestResolver {
   }
 
   @Mutation(() => Contest)
+  @UseRolesGuard()
   async deleteContest(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('contestId', ParseIntPipe) contestId: number
