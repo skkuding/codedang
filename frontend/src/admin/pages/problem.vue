@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PageTitle from '@/common/components/Atom/PageTitle.vue'
+import Pagination from '@/common/components/Molecule/Pagination.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import { NTag, NCard, NButton, NIcon, NDataTable } from 'naive-ui'
 import { h, ref } from 'vue'
@@ -102,8 +103,9 @@ const columns = [
   }
 ]
 const loading = ref(false)
+const currentPage = ref(1)
 const data = ref(
-  Array(104)
+  Array(30)
     .fill({
       id: 1,
       title: '가파른 경사',
@@ -119,21 +121,19 @@ const data = ref(
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <PageTitle text="Problem List" class="mb-5" />
-    <SearchBar placeholder="keywords" class="mb-5 self-end" />
+  <div class="flex flex-col gap-5">
+    <PageTitle text="Problem List" />
+    <SearchBar placeholder="keywords" class="self-end" />
     <n-data-table
       :columns="columns"
-      :data="data"
+      :data="data.slice((currentPage - 1) * 5, currentPage * 5)"
       :loading="loading"
-      :pagination="{
-        pageSize: 5
-      }"
       :scroll-x="1100"
       :bordered="false"
-      class="text-xl"
+      class="mb-5 text-xl"
       row-class-name="text-base"
     />
+    <Pagination v-model="currentPage" :number-of-pages="6" class="self-end" />
   </div>
 </template>
 

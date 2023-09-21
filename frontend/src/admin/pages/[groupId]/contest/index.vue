@@ -8,6 +8,7 @@ import { onMounted, ref } from 'vue'
 import Fa6SolidAngleRight from '~icons/fa6-solid/angle-right'
 import Fa6SolidCircle from '~icons/fa6-solid/circle'
 import IconTrash from '~icons/fa/trash-o'
+import CreateContestModal from './CreateContestModal.vue'
 
 const props = defineProps<{
   groupId: string
@@ -88,6 +89,7 @@ const totalPageRequest = ref(3)
 
 const showMakePublicModal = ref(false)
 const showCancelRequestModal = ref(false)
+const showCreateContestModal = ref(false)
 
 const selectedContestId = ref()
 const selectedContest = ref('소프트의 밤 프로그래밍 경진대회')
@@ -204,7 +206,7 @@ const getPublicRequest = (cursor: number) => {
 }
 const sendPublicRequest = () => {
   // call api with selectedContestId
-  showCancelRequestModal.value = false
+  showMakePublicModal.value = false
 }
 const cancelPublicRequest = () => {
   // call api with selectedContestId
@@ -218,10 +220,28 @@ onMounted(async () => {
 </script>
 
 <template>
+  <CreateContestModal
+    :toggle="showCreateContestModal"
+    :set-toggle="
+      () => {
+        showCreateContestModal = !showCreateContestModal
+      }
+    "
+  />
   <div class="flex flex-col">
     <div class="flex gap-2">
       <div class="text-2xl font-semibold">Contest List</div>
-      <Button color="green" class="items-center">+ Create</Button>
+      <Button
+        color="green"
+        class="items-center"
+        @click="
+          () => {
+            showCreateContestModal = true
+          }
+        "
+      >
+        + Create
+      </Button>
     </div>
     <PaginationTable
       :fields="contestField"

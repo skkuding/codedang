@@ -1,4 +1,6 @@
 <script setup lang="ts">
+/* eslint-disable @typescript-eslint/naming-convention */
+import type { Language } from '@/user/problem/types'
 import { closeBrackets } from '@codemirror/autocomplete'
 import {
   defaultKeymap,
@@ -12,7 +14,8 @@ import {
   indentOnInput,
   type LanguageSupport
 } from '@codemirror/language'
-import { EditorState, type Transaction } from '@codemirror/state'
+import { StreamLanguage } from '@codemirror/language'
+import { EditorState, StateEffect, type Transaction } from '@codemirror/state'
 import { oneDark } from '@codemirror/theme-one-dark'
 import {
   EditorView,
@@ -21,15 +24,15 @@ import {
   lineNumbers,
   drawSelection
 } from '@codemirror/view'
-import { ref, shallowRef, watch, onMounted } from 'vue'
+import { ref, shallowRef, watch, onMounted, toRefs } from 'vue'
 
 const props = withDefaults(
   defineProps<{
     modelValue: string
-    lang?: 'cpp' | 'python' | 'javascript' | 'java'
+    lang?: Language
     lock?: boolean
   }>(),
-  { lang: 'cpp' }
+  { lang: 'Cpp' }
 )
 
 const emit = defineEmits<{
@@ -46,50 +49,65 @@ const font = EditorView.theme({
   }
 })
 
-const languageExtensions: Record<string, () => Promise<LanguageSupport>> = {
-  cpp: () => import('@codemirror/lang-cpp').then((x) => x.cpp()),
-  python: () => import('@codemirror/lang-python').then((x) => x.python()),
-  javascript: () =>
-    import('@codemirror/lang-javascript').then((x) => x.javascript()),
-  java: () => import('@codemirror/lang-java').then((x) => x.java())
+const languageExtensions: Record<Language, () => Promise<LanguageSupport>> = {
+  C: () => import('@codemirror/lang-cpp').then((x) => x.cpp()),
+  Cpp: () => import('@codemirror/lang-cpp').then((x) => x.cpp()),
+  Python3: () => import('@codemirror/lang-python').then((x) => x.python()),
+  Java: () => import('@codemirror/lang-java').then((x) => x.java()),
+  // Since Go is not supported by CodeMirror, we use the legacy mode.
+  // Legacy mode does not have type definition, so we have to use @ts-ignore.
+  Golang: () =>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    import('@codemirror/legacy-modes/mode/go').then((x) =>
+      StreamLanguage.define(x.go)
+    )
 }
 
+const { modelValue, lang, lock } = toRefs(props)
+
 watch(
-  () => props.modelValue,
+  modelValue,
   (value) => {
     if (view.value.state.doc.toString() === value) {
       return
     }
     view.value.dispatch({
-      changes: { from: 0, to: view.value.state.doc.length, insert: value },
-      selection: view.value.state.selection
+      changes: { from: 0, to: view.value.state.doc.length, insert: value }
     })
-  }
+  },
+  { immediate: true }
 )
 
-onMounted(async () => {
-  const extensions = [
-    keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
-    oneDark,
-    font,
-    await languageExtensions[props.lang](),
-    history(),
-    lineNumbers(),
-    highlightActiveLine(),
-    drawSelection(),
-    closeBrackets(),
-    syntaxHighlighting(defaultHighlightStyle),
-    indentOnInput(),
-    EditorState.readOnly.of(props.lock)
-  ]
+const extensions = [
+  keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
+  oneDark,
+  font,
+  history(),
+  lineNumbers(),
+  highlightActiveLine(),
+  drawSelection(),
+  closeBrackets(),
+  syntaxHighlighting(defaultHighlightStyle),
+  indentOnInput(),
+  EditorState.readOnly.of(lock.value)
+]
 
-  const state = EditorState.create({
-    doc: props.modelValue,
-    extensions
+watch(lang, async (lang) => {
+  view.value?.dispatch({
+    effects: StateEffect.reconfigure.of([
+      ...extensions,
+      await languageExtensions[lang]()
+    ])
   })
+})
 
+onMounted(async () => {
   view.value = new EditorView({
-    state,
+    state: EditorState.create({
+      doc: modelValue.value,
+      extensions: [...extensions, await languageExtensions[lang.value]()]
+    }),
     parent: editor.value,
     dispatch: (tr: Transaction) => {
       view.value.update([tr])
