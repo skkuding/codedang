@@ -276,6 +276,7 @@ describe('SubmissionService', () => {
 
   describe('updateSubmissionResult', () => {
     it('should call update submission result', async () => {
+      db.submission.update.reset()
       submissionResults.forEach((result, index) => {
         db.submissionResult.create.onCall(index).resolves(result)
       })
