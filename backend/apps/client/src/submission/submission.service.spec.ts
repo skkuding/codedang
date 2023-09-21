@@ -276,6 +276,7 @@ describe('SubmissionService', () => {
 
   describe('updateSubmissionResult', () => {
     it('should call update submission result', async () => {
+      db.submission.update.reset()
       submissionResults.forEach((result, index) => {
         db.submissionResult.create.onCall(index).resolves(result)
       })
@@ -312,7 +313,7 @@ describe('SubmissionService', () => {
 
   describe('getSubmission', () => {
     it('should return submission', async () => {
-      const serialized = submissionResults.map((result) => {
+      const testcaseResult = submissionResults.map((result) => {
         return {
           ...result,
           cpuTime: result.cpuTime.toString()
@@ -323,6 +324,7 @@ describe('SubmissionService', () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.submission.findFirstOrThrow.resolves({
         ...submissions[0],
+        user: { username: 'username' },
         submissionResult: submissionResults
       })
 
@@ -332,7 +334,15 @@ describe('SubmissionService', () => {
           problems[0].id,
           submissions[0].userId
         )
-      ).to.be.deep.equal(serialized)
+      ).to.be.deep.equal({
+        problemId: problems[0].id,
+        username: 'username',
+        code: submissions[0].code.map((snippet) => snippet.text).join('\n'),
+        language: submissions[0].language,
+        createTime: submissions[0].createTime,
+        result: submissions[0].result,
+        testcaseResult
+      })
       expect(passSpy.called).to.be.false
     })
 
@@ -422,7 +432,7 @@ describe('SubmissionService', () => {
   describe('judgerMessageTypeHandler', () => {
     it('should throw error when resultCode is invalid', async () => {
       const target = {
-        resultCode: 8,
+        resultCode: -1,
         data: 'Test Error',
         error: 'Test Error',
         submissionId: 'abc123'
