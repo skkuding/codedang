@@ -61,8 +61,8 @@ resource "aws_autoscaling_policy" "asp_api" {
 ###################### Launch Template ######################
 resource "aws_launch_template" "ec2_template_api" {
   name          = "Codedang-LaunchTemplate-Api"
-  image_id      = "ami-056fad42304856ccf" # 한국
-  instance_type = "t3.small"              # 2vCPU, 2GiB Mem
+  image_id      = "ami-05db432abf706dc01" # 한국
+  instance_type = "t3a.small"             # 2vCPU, 2GiB Mem
 
   iam_instance_profile {
     name = aws_iam_instance_profile.ecs_container_instance_role.name
