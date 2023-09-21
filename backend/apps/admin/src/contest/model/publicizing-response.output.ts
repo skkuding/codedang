@@ -1,10 +1,10 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql'
 
-@ObjectType({ description: 'publicizingRequestResult' })
-export class PublicizingRequestResult {
+@ObjectType()
+export class PublicizingResponse {
   @Field(() => Int)
   contestId: number
 
   @Field(() => Boolean)
-  requestResult: boolean
+  isAccepted: boolean
 }

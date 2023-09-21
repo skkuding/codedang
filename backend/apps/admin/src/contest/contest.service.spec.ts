@@ -169,7 +169,7 @@ describe('ContestService', () => {
       expect(cacheSpyGet.called).to.be.true
       expect(res).to.deep.equal({
         contestId: contestId,
-        requestResult: true
+        isAccepted: true
       })
     })
 

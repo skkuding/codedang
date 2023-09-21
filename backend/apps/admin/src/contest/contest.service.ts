@@ -19,8 +19,8 @@ import { PrismaService } from '@libs/prisma'
 import type { Contest } from '@admin/@generated/contest/contest.model'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
-import type { PublicizingRequestResult } from './model/publicizing-request-result.model'
 import type { PublicizingRequest } from './model/publicizing-request.model'
+import type { PublicizingResponse } from './model/publicizing-response.output'
 
 @Injectable()
 export class ContestService {
@@ -137,9 +137,9 @@ export class ContestService {
   }
 
   async getPublicizingRequests() {
-    const requests = (await this.cacheManager.get(
+    const requests = await this.cacheManager.get<PublicizingRequest[]>(
       PUBLICIZING_REQUEST_KEY
-    )) as Array<PublicizingRequest>
+    )
 
     if (!requests) {
       return []
@@ -195,8 +195,8 @@ export class ContestService {
 
     return {
       contestId: contestId,
-      requestResult: true
-    } as PublicizingRequestResult
+      isAccepted: isAccepted
+    } as PublicizingResponse
   }
 
   async createPublicizingRequest(groupId: number, contestId: number) {

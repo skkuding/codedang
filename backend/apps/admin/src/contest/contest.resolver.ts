@@ -21,8 +21,8 @@ import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
-import { PublicizingRequestResult } from './model/publicizing-request-result.model'
 import { PublicizingRequest } from './model/publicizing-request.model'
+import { PublicizingResponse } from './model/publicizing-response.output'
 
 @Resolver(() => Contest)
 export class ContestResolver {
@@ -32,7 +32,8 @@ export class ContestResolver {
   @Query(() => [Contest])
   async getContests(
     @Args('take', ParseIntPipe) take: number,
-    @Args('groupId', ParseIntPipe) groupId: number,
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    groupId: number,
     @Args('cursor', { nullable: true }, CursorValidationPipe) cursor?: number
   ) {
     return await this.contestService.getContests(take, groupId, cursor)
@@ -121,7 +122,7 @@ export class ContestResolver {
     }
   }
 
-  @Mutation(() => PublicizingRequestResult)
+  @Mutation(() => PublicizingResponse)
   @UseRolesGuard()
   async handlePublicizingRequest(
     @Args('contestId', ParseIntPipe) contestId: number,
