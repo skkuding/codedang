@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
+  ParseBoolPipe,
   ParseIntPipe,
   UnprocessableEntityException
 } from '@nestjs/common'
@@ -20,6 +21,7 @@ import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
+import { PublicizingRequestResult } from './model/publicizing-request-result.model'
 import { PublicizingRequest } from './model/publicizing-request.model'
 
 @Resolver(() => Contest)
@@ -59,7 +61,6 @@ export class ContestResolver {
   }
 
   @Mutation(() => Contest)
-  @UseRolesGuard()
   async updateContest(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('input') input: UpdateContestInput
@@ -78,7 +79,6 @@ export class ContestResolver {
   }
 
   @Mutation(() => Contest)
-  @UseRolesGuard()
   async deleteContest(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('contestId', ParseIntPipe) contestId: number
@@ -121,29 +121,17 @@ export class ContestResolver {
     }
   }
 
-  @Mutation(() => Contest)
+  @Mutation(() => PublicizingRequestResult)
   @UseRolesGuard()
-  async acceptPublicizingRequest(
-    @Args('contestId', ParseIntPipe) contestId: number
+  async handlePublicizingRequest(
+    @Args('contestId', ParseIntPipe) contestId: number,
+    @Args('isAccepted', ParseBoolPipe) isAccepted: boolean
   ) {
     try {
-      return await this.contestService.acceptPublicizingRequest(contestId)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error.message, error.stack)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Mutation(() => Contest)
-  @UseRolesGuard()
-  async rejectPublicizingRequest(
-    @Args('contestId', ParseIntPipe) contestId: number
-  ) {
-    try {
-      return await this.contestService.rejectPublicizingRequest(contestId)
+      return await this.contestService.handlePublicizingRequest(
+        contestId,
+        isAccepted
+      )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

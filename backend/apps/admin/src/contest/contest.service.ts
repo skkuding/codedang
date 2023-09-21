@@ -19,6 +19,7 @@ import { PrismaService } from '@libs/prisma'
 import type { Contest } from '@admin/@generated/contest/contest.model'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
+import type { PublicizingRequestResult } from './model/publicizing-request-result.model'
 import type { PublicizingRequest } from './model/publicizing-request.model'
 
 @Injectable()
@@ -159,7 +160,7 @@ export class ContestService {
     return filteredRequests
   }
 
-  async acceptPublicizingRequest(contestId: number) {
+  async handlePublicizingRequest(contestId: number, isAccepted: boolean) {
     const requests = (await this.cacheManager.get(
       PUBLICIZING_REQUEST_KEY
     )) as Array<PublicizingRequest>
@@ -178,50 +179,24 @@ export class ContestService {
       PUBLICIZING_REQUEST_EXPIRE_TIME
     )
 
-    const updatedContest = await this.prisma.contest.update({
-      where: {
-        id: contestId
-      },
-      data: {
-        groupId: OPEN_SPACE_ID
+    if (isAccepted) {
+      const updatedContest = await this.prisma.contest.update({
+        where: {
+          id: contestId
+        },
+        data: {
+          groupId: OPEN_SPACE_ID
+        }
+      })
+      if (!updatedContest) {
+        throw new EntityNotExistException('contest')
       }
-    })
-    if (!updatedContest) {
-      throw new EntityNotExistException('contest')
     }
 
-    return updatedContest
-  }
-
-  async rejectPublicizingRequest(contestId: number) {
-    const requests = (await this.cacheManager.get(
-      PUBLICIZING_REQUEST_KEY
-    )) as Array<PublicizingRequest>
-    if (!requests) {
-      throw new EntityNotExistException('ContestPublicizingRequest')
-    }
-
-    const request = requests.find((req) => req.contestId === contestId)
-    if (!request || new Date(request.expireTime) < new Date()) {
-      throw new EntityNotExistException('ContestPublicizingRequest')
-    }
-
-    await this.cacheManager.set(
-      PUBLICIZING_REQUEST_KEY,
-      requests.filter((req) => req.contestId != contestId),
-      PUBLICIZING_REQUEST_EXPIRE_TIME
-    )
-
-    const contest = await this.prisma.contest.findUnique({
-      where: {
-        id: contestId
-      }
-    })
-    if (!contest) {
-      throw new EntityNotExistException('contest')
-    }
-
-    return contest
+    return {
+      contestId: contestId,
+      requestResult: true
+    } as PublicizingRequestResult
   }
 
   async createPublicizingRequest(groupId: number, contestId: number) {

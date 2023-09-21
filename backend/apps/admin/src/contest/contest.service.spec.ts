@@ -159,49 +159,28 @@ describe('ContestService', () => {
     })
   })
 
-  describe('acceptPublicizingRequest', () => {
-    it('should return accepted contest', async () => {
+  describe('handlePublicizingRequest', () => {
+    it('should return accepted state', async () => {
       db.contest.update.resolves(contest)
 
       const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.acceptPublicizingRequest(contestId)
+      const res = await service.handlePublicizingRequest(contestId, true)
 
       expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal(contest)
+      expect(res).to.deep.equal({
+        contestId: contestId,
+        requestResult: true
+      })
     })
 
     it('should throw error when groupId or contestId not exist', async () => {
-      expect(service.acceptPublicizingRequest(1000)).to.be.rejectedWith(
+      expect(service.handlePublicizingRequest(1000, true)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
 
     it('should throw error when the contest is not requested to public', async () => {
-      expect(service.acceptPublicizingRequest(3)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-  })
-
-  describe('rejectPublicizingRequest', () => {
-    it('should return rejected contest', async () => {
-      db.contest.findUnique.resolves(contest)
-
-      const cacheSpyGet = stub(cache, 'get').resolves([publicizingRequest])
-      const res = await service.rejectPublicizingRequest(contestId)
-
-      expect(cacheSpyGet.called).to.be.true
-      expect(res).to.deep.equal(contest)
-    })
-
-    it('should throw error when the contest is not requested to public', async () => {
-      expect(service.rejectPublicizingRequest(3)).to.be.rejectedWith(
-        EntityNotExistException
-      )
-    })
-
-    it('should throw error when groupId or contestId not exist', async () => {
-      expect(service.rejectPublicizingRequest(1000)).to.be.rejectedWith(
+      expect(service.handlePublicizingRequest(3, true)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
