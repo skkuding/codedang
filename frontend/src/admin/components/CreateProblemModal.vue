@@ -49,7 +49,10 @@ const schema = z.object({
     .array(z.enum(['C', 'Cpp', 'Python3', 'Java', 'Golang']))
     .min(1, 'At least one language is required.')
     .default([]),
-  timeLimit: z.number().default(2000),
+  timeLimit: z
+    .string()
+    .default('2000')
+    .transform((v) => parseInt(v)),
   memoryLimit: z.number().default(512),
   difficulty: z
     .enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5'])
