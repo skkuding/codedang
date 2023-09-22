@@ -53,7 +53,10 @@ const schema = z.object({
     .string()
     .default('2000')
     .transform((v) => parseInt(v)),
-  memoryLimit: z.number().default(512),
+  memoryLimit: z
+    .string()
+    .default('512')
+    .transform((v) => parseInt(v)),
   difficulty: z
     .enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5'])
     .default('Level1'),
