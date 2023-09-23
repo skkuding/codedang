@@ -1,0 +1,87 @@
+@baseURL = https://dev.codedang.com
+@authToken = {{login.response.headers.authorization}}
+
+###
+
+// @name login
+// Login as admin
+
+POST {{baseURL}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Adminadmin"
+}
+
+###
+
+POST {{baseURL}}/graphql
+Content-Type: application/json
+X-Request-Type: GraphQL
+Authorization: {{authToken}}
+
+query {
+  getUsers {
+    id
+    username
+    role
+    email
+    lastLogin
+    createTime
+    updateTime
+  }
+}
+
+###
+
+POST {{baseURL}}/graphql
+Content-Type: application/json
+X-Request-Type: GraphQL
+Authorization: {{authToken}}
+
+query {
+  getUser(id: 1) {
+    id
+    username
+    role
+    email
+    lastLogin
+    createTime
+    updateTime
+    userProfile {
+      id
+      realName
+      createTime
+      updateTime
+    }
+    group {
+      id
+      groupName
+      description
+    }
+    notice {
+      id
+      title
+      content
+    }
+    problem {
+      id
+      title
+    }
+    contest {
+      id
+      title
+    }
+    workbook {
+      id
+      title
+    }
+    submission {
+      id
+      code
+      language
+      result
+    }
+  }
+}
