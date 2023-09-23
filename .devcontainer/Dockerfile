@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:18-bullseye
+FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:20-bullseye
 
 # Install sandbox
 RUN mkdir -p /app/sandbox/policy /app/sandbox/results \
@@ -10,7 +10,7 @@ RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" 
   else \
   curl -L "https://github.com/skkuding/codedang/releases/download/alpha/libjudger-x64.so" -o "/app/sandbox/libjudger.so"; \
   fi
-RUN chmod 755 /app/sandbox/libjudger.so
+RUN chmod 750 /app/sandbox/libjudger.so
 
 # Install dependencies
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \

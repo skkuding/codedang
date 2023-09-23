@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	datasource "github.com/skkuding/codedang/iris/src/data_source"
-	"github.com/skkuding/codedang/iris/src/data_source/cache"
+	"github.com/skkuding/codedang/iris/src/loader"
+	"github.com/skkuding/codedang/iris/src/loader/cache"
 )
 
 type TestcaseManager interface {
@@ -13,12 +13,12 @@ type TestcaseManager interface {
 }
 
 type testcaseManager struct {
-	source datasource.Read
+	source loader.Read
 	cache  cache.Cache
 }
 
-func NewTestcaseManager(dataSource datasource.Read, cache cache.Cache) *testcaseManager {
-	return &testcaseManager{source: dataSource, cache: cache}
+func NewTestcaseManager(source loader.Read, cache cache.Cache) *testcaseManager {
+	return &testcaseManager{source: source, cache: cache}
 }
 
 func (t *testcaseManager) GetTestcase(problemId string) (Testcase, error) {

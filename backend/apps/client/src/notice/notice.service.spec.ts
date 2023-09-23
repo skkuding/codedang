@@ -1,5 +1,5 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Prisma, type Group, type Notice } from '@prisma/client'
+import { Prisma, type Group } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { PrismaService } from '@libs/prisma'
@@ -8,10 +8,14 @@ import { NoticeService } from './notice.service'
 const noticeId = 2
 const userId = 1
 const groupId = 1
+const username = 'manager'
 
-const notice: Notice = {
+const notice = {
   id: noticeId,
   createdById: userId,
+  createdBy: {
+    username: username
+  },
   groupId: groupId,
   title: 'Title',
   content: 'Content',
@@ -21,12 +25,12 @@ const notice: Notice = {
   updateTime: new Date()
 }
 
-const noticePrev: Notice = {
+const noticePrev = {
   ...notice,
   id: 1
 }
 
-const noticeNext: Notice = {
+const noticeNext = {
   ...notice,
   id: 3
 }
@@ -83,21 +87,31 @@ describe('NoticeService', () => {
         id: noticePrev.id,
         title: noticePrev.title,
         createTime: noticePrev.createTime,
-        isFixed: noticePrev.isFixed
+        isFixed: noticePrev.isFixed,
+        createdBy: noticePrev.createdBy
       },
       {
         id: notice.id,
         title: notice.title,
         createTime: notice.createTime,
-        isFixed: notice.isFixed
+        isFixed: notice.isFixed,
+        createdBy: notice.createdBy
       },
       {
         id: noticeNext.id,
         title: noticeNext.title,
         createTime: noticeNext.createTime,
-        isFixed: noticeNext.isFixed
+        isFixed: noticeNext.isFixed,
+        createdBy: noticeNext.createdBy
       }
     ]
+
+    const userNotices = noticeArray.map((notice) => {
+      return {
+        ...notice,
+        createdBy: notice.createdBy.username
+      }
+    })
 
     it('should return notice list of the group', async () => {
       db.notice.findMany.resolves(noticeArray)
@@ -107,17 +121,22 @@ describe('NoticeService', () => {
         3,
         group.id
       )
-      expect(getNoticesByGroupId).to.deep.equal(noticeArray)
+      expect(getNoticesByGroupId).to.deep.equal(userNotices)
     })
   })
 
   describe('getNotice', () => {
+    const currentNotice = {
+      title: notice.title,
+      content: notice.content,
+      createTime: notice.createTime,
+      updateTime: notice.updateTime,
+      createdBy: notice.createdBy
+    }
     const userNotice = {
       current: {
-        title: notice.title,
-        content: notice.content,
-        createTime: notice.createTime,
-        updateTime: notice.updateTime
+        ...currentNotice,
+        createdBy: currentNotice.createdBy.username
       },
       prev: {
         id: noticePrev.id,
@@ -130,7 +149,7 @@ describe('NoticeService', () => {
     }
 
     it('should return a notice and previews', async () => {
-      db.notice.findUniqueOrThrow.resolves(userNotice.current)
+      db.notice.findUniqueOrThrow.resolves(currentNotice)
       db.notice.findFirst.onFirstCall().resolves(userNotice.prev)
       db.notice.findFirst.onSecondCall().resolves(userNotice.next)
 

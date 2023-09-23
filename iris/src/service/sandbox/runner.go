@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/skkuding/codedang/iris/src/service/file"
+	"github.com/skkuding/codedang/iris/src/service/logger"
 )
 
 type RunResult struct {
@@ -30,10 +31,11 @@ type runner struct {
 	sandbox    Sandbox
 	langConfig LangConfig
 	file       file.FileManager
+	logger     logger.Logger
 }
 
-func NewRunner(sandbox Sandbox, langConfig LangConfig, file file.FileManager) *runner {
-	return &runner{sandbox, langConfig, file}
+func NewRunner(sandbox Sandbox, langConfig LangConfig, file file.FileManager, logger logger.Logger) *runner {
+	return &runner{sandbox, langConfig, file, logger}
 }
 
 func (r *runner) Run(req RunRequest, input []byte) (RunResult, error) {
@@ -63,19 +65,23 @@ func (r *runner) Run(req RunRequest, input []byte) (RunResult, error) {
 		ExecResult: execResult,
 	}
 
+	if execResult.ErrorCode != SUCCESS {
+		return runResult, fmt.Errorf("execution failed (error code %d)", execResult.ErrorCode)
+	}
+
 	orderStr := strconv.Itoa(req.Order)
 	if execResult.ResultCode != RUN_SUCCESS {
 		errorPath := r.file.MakeFilePath(req.Dir, orderStr+".error").String()
 		errData, err := r.file.ReadFile(errorPath)
 		if err != nil {
-			return RunResult{}, fmt.Errorf("reading error output file: %w", err)
+			return runResult, fmt.Errorf("reading error output file: %w", err)
 		}
 		runResult.ErrOutput = errData
 	}
 	outputPath := r.file.MakeFilePath(req.Dir, orderStr+".out").String()
 	outputData, err := r.file.ReadFile(outputPath)
 	if err != nil {
-		return RunResult{}, fmt.Errorf("reading output file: %w", err)
+		return runResult, fmt.Errorf("reading output file: %w", err)
 	}
 	runResult.Output = outputData
 	return runResult, nil
