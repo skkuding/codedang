@@ -36,9 +36,18 @@ export class AuthService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async issueJwtTokens(loginUserDto: LoginUserDto): Promise<JwtTokens> {
+  async issueJwtTokens(
+    loginUserDto: LoginUserDto,
+    isSocialUser?: boolean
+  ): Promise<JwtTokens> {
     const user = await this.userService.getUserCredential(loginUserDto.username)
-    if (!(await this.jwtAuthService.isValidUser(user, loginUserDto.password))) {
+    if (
+      !(await this.jwtAuthService.isValidUser(
+        user,
+        loginUserDto.password,
+        isSocialUser
+      ))
+    ) {
       throw new UnidentifiedException('username or password')
     }
     await this.userService.updateLastLogin(user.username)
@@ -102,11 +111,11 @@ export class AuthService {
   }
 
   async githubLogin(res: Response, githubUser: GithubUser) {
-    const { githubId, username } = githubUser
+    const { githubId } = githubUser
 
     const userOAuth = await this.prisma.userOAuth.findFirst({
       where: {
-        id: githubId,
+        id: parseInt(githubId),
         provider: 'github'
       }
     })
@@ -114,7 +123,7 @@ export class AuthService {
     if (!userOAuth) {
       // 소셜 회원가입 페이지로 이동
       // TODO: 소셜 회원가입 페이지 url 생기면 여기에 삽입
-      const signUpUrl = 'https://codedang.com/'
+      const signUpUrl = `https://codedang.com/?provider=github&id=${githubUser.githubId}&username=${githubUser.username}`
       return res.redirect(signUpUrl)
     }
 
@@ -124,10 +133,13 @@ export class AuthService {
       }
     })
 
-    const jwtTokens = await this.issueJwtTokens({
-      username: username,
-      password: user.password
-    })
+    const jwtTokens = await this.issueJwtTokens(
+      {
+        username: user.username,
+        password: user.password
+      },
+      true
+    )
 
     res.setHeader('authorization', `Bearer ${jwtTokens.accessToken}`)
     res.cookie(

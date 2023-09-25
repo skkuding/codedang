@@ -1,5 +1,5 @@
 export interface GithubUser extends Express.User {
-  githubId: number
+  githubId: string
   username: string
 }
 
