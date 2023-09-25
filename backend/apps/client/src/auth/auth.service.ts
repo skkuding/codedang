@@ -102,7 +102,7 @@ export class AuthService {
   }
 
   async githubLogin(res: Response, githubUser: GithubUser) {
-    const { githubId, username, email } = githubUser
+    const { githubId, username } = githubUser
 
     const userOAuth = await this.prisma.userOAuth.findFirst({
       where: {
@@ -114,10 +114,7 @@ export class AuthService {
     if (!userOAuth) {
       // 소셜 회원가입 페이지로 이동
       // TODO: 소셜 회원가입 페이지 url 생기면 여기에 삽입
-      const signUpUrl = email
-        ? 'https://codedang.com/' + '?email=' + 'email'
-        : 'https://codedang.com/'
-
+      const signUpUrl = 'https://codedang.com/'
       return res.redirect(signUpUrl)
     }
 

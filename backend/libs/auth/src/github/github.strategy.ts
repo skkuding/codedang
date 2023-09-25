@@ -23,8 +23,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
   ): Promise<any> {
     return {
       githubId: profile.id,
-      username: profile.username,
-      email: profile.emails ? profile.emails[0].value : null
+      username: profile.username
     }
   }
 }
