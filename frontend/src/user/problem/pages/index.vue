@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import Button from '@/common/components/Atom/Button.vue'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
-import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
-import SearchBar from '@/common/components/Molecule/SearchBar.vue'
+// import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
+// import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useListAPI } from '@/common/composables/api'
-import { useDateFormat } from '@vueuse/core'
-import { useWindowSize } from '@vueuse/core'
-import { ref, computed, onMounted } from 'vue'
-import { useWorkbook } from '../../workbook/composables/workbook'
+// import { useDateFormat } from '@vueuse/core'
+// import { useWindowSize } from '@vueuse/core'
+import { ref, computed } from 'vue'
+
+// import { onMounted } from 'vue'
+// import { useWorkbook } from '../../workbook/composables/workbook'
 
 interface Problem {
   id: number
@@ -51,14 +53,15 @@ const fields = computed(() =>
 
 const { items, totalPages, changePage } = useListAPI<Problem>('problem')
 
-const CARD_COLOR = ['#FFE5CC', '#94D0AD', '#FFCDCD', '#B1DDEB']
+// hide
+// const CARD_COLOR = ['#FFE5CC', '#94D0AD', '#FFCDCD', '#B1DDEB']
 
-const { containLastItem, workbookList, getWorkbooks, getMoreWorkbooks } =
-  useWorkbook()
+// const { containLastItem, workbookList, getWorkbooks, getMoreWorkbooks } =
+//   useWorkbook()
 
-onMounted(async () => {
-  await getWorkbooks()
-})
+// onMounted(async () => {
+//   await getWorkbooks()
+// })
 </script>
 
 <template>
@@ -95,13 +98,14 @@ onMounted(async () => {
     </template>
   </PaginationTable>
 
-  <PageSubtitle text="Workbook" class="mb-2 mt-10" />
+  <!-- hide -->
+  <!-- <PageSubtitle text="Workbook" class="mb-2 mt-10" />
   <div class="flex justify-end">
     <SearchBar class="mb-5" placeholder="keywords" />
   </div>
   <div v-if="workbookList.length === 0">No Workbook</div>
   <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-    <!-- TODO: submission 기록 (total, complete) 가져오기 -->
+    TODO: submission 기록 (total, complete) 가져오기
     <ProgressCard
       v-for="(workbook, index) in workbookList"
       :key="index"
@@ -124,7 +128,7 @@ onMounted(async () => {
     @click="getMoreWorkbooks(useWindowSize().width.value < 768 ? 2 : 4)"
   >
     More
-  </Button>
+  </Button> -->
 </template>
 
 <route lang="yaml">
