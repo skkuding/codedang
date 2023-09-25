@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Logo from '@/common/assets/codedang.svg'
+import { useToast } from '@/common/composables/toast'
 import { useAuthStore } from '@/common/store/auth'
 import { OnClickOutside } from '@vueuse/components'
 import { ref } from 'vue'
@@ -17,16 +18,16 @@ import AuthModal from './AuthModal.vue'
 const auth = useAuthStore()
 const router = useRouter()
 const isMenuOpen = ref(false)
-// const openToast = useToast()
+const openToast = useToast()
 const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 
 // hide
-// const hide = () => {
-//   openToast({
-//     message: 'This feature is under renovation',
-//     type: 'info'
-//   })
-// }
+const hide = () => {
+  openToast({
+    message: 'This feature is under development',
+    type: 'info'
+  })
+}
 </script>
 
 <template>
@@ -35,17 +36,19 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
       class="border-b-gray grid h-16 place-items-center border-b bg-white px-5"
     >
       <div class="flex w-full max-w-7xl items-center justify-between gap-5">
-        <div class="flex w-1/2 min-w-fit items-center justify-between gap-8">
+        <div class="flex w-1/2 min-w-fit items-center justify-evenly gap-8">
+          <!-- hide: 헤더 메뉴 추가시 evenly를 between으로 변경하기 -->
           <RouterLink to="/">
             <img :src="Logo" alt="logo" width="90" />
           </RouterLink>
           <nav class="hidden gap-8 capitalize md:flex">
             <RouterLink
               v-for="{ to, name } in [
+                // hide
                 { to: '/notice', name: 'notice' },
-                { to: '/contest', name: 'contest' },
-                { to: '/problem', name: 'problem' },
-                { to: '/group', name: 'group' }
+                // { to: '/contest', name: 'contest' },
+                { to: '/problem', name: 'problem' }
+                // { to: '/group', name: 'group' }
               ]"
               :key="name"
               class="cursor-pointer text-lg hover:opacity-60 active:opacity-40"
@@ -77,7 +80,7 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
             </template>
             <template #items>
               <ListItem @click="$router.push('/admin')">Management</ListItem>
-              <ListItem>Settings</ListItem>
+              <ListItem @click="hide()">Settings</ListItem>
               <ListItem @click="auth.logout()">Logout</ListItem>
             </template>
           </Dropdown>
