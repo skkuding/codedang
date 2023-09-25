@@ -25,6 +25,7 @@ import {
 import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
 import { SignUpDto } from './dto/signup.dto'
+import { SocialSignUpDto } from './dto/social-signup.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
 import { UserEmailDto } from './dto/userEmail.dto'
@@ -61,6 +62,24 @@ export class UserController {
   async signUp(@Body() signUpDto: SignUpDto, @Req() req: Request) {
     try {
       await this.userService.signUp(req, signUpDto)
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof DuplicateFoundException) {
+        throw new ConflictException(error.message)
+      } else if (error instanceof InvalidJwtTokenException) {
+        throw new UnauthorizedException(error.message)
+      }
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Post('social-sign-up')
+  @AuthNotNeeded()
+  async socialSignUp(@Body() socialSignUpDto: SocialSignUpDto) {
+    try {
+      return await this.userService.socialSignUp(socialSignUpDto)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)

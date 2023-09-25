@@ -7,6 +7,8 @@ import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
 import type { Request } from 'express'
+import 'generate-password'
+import { generate } from 'generate-password'
 import { ExtractJwt } from 'passport-jwt'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
@@ -24,6 +26,7 @@ import type { UserGroupData } from '@client/group/interface/user-group-data.inte
 import type { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import type { NewPasswordDto } from './dto/newPassword.dto'
 import type { SignUpDto } from './dto/signup.dto'
+import type { SocialSignUpDto } from './dto/social-signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import type { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
 import type { UserEmailDto } from './dto/userEmail.dto'
@@ -213,6 +216,38 @@ export class UserService {
     return user
   }
 
+  async socialSignUp(socialSignUpDto: SocialSignUpDto): Promise<User> {
+    const duplicatedUser = await this.prisma.user.findUnique({
+      where: {
+        username: socialSignUpDto.username
+      }
+    })
+    if (duplicatedUser) {
+      throw new DuplicateFoundException('Username')
+    }
+
+    if (!this.isValidUsername(socialSignUpDto.username)) {
+      throw new UnprocessableDataException('Bad username')
+    }
+
+    const user = await this.createUser({
+      username: socialSignUpDto.username,
+      password: generate({ length: 10, numbers: true }),
+      realName: socialSignUpDto.realName,
+      email: null
+    })
+    const profile: CreateUserProfileData = {
+      userId: user.id,
+      realName: socialSignUpDto.realName
+    }
+
+    await this.createUserProfile(profile)
+    await this.registerUserToPublicGroup(user.id)
+    await this.createUserOAuth(socialSignUpDto, user.id)
+
+    return user
+  }
+
   isValidUsername(username: string): boolean {
     const validUsername = /^[a-z0-9]{3,10}$/
     if (!validUsername.test(username)) {
@@ -237,6 +272,16 @@ export class UserService {
         username: signUpDto.username,
         password: encryptedPassword,
         email: signUpDto.email
+      }
+    })
+  }
+
+  async createUserOAuth(socialSignUpDto: SocialSignUpDto, userId: number) {
+    return await this.prisma.userOAuth.create({
+      data: {
+        id: socialSignUpDto.id,
+        userId: userId,
+        provider: socialSignUpDto.provider
       }
     })
   }
