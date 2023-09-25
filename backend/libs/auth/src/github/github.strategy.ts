@@ -21,10 +21,10 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     profile: any
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
-    const githubUser = {
+    return {
       githubId: profile.id,
-      username: profile.username
+      username: profile.username,
+      email: profile.emails ? profile.emails[0].value : null
     }
-    return githubUser
   }
 }

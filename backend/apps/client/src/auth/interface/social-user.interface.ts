@@ -1,6 +1,7 @@
 export interface GithubUser extends Express.User {
-  githubId: string
+  githubId: number
   username: string
+  email?: string
 }
 
 export interface KakaoUser extends Express.User {}

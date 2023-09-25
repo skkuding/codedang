@@ -102,19 +102,30 @@ export class AuthService {
   }
 
   async githubLogin(res: Response, githubUser: GithubUser) {
-    const username = githubUser.username + '-github' // github 로그인한 유저는 username 뒤에 '-github' 붙여서 지정
-    const user = await this.prisma.user.findFirst({
+    const { githubId, username, email } = githubUser
+
+    const userOAuth = await this.prisma.userOAuth.findFirst({
       where: {
-        username: username
+        id: githubId,
+        provider: 'github'
       }
     })
 
-    if (!user) {
-      // TODO: github로 회원가입 한 적 없는 유저에 대한 회원가입 로직 구현
-      // - 회원가입 페이지에서 미리 username이 채워져있고, 편집이 불가능하도록 설정
-      res.redirect('https://codedang.com/' + '?username=' + username)
-      return
+    if (!userOAuth) {
+      // 소셜 회원가입 페이지로 이동
+      // TODO: 소셜 회원가입 페이지 url 생기면 여기에 삽입
+      const signUpUrl = email
+        ? 'https://codedang.com/' + '?email=' + 'email'
+        : 'https://codedang.com/'
+
+      return res.redirect(signUpUrl)
     }
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userOAuth.userId
+      }
+    })
 
     const jwtTokens = await this.issueJwtTokens({
       username: username,
