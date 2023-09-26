@@ -21,12 +21,18 @@ const isMenuOpen = ref(false)
 const openToast = useToast()
 const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 
-// hide
+// hide: remove hide, handleLinkClick
 const hide = () => {
   openToast({
     message: 'This feature is under development',
     type: 'info'
   })
+}
+const handleLinkClick = (name: string) => {
+  if (name === 'contest' || name === 'group') {
+    hide()
+    return true
+  }
 }
 </script>
 
@@ -36,26 +42,29 @@ const hide = () => {
       class="border-b-gray grid h-16 place-items-center border-b bg-white px-5"
     >
       <div class="flex w-full max-w-7xl items-center justify-between gap-5">
-        <div class="flex w-1/2 min-w-fit items-center justify-evenly gap-8">
-          <!-- hide: 헤더 메뉴 추가시 evenly를 between으로 변경하기 -->
+        <div class="flex w-1/2 min-w-fit items-center justify-between gap-8">
           <RouterLink to="/">
             <img :src="Logo" alt="logo" width="90" />
           </RouterLink>
           <nav class="hidden gap-8 capitalize md:flex">
             <RouterLink
               v-for="{ to, name } in [
-                // hide
                 { to: '/notice', name: 'notice' },
-                // { to: '/contest', name: 'contest' },
-                { to: '/problem', name: 'problem' }
-                // { to: '/group', name: 'group' }
+                { to: '/', name: 'contest' },
+                { to: '/problem', name: 'problem' },
+                { to: '/', name: 'group' }
+                //hide: replace / with /contest, /group each
               ]"
               :key="name"
               class="cursor-pointer text-lg hover:opacity-60 active:opacity-40"
               :class="{
-                'text-green': router.currentRoute.value.fullPath.startsWith(to)
+                'text-green':
+                  router.currentRoute.value.fullPath.startsWith(to) &&
+                  to !== '/'
+                //hide: remove the above line
               }"
               :to="to"
+              @click="handleLinkClick(name)"
             >
               {{ name }}
             </RouterLink>
@@ -81,6 +90,7 @@ const hide = () => {
             <template #items>
               <ListItem @click="$router.push('/admin')">Management</ListItem>
               <ListItem @click="hide()">Settings</ListItem>
+              <!-- hide: replace hide to setting page routing -->
               <ListItem @click="auth.logout()">Logout</ListItem>
             </template>
           </Dropdown>
