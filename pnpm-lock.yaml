@@ -266,7 +266,7 @@ importers:
         version: 3.8.4(graphql@16.8.1)(react@18.2.0)
       '@codemirror/autocomplete':
         specifier: ^6.9.1
-        version: 6.9.1(@codemirror/language@6.9.1)(@codemirror/state@6.2.1)(@codemirror/view@6.20.2)(@lezer/common@1.0.3)
+        version: 6.9.1(@codemirror/language@6.9.1)(@codemirror/state@6.2.1)(@codemirror/view@6.20.2)(@lezer/common@1.1.0)
       '@codemirror/commands':
         specifier: ^6.2.5
         version: 6.2.5
@@ -281,7 +281,7 @@ importers:
         version: 6.2.1
       '@codemirror/lang-python':
         specifier: ^6.1.3
-        version: 6.1.3(@codemirror/state@6.2.1)(@codemirror/view@6.20.2)(@lezer/common@1.0.3)
+        version: 6.1.3(@codemirror/state@6.2.1)(@codemirror/view@6.20.2)(@lezer/common@1.1.0)
       '@codemirror/language':
         specifier: ^6.9.1
         version: 6.9.1
@@ -305,7 +305,7 @@ importers:
         version: 2.1.11(@tiptap/pm@2.1.11)
       '@tiptap/vue-3':
         specifier: ^2.1.11
-        version: 2.1.11(@tiptap/core@2.1.10)(@tiptap/pm@2.1.11)(vue@3.3.4)
+        version: 2.1.11(@tiptap/core@2.1.11)(@tiptap/pm@2.1.11)(vue@3.3.4)
       '@vee-validate/zod':
         specifier: ^4.11.7
         version: 4.11.7(vue@3.3.4)
@@ -1641,6 +1641,20 @@ packages:
       '@lezer/common': 1.0.3
     dev: false
 
+  /@codemirror/autocomplete@6.9.1(@codemirror/language@6.9.1)(@codemirror/state@6.2.1)(@codemirror/view@6.20.2)(@lezer/common@1.1.0):
+    resolution: {integrity: sha512-yma56tqD7khIZK4gy4X5lX3/k5ArMiCGat7HEWRF/8L2kqOjVdp2qKZqpcJjwTIjSj6fqKAHqi7IjtH3QFE+Bw==}
+    peerDependencies:
+      '@codemirror/language': ^6.0.0
+      '@codemirror/state': ^6.0.0
+      '@codemirror/view': ^6.0.0
+      '@lezer/common': ^1.0.0
+    dependencies:
+      '@codemirror/language': 6.9.1
+      '@codemirror/state': 6.2.1
+      '@codemirror/view': 6.20.2
+      '@lezer/common': 1.1.0
+    dev: false
+
   /@codemirror/commands@6.2.5:
     resolution: {integrity: sha512-dSi7ow2P2YgPBZflR9AJoaTHvqmeGIgkhignYMd5zK5y6DANTvxKxp6eMEpIDUJkRAaOY/TFZ4jP1ADIO/GLVA==}
     dependencies:
@@ -1682,10 +1696,10 @@ packages:
       '@lezer/json': 1.0.0
     dev: true
 
-  /@codemirror/lang-python@6.1.3(@codemirror/state@6.2.1)(@codemirror/view@6.20.2)(@lezer/common@1.0.3):
+  /@codemirror/lang-python@6.1.3(@codemirror/state@6.2.1)(@codemirror/view@6.20.2)(@lezer/common@1.1.0):
     resolution: {integrity: sha512-S9w2Jl74hFlD5nqtUMIaXAq9t5WlM0acCkyuQWUUSvZclk1sV+UfnpFiZzuZSG+hfEaOmxKR5UxY/Uxswn7EhQ==}
     dependencies:
-      '@codemirror/autocomplete': 6.9.1(@codemirror/language@6.9.1)(@codemirror/state@6.2.1)(@codemirror/view@6.20.2)(@lezer/common@1.0.3)
+      '@codemirror/autocomplete': 6.9.1(@codemirror/language@6.9.1)(@codemirror/state@6.2.1)(@codemirror/view@6.20.2)(@lezer/common@1.1.0)
       '@codemirror/language': 6.9.1
       '@lezer/python': 1.1.7
     transitivePeerDependencies:
@@ -3687,14 +3701,6 @@ packages:
       tailwindcss: 3.3.3(ts-node@10.9.1)
     dev: true
 
-  /@tiptap/core@2.1.10(@tiptap/pm@2.1.11):
-    resolution: {integrity: sha512-yhUKsac6nlqbPQfwQnp+4Jb110EqmzocXKoZacLwzHpM7JVsr2+LXMDu9kahtrvHNJErJljhnQvDHRsrrYeJkQ==}
-    peerDependencies:
-      '@tiptap/pm': ^2.0.0
-    dependencies:
-      '@tiptap/pm': 2.1.11
-    dev: false
-
   /@tiptap/core@2.1.11(@tiptap/pm@2.1.11):
     resolution: {integrity: sha512-1W2DdjpPwfphHgQ3Qm4s5wzCnEjiXm1TeZ+6/zBl89yKURXgv8Mw1JGdj/NcImQjtDcsNn97MscACK3GKbEJBA==}
     peerDependencies:
@@ -3719,13 +3725,13 @@ packages:
       '@tiptap/core': 2.1.11(@tiptap/pm@2.1.11)
     dev: false
 
-  /@tiptap/extension-bubble-menu@2.1.11(@tiptap/core@2.1.10)(@tiptap/pm@2.1.11):
+  /@tiptap/extension-bubble-menu@2.1.11(@tiptap/core@2.1.11)(@tiptap/pm@2.1.11):
     resolution: {integrity: sha512-WFJJpZvl9DP94Y5RQZB/THDxvDbrTo8tuhjT7yWlhseJ6zyhWmRXdutt39wfSZNFxitv/As+s7cO9aYLML/TVg==}
     peerDependencies:
       '@tiptap/core': ^2.0.0
       '@tiptap/pm': ^2.0.0
     dependencies:
-      '@tiptap/core': 2.1.10(@tiptap/pm@2.1.11)
+      '@tiptap/core': 2.1.11(@tiptap/pm@2.1.11)
       '@tiptap/pm': 2.1.11
       tippy.js: 6.3.7
     dev: false
@@ -3774,13 +3780,13 @@ packages:
       '@tiptap/pm': 2.1.11
     dev: false
 
-  /@tiptap/extension-floating-menu@2.1.11(@tiptap/core@2.1.10)(@tiptap/pm@2.1.11):
+  /@tiptap/extension-floating-menu@2.1.11(@tiptap/core@2.1.11)(@tiptap/pm@2.1.11):
     resolution: {integrity: sha512-ExeoOQ6nT0CY0eWx6WjbG+osurXLXa7XrqIdhCAcTmzBAlGiKt8khX9qaZ+QF+BRK1r1lja2KX+5/fpLK7Dt1g==}
     peerDependencies:
       '@tiptap/core': ^2.0.0
       '@tiptap/pm': ^2.0.0
     dependencies:
-      '@tiptap/core': 2.1.10(@tiptap/pm@2.1.11)
+      '@tiptap/core': 2.1.11(@tiptap/pm@2.1.11)
       '@tiptap/pm': 2.1.11
       tippy.js: 6.3.7
     dev: false
@@ -3928,16 +3934,16 @@ packages:
       - '@tiptap/pm'
     dev: false
 
-  /@tiptap/vue-3@2.1.11(@tiptap/core@2.1.10)(@tiptap/pm@2.1.11)(vue@3.3.4):
+  /@tiptap/vue-3@2.1.11(@tiptap/core@2.1.11)(@tiptap/pm@2.1.11)(vue@3.3.4):
     resolution: {integrity: sha512-PA0ep7W4cXh1jSXpXgR/eKjTbBxP8b0rIKmwLHOLVLaXz2fGFYt+HwKmtZSnYMTcf+CscXmbhmajBJZQJVJQwQ==}
     peerDependencies:
       '@tiptap/core': ^2.0.0
       '@tiptap/pm': ^2.0.0
       vue: ^3.0.0
     dependencies:
-      '@tiptap/core': 2.1.10(@tiptap/pm@2.1.11)
-      '@tiptap/extension-bubble-menu': 2.1.11(@tiptap/core@2.1.10)(@tiptap/pm@2.1.11)
-      '@tiptap/extension-floating-menu': 2.1.11(@tiptap/core@2.1.10)(@tiptap/pm@2.1.11)
+      '@tiptap/core': 2.1.11(@tiptap/pm@2.1.11)
+      '@tiptap/extension-bubble-menu': 2.1.11(@tiptap/core@2.1.11)(@tiptap/pm@2.1.11)
+      '@tiptap/extension-floating-menu': 2.1.11(@tiptap/core@2.1.11)(@tiptap/pm@2.1.11)
       '@tiptap/pm': 2.1.11
       vue: 3.3.4
     dev: false
