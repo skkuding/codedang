@@ -31,8 +31,8 @@ const props = defineProps<{
 const { fields, items } = toRefs(props)
 
 const emit = defineEmits<{
-  (e: 'row-clicked', row: T): void
-  (e: 'change-page', page: number): void
+  (e: 'rowClicked', row: T): void
+  (e: 'changePage', page: number): void
   (e: 'search', input: string): void
   (e: 'update:items'): void
 }>()
@@ -163,7 +163,7 @@ useSortable(el, items, {
             :key="row.id"
             class="border-gray cursor-pointer border-y"
             :class="rowColor[mode || 'light']"
-            @click="$emit('row-clicked', row)"
+            @click="$emit('rowClicked', row)"
           >
             <td v-if="editing" class="handle p-2.5 pl-4">
               <Fa6SolidEquals class="text-slate-300" />
@@ -189,7 +189,7 @@ useSortable(el, items, {
         :page-slot="pageSlot"
         :number-of-pages="numberOfPages"
         :mode="mode"
-        @change-page="(page: number) => emit('change-page', page)"
+        @change-page="(page: number) => emit('changePage', page)"
       />
     </div>
   </div>

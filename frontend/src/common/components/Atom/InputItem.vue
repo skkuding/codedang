@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends string | number">
+<script setup lang="ts">
 import { computed } from 'vue'
 
 const props = defineProps<{
@@ -6,11 +6,11 @@ const props = defineProps<{
   shadow?: boolean
   required?: boolean
   error?: string
-  modelValue?: T
+  modelValue?: string
 }>()
 
 defineEmits<{
-  (e: 'update:modelValue', value: T): void
+  (e: 'update:modelValue', value: string): void
 }>()
 
 const shadowClass = computed(() =>
