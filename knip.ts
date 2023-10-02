@@ -3,6 +3,9 @@ import type { KnipConfig } from 'knip'
 
 const config: KnipConfig = {
   workspaces: {
+    '.': {
+      entry: 'scripts/*.ts'
+    },
     backend: {
       entry: [
         'apps/{admin,client}/**/{main.ts,app.module.ts}',
@@ -29,13 +32,9 @@ const config: KnipConfig = {
       paths: {
         '@/*': ['src/*']
       }
-    },
-    'testcase-server': {
-      entry: 'init-testcase.ts'
     }
   },
   ignore: ['**/*.d.ts'],
-  ignoreBinaries: ['docker-compose'],
   rules: {
     classMembers: 'off',
     unlisted: 'warn',
