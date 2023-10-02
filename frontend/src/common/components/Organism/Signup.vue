@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/common/store/auth'
+import Logo from '@/common/assets/codedang.svg'
+import { useToast } from '@/common/composables/toast'
+import { toTypedSchema } from '@vee-validate/zod'
 import axios from 'axios'
-import { ref, watch } from 'vue'
+import { AxiosError } from 'axios'
+import { useForm } from 'vee-validate'
+import { ref } from 'vue'
+import { z } from 'zod'
 import RegularEye from '~icons/fa6-regular/eye'
 import EyeSlash from '~icons/fa6-regular/eye-slash'
 import IconCheck from '~icons/fa6-solid/check'
@@ -13,303 +18,213 @@ const emit = defineEmits<{
   (e: 'to', value: 'login' | 'signup' | 'password' | 'close'): void
 }>()
 
-const username = ref('')
-const email = ref('')
-const verificationCode = ref('')
-const realName = ref('')
-const password = ref('')
-const passwordAgain = ref('')
-const verificationEmail = ref(false)
-const emailAuth = ref('')
-const warningUser = ref('')
-const warningPass = ref('')
-const warningPassRe = ref('')
-const warningEmail = ref('')
-const warningName = ref('')
-const warningCode = ref('')
+const schema = z
+  .object({
+    username: z.string().min(3).max(10),
+    email: z.string().email(),
+    verificationCode: z.string().min(6).max(6),
+    realName: z.string().min(1).max(20),
+    password: z.string().min(8).max(32),
+    passwordAgain: z.string().min(8).max(32)
+  })
+  .refine((data) => data.password === data.passwordAgain, {
+    message: 'Passwords do not match',
+    path: ['passwordAgain']
+  })
+  .refine((data) => /^[a-zA-Z0-9]+$/.test(data.username), {
+    message: 'Username can only contain alphabets and numbers',
+    path: ['username']
+  })
+  .refine((data) => /^[a-zA-Z\s]+$/.test(data.realName), {
+    message: 'Real name can only contain alphabets',
+    path: ['realName']
+  })
 
-const passwordVisible = ref(false)
-const passwordReVisible = ref(false)
+const { defineComponentBinds, errors, validateField, handleSubmit } = useForm({
+  validationSchema: toTypedSchema(schema)
+})
 
-const auth = useAuthStore()
-const regex =
-  /((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*\d))|((?=.*[a-z])(?=.*[^a-zA-Z0-9\s]))|((?=.*[A-Z])(?=.*\d))|((?=.*[A-Z])(?=.*[^a-zA-Z0-9\s]))|((?=.*\d)(?=.*[^a-zA-Z0-9\s]))/
-const realnameRegex = /^[a-zA-Z\\s]+$/
+const username = defineComponentBinds('username')
+const email = defineComponentBinds('email')
+const verificationCode = defineComponentBinds('verificationCode')
+const realName = defineComponentBinds('realName')
+const password = defineComponentBinds('password')
+const passwordAgain = defineComponentBinds('passwordAgain')
 
-watch(username, () => {
-  if (username.value !== '') {
-    warningUser.value = ''
+const showPassword = ref(false)
+const showPasswordAgain = ref(false)
+
+const sentEmail = ref(false)
+const emailVerified = ref(false)
+const emailAuthToken = ref('')
+
+const toast = useToast()
+
+const signup = handleSubmit(async (input) => {
+  try {
+    await axios.post(
+      '/api/user/sign-up',
+      {
+        username: input.username,
+        email: input.email,
+        realName: input.realName,
+        password: input.password
+      },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      { headers: { 'email-auth': emailAuthToken.value } }
+    )
+    toast({
+      message: 'Sign up succeed!',
+      type: 'success'
+    })
+    emit('to', 'close')
+  } catch (error) {
+    toast({
+      message: 'Sign up failed!',
+      type: 'error'
+    })
   }
 })
-watch(email, () => {
-  if (email.value !== '') {
-    warningEmail.value = ''
+
+const sendCodeToEmail = async () => {
+  const emailIsValid = await validateField('email')
+  if (!emailIsValid) {
+    toast({
+      message: 'Email is not valid!',
+      type: 'error'
+    })
+    return
   }
-})
-watch(realName, () => {
-  if (realName.value !== '') {
-    warningName.value = ''
-  }
-})
-watch(password, () => {
-  if (password.value !== '') {
-    warningPass.value = ''
-  }
-})
-watch([password, passwordAgain], () => {
-  if (passwordAgain.value !== '') {
-    warningPassRe.value = ''
-  }
-})
-watch(verificationCode, () => {
-  if (verificationCode.value !== '') {
-    warningCode.value = ''
-  }
-})
-const signup = async () => {
-  if (validate(username.value, 'username')) {
-    if (validate(email.value, 'email')) {
-      if (validate(verificationCode.value, 'code')) {
-        if (validate(realName.value, 'real')) {
-          if (validate(password.value, 'pass')) {
-            if (validate(passwordAgain.value, 'passRe')) {
-              await auth.signup(
-                username.value,
-                password.value,
-                email.value,
-                realName.value,
-                emailAuth.value
-              )
-              emit('to', 'close')
-            }
-          }
-        }
-      }
-    }
-  }
-}
-const verifyEmail = async () => {
-  const emailVerify = email.value
-  if (validate(emailVerify, 'email')) {
-    try {
-      await axios.post('/api/email-auth/send-email/register-new', {
-        email: emailVerify
+
+  try {
+    await axios.post('/api/email-auth/send-email/register-new', {
+      email: email.value
+    })
+    sentEmail.value = true
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 422) {
+      toast({
+        message: 'You have already signed up!',
+        type: 'error'
       })
-      warningEmail.value = 'Email verification code sent'
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (e: any) {
-      if (e.response.status === 422) {
-        warningEmail.value = 'You have already signed up!'
-      }
-      warningEmail.value = 'Check your email again!'
-      throw new Error('Email verification code sending failed')
+      return
     }
+    toast({
+      message: 'Sending verification code failed!',
+      type: 'error'
+    })
   }
 }
+
 const verifyCode = async () => {
-  const emailVerify = email.value
-  const pin = verificationCode.value
-  if (
-    validate(verificationCode.value, 'code') &&
-    validate(emailVerify, 'email')
-  ) {
-    try {
-      const res = await axios.post('/api/email-auth/verify-pin', {
-        pin,
-        email: emailVerify
-      })
-      warningCode.value = 'Email verification succeed!'
-      emailAuth.value = res.headers['email-auth']
-      verificationEmail.value = true
-    } catch (e) {
-      warningCode.value = 'Email verification failed!'
-      throw new Error('Email verification failed')
-    }
+  const emailIsValid = await validateField('email')
+  if (!emailIsValid) {
+    toast({
+      message: 'Email is not valid!',
+      type: 'error'
+    })
+    return
   }
-}
 
-const validate = (key: string, type: string) => {
-  if (type === 'username') {
-    if (key === '') {
-      warningUser.value = 'Please type in the username'
-      return false
-    } else if (username.value.length < 3 || username.value.length > 10) {
-      warningUser.value = 'Username must be 4 ~ 9 characters'
-      return false
+  const verificationCodeIsValid = await validateField('verificationCode')
+  if (!verificationCodeIsValid) {
+    toast({
+      message: 'Verification code is not valid!',
+      type: 'error'
+    })
+    return
+  }
+
+  try {
+    const response = await axios.post('/api/email-auth/verify-pin', {
+      pin: verificationCode.value,
+      email: email.value
+    })
+    if (response.status === 200) {
+      emailVerified.value = true
+      emailAuthToken.value = response.headers['email-auth']
     } else {
-      warningUser.value = ''
-      return true
+      toast({
+        message: 'Email verification failed!',
+        type: 'error'
+      })
     }
-  } else if (type === 'pass') {
-    if (key === '') {
-      warningPass.value = 'Please type in the password'
-      return false
-    } else if (key.length < 8) {
-      warningPass.value = 'Password must be at least 8 characters'
-      return false
-    } else if (!regex.test(key)) {
-      warningPass.value =
-        'At least 2 of lower case, upper case, number or exclamation marks required'
-      return false
-    } else {
-      warningPass.value = ''
-      return true
-    }
-  } else if (type === 'email') {
-    if (key === '') {
-      warningEmail.value = 'Please type in your email address'
-      return false
-    } else {
-      warningEmail.value = ''
-      return true
-    }
-  } else if (type === 'real') {
-    if (key === '') {
-      warningName.value = 'Please type in your real name.'
-      return false
-    } else if (!realnameRegex.test(key)) {
-      warningName.value = 'Real name should be English!'
-      return false
-    } else {
-      warningName.value = ''
-      return true
-    }
-  } else if (type === 'passRe') {
-    if (key === '') {
-      warningPassRe.value = 'Please type in your password again.'
-      return false
-    } else if (key !== password.value) {
-      warningPassRe.value = 'Password does not match!'
-      return false
-    } else {
-      warningPassRe.value = ''
-      return true
-    }
-  } else if (type === 'code') {
-    if (key === '') {
-      warningCode.value = 'Please verify email address.'
-      return false
-    } else {
-      warningCode.value = ''
-      return true
-    }
-  } else {
-    return true
+  } catch (error) {
+    toast({
+      message: 'Email verification failed!',
+      type: 'error'
+    })
   }
 }
 </script>
 
 <template>
   <div class="flex flex-col items-center justify-center">
-    <h1 class="text-green my-8 w-60 text-center text-xl font-bold">
-      Welcome to
-      <br />
-      SKKU Coding Platform
-    </h1>
-    <form class="mb-2 flex w-60 flex-col" @submit.prevent="signup">
+    <img :src="Logo" class="mb-8 h-20" />
+    <form class="flex w-60 flex-col gap-4" @submit.prevent="signup">
       <InputItem
-        v-model="username"
+        v-bind="username"
         placeholder="Username"
-        class="mb-1 rounded-md"
+        :error="errors.username"
       />
-      <p class="text-red mb-4 text-xs font-bold">
-        {{ warningUser }}
-      </p>
       <div class="flex gap-2">
         <InputItem
-          v-model="email"
+          v-bind="email"
           type="email"
           placeholder="Email Address"
-          class="mb-1 min-w-0 rounded-md"
+          :error="errors.email"
         />
-        <Button
-          class="aspect-square h-[34px] rounded-md"
-          @click.prevent="verifyEmail()"
-        >
+        <Button color="blue" @click.prevent="sendCodeToEmail">
           <IconPaperPlane />
         </Button>
       </div>
-      <p
-        v-show="warningEmail === 'Email verification code sent'"
-        class="text-green mb-4 text-xs font-bold"
-      >
+      <p v-show="sentEmail" class="text-green text-xs font-bold">
         Email verification code has been sent!
-      </p>
-      <p
-        v-show="warningEmail !== 'Email verification code sent'"
-        class="text-red mb-4 text-xs font-bold"
-      >
-        {{ warningEmail }}
       </p>
       <div class="flex gap-2">
         <InputItem
-          v-model="verificationCode"
+          v-bind="verificationCode"
           type="number"
           placeholder="Verification Code"
-          class="mb-1 min-w-0 rounded-md"
+          :error="errors.verificationCode"
         />
-        <Button
-          class="aspect-square h-[34px] rounded-md"
-          @click.prevent="verifyCode()"
-        >
+        <Button color="blue" @click.prevent="verifyCode()">
           <IconCheck />
         </Button>
       </div>
-      <div>
-        <p
-          v-show="warningCode === 'Email verification succeed!'"
-          class="text-green mb-4 text-xs font-bold"
-        >
-          Email has been verified!
-        </p>
-        <p
-          v-show="warningCode !== 'Email verification succeed!'"
-          class="text-red mb-4 text-xs font-bold"
-        >
-          {{ warningCode }}
-        </p>
-      </div>
+      <p v-show="emailVerified" class="text-green text-xs font-bold">
+        Email has been verified!
+      </p>
       <InputItem
-        v-model="realName"
+        :v-bind="realName"
         placeholder="Real Name"
-        class="mb-1 rounded-md"
+        :error="errors.realName"
       />
-      <p class="text-red mb-4 text-xs font-bold">
-        {{ warningName }}
-      </p>
-      <div class="mb-1 flex items-center justify-between">
+      <div class="flex items-center justify-between">
         <InputItem
-          v-model="password"
+          :v-bind="password"
           placeholder="Password"
-          class="rounded-md"
-          :type="passwordVisible ? 'text' : 'password'"
+          :type="showPassword ? 'text' : 'password'"
+          :error="errors.password"
         />
         <component
-          :is="passwordVisible ? RegularEye : EyeSlash"
-          @click.stop="passwordVisible = !passwordVisible"
+          :is="showPassword ? RegularEye : EyeSlash"
+          @click.stop="showPassword = !showPassword"
         />
       </div>
-      <p class="text-red mb-4 text-xs font-bold">
-        {{ warningPass }}
-      </p>
-      <div class="mb-1 flex items-center justify-between">
+      <div class="flex items-center justify-between">
         <InputItem
-          v-model="passwordAgain"
+          v-bind="passwordAgain"
           placeholder="Password Check"
-          class="rounded-md"
-          :type="passwordReVisible ? 'text' : 'password'"
+          :type="showPasswordAgain ? 'text' : 'password'"
+          :error="errors.passwordAgain"
         />
         <component
-          :is="passwordReVisible ? RegularEye : EyeSlash"
-          @click.stop="passwordReVisible = !passwordReVisible"
+          :is="showPasswordAgain ? RegularEye : EyeSlash"
+          @click.stop="showPasswordAgain = !showPasswordAgain"
         />
       </div>
-      <p class="text-red mb-4 text-xs font-bold">
-        {{ warningPassRe }}
-      </p>
-      <Button type="submit" class="rounded-md" @click.prevent="signup()">
-        Register
-      </Button>
+      <Button color="blue" type="submit">Register</Button>
     </form>
     <div class="text-gray-dark mt-6 flex flex-col items-center text-sm">
       Already have an account?

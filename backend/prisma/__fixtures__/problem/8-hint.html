@@ -1,0 +1,1410 @@
+<p>
+  예제에서 입력되는 순서대로 간선에 번호를 매겨보자.
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow><mi>i</mi></mrow>
+            <annotation encoding="application/x-tex">i</annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.65952em; vertical-align: 0em"
+          ></span>
+          <span class="mord mathdefault">i</span>
+        </span>
+      </span>
+    </span>
+  </span>
+  번째 간선을
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow>
+              <msub>
+                <mi>e</mi>
+                <mi>i</mi>
+              </msub>
+            </mrow>
+            <annotation encoding="application/x-tex">e_i</annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.58056em; vertical-align: -0.15em"
+          ></span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.311664em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mathdefault mtight">i</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+        </span>
+      </span>
+    </span>
+  </span>
+  라고 하자.
+</p>
+<p>
+  첫 번째 예제에서 유일하게 가능한 사이클 분할은
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow>
+              <mi>S</mi>
+              <mo>=</mo>
+              <mrow>
+                <mo>[</mo>
+                <msub>
+                  <mi>e</mi>
+                  <mn>1</mn>
+                </msub>
+                <mo separator="true">,</mo>
+                <msub>
+                  <mi>e</mi>
+                  <mn>2</mn>
+                </msub>
+                <mo separator="true">,</mo>
+                <msub>
+                  <mi>e</mi>
+                  <mn>3</mn>
+                </msub>
+                <mo>]</mo>
+              </mrow>
+            </mrow>
+            <annotation encoding="application/x-tex">
+              S={[e_1,e_2,e_3]}
+            </annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.68333em; vertical-align: 0em"
+          ></span>
+          <span class="mord mathdefault" style="margin-right: 0.05764em">
+            S
+          </span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+          <span class="mrel">=</span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+        </span>
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 1em; vertical-align: -0.25em"
+          ></span>
+          <span class="mord">
+            <span class="mopen">[</span>
+            <span class="mord">
+              <span class="mord mathdefault">e</span>
+              <span class="msupsub">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.301108em">
+                      <span
+                        class=""
+                        style="
+                          top: -2.55em;
+                          margin-left: 0em;
+                          margin-right: 0.05em;
+                        "
+                      >
+                        <span class="pstrut" style="height: 2.7em"></span>
+                        <span class="sizing reset-size6 size3 mtight">
+                          <span class="mord mtight">1</span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="vlist-s"></span>
+                  </span>
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.15em">
+                      <span class=""></span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span class="mpunct">,</span>
+            <span class="mspace" style="margin-right: 0.166667em"></span>
+            <span class="mord">
+              <span class="mord mathdefault">e</span>
+              <span class="msupsub">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.301108em">
+                      <span
+                        class=""
+                        style="
+                          top: -2.55em;
+                          margin-left: 0em;
+                          margin-right: 0.05em;
+                        "
+                      >
+                        <span class="pstrut" style="height: 2.7em"></span>
+                        <span class="sizing reset-size6 size3 mtight">
+                          <span class="mord mtight">2</span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="vlist-s"></span>
+                  </span>
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.15em">
+                      <span class=""></span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span class="mpunct">,</span>
+            <span class="mspace" style="margin-right: 0.166667em"></span>
+            <span class="mord">
+              <span class="mord mathdefault">e</span>
+              <span class="msupsub">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.301108em">
+                      <span
+                        class=""
+                        style="
+                          top: -2.55em;
+                          margin-left: 0em;
+                          margin-right: 0.05em;
+                        "
+                      >
+                        <span class="pstrut" style="height: 2.7em"></span>
+                        <span class="sizing reset-size6 size3 mtight">
+                          <span class="mord mtight">3</span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="vlist-s"></span>
+                  </span>
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.15em">
+                      <span class=""></span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span class="mclose">]</span>
+          </span>
+        </span>
+      </span>
+    </span>
+  </span>
+  이다.
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow>
+              <mi>f</mi>
+              <mo>(</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>1</mn>
+              </msub>
+              <mo separator="true">,</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>2</mn>
+              </msub>
+              <mo>)</mo>
+              <mo>+</mo>
+              <mi>f</mi>
+              <mo>(</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>2</mn>
+              </msub>
+              <mo separator="true">,</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>3</mn>
+              </msub>
+              <mo>)</mo>
+              <mo>+</mo>
+              <mi>f</mi>
+              <mo>(</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>3</mn>
+              </msub>
+              <mo separator="true">,</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>1</mn>
+              </msub>
+              <mo>)</mo>
+              <mo>=</mo>
+              <mn>1</mn>
+              <mo>+</mo>
+              <mn>1</mn>
+              <mo>+</mo>
+              <mn>1</mn>
+              <mo>=</mo>
+              <mn>3</mn>
+            </mrow>
+            <annotation encoding="application/x-tex">
+              f(e_1,e_2)+f(e_2,e_3)+f(e_3,e_1)=1+1+1=3
+            </annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 1em; vertical-align: -0.25em"
+          ></span>
+          <span class="mord mathdefault" style="margin-right: 0.10764em">
+            f
+          </span>
+          <span class="mopen">(</span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">1</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">2</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mclose">)</span>
+          <span class="mspace" style="margin-right: 0.222222em"></span>
+          <span class="mbin">+</span>
+          <span class="mspace" style="margin-right: 0.222222em"></span>
+        </span>
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 1em; vertical-align: -0.25em"
+          ></span>
+          <span class="mord mathdefault" style="margin-right: 0.10764em">
+            f
+          </span>
+          <span class="mopen">(</span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">2</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">3</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mclose">)</span>
+          <span class="mspace" style="margin-right: 0.222222em"></span>
+          <span class="mbin">+</span>
+          <span class="mspace" style="margin-right: 0.222222em"></span>
+        </span>
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 1em; vertical-align: -0.25em"
+          ></span>
+          <span class="mord mathdefault" style="margin-right: 0.10764em">
+            f
+          </span>
+          <span class="mopen">(</span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">3</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">1</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mclose">)</span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+          <span class="mrel">=</span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+        </span>
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.72777em; vertical-align: -0.08333em"
+          ></span>
+          <span class="mord">1</span>
+          <span class="mspace" style="margin-right: 0.222222em"></span>
+          <span class="mbin">+</span>
+          <span class="mspace" style="margin-right: 0.222222em"></span>
+        </span>
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.72777em; vertical-align: -0.08333em"
+          ></span>
+          <span class="mord">1</span>
+          <span class="mspace" style="margin-right: 0.222222em"></span>
+          <span class="mbin">+</span>
+          <span class="mspace" style="margin-right: 0.222222em"></span>
+        </span>
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.64444em; vertical-align: 0em"
+          ></span>
+          <span class="mord">1</span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+          <span class="mrel">=</span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+        </span>
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.64444em; vertical-align: 0em"
+          ></span>
+          <span class="mord">3</span>
+        </span>
+      </span>
+    </span>
+  </span>
+</p>
+<p>
+  두 번째 예제에서 최적의 사이클 분할은
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow>
+              <mi>S</mi>
+              <mo>=</mo>
+              <mrow>
+                <mo>[</mo>
+                <msub>
+                  <mi>e</mi>
+                  <mn>3</mn>
+                </msub>
+                <mo separator="true">,</mo>
+                <msub>
+                  <mi>e</mi>
+                  <mn>8</mn>
+                </msub>
+                <mo separator="true">,</mo>
+                <msub>
+                  <mi>e</mi>
+                  <mn>9</mn>
+                </msub>
+                <mo>]</mo>
+                <mo separator="true">,</mo>
+                <mo>[</mo>
+                <msub>
+                  <mi>e</mi>
+                  <mn>2</mn>
+                </msub>
+                <mo separator="true">,</mo>
+                <msub>
+                  <mi>e</mi>
+                  <mn>4</mn>
+                </msub>
+                <mo separator="true">,</mo>
+                <msub>
+                  <mi>e</mi>
+                  <mn>7</mn>
+                </msub>
+                <mo separator="true">,</mo>
+                <msub>
+                  <mi>e</mi>
+                  <mn>10</mn>
+                </msub>
+                <mo separator="true">,</mo>
+                <msub>
+                  <mi>e</mi>
+                  <mn>5</mn>
+                </msub>
+                <mo separator="true">,</mo>
+                <msub>
+                  <mi>e</mi>
+                  <mn>1</mn>
+                </msub>
+                <mo separator="true">,</mo>
+                <msub>
+                  <mi>e</mi>
+                  <mn>6</mn>
+                </msub>
+                <mo>]</mo>
+              </mrow>
+            </mrow>
+            <annotation encoding="application/x-tex">
+              S={[e_3,e_8,e_9],[e_2,e_4,e_7,e_{10},e_5,e_1,e_6]}
+            </annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.68333em; vertical-align: 0em"
+          ></span>
+          <span class="mord mathdefault" style="margin-right: 0.05764em">
+            S
+          </span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+          <span class="mrel">=</span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+        </span>
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 1em; vertical-align: -0.25em"
+          ></span>
+          <span class="mord">
+            <span class="mopen">[</span>
+            <span class="mord">
+              <span class="mord mathdefault">e</span>
+              <span class="msupsub">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.301108em">
+                      <span
+                        class=""
+                        style="
+                          top: -2.55em;
+                          margin-left: 0em;
+                          margin-right: 0.05em;
+                        "
+                      >
+                        <span class="pstrut" style="height: 2.7em"></span>
+                        <span class="sizing reset-size6 size3 mtight">
+                          <span class="mord mtight">3</span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="vlist-s"></span>
+                  </span>
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.15em">
+                      <span class=""></span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span class="mpunct">,</span>
+            <span class="mspace" style="margin-right: 0.166667em"></span>
+            <span class="mord">
+              <span class="mord mathdefault">e</span>
+              <span class="msupsub">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.301108em">
+                      <span
+                        class=""
+                        style="
+                          top: -2.55em;
+                          margin-left: 0em;
+                          margin-right: 0.05em;
+                        "
+                      >
+                        <span class="pstrut" style="height: 2.7em"></span>
+                        <span class="sizing reset-size6 size3 mtight">
+                          <span class="mord mtight">8</span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="vlist-s"></span>
+                  </span>
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.15em">
+                      <span class=""></span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span class="mpunct">,</span>
+            <span class="mspace" style="margin-right: 0.166667em"></span>
+            <span class="mord">
+              <span class="mord mathdefault">e</span>
+              <span class="msupsub">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.301108em">
+                      <span
+                        class=""
+                        style="
+                          top: -2.55em;
+                          margin-left: 0em;
+                          margin-right: 0.05em;
+                        "
+                      >
+                        <span class="pstrut" style="height: 2.7em"></span>
+                        <span class="sizing reset-size6 size3 mtight">
+                          <span class="mord mtight">9</span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="vlist-s"></span>
+                  </span>
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.15em">
+                      <span class=""></span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span class="mclose">]</span>
+            <span class="mpunct">,</span>
+            <span class="mspace" style="margin-right: 0.166667em"></span>
+            <span class="mopen">[</span>
+            <span class="mord">
+              <span class="mord mathdefault">e</span>
+              <span class="msupsub">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.301108em">
+                      <span
+                        class=""
+                        style="
+                          top: -2.55em;
+                          margin-left: 0em;
+                          margin-right: 0.05em;
+                        "
+                      >
+                        <span class="pstrut" style="height: 2.7em"></span>
+                        <span class="sizing reset-size6 size3 mtight">
+                          <span class="mord mtight">2</span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="vlist-s"></span>
+                  </span>
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.15em">
+                      <span class=""></span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span class="mpunct">,</span>
+            <span class="mspace" style="margin-right: 0.166667em"></span>
+            <span class="mord">
+              <span class="mord mathdefault">e</span>
+              <span class="msupsub">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.301108em">
+                      <span
+                        class=""
+                        style="
+                          top: -2.55em;
+                          margin-left: 0em;
+                          margin-right: 0.05em;
+                        "
+                      >
+                        <span class="pstrut" style="height: 2.7em"></span>
+                        <span class="sizing reset-size6 size3 mtight">
+                          <span class="mord mtight">4</span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="vlist-s"></span>
+                  </span>
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.15em">
+                      <span class=""></span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span class="mpunct">,</span>
+            <span class="mspace" style="margin-right: 0.166667em"></span>
+            <span class="mord">
+              <span class="mord mathdefault">e</span>
+              <span class="msupsub">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.301108em">
+                      <span
+                        class=""
+                        style="
+                          top: -2.55em;
+                          margin-left: 0em;
+                          margin-right: 0.05em;
+                        "
+                      >
+                        <span class="pstrut" style="height: 2.7em"></span>
+                        <span class="sizing reset-size6 size3 mtight">
+                          <span class="mord mtight">7</span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="vlist-s"></span>
+                  </span>
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.15em">
+                      <span class=""></span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span class="mpunct">,</span>
+            <span class="mspace" style="margin-right: 0.166667em"></span>
+            <span class="mord">
+              <span class="mord mathdefault">e</span>
+              <span class="msupsub">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.301108em">
+                      <span
+                        class=""
+                        style="
+                          top: -2.55em;
+                          margin-left: 0em;
+                          margin-right: 0.05em;
+                        "
+                      >
+                        <span class="pstrut" style="height: 2.7em"></span>
+                        <span class="sizing reset-size6 size3 mtight">
+                          <span class="mord mtight">
+                            <span class="mord mtight">1</span>
+                            <span class="mord mtight">0</span>
+                          </span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="vlist-s"></span>
+                  </span>
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.15em">
+                      <span class=""></span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span class="mpunct">,</span>
+            <span class="mspace" style="margin-right: 0.166667em"></span>
+            <span class="mord">
+              <span class="mord mathdefault">e</span>
+              <span class="msupsub">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.301108em">
+                      <span
+                        class=""
+                        style="
+                          top: -2.55em;
+                          margin-left: 0em;
+                          margin-right: 0.05em;
+                        "
+                      >
+                        <span class="pstrut" style="height: 2.7em"></span>
+                        <span class="sizing reset-size6 size3 mtight">
+                          <span class="mord mtight">5</span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="vlist-s"></span>
+                  </span>
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.15em">
+                      <span class=""></span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span class="mpunct">,</span>
+            <span class="mspace" style="margin-right: 0.166667em"></span>
+            <span class="mord">
+              <span class="mord mathdefault">e</span>
+              <span class="msupsub">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.301108em">
+                      <span
+                        class=""
+                        style="
+                          top: -2.55em;
+                          margin-left: 0em;
+                          margin-right: 0.05em;
+                        "
+                      >
+                        <span class="pstrut" style="height: 2.7em"></span>
+                        <span class="sizing reset-size6 size3 mtight">
+                          <span class="mord mtight">1</span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="vlist-s"></span>
+                  </span>
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.15em">
+                      <span class=""></span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span class="mpunct">,</span>
+            <span class="mspace" style="margin-right: 0.166667em"></span>
+            <span class="mord">
+              <span class="mord mathdefault">e</span>
+              <span class="msupsub">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.301108em">
+                      <span
+                        class=""
+                        style="
+                          top: -2.55em;
+                          margin-left: 0em;
+                          margin-right: 0.05em;
+                        "
+                      >
+                        <span class="pstrut" style="height: 2.7em"></span>
+                        <span class="sizing reset-size6 size3 mtight">
+                          <span class="mord mtight">6</span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="vlist-s"></span>
+                  </span>
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.15em">
+                      <span class=""></span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span class="mclose">]</span>
+          </span>
+        </span>
+      </span>
+    </span>
+  </span>
+  이다.
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow>
+              <mo>[</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>3</mn>
+              </msub>
+              <mo separator="true">,</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>8</mn>
+              </msub>
+              <mo separator="true">,</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>9</mn>
+              </msub>
+              <mo>]</mo>
+            </mrow>
+            <annotation encoding="application/x-tex">[e_3,e_8,e_9]</annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 1em; vertical-align: -0.25em"
+          ></span>
+          <span class="mopen">[</span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">3</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">8</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">9</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mclose">]</span>
+        </span>
+      </span>
+    </span>
+  </span>
+  의 비용은 12이고,
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow>
+              <mo>[</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>2</mn>
+              </msub>
+              <mo separator="true">,</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>4</mn>
+              </msub>
+              <mo separator="true">,</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>7</mn>
+              </msub>
+              <mo separator="true">,</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>10</mn>
+              </msub>
+              <mo separator="true">,</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>5</mn>
+              </msub>
+              <mo separator="true">,</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>1</mn>
+              </msub>
+              <mo separator="true">,</mo>
+              <msub>
+                <mi>e</mi>
+                <mn>6</mn>
+              </msub>
+              <mo>]</mo>
+            </mrow>
+            <annotation encoding="application/x-tex">
+              [e_2,e_4,e_7,e_{10},e_5,e_1,e_6]
+            </annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 1em; vertical-align: -0.25em"
+          ></span>
+          <span class="mopen">[</span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">2</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">4</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">7</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">
+                          <span class="mord mtight">1</span>
+                          <span class="mord mtight">0</span>
+                        </span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">5</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">1</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord">
+            <span class="mord mathdefault">e</span>
+            <span class="msupsub">
+              <span class="vlist-t vlist-t2">
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.301108em">
+                    <span
+                      class=""
+                      style="
+                        top: -2.55em;
+                        margin-left: 0em;
+                        margin-right: 0.05em;
+                      "
+                    >
+                      <span class="pstrut" style="height: 2.7em"></span>
+                      <span class="sizing reset-size6 size3 mtight">
+                        <span class="mord mtight">6</span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.15em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mclose">]</span>
+        </span>
+      </span>
+    </span>
+  </span>
+  의 비용은 23이다. 따라서 사이클 분할의 비용은 35이다.
+</p>

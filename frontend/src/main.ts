@@ -62,6 +62,7 @@ const router = createRouter({
   routes: setupLayouts(generatedRoutes)
 })
 
+NProgress.configure({ showSpinner: false })
 router.beforeEach(() => {
   NProgress.start()
 })
