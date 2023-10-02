@@ -1,30 +1,39 @@
 (cors) {
-  @cors_preflight method OPTIONS
-  @cors header Origin {args[0]}
+  @cors_preflight{args[0]} {        # cors_preflight{args[0]} matcher 생성
+    header Origin {args[0]}         # header와 method를 조건으로 설정
+    method OPTIONS
+  }
+  @cors{args[0]} header Origin {args[0]}    # cors{args[0]} matcher 생성
 
-  handle @cors_preflight {
-	  header Access-Control-Allow-Credentials true
+  handle @cors_preflight{args[0]} {         # cors_preflight{args[0]}를 처리할 handler
+    header Access-Control-Allow-Credentials true
     header Access-Control-Allow-Origin "{args[0]}"
     header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
     header Access-Control-Allow-Headers "Content-Type, Authorization"
     respond "" 204
   }
 
-  handle @cors {
+  handle @cors{args[0]} {        # cors{args[0]}를 처리할 handler
     header Access-Control-Allow-Origin "{args[0]}"
   }
 }
 
 dev.codedang.com {
   handle /api/* {
-	  import cors http://localhost:5173
     reverse_proxy 127.0.0.1:4000 {
       header_down -Access-Control-Allow-Origin *
 	  }
-	  header {
+
+    # 캐시 설정
+    header {
       Set-Cookie (.*) "$1; SameSite=None; Secure"
       defer
     }
+
+    # import <pattenr> [<args...>]
+    # cors 허용할 도메인 설정
+    import cors http://localhost:5173     # frontend server
+    import cors http://localhost:5555     # api docs server
   }
 
   handle /graphql {

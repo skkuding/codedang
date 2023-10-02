@@ -8,10 +8,12 @@ import { spy, stub } from 'sinon'
 import {
   ConflictFoundException,
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { Snippet } from './dto/create-submission.dto'
+import type { JudgerResponse } from './dto/judger-response.dto'
 import { problems } from './mock/problem.mock'
 import { submissions, submissionDto } from './mock/submission.mock'
 import { judgerResponse, submissionResults } from './mock/submissionResult.mock'
@@ -242,10 +244,39 @@ describe('SubmissionService', () => {
       await service.handleJudgerMessage(judgerResponse)
       expect(updateSpy.calledOnce).to.be.true
     })
+
+    it('should throw UnprocessableDataException when result code is Server Error', async () => {
+      const target: JudgerResponse = {
+        resultCode: 7,
+        error: 'succeed',
+        submissionId: 'abc123',
+        data: {
+          acceptedNum: 1,
+          totalTestcase: 1,
+          judgeResult: [
+            {
+              testcaseId: '1',
+              resultCode: 1,
+              cpuTime: 1,
+              realTime: 1,
+              memory: 1,
+              signal: 1,
+              exitCode: 1,
+              errorCode: 1
+            }
+          ]
+        }
+      }
+
+      await expect(service.handleJudgerMessage(target)).to.be.rejectedWith(
+        UnprocessableDataException
+      )
+    })
   })
 
   describe('updateSubmissionResult', () => {
     it('should call update submission result', async () => {
+      db.submission.update.reset()
       submissionResults.forEach((result, index) => {
         db.submissionResult.create.onCall(index).resolves(result)
       })
@@ -282,10 +313,18 @@ describe('SubmissionService', () => {
 
   describe('getSubmission', () => {
     it('should return submission', async () => {
+      const testcaseResult = submissionResults.map((result) => {
+        return {
+          ...result,
+          cpuTime: result.cpuTime.toString()
+        }
+      })
+
       const passSpy = spy(service, 'hasPassedProblem')
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.submission.findFirstOrThrow.resolves({
         ...submissions[0],
+        user: { username: 'username' },
         submissionResult: submissionResults
       })
 
@@ -295,7 +334,15 @@ describe('SubmissionService', () => {
           problems[0].id,
           submissions[0].userId
         )
-      ).to.be.deep.equal(submissionResults)
+      ).to.be.deep.equal({
+        problemId: problems[0].id,
+        username: 'username',
+        code: submissions[0].code.map((snippet) => snippet.text).join('\n'),
+        language: submissions[0].language,
+        createTime: submissions[0].createTime,
+        result: submissions[0].result,
+        testcaseResult
+      })
       expect(passSpy.called).to.be.false
     })
 
@@ -380,6 +427,75 @@ describe('SubmissionService', () => {
         service.getContestSubmissions(problems[0].id, 1, submissions[0].userId)
       ).to.be.rejectedWith(NotFoundException)
     })
+  })
+
+  describe('judgerMessageTypeHandler', () => {
+    it('should throw error when resultCode is invalid', async () => {
+      const target = {
+        resultCode: -1,
+        data: 'Test Error',
+        error: 'Test Error',
+        submissionId: 'abc123'
+      }
+
+      await expect(service.validateJudgerResponse(target)).to.be.rejected
+    })
+
+    it('should return message object', async () => {
+      const target: JudgerResponse = {
+        resultCode: 5,
+        error: 'succeed',
+        submissionId: 'abc123',
+        data: {
+          acceptedNum: 1,
+          totalTestcase: 1,
+          judgeResult: [
+            {
+              testcaseId: '1',
+              resultCode: 1,
+              cpuTime: 1,
+              realTime: 1,
+              memory: 1,
+              signal: 1,
+              exitCode: 1,
+              errorCode: 1
+            }
+          ]
+        }
+      }
+
+      const result = await service.validateJudgerResponse(target)
+
+      expect(result).to.be.deep.equal(target)
+    })
+  })
+
+  it('should handle message without error', async () => {
+    const target = {
+      resultCode: 0,
+      submissionId: 'a84f8d',
+      error: '',
+      data: {
+        acceptedNum: 1,
+        totalTestcase: 1,
+        judgeResult: [
+          {
+            testcaseId: '18:30',
+            resultCode: 0,
+            cpuTime: 0,
+            realTime: 0,
+            memory: 1044480,
+            signal: 0,
+            exitCode: 0,
+            errorCode: 0
+          }
+        ]
+      }
+    }
+
+    const result = await service.validateJudgerResponse(target)
+
+    expect(result).to.be.deep.equal(target)
   })
 
   describe('getContestSubmisssion', () => {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Logo from '@/common/assets/codedang.svg'
+import { useToast } from '@/common/composables/toast'
 import { useAuthStore } from '@/common/store/auth'
 import { OnClickOutside } from '@vueuse/components'
 import { ref } from 'vue'
@@ -17,7 +18,21 @@ import AuthModal from './AuthModal.vue'
 const auth = useAuthStore()
 const router = useRouter()
 const isMenuOpen = ref(false)
+const openToast = useToast()
 const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
+
+// hide: remove hide, handleLinkClick
+const hide = () => {
+  openToast({
+    message: 'This feature is under development',
+    type: 'info'
+  })
+}
+const handleLinkClick = (name: string) => {
+  if (name === 'contest' || name === 'group') {
+    hide()
+  }
+}
 </script>
 
 <template>
@@ -34,16 +49,21 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
             <RouterLink
               v-for="{ to, name } in [
                 { to: '/notice', name: 'notice' },
-                { to: '/contest', name: 'contest' },
+                { to: '/', name: 'contest' },
                 { to: '/problem', name: 'problem' },
-                { to: '/group', name: 'group' }
+                { to: '/', name: 'group' }
+                //hide: replace / with /contest, /group each
               ]"
               :key="name"
               class="cursor-pointer text-lg hover:opacity-60 active:opacity-40"
               :class="{
-                'text-green': router.currentRoute.value.fullPath.startsWith(to)
+                'text-green':
+                  router.currentRoute.value.fullPath.startsWith(to) &&
+                  to !== '/'
+                //hide: remove the above line
               }"
               :to="to"
+              @click="handleLinkClick(name)"
             >
               {{ name }}
             </RouterLink>
@@ -68,7 +88,8 @@ const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
             </template>
             <template #items>
               <ListItem @click="$router.push('/admin')">Management</ListItem>
-              <ListItem>Settings</ListItem>
+              <ListItem @click="hide()">Settings</ListItem>
+              <!-- hide: replace hide to setting page routing -->
               <ListItem @click="auth.logout()">Logout</ListItem>
             </template>
           </Dropdown>

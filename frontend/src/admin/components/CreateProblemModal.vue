@@ -1,154 +1,333 @@
 <script setup lang="ts">
+/* eslint-disable @typescript-eslint/naming-convention */
 import Button from '@/common/components/Atom/Button.vue'
 import InputItem from '@/common/components/Atom/InputItem.vue'
 import Modal from '@/common/components/Molecule/Modal.vue'
 import TextEditor from '@/common/components/Organism/TextEditor.vue'
-import { ref } from 'vue'
+import { useToast } from '@/common/composables/toast'
+import type { Language, Level } from '@/user/problem/types'
+import { toTypedSchema } from '@vee-validate/zod'
+import { useMutation } from '@vue/apollo-composable'
+import { useVModel } from '@vueuse/core'
+import { gql } from 'graphql-tag'
+import { useForm } from 'vee-validate'
+import { z } from 'zod'
 import IconTrash from '~icons/fa/trash-o'
 
-defineProps<{
-  toggle: boolean
-  setToggle: (a: boolean) => void
+const props = defineProps<{
+  modelValue: boolean
 }>()
-const data = ref({
-  displayId: '',
-  title: '',
-  difficulty: 'Level1',
-  language: 'C',
-  timeLimit: '',
-  memoryLimit: '',
-  inputDesc: '',
-  outputDesc: '',
-  sample: [{ input: '', output: '' }],
-  testcase: [{ input: '', output: '' }]
+
+const emit = defineEmits<{
+  'update:modelValue': [boolean]
+}>()
+
+const showModal = useVModel(props, 'modelValue', emit)
+
+const schema = z.object({
+  title: z.string().min(1),
+  description: z.string(),
+  inputDescription: z.string(),
+  outputDescription: z.string(),
+  hint: z.string().default(''),
+  source: z.string().default(''),
+  template: z
+    .array(
+      z.object({
+        language: z.enum(['C', 'Cpp', 'Python3', 'Java', 'Golang']),
+        code: z.array(
+          z.object({
+            id: z.number(),
+            text: z.string(),
+            locked: z.boolean()
+          })
+        )
+      })
+    )
+    .default([]),
+  languages: z
+    .array(z.enum(['C', 'Cpp', 'Python3', 'Java', 'Golang']))
+    .min(1, 'At least one language is required.')
+    .default([]),
+  timeLimit: z
+    .string()
+    .default('2000')
+    .transform((v) => parseInt(v)),
+  memoryLimit: z
+    .string()
+    .default('512')
+    .transform((v) => parseInt(v)),
+  difficulty: z
+    .enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5'])
+    .default('Level1'),
+  inputExamples: z.array(z.string()).default(['']),
+  outputExamples: z.array(z.string()).default(['']),
+  testcases: z
+    .array(
+      z.object({
+        input: z.string(),
+        output: z.string(),
+        scoreWeight: z.number().optional()
+      })
+    )
+    .default([{ input: '', output: '' }]),
+  tagIds: z.array(z.number()).default([])
 })
-const description = ref('')
-const levelItems = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
-const languageItems = ['C', 'C++', 'Python3', 'Java']
+
+const {
+  defineInputBinds,
+  defineComponentBinds,
+  setFieldValue,
+  values,
+  errors,
+  handleSubmit,
+  resetForm
+} = useForm({
+  validationSchema: toTypedSchema(schema)
+})
+
+const title = defineComponentBinds('title')
+const difficulty = defineInputBinds('difficulty')
+const description = defineComponentBinds('description')
+const inputDescription = defineInputBinds('inputDescription')
+const outputDescription = defineInputBinds('outputDescription')
+const timeLimit = defineComponentBinds('timeLimit')
+const memoryLimit = defineComponentBinds('memoryLimit')
+const hint = defineComponentBinds('hint')
+const inputExamples = defineComponentBinds('inputExamples')
+const outputExamples = defineComponentBinds('outputExamples')
+const testcases = defineComponentBinds('testcases')
+
+const toast = useToast()
+
+const { mutate, onError, onDone } = useMutation(gql`
+  mutation CreateProblem($input: CreateProblemInput!) {
+    createProblem(input: $input) {
+      id
+    }
+  }
+`)
+
+onError(() => {
+  toast({
+    message: 'Failed to create problem',
+    type: 'error'
+  })
+})
+
+onDone(() => {
+  toast({
+    message: 'Created problem successfully',
+    type: 'success'
+  })
+  resetForm()
+  showModal.value = false
+})
+
+const submit = handleSubmit(
+  (input) => {
+    mutate({ input })
+  },
+  (error) => {
+    const key = Object.keys(error.errors)[0]
+    const message = `Invalid ${key}: ` + Object.values(error.errors)[0]
+    toast({ message, type: 'error' })
+  }
+)
+
+const levelLabels: Record<Level, string> = {
+  Level1: 'Level 1',
+  Level2: 'Level 2',
+  Level3: 'Level 3',
+  Level4: 'Level 4',
+  Level5: 'Level 5'
+}
+
+const languageLabels: Record<Language, string> = {
+  C: 'C',
+  Cpp: 'C++',
+  Python3: 'Python',
+  Java: 'Java',
+  Golang: 'Go'
+}
+
+const toggleLanguage = (language: Language) => {
+  if (values.languages?.includes(language)) {
+    setFieldValue(
+      'languages',
+      values.languages.filter((l) => l !== language)
+    )
+  } else {
+    setFieldValue(
+      'languages',
+      values.languages ? [...values.languages, language] : [language]
+    )
+  }
+}
+
+const addExample = () => {
+  setFieldValue('inputExamples', [...values.inputExamples!, ''])
+  setFieldValue('outputExamples', [...values.outputExamples!, ''])
+}
+
+const removeExample = (index: number) => {
+  setFieldValue(
+    'inputExamples',
+    values.inputExamples?.filter((_, i) => i !== index)
+  )
+  setFieldValue(
+    'outputExamples',
+    values.outputExamples?.filter((_, i) => i !== index)
+  )
+}
+
+const addTestcase = () => {
+  setFieldValue('testcases', [...values.testcases!, { input: '', output: '' }])
+}
+
+const removeTestcase = (index: number) => {
+  setFieldValue('testcases', values.testcases?.filter((_, i) => i !== index))
+}
 </script>
 
 <template>
-  <Modal
-    class="w-full max-w-[70%]"
-    :model-value="toggle"
-    @update:model-value="
-      () => {
-        setToggle(toggle)
-      }
-    "
-  >
-    <div class="flex flex-col gap-8">
+  <Modal v-model="showModal" class="w-full max-w-[70%]">
+    <form class="flex flex-col gap-8" @submit.prevent="submit">
       <h1 class="text-gray-dark text-2xl font-semibold">Create Problem</h1>
-      <h2 class="text-gray-dark border-gray border-b pb-5 font-semibold">
-        SKKU 프로그래밍 대회 - SKKUDING
-      </h2>
-
       <div class="col-span-3">
-        <label class="text-lg font-bold">Title</label>
+        <label class="text-lg font-bold">
+          Title
+          <span class="text-red">*</span>
+        </label>
         <InputItem
-          v-model="data.title"
+          v-bind="title"
           class="mt-3 w-full"
           placeholder="Title"
+          :error="errors.title"
         />
       </div>
-      <div class="grid grid-cols-3 gap-5">
-        <div class="flex flex-col gap-3">
-          <label class="text-lg font-bold">Display ID</label>
-          <InputItem
-            v-model="data.displayId"
-            placeholder="Display ID"
-            class="w-full"
-          />
-        </div>
-        <div class="flex flex-col gap-3">
-          <label class="text-lg font-bold">Difficulty</label>
+      <div class="flex justify-between gap-5">
+        <div class="flex flex-1 flex-col gap-3">
+          <label class="text-lg font-bold">
+            Difficulty
+            <span class="text-red">*</span>
+          </label>
           <select
             id="difficulty"
-            v-model="data.difficulty"
+            v-bind="difficulty"
             name="difficulty"
             class="border-gray focus:border-green focus:ring-green w-full rounded border px-3 py-1 outline-none focus:ring-1"
           >
-            <option v-for="item in levelItems" :key="item" :value="item">
-              {{ item }}
+            <option
+              v-for="(label, value) in levelLabels"
+              :key="value"
+              :value="value"
+            >
+              {{ label }}
             </option>
           </select>
         </div>
-        <div class="flex flex-col gap-3">
-          <label class="text-lg font-bold">Language</label>
-          <select
-            id="language"
-            v-model="data.language"
-            name="language"
-            class="border-gray focus:border-green focus:ring-green w-full rounded border px-3 py-1 outline-none focus:ring-1"
-          >
-            <option v-for="item in languageItems" :key="item" :value="item">
-              {{ item }}
-            </option>
-          </select>
+        <div class="flex flex-1 flex-col gap-3">
+          <label class="text-lg font-bold">
+            Language
+            <span class="text-red">*</span>
+          </label>
+          <div class="flex gap-3">
+            <button
+              v-for="(label, value) in languageLabels"
+              :key="value"
+              type="button"
+              class="rounded px-3 py-1 font-medium"
+              :class="
+                values.languages?.includes(value)
+                  ? 'bg-blue hover:bg-blue/90 text-white'
+                  : 'bg-gray/25 hover:bg-gray/40 text-text/50'
+              "
+              @click="toggleLanguage(value)"
+            >
+              {{ label }}
+            </button>
+          </div>
+          <p class="text-red text-xs">{{ errors.languages }}</p>
         </div>
       </div>
       <div>
-        <h2 class="mb-3 text-lg font-bold">Description</h2>
-        <TextEditor v-model="description" size="lg" />
+        <h2 class="mb-3 text-lg font-bold">
+          Description
+          <span class="text-red">*</span>
+        </h2>
+        <TextEditor v-bind="description" size="lg" />
       </div>
       <div class="grid grid-cols-2 gap-5">
         <div>
-          <label class="mb-3 text-lg font-bold">Input Description</label>
+          <label class="mb-3 text-lg font-bold">
+            Input Description
+            <span class="text-red">*</span>
+          </label>
           <textarea
-            v-model="data.inputDesc"
+            v-bind="inputDescription"
             class="border-gray focus:border-green focus:ring-green mt-3 h-[120px] w-full resize-none rounded-lg outline-none focus:ring-1"
           />
         </div>
         <div>
-          <label class="text-lg font-bold">Output Description</label>
+          <label class="text-lg font-bold">
+            Output Description
+            <span class="text-red">*</span>
+          </label>
           <textarea
-            v-model="data.outputDesc"
+            v-bind="outputDescription"
             class="border-gray focus:border-green focus:ring-green mt-3 h-[120px] w-full resize-none rounded-lg outline-none focus:ring-1"
           />
         </div>
       </div>
       <div class="grid grid-cols-2 gap-5">
         <div>
-          <label class="mb-3 text-lg font-bold">Time Limit (ms)</label>
+          <label class="mb-3 text-lg font-bold">
+            Time Limit (ms)
+            <span class="text-red">*</span>
+          </label>
           <InputItem
-            v-model="data.timeLimit"
+            v-bind="timeLimit"
             placeholder="Time Limit (ms)"
             class="mt-3 w-full"
+            type="number"
           />
         </div>
         <div>
-          <label class="mb-3 text-lg font-bold">Memory Limit (MB)</label>
+          <label class="mb-3 text-lg font-bold">
+            Memory Limit (MB)
+            <span class="text-red">*</span>
+          </label>
           <InputItem
-            v-model="data.memoryLimit"
+            v-bind="memoryLimit"
             placeholder="Memory Limit (MB)"
             class="mt-3 w-full"
+            type="number"
           />
         </div>
       </div>
       <div>
-        <label class="text-lg font-bold">Hint</label>
-        <TextEditor size="lg" />
+        <h2 class="mb-3 text-lg font-bold">
+          Hint
+          <span class="text-red">*</span>
+        </h2>
+        <TextEditor v-bind="hint" size="lg" />
       </div>
       <div
-        v-for="(item, index) in data.sample"
+        v-for="(_, index) in values.inputExamples"
         :key="index"
         class="flex flex-col gap-5"
       >
         <div class="flex justify-between">
-          <h2 class="text-lg font-bold">Sample {{ index + 1 }}</h2>
+          <h2 class="text-lg font-bold">
+            Sample {{ index + 1 }}
+            <span class="text-red">*</span>
+          </h2>
           <Button
-            class="flex h-[32px] items-center justify-center gap-2"
-            @click="
-              () => {
-                if (data.sample.length === 1)
-                  data.sample = [{ input: '', output: '' }]
-                else
-                  data.sample = [
-                    ...data.sample.slice(0, index),
-                    ...data.sample.slice(index + 1)
-                  ]
-              }
-            "
+            v-if="inputExamples.length > 1"
+            type="button"
+            class="flexitems-center justify-center gap-2"
+            @click="removeExample(index)"
           >
             <IconTrash />
             Delete
@@ -161,8 +340,8 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
                 Input Sample
               </label>
               <textarea
-                v-model="item.input"
-                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
+                v-bind="inputExamples[index]"
+                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
               />
             </div>
             <div>
@@ -170,44 +349,36 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
                 Output Sample
               </label>
               <textarea
-                v-model="item.output"
-                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
+                v-bind="outputExamples[index]"
+                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
               />
             </div>
           </div>
         </div>
       </div>
       <Button
+        type="button"
         class="border-gray text-gray-dark flex h-[45px] items-center justify-center border"
         color="white"
-        @click="
-          () => {
-            data.sample = [...data.sample, { input: '', output: '' }]
-          }
-        "
+        @click="addExample"
       >
         Add Sample
       </Button>
       <div
-        v-for="(item, index) in data.testcase"
+        v-for="(item, index) in values.testcases"
         :key="index"
         class="flex flex-col gap-5"
       >
         <div class="flex justify-between">
-          <h2 class="text-lg font-bold">Testcase {{ index + 1 }}</h2>
+          <h2 class="text-lg font-bold">
+            Testcase {{ index + 1 }}
+            <span class="text-red">*</span>
+          </h2>
           <Button
+            v-if="testcases.length > 1"
+            type="button"
             class="flex h-[32px] items-center justify-center gap-2"
-            @click="
-              () => {
-                if (data.testcase.length === 1)
-                  data.testcase = [{ input: '', output: '' }]
-                else
-                  data.testcase = [
-                    ...data.testcase.slice(0, index),
-                    ...data.testcase.slice(index + 1)
-                  ]
-              }
-            "
+            @click="removeTestcase(index)"
           >
             <IconTrash />
             Delete
@@ -220,8 +391,8 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
                 Input Testcase
               </label>
               <textarea
-                v-model="item.input"
-                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
+                v-bind="item.input"
+                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
               />
             </div>
             <div>
@@ -229,28 +400,25 @@ const languageItems = ['C', 'C++', 'Python3', 'Java']
                 Output Testcase
               </label>
               <textarea
-                v-model="item.output"
-                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg outline-none focus:ring-1"
+                v-bind="item.output"
+                class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
               />
             </div>
           </div>
         </div>
       </div>
       <Button
+        type="button"
         class="border-gray text-gray-dark flex h-[45px] items-center justify-center border"
         color="white"
-        @click="
-          () => {
-            data.testcase = [...data.testcase, { input: '', output: '' }]
-          }
-        "
+        @click="addTestcase"
       >
         Add Testcase
       </Button>
-    </div>
-    <div class="border-gray mt-10 flex justify-end gap-3 border-t py-5">
-      <Button class="font-normal capitalize" color="gray-dark">cancel</Button>
-      <Button class="font-normal capitalize">save</Button>
-    </div>
+      <div class="flex justify-end gap-3 py-5">
+        <Button type="button" color="gray-dark">Cancel</Button>
+        <Button type="submit">Create</Button>
+      </div>
+    </form>
   </Modal>
 </template>

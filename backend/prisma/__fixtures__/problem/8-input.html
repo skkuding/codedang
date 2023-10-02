@@ -1,0 +1,415 @@
+<p>
+  첫째 줄에 정점의 개수
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow><mi>N</mi></mrow>
+            <annotation encoding="application/x-tex">N</annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.68333em; vertical-align: 0em"
+          ></span>
+          <span class="mord mathdefault" style="margin-right: 0.10903em">
+            N
+          </span>
+        </span>
+      </span>
+    </span>
+  </span>
+  이 주어진다. (
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow>
+              <mn>3</mn>
+              <mo>≤</mo>
+              <mi>N</mi>
+              <mo>&amp;lt;</mo>
+              <mn>1</mn>
+              <mo separator="true">,</mo>
+              <mn>000</mn>
+            </mrow>
+            <annotation encoding="application/x-tex">
+              3 \\le N &amp;lt;1,000
+            </annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.78041em; vertical-align: -0.13597em"
+          ></span>
+          <span class="mord">3</span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+          <span class="mrel">≤</span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+        </span>
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.72243em; vertical-align: -0.0391em"
+          ></span>
+          <span class="mord mathdefault" style="margin-right: 0.10903em">
+            N
+          </span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+          <span class="mrel">&lt;</span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+        </span>
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.83888em; vertical-align: -0.19444em"
+          ></span>
+          <span class="mord">1</span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord">0</span>
+          <span class="mord">0</span>
+          <span class="mord">0</span>
+        </span>
+      </span>
+    </span>
+  </span>
+  ,
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow><mi>N</mi></mrow>
+            <annotation encoding="application/x-tex">N</annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.68333em; vertical-align: 0em"
+          ></span>
+          <span class="mord mathdefault" style="margin-right: 0.10903em">
+            N
+          </span>
+        </span>
+      </span>
+    </span>
+  </span>
+  은 홀수)
+</p>
+<p>
+  둘째 줄부터
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow>
+              <mi>N</mi>
+              <mi mathvariant="normal">∙</mi>
+              <mo>(</mo>
+              <mi>N</mi>
+              <mo>−</mo>
+              <mn>1</mn>
+              <mo>)</mo>
+              <mi mathvariant="normal">/</mi>
+              <mn>2</mn>
+            </mrow>
+            <annotation encoding="application/x-tex">N∙(N-1)/2</annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 1em; vertical-align: -0.25em"
+          ></span>
+          <span class="mord mathdefault" style="margin-right: 0.10903em">
+            N
+          </span>
+          <span class="mord">∙</span>
+          <span class="mopen">(</span>
+          <span class="mord mathdefault" style="margin-right: 0.10903em">
+            N
+          </span>
+          <span class="mspace" style="margin-right: 0.222222em"></span>
+          <span class="mbin">−</span>
+          <span class="mspace" style="margin-right: 0.222222em"></span>
+        </span>
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 1em; vertical-align: -0.25em"
+          ></span>
+          <span class="mord">1</span>
+          <span class="mclose">)</span>
+          <span class="mord">/</span>
+          <span class="mord">2</span>
+        </span>
+      </span>
+    </span>
+  </span>
+  개의 줄에는 세 정수
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow>
+              <mi>u</mi>
+              <mo separator="true">,</mo>
+              <mi>v</mi>
+              <mo separator="true">,</mo>
+              <mi>w</mi>
+              <mo>(</mo>
+              <mn>1</mn>
+              <mo>≤</mo>
+              <mi>u</mi>
+              <mo separator="true">,</mo>
+              <mi>v</mi>
+              <mo>≤</mo>
+              <mi>N</mi>
+              <mo separator="true">,</mo>
+              <mi>u</mi>
+              <mi mathvariant="normal">≠</mi>
+              <mi>v</mi>
+              <mo separator="true">,</mo>
+              <mn>1</mn>
+              <mo>≤</mo>
+              <mi>w</mi>
+              <mo>≤</mo>
+              <mn>1</mn>
+              <msup>
+                <mn>0</mn>
+                <mn>9</mn>
+              </msup>
+              <mo>)</mo>
+            </mrow>
+            <annotation encoding="application/x-tex">
+              u,v,w(1 \\le u, v \\le N, u \\ne v, 1 \\le w \\le 10^9)
+            </annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 1em; vertical-align: -0.25em"
+          ></span>
+          <span class="mord mathdefault">u</span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord mathdefault" style="margin-right: 0.03588em">
+            v
+          </span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord mathdefault" style="margin-right: 0.02691em">
+            w
+          </span>
+          <span class="mopen">(</span>
+          <span class="mord">1</span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+          <span class="mrel">≤</span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+        </span>
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.83041em; vertical-align: -0.19444em"
+          ></span>
+          <span class="mord mathdefault">u</span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord mathdefault" style="margin-right: 0.03588em">
+            v
+          </span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+          <span class="mrel">≤</span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+        </span>
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.88888em; vertical-align: -0.19444em"
+          ></span>
+          <span class="mord mathdefault" style="margin-right: 0.10903em">
+            N
+          </span>
+          <span class="mpunct">,</span>
+          <span class="mspace" style="margin-right: 0.166667em"></span>
+          <span class="mord mathdefault">u</span>
+          <span class="mspace" style="margin-right: 0.277778em"></span>
+          <span class="mrel">
+            <span class="mrel">
+              <span class="mord">
+                <span class="vlist-t vlist-t2">
+                  <span class="vlist-r">
+                    <span class="vlist" style="height: 0.69444em">
+                      <span class="" style="top: -3em">
+                        <span class="pstrut" style="height: 3em"></span>
+                        <span class="rlap">
+                          <span
+                            class="strut"
+                            style="
+                              height: 0.88888em;
+                              vertical-align: -0.19444em;
+                            "
+                          ></span>
+                          <span class="inner">
+                            <span class="mrel latin_fallback"></span>
+                          </span>
+                        </span>
+                        <span class="fix"></span>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="vlist-s"></span>
+                </span>
+                <span class="vlist-r">
+                  <span class="vlist" style="height: 0.19444em">
+                    <span class=""></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="mrel">=</span>
+        </span>
+        <span class="mspace" style="margin-right: 0.277778em"></span>
+      </span>
+      <span class="base">
+        <span
+          class="strut"
+          style="height: 0.83888em; vertical-align: -0.19444em"
+        ></span>
+        <span class="mord mathdefault" style="margin-right: 0.03588em">v</span>
+        <span class="mpunct">,</span>
+        <span class="mspace" style="margin-right: 0.166667em"></span>
+        <span class="mord">1</span>
+        <span class="mspace" style="margin-right: 0.277778em"></span>
+        <span class="mrel">≤</span>
+        <span class="mspace" style="margin-right: 0.277778em"></span>
+      </span>
+      <span class="base">
+        <span
+          class="strut"
+          style="height: 0.77194em; vertical-align: -0.13597em"
+        ></span>
+        <span class="mord mathdefault" style="margin-right: 0.02691em">w</span>
+        <span class="mspace" style="margin-right: 0.277778em"></span>
+        <span class="mrel">≤</span>
+        <span class="mspace" style="margin-right: 0.277778em"></span>
+      </span>
+      <span class="base">
+        <span
+          class="strut"
+          style="height: 1.064108em; vertical-align: -0.25em"
+        ></span>
+        <span class="mord">1</span>
+        <span class="mord">
+          <span class="mord">0</span>
+          <span class="msupsub">
+            <span class="vlist-t">
+              <span class="vlist-r">
+                <span class="vlist" style="height: 0.814108em">
+                  <span class="" style="top: -3.063em; margin-right: 0.05em">
+                    <span class="pstrut" style="height: 2.7em"></span>
+                    <span class="sizing reset-size6 size3 mtight">
+                      <span class="mord mtight">9</span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </span>
+        </span>
+        <span class="mclose">)</span>
+      </span>
+    </span>
+  </span>
+  가 주어진다. 정점
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow><mi>u</mi></mrow>
+            <annotation encoding="application/x-tex">u</annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.43056em; vertical-align: 0em"
+          ></span>
+          <span class="mord mathdefault">u</span>
+        </span>
+      </span>
+    </span>
+  </span>
+  와 정점
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow><mi>v</mi></mrow>
+            <annotation encoding="application/x-tex">v</annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.43056em; vertical-align: 0em"
+          ></span>
+          <span class="mord mathdefault" style="margin-right: 0.03588em">
+            v
+          </span>
+        </span>
+      </span>
+    </span>
+  </span>
+  사이에 가중치
+  <span>
+    <span class="katex">
+      <span class="katex-mathml">
+        <math>
+          <semantics>
+            <mrow><mi>w</mi></mrow>
+            <annotation encoding="application/x-tex">w</annotation>
+          </semantics>
+        </math>
+      </span>
+      <span class="katex-html" aria-hidden="true">
+        <span class="base">
+          <span
+            class="strut"
+            style="height: 0.43056em; vertical-align: 0em"
+          ></span>
+          <span class="mord mathdefault" style="margin-right: 0.02691em">
+            w
+          </span>
+        </span>
+      </span>
+    </span>
+    의 간선이 있다는 뜻이다.
+  </span>
+</p>

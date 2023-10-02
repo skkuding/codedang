@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import type { Notice } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 
@@ -11,45 +10,66 @@ export class NoticeService {
     cursor: number,
     take: number,
     groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Notice>[]> {
+  ) {
     let skip = 1
     if (cursor === 0) {
       cursor = 1
       skip = 0
     }
-    return await this.prisma.notice.findMany({
-      where: {
-        groupId,
-        isVisible: true
-      },
-      select: {
-        id: true,
-        title: true,
-        createTime: true,
-        isFixed: true
-      },
-      take,
-      skip,
-      cursor: {
-        id: cursor
+    return (
+      await this.prisma.notice.findMany({
+        where: {
+          groupId,
+          isVisible: true
+        },
+        select: {
+          id: true,
+          title: true,
+          createTime: true,
+          isFixed: true,
+          createdBy: {
+            select: {
+              username: true
+            }
+          }
+        },
+        take,
+        skip,
+        cursor: {
+          id: cursor
+        }
+      })
+    ).map((notice) => {
+      return {
+        ...notice,
+        createdBy: notice.createdBy.username
       }
     })
   }
 
   async getNotice(id: number, groupId = OPEN_SPACE_ID) {
-    const current = await this.prisma.notice.findUniqueOrThrow({
-      where: {
-        id,
-        groupId,
-        isVisible: true
-      },
-      select: {
-        title: true,
-        content: true,
-        createTime: true,
-        updateTime: true
-      }
-    })
+    const current = await this.prisma.notice
+      .findUniqueOrThrow({
+        where: {
+          id,
+          groupId,
+          isVisible: true
+        },
+        select: {
+          title: true,
+          content: true,
+          createTime: true,
+          updateTime: true,
+          createdBy: {
+            select: {
+              username: true
+            }
+          }
+        }
+      })
+      .then((notice) => {
+        return { ...notice, createdBy: notice.createdBy.username }
+      })
 
     const navigate = (pos: 'prev' | 'next') => {
       type Order = 'asc' | 'desc'
