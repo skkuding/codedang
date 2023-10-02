@@ -31,7 +31,6 @@ const hide = () => {
 const handleLinkClick = (name: string) => {
   if (name === 'contest' || name === 'group') {
     hide()
-    return true
   }
 }
 </script>
