@@ -5,6 +5,7 @@
     "format:check": "prettier --check .",
     "docs:dev": "vitepress dev docs --port 5555",
     "docs:build": "vitepress build docs",
+    "init:testcases": "ts-node scripts/init-testcase.ts",
     "knip": "knip"
   },
   "devDependencies": {

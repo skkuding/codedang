@@ -4,7 +4,11 @@ import type { KnipConfig } from 'knip'
 const config: KnipConfig = {
   workspaces: {
     '.': {
-      entry: 'scripts/*.ts'
+      entry: [
+        'scripts/*.ts',
+        'docs/.vitepress/config.ts',
+        'docs/.vitepress/theme/index.ts'
+      ]
     },
     backend: {
       entry: [
@@ -12,6 +16,13 @@ const config: KnipConfig = {
         'prisma/seed.ts'
       ],
       project: ['**/*.ts'],
+      ignoreDependencies: [
+        '@nestjs/schematics', // used by NestJS CLI
+        '@types/mocha',
+        'graphql-type-json',
+        'prisma-nestjs-graphql',
+        'ts-loader' // used by NestJS CLI
+      ],
       paths: {
         '@admin/*': ['apps/admin/src/*'],
         '@client/*': ['apps/client/src/*'],
@@ -25,10 +36,35 @@ const config: KnipConfig = {
       }
     },
     frontend: {
-      entry: ['src/main.ts'],
+      entry: [
+        'src/main.ts',
+        'src/common/layouts/*.vue',
+        'src/user/home/pages/**/*.vue',
+        'src/user/notice/pages/**/*.vue',
+        'src/user/problem/pages/**/*.vue',
+        'src/user/contest/pages/**/*.vue',
+        'src/user/group/pages/**/*.vue',
+        'src/user/workbook/pages/**/*.vue',
+        'src/admin/pages/**/*.vue',
+        'histoire.config.ts',
+        'src/histoire.setup.ts'
+      ],
       project: ['**/*.{vue,ts}'],
       ignore: ['**/*.story.vue'],
-      ignoreDependencies: ['virtual:*', '~icons/*', '@iconify-json/*'], // TODO: handle icon packages
+      ignoreDependencies: [
+        'virtual:generated-layouts',
+        'virtual:generated-pages',
+        '@iconify-json/ant-design',
+        '@iconify-json/bi',
+        '@iconify-json/fa',
+        '@iconify-json/fa6-brands',
+        '@iconify-json/fa6-regular',
+        '@iconify-json/fa6-solid',
+        '@iconify-json/fluent',
+        '@iconify-json/iconoir',
+        '@iconify-json/material-symbols',
+        '@iconify-json/ri'
+      ], // TODO: handle icon packages
       paths: {
         '@/*': ['src/*']
       }
