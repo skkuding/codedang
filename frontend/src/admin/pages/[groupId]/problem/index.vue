@@ -5,26 +5,25 @@ import Button from '@/common/components/Atom/Button.vue'
 import Dialog from '@/common/components/Molecule/Dialog.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useDialog } from '@/common/composables/dialog'
-// import { useListAPI } from '@/common/composables/graphql-api'
-import { useQuery } from '@vue/apollo-composable'
-import { useFileDialog } from '@vueuse/core'
+import { useListAPI } from '@/common/composables/graphql-api'
+// import { useQuery } from '@vue/apollo-composable'
+import { useDateFormat, useFileDialog } from '@vueuse/core'
 import axios from 'axios'
 import gql from 'graphql-tag'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+// import { computed } from 'vue'
 import CloudArrowDown from '~icons/fa6-solid/cloud-arrow-down'
 import IconTrash from '~icons/fa/trash-o'
 
 const props = defineProps<{
   groupId: string
 }>()
-// type ProblemItem = {
-//   id: string
-//   displayId: string
-//   title: string
-//   difficulty: string
-//   lastUpdated: string
-//   option: string
-// }
+type ProblemItem = {
+  id: string
+  title: string
+  difficulty: string
+  updateTime: string
+}
 const showProblemModal = ref(false)
 const showImportModal = ref(false)
 const { open, onChange } = useFileDialog()
@@ -82,50 +81,43 @@ onChange(async (files) => {
     }
   }
 })
-type GetGroupsResponse = {
-  getGroups: {
-    id: string
-    groupName: string
-    description: string
-    memberNum: number
-    config: {
-      showOnList: boolean
-      allowJoinWithURL: boolean
-      allowJoinFromSearch: boolean
-      requireApprovalBeforeJoin: boolean
-    }
-  }
-}
-//const { items, totalPages, changePage } = useListAPI<
-const { onError, onResult } = useQuery<GetGroupsResponse['getGroups']>(
+
+const { items, totalPages, changePage, loading } = useListAPI<ProblemItem>(
   gql`
-    query Group {
-      getGroups(...$gqlparameter) {
+    query Problem(
+      $groupId: Float!
+      $cursor: Float
+      $take: Int!
+      $input: FilterProblemsInput!
+    ) {
+      getProblems(
+        groupId: $groupId
+        cursor: $cursor
+        take: $take
+        input: $input
+      ) {
         id
-        groupName
-        description
-        config
-        memberNum
+        title
+        difficulty
+        updateTime
       }
     }
   `,
   () => ({
-    cursor: 1,
-    take: 10
+    groupId: 1,
+    take: 3,
+    input: { difficulty: 'Level1', languages: 'C' }
   })
 )
-onError((err) => {
-  console.log(err)
+watch(items, () => {
+  items.value = items.value.map((item: ProblemItem) => {
+    console.log(item.updateTime.toLocaleString())
+    return {
+      ...item,
+      updateTime: useDateFormat(item.updateTime, 'YYYY-MM-DD HH:mm:ss').value
+    }
+  })
 })
-onResult(({ data }) => {
-  console.log(data)
-})
-// const problemList = ref<ProblemItem[]>([])
-// const getProblemList =
-
-// watch(showProblemModal, () => {
-//   console.log(showImportModal)
-// })
 </script>
 
 <template>
@@ -147,17 +139,13 @@ onResult(({ data }) => {
         </Button>
       </div>
     </div>
+    <span v-if="loading" class="loader" />
     <PaginationTable
       :fields="[
         {
           key: 'id',
           label: '#',
           width: '8%'
-        },
-        {
-          key: 'displayId',
-          label: 'Display Id',
-          width: '12%'
         },
         {
           key: 'title',
@@ -170,7 +158,7 @@ onResult(({ data }) => {
           width: '15%'
         },
         {
-          key: 'lastUpdated',
+          key: 'updateTime',
           label: 'Last Updated',
           width: '25%'
         },
@@ -180,10 +168,11 @@ onResult(({ data }) => {
           width: '10%'
         }
       ]"
-      :items="[]"
+      :items="items"
       placeholder="keywords"
-      :number-of-pages="3"
+      :number-of-pages="totalPages"
       no-search-bar
+      @change-page="changePage"
     >
       <template #_delete="{}">
         <div class="flex items-center gap-2">
