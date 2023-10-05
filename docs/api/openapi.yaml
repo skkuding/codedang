@@ -212,7 +212,7 @@ paths:
                     description: 그룹 리더의 username 목록
         '404':
           description: Not Found; Group Not Found
-  /group/invite/{code}:
+  /group/invite/{invitation}:
     get:
       summary: Get Invited Group
       tags:
@@ -221,13 +221,13 @@ paths:
         초대 코드로 그룹을 조회합니다.
         초대된 그룹에 대한 가입 여부에 따라 응답이 달라짐에 유의하세요.
       parameters:
-        - name: code
+        - name: invitation
           in: path
           required: true
           schema:
             type: string
           example: fff000
-          description: 6-digit hex string
+          description: 초대 코드
       security:
         - bearer: []
       responses:
@@ -354,6 +354,8 @@ paths:
 
         ### Invitation Required Groups
         - 초대 코드로 조회한 그룹에 가입하려면 올바른 초대 코드를 쿼리 파라미터로 넘겨주어야 가입 요청이 수행됩니다.
+      security:
+        - bearer: []
       parameters:
         - name: groupId
           in: path
@@ -417,13 +419,11 @@ paths:
           description: Forbidden; Invalid invitation
             (잘못된 초대 코드로 가입 요청)
         '404':
-          description: sdf
-        '409 (joined)':
-          description: Conflict; Already joined this group
-            (이미 가입된 그룹에 대한 가입 시도)
-        '409 (requested)':
-          description: Conflict; Already requested to join this group
-            (이미 가입 요청에 대한 가입 시도)
+          description: Not Found; Group Not Found
+        '409':
+          description: |
+            - Conflict; Already joined this group (이미 가입된 그룹에 대한 가입 시도)
+            - Conflict; Already requested to join this group (이미 가입 요청된 그룹에 대한 가입 시도)
   /group/{groupId}/leave:
     delete:
       summary: Leave Group
