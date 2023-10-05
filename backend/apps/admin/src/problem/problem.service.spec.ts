@@ -2,8 +2,17 @@ import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { spy, stub } from 'sinon'
-import { UnprocessableDataException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import {
+  Workbook,
+  WorkbookProblem,
+  Contest,
+  ContestProblem
+} from '@admin/@generated'
 import { Level } from '@admin/@generated/prisma/level.enum'
 import { S3Provider } from '@admin/storage/s3.provider'
 import { StorageService } from '@admin/storage/storage.service'
@@ -33,8 +42,355 @@ const db = {
     deleteMany: stub(),
     findMany: stub(),
     update: stub()
+  },
+  workbook: {
+    findFirstOrThrow: stub()
+  },
+  workbookProblem: {
+    findFirstOrThrow: stub(),
+    findMany: stub(),
+    update: stub()
+  },
+  contest: {
+    findFirstOrThrow: stub()
+  },
+  contestProblem: {
+    findFirstOrThrow: stub(),
+    findMany: stub(),
+    update: stub()
   }
 }
+const exampleWorkbook: Workbook = {
+  id: 1,
+  title: 'example',
+  description: 'example',
+  groupId: 1,
+  createdById: 1,
+  isVisible: true,
+  createTime: new Date(),
+  updateTime: new Date()
+}
+const exampleWorkbookProblems: WorkbookProblem[] = [
+  {
+    order: 1,
+    workbookId: 1,
+    problemId: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 2,
+    workbookId: 1,
+    problemId: 2,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 3,
+    workbookId: 1,
+    problemId: 3,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 4,
+    workbookId: 1,
+    problemId: 4,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 5,
+    workbookId: 1,
+    problemId: 5,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 6,
+    workbookId: 1,
+    problemId: 6,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 7,
+    workbookId: 1,
+    problemId: 7,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 8,
+    workbookId: 1,
+    problemId: 8,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 9,
+    workbookId: 1,
+    problemId: 9,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 10,
+    workbookId: 1,
+    problemId: 10,
+    createTime: new Date(),
+    updateTime: new Date()
+  }
+]
+const exampleOrderUpdatedWorkbookProblems: WorkbookProblem[] = [
+  {
+    order: 2,
+    workbookId: 1,
+    problemId: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 3,
+    workbookId: 1,
+    problemId: 2,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 4,
+    workbookId: 1,
+    problemId: 3,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 5,
+    workbookId: 1,
+    problemId: 4,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 6,
+    workbookId: 1,
+    problemId: 5,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 7,
+    workbookId: 1,
+    problemId: 6,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 8,
+    workbookId: 1,
+    problemId: 7,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 9,
+    workbookId: 1,
+    problemId: 8,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 10,
+    workbookId: 1,
+    problemId: 9,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 1,
+    workbookId: 1,
+    problemId: 10,
+    createTime: new Date(),
+    updateTime: new Date()
+  }
+]
+const exampleContest: Contest = {
+  id: 1,
+  title: 'example',
+  description: 'example',
+  groupId: 1,
+  createdById: 1,
+  config: { isVisible: true, isRankVisible: true },
+  startTime: new Date(),
+  endTime: new Date(),
+  createTime: new Date(),
+  updateTime: new Date()
+}
+const exampleContestProblems: ContestProblem[] = [
+  {
+    order: 1,
+    contestId: 1,
+    problemId: 1,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 2,
+    contestId: 1,
+    problemId: 2,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 3,
+    contestId: 1,
+    problemId: 3,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 4,
+    contestId: 1,
+    problemId: 4,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 5,
+    contestId: 1,
+    problemId: 5,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 6,
+    contestId: 1,
+    problemId: 6,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 7,
+    contestId: 1,
+    problemId: 7,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 8,
+    contestId: 1,
+    problemId: 8,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 9,
+    contestId: 1,
+    problemId: 9,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 10,
+    contestId: 1,
+    problemId: 10,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  }
+]
+
+const exampleOrderUpdatedContestProblems: ContestProblem[] = [
+  {
+    order: 2,
+    contestId: 1,
+    problemId: 1,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 3,
+    contestId: 1,
+    problemId: 2,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 4,
+    contestId: 1,
+    problemId: 3,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 5,
+    contestId: 1,
+    problemId: 4,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 6,
+    contestId: 1,
+    problemId: 5,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 7,
+    contestId: 1,
+    problemId: 6,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 8,
+    contestId: 1,
+    problemId: 7,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 9,
+    contestId: 1,
+    problemId: 8,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 10,
+    contestId: 1,
+    problemId: 9,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 1,
+    contestId: 1,
+    problemId: 10,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  }
+]
 
 describe('ProblemService', () => {
   let service: ProblemService
@@ -234,6 +590,182 @@ describe('ProblemService', () => {
       const result = await service.deleteProblem(problemId, groupId)
       expect(result).to.deep.equal(problems[0])
       expect(deleteSpy.calledOnce).to.be.true
+    })
+  })
+
+  describe('getWorkbookProblems', () => {
+    it('should return workbookProblems', async () => {
+      //given
+      db.workbook.findFirstOrThrow.resolves(exampleWorkbookProblems[0])
+      db.workbookProblem.findMany.resolves(exampleWorkbookProblems)
+      //when
+      const result = await service.getWorkbookProblems(1, 1)
+      //then
+      expect(result).to.deep.equals(exampleWorkbookProblems)
+    })
+
+    it('should handle NotExistError', async () => {
+      //given
+      db.workbook.findFirstOrThrow.rejects(
+        new EntityNotExistException('record not found')
+      )
+      // when & then
+      await expect(service.getWorkbookProblems(1, -1)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
+  })
+
+  describe('updateWorkbookProblemsOrder', () => {
+    it('should return order-updated workbookProblems', async () => {
+      //given
+      db.workbook.findFirstOrThrow.resolves(exampleWorkbook)
+      db.workbookProblem.findMany.resolves(exampleWorkbookProblems)
+      for (let i = 0; i < 10; i++) {
+        db.workbookProblem.update
+          .onCall(i)
+          .resolves(exampleOrderUpdatedWorkbookProblems[i])
+      }
+      //when
+      const result = await service.updateWorkbookProblemsOrder(
+        1,
+        1,
+        [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+      )
+      //then
+      expect(result).to.deep.equals(exampleOrderUpdatedWorkbookProblems)
+    })
+
+    it('should handle NotFound error', async () => {
+      //given
+      db.workbook.findFirstOrThrow.rejects(
+        new EntityNotExistException('record not found')
+      )
+      //when & then
+      await expect(
+        service.updateWorkbookProblemsOrder(
+          -1,
+          1,
+          [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+        )
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should handle orders array length exception', async () => {
+      //given
+      db.workbook.findFirstOrThrow.resolves(exampleWorkbook)
+      db.workbookProblem.findMany.resolves(exampleWorkbookProblems)
+      //when & then
+      await expect(
+        service.updateWorkbookProblemsOrder(1, 1, [2, 3, 4, 5, 6, 7, 8, 9, 10])
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+
+    it('should handle RecordNotFound error', async () => {
+      //given
+      db.workbook.findFirstOrThrow.resolves(exampleWorkbook)
+      db.workbookProblem.findMany.resolves(exampleWorkbookProblems)
+      for (let i = 0; i < 10; i++) {
+        db.workbookProblem.update
+          .onCall(10 + i)
+          .rejects(new EntityNotExistException('record not found'))
+      }
+      //when & then
+      await expect(
+        service.updateWorkbookProblemsOrder(
+          1,
+          1,
+          [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+        )
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+
+  describe('getContestProblems', () => {
+    it('should return ContestProblems', async () => {
+      //given
+      db.contest.findFirstOrThrow.resolves(exampleContest)
+      db.contestProblem.findMany.resolves(exampleContestProblems)
+      //when
+      const result = await service.getContestProblems(1, 1)
+      //then
+      expect(result).to.deep.equals(exampleContestProblems)
+    })
+
+    it('should handle NotFoundError', async () => {
+      //given
+
+      db.contest.findFirstOrThrow.rejects(
+        new EntityNotExistException('record not found')
+      )
+      // when & then
+      await expect(service.getContestProblems(-1, 1)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
+  })
+
+  describe('updateContestProblemsOrder', () => {
+    it('should return order-updated ContestProblems', async () => {
+      //given
+      db.contest.findFirstOrThrow.resolves(exampleContest)
+      db.contestProblem.findMany.resolves(exampleContestProblems)
+      for (let i = 0; i < 10; i++) {
+        db.contestProblem.update
+          .onCall(i)
+          .resolves(exampleOrderUpdatedContestProblems[i])
+      }
+      //when
+      const result = await service.updateContestProblemsOrder(
+        1,
+        1,
+        [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+      )
+      //then
+      expect(result).to.deep.equals(exampleOrderUpdatedContestProblems)
+    })
+
+    it('should handle NotFound error', async () => {
+      //given
+      db.contest.findFirstOrThrow.rejects(
+        new EntityNotExistException('record not found')
+      )
+      //when & then
+      await expect(
+        service.updateContestProblemsOrder(
+          -1,
+          1,
+          [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+        )
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should handle orders array length exception', async () => {
+      //given
+      db.contest.findFirstOrThrow.resolves(exampleContest)
+      db.contestProblem.findMany.resolves(exampleContestProblems)
+      //when & then
+      await expect(
+        service.updateContestProblemsOrder(1, 1, [2, 3, 4, 5, 6, 7, 8, 9, 10])
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
+
+    it('should handle RecordNotFound error', async () => {
+      //given
+      db.contestProblem.findMany.resolves(exampleContestProblems)
+      for (let i = 0; i < 10; i++) {
+        db.contestProblem.update
+          .onCall(10 + i)
+          .rejects(new EntityNotExistException('record not found'))
+      }
+      //when & then
+      await expect(
+        service.updateContestProblemsOrder(
+          1,
+          1,
+          [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+        )
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 })

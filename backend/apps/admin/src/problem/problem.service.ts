@@ -505,17 +505,17 @@ export class ProblemService {
     workbookId: number,
     orders: number[]
   ): Promise<Partial<WorkbookProblem>[]> {
+    // id를 받은 workbook이 현재 접속된 group의 것인지 확인
     await this.prisma.workbook.findFirstOrThrow({
       where: { id: workbookId, groupId: groupId }
     })
+    // workbookId를 가지고 있는 workbookProblem을 모두 가져옴
     const workbookProblemsToBeUpdated =
       await this.prisma.workbookProblem.findMany({
         where: { workbookId }
       })
 
-    if (orders.length <= 0) {
-      throw new UnprocessableDataException('the len of orders is lt 0')
-    }
+    // orders 길이와  찾은 workbookProblem 길이가 같은지 확인
     if (orders.length !== workbookProblemsToBeUpdated.length) {
       throw new UnprocessableDataException(
         'the len of orders and the len of workbookProblem are not equal!'
@@ -568,9 +568,6 @@ export class ProblemService {
         where: { contestId }
       })
 
-    if (orders.length <= 0) {
-      throw new UnprocessableDataException('the len of orders is lt 0')
-    }
     if (orders.length !== contestProblemsToBeUpdated.length) {
       throw new UnprocessableDataException(
         'the len of orders and the len of contestProblem are not equal!'
