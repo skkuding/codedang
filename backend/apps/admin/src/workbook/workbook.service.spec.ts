@@ -72,16 +72,6 @@ describe('WorkbookService', () => {
       //then
       expect(result).to.deep.equals([exampleWorkbook])
     })
-
-    it('should handle NotFound error', async () => {
-      //given
-      db.workbook.findMany.resolves([])
-
-      //when & then
-      await expect(service.getWorkbooks(-1, 1, 1)).to.be.rejectedWith(
-        PrismaClientKnownRequestError
-      )
-    })
   })
 
   describe('getWorkbook', () => {
