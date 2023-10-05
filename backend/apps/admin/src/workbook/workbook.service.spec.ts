@@ -375,7 +375,7 @@ describe('WorkbookService', () => {
         exposeTime: new Date()
       }
       const exampleWorkbookProblem: WorkbookProblem = {
-        id: 'test',
+        order: 1,
         workbookId: 1,
         problemId: 1,
         createTime: new Date(),
@@ -504,7 +504,7 @@ describe('WorkbookService', () => {
         exposeTime: new Date()
       }
       const exampleWorkbookProblem: WorkbookProblem = {
-        id: 'test',
+        order: 1,
         workbookId: 1,
         problemId: 1,
         createTime: new Date(),

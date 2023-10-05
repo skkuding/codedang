@@ -176,7 +176,7 @@ export class WorkbookService {
         await this.prisma.workbookProblem.create({
           data: {
             // problemID와 같게 Default로 설정
-            id: problemId.toString(),
+            order: problemId,
             workbookId: workbookId,
             problemId: problemId
           }
