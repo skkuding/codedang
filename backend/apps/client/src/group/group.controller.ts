@@ -77,13 +77,16 @@ export class GroupController {
     }
   }
 
-  @Get('invite/:code')
+  @Get('invite/:invitation')
   async getGroupByInvitation(
     @Req() req: AuthenticatedRequest,
-    @Param('code') code: string
+    @Param('invitation') invitation: string
   ) {
     try {
-      return await this.groupService.getGroupByInvitation(code, req.user.id)
+      return await this.groupService.getGroupByInvitation(
+        invitation,
+        req.user.id
+      )
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
