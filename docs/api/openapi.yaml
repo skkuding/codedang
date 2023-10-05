@@ -151,7 +151,7 @@ paths:
         - group
       description: |
         그룹을 조회합니다.
-        요청된 그룹에 대한 가입 여부에 따라 response가 달라짐에 유의하세요.
+        요청된 그룹에 대한 가입 여부에 따라 응답이 달라짐에 유의하세요.
       parameters:
         - name: groupId
           in: path
@@ -195,10 +195,16 @@ paths:
                     type: string
                   description:
                     type: string
+                  allowJoin:
+                    type: boolean
+                    description: 그룹 가입 허용 여부
                   isJoined:
                     type: boolean
                     description: 그룹 가입 여부
                     default: false
+                  memberNum:
+                    type: string
+                    description: 멤버 수
                   leaders:
                     type: array
                     items:
@@ -206,6 +212,76 @@ paths:
                     description: 그룹 리더의 username 목록
         '404':
           description: Not Found; Group Not Found
+  /group/invite/{code}:
+    get:
+      summary: Get Invited Group
+      tags:
+        - group
+      description: |
+        초대 코드로 그룹을 조회합니다.
+        초대된 그룹에 대한 가입 여부에 따라 응답이 달라짐에 유의하세요.
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: fff000
+          description: 6-digit hex string
+      security:
+        - bearer: []
+      responses:
+        '200 (joined)':
+          description: Succeed on Retrieving Joined Group
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  groupName:
+                    type: string
+                  description:
+                    type: string
+                  isJoined:
+                    type: boolean
+                    description: 그룹 가입 여부
+                    default: true
+                  isGroupLeader:
+                    type: boolean
+                    description: 그룹 리더 여부
+        '200 (not joined)':
+          description: Succeed on Retrieving Not Joined Group
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  groupName:
+                    type: string
+                  description:
+                    type: string
+                  allowJoin:
+                    type: boolean
+                    description: 그룹 가입 허용 여부
+                  isJoined:
+                    type: boolean
+                    description: 그룹 가입 여부
+                    default: false
+                  memberNum:
+                    type: string
+                    description: 멤버 수
+                  leaders:
+                    type: array
+                    items:
+                      type: string
+                    description: 그룹 리더의 username 목록
+        '404':
+          description: Not Found; Invalid Invitation
+            (잘못된 초대 코드 입력)
   /group/{groupId}/members:
     get:
       summary: Get Group Members
@@ -264,12 +340,20 @@ paths:
         '403':
           description: Forbidden; Forbidden Resource
             (가입되지 않은 그룹에 대한 상세 조회 시도)
-
   /group/{groupId}/join:
     post:
-      summary: TODO
+      summary: Join Group
       tags:
         - group
+      description: |
+        그룹에 가입을 요청합니다.
+        가입하려는 그룹의 승인 필요 여부, 초대 필요 여부 등에 따라 응답이 달라짐에 유의하세요.
+
+        ### Approval Required Groups
+        - 가입 시 그룹 리더의 승인이 필요한 그룹의 경우, 요청이 성공하더라도 가입이 완료되지 않으며 리더의 응답을 기다려야 합니다.
+
+        ### Invitation Required Groups
+        - 초대 코드로 조회한 그룹에 가입하려면 올바른 초대 코드를 쿼리 파라미터로 넘겨주어야 가입 요청이 수행됩니다.
       parameters:
         - name: groupId
           in: path
@@ -277,6 +361,69 @@ paths:
           schema:
             type: number
           example: 4
+        - name: invitation
+          required: false
+          in: query
+          schema:
+            type: string
+          description: 초대 코드
+          example: fff000
+      responses:
+        '200':
+          description: Succeed on Joining Group
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isJoined:
+                    type: boolean
+                    default: true
+                  userId:
+                    type: number
+                  groupId:
+                    type: number
+                  isGroupLeader:
+                    type: boolean
+                    description: |
+                      그룹 리더 여부
+
+                      Admin/SuperAdmin의 가입 시 그룹 리더로 설정됩니다.
+                    default: false
+                  createTime:
+                    type: string
+                    format: date-time
+                  updateTime:
+                    type: string
+                    format: date-time
+        '200 (requested)':
+          description: Succeed on Requesting Group Join Approval
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isJoined:
+                    type: boolean
+                    default: false
+                  userGroupData:
+                    type: object
+                    properties:
+                      userId:
+                        type: number
+                      groupId:
+                        type: number
+        '403':
+          description: Forbidden; Invalid invitation
+            (잘못된 초대 코드로 가입 요청)
+        '404':
+          description: sdf
+        '409 (joined)':
+          description: Conflict; Already joined this group
+            (이미 가입된 그룹에 대한 가입 시도)
+        '409 (requested)':
+          description: Conflict; Already requested to join this group
+            (이미 가입 요청에 대한 가입 시도)
   /group/{groupId}/leave:
     delete:
       summary: Leave Group
