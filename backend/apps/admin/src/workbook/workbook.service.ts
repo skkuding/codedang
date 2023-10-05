@@ -31,13 +31,6 @@ export class WorkbookService {
         id: cursor
       }
     })
-    if (workbooks.length <= 0) {
-      throw new PrismaClientKnownRequestError('records NotFound', {
-        code: 'P2025',
-        meta: { target: ['workbook'] },
-        clientVersion: '5.1.1'
-      })
-    }
     return workbooks
   }
 
