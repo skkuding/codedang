@@ -1,7 +1,7 @@
 import { Field, GraphQLISODateTime, InputType, Int } from '@nestjs/graphql'
 
 @InputType()
-export class ContestConfig {
+class ContestConfig {
   @Field(() => Boolean, { nullable: false })
   isVisible!: boolean
 
