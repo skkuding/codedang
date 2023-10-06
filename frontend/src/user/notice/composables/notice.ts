@@ -19,6 +19,7 @@ export interface NoticeItem {
   createTime?: string
   updateTime?: string
   content?: string
+  createdBy?: string
 }
 
 export const useNotice = () => {

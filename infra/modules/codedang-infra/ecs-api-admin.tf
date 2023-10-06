@@ -61,7 +61,7 @@ resource "aws_ecs_service" "admin_api" {
   name                              = "Codedang-Admin-Api-Service"
   cluster                           = aws_ecs_cluster.api.id
   task_definition                   = aws_ecs_task_definition.admin_api.arn
-  desired_count                     = 2
+  desired_count                     = 1
   launch_type                       = "EC2"
   health_check_grace_period_seconds = 300
 

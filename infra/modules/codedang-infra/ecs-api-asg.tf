@@ -22,9 +22,9 @@ resource "aws_autoscaling_group" "asg_api" {
   health_check_type = "ELB"
 
   # Desired number of instances in the Autoscaling Group
-  desired_capacity = 2
+  desired_capacity = 1
   # Minimum and maximum number of instances in the Autoscaling Group
-  min_size = 2
+  min_size = 1
   max_size = 10
 
   lifecycle {
@@ -61,8 +61,8 @@ resource "aws_autoscaling_policy" "asp_api" {
 ###################### Launch Template ######################
 resource "aws_launch_template" "ec2_template_api" {
   name          = "Codedang-LaunchTemplate-Api"
-  image_id      = "ami-01287572b99f45fc2" # 한국
-  instance_type = "t4g.small"             # 2vCPU, 2GiB Mem
+  image_id      = "ami-05db432abf706dc01" # 한국
+  instance_type = "t3a.small"             # 2vCPU, 2GiB Mem
 
   iam_instance_profile {
     name = aws_iam_instance_profile.ecs_container_instance_role.name

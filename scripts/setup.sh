@@ -65,6 +65,9 @@ pnpm install
 # Install lefthook for git hook
 pnpm exec lefthook install
 
+# Upload testcases to MinIO
+pnpm run init:testcases
+
 # Enable git auto completion
 if ! grep -q "bash-completion/completions/git" ~/.bashrc
 then
@@ -105,7 +108,3 @@ rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_P
   declare binding source="$JUDGE_EXCHANGE_NAME" destination_type=queue destination="$JUDGE_RESULT_QUEUE_NAME" routing_key="$JUDGE_RESULT_ROUTING_KEY"
 rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
   declare binding source="$JUDGE_EXCHANGE_NAME" destination_type=queue destination="$JUDGE_SUBMISSION_QUEUE_NAME" routing_key="$JUDGE_SUBMISSION_ROUTING_KEY"
-
-# Initialize testcase storage
-cd $BASEDIR/testcase-server
-pnpm exec ts-node init-testcase.ts

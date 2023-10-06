@@ -9,7 +9,7 @@ resource "aws_s3_bucket" "testcase" {
 data "aws_iam_policy_document" "testcase_permissions" {
   statement {
     actions   = ["s3:ListBucket", "s3:GetObject"]
-    resources = ["${aws_s3_bucket.frontend.arn}", "${aws_s3_bucket.frontend.arn}/*"]
+    resources = ["${aws_s3_bucket.testcase.arn}", "${aws_s3_bucket.testcase.arn}/*"]
 
     principals {
       type        = "*"

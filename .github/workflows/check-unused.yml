@@ -1,0 +1,30 @@
+name: Check Unused Dependencies
+
+on:
+  schedule:
+    - cron: '0 3 * * 1' # 매주 월요일 03시 (한국 시간 12시)
+
+jobs:
+  check-unused:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [20]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Check unused dependencies
+        run: pnpm knip

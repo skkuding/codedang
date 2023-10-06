@@ -1,6 +1,6 @@
 {
   "problemId": 1,
-  "code": "#",
+  "code": "print(\"Hello World!\")",
   "language": "C",
   "timeLimit": 1000,
   "memoryLimit": 268435456
