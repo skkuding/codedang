@@ -6,12 +6,10 @@ import Dialog from '@/common/components/Molecule/Dialog.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useDialog } from '@/common/composables/dialog'
 import { useListAPI } from '@/common/composables/graphql-api'
-// import { useQuery } from '@vue/apollo-composable'
 import { useDateFormat, useFileDialog } from '@vueuse/core'
 import axios from 'axios'
 import gql from 'graphql-tag'
 import { ref, watch } from 'vue'
-// import { computed } from 'vue'
 import CloudArrowDown from '~icons/fa6-solid/cloud-arrow-down'
 import IconTrash from '~icons/fa/trash-o'
 
@@ -28,7 +26,7 @@ const showProblemModal = ref(false)
 const showImportModal = ref(false)
 const { open, onChange } = useFileDialog()
 const dialog = useDialog()
-// const cursor = ref(0)
+
 const extension = '.xlsx'
 onChange(async (files) => {
   if (!files) return
@@ -105,13 +103,13 @@ const { items, totalPages, changePage, loading } = useListAPI<ProblemItem>(
   `,
   () => ({
     groupId: 1,
-    take: 3,
-    input: { difficulty: 'Level1', languages: 'C' }
+    take: 10,
+    input: {}
   })
 )
 watch(items, () => {
+  if (loading) return
   items.value = items.value.map((item: ProblemItem) => {
-    console.log(item.updateTime.toLocaleString())
     return {
       ...item,
       updateTime: useDateFormat(item.updateTime, 'YYYY-MM-DD HH:mm:ss').value
@@ -139,7 +137,6 @@ watch(items, () => {
         </Button>
       </div>
     </div>
-    <span v-if="loading" class="loader" />
     <PaginationTable
       :fields="[
         {

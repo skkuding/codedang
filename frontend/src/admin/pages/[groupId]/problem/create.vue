@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import Button from '@/common/components/Atom/Button.vue'
 import InputItem from '@/common/components/Atom/InputItem.vue'
-// import Modal from '@/common/components/Molecule/Modal.vue'
 import TextEditor from '@/common/components/Organism/TextEditor.vue'
 import { useToast } from '@/common/composables/toast'
 import type { Language, Level } from '@/user/problem/types'
@@ -14,14 +13,6 @@ import { useRouter } from 'vue-router'
 import { z } from 'zod'
 import IconTrash from '~icons/fa/trash-o'
 
-// const props = defineProps<{
-//   modelValue: boolean
-// }>()
-
-// const emit = defineEmits<{
-//   'update:modelValue': [boolean]
-// }>()
-// const showModal = useVModel(props, 'modelValue', emit)
 const router = useRouter()
 const schema = z.object({
   title: z.string().min(1),
@@ -115,7 +106,6 @@ onDone(() => {
   })
   resetForm()
   router.go(-1)
-  // showModal.value = false
 })
 
 const submit = handleSubmit(

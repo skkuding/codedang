@@ -1,11 +1,10 @@
 import type { DocumentNode } from '@apollo/client/core'
 import { useQuery } from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-// import type {
-//   ExecutableDefinitionNode,
-//   FieldNode,
-//   FragmentSpreadNode
-// } from 'graphql/language'
+import type {
+  FieldNode,
+  OperationDefinitionNode,
+  FragmentDefinitionNode
+} from 'graphql/language'
 import { ref, computed, type Ref } from 'vue'
 
 /**
@@ -22,13 +21,9 @@ interface Item {
  */
 export const useListAPI = <T extends Item>(
   path: DocumentNode,
-  variable: () => { [key: string]: unknown },
-  // take = 20,
+  variable: () => { [key: string]: string | number | object },
   pagesPerSlot = 5
 ) => {
-  interface ResponseType {
-    [key: string]: T[]
-  }
   const currentPage = ref(1)
   /** Total number of pages (increase if there are more data than slots) */
   const totalPages = ref(1)
@@ -42,14 +37,16 @@ export const useListAPI = <T extends Item>(
   /** Items of current slot */
   const slotItems = ref<T[]>([]) as Ref<T[]>
   /** Last item of current slot */
-  const cursor = ref<number>(variable().cursor as number)
+  const cursor = ref<number>(
+    variable().cursor ? (variable().cursor as number) : 0
+  )
   /** Number of items on each page */
   const take: number = variable().take as number
   /** Cursors of previous slots. (work as stack) */
   const previousCursors = ref<number[]>([])
   /** GraphQL variables */
   const newVariable = computed(() => {
-    return cursor.value
+    return cursor.value !== 0
       ? {
           ...variable(),
           cursor: cursor.value,
@@ -57,21 +54,21 @@ export const useListAPI = <T extends Item>(
         }
       : {
           ...variable(),
+          cursor: null,
           take: take * pagesPerSlot + 1
         }
   })
 
   /** Call list API from server */
-  const { result, loading, error, refetch } = useQuery<ResponseType>(
-    gql`
-      ${path}
-    `,
-    variable,
-    { errorPolicy: 'all' }
-  )
+  const { result, loading, error, refetch } = useQuery<{
+    [key: string]: T[]
+  }>(path, newVariable.value, { errorPolicy: 'all' })
 
-  const setValue = (data: ResponseType) => {
-    const apiName = path.definitions[0].selectionSet.selections[0].name.value // as OperationDefinitionNode | FragmentDefinitionNode
+  const setValue = (data: { [key: string]: T[] }) => {
+    const apiName = (
+      (path.definitions[0] as OperationDefinitionNode | FragmentDefinitionNode)
+        .selectionSet.selections[0] as FieldNode
+    ).name.value
     const res: T[] = data[apiName]
 
     if (res.length > take * pagesPerSlot) {
@@ -92,6 +89,7 @@ export const useListAPI = <T extends Item>(
       return
     }
     if (variable() === newVariable.value && result.value) {
+      setValue(result.value)
       result.value = undefined
     } else {
       await refetch(newVariable.value)?.then(({ data }) => {
@@ -104,8 +102,12 @@ export const useListAPI = <T extends Item>(
     const oldSlot = currentSlot.value
     currentPage.value = page // updates currentSlot as well
     if (currentSlot.value > oldSlot) {
-      previousCursors.value.push(cursor.value as number)
-      cursor.value = slotItems.value[slotItems.value.length - 1].id as number
+      previousCursors.value.push(cursor.value)
+      cursor.value = Number(
+        JSON.parse(
+          JSON.stringify(slotItems.value[slotItems.value.length - 1].id)
+        )
+      )
       await getList()
     } else if (currentSlot.value < oldSlot) {
       cursor.value = previousCursors.value.pop() as number
