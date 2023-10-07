@@ -66,7 +66,11 @@ const { items, totalPages, changePage } = useListAPI<Problem>('problem')
 
 <template>
   <PageSubtitle text="All Problem" class="mb-2 mt-10" />
+  <div v-if="items.length === 0" class="mt-32">
+    <div class="loader" />
+  </div>
   <PaginationTable
+    v-else
     :fields="fields"
     :items="items"
     placeholder="keywords"
@@ -130,6 +134,28 @@ const { items, totalPages, changePage } = useListAPI<Problem>('problem')
     More
   </Button> -->
 </template>
+
+<style scoped>
+.loader {
+  width: 30px;
+  height: 30px;
+  border: 3px solid lightgray;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+</style>
 
 <route lang="yaml">
 meta:
