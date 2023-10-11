@@ -6,6 +6,7 @@ import {
   HttpLink,
   InMemoryCache
 } from '@apollo/client/core'
+import { onError } from '@apollo/client/link/error'
 import { ApolloClients } from '@vue/apollo-composable'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
@@ -33,18 +34,39 @@ axiosRetry(axios, {
   }
 })
 
-const link = from([
-  new ApolloLink((operation, forward) => {
-    operation.setContext(({ headers }: { headers: object }) => ({
-      headers: {
-        ...headers,
-        authorization: axios.defaults.headers.common.authorization
+// Retry 401 failed request to reissue access token
+// just like axiosRetry, but using ApolloLink for GraphQL
+const errorLink = onError(({ graphQLErrors, operation, forward }) => {
+  if (graphQLErrors)
+    graphQLErrors.forEach(({ message }) => {
+      if (message.includes('Unauthorized')) {
+        useAuthStore()
+          .reissue()
+          .then(() => {
+            operation.setContext(({ headers }: { headers: object }) => ({
+              headers: {
+                ...headers,
+                authorization: axios.defaults.headers.common.authorization
+              }
+            }))
+            forward(operation)
+          })
       }
-    }))
-    return forward(operation)
-  }),
-  new HttpLink({ uri: '/graphql' })
-])
+    })
+  // TODO: if retry fails, redirect to login page
+})
+
+const authLink = new ApolloLink((operation, forward) => {
+  operation.setContext(({ headers }: { headers: object }) => ({
+    headers: {
+      ...headers,
+      authorization: axios.defaults.headers.common.authorization
+    }
+  }))
+  return forward(operation)
+})
+
+const link = from([errorLink, authLink, new HttpLink({ uri: '/graphql' })])
 const cache = new InMemoryCache()
 const apolloClient = new ApolloClient({ link, cache })
 
