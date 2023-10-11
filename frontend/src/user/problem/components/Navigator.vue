@@ -38,8 +38,7 @@ const languageLabels: Record<Language, string> = {
   C: 'C',
   Cpp: 'C++',
   Python3: 'Python',
-  Java: 'Java',
-  Golang: 'Go'
+  Java: 'Java'
 }
 
 const languageOptions = computed(() =>
