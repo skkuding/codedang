@@ -9,13 +9,16 @@ import { useListGraphQL } from '@/common/composables/graphql'
 import { useDateFormat, useFileDialog } from '@vueuse/core'
 import axios from 'axios'
 import gql from 'graphql-tag'
-import { ref, watch } from 'vue'
+import { computed, ref, toRefs, watch } from 'vue'
 import CloudArrowDown from '~icons/fa6-solid/cloud-arrow-down'
 import IconTrash from '~icons/fa/trash-o'
 
 const props = defineProps<{
   groupId: string
 }>()
+
+const { groupId } = toRefs(props)
+
 type ProblemItem = {
   id: string
   title: string
@@ -41,7 +44,7 @@ onChange(async (files) => {
     const operations = {
       query:
         'mutation($groupId: Float!, $input: UploadFileInput!) { uploadProblems(groupId: $groupId, input: $input){id createdById groupId title description template languages difficulty}}',
-      variables: { groupId: Number(props.groupId), input: { file: null } }
+      variables: { groupId: Number(groupId), input: { file: null } }
     }
     const map = { files: ['variables.input.file'] }
     const formData = new FormData()
@@ -80,32 +83,31 @@ onChange(async (files) => {
   }
 })
 
-const { items, totalPages, changePage, loading } = useListGraphQL<ProblemItem>(
-  gql`
-    query Problem(
-      $groupId: Float!
-      $cursor: Float
-      $take: Int!
-      $input: FilterProblemsInput!
+const GET_PROBLEMS = gql`
+  query Problem(
+    $groupId: Float!
+    $cursor: Float
+    $take: Int!
+    $input: FilterProblemsInput!
+  ) {
+    getProblems(
+      groupId: $groupId
+      cursor: $cursor
+      take: $take
+      input: $input
     ) {
-      getProblems(
-        groupId: $groupId
-        cursor: $cursor
-        take: $take
-        input: $input
-      ) {
-        id
-        title
-        difficulty
-        updateTime
-      }
+      id
+      title
+      difficulty
+      updateTime
     }
-  `,
-  () => ({
-    groupId: 1,
-    take: 10,
-    input: {}
-  })
+  }
+`
+
+const { items, totalPages, changePage, loading } = useListGraphQL<ProblemItem>(
+  GET_PROBLEMS,
+  { groupId: computed(() => parseInt(groupId.value)), input: {} },
+  { take: 10 }
 )
 watch(items, () => {
   if (loading) return

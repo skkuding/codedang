@@ -57,11 +57,11 @@ export const useListAPI = <T extends Item>(
     if (data.length > take * pagesPerSlot) {
       totalPages.value = currentSlot.value * pagesPerSlot + 1
       slotItems.value = data.slice(0, take * pagesPerSlot)
-    } else {
-      totalPages.value = Math.max(
-        (currentSlot.value - 1) * pagesPerSlot + Math.ceil(data.length / take),
-        1
-      )
+    }
+    // When current slot is the last,
+    else {
+      totalPages.value =
+        (currentSlot.value - 1) * pagesPerSlot + Math.ceil(data.length / take)
       slotItems.value = data
     }
   }
@@ -71,7 +71,7 @@ export const useListAPI = <T extends Item>(
     currentPage.value = page // updates currentSlot automatically (computed)
     if (currentSlot.value > oldSlot) {
       previousCursors.value.push(cursor.value)
-      cursor.value = slotItems.value[slotItems.value.length - 1].id
+      cursor.value = slotItems.value.at(-1)?.id
       await getList()
     } else if (currentSlot.value < oldSlot) {
       cursor.value = previousCursors.value.pop()
