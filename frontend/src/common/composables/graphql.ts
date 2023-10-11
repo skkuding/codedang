@@ -1,7 +1,6 @@
 import type { DocumentNode } from '@apollo/client'
 import { useQuery } from '@vue/apollo-composable'
 import type { MaybeRef } from 'vue'
-import { toValue } from 'vue'
 import { ref, computed, type Ref } from 'vue'
 
 /**
@@ -45,22 +44,14 @@ export const useListGraphQL = <T extends Item>(
   const cursor = ref(0)
   /** Cursors of previous slots. (work as stack) */
   const previousCursors = ref<number[]>([])
-  /** GraphQL variables */
+  /** GraphQL variables. only add cursor if it exists */
   const queryVariable = computed(() => {
-    const extractedVariable: Record<string, unknown> = {} // convert ref values to raw
-    for (const key in variable) {
-      extractedVariable[key] = toValue(variable[key])
-    }
-    return {
-      take: take * pagesPerSlot + 1,
-      ...{ cursor: cursor.value === 0 ? null : cursor.value }, // only add cursor if it exists
-      ...extractedVariable
-    }
+    return { cursor: cursor.value === 0 ? null : cursor.value }
   })
 
   const { loading, refetch, onResult } = useQuery<Response<T>>(
     query,
-    queryVariable.value,
+    { ...variable, take: take * pagesPerSlot + 1 },
     { errorPolicy: 'all' }
   )
 
