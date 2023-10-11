@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import CreateProblemModal from '@/admin/components/CreateProblemModal.vue'
 import ImportProblemModal from '@/admin/components/ImportProblemModal.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import Dialog from '@/common/components/Molecule/Dialog.vue'
@@ -25,7 +24,6 @@ type ProblemItem = {
   difficulty: string
   updateTime: string
 }
-const showProblemModal = ref(false)
 const showImportModal = ref(false)
 const { open, onChange } = useFileDialog()
 const dialog = useDialog()
@@ -124,7 +122,6 @@ watchEffect(() => {
     :toggle="showImportModal"
     :set-toggle="() => (showImportModal = !showImportModal)"
   />
-  <CreateProblemModal v-model="showProblemModal" />
   <Dialog />
   <div class="flex flex-col">
     <div class="mt-10 flex gap-5">

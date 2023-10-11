@@ -299,10 +299,7 @@ const removeTestcase = (index: number) => {
       </div>
     </div>
     <div>
-      <h2 class="mb-3 text-lg font-bold">
-        Hint
-        <span class="text-red">*</span>
-      </h2>
+      <h2 class="mb-3 text-lg font-bold">Hint</h2>
       <TextEditor v-bind="hint" size="lg" />
     </div>
     <div
