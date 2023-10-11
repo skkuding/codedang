@@ -9,7 +9,7 @@ import { useListGraphQL } from '@/common/composables/graphql'
 import { useDateFormat, useFileDialog } from '@vueuse/core'
 import axios from 'axios'
 import gql from 'graphql-tag'
-import { computed, ref, toRefs, watch } from 'vue'
+import { watchEffect, computed, ref, toRefs } from 'vue'
 import CloudArrowDown from '~icons/fa6-solid/cloud-arrow-down'
 import IconTrash from '~icons/fa/trash-o'
 
@@ -104,13 +104,12 @@ const GET_PROBLEMS = gql`
   }
 `
 
-const { items, totalPages, changePage, loading } = useListGraphQL<ProblemItem>(
+const { items, totalPages, changePage } = useListGraphQL<ProblemItem>(
   GET_PROBLEMS,
   { groupId: computed(() => parseInt(groupId.value)), input: {} },
   { take: 10 }
 )
-watch(items, () => {
-  if (loading) return
+watchEffect(() => {
   items.value = items.value.map((item: ProblemItem) => {
     return {
       ...item,
