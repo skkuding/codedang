@@ -3,6 +3,7 @@ import { useQuery } from '@vue/apollo-composable'
 import type { MaybeRef } from 'vue'
 import { toValue } from 'vue'
 import { ref, computed, type Ref } from 'vue'
+import { useToast } from './toast'
 
 /**
  * Single item of the list
@@ -66,6 +67,14 @@ export const useListGraphQL = <T extends Item>(
 
   // When data is fetched,
   onResult((res) => {
+    if (res.errors) {
+      const toast = useToast()
+      for (const error of res.errors) {
+        toast({ type: 'error', message: error.message })
+      }
+      return
+    }
+
     for (const key in res.data) {
       const data = res.data[key]
 
