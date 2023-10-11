@@ -54,7 +54,7 @@ export const useListGraphQL = <T extends Item>(
     }
     return {
       take: take * pagesPerSlot + 1,
-      ...{ cursor: cursor.value === 0 ? null : cursor.value }, // only add cursor if it exists
+      cursor: cursor.value == 0 ? null : cursor.value, // only add cursor if it exists
       ...extractedVariable
     }
   })
