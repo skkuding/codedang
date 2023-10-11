@@ -5,7 +5,7 @@ import Button from '@/common/components/Atom/Button.vue'
 import Dialog from '@/common/components/Molecule/Dialog.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useDialog } from '@/common/composables/dialog'
-import { useListAPI } from '@/common/composables/graphql-api'
+import { useListGraphQL } from '@/common/composables/graphql'
 import { useDateFormat, useFileDialog } from '@vueuse/core'
 import axios from 'axios'
 import gql from 'graphql-tag'
@@ -80,7 +80,7 @@ onChange(async (files) => {
   }
 })
 
-const { items, totalPages, changePage, loading } = useListAPI<ProblemItem>(
+const { items, totalPages, changePage, loading } = useListGraphQL<ProblemItem>(
   gql`
     query Problem(
       $groupId: Float!

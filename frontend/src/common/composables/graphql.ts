@@ -19,7 +19,7 @@ interface Item {
  * @param take: number of items to take per page
  * @param pagesPerSlot: number of pages per slot
  */
-export const useListAPI = <T extends Item>(
+export const useListGraphQL = <T extends Item>(
   path: DocumentNode,
   variable: () => { [key: string]: string | number | object },
   pagesPerSlot = 5
