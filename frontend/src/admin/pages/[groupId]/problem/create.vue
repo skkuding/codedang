@@ -24,7 +24,7 @@ const schema = z.object({
   template: z
     .array(
       z.object({
-        language: z.enum(['C', 'Cpp', 'Python3', 'Java', 'Golang']),
+        language: z.enum(['C', 'Cpp', 'Python3', 'Java']),
         code: z.array(
           z.object({
             id: z.number(),
@@ -36,7 +36,7 @@ const schema = z.object({
     )
     .default([]),
   languages: z
-    .array(z.enum(['C', 'Cpp', 'Python3', 'Java', 'Golang']))
+    .array(z.enum(['C', 'Cpp', 'Python3', 'Java']))
     .min(1, 'At least one language is required.')
     .default([]),
   timeLimit: z
@@ -136,9 +136,8 @@ const levelLabels: Record<Level, string> = {
 const languageLabels: Record<Language, string> = {
   C: 'C',
   Cpp: 'C++',
-  Python3: 'Python',
-  Java: 'Java',
-  Golang: 'Go'
+  Python3: 'Python3',
+  Java: 'Java'
 }
 
 const toggleLanguage = (language: Language) => {
