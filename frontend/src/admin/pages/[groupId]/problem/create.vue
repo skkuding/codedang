@@ -11,6 +11,7 @@ import { gql } from 'graphql-tag'
 import { useForm } from 'vee-validate'
 import { useRouter } from 'vue-router'
 import { z } from 'zod'
+import IconLeft from '~icons/fa6-solid/angle-left'
 import IconTrash from '~icons/fa/trash-o'
 
 const router = useRouter()
@@ -180,11 +181,18 @@ const removeTestcase = (index: number) => {
 </script>
 
 <template>
+  <div
+    class="text-gray-dark/40 flex w-fit cursor-pointer items-center gap-1 rounded hover:opacity-60"
+    @click="$router.go(-1)"
+  >
+    <IconLeft />
+    Back
+  </div>
   <form
     class="flex w-[80%] flex-col justify-center gap-8"
     @submit.prevent="submit"
   >
-    <h1 class="text-gray-dark mt-10 text-2xl font-semibold">Create Problem</h1>
+    <h1 class="text-gray-dark mt-2 text-2xl font-semibold">Create Problem</h1>
     <div class="col-span-3">
       <label class="text-lg font-bold">
         Title
