@@ -42,7 +42,7 @@ export const useListGraphQL = <T extends Item>(
   /** Items of current slot */
   const slotItems = ref<T[]>([]) as Ref<T[]>
   /** Last item of current slot */
-  const cursor = ref()
+  const cursor = ref(0)
   /** Cursors of previous slots. (work as stack) */
   const previousCursors = ref<number[]>([])
   /** GraphQL variables */
@@ -53,7 +53,7 @@ export const useListGraphQL = <T extends Item>(
     }
     return {
       take: take * pagesPerSlot + 1,
-      ...(cursor.value && { cursor: cursor.value }), // only add cursor if it exists
+      ...{ cursor: cursor.value === 0 ? null : cursor.value }, // only add cursor if it exists
       ...extractedVariable
     }
   })
@@ -94,10 +94,10 @@ export const useListGraphQL = <T extends Item>(
     currentPage.value = page // updates currentSlot automatically (computed)
     if (currentSlot.value > oldSlot) {
       previousCursors.value.push(cursor.value)
-      cursor.value = slotItems.value.at(-1)?.id
+      cursor.value = Number(slotItems.value.at(-1)?.id)
       await refetch(queryVariable.value)
     } else if (currentSlot.value < oldSlot) {
-      cursor.value = previousCursors.value.pop()
+      cursor.value = Number(previousCursors.value.pop())
       await refetch(queryVariable.value)
     } else {
       items.value = slotItems.value.slice(
