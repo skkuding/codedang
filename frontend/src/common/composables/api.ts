@@ -10,6 +10,10 @@ interface Item {
 }
 
 /**
+ * Utility to get cursor-pagination API data.
+ * `slot` means a group of pages in pagination component.
+ * For example, if there are 3 pages per slot, [1, 2, 3] is slot 1, [4, 5, 6] is slot 2, and so on.
+ *
  * @param path: url path to call (ex: 'user', () => `group/${id}/user`)
  * @param take: number of items to take per page
  * @param pagesPerSlot: number of pages per slot
@@ -36,7 +40,12 @@ export const useListAPI = <T extends Item>(
   /** Cursors of previous slots. (work as stack) */
   const previousCursors = ref<number[]>([])
 
-  /** Call list API from server */
+  /**
+   * Call list API from server.
+   * Get (all data of current slot + 1), to verify if there are more data to load in next slot.
+   * For example, if number of items per page is 20 and pages per slot is 5, take 101 items.
+   * If 101 items are returned, next slot exists. If not, current slot is the last.
+   */
   const getList = async () => {
     const { data } = await axios.get(`/api/${toValue(path)}`, {
       params: {
@@ -44,6 +53,7 @@ export const useListAPI = <T extends Item>(
         cursor: cursor.value
       }
     })
+    // When current slot is not the last,
     if (data.length > take * pagesPerSlot) {
       totalPages.value = currentSlot.value * pagesPerSlot + 1
       slotItems.value = data.slice(0, take * pagesPerSlot)
@@ -58,7 +68,7 @@ export const useListAPI = <T extends Item>(
 
   const changePage = async (page: number) => {
     const oldSlot = currentSlot.value
-    currentPage.value = page // updates currentSlot as well
+    currentPage.value = page // updates currentSlot automatically (computed)
     if (currentSlot.value > oldSlot) {
       previousCursors.value.push(cursor.value)
       cursor.value = slotItems.value[slotItems.value.length - 1].id
