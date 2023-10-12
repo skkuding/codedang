@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import CreateNoticeModal from '@/admin/components/CreateNoticeModal.vue'
-import CreateProblemModal from '@/admin/components/CreateProblemModal.vue'
 import ImportProblemModal from '@/admin/components/ImportProblemModal.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
@@ -48,7 +47,6 @@ const problemList = ref([
         }
       "
     />
-    <CreateProblemModal v-model="showProblemModal" />
     <div class="border-gray border-b text-right text-lg font-semibold">
       SKKUDING
     </div>

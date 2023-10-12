@@ -19,14 +19,6 @@ const javaCode = ref(`class Main {
         System.out.println("Hello, World!");
     }
 }`)
-
-const goCode = ref(`package main
-import "fmt"
-
-func main() {
-    fmt.Println("Hello, world!")
-}
-`)
 </script>
 
 <template>
@@ -39,9 +31,6 @@ func main() {
     </Variant>
     <Variant title="Java">
       <CodeEditor v-model="javaCode" lang="Java" />
-    </Variant>
-    <Variant title="Go">
-      <CodeEditor v-model="goCode" lang="Golang" />
     </Variant>
   </Story>
 </template>

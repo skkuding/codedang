@@ -1,23 +1,33 @@
 <script setup lang="ts">
-import CreateProblemModal from '@/admin/components/CreateProblemModal.vue'
 import ImportProblemModal from '@/admin/components/ImportProblemModal.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import Dialog from '@/common/components/Molecule/Dialog.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useDialog } from '@/common/composables/dialog'
-import { useFileDialog } from '@vueuse/core'
+import { useListGraphQL } from '@/common/composables/graphql'
+import { useDateFormat, useFileDialog } from '@vueuse/core'
 import axios from 'axios'
-import { ref } from 'vue'
+import gql from 'graphql-tag'
+import { watchEffect, computed, ref, toRefs } from 'vue'
 import CloudArrowDown from '~icons/fa6-solid/cloud-arrow-down'
 import IconTrash from '~icons/fa/trash-o'
 
 const props = defineProps<{
   groupId: string
 }>()
-const showProblemModal = ref(false)
+
+const { groupId } = toRefs(props)
+
+type ProblemItem = {
+  id: string
+  title: string
+  difficulty: string
+  updateTime: string
+}
 const showImportModal = ref(false)
 const { open, onChange } = useFileDialog()
 const dialog = useDialog()
+
 const extension = '.xlsx'
 onChange(async (files) => {
   if (!files) return
@@ -32,7 +42,7 @@ onChange(async (files) => {
     const operations = {
       query:
         'mutation($groupId: Float!, $input: UploadFileInput!) { uploadProblems(groupId: $groupId, input: $input){id createdById groupId title description template languages difficulty}}',
-      variables: { groupId: Number(props.groupId), input: { file: null } }
+      variables: { groupId: Number(groupId), input: { file: null } }
     }
     const map = { files: ['variables.input.file'] }
     const formData = new FormData()
@@ -70,6 +80,41 @@ onChange(async (files) => {
     }
   }
 })
+
+const GET_PROBLEMS = gql`
+  query Problem(
+    $groupId: Float!
+    $cursor: Float
+    $take: Int!
+    $input: FilterProblemsInput!
+  ) {
+    getProblems(
+      groupId: $groupId
+      cursor: $cursor
+      take: $take
+      input: $input
+    ) {
+      id
+      title
+      difficulty
+      updateTime
+    }
+  }
+`
+
+const { items, totalPages, changePage } = useListGraphQL<ProblemItem>(
+  GET_PROBLEMS,
+  { groupId: computed(() => parseInt(groupId.value)), input: {} },
+  { take: 10 }
+)
+watchEffect(() => {
+  items.value = items.value.map((item: ProblemItem) => {
+    return {
+      ...item,
+      updateTime: useDateFormat(item.updateTime, 'YYYY-MM-DD HH:mm:ss').value
+    }
+  })
+})
 </script>
 
 <template>
@@ -77,16 +122,12 @@ onChange(async (files) => {
     :toggle="showImportModal"
     :set-toggle="() => (showImportModal = !showImportModal)"
   />
-  <CreateProblemModal v-model="showProblemModal" />
   <Dialog />
   <div class="flex flex-col">
-    <div class="border-gray border-b text-right text-lg font-semibold">
-      SKKUDING
-    </div>
     <div class="mt-10 flex gap-5">
       <h1 class="text-gray-dark mr-6 inline text-2xl font-semibold">Problem</h1>
       <div class="flex items-center gap-3">
-        <Button @click="() => (showProblemModal = true)">+ Create</Button>
+        <Button @click="() => $router.push('problem/create')">+ Create</Button>
         <Button @click="() => (showImportModal = true)">Import</Button>
         <Button type="Button" class="flex items-center gap-2" @click="open()">
           <CloudArrowDown />
@@ -98,13 +139,8 @@ onChange(async (files) => {
       :fields="[
         {
           key: 'id',
-          label: 'ID',
+          label: '#',
           width: '8%'
-        },
-        {
-          key: 'displayId',
-          label: 'Display Id',
-          width: '12%'
         },
         {
           key: 'title',
@@ -117,7 +153,7 @@ onChange(async (files) => {
           width: '15%'
         },
         {
-          key: 'lastUpdated',
+          key: 'updateTime',
           label: 'Last Updated',
           width: '25%'
         },
@@ -127,19 +163,11 @@ onChange(async (files) => {
           width: '10%'
         }
       ]"
-      :items="[
-        {
-          id: '1',
-          displayId: 'A',
-          title: '가파른 경사',
-          difficulty: 'Level1',
-          lastUpdated: '2021-12-31 08:30:45',
-          option: '123'
-        }
-      ]"
+      :items="items"
       placeholder="keywords"
-      :number-of-pages="3"
+      :number-of-pages="totalPages"
       no-search-bar
+      @change-page="changePage"
     >
       <template #_delete="{}">
         <div class="flex items-center gap-2">

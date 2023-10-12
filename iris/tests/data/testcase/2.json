@@ -1,0 +1,27 @@
+[
+  {
+    "id": "2:1",
+    "input": "30\n30\n30\n30\n",
+    "output": "Flat Land\n"
+  },
+  {
+    "id": "2:2",
+    "input": "30\n31\n56\n57\n",
+    "output": "Uphill\n"
+  },
+  {
+    "id": "2:3",
+    "input": "10\n10\n11\n10\n",
+    "output": "Unknown\n"
+  },
+  {
+    "id": "2:4",
+    "input": "10\n9\n8\n7\n",
+    "output": "Downhill\n"
+  },
+  {
+    "id": "2:5",
+    "input": "10\n9\n8\n8\n",
+    "output": "Unknown\n"
+  }
+]
