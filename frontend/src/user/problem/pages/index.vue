@@ -52,7 +52,8 @@ const fields = computed(() =>
   showTags.value ? [...commonField, { key: 'tags', label: 'Tag' }] : commonField
 )
 
-const { items, totalPages, changePage } = useListAPI<Problem>('problem')
+const { items, totalPages, changePage, loading } =
+  useListAPI<Problem>('problem')
 
 // hide
 // const CARD_COLOR = ['#FFE5CC', '#94D0AD', '#FFCDCD', '#B1DDEB']
@@ -67,7 +68,7 @@ const { items, totalPages, changePage } = useListAPI<Problem>('problem')
 
 <template>
   <PageSubtitle text="All Problem" class="mb-2 mt-10" />
-  <div v-if="true" class="my-20 flex justify-center">
+  <div v-if="loading" class="my-20 flex justify-center">
     <Spinner color="blue" />
   </div>
   <PaginationTable

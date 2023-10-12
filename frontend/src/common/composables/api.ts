@@ -35,9 +35,12 @@ export const useListAPI = <T extends Item>(
   const cursor = ref()
   /** Cursors of previous slots. (work as stack) */
   const previousCursors = ref<number[]>([])
+  /** Data is being loaded */
+  const loading = ref(false)
 
   /** Call list API from server */
   const getList = async () => {
+    loading.value = true
     const { data } = await axios.get(`/api/${toValue(path)}`, {
       params: {
         take: take * pagesPerSlot + 1,
@@ -54,6 +57,7 @@ export const useListAPI = <T extends Item>(
       )
       slotItems.value = data
     }
+    loading.value = false
   }
 
   const changePage = async (page: number) => {
@@ -85,6 +89,7 @@ export const useListAPI = <T extends Item>(
   return {
     items,
     totalPages,
-    changePage
+    changePage,
+    loading
   }
 }
