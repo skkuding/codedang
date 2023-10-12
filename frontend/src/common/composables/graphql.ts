@@ -49,7 +49,7 @@ export const useListGraphQL = <T extends Item>(
   const { loading, refetch, onResult } = useQuery<Response<T>>(
     query,
     { ...variable, take: take * pagesPerSlot + 1 },
-    { errorPolicy: 'all' }
+    { errorPolicy: 'all', notifyOnNetworkStatusChange: true }
   )
 
   // When data is fetched,
