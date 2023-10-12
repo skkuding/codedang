@@ -5,10 +5,13 @@ import Dialog from '@/common/components/Molecule/Dialog.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useDialog } from '@/common/composables/dialog'
 import { useListGraphQL } from '@/common/composables/graphql'
+import { useToast } from '@/common/composables/toast'
+import { useMutation } from '@vue/apollo-composable'
 import { useDateFormat, useFileDialog } from '@vueuse/core'
 import axios from 'axios'
 import gql from 'graphql-tag'
 import { watchEffect, computed, ref, toRefs } from 'vue'
+import { useRouter } from 'vue-router'
 import CloudArrowDown from '~icons/fa6-solid/cloud-arrow-down'
 import IconTrash from '~icons/fa/trash-o'
 
@@ -81,6 +84,16 @@ onChange(async (files) => {
   }
 })
 
+const router = useRouter()
+const toast = useToast()
+const { mutate, onError, onDone } = useMutation(gql`
+  mutation deleteProblem($id: Float!, $groupId: Float!) {
+    deleteProblem(id: $id, groupId: $groupId) {
+      id
+    }
+  }
+`)
+
 const GET_PROBLEMS = gql`
   query Problem(
     $groupId: Float!
@@ -107,6 +120,24 @@ const { items, totalPages, changePage } = useListGraphQL<ProblemItem>(
   { groupId: computed(() => parseInt(groupId.value)), input: {} },
   { take: 10 }
 )
+
+const deleteProblem = (row: ProblemItem) => {
+  mutate({ groupId: Number(props.groupId), id: Number(row.id) })
+  onError(() =>
+    toast({
+      message: 'Failed to delete problem',
+      type: 'error'
+    })
+  )
+
+  onDone(() => {
+    toast({
+      message: 'Success to delete problem ',
+      type: 'success'
+    })
+    router.go(0)
+  })
+}
 watchEffect(() => {
   items.value = items.value.map((item: ProblemItem) => {
     return {
@@ -169,9 +200,12 @@ watchEffect(() => {
       no-search-bar
       @change-page="changePage"
     >
-      <template #_delete="{}">
+      <template #_delete="{ row }">
         <div class="flex items-center gap-2">
-          <Button class="flex h-[32px] w-[32px] items-center justify-center">
+          <Button
+            class="flex h-[32px] w-[32px] items-center justify-center"
+            @click="deleteProblem(row)"
+          >
             <IconTrash />
           </Button>
         </div>
