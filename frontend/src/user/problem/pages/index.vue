@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Button from '@/common/components/Atom/Button.vue'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
+import Spinner from '@/common/components/Atom/Spinner.vue'
 // import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
 // import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
@@ -66,8 +67,8 @@ const { items, totalPages, changePage } = useListAPI<Problem>('problem')
 
 <template>
   <PageSubtitle text="All Problem" class="mb-2 mt-10" />
-  <div v-if="items.length === 0" class="mt-32">
-    <div class="loader" />
+  <div v-if="true" class="my-20 flex justify-center">
+    <Spinner color="blue" />
   </div>
   <PaginationTable
     v-else
@@ -134,28 +135,6 @@ const { items, totalPages, changePage } = useListAPI<Problem>('problem')
     More
   </Button> -->
 </template>
-
-<style scoped>
-.loader {
-  width: 30px;
-  height: 30px;
-  border: 3px solid lightgray;
-  border-bottom-color: transparent;
-  border-radius: 50%;
-  margin: 0 auto;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-}
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-</style>
 
 <route lang="yaml">
 meta:
