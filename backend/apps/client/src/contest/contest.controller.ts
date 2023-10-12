@@ -126,6 +126,12 @@ export class GroupContestController {
         groupId
       )
     } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
