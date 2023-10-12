@@ -50,6 +50,5 @@ vscode:
     - johnsoncodehk.vscode-typescript-vue-plugin
     - ms-azuretools.vscode-docker
     - prisma.prisma
-    - rangav.vscode-thunder-client
     - redhat.vscode-yaml # dependency of openapi
     - Vue.volar
