@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Button from '@/common/components/Atom/Button.vue'
 import PageSubtitle from '@/common/components/Atom/PageSubtitle.vue'
+import Spinner from '@/common/components/Atom/Spinner.vue'
 // import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
 // import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import Switch from '@/common/components/Molecule/Switch.vue'
@@ -51,7 +52,8 @@ const fields = computed(() =>
   showTags.value ? [...commonField, { key: 'tags', label: 'Tag' }] : commonField
 )
 
-const { items, totalPages, changePage } = useListAPI<Problem>('problem')
+const { items, totalPages, changePage, loading } =
+  useListAPI<Problem>('problem')
 
 // hide
 // const CARD_COLOR = ['#FFE5CC', '#94D0AD', '#FFCDCD', '#B1DDEB']
@@ -66,7 +68,11 @@ const { items, totalPages, changePage } = useListAPI<Problem>('problem')
 
 <template>
   <PageSubtitle text="All Problem" class="mb-2 mt-10" />
+  <div v-if="loading" class="my-20 flex justify-center">
+    <Spinner color="blue" />
+  </div>
   <PaginationTable
+    v-else
     :fields="fields"
     :items="items"
     placeholder="keywords"
