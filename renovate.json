@@ -3,6 +3,8 @@
   "extends": [
     "config:base",
     "group:allNonMajor",
+    "group:codemirror",
+    "group:tiptapMonorepo",
     "schedule:weekly",
     ":label(dependencies)"
   ],
