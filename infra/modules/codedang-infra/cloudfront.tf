@@ -47,6 +47,7 @@ resource "aws_cloudfront_distribution" "main" {
   enabled             = true
   comment             = "Codedang Cloudfront"
   default_root_object = "index.html"
+  http_version        = "http2and3"
 
   aliases = ["codedang.com"]
 
