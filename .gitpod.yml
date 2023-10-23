@@ -51,5 +51,4 @@ vscode:
     - johnsoncodehk.vscode-typescript-vue-plugin
     - ms-azuretools.vscode-docker
     - prisma.prisma
-    - rangav.vscode-thunder-client
     - Vue.volar
