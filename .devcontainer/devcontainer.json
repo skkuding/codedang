@@ -9,6 +9,7 @@
     "vscode": {
       "extensions": [
         "bradlc.vscode-tailwindcss",
+        "bruno-api-client.bruno",
         "csstools.postcss",
         "dbaeumer.vscode-eslint",
         "eamodio.gitlens",
