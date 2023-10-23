@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'Codedang',
+  title: 'Codedang 코드당',
   description: 'Codedang Document for Developers',
   titleTemplate: false,
   lastUpdated: true,
