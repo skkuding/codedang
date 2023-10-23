@@ -56,6 +56,10 @@ export default defineConfig({
           {
             text: 'Contributing Guide',
             link: 'https://github.com/skkuding/next/blob/main/CONTRIBUTING.md'
+          },
+          {
+            text: 'API Documentation',
+            link: '/intro/bruno'
           }
         ]
       },
