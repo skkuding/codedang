@@ -11,7 +11,8 @@ import {
   Controller,
   NotFoundException,
   Logger,
-  ConflictException
+  ConflictException,
+  Delete
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { Request, type Response } from 'express'
@@ -22,13 +23,13 @@ import {
   DuplicateFoundException,
   UnidentifiedException
 } from '@libs/exception'
+import { DeleteUserDto } from './dto/deleteUser.dto'
 import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
 import { SignUpDto } from './dto/signup.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
 import { UserEmailDto } from './dto/userEmail.dto'
-import { WithdrawalDto } from './dto/withdrawal.dto'
 import { UserService } from './user.service'
 
 @Controller('user')
@@ -74,18 +75,21 @@ export class UserController {
     }
   }
 
-  @Post('withdrawal')
-  async withdrawal(
+  @Delete()
+  async deleteUser(
     @Req() req: AuthenticatedRequest,
-    @Body() withdrawalDto: WithdrawalDto
+    @Body() deleteUserDto: DeleteUserDto
   ) {
     try {
-      await this.userService.withdrawal(req.user.username, withdrawalDto)
+      await this.userService.deleteUser(
+        req.user.username,
+        deleteUserDto.password
+      )
     } catch (error) {
       if (
         error instanceof UnidentifiedException ||
         (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.name === 'NotFoundError')
+          error.name === 'RecordNotFound')
       ) {
         throw new UnauthorizedException(error.message)
       }
