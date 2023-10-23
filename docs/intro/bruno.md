@@ -43,6 +43,10 @@ Codedang 폴더에서 collection 폴더의 client 또는 admin을 선택합니�
 새로운 API request를 작성할 때 아래 사항을 지켜주세요.
 
 - 모든 예외 경우마다 request를 작성해주세요. (200, 403, 404 등)
+- 각 request는 다음과 같이 이름 지어주세요.
+  - **"Succeed"**: 성공하는 경우
+  - **"Succeed: \<description>"**: 성공하는 경우 + 추가 설명 (예: "Succeed: Admin Login")
+  - **"40x: \<description>"**: 400, 401, 403, 404 등의 오류가 발생하는 경우 + 추가 설명 (예: "40x: Invalid email")
 - Endpoint마다 'Succeed' request의 'Docs' 탭에 설명을 남겨주세요.
 - 모든 request마다 test를 충분히 작성해주세요(상태 코드 검사, body 검사 등). PR이 merge될 때마다 자동으로 E2E 검사가 이뤄집니다.
 - Request를 보낼 때 상황별로 결과가 달라지지 않게 해주세요. 다시 말해 **언제나 동일한 결과**가 오게 해주세요.
