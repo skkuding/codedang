@@ -1,12 +1,13 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'Coding Platform DEV',
-  description: 'Coding Platform Document for Developers',
+  title: 'Codedang',
+  description: 'Codedang Document for Developers',
   titleTemplate: false,
   lastUpdated: true,
 
   head: [
+    ['link', { rel: 'icon', href: '/logo.png' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     [
       'link',
@@ -26,18 +27,15 @@ export default defineConfig({
   ],
 
   themeConfig: {
+    logo: '/logo.png',
     nav: [
       {
         text: '📌 Guide',
         link: '/intro/'
       },
       {
-        text: '🧭 Roadmap',
-        link: '/project/roadmap'
-      },
-      {
         text: '💡 Demo',
-        link: 'https://npc.skku.edu'
+        link: 'https://codedang.com'
       }
     ],
     socialLinks: [{ icon: 'github', link: 'https://github.com/skkuding/next' }],
