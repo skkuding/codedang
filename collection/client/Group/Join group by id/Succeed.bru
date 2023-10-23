@@ -1,0 +1,36 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/group/4/join
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 201
+  res("userGroupData").userId: isNumber
+  res("userGroupData").groupId: eq 4
+  res("userGroupData").isGroupLeader: eq false
+  res("userGroupData").createTime: isString
+  res("userGroupData").updateTime: isString
+  res("isJoined"): eq true
+}
+
+script:pre-request {
+  const axios = require("axios");
+  
+  await require("./login").loginUser(req);
+  
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const authorization = bru.getVar("jwtToken");
+  try {
+    await axios.delete(
+      baseUrl + "/group/4/leave",
+      { headers: { authorization } }
+    )
+  } catch (error) {}
+}

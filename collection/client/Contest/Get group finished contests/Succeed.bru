@@ -1,0 +1,24 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/group/2/contest/finished?take=10
+  body: none
+  auth: none
+}
+
+query {
+  take: 10
+  ~cursor: 1
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
