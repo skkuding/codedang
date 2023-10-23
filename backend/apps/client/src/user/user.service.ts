@@ -272,7 +272,7 @@ export class UserService {
       throw new UnidentifiedException('password')
     }
 
-    this.deleteUser(username)
+    await this.deleteUser(username)
   }
 
   async getUserCredential(username: string): Promise<User> {
