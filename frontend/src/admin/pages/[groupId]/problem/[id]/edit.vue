@@ -1,7 +1,12 @@
 <script setup lang="ts">
-// write script code
+import ProblemDetail from '@/admin/components/ProblemDetail.vue'
 </script>
 
 <template>
-  <div>write template code</div>
+  <ProblemDetail id="2" mode="edit" />
 </template>
+
+<route lang="yaml">
+meta:
+  layout: admin
+</route>

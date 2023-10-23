@@ -80,7 +80,6 @@ onChange(async (files) => {
     }
   }
 })
-
 const GET_PROBLEMS = gql`
   query Problem(
     $groupId: Float!
@@ -168,6 +167,11 @@ watchEffect(() => {
       :number-of-pages="totalPages"
       no-search-bar
       @change-page="changePage"
+      @row-clicked="
+        (row: ProblemItem) => {
+          $router.push('problem/' + row.id + '/edit')
+        }
+      "
     >
       <template #_delete="{}">
         <div class="flex items-center gap-2">
