@@ -1,0 +1,20 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/group/2/members
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}

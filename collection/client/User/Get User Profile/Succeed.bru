@@ -1,0 +1,30 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/user
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res("username"): isString
+  res("role"): isString
+  res("email"): isString
+  res("lastLogin"): isString
+  res("updateTime"): isString
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get User Profile
+  
+  현재 로그인된 사용자의 정보를 불러옵니다.
+}
