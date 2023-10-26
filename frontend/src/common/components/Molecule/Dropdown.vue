@@ -30,7 +30,7 @@ const colorMapper = {
         <ul
           v-show="show"
           :class="colorMapper[color || 'white']"
-          class="absolute right-0 z-30 flex w-max flex-col gap-1 rounded-lg p-2 shadow-lg"
+          class="absolute right-0 z-30 flex w-max min-w-full flex-col gap-1 rounded-lg p-2 shadow-lg"
         >
           <slot name="items" />
         </ul>

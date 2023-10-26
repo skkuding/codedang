@@ -1,0 +1,46 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "admin",
+    "password": "Adminadmin"
+  }
+}
+
+vars:post-response {
+  jwtToken: res.headers.authorization
+}
+
+assert {
+  res.status: 201
+  res.headers.authorization: contains Bearer
+}
+
+docs {
+  # Log In
+  
+  사용자가 올바른 정보로 로그인하면 JWT를 발행합니다. 보안을 위해 짧은 만료 시간의 access token과 이를 재발행해주는 긴 만료 시간의 refresh token 두 가지를 발행합니다.
+  
+  ### Access Token
+  
+  - `Authrization` header를 통해 bearer token을 발급합니다.
+  - Header로 발급되기 때문에, client에 token을 직접 저장하는 코드가 필요합니다.
+  - 30분 후 만료됩니다.
+  
+  ### Refresh Token
+  
+  - Cookie를 통해 발급합니다. 브라우저에 cookie가 자동으로 저장됩니다.
+  - `/auth/reissue`를 통해 access token을 재발급받을 때 필요합니다.
+  - **가장 유출에 조심해야하는 값입니다.**
+  - 24시간 후 만료됩니다.
+}

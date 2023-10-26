@@ -28,5 +28,5 @@
 }
 
 #nprogress .bar {
-  @apply bg-green fixed left-0 top-0 h-[2px] w-full;
+  @apply bg-blue fixed left-0 top-0 h-[2px] w-full;
 }

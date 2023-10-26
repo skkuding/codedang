@@ -1,0 +1,30 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/auth/reissue
+  body: none
+  auth: none
+}
+
+vars:post-response {
+  jwtToken: res.headers.authorization
+}
+
+assert {
+  res.status: 200
+  res.headers.authorization: contains Bearer
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Reissue Token
+  
+  Cookie의 `refresh_token` 을 이용해 access token을 재발급합니다.
+}
