@@ -57,8 +57,15 @@ const field: Field[] = [
         {{ currentNotice?.createTime }}
       </div>
     </div>
-    <div class="m-4 hidden text-right text-sm md:block">
-      Last update: {{ currentNotice?.updateTime }}
+    <div class="flex justify-between">
+      <div
+        class="!text-text-title m-4 hidden break-all text-sm font-bold md:block"
+      >
+        {{ currentNotice?.createdBy }}
+      </div>
+      <div class="m-4 hidden text-right text-sm md:block">
+        Last update: {{ currentNotice?.updateTime }}
+      </div>
     </div>
     <div
       v-dompurify-html="currentNotice?.content"

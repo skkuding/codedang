@@ -1,0 +1,33 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/logout
+  body: none
+  auth: none
+}
+
+vars:post-response {
+  jwtToken: null
+}
+
+assert {
+  res.status: 201
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+script:post-response {
+  bru.setVar('jwtToken', '')
+}
+
+docs {
+  # Log Out
+  
+  Refresh Token을 무효화하고 cookie에서 삭제합니다. Access Token은 만료되기 전까지 유효하며, client에서 직접 삭제해야합니다.
+}

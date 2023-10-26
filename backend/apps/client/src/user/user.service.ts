@@ -27,7 +27,6 @@ import type { SignUpDto } from './dto/signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import type { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
 import type { UserEmailDto } from './dto/userEmail.dto'
-import type { WithdrawalDto } from './dto/withdrawal.dto'
 import type { CreateUserProfileData } from './interface/create-userprofile.interface'
 import type {
   EmailAuthJwtPayload,
@@ -263,35 +262,22 @@ export class UserService {
     await this.groupService.createUserGroup(userGroupData)
   }
 
-  async withdrawal(username: string, withdrawalDto: WithdrawalDto) {
-    const user: User = await this.getUserCredential(username)
-
-    if (
-      !(await this.jwtAuthService.isValidUser(user, withdrawalDto.password))
-    ) {
+  async deleteUser(username: string, password: string) {
+    const user = await this.getUserCredential(username)
+    if (!(await this.jwtAuthService.isValidUser(user, password))) {
       throw new UnidentifiedException('password')
     }
-
-    this.deleteUser(username)
-  }
-
-  async getUserCredential(username: string): Promise<User> {
-    return await this.prisma.user.findUnique({
-      where: { username }
-    })
-  }
-
-  async deleteUser(username: string) {
-    await this.prisma.user.findUniqueOrThrow({
-      where: {
-        username
-      }
-    })
 
     await this.prisma.user.delete({
       where: {
         username
       }
+    })
+  }
+
+  async getUserCredential(username: string): Promise<User> {
+    return await this.prisma.user.findUnique({
+      where: { username }
     })
   }
 

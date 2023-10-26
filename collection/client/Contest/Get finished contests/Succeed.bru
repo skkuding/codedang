@@ -1,0 +1,26 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/contest/finished?take=10
+  body: none
+  auth: none
+}
+
+query {
+  take: 10
+  ~cursor: 1
+}
+
+assert {
+  res.status: eq 200
+  res("finished")[0].id: isNumber 
+  res("finished")[0].title: isString 
+  res("finished")[0].startTime: isString 
+  res("finished")[0].endTime: isString 
+  res("finished")[0].group.id: isNumber 
+  res("finished")[0].group.groupName: isString 
+}

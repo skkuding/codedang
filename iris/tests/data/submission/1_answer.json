@@ -1,6 +1,6 @@
 {
   "problemId": 1,
-  "code": "#include<stdio.h>\n\n int main () {\n  int a;\n  scanf(\"%d\\n\", &a);\n  printf(\"%d\\n\", a);\n}\n",
+  "code": "#include <stdio.h>\n\nint main() {\n    int a, b;\n    scanf(\"%d%d\", &a, &b);\n    printf(\"%d\\n\", a + b);\n    return 0;\n}\n",
   "language": "C",
   "timeLimit": 1000,
   "memoryLimit": 268435456

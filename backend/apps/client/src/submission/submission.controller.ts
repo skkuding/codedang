@@ -20,7 +20,6 @@ import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
-import { groupId } from '@admin/problem/mock/mock'
 import { CreateSubmissionDto } from './dto/create-submission.dto'
 import { SubmissionService } from './submission.service'
 
@@ -335,8 +334,7 @@ export class WorkbookSubmissionController {
         submissionDto,
         req.user.id,
         problemId,
-        workbookId,
-        groupId
+        workbookId
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {

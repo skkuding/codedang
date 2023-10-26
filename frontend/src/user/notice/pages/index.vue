@@ -7,10 +7,12 @@ import type { Field, NoticeItem } from '../composables/notice'
 
 const field: Field[] = [
   { key: 'title', width: '70%' },
+  { key: 'createdBy', label: 'CreatedBy' },
   { key: 'createTime', label: 'Date' }
 ]
 
 const { items, totalPages, changePage } = useListAPI<NoticeItem>('notice', 4)
+//TODO: 백엔드에서 createdBy를 포함해서 보내줘야함.
 const router = useRouter()
 
 const goDetail = ({ id }: NoticeItem) => {

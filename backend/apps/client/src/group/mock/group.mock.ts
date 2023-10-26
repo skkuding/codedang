@@ -45,7 +45,7 @@ export const groups: Group[] = [
   }
 ]
 
-export const users: User[] = [
+const users: User[] = [
   {
     id: 1,
     role: Role.Manager,
