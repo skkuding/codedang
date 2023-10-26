@@ -32,7 +32,7 @@ type OneGroup = {
   groupName: string
   description: string
   isGroupLeader?: boolean
-  allowJoinFromSearch?: boolean
+  allowJoin?: boolean
   memberNum?: number
   isJoined: boolean
   leaders?: string[]
@@ -110,7 +110,7 @@ watch(modalVisible, (value) => {
 const joinGroup = async (id: number) => {
   try {
     const { data } = await axios.post(`/api/group/${id}/join`)
-    if (!data.isJoined && !data.allowJoinFromSearch) {
+    if (!data.isJoined && data.requireApprovalBeforeJoin) {
       //need approval
       modalType.value = 'wait'
     } else {
@@ -228,7 +228,7 @@ const joinGroup = async (id: number) => {
             </div>
           </div>
           <Button
-            v-if="selectedGroup.allowJoinFromSearch"
+            v-if="selectedGroup.allowJoin"
             class="absolute right-10 rounded-2xl px-4"
             @click="joinGroup(selectedGroup.id)"
           >
