@@ -28,7 +28,7 @@ export class ClarificationService {
         id: true,
         problem: {
           select: {
-            id: true,
+            order: true,
             problemId: true
           }
         },
