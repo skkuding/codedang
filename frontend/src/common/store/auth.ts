@@ -12,7 +12,11 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(username: string, password: string) {
       try {
-        const res = await axios.post('/api/auth/login', { username, password })
+        const res = await axios.post(
+          '/api/auth/login',
+          { username, password },
+          { withCredentials: true } // for local development
+        )
         axios.defaults.headers.common.authorization = res.headers.authorization
         this.isLoggedIn = true
         openToast({ message: 'Login succeed!', type: 'success' })
@@ -35,42 +39,13 @@ export const useAuthStore = defineStore('auth', {
 
     async reissue() {
       try {
-        const res = await axios.get('/api/auth/reissue')
+        const res = await axios.get('/api/auth/reissue', {
+          withCredentials: true // for local development
+        })
         axios.defaults.headers.common.authorization = res.headers.authorization
         this.isLoggedIn = true
       } catch (e) {
         this.isLoggedIn = false
-      }
-    },
-
-    async signup(
-      username: string,
-      password: string,
-      email: string,
-      realName: string,
-      emailAuth: string
-    ) {
-      try {
-        await axios.post(
-          '/api/user/sign-up',
-          {
-            username,
-            password,
-            email,
-            realName
-          },
-          {
-            headers: {
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              'email-auth': emailAuth
-            }
-          }
-        )
-        openToast({ message: 'Sign up succeed!', type: 'success' })
-      } catch (e) {
-        openToast({ message: 'Sign up failed!', type: 'error' })
-        console.log('error is ', e)
-        throw new Error('Sign up failed')
       }
     }
   }

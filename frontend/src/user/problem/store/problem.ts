@@ -21,7 +21,7 @@ export interface Problem {
 type ProblemType = 'problem' | 'contest' | 'workbook'
 
 export const useProblemStore = defineStore('problem', () => {
-  const language = ref<Language>('Cpp')
+  const language = ref<Language>()
   const code = ref('')
   const type = ref<ProblemType>()
   const problem = ref<Problem>({

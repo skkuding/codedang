@@ -59,8 +59,9 @@ type JudgeResult struct {
 	RealTime   int             `json:"realTime"`
 	Memory     int             `json:"memory"`
 	Signal     int             `json:"signal"`
-	ErrorCode  int             `json:"exitCode"`
-	ExitCode   int             `json:"errorCode"`
+	ExitCode   int             `json:"exitCode"`
+	ErrorCode  int             `json:"errorCode"`
+	Error      string          `json:"error"`
 }
 
 func (r *Result) Accepted() {
@@ -265,7 +266,9 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 		}, []byte(tc.Elements[i].In))
 
 		if err != nil {
+			j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
 			res.JudgeResult[i].ResultCode = SYSTEM_ERROR
+			res.JudgeResult[i].Error = string(runResult.ErrOutput)
 			continue
 		}
 		res.SetJudgeResult(i, tc.Elements[i].Id, runResult.ExecResult)

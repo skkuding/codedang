@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Button from '@/common/components/Atom/Button.vue'
 import ListItem from '@/common/components/Atom/ListItem.vue'
+import Spinner from '@/common/components/Atom/Spinner.vue'
 import Dialog from '@/common/components/Molecule/Dialog.vue'
 import Dropdown from '@/common/components/Molecule/Dropdown.vue'
 import { useDialog } from '@/common/composables/dialog'
@@ -38,8 +39,7 @@ const languageLabels: Record<Language, string> = {
   C: 'C',
   Cpp: 'C++',
   Python3: 'Python',
-  Java: 'Java',
-  Golang: 'Go'
+  Java: 'Java'
 }
 
 const languageOptions = computed(() =>
@@ -51,7 +51,7 @@ const languageOptions = computed(() =>
 
 const navigations = [
   { label: 'Editor', to: { name: 'problem-id' } },
-  { label: 'Standings', to: { name: 'problem-id-standings' } },
+  // { label: 'Standings', to: { name: 'problem-id-standings' } },
   { label: 'Submissions', to: { name: 'problem-id-submissions' } }
 ]
 
@@ -120,6 +120,15 @@ const submit = async () => {
       pause()
     }
   }, 500)
+
+  setTimeout(() => {
+    loading.value = false
+    toast({
+      message: 'Timeout',
+      type: 'error'
+    })
+    pause()
+  }, 30000)
 }
 </script>
 
@@ -130,13 +139,13 @@ const submit = async () => {
     <Dialog @yes="store.reset" />
     <!-- TODO: handle yes/no event in composable -->
     <div class="flex h-full shrink-0 items-center justify-start gap-x-4">
-      <Dropdown class="mr-3">
+      <Dropdown v-if="store.type !== 'problem'" class="mr-3">
         <template #button>
           <div
             class="flex h-9 w-fit select-none items-center gap-x-2 rounded px-2 text-white transition hover:bg-white/20 active:bg-white/40"
           >
             <IconCaretDown class="h-4 w-4" />
-            <span>가파른 경사</span>
+            <span>{{ store.problem.title }}</span>
           </div>
         </template>
         <template #items>
@@ -174,8 +183,16 @@ const submit = async () => {
             <span class="px-1">Run</span>
           </div>
         </Button> -->
-        <Button color="blue" class="w-20" @click="submit">
-          <span v-if="loading" class="loader" />
+        <Button
+          color="blue"
+          class="w-20"
+          :disabled="loading"
+          :pressed="loading"
+          @click="submit"
+        >
+          <span v-if="loading" class="loader h-5 w-5">
+            <Spinner color="white" size="sm" />
+          </span>
           <span v-else>Submit</span>
         </Button>
         <Dropdown color="slate">
@@ -183,7 +200,7 @@ const submit = async () => {
             <div
               class="flex h-9 w-fit items-center gap-x-2 rounded-md bg-slate-500 px-3 text-white hover:bg-slate-500/80 active:bg-slate-500/60"
             >
-              <span class="font-semibold">
+              <span v-if="store.language" class="font-semibold">
                 {{ languageLabels[store.language] }}
               </span>
               <IconDown class="h-4 w-4" />
@@ -204,25 +221,3 @@ const submit = async () => {
     </Transition>
   </nav>
 </template>
-
-<style scoped>
-.loader {
-  width: 20px;
-  height: 20px;
-  border: 3px solid #fff;
-  border-bottom-color: transparent;
-  border-radius: 50%;
-  display: inline-block;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-}
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-</style>

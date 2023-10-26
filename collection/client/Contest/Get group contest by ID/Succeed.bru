@@ -1,0 +1,26 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/group/1/contest/2
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res("id"): isNumber
+  res("title"): isString
+  res("startTime"): isString
+  res("endTime"): isString
+  res("group").id: isNumber
+  res("group").groupName: isString
+  res("description"): isString
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}

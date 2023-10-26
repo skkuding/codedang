@@ -1,4 +1,4 @@
-export class BusinessException extends Error {
+class BusinessException extends Error {
   name: string
 
   constructor(message: string) {
@@ -54,15 +54,3 @@ export class UnprocessableFileDataException extends UnprocessableDataException {
 
 /** [403] Throw when request cannot be carried due to lack of permission. */
 export class ForbiddenAccessException extends BusinessException {}
-
-export class EmailTransmissionFailedException extends BusinessException {
-  constructor(message = 'Email transmission failed') {
-    super(message)
-  }
-}
-
-export class MessageFormatError extends BusinessException {
-  constructor(error) {
-    super(`Invalid message format: ${JSON.stringify(error)}`)
-  }
-}
