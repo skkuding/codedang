@@ -94,24 +94,6 @@ export class UserController {
     }
   }
 
-  @Post('social-sign-up')
-  @AuthNotNeeded()
-  async socialSignUp(@Body() socialSignUpDto: SocialSignUpDto) {
-    try {
-      return await this.userService.socialSignUp(socialSignUpDto)
-    } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof DuplicateFoundException) {
-        throw new ConflictException(error.message)
-      } else if (error instanceof InvalidJwtTokenException) {
-        throw new UnauthorizedException(error.message)
-      }
-      this.logger.error(error.message, error.stack)
-      throw new InternalServerErrorException()
-    }
-  }
-
   @Delete()
   async deleteUser(
     @Req() req: AuthenticatedRequest,
