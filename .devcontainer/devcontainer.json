@@ -9,6 +9,7 @@
     "vscode": {
       "extensions": [
         "bradlc.vscode-tailwindcss",
+        "bruno-api-client.bruno",
         "csstools.postcss",
         "dbaeumer.vscode-eslint",
         "eamodio.gitlens",
@@ -16,14 +17,9 @@
         "esbenp.prettier-vscode",
         "golang.go",
         "hashicorp.terraform",
-        "hbenl.test-adapter-converter",
-        "hbenl.vscode-mocha-test-adapter",
-        "hbenl.vscode-test-explorer",
         "ms-azuretools.vscode-docker",
         "prisma.prisma",
-        "rangav.vscode-thunder-client",
-        "Vue.volar",
-        "Vue.vscode-typescript-vue-plugin"
+        "Vue.volar"
       ]
     }
   },

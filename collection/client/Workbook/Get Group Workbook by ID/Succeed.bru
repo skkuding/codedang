@@ -1,0 +1,17 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/group/2/workbook/5
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res("id"): isNumber
+  res("title"): isString
+}

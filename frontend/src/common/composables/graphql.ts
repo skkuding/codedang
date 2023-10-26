@@ -24,10 +24,10 @@ interface Response<T> {
 export const useListGraphQL = <T extends Item>(
   query: DocumentNode,
   variable: { [key: string]: MaybeRef<unknown> },
-  option: { take?: number; pagesPerSlot?: number }
+  option?: { take?: number; pagesPerSlot?: number }
 ) => {
-  const take = option.take ?? 20
-  const pagesPerSlot = option.pagesPerSlot ?? 5
+  const take = option?.take ?? 20
+  const pagesPerSlot = option?.pagesPerSlot ?? 5
 
   const currentPage = ref(1)
   /** Total number of pages (increase if there are more data than slots) */

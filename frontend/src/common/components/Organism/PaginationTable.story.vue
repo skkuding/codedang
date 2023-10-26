@@ -164,6 +164,33 @@ const clickRow = (row: Item) => {
         </div>
       </div>
     </Variant>
+    <Variant title="Editing">
+      <div class="p-10">
+        <PaginationTable
+          :fields="fields"
+          :items="currentItems"
+          placeholder="keywords"
+          :number-of-pages="shownPages"
+          editing
+          @search="filter"
+          @change-page="changeItems"
+          @row-clicked="clickRow"
+        >
+          <template #color="{ row }">
+            <div class="flex items-center gap-2">
+              <span
+                class="h-5 w-5 rounded-full"
+                :style="'background:' + row.color"
+              />
+              {{ row.color }}
+            </div>
+          </template>
+        </PaginationTable>
+        <div class="text-gray-dark mt-10 text-sm">
+          Click item : {{ selected }}
+        </div>
+      </div>
+    </Variant>
     <Variant title="Subheading">
       <div class="p-10">
         <PaginationTable

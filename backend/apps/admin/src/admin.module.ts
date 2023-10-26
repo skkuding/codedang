@@ -26,7 +26,8 @@ import { UserModule } from './user/user.module'
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
-      sortSchema: true
+      sortSchema: true,
+      introspection: true
     }),
     CacheModule.registerAsync({
       isGlobal: true,
