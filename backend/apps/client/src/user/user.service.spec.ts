@@ -13,7 +13,6 @@ import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import {
   DuplicateFoundException,
-  EntityNotExistException,
   InvalidJwtTokenException,
   UnidentifiedException,
   UnprocessableDataException
@@ -427,43 +426,28 @@ describe('UserService', () => {
     })
   })
 
-  describe('withdrawal', () => {
+  describe('deleteUser', () => {
     let isValidUserSpy: SinonStub
-    let deleteUserSpy: SinonSpy
     beforeEach(() => {
-      deleteUserSpy = spy(service, 'deleteUser')
+      db.user.delete.resetHistory()
     })
 
     it('delete validated user', async () => {
       isValidUserSpy = stub(jwtAuthService, 'isValidUser').resolves(true)
 
-      await service.withdrawal(user.username, { password: user.password })
+      await service.deleteUser(user.username, user.password)
       expect(isValidUserSpy.calledOnce).to.be.true
-      expect(deleteUserSpy.calledOnce).to.be.true
+      expect(db.user.delete.calledOnce).to.be.true
     })
 
     it('should not delete non-validated user', async () => {
       isValidUserSpy = stub(jwtAuthService, 'isValidUser').resolves(false)
 
       await expect(
-        service.withdrawal(user.username, { password: 'differentPassword' })
+        service.deleteUser(user.username, 'differentPassword')
       ).to.be.rejectedWith(UnidentifiedException)
       expect(isValidUserSpy.calledOnce).to.be.true
-      expect(deleteUserSpy.called).to.be.false
-    })
-  })
-
-  describe('deleteUser', () => {
-    it('delete user by username', async () => {
-      db.user.delete.resetHistory()
-
-      await service.deleteUser(user.username)
-      expect(db.user.delete.calledOnce).to.be.true
-    })
-
-    it('should not delete user by username', async () => {
-      db.user.findUnique.rejects(new EntityNotExistException('user'))
-      await expect(service.deleteUser(user.username))
+      expect(db.user.delete.calledOnce).to.be.false
     })
   })
 

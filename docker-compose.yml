@@ -29,6 +29,8 @@ services:
     environment:
       MINIO_ROOT_USER: skku
       MINIO_ROOT_PASSWORD: skku1234
+    volumes:
+      - codedang-testcase:/data
 
   database:
     container_name: codedang-database
@@ -39,6 +41,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: skkuding
+    volumes:
+      - codedang-database:/var/lib/postgresql/data
 
   cache:
     container_name: codedang-cache
@@ -55,3 +59,10 @@ services:
     env_file: .env.development
     environment:
       RABBITMQ_ERLANG_COOKIE: RabbitMQ-My-Cookies
+    volumes:
+      - codedang-rabbitmq:/var/lib/rabbitmq
+
+volumes:
+  codedang-testcase:
+  codedang-database:
+  codedang-rabbitmq:

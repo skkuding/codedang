@@ -14,7 +14,6 @@ import {
   indentOnInput,
   type LanguageSupport
 } from '@codemirror/language'
-import { StreamLanguage } from '@codemirror/language'
 import { EditorState, StateEffect, type Transaction } from '@codemirror/state'
 import { oneDark } from '@codemirror/theme-one-dark'
 import {
@@ -53,15 +52,7 @@ const languageExtensions: Record<Language, () => Promise<LanguageSupport>> = {
   C: () => import('@codemirror/lang-cpp').then((x) => x.cpp()),
   Cpp: () => import('@codemirror/lang-cpp').then((x) => x.cpp()),
   Python3: () => import('@codemirror/lang-python').then((x) => x.python()),
-  Java: () => import('@codemirror/lang-java').then((x) => x.java()),
-  // Since Go is not supported by CodeMirror, we use the legacy mode.
-  // Legacy mode does not have type definition, so we have to use @ts-ignore.
-  Golang: () =>
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    import('@codemirror/legacy-modes/mode/go').then((x) =>
-      StreamLanguage.define(x.go)
-    )
+  Java: () => import('@codemirror/lang-java').then((x) => x.java())
 }
 
 const { modelValue, lang, lock } = toRefs(props)

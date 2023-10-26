@@ -93,8 +93,6 @@ cd backend
 pnpm start:dev
 ```
 
-왼쪽의 Thunder Client 아이콘을 눌러 API를 테스트해볼 수 있습니다.
-
 ![Backend Preview](backend-preview.png)
 
 ## GitPod

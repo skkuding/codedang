@@ -15,8 +15,6 @@ const props = withDefaults(
   }
 )
 
-const el = ref<HTMLElement | null>(null)
-
 const date = new Date().toLocaleString()
 
 const visible = ref<boolean>(false)
@@ -25,6 +23,7 @@ const from = ref({ x: 0, y: 0 })
 
 const window = useWindowSize()
 
+const el = ref<HTMLElement>()
 const { x, y, style } = useDraggable(el, {
   initialValue: { x: 520, y: 130 }
 })

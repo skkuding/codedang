@@ -79,7 +79,7 @@ const search = (inputData: string) => {
   emit('search', inputData)
 }
 
-const el = ref<HTMLElement | null>(null)
+const el = ref<HTMLElement>()
 useSortable(el, items, {
   handle: '.handle',
   animation: 200

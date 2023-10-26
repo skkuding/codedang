@@ -14,25 +14,24 @@ export class MailerConfigService implements MailerOptionsFactory {
 
   createMailerOptions(): MailerOptions {
     return {
-      transport:
-        process.env.NODE_ENV === 'production'
-          ? {
-              SES: {
-                ses: new aws.SES({
-                  apiVersion: '2010-12-01',
-                  region: 'ap-northeast-2',
-                  credentialDefaultProvider: defaultProvider
-                }),
-                aws
-              }
+      transport: this.config.get('NODEMAILER_HOST')
+        ? {
+            host: this.config.get('NODEMAILER_HOST'),
+            auth: {
+              user: this.config.get('NODEMAILER_USER'),
+              pass: this.config.get('NODEMAILER_PASS')
             }
-          : {
-              host: this.config.get('NODEMAILER_HOST'),
-              auth: {
-                user: this.config.get('NODEMAILER_USER'),
-                pass: this.config.get('NODEMAILER_PASS')
-              }
-            },
+          }
+        : {
+            SES: {
+              ses: new aws.SES({
+                apiVersion: '2010-12-01',
+                region: 'ap-northeast-2',
+                credentialDefaultProvider: defaultProvider
+              }),
+              aws
+            }
+          },
       defaults: {
         from: this.config.get('NODEMAILER_FROM')
       },

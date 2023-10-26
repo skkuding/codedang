@@ -1,0 +1,15 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/contest
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}
