@@ -2,7 +2,7 @@
 # ex) ` docker build -f infra/builder/api/Dockerfile.admin .`
 
 ### BUILDER ###
-FROM node:20-alpine AS builder
+FROM node:21-alpine AS builder
 
 COPY . /build
 WORKDIR /build
@@ -15,7 +15,7 @@ RUN npx prisma generate
 RUN npm run build admin
 
 ### PRODUCTION ###
-FROM node:20-alpine
+FROM node:21-alpine
 
 ENV NODE_ENV=production
 COPY --from=builder /build/out .
