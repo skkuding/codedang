@@ -91,6 +91,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          clean: false
           sparse-checkout: |
             docker-compose.yml
             docker-compose.dev.yml
