@@ -124,7 +124,7 @@ export class AuthService {
       // 소셜 회원가입 페이지 url 전달
       // TODO: 소셜 회원가입 페이지 url 확정되면 여기에 삽입
       return {
-        signUpUrl: `https://codedang.com/social-signup?provider=github&id=${githubUser.githubId}}`
+        signUpUrl: `https://codedang.com/social-signup?provider=github&id=${githubUser.githubId}}&email=${githubUser.email}`
       }
     }
 

@@ -1,4 +1,4 @@
-import { IsAlphanumeric, IsNotEmpty, Matches } from 'class-validator'
+import { IsAlphanumeric, IsEmail, IsNotEmpty, Matches } from 'class-validator'
 import { Provider } from '../enum/provider.enum'
 
 export class SocialSignUpDto {
@@ -9,6 +9,10 @@ export class SocialSignUpDto {
   @Matches(/^[a-zA-Z\s]+$/)
   @IsNotEmpty()
   readonly realName: string
+
+  @IsEmail()
+  @IsNotEmpty()
+  readonly email: string
 
   @IsNotEmpty()
   readonly provider: Provider

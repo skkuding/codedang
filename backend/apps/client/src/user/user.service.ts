@@ -232,7 +232,7 @@ export class UserService {
       username: socialSignUpDto.username,
       password: generate({ length: 10, numbers: true }),
       realName: socialSignUpDto.realName,
-      email: null
+      email: socialSignUpDto.email
     })
     const profile: CreateUserProfileData = {
       userId: user.id,
