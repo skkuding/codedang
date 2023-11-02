@@ -121,10 +121,11 @@ export class AuthService {
     })
 
     if (!userOAuth) {
-      // 소셜 회원가입 페이지로 이동
+      // 소셜 회원가입 페이지 url 전달
       // TODO: 소셜 회원가입 페이지 url 확정되면 여기에 삽입
-      const signUpUrl = `https://codedang.com/social-signup?provider=github&id=${githubUser.githubId}&username=${githubUser.username}`
-      return res.redirect(signUpUrl)
+      return {
+        signUpUrl: `https://codedang.com/social-signup?provider=github&id=${githubUser.githubId}}`
+      }
     }
 
     const user = await this.prisma.user.findFirst({
