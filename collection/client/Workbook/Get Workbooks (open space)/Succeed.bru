@@ -23,7 +23,6 @@ assert {
   res.body[0].updateTime: isString
 }
 
-
 script:pre-request {
   await require("./login").loginUser(req);
 }
