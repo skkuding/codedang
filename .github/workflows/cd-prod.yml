@@ -120,12 +120,10 @@ jobs:
         working-directory: ./infra/deploy
         run: |
           echo "$TFVARS" >> terraform.tfvars
-          echo "$GITHUB_ID" >> terraform.tfvars
-          echo "$GITHUB_SECRET" >> terraform.tfvars
+          echo "$OAUTH_GITHUB" >> terraform.tfvars
         env:
           TFVARS: ${{ secrets.TF_TFVARS }}
-          GITHUB_ID: ${{ secrets.OAUTH_GITHUB_CLIENT_ID }}
-          GITHUB_SECRET: ${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}
+          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
 
       - name: Terraform Init
         working-directory: ./infra/deploy
