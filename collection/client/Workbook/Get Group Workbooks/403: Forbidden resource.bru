@@ -23,3 +23,8 @@ assert {
 script:pre-request {
   await require("./login").loginUser(req);
 }
+
+docs {
+  # 403: Forbidden resource
+  invalid한 `groupId`로 접근할 경우 403 에러가 발생합니다.
+}
