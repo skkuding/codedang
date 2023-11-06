@@ -6,3 +6,6 @@ export const emailAuthenticationPinCacheKey = (email: string) =>
 
 export const joinGroupCacheKey = (userId: number, groupId: number) =>
   `user:${userId}:group:${groupId}`
+
+export const invitationCodeKey = (code: string) => `invite:${code}`
+export const invitationGroupKey = (groupId: number) => `invite:to:${groupId}`
