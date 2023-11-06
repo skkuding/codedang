@@ -18,3 +18,9 @@ script:pre-request {
   await require("./login").loginUser(req);
   // TODO: remove participation
 }
+
+docs {
+  # Participate Group Contest
+  ---
+  - Url param으로 주어진 group ID와 contest ID에 해당하는 contest에 참여합니다.
+}
