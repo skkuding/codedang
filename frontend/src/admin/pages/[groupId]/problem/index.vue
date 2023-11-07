@@ -66,14 +66,14 @@ onChange(async (files) => {
         })
       } else {
         dialog.error({
-          title: 'Someting went wrong',
+          title: 'Something went wrong',
           content: 'Please try again',
           yes: 'OK'
         })
       }
     } catch (e) {
       dialog.error({
-        title: 'Someting went wrong',
+        title: 'Something went wrong',
         content: 'Please try again',
         yes: 'OK'
       })
