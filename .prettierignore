@@ -6,4 +6,3 @@ pnpm-lock.yaml
 @generated/
 schema.gql
 collection/
-frontend-client/
