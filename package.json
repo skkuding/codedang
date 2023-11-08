@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "lint": "eslint . --ext .js,.ts,.vue",
+    "lint": "eslint . --ext .js,.ts,.vue,.tsx,jsx",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "docs:dev": "vitepress dev docs --port 5555",
