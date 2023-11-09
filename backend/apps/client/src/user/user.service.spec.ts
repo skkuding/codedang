@@ -12,6 +12,7 @@ import { stub, spy, fake, type SinonStub, type SinonSpy } from 'sinon'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import {
+  ConflictFoundException,
   DuplicateFoundException,
   InvalidJwtTokenException,
   UnidentifiedException,
@@ -87,7 +88,12 @@ const db = {
     update: stub().resolves({ ...profile, realName: 'new name' })
   },
   userGroup: {
-    create: stub()
+    create: stub(),
+    findMany: stub(),
+    groupBy: stub()
+  },
+  group: {
+    findMany: stub()
   }
 }
 
@@ -432,8 +438,12 @@ describe('UserService', () => {
       db.user.delete.resetHistory()
     })
 
-    it('delete validated user', async () => {
+    it('should delete user', async () => {
       isValidUserSpy = stub(jwtAuthService, 'isValidUser').resolves(true)
+      db.user.findUnique.resolves(user)
+      db.userGroup.findMany.resolves([{ groupId: 2 }])
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      db.userGroup.groupBy.resolves([{ _count: { userId: 5 }, groupId: 2 }])
 
       await service.deleteUser(user.username, user.password)
       expect(isValidUserSpy.calledOnce).to.be.true
@@ -446,6 +456,21 @@ describe('UserService', () => {
       await expect(
         service.deleteUser(user.username, 'differentPassword')
       ).to.be.rejectedWith(UnidentifiedException)
+      expect(isValidUserSpy.calledOnce).to.be.true
+      expect(db.user.delete.calledOnce).to.be.false
+    })
+
+    it('should not delete only group leader', async () => {
+      isValidUserSpy = stub(jwtAuthService, 'isValidUser').resolves(true)
+      db.user.findUnique.resolves(user)
+      db.userGroup.findMany.resolves([{ groupId: 2 }])
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      db.userGroup.groupBy.resolves([{ _count: { userId: 1 }, groupId: 2 }])
+      db.group.findMany.resolves([{ groupName: 'ants' }])
+
+      await expect(
+        service.deleteUser(user.username, user.password)
+      ).to.be.rejectedWith(ConflictFoundException)
       expect(isValidUserSpy.calledOnce).to.be.true
       expect(db.user.delete.calledOnce).to.be.false
     })

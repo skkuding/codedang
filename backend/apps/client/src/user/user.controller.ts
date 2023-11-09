@@ -21,7 +21,8 @@ import {
   UnprocessableDataException,
   InvalidJwtTokenException,
   DuplicateFoundException,
-  UnidentifiedException
+  UnidentifiedException,
+  ConflictFoundException
 } from '@libs/exception'
 import { DeleteUserDto } from './dto/deleteUser.dto'
 import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
@@ -92,6 +93,8 @@ export class UserController {
           error.name === 'RecordNotFound')
       ) {
         throw new UnauthorizedException(error.message)
+      } else if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()

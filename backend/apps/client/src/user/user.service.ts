@@ -12,6 +12,7 @@ import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import { EMAIL_AUTH_EXPIRE_TIME } from '@libs/constants'
 import {
+  ConflictFoundException,
   DuplicateFoundException,
   InvalidJwtTokenException,
   UnidentifiedException,
@@ -268,6 +269,53 @@ export class UserService {
       throw new UnidentifiedException('password')
     }
 
+    const leadingGroups = await this.prisma.userGroup.findMany({
+      where: {
+        userId: user.id,
+        isGroupLeader: true
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (leadingGroups.length) {
+      const ledByOne = (
+        await this.prisma.userGroup.groupBy({
+          by: ['groupId'],
+          where: {
+            groupId: {
+              in: leadingGroups.map((group) => group.groupId)
+            },
+            isGroupLeader: true
+          },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: {
+            userId: true
+          }
+        })
+      ).filter((group) => group._count.userId === 1)
+
+      if (ledByOne.length) {
+        const groupNames = (
+          await this.prisma.group.findMany({
+            where: {
+              id: {
+                in: ledByOne.map((group) => group.groupId)
+              }
+            },
+            select: {
+              groupName: true
+            }
+          })
+        )
+          .map((group) => group.groupName)
+          .join(', ')
+        throw new ConflictFoundException(
+          `Cannot delete this account since you are the only leader of group ${groupNames}`
+        )
+      }
+    }
     await this.prisma.user.delete({
       where: {
         username
