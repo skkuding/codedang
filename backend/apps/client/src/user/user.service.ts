@@ -25,7 +25,7 @@ import type { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import type { NewPasswordDto } from './dto/newPassword.dto'
 import type { SignUpDto } from './dto/signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
-import type { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
+import type { UpdateUserProfileDto } from './dto/update-userprofile.dto'
 import type { UserEmailDto } from './dto/userEmail.dto'
 import type { CreateUserProfileData } from './interface/create-userprofile.interface'
 import type {
@@ -320,9 +320,9 @@ export class UserService {
     })
   }
 
-  async updateUserProfileRealName(
+  async updateUserProfile(
     userId: number,
-    updateUserProfileRealNameDto: UpdateUserProfileRealNameDto
+    updateUserProfileDto: UpdateUserProfileDto
   ): Promise<UserProfile> {
     await this.prisma.userProfile.findUniqueOrThrow({
       where: { userId }
@@ -331,7 +331,7 @@ export class UserService {
     return await this.prisma.userProfile.update({
       where: { userId },
       data: {
-        realName: updateUserProfileRealNameDto.realName
+        realName: updateUserProfileDto.realName
       }
     })
   }

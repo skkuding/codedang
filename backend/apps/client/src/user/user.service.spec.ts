@@ -521,10 +521,10 @@ describe('UserService', () => {
     })
   })
 
-  describe('updateUserProfileRealName', () => {
+  describe('updateUserProfile', () => {
     it('update user profile', async () => {
       db.user.findUniqueOrThrow.resolves(profile)
-      const ret = await service.updateUserProfileRealName(ID, {
+      const ret = await service.updateUserProfile(ID, {
         realName: 'new name'
       })
       expect(ret).to.deep.equal({ ...profile, realName: 'new name' })
@@ -538,7 +538,7 @@ describe('UserService', () => {
         })
       )
       await expect(
-        service.updateUserProfileRealName(ID, { realName: 'new name' })
+        service.updateUserProfile(ID, { realName: 'new name' })
       ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })
   })

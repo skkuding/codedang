@@ -28,7 +28,7 @@ import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
 import { SignUpDto } from './dto/signup.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
-import { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
+import { UpdateUserProfileDto } from './dto/update-userprofile.dto'
 import { UserEmailDto } from './dto/userEmail.dto'
 import { UserService } from './user.service'
 
@@ -137,15 +137,15 @@ export class UserController {
     }
   }
 
-  @Patch('realname')
-  async updateUserProfileRealName(
+  @Patch('profile')
+  async updateUserProfile(
     @Req() req: AuthenticatedRequest,
-    @Body() updateUserProfileRealNameDto: UpdateUserProfileRealNameDto
+    @Body() updateUserProfileDto: UpdateUserProfileDto
   ) {
     try {
-      return await this.userService.updateUserProfileRealName(
+      return await this.userService.updateUserProfile(
         req.user.id,
-        updateUserProfileRealNameDto
+        updateUserProfileDto
       )
     } catch (error) {
       if (
