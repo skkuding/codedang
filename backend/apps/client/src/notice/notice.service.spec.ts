@@ -37,7 +37,6 @@ const noticeNext = {
 
 const group: Group = {
   id: groupId,
-  createdById: 1,
   groupName: 'group_name',
   description: 'description',
   config: {
