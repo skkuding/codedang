@@ -43,6 +43,7 @@ const editor = useEditor({
   <div
     class="rounded-xl border border-slate-50 shadow-sm"
     :class="sizes[props.size || 'md']"
+    @click.self="editor?.commands.focus()"
   >
     <div
       class="text-text flex items-center gap-1 border-b border-slate-50 p-2 shadow-sm"

@@ -16,14 +16,8 @@ services:
     tty: true
     env_file: .env.development
     environment:
-      # Override environment variables in .env.development
-      RABBITMQ_HOST: codedang-rabbitmq
-      TESTCASE_ENDPOINT_URL: http://codedang-testcase:9000
-      TESTCASE_SERVER_URL: http://codedang-testcase:9000/test-bucket/:id.json
-      DATABASE_URL: postgresql://postgres:1234@codedang-database:5432/skkuding?schema=public
-      REDIS_HOST: codedang-cache
-      REDIS_PORT: 6379
       DEVCONTAINER: 1
+    network_mode: host
 
   testcase:
     container_name: codedang-testcase
@@ -32,32 +26,23 @@ services:
       - 9000:9000
       - 9001:9001
     command: server /data --console-address ":9001"
-    volumes:
-      - ./mnt/testcase:/data
     environment:
       MINIO_ROOT_USER: skku
       MINIO_ROOT_PASSWORD: skku1234
+    volumes:
+      - codedang-testcase:/data
 
   database:
     container_name: codedang-database
-    image: postgres:14-alpine
+    image: postgres:16-alpine
     ports:
       - 5433:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: skkuding
-
-  database-test:
-    profiles: ['test']
-    container_name: codedang-database-test
-    image: postgres:14-alpine
-    ports:
-      - 5434:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: skkuding
+    volumes:
+      - codedang-database:/var/lib/postgresql/data
 
   cache:
     container_name: codedang-cache
@@ -74,3 +59,10 @@ services:
     env_file: .env.development
     environment:
       RABBITMQ_ERLANG_COOKIE: RabbitMQ-My-Cookies
+    volumes:
+      - codedang-rabbitmq:/var/lib/rabbitmq
+
+volumes:
+  codedang-testcase:
+  codedang-database:
+  codedang-rabbitmq:

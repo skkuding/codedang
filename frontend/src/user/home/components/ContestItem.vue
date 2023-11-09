@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTimeAgo, useIntervalFn } from '@vueuse/core'
 import { NProgress } from 'naive-ui'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps<{
   title: string
@@ -30,8 +30,10 @@ useIntervalFn(() => {
   percentage.value = getPercentage()
 }, 1000)
 
-const timeAgo = useTimeAgo(
-  props.state === 'ongoing' ? props.endTime : props.startTime
+const timeAgo = computed(
+  () =>
+    useTimeAgo(props.state === 'ongoing' ? props.endTime : props.startTime)
+      .value
 )
 </script>
 

@@ -1,6 +1,6 @@
 {
   "problemId": 1,
-  "code": "#include <stdio.h>\n\nint main (void) {\n int a = 1; printf(\"%d\\n\", a); \nreturn 0;\n}\n",
+  "code": "#include <stdio.h>\n\nint main (void) {\n int a = 2; printf(\"%d\\n\", a); \nreturn 0;\n}\n",
   "language": "C",
   "timeLimit": 1000,
   "memoryLimit": 268435456

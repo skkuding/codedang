@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import ProgressCard from '@/common/components/Molecule/ProgressCard.vue'
-import RadioButton from '@/common/components/Molecule/RadioButton.vue'
 import SearchBar from '@/common/components/Molecule/SearchBar.vue'
 import { useAuthStore } from '@/common/store/auth'
 import { useIntersectionObserver } from '@vueuse/core'
@@ -10,9 +9,6 @@ import { ref, watchEffect } from 'vue'
 const props = defineProps<{
   id: number
 }>()
-
-const filters = ['Latest', 'Ongoing']
-const selectedFilter = ref(filters[0])
 
 // server data
 type Response = {
@@ -59,7 +55,6 @@ useIntersectionObserver(target, ([{ isIntersecting }]) => {
   <div
     class="mb-8 flex flex-col items-end justify-end gap-x-4 gap-y-2 lg:flex-row"
   >
-    <RadioButton v-model="selectedFilter" :texts="filters" />
     <SearchBar placeholder="keywords" />
   </div>
   <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">

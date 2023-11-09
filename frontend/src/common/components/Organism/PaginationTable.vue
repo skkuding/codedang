@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { useSortable } from '@vueuse/integrations/useSortable'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, toRefs } from 'vue'
 import Fa6SolidEquals from '~icons/fa6-solid/equals'
 import Pagination from '../Molecule/Pagination.vue'
 import SearchBar from '../Molecule/SearchBar.vue'
@@ -17,8 +17,7 @@ type FieldType = SubfieldType & {
 
 const props = defineProps<{
   fields: FieldType[]
-  items?: T[]
-  modelValue?: T[]
+  items: T[]
   placeholder?: string
   numberOfPages: number
   text?: string // show if there's no data in item
@@ -29,22 +28,23 @@ const props = defineProps<{
   mode?: 'light' | 'dark'
   editing?: boolean
 }>()
+const { fields, items } = toRefs(props)
 
 const emit = defineEmits<{
-  (e: 'row-clicked', row: T): void
-  (e: 'change-page', page: number): void
+  (e: 'rowClicked', row: T): void
+  (e: 'changePage', page: number): void
   (e: 'search', input: string): void
-  (e: 'update:modelValue'): void
+  (e: 'update:items'): void
 }>()
 
 const subhead = computed(() => {
-  return props.fields.reduce((prev: SubfieldType[], cur: FieldType) => {
+  return fields.value.reduce((prev: SubfieldType[], cur: FieldType) => {
     return prev.concat(cur.subfields || [])
   }, [])
 })
 
 const entries = computed(() => {
-  return props.fields.reduce(
+  return fields.value.reduce(
     (prev: (SubfieldType | FieldType)[], cur: FieldType) => {
       return prev.concat(cur.subfields || cur)
     },
@@ -53,7 +53,7 @@ const entries = computed(() => {
 })
 
 const entryStyle = (key: string) => {
-  let field = props.fields.find((x) => x.key === key)
+  let field = fields.value.find((x) => x.key === key)
   if (field && field.width) return 'width: ' + field.width
   else return ''
 }
@@ -79,16 +79,11 @@ const search = (inputData: string) => {
   emit('search', inputData)
 }
 
-watch(currentPage, (value) => {
-  emit('change-page', value)
+const el = ref<HTMLElement>()
+useSortable(el, items, {
+  handle: '.handle',
+  animation: 200
 })
-
-const el = ref<HTMLElement | null>(null)
-if (props?.modelValue)
-  useSortable(el, props.modelValue, {
-    handle: '.handle',
-    animation: 200
-  })
 </script>
 
 <template>
@@ -154,7 +149,7 @@ if (props?.modelValue)
           </tr>
         </thead>
         <tbody ref="el">
-          <tr v-if="items?.length === 0 || modelValue?.length === 0">
+          <tr v-if="items.length === 0">
             <td
               :colspan="entries.length"
               class="p-2.5 pl-4"
@@ -164,11 +159,11 @@ if (props?.modelValue)
             </td>
           </tr>
           <tr
-            v-for="row in items || modelValue"
+            v-for="row in items"
             :key="row.id"
             class="border-gray cursor-pointer border-y"
             :class="rowColor[mode || 'light']"
-            @click="$emit('row-clicked', row)"
+            @click="$emit('rowClicked', row)"
           >
             <td v-if="editing" class="handle p-2.5 pl-4">
               <Fa6SolidEquals class="text-slate-300" />
@@ -194,6 +189,7 @@ if (props?.modelValue)
         :page-slot="pageSlot"
         :number-of-pages="numberOfPages"
         :mode="mode"
+        @change-page="(page: number) => emit('changePage', page)"
       />
     </div>
   </div>

@@ -1,23 +1,29 @@
 import {
+  ConflictException,
   InternalServerErrorException,
   Logger,
   NotFoundException,
   ParseIntPipe,
-  UnprocessableEntityException
+  UnprocessableEntityException,
+  UsePipes,
+  ValidationPipe
 } from '@nestjs/common'
 import { Args, Context, Query, Int, Mutation, Resolver } from '@nestjs/graphql'
 import { Prisma } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { UnprocessableDataException } from '@libs/exception'
+import {
+  ConflictFoundException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
 import { Problem } from '@admin/@generated'
 import {
   CreateProblemInput,
   UploadFileInput,
-  FilterProblemsInput
+  FilterProblemsInput,
+  UpdateProblemInput
 } from './model/problem.input'
-import { UpdateProblemInput } from './model/update-problem.input'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => Problem)
@@ -54,6 +60,7 @@ export class ProblemResolver {
   }
 
   @Mutation(() => [Problem])
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async uploadProblems(
     @Context('req') req: AuthenticatedRequest,
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
@@ -123,6 +130,8 @@ export class ProblemResolver {
         } else if (error.code === 'P2003') {
           throw new UnprocessableEntityException(error.message)
         }
+      } else if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()

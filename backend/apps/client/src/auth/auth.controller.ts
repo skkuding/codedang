@@ -12,7 +12,10 @@ import {
 import { Request, Response } from 'express'
 import { AuthenticatedRequest, AuthNotNeeded, type JwtTokens } from '@libs/auth'
 import { REFRESH_TOKEN_COOKIE_OPTIONS } from '@libs/constants'
-import { InvalidJwtTokenException, InvalidUserException } from '@libs/exception'
+import {
+  InvalidJwtTokenException,
+  UnidentifiedException
+} from '@libs/exception'
 import { AuthService } from './auth.service'
 import { LoginUserDto } from './dto/login-user.dto'
 
@@ -41,7 +44,7 @@ export class AuthController {
       const jwtTokens = await this.authService.issueJwtTokens(loginUserDto)
       this.setJwtResponse(res, jwtTokens)
     } catch (error) {
-      if (error instanceof InvalidUserException) {
+      if (error instanceof UnidentifiedException) {
         throw new UnauthorizedException(error.message)
       }
       this.logger.error(error.message, error.stack)

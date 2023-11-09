@@ -9,7 +9,7 @@ defineProps<{
 
 <template>
   <Header />
-  <Navigator />
+  <Navigator :id="id" />
   <RouterView />
 </template>
 

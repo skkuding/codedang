@@ -4,7 +4,7 @@ export const refreshTokenCacheKey = (userId: number) =>
 export const emailAuthenticationPinCacheKey = (email: string) =>
   `email:${email}:email-auth`
 
-export const contestPublicizingRequestKey = (contestId: number) =>
-  `contest:${contestId}:publicize`
-
 export const joinGroupCacheKey = (groupId: number) => `group:${groupId}`
+
+export const invitationCodeKey = (code: string) => `invite:${code}`
+export const invitationGroupKey = (groupId: number) => `invite:to:${groupId}`

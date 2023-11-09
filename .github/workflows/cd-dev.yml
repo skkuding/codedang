@@ -1,0 +1,141 @@
+name: CD - Development
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-frontend:
+    name: Build frontend bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build static bundle
+        run: pnpm --filter frontend build
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: frontend-bundle
+          path: ./frontend/dist
+
+  build-backend:
+    name: Build backend docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push admin-api image
+        uses: docker/build-push-action@v5
+        with:
+          file: ./infra/builder/api/Dockerfile.admin
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
+
+      - name: Build and push client-api image
+        uses: docker/build-push-action@v5
+        with:
+          file: ./infra/builder/api/Dockerfile.client
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
+
+  build-iris:
+    name: Build Iris docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push iris image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: '{{defaultContext}}:iris'
+          tags: ghcr.io/${{ github.repository_owner }}/codedang-iris:latest
+
+  run-server:
+    name: Run development server
+    runs-on: self-hosted
+    needs: [build-frontend, build-backend, build-iris]
+    environment: development
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          clean: false
+          sparse-checkout: |
+            docker-compose.yml
+            docker-compose.dev.yml
+            .env.development
+            Caddyfile
+
+      - name: Load frontend static bundle
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-bundle
+          path: ./dist
+
+      - name: Pull docker images
+        run: |
+          docker pull ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
+          docker pull ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
+          docker pull ghcr.io/${{ github.repository_owner }}/codedang-iris:latest
+
+      - name: Run docker compose up
+        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+      - name: Graceful reload Caddy
+        run: docker exec -w /etc/caddy caddy caddy reload
+
+      - name: Remove unused docker storages
+        run: docker system prune -a -f --volumes
+
+  e2e-test:
+    name: Run E2E test
+    runs-on: ubuntu-latest
+    needs: [run-server]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Bruno CLI
+        run: pnpm install -g @usebruno/cli
+
+      - name: Run Bruno Collection (Client)
+        working-directory: collection/client
+        run: bru run --env development
+
+      - name: Run Bruno Collection (Admin)
+        working-directory: collection/admin
+        run: bru run --env development

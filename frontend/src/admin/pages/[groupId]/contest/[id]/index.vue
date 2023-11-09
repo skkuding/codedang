@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import CreateNoticeModal from '@/admin/components/CreateNoticeModal.vue'
-import CreatePorblemModal from '@/admin/components/CreateProblemModal.vue'
 import ImportProblemModal from '@/admin/components/ImportProblemModal.vue'
 import Button from '@/common/components/Atom/Button.vue'
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
@@ -45,14 +44,6 @@ const problemList = ref([
       :set-toggle="
         (a) => {
           showNoticeModal = !a
-        }
-      "
-    />
-    <CreatePorblemModal
-      :toggle="showProblemModal"
-      :set-toggle="
-        (a) => {
-          showProblemModal = !a
         }
       "
     />
@@ -111,7 +102,7 @@ const problemList = ref([
       </div>
     </div>
     <PaginationTable
-      v-model="problemList"
+      v-model:items="problemList"
       :editing="editing"
       :fields="[
         {

@@ -2,19 +2,13 @@ package main
 
 import (
 	"context"
-	"net/http"
 	"os"
-	"strconv"
-	"time"
 
-	// _ "net/http/pprof"
 	"github.com/skkuding/codedang/iris/src/connector"
 	"github.com/skkuding/codedang/iris/src/connector/rabbitmq"
-	datasource "github.com/skkuding/codedang/iris/src/data_source"
-	"github.com/skkuding/codedang/iris/src/data_source/cache"
-	fileDataSource "github.com/skkuding/codedang/iris/src/data_source/file"
-	httpserver "github.com/skkuding/codedang/iris/src/data_source/http_server"
 	"github.com/skkuding/codedang/iris/src/handler"
+	"github.com/skkuding/codedang/iris/src/loader/cache"
+	"github.com/skkuding/codedang/iris/src/loader/s3"
 	"github.com/skkuding/codedang/iris/src/router"
 	"github.com/skkuding/codedang/iris/src/service/file"
 	"github.com/skkuding/codedang/iris/src/service/logger"
@@ -22,13 +16,6 @@ import (
 	"github.com/skkuding/codedang/iris/src/service/testcase"
 	"github.com/skkuding/codedang/iris/src/utils"
 )
-
-func profile() {
-	go func() {
-		http.ListenAndServe("localhost:6060", nil)
-		// use <go tool pprof -http :8080 http://localhost:6060/debug/pprof/profile\?seconds\=30> to profile
-	}()
-}
 
 type Env string
 
@@ -45,30 +32,20 @@ func main() {
 	ctx := context.Background()
 	cache := cache.NewCache(ctx)
 
-	var dataSource datasource.Read
-	serverUrl := os.Getenv("TESTCASE_SERVER_URL")
-	if serverUrl == "" {
-		dataSource = fileDataSource.NewFileDataSource(os.DirFS("./testcase"))
-		logProvider.Log(logger.INFO, "Cannot find TESTCASE_SERVER_URL. It will read testcase from the \"./testcase\" directory")
-	} else {
-		timeout, err := strconv.Atoi(utils.Getenv("TESTCASE_SERVER_TIMEOUT", "5"))
-		if err != nil {
-			timeout = 5
-		}
-		dataSource = httpserver.NewHttpServerDataSource(
-			serverUrl,
-			utils.Getenv("TESTCASE_SERVER_URL_PLACEHOLDER", ":id"),
-			time.Second*time.Duration(timeout),
-		)
+	bucketName := os.Getenv("TESTCASE_BUCKET_NAME")
+	if bucketName == "" {
+		logProvider.Log(logger.ERROR, "Cannot find TESTCASE_BUCKET_NAME")
+		return
 	}
-	testcaseManager := testcase.NewTestcaseManager(dataSource, cache)
+	source := s3.NewS3DataSource(bucketName)
+	testcaseManager := testcase.NewTestcaseManager(source, cache)
 
 	fileManager := file.NewFileManager("/app/sandbox/results")
 	langConfig := sandbox.NewLangConfig(fileManager, "/app/sandbox/policy/java_policy")
 
 	sb := sandbox.NewSandbox("/app/sandbox/libjudger.so", logProvider)
-	compiler := sandbox.NewCompiler(sb, langConfig, fileManager)
-	runner := sandbox.NewRunner(sb, langConfig, fileManager)
+	compiler := sandbox.NewCompiler(sb, langConfig, fileManager, logProvider)
+	runner := sandbox.NewRunner(sb, langConfig, fileManager, logProvider)
 
 	judgeHandler := handler.NewJudgeHandler(
 		compiler,
@@ -85,22 +62,17 @@ func main() {
 
 	// amqps://skku:1234@broker-id.mq.us-west-2.amazonaws.com:5671
 	var uri string
-	if env == "production" {
-		uri = "amqps://" +
-			utils.Getenv("RABBITMQ_DEFAULT_USER", "skku") + ":" +
-			utils.Getenv("RABBITMQ_DEFAULT_PASS", "1234") + "@" +
-			utils.Getenv("RABBITMQ_HOST_ID", "localhost") + ".mq." +
-			utils.Getenv("RABBITMQ_HOST_REGION", "ap-northeast-2") + ".amazonaws.com:" +
-			utils.Getenv("RABBITMQ_PORT", "5672") + "/" +
-			utils.Getenv("RABBITMQ_DEFAULT_VHOST", "")
+	if utils.Getenv("RABBITMQ_SSL", "") != "" {
+		uri = "amqps://"
 	} else {
-		uri = "amqp://" +
-			utils.Getenv("RABBITMQ_DEFAULT_USER", "skku") + ":" +
+		uri = "amqp://"
+	}
+	uri +=
+		utils.Getenv("RABBITMQ_DEFAULT_USER", "skku") + ":" +
 			utils.Getenv("RABBITMQ_DEFAULT_PASS", "1234") + "@" +
 			utils.Getenv("RABBITMQ_HOST", "localhost") + ":" +
 			utils.Getenv("RABBITMQ_PORT", "5672") + "/" +
 			utils.Getenv("RABBITMQ_DEFAULT_VHOST", "")
-	}
 
 	connector.Factory(
 		connector.RABBIT_MQ,

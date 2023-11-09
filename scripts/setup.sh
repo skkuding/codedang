@@ -13,12 +13,6 @@ BASEDIR=$(dirname $(dirname $(realpath $0)))
 
 cd $BASEDIR
 
-# Use docker-compose profile
-if [ -z $DEVCONTAINER ]
-then
-  docker compose up -d
-fi
-
 # Write .env file from .env.development
 if [ -f .env ]
 then
@@ -60,16 +54,15 @@ then
   echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum | head -c 64)" >> backend/.env
 fi
 
-# Generate thunder client environment
-# Since environment variable changes frequently, let git ignore actual environment variables
-cp thunder-tests/environments/base.json thunder-tests/environments/tc_env_coding-platform-env.json
-
 # Install pnpm and Node.js packages
 npm install -g pnpm@latest
 pnpm install
 
 # Install lefthook for git hook
 pnpm exec lefthook install
+
+# Upload testcases to MinIO
+pnpm run init:testcases
 
 # Enable git auto completion
 if ! grep -q "bash-completion/completions/git" ~/.bashrc
@@ -111,7 +104,3 @@ rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_P
   declare binding source="$JUDGE_EXCHANGE_NAME" destination_type=queue destination="$JUDGE_RESULT_QUEUE_NAME" routing_key="$JUDGE_RESULT_ROUTING_KEY"
 rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \
   declare binding source="$JUDGE_EXCHANGE_NAME" destination_type=queue destination="$JUDGE_SUBMISSION_QUEUE_NAME" routing_key="$JUDGE_SUBMISSION_ROUTING_KEY"
-
-# Initialize testcase storage
-cd $BASEDIR/backend
-pnpm exec ts-node init-testcase.ts

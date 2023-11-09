@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { ref, computed } from 'vue'
+import { ref, computed, type ComputedRef, toValue } from 'vue'
 
 /**
  * Single item of the list
@@ -10,12 +10,16 @@ interface Item {
 }
 
 /**
- * @param path: url path to call (ex: 'user', 'group/1/user')
+ * Utility to get cursor-pagination API data.
+ * `slot` means a group of pages in pagination component.
+ * For example, if there are 3 pages per slot, [1, 2, 3] is slot 1, [4, 5, 6] is slot 2, and so on.
+ *
+ * @param path: url path to call (ex: 'user', () => `group/${id}/user`)
  * @param take: number of items to take per page
  * @param pagesPerSlot: number of pages per slot
  */
 export const useListAPI = <T extends Item>(
-  path: string,
+  path: string | ComputedRef<string>,
   take = 20,
   pagesPerSlot = 5
 ) => {
@@ -35,33 +39,43 @@ export const useListAPI = <T extends Item>(
   const cursor = ref()
   /** Cursors of previous slots. (work as stack) */
   const previousCursors = ref<number[]>([])
+  /** Data is being loaded */
+  const loading = ref(false)
 
-  /** Call list API from server */
+  /**
+   * Call list API from server.
+   * Get (all data of current slot + 1), to verify if there are more data to load in next slot.
+   * For example, if number of items per page is 20 and pages per slot is 5, take 101 items.
+   * If 101 items are returned, next slot exists. If not, current slot is the last.
+   */
   const getList = async () => {
-    const { data } = await axios.get(`/api/${path}`, {
+    loading.value = true
+    const { data } = await axios.get(`/api/${toValue(path)}`, {
       params: {
         take: take * pagesPerSlot + 1,
         cursor: cursor.value
       }
     })
+    // When current slot is not the last,
     if (data.length > take * pagesPerSlot) {
       totalPages.value = currentSlot.value * pagesPerSlot + 1
       slotItems.value = data.slice(0, take * pagesPerSlot)
-    } else {
-      totalPages.value = Math.max(
-        (currentSlot.value - 1) * pagesPerSlot + Math.ceil(data.length / take),
-        1
-      )
+    }
+    // When current slot is the last,
+    else {
+      totalPages.value =
+        (currentSlot.value - 1) * pagesPerSlot + Math.ceil(data.length / take)
       slotItems.value = data
     }
+    loading.value = false
   }
 
   const changePage = async (page: number) => {
     const oldSlot = currentSlot.value
-    currentPage.value = page // updates currentSlot as well
+    currentPage.value = page // updates currentSlot automatically (computed)
     if (currentSlot.value > oldSlot) {
       previousCursors.value.push(cursor.value)
-      cursor.value = slotItems.value[slotItems.value.length - 1].id
+      cursor.value = slotItems.value.at(-1)?.id
       await getList()
     } else if (currentSlot.value < oldSlot) {
       cursor.value = previousCursors.value.pop()
@@ -85,6 +99,7 @@ export const useListAPI = <T extends Item>(
   return {
     items,
     totalPages,
-    changePage
+    changePage,
+    loading
   }
 }

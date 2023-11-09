@@ -1,6 +1,6 @@
 import { IsString, IsEmail, IsNotEmpty } from 'class-validator'
 
-export class EmailAuthensticationPinDto {
+export class EmailAuthenticationPinDto {
   @IsString()
   @IsNotEmpty()
   pin: string

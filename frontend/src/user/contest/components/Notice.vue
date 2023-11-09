@@ -2,7 +2,19 @@
 import PaginationTable from '@/common/components/Organism/PaginationTable.vue'
 import { useDateFormat } from '@vueuse/core'
 import axios from 'axios'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+
+interface Problem {
+  id: number
+  problemId: number
+}
+
+interface Notice {
+  id: number
+  problem?: Problem
+  content: string
+  updateTime: string
+}
 
 const props = defineProps<{
   id: number
@@ -10,22 +22,21 @@ const props = defineProps<{
 
 const fields = [
   { key: 'id', label: '#' },
-  { key: 'time', label: 'Time' },
-  { key: 'description', label: 'Description' }
+  { key: 'updateTime', label: 'Time' },
+  { key: 'content', label: 'Description' }
 ]
-const formatter = ref('YYYY-MM-DD HH:mm:ss')
 
-const noticeList = ref([])
-axios.get(`/api/contest/${props.id}/clarification`).then((res) => {
-  noticeList.value = res.data.map(
-    (notice: { id: string; updateTime: string; content: string }) => {
-      return {
-        id: notice.id,
-        time: useDateFormat(notice.updateTime, formatter).value,
-        description: notice.content
-      }
-    }
+const noticeList = ref<Notice[]>([])
+
+onMounted(async () => {
+  const { data } = await axios.get<Notice[]>(
+    `/api/contest/${props.id}/clarification`
   )
+  noticeList.value = data.map((notice) => ({
+    id: notice.id,
+    updateTime: useDateFormat(notice.updateTime, 'YYYY-MM-DD HH:mm:ss').value,
+    content: notice.content
+  }))
 })
 </script>
 

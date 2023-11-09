@@ -1,0 +1,19 @@
+meta {
+  name: 404: Nonexistent contest
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/group/1/contest/999999
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 404
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}

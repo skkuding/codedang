@@ -29,7 +29,6 @@ func NewSandbox(binaryPath string, logger logger.Logger) *sandbox {
 }
 
 func (s *sandbox) Exec(args ExecArgs, input []byte) (ExecResult, error) {
-	// fmt.Println("input: ", args)
 	argSlice := makeExecArgs(args)
 	env := "--env=PATH=" + os.Getenv("PATH")
 	argSlice = append(argSlice, env)
@@ -49,24 +48,23 @@ func (s *sandbox) Exec(args ExecArgs, input []byte) (ExecResult, error) {
 	}
 
 	res := ExecResult{}
+	s.logger.Log(logger.DEBUG, fmt.Sprintf("sandbox result: %s", stdout.String()))
 	err = json.Unmarshal(stdout.Bytes(), &res)
 	if err != nil {
 		return ExecResult{}, fmt.Errorf("failed to unmarshal sandbox result: %w", err)
 	}
-	// s.logger.Log(logger.DEBUG, fmt.Sprintf("sandbox result: %s", stdout.String()))
-	// fmt.Printf("sandbox result: %s", stdout.String())
 
 	return res, nil
 }
 
 type ExecResult struct {
-	CpuTime    int        `json:"cpuTime"`
-	RealTime   int        `json:"realTime"`
+	CpuTime    int        `json:"cpu_time"`
+	RealTime   int        `json:"real_time"`
 	Memory     int        `json:"memory"`
 	Signal     int        `json:"signal"`
-	ErrorCode  int        `json:"exitCode"`
-	ExitCode   int        `json:"errorCode"`
-	ResultCode ResultCode `json:"resultCode"`
+	ExitCode   int        `json:"exit_code"`
+	ErrorCode  int        `json:"error"`
+	ResultCode ResultCode `json:"result"`
 }
 
 type ExecArgs struct {

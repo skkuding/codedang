@@ -1,12 +1,13 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
-import type { UserGroup } from '@prisma/client'
+import { Role, type UserGroup } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { joinGroupCacheKey } from '@libs/cache'
-import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
+import { invitationCodeKey, joinGroupCacheKey } from '@libs/cache'
+import { JOIN_GROUP_REQUEST_EXPIRE_TIME, OPEN_SPACE_ID } from '@libs/constants'
 import {
-  ActionNotAllowedException,
-  EntityNotExistException
+  ConflictFoundException,
+  EntityNotExistException,
+  ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { UserGroupData } from './interface/user-group-data.interface'
@@ -18,7 +19,7 @@ export class GroupService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getGroup(userId: number, groupId: number) {
+  async getGroup(groupId: number, userId: number, invited = false) {
     const isJoined = await this.prisma.userGroup.findFirst({
       where: {
         userId: userId,
@@ -37,11 +38,12 @@ export class GroupService {
     })
 
     if (!isJoined) {
-      const group = await this.prisma.group.findFirst({
+      const filter = invited ? 'allowJoinFromURL' : 'showOnList'
+      const group = await this.prisma.group.findUniqueOrThrow({
         where: {
           id: groupId,
           config: {
-            path: ['showOnList'],
+            path: [filter],
             equals: true
           }
         },
@@ -51,15 +53,14 @@ export class GroupService {
           description: true,
           userGroup: true,
           config: true
-        },
-        rejectOnNotFound: () => new EntityNotExistException('group')
+        }
       })
 
       return {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
-        allowJoinFromSearch: group.config['allowJoinFromSearch'],
+        allowJoin: invited ? true : group.config['allowJoinFromSearch'],
         memberNum: group.userGroup.length,
         leaders: await this.getGroupLeaders(groupId),
         isJoined: false
@@ -71,6 +72,15 @@ export class GroupService {
         isJoined: true
       }
     }
+  }
+
+  async getGroupByInvitation(code: string, userId: number) {
+    const groupId: number = await this.cacheManager.get(invitationCodeKey(code))
+
+    if (!groupId) {
+      throw new EntityNotExistException('Invalid invitation')
+    }
+    return this.getGroup(groupId, userId, true)
   }
 
   async getGroupLeaders(groupId: number): Promise<string[]> {
@@ -181,13 +191,24 @@ export class GroupService {
 
   async joinGroupById(
     userId: number,
-    groupId: number
+    groupId: number,
+    invitation?: string
   ): Promise<{ userGroupData: Partial<UserGroup>; isJoined: boolean }> {
-    const group = await this.prisma.group.findFirst({
+    if (invitation) {
+      const invitedGroupId = await this.cacheManager.get<number>(
+        invitationCodeKey(invitation)
+      )
+      if (!invitedGroupId || groupId !== invitedGroupId) {
+        throw new ForbiddenAccessException('Invalid invitation')
+      }
+    }
+
+    const filter = invitation ? 'allowJoinFromURL' : 'allowJoinFromSearch'
+    const group = await this.prisma.group.findUniqueOrThrow({
       where: {
         id: groupId,
         config: {
-          path: ['allowJoinFromSearch'],
+          path: [filter],
           equals: true
         }
       },
@@ -198,8 +219,7 @@ export class GroupService {
             userId: true
           }
         }
-      },
-      rejectOnNotFound: () => new EntityNotExistException('group')
+      }
     })
 
     const isJoined = group.userGroup.some(
@@ -207,16 +227,15 @@ export class GroupService {
     )
 
     if (isJoined) {
-      throw new ActionNotAllowedException('join request', 'group')
+      throw new ConflictFoundException('Already joined this group')
     } else if (group.config['requireApprovalBeforeJoin']) {
       let joinGroupRequest: number[] = await this.cacheManager.get(
         joinGroupCacheKey(groupId)
       )
-      if (joinGroupRequest !== undefined) {
+      if (joinGroupRequest) {
         if (joinGroupRequest.includes(userId)) {
-          throw new ActionNotAllowedException(
-            'duplicated join request',
-            'group'
+          throw new ConflictFoundException(
+            'Already requested to join this group'
           )
         }
       }
@@ -250,6 +269,16 @@ export class GroupService {
   }
 
   async leaveGroup(userId: number, groupId: number): Promise<UserGroup> {
+    const groupLeaders = await this.prisma.userGroup.findMany({
+      where: {
+        isGroupLeader: true,
+        groupId: groupId
+      }
+    })
+    if (groupLeaders.length == 1 && groupLeaders[0].userId == userId) {
+      throw new ConflictFoundException('One or more managers are required')
+    }
+
     const deletedUserGroup = await this.prisma.userGroup.delete({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -277,6 +306,20 @@ export class GroupService {
   }
 
   async createUserGroup(userGroupData: UserGroupData): Promise<UserGroup> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userGroupData.userId
+      }
+    })
+
+    if (
+      user &&
+      (user.role === Role.SuperAdmin || user.role === Role.Admin) &&
+      userGroupData.groupId != OPEN_SPACE_ID
+    ) {
+      userGroupData.isGroupLeader = true
+    }
+
     return await this.prisma.userGroup.create({
       data: {
         user: {
