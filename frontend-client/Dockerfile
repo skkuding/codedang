@@ -7,9 +7,8 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY pnpm-lock.yaml* pnpm-workspace.yaml ./
-COPY frontend-client/package.json ./frontend-client/
+COPY frontend-client ./frontend-client
 RUN npm install -g pnpm && pnpm --filter frontend-client i --frozen-lockfile
-COPY ./frontend-client ./frontend-client
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
