@@ -8,7 +8,7 @@ import type { Language, Level } from '@/user/problem/types'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useMutation } from '@vue/apollo-composable'
 import { gql } from 'graphql-tag'
-import { useForm } from 'vee-validate'
+import { useFieldArray, useForm, Field } from 'vee-validate'
 import { useRouter } from 'vue-router'
 import { z } from 'zod'
 import IconLeft from '~icons/fa6-solid/angle-left'
@@ -85,9 +85,10 @@ const outputDescription = defineInputBinds('outputDescription')
 const timeLimit = defineComponentBinds('timeLimit')
 const memoryLimit = defineComponentBinds('memoryLimit')
 const hint = defineComponentBinds('hint')
-const inputExamples = defineComponentBinds('inputExamples')
-const outputExamples = defineComponentBinds('outputExamples')
-const testcases = defineComponentBinds('testcases')
+
+const inputExamples = useFieldArray('inputExamples')
+const outputExamples = useFieldArray('outputExamples')
+const testcases = useFieldArray('testcases')
 
 const toast = useToast()
 
@@ -156,27 +157,13 @@ const toggleLanguage = (language: Language) => {
 }
 
 const addExample = () => {
-  setFieldValue('inputExamples', [...values.inputExamples!, ''])
-  setFieldValue('outputExamples', [...values.outputExamples!, ''])
+  inputExamples.push('')
+  outputExamples.push('')
 }
 
 const removeExample = (index: number) => {
-  setFieldValue(
-    'inputExamples',
-    values.inputExamples?.filter((_, i) => i !== index)
-  )
-  setFieldValue(
-    'outputExamples',
-    values.outputExamples?.filter((_, i) => i !== index)
-  )
-}
-
-const addTestcase = () => {
-  setFieldValue('testcases', [...values.testcases!, { input: '', output: '' }])
-}
-
-const removeTestcase = (index: number) => {
-  setFieldValue('testcases', values.testcases?.filter((_, i) => i !== index))
+  inputExamples.remove(index)
+  outputExamples.remove(index)
 }
 </script>
 
@@ -310,7 +297,7 @@ const removeTestcase = (index: number) => {
       <TextEditor v-bind="hint" size="lg" />
     </div>
     <div
-      v-for="(_, index) in values.inputExamples"
+      v-for="(_, index) in inputExamples.fields.value"
       :key="index"
       class="flex flex-col gap-5"
     >
@@ -320,7 +307,7 @@ const removeTestcase = (index: number) => {
           <span class="text-red">*</span>
         </h2>
         <Button
-          v-if="inputExamples.length > 1"
+          v-if="inputExamples.fields.value.length > 1"
           type="button"
           class="flexitems-center justify-center gap-2"
           @click="removeExample(index)"
@@ -335,8 +322,9 @@ const removeTestcase = (index: number) => {
             <label class="text-gray-dark mb-3 text-lg font-bold">
               Input Sample
             </label>
-            <textarea
-              v-bind="inputExamples[index]"
+            <Field
+              as="textarea"
+              name="`inputExamples[${index}]`"
               class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
             />
           </div>
@@ -344,8 +332,9 @@ const removeTestcase = (index: number) => {
             <label class="text-gray-dark text-lg font-bold">
               Output Sample
             </label>
-            <textarea
-              v-bind="outputExamples[index]"
+            <Field
+              as="textarea"
+              name="`outputExamples[${index}]`"
               class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
             />
           </div>
@@ -361,7 +350,7 @@ const removeTestcase = (index: number) => {
       Add Sample
     </Button>
     <div
-      v-for="(item, index) in values.testcases"
+      v-for="(_, index) in testcases.fields.value"
       :key="index"
       class="flex flex-col gap-5"
     >
@@ -371,10 +360,10 @@ const removeTestcase = (index: number) => {
           <span class="text-red">*</span>
         </h2>
         <Button
-          v-if="testcases.length > 1"
+          v-if="testcases.fields.value.length > 1"
           type="button"
           class="flex h-[32px] items-center justify-center gap-2"
-          @click="removeTestcase(index)"
+          @click="testcases.remove(index)"
         >
           <IconTrash />
           Delete
@@ -386,8 +375,9 @@ const removeTestcase = (index: number) => {
             <label class="text-gray-dark mb-3 text-lg font-bold">
               Input Testcase
             </label>
-            <textarea
-              v-bind="item.input"
+            <Field
+              as="textarea"
+              name="`testcases[${index}].input`"
               class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
             />
           </div>
@@ -395,8 +385,9 @@ const removeTestcase = (index: number) => {
             <label class="text-gray-dark text-lg font-bold">
               Output Testcase
             </label>
-            <textarea
-              v-bind="item.output"
+            <Field
+              as="textarea"
+              name="`testcases[${index}].output`"
               class="border-gray focus:border-green focus:ring-green mt-3 h-[180px] w-full resize-none rounded-lg font-mono outline-none focus:ring-1"
             />
           </div>
@@ -407,7 +398,7 @@ const removeTestcase = (index: number) => {
       type="button"
       class="border-gray text-gray-dark flex h-[45px] items-center justify-center border"
       color="white"
-      @click="addTestcase"
+      @click="testcases.push({ input: '', output: '' })"
     >
       Add Testcase
     </Button>
