@@ -29,9 +29,8 @@ const { open, onChange } = useFileDialog()
 const dialog = useDialog()
 
 const extension = '.xlsx'
-onChange(async (files) => {
-  if (!files) return
-  if (!files![0].name.toLowerCase().endsWith(extension)) {
+onChange(async (files: FileList) => {
+  if (!files[0].name.toLowerCase().endsWith(extension)) {
     dialog.error({
       title: 'Unsupported extension',
       content: `Only support ${extension}`,
