@@ -32,10 +32,14 @@ jobs:
         if: ${{ matrix.target == 'backend' || matrix.target == 'backend-admin' }}
         run: pnpm --filter backend exec prisma generate
 
+      # If target is backend-admin, run `pnpm --filter backend build admin`
+      # For other targets, run `pnpm --filter <target> build`
+      - name: Build (backend admin)
+        if: ${{ matrix.target == 'backend-admin' }}
+        run: pnpm --filter backend build admin
       - name: Build
-        # If target is backend-admin, run `pnpm --filter backend-admin build admin`
-        # For other targets, run `pnpm --filter <target> build`
-        run: pnpm --filter ${{ matrix.target }} build ${{ matrix.target == 'backend-admin' && 'admin' || '' }}
+        if: ${{ matrix.target != 'backend-admin' }}
+        run: pnpm --filter ${{ matrix.target }} build
 
   typecheck:
     name: Typecheck
