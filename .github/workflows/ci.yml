@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    name: Build
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -48,7 +49,39 @@ jobs:
           path: ./*/dist
           key: ${{ matrix.os }}-node-v${{ matrix.node }}-${{ github.sha }}
 
+  typecheck:
+    name: Typecheck
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [20]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Check types (backend)
+        run: pnpm --filter backend exec tsc --noEmit
+
+      - name: Check types (frontend)
+        run: pnpm --filter frontend exec vue-tsc --noEmit
+
+      - name: Check types (frontend-client)
+        run: pnpm --filter frontend-client exec tsc --noEmit
+
   lint:
+    name: Lint
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -94,6 +127,7 @@ jobs:
         run: pnpm lint
 
   test:
+    name: Test
     runs-on: ${{ matrix.os }}
 
     env:
