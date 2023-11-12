@@ -8,7 +8,7 @@ pnpm install
 # delete empty migration folders git has left
 find $BASEDIR/backend/prisma/migrations -empty -type d -delete
 
-if [ -n $DATABASE_URL ]
+if [ -n "$DATABASE_URL" ]
 then
   pnpm --filter backend --silent exec prisma migrate diff \
   --from-url $DATABASE_URL \
