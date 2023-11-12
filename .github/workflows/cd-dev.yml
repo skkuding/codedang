@@ -130,7 +130,7 @@ jobs:
           node-version: 20
 
       - name: Install Bruno CLI
-        run: pnpm install -g @usebruno/cli
+        run: npm install -g @usebruno/cli
 
       - name: Run Bruno Collection (Client)
         working-directory: collection/client
