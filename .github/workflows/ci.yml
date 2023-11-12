@@ -9,12 +9,11 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        node: [20]
+        target: [frontend, frontend-client, backend, backend-admin]
 
     steps:
       - uses: actions/checkout@v4
@@ -23,40 +22,24 @@ jobs:
           version: 8
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 20
           cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install
 
       - name: Generate Prisma Client
+        if: ${{ matrix.target == 'backend' || matrix.target == 'backend-admin' }}
         run: pnpm --filter backend exec prisma generate
 
-      - name: Build (Frontend)
-        run: pnpm --filter frontend build
-
-      - name: Build (Frontend Client)
-        run: pnpm --filter frontend-client build
-
-      - name: Build (Backend)
-        run: |
-          pnpm --filter backend build
-          pnpm --filter backend build admin
-
-      - name: Cache dist
-        uses: actions/cache@v3
-        with:
-          path: ./*/dist
-          key: ${{ matrix.os }}-node-v${{ matrix.node }}-${{ github.sha }}
+      - name: Build
+        # If target is backend-admin, run `pnpm --filter backend-admin build admin`
+        # For other targets, run `pnpm --filter <target> build`
+        run: pnpm --filter ${{ matrix.target }} build ${{ matrix.target == 'backend-admin' && 'admin' || '' }}
 
   typecheck:
     name: Typecheck
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node: [20]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -65,7 +48,7 @@ jobs:
           version: 8
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 20
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -82,12 +65,7 @@ jobs:
 
   lint:
     name: Lint
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node: [20]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -96,7 +74,7 @@ jobs:
           version: 8
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 20
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -128,15 +106,10 @@ jobs:
 
   test:
     name: Test
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node: [20]
 
     services:
       postgres:
@@ -155,7 +128,7 @@ jobs:
           version: 8
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 20
           cache: 'pnpm'
 
       - name: Install dependencies
