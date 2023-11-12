@@ -41,11 +41,11 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'http://dev.codedang.com',
+        target: 'https://dev.codedang.com',
         changeOrigin: true
       },
       '/graphql': {
-        target: 'http://dev.codedang.com',
+        target: 'https://dev.codedang.com',
         changeOrigin: true
       }
     }
