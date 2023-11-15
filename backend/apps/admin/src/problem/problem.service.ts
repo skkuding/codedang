@@ -490,6 +490,8 @@ export class ProblemService {
     groupId: number,
     workbookId: number
   ): Promise<Partial<WorkbookProblem>[]> {
+    // id를 받은 workbook이 현재 접속된 group의 것인지 확인
+    // 아니면 에러 throw
     await this.prisma.workbook.findFirstOrThrow({
       where: { id: workbookId, groupId: groupId }
     })
