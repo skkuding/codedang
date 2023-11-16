@@ -132,14 +132,13 @@ services:
     profiles: ['deploy']
     image: python:3-bullseye # Python for rabbitmqadmin
     container_name: setup
-    user: 1000:1000 # Let dist files be owned by user
     depends_on:
       - rabbitmq
       - database
       - testcase
     volumes:
       - $PWD/scripts:/etc/scripts
-      - $PWD/dist:/etc/dist:z
+      # - $PWD/dist:/etc/dist:z
     network_mode: host
     command: ['/bin/bash', '/etc/scripts/deploy.sh']
 

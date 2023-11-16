@@ -2,7 +2,7 @@
 set -aex
 
 BASEDIR=/app
-DIST=/etc/dist
+# DIST=/etc/dist
 
 rm -rf $BASEDIR
 git clone https://github.com/skkuding/codedang $BASEDIR
@@ -25,8 +25,9 @@ pnpm run init:testcases
 pnpm --filter backend exec prisma migrate reset -f
 
 # 프론트엔드 빌드
-pnpm --filter frontend run build
-cp -r $BASEDIR/frontend/dist $DIST
+# TODO: dist에 non-root 사용자도 접근할 수 있도록 권한 설정
+# pnpm --filter frontend run build
+# cp -r $BASEDIR/frontend/dist $DIST
 
 # RabbitMQ Admin 설치
 curl https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/main/deps/rabbitmq_management/bin/rabbitmqadmin -o /usr/local/bin/rabbitmqadmin
