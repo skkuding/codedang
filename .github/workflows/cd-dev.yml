@@ -110,6 +110,12 @@ jobs:
       - name: Load dotenv from secret
         run: echo ${{ secrets.ENV_DEVELOPMENT }} > .env
 
+      - name: Load frontend static bundle
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-bundle
+          path: ./dist
+
       - name: Check if containers are running
         id: check-container
         run: docker compose --profile deploy ps -q
@@ -117,12 +123,6 @@ jobs:
       - name: Initialize containers
         if: steps.check-container.outputs.stdout == ''
         run: docker compose --profile deploy up -d --no-recreate
-
-      - name: Load frontend static bundle
-        uses: actions/download-artifact@v3
-        with:
-          name: frontend-bundle
-          path: ./dist
 
       - name: Pull docker images
         run: docker compose --profile update-target pull
