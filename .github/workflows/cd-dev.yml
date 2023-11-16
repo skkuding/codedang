@@ -2,7 +2,7 @@ name: CD - Development
 
 on:
   push:
-    branches: [main]
+    branches: [main, 969-docker-entrypoint]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -106,15 +106,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          clean: false
-          sparse-checkout: |
-            docker-compose.yml
-            .env.development
-            Caddyfile
 
       - name: Load dotenv from secret
         run: echo ${{ secrets.ENV_DEVELOPMENT }} > .env
+
+      - name: Check if containers are running
+        id: check-container
+        run: docker compose --profile deploy ps -q
+
+      - name: Initialize containers
+        if: steps.check-container.outputs.stdout == ''
+        run: docker compose --profile deploy up -d --no-recreate
 
       - name: Load frontend static bundle
         uses: actions/download-artifact@v3
