@@ -164,9 +164,9 @@ jobs:
         run: npm install -g @usebruno/cli
 
       - name: Run Bruno Collection (Client)
-        working-directory: collection/client
+        working-directory: ./collection/client
         run: bru run --env development
 
       - name: Run Bruno Collection (Admin)
-        working-directory: collection/admin
+        working-directory: ./collection/admin
         run: bru run --env development
