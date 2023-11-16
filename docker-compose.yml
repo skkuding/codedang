@@ -84,9 +84,8 @@ services:
     image: ghcr.io/skkuding/codedang-client-api:latest
     container_name: backend-client
     depends_on:
-      - setup
-      - rabbitmq
-      - database
+      setup:
+        condition: service_completed_successfully
     env_file:
       - .env.development
       - .env
@@ -97,9 +96,8 @@ services:
     image: ghcr.io/skkuding/codedang-admin-api:latest
     container_name: backend-admin
     depends_on:
-      - setup
-      - rabbitmq
-      - database
+      setup:
+        condition: service_completed_successfully
     env_file:
       - .env.development
       - .env
@@ -110,9 +108,8 @@ services:
     image: ghcr.io/skkuding/codedang-iris:latest
     container_name: iris
     depends_on:
-      - setup
-      - rabbitmq
-      - database
+      setup:
+        condition: service_completed_successfully
     env_file: .env.development
     network_mode: host
 
