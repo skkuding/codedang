@@ -4,6 +4,7 @@ set -aex
 BASEDIR=/app
 DIST=/etc/dist
 
+rm -rf $BASEDIR
 git clone https://github.com/skkuding/codedang $BASEDIR
 cd $BASEDIR
 
