@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
-set -a
+set -aex
 
-source .env.development
+source /app/.env.development
 
-wget -qO- https://get.pnpm.io/install.sh | sh
-pnpm install
+wget -qO- https://get.pnpm.io/install.sh | bash -
+source /root/.bashrc
 
 # Node.js 설치
 pnpm env use --global lts
+
+cd /app
+pnpm install
 
 # 테스트케이스 업로드
 pnpm run init:testcases
@@ -15,8 +18,8 @@ pnpm run init:testcases
 # 데이터베이스 마이그레이션
 pnpm --filter backend exec prisma migrate reset -f
 
-sudo curl https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/main/deps/rabbitmq_management/bin/rabbitmqadmin -o /usr/local/bin/rabbitmqadmin
-sudo chmod 755 /usr/local/bin/rabbitmqadmin
+curl https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/main/deps/rabbitmq_management/bin/rabbitmqadmin -o /usr/local/bin/rabbitmqadmin
+chmod 755 /usr/local/bin/rabbitmqadmin
 
 # RabbitMQ 세팅
 rabbitmqadmin -H $RABBITMQ_HOST -u $RABBITMQ_DEFAULT_USER -p $RABBITMQ_DEFAULT_PASS -V $RABBITMQ_DEFAULT_VHOST \

@@ -118,14 +118,16 @@ services:
 
   setup:
     profiles: ['deploy']
-    image: alpine:3.18
+    image: python:3-bullseye # Python for rabbitmqadmin
     container_name: setup
     depends_on:
       - rabbitmq
       - database
+      - testcase
     volumes:
-      - $PWD/script/deploy.sh:/app/deploy.sh
-    command: ['/bin/sh', '/app/deploy.sh']
+      - .:/app
+    network_mode: host
+    command: ['/bin/bash', '/app/scripts/deploy.sh']
 
 volumes:
   codedang-testcase:
