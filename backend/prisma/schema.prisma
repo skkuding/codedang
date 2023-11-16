@@ -38,7 +38,6 @@ model User {
 
   userProfile   UserProfile?
   userGroup     UserGroup[]
-  group         Group[]
   notice        Notice[]
   problem       Problem[]
   contest       Contest[]
@@ -75,8 +74,6 @@ model UserGroup {
 
 model Group {
   id          Int      @id @default(autoincrement())
-  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById Int      @map("created_by_id")
   groupName   String   @unique @map("group_name")
   description String
   /// config default value
@@ -101,8 +98,8 @@ model Group {
 
 model Notice {
   id          Int      @id @default(autoincrement())
-  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById Int      @map("created_by_id")
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?     @map("created_by_id")
   group       Group    @relation(fields: [groupId], references: [id])
   groupId     Int      @map("group_id")
   title       String
@@ -117,8 +114,8 @@ model Notice {
 
 model Problem {
   id                Int        @id @default(autoincrement())
-  createdBy         User       @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById       Int        @map("created_by_id")
+  createdBy         User?      @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById       Int?       @map("created_by_id")
   group             Group      @relation(fields: [groupId], references: [id])
   groupId           Int        @map("group_id")
   title             String
@@ -211,8 +208,8 @@ model Tag {
 
 model Contest {
   id          Int      @id @default(autoincrement())
-  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById Int      @map("created_by_id")
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?     @map("created_by_id")
   group       Group    @relation(fields: [groupId], references: [id])
   groupId     Int      @map("group_id")
   title       String
@@ -265,23 +262,24 @@ model Clarification {
 }
 
 model ContestRecord {
+  id                 Int      @id @default(autoincrement())
   contest            Contest  @relation(fields: [contestId], references: [id])
   contestId          Int      @map("contest_id")
-  user               User     @relation(fields: [userId], references: [id])
-  userId             Int      @map("user_id")
+  user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId             Int?     @map("user_id")
   acceptedProblemNum Int      @default(0) @map("accepted_problem_num")
   totalPenalty       Int      @default(0) @map("total_penalty")
   createTime         DateTime @default(now()) @map("create_time")
   updateTime         DateTime @updatedAt @map("update_time")
 
-  @@id([contestId, userId])
+  @@unique([contestId, userId])
   @@map("contest_record")
 }
 
 model Workbook {
   id          Int      @id @default(autoincrement())
-  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById Int      @map("created_by_id")
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?     @map("created_by_id")
   group       Group    @relation(fields: [groupId], references: [id])
   groupId     Int      @map("group_id")
   title       String
@@ -312,8 +310,8 @@ model WorkbookProblem {
 
 model Submission {
   id         String       @id // 6 digit hex hash
-  user       User         @relation(fields: [userId], references: [id])
-  userId     Int          @map("user_id")
+  user       User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId     Int?         @map("user_id")
   problem    Problem      @relation(fields: [problemId], references: [id])
   problemId  Int          @map("problem_id")
   contest    Contest?     @relation(fields: [contestId], references: [id])

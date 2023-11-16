@@ -1,6 +1,6 @@
 import { Field } from '@nestjs/graphql'
 import { InputType } from '@nestjs/graphql'
-import { GroupCreateWithoutCreatedByInput, GroupUpdateInput } from '@generated'
+import { GroupCreateInput, GroupUpdateInput } from '@generated'
 
 @InputType()
 class Config {
@@ -18,7 +18,7 @@ class Config {
 }
 
 @InputType()
-export class CreateGroupInput extends GroupCreateWithoutCreatedByInput {
+export class CreateGroupInput extends GroupCreateInput {
   @Field(() => Config, { nullable: false })
   declare config: Config
 }

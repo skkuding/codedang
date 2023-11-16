@@ -40,7 +40,8 @@ export const useAuthStore = defineStore('auth', {
     async reissue() {
       try {
         const res = await axios.get('/api/auth/reissue', {
-          withCredentials: true // for local development
+          // Send cross-site cookie in development mode
+          withCredentials: import.meta.env.DEV
         })
         axios.defaults.headers.common.authorization = res.headers.authorization
         this.isLoggedIn = true

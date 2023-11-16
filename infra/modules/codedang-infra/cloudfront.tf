@@ -47,6 +47,7 @@ resource "aws_cloudfront_distribution" "main" {
   enabled             = true
   comment             = "Codedang Cloudfront"
   default_root_object = "index.html"
+  http_version        = "http2and3"
 
   aliases = ["codedang.com"]
 
@@ -92,8 +93,9 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate_validation.main.certificate_arn # Certificate for codedang.com
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn      = aws_acm_certificate_validation.main.certificate_arn # Certificate for codedang.com
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 
   # Redirect non-root path to root path (need for SPA)
