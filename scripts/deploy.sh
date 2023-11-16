@@ -20,7 +20,7 @@ pnpm --filter backend exec prisma migrate reset -f
 
 # 프론트엔드 빌드
 pnpm --filter frontend run build
-cp -r /app/frontend/build/* /app/dist
+cp -r /app/frontend/dist/* /app/dist
 
 # RabbitMQ Admin 설치
 curl https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/main/deps/rabbitmq_management/bin/rabbitmqadmin -o /usr/local/bin/rabbitmqadmin
