@@ -196,6 +196,7 @@ export class ProblemResolver {
     )
     groupId: number,
     @Args('workbookId', { type: () => Int }, ParseIntPipe) workbookId: number,
+    // orders는 항상 workbookId에 해당하는 workbookProblems들이 모두 딸려 온다.
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
     try {
