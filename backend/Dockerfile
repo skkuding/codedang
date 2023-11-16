@@ -27,4 +27,4 @@ ENV TARGET=${target}
 COPY --from=builder /build/out /app
 COPY ./backend/entrypoint.sh /app
 
-ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]

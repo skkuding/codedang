@@ -125,7 +125,7 @@ services:
       - database
     volumes:
       - $PWD/script/deploy.sh:/app/deploy.sh
-    command: ['/app/deploy.sh']
+    command: ['/bin/sh', '/app/deploy.sh']
 
 volumes:
   codedang-testcase:
