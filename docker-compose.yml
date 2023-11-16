@@ -113,6 +113,20 @@ services:
     env_file: .env.development
     network_mode: host
 
+  setup:
+    profiles: ['deploy']
+    image: alpine:3.18
+    container_name: setup
+    depends_on:
+      - backend-client
+      - backend-admin
+      - iris
+      - rabbitmq
+      - database
+    volumes:
+      - $PWD/script/deploy.sh:/app/deploy.sh
+    command: ['/app/deploy.sh']
+
 volumes:
   codedang-testcase:
   codedang-database:
