@@ -24,7 +24,7 @@ ARG target
 ENV NODE_ENV=production
 ENV TARGET=${target}
 
-COPY --from=builder /build/out/dist /app
+COPY --from=builder /build/out /app
 COPY ./backend/entrypoint.sh /app
 
 ENTRYPOINT ["/app/entrypoint.sh"]
