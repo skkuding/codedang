@@ -2,7 +2,7 @@ name: CD - Development
 
 on:
   push:
-    branches: [main, 969-docker-entrypoint]
+    branches: [main, 969-docker-entrypoint] # FIXME
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -109,6 +109,7 @@ jobs:
         with:
           sparse-checkout: |
             docker-compose.yml
+            scripts/deploy.sh
             .env.development
             Caddyfile
 
