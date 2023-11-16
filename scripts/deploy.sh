@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 set -aex
 
-source /app/.env.development
+BASEDIR=/app
+DIST=$BASEDIR/dist
+
+git clone https://github.com/skkuding/codedang $BASEDIR
+cd $BASEDIR
+
+source $BASEDIR/.env.development
 
 wget -qO- https://get.pnpm.io/install.sh | bash -
 source /root/.bashrc
@@ -9,7 +15,6 @@ source /root/.bashrc
 # Node.js 설치
 pnpm env use --global lts
 
-cd /app
 pnpm install
 
 # 테스트케이스 업로드
@@ -20,7 +25,7 @@ pnpm --filter backend exec prisma migrate reset -f
 
 # 프론트엔드 빌드
 pnpm --filter frontend run build
-cp -r /app/frontend/dist /app/dist
+cp -r $BASEDIR/frontend/dist $DIST
 
 # RabbitMQ Admin 설치
 curl https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/main/deps/rabbitmq_management/bin/rabbitmqadmin -o /usr/local/bin/rabbitmqadmin

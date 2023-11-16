@@ -126,7 +126,7 @@ services:
       - database
       - testcase
     volumes:
-      - .:/app:rw
+      - $PWD/dist:/app/dist:z
     network_mode: host
     command: ['/bin/bash', '/app/scripts/deploy.sh']
 
