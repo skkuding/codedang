@@ -5,6 +5,7 @@
 ARG target=client
 
 FROM node:20-alpine AS builder
+ARG target
 
 COPY . /build
 WORKDIR /build
@@ -18,6 +19,7 @@ RUN npm run build ${target}
 
 ### PRODUCTION ###
 FROM node:20-alpine
+ARG target
 
 ENV NODE_ENV=production
 ENV TARGET=${target}
