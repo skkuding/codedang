@@ -124,7 +124,12 @@ jobs:
 
       - name: Check if containers are running
         id: check-container
-        run: echo "stdout=$(docker compose --profile deploy ps -q)" >> $GITHUB_OUTPUT
+        run: |
+          {
+            echo 'stdout<<EOF'
+            docker compose --profile deploy ps -q
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
 
       - name: Initialize containers
         if: steps.check-container.outputs.stdout == ''
