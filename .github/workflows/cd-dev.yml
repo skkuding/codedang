@@ -113,6 +113,9 @@ jobs:
             .env.development
             Caddyfile
 
+      - name: Load dotenv from secret
+        run: echo ${{ secrets.ENV_DEVELOPMENT }} > .env
+
       - name: Load frontend static bundle
         uses: actions/download-artifact@v3
         with:
