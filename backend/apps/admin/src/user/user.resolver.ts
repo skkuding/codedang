@@ -90,10 +90,10 @@ export class UserResolver {
   async handleJoinRequest(
     @Args('groupId') groupId: number,
     @Args('userId') userId: number,
-    @Args('accept') accept: boolean
+    @Args('isAccept') isAccept: boolean
   ) {
     try {
-      return await this.userService.handleJoinRequest(groupId, userId, accept)
+      return await this.userService.handleJoinRequest(groupId, userId, isAccept)
     } catch (error) {
       this.logger.error(error.message, error.stack)
       if (error instanceof ConflictException) {

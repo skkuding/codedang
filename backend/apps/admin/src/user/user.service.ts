@@ -109,65 +109,48 @@ export class UserService {
     groupId: number,
     toGroupLeader: boolean
   ) {
-    const groupMembers = (
-      await this.prisma.userGroup.findMany({
-        where: {
-          groupId: groupId
+    // find the user
+    const groupMember = await this.prisma.userGroup.findFirst({
+      where: {
+        groupId: groupId,
+        userId: userId
+      },
+      select: {
+        user: {
+          select: {
+            role: true
+          }
         },
-        select: {
-          userId: true,
-          user: {
-            select: {
-              role: true
-            }
-          },
-          isGroupLeader: true
-        }
-      })
-    ).map((userGroup) => {
-      return {
-        userId: userGroup.userId,
-        userRole: userGroup.user.role,
-        isGroupLeader: userGroup.isGroupLeader
+        isGroupLeader: true
       }
     })
 
-    const isGroupMember = groupMembers.some(
-      (member) => member.userId === userId
-    )
-
-    if (!isGroupMember) {
+    if (groupMember === null) {
       throw new NotFoundException(
         `userId ${userId} is not a group member of groupId ${groupId}`
       )
     }
 
-    if (!toGroupLeader) {
-      const isAdmin = groupMembers.some(
-        (member) =>
-          member.userId === userId &&
-          (member.userRole == Role.Admin || member.userRole == Role.SuperAdmin)
-      )
+    const userRole = groupMember.user.role
+    const groupLeaderNum = await this.prisma.userGroup.count({
+      where: {
+        groupId: groupId,
+        isGroupLeader: true
+      }
+    })
 
-      if (isAdmin) {
+    if (groupMember.isGroupLeader && !toGroupLeader) {
+      if (userRole === Role.Admin || userRole === Role.SuperAdmin) {
         throw new BadRequestException(`userId ${userId} is admin`)
       }
-    }
 
-    const manager = groupMembers
-      .filter((member) => true === member.isGroupLeader)
-      .map((member) => member.userId)
-
-    if (!manager.includes(userId) && !toGroupLeader) {
-      throw new BadRequestException(`userId ${userId} is already member`)
-    }
-
-    if (manager.includes(userId) && toGroupLeader) {
+      if (groupLeaderNum <= 1) {
+        throw new BadRequestException('One or more managers are required')
+      }
+    } else if (groupMember.isGroupLeader && toGroupLeader) {
       throw new BadRequestException(`userId ${userId} is already manager`)
-    }
-
-    if (manager.length <= 1 && !toGroupLeader) {
-      throw new BadRequestException('One or more managers are required')
+    } else if (!groupMember.isGroupLeader && !toGroupLeader) {
+      throw new BadRequestException(`userId ${userId} is already member`)
     }
 
     return await this.prisma.userGroup.update({
