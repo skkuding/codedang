@@ -126,9 +126,10 @@ services:
       - database
       - testcase
     volumes:
-      - $PWD/dist:/app/dist:z
+      - $PWD/scripts:/etc/scripts
+      - $PWD/dist:/etc/dist:z
     network_mode: host
-    command: ['/bin/bash', '/app/scripts/deploy.sh']
+    command: ['/bin/bash', '/etc/scripts/deploy.sh']
 
 volumes:
   codedang-testcase:

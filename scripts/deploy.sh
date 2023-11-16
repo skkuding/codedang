@@ -2,7 +2,7 @@
 set -aex
 
 BASEDIR=/app
-DIST=$BASEDIR/dist
+DIST=/etc/dist
 
 git clone https://github.com/skkuding/codedang $BASEDIR
 cd $BASEDIR
