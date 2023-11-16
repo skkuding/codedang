@@ -117,6 +117,17 @@ services:
     env_file: .env.development
     network_mode: host
 
+  dozzle:
+    profiles: ['deploy']
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 9999:8080
+    environment:
+      DOZZLE_BASE: /logs
+
   setup:
     profiles: ['deploy']
     image: python:3-bullseye # Python for rabbitmqadmin
