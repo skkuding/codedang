@@ -62,6 +62,57 @@ services:
     volumes:
       - codedang-rabbitmq:/var/lib/rabbitmq
 
+  caddy:
+    profiles: ['deploy']
+    image: caddy:2.7.5-alpine
+    container_name: caddy
+    depends_on:
+      - backend-client
+      - backend-admin
+      - iris
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - $PWD/Caddyfile:/etc/caddy/Caddyfile
+      - $PWD/dist:/var/www/html
+    network_mode: host
+
+  backend-client:
+    profiles: ['deploy', 'update-target']
+    image: ghcr.io/skkuding/codedang-client-api:latest
+    container_name: backend-client
+    depends_on:
+      - rabbitmq
+      - database
+    env_file:
+      - .env.development
+      - .env
+    network_mode: host
+
+  backend-admin:
+    profiles: ['deploy', 'update-target']
+    image: ghcr.io/skkuding/codedang-admin-api:latest
+    container_name: backend-admin
+    depends_on:
+      - rabbitmq
+      - database
+    env_file:
+      - .env.development
+      - .env
+    network_mode: host
+
+  iris:
+    profiles: ['deploy', 'update-target']
+    image: ghcr.io/skkuding/codedang-iris:latest
+    container_name: iris
+    depends_on:
+      - rabbitmq
+      - database
+    env_file: .env.development
+    network_mode: host
+
 volumes:
   codedang-testcase:
   codedang-database:
