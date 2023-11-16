@@ -66,11 +66,11 @@ services:
     profiles: ['deploy']
     image: caddy:2.7.5-alpine
     container_name: caddy
+    restart: always
     depends_on:
       - backend-client
       - backend-admin
       - iris
-    restart: unless-stopped
     ports:
       - '80:80'
       - '443:443'
@@ -83,6 +83,7 @@ services:
     profiles: ['deploy', 'update-target']
     image: ghcr.io/skkuding/codedang-client-api:latest
     container_name: backend-client
+    restart: always
     depends_on:
       setup:
         condition: service_completed_successfully
@@ -95,6 +96,7 @@ services:
     profiles: ['deploy', 'update-target']
     image: ghcr.io/skkuding/codedang-admin-api:latest
     container_name: backend-admin
+    restart: always
     depends_on:
       setup:
         condition: service_completed_successfully
@@ -107,6 +109,8 @@ services:
     profiles: ['deploy', 'update-target']
     image: ghcr.io/skkuding/codedang-iris:latest
     container_name: iris
+    restart: always
+    read_only: true
     depends_on:
       setup:
         condition: service_completed_successfully
