@@ -107,12 +107,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          clean: false
           sparse-checkout: |
             docker-compose.yml
-            docker-compose.dev.yml
+            scripts/deploy.sh
             .env.development
             Caddyfile
+
+      - name: Load dotenv from secret
+        run: echo "${{ secrets.ENV_DEVELOPMENT }}" > .env
 
       - name: Load frontend static bundle
         uses: actions/download-artifact@v3
@@ -120,14 +122,27 @@ jobs:
           name: frontend-bundle
           path: ./dist
 
-      - name: Pull docker images
+      - name: Check if containers are running
+        id: check-container
         run: |
-          docker pull ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
-          docker pull ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
-          docker pull ghcr.io/${{ github.repository_owner }}/codedang-iris:latest
+          {
+            echo 'stdout<<EOF'
+            docker compose --profile deploy ps -q
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Initialize containers
+        if: steps.check-container.outputs.stdout == ''
+        run: docker compose --profile deploy up -d --no-recreate
+
+      - name: Pull docker images
+        run: docker compose --profile update-target pull
 
       - name: Run docker compose up
-        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+        run: |
+          docker compose --profile deploy up backend-client -d --no-deps
+          docker compose --profile deploy up backend-admin -d --no-deps
+          docker compose --profile deploy up iris -d --no-deps
 
       - name: Graceful reload Caddy
         run: docker exec -w /etc/caddy caddy caddy reload
@@ -146,12 +161,12 @@ jobs:
           node-version: 20
 
       - name: Install Bruno CLI
-        run: pnpm install -g @usebruno/cli
+        run: npm install -g @usebruno/cli
 
       - name: Run Bruno Collection (Client)
-        working-directory: collection/client
+        working-directory: ./collection/client
         run: bru run --env development
 
       - name: Run Bruno Collection (Admin)
-        working-directory: collection/admin
+        working-directory: ./collection/admin
         run: bru run --env development
