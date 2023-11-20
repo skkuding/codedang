@@ -6,3 +6,4 @@ pnpm-lock.yaml
 @generated/
 schema.gql
 collection/
+.next/

@@ -36,10 +36,7 @@ export class GroupService {
       data: {
         groupName: input.groupName,
         description: input.description,
-        config: JSON.stringify(input.config),
-        createdBy: {
-          connect: { id: userId }
-        }
+        config: JSON.stringify(input.config)
       }
     })
     await this.prisma.userGroup.create({
@@ -140,15 +137,22 @@ export class GroupService {
     if (id === OPEN_SPACE_ID) {
       throw new ForbiddenAccessException('Open space cannot be deleted')
     } else if (!user.isAdmin() && !user.isSuperAdmin()) {
-      const group = await this.prisma.group.findUnique({
-        where: { id },
+      const userGroup = await this.prisma.userGroup.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          userId_groupId: {
+            userId: user.id,
+            groupId: id
+          }
+        },
         select: {
-          createdById: true
+          isGroupLeader: true
         }
       })
-      if (group.createdById !== user.id) {
+
+      if (!userGroup?.isGroupLeader) {
         throw new ForbiddenAccessException(
-          'If not admin, only creator can delete a group'
+          'If not admin, only group leader can delete a group'
         )
       }
     }

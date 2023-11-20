@@ -30,7 +30,6 @@ const input = {
 }
 const group: Group = {
   id: 1,
-  createdById: 1,
   createTime: undefined,
   updateTime: undefined,
   userGroup: [
@@ -79,6 +78,7 @@ const db = {
   },
   userGroup: {
     create: stub().resolves(null),
+    findUnique: stub(),
     deleteMany: stub().resolves({ count: userGroup.length })
   }
 }
@@ -188,6 +188,8 @@ describe('GroupService', () => {
     userReq.role = Role.User
 
     it('should return the number of members that were in the group', async () => {
+      db.userGroup.findUnique.resolves({ isGroupLeader: true })
+
       const res = await service.deleteGroup(groupId, userReq)
       expect(res).to.deep.equal({ count: userGroup.length })
     })
@@ -198,9 +200,9 @@ describe('GroupService', () => {
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
 
-    it('should return throw error when either user role is not higher than Admin or the group is not created by the user', async () => {
+    it('should throw error when either user is not group leader or their role is higher than Admin', async () => {
       const userReq = new AuthenticatedUser(2, user.username)
-      db.group.findUnique.resolves(group)
+      db.userGroup.findUnique.resolves(null)
 
       await expect(service.deleteGroup(groupId, userReq)).to.be.rejectedWith(
         ForbiddenAccessException

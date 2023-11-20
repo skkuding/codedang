@@ -162,6 +162,7 @@ const userGroups: UserGroup[] = [
   }
 ]
 const record: ContestRecord = {
+  id: 1,
   contestId: contestId,
   userId: userId,
   acceptedProblemNum: 0,
