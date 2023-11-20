@@ -35,6 +35,10 @@ module.exports = {
             trailingUnderscore: 'allow'
           },
           {
+            selector: 'import',
+            format: ['camelCase', 'PascalCase']
+          },
+          {
             selector: 'variable',
             format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
             leadingUnderscore: 'allow',

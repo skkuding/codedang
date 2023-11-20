@@ -49,9 +49,9 @@ const handleLinkClick = (name: string) => {
             <RouterLink
               v-for="{ to, name } in [
                 { to: '/notice', name: 'notice' },
-                { to: '/', name: 'contest' },
                 { to: '/problem', name: 'problem' },
-                { to: '/', name: 'group' }
+                { to: '/', name: 'group' },
+                { to: '/', name: 'contest' }
                 //hide: replace / with /contest, /group each
               ]"
               :key="name"

@@ -98,7 +98,7 @@ const sendCodeToEmail = async () => {
 
   try {
     await axios.post('/api/email-auth/send-email/register-new', {
-      email: email.value
+      email: email.value.modelValue
     })
     sentEmail.value = true
   } catch (error) {
