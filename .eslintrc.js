@@ -4,7 +4,10 @@ module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    emitDecoratorMetadata: true
+    emitDecoratorMetadata: true,
+    ecmaFeatures: {
+      jsx: true
+    }
   },
   plugins: ['@typescript-eslint'],
   extends: [
@@ -13,35 +16,44 @@ module.exports = {
     'plugin:prettier/recommended'
   ],
   rules: {
-    '@typescript-eslint/naming-convention': [
-      'error',
-      {
-        selector: 'default',
-        format: ['camelCase'],
-        leadingUnderscore: 'allow',
-        trailingUnderscore: 'allow'
-      },
-
-      {
-        selector: 'variable',
-        format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
-        leadingUnderscore: 'allow',
-        trailingUnderscore: 'allow'
-      },
-
-      {
-        selector: 'typeLike',
-        format: ['PascalCase']
-      },
-
-      {
-        selector: ['objectLiteralProperty', 'classProperty'],
-        format: ['camelCase', 'PascalCase']
-      }
-    ],
     '@typescript-eslint/consistent-type-imports': 'warn',
     '@typescript-eslint/no-import-type-side-effects': 'error',
     '@typescript-eslint/no-inferrable-types': 'warn',
     'func-style': ['error', 'expression']
-  }
+  },
+  overrides: [
+    {
+      /* Do not apply `naming-convention` rule to tsx files */
+      files: ['*.ts'],
+      rules: {
+        '@typescript-eslint/naming-convention': [
+          'error',
+          {
+            selector: 'default',
+            format: ['camelCase'],
+            leadingUnderscore: 'allow',
+            trailingUnderscore: 'allow'
+          },
+          {
+            selector: 'import',
+            format: ['camelCase', 'PascalCase']
+          },
+          {
+            selector: 'variable',
+            format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
+            leadingUnderscore: 'allow',
+            trailingUnderscore: 'allow'
+          },
+          {
+            selector: 'typeLike',
+            format: ['PascalCase']
+          },
+          {
+            selector: ['objectLiteralProperty', 'classProperty'],
+            format: ['camelCase', 'PascalCase']
+          }
+        ]
+      }
+    }
+  ]
 }

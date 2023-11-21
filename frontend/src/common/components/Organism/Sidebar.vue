@@ -2,13 +2,14 @@
 import Logo from '@/common/assets/codedang.svg'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import IconCode from '~icons/bi/code-square'
-import IconFile from '~icons/bi/file-text'
+// import IconCode from '~icons/bi/code-square'
+// import IconFile from '~icons/bi/file-text'
 import IconHome from '~icons/bi/house'
-import IconBook from '~icons/bi/journals'
-import IconTrophy from '~icons/bi/trophy'
-import IconUser from '~icons/fa6-regular/user'
-import IconBrain from '~icons/fluent/brain-circuit-24-regular'
+
+// import IconBook from '~icons/bi/journals'
+// import IconTrophy from '~icons/bi/trophy'
+// import IconUser from '~icons/fa6-regular/user'
+// import IconBrain from '~icons/fluent/brain-circuit-24-regular'
 
 const route = useRoute()
 const router = useRouter()
@@ -22,21 +23,21 @@ const isActive = (to: string) => {
 }
 
 const commonItems = [
-  { to: '/admin', name: 'Main', icon: IconHome },
-  { to: '/admin/notice', name: 'Notice', icon: IconFile },
-  { to: '/admin/contest', name: 'Contest', icon: IconTrophy },
-  { to: '/admin/workbook', name: 'Workbook', icon: IconBook },
-  { to: '/admin/problem', name: 'Problem', icon: IconBrain }
+  { to: '/admin', name: 'Main', icon: IconHome }
+  // { to: '/admin/notice', name: 'Notice', icon: IconFile },
+  // { to: '/admin/contest', name: 'Contest', icon: IconTrophy },
+  // { to: '/admin/workbook', name: 'Workbook', icon: IconBook },
+  // { to: '/admin/problem', name: 'Problem', icon: IconBrain }
 ]
 
 const groupItems = (id: number) => [
-  { to: `/admin/${id}`, name: 'Main', icon: IconHome },
-  { to: `/admin/${id}/notice`, name: 'Notice', icon: IconFile },
-  { to: `/admin/${id}/contest`, name: 'Contest', icon: IconTrophy },
-  { to: `/admin/${id}/workbook`, name: 'Workbook', icon: IconBook },
-  { to: `/admin/${id}/problem`, name: 'Problem', icon: IconBrain },
-  { to: `/admin/${id}/member`, name: 'Member', icon: IconUser },
-  { to: `/admin/${id}/submission`, name: 'Submission', icon: IconCode }
+  { to: `/admin/${id}`, name: 'Main', icon: IconHome }
+  // { to: `/admin/${id}/notice`, name: 'Notice', icon: IconFile },
+  // { to: `/admin/${id}/contest`, name: 'Contest', icon: IconTrophy },
+  // { to: `/admin/${id}/workbook`, name: 'Workbook', icon: IconBook },
+  // { to: `/admin/${id}/problem`, name: 'Problem', icon: IconBrain },
+  // { to: `/admin/${id}/member`, name: 'Member', icon: IconUser },
+  // { to: `/admin/${id}/submission`, name: 'Submission', icon: IconCode }
 ]
 
 const items = computed(() =>

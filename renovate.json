@@ -8,6 +8,9 @@
     "schedule:weekly",
     ":label(dependencies)"
   ],
+  "automerge": true,
+  "automergeType": "pr",
   "rangeStrategy": "bump",
-  "reviewers": ["dotoleeoak"]
+  "reviewers": ["dotoleeoak"],
+  "lockFileMaintenance": { "enabled": true }
 }
