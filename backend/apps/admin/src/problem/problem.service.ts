@@ -576,7 +576,7 @@ export class ProblemService {
     //problemId 기준으로 오름차순 정렬
     contestProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
     const sequentialQueries = contestProblemsToBeUpdated.map((record) => {
-      const newOrder = orders.indexOf(record.problemId)
+      const newOrder = orders.indexOf(record.problemId) + 1
       return this.prisma.contestProblem.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
