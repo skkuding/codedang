@@ -7,7 +7,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import {
+import type {
   Workbook,
   WorkbookProblem,
   Contest,
@@ -28,6 +28,7 @@ import {
 import { ProblemService } from './problem.service'
 
 const db = {
+  $transaction: stub(),
   problem: {
     findMany: stub(),
     findFirstOrThrow: stub(),
@@ -621,11 +622,16 @@ describe('ProblemService', () => {
       //given
       db.workbook.findFirstOrThrow.resolves(exampleWorkbook)
       db.workbookProblem.findMany.resolves(exampleWorkbookProblems)
-      for (let i = 0; i < 10; i++) {
-        db.workbookProblem.update
-          .onCall(i)
-          .resolves(exampleOrderUpdatedWorkbookProblems[i])
-      }
+
+      // $transaction stub 구현
+      db.$transaction.callsFake(async (queries) => {
+        return Promise.all(
+          queries.map((query, index) => {
+            // 각 쿼리에 대한 모의 응답 반환
+            return exampleOrderUpdatedWorkbookProblems[index]
+          })
+        )
+      })
       //when
       const result = await service.updateWorkbookProblemsOrder(
         1,
@@ -665,11 +671,16 @@ describe('ProblemService', () => {
       //given
       db.workbook.findFirstOrThrow.resolves(exampleWorkbook)
       db.workbookProblem.findMany.resolves(exampleWorkbookProblems)
-      for (let i = 0; i < 10; i++) {
-        db.workbookProblem.update
-          .onCall(10 + i)
-          .rejects(new EntityNotExistException('record not found'))
-      }
+      db.$transaction.callsFake(async (queries) => {
+        return Promise.all(
+          queries.map(() => {
+            // 각 쿼리에 대한 모의 응답 반환
+            return Promise.reject(
+              new EntityNotExistException('record not found')
+            )
+          })
+        )
+      })
       //when & then
       await expect(
         service.updateWorkbookProblemsOrder(
@@ -710,11 +721,15 @@ describe('ProblemService', () => {
       //given
       db.contest.findFirstOrThrow.resolves(exampleContest)
       db.contestProblem.findMany.resolves(exampleContestProblems)
-      for (let i = 0; i < 10; i++) {
-        db.contestProblem.update
-          .onCall(i)
-          .resolves(exampleOrderUpdatedContestProblems[i])
-      }
+
+      db.$transaction.callsFake(async (queries) => {
+        return Promise.all(
+          queries.map((query, index) => {
+            // 각 쿼리에 대한 모의 응답 반환
+            return exampleOrderUpdatedContestProblems[index]
+          })
+        )
+      })
       //when
       const result = await service.updateContestProblemsOrder(
         1,
@@ -753,11 +768,17 @@ describe('ProblemService', () => {
     it('should handle RecordNotFound error', async () => {
       //given
       db.contestProblem.findMany.resolves(exampleContestProblems)
-      for (let i = 0; i < 10; i++) {
-        db.contestProblem.update
-          .onCall(10 + i)
-          .rejects(new EntityNotExistException('record not found'))
-      }
+
+      db.$transaction.callsFake(async (queries) => {
+        return Promise.all(
+          queries.map(() => {
+            // 각 쿼리에 대한 모의 응답 반환
+            return Promise.reject(
+              new EntityNotExistException('record not found')
+            )
+          })
+        )
+      })
       //when & then
       await expect(
         service.updateContestProblemsOrder(

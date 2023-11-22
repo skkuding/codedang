@@ -525,22 +525,20 @@ export class ProblemService {
     }
     //problemId 기준으로 오름차순 정렬
     workbookProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
-    const promisesToBeResolved = workbookProblemsToBeUpdated.map(
-      async (record) => {
-        const newOrder = orders.indexOf(record.problemId) + 1
-        return await this.prisma.workbookProblem.update({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            workbookId_problemId: {
-              workbookId: workbookId,
-              problemId: record.problemId
-            }
-          },
-          data: { order: newOrder }
-        })
-      }
-    )
-    return await Promise.all(promisesToBeResolved)
+    const sequentialQueries = workbookProblemsToBeUpdated.map((record) => {
+      const newOrder = orders.indexOf(record.problemId) + 1
+      return this.prisma.workbookProblem.update({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          workbookId_problemId: {
+            workbookId: workbookId,
+            problemId: record.problemId
+          }
+        },
+        data: { order: newOrder }
+      })
+    })
+    return await this.prisma.$transaction(sequentialQueries)
   }
 
   async getContestProblems(
@@ -577,21 +575,20 @@ export class ProblemService {
     }
     //problemId 기준으로 오름차순 정렬
     contestProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
-    const promisesToBeResolved = contestProblemsToBeUpdated.map(
-      async (record) => {
-        const newOrder = orders.indexOf(record.problemId)
-        return await this.prisma.contestProblem.update({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            contestId_problemId: {
-              contestId: contestId,
-              problemId: record.problemId
-            }
-          },
-          data: { order: newOrder }
-        })
-      }
-    )
-    return await Promise.all(promisesToBeResolved)
+    const sequentialQueries = contestProblemsToBeUpdated.map((record) => {
+      const newOrder = orders.indexOf(record.problemId)
+      return this.prisma.contestProblem.update({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_problemId: {
+            contestId: contestId,
+            problemId: record.problemId
+          }
+        },
+        data: { order: newOrder }
+      })
+    })
+
+    return await this.prisma.$transaction(sequentialQueries)
   }
 }
