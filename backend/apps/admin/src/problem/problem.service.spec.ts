@@ -28,7 +28,6 @@ import {
 import { ProblemService } from './problem.service'
 
 const db = {
-  $transaction: stub(),
   problem: {
     findMany: stub(),
     findFirstOrThrow: stub(),
@@ -618,24 +617,43 @@ describe('ProblemService', () => {
   })
 
   describe('updateWorkbookProblemsOrder', () => {
+    beforeEach(() => {
+      // stub의 동작 초기화
+      db.workbookProblem.update.resetBehavior()
+      db.workbookProblem.findFirstOrThrow.resetBehavior()
+      db.workbookProblem.findMany.resetBehavior()
+    })
     it('should return order-updated workbookProblems', async () => {
       //given
+      const groupId = 1
+      const workbookId = 1
+      const orders = [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+      const exampleWorkbookProblemsToBeUpdated =
+        exampleWorkbookProblems.toSorted((a, b) => a.problemId - b.problemId)
       db.workbook.findFirstOrThrow.resolves(exampleWorkbook)
       db.workbookProblem.findMany.resolves(exampleWorkbookProblems)
+      // update가 Promise.all로 실행되기 때문에 각 쿼리에 대한 모의 응답을 반환하도록 설정
 
-      // $transaction stub 구현
-      db.$transaction.callsFake(async (queries) => {
-        return Promise.all(
-          queries.map((query, index) => {
-            // 각 쿼리에 대한 모의 응답 반환
-            return exampleOrderUpdatedWorkbookProblems[index]
+      for (let i = 0; i < 10; i++) {
+        const record = exampleWorkbookProblemsToBeUpdated[i]
+        const newOrder = orders.indexOf(record.problemId) + 1
+        db.workbookProblem.update
+          .withArgs({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              workbookId_problemId: {
+                workbookId: workbookId,
+                problemId: record.problemId
+              }
+            },
+            data: { order: newOrder }
           })
-        )
-      })
+          .resolves(exampleOrderUpdatedWorkbookProblems[i])
+      }
       //when
       const result = await service.updateWorkbookProblemsOrder(
-        1,
-        1,
+        groupId,
+        workbookId,
         [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
       )
       //then
@@ -671,16 +689,9 @@ describe('ProblemService', () => {
       //given
       db.workbook.findFirstOrThrow.resolves(exampleWorkbook)
       db.workbookProblem.findMany.resolves(exampleWorkbookProblems)
-      db.$transaction.callsFake(async (queries) => {
-        return Promise.all(
-          queries.map(() => {
-            // 각 쿼리에 대한 모의 응답 반환
-            return Promise.reject(
-              new EntityNotExistException('record not found')
-            )
-          })
-        )
-      })
+      db.workbookProblem.update.rejects(
+        new EntityNotExistException('record not found')
+      )
       //when & then
       await expect(
         service.updateWorkbookProblemsOrder(
@@ -717,24 +728,46 @@ describe('ProblemService', () => {
   })
 
   describe('updateContestProblemsOrder', () => {
+    beforeEach(() => {
+      // 각 스텁의 동작 초기화
+      db.contestProblem.update.resetBehavior()
+      db.contestProblem.findFirstOrThrow.resetBehavior()
+      db.contestProblem.findMany.resetBehavior()
+      db.contest.findFirstOrThrow.resetBehavior()
+    })
     it('should return order-updated ContestProblems', async () => {
       //given
+      const groupId = 1
+      const contestId = 1
+      const orders = [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+      const exampleContestProblemsToBeUpdated = exampleContestProblems.toSorted(
+        (a, b) => a.problemId - b.problemId
+      )
       db.contest.findFirstOrThrow.resolves(exampleContest)
       db.contestProblem.findMany.resolves(exampleContestProblems)
 
-      db.$transaction.callsFake(async (queries) => {
-        return Promise.all(
-          queries.map((query, index) => {
-            // 각 쿼리에 대한 모의 응답 반환
-            return exampleOrderUpdatedContestProblems[index]
+      // update가 Promise.all로 실행되기 때문에 각 쿼리에 대한 모의 응답을 반환하도록 설정
+      for (let i = 0; i < 10; i++) {
+        const record = exampleContestProblemsToBeUpdated[i]
+        const newOrder = orders.indexOf(record.problemId) + 1
+        db.contestProblem.update
+          .withArgs({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              contestId_problemId: {
+                contestId: contestId,
+                problemId: record.problemId
+              }
+            },
+            data: { order: newOrder }
           })
-        )
-      })
+          .resolves(exampleOrderUpdatedContestProblems[i])
+      }
       //when
       const result = await service.updateContestProblemsOrder(
-        1,
-        1,
-        [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+        groupId,
+        contestId,
+        orders
       )
       //then
       expect(result).to.deep.equals(exampleOrderUpdatedContestProblems)
@@ -769,16 +802,9 @@ describe('ProblemService', () => {
       //given
       db.contestProblem.findMany.resolves(exampleContestProblems)
 
-      db.$transaction.callsFake(async (queries) => {
-        return Promise.all(
-          queries.map(() => {
-            // 각 쿼리에 대한 모의 응답 반환
-            return Promise.reject(
-              new EntityNotExistException('record not found')
-            )
-          })
-        )
-      })
+      db.contestProblem.update.rejects(
+        new EntityNotExistException('record not found')
+      )
       //when & then
       await expect(
         service.updateContestProblemsOrder(

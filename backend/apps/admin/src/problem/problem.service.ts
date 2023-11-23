@@ -525,7 +525,7 @@ export class ProblemService {
     }
     //problemId 기준으로 오름차순 정렬
     workbookProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
-    const sequentialQueries = workbookProblemsToBeUpdated.map((record) => {
+    const queries = workbookProblemsToBeUpdated.map((record) => {
       const newOrder = orders.indexOf(record.problemId) + 1
       return this.prisma.workbookProblem.update({
         where: {
@@ -538,7 +538,7 @@ export class ProblemService {
         data: { order: newOrder }
       })
     })
-    return await this.prisma.$transaction(sequentialQueries)
+    return await Promise.all(queries)
   }
 
   async getContestProblems(
@@ -575,7 +575,7 @@ export class ProblemService {
     }
     //problemId 기준으로 오름차순 정렬
     contestProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
-    const sequentialQueries = contestProblemsToBeUpdated.map((record) => {
+    const queries = contestProblemsToBeUpdated.map((record) => {
       const newOrder = orders.indexOf(record.problemId) + 1
       return this.prisma.contestProblem.update({
         where: {
@@ -589,6 +589,6 @@ export class ProblemService {
       })
     })
 
-    return await this.prisma.$transaction(sequentialQueries)
+    return await Promise.all(queries)
   }
 }
