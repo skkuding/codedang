@@ -36,6 +36,7 @@
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
     "dayjs": "^1.11.10",
+    "generate-password": "^1.7.0",
     "exceljs": "^4.4.0",
     "graphql": "^16.8.1",
     "graphql-type-json": "^0.3.2",
@@ -43,6 +44,7 @@
     "handlebars": "^4.7.8",
     "nodemailer": "^6.9.7",
     "passport": "^0.6.0",
+    "passport-github2": "^0.1.12",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13"
   },
