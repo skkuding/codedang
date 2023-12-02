@@ -319,8 +319,8 @@ importers:
         specifier: ^1.6.2
         version: 1.6.2
       axios-retry:
-        specifier: ^3.9.1
-        version: 3.9.1
+        specifier: ^4.0.0
+        version: 4.0.0(axios@1.6.2)
       graphql:
         specifier: ^16.8.1
         version: 16.8.1
@@ -6056,10 +6056,12 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /axios-retry@3.9.1:
-    resolution: {integrity: sha512-8PJDLJv7qTTMMwdnbMvrLYuvB47M81wRtxQmEdV5w4rgbTXTt+vtPkXwajOfOdSyv/wZICJOC+/UhXH4aQ/R+w==}
+  /axios-retry@4.0.0(axios@1.6.2):
+    resolution: {integrity: sha512-F6P4HVGITD/v4z9Lw2mIA24IabTajvpDZmKa6zq/gGwn57wN5j1P3uWrAV0+diqnW6kTM2fTqmWNfgYWGmMuiA==}
+    peerDependencies:
+      axios: 0.x || 1.x
     dependencies:
-      '@babel/runtime': 7.22.5
+      axios: 1.6.2
       is-retry-allowed: 2.2.0
     dev: false
 
