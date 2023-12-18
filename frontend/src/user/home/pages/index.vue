@@ -77,8 +77,8 @@ axios.get('api/contest').then((res) => {
       },
       {
         topTitle: 'SKKUDING',
-        bottomTitle: '스꾸딩 23-2 신입부원 모집',
-        sub: '프론트엔드 0명, 백엔드 0명',
+        bottomTitle: '베타서비스입니다',
+        sub: 'Beta Service',
         img: SkkudingLogo,
         imgAlt: 'dummy',
         color: 'black',
