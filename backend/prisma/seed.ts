@@ -7364,34 +7364,11 @@ const createAnnouncements = async () => {
     announcements.push(
       await prisma.announcement.create({
         data: {
-          content: `Announcement_${i}`
+          content: `Announcement_${i}`,
+          problemId: problems[i].id
         }
       })
     )
-  }
-
-  for (let i = 0; i < 5; ++i) {
-    if (!problems[i] || !announcements[i]) {
-      continue
-    }
-    await prisma.problemAnnouncement.create({
-      data: {
-        problemId: problems[i].id,
-        announcementId: announcements[i].id
-      }
-    })
-  }
-
-  for (let i = 0; i < 5; ++i) {
-    if (!contest || !announcements[i]) {
-      continue
-    }
-    await prisma.contestAnnouncement.create({
-      data: {
-        contestId: contest.id,
-        announcementId: announcements[i].id
-      }
-    })
   }
 }
 

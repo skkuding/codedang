@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common'
 import { RolesModule } from '@libs/auth'
 import {
-  ContestAnnouncementController,
-  GroupContestAnnouncementController,
+  // ContestAnnouncementController,
+  // GroupContestAnnouncementController,
   GroupProblemAnnouncementController,
   ProblemAnnouncementController
 } from './announcement.controller'
@@ -11,9 +11,9 @@ import { AnnouncementService } from './announcement.service'
 @Module({
   imports: [RolesModule],
   controllers: [
-    ContestAnnouncementController,
+    // ContestAnnouncementController,
     ProblemAnnouncementController,
-    GroupContestAnnouncementController,
+    // GroupContestAnnouncementController,
     GroupProblemAnnouncementController
   ],
   providers: [AnnouncementService]

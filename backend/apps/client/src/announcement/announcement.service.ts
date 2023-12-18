@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
-import type { ProblemAnnouncement, ContestAnnouncement } from '@prisma/client'
+import type { Announcement } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
 import { SortOrder } from '@admin/@generated'
 
@@ -7,30 +7,30 @@ import { SortOrder } from '@admin/@generated'
 export class AnnouncementService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getContestAnnouncements(
-    contestId: number,
-    groupId?: number
-  ): Promise<Partial<ContestAnnouncement>[]> {
-    return await this.prisma.announcement.findMany({
-      where: {
-        contestAnnouncement: {
-          some: {
-            contestId,
-            contest: {
-              groupId
-            }
-          }
-        }
-      },
-      orderBy: { id: SortOrder.asc }
-    })
-  }
+  // async getContestAnnouncements(
+  //   contestId: number,
+  //   groupId?: number
+  // ): Promise<Partial<ContestAnnouncement>[]> {
+  //   return await this.prisma.announcement.findMany({
+  //     where: {
+  //       contestAnnouncement: {
+  //         some: {
+  //           contestId,
+  //           contest: {
+  //             groupId
+  //           }
+  //         }
+  //       }
+  //     },
+  //     orderBy: { id: SortOrder.asc }
+  //   })
+  // }
 
   async getProblemAnnouncements(
     contestId = 0,
     problemId = 0,
     groupId?: number
-  ): Promise<Partial<ProblemAnnouncement>[]> {
+  ): Promise<Partial<Announcement>[]> {
     interface ProblemAnnouncementWhereInput {
       problemId: number
     }
@@ -52,13 +52,9 @@ export class AnnouncementService {
 
     const result = await this.prisma.announcement.findMany({
       where: {
-        problemAnnouncement: {
-          some: {
-            problemId,
-            problem: {
-              groupId
-            }
-          }
+        problem: {
+          id: problemId,
+          groupId
         }
       },
       orderBy: { id: SortOrder.asc }
