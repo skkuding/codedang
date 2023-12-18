@@ -25,7 +25,7 @@ const login = async () => {
 
 <template>
   <div class="flex flex-col items-center justify-center">
-    <img :src="Logo" class="mb-8 h-20" />
+    <img :src="Logo" class="mb-10 mt-8 h-20" />
     <form class="mb-8 flex w-60 flex-col gap-4" @submit.prevent="login">
       <InputItem v-model="username" placeholder="Username" class="rounded-md" />
       <div class="flex items-center justify-between">
