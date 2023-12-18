@@ -72,8 +72,8 @@ axios.get('api/contest').then((res) => {
         sub: 'Level up your coding skills with us',
         img: dummyImg,
         imgAlt: 'dummy',
-        color: 'blue',
-        href: '/group'
+        color: 'blue'
+        // href: ''
       },
       {
         topTitle: 'SKKUDING',
@@ -81,8 +81,8 @@ axios.get('api/contest').then((res) => {
         sub: 'Beta Service',
         img: SkkudingLogo,
         imgAlt: 'dummy',
-        color: 'black',
-        href: '/group'
+        color: 'black'
+        // href: ''
       },
       {
         topTitle: 'Contribute to',
@@ -91,7 +91,7 @@ axios.get('api/contest').then((res) => {
         img: GithubLogo,
         imgAlt: 'dummy',
         color: 'yellow',
-        href: '' // TODO: add github link
+        href: 'https://github.com/skkuding/codedang'
       }
     ]"
   />
