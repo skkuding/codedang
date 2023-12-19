@@ -50,8 +50,8 @@ const handleLinkClick = (name: string) => {
               v-for="{ to, name } in [
                 { to: '/notice', name: 'notice' },
                 { to: '/problem', name: 'problem' },
-                { to: '/', name: 'group' },
-                { to: '/', name: 'contest' }
+                { to: '/', name: 'contest' },
+                { to: '/', name: 'group' }
                 //hide: replace / with /contest, /group each
               ]"
               :key="name"

@@ -7,3 +7,4 @@ pnpm-lock.yaml
 schema.gql
 collection/
 .next/
+components.json
