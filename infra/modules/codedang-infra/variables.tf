@@ -75,3 +75,13 @@ variable "rabbitmq_submission_routing_key" {
   type    = string
   default = "judge.submission"
 }
+
+variable "github_client_id" {
+  type    = string
+  default = "github_client_id"
+}
+
+variable "github_client_secret" {
+  type    = string
+  default = "github_client_secret"
+}

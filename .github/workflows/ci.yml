@@ -90,7 +90,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version-file: go.work
+          go-version-file: iris/go.mod
 
       - name: Lint pull request title
         if: ${{ github.event_name == 'pull_request' }}
