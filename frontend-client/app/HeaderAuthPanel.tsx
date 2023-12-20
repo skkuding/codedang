@@ -17,7 +17,7 @@ export default function HeaderAuthPanel() {
             Sign In
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-[22rem]">
           <SignIn />
         </DialogContent>
       </Dialog>
@@ -30,7 +30,7 @@ export default function HeaderAuthPanel() {
             Sign Up
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-[22rem]">
           <SignIn />
         </DialogContent>
       </Dialog>
