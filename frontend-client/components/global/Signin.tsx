@@ -5,9 +5,9 @@ import KakaotalkLogo from '@/public/kakaotalk.png'
 import Image from 'next/image'
 import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
-import { Button } from './ui/button'
-import { Input } from './ui/input'
-import { Separator } from './ui/separator'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { Separator } from '../ui/separator'
 
 const Signin = () => {
   return (
@@ -26,14 +26,12 @@ const Signin = () => {
           Sign in
         </Button>
       </form>
-      <div className="grid grid-cols-3 gap-5">
-        <div className="flex items-center justify-center">
-          <Separator />
-        </div>
-        <p className="text-xs text-gray-500">continue with</p>
-        <div className="flex items-center justify-center">
-          <Separator />
-        </div>
+      <div className="flex items-center justify-center gap-5">
+        <Separator className="flex-1" />
+        <p className="w-fit flex-1 text-center text-xs text-gray-500">
+          continue with
+        </p>
+        <Separator className="flex-1" />
       </div>
       <div className="flex w-full items-center justify-center gap-5">
         <div className="flex aspect-square w-12 items-center justify-center rounded-full bg-[#FEE500]">
