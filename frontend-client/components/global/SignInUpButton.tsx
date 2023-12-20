@@ -27,7 +27,7 @@ const SignInUpButton = () => {
             variant={'outline'}
             className="hidden px-3 py-1 text-base font-bold md:block"
           >
-            Sign Up
+            Sign up
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-sm">
