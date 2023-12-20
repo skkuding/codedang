@@ -19,7 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={manrope.className}>
         <Header />
-        {children}
+        <div className="flex w-full justify-center">
+          <main className="w-full max-w-7xl p-5">{children}</main>
+        </div>
       </body>
     </html>
   )
