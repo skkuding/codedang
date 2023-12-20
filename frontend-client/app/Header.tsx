@@ -1,7 +1,7 @@
 import CodedangLogo from '@/public/codedang.svg'
 import Image from 'next/image'
 import Link from 'next/link'
-import SignInUpButton from './SignInUpButton'
+import HeaderAuthPanel from './HeaderAuthPanel'
 
 export default function Header() {
   return (
@@ -26,7 +26,7 @@ export default function Header() {
             </Link>
           </nav>
         </div>
-        <SignInUpButton />
+        <HeaderAuthPanel />
       </div>
     </header>
   )

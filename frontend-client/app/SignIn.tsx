@@ -1,15 +1,15 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
 import CodedangLogo from '@/public/codedang.svg'
 import KakaotalkLogo from '@/public/kakaotalk.png'
 import Image from 'next/image'
 import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Separator } from '../ui/separator'
 
-export default function Signin() {
+export default function SignIn() {
   return (
     <div className="flex w-full flex-col gap-3">
       <Image src={CodedangLogo} alt="코드당" width={70} className="mb-5" />
