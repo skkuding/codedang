@@ -3,7 +3,7 @@ import { RolesModule } from '@libs/auth'
 import {
   // ContestAnnouncementController,
   // GroupContestAnnouncementController,
-  GroupProblemAnnouncementController,
+  ContestAnnouncementController,
   ProblemAnnouncementController
 } from './announcement.controller'
 import { AnnouncementService } from './announcement.service'
@@ -14,7 +14,7 @@ import { AnnouncementService } from './announcement.service'
     // ContestAnnouncementController,
     ProblemAnnouncementController,
     // GroupContestAnnouncementController,
-    GroupProblemAnnouncementController
+    ContestAnnouncementController
   ],
   providers: [AnnouncementService]
 })
