@@ -20,12 +20,12 @@ const SignInUpButton = () => {
         <DialogTrigger asChild>
           <Button
             variant={'outline'}
-            className="hidden border-none px-3 text-base font-semibold md:block"
+            className="hidden border-none px-3 py-1 text-base font-semibold md:block"
           >
             Sign in
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="max-w-sm">
           <Signin />
         </DialogContent>
       </Dialog>
@@ -33,12 +33,12 @@ const SignInUpButton = () => {
         <DialogTrigger asChild>
           <Button
             variant={'outline'}
-            className="hidden px-3 text-base font-bold md:block"
+            className="hidden px-3 py-1 text-base font-bold md:block"
           >
             Sign Up
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="max-w-sm">
           <Signin />
         </DialogContent>
       </Dialog>
