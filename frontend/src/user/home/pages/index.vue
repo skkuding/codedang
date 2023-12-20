@@ -71,16 +71,16 @@ axios.get('api/contest').then((res) => {
         bottomTitle: 'Online Judge for SKKU',
         sub: 'Level up your coding skills with us',
         img: dummyImg,
-        imgAlt: 'dummy',
+        imgAlt: 'Codedang Intro Banner',
         color: 'blue'
         // href: ''
       },
       {
         topTitle: 'SKKUDING',
-        bottomTitle: '베타서비스입니다',
-        sub: 'Beta Service',
+        bottomTitle: 'Beta Service',
+        sub: `Feel free to contact us if there's any bug`,
         img: SkkudingLogo,
-        imgAlt: 'dummy',
+        imgAlt: 'SKKUDING Beta service Banner',
         color: 'black'
         // href: ''
       },
@@ -89,7 +89,7 @@ axios.get('api/contest').then((res) => {
         bottomTitle: 'Codedang on GitHub',
         sub: 'Our project is open source!',
         img: GithubLogo,
-        imgAlt: 'dummy',
+        imgAlt: 'Github Link Banner',
         color: 'yellow',
         href: 'https://github.com/skkuding/codedang'
       }
