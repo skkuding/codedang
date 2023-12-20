@@ -27,7 +27,7 @@ export default function SignIn() {
           Sign In
         </Button>
       </form>
-      <div className="flex items-center justify-center gap-5">
+      <div className="mb-1 mt-4 flex items-center justify-center gap-5">
         <Separator className="flex-1" />
         <p className="w-fit flex-none text-center text-xs text-gray-500">
           OR continue with
@@ -45,16 +45,16 @@ export default function SignIn() {
           <FaGithub className="text-white" size="22" />
         </div>
       </div>
-      <div className="flex flex-col items-center justify-center">
+      <div className="mt-4 flex items-center justify-between">
         <Button
           variant={'link'}
-          className="h-5 w-fit p-0 text-xs text-gray-500"
+          className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >
           Sign Up
         </Button>
         <Button
           variant={'link'}
-          className="h-5 w-fit p-0 text-xs text-gray-500"
+          className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >
           Forgot ID/Password?
         </Button>
