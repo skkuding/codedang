@@ -2,6 +2,7 @@
 import Logo from '@/common/assets/codedang.svg'
 import { useToast } from '@/common/composables/toast'
 import { useAuthStore } from '@/common/store/auth'
+import { useUserQuery } from '@/common/store/user'
 import { OnClickOutside } from '@vueuse/components'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -20,7 +21,8 @@ const router = useRouter()
 const isMenuOpen = ref(false)
 const openToast = useToast()
 const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
-
+const useUser = useUserQuery()
+console.log(useUser.data.value?.username)
 // hide: remove hide, handleLinkClick
 const hide = () => {
   openToast({
