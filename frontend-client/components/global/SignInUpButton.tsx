@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog'
 import Signin from './Signin'
 
-const SignInUpButton = () => {
+export default function SignInUpButton() {
   return (
     <div className="ml-2 flex items-center gap-2">
       <Dialog>
@@ -38,5 +38,3 @@ const SignInUpButton = () => {
     </div>
   )
 }
-
-export default SignInUpButton

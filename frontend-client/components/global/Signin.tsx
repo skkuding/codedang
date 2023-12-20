@@ -9,7 +9,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
 
-const Signin = () => {
+export default function Signin() {
   return (
     <div className="flex w-full flex-col gap-3">
       <Image src={CodedangLogo} alt="코드당" width={70} className="mb-5" />
@@ -61,5 +61,3 @@ const Signin = () => {
     </div>
   )
 }
-
-export default Signin
