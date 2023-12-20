@@ -1,12 +1,12 @@
-import Modal from '@/components/Modal'
-import { Button } from '@/components/ui/button'
+import ButtonWithModal from '@/components/ButtonWithModal'
+import Signin from '@/components/Signin'
 
 export default function Home() {
   return (
     <main>
-      main
-      <Button>Button</Button>
-      <Modal>Modal</Modal>
+      <ButtonWithModal buttonText="Sign in" buttonVariant={'outline'}>
+        <Signin />
+      </ButtonWithModal>
     </main>
   )
 }
