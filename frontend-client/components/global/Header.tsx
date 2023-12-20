@@ -1,5 +1,3 @@
-import ButtonWithModal from '@/components/ButtonWithModal'
-import Signin from '@/components/Signin'
 import CodedangLogo from '@/public/codedang.svg'
 import Image from 'next/image'
 import Link from 'next/link'

@@ -1,4 +1,4 @@
-import Header from '@/components/Header'
+import Header from '@/components/global/Header'
 import type { Metadata } from 'next'
 import { Manrope } from 'next/font/google'
 import './globals.css'
