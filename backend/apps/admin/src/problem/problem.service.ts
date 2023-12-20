@@ -538,7 +538,7 @@ export class ProblemService {
         data: { order: newOrder }
       })
     })
-    return await Promise.all(queries)
+    return await this.prisma.$transaction(queries)
   }
 
   async getContestProblems(
@@ -589,6 +589,6 @@ export class ProblemService {
       })
     })
 
-    return await Promise.all(queries)
+    return await this.prisma.$transaction(queries)
   }
 }

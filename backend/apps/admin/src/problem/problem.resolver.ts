@@ -162,7 +162,7 @@ export class ProblemResolver {
     }
   }
 
-  @Query(() => [WorkbookProblem], { name: 'workbookproblem' })
+  @Query(() => [WorkbookProblem], { name: 'getWorkbookProblems' })
   async getWorkbookProblems(
     @Args(
       'groupId',
@@ -218,7 +218,7 @@ export class ProblemResolver {
     }
   }
 
-  @Query(() => [ContestProblem], { name: 'contestproblem' })
+  @Query(() => [ContestProblem], { name: 'getContestProblems' })
   async getContestProblems(
     @Args(
       'groupId',
