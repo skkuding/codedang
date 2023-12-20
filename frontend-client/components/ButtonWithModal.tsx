@@ -15,19 +15,21 @@ interface ButtonWithModalProps {
     | 'ghost'
     | 'link'
     | null
+  className?: string
 }
 
 const ButtonWithModal = ({
   children,
   buttonText,
-  buttonVariant
+  buttonVariant,
+  className
 }: ButtonWithModalProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const open = () => setIsOpen(true)
   const close = () => setIsOpen(false)
   return (
     <>
-      <Button onClick={open} variant={buttonVariant}>
+      <Button onClick={open} variant={buttonVariant} className={className}>
         {buttonText}
       </Button>
       <Modal isOpen={isOpen} close={close}>
