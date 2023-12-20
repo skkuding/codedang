@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import { Noto_Sans } from 'next/font/google'
+import { Manrope } from 'next/font/google'
 import Link from 'next/link'
 import './globals.css'
 
-const noto = Noto_Sans({ subsets: ['latin'], weight: ['400', '700'] })
+const manrope = Manrope({ subsets: ['latin'], weight: ['400', '700'] })
 
 export const metadata: Metadata = {
   title: 'Codedang 코드당',
@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={noto.className}>
+      <body className={manrope.className}>
         <nav className="flex gap-3 p-3">
           <Link href="/">Main</Link>
           <Link href="/notice">Notice</Link>

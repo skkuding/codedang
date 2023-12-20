@@ -260,7 +260,7 @@ importers:
         version: 3.8.8(graphql@16.8.1)(react-dom@18.2.0)(react@18.2.0)
       '@codemirror/autocomplete':
         specifier: ^6.11.1
-        version: 6.11.1(@codemirror/language@6.9.3)(@codemirror/state@6.3.3)(@codemirror/view@6.22.2)(@lezer/common@1.1.0)
+        version: 6.11.1(@codemirror/language@6.9.3)(@codemirror/state@6.3.3)(@codemirror/view@6.22.3)(@lezer/common@1.1.0)
       '@codemirror/commands':
         specifier: ^6.3.2
         version: 6.3.2
@@ -272,7 +272,7 @@ importers:
         version: 6.0.1
       '@codemirror/lang-python':
         specifier: ^6.1.3
-        version: 6.1.3(@codemirror/state@6.3.3)(@codemirror/view@6.22.2)(@lezer/common@1.1.0)
+        version: 6.1.3(@codemirror/state@6.3.3)(@codemirror/view@6.22.3)(@lezer/common@1.1.0)
       '@codemirror/language':
         specifier: ^6.9.3
         version: 6.9.3
@@ -283,8 +283,8 @@ importers:
         specifier: ^6.1.2
         version: 6.1.2
       '@codemirror/view':
-        specifier: ^6.22.2
-        version: 6.22.2
+        specifier: ^6.22.3
+        version: 6.22.3
       '@tiptap/pm':
         specifier: ^2.1.13
         version: 2.1.13
@@ -448,6 +448,9 @@ importers:
 
   frontend-client:
     dependencies:
+      '@radix-ui/react-separator':
+        specifier: ^1.0.3
+        version: 1.0.3(@types/react-dom@18.2.17)(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0)
       next:
         specifier: 14.0.3
         version: 14.0.3(react-dom@18.2.0)(react@18.2.0)
@@ -457,6 +460,9 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
+      react-icons:
+        specifier: ^4.12.0
+        version: 4.12.0(react@18.2.0)
     devDependencies:
       '@radix-ui/react-slot':
         specifier: ^1.0.2
@@ -1706,7 +1712,7 @@ packages:
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
 
-  /@codemirror/autocomplete@6.11.1(@codemirror/language@6.9.3)(@codemirror/state@6.3.3)(@codemirror/view@6.22.2)(@lezer/common@1.1.0):
+  /@codemirror/autocomplete@6.11.1(@codemirror/language@6.9.3)(@codemirror/state@6.3.3)(@codemirror/view@6.22.3)(@lezer/common@1.1.0):
     resolution: {integrity: sha512-L5UInv8Ffd6BPw0P3EF7JLYAMeEbclY7+6Q11REt8vhih8RuLreKtPy/xk8wPxs4EQgYqzI7cdgpiYwWlbS/ow==}
     peerDependencies:
       '@codemirror/language': ^6.0.0
@@ -1716,7 +1722,7 @@ packages:
     dependencies:
       '@codemirror/language': 6.9.3
       '@codemirror/state': 6.3.3
-      '@codemirror/view': 6.22.2
+      '@codemirror/view': 6.22.3
       '@lezer/common': 1.1.0
     dev: false
 
@@ -1725,7 +1731,7 @@ packages:
     dependencies:
       '@codemirror/language': 6.9.3
       '@codemirror/state': 6.3.3
-      '@codemirror/view': 6.22.2
+      '@codemirror/view': 6.22.3
       '@lezer/common': 1.1.0
 
   /@codemirror/lang-cpp@6.0.2:
@@ -1749,10 +1755,10 @@ packages:
       '@lezer/json': 1.0.0
     dev: true
 
-  /@codemirror/lang-python@6.1.3(@codemirror/state@6.3.3)(@codemirror/view@6.22.2)(@lezer/common@1.1.0):
+  /@codemirror/lang-python@6.1.3(@codemirror/state@6.3.3)(@codemirror/view@6.22.3)(@lezer/common@1.1.0):
     resolution: {integrity: sha512-S9w2Jl74hFlD5nqtUMIaXAq9t5WlM0acCkyuQWUUSvZclk1sV+UfnpFiZzuZSG+hfEaOmxKR5UxY/Uxswn7EhQ==}
     dependencies:
-      '@codemirror/autocomplete': 6.11.1(@codemirror/language@6.9.3)(@codemirror/state@6.3.3)(@codemirror/view@6.22.2)(@lezer/common@1.1.0)
+      '@codemirror/autocomplete': 6.11.1(@codemirror/language@6.9.3)(@codemirror/state@6.3.3)(@codemirror/view@6.22.3)(@lezer/common@1.1.0)
       '@codemirror/language': 6.9.3
       '@lezer/python': 1.1.8
     transitivePeerDependencies:
@@ -1765,7 +1771,7 @@ packages:
     resolution: {integrity: sha512-qq48pYzoi6ldYWV/52+Z9Ou6QouVI+8YwvxFbUypI33NbjG2UeRHKENRyhwljTTiOqjQ33FjyZj6EREQ9apAOQ==}
     dependencies:
       '@codemirror/state': 6.3.3
-      '@codemirror/view': 6.22.2
+      '@codemirror/view': 6.22.3
       '@lezer/common': 1.1.0
       '@lezer/highlight': 1.1.3
       '@lezer/lr': 1.3.3
@@ -1775,7 +1781,7 @@ packages:
     resolution: {integrity: sha512-wzRkluWb1ptPKdzlsrbwwjYCPLgzU6N88YBAmlZi8WFyuiEduSd05MnJYNogzyc8rPK7pj6m95ptUApc8sHKVA==}
     dependencies:
       '@codemirror/state': 6.3.3
-      '@codemirror/view': 6.22.2
+      '@codemirror/view': 6.22.3
       crelt: 1.0.5
     dev: true
 
@@ -1787,11 +1793,11 @@ packages:
     dependencies:
       '@codemirror/language': 6.9.3
       '@codemirror/state': 6.3.3
-      '@codemirror/view': 6.22.2
+      '@codemirror/view': 6.22.3
       '@lezer/highlight': 1.1.3
 
-  /@codemirror/view@6.22.2:
-    resolution: {integrity: sha512-cJp64cPXm7QfSBWEXK+76+hsZCGHupUgy8JAbSzMG6Lr0rfK73c1CaWITVW6hZVkOnAFxJTxd0PIuynNbzxYPw==}
+  /@codemirror/view@6.22.3:
+    resolution: {integrity: sha512-rqnq+Zospwoi3x1vZ8BGV1MlRsaGljX+6qiGYmIpJ++M+LCC+wjfDaPklhwpWSgv7pr/qx29KiAKQBH5+DOn4w==}
     dependencies:
       '@codemirror/state': 6.3.3
       style-mod: 4.1.0
@@ -2476,7 +2482,7 @@ packages:
       '@codemirror/lint': 6.4.2
       '@codemirror/state': 6.3.3
       '@codemirror/theme-one-dark': 6.1.2
-      '@codemirror/view': 6.22.2
+      '@codemirror/view': 6.22.3
       '@histoire/shared': 0.17.6(vite@5.0.4)
       '@histoire/vendors': 0.17.6
     transitivePeerDependencies:
@@ -3504,7 +3510,48 @@ packages:
       '@babel/runtime': 7.23.6
       '@types/react': 18.2.41
       react: 18.2.0
-    dev: true
+
+  /@radix-ui/react-primitive@1.0.3(@types/react-dom@18.2.17)(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-yi58uVyoAcK/Nq1inRY56ZSjKypBNKTa/1mcL8qdl6oJeEaDbOldlzrGn7P6Q3Id5d+SYNGc5AJgc4vGhjs5+g==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0
+      react-dom: ^16.8 || ^17.0 || ^18.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.23.6
+      '@radix-ui/react-slot': 1.0.2(@types/react@18.2.41)(react@18.2.0)
+      '@types/react': 18.2.41
+      '@types/react-dom': 18.2.17
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /@radix-ui/react-separator@1.0.3(@types/react-dom@18.2.17)(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-itYmTy/kokS21aiV5+Z56MZB54KrhPgn6eHDKkFeOLR34HMN2s8PaN47qZZAGnvupcjxHaFZnW4pQEh0BvvVuw==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0
+      react-dom: ^16.8 || ^17.0 || ^18.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.23.6
+      '@radix-ui/react-primitive': 1.0.3(@types/react-dom@18.2.17)(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0)
+      '@types/react': 18.2.41
+      '@types/react-dom': 18.2.17
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /@radix-ui/react-slot@1.0.2(@types/react@18.2.41)(react@18.2.0):
     resolution: {integrity: sha512-YeTpuq4deV+6DusvVUW4ivBgnkHwECUu0BiN43L5UCDFgdhsRUWAghhTF5MbvNTPzmiFOx90asDSUjWuCNapwg==}
@@ -3519,7 +3566,6 @@ packages:
       '@radix-ui/react-compose-refs': 1.0.1(@types/react@18.2.41)(react@18.2.0)
       '@types/react': 18.2.41
       react: 18.2.0
-    dev: true
 
   /@redis/bloom@1.2.0(@redis/client@1.5.8):
     resolution: {integrity: sha512-HG2DFjYKbpNmVXsa0keLHp/3leGJz1mjh09f2RLGGLQZzSHpkmZWuwJbAvo3QcRY8p80m5+ZdXZdYOSBLlp7Cg==}
@@ -4777,7 +4823,6 @@ packages:
 
   /@types/prop-types@15.7.11:
     resolution: {integrity: sha512-ga8y9v9uyeiLdpKddhxYQkxNDrfvuPrlFb0N1qnZZByvcElJaXthF1UhvCh9TLWJBEHeNtdnbysW7Y6Uq8CVng==}
-    dev: true
 
   /@types/proxyquire@1.3.31:
     resolution: {integrity: sha512-uALowNG2TSM1HNPMMOR0AJwv4aPYPhqB0xlEhkeRTMuto5hjoSPZkvgu1nbPUkz3gEPAHv4sy4DmKsurZiEfRQ==}
@@ -4798,7 +4843,6 @@ packages:
     resolution: {integrity: sha512-rvrT/M7Df5eykWFxn6MYt5Pem/Dbyc1N8Y0S9Mrkw2WFCRiqUgw9P7ul2NpwsXCSM1DVdENzdG9J5SreqfAIWg==}
     dependencies:
       '@types/react': 18.2.41
-    dev: true
 
   /@types/react@18.2.41:
     resolution: {integrity: sha512-CwOGr/PiLiNBxEBqpJ7fO3kocP/2SSuC9fpH5K7tusrg4xPSRT/193rzolYwQnTN02We/ATXKnb6GqA5w4fRxw==}
@@ -4806,11 +4850,9 @@ packages:
       '@types/prop-types': 15.7.11
       '@types/scheduler': 0.16.7
       csstype: 3.1.2
-    dev: true
 
   /@types/scheduler@0.16.7:
     resolution: {integrity: sha512-8g25Nl3AuB1KulTlSUsUhUo/oBgBU6XIXQ+XURpeioEbEJvkO7qI4vDfREv3vJYHHzqXjcAHvoJy4pTtSQNZtA==}
-    dev: true
 
   /@types/semver@7.5.0:
     resolution: {integrity: sha512-G8hZ6XJiHnuhQKR7ZmysCeJWE08o8T0AXtk5darsCaTVsYZhhgUrq53jizaR2FvsoeCwJhlmwTjkXBY5Pn/ZHw==}
@@ -8797,6 +8839,7 @@ packages:
 
   /function-bind@1.1.1:
     resolution: {integrity: sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==}
+    requiresBuild: true
 
   /function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
@@ -13137,6 +13180,14 @@ packages:
       loose-envify: 1.4.0
       react: 18.2.0
       scheduler: 0.23.0
+
+  /react-icons@4.12.0(react@18.2.0):
+    resolution: {integrity: sha512-IBaDuHiShdZqmfc/TwHu6+d6k2ltNCf3AszxNmjJc1KUfXdEeRJOKyNvLmAHaarhzGmTSVygNdyu8/opXv2gaw==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      react: 18.2.0
+    dev: false
 
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
