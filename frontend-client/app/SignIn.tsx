@@ -21,16 +21,16 @@ export default function SignIn() {
           e.preventDefault()
         }}
       >
-        <Input placeholder="User Id" id="userId" />
+        <Input placeholder="ID" type="text" id="username" />
         <Input placeholder="Password" type="password" id="password" />
         <Button className="w-full" type="submit">
-          Sign in
+          Sign In
         </Button>
       </form>
       <div className="flex items-center justify-center gap-5">
         <Separator className="flex-1" />
-        <p className="w-fit flex-1 text-center text-xs text-gray-500">
-          continue with
+        <p className="w-fit flex-none text-center text-xs text-gray-500">
+          OR continue with
         </p>
         <Separator className="flex-1" />
       </div>
@@ -50,13 +50,13 @@ export default function SignIn() {
           variant={'link'}
           className="h-5 w-fit p-0 text-xs text-gray-500"
         >
-          Register now
+          Sign Up
         </Button>
         <Button
           variant={'link'}
           className="h-5 w-fit p-0 text-xs text-gray-500"
         >
-          Forgot ID/Password
+          Forgot ID/Password?
         </Button>
       </div>
     </div>
