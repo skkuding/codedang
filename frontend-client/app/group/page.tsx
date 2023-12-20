@@ -1,3 +1,3 @@
 export default function Group() {
-  return <main>group</main>
+  return <h2>group</h2>
 }
