@@ -12,10 +12,11 @@ import { FcGoogle } from 'react-icons/fc'
 export default function SignIn() {
   return (
     <div className="flex w-full flex-col gap-3">
-      <Image src={CodedangLogo} alt="코드당" width={70} className="mb-5" />
-      <h2 className="text-primary text-lg font-bold">Sign in</h2>
+      <div className="flex justify-center py-4">
+        <Image src={CodedangLogo} alt="코드당" height={64} />
+      </div>
       <form
-        className="flex flex-col gap-3"
+        className="flex w-full flex-col gap-3"
         onSubmit={(e) => {
           e.preventDefault()
         }}
