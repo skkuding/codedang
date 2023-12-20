@@ -22,7 +22,6 @@ const isMenuOpen = ref(false)
 const openToast = useToast()
 const modalContent = ref<'login' | 'signup' | 'password' | 'close'>('close')
 const useUser = useUserQuery()
-console.log(useUser.data.value?.username)
 // hide: remove hide, handleLinkClick
 const hide = () => {
   openToast({
@@ -79,22 +78,26 @@ const handleLinkClick = (name: string) => {
           leave-to-class="opacity-0"
           mode="out-in"
         >
-          <Dropdown v-if="auth.isLoggedIn" class="hidden md:inline-block">
-            <template #button>
-              <!-- add left margin to center navigation -->
-              <div
-                class="flex h-10 w-10 items-end justify-center overflow-hidden rounded-full bg-slate-50"
-              >
-                <IconUser class="text-2xl text-slate-300" />
-              </div>
-            </template>
-            <template #items>
-              <ListItem @click="$router.push('/admin')">Management</ListItem>
-              <ListItem @click="hide()">Settings</ListItem>
-              <!-- hide: replace hide to setting page routing -->
-              <ListItem @click="auth.logout()">Logout</ListItem>
-            </template>
-          </Dropdown>
+          <div v-if="auth.isLoggedIn" class="flex flex-row place-items-center">
+            <div class="mr-3">{{ useUser.data.value?.username }}</div>
+            <Dropdown class="hidden md:inline-block">
+              <template #button>
+                <!-- add left margin to center navigation -->
+                <div
+                  class="flex h-10 w-10 items-end justify-center overflow-hidden rounded-full bg-slate-50"
+                >
+                  <IconUser class="text-2xl text-slate-300" />
+                </div>
+              </template>
+              <template #items>
+                <ListItem @click="$router.push('/admin')">Management</ListItem>
+                <ListItem @click="hide()">Settings</ListItem>
+                <!-- hide: replace hide to setting page routing -->
+                <ListItem @click="auth.logout()">Logout</ListItem>
+              </template>
+            </Dropdown>
+          </div>
+
           <div v-else class="ml-2 hidden items-center gap-2 md:flex">
             <Button
               color="white"
