@@ -3,6 +3,7 @@ import Signin from '@/components/Signin'
 import CodedangLogo from '@/public/codedang.svg'
 import Image from 'next/image'
 import Link from 'next/link'
+import SignInUpButton from './SignInUpButton'
 
 const Header = () => {
   return (
@@ -27,22 +28,7 @@ const Header = () => {
             </Link>
           </nav>
         </div>
-        <div className="ml-2 hidden items-center gap-2 md:flex">
-          <ButtonWithModal
-            buttonText="Sign in"
-            buttonVariant={'outline'}
-            className="border-none font-semibold"
-          >
-            <Signin />
-          </ButtonWithModal>
-          <ButtonWithModal
-            buttonText="Sign up"
-            buttonVariant={'outline'}
-            className="font-bold"
-          >
-            <Signin />
-          </ButtonWithModal>
-        </div>
+        <SignInUpButton />
       </div>
     </header>
   )
