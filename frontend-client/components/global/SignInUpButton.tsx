@@ -1,16 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import { Button } from '../ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '../ui/dropdown-menu'
 import Signin from './Signin'
 
 const SignInUpButton = () => {

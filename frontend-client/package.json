@@ -15,7 +15,8 @@
     "next": "14.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^4.12.0"
+    "react-icons": "^4.12.0",
+    "sharp": "^0.33.1"
   },
   "devDependencies": {
     "@radix-ui/react-slot": "^1.0.2",
