@@ -19,7 +19,7 @@
     "@codemirror/language": "^6.9.3",
     "@codemirror/state": "^6.3.3",
     "@codemirror/theme-one-dark": "^6.1.2",
-    "@codemirror/view": "^6.22.2",
+    "@codemirror/view": "^6.22.3",
     "@tiptap/pm": "^2.1.13",
     "@tiptap/starter-kit": "^2.1.13",
     "@tiptap/vue-3": "^2.1.13",
