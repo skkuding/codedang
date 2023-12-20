@@ -35,13 +35,13 @@ export default function SignIn() {
         <Separator className="flex-1" />
       </div>
       <div className="flex w-full items-center justify-center gap-5">
-        <div className="flex aspect-square w-12 items-center justify-center rounded-full bg-[#FEE500]">
+        <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#FEE500] hover:opacity-80">
           <Image src={KakaotalkLogo} alt="카카오톡" width={20} />
         </div>
-        <div className="flex aspect-square w-12 items-center justify-center rounded-full bg-[#EEEEEE]">
+        <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#EEEEEE] hover:opacity-80">
           <FcGoogle size="22" />
         </div>
-        <div className="flex aspect-square w-12 items-center justify-center rounded-full bg-[#212528]">
+        <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#212528] hover:opacity-80">
           <FaGithub className="text-white" size="22" />
         </div>
       </div>
