@@ -73,7 +73,6 @@ axios.get('api/contest').then((res) => {
         img: dummyImg,
         imgAlt: 'Codedang Intro Banner',
         color: 'blue'
-        // href: ''
       },
       {
         topTitle: 'SKKUDING',
@@ -82,7 +81,6 @@ axios.get('api/contest').then((res) => {
         img: SkkudingLogo,
         imgAlt: 'SKKUDING Beta service Banner',
         color: 'black'
-        // href: ''
       },
       {
         topTitle: 'Contribute to',
