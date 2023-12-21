@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: ./.github/workflows/setup-pnpm.yml
+      - uses: ./.github/actions/setup-pnpm.yml
 
       - name: Build documentation
         run: pnpm docs:build

@@ -16,7 +16,7 @@ jobs:
         target: [frontend, frontend-client, backend, backend-admin]
 
     steps:
-      - uses: ./.github/workflows/setup-pnpm.yml
+      - uses: ./.github/actions/setup-pnpm.yml
 
       - name: Generate Prisma Client
         if: ${{ matrix.target == 'backend' || matrix.target == 'backend-admin' }}
@@ -45,7 +45,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: ./.github/workflows/setup-pnpm.yml
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-pnpm.yml
 
       - name: Generate Prisma Client
         run: pnpm --filter backend exec prisma generate
@@ -64,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: ./.github/workflows/setup-pnpm.yml
+      - uses: ./.github/actions/setup-pnpm.yml
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -108,7 +109,7 @@ jobs:
           POSTGRES_DB: skkuding
 
     steps:
-      - uses: ./.github/workflows/setup-pnpm.yml
+      - uses: ./.github/actions/setup-pnpm.yml
 
       - name: Check Prisma Migration
         run: |

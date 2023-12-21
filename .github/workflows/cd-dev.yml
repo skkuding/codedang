@@ -13,7 +13,7 @@ jobs:
     name: Build frontend bundle
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/workflows/setup-pnpm.yml
+      - uses: ./.github/actions/setup-pnpm.yml
 
       - name: Build static bundle
         run: pnpm --filter frontend build
