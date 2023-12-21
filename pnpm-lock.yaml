@@ -232,7 +232,7 @@ importers:
         specifier: ^5.7.1
         version: 5.7.1
       prisma-nestjs-graphql:
-        specifier: 19.0.1
+        specifier: ^19.0.1
         version: 19.0.1
       proxyquire:
         specifier: ^2.1.3
