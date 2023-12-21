@@ -1,11 +1,11 @@
 name: Setup pnpm
+description: 'Setup pnpm, Node.js and install dependencies'
 
 inputs:
   install:
     description: 'Install dependencies'
     required: false
-    type: boolean
-    default: true
+    default: 'yes'
 
 runs:
   using: 'composite'
@@ -32,5 +32,6 @@ runs:
           ${{ runner.os }}-pnpm-
 
     - name: Install dependencies
-      if: ${{ inputs.install }}
+      if: ${{ inputs.install == 'yes' }}
+      shell: bash
       run: pnpm install

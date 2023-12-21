@@ -14,7 +14,8 @@ jobs:
         node: [20]
 
     steps:
-      - uses: ./.github/actions/setup-pnpm.yml
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-pnpm
 
       - name: Check unused dependencies
         run: pnpm knip
