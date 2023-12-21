@@ -29,3 +29,11 @@ body:graphql:vars {
     "workbookId":  1
   }
 }
+
+assert {
+  res.body.data.getWorkbookProblems[0].order: isNumber
+  res.body.data.getWorkbookProblems[0].workbookId: isNumber
+  res.body.data.getWorkbookProblems[0].problemId: isNumber
+  res.body.data.getWorkbookProblems[0].createTime: isString
+  res.body.data.getWorkbookProblems[0].updateTime: isString
+}

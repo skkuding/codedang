@@ -30,3 +30,12 @@ body:graphql:vars {
     "contestId":  1
   }
 }
+
+assert {
+  res.body.data.getContestProblems[0].order: isNumber
+  res.body.data.getContestProblems[0].contestId: isNumber
+  res.body.data.getContestProblems[0].problemId: isNumber
+  res.body.data.getContestProblems[0].score: isNumber
+  res.body.data.getContestProblems[0].createTime: isString 
+  res.body.data.getContestProblems[0].createTime: isString 
+}
