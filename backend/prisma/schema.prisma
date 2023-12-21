@@ -82,7 +82,7 @@ model UserProfile {
 model UserGroup {
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int      @map("user_id")
-  group         Group    @relation(fields: [groupId], references: [id])
+  group         Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId       Int      @map("group_id")
   isGroupLeader Boolean  @default(false) @map("is_group_leader")
   createTime    DateTime @default(now()) @map("create_time")
@@ -120,7 +120,7 @@ model Notice {
   id          Int      @id @default(autoincrement())
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?     @map("created_by_id")
-  group       Group    @relation(fields: [groupId], references: [id])
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: SetNull)
   groupId     Int      @map("group_id")
   title       String
   content     String
@@ -136,7 +136,7 @@ model Problem {
   id                Int        @id @default(autoincrement())
   createdBy         User?      @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById       Int?       @map("created_by_id")
-  group             Group      @relation(fields: [groupId], references: [id])
+  group             Group      @relation(fields: [groupId], references: [id], onDelete: SetNull)
   groupId           Int        @map("group_id")
   title             String
   description       String
@@ -254,9 +254,9 @@ model Contest {
 
 model ContestProblem {
   id         String
-  contest    Contest  @relation(fields: [contestId], references: [id])
+  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
   contestId  Int      @map("contest_id")
-  problem    Problem  @relation(fields: [problemId], references: [id])
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int      @map("problem_id")
   score      Int      @default(0)
   createTime DateTime @default(now()) @map("create_time")
@@ -283,7 +283,7 @@ model Clarification {
 
 model ContestRecord {
   id                 Int      @id @default(autoincrement())
-  contest            Contest  @relation(fields: [contestId], references: [id])
+  contest            Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
   contestId          Int      @map("contest_id")
   user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId             Int?     @map("user_id")
@@ -300,7 +300,7 @@ model Workbook {
   id          Int      @id @default(autoincrement())
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?     @map("created_by_id")
-  group       Group    @relation(fields: [groupId], references: [id])
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId     Int      @map("group_id")
   title       String
   description String
@@ -316,9 +316,9 @@ model Workbook {
 
 model WorkbookProblem {
   id         String
-  workbook   Workbook @relation(fields: [workbookId], references: [id])
+  workbook   Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
   workbookId Int      @map("workbook_id")
-  problem    Problem  @relation(fields: [problemId], references: [id])
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int      @map("problem_id")
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
@@ -332,9 +332,9 @@ model Submission {
   id         String       @id // 6 digit hex hash
   user       User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId     Int?         @map("user_id")
-  problem    Problem      @relation(fields: [problemId], references: [id])
+  problem    Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int          @map("problem_id")
-  contest    Contest?     @relation(fields: [contestId], references: [id])
+  contest    Contest?     @relation(fields: [contestId], references: [id], onDelete: Cascade)
   contestId  Int?         @map("contest_id")
   workbook   Workbook?    @relation(fields: [workbookId], references: [id])
   workbookId Int?         @map("workbook_id")
@@ -357,9 +357,9 @@ model Submission {
 
 model SubmissionResult {
   id                Int             @id @default(autoincrement())
-  submission        Submission      @relation(fields: [submissionId], references: [id])
+  submission        Submission      @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   submissionId      String          @map("submission_id")
-  problemTestcase   ProblemTestcase @relation(fields: [problemTestcaseId], references: [id])
+  problemTestcase   ProblemTestcase @relation(fields: [problemTestcaseId], references: [id], onDelete: Cascade)
   problemTestcaseId Int             @map("problem_test_case_id")
   result            ResultStatus
   cpuTime           BigInt          @map("cpu_time")

@@ -1,0 +1,16 @@
+[
+    {
+        "_id": "e24d65dc-ee7d-4848-aec7-e5a213ead264",
+        "colId": "history",
+        "containerId": "",
+        "name": "localhost:4000/announcement/contest/1",
+        "url": "localhost:4000/announcement/contest/1",
+        "method": "GET",
+        "sortNum": 0,
+        "created": "2023-08-17T11:10:45.850Z",
+        "modified": "2023-08-17T11:10:45.850Z",
+        "headers": [],
+        "params": [],
+        "tests": []
+    }
+]
