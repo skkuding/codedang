@@ -82,7 +82,7 @@ model UserProfile {
 model UserGroup {
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int      @map("user_id")
-  group         Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  group         Group    @relation(fields: [groupId], references: [id])
   groupId       Int      @map("group_id")
   isGroupLeader Boolean  @default(false) @map("is_group_leader")
   createTime    DateTime @default(now()) @map("create_time")
@@ -120,7 +120,7 @@ model Notice {
   id          Int      @id @default(autoincrement())
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?     @map("created_by_id")
-  group       Group    @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  group       Group    @relation(fields: [groupId], references: [id])
   groupId     Int      @map("group_id")
   title       String
   content     String
@@ -136,7 +136,7 @@ model Problem {
   id                Int        @id @default(autoincrement())
   createdBy         User?      @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById       Int?       @map("created_by_id")
-  group             Group      @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  group             Group      @relation(fields: [groupId], references: [id])
   groupId           Int        @map("group_id")
   title             String
   description       String
@@ -300,7 +300,7 @@ model Workbook {
   id          Int      @id @default(autoincrement())
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?     @map("created_by_id")
-  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  group       Group    @relation(fields: [groupId], references: [id])
   groupId     Int      @map("group_id")
   title       String
   description String
