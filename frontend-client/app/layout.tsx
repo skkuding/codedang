@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Manrope } from 'next/font/google'
-import Header from './Header'
+import Header from './_components/Header'
 import './globals.css'
 
 const manrope = Manrope({ subsets: ['latin'], weight: ['400', '600', '700'] })
