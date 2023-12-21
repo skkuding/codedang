@@ -11,7 +11,7 @@ interface Slide {
   img: string
   imgAlt: string
   color: keyof typeof bgColors
-  href: string
+  href?: string
 }
 const props = defineProps<{ slides: Slide[] }>()
 
@@ -71,7 +71,7 @@ const clickRight = () => {
         </button>
       </div>
     </div>
-    <RouterLink :to="slides[currentSlideIndex].href">
+    <a :href="slides[currentSlideIndex].href" target="_blank">
       <div
         v-for="(item, index) in slides"
         :key="index"
@@ -105,6 +105,6 @@ const clickRight = () => {
           />
         </div>
       </div>
-    </RouterLink>
+    </a>
   </div>
 </template>
