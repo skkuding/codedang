@@ -22,6 +22,15 @@ jobs:
         if: ${{ matrix.target == 'backend' || matrix.target == 'backend-admin' }}
         run: pnpm --filter backend exec prisma generate
 
+      - name: Setup Next.js build cache
+        if: ${{ matrix.target == 'frontend-client' }}
+        uses: actions/cache@v3
+        with:
+          path: frontend-client/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+
       # If target is backend-admin, run `pnpm --filter backend build admin`
       # For other targets, run `pnpm --filter <target> build`
       - name: Build (backend admin)
