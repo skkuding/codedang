@@ -16,17 +16,7 @@ jobs:
     name: Build frontend bundle
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      - uses: ./.github/workflows/setup-pnpm.yml
 
       - name: Build static bundle
         run: pnpm --filter frontend build

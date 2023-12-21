@@ -1,0 +1,43 @@
+name: Setup pnpm
+
+on:
+  workflow_call:
+    inputs:
+      install:
+        description: 'Install dependencies'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    env:
+      STORE_PATH:
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # https://github.com/pnpm/action-setup/tree/v2/?tab=readme-ov-file#use-cache-to-reduce-installation-time
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        if: ${{ inputs.install }}
+        run: pnpm install
