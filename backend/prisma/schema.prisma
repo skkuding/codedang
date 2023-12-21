@@ -265,7 +265,7 @@ model ContestProblem {
   clarification Clarification[]
 
   @@id([contestId, problemId])
-  @@unique([contestId, order])
+  // @@unique([contestId, problemId])
   @@map("contest_problem")
 }
 
@@ -324,7 +324,7 @@ model WorkbookProblem {
   updateTime DateTime @updatedAt @map("update_time")
 
   @@id([workbookId, problemId])
-  @@unique([workbookId, order])
+  // @@unique([workbookId, problemId])
   @@map("workbook_problem")
 }
 
