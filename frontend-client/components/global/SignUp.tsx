@@ -156,42 +156,26 @@ const SignUp = () => {
         <Input placeholder="Real Name" {...register('realName')} />
         {errors.realName && <p>{errors.realName.message}</p>}
 
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-2">
           <Input
             placeholder="Password"
             {...register('password')}
             type={passwordShow ? 'text' : 'password'}
           />
-          {/* <component
-          // :is="showPassword ? RegularEye : EyeSlash"
-          // @click.stop="showPassword = !showPassword"
-        /> */}
           <span onClick={() => setPasswordShow(!passwordShow)}>
-            {passwordShow ? (
-              <FaEyeSlash className="text-gray" />
-            ) : (
-              <FaEye className="text-gray" />
-            )}
+            {passwordShow ? <FaEyeSlash /> : <FaEye />}
           </span>
         </div>
         {errors.password && <p>{errors.password.message}</p>}
 
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-2">
           <Input
             {...register('passwordAgain')}
             placeholder="Password Check"
             type={passwordAgainShow ? 'text' : 'password'}
           />
-          {/* <component
-          :is="showPasswordAgain ? RegularEye : EyeSlash"
-          @click.stop="showPasswordAgain = !showPasswordAgain"
-        /> */}
           <span onClick={() => setPasswordAgainShow(!passwordAgainShow)}>
-            {passwordAgainShow ? (
-              <FaEyeSlash className="text-gray" />
-            ) : (
-              <FaEye className="text-gray" />
-            )}
+            {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
           </span>
         </div>
         {errors.passwordAgain && <p>{errors.passwordAgain.message}</p>}
