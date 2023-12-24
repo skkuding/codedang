@@ -11,6 +11,8 @@ import { FaCheck } from 'react-icons/fa'
 import { FaEyeSlash } from 'react-icons/fa'
 import { FaEye } from 'react-icons/fa'
 import { z } from 'zod'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
 
 interface SignUpFormInput {
   username: string
@@ -116,10 +118,10 @@ const SignUp = () => {
       <Image src={CodedangLogo} alt="코드당" width={70} className="mb-5" />
 
       <form class="flex w-60 flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
-        <input placeholder="Username" {...register('username')} />
+        <Input placeholder="Username" {...register('username')} />
         {errors.username && <p>{errors.username.message}</p>}
         <div class="flex gap-2">
-          <input
+          <Input
             id="email"
             type="email"
             placeholder="Email Address"
@@ -137,7 +139,7 @@ const SignUp = () => {
           </p>
         )}
         <div class="flex gap-2">
-          <input
+          <Input
             type="number"
             placeholder="Verification Code"
             {...register('verificationCode')}
@@ -151,11 +153,11 @@ const SignUp = () => {
         {emailVerified && (
           <p class="text-green text-xs font-bold">Email has been verified!</p>
         )}
-        <input placeholder="Real Name" {...register('realName')} />
+        <Input placeholder="Real Name" {...register('realName')} />
         {errors.realName && <p>{errors.realName.message}</p>}
 
         <div class="flex items-center justify-between">
-          <input
+          <Input
             placeholder="Password"
             {...register('password')}
             type={passwordShow ? 'text' : 'password'}
@@ -175,7 +177,7 @@ const SignUp = () => {
         {errors.password && <p>{errors.password.message}</p>}
 
         <div class="flex items-center justify-between">
-          <input
+          <Input
             {...register('passwordAgain')}
             placeholder="Password Check"
             type={passwordAgainShow ? 'text' : 'password'}
@@ -193,9 +195,9 @@ const SignUp = () => {
           </span>
         </div>
         {errors.passwordAgain && <p>{errors.passwordAgain.message}</p>}
-        <button color="blue" onClick={() => {}} type="submit">
+        <Button color="blue" onClick={() => {}} type="submit">
           Register
-        </button>
+        </Button>
       </form>
       <div class="text-gray-dark mt-6 flex flex-col items-center text-sm">
         Already have an account?
