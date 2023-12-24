@@ -3,6 +3,7 @@
 import { RxHamburgerMenu } from 'react-icons/rx'
 import { Button } from '../ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog'
+import SignUp from './SignUp'
 import Signin from './Signin'
 
 const SignInUpButton = () => {
@@ -31,7 +32,7 @@ const SignInUpButton = () => {
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-sm">
-          <Signin />
+          <SignUp />
         </DialogContent>
       </Dialog>
       <RxHamburgerMenu size="30" className="md:hidden" />
