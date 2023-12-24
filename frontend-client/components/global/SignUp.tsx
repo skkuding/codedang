@@ -118,7 +118,7 @@ const SignUp = () => {
       <Image src={CodedangLogo} alt="코드당" width={70} className="mb-5" />
 
       <form class="flex w-60 flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
-        <Input placeholder="Username" {...register('username')} />
+        <Input placeholder="User Id" {...register('username')} />
         {errors.username && <p>{errors.username.message}</p>}
         <div class="flex gap-2">
           <Input
