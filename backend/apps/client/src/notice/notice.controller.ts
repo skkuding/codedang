@@ -43,6 +43,7 @@ export class NoticeController {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.name === 'NotFoundError'
       ) {
+        this.logger.error(error.message, error.stack)
         throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)

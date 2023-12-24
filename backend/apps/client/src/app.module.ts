@@ -3,6 +3,7 @@ import { CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
+import { LoggerModule } from 'nestjs-pino'
 import { JwtAuthModule, JwtAuthGuard } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
 import { PrismaModule } from '@libs/prisma'
@@ -41,7 +42,46 @@ import { WorkbookModule } from './workbook/workbook.module'
     UserModule,
     WorkbookModule,
     EmailModule,
-    ClarificationModule
+    ClarificationModule,
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: 'info',
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? { target: 'pino-pretty' }
+            : undefined,
+        autoLogging: false,
+        formatters: {
+          level(label) {
+            return { level: label }
+          },
+          log(object) {
+            if (process.env.NODE_ENV !== 'production') {
+              if (object.err) {
+                return {
+                  level: object.level,
+                  pid: object.pid,
+                  time: object.time,
+                  msg: object.msg,
+                  err: object.err,
+                  responseTime: object.responseTime
+                }
+              } else {
+                return {
+                  level: object.level,
+                  pid: object.pid,
+                  time: object.time,
+                  msg: object.msg,
+                  responseTime: object.responseTime
+                }
+              }
+            } else {
+              return object
+            }
+          }
+        }
+      }
+    })
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }]

@@ -1,0 +1,494 @@
+Script started on 2023-12-22 10:23:20+00:00 [TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="229" LINES="12"]
+[?2004h[0;32mnode [0m➜ [1;34m/workspace [0;36m([1;31m1031-change-nestjs-logger[0;36m) [0m$ ls
+[?2004l[0m[01;34mbackend[0m    CODE_OF_CONDUCT.md  commitlint.config.ts  docker-compose.yml  [01;34mfrontend[0m         [01;34minfra[0m  knip.ts       LICENSE       package.json    pnpm-workspace.yaml  renovate.json  skkuding.code-workspace
+Caddyfile  [01;34mcollection[0m          CONTRIBUTING.md       [01;34mdocs[0m                [01;34mfrontend-client[0m  [01;34miris[0m   lefthook.yml  [01;34mnode_modules[0m  pnpm-lock.yaml  README.md            [01;34mscripts[0m        typescript
+[?2004h[0;32mnode [0m➜ [1;34m/workspace [0;36m([1;31m1031-change-nestjs-logger[0;36m) [0m$ cd st[Kcripts/
+[?2004l[?2004h[0;32mnode [0m➜ [1;34m/workspace/scripts [0;36m([1;31m1031-change-nestjs-logger[0;36m) [0m$ ls
+[?2004l[0m[01;32mdeploy.sh[0m  init-testcase.ts  [01;32mpost-checkout.sh[0m  [01;32msetup.sh[0m
+[?2004h[0;32mnode [0m➜ [1;34m/workspace/scripts [0;36m([1;31m1031-change-nestjs-logger[0;36m) [0m$ s[K./setup.sh 
+[?2004l++ command -v npm
++ '[' '!' /usr/local/bin/npm ']'
+++++ realpath ./setup.sh
++++ dirname /workspace/scripts/setup.sh
+++ dirname /workspace/scripts
++ BASEDIR=/workspace
++ cd /workspace
++ '[' -f .env ']'
++ rm .env
++ IFS=
++ read -r line
++ [[ -z # RABBITMQ ]]
++ [[ # == \# ]]
++ continue
++ IFS=
++ read -r line
++ [[ -z RABBITMQ_HOST=127.0.0.1 ]]
++ [[ R == \# ]]
++ name=RABBITMQ_HOST
++ value=127.0.0.1
++ [[ -v RABBITMQ_HOST ]]
++ echo RABBITMQ_HOST=127.0.0.1
++ IFS=
++ read -r line
++ [[ -z RABBITMQ_PORT=5672 ]]
++ [[ R == \# ]]
++ name=RABBITMQ_PORT
++ value=5672
++ [[ -v RABBITMQ_PORT ]]
++ echo RABBITMQ_PORT=5672
++ IFS=
++ read -r line
++ [[ -z RABBITMQ_DEFAULT_USER=skku ]]
++ [[ R == \# ]]
++ name=RABBITMQ_DEFAULT_USER
++ value=skku
++ [[ -v RABBITMQ_DEFAULT_USER ]]
++ echo RABBITMQ_DEFAULT_USER=skku
++ IFS=
++ read -r line
++ [[ -z RABBITMQ_DEFAULT_PASS=1234 ]]
++ [[ R == \# ]]
++ name=RABBITMQ_DEFAULT_PASS
++ value=1234
++ [[ -v RABBITMQ_DEFAULT_PASS ]]
++ echo RABBITMQ_DEFAULT_PASS=1234
++ IFS=
++ read -r line
++ [[ -z # Since Gitpod does not support / as vhost, define custom vhost ]]
++ [[ # == \# ]]
++ continue
++ IFS=
++ read -r line
++ [[ -z # Related: https://stackoverflow.com/q/54707566/13404328 ]]
++ [[ # == \# ]]
++ continue
++ IFS=
++ read -r line
++ [[ -z RABBITMQ_DEFAULT_VHOST=vh ]]
++ [[ R == \# ]]
++ name=RABBITMQ_DEFAULT_VHOST
++ value=vh
++ [[ -v RABBITMQ_DEFAULT_VHOST ]]
++ echo RABBITMQ_DEFAULT_VHOST=vh
++ IFS=
++ read -r line
++ [[ -z '' ]]
++ continue
++ IFS=
++ read -r line
++ [[ -z JUDGE_EXCHANGE_NAME=iris.e.direct.judge ]]
++ [[ J == \# ]]
++ name=JUDGE_EXCHANGE_NAME
++ value=iris.e.direct.judge
++ [[ -v JUDGE_EXCHANGE_NAME ]]
++ echo JUDGE_EXCHANGE_NAME=iris.e.direct.judge
++ IFS=
++ read -r line
++ [[ -z JUDGE_SUBMISSION_QUEUE_NAME=client.q.judge.submission ]]
++ [[ J == \# ]]
++ name=JUDGE_SUBMISSION_QUEUE_NAME
++ value=client.q.judge.submission
++ [[ -v JUDGE_SUBMISSION_QUEUE_NAME ]]
++ echo JUDGE_SUBMISSION_QUEUE_NAME=client.q.judge.submission
++ IFS=
++ read -r line
++ [[ -z JUDGE_SUBMISSION_ROUTING_KEY=judge.submission ]]
++ [[ J == \# ]]
++ name=JUDGE_SUBMISSION_ROUTING_KEY
++ value=judge.submission
++ [[ -v JUDGE_SUBMISSION_ROUTING_KEY ]]
++ echo JUDGE_SUBMISSION_ROUTING_KEY=judge.submission
++ IFS=
++ read -r line
++ [[ -z JUDGE_RESULT_QUEUE_NAME=iris.q.judge.result ]]
++ [[ J == \# ]]
++ name=JUDGE_RESULT_QUEUE_NAME
++ value=iris.q.judge.result
++ [[ -v JUDGE_RESULT_QUEUE_NAME ]]
++ echo JUDGE_RESULT_QUEUE_NAME=iris.q.judge.result
++ IFS=
++ read -r line
++ [[ -z JUDGE_RESULT_ROUTING_KEY=judge.result ]]
++ [[ J == \# ]]
++ name=JUDGE_RESULT_ROUTING_KEY
++ value=judge.result
++ [[ -v JUDGE_RESULT_ROUTING_KEY ]]
++ echo JUDGE_RESULT_ROUTING_KEY=judge.result
++ IFS=
++ read -r line
++ [[ -z '' ]]
++ continue
++ IFS=
++ read -r line
++ [[ -z # Iris ]]
++ [[ # == \# ]]
++ continue
++ IFS=
++ read -r line
++ [[ -z RABBITMQ_CONSUMER_QUEUE_NAME=$JUDGE_SUBMISSION_QUEUE_NAME ]]
++ [[ R == \# ]]
++ name=RABBITMQ_CONSUMER_QUEUE_NAME
++ value='$JUDGE_SUBMISSION_QUEUE_NAME'
++ [[ -v RABBITMQ_CONSUMER_QUEUE_NAME ]]
++ echo RABBITMQ_CONSUMER_QUEUE_NAME=client.q.judge.submission
++ IFS=
++ read -r line
++ [[ -z RABBITMQ_PRODUCER_EXCHANGE_NAME=$JUDGE_EXCHANGE_NAME ]]
++ [[ R == \# ]]
++ name=RABBITMQ_PRODUCER_EXCHANGE_NAME
++ value='$JUDGE_EXCHANGE_NAME'
++ [[ -v RABBITMQ_PRODUCER_EXCHANGE_NAME ]]
++ echo RABBITMQ_PRODUCER_EXCHANGE_NAME=iris.e.direct.judge
++ IFS=
++ read -r line
++ [[ -z RABBITMQ_PRODUCER_ROUTING_KEY=$JUDGE_RESULT_ROUTING_KEY ]]
++ [[ R == \# ]]
++ name=RABBITMQ_PRODUCER_ROUTING_KEY
++ value='$JUDGE_RESULT_ROUTING_KEY'
++ [[ -v RABBITMQ_PRODUCER_ROUTING_KEY ]]
++ echo RABBITMQ_PRODUCER_ROUTING_KEY=judge.result
++ IFS=
++ read -r line
++ [[ -z RABBITMQ_CONSUMER_CONNECTION_NAME=iris-consumer ]]
++ [[ R == \# ]]
++ name=RABBITMQ_CONSUMER_CONNECTION_NAME
++ value=iris-consumer
++ [[ -v RABBITMQ_CONSUMER_CONNECTION_NAME ]]
++ echo RABBITMQ_CONSUMER_CONNECTION_NAME=iris-consumer
++ IFS=
++ read -r line
++ [[ -z RABBITMQ_CONSUMER_TAG=consumer ]]
++ [[ R == \# ]]
++ name=RABBITMQ_CONSUMER_TAG
++ value=consumer
++ [[ -v RABBITMQ_CONSUMER_TAG ]]
++ echo RABBITMQ_CONSUMER_TAG=consumer
++ IFS=
++ read -r line
++ [[ -z RABBITMQ_PRODUCER_CONNECTION_NAME=iris-producer ]]
++ [[ R == \# ]]
++ name=RABBITMQ_PRODUCER_CONNECTION_NAME
++ value=iris-producer
++ [[ -v RABBITMQ_PRODUCER_CONNECTION_NAME ]]
++ echo RABBITMQ_PRODUCER_CONNECTION_NAME=iris-producer
++ IFS=
++ read -r line
++ [[ -z '' ]]
++ continue
++ IFS=
++ read -r line
++ [[ -z # Testcase Endpoint ]]
++ [[ # == \# ]]
++ continue
++ IFS=
++ read -r line
++ [[ -z TESTCASE_BUCKET_NAME=test-bucket ]]
++ [[ T == \# ]]
++ name=TESTCASE_BUCKET_NAME
++ value=test-bucket
++ [[ -v TESTCASE_BUCKET_NAME ]]
++ echo TESTCASE_BUCKET_NAME=test-bucket
++ IFS=
++ read -r line
++ [[ -z TESTCASE_ENDPOINT_URL=http://127.0.0.1:9000 ]]
++ [[ T == \# ]]
++ name=TESTCASE_ENDPOINT_URL
++ value=http://127.0.0.1:9000
++ [[ -v TESTCASE_ENDPOINT_URL ]]
++ echo TESTCASE_ENDPOINT_URL=http://127.0.0.1:9000
++ IFS=
++ read -r line
++ [[ -z TESTCASE_ACCESS_KEY=skku ]]
++ [[ T == \# ]]
++ name=TESTCASE_ACCESS_KEY
++ value=skku
++ [[ -v TESTCASE_ACCESS_KEY ]]
++ echo TESTCASE_ACCESS_KEY=skku
++ IFS=
++ read -r line
++ [[ -z TESTCASE_SECRET_KEY=skku1234 ]]
++ [[ T == \# ]]
++ name=TESTCASE_SECRET_KEY
++ value=skku1234
++ [[ -v TESTCASE_SECRET_KEY ]]
++ echo TESTCASE_SECRET_KEY=skku1234
++ IFS=
++ read -r line
++ [[ -z '' ]]
++ continue
++ IFS=
++ read -r line
++ [[ -z REDIS_HOST=127.0.0.1 ]]
++ [[ R == \# ]]
++ name=REDIS_HOST
++ value=127.0.0.1
++ [[ -v REDIS_HOST ]]
++ echo REDIS_HOST=127.0.0.1
++ IFS=
++ read -r line
++ [[ -z REDIS_PORT=6380 ]]
++ [[ R == \# ]]
++ name=REDIS_PORT
++ value=6380
++ [[ -v REDIS_PORT ]]
++ echo REDIS_PORT=6380
++ IFS=
++ read -r line
++ [[ -z '' ]]
++ continue
++ IFS=
++ read -r line
++ [[ -z DATABASE_URL=postgresql://postgres:1234@127.0.0.1:5433/skkuding?schema=public ]]
++ [[ D == \# ]]
++ name=DATABASE_URL
++ value='postgresql://postgres:1234@127.0.0.1:5433/skkuding?schema=public'
++ [[ -v DATABASE_URL ]]
++ echo 'DATABASE_URL=postgresql://postgres:1234@127.0.0.1:5433/skkuding?schema=public'
++ IFS=
++ read -r line
++ [[ -z '' ]]
++ continue
++ IFS=
++ read -r line
++ [[ -z # TODO: Add information where each of these variables are used ]]
++ [[ # == \# ]]
++ continue
++ IFS=
++ read -r line
++ [[ -z # TODO: I want to edit values after the container is created... ]]
++ [[ # == \# ]]
++ continue
++ IFS=
++ read -r line
++ '[' -f backend/.env ']'
++ grep -q DATABASE_URL backend/.env
++ '[' '!' -f backend/.env ']'
++ npm install -g pnpm@latest
+[?25l([100;90m⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂[0m) ⠸ idealTree: [32;40mtiming[0m [35marborist:ctor[0m Completed in 1ms[0m[K([100;90m⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂[0m) ⠸ idealTree: [32;40mtiming[0m [35marborist:ctor[0m Completed in 1ms[0m[K([100;90m⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂⠂[0m) ⠸ idealTree: [32;40mtiming[0m [35marborist:ctor[0m Completed in 1ms[0m[K([107;97m#########[0m[100;90m⠂⠂⠂⠂⠂⠂⠂⠂⠂[0m) ⠸ idealTree: [32;40mtiming[0m [35midealTree[0m Completed in 193ms[0m[K([107;97m#########[0m[100;90m⠂⠂⠂⠂⠂⠂⠂⠂⠂[0m) ⠋ reify:pnpm: [32;40mtiming[0m [35mreify:loadBundles[0m Completed in 0ms[0m[K([107;97m#########[0m[100;90m⠂⠂⠂⠂⠂⠂⠂⠂⠂[0m) ⠋ reify:pnpm: [32;40mtiming[0m [35mreify:loadBundles[0m Completed in 0ms[0m[K([107;97m#########[0m[100;90m⠂⠂⠂⠂⠂⠂⠂⠂⠂[0m) ⠋ reify:pnpm: [32;40mtiming[0m [35mreify:loadBundles[0m Completed in 0ms[0m[K([107;97m#########[0m[100;90m⠂⠂⠂⠂⠂⠂⠂⠂⠂[0m) ⠋ reify:pnpm: [32;40mtiming[0m [35mreify:loadBundles[0m Completed in 0ms[0m[K([107;97m#########[0m[100;90m⠂⠂⠂⠂⠂⠂⠂⠂⠂[0m) ⠋ reify:pnpm: [32;40mtiming[0m [35mreify:loadBundles[0m Completed in 0ms[0m[K([107;97m#########[0m[100;90m⠂⠂⠂⠂⠂⠂⠂⠂⠂[0m) ⠋ reify:pnpm: [32;40mtiming[0m [35mreify:loadBundles[0m Completed in 0ms[0m[K([107;97m#########[0m[100;90m⠂⠂⠂⠂⠂⠂⠂⠂⠂[0m) ⠋ reify:pnpm: [32;40mtiming[0m [35mreify:loadBundles[0m Completed in 0ms[0m[K([107;97m#########[0m[100;90m⠂⠂⠂⠂⠂⠂⠂⠂⠂[0m) ⠋ reify:pnpm: [32;40mtiming[0m [35mreify:loadBundles[0m Completed in 0ms[0m[K([107;97m##################[0m) ⠏ reify:pnpm: [32;40mtiming[0m [35mreify:loadBundles[0m Completed in 0ms[0m[K([107;97m##################[0m) ⠏ reify:pnpm: [32;40mtiming[0m [35mreify:loadBundles[0m Completed in 0ms[0m[K[K[?25h
+changed 1 package in 990ms
+
+1 package is looking for funding
+  run `npm fund` for details
++ pnpm install
+Scope: all 4 workspace projects
+Lockfile is up to date, resolution step is skipped
+Already up to date
+Done in 11.6s
++ pnpm exec lefthook install
+]11;?\[6n[38;2;112;192;186msync hooks[0m[38;2;112;192;186m: ✔️[0m [38;2;128;128;128m(pre-commit, commit-msg, post-checkout)[0m
++ pnpm run init:testcases
+
+> @ init:testcases /workspace
+> ts-node scripts/init-testcase.ts
+
+Uploaded 1.json
+Uploaded 2.json
+Uploaded 3.json
+Uploaded 4.json
+Uploaded 5.json
+Uploaded 6.json
+Uploaded 7.json
+Uploaded 8.json
++ grep -q bash-completion/completions/git /home/node/.bashrc
++ for i in {1..5}
++ pnpm --filter backend exec prisma migrate dev
+[2mEnvironment variables loaded from .env[22m
+[2mPrisma schema loaded from prisma/schema.prisma[22m
+[2mDatasource "db": PostgreSQL database "skkuding", schema "public" at "127.0.0.1:5433"[22m
+
+Already in sync, no schema change or pending migration was found.
+
+[?25lRunning generate... [2m(Use --skip-generate to skip the generators)[22m
+[?25l[2K[1A[2K[GRunning generate... - Prisma Client
+[?25l[2K[1A[2K[GRunning generate... - Prisma NestJS/GraphQL
+[?25l[2K[1A[2K[G✔ Generated [1mPrisma Client[22m (v5.6.0)[2m to ./../node_modules/.pnpm/@prisma+client@5.6.0_prisma@5.6.0/node_modules/@prisma/client[22m in 704ms
+EMFILE: too many open files, open '/workspace/backend/apps/admin/src/@generated/submission/submission-update-without-user.input.ts'
+
+
+[?25h+ break
++ cd /workspace/iris
++ go get
+go: downloading github.com/redis/go-redis/v9 v9.3.0
+go: downloading github.com/aws/aws-sdk-go-v2 v1.23.5
+go: downloading github.com/aws/aws-sdk-go-v2/credentials v1.16.9
+go: downloading github.com/aws/aws-sdk-go-v2/service/s3 v1.47.2
+go: downloading github.com/aws/smithy-go v1.18.1
+go: downloading github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.5.3
+go: downloading github.com/aws/aws-sdk-go-v2/internal/configsources v1.2.8
+go: downloading github.com/aws/aws-sdk-go-v2/internal/v4a v1.2.8
+go: downloading github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.10.3
+go: downloading github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.2.8
+go: downloading github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.10.8
+go: downloading github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.16.8
+go: downloading github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.5.8
++ cp /workspace/iris/lib/judger/policy/java_policy /app/sandbox/policy/
++ nc -z 127.0.0.1 5672
++ echo 'rabbitmq is up - server running...'
+rabbitmq is up - server running...
++ rabbitmqadmin -H 127.0.0.1 -u skku -p 1234 -V vh declare exchange name=iris.e.direct.judge type=direct
+exchange declared
++ rabbitmqadmin -H 127.0.0.1 -u skku -p 1234 -V vh declare queue name=iris.q.judge.result durable=true
+queue declared
++ rabbitmqadmin -H 127.0.0.1 -u skku -p 1234 -V vh declare queue name=client.q.judge.submission durable=true
+queue declared
++ rabbitmqadmin -H 127.0.0.1 -u skku -p 1234 -V vh declare binding source=iris.e.direct.judge destination_type=queue destination=iris.q.judge.result routing_key=judge.result
+binding declared
++ rabbitmqadmin -H 127.0.0.1 -u skku -p 1234 -V vh declare binding source=iris.e.direct.judge destination_type=queue destination=client.q.judge.submission routing_key=judge.submission
+binding declared
+[?2004h[0;32mnode [0m➜ [1;34m/workspace/scripts [0;36m([1;31m1031-change-nestjs-logger[0;36m) [0m$ ./setup.sh ls[Kcd scripts/[K[K[K[K[K[K[K[K./b
+[?2004lbash: cd: ./b: No such file or directory
+[?2004h[0;32mnode [1;31m➜ [1;34m/workspace/scripts [0;36m([1;31m1031-change-nestjs-logger[0;36m) [0m$ cd ./bb[Ka
+[?2004lbash: cd: ./ba: No such file or directory
+[?2004h[0;32mnode [1;31m➜ [1;34m/workspace/scripts [0;36m([1;31m1031-change-nestjs-logger[0;36m) [0m$ cd ../backend/
+[?2004l[?2004h[0;32mnode [0m➜ [1;34m/workspace/backend [0;36m([1;31m1031-change-nestjs-logger[0;36m) [0m$ ls
+[?2004l[0m[01;34mapps[0m  [01;34mdist[0m  Dockerfile  [01;32mentrypoint.sh[0m  [01;34mlibs[0m  mocha-fixture.ts  nest-cli.json  [01;34mnode_modules[0m  package.json  [01;34mprisma[0m  tsconfig.build.json  tsconfig.json
+[?2004h[0;32mnode [0m➜ [1;34m/workspace/backend [0;36m([1;31m1031-change-nestjs-logger[0;36m) [0m$ cd[K[Kpnpm u[Krun start
+[?2004l
+> backend@ start /workspace/backend
+> nest start
+
+webpack 5.89.0 compiled [1m[32msuccessfully[39m[22m in 9207 ms
+[10:24:55.527] [32mINFO[39m (1860): [36mStarting Nest application...[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mPassportModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMailerModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mPassportModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mConfigHostModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mDiscoveryModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mLoggerModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mConfigModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mConfigModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mConfigModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mTrying to connect to RabbitMQ broker (default)[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mPrismaModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mJwtAuthModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mSuccessfully connected to RabbitMQ[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mJwtModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mJwtModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mRolesModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mAppModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMailerCoreModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mRabbitMQModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mEmailModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mContestModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mNoticeModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mWorkbookModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mClarificationModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mProblemModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mSubmissionModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mCacheModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mUserModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mGroupModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mAuthModule dependencies initialized[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mAppController {/}:[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/, GET} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mAuthController {/auth}:[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/auth/login, POST} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/auth/logout, POST} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/auth/reissue, GET} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/auth/github, GET} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/auth/github-callback, GET} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mUserController {/user}:[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/user/password-reset, PATCH} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/user/sign-up, POST} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/user/social-sign-up, POST} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/user, DELETE} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/user, GET} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/user/email, PATCH} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/user/profile, PATCH} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mEmailAuthenticationController {/email-auth}:[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/email-auth/send-email/password-reset, POST} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/email-auth/send-email/register-new, POST} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/email-auth/verify-pin, POST} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mGroupController {/group}:[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/group, GET} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/group/joined, GET} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/group/:groupId, GET} route[39m
+[10:24:55.528] [32mINFO[39m (1860): [36mMapped {/group/invite/:invitation, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/join, POST} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/leave, DELETE} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/leaders, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/members, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mContestController {/contest}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/contest, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/contest/auth, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/contest/finished, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/contest/:id, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/contest/:id/participation, POST} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mGroupContestController {/group/:groupId/contest}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/contest, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/contest/finished, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/contest/:id, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/contest/:id/participation, POST} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mNoticeController {/notice}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/notice, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/notice/:id, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mGroupNoticeController {/group/:groupId/notice}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/notice, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/notice/:id, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mProblemController {/problem}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/problem, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/problem/:problemId, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mGroupProblemController {/group/:groupId/problem}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/problem, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/problem/:problemId, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mContestProblemController {/contest/:contestId/problem}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/contest/:contestId/problem, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/contest/:contestId/problem/:problemId, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mGroupContestProblemController {/group/:groupId/contest/:contestId/problem}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/contest/:contestId/problem, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/contest/:contestId/problem/:problemId, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mWorkbookProblemController {/workbook/:workbookId/problem}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/workbook/:workbookId/problem, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/workbook/:workbookId/problem/:problemId, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mGroupWorkbookProblemController {/group/:groupId/workbook/:workbookId/problem}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/workbook/:workbookId/problem, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/workbook/:workbookId/problem/:problemId, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mWorkbookController {/workbook}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/workbook, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/workbook/:workbookId, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mGroupWorkbookController {/group/:groupId/workbook}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/workbook, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/workbook/:workbookId, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mProblemSubmissionController {/problem/:problemId/submission}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/problem/:problemId/submission, POST} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/problem/:problemId/submission, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/problem/:problemId/submission/:id, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mGroupProblemSubmissionController {/group/:groupId/problem/:problemId/submission}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/problem/:problemId/submission, POST} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/problem/:problemId/submission, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/problem/:problemId/submission/:id, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mContestSubmissionController {/contest/:contestId/problem/:problemId/submission}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/contest/:contestId/problem/:problemId/submission, POST} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/contest/:contestId/problem/:problemId/submission, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/contest/:contestId/problem/:problemId/submission/:id, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mGroupContestSubmissionController {/group/:groupId/contest/:contestId/problem/:problemId/submission}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/contest/:contestId/problem/:problemId/submission, POST} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/contest/:contestId/problem/:problemId/submission, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/contest/:contestId/problem/:problemId/submission/:id, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mWorkbookSubmissionController {/workbook/:workbookId/problem/:problemId/submission}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/workbook/:workbookId/problem/:problemId/submission, POST} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/workbook/:workbookId/problem/:problemId/submission, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/workbook/:workbookId/problem/:problemId/submission/:id, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mGroupWorkbookSubmissionController {/group/:groupId/workbook/:workbookId/problem/:problemId/submission}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/workbook/:workbookId/problem/:problemId/submission, POST} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/workbook/:workbookId/problem/:problemId/submission, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/workbook/:workbookId/problem/:problemId/submission/:id, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mClarificationController {/contest/:contestId}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/contest/:contestId/clarification, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/contest/:contestId/problem/:problemId/clarification, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mGroupClarificationController {/group/:groupId/contest/:contestId}:[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/contest/:contestId/clarification, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mMapped {/group/:groupId/contest/:contestId/problem/:problemId/clarification, GET} route[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mInitializing RabbitMQ Handlers[39m
+[10:24:55.529] [32mINFO[39m (1860): [36mNest application successfully started[39m
+[10:24:55.564] [32mINFO[39m (1860): [36mSuccessfully connected to RabbitMQ broker (default)[39m
+[10:24:55.751] [32mINFO[39m (1860): [36mSuccessfully connected a RabbitMQ channel "submission-publish-channel"[39m
+[10:24:55.759] [32mINFO[39m (1860): [36mSuccessfully connected a RabbitMQ channel "result-consume-channel"[39m
+^C[?2004h[0;32mnode [0m➜ [1;34m/workspace/backend [0m$ ls
+[?2004l[0m[01;34mapps[0m  [01;34mdist[0m  Dockerfile  [01;32mentrypoint.sh[0m  [01;34mlibs[0m  mocha-fixture.ts  nest-cli.json  [01;34mnode_modules[0m  package.json  [01;34mprisma[0m  tsconfig.build.json  tsconfig.json
+[?2004h[0;32mnode [0m➜ [1;34m/workspace/backend [0m$ git
+[?2004lusage: git [-v | --version] [-h | --help] [-C <path>] [-c <name>=<value>]
+           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]
+           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]
+           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]
+           [--config-env=<name>=<envvar>] <command> [<ar
