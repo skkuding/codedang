@@ -1,15 +1,19 @@
+'use client'
+
 import CodedangLogo from '@/public/codedang.svg'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { FaPaperPlane } from 'react-icons/fa'
+import { FaCheck } from 'react-icons/fa'
 import { z } from 'zod'
 
 interface SignUpFormInput {
   username: string
   email: string
-  verificationCode: string //number?
+  verificationCode: string
   realName: string
   password: string
   passwordAgain: string
@@ -118,7 +122,9 @@ const SignUp = () => {
             {...register('email')}
           />
           <button color="blue" onClick={() => sendCodeToEmail()} />
-          {/* <IconPaperPlane /> */}
+          <div className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]">
+            <FaPaperPlane className="text-white" size="20" />
+          </div>
           {errors.email && <p>{errors.email.message}</p>}
         </div>
         {sentEmail && (
@@ -133,7 +139,9 @@ const SignUp = () => {
             {...register('verificationCode')}
           />
           <button color="blue" onClick={() => verifyCode()} />
-          {/* <IconCheck /> */}
+          <div className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]">
+            <FaCheck className="text-white" size="20" />
+          </div>
           {errors.verificationCode && <p>{errors.verificationCode.message}</p>}
         </div>
         {emailVerified && (
