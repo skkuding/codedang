@@ -8,6 +8,8 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaPaperPlane } from 'react-icons/fa'
 import { FaCheck } from 'react-icons/fa'
+import { FaEyeSlash } from 'react-icons/fa'
+import { FaEye } from 'react-icons/fa'
 import { z } from 'zod'
 
 interface SignUpFormInput {
@@ -42,9 +44,11 @@ const schema = z
   })
 
 const SignUp = () => {
-  const [sentEmail, setSentEmail] = useState(false)
-  const [emailVerified, setEmailVerified] = useState(false)
-  const [emailAuthToken, setEmailAuthToken] = useState('')
+  const [sentEmail, setSentEmail] = useState<boolean>(false)
+  const [emailVerified, setEmailVerified] = useState<boolean>(false)
+  const [emailAuthToken, setEmailAuthToken] = useState<string>('')
+  const [passwordShow, setPasswordShow] = useState<boolean>(false)
+  const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
 
   const {
     handleSubmit,
@@ -154,12 +158,19 @@ const SignUp = () => {
           <input
             placeholder="Password"
             {...register('password')}
-            // :type="showPassword ? 'text' : 'password'"
+            type={passwordShow ? 'text' : 'password'}
           />
           {/* <component
           // :is="showPassword ? RegularEye : EyeSlash"
           // @click.stop="showPassword = !showPassword"
         /> */}
+          <span onClick={() => setPasswordShow(!passwordShow)}>
+            {passwordShow ? (
+              <FaEyeSlash className="text-gray" />
+            ) : (
+              <FaEye className="text-gray" />
+            )}
+          </span>
         </div>
         {errors.password && <p>{errors.password.message}</p>}
 
@@ -167,12 +178,19 @@ const SignUp = () => {
           <input
             {...register('passwordAgain')}
             placeholder="Password Check"
-            // :type="showPasswordAgain ? 'text' : 'password'"
+            type={passwordAgainShow ? 'text' : 'password'}
           />
           {/* <component
           :is="showPasswordAgain ? RegularEye : EyeSlash"
           @click.stop="showPasswordAgain = !showPasswordAgain"
         /> */}
+          <span onClick={() => setPasswordAgainShow(!passwordAgainShow)}>
+            {passwordAgainShow ? (
+              <FaEyeSlash className="text-gray" />
+            ) : (
+              <FaEye className="text-gray" />
+            )}
+          </span>
         </div>
         {errors.passwordAgain && <p>{errors.passwordAgain.message}</p>}
         <button color="blue" onClick={() => {}} type="submit">
