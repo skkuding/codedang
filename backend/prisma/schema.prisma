@@ -43,15 +43,16 @@ model User {
   createTime DateTime  @default(now()) @map("create_time")
   updateTime DateTime  @updatedAt @map("update_time")
 
-  userProfile   UserProfile?
-  userGroup     UserGroup[]
-  notice        Notice[]
-  problem       Problem[]
-  contest       Contest[]
-  contestRecord ContestRecord[]
-  workbook      Workbook[]
-  submission    Submission[]
-  useroauth     UserOAuth?
+  userProfile           UserProfile?
+  userGroup             UserGroup[]
+  notice                Notice[]
+  problem               Problem[]
+  contest               Contest[]
+  contestRecord         ContestRecord[]
+  workbook              Workbook[]
+  submission            Submission[]
+  useroauth             UserOAuth?
+  userCodeTemporarySave UserCodeTemporarySave[]
 
   @@map("user")
 }
@@ -164,11 +165,12 @@ model Problem {
   inputExamples     String[]   @map("input_examples")
   outputExamples    String[]   @map("output_examples")
 
-  problemTestcase ProblemTestcase[]
-  problemTag      ProblemTag[]
-  contestProblem  ContestProblem[]
-  workbookProblem WorkbookProblem[]
-  submission      Submission[]
+  problemTestcase       ProblemTestcase[]
+  problemTag            ProblemTag[]
+  contestProblem        ContestProblem[]
+  workbookProblem       WorkbookProblem[]
+  submission            Submission[]
+  UserCodeTemporarySave UserCodeTemporarySave[]
 
   @@map("problem")
 }
@@ -380,4 +382,25 @@ enum ResultStatus {
   MemoryLimitExceeded
   OutputLimitExceeded
   ServerError
+}
+
+model UserCodeTemporarySave {
+  // id        Int
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  problemId Int     @map("problem_id")
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int     @unique @map("user_id")
+  template  Json[]
+  /// template code item structure
+  /// {
+  ///   "lanaguage": Language,
+  ///   "code": {
+  ///             "id": number,
+  ///             "text": string,
+  ///             "locked": boolean
+  ///           }[]
+  /// }
+
+  @@id([problemId, userId])
+  @@map("usercode_temporary_save")
 }
