@@ -3,9 +3,14 @@
   "extends": [
     "config:base",
     "group:allNonMajor",
+    "group:codemirror",
+    "group:tiptapMonorepo",
     "schedule:weekly",
     ":label(dependencies)"
   ],
+  "automerge": true,
+  "automergeType": "pr",
   "rangeStrategy": "bump",
-  "reviewers": ["dotoleeoak"]
+  "reviewers": ["dotoleeoak"],
+  "lockFileMaintenance": { "enabled": true }
 }

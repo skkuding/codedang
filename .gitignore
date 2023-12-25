@@ -75,11 +75,6 @@ dist/
 # Vitepress
 docs/.vitepress/cache/
 
-# Thunder Client
-thunderActivity.json
-thunder-tests/environments
-!thunder-tests/environments/base.json
-
 # NestJS & GraphQL
 @generated/
 backend/schema.gql
@@ -125,3 +120,16 @@ terraform.rc
 
 # Docker Mount
 /mnt
+
+### Go ###
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work

@@ -5,6 +5,7 @@ import (
 
 	"github.com/skkuding/codedang/iris/src/common/constants"
 	"github.com/skkuding/codedang/iris/src/service/file"
+	"github.com/skkuding/codedang/iris/src/service/logger"
 )
 
 type CompileResult struct {
@@ -25,10 +26,11 @@ type compiler struct {
 	sandbox    Sandbox
 	langConfig LangConfig
 	file       file.FileManager
+	logger     logger.Logger
 }
 
-func NewCompiler(sandbox Sandbox, langConfig LangConfig, file file.FileManager) *compiler {
-	return &compiler{sandbox, langConfig, file}
+func NewCompiler(sandbox Sandbox, langConfig LangConfig, file file.FileManager, logger logger.Logger) *compiler {
+	return &compiler{sandbox, langConfig, file, logger}
 }
 
 func (c *compiler) Compile(dto CompileRequest) (CompileResult, error) {
@@ -39,24 +41,31 @@ func (c *compiler) Compile(dto CompileRequest) (CompileResult, error) {
 		return CompileResult{}, err
 	}
 
+	// TODO: 컴파일에 sandbox는 안 써도 되지 않을까요?
 	execResult, err := c.sandbox.Exec(execArgs, nil)
 	if err != nil {
 		return CompileResult{}, err
 	}
 
-	compileResult := CompileResult{}
-	if execResult.ResultCode != SUCCESS {
+	if execResult.ResultCode == SYSTEM_ERROR {
+		c.logger.Log(logger.ERROR, fmt.Sprintf("Compile failed: %+v", execResult))
+		data, err := c.file.ReadFile(constants.COMPILE_LOG_PATH)
+		if err != nil {
+			return CompileResult{}, fmt.Errorf("failed to read output file: %w", err)
+		}
+		c.logger.Log(logger.ERROR, fmt.Sprintf("Compile Log: %s", string(data)))
+		return CompileResult{}, fmt.Errorf("system error: %v", execResult)
+	}
 
+	compileResult := CompileResult{}
+	compileResult.ExecResult = execResult
+	if execResult.ResultCode != RUN_SUCCESS {
 		compileOutputPath := c.file.MakeFilePath(dir, constants.COMPILE_OUT_FILE).String()
 		data, err := c.file.ReadFile(compileOutputPath)
 		if err != nil {
 			return CompileResult{}, fmt.Errorf("failed to read output file: %w", err)
 		}
-		compileResult.ExecResult = execResult
 		compileResult.ErrOutput = string(data)
-		if execResult.ResultCode == SYSTEM_ERROR {
-			return CompileResult{}, fmt.Errorf("system error: %v", compileResult)
-		}
 	}
 	return compileResult, nil
 }

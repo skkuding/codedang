@@ -1,4 +1,4 @@
 packages:
   - backend
   - frontend
-  - testcase-server
+  - frontend-client

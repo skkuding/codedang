@@ -1,4 +1,4 @@
-export class BusinessException extends Error {
+class BusinessException extends Error {
   name: string
 
   constructor(message: string) {
@@ -34,7 +34,7 @@ export class EntityNotExistException extends BusinessException {
 export class ConflictFoundException extends BusinessException {}
 
 /** [409] Throw when the request has a conflict with relevant entities.
- * e.g., participation is not allowed to ended contest.
+ * e.g., group name is already in use
  */
 export class DuplicateFoundException extends ConflictFoundException {
   constructor(entity) {
@@ -54,15 +54,3 @@ export class UnprocessableFileDataException extends UnprocessableDataException {
 
 /** [403] Throw when request cannot be carried due to lack of permission. */
 export class ForbiddenAccessException extends BusinessException {}
-
-export class EmailTransmissionFailedException extends BusinessException {
-  constructor(message = 'Email transmission failed') {
-    super(message)
-  }
-}
-
-export class MessageFormatError extends BusinessException {
-  constructor(error) {
-    super(`Invalid message format: ${JSON.stringify(error)}`)
-  }
-}

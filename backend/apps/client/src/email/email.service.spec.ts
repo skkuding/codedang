@@ -2,7 +2,6 @@ import { MailerService } from '@nestjs-modules/mailer'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { stub } from 'sinon'
-import { EmailTransmissionFailedException } from '@libs/exception'
 import { EmailService } from './email.service'
 
 describe('EmailService', () => {
@@ -58,14 +57,5 @@ describe('EmailService', () => {
     await service.sendEmailAuthenticationPin(recipient, 'PIN')
 
     expect(MailerMock.sendMail.calledOnce).to.be.true
-  })
-
-  it('Email transmission failure', async () => {
-    expectedEmailInfo['accepted'] = []
-    MailerMock.sendMail.resolves(Promise.resolve(expectedEmailInfo))
-
-    await expect(
-      service.sendEmailAuthenticationPin(recipient, 'PIN')
-    ).to.be.rejectedWith(EmailTransmissionFailedException)
   })
 })

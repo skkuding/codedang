@@ -11,25 +11,27 @@ import {
   Controller,
   NotFoundException,
   Logger,
-  ConflictException
+  ConflictException,
+  Delete
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { Request, type Response } from 'express'
 import { AuthenticatedRequest, AuthNotNeeded } from '@libs/auth'
 import {
   UnprocessableDataException,
-  EmailTransmissionFailedException,
   InvalidJwtTokenException,
   DuplicateFoundException,
-  UnidentifiedException
+  UnidentifiedException,
+  ConflictFoundException
 } from '@libs/exception'
+import { DeleteUserDto } from './dto/deleteUser.dto'
 import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
 import { SignUpDto } from './dto/signup.dto'
+import { SocialSignUpDto } from './dto/social-signup.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
-import { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
+import { UpdateUserProfileDto } from './dto/update-userprofile.dto'
 import { UserEmailDto } from './dto/userEmail.dto'
-import { WithdrawalDto } from './dto/withdrawal.dto'
 import { UserService } from './user.service'
 
 @Controller('user')
@@ -75,20 +77,43 @@ export class UserController {
     }
   }
 
-  @Post('withdrawal')
-  async withdrawal(
+  @Post('social-sign-up')
+  @AuthNotNeeded()
+  async socialSignUp(@Body() socialSignUpDto: SocialSignUpDto) {
+    try {
+      return await this.userService.socialSignUp(socialSignUpDto)
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof DuplicateFoundException) {
+        throw new ConflictException(error.message)
+      } else if (error instanceof InvalidJwtTokenException) {
+        throw new UnauthorizedException(error.message)
+      }
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Delete()
+  async deleteUser(
     @Req() req: AuthenticatedRequest,
-    @Body() withdrawalDto: WithdrawalDto
+    @Body() deleteUserDto: DeleteUserDto
   ) {
     try {
-      await this.userService.withdrawal(req.user.username, withdrawalDto)
+      await this.userService.deleteUser(
+        req.user.username,
+        deleteUserDto.password
+      )
     } catch (error) {
       if (
         error instanceof UnidentifiedException ||
         (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.name === 'NotFoundError')
+          error.name === 'RecordNotFound')
       ) {
         throw new UnauthorizedException(error.message)
+      } else if (error instanceof ConflictFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -134,15 +159,15 @@ export class UserController {
     }
   }
 
-  @Patch('realname')
-  async updateUserProfileRealName(
+  @Patch('profile')
+  async updateUserProfile(
     @Req() req: AuthenticatedRequest,
-    @Body() updateUserProfileRealNameDto: UpdateUserProfileRealNameDto
+    @Body() updateUserProfileDto: UpdateUserProfileDto
   ) {
     try {
-      return await this.userService.updateUserProfileRealName(
+      return await this.userService.updateUserProfile(
         req.user.id,
-        updateUserProfileRealNameDto
+        updateUserProfileDto
       )
     } catch (error) {
       if (
@@ -175,9 +200,6 @@ export class EmailAuthenticationController {
     } catch (error) {
       if (error instanceof UnidentifiedException) {
         throw new UnauthorizedException(error.message)
-      } else if (error instanceof EmailTransmissionFailedException) {
-        this.logger.error(error.message, error.stack)
-        throw new InternalServerErrorException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -189,9 +211,7 @@ export class EmailAuthenticationController {
     try {
       return await this.userService.sendPinForRegisterNewEmail(userEmailDto)
     } catch (error) {
-      if (error instanceof EmailTransmissionFailedException) {
-        throw new InternalServerErrorException(error.message)
-      } else if (error instanceof DuplicateFoundException) {
+      if (error instanceof DuplicateFoundException) {
         throw new ConflictException(error.message)
       }
       this.logger.error(error.message, error.stack)

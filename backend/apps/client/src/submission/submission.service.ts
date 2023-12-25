@@ -8,7 +8,7 @@ import {
   type Problem
 } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
-import { type ValidationError, validate } from 'class-validator'
+import { ValidationError, validateOrReject } from 'class-validator'
 import { OPEN_SPACE_ID, Status } from '@libs/constants'
 import {
   CONSUME_CHANNEL,
@@ -23,16 +23,16 @@ import {
   ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException,
-  MessageFormatError
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
   type CreateSubmissionDto,
-  type Snippet,
+  Snippet,
   Template
 } from './dto/create-submission.dto'
 import { JudgeRequest } from './dto/judge-request.class'
-import type { JudgerResponse } from './dto/judger-response.dto'
+import { JudgerResponse } from './dto/judger-response.dto'
 
 @Injectable()
 export class SubmissionService implements OnModuleInit {
@@ -45,12 +45,19 @@ export class SubmissionService implements OnModuleInit {
 
   onModuleInit() {
     this.amqpConnection.createSubscriber(
-      async (msg: JudgerResponse) => {
+      async (msg: object) => {
         try {
-          await this.handleJudgerMessage(msg)
+          const res = await this.validateJudgerResponse(msg)
+          await this.handleJudgerMessage(res)
         } catch (error) {
-          if (error instanceof MessageFormatError) {
-            this.logger.error('Message format error', error)
+          if (
+            Array.isArray(error) &&
+            error.every((e) => e instanceof ValidationError)
+          ) {
+            this.logger.error('Message format error', { ...error })
+            return new Nack()
+          } else if (error instanceof UnprocessableDataException) {
+            this.logger.error('Iris exception', error)
             return new Nack()
           } else {
             this.logger.error('Unexpected error', error)
@@ -251,14 +258,29 @@ export class SubmissionService implements OnModuleInit {
     })
   }
 
-  async handleJudgerMessage(msg: JudgerResponse) {
-    const validationError: ValidationError[] = await validate(msg)
-    if (!validationError) {
-      throw new MessageFormatError({ ...validationError })
-    }
+  async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
+    const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
+    await validateOrReject(res)
 
+    return res
+  }
+
+  async handleJudgerMessage(msg: JudgerResponse) {
     const submissionId = msg.submissionId
     const resultStatus = Status(msg.resultCode)
+
+    if (resultStatus === ResultStatus.ServerError) {
+      await this.updateSubmissionResult(submissionId, resultStatus, [])
+      throw new UnprocessableDataException(
+        `${msg.submissionId} ${msg.error} ${msg.data}`
+      )
+    }
+
+    // TODO: 컴파일 메시지 데이터베이스에 저장하기
+    if (resultStatus === ResultStatus.CompileError) {
+      await this.updateSubmissionResult(submissionId, resultStatus, [])
+      return
+    }
 
     const results = msg.data.judgeResult.map((result) => {
       return {
@@ -346,7 +368,7 @@ export class SubmissionService implements OnModuleInit {
     problemId: number,
     userId: number,
     groupId = OPEN_SPACE_ID
-  ): Promise<SubmissionResult[]> {
+  ) {
     await this.prisma.problem.findFirstOrThrow({
       where: {
         id: problemId,
@@ -364,6 +386,15 @@ export class SubmissionService implements OnModuleInit {
       },
       select: {
         userId: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        language: true,
+        code: true,
+        createTime: true,
+        result: true,
         submissionResult: true
       }
     })
@@ -371,7 +402,23 @@ export class SubmissionService implements OnModuleInit {
       submission.userId === userId ||
       (await this.hasPassedProblem(userId, { problemId }))
     ) {
-      return submission.submissionResult
+      const code = plainToInstance(Snippet, submission.code)
+      const results = submission.submissionResult.map((result) => {
+        return {
+          ...result,
+          cpuTime: result.cpuTime.toString()
+        }
+      })
+
+      return {
+        problemId,
+        username: submission.user.username,
+        code: code.map((snippet) => snippet.text).join('\n'),
+        language: submission.language,
+        createTime: submission.createTime,
+        result: submission.result,
+        testcaseResult: results
+      }
     }
     throw new ForbiddenAccessException(
       "You must pass the problem first to browse other people's submissions"

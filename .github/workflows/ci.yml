@@ -8,21 +8,51 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    name: Build
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        node: [18]
+        target: [frontend, frontend-client, backend, backend-admin]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
         with:
           version: 8
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Generate Prisma Client
+        if: ${{ matrix.target == 'backend' || matrix.target == 'backend-admin' }}
+        run: pnpm --filter backend exec prisma generate
+
+      # If target is backend-admin, run `pnpm --filter backend build admin`
+      # For other targets, run `pnpm --filter <target> build`
+      - name: Build (backend admin)
+        if: ${{ matrix.target == 'backend-admin' }}
+        run: pnpm --filter backend build admin
+      - name: Build
+        if: ${{ matrix.target != 'backend-admin' }}
+        run: pnpm --filter ${{ matrix.target }} build
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -31,36 +61,27 @@ jobs:
       - name: Generate Prisma Client
         run: pnpm --filter backend exec prisma generate
 
-      - name: Build (Frontend)
-        run: pnpm --filter frontend build
+      - name: Check types (backend)
+        run: pnpm --filter backend exec tsc --noEmit
 
-      - name: Build (Backend)
-        run: |
-          pnpm --filter backend build
-          pnpm --filter backend build admin
+      - name: Check types (frontend)
+        run: pnpm --filter frontend exec vue-tsc --noEmit
 
-      - name: Cache dist
-        uses: actions/cache@v3
-        with:
-          path: ./*/dist
-          key: ${{ matrix.os }}-node-v${{ matrix.node }}-${{ github.sha }}
+      - name: Check types (frontend-client)
+        run: pnpm --filter frontend-client exec tsc --noEmit
 
   lint:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node: [18]
+    name: Lint
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
         with:
           version: 8
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 20
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -69,7 +90,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version-file: go.work
+          go-version-file: iris/go.mod
 
       - name: Lint pull request title
         if: ${{ github.event_name == 'pull_request' }}
@@ -91,19 +112,15 @@ jobs:
         run: pnpm lint
 
   test:
-    runs-on: ${{ matrix.os }}
+    name: Test
+    runs-on: ubuntu-latest
 
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
 
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node: [18]
-
     services:
       postgres:
-        image: postgres:14-alpine
+        image: postgres:16-alpine
         ports:
           - 5432:5432
         env:
@@ -112,13 +129,13 @@ jobs:
           POSTGRES_DB: skkuding
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
         with:
           version: 8
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 20
           cache: 'pnpm'
 
       - name: Install dependencies
