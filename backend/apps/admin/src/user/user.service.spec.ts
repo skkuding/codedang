@@ -114,6 +114,8 @@ const deleteFindResult = [
 const db = {
   userGroup: {
     findMany: stub(),
+    findFirst: stub(),
+    count: stub(),
     update: stub(),
     delete: stub(),
     create: stub()
@@ -206,7 +208,10 @@ describe('UserService', () => {
 
   describe('updateGroupMemberRole', () => {
     it("should upgrade group member's role", async () => {
-      db.userGroup.findMany.resolves(updateFindResult)
+      db.userGroup.findFirst.resolves(updateFindResult[2])
+      db.userGroup.count.resolves(
+        updateFindResult.filter((e) => e.isGroupLeader === true).length
+      )
       db.userGroup.update.resolves({
         userId: userGroup3.userId,
         groupId: userGroup3.groupId,
@@ -226,7 +231,10 @@ describe('UserService', () => {
     })
 
     it("should downgrade group member's role", async () => {
-      db.userGroup.findMany.resolves(updateFindResult)
+      db.userGroup.findFirst.resolves(updateFindResult[0])
+      db.userGroup.count.resolves(
+        updateFindResult.filter((e) => e.isGroupLeader === true).length
+      )
       db.userGroup.update.resolves({
         userId: userGroup1.userId,
         groupId: userGroup1.groupId,
