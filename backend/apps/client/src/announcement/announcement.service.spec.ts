@@ -1,43 +1,16 @@
-import { Test, TestingModule } from '@nestjs/testing'
-// import { faker } from '@faker-js/faker'
-import {
-  type Contest,
-  type Group,
-  type Problem,
-  Language,
-  Level
-} from '@prisma/client'
+import { Test, type TestingModule } from '@nestjs/testing'
+import { type Problem, Language, Level } from '@prisma/client'
 import { expect } from 'chai'
-import dayjs from 'dayjs'
 import { stub } from 'sinon'
 import { PrismaService } from '@libs/prisma'
+import type { Announcement } from '@admin/@generated'
 import { AnnouncementService } from './announcement.service'
 
 // faker.js 적용
 
-const contestId = 1
-const userId = 1
+const problemId = 1
 const groupId = 1
-
-const contest = {
-  id: contestId,
-  createdById: userId,
-  groupId: groupId,
-  title: 'title',
-  description: 'description',
-  startTime: dayjs().add(-1, 'day').toDate(),
-  endTime: dayjs().add(1, 'day').toDate(),
-  config: {
-    isVisible: true,
-    isRankVisible: true
-  },
-  createTime: dayjs().add(-1, 'day').toDate(),
-  updateTime: dayjs().add(-1, 'day').toDate(),
-  group: {
-    id: groupId,
-    groupName: 'group'
-  }
-} satisfies Contest & { group: Partial<Group> }
+const contestId = 1
 
 export const problems: Problem[] = [
   {
@@ -83,25 +56,19 @@ export const problems: Problem[] = [
     template: []
   }
 ]
-
-const contests: Partial<Contest>[] = [contest]
-const userContests: Partial<Contest>[] = [contest]
-
-const user = {
-  id: userId,
-  contest: userContests
-}
+const announcements: Announcement[] = [
+  {
+    id: 1,
+    content: 'Announcement 0',
+    problemId: problemId,
+    createTime: new Date('1970-12-01T12:00:00.000+09:00'),
+    updateTime: new Date('1971-12-01T12:00:00.000+09:00')
+  }
+]
 
 const mockPrismaService = {
-  contest: {
-    findUnique: stub().resolves(contest),
-    findUniqueOrThrow: stub().resolves(contest),
-    findFirst: stub().resolves(contest),
-    findFirstOrThrow: stub().resolves(contest),
-    findMany: stub().resolves(contests)
-  },
-  user: {
-    findUnique: stub().resolves(user)
+  announcement: {
+    findMany: stub().resolves(announcements)
   }
 }
 
@@ -118,11 +85,28 @@ describe('AnnouncementService', () => {
         }
       ]
     }).compile()
-
     service = module.get<AnnouncementService>(AnnouncementService)
   })
 
   it('should be defined', () => {
     expect(service).to.be.ok
+  })
+
+  describe('getProblemAnnouncements', () => {
+    it('should return a single problem', async () => {
+      mockPrismaService.announcement.findMany.resolves(announcements)
+      expect(
+        await service.getProblemAnnouncements(problemId, groupId)
+      ).to.deep.equal(announcements)
+    })
+  })
+
+  describe('getGroupAnnouncements', () => {
+    it('should return a single problem', async () => {
+      mockPrismaService.announcement.findMany.resolves(announcements)
+      expect(
+        await service.getContestAnnouncements(contestId, groupId)
+      ).to.deep.equal(announcements)
+    })
   })
 })

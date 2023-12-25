@@ -16,6 +16,7 @@ import { AnnouncementService } from './announcement.service'
     // GroupContestAnnouncementController,
     ContestAnnouncementController
   ],
-  providers: [AnnouncementService]
+  providers: [AnnouncementService],
+  exports: [AnnouncementService]
 })
 export class AnnouncementModule {}
