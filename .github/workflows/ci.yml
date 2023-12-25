@@ -17,20 +17,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      - uses: ./.github/actions/setup-pnpm
 
       - name: Generate Prisma Client
         if: ${{ matrix.target == 'backend' || matrix.target == 'backend-admin' }}
         run: pnpm --filter backend exec prisma generate
+
+      - name: Setup Next.js build cache
+        if: ${{ matrix.target == 'frontend-client' }}
+        uses: actions/cache@v3
+        with:
+          path: frontend-client/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
 
       # If target is backend-admin, run `pnpm --filter backend build admin`
       # For other targets, run `pnpm --filter <target> build`
@@ -47,16 +47,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      - uses: ./.github/actions/setup-pnpm
 
       - name: Generate Prisma Client
         run: pnpm --filter backend exec prisma generate
@@ -76,21 +67,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      - uses: ./.github/actions/setup-pnpm
 
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version-file: go.work
+          go-version-file: iris/go.mod
 
       - name: Lint pull request title
         if: ${{ github.event_name == 'pull_request' }}
@@ -130,16 +112,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      - uses: ./.github/actions/setup-pnpm
 
       - name: Check Prisma Migration
         run: |

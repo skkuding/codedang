@@ -17,16 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      - uses: ./.github/actions/setup-pnpm
 
       - name: Build static bundle
         run: pnpm --filter frontend build
@@ -136,9 +127,12 @@ jobs:
 
       - name: Create Terraform variable file
         working-directory: ./infra/deploy
-        run: echo "$TFVARS" > terraform.tfvars
+        run: |
+          echo "$TFVARS" >> terraform.tfvars
+          echo "$OAUTH_GITHUB" >> terraform.tfvars
         env:
           TFVARS: ${{ secrets.TF_TFVARS }}
+          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
 
       - name: Terraform Init
         working-directory: ./infra/deploy
