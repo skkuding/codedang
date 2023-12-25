@@ -159,6 +159,9 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0(express@4.18.2)
     devDependencies:
+      '@faker-js/faker':
+        specifier: ^8.3.1
+        version: 8.3.1
       '@nestjs/cli':
         specifier: ^10.1.11
         version: 10.1.11
@@ -2183,6 +2186,11 @@ packages:
   /@eslint/js@8.46.0:
     resolution: {integrity: sha512-a8TLtmPi8xzPkCbp/OGFUo5yhRkHM2Ko9kOWP4znJr0WAhWyThaw3PnwX4vOTWOAMsV2uRt32PPDcEz63esSaA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    dev: true
+
+  /@faker-js/faker@8.3.1:
+    resolution: {integrity: sha512-FdgpFxY6V6rLZE9mmIBb9hM0xpfvQOSNOLnzolzKwsE1DH+gC7lEKV1p1IbR0lAYyvYd5a4u3qWJzowUkw1bIw==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0, npm: '>=6.14.13'}
     dev: true
 
   /@fast-csv/format@4.3.5:
