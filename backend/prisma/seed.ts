@@ -1269,7 +1269,7 @@ int main(void) {
 }
 
 const createAnnouncements = async () => {
-  for (let i = 0; i < 10; ++i) {
+  for (let i = 0; i < 5; ++i) {
     announcements.push(
       await prisma.announcement.create({
         data: {
