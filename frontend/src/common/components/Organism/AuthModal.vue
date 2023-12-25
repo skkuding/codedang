@@ -15,7 +15,7 @@ defineEmits<{
 /* define exact height value of modal for animation
    since `transition` cannot trigger `fit-content` */
 const height = {
-  login: 'h-[30rem]',
+  login: 'h-[27rem]',
   signup: 'h-[42rem]',
   password: 'h-[24rem]',
   close: 'h-[18rem]' // set non-zero height for closing animation

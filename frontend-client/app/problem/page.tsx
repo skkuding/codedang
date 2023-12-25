@@ -1,3 +1,3 @@
 export default function Problem() {
-  return <main>problem</main>
+  return <h2>problem</h2>
 }
