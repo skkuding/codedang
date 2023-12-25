@@ -1,3 +1,3 @@
 export default function Notice() {
-  return <main>notice</main>
+  return <h2>notice</h2>
 }

@@ -14,3 +14,5 @@ variable "postgres_port" {}
 variable "redis_port" {}
 variable "rabbitmq_username" {}
 variable "rabbitmq_port" {}
+variable "github_client_id" {}
+variable "github_client_secret" {}

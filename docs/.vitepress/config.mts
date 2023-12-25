@@ -77,6 +77,10 @@ export default defineConfig({
             link: '/project/deploy'
           },
           {
+            text: 'Stage Server',
+            link: '/project/stage-server'
+          },
+          {
             text: 'Project Roadmap',
             link: '/project/roadmap'
           }

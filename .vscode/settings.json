@@ -10,5 +10,8 @@
   },
   "[terraform]": {
     "editor.defaultFormatter": "hashicorp.terraform"
+  },
+  "[caddyfile]": {
+    "editor.defaultFormatter": "matthewpi.caddyfile-support"
   }
 }

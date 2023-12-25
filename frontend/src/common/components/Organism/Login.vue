@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import Logo from '@/common/assets/codedang.svg'
 import { useAuthStore } from '@/common/store/auth'
 import { ref } from 'vue'
 import RegularEye from '~icons/fa6-regular/eye'
 import EyeSlash from '~icons/fa6-regular/eye-slash'
 import Button from '../Atom/Button.vue'
 import InputItem from '../Atom/InputItem.vue'
-import SymbolLogo from '../Atom/SymbolLogo.vue'
 
 const emit = defineEmits<{
   (e: 'to', value: 'login' | 'signup' | 'password' | 'close'): void
@@ -25,12 +25,7 @@ const login = async () => {
 
 <template>
   <div class="flex flex-col items-center justify-center">
-    <SymbolLogo class="fill-green h-28" />
-    <h1 class="text-green my-6 w-40 text-center text-xl font-bold">
-      SKKU
-      <br />
-      Coding Platform
-    </h1>
+    <img :src="Logo" class="mb-10 mt-8 h-20" />
     <form class="mb-8 flex w-60 flex-col gap-4" @submit.prevent="login">
       <InputItem v-model="username" placeholder="Username" class="rounded-md" />
       <div class="flex items-center justify-between">
@@ -45,7 +40,7 @@ const login = async () => {
           @click.stop="passwordVisible = !passwordVisible"
         />
       </div>
-      <Button type="submit" class="rounded-md">Log In</Button>
+      <Button color="blue" type="submit" class="rounded-md">Log In</Button>
     </form>
     <div class="absolute inset-x-0 bottom-0 flex w-full justify-between p-3">
       <a
