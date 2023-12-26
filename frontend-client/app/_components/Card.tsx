@@ -1,7 +1,6 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle
@@ -23,16 +22,15 @@ export default function CardWrapper() {
   const status = ContestStatus.Upcoming
 
   return (
-    <Card className={cardVariants[status]}>
-      <CardContent>
+    <Card className={`${cardVariants[status]}`}>
+      <CardContent className="p-6">
         <Badge status={ContestStatus.Ongoing}></Badge>
-        <p>SKKU 어쩌고</p>
       </CardContent>
       <CardHeader>
-        <CardTitle>코드당 대회</CardTitle>
-        <CardDescription>For 어쩌고</CardDescription>
+        <p className="font-bold text-white">participate 어쩌고</p>
+        <CardTitle className="text-3xl text-white">코드당 대회</CardTitle>
       </CardHeader>
-      <CardFooter>
+      <CardFooter className="rounded-b-3xl bg-white">
         <p>날짜</p>
       </CardFooter>
     </Card>
