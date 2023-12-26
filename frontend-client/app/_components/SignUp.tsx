@@ -134,29 +134,31 @@ export default function SignUp() {
         className="flex w-60 flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <Input placeholder="User Id" {...register('username')} />
-        {errors.username && <p>{errors.username.message}</p>}
+        <Input
+          placeholder="User Id"
+          {...register('username')}
+          error={errors.username?.message}
+        />
         <div className="flex gap-2">
           <Input
             id="email"
             type="email"
             placeholder="Email Address"
             {...register('email')}
+            error={errors.email?.message}
           />
-          <button
-            color="blue"
+          <Button
             onClick={() => {
               const { email } = getValues()
               sendCodeToEmail(email)
             }}
-          />
-          <div className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]">
+            className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
+          >
             <FaPaperPlane className="text-white" size="20" />
-          </div>
-          {errors.email && <p>{errors.email.message}</p>}
+          </Button>
         </div>
         {sentEmail && (
-          <p className="text-green text-xs font-bold">
+          <p className="text-xs font-bold text-green-500">
             Email verification code has been sent!
           </p>
         )}
@@ -165,51 +167,53 @@ export default function SignUp() {
             type="number"
             placeholder="Verification Code"
             {...register('verificationCode')}
+            error={errors.verificationCode?.message}
           />
-          <button
-            color="blue"
+          <Button
             onClick={() => {
               const { email } = getValues()
               const { verificationCode } = getValues()
               verifyCode(email, verificationCode)
             }}
-          />
-          <div className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]">
+            className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
+          >
             <FaCheck className="text-white" size="20" />
-          </div>
-          {errors.verificationCode && <p>{errors.verificationCode.message}</p>}
+          </Button>
         </div>
         {emailVerified && (
           <p className="text-green text-xs font-bold">
             Email has been verified!
           </p>
         )}
-        <Input placeholder="Real Name" {...register('realName')} />
-        {errors.realName && <p>{errors.realName.message}</p>}
+        <Input
+          placeholder="Real Name"
+          {...register('realName')}
+          error={errors.realName?.message}
+        />
 
         <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Password"
             {...register('password')}
             type={passwordShow ? 'text' : 'password'}
+            error={errors.password?.message}
           />
           <span onClick={() => setPasswordShow(!passwordShow)}>
             {passwordShow ? <FaEyeSlash /> : <FaEye />}
           </span>
         </div>
-        {errors.password && <p>{errors.password.message}</p>}
 
         <div className="flex items-center justify-between gap-2">
           <Input
             {...register('passwordAgain')}
             placeholder="Password Check"
             type={passwordAgainShow ? 'text' : 'password'}
+            error={errors.passwordAgain?.message}
           />
           <span onClick={() => setPasswordAgainShow(!passwordAgainShow)}>
             {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
           </span>
         </div>
-        {errors.passwordAgain && <p>{errors.passwordAgain.message}</p>}
         <Button color="blue" onClick={() => {}} type="submit">
           Register
         </Button>
