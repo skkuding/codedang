@@ -26,9 +26,7 @@ export class ProblemService {
     )
     const uniqueTagIds = new Set(
       problem.flatMap((item) => {
-        return item.problemTag.flatMap((item2) => {
-          return item2.tagId
-        })
+        return item.problemTag.map((item2) => item2.tagId)
       })
     )
     const tagIds = [...uniqueTagIds]
@@ -41,9 +39,8 @@ export class ProblemService {
         submission.filter(
           (submission) => submission.result === ResultStatus.Accepted
         ).length / submissionCount
-      const tags = tagList.filter((tagItem) =>
-        problemTag.flatMap((tag) => tag.tagId).includes(tagItem.id)
-      )
+      const problemTags = problemTag.map((tag) => tag.tagId)
+      const tags = tagList.filter((tagItem) => problemTags.includes(tagItem.id))
       return {
         ...data,
         submissionCount,
