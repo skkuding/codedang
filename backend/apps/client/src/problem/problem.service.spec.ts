@@ -21,7 +21,8 @@ import {
   contestProblems,
   problemTag,
   problems,
-  workbookProblems
+  workbookProblems,
+  tag
 } from './mock/problem.mock'
 import { ProblemRepository } from './problem.repository'
 import {
@@ -46,6 +47,9 @@ const db = {
     findUnique: stub(),
     findUniqueOrThrow: stub()
   },
+  tag: {
+    findMany: stub()
+  },
   problemTag: {
     findMany: stub()
   }
@@ -65,7 +69,8 @@ const mockProblems = problems.map((problem) => {
       submission: [
         { id: 1, result: ResultStatus.Accepted },
         { id: 2, result: ResultStatus.WrongAnswer }
-      ]
+      ],
+      problemTag: [{ tagId: 1 }]
     }
   )
 })
@@ -89,6 +94,7 @@ const mockWorkbookProblems = workbookProblems.map((workbookProblem) => {
 })
 
 const mockProblemTag = Object.assign({}, problemTag)
+const mockTag = Object.assign({}, tag)
 
 describe('ProblemService', () => {
   let service: ProblemService
@@ -119,7 +125,7 @@ describe('ProblemService', () => {
     it('should return public problems', async () => {
       // given
       db.problem.findMany.resolves(mockProblems)
-      db.problemTag.findMany.resolves([mockProblemTag])
+      db.tag.findMany.resolves([mockTag])
 
       // when
       const result = await service.getProblems(1, 2)
