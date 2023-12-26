@@ -32,20 +32,27 @@ const schema = z
     password: z.string().min(8).max(32),
     passwordAgain: z.string().min(8).max(32)
   })
-  .refine((data: { password: any; passwordAgain: any }) => data.password === data.passwordAgain, {
-    message: 'Passwords do not match',
-    path: ['passwordAgain']
-  })
-  .refine((data: { username: string }) => /^[a-zA-Z0-9]+$/.test(data.username), {
-    message: 'Username can only contain alphabets and numbers',
-    path: ['username']
-  })
+  .refine(
+    (data: { password: string; passwordAgain: string }) =>
+      data.password === data.passwordAgain,
+    {
+      message: 'Passwords do not match',
+      path: ['passwordAgain']
+    }
+  )
+  .refine(
+    (data: { username: string }) => /^[a-zA-Z0-9]+$/.test(data.username),
+    {
+      message: 'Username can only contain alphabets and numbers',
+      path: ['username']
+    }
+  )
   .refine((data: { realName: string }) => /^[a-zA-Z\s]+$/.test(data.realName), {
     message: 'Real name can only contain alphabets',
     path: ['realName']
   })
 
-const SignUp = () => {
+export default function SignUp() {
   const [sentEmail, setSentEmail] = useState<boolean>(false)
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [emailAuthToken, setEmailAuthToken] = useState<string>('')
@@ -61,7 +68,12 @@ const SignUp = () => {
     resolver: zodResolver(schema)
   })
 
-  const onSubmit = async (data: { username: string; email: string; realName: string; password: string }) => {
+  const onSubmit = async (data: {
+    username: string
+    email: string
+    realName: string
+    password: string
+  }) => {
     try {
       await axios.post(
         '/api/user/sign-up',
@@ -118,7 +130,10 @@ const SignUp = () => {
     <div className="flex flex-col items-center justify-center">
       <Image src={CodedangLogo} alt="코드당" width={70} className="mb-5" />
 
-      <form className="flex w-60 flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="flex w-60 flex-col gap-4"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <Input placeholder="User Id" {...register('username')} />
         {errors.username && <p>{errors.username.message}</p>}
         <div className="flex gap-2">
@@ -128,9 +143,13 @@ const SignUp = () => {
             placeholder="Email Address"
             {...register('email')}
           />
-          <button color="blue" onClick={() => {
-            const { email } = getValues();
-            sendCodeToEmail(email)}} />
+          <button
+            color="blue"
+            onClick={() => {
+              const { email } = getValues()
+              sendCodeToEmail(email)
+            }}
+          />
           <div className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]">
             <FaPaperPlane className="text-white" size="20" />
           </div>
@@ -147,17 +166,23 @@ const SignUp = () => {
             placeholder="Verification Code"
             {...register('verificationCode')}
           />
-          <button color="blue" onClick={() => {
-            const { email } = getValues();
-            const { verificationCode } = getValues();
-            verifyCode(email, verificationCode)}} />
+          <button
+            color="blue"
+            onClick={() => {
+              const { email } = getValues()
+              const { verificationCode } = getValues()
+              verifyCode(email, verificationCode)
+            }}
+          />
           <div className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]">
             <FaCheck className="text-white" size="20" />
           </div>
           {errors.verificationCode && <p>{errors.verificationCode.message}</p>}
         </div>
         {emailVerified && (
-          <p className="text-green text-xs font-bold">Email has been verified!</p>
+          <p className="text-green text-xs font-bold">
+            Email has been verified!
+          </p>
         )}
         <Input placeholder="Real Name" {...register('realName')} />
         {errors.realName && <p>{errors.realName.message}</p>}
@@ -198,5 +223,3 @@ const SignUp = () => {
     </div>
   )
 }
-
-export default SignUp
