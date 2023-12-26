@@ -95,3 +95,8 @@ export const problemTag = {
     name: 'Tag'
   }
 }
+
+export const tag = {
+  id: 1,
+  name: 'Tag'
+}
