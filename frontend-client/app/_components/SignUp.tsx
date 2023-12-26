@@ -201,26 +201,31 @@ export default function SignUp() {
           error={errors.realName?.message}
         />
 
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex justify-between gap-2">
           <Input
+            className="w-52"
             placeholder="Password"
             {...register('password')}
             type={passwordShow ? 'text' : 'password'}
             error={errors.password?.message}
           />
-          <span onClick={() => setPasswordShow(!passwordShow)}>
+          <span className="mt-3" onClick={() => setPasswordShow(!passwordShow)}>
             {passwordShow ? <FaEyeSlash /> : <FaEye />}
           </span>
         </div>
 
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex justify-between gap-2">
           <Input
+            className="w-52"
             {...register('passwordAgain')}
             placeholder="Password Check"
             type={passwordAgainShow ? 'text' : 'password'}
             error={errors.passwordAgain?.message}
           />
-          <span onClick={() => setPasswordAgainShow(!passwordAgainShow)}>
+          <span
+            className="mt-3"
+            onClick={() => setPasswordAgainShow(!passwordAgainShow)}
+          >
             {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
           </span>
         </div>
