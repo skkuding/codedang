@@ -1,5 +1,7 @@
 'use client'
 
+import { Toaster } from '@/components/ui/toaster'
+import { useToast } from '@/components/ui/use-toast'
 import CodedangLogo from '@/public/codedang.svg'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
@@ -68,6 +70,8 @@ export default function SignUp() {
     resolver: zodResolver(schema)
   })
 
+  const { toast } = useToast()
+
   const onSubmit = async (data: {
     username: string
     email: string
@@ -102,6 +106,9 @@ export default function SignUp() {
       }
     } else {
       //TODO: toast already sent email, wanna re-send?
+      toast({
+        description: 'You have already sent an email'
+      })
     }
   }
 
@@ -139,30 +146,33 @@ export default function SignUp() {
           {...register('username')}
           error={errors.username?.message}
         />
-        <div className="flex gap-2">
-          <Input
-            id="email"
-            type="email"
-            placeholder="Email Address"
-            {...register('email')}
-            error={errors.email?.message}
-          />
-          <Button
-            onClick={() => {
-              const { email } = getValues()
-              sendCodeToEmail(email)
-            }}
-            className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
-          >
-            <FaPaperPlane className="text-white" size="20" />
-          </Button>
+        <div>
+          <div className="flex gap-2">
+            <Input
+              id="email"
+              type="email"
+              placeholder="Email Address"
+              {...register('email')}
+              error={errors.email?.message}
+            />
+            <Button
+              onClick={() => {
+                const { email } = getValues()
+                sendCodeToEmail(email)
+              }}
+              className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
+            >
+              <FaPaperPlane className="text-white" size="20" />
+            </Button>
+          </div>
+          {sentEmail && (
+            <p className="mt-1 text-xs text-green-500">
+              Email verification code has been sent!
+            </p>
+          )}
         </div>
-        {sentEmail && (
-          <p className="text-xs font-bold text-green-500">
-            Email verification code has been sent!
-          </p>
-        )}
-        <div className="flex gap-2">
+
+        <div className="flex gap-1">
           <Input
             type="number"
             placeholder="Verification Code"
@@ -224,6 +234,7 @@ export default function SignUp() {
           Log In
         </a>
       </div>
+      <Toaster />
     </div>
   )
 }
