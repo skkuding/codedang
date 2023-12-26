@@ -31,8 +31,6 @@ export class UserProblemController {
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {
-      console.log(typeof req.user.id)
-      console.log(req.user.id, problemId)
       return await this.userProblemService.getUserCode(req.user.id, problemId)
     } catch (err) {
       if (
