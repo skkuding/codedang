@@ -54,6 +54,7 @@ export class ProblemRepository {
     take: number,
     groupId: number
   ): Promise<(Partial<Problem> & { submission: Partial<Submission>[] })[]> {
+    const now = new Date()
     let skip = 1
     if (cursor === 0) {
       cursor = 1
@@ -66,7 +67,10 @@ export class ProblemRepository {
       skip: skip,
       take: take,
       where: {
-        groupId
+        groupId,
+        exposeTime: {
+          lte: now
+        }
       },
       select: {
         ...this.problemsSelectOption,
