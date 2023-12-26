@@ -941,7 +941,7 @@ const createContests = async () => {
   for (const problem of problems) {
     await prisma.contestProblem.create({
       data: {
-        id: String(problem.id),
+        order: problem.id,
         contestId: contest.id,
         problemId: problem.id
       }
@@ -980,14 +980,14 @@ const createWorkbooks = async () => {
   for (const problem of problems) {
     await prisma.workbookProblem.create({
       data: {
-        id: String(problem.id),
+        order: problem.id,
         workbookId: workbooks[0].id,
         problemId: problem.id
       }
     })
     await prisma.workbookProblem.create({
       data: {
-        id: String(problem.id),
+        order: problem.id,
         workbookId: privateWorkbooks[0].id,
         problemId: problem.id
       }
