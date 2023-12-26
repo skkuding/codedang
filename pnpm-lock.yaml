@@ -235,8 +235,8 @@ importers:
         specifier: ^5.7.1
         version: 5.7.1
       prisma-nestjs-graphql:
-        specifier: ^19.0.1
-        version: 19.0.1
+        specifier: ^20.0.2
+        version: 20.0.2
       proxyquire:
         specifier: ^2.1.3
         version: 2.1.3
@@ -13068,8 +13068,8 @@ packages:
       uuid: 9.0.1
     dev: false
 
-  /prisma-nestjs-graphql@19.0.1:
-    resolution: {integrity: sha512-kIzd5tvV2iE3+kDwKdnGAEEJui2FpnVFOs8J8AzlchrcoOCVHirfxEQSKnTlNsyhshcQ4a1LsGFOy3I3GnF0Mg==}
+  /prisma-nestjs-graphql@20.0.2:
+    resolution: {integrity: sha512-XreGti6mCx14F+rNrhEZ0mBRTBtBniR4EVbRl6pVoO0SzaDqI2tGTKIq6YIdEZxn2bmG3MxpfRykt/uOS7o9vA==}
     hasBin: true
     dependencies:
       '@prisma/generator-helper': 5.7.1
