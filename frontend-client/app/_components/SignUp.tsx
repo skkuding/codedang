@@ -2,9 +2,9 @@
 
 import { Toaster } from '@/components/ui/toaster'
 import { useToast } from '@/components/ui/use-toast'
+import { baseUrl } from '@/lib/vars'
 import CodedangLogo from '@/public/codedang.svg'
 import { zodResolver } from '@hookform/resolvers/zod'
-import axios from 'axios'
 import Image from 'next/image'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -79,16 +79,16 @@ export default function SignUp() {
     password: string
   }) => {
     try {
-      await axios.post(
-        '/api/user/sign-up',
-        {
+      await fetch(baseUrl + '/api/user/sign-up', {
+        method: 'POST',
+        headers: { 'email-auth': emailAuthToken },
+        body: JSON.stringify({
           username: data.username,
           email: data.email,
           realName: data.realName,
           password: data.password
-        },
-        { headers: { 'email-auth': emailAuthToken } }
-      )
+        })
+      })
     } catch (error) {
       console.log('submit error is ', error)
     }
@@ -97,8 +97,11 @@ export default function SignUp() {
   const sendCodeToEmail = async (email: string) => {
     if (!sentEmail) {
       try {
-        await axios.post('/api/email-auth/send-email/register-new', {
-          email: email
+        await fetch(baseUrl + '/api/email-auth/send-email/register-new', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: email
+          })
         })
         setSentEmail(true)
       } catch (error) {
@@ -115,13 +118,16 @@ export default function SignUp() {
   const verifyCode = async (email: string, verificationCode: string) => {
     if (!emailVerified) {
       try {
-        const response = await axios.post('/api/email-auth/verify-pin', {
-          pin: verificationCode,
-          email: email
+        const response = await fetch(baseUrl + '/api/email-auth/verify-pin', {
+          method: 'POST',
+          body: JSON.stringify({
+            pin: verificationCode,
+            email: email
+          })
         })
         if (response.status === 200) {
           setEmailVerified(true)
-          setEmailAuthToken(response.headers['email-auth'])
+          setEmailAuthToken(response.headers.get('email-auth') || '')
         } else {
           // TODO: handle failure
         }
