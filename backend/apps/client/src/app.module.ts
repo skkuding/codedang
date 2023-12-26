@@ -50,7 +50,7 @@ import { WorkbookModule } from './workbook/workbook.module'
           process.env.NODE_ENV !== 'production'
             ? { target: 'pino-pretty' }
             : undefined,
-        autoLogging: false,
+        autoLogging: true,
         formatters: {
           level(label) {
             return { level: label }
