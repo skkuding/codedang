@@ -40,7 +40,7 @@
     "sortablejs": "^1.15.1",
     "vee-validate": "^4.12.3",
     "vue": "^3.3.13",
-    "vue-dompurify-html": "^4.1.4",
+    "vue-dompurify-html": "^5.0.1",
     "vue-query": "^1.26.0",
     "vue-router": "^4.2.5",
     "zod": "^3.22.4"
