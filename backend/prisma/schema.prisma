@@ -164,11 +164,13 @@ model Problem {
   inputExamples     String[]   @map("input_examples")
   outputExamples    String[]   @map("output_examples")
 
-  problemTestcase ProblemTestcase[]
-  problemTag      ProblemTag[]
-  contestProblem  ContestProblem[]
-  workbookProblem WorkbookProblem[]
-  submission      Submission[]
+  problemTestcase     ProblemTestcase[]
+  problemTag          ProblemTag[]
+  contestProblem      ContestProblem[]
+  workbookProblem     WorkbookProblem[]
+  submission          Submission[]
+  announcement Announcement[]
+  // ProblemAnnouncement ProblemAnnouncement[]
 
   @@map("problem")
 }
@@ -245,9 +247,10 @@ model Contest {
   createTime  DateTime @default(now()) @map("create_time")
   updateTime  DateTime @updatedAt @map("update_time")
 
-  contestProblem ContestProblem[]
-  contestRecord  ContestRecord[]
-  submission     Submission[]
+  contestProblem      ContestProblem[]
+  contestRecord       ContestRecord[]
+  submission          Submission[]
+  // contestAnnouncement ContestAnnouncement[]
 
   @@map("contest")
 }
@@ -262,24 +265,53 @@ model ContestProblem {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  clarification Clarification[]
-
   @@id([contestId, problemId])
   @@unique([contestId, id])
   @@map("contest_problem")
 }
 
-model Clarification {
-  id         Int            @id @default(autoincrement())
-  problem    ContestProblem @relation(fields: [contestId, problemId], references: [contestId, problemId], onDelete: Cascade)
-  contestId  Int            @map("contest_id")
-  problemId  Int            @map("problem_id")
+model Announcement {
+  id         Int      @id @default(autoincrement())
   content    String
-  createTime DateTime       @default(now()) @map("create_time")
-  updateTime DateTime       @updatedAt @map("update_time")
+  problem Problem @relation(fields: [problemId], references: [id])
+  problemId Int @map("problem_id")
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
 
-  @@map("contest_notice")
+  // contestAnnouncement ContestAnnouncement[]
+  // problemAnnouncement ProblemAnnouncement[]
+
+  @@unique([id])
+  @@map("announcement")
 }
+
+// model ContestAnnouncement {
+  // id             Int          @default(autoincrement())
+  // contest        Contest      @relation(fields: [contestId], references: [id])
+  // contestId      Int          @map("contest_id")
+  // announcement   Announcement @relation(fields: [announcementId], references: [id])
+  // announcementId Int          @map("announcement_id")
+  // createTime     DateTime     @default(now()) @map("create_time")
+  // updateTime     DateTime     @updatedAt @map("update_time")
+//
+  // @@id([contestId, announcementId])
+  // @@unique([contestId, id])
+  // @@map("contest_announcement")
+// }
+//
+// model ProblemAnnouncement {
+  // id             Int          @default(autoincrement())
+  // problem        Problem      @relation(fields: [problemId], references: [id])
+  // problemId      Int          @map("contest_id")
+  // announcement   Announcement @relation(fields: [announcementId], references: [id])
+  // announcementId Int          @map("announcement_id")
+  // createTime     DateTime     @default(now()) @map("create_time")
+  // updateTime     DateTime     @updatedAt @map("update_time")
+//
+  // @@id([problemId, announcementId])
+  // @@unique([problemId, id])
+  // @@map("problem_announcement")
+// }
 
 model ContestRecord {
   id                 Int      @id @default(autoincrement())
