@@ -36,7 +36,7 @@ export class AnnouncementService {
       where: {
         problem: {
           contestProblem: {
-            all: {
+            every: {
               contestId
             }
           },
