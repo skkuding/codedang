@@ -16,7 +16,7 @@ resource "aws_ecs_cluster_capacity_providers" "ecs_iris" {
 resource "aws_autoscaling_group" "asg_iris" {
   name                  = "Codedang-AutoScalingGroup-Iris"
   vpc_zone_identifier   = [aws_subnet.private_iris1.id, aws_subnet.private_iris2.id]
-  protect_from_scale_in = true
+  protect_from_scale_in = false
 
   # Desired number of instances in the Autoscaling Group
   desired_capacity = 1
