@@ -17,9 +17,9 @@ query {
 
 assert {
   res.status: eq 200
-  res.body[0].id: isString 
-  res.body[0].problemId: isNumber 
-  res.body[0].title: isString 
+  res.body[0].id: isNumber
+  res.body[0].title: isString
+  res.body[0].difficulty: isString
 }
 
 script:pre-request {
