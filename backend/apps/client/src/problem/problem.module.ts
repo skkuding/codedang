@@ -11,8 +11,10 @@ import { ProblemRepository } from './problem.repository'
 import {
   ContestProblemService,
   ProblemService,
+  UserProblemService,
   WorkbookProblemService
 } from './problem.service'
+import { UserProblemController } from './user-problem.controller'
 import {
   WorkbookProblemController,
   GroupWorkbookProblemController
@@ -26,12 +28,14 @@ import {
     ContestProblemController,
     GroupContestProblemController,
     WorkbookProblemController,
-    GroupWorkbookProblemController
+    GroupWorkbookProblemController,
+    UserProblemController
   ],
   providers: [
     ProblemService,
     ContestProblemService,
     WorkbookProblemService,
+    UserProblemService,
     ProblemRepository
   ]
 })

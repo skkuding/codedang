@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ResultStatus } from '@prisma/client'
+import { JsonArray } from '@prisma/client/runtime/library'
 import { plainToInstance } from 'class-transformer'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
@@ -12,6 +13,7 @@ import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
+import { UserProblemResponseDto } from './dto/user-problem.response.dto'
 import { ProblemRepository } from './problem.repository'
 
 @Injectable()
@@ -131,5 +133,31 @@ export class WorkbookProblemService {
       problemId
     )
     return plainToInstance(RelatedProblemResponseDto, data)
+  }
+}
+
+@Injectable()
+export class UserProblemService {
+  constructor(private readonly problemRepository: ProblemRepository) {}
+
+  async getUserCode(userId: number, problemId: number) {
+    const data = await this.problemRepository.getUserProblem(userId, problemId)
+    return plainToInstance(UserProblemResponseDto, data)
+  }
+  async createUserCode(userId: number, template: JsonArray, problemId: number) {
+    const data = await this.problemRepository.createUserProblem(
+      userId,
+      template,
+      problemId
+    )
+    return plainToInstance(UserProblemResponseDto, data)
+  }
+  async updateUserCode(userId: number, template: JsonArray, problemId: number) {
+    const data = await this.problemRepository.updateUserProblem(
+      userId,
+      template,
+      problemId
+    )
+    return plainToInstance(UserProblemResponseDto, data)
   }
 }

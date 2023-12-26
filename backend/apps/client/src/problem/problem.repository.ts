@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common'
-import type { Problem, Submission, Tag, WorkbookProblem } from '@prisma/client'
+import type {
+  Problem,
+  Submission,
+  Tag,
+  WorkbookProblem,
+  UserProblem
+} from '@prisma/client'
+import type { JsonArray } from '@prisma/client/runtime/library'
 import { PrismaService } from '@libs/prisma'
 
 /**
@@ -47,6 +54,15 @@ export class ProblemRepository {
     problem: {
       select: this.problemsSelectOption
     }
+  }
+
+  private readonly UserProblemSelectOption = {
+    id: true,
+    userId: true,
+    problemId: true,
+    template: true,
+    createTime: true,
+    updateTime: true
   }
 
   async getProblems(
@@ -193,6 +209,87 @@ export class ProblemRepository {
         }
       },
       select: this.relatedProblemSelectOption
+    })
+  }
+
+  async getUserProblem(
+    userId: number,
+    problemId: number
+  ): Promise<Partial<UserProblem>> {
+    await this.prisma.user.findUniqueOrThrow({
+      where: {
+        id: userId
+      }
+    })
+    await this.prisma.problem.findUniqueOrThrow({
+      where: {
+        id: problemId
+      }
+    })
+    return await this.prisma.userProblem.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_problemId: {
+          userId: userId,
+          problemId: problemId
+        }
+      },
+      select: this.UserProblemSelectOption
+    })
+  }
+
+  async createUserProblem(
+    userId: number,
+    template: JsonArray,
+    problemId: number
+  ): Promise<Partial<UserProblem>> {
+    await this.prisma.user.findUniqueOrThrow({
+      where: {
+        id: userId
+      }
+    })
+    await this.prisma.problem.findUniqueOrThrow({
+      where: {
+        id: problemId
+      }
+    })
+    return await this.prisma.userProblem.create({
+      data: {
+        userId: userId,
+        problemId: problemId,
+        template: template
+      },
+      select: this.UserProblemSelectOption
+    })
+  }
+
+  async updateUserProblem(
+    userId: number,
+    template: JsonArray,
+    problemId: number
+  ): Promise<Partial<UserProblem>> {
+    await this.prisma.user.findUniqueOrThrow({
+      where: {
+        id: userId
+      }
+    })
+    await this.prisma.problem.findUniqueOrThrow({
+      where: {
+        id: problemId
+      }
+    })
+    return await this.prisma.userProblem.update({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_problemId: {
+          userId: userId,
+          problemId: problemId
+        }
+      },
+      data: {
+        template: template
+      },
+      select: this.UserProblemSelectOption
     })
   }
 }

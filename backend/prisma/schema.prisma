@@ -52,6 +52,7 @@ model User {
   workbook      Workbook[]
   submission    Submission[]
   useroauth     UserOAuth?
+  UserProblem   UserProblem[]
 
   @@map("user")
 }
@@ -169,6 +170,7 @@ model Problem {
   contestProblem  ContestProblem[]
   workbookProblem WorkbookProblem[]
   submission      Submission[]
+  UserProblem     UserProblem[]
 
   @@map("problem")
 }
@@ -270,13 +272,15 @@ model ContestProblem {
 }
 
 model Clarification {
-  id         Int            @id @default(autoincrement())
-  problem    ContestProblem @relation(fields: [contestId, problemId], references: [contestId, problemId], onDelete: Cascade)
-  contestId  Int            @map("contest_id")
-  problemId  Int            @map("problem_id")
-  content    String
-  createTime DateTime       @default(now()) @map("create_time")
-  updateTime DateTime       @updatedAt @map("update_time")
+  id                   Int            @id @default(autoincrement())
+  problem              ContestProblem @relation(fields: [contestId, problemId], references: [contestId, problemId], onDelete: Cascade)
+  contestId            Int            @map("contest_id")
+  problemId            Int            @map("problem_id")
+  content              String
+  createTime           DateTime       @default(now()) @map("create_time")
+  updateTime           DateTime       @updatedAt @map("update_time")
+  userProblemContestId Int?
+  userProblemProblemId Int?
 
   @@map("contest_notice")
 }
@@ -380,4 +384,28 @@ enum ResultStatus {
   MemoryLimitExceeded
   OutputLimitExceeded
   ServerError
+}
+
+model UserProblem {
+  id        Int     @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int     @map("user_id")
+  problem   Problem @relation(fields: [problemId], references: [id])
+  problemId Int     @map("problem_id")
+
+  /// template code item structure
+  /// {
+  ///   "lanaguage": Language,
+  ///   "code": {
+  ///             "id": number,
+  ///             "text": string,
+  ///             "locked": boolean
+  ///           }[]
+  /// }
+  template   Json[]
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+
+  @@id([userId, problemId])
+  @@map("user_problem")
 }

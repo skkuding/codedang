@@ -11,7 +11,8 @@ import {
   type Contest,
   type Workbook,
   type Submission,
-  type ProblemTestcase
+  type ProblemTestcase,
+  UserProblem
 } from '@prisma/client'
 import { hash } from 'argon2'
 import * as dayjs from 'dayjs'
@@ -1275,6 +1276,39 @@ int main(void) {
   })
 }
 
+const createUserProblems = async () => {
+  const userProblems: UserProblem[] = []
+
+  // Assuming you want to create a UserProblem for each user and problem combination
+  for (const user of users) {
+    for (const problem of problems) {
+      const userProblem = await prisma.userProblem.create({
+        data: {
+          userId: user.id,
+          problemId: problem.id,
+          // Example template (modify as needed)
+          template: [
+            {
+              language: Language.Cpp, // Example language
+              code: [
+                {
+                  id: 1,
+                  text: '// Your example C++ code here',
+                  locked: false
+                }
+                // ... add more code blocks if needed
+              ]
+            }
+          ]
+        }
+      })
+      userProblems.push(userProblem)
+    }
+  }
+
+  return userProblems
+}
+
 const main = async () => {
   await createUsers()
   await createGroups()
@@ -1283,6 +1317,7 @@ const main = async () => {
   await createContests()
   await createWorkbooks()
   await createSubmissions()
+  await createUserProblems()
 }
 
 main()
