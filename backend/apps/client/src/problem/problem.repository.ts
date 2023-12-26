@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { Problem, Submission, Tag, WorkbookProblem } from '@prisma/client'
+import type { Problem, Submission, Tag } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
 
 /**
@@ -33,20 +33,6 @@ export class ProblemRepository {
     source: true,
     inputExamples: true,
     outputExamples: true
-  }
-
-  private readonly relatedProblemSelectOption = {
-    id: true,
-    problem: {
-      select: this.problemSelectOption
-    }
-  }
-
-  private readonly relatedProblemsSelectOption = {
-    id: true,
-    problem: {
-      select: this.problemsSelectOption
-    }
   }
 
   async getProblems(
@@ -128,7 +114,9 @@ export class ProblemRepository {
       take: take,
       where: { contestId: contestId },
       select: {
-        ...this.relatedProblemsSelectOption,
+        problem: {
+          select: this.problemsSelectOption
+        },
         contest: {
           select: {
             startTime: true
@@ -148,7 +136,9 @@ export class ProblemRepository {
         }
       },
       select: {
-        ...this.relatedProblemSelectOption,
+        problem: {
+          select: this.problemSelectOption
+        },
         contest: {
           select: {
             startTime: true
@@ -162,13 +152,13 @@ export class ProblemRepository {
     workbookId: number,
     cursor: number,
     take: number
-  ): Promise<(Partial<WorkbookProblem> & { problem: Partial<Problem> })[]> {
+  ): Promise<Partial<Problem>[]> {
     let skip = 1
     if (cursor === 0) {
       cursor = 1
       skip = 0
     }
-    return await this.prisma.workbookProblem.findMany({
+    const data = await this.prisma.workbookProblem.findMany({
       cursor: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
@@ -179,20 +169,31 @@ export class ProblemRepository {
       skip: skip,
       take: take,
       where: { workbookId: workbookId },
-      select: this.relatedProblemsSelectOption
+      select: {
+        problem: {
+          select: this.problemsSelectOption
+        }
+      }
     })
+    return data.map((wp) => wp.problem)
   }
 
   async getWorkbookProblem(workbookId: number, problemId: number) {
-    return await this.prisma.workbookProblem.findUniqueOrThrow({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        workbookId_problemId: {
-          workbookId: workbookId,
-          problemId: problemId
+    return (
+      await this.prisma.workbookProblem.findUniqueOrThrow({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          workbookId_problemId: {
+            workbookId: workbookId,
+            problemId: problemId
+          }
+        },
+        select: {
+          problem: {
+            select: this.problemSelectOption
+          }
         }
-      },
-      select: this.relatedProblemSelectOption
-    })
+      })
+    ).problem
   }
 }
