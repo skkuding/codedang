@@ -54,13 +54,13 @@ export class SubmissionService implements OnModuleInit {
             Array.isArray(error) &&
             error.every((e) => e instanceof ValidationError)
           ) {
-            this.logger.error('Message format error', { ...error })
+            this.logger.error(error, 'Message format error')
             return new Nack()
           } else if (error instanceof UnprocessableDataException) {
-            this.logger.error('Iris exception', error)
+            this.logger.error(error, 'Iris exception')
             return new Nack()
           } else {
-            this.logger.error('Unexpected error', error)
+            this.logger.error(error, 'Unexpected error')
             return new Nack()
           }
         }
