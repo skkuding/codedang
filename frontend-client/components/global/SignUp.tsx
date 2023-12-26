@@ -32,15 +32,15 @@ const schema = z
     password: z.string().min(8).max(32),
     passwordAgain: z.string().min(8).max(32)
   })
-  .refine((data) => data.password === data.passwordAgain, {
+  .refine((data: { password: any; passwordAgain: any }) => data.password === data.passwordAgain, {
     message: 'Passwords do not match',
     path: ['passwordAgain']
   })
-  .refine((data) => /^[a-zA-Z0-9]+$/.test(data.username), {
+  .refine((data: { username: string }) => /^[a-zA-Z0-9]+$/.test(data.username), {
     message: 'Username can only contain alphabets and numbers',
     path: ['username']
   })
-  .refine((data) => /^[a-zA-Z\s]+$/.test(data.realName), {
+  .refine((data: { realName: string }) => /^[a-zA-Z\s]+$/.test(data.realName), {
     message: 'Real name can only contain alphabets',
     path: ['realName']
   })
@@ -60,7 +60,7 @@ const SignUp = () => {
     resolver: zodResolver(schema)
   })
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: { username: string; email: string; realName: string; password: string }) => {
     try {
       await axios.post(
         '/api/user/sign-up',
@@ -77,7 +77,7 @@ const SignUp = () => {
     }
   }
 
-  const sendCodeToEmail = async (email) => {
+  const sendCodeToEmail = async (email: string) => {
     if (!sentEmail) {
       try {
         await axios.post('/api/email-auth/send-email/register-new', {
@@ -92,7 +92,7 @@ const SignUp = () => {
     }
   }
 
-  const verifyCode = async (email, verificationCode) => {
+  const verifyCode = async (email: string, verificationCode: string) => {
     if (!emailVerified) {
       try {
         const response = await axios.post('/api/email-auth/verify-pin', {
@@ -114,13 +114,13 @@ const SignUp = () => {
   }
 
   return (
-    <div class="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center">
       <Image src={CodedangLogo} alt="코드당" width={70} className="mb-5" />
 
-      <form class="flex w-60 flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+      <form className="flex w-60 flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
         <Input placeholder="User Id" {...register('username')} />
         {errors.username && <p>{errors.username.message}</p>}
-        <div class="flex gap-2">
+        <div className="flex gap-2">
           <Input
             id="email"
             type="email"
@@ -134,11 +134,11 @@ const SignUp = () => {
           {errors.email && <p>{errors.email.message}</p>}
         </div>
         {sentEmail && (
-          <p class="text-green text-xs font-bold">
+          <p className="text-green text-xs font-bold">
             Email verification code has been sent!
           </p>
         )}
-        <div class="flex gap-2">
+        <div className="flex gap-2">
           <Input
             type="number"
             placeholder="Verification Code"
@@ -151,12 +151,12 @@ const SignUp = () => {
           {errors.verificationCode && <p>{errors.verificationCode.message}</p>}
         </div>
         {emailVerified && (
-          <p class="text-green text-xs font-bold">Email has been verified!</p>
+          <p className="text-green text-xs font-bold">Email has been verified!</p>
         )}
         <Input placeholder="Real Name" {...register('realName')} />
         {errors.realName && <p>{errors.realName.message}</p>}
 
-        <div class="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Password"
             {...register('password')}
@@ -168,7 +168,7 @@ const SignUp = () => {
         </div>
         {errors.password && <p>{errors.password.message}</p>}
 
-        <div class="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2">
           <Input
             {...register('passwordAgain')}
             placeholder="Password Check"
@@ -183,9 +183,9 @@ const SignUp = () => {
           Register
         </Button>
       </form>
-      <div class="text-gray-dark mt-6 flex flex-col items-center text-sm">
+      <div className="text-gray-dark mt-6 flex flex-col items-center text-sm">
         Already have an account?
-        <a class="text-gray-dark hover:text-gray-dark/80 active:text-gray-dark/60 w-fit cursor-pointer text-sm underline">
+        <a className="text-gray-dark hover:text-gray-dark/80 active:text-gray-dark/60 w-fit cursor-pointer text-sm underline">
           Log In
         </a>
       </div>
