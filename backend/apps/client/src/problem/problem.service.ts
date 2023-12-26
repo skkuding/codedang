@@ -19,18 +19,31 @@ export class ProblemService {
   constructor(private readonly problemRepository: ProblemRepository) {}
 
   async getProblems(cursor: number, take: number, groupId = OPEN_SPACE_ID) {
-    const problems = (
-      await this.problemRepository.getProblems(cursor, take, groupId)
-    ).map(async (problem) => {
-      const tags = await this.problemRepository.getProblemTags(problem.id)
+    const problem = await this.problemRepository.getProblems(
+      cursor,
+      take,
+      groupId
+    )
+    const uniqueTagIds = new Set(
+      problem.flatMap((item) => {
+        return item.problemTag.flatMap((item2) => {
+          return item2.tagId
+        })
+      })
+    )
+    const tagIds = [...uniqueTagIds]
+    const tagList = await this.problemRepository.getProblemsTags(tagIds)
 
-      const { submission, ...data } = problem
+    const problems = problem.map(async (problem) => {
+      const { submission, problemTag, ...data } = problem
       const submissionCount = submission.length
       const acceptedRate =
         submission.filter(
           (submission) => submission.result === ResultStatus.Accepted
         ).length / submissionCount
-
+      const tags = tagList.filter((tagItem) =>
+        problemTag.flatMap((tag) => tag.tagId).includes(tagItem.id)
+      )
       return {
         ...data,
         submissionCount,
