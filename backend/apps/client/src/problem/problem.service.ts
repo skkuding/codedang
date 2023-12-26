@@ -18,7 +18,7 @@ import { ProblemRepository } from './problem.repository'
 export class ProblemService {
   constructor(private readonly problemRepository: ProblemRepository) {}
 
-  async getProblems(cursor: number, take: number, groupId = OPEN_SPACE_ID) {
+  async getProblems(cursor: number, take: number, groupId: number) {
     const problem = await this.problemRepository.getProblems(
       cursor,
       take,
