@@ -10,6 +10,8 @@ import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
+import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
+import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemRepository } from './problem.repository'
 
 @Injectable()
@@ -80,10 +82,7 @@ export class ContestProblemService {
     if (data.length > 0 && data[0].contest.startTime > new Date()) {
       throw new ForbiddenAccessException('Contest is not started yet.')
     }
-    return plainToInstance(
-      ProblemsResponseDto,
-      data.map((cp) => cp.problem)
-    )
+    return plainToInstance(RelatedProblemsResponseDto, data)
   }
 
   async getContestProblem(
@@ -101,7 +100,7 @@ export class ContestProblemService {
     if (data.contest.startTime > new Date()) {
       throw new ForbiddenAccessException('Contest is not started yet.')
     }
-    return plainToInstance(ProblemResponseDto, data.problem)
+    return plainToInstance(RelatedProblemResponseDto, data)
   }
 }
 
@@ -126,7 +125,7 @@ export class WorkbookProblemService {
       cursor,
       take
     )
-    return plainToInstance(ProblemsResponseDto, data)
+    return plainToInstance(RelatedProblemsResponseDto, data)
   }
 
   async getWorkbookProblem(
@@ -141,6 +140,6 @@ export class WorkbookProblemService {
       workbookId,
       problemId
     )
-    return plainToInstance(ProblemResponseDto, data)
+    return plainToInstance(RelatedProblemResponseDto, data)
   }
 }

@@ -137,6 +137,7 @@ export class ProblemRepository {
       take: take,
       where: { contestId: contestId },
       select: {
+        order: true,
         problem: {
           select: this.problemsSelectOption
         },
@@ -159,6 +160,7 @@ export class ProblemRepository {
         }
       },
       select: {
+        order: true,
         problem: {
           select: this.problemSelectOption
         },
@@ -171,17 +173,13 @@ export class ProblemRepository {
     })
   }
 
-  async getWorkbookProblems(
-    workbookId: number,
-    cursor: number,
-    take: number
-  ): Promise<Partial<Problem>[]> {
+  async getWorkbookProblems(workbookId: number, cursor: number, take: number) {
     let skip = 1
     if (cursor === 0) {
       cursor = 1
       skip = 0
     }
-    const data = await this.prisma.workbookProblem.findMany({
+    return await this.prisma.workbookProblem.findMany({
       cursor: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
@@ -193,30 +191,29 @@ export class ProblemRepository {
       take: take,
       where: { workbookId: workbookId },
       select: {
+        order: true,
         problem: {
           select: this.problemsSelectOption
         }
       }
     })
-    return data.map((wp) => wp.problem)
   }
 
   async getWorkbookProblem(workbookId: number, problemId: number) {
-    return (
-      await this.prisma.workbookProblem.findUniqueOrThrow({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          workbookId_problemId: {
-            workbookId: workbookId,
-            problemId: problemId
-          }
-        },
-        select: {
-          problem: {
-            select: this.problemSelectOption
-          }
+    return await this.prisma.workbookProblem.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        workbookId_problemId: {
+          workbookId: workbookId,
+          problemId: problemId
         }
-      })
-    ).problem
+      },
+      select: {
+        order: true,
+        problem: {
+          select: this.problemSelectOption
+        }
+      }
+    })
   }
 }
