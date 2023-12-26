@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
 import { GraphQLModule } from '@nestjs/graphql'
+import { LoggerModule } from 'nestjs-pino'
 import {
   JwtAuthModule,
   JwtAuthGuard,
@@ -40,7 +41,25 @@ import { UserModule } from './user/user.module'
     ProblemModule,
     StorageModule,
     GroupModule,
-    UserModule
+    UserModule,
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: 'info',
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? {
+                target: 'pino-pretty',
+                options: { singleLine: true }
+              }
+            : undefined,
+        autoLogging: true,
+        formatters: {
+          level(label) {
+            return { level: label }
+          }
+        }
+      }
+    })
   ],
   controllers: [AdminController],
   providers: [

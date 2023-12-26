@@ -29,7 +29,7 @@ export class ProblemController {
     try {
       return await this.problemService.getProblems(cursor, take)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -45,7 +45,7 @@ export class ProblemController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -67,7 +67,7 @@ export class GroupProblemController {
     try {
       return await this.problemService.getProblems(cursor, take, groupId)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -86,7 +86,7 @@ export class GroupProblemController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }

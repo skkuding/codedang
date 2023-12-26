@@ -31,7 +31,7 @@ export class ClarificationController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -50,7 +50,7 @@ export class ClarificationController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -76,7 +76,7 @@ export class GroupClarificationController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -97,7 +97,7 @@ export class GroupClarificationController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }

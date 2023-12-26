@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core'
 import { graphqlUploadExpress } from 'graphql-upload'
+import { Logger } from 'nestjs-pino'
 import { AdminModule } from './admin.module'
 
 const bootstrap = async () => {
@@ -10,6 +11,8 @@ const bootstrap = async () => {
     exposedHeaders: ['authorization'],
     credentials: true
   })
+  app.useLogger(app.get(Logger))
+
   await app.listen(3000)
 }
 

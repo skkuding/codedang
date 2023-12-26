@@ -48,36 +48,15 @@ import { WorkbookModule } from './workbook/workbook.module'
         level: 'info',
         transport:
           process.env.NODE_ENV !== 'production'
-            ? { target: 'pino-pretty' }
+            ? {
+                target: 'pino-pretty',
+                options: { singleLine: true }
+              }
             : undefined,
         autoLogging: true,
         formatters: {
           level(label) {
             return { level: label }
-          },
-          log(object) {
-            if (process.env.NODE_ENV !== 'production') {
-              if (object.err) {
-                return {
-                  level: object.level,
-                  pid: object.pid,
-                  time: object.time,
-                  msg: object.msg,
-                  err: object.err,
-                  responseTime: object.responseTime
-                }
-              } else {
-                return {
-                  level: object.level,
-                  pid: object.pid,
-                  time: object.time,
-                  msg: object.msg,
-                  responseTime: object.responseTime
-                }
-              }
-            } else {
-              return object
-            }
           }
         }
       }
