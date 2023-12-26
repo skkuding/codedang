@@ -6,6 +6,7 @@ import { APP_GUARD } from '@nestjs/core'
 import { LoggerModule } from 'nestjs-pino'
 import { JwtAuthModule, JwtAuthGuard } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
+import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
@@ -43,24 +44,7 @@ import { WorkbookModule } from './workbook/workbook.module'
     WorkbookModule,
     EmailModule,
     ClarificationModule,
-    LoggerModule.forRoot({
-      pinoHttp: {
-        level: 'info',
-        transport:
-          process.env.NODE_ENV !== 'production'
-            ? {
-                target: 'pino-pretty',
-                options: { singleLine: true }
-              }
-            : undefined,
-        autoLogging: true,
-        formatters: {
-          level(label) {
-            return { level: label }
-          }
-        }
-      }
-    })
+    LoggerModule.forRoot(pinoLoggerModuleOption)
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }]

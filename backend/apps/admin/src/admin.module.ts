@@ -12,6 +12,7 @@ import {
   GroupLeaderGuard
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
+import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
@@ -42,24 +43,7 @@ import { UserModule } from './user/user.module'
     StorageModule,
     GroupModule,
     UserModule,
-    LoggerModule.forRoot({
-      pinoHttp: {
-        level: 'info',
-        transport:
-          process.env.NODE_ENV !== 'production'
-            ? {
-                target: 'pino-pretty',
-                options: { singleLine: true }
-              }
-            : undefined,
-        autoLogging: true,
-        formatters: {
-          level(label) {
-            return { level: label }
-          }
-        }
-      }
-    })
+    LoggerModule.forRoot(pinoLoggerModuleOption)
   ],
   controllers: [AdminController],
   providers: [
