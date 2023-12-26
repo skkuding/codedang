@@ -11,8 +11,8 @@ import { FaCheck } from 'react-icons/fa'
 import { FaEyeSlash } from 'react-icons/fa'
 import { FaEye } from 'react-icons/fa'
 import { z } from 'zod'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
+import { Button } from '../../components/ui/button'
+import { Input } from '../../components/ui/input'
 
 interface SignUpFormInput {
   username: string
@@ -55,6 +55,7 @@ const SignUp = () => {
   const {
     handleSubmit,
     register,
+    getValues,
     formState: { errors }
   } = useForm<SignUpFormInput>({
     resolver: zodResolver(schema)
@@ -127,7 +128,9 @@ const SignUp = () => {
             placeholder="Email Address"
             {...register('email')}
           />
-          <button color="blue" onClick={() => sendCodeToEmail()} />
+          <button color="blue" onClick={() => {
+            const { email } = getValues();
+            sendCodeToEmail(email)}} />
           <div className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]">
             <FaPaperPlane className="text-white" size="20" />
           </div>
@@ -144,7 +147,10 @@ const SignUp = () => {
             placeholder="Verification Code"
             {...register('verificationCode')}
           />
-          <button color="blue" onClick={() => verifyCode()} />
+          <button color="blue" onClick={() => {
+            const { email } = getValues();
+            const { verificationCode } = getValues();
+            verifyCode(email, verificationCode)}} />
           <div className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]">
             <FaCheck className="text-white" size="20" />
           </div>
