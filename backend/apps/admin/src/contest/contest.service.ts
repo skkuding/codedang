@@ -277,7 +277,9 @@ export class ContestService {
       contestProblems.push(
         await this.prisma.contestProblem.create({
           data: {
-            id: 'temp',
+            // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
+            // 임시 방편으로 order: 0으로 설정합니다.
+            order: 0,
             contestId: contestId,
             problemId: problemId
           }
