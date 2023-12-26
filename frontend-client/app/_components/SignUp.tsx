@@ -1,5 +1,7 @@
 'use client'
 
+import { Toaster } from '@/components/ui/toaster'
+import { useToast } from '@/components/ui/use-toast'
 import CodedangLogo from '@/public/codedang.svg'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
@@ -32,20 +34,27 @@ const schema = z
     password: z.string().min(8).max(32),
     passwordAgain: z.string().min(8).max(32)
   })
-  .refine((data: { password: any; passwordAgain: any }) => data.password === data.passwordAgain, {
-    message: 'Passwords do not match',
-    path: ['passwordAgain']
-  })
-  .refine((data: { username: string }) => /^[a-zA-Z0-9]+$/.test(data.username), {
-    message: 'Username can only contain alphabets and numbers',
-    path: ['username']
-  })
+  .refine(
+    (data: { password: string; passwordAgain: string }) =>
+      data.password === data.passwordAgain,
+    {
+      message: 'Passwords do not match',
+      path: ['passwordAgain']
+    }
+  )
+  .refine(
+    (data: { username: string }) => /^[a-zA-Z0-9]+$/.test(data.username),
+    {
+      message: 'Username can only contain alphabets and numbers',
+      path: ['username']
+    }
+  )
   .refine((data: { realName: string }) => /^[a-zA-Z\s]+$/.test(data.realName), {
     message: 'Real name can only contain alphabets',
     path: ['realName']
   })
 
-const SignUp = () => {
+export default function SignUp() {
   const [sentEmail, setSentEmail] = useState<boolean>(false)
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [emailAuthToken, setEmailAuthToken] = useState<string>('')
@@ -61,7 +70,14 @@ const SignUp = () => {
     resolver: zodResolver(schema)
   })
 
-  const onSubmit = async (data: { username: string; email: string; realName: string; password: string }) => {
+  const { toast } = useToast()
+
+  const onSubmit = async (data: {
+    username: string
+    email: string
+    realName: string
+    password: string
+  }) => {
     try {
       await axios.post(
         '/api/user/sign-up',
@@ -90,6 +106,9 @@ const SignUp = () => {
       }
     } else {
       //TODO: toast already sent email, wanna re-send?
+      toast({
+        description: 'You have already sent an email'
+      })
     }
   }
 
@@ -118,73 +137,93 @@ const SignUp = () => {
     <div className="flex flex-col items-center justify-center">
       <Image src={CodedangLogo} alt="코드당" width={70} className="mb-5" />
 
-      <form className="flex w-60 flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
-        <Input placeholder="User Id" {...register('username')} />
-        {errors.username && <p>{errors.username.message}</p>}
-        <div className="flex gap-2">
-          <Input
-            id="email"
-            type="email"
-            placeholder="Email Address"
-            {...register('email')}
-          />
-          <button color="blue" onClick={() => {
-            const { email } = getValues();
-            sendCodeToEmail(email)}} />
-          <div className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]">
-            <FaPaperPlane className="text-white" size="20" />
+      <form
+        className="flex w-60 flex-col gap-4"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <Input
+          placeholder="User Id"
+          {...register('username')}
+          error={errors.username?.message}
+        />
+        <div>
+          <div className="flex gap-2">
+            <Input
+              id="email"
+              type="email"
+              placeholder="Email Address"
+              {...register('email')}
+              error={errors.email?.message}
+            />
+            <Button
+              onClick={() => {
+                const { email } = getValues()
+                sendCodeToEmail(email)
+              }}
+              className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
+            >
+              <FaPaperPlane className="text-white" size="20" />
+            </Button>
           </div>
-          {errors.email && <p>{errors.email.message}</p>}
+          {sentEmail && (
+            <p className="mt-1 text-xs text-green-500">
+              Email verification code has been sent!
+            </p>
+          )}
         </div>
-        {sentEmail && (
-          <p className="text-green text-xs font-bold">
-            Email verification code has been sent!
-          </p>
-        )}
-        <div className="flex gap-2">
+
+        <div className="flex gap-1">
           <Input
             type="number"
             placeholder="Verification Code"
             {...register('verificationCode')}
+            error={errors.verificationCode?.message}
           />
-          <button color="blue" onClick={() => {
-            const { email } = getValues();
-            const { verificationCode } = getValues();
-            verifyCode(email, verificationCode)}} />
-          <div className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]">
+          <Button
+            onClick={() => {
+              const { email } = getValues()
+              const { verificationCode } = getValues()
+              verifyCode(email, verificationCode)
+            }}
+            className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
+          >
             <FaCheck className="text-white" size="20" />
-          </div>
-          {errors.verificationCode && <p>{errors.verificationCode.message}</p>}
+          </Button>
         </div>
         {emailVerified && (
-          <p className="text-green text-xs font-bold">Email has been verified!</p>
+          <p className="text-green text-xs font-bold">
+            Email has been verified!
+          </p>
         )}
-        <Input placeholder="Real Name" {...register('realName')} />
-        {errors.realName && <p>{errors.realName.message}</p>}
+        <Input
+          placeholder="Real Name"
+          {...register('realName')}
+          error={errors.realName?.message}
+        />
 
         <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Password"
             {...register('password')}
             type={passwordShow ? 'text' : 'password'}
+            error={errors.password?.message}
           />
           <span onClick={() => setPasswordShow(!passwordShow)}>
             {passwordShow ? <FaEyeSlash /> : <FaEye />}
           </span>
         </div>
-        {errors.password && <p>{errors.password.message}</p>}
 
         <div className="flex items-center justify-between gap-2">
           <Input
             {...register('passwordAgain')}
             placeholder="Password Check"
             type={passwordAgainShow ? 'text' : 'password'}
+            error={errors.passwordAgain?.message}
           />
           <span onClick={() => setPasswordAgainShow(!passwordAgainShow)}>
             {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
           </span>
         </div>
-        {errors.passwordAgain && <p>{errors.passwordAgain.message}</p>}
         <Button color="blue" onClick={() => {}} type="submit">
           Register
         </Button>
@@ -195,8 +234,7 @@ const SignUp = () => {
           Log In
         </a>
       </div>
+      <Toaster />
     </div>
   )
 }
-
-export default SignUp
