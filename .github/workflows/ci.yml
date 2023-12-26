@@ -121,7 +121,8 @@ jobs:
             --to-schema-datamodel ./prisma/schema.prisma \
             --shadow-database-url ${{ env.DATABASE_URL }} \
             --exit-code ||
-          echo "::error::Prisma migration is not up to date. Please run `pnpm prisma migrate dev` locally and commit the changes."
+          echo "::error::Prisma migration is not up to date." &&
+          echo "Please run 'pnpm prisma migrate dev' locally and commit the changes." && exit 1
 
       - name: Migrate Prisma
         run: pnpm --filter backend exec prisma migrate reset --force

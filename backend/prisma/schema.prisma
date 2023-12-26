@@ -36,7 +36,6 @@ enum Provider {
 model User {
   id         Int       @id @default(autoincrement())
   username   String    @unique
-  password   String
   role       Role      @default(User)
   email      String    @unique
   lastLogin  DateTime? @map("last_login")
