@@ -36,6 +36,7 @@ enum Provider {
 model User {
   id         Int       @id @default(autoincrement())
   username   String    @unique
+  password   String
   role       Role      @default(User)
   email      String    @unique
   lastLogin  DateTime? @map("last_login")
@@ -256,7 +257,7 @@ model Contest {
 
 model ContestProblem {
   order      Int
-  contest    Contest  @relation(fields: [contestId], references: [id])
+  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
   contestId  Int      @map("contest_id")
   problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int      @map("problem_id")
@@ -347,7 +348,7 @@ model Workbook {
 
 model WorkbookProblem {
   order      Int
-  workbook   Workbook @relation(fields: [workbookId], references: [id])
+  workbook   Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
   workbookId Int      @map("workbook_id")
   problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int      @map("problem_id")
