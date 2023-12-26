@@ -4,7 +4,7 @@ import { Logger } from 'nestjs-pino'
 import { AdminModule } from './admin.module'
 
 const bootstrap = async () => {
-  const app = await NestFactory.create(AdminModule)
+  const app = await NestFactory.create(AdminModule, { bufferLogs: true })
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 2 }))
   app.enableCors({
     allowedHeaders: ['*'],
