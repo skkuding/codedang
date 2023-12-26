@@ -10,5 +10,19 @@ module.exports = {
       'error',
       require('path').join(__dirname, 'app')
     ]
-  }
+  },
+  overrides: [
+    {
+      files: ['*.tsx'],
+      excludedFiles: ['components/ui/*.tsx'],
+      rules: {
+        'react/function-component-definition': [
+          'error',
+          {
+            namedComponents: 'function-declaration'
+          }
+        ]
+      }
+    }
+  ]
 }

@@ -479,11 +479,13 @@ export class ProblemService {
 
   async deleteProblem(id: number, groupId: number) {
     await this.getProblem(id, groupId)
+
+    const result = await this.prisma.problem.delete({
+      where: { id: id }
+    })
     await this.storageService.deleteObject(`${id}.json`)
 
-    return await this.prisma.problem.delete({
-      where: { id }
-    })
+    return result
   }
 
   async getWorkbookProblems(

@@ -1,9 +1,9 @@
 import CodedangLogo from '@/public/codedang.svg'
 import Image from 'next/image'
 import Link from 'next/link'
-import SignInUpButton from './SignInUpButton'
+import HeaderAuthPanel from './HeaderAuthPanel'
 
-const Header = () => {
+export default function Header() {
   return (
     <header className="border-b-gray grid h-16 place-items-center border-b bg-white px-5">
       <div className="flex w-full max-w-7xl items-center justify-between gap-5">
@@ -26,10 +26,8 @@ const Header = () => {
             </Link>
           </nav>
         </div>
-        <SignInUpButton />
+        <HeaderAuthPanel />
       </div>
     </header>
   )
 }
-
-export default Header
