@@ -19,7 +19,7 @@ jobs:
       - name: Build static bundle
         run: pnpm --filter frontend build
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: frontend-bundle
           path: ./frontend/dist
