@@ -8,7 +8,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Image from 'next/image'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { FaPaperPlane } from 'react-icons/fa'
 import { FaCheck } from 'react-icons/fa'
 import { FaEyeSlash } from 'react-icons/fa'
 import { FaEye } from 'react-icons/fa'
@@ -54,17 +53,14 @@ const schema = z
     path: ['realName']
   })
 
-export default function SignUp() {
-  const [sentEmail, setSentEmail] = useState<boolean>(false)
-  const [emailVerified, setEmailVerified] = useState<boolean>(false)
-  const [emailAuthToken, setEmailAuthToken] = useState<string>('')
+export default function SignUpRegister() {
+  const [emailAuthToken] = useState<string>('')
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
 
   const {
     handleSubmit,
     register,
-    getValues,
     formState: { errors }
   } = useForm<SignUpFormInput>({
     resolver: zodResolver(schema)
@@ -104,73 +100,6 @@ export default function SignUp() {
     }
   }
 
-  const sendCodeToEmail = async (email: string) => {
-    if (!sentEmail) {
-      await fetch(baseUrl + '/email-auth/send-email/register-new', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email
-        })
-      })
-        .then((res) => {
-          if (res.status === 409) {
-            toast({
-              description: 'You have already signed up!',
-              className: 'text-red-500'
-            })
-          } else if (res.status === 201) {
-            setSentEmail(true)
-          }
-        })
-        .catch(() => {
-          toast({
-            description: 'Sending verification code failed!',
-            className: 'text-red-500'
-          })
-        })
-    } else {
-      toast({
-        description: 'You have already sent an email',
-        className: 'text-red-500'
-      })
-    }
-  }
-
-  const verifyCode = async (email: string, verificationCode: string) => {
-    if (!emailVerified) {
-      try {
-        const response = await fetch(baseUrl + '/email-auth/verify-pin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            pin: verificationCode,
-            email: email
-          })
-        })
-        if (response.status === 200) {
-          setEmailVerified(true)
-          setEmailAuthToken(response.headers.get('email-auth') || '')
-        } else {
-          toast({
-            description: 'Verification code is not valid!',
-            className: 'text-red-500'
-          })
-        }
-      } catch (error) {
-        toast({
-          description: 'Email verification failed!',
-          className: 'text-red-500'
-        })
-      }
-    } else {
-      toast({
-        description: 'You have already verified code',
-        className: 'text-red-500'
-      })
-    }
-  }
-
   return (
     <div className="flex flex-col items-center justify-center">
       <Image src={CodedangLogo} alt="코드당" width={70} className="mb-5" />
@@ -180,77 +109,26 @@ export default function SignUp() {
         onSubmit={handleSubmit(onSubmit)}
       >
         <div>
-          <Input placeholder="User Id" {...register('username')} />
-          {errors.username && (
+          <Input placeholder="Your Name" {...register('realName')} />
+          {errors.realName && (
             <p className="mt-1 text-xs text-red-500">
-              {errors.username?.message}
+              {errors.realName?.message}
             </p>
           )}
         </div>
-
-        <div>
-          <div className="flex gap-2">
-            <Input
-              id="email"
-              type="email"
-              placeholder="Email Address"
-              {...register('email')}
-            />
-            <Button
-              onClick={() => {
-                const { email } = getValues()
-                sendCodeToEmail(email)
-              }}
-              className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
-            >
-              <FaPaperPlane className="text-white" size="20" />
-            </Button>
-          </div>
-          {errors.email && (
-            <p className="mt-1 text-xs text-red-500">{errors.email?.message}</p>
-          )}
-          {sentEmail && (
-            <p className="mt-1 text-xs text-blue-500">
-              Email verification code has been sent!
-            </p>
-          )}
-        </div>
-
         <div>
           <div className="flex gap-1">
-            <Input
-              type="number"
-              placeholder="Verification Code"
-              {...register('verificationCode')}
-            />
+            <Input placeholder="User ID" {...register('username')} />
             <Button
-              onClick={() => {
-                const { email } = getValues()
-                const { verificationCode } = getValues()
-                verifyCode(email, verificationCode)
-              }}
+              onClick={() => {}}
               className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
             >
               <FaCheck className="text-white" size="20" />
             </Button>
           </div>
-          {errors.verificationCode && (
+          {errors.username && (
             <p className="mt-1 text-xs text-red-500">
-              {errors.verificationCode?.message}
-            </p>
-          )}
-          {emailVerified && (
-            <p className="text-blue text-xs font-bold">
-              Email has been verified!
-            </p>
-          )}
-        </div>
-
-        <div>
-          <Input placeholder="Real Name" {...register('realName')} />
-          {errors.realName && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.realName?.message}
+              {errors.username?.message}
             </p>
           )}
         </div>
@@ -282,7 +160,7 @@ export default function SignUp() {
             <Input
               className="w-52"
               {...register('passwordAgain')}
-              placeholder="Password Check"
+              placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
             />
             <span
