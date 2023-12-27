@@ -79,9 +79,12 @@ export default function SignUp() {
     password: string
   }) => {
     try {
-      await fetch(baseUrl + '/api/user/sign-up', {
+      await fetch(baseUrl + '/user/sign-up', {
         method: 'POST',
-        headers: { 'email-auth': emailAuthToken },
+        headers: {
+          'email-auth': emailAuthToken,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           username: data.username,
           email: data.email,
@@ -96,9 +99,11 @@ export default function SignUp() {
 
   const sendCodeToEmail = async (email: string) => {
     if (!sentEmail) {
+      console.log(email)
       try {
-        await fetch(baseUrl + '/api/email-auth/send-email/register-new', {
+        await fetch(baseUrl + '/email-auth/send-email/register-new', {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: email
           })
@@ -118,8 +123,9 @@ export default function SignUp() {
   const verifyCode = async (email: string, verificationCode: string) => {
     if (!emailVerified) {
       try {
-        const response = await fetch(baseUrl + '/api/email-auth/verify-pin', {
+        const response = await fetch(baseUrl + '/email-auth/verify-pin', {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             pin: verificationCode,
             email: email
@@ -136,6 +142,9 @@ export default function SignUp() {
       }
     } else {
       //TODO: email already verified
+      toast({
+        description: 'You have already verified code'
+      })
     }
   }
 
