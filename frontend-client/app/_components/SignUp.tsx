@@ -281,3 +281,6 @@ export default function SignUp() {
     </div>
   )
 }
+
+// 모달 전환하는 방식으로 수정 예정
+// 모달 컴포넌트 분리 예정
