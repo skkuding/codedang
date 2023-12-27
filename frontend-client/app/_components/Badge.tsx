@@ -17,9 +17,9 @@ interface Props {
 
 export default function Badge({ badge }: Props) {
   return (
-    <div className="inline-flex items-center gap-3 rounded-3xl bg-white px-3 py-1">
+    <div className="m-4 inline-flex items-center justify-center gap-3 self-end rounded-3xl bg-white px-3 py-0.5">
       <div className={`h-3 w-3 rounded-full ${variants[badge]}`}></div>
-      <div className="text-gray-500">{badge}</div>
+      <div className="text-gray-800">{badge}</div>
     </div>
   )
 }
