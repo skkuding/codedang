@@ -42,7 +42,7 @@ export default function ContestCard({ contest }: Props) {
     >
       <Badge badge={contest.badge}></Badge>
       <div>
-        <CardHeader className="p-5">
+        <CardHeader className="space-y-0 p-5">
           <CardDescription className="font-bold text-white">
             {variants.description[contest.badge]}
           </CardDescription>
