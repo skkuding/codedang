@@ -13,7 +13,7 @@ export default function ProblemCard({ problem }: Props) {
       <div>
         <CardHeader className="p-5">
           <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-3xl text-white">
-            {problem.title}
+            {`#${problem.problemId} ${problem.title}`}
           </CardTitle>
         </CardHeader>
         <CardFooter className="rounded-b-3xl border border-gray-300 bg-white text-sm">
