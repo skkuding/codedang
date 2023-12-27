@@ -182,7 +182,7 @@ export class ProblemResolver {
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException(error.message)
     }
   }
@@ -213,7 +213,7 @@ export class ProblemResolver {
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException(error.message)
     }
   }
@@ -238,7 +238,7 @@ export class ProblemResolver {
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException(error.message)
     }
   }
@@ -268,7 +268,7 @@ export class ProblemResolver {
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException(error.message)
     }
   }
