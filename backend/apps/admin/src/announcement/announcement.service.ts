@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { CreateAnnouncementInput } from './dto/create-announcement.input'
-import { UpdateAnnouncementInput } from './dto/update-announcement.input'
+import type { CreateAnnouncementInput } from './dto/create-announcement.input'
+import type { UpdateAnnouncementInput } from './dto/update-announcement.input'
 
 @Injectable()
 export class AnnouncementService {

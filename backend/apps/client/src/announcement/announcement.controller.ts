@@ -8,9 +8,9 @@ import {
   InternalServerErrorException,
   UseGuards
 } from '@nestjs/common'
+import type { Announcement } from '@prisma/client'
 import { AuthNotNeeded, GroupMemberGuard, RolesGuard } from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
-import type { Announcement } from '@admin/@generated'
 import { AnnouncementService } from './announcement.service'
 
 @Controller('announcement/problem/:problemId')

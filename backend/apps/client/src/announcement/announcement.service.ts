@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import type { Announcement } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
-import { SortOrder } from '@admin/@generated'
 
 @Injectable()
 export class AnnouncementService {
@@ -18,7 +17,7 @@ export class AnnouncementService {
           groupId
         }
       },
-      orderBy: { id: SortOrder.asc }
+      orderBy: { id: 'asc' }
     })
 
     if (!result) {
@@ -43,7 +42,7 @@ export class AnnouncementService {
           groupId
         }
       },
-      orderBy: { id: SortOrder.asc }
+      orderBy: { id: 'asc' }
     })
 
     if (!result) {
