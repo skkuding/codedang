@@ -101,14 +101,11 @@ export default function SignUp() {
         description: 'Sign up failed!',
         className: 'text-red-500'
       })
-      console.log('submit error is ', error)
     }
   }
 
   const sendCodeToEmail = async (email: string) => {
     if (!sentEmail) {
-      console.log(email)
-
       await fetch(baseUrl + '/email-auth/send-email/register-new', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -117,7 +114,6 @@ export default function SignUp() {
         })
       })
         .then((res) => {
-          console.log(res.status)
           if (res.status === 409) {
             toast({
               description: 'You have already signed up!',
@@ -127,12 +123,11 @@ export default function SignUp() {
             setSentEmail(true)
           }
         })
-        .catch((error) => {
+        .catch(() => {
           toast({
             description: 'Sending verification code failed!',
             className: 'text-red-500'
           })
-          console.log(error)
         })
     } else {
       //TODO: toast already sent email, wanna re-send?
@@ -165,7 +160,10 @@ export default function SignUp() {
           })
         }
       } catch (error) {
-        console.log('verify code error is ', error)
+        toast({
+          description: 'Email verification failed!',
+          className: 'text-red-500'
+        })
       }
     } else {
       //TODO: email already verified
