@@ -92,7 +92,15 @@ export default function SignUp() {
           password: data.password
         })
       })
+      toast({
+        description: 'Sign up succeed!',
+        className: 'text-blue-500'
+      })
     } catch (error) {
+      toast({
+        description: 'Sign up failed!',
+        className: 'text-red-500'
+      })
       console.log('submit error is ', error)
     }
   }
@@ -100,22 +108,37 @@ export default function SignUp() {
   const sendCodeToEmail = async (email: string) => {
     if (!sentEmail) {
       console.log(email)
-      try {
-        await fetch(baseUrl + '/email-auth/send-email/register-new', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: email
-          })
+
+      await fetch(baseUrl + '/email-auth/send-email/register-new', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email
         })
-        setSentEmail(true)
-      } catch (error) {
-        console.log('send code to email error is ', error)
-      }
+      })
+        .then((res) => {
+          console.log(res.status)
+          if (res.status === 409) {
+            toast({
+              description: 'You have already signed up!',
+              className: 'text-red-500'
+            })
+          } else if (res.status === 201) {
+            setSentEmail(true)
+          }
+        })
+        .catch((error) => {
+          toast({
+            description: 'Sending verification code failed!',
+            className: 'text-red-500'
+          })
+          console.log(error)
+        })
     } else {
       //TODO: toast already sent email, wanna re-send?
       toast({
-        description: 'You have already sent an email'
+        description: 'You have already sent an email',
+        className: 'text-red-500'
       })
     }
   }
@@ -136,6 +159,10 @@ export default function SignUp() {
           setEmailAuthToken(response.headers.get('email-auth') || '')
         } else {
           // TODO: handle failure
+          toast({
+            description: 'Verification code is not valid!',
+            className: 'text-red-500'
+          })
         }
       } catch (error) {
         console.log('verify code error is ', error)
@@ -143,7 +170,8 @@ export default function SignUp() {
     } else {
       //TODO: email already verified
       toast({
-        description: 'You have already verified code'
+        description: 'You have already verified code',
+        className: 'text-red-500'
       })
     }
   }
@@ -181,7 +209,7 @@ export default function SignUp() {
             </Button>
           </div>
           {sentEmail && (
-            <p className="mt-1 text-xs text-green-500">
+            <p className="mt-1 text-xs text-blue-500">
               Email verification code has been sent!
             </p>
           )}
@@ -206,7 +234,7 @@ export default function SignUp() {
           </Button>
         </div>
         {emailVerified && (
-          <p className="text-green text-xs font-bold">
+          <p className="text-blue text-xs font-bold">
             Email has been verified!
           </p>
         )}
