@@ -17,21 +17,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      - uses: ./.github/actions/setup-pnpm
 
       - name: Build static bundle
         run: pnpm --filter frontend build
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: frontend-bundle
           path: ./frontend/dist
@@ -129,7 +120,7 @@ jobs:
           terraform_version: 1.5.2
 
       - name: Load frontend static bundle
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: frontend-bundle
           path: ./frontend/dist

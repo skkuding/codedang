@@ -169,6 +169,8 @@ model Problem {
   contestProblem  ContestProblem[]
   workbookProblem WorkbookProblem[]
   submission      Submission[]
+  announcement    Announcement[]
+  // ProblemAnnouncement ProblemAnnouncement[]
 
   @@map("problem")
 }
@@ -253,7 +255,7 @@ model Contest {
 }
 
 model ContestProblem {
-  id         String
+  order      Int
   contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
   contestId  Int      @map("contest_id")
   problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
@@ -262,23 +264,21 @@ model ContestProblem {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  clarification Clarification[]
-
   @@id([contestId, problemId])
-  @@unique([contestId, id])
+  // @@unique([contestId, problemId])
   @@map("contest_problem")
 }
 
-model Clarification {
-  id         Int            @id @default(autoincrement())
-  problem    ContestProblem @relation(fields: [contestId, problemId], references: [contestId, problemId], onDelete: Cascade)
-  contestId  Int            @map("contest_id")
-  problemId  Int            @map("problem_id")
+model Announcement {
+  id         Int      @id @default(autoincrement())
   content    String
-  createTime DateTime       @default(now()) @map("create_time")
-  updateTime DateTime       @updatedAt @map("update_time")
+  problem    Problem  @relation(fields: [problemId], references: [id])
+  problemId  Int      @map("problem_id")
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
 
-  @@map("contest_notice")
+  @@unique([id])
+  @@map("announcement")
 }
 
 model ContestRecord {
@@ -315,7 +315,7 @@ model Workbook {
 }
 
 model WorkbookProblem {
-  id         String
+  order      Int
   workbook   Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
   workbookId Int      @map("workbook_id")
   problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
@@ -324,7 +324,7 @@ model WorkbookProblem {
   updateTime DateTime @updatedAt @map("update_time")
 
   @@id([workbookId, problemId])
-  @@unique([workbookId, id])
+  // @@unique([workbookId, problemId])
   @@map("workbook_problem")
 }
 

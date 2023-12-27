@@ -16,7 +16,7 @@ resource "aws_ecs_cluster_capacity_providers" "ecs_api" {
 resource "aws_autoscaling_group" "asg_api" {
   name                  = "Codedang-AutoScalingGroup-Api"
   vpc_zone_identifier   = [aws_subnet.private_client_api1.id, aws_subnet.private_client_api2.id]
-  protect_from_scale_in = true
+  protect_from_scale_in = false
 
   # target_group_arns = [aws_lb_target_group.client_api.id]
   health_check_type = "ELB"
