@@ -14,3 +14,12 @@ assert {
   res.status: eq 404
   res("message"): eq No Workbook found
 }
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # 404: Nonexistent Workbook
+  - 존재하지 않는 workbook을 조회할 때 404 에러를 반환한다.
+}
