@@ -37,22 +37,22 @@ const columns: ColumnDef<Notice>[] = [
     header: 'Title',
     accessorKey: 'title',
     cell: ({ row }) => {
-      return <div className="text-base">{row.original.title}</div>
+      return <p className="text-sm md:text-base">{row.original.title}</p>
     }
   },
   {
     header: () => (
       <div className="flex justify-end">
-        <div className="flex w-32 justify-center">Date</div>
+        <p className="flex w-32 justify-center">Date</p>
       </div>
     ),
     accessorKey: 'createTime',
     cell: ({ row }) => {
       return (
         <div className="flex justify-end text-gray-500">
-          <div className="flex w-32 justify-center">
+          <p className="text flex w-32 justify-center text-xs md:text-sm">
             {dayjs(row.original.createTime).format('YYYY-MM-DD')}
-          </div>
+          </p>
         </div>
       )
     }
