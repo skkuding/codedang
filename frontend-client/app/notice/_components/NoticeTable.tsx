@@ -1,10 +1,8 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import {
   Pagination,
   PaginationContent,
-  PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious
@@ -25,79 +23,6 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
-
-const notices = [
-  {
-    id: 1,
-    title: '아주 중요한 공지사항 (1)',
-    createTime: '2023-12-26T15:33:40.887Z',
-    isFixed: false,
-    createdBy: 'super'
-  },
-  {
-    id: 2,
-    title: '더 중요한 공지사항 (2)',
-    createTime: '2023-12-26T15:33:40.887Z',
-    isFixed: false,
-    createdBy: 'super'
-  },
-  {
-    id: 3,
-    title: '제일 중요한 공지사항 (3)',
-    createTime: '2023-12-26T15:33:40.887Z',
-    isFixed: false,
-    createdBy: 'super'
-  },
-  {
-    id: 4,
-    title: 'HTML element들 테스트해봐요 (4)',
-    createTime: '2023-12-26T15:33:40.887Z',
-    isFixed: false,
-    createdBy: 'manager'
-  },
-  {
-    id: 5,
-    title: '아주 중요한 공지사항 (5)',
-    createTime: '2023-12-26T15:33:40.887Z',
-    isFixed: false,
-    createdBy: 'super'
-  },
-  {
-    id: 6,
-    title: '더 중요한 공지사항 (6)',
-    createTime: '2023-12-26T15:33:40.887Z',
-    isFixed: false,
-    createdBy: 'super'
-  },
-  {
-    id: 7,
-    title: '제일 중요한 공지사항 (7)',
-    createTime: '2023-12-26T15:33:40.887Z',
-    isFixed: false,
-    createdBy: 'super'
-  },
-  {
-    id: 8,
-    title: 'HTML element들 테스트해봐요 (8)',
-    createTime: '2023-12-26T15:33:40.887Z',
-    isFixed: false,
-    createdBy: 'manager'
-  },
-  {
-    id: 9,
-    title: '아주 중요한 공지사항 (9)',
-    createTime: '2023-12-26T15:33:40.887Z',
-    isFixed: false,
-    createdBy: 'super'
-  },
-  {
-    id: 10,
-    title: '더 중요한 공지사항 (10)',
-    createTime: '2023-12-26T15:33:40.887Z',
-    isFixed: false,
-    createdBy: 'super'
-  }
-]
 
 interface Notice {
   id: number
@@ -134,9 +59,9 @@ const columns: ColumnDef<Notice>[] = [
   }
 ]
 
-export default function NoticeTable() {
+export default function NoticeTable({ data }: { data: Notice[] }) {
   const table = useReactTable({
-    data: notices,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel()
