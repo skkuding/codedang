@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common'
 import { ResultStatus } from '@prisma/client'
-import { JsonArray } from '@prisma/client/runtime/library'
 import { plainToInstance } from 'class-transformer'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ForbiddenAccessException,
-  EntityNotExistException
+  EntityNotExistException,
+  ConflictFoundException
 } from '@libs/exception'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
+import type { CreateTemplateDto } from './dto/create-user-problem.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
@@ -144,18 +145,29 @@ export class UserProblemService {
     const data = await this.problemRepository.getUserProblem(userId, problemId)
     return plainToInstance(UserProblemResponseDto, data)
   }
-  async createUserCode(userId: number, template: JsonArray, problemId: number) {
+  async createUserCode(
+    userId: number,
+    createTemplateDto: CreateTemplateDto,
+    problemId: number
+  ) {
+    if (await this.problemRepository.getUserProblem(userId, problemId)) {
+      throw new ConflictFoundException('UserProblem already exists.')
+    }
     const data = await this.problemRepository.createUserProblem(
       userId,
-      template,
+      createTemplateDto.template,
       problemId
     )
     return plainToInstance(UserProblemResponseDto, data)
   }
-  async updateUserCode(userId: number, template: JsonArray, problemId: number) {
+  async updateUserCode(
+    userId: number,
+    createTemplateDto: CreateTemplateDto,
+    problemId: number
+  ) {
     const data = await this.problemRepository.updateUserProblem(
       userId,
-      template,
+      createTemplateDto.template,
       problemId
     )
     return plainToInstance(UserProblemResponseDto, data)

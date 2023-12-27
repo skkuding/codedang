@@ -8,6 +8,7 @@ import type {
 } from '@prisma/client'
 import type { JsonArray } from '@prisma/client/runtime/library'
 import { PrismaService } from '@libs/prisma'
+import type { Template } from '@client/submission/dto/create-submission.dto'
 
 /**
  * repository에서는 partial entity를 반환합니다.
@@ -240,7 +241,7 @@ export class ProblemRepository {
 
   async createUserProblem(
     userId: number,
-    template: JsonArray,
+    template: Template[],
     problemId: number
   ): Promise<Partial<UserProblem>> {
     await this.prisma.user.findUniqueOrThrow({
@@ -253,11 +254,12 @@ export class ProblemRepository {
         id: problemId
       }
     })
+
     return await this.prisma.userProblem.create({
       data: {
         userId: userId,
         problemId: problemId,
-        template: template
+        template: template as unknown as JsonArray
       },
       select: this.UserProblemSelectOption
     })
@@ -265,7 +267,7 @@ export class ProblemRepository {
 
   async updateUserProblem(
     userId: number,
-    template: JsonArray,
+    template: Template[],
     problemId: number
   ): Promise<Partial<UserProblem>> {
     await this.prisma.user.findUniqueOrThrow({
@@ -287,7 +289,7 @@ export class ProblemRepository {
         }
       },
       data: {
-        template: template
+        template: template as unknown as JsonArray
       },
       select: this.UserProblemSelectOption
     })

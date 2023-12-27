@@ -13,9 +13,12 @@ import {
   Req
 } from '@nestjs/common'
 import { Prisma, Role } from '@prisma/client'
-import { JsonArray } from '@prisma/client/runtime/library'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
-import { ForbiddenAccessException } from '@libs/exception'
+import {
+  ConflictFoundException,
+  ForbiddenAccessException
+} from '@libs/exception'
+import { CreateTemplateDto } from './dto/create-user-problem.dto'
 import { UserProblemService } from './problem.service'
 
 @Controller('user/problem/:problemId')
@@ -49,21 +52,25 @@ export class UserProblemController {
   @Post()
   async createUserCode(
     @Req() req: AuthenticatedRequest,
-    @Body() template: JsonArray,
-    @Param('problemId') problemId: number
+    @Body() createTemplateDto: CreateTemplateDto,
+    @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {
       return await this.userProblemService.createUserCode(
         req.user.id,
-        template,
+        createTemplateDto,
         problemId
       )
     } catch (err) {
       if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2002'
+        err.name == 'NotFoundError'
       ) {
+        throw new NotFoundException(err.message)
+      } else if (err instanceof ForbiddenAccessException) {
         throw new BadRequestException(err.message)
+      } else if (err instanceof ConflictFoundException) {
+        throw new ConflictFoundException(err.message)
       }
       this.logger.error(err.message, err.stack)
       throw new InternalServerErrorException()
@@ -73,20 +80,22 @@ export class UserProblemController {
   @Put()
   async updateUserCode(
     @Req() req: AuthenticatedRequest,
-    @Body() template: JsonArray,
-    @Param('problemId') problemId: number
+    @Body() createTemplateDto: CreateTemplateDto,
+    @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {
       return await this.userProblemService.updateUserCode(
         req.user.id,
-        template,
+        createTemplateDto,
         problemId
       )
     } catch (err) {
       if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2002'
+        err.name === 'NotFoundError'
       ) {
+        throw new NotFoundException(err.message)
+      } else if (err instanceof ForbiddenAccessException) {
         throw new BadRequestException(err.message)
       }
       this.logger.error(err.message, err.stack)

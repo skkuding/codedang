@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { NotFoundException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Prisma, ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
@@ -6,6 +7,7 @@ import { plainToInstance } from 'class-transformer'
 import * as dayjs from 'dayjs'
 import { stub } from 'sinon'
 import {
+  ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
@@ -17,16 +19,21 @@ import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
+import { UserProblemResponseDto } from './dto/user-problem.response.dto'
 import {
   contestProblems,
   problemTag,
   problems,
-  workbookProblems
+  workbookProblems,
+  mockUser,
+  mockUserProblem,
+  mockTemplate
 } from './mock/problem.mock'
 import { ProblemRepository } from './problem.repository'
 import {
   ContestProblemService,
   ProblemService,
+  UserProblemService,
   WorkbookProblemService
 } from './problem.service'
 
@@ -48,6 +55,16 @@ const db = {
   },
   problemTag: {
     findMany: stub()
+  },
+  user: {
+    findUniqueOrThrow: stub()
+  },
+  userProblem: {
+    findMany: stub(),
+    findUnique: stub(),
+    findUniqueOrThrow: stub(),
+    create: stub(),
+    update: stub()
   }
 }
 
@@ -460,6 +477,177 @@ describe('WorkbookProblemService', () => {
       await expect(
         service.getWorkbookProblem(contestId, problemId)
       ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+
+  describe('UserProblemService', () => {
+    let service: UserProblemService
+    let problemRepository: ProblemRepository
+
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          UserProblemService,
+          ProblemRepository,
+          { provide: PrismaService, useValue: db },
+          {
+            provide: CACHE_MANAGER,
+            useFactory: () => ({
+              set: () => [],
+              get: () => [],
+              del: () => [],
+              store: {
+                keys: () => []
+              }
+            })
+          }
+        ]
+      }).compile()
+
+      service = module.get<UserProblemService>(UserProblemService)
+      problemRepository = module.get<ProblemRepository>(ProblemRepository)
+    })
+
+    it('should be defined', () => {
+      expect(service).to.be.ok
+    })
+
+    it('should be defined', () => {
+      expect(problemRepository).to.be.ok
+    })
+
+    describe('getUserCode', () => {
+      it('should return User Problem Record', async () => {
+        // given
+        db.user.findUniqueOrThrow.resolves(mockUser)
+        db.problem.findUniqueOrThrow.resolves(mockProblem)
+        db.userProblem.findUniqueOrThrow.resolves(mockUserProblem)
+        // when
+        const result = await service.getUserCode(mockUser.id, mockProblem.id)
+
+        // then
+        expect(result).to.deep.equal(
+          plainToInstance(UserProblemResponseDto, mockUserProblem)
+        )
+      })
+      it('should throw error when the user does not exist', async () => {
+        // given
+        db.user.findUniqueOrThrow.rejects(
+          new NotFoundException('User does not exist.')
+        )
+
+        // then
+        await expect(
+          service.getUserCode(mockUser.id, mockProblem.id)
+        ).to.be.rejectedWith(NotFoundException)
+      })
+      it('should throw error when the problem does not exist', async () => {
+        // given
+        db.user.findUniqueOrThrow.resolves(mockUser)
+        db.problem.findUniqueOrThrow.rejects(
+          new NotFoundException('Problem does not exist.')
+        )
+
+        // then
+        await expect(
+          service.getUserCode(mockUser.id, mockProblem.id)
+        ).to.be.rejectedWith(NotFoundException)
+      })
+    })
+    describe('createUserCode', () => {
+      it('should create User Code and return created User Problem Record', async () => {
+        // given
+        db.user.findUniqueOrThrow.resolves(mockUser)
+        db.problem.findUniqueOrThrow.resolves(mockProblem)
+        problemRepository.getUserProblem = stub().resolves(null)
+        db.userProblem.create.resolves(mockUserProblem)
+        // when
+        const result = await service.createUserCode(
+          mockUser.id,
+          mockTemplate,
+          mockUserProblem.id
+        )
+
+        // then
+        expect(result).to.deep.equal(
+          plainToInstance(UserProblemResponseDto, mockUserProblem)
+        )
+      })
+      it('should throw error when the user does not exist', async () => {
+        // given
+        db.user.findUniqueOrThrow.rejects(
+          new NotFoundException('User does not exist.')
+        )
+
+        // then
+        await expect(
+          service.createUserCode(mockUser.id, mockTemplate, mockUserProblem.id)
+        ).to.be.rejectedWith(NotFoundException)
+      })
+      it('should throw error when the problem does not exist', async () => {
+        // given
+        db.user.findUniqueOrThrow.resolves(mockUser)
+        db.problem.findUniqueOrThrow.rejects(
+          new NotFoundException('Problem does not exist.')
+        )
+
+        // then
+        await expect(
+          service.createUserCode(mockUser.id, mockTemplate, mockUserProblem.id)
+        ).to.be.rejectedWith(NotFoundException)
+      })
+      it('should throw error when the same userProblem already exist', async () => {
+        // given
+        problemRepository.getUserProblem = stub().resolves(mockUserProblem)
+
+        // then
+        await expect(
+          service.createUserCode(mockUser.id, mockTemplate, mockUserProblem.id)
+        ).to.be.rejectedWith(ConflictFoundException)
+      })
+    })
+    describe('updateUserCode', () => {
+      it('should update User Code and return updated User Problem Record', async () => {
+        // given
+        db.user.findUniqueOrThrow.resolves(mockUser)
+        db.problem.findUniqueOrThrow.resolves(mockProblem)
+        db.userProblem.findUniqueOrThrow.resolves(mockUserProblem)
+        db.userProblem.update.resolves(mockUserProblem)
+        // when
+        const result = await service.updateUserCode(
+          mockUser.id,
+          mockTemplate,
+          mockUserProblem.id
+        )
+
+        // then
+        expect(result).to.deep.equal(
+          plainToInstance(UserProblemResponseDto, mockUserProblem)
+        )
+      })
+      it('should throw error when the user does not exist', async () => {
+        // given
+        db.user.findUniqueOrThrow.rejects(
+          new NotFoundException('User does not exist.')
+        )
+
+        // then
+        await expect(
+          service.updateUserCode(mockUser.id, mockTemplate, mockUserProblem.id)
+        ).to.be.rejectedWith(NotFoundException)
+      })
+      it('should throw error when the problem does not exist', async () => {
+        // given
+        db.user.findUniqueOrThrow.resolves(mockUser)
+        db.problem.findUniqueOrThrow.rejects(
+          new NotFoundException('Problem does not exist.')
+        )
+
+        // then
+        await expect(
+          service.updateUserCode(mockUser.id, mockTemplate, mockUserProblem.id)
+        ).to.be.rejectedWith(NotFoundException)
+      })
     })
   })
 })

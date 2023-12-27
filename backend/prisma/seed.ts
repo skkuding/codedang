@@ -1293,10 +1293,30 @@ const createUserProblems = async () => {
               code: [
                 {
                   id: 1,
-                  text: '// Your example C++ code here',
+                  text: '#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n',
+                  locked: true
+                },
+                {
+                  id: 2,
+                  text: '    cout << "hello, world" << endl;\n',
                   locked: false
+                },
+                {
+                  id: 3,
+                  text: '    return 0;\n}\n',
+                  locked: true
                 }
                 // ... add more code blocks if needed
+              ]
+            },
+            {
+              language: Language.Python3,
+              code: [
+                {
+                  id: 1,
+                  text: 'print("hello, world")\n',
+                  locked: false
+                }
               ]
             }
           ]
