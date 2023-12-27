@@ -12,7 +12,7 @@ export default function ProblemCard({ problem }: Props) {
       <Badge badge={problem.difficulty} />
       <div>
         <CardHeader className="p-5">
-          <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-3xl text-white">
+          <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-3xl tracking-normal text-white">
             {`#${problem.problemId} ${problem.title}`}
           </CardTitle>
         </CardHeader>

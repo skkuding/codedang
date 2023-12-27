@@ -46,7 +46,7 @@ export default function ContestCard({ contest }: Props) {
           <CardDescription className="font-bold text-white">
             {variants.description[contest.badge]}
           </CardDescription>
-          <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-3xl text-white">
+          <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-3xl tracking-normal text-white">
             {contest.title}
           </CardTitle>
         </CardHeader>
