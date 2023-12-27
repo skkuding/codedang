@@ -29,8 +29,8 @@ interface Props {
 }
 
 export default function ContestCard({ contest }: Props) {
-  const startTime = dayjs(contest.startTime).format('YYYY-MM-DD')
-  const endTime = dayjs(contest.endTime).format('YYYY-MM-DD')
+  const startTime = dayjs(contest.startTime).format('MMM DD, YYYY')
+  const endTime = dayjs(contest.endTime).format('MMM DD, YYYY')
 
   return (
     <Card className={variants.style[contest.badge]}>
@@ -42,7 +42,7 @@ export default function ContestCard({ contest }: Props) {
         <CardTitle className="text-3xl text-white">{contest.title}</CardTitle>
       </CardHeader>
       <CardFooter className="justify-between rounded-b-3xl bg-white">
-        <p>{`${startTime} ~ ${endTime}`}</p>
+        <p>{`${startTime} - ${endTime}`}</p>
         {contest.badge == 'ongoing' && (
           <div className="flex gap-1 text-red-500">
             <p>-</p>
