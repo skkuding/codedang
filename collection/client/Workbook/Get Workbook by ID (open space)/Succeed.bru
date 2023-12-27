@@ -17,3 +17,12 @@ assert {
   res("problems")[0].id: isNumber
   res("problems")[0].title: isString
 }
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get OPENSPACE Workbook by ID
+  - `workbookId`를 이용하여 `OPEN_SPACE`의 워크북을 조회합니다.
+}
