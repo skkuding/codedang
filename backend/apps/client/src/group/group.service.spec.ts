@@ -3,7 +3,7 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { Prisma, type UserGroup } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
-import { spy, stub } from 'sinon'
+import { spy, stub, match } from 'sinon'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
@@ -247,9 +247,9 @@ describe('GroupService', () => {
       expect(cacheSpyGet.calledWith(joinGroupCacheKey(groupId))).to.be.true
       expect(cacheSpyGet.calledOnce).to.be.true
       expect(
-        cacheSpySet.calledOnceWithExactly(
+        cacheSpySet.calledWith(
           joinGroupCacheKey(groupId),
-          [userId],
+          match.any,
           JOIN_GROUP_REQUEST_EXPIRE_TIME
         )
       ).to.be.true
@@ -291,9 +291,10 @@ describe('GroupService', () => {
           (userGroup) => userGroup.groupId === groupId
         )
       })
-      const cacheSpy = stub(cache, 'get').resolves(
-        `user:${userId}:group:${groupId}`
-      )
+      const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
+      const cacheSpy = stub(cache, 'get').resolves([
+        [userId, joinRequestTimeLimit]
+      ])
 
       //when
       await expect(service.joinGroupById(userId, groupId)).to.be.rejectedWith(

@@ -215,16 +215,18 @@ export class UserService {
   }
 
   async getJoinRequests(groupId: number) {
-    const joinGroupRequest: number[] = await this.cacheManager.get(
+    let joinGroupRequest: [number, number][] = await this.cacheManager.get(
       joinGroupCacheKey(groupId)
     )
     if (joinGroupRequest === undefined) {
       return []
     }
+    joinGroupRequest = joinGroupRequest.filter((e) => e[1] > Date.now())
+    const userIds = joinGroupRequest.map((e) => e[0])
     return await this.prisma.user.findMany({
       where: {
         id: {
-          in: joinGroupRequest
+          in: userIds
         }
       }
     })
@@ -235,15 +237,20 @@ export class UserService {
     userId: number,
     isAccepted: boolean
   ): Promise<UserGroup | number> {
-    const joinGroupRequest: number[] = await this.cacheManager.get(
+    let joinGroupRequest: [number, number][] = await this.cacheManager.get(
       joinGroupCacheKey(groupId)
     )
-    if (joinGroupRequest === undefined || !joinGroupRequest.includes(userId)) {
+    if (joinGroupRequest)
+      joinGroupRequest = joinGroupRequest.filter((e) => e[1] > Date.now())
+    if (
+      joinGroupRequest === undefined ||
+      !joinGroupRequest.find((e) => e[0] === userId)
+    ) {
       throw new ConflictException(
         `userId ${userId} didn't request join to groupId ${groupId}`
       )
     }
-    const filtered = joinGroupRequest.filter((element) => element !== userId)
+    const filtered = joinGroupRequest.filter((e) => e[0] !== userId)
     await this.cacheManager.set(
       joinGroupCacheKey(groupId),
       filtered,

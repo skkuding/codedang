@@ -319,10 +319,11 @@ describe('UserService', () => {
     it('should return user array', async () => {
       const groupId = 1
       db.user.findMany.resolves([user1, user2, user3])
+      const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
       const cacheSpyGet = stub(cache, 'get').resolves([
-        userGroup1.userId,
-        userGroup2.userId,
-        userGroup3.userId
+        [userGroup1.userId, joinRequestTimeLimit],
+        [userGroup2.userId, joinRequestTimeLimit],
+        [userGroup3.userId, joinRequestTimeLimit]
       ])
       const res = await service.getJoinRequests(groupId)
 
@@ -336,10 +337,11 @@ describe('UserService', () => {
   describe('handleJoinRequest', () => {
     it('should return created userGroup when accepted', async () => {
       const groupId = 1
+      const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
       const cacheSpyGet = stub(cache, 'get').resolves([
-        userGroup1.userId,
-        userGroup2.userId,
-        userGroup3.userId
+        [userGroup1.userId, joinRequestTimeLimit],
+        [userGroup2.userId, joinRequestTimeLimit],
+        [userGroup3.userId, joinRequestTimeLimit]
       ])
       const cacheSpySet = stub(cache, 'set').resolves()
 
@@ -365,7 +367,10 @@ describe('UserService', () => {
       expect(
         cacheSpySet.calledOnceWithExactly(
           joinGroupCacheKey(groupId),
-          [userGroup1.userId, userGroup2.userId],
+          [
+            [userGroup1.userId, joinRequestTimeLimit],
+            [userGroup2.userId, joinRequestTimeLimit]
+          ],
           JOIN_GROUP_REQUEST_EXPIRE_TIME
         )
       ).to.be.true
@@ -382,10 +387,11 @@ describe('UserService', () => {
 
     it('should return userId when rejected', async () => {
       const groupId = 1
+      const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
       const cacheSpyGet = stub(cache, 'get').resolves([
-        userGroup1.userId,
-        userGroup2.userId,
-        userGroup3.userId
+        [userGroup1.userId, joinRequestTimeLimit],
+        [userGroup2.userId, joinRequestTimeLimit],
+        [userGroup3.userId, joinRequestTimeLimit]
       ])
       const cacheSpySet = stub(cache, 'set').resolves()
       const res = await service.handleJoinRequest(
@@ -399,7 +405,10 @@ describe('UserService', () => {
       expect(
         cacheSpySet.calledOnceWithExactly(
           joinGroupCacheKey(groupId),
-          [userGroup1.userId, userGroup2.userId],
+          [
+            [userGroup1.userId, joinRequestTimeLimit],
+            [userGroup2.userId, joinRequestTimeLimit]
+          ],
           JOIN_GROUP_REQUEST_EXPIRE_TIME
         )
       ).to.be.true
@@ -410,9 +419,10 @@ describe('UserService', () => {
 
     it('should throw BadRequestException when the userId did not request join', async () => {
       const groupId = 1
+      const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
       const cacheSpyGet = stub(cache, 'get').resolves([
-        userGroup1.userId,
-        userGroup2.userId
+        [userGroup1.userId, joinRequestTimeLimit],
+        [userGroup2.userId, joinRequestTimeLimit]
       ])
 
       const res = async () =>

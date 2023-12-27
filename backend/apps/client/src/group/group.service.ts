@@ -229,19 +229,24 @@ export class GroupService {
     if (isJoined) {
       throw new ConflictFoundException('Already joined this group')
     } else if (group.config['requireApprovalBeforeJoin']) {
-      let joinGroupRequest: number[] = await this.cacheManager.get(
+      let joinGroupRequest: [number, number][] = await this.cacheManager.get(
         joinGroupCacheKey(groupId)
       )
       if (joinGroupRequest) {
-        if (joinGroupRequest.includes(userId)) {
+        joinGroupRequest = joinGroupRequest.filter((e) => e[1] > Date.now())
+        if (joinGroupRequest.find((e) => e[0] === userId)) {
           throw new ConflictFoundException(
             'Already requested to join this group'
           )
         }
       }
 
-      if (joinGroupRequest !== undefined) joinGroupRequest.push(userId)
-      else joinGroupRequest = [userId]
+      const requestPair: [number, number] = [
+        userId,
+        Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
+      ]
+      if (joinGroupRequest !== undefined) joinGroupRequest.push(requestPair)
+      else joinGroupRequest = [requestPair]
       await this.cacheManager.set(
         joinGroupCacheKey(groupId),
         joinGroupRequest,
