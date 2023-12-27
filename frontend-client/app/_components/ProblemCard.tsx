@@ -8,14 +8,22 @@ interface Props {
 
 export default function ProblemCard({ problem }: Props) {
   return (
-    <Card className="bg-gray-500">
-      <Badge badge={problem.difficulty}></Badge>
-      <CardHeader>
-        <CardTitle className="text-3xl text-white">{problem.title}</CardTitle>
-      </CardHeader>
-      <CardFooter className="justify-between rounded-b-3xl bg-white">
-        <p>Solved Rate: {/* TODO: 백엔드 API 변경되면 AC Rate 값 추가 */}</p>
-      </CardFooter>
-    </Card>
+    <div className="w-1/3 px-2 py-5">
+      <Card className="flex h-56 flex-col justify-between bg-gray-500">
+        <Badge badge={problem.difficulty} />
+        <div>
+          <CardHeader className="p-5">
+            <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-3xl text-white">
+              {problem.title}
+            </CardTitle>
+          </CardHeader>
+          <CardFooter className="rounded-b-3xl bg-white text-sm">
+            <p>
+              Solved Rate: {/* TODO: 백엔드 API 변경되면 AC Rate 값 추가 */}
+            </p>
+          </CardFooter>
+        </div>
+      </Card>
+    </div>
   )
 }
