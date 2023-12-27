@@ -76,10 +76,7 @@ export class ProblemRepository {
       skip: skip,
       take: take,
       where: {
-        groupId,
-        exposeTime: {
-          lte: new Date()
-        }
+        groupId
       },
       select: {
         ...this.problemsSelectOption,

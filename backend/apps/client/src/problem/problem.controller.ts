@@ -7,10 +7,15 @@ import {
   Param,
   ParseIntPipe,
   Query,
+  Req,
   UseGuards
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
+import {
+  AuthNotNeeded,
+  AuthenticatedRequest,
+  GroupMemberGuard
+} from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe } from '@libs/pipe'
 import { ProblemService } from './problem.service'
@@ -63,10 +68,16 @@ export class GroupProblemController {
   async getProblems(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number,
-    @Query('take', ParseIntPipe) take: number
+    @Query('take', ParseIntPipe) take: number,
+    @Req() req: AuthenticatedRequest
   ) {
     try {
-      return await this.problemService.getProblems(cursor, take, groupId)
+      return await this.problemService.getProblems(
+        cursor,
+        take,
+        groupId,
+        req.user.id
+      )
     } catch (error) {
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()

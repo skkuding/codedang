@@ -6,6 +6,7 @@ import {
   ForbiddenAccessException,
   EntityNotExistException
 } from '@libs/exception'
+import { PrismaService } from '@libs/prisma'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { ProblemResponseDto } from './dto/problem.response.dto'
@@ -16,23 +17,44 @@ import { ProblemRepository } from './problem.repository'
 
 @Injectable()
 export class ProblemService {
-  constructor(private readonly problemRepository: ProblemRepository) {}
+  constructor(
+    private readonly problemRepository: ProblemRepository,
+    private readonly prisma: PrismaService
+  ) {}
 
-  async getProblems(cursor: number, take: number, groupId: number) {
-    const problem = await this.problemRepository.getProblems(
+  async getProblems(
+    cursor: number,
+    take: number,
+    groupId: number,
+    userId?: number
+  ) {
+    let unprocessedProblems = await this.problemRepository.getProblems(
       cursor,
       take,
       groupId
     )
+
+    if (!userId) {
+      unprocessedProblems = unprocessedProblems.filter(
+        (problem) => problem.exposeTime <= new Date()
+      )
+    } else {
+      unprocessedProblems = unprocessedProblems.filter(
+        (problem) =>
+          problem.exposeTime <= new Date() ||
+          this.isProblemInUserParticipatingContest(groupId, problem.id)
+      )
+    }
+
     const uniqueTagIds = new Set(
-      problem.flatMap((item) => {
+      unprocessedProblems.flatMap((item) => {
         return item.problemTag.map((item2) => item2.tagId)
       })
     )
     const tagIds = [...uniqueTagIds]
     const tagList = await this.problemRepository.getProblemsTags(tagIds)
 
-    const problems = problem.map(async (problem) => {
+    const problems = unprocessedProblems.map(async (problem) => {
       const { submission, problemTag, ...data } = problem
       const submissionCount = submission.length
       const acceptedRate =
@@ -55,6 +77,37 @@ export class ProblemService {
   async getProblem(problemId: number, groupId = OPEN_SPACE_ID) {
     const data = await this.problemRepository.getProblem(problemId, groupId)
     return plainToInstance(ProblemResponseDto, data)
+  }
+
+  async isProblemInUserParticipatingContest(
+    groupId: number,
+    problemId: number
+  ): Promise<boolean> {
+    const contestProblems = await this.prisma.contestProblem.findMany({
+      where: {
+        problemId
+      }
+    })
+    if (!contestProblems) {
+      return false
+    }
+
+    const contestIds = contestProblems.map(
+      (contestProblem) => contestProblem.contestId
+    )
+
+    const contests = contestIds.map(async (id) => {
+      return await this.prisma.contest.findFirst({
+        where: {
+          id,
+          groupId
+        }
+      })
+    })
+    if (!contests) {
+      return false
+    }
+    return true
   }
 }
 
