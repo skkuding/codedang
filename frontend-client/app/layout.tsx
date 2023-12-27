@@ -18,8 +18,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={manrope.className}>
-        <Header />
-        {children}
+        <div className="w-screen overflow-hidden">
+          <Header />
+          {children}
+        </div>
       </body>
     </html>
   )
