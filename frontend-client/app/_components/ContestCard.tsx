@@ -8,6 +8,7 @@ import {
 import type { Contest } from '@/types/type'
 import dayjs from 'dayjs'
 import Badge from './Badge'
+import TimeDiff from './TimeDiff'
 
 const variants = {
   style: {
@@ -43,7 +44,10 @@ export default function ContestCard({ contest }: Props) {
       <CardFooter className="justify-between rounded-b-3xl bg-white">
         <p>{`${startTime} ~ ${endTime}`}</p>
         {contest.badge == 'ongoing' && (
-          <p className="text-red-500">Remaining Time: {'...'}</p>
+          <div className="flex gap-1 text-red-500">
+            <p>-</p>
+            <TimeDiff timeRef={contest.endTime}></TimeDiff>
+          </div>
         )}
       </CardFooter>
     </Card>
