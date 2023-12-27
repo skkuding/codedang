@@ -59,13 +59,19 @@ const columns: ColumnDef<Notice>[] = [
   }
 ]
 
-export default function NoticeTable({ data }: { data: Notice[] }) {
+interface NoticeTableProps {
+  data: Notice[]
+  page: number
+}
+
+export default function NoticeTable({ data, page }: NoticeTableProps) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel()
   })
+
   return (
     <div className="mt-5">
       <Table>
@@ -112,13 +118,26 @@ export default function NoticeTable({ data }: { data: Notice[] }) {
       </Table>
       <Pagination>
         <PaginationContent>
-          <PaginationPrevious href="#" />
-          <PaginationLink href="#" isActive>
+          <PaginationPrevious
+            href={page === 1 ? undefined : `?page=${page - 1}`}
+            className={page === 1 ? 'cursor-not-allowed opacity-30' : undefined}
+          />
+          <PaginationLink href="?page=1" isActive={page === 1}>
             1
           </PaginationLink>
-          <PaginationLink href="#">2</PaginationLink>
-          <PaginationLink href="#">3</PaginationLink>
-          <PaginationNext href="#" />
+          <PaginationLink href="?page=2" isActive={page === 2}>
+            2
+          </PaginationLink>
+          <PaginationLink href="?page=3" isActive={page === 3}>
+            3
+          </PaginationLink>
+          <PaginationLink href="?page=4" isActive={page === 4}>
+            4
+          </PaginationLink>
+          <PaginationLink href="?page=5" isActive={page === 5}>
+            5
+          </PaginationLink>
+          <PaginationNext href={`?page=${page + 1}`} />
         </PaginationContent>
       </Pagination>
     </div>
