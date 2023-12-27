@@ -101,11 +101,13 @@ export default function SignUpRegister() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <Image src={CodedangLogo} alt="코드당" width={70} className="mb-5" />
+    <div className="flex w-full flex-col p-4">
+      <div className="">
+        <Image src={CodedangLogo} alt="코드당" width={70} className="mb-12" />
+      </div>
 
       <form
-        className="flex w-60 flex-col gap-4"
+        className="flex w-full flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
         <div>
@@ -181,11 +183,19 @@ export default function SignUpRegister() {
           Register
         </Button>
       </form>
-      <div className="text-gray-dark mt-6 flex flex-col items-center text-sm">
-        Already have an account?
-        <a className="text-gray-dark hover:text-gray-dark/80 active:text-gray-dark/60 w-fit cursor-pointer text-sm underline">
-          Log In
-        </a>
+      <div className="mt-16 flex items-center justify-around">
+        <Button
+          variant={'link'}
+          className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
+        >
+          Already have account?
+        </Button>
+        <Button
+          variant={'link'}
+          className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
+        >
+          Log in
+        </Button>
       </div>
       <Toaster />
     </div>
