@@ -1,16 +1,25 @@
-import type { ContestStatus } from './Card'
+import type { ContestStatus, Level } from '@/types/type'
 
-const badgeVariants = {
-  ongoing: 'bg-[#b6eb8d]',
-  upcoming: 'bg-[#feb144]',
-  finished: 'bg-[#737d81]'
+const variants = {
+  ongoing: 'bg-primary',
+  upcoming: 'bg-secondary',
+  finished: 'bg-gray-500',
+  Level1: 'bg-[#76C9ED]',
+  Level2: 'bg-[#83F479]',
+  Level3: 'bg-[#FBEB5D]',
+  Level4: 'bg-[#FFA563]',
+  Level5: 'bg-[#FF685E]'
 }
 
-export default function Badge({ status }: { status: ContestStatus }) {
+interface Props {
+  badge: ContestStatus | Level
+}
+
+export default function Badge({ badge }: Props) {
   return (
     <div className="inline-flex items-center gap-3 rounded-3xl bg-white px-3 py-1">
-      <div className={`h-4 w-4 rounded-full ${badgeVariants[status]}`}></div>
-      <div className="text-gray-500">{status}</div>
+      <div className={`h-3 w-3 rounded-full ${variants[badge]}`}></div>
+      <div className="text-gray-500">{badge}</div>
     </div>
   )
 }
