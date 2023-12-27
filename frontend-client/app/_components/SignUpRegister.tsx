@@ -119,7 +119,7 @@ export default function SignUpRegister() {
           )}
         </div>
         <div>
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             <Input placeholder="User ID" {...register('username')} />
             <Button
               onClick={() => {}}
@@ -138,7 +138,7 @@ export default function SignUpRegister() {
         <div>
           <div className="flex justify-between gap-2">
             <Input
-              className="w-52"
+              className="w-full"
               placeholder="Password"
               {...register('password')}
               type={passwordShow ? 'text' : 'password'}
@@ -160,7 +160,7 @@ export default function SignUpRegister() {
         <div>
           <div className="flex justify-between gap-2">
             <Input
-              className="w-52"
+              className="w-full"
               {...register('passwordAgain')}
               placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
