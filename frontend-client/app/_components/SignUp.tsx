@@ -130,7 +130,6 @@ export default function SignUp() {
           })
         })
     } else {
-      //TODO: toast already sent email, wanna re-send?
       toast({
         description: 'You have already sent an email',
         className: 'text-red-500'
@@ -153,7 +152,6 @@ export default function SignUp() {
           setEmailVerified(true)
           setEmailAuthToken(response.headers.get('email-auth') || '')
         } else {
-          // TODO: handle failure
           toast({
             description: 'Verification code is not valid!',
             className: 'text-red-500'
@@ -166,7 +164,6 @@ export default function SignUp() {
         })
       }
     } else {
-      //TODO: email already verified
       toast({
         description: 'You have already verified code',
         className: 'text-red-500'
