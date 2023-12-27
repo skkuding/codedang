@@ -1,13 +1,6 @@
 'use client'
 
 import {
-  Pagination,
-  PaginationContent,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious
-} from '@/components/ui/pagination'
-import {
   Table,
   TableBody,
   TableCell,
@@ -19,7 +12,6 @@ import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
   useReactTable
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
@@ -43,14 +35,14 @@ const columns: ColumnDef<Notice>[] = [
   {
     header: () => (
       <div className="flex justify-end">
-        <p className="flex w-32 justify-center">Date</p>
+        <p className="flex w-24 justify-center md:w-32">Date</p>
       </div>
     ),
     accessorKey: 'createTime',
     cell: ({ row }) => {
       return (
         <div className="flex justify-end text-gray-500">
-          <p className="text flex w-32 justify-center text-xs md:text-sm">
+          <p className="text eli flex w-24 justify-center text-xs md:w-32 md:text-sm">
             {dayjs(row.original.createTime).format('YYYY-MM-DD')}
           </p>
         </div>
@@ -61,85 +53,57 @@ const columns: ColumnDef<Notice>[] = [
 
 interface NoticeTableProps {
   data: Notice[]
-  page: number
 }
 
-export default function NoticeTable({ data, page }: NoticeTableProps) {
+export default function NoticeTable({ data }: NoticeTableProps) {
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel()
+    getCoreRowModel: getCoreRowModel()
   })
 
   return (
-    <div className="mt-5">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                )
-              })}
+    <Table>
+      <TableHeader>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <TableRow key={headerGroup.id}>
+            {headerGroup.headers.map((header) => {
+              return (
+                <TableHead key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              )
+            })}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody>
+        {table.getRowModel().rows?.length ? (
+          table.getRowModel().rows.map((row) => (
+            <TableRow
+              key={row.id}
+              data-state={row.getIsSelected() && 'selected'}
+            >
+              {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
             </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      <Pagination>
-        <PaginationContent>
-          <PaginationPrevious
-            href={page === 1 ? undefined : `?page=${page - 1}`}
-            className={page === 1 ? 'cursor-not-allowed opacity-30' : undefined}
-          />
-          <PaginationLink href="?page=1" isActive={page === 1}>
-            1
-          </PaginationLink>
-          <PaginationLink href="?page=2" isActive={page === 2}>
-            2
-          </PaginationLink>
-          <PaginationLink href="?page=3" isActive={page === 3}>
-            3
-          </PaginationLink>
-          <PaginationLink href="?page=4" isActive={page === 4}>
-            4
-          </PaginationLink>
-          <PaginationLink href="?page=5" isActive={page === 5}>
-            5
-          </PaginationLink>
-          <PaginationNext href={`?page=${page + 1}`} />
-        </PaginationContent>
-      </Pagination>
-    </div>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={columns.length} className="h-24 text-center">
+              No results.
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
   )
 }
