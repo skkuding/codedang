@@ -17,7 +17,7 @@ export default function Cover({ title, description }: CoverProps) {
       </div>
       <div className="absolute bottom-0 left-0 right-0 top-0 bg-black/30" />
       <Image
-        className="scale-105 object-cover opacity-80 blur-[10px]"
+        className="scale-110 object-cover opacity-80 blur-[5px]"
         src={cover}
         alt="Cover Image"
         fill
