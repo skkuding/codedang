@@ -1,9 +1,11 @@
 'use client'
 
+// import { Separator } from '@/components/ui/separator'
 import { Toaster } from '@/components/ui/toaster'
 import { useToast } from '@/components/ui/use-toast'
 import { baseUrl } from '@/lib/vars'
 import CodedangLogo from '@/public/codedang.svg'
+// import KakaotalkLogo from '@/public/kakaotalk.svg'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Image from 'next/image'
 import React, { useState } from 'react'
@@ -12,6 +14,7 @@ import { FaPaperPlane } from 'react-icons/fa'
 import { FaCheck } from 'react-icons/fa'
 import { FaEyeSlash } from 'react-icons/fa'
 import { FaEye } from 'react-icons/fa'
+// import { FcGoogle } from 'react-icons/fc'
 import { z } from 'zod'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
@@ -53,6 +56,57 @@ const schema = z
     message: 'Real name can only contain alphabets',
     path: ['realName']
   })
+
+// function page0() {
+//   return (
+//     <div className="flex w-full flex-col gap-3 px-4">
+//       <div className="mb-12 flex py-4">
+//         <Image src={CodedangLogo} alt="코드당" height={36} />
+//       </div>
+//       <div>
+//         <p className="text-center text-xl font-bold text-blue-500">
+//         &quot;Welcome to CODEDANG&quot;
+//         </p>
+//       </div>
+
+//       <div className="flex w-full flex-col gap-3">
+//         <Button className="w-full">Sign up with Email</Button>
+//       </div>
+//       <div className="mb-1 mt-4 flex items-center justify-center gap-5">
+//         <Separator className="flex-1" />
+//         <p className="w-fit flex-none text-center text-xs text-gray-500">
+//           continue with
+//         </p>
+//         <Separator className="flex-1" />
+//       </div>
+//       <div className="flex w-full items-center justify-center gap-5">
+//         <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#FEE500] hover:opacity-80">
+//           <Image src={KakaotalkLogo} alt="카카오톡" width={20} />
+//         </div>
+//         <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#EEEEEE] hover:opacity-80">
+//           <FcGoogle size="22" />
+//         </div>
+//         <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#212528] hover:opacity-80">
+//           <FaGithub className="text-white" size="22" />
+//         </div>
+//       </div>
+//       <div className="mt-24 flex items-center justify-around">
+//         <Button
+//           variant={'link'}
+//           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
+//         >
+//           Already have account?
+//         </Button>
+//         <Button
+//           variant={'link'}
+//           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
+//         >
+//           Log in
+//         </Button>
+//       </div>
+//     </div>
+//   )
+// }
 
 export default function SignUp() {
   const [sentEmail, setSentEmail] = useState<boolean>(false)
