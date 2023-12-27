@@ -179,11 +179,15 @@ export default function SignUp() {
         className="flex w-60 flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <Input
-          placeholder="User Id"
-          {...register('username')}
-          error={errors.username?.message}
-        />
+        <div>
+          <Input placeholder="User Id" {...register('username')} />
+          {errors.username && (
+            <p className="mt-1 text-xs text-red-500">
+              {errors.username?.message}
+            </p>
+          )}
+        </div>
+
         <div>
           <div className="flex gap-2">
             <Input
@@ -191,7 +195,6 @@ export default function SignUp() {
               type="email"
               placeholder="Email Address"
               {...register('email')}
-              error={errors.email?.message}
             />
             <Button
               onClick={() => {
@@ -203,6 +206,9 @@ export default function SignUp() {
               <FaPaperPlane className="text-white" size="20" />
             </Button>
           </div>
+          {errors.email && (
+            <p className="mt-1 text-xs text-red-500">{errors.email?.message}</p>
+          )}
           {sentEmail && (
             <p className="mt-1 text-xs text-blue-500">
               Email verification code has been sent!
@@ -210,63 +216,89 @@ export default function SignUp() {
           )}
         </div>
 
-        <div className="flex gap-1">
-          <Input
-            type="number"
-            placeholder="Verification Code"
-            {...register('verificationCode')}
-            error={errors.verificationCode?.message}
-          />
-          <Button
-            onClick={() => {
-              const { email } = getValues()
-              const { verificationCode } = getValues()
-              verifyCode(email, verificationCode)
-            }}
-            className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
-          >
-            <FaCheck className="text-white" size="20" />
-          </Button>
-        </div>
-        {emailVerified && (
-          <p className="text-blue text-xs font-bold">
-            Email has been verified!
-          </p>
-        )}
-        <Input
-          placeholder="Real Name"
-          {...register('realName')}
-          error={errors.realName?.message}
-        />
-
-        <div className="flex justify-between gap-2">
-          <Input
-            className="w-52"
-            placeholder="Password"
-            {...register('password')}
-            type={passwordShow ? 'text' : 'password'}
-            error={errors.password?.message}
-          />
-          <span className="mt-3" onClick={() => setPasswordShow(!passwordShow)}>
-            {passwordShow ? <FaEyeSlash /> : <FaEye />}
-          </span>
+        <div>
+          <div className="flex gap-1">
+            <Input
+              type="number"
+              placeholder="Verification Code"
+              {...register('verificationCode')}
+            />
+            <Button
+              onClick={() => {
+                const { email } = getValues()
+                const { verificationCode } = getValues()
+                verifyCode(email, verificationCode)
+              }}
+              className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
+            >
+              <FaCheck className="text-white" size="20" />
+            </Button>
+          </div>
+          {errors.verificationCode && (
+            <p className="mt-1 text-xs text-red-500">
+              {errors.verificationCode?.message}
+            </p>
+          )}
+          {emailVerified && (
+            <p className="text-blue text-xs font-bold">
+              Email has been verified!
+            </p>
+          )}
         </div>
 
-        <div className="flex justify-between gap-2">
-          <Input
-            className="w-52"
-            {...register('passwordAgain')}
-            placeholder="Password Check"
-            type={passwordAgainShow ? 'text' : 'password'}
-            error={errors.passwordAgain?.message}
-          />
-          <span
-            className="mt-3"
-            onClick={() => setPasswordAgainShow(!passwordAgainShow)}
-          >
-            {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
-          </span>
+        <div>
+          <Input placeholder="Real Name" {...register('realName')} />
+          {errors.realName && (
+            <p className="mt-1 text-xs text-red-500">
+              {errors.realName?.message}
+            </p>
+          )}
         </div>
+
+        <div>
+          <div className="flex justify-between gap-2">
+            <Input
+              className="w-52"
+              placeholder="Password"
+              {...register('password')}
+              type={passwordShow ? 'text' : 'password'}
+            />
+            <span
+              className="mt-3"
+              onClick={() => setPasswordShow(!passwordShow)}
+            >
+              {passwordShow ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
+          {errors.password && (
+            <p className="mt-1 text-xs text-red-500">
+              {errors.password?.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <div className="flex justify-between gap-2">
+            <Input
+              className="w-52"
+              {...register('passwordAgain')}
+              placeholder="Password Check"
+              type={passwordAgainShow ? 'text' : 'password'}
+            />
+            <span
+              className="mt-3"
+              onClick={() => setPasswordAgainShow(!passwordAgainShow)}
+            >
+              {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
+          {errors.passwordAgain && (
+            <p className="mt-1 text-xs text-red-500">
+              {errors.passwordAgain?.message}
+            </p>
+          )}
+        </div>
+
         <Button color="blue" onClick={() => {}} type="submit">
           Register
         </Button>
