@@ -1,5 +1,7 @@
+import { Button } from '@/components/ui/button'
 import { fetcher } from '@/lib/utils'
 import type { Contest, WorkbookProblem } from '@/types/type'
+import Link from 'next/link'
 import ContestCard from './_components/ContestCard'
 import ProblemCard from './_components/ProblemCard'
 
@@ -35,17 +37,59 @@ export default async function Home() {
   )
 
   return (
-    <>
-      <div className="flex w-full">
-        {contests.map((contest) => {
-          return <ContestCard key={contest.id} contest={contest} />
-        })}
+    <div className="flex flex-col gap-12">
+      <div>
+        <div className="flex justify-between pb-5">
+          <p className="text-2xl font-bold text-gray-500">Contest</p>
+          <Link href="/contest">
+            <Button
+              variant="outline"
+              className="h-7 rounded-full border-gray-500 px-5 text-sm"
+            >
+              More
+            </Button>
+          </Link>
+        </div>
+        <div className="flex w-full gap-4">
+          {contests.map((contest) => {
+            return (
+              <Link
+                key={contest.id}
+                href={`/contest/${contest.id}`}
+                className="w-1/3 hover:opacity-80"
+              >
+                <ContestCard contest={contest} />
+              </Link>
+            )
+          })}
+        </div>
       </div>
-      <div className="flex w-full">
-        {problems.map((problem) => {
-          return <ProblemCard key={problem.problemId} problem={problem} />
-        })}
+      <div>
+        <div className="flex justify-between pb-5">
+          <p className="text-2xl font-bold text-gray-500">[Prof. Kim] Pick!</p>
+          <Link href="/contest">
+            <Button
+              variant="outline"
+              className="h-7 rounded-full border-gray-500 px-5 text-sm"
+            >
+              More
+            </Button>
+          </Link>
+        </div>
+        <div className="flex w-full gap-4">
+          {problems.map((problem) => {
+            return (
+              <Link
+                key={problem.problemId}
+                href={`/workbook/1/${problem.problemId}`}
+                className="w-1/3 hover:opacity-80"
+              >
+                <ProblemCard problem={problem} />
+              </Link>
+            )
+          })}
+        </div>
       </div>
-    </>
+    </div>
   )
 }
