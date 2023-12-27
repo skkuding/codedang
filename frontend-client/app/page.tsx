@@ -39,7 +39,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col gap-12">
       <div>
-        <div className="flex justify-between pb-5">
+        <div className="flex items-center justify-between pb-5">
           <p className="text-2xl font-bold text-gray-500">Contest</p>
           <Link href="/contest">
             <Button
@@ -50,13 +50,13 @@ export default async function Home() {
             </Button>
           </Link>
         </div>
-        <div className="flex w-full gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {contests.map((contest) => {
             return (
               <Link
                 key={contest.id}
                 href={`/contest/${contest.id}`}
-                className="w-1/3 hover:opacity-80"
+                className="hover:opacity-80"
               >
                 <ContestCard contest={contest} />
               </Link>
@@ -65,7 +65,7 @@ export default async function Home() {
         </div>
       </div>
       <div>
-        <div className="flex justify-between pb-5">
+        <div className="flex items-center justify-between pb-5">
           <p className="text-2xl font-bold text-gray-500">[Prof. Kim] Pick!</p>
           <Link href="/contest">
             <Button
@@ -76,13 +76,13 @@ export default async function Home() {
             </Button>
           </Link>
         </div>
-        <div className="flex w-full gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {problems.map((problem) => {
             return (
               <Link
                 key={problem.problemId}
                 href={`/workbook/1/${problem.problemId}`}
-                className="w-1/3 hover:opacity-80"
+                className="hover:opacity-80"
               >
                 <ProblemCard problem={problem} />
               </Link>
