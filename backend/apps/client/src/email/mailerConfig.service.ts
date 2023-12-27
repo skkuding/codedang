@@ -7,6 +7,7 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as aws from '@aws-sdk/client-ses'
 import { defaultProvider } from '@aws-sdk/credential-provider-node'
+import { join } from 'path'
 
 @Injectable()
 export class MailerConfigService implements MailerOptionsFactory {
@@ -36,6 +37,7 @@ export class MailerConfigService implements MailerOptionsFactory {
         from: this.config.get('NODEMAILER_FROM')
       },
       template: {
+        dir: join(__dirname, 'email/templates'),
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true

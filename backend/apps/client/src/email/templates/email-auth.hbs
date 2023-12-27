@@ -1,66 +1,87 @@
-<html>
-  <head>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
-    <link rel='preconnect' href='https://fonts.googleapis.com' />
-    <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
-    <link
-      href='https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&display=swap'
-      rel='stylesheet'
-    />
-    <style>
-      * { margin: 0; padding: 0; font-family: 'Manrope', Helvetica, Arial,
-      sans-serif; } p { margin: 16px 0; font-size: 16px; line-height: 24px; ;}
-      h1 { margin-top: 32px; margin-bottom: 16px; font-size: 32px; }
-      #backgroundTable { margin-left: auto; margin-right: auto; } #mainTable {
-      border: solid 2px #999; border-radius: 16px; padding: 24px;}
-      #backgroundTable { padding: 20px; } #pin { font-size: 48px; text-align:
-      center; margin: 60px 0; letter-spacing: 12px; } footer { border-top: 1px
-      solid #777; color: #777; margin-top: 60px; padding-top: 20px; font-size:
-      14px; }
-    </style>
-  </head>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Manrope', Helvetica, Arial, sans-serif;
+  }
+  body {
+    background: #ececec;
+  }
+  p {
+    margin: 16px 0;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  h1 {
+    margin-top: 32px;
+    margin-bottom: 16px;
+    font-size: 24px;
+  }
+  #logo {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #backgroundTable {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #mainTable {
+    max-width: 420px;
+    background: white;
+    margin: 20px;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 4px 4px 12px 4px rgba(0, 0, 0, 0.15);
+  }
+  #backgroundTable {
+    padding: 20px;
+  }
+  #pin {
+    font-size: 36px;
+    text-align: center;
+    margin: 60px 0;
+    letter-spacing: 12px;
+  }
+  #team {
+    margin-top: 40px;
+    text-align: right;
+  }
+  footer {
+    border-top: 1px solid #777;
+    color: #777;
+    margin-top: 40px;
+    padding-top: 20px;
+    font-size: 14px;
+  }
+</style>
 
-  <body>
-    <table id='backgroundTable' cellpadding='0' cellspacing='0' border='0'>
-      <tr>
-        <td>
-          <table
-            id='mainTable'
-            cellpadding='0'
-            cellspacing='0'
-            align='center'
-            width='600'
-          >
-            <tr>
-              <td>
-                <img src='cid:logo' />
-                <h1>
-                  Email Authentication
-                </h1>
-                <p>
-                  You have requested an email authentication. Put the pin
-                  numbers below into the form.
-                </p>
-                <p id='pin'>
-                  {{pin}}
-                </p>
-                <p>
-                  If you did not request to register or change your information,
-                  please ignore this email.
-                </p>
-                <p>
-                  The SKKUDING Team
-                </p>
-                <footer>
-                  SKKU Coding Platform is an online judge made by team SKKUDING.
-                  The platform is an open-source software under the MIT license.
-                </footer>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>
+<table id="backgroundTable" cellpadding="0" cellspacing="0" border="0">
+  <tr>
+    <td>
+      <table id="mainTable" cellpadding="0" cellspacing="0" align="center">
+        <tr>
+          <td>
+            {{!-- Logo file is uploaded in https://github.com/skkuding/codedang/issues/1066 --}}
+            <img
+              src="https://github.com/skkuding/codedang/assets/19747913/592f3ac4-7ac7-4d59-9f87-87fd6fd4965c"
+              height="72"
+              alt="Codedang"
+              id="logo"
+            />
+            <h1>Email Authentication</h1>
+            <p>You have requested an email authentication. Put the pin numbers below into the form.</p>
+            <p id="pin">{{pin}}</p>
+            <p>If you did not request to register or change your information, please ignore this email.</p>
+            <p id="team">Team SKKUDING</p>
+            <footer>
+              Codedang is an online judge made for SKKU. The platform is an open-source software under the MIT license.
+              Visit our website at
+              <a href="https://codedang.com/">codedang.com</a>.
+            </footer>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
