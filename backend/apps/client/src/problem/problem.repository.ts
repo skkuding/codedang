@@ -1,11 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type {
-  Problem,
-  ProblemTag,
-  Submission,
-  Tag,
-  WorkbookProblem
-} from '@prisma/client'
+import type { Problem, ProblemTag, Submission, Tag } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
 
 /**
@@ -39,20 +33,6 @@ export class ProblemRepository {
     source: true,
     inputExamples: true,
     outputExamples: true
-  }
-
-  private readonly relatedProblemSelectOption = {
-    id: true,
-    problem: {
-      select: this.problemSelectOption
-    }
-  }
-
-  private readonly relatedProblemsSelectOption = {
-    id: true,
-    problem: {
-      select: this.problemsSelectOption
-    }
   }
 
   async getProblems(
@@ -157,7 +137,10 @@ export class ProblemRepository {
       take: take,
       where: { contestId: contestId },
       select: {
-        ...this.relatedProblemsSelectOption,
+        order: true,
+        problem: {
+          select: this.problemsSelectOption
+        },
         contest: {
           select: {
             startTime: true
@@ -177,7 +160,10 @@ export class ProblemRepository {
         }
       },
       select: {
-        ...this.relatedProblemSelectOption,
+        order: true,
+        problem: {
+          select: this.problemSelectOption
+        },
         contest: {
           select: {
             startTime: true
@@ -187,11 +173,7 @@ export class ProblemRepository {
     })
   }
 
-  async getWorkbookProblems(
-    workbookId: number,
-    cursor: number,
-    take: number
-  ): Promise<(Partial<WorkbookProblem> & { problem: Partial<Problem> })[]> {
+  async getWorkbookProblems(workbookId: number, cursor: number, take: number) {
     let skip = 1
     if (cursor === 0) {
       cursor = 1
@@ -208,7 +190,12 @@ export class ProblemRepository {
       skip: skip,
       take: take,
       where: { workbookId: workbookId },
-      select: this.relatedProblemsSelectOption
+      select: {
+        order: true,
+        problem: {
+          select: this.problemsSelectOption
+        }
+      }
     })
   }
 
@@ -221,7 +208,12 @@ export class ProblemRepository {
           problemId: problemId
         }
       },
-      select: this.relatedProblemSelectOption
+      select: {
+        order: true,
+        problem: {
+          select: this.problemSelectOption
+        }
+      }
     })
   }
 }
