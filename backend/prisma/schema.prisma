@@ -257,7 +257,7 @@ model Contest {
 
 model ContestProblem {
   order      Int
-  contest    Contest  @relation(fields: [contestId], references: [id])
+  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
   contestId  Int      @map("contest_id")
   problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int      @map("problem_id")
@@ -277,9 +277,6 @@ model Announcement {
   problemId  Int      @map("problem_id")
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
-
-  // contestAnnouncement ContestAnnouncement[]
-  // problemAnnouncement ProblemAnnouncement[]
 
   @@unique([id])
   @@map("announcement")
@@ -348,7 +345,7 @@ model Workbook {
 
 model WorkbookProblem {
   order      Int
-  workbook   Workbook @relation(fields: [workbookId], references: [id])
+  workbook   Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
   workbookId Int      @map("workbook_id")
   problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int      @map("problem_id")
