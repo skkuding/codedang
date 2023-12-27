@@ -36,12 +36,12 @@ export default async function Home() {
 
   return (
     <>
-      <div className="flex">
+      <div className="flex w-full">
         {contests.map((contest) => {
           return <ContestCard key={contest.id} contest={contest} />
         })}
       </div>
-      <div className="flex">
+      <div className="flex w-full">
         {problems.map((problem) => {
           return <ProblemCard key={problem.problemId} problem={problem} />
         })}
