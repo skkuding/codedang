@@ -1,6 +1,7 @@
 -- AlterTable
-ALTER TABLE "contest_notice" ADD COLUMN     "userProblemContestId" INTEGER,
-ADD COLUMN     "userProblemProblemId" INTEGER;
+-- prisma migrate 시 에러가 나서 직접 migration.sql 파일을 수정함
+-- ALTER TABLE "contest_notice" ADD COLUMN     "userProblemContestId" INTEGER,
+-- ADD COLUMN     "userProblemProblemId" INTEGER;
 
 -- CreateTable
 CREATE TABLE "user_problem" (
