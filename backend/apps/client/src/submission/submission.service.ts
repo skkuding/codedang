@@ -329,8 +329,11 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    if (resultStatus !== ResultStatus.Judging) {
-      const problem = await this.prisma.problem.findFirst({
+    if (
+      resultStatus !== ResultStatus.Judging &&
+      resultStatus !== ResultStatus.ServerError
+    ) {
+      const problem = await this.prisma.problem.findFirstOrThrow({
         where: {
           id: submission.problemId
         },
