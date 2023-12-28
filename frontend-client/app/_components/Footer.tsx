@@ -8,18 +8,10 @@ export default function Footer() {
     <footer className=" items-center py-7">
       <div className="flex h-20 w-full flex-col items-center justify-center gap-2 bg-gray-100">
         <div className="flex flex-row items-center justify-center gap-4">
-          <div className="cursor-pointer">
-            <RiKakaoTalkFill className="text-gray-500" size="24" />
-          </div>
-          <div className="cursor-pointer">
-            <TbMailFilled className="text-gray-500" size="24" />
-          </div>
-          <div className="cursor-pointer">
-            <RiGithubFill className="text-gray-500" size="24" />
-          </div>
-          <div className="cursor-pointer">
-            <IoIosLink className="text-gray-500" size="23" />
-          </div>
+          <RiKakaoTalkFill className="cursor-pointer text-gray-500" size="24" />
+          <TbMailFilled className="cursor-pointer text-gray-500" size="24" />
+          <RiGithubFill className="cursor-pointer text-gray-500" size="24" />
+          <IoIosLink className="cursor-pointer text-gray-500" size="23" />
         </div>
         <div>
           <p className="text-sm font-bold text-gray-500">
