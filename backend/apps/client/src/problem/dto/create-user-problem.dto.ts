@@ -1,4 +1,4 @@
-import { Language } from '@generated'
+import { Language } from '@prisma/client'
 import { Type } from 'class-transformer'
 import {
   IsArray,
