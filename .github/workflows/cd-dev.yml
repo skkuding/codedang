@@ -138,6 +138,12 @@ jobs:
       - name: Graceful reload Caddy
         run: docker exec -w /etc/caddy caddy caddy reload
 
+      - name: Make Directory into Caddy & Copy static files to Caddy
+        run: |
+          docker exec -w / caddy mkdir -p /var/www/html
+          docker cp ./dist/. caddy:/var/www/html
+          docker cp ./Caddyfile caddy:/etc/caddy/Caddyfile
+
       - name: Remove unused docker storages
         run: docker system prune -a -f --volumes
 
