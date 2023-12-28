@@ -92,7 +92,11 @@ export class GroupNoticeController {
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
-      return await this.noticeService.getNoticesByGroupId(cursor, take, groupId)
+      return await this.noticeService.getFixedNoticesByGroupId(
+        cursor,
+        take,
+        groupId
+      )
     } catch (error) {
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
