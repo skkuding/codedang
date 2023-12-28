@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Manrope } from 'next/font/google'
+import Footer from './_components/Footer'
 import Header from './_components/Header'
 import './globals.css'
 
@@ -18,9 +19,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={manrope.className}>
-        <div className="w-screen overflow-hidden">
+        <div className="flex h-screen w-screen flex-col overflow-hidden">
           <Header />
-          {children}
+          <main className="flex-1">{children}</main>
+          <Footer />
         </div>
       </body>
     </html>
