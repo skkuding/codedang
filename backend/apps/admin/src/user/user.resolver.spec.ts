@@ -1,3 +1,4 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import { PrismaService } from '@libs/prisma'
@@ -12,7 +13,14 @@ describe('UserResolver', () => {
       providers: [
         UserResolver,
         UserService,
-        { provide: PrismaService, useValue: {} }
+        { provide: PrismaService, useValue: {} },
+        {
+          provide: CACHE_MANAGER,
+          useFactory: () => ({
+            set: () => [],
+            get: () => []
+          })
+        }
       ]
     }).compile()
 

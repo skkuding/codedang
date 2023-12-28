@@ -34,7 +34,7 @@ export class EntityNotExistException extends BusinessException {
 export class ConflictFoundException extends BusinessException {}
 
 /** [409] Throw when the request has a conflict with relevant entities.
- * e.g., participation is not allowed to ended contest.
+ * e.g., group name is already in use
  */
 export class DuplicateFoundException extends ConflictFoundException {
   constructor(entity) {

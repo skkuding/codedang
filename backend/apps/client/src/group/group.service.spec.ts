@@ -3,9 +3,13 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { Prisma, type UserGroup } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
-import { stub } from 'sinon'
+import { spy, stub, match } from 'sinon'
 import { joinGroupCacheKey } from '@libs/cache'
-import { ConflictFoundException } from '@libs/exception'
+import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
+import {
+  ConflictFoundException,
+  EntityNotExistException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { GroupService } from './group.service'
 import {
@@ -75,12 +79,12 @@ describe('GroupService', () => {
       stub(service, 'getGroupLeaders').resolves(['manager'])
 
       //when
-      const result = await service.getGroup(userId, groupId)
+      const result = await service.getGroup(groupId, userId)
 
       //then
       expect(result).to.deep.equal({
         ...publicGroupDatas[1],
-        allowJoinFromSearch: true,
+        allowJoin: true,
         leaders: ['manager'],
         isJoined: false
       })
@@ -101,7 +105,7 @@ describe('GroupService', () => {
       })
 
       //when
-      const result = await service.getGroup(userId, groupId)
+      const result = await service.getGroup(groupId, userId)
 
       //then
       expect(result).to.deep.equal({
@@ -128,9 +132,32 @@ describe('GroupService', () => {
       //when
 
       //then
-      await expect(service.getGroup(userId, groupId)).to.be.rejectedWith(
+      await expect(service.getGroup(groupId, userId)).to.be.rejectedWith(
         Prisma.PrismaClientKnownRequestError
       )
+    })
+  })
+
+  describe('getGroupByInvitation', () => {
+    const userId = 1
+    const groupId = 1
+
+    it('should call getGroup', async () => {
+      const getGroupSpy = stub(service, 'getGroup').resolves()
+      stub(cache, 'get').resolves(groupId)
+
+      await service.getGroupByInvitation('abcdef', userId)
+      expect(getGroupSpy.calledWith(groupId)).to.be.true
+    })
+
+    it('should throw error if given invitation is invalid', async () => {
+      const getGroupSpy = spy(service, 'getGroup')
+      stub(cache, 'get').resolves(null)
+
+      await expect(
+        service.getGroupByInvitation('abcdef', userId)
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(getGroupSpy.called).to.be.false
     })
   })
 
@@ -217,14 +244,14 @@ describe('GroupService', () => {
       const result = await service.joinGroupById(userId, groupId)
 
       //then
-      expect(cacheSpyGet.calledWith(joinGroupCacheKey(userId, groupId))).to.be
-        .true
+      expect(cacheSpyGet.calledWith(joinGroupCacheKey(groupId))).to.be.true
       expect(cacheSpyGet.calledOnce).to.be.true
       expect(
-        cacheSpySet.calledWith(joinGroupCacheKey(userId, groupId), {
-          userId,
-          groupId
-        })
+        cacheSpySet.calledWith(
+          joinGroupCacheKey(groupId),
+          match.any,
+          JOIN_GROUP_REQUEST_EXPIRE_TIME
+        )
       ).to.be.true
       expect(cacheSpySet.calledOnce).to.be.true
       expect(result).to.deep.equal({
@@ -264,9 +291,10 @@ describe('GroupService', () => {
           (userGroup) => userGroup.groupId === groupId
         )
       })
-      const cacheSpy = stub(cache, 'get').resolves(
-        `user:${userId}:group:${groupId}`
-      )
+      const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
+      const cacheSpy = stub(cache, 'get').resolves([
+        [userId, joinRequestTimeLimit]
+      ])
 
       //when
       await expect(service.joinGroupById(userId, groupId)).to.be.rejectedWith(
@@ -275,7 +303,7 @@ describe('GroupService', () => {
 
       //then
       expect(cacheSpy.calledOnce).to.be.true
-      expect(cacheSpy.calledWith(joinGroupCacheKey(userId, groupId))).to.be.true
+      expect(cacheSpy.calledWith(joinGroupCacheKey(groupId))).to.be.true
     })
   })
 

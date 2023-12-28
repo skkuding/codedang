@@ -14,6 +14,7 @@ import { CacheConfigService } from '@libs/cache'
 import { PrismaModule } from '@libs/prisma'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
+import { AnnouncementModule } from './announcement/announcement.module'
 import { ContestModule } from './contest/contest.module'
 import { GroupModule } from './group/group.module'
 import { ProblemModule } from './problem/problem.module'
@@ -23,6 +24,10 @@ import { WorkbookModule } from './workbook/workbook.module'
 
 @Module({
   imports: [
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useClass: CacheConfigService
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -42,7 +47,8 @@ import { WorkbookModule } from './workbook/workbook.module'
     ProblemModule,
     StorageModule,
     GroupModule,
-    UserModule
+    UserModule,
+    AnnouncementModule
   ],
   controllers: [AdminController],
   providers: [

@@ -7,11 +7,13 @@ import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
 import type { Request } from 'express'
+import { generate } from 'generate-password'
 import { ExtractJwt } from 'passport-jwt'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import { EMAIL_AUTH_EXPIRE_TIME } from '@libs/constants'
 import {
+  ConflictFoundException,
   DuplicateFoundException,
   InvalidJwtTokenException,
   UnidentifiedException,
@@ -24,8 +26,9 @@ import type { UserGroupData } from '@client/group/interface/user-group-data.inte
 import type { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import type { NewPasswordDto } from './dto/newPassword.dto'
 import type { SignUpDto } from './dto/signup.dto'
+import type { SocialSignUpDto } from './dto/social-signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
-import type { UpdateUserProfileRealNameDto } from './dto/update-userprofile-realname.dto'
+import type { UpdateUserProfileDto } from './dto/update-userprofile.dto'
 import type { UserEmailDto } from './dto/userEmail.dto'
 import type { CreateUserProfileData } from './interface/create-userprofile.interface'
 import type {
@@ -212,6 +215,38 @@ export class UserService {
     return user
   }
 
+  async socialSignUp(socialSignUpDto: SocialSignUpDto): Promise<User> {
+    const duplicatedUser = await this.prisma.user.findUnique({
+      where: {
+        username: socialSignUpDto.username
+      }
+    })
+    if (duplicatedUser) {
+      throw new DuplicateFoundException('Username')
+    }
+
+    if (!this.isValidUsername(socialSignUpDto.username)) {
+      throw new UnprocessableDataException('Bad username')
+    }
+
+    const user = await this.createUser({
+      username: socialSignUpDto.username,
+      password: generate({ length: 10, numbers: true }),
+      realName: socialSignUpDto.realName,
+      email: socialSignUpDto.email
+    })
+    const profile: CreateUserProfileData = {
+      userId: user.id,
+      realName: socialSignUpDto.realName
+    }
+
+    await this.createUserProfile(profile)
+    await this.registerUserToPublicGroup(user.id)
+    await this.createUserOAuth(socialSignUpDto, user.id)
+
+    return user
+  }
+
   isValidUsername(username: string): boolean {
     const validUsername = /^[a-z0-9]{3,10}$/
     if (!validUsername.test(username)) {
@@ -236,6 +271,16 @@ export class UserService {
         username: signUpDto.username,
         password: encryptedPassword,
         email: signUpDto.email
+      }
+    })
+  }
+
+  async createUserOAuth(socialSignUpDto: SocialSignUpDto, userId: number) {
+    return await this.prisma.userOAuth.create({
+      data: {
+        id: socialSignUpDto.id,
+        userId: userId,
+        provider: socialSignUpDto.provider
       }
     })
   }
@@ -268,6 +313,53 @@ export class UserService {
       throw new UnidentifiedException('password')
     }
 
+    const leadingGroups = await this.prisma.userGroup.findMany({
+      where: {
+        userId: user.id,
+        isGroupLeader: true
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (leadingGroups.length) {
+      const ledByOne = (
+        await this.prisma.userGroup.groupBy({
+          by: ['groupId'],
+          where: {
+            groupId: {
+              in: leadingGroups.map((group) => group.groupId)
+            },
+            isGroupLeader: true
+          },
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          _count: {
+            userId: true
+          }
+        })
+      ).filter((group) => group._count.userId === 1)
+
+      if (ledByOne.length) {
+        const groupNames = (
+          await this.prisma.group.findMany({
+            where: {
+              id: {
+                in: ledByOne.map((group) => group.groupId)
+              }
+            },
+            select: {
+              groupName: true
+            }
+          })
+        )
+          .map((group) => group.groupName)
+          .join(', ')
+        throw new ConflictFoundException(
+          `Cannot delete this account since you are the only leader of group ${groupNames}`
+        )
+      }
+    }
     await this.prisma.user.delete({
       where: {
         username
@@ -320,9 +412,9 @@ export class UserService {
     })
   }
 
-  async updateUserProfileRealName(
+  async updateUserProfile(
     userId: number,
-    updateUserProfileRealNameDto: UpdateUserProfileRealNameDto
+    updateUserProfileDto: UpdateUserProfileDto
   ): Promise<UserProfile> {
     await this.prisma.userProfile.findUniqueOrThrow({
       where: { userId }
@@ -331,7 +423,7 @@ export class UserService {
     return await this.prisma.userProfile.update({
       where: { userId },
       data: {
-        realName: updateUserProfileRealNameDto.realName
+        realName: updateUserProfileDto.realName
       }
     })
   }

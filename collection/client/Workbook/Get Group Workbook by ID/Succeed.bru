@@ -15,3 +15,12 @@ assert {
   res("id"): isNumber
   res("title"): isString
 }
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get Group Workbook by ID
+  - `groupId`와 `workbookId`를 이용하여 그룹의 워크북을 조회합니다.
+}

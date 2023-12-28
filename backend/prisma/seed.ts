@@ -11,7 +11,8 @@ import {
   type Contest,
   type Workbook,
   type Submission,
-  type ProblemTestcase
+  type ProblemTestcase,
+  type Announcement
 } from '@prisma/client'
 import { hash } from 'argon2'
 import * as dayjs from 'dayjs'
@@ -32,6 +33,7 @@ let contest: Contest
 const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
+const announcements: Announcement[] = []
 
 const createUsers = async () => {
   // create super admin user
@@ -99,7 +101,6 @@ const createGroups = async () => {
       groupName: 'Example Group',
       description:
         'This is an example group just for testing. This group should not be shown on production environment.',
-      createdById: superAdminUser.id,
       config: {
         showOnList: false,
         allowJoinFromSearch: false,
@@ -115,7 +116,6 @@ const createGroups = async () => {
       groupName: 'Example Private Group',
       description:
         'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
-      createdById: managerUser.id,
       config: {
         showOnList: false,
         allowJoinFromSearch: false,
@@ -139,7 +139,6 @@ const createGroups = async () => {
       groupName: 'Example Private Group 2',
       description:
         'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
-      createdById: managerUser.id,
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
@@ -163,7 +162,6 @@ const createGroups = async () => {
       groupName: 'Example Private Group 3',
       description:
         'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
-      createdById: managerUser.id,
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
@@ -948,15 +946,6 @@ const createContests = async () => {
         problemId: problem.id
       }
     })
-
-    // add clarifications to contestProblem
-    await prisma.clarification.create({
-      data: {
-        content: `${problem.id}번 문제가 blah blah 수정되었습니다.`,
-        contestId: contest.id,
-        problemId: problem.id
-      }
-    })
   }
 
   // TODO: add records and ranks
@@ -1279,6 +1268,19 @@ int main(void) {
   })
 }
 
+const createAnnouncements = async () => {
+  for (let i = 0; i < 5; ++i) {
+    announcements.push(
+      await prisma.announcement.create({
+        data: {
+          content: `Announcement_${i}`,
+          problemId: problems[i].id
+        }
+      })
+    )
+  }
+}
+
 const main = async () => {
   await createUsers()
   await createGroups()
@@ -1287,6 +1289,7 @@ const main = async () => {
   await createContests()
   await createWorkbooks()
   await createSubmissions()
+  await createAnnouncements()
 }
 
 main()

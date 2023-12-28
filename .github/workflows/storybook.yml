@@ -15,15 +15,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: latest
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: pnpm install
+      - uses: ./.github/actions/setup-pnpm
 
       - name: Build story
         run: pnpm --filter frontend story:build

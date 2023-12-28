@@ -8,68 +8,71 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    name: Build
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        node: [20]
+        target: [frontend, frontend-client, backend, backend-admin]
 
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-          cache: 'pnpm'
+      - uses: ./.github/actions/setup-pnpm
 
-      - name: Install dependencies
-        run: pnpm install
+      - name: Generate Prisma Client
+        if: ${{ matrix.target == 'backend' || matrix.target == 'backend-admin' }}
+        run: pnpm --filter backend exec prisma generate
+
+      - name: Setup Next.js build cache
+        if: ${{ matrix.target == 'frontend-client' }}
+        uses: actions/cache@v3
+        with:
+          path: frontend-client/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+
+      # If target is backend-admin, run `pnpm --filter backend build admin`
+      # For other targets, run `pnpm --filter <target> build`
+      - name: Build (backend admin)
+        if: ${{ matrix.target == 'backend-admin' }}
+        run: pnpm --filter backend build admin
+      - name: Build
+        if: ${{ matrix.target != 'backend-admin' }}
+        run: pnpm --filter ${{ matrix.target }} build
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-pnpm
 
       - name: Generate Prisma Client
         run: pnpm --filter backend exec prisma generate
 
-      - name: Build (Frontend)
-        run: pnpm --filter frontend build
+      - name: Check types (backend)
+        run: pnpm --filter backend exec tsc --noEmit
 
-      - name: Build (Backend)
-        run: |
-          pnpm --filter backend build
-          pnpm --filter backend build admin
+      - name: Check types (frontend)
+        run: pnpm --filter frontend exec vue-tsc --noEmit
 
-      - name: Cache dist
-        uses: actions/cache@v3
-        with:
-          path: ./*/dist
-          key: ${{ matrix.os }}-node-v${{ matrix.node }}-${{ github.sha }}
+      - name: Check types (frontend-client)
+        run: pnpm --filter frontend-client exec tsc --noEmit
 
   lint:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node: [20]
+    name: Lint
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      - uses: ./.github/actions/setup-pnpm
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version-file: go.work
+          go-version-file: iris/go.mod
 
       - name: Lint pull request title
         if: ${{ github.event_name == 'pull_request' }}
@@ -91,15 +94,11 @@ jobs:
         run: pnpm lint
 
   test:
-    runs-on: ${{ matrix.os }}
+    name: Test
+    runs-on: ubuntu-latest
 
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node: [20]
 
     services:
       postgres:
@@ -113,16 +112,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      - uses: ./.github/actions/setup-pnpm
 
       - name: Check Prisma Migration
         run: |
@@ -131,7 +121,8 @@ jobs:
             --to-schema-datamodel ./prisma/schema.prisma \
             --shadow-database-url ${{ env.DATABASE_URL }} \
             --exit-code ||
-          echo "::error::Prisma migration is not up to date. Please run `pnpm prisma migrate dev` locally and commit the changes."
+          (echo "::error::Prisma migration is not up to date." \
+          "Please run 'pnpm prisma migrate dev' locally and commit the changes." && exit 1)
 
       - name: Migrate Prisma
         run: pnpm --filter backend exec prisma migrate reset --force

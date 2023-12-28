@@ -4,13 +4,13 @@
   "singleQuote": true,
   "tabWidth": 2,
   "trailingComma": "none",
-  "htmlWhitespaceSensitivity": "ignore",
   "plugins": [
     "@trivago/prettier-plugin-sort-imports",
     "prettier-plugin-tailwindcss"
   ],
   "importOrderParserPlugins": [
     "typescript",
+    "jsx",
     "classProperties",
     "decorators-legacy"
   ],
@@ -22,5 +22,14 @@
     "^@admin/(.*)$",
     "^@client/(.*)$",
     "^[./]"
+  ],
+  "overrides": [
+    {
+      "files": "*.hbs",
+      "options": {
+        "parser": "html",
+        "printWidth": 120
+      }
+    }
   ]
 }

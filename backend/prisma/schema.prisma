@@ -26,6 +26,13 @@ enum Role {
   SuperAdmin
 }
 
+enum Provider {
+  github
+  kakao
+  naver
+  google
+}
+
 model User {
   id         Int       @id @default(autoincrement())
   username   String    @unique
@@ -38,15 +45,27 @@ model User {
 
   userProfile   UserProfile?
   userGroup     UserGroup[]
-  group         Group[]
   notice        Notice[]
   problem       Problem[]
   contest       Contest[]
   contestRecord ContestRecord[]
   workbook      Workbook[]
   submission    Submission[]
+  useroauth     UserOAuth?
 
   @@map("user")
+}
+
+model UserOAuth {
+  id         Int // social ID (OAuth 서비스로부터 제공받는 id)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int      @unique @map("user_id")
+  provider   Provider
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+
+  @@id([id, provider])
+  @@map("user_oauth")
 }
 
 model UserProfile {
@@ -75,8 +94,6 @@ model UserGroup {
 
 model Group {
   id          Int      @id @default(autoincrement())
-  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById Int      @map("created_by_id")
   groupName   String   @unique @map("group_name")
   description String
   /// config default value
@@ -101,8 +118,8 @@ model Group {
 
 model Notice {
   id          Int      @id @default(autoincrement())
-  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById Int      @map("created_by_id")
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?     @map("created_by_id")
   group       Group    @relation(fields: [groupId], references: [id])
   groupId     Int      @map("group_id")
   title       String
@@ -117,8 +134,8 @@ model Notice {
 
 model Problem {
   id                Int        @id @default(autoincrement())
-  createdBy         User       @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById       Int        @map("created_by_id")
+  createdBy         User?      @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById       Int?       @map("created_by_id")
   group             Group      @relation(fields: [groupId], references: [id])
   groupId           Int        @map("group_id")
   title             String
@@ -152,6 +169,8 @@ model Problem {
   contestProblem  ContestProblem[]
   workbookProblem WorkbookProblem[]
   submission      Submission[]
+  announcement    Announcement[]
+  // ProblemAnnouncement ProblemAnnouncement[]
 
   @@map("problem")
 }
@@ -211,8 +230,8 @@ model Tag {
 
 model Contest {
   id          Int      @id @default(autoincrement())
-  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById Int      @map("created_by_id")
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?     @map("created_by_id")
   group       Group    @relation(fields: [groupId], references: [id])
   groupId     Int      @map("group_id")
   title       String
@@ -237,51 +256,50 @@ model Contest {
 
 model ContestProblem {
   order      Int
-  contest    Contest  @relation(fields: [contestId], references: [id])
+  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
   contestId  Int      @map("contest_id")
-  problem    Problem  @relation(fields: [problemId], references: [id])
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int      @map("problem_id")
   score      Int      @default(0)
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  clarification Clarification[]
-
   @@id([contestId, problemId])
-  @@unique([contestId, order])
+  // @@unique([contestId, problemId])
   @@map("contest_problem")
 }
 
-model Clarification {
-  id         Int            @id @default(autoincrement())
-  problem    ContestProblem @relation(fields: [contestId, problemId], references: [contestId, problemId], onDelete: Cascade)
-  contestId  Int            @map("contest_id")
-  problemId  Int            @map("problem_id")
+model Announcement {
+  id         Int      @id @default(autoincrement())
   content    String
-  createTime DateTime       @default(now()) @map("create_time")
-  updateTime DateTime       @updatedAt @map("update_time")
+  problem    Problem  @relation(fields: [problemId], references: [id])
+  problemId  Int      @map("problem_id")
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
 
-  @@map("contest_notice")
+  @@unique([id])
+  @@map("announcement")
 }
 
 model ContestRecord {
-  contest            Contest  @relation(fields: [contestId], references: [id])
+  id                 Int      @id @default(autoincrement())
+  contest            Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
   contestId          Int      @map("contest_id")
-  user               User     @relation(fields: [userId], references: [id])
-  userId             Int      @map("user_id")
+  user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId             Int?     @map("user_id")
   acceptedProblemNum Int      @default(0) @map("accepted_problem_num")
   totalPenalty       Int      @default(0) @map("total_penalty")
   createTime         DateTime @default(now()) @map("create_time")
   updateTime         DateTime @updatedAt @map("update_time")
 
-  @@id([contestId, userId])
+  @@unique([contestId, userId])
   @@map("contest_record")
 }
 
 model Workbook {
   id          Int      @id @default(autoincrement())
-  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
-  createdById Int      @map("created_by_id")
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?     @map("created_by_id")
   group       Group    @relation(fields: [groupId], references: [id])
   groupId     Int      @map("group_id")
   title       String
@@ -298,25 +316,27 @@ model Workbook {
 
 model WorkbookProblem {
   order      Int
-  workbook   Workbook @relation(fields: [workbookId], references: [id])
+  workbook   Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
   workbookId Int      @map("workbook_id")
-  problem    Problem  @relation(fields: [problemId], references: [id])
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int      @map("problem_id")
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
   @@id([workbookId, problemId])
-  @@unique([workbookId, order])
+  // @@unique([workbookId, problemId])
   @@map("workbook_problem")
 }
 
 model Submission {
   id         String       @id // 6 digit hex hash
-  user       User         @relation(fields: [userId], references: [id])
-  userId     Int          @map("user_id")
-  problem    Problem      @relation(fields: [problemId], references: [id])
+  user       User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId     Int?         @map("user_id")
+  problem    Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  // Todo :
+  // Regardless problem deletion, Keeping submission is positive for ranking or something ....
   problemId  Int          @map("problem_id")
-  contest    Contest?     @relation(fields: [contestId], references: [id])
+  contest    Contest?     @relation(fields: [contestId], references: [id], onDelete: Cascade)
   contestId  Int?         @map("contest_id")
   workbook   Workbook?    @relation(fields: [workbookId], references: [id])
   workbookId Int?         @map("workbook_id")
@@ -339,9 +359,9 @@ model Submission {
 
 model SubmissionResult {
   id                Int             @id @default(autoincrement())
-  submission        Submission      @relation(fields: [submissionId], references: [id])
+  submission        Submission      @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   submissionId      String          @map("submission_id")
-  problemTestcase   ProblemTestcase @relation(fields: [problemTestcaseId], references: [id])
+  problemTestcase   ProblemTestcase @relation(fields: [problemTestcaseId], references: [id], onDelete: Cascade)
   problemTestcaseId Int             @map("problem_test_case_id")
   result            ResultStatus
   cpuTime           BigInt          @map("cpu_time")

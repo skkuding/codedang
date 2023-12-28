@@ -1,0 +1,44 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    updateGroup(groupId: 2,
+    input: {
+      groupName: "New Group Name 2"
+      description: "thisisnewdescription2"
+      config: {
+        allowJoinFromSearch: true
+        allowJoinWithURL: false
+        requireApprovalBeforeJoin: false
+        showOnList: true
+      }
+    }) {
+      id
+      groupName
+      description
+      config
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.updateGroup: isDefined
+}
+
+docs {
+  # Update Group
+  ---
+  - Group 정보를 업데이트합니다.
+  - Open space는 업데이트 할 수 없습니다.
+}

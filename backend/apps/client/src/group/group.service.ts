@@ -2,11 +2,14 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { Role, type UserGroup } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { joinGroupCacheKey } from '@libs/cache'
+import { invitationCodeKey, joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME, OPEN_SPACE_ID } from '@libs/constants'
-import { ConflictFoundException } from '@libs/exception'
+import {
+  ConflictFoundException,
+  EntityNotExistException,
+  ForbiddenAccessException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { GroupJoinRequest } from './interface/group-join-request.interface'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
 @Injectable()
@@ -16,7 +19,7 @@ export class GroupService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getGroup(userId: number, groupId: number) {
+  async getGroup(groupId: number, userId: number, invited = false) {
     const isJoined = await this.prisma.userGroup.findFirst({
       where: {
         userId: userId,
@@ -35,11 +38,12 @@ export class GroupService {
     })
 
     if (!isJoined) {
+      const filter = invited ? 'allowJoinFromURL' : 'showOnList'
       const group = await this.prisma.group.findUniqueOrThrow({
         where: {
           id: groupId,
           config: {
-            path: ['showOnList'],
+            path: [filter],
             equals: true
           }
         },
@@ -56,7 +60,7 @@ export class GroupService {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
-        allowJoinFromSearch: group.config['allowJoinFromSearch'],
+        allowJoin: invited ? true : group.config['allowJoinFromSearch'],
         memberNum: group.userGroup.length,
         leaders: await this.getGroupLeaders(groupId),
         isJoined: false
@@ -68,6 +72,15 @@ export class GroupService {
         isJoined: true
       }
     }
+  }
+
+  async getGroupByInvitation(code: string, userId: number) {
+    const groupId: number = await this.cacheManager.get(invitationCodeKey(code))
+
+    if (!groupId) {
+      throw new EntityNotExistException('Invalid invitation')
+    }
+    return this.getGroup(groupId, userId, true)
   }
 
   async getGroupLeaders(groupId: number): Promise<string[]> {
@@ -178,13 +191,24 @@ export class GroupService {
 
   async joinGroupById(
     userId: number,
-    groupId: number
+    groupId: number,
+    invitation?: string
   ): Promise<{ userGroupData: Partial<UserGroup>; isJoined: boolean }> {
+    if (invitation) {
+      const invitedGroupId = await this.cacheManager.get<number>(
+        invitationCodeKey(invitation)
+      )
+      if (!invitedGroupId || groupId !== invitedGroupId) {
+        throw new ForbiddenAccessException('Invalid invitation')
+      }
+    }
+
+    const filter = invitation ? 'allowJoinFromURL' : 'allowJoinFromSearch'
     const group = await this.prisma.group.findUniqueOrThrow({
       where: {
         id: groupId,
         config: {
-          path: ['allowJoinFromSearch'],
+          path: [filter],
           equals: true
         }
       },
@@ -205,17 +229,27 @@ export class GroupService {
     if (isJoined) {
       throw new ConflictFoundException('Already joined this group')
     } else if (group.config['requireApprovalBeforeJoin']) {
-      const joinGroupRequest = await this.cacheManager.get(
-        joinGroupCacheKey(userId, groupId)
+      let joinGroupRequest: [number, number][] = await this.cacheManager.get(
+        joinGroupCacheKey(groupId)
       )
       if (joinGroupRequest) {
-        throw new ConflictFoundException('Already requested to join this group')
+        joinGroupRequest = joinGroupRequest.filter((e) => e[1] > Date.now())
+        if (joinGroupRequest.find((e) => e[0] === userId)) {
+          throw new ConflictFoundException(
+            'Already requested to join this group'
+          )
+        }
       }
 
-      const userGroupValue: GroupJoinRequest = { userId, groupId }
+      const requestPair: [number, number] = [
+        userId,
+        Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
+      ]
+      if (joinGroupRequest !== undefined) joinGroupRequest.push(requestPair)
+      else joinGroupRequest = [requestPair]
       await this.cacheManager.set(
-        joinGroupCacheKey(userId, groupId),
-        userGroupValue,
+        joinGroupCacheKey(groupId),
+        joinGroupRequest,
         JOIN_GROUP_REQUEST_EXPIRE_TIME
       )
 
