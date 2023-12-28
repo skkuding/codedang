@@ -96,14 +96,15 @@ export class ProblemService {
       (contestProblem) => contestProblem.contestId
     )
 
-    const contests = contestIds.map(async (id) => {
-      return await this.prisma.contest.findFirst({
-        where: {
-          id,
-          groupId
-        }
-      })
+    const contests = await this.prisma.contest.findMany({
+      where: {
+        id: {
+          in: contestIds
+        },
+        groupId
+      }
     })
+
     if (!contests) {
       return false
     }
