@@ -1,17 +1,25 @@
 'use client'
 
-import { baseUrl } from '@/lib/vars'
+// import { baseUrl } from '@/lib/vars'
 import CodedangLogo from '@/public/codedang.svg'
 import Image from 'next/image'
 import React, { useState } from 'react'
 import { IoMdArrowBack } from 'react-icons/io'
-import { Button } from '../../components/ui/button'
+// import { Button } from '../../components/ui/button'
 import SignUpEmailVerify from './SignUpEmailVerify'
+import SignUpRegister from './SignUpRegister'
 import SignUpWelcome from './SignUpWelcome'
 
 export default function SignUp() {
   const [modalPage, setModalPage] = useState(0)
-  const [formData, setFormData] = useState(null)
+  const [formData, setFormData] = useState({
+    email: '',
+    verificationCode: '',
+    headers: {
+      ContentType: '',
+      emailAuth: ''
+    }
+  })
 
   const nextModal = () => {
     setModalPage(modalPage + 1)
@@ -22,22 +30,22 @@ export default function SignUp() {
     console.log('data is ', formData)
   }
 
-  const onSubmit = async () => {
-    try {
-      await fetch(baseUrl + '/user/sign-up', {
-        method: 'POST',
-        // headers: {
-        //   'email-auth': emailAuthToken,
-        //   'Content-Type': 'application/json'
-        // },
-        //header는 formData에 포함됨
-        body: JSON.stringify(formData)
-      })
-      //Sign up succeed!
-    } catch (error) {
-      //Sign up failed!
-    }
-  }
+  // const onSubmit = async () => {
+  //   try {
+  //     await fetch(baseUrl + '/user/sign-up', {
+  //       method: 'POST',
+  //       // headers: {
+  //       //   'email-auth': emailAuthToken,
+  //       //   'Content-Type': 'application/json'
+  //       // },
+  //       //header는 formData에 포함됨
+  //       body: JSON.stringify(formData)
+  //     })
+  //     //Sign up succeed!
+  //   } catch (error) {
+  //     //Sign up failed!
+  //   }
+  // }
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -68,8 +76,8 @@ export default function SignUp() {
       )}
       {modalPage === 2 && (
         <div>
-          {/* SignUpRegister */}
-          <Button
+          <SignUpRegister formData={formData} setFormData={setFormData} />
+          {/* <Button
             type="submit"
             onClick={() => {
               console.log('final data is ', formData)
@@ -77,7 +85,7 @@ export default function SignUp() {
             }}
           >
             Register
-          </Button>
+          </Button> */}
         </div>
       )}
       <div className="flex items-center text-sm text-gray-500">

@@ -1,9 +1,7 @@
 'use client'
 
 import { baseUrl } from '@/lib/vars'
-import CodedangLogo from '@/public/codedang.svg'
 import { zodResolver } from '@hookform/resolvers/zod'
-import Image from 'next/image'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaCheck } from 'react-icons/fa'
@@ -22,11 +20,20 @@ interface SignUpFormInput {
   passwordAgain: string
 }
 
+interface Header {
+  ContentType: string
+  emailAuth: string
+}
+
+interface FormData {
+  email: string
+  verificationCode: string
+  headers: Header
+}
+
 const schema = z
   .object({
     username: z.string().min(3).max(10),
-    email: z.string().email(),
-    verificationCode: z.string().min(6).max(6),
     realName: z.string().min(1).max(20),
     password: z.string().min(8).max(20),
     passwordAgain: z.string().min(8).max(20)
@@ -51,8 +58,14 @@ const schema = z
     path: ['realName']
   })
 
-export default function SignUpRegister() {
-  const [emailAuthToken] = useState<string>('')
+export default function SignUpRegister({
+  formData,
+  setFormData
+}: {
+  formData: FormData
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setFormData: any
+}) {
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
   const [userNameFocus, setUserNameFocus] = useState<boolean>(false)
@@ -67,36 +80,35 @@ export default function SignUpRegister() {
   })
 
   const onSubmit = async (data: {
-    username: string
-    email: string
-    realName: string
     password: string
+    passwordAgain: string
+    realName: string
+    username: string
   }) => {
+    setFormData({
+      ...formData,
+      ...data
+    })
     try {
       await fetch(baseUrl + '/user/sign-up', {
         method: 'POST',
-        headers: {
-          'email-auth': emailAuthToken,
-          'Content-Type': 'application/json'
-        },
+        headers: formData.headers,
         body: JSON.stringify({
-          username: data.username,
-          email: data.email,
+          email: formData.email,
+          password: data.password,
+          passwordAgain: data.passwordAgain,
           realName: data.realName,
-          password: data.password
+          username: data.username,
+          verificationCode: formData.verificationCode
         })
-      })
+      }).then((res) => console.log('res is ', res))
     } catch (error) {
       console.log(error)
     }
   }
 
   return (
-    <div className="flex w-full flex-col p-4">
-      <div>
-        <Image src={CodedangLogo} alt="코드당" width={70} className="mb-12" />
-      </div>
-
+    <div className="mb-5 mt-20 flex w-full flex-col p-4">
       <form
         className="flex w-full flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
@@ -227,35 +239,12 @@ export default function SignUpRegister() {
         </div>
 
         <Button
-          className={
-            userNameValid && passwordValid && passwordAgainValid
-              ? 'bg-blue-500'
-              : 'bg-gray-300'
-          }
-          onClick={() => {}}
+          disabled={!userNameValid && !passwordValid && !passwordAgainValid}
           type="submit"
         >
           Register
         </Button>
       </form>
-
-      <div className="mt-16 flex items-center justify-around">
-        <Button
-          variant={'link'}
-          className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
-        >
-          Already have account?
-        </Button>
-        <Button
-          variant={'link'}
-          className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
-        >
-          Log in
-        </Button>
-      </div>
     </div>
   )
 }
-
-// 모달 전환하는 방식으로 수정 예정
-// 모달 컴포넌트 분리 예정
