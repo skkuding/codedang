@@ -20,7 +20,8 @@ export class NoticeService {
       await this.prisma.notice.findMany({
         where: {
           groupId,
-          isVisible: true
+          isVisible: true,
+          isFixed: false
         },
         select: {
           id: true,
@@ -47,16 +48,11 @@ export class NoticeService {
     })
   }
 
-  async getFixedNoticesByGroupId(
-    cursor: number,
-    take: number,
-    groupId = OPEN_SPACE_ID
-  ) {
-    let skip = 1
-    if (cursor === 0) {
-      cursor = 1
-      skip = 0
-    }
+  async getFixedNoticesByGroupId(groupId = OPEN_SPACE_ID) {
+    const cursor = 1
+    const take = 10
+    const skip = 0
+
     return (
       await this.prisma.notice.findMany({
         where: {

@@ -160,8 +160,6 @@ describe('NoticeService', () => {
       db.notice.findMany.resolves(noticeArray)
 
       const getFixedNoticesByGroupId = await service.getFixedNoticesByGroupId(
-        0,
-        3,
         group.id
       )
       expect(getFixedNoticesByGroupId).to.deep.equal(userNotices)
