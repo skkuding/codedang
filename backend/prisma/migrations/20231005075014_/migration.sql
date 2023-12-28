@@ -10,21 +10,21 @@
 
 */
 -- DropIndex
-DROP INDEX "contest_problem_contest_id_id_key";
+-- DROP INDEX "contest_problem_contest_id_id_key";
 
 -- DropIndex
-DROP INDEX "workbook_problem_workbook_id_id_key";
+-- DROP INDEX "workbook_problem_workbook_id_id_key";
 
 -- AlterTable
-ALTER TABLE "contest_problem" DROP COLUMN "id",
-ADD COLUMN     "order" INTEGER NOT NULL;
+-- ALTER TABLE "contest_problem" DROP COLUMN "id",
+-- ADD COLUMN     "order" INTEGER NOT NULL;
 
 -- AlterTable
-ALTER TABLE "workbook_problem" DROP COLUMN "id",
-ADD COLUMN     "order" INTEGER NOT NULL;
+-- ALTER TABLE "workbook_problem" DROP COLUMN "id",
+-- ADD COLUMN     "order" INTEGER NOT NULL;
 
 -- CreateIndex
-CREATE UNIQUE INDEX "contest_problem_contest_id_order_key" ON "contest_problem"("contest_id", "order");
+-- CREATE UNIQUE INDEX "contest_problem_contest_id_order_key" ON "contest_problem"("contest_id", "order");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "workbook_problem_workbook_id_order_key" ON "workbook_problem"("workbook_id", "order");
+-- CREATE UNIQUE INDEX "workbook_problem_workbook_id_order_key" ON "workbook_problem"("workbook_id", "order");
