@@ -15,7 +15,7 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface Notice {
   id: number
@@ -37,31 +37,23 @@ export default function NoticeTable({ data, currentPage }: NoticeTableProps) {
       accessorKey: 'title',
       cell: ({ row }) => {
         return (
-          <Link
-            href={{
-              pathname: `/notice/${row.original.id}`,
-              query: { page: currentPage }
-            }}
-            className="text-sm md:text-base"
-          >
-            {row.original.title}
-          </Link>
+          <span className="text-sm md:text-base">{row.original.title}</span>
         )
       }
     },
     {
       header: () => (
         <div className="flex justify-end">
-          <p className="flex w-24 justify-center md:w-32">Date</p>
+          <span className="flex w-24 justify-center md:w-32">Date</span>
         </div>
       ),
       accessorKey: 'createTime',
       cell: ({ row }) => {
         return (
           <div className="flex justify-end text-gray-500">
-            <p className="text eli flex w-24 justify-center text-xs md:w-32 md:text-sm">
+            <span className="text eli flex w-24 justify-center text-xs md:w-32 md:text-sm">
               {dayjs(row.original.createTime).format('YYYY-MM-DD')}
-            </p>
+            </span>
           </div>
         )
       }
@@ -73,6 +65,8 @@ export default function NoticeTable({ data, currentPage }: NoticeTableProps) {
     columns,
     getCoreRowModel: getCoreRowModel()
   })
+
+  const router = useRouter()
 
   return (
     <Table>
@@ -100,6 +94,10 @@ export default function NoticeTable({ data, currentPage }: NoticeTableProps) {
             <TableRow
               key={row.id}
               data-state={row.getIsSelected() && 'selected'}
+              className="cursor-pointer"
+              onClick={() => {
+                router.push(`/notice/${row.original.id}?page=${currentPage}`)
+              }}
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id}>
