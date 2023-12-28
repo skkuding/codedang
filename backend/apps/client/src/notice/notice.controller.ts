@@ -29,7 +29,7 @@ export class NoticeController {
     try {
       return await this.noticeService.getNoticesByGroupId(cursor, take)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -45,7 +45,7 @@ export class NoticeController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -67,7 +67,7 @@ export class GroupNoticeController {
     try {
       return await this.noticeService.getNoticesByGroupId(cursor, take, groupId)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -86,7 +86,7 @@ export class GroupNoticeController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
