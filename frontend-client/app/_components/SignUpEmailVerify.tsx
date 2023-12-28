@@ -39,6 +39,7 @@ export default function SignUpEmailVerify({
   })
   const [sentEmail, setSentEmail] = useState<boolean>(false)
   const [emailError, setEmailError] = useState<string>('')
+  const [emailContent, setEmailContent] = useState<string>('')
   const [codeError, setCodeError] = useState<string>('')
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [emailAuthToken, setEmailAuthToken] = useState<string>('')
@@ -56,6 +57,7 @@ export default function SignUpEmailVerify({
   }
   const sendEmail = async () => {
     const { email } = getValues()
+    setEmailContent(email)
     console.log('sentEmail is ', sentEmail, 'email is ', email)
     await trigger('email')
     if (!errors.email && !sentEmail) {
@@ -81,7 +83,6 @@ export default function SignUpEmailVerify({
     }
   }
   const verifyCode = async () => {
-    const { email } = getValues()
     const { verificationCode } = getValues()
     await trigger('verificationCode')
     if (!errors.verificationCode) {
@@ -92,7 +93,7 @@ export default function SignUpEmailVerify({
           credentials: 'include',
           body: JSON.stringify({
             pin: verificationCode,
-            email: email
+            email: emailContent
           })
         })
         if (response.status === 201) {
@@ -130,7 +131,9 @@ export default function SignUpEmailVerify({
         <p className="mt-1 text-xs text-red-500">{emailError}</p>
         {sentEmail && (
           <>
-            <div>email</div>
+            <div className="mb-2 text-sm font-semibold text-gray-500">
+              {emailContent}
+            </div>
             <Input
               type="number"
               placeholder="Verification Code"
