@@ -4,54 +4,9 @@ import { baseUrl } from '@/lib/vars'
 import CodedangLogo from '@/public/codedang.svg'
 import Image from 'next/image'
 import React, { useState } from 'react'
-// import { FaPaperPlane } from 'react-icons/fa'
-// import { FaCheck } from 'react-icons/fa'
-// import { FaEyeSlash } from 'react-icons/fa'
-// import { FaEye } from 'react-icons/fa'
 import { Button } from '../../components/ui/button'
-// import { Input } from '../../components/ui/input'
 import SignUpEmailVerify from './SignUpEmailVerify'
 import SignUpWelcome from './SignUpWelcome'
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// interface SignUpFormInput {
-//   username: string
-//   email: string
-//   verificationCode: string
-//   realName: string
-//   password: string
-//   passwordAgain: string
-// }
-
-// const schema = z
-//   .object({
-//     username: z.string().min(3).max(10),
-//     email: z.string().email(),
-//     verificationCode: z.string().min(6).max(6),
-//     realName: z.string().min(1).max(20),
-//     password: z.string().min(8).max(32),
-//     passwordAgain: z.string().min(8).max(32)
-//   })
-//   .refine(
-//     (data: { password: string; passwordAgain: string }) =>
-//       data.password === data.passwordAgain,
-//     {
-//       message: 'Passwords do not match',
-//       path: ['passwordAgain']
-//     }
-//   )
-//   .refine(
-//     (data: { username: string }) => /^[a-zA-Z0-9]+$/.test(data.username),
-//     {
-//       message: 'Username can only contain alphabets and numbers',
-//       path: ['username']
-//     }
-//   )
-//   .refine((data: { realName: string }) => /^[a-zA-Z\s]+$/.test(data.realName), {
-//     message: 'Real name can only contain alphabets',
-//     path: ['realName']
-//   })
 
 export default function SignUp() {
   const [modalPage, setModalPage] = useState(0)
@@ -65,14 +20,6 @@ export default function SignUp() {
     setModalPage(modalPage - 1)
     console.log('data is ', formData)
   }
-
-  // const saveData = (data: any) => {
-  //   // 데이터를 저장하거나 다른 처리 수행
-  //   setFormData(data)
-  //   console.log('data is', formData)
-  // }
-  // const [passwordShow, setPasswordShow] = useState<boolean>(false)
-  // const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
 
   const onSubmit = async () => {
     try {
@@ -129,6 +76,3 @@ export default function SignUp() {
     </div>
   )
 }
-
-// 모달 전환하는 방식으로 수정 예정
-// 모달 컴포넌트 분리 예정

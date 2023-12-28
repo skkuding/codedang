@@ -39,7 +39,7 @@ export default function SignUpEmailVerify({
   })
   const [sentEmail, setSentEmail] = useState<boolean>(false)
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
-  const [emailAuthToken, setEmailAuthToken] = useState<string>('') //TODO: submit시 헤더에 포함시켜야함.
+  const [emailAuthToken, setEmailAuthToken] = useState<string>('')
   const onSubmit = (data: any) => {
     console.log('email auth is ', emailAuthToken)
     setFormData({
@@ -95,10 +95,6 @@ export default function SignUpEmailVerify({
       })
       if (response.status === 201) {
         setEmailVerified(true)
-        console.log('response is ', response.headers)
-        console.log('response header is', response.headers.get('email-auth'))
-        //header 문제 수정 필요
-
         setEmailAuthToken(response.headers.get('email-auth') || '')
       } else {
         //'Verification code is not valid!',
