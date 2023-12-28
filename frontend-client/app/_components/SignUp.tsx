@@ -4,6 +4,7 @@ import { baseUrl } from '@/lib/vars'
 import CodedangLogo from '@/public/codedang.svg'
 import Image from 'next/image'
 import React, { useState } from 'react'
+import { IoMdArrowBack } from 'react-icons/io'
 import { Button } from '../../components/ui/button'
 import SignUpEmailVerify from './SignUpEmailVerify'
 import SignUpWelcome from './SignUpWelcome'
@@ -40,8 +41,15 @@ export default function SignUp() {
 
   return (
     <div className="flex flex-col items-center justify-center">
+      {!(modalPage === 0) && (
+        <button
+          onClick={backModal}
+          className="absolute left-4 top-4 h-4 w-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-gray-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-gray-100 data-[state=open]:text-gray-500 dark:ring-offset-gray-950 dark:focus:ring-gray-300 dark:data-[state=open]:bg-gray-800 dark:data-[state=open]:text-gray-400"
+        >
+          <IoMdArrowBack />
+        </button>
+      )}
       <Image src={CodedangLogo} alt="코드당" width={70} className="mb-5" />
-      {!(modalPage === 0) && <button onClick={backModal}>모달 뒤로가기</button>}
 
       {modalPage === 0 && <SignUpWelcome nextModal={nextModal} />}
       {modalPage === 1 && (
@@ -67,9 +75,9 @@ export default function SignUp() {
           </Button>
         </div>
       )}
-      <div className="text-gray-dark mt-6 flex flex-col items-center text-sm">
+      <div className="mt-6 flex items-center text-sm text-gray-500">
         Already have an account?
-        <a className="text-gray-dark hover:text-gray-dark/80 active:text-gray-dark/60 w-fit cursor-pointer text-sm underline">
+        <a className="ml-5 w-fit cursor-pointer text-sm underline hover:text-black active:text-black">
           Log In
         </a>
       </div>
