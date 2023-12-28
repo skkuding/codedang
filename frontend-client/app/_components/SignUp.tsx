@@ -1,369 +1,131 @@
 'use client'
 
-// import { Separator } from '@/components/ui/separator'
-import { Toaster } from '@/components/ui/toaster'
-import { useToast } from '@/components/ui/use-toast'
 import { baseUrl } from '@/lib/vars'
 import CodedangLogo from '@/public/codedang.svg'
-// import KakaotalkLogo from '@/public/kakaotalk.svg'
-import { zodResolver } from '@hookform/resolvers/zod'
 import Image from 'next/image'
 import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { FaPaperPlane } from 'react-icons/fa'
-import { FaCheck } from 'react-icons/fa'
-import { FaEyeSlash } from 'react-icons/fa'
-import { FaEye } from 'react-icons/fa'
-// import { FcGoogle } from 'react-icons/fc'
-import { z } from 'zod'
+// import { FaPaperPlane } from 'react-icons/fa'
+// import { FaCheck } from 'react-icons/fa'
+// import { FaEyeSlash } from 'react-icons/fa'
+// import { FaEye } from 'react-icons/fa'
 import { Button } from '../../components/ui/button'
-import { Input } from '../../components/ui/input'
+// import { Input } from '../../components/ui/input'
+import SignUpEmailVerify from './SignUpEmailVerify'
+import SignUpWelcome from './SignUpWelcome'
 
-interface SignUpFormInput {
-  username: string
-  email: string
-  verificationCode: string
-  realName: string
-  password: string
-  passwordAgain: string
-}
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-const schema = z
-  .object({
-    username: z.string().min(3).max(10),
-    email: z.string().email(),
-    verificationCode: z.string().min(6).max(6),
-    realName: z.string().min(1).max(20),
-    password: z.string().min(8).max(32),
-    passwordAgain: z.string().min(8).max(32)
-  })
-  .refine(
-    (data: { password: string; passwordAgain: string }) =>
-      data.password === data.passwordAgain,
-    {
-      message: 'Passwords do not match',
-      path: ['passwordAgain']
-    }
-  )
-  .refine(
-    (data: { username: string }) => /^[a-zA-Z0-9]+$/.test(data.username),
-    {
-      message: 'Username can only contain alphabets and numbers',
-      path: ['username']
-    }
-  )
-  .refine((data: { realName: string }) => /^[a-zA-Z\s]+$/.test(data.realName), {
-    message: 'Real name can only contain alphabets',
-    path: ['realName']
-  })
-
-// function page0() {
-//   return (
-//     <div className="flex w-full flex-col gap-3 px-4">
-//       <div className="mb-12 flex py-4">
-//         <Image src={CodedangLogo} alt="코드당" height={36} />
-//       </div>
-//       <div>
-//         <p className="text-center text-xl font-bold text-blue-500">
-//         &quot;Welcome to CODEDANG&quot;
-//         </p>
-//       </div>
-
-//       <div className="flex w-full flex-col gap-3">
-//         <Button className="w-full">Sign up with Email</Button>
-//       </div>
-//       <div className="mb-1 mt-4 flex items-center justify-center gap-5">
-//         <Separator className="flex-1" />
-//         <p className="w-fit flex-none text-center text-xs text-gray-500">
-//           continue with
-//         </p>
-//         <Separator className="flex-1" />
-//       </div>
-//       <div className="flex w-full items-center justify-center gap-5">
-//         <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#FEE500] hover:opacity-80">
-//           <Image src={KakaotalkLogo} alt="카카오톡" width={20} />
-//         </div>
-//         <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#EEEEEE] hover:opacity-80">
-//           <FcGoogle size="22" />
-//         </div>
-//         <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#212528] hover:opacity-80">
-//           <FaGithub className="text-white" size="22" />
-//         </div>
-//       </div>
-//       <div className="mt-24 flex items-center justify-around">
-//         <Button
-//           variant={'link'}
-//           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
-//         >
-//           Already have account?
-//         </Button>
-//         <Button
-//           variant={'link'}
-//           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
-//         >
-//           Log in
-//         </Button>
-//       </div>
-//     </div>
-//   )
+// interface SignUpFormInput {
+//   username: string
+//   email: string
+//   verificationCode: string
+//   realName: string
+//   password: string
+//   passwordAgain: string
 // }
 
+// const schema = z
+//   .object({
+//     username: z.string().min(3).max(10),
+//     email: z.string().email(),
+//     verificationCode: z.string().min(6).max(6),
+//     realName: z.string().min(1).max(20),
+//     password: z.string().min(8).max(32),
+//     passwordAgain: z.string().min(8).max(32)
+//   })
+//   .refine(
+//     (data: { password: string; passwordAgain: string }) =>
+//       data.password === data.passwordAgain,
+//     {
+//       message: 'Passwords do not match',
+//       path: ['passwordAgain']
+//     }
+//   )
+//   .refine(
+//     (data: { username: string }) => /^[a-zA-Z0-9]+$/.test(data.username),
+//     {
+//       message: 'Username can only contain alphabets and numbers',
+//       path: ['username']
+//     }
+//   )
+//   .refine((data: { realName: string }) => /^[a-zA-Z\s]+$/.test(data.realName), {
+//     message: 'Real name can only contain alphabets',
+//     path: ['realName']
+//   })
+
 export default function SignUp() {
-  const [sentEmail, setSentEmail] = useState<boolean>(false)
-  const [emailVerified, setEmailVerified] = useState<boolean>(false)
-  const [emailAuthToken, setEmailAuthToken] = useState<string>('')
-  const [passwordShow, setPasswordShow] = useState<boolean>(false)
-  const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
+  const [modalPage, setModalPage] = useState(0)
+  const [formData, setFormData] = useState(null)
 
-  const {
-    handleSubmit,
-    register,
-    getValues,
-    formState: { errors }
-  } = useForm<SignUpFormInput>({
-    resolver: zodResolver(schema)
-  })
+  const nextModal = () => {
+    setModalPage(modalPage + 1)
+  }
 
-  const { toast } = useToast()
+  const backModal = () => {
+    setModalPage(modalPage - 1)
+    console.log('data is ', formData)
+  }
 
-  const onSubmit = async (data: {
-    username: string
-    email: string
-    realName: string
-    password: string
-  }) => {
+  // const saveData = (data: any) => {
+  //   // 데이터를 저장하거나 다른 처리 수행
+  //   setFormData(data)
+  //   console.log('data is', formData)
+  // }
+  // const [passwordShow, setPasswordShow] = useState<boolean>(false)
+  // const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
+
+  const onSubmit = async () => {
     try {
       await fetch(baseUrl + '/user/sign-up', {
         method: 'POST',
-        headers: {
-          'email-auth': emailAuthToken,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          username: data.username,
-          email: data.email,
-          realName: data.realName,
-          password: data.password
-        })
+        // headers: {
+        //   'email-auth': emailAuthToken,
+        //   'Content-Type': 'application/json'
+        // },
+        //header는 formData에 포함됨
+        body: JSON.stringify(formData)
       })
-      toast({
-        description: 'Sign up succeed!',
-        className: 'text-blue-500'
-      })
+      //Sign up succeed!
     } catch (error) {
-      toast({
-        description: 'Sign up failed!',
-        className: 'text-red-500'
-      })
-    }
-  }
-
-  const sendCodeToEmail = async (email: string) => {
-    if (!sentEmail) {
-      await fetch(baseUrl + '/email-auth/send-email/register-new', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email
-        })
-      })
-        .then((res) => {
-          if (res.status === 409) {
-            toast({
-              description: 'You have already signed up!',
-              className: 'text-red-500'
-            })
-          } else if (res.status === 201) {
-            setSentEmail(true)
-          }
-        })
-        .catch(() => {
-          toast({
-            description: 'Sending verification code failed!',
-            className: 'text-red-500'
-          })
-        })
-    } else {
-      toast({
-        description: 'You have already sent an email',
-        className: 'text-red-500'
-      })
-    }
-  }
-
-  const verifyCode = async (email: string, verificationCode: string) => {
-    if (!emailVerified) {
-      try {
-        const response = await fetch(baseUrl + '/email-auth/verify-pin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            pin: verificationCode,
-            email: email
-          })
-        })
-        if (response.status === 200) {
-          setEmailVerified(true)
-          setEmailAuthToken(response.headers.get('email-auth') || '')
-        } else {
-          toast({
-            description: 'Verification code is not valid!',
-            className: 'text-red-500'
-          })
-        }
-      } catch (error) {
-        toast({
-          description: 'Email verification failed!',
-          className: 'text-red-500'
-        })
-      }
-    } else {
-      toast({
-        description: 'You have already verified code',
-        className: 'text-red-500'
-      })
+      //Sign up failed!
     }
   }
 
   return (
     <div className="flex flex-col items-center justify-center">
       <Image src={CodedangLogo} alt="코드당" width={70} className="mb-5" />
+      {!(modalPage === 0) && <button onClick={backModal}>모달 뒤로가기</button>}
 
-      <form
-        className="flex w-60 flex-col gap-4"
-        onSubmit={handleSubmit(onSubmit)}
-      >
+      {modalPage === 0 && <SignUpWelcome nextModal={nextModal} />}
+      {modalPage === 1 && (
+        <>
+          <SignUpEmailVerify
+            nextModal={nextModal}
+            formData={formData}
+            setFormData={setFormData}
+          />
+        </>
+      )}
+      {modalPage === 2 && (
         <div>
-          <Input placeholder="User Id" {...register('username')} />
-          {errors.username && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.username?.message}
-            </p>
-          )}
+          {/* SignUpRegister */}
+          <Button
+            type="submit"
+            onClick={() => {
+              console.log('final data is ', formData)
+              onSubmit()
+            }}
+          >
+            Register
+          </Button>
         </div>
-
-        <div>
-          <div className="flex gap-2">
-            <Input
-              id="email"
-              type="email"
-              placeholder="Email Address"
-              {...register('email')}
-            />
-            <Button
-              onClick={() => {
-                const { email } = getValues()
-                sendCodeToEmail(email)
-              }}
-              className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
-            >
-              <FaPaperPlane className="text-white" size="20" />
-            </Button>
-          </div>
-          {errors.email && (
-            <p className="mt-1 text-xs text-red-500">{errors.email?.message}</p>
-          )}
-          {sentEmail && (
-            <p className="mt-1 text-xs text-blue-500">
-              Email verification code has been sent!
-            </p>
-          )}
-        </div>
-
-        <div>
-          <div className="flex gap-1">
-            <Input
-              type="number"
-              placeholder="Verification Code"
-              {...register('verificationCode')}
-            />
-            <Button
-              onClick={() => {
-                const { email } = getValues()
-                const { verificationCode } = getValues()
-                verifyCode(email, verificationCode)
-              }}
-              className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
-            >
-              <FaCheck className="text-white" size="20" />
-            </Button>
-          </div>
-          {errors.verificationCode && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.verificationCode?.message}
-            </p>
-          )}
-          {emailVerified && (
-            <p className="text-blue text-xs font-bold">
-              Email has been verified!
-            </p>
-          )}
-        </div>
-
-        <div>
-          <Input placeholder="Real Name" {...register('realName')} />
-          {errors.realName && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.realName?.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <div className="flex justify-between gap-2">
-            <Input
-              className="w-52"
-              placeholder="Password"
-              {...register('password')}
-              type={passwordShow ? 'text' : 'password'}
-            />
-            <span
-              className="mt-3"
-              onClick={() => setPasswordShow(!passwordShow)}
-            >
-              {passwordShow ? <FaEyeSlash /> : <FaEye />}
-            </span>
-          </div>
-          {errors.password && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.password?.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <div className="flex justify-between gap-2">
-            <Input
-              className="w-52"
-              {...register('passwordAgain')}
-              placeholder="Password Check"
-              type={passwordAgainShow ? 'text' : 'password'}
-            />
-            <span
-              className="mt-3"
-              onClick={() => setPasswordAgainShow(!passwordAgainShow)}
-            >
-              {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
-            </span>
-          </div>
-          {errors.passwordAgain && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.passwordAgain?.message}
-            </p>
-          )}
-        </div>
-
-        <Button color="blue" onClick={() => {}} type="submit">
-          Register
-        </Button>
-      </form>
+      )}
       <div className="text-gray-dark mt-6 flex flex-col items-center text-sm">
         Already have an account?
         <a className="text-gray-dark hover:text-gray-dark/80 active:text-gray-dark/60 w-fit cursor-pointer text-sm underline">
           Log In
         </a>
       </div>
-      <Toaster />
     </div>
   )
 }
