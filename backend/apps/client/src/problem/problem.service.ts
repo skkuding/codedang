@@ -65,38 +65,6 @@ export class ProblemService {
     const data = await this.problemRepository.getProblem(problemId, groupId)
     return plainToInstance(ProblemResponseDto, data)
   }
-
-  async isProblemInUserParticipatingContest(
-    groupId: number,
-    problemId: number
-  ): Promise<boolean> {
-    const contestProblems = await this.prisma.contestProblem.findMany({
-      where: {
-        problemId
-      }
-    })
-    if (!contestProblems) {
-      return false
-    }
-
-    const contestIds = contestProblems.map(
-      (contestProblem) => contestProblem.contestId
-    )
-
-    const contests = await this.prisma.contest.findMany({
-      where: {
-        id: {
-          in: contestIds
-        },
-        groupId
-      }
-    })
-
-    if (!contests) {
-      return false
-    }
-    return true
-  }
 }
 
 @Injectable()
