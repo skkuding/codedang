@@ -34,7 +34,7 @@ export class NoticeController {
     }
   }
 
-  @Get()
+  @Get('fixed')
   async getFixedNotices(
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number
@@ -85,7 +85,7 @@ export class GroupNoticeController {
     }
   }
 
-  @Get()
+  @Get('fixed')
   async getFixedNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number,
