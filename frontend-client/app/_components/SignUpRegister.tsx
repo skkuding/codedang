@@ -1,7 +1,5 @@
 'use client'
 
-import { Toaster } from '@/components/ui/toaster'
-import { useToast } from '@/components/ui/use-toast'
 import { baseUrl } from '@/lib/vars'
 import CodedangLogo from '@/public/codedang.svg'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -68,8 +66,6 @@ export default function SignUpRegister() {
     resolver: zodResolver(schema)
   })
 
-  const { toast } = useToast()
-
   const onSubmit = async (data: {
     username: string
     email: string
@@ -90,15 +86,8 @@ export default function SignUpRegister() {
           password: data.password
         })
       })
-      toast({
-        description: 'Sign up succeed!',
-        className: 'text-blue-500'
-      })
     } catch (error) {
-      toast({
-        description: 'Sign up failed!',
-        className: 'text-red-500'
-      })
+      console.log(error)
     }
   }
 
@@ -262,7 +251,6 @@ export default function SignUpRegister() {
           Log in
         </Button>
       </div>
-      <Toaster />
     </div>
   )
 }
