@@ -1,0 +1,25 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    deleteGroup(groupId: 3) {
+      count
+    }
+  }
+}
+
+docs {
+  # Delete Group
+  ---
+  - `groupId`에 해당하는 Group을 삭제합니다.
+}

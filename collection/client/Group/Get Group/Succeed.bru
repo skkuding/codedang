@@ -1,5 +1,5 @@
 meta {
-  name: Succeed (joined)
+  name: Succeed
   type: http
   seq: 1
 }
@@ -21,4 +21,10 @@ assert {
 
 script:pre-request {
   await require("./login").loginUser(req);
+}
+
+docs {
+  # Get Group by Group Id
+  ---
+  - URL param으로 전달된 `groupId`를 통해 해당 group의 정보를 가져와 반환합니다.
 }
