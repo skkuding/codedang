@@ -5,6 +5,7 @@ import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import * as dayjs from 'dayjs'
 import { stub } from 'sinon'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   EntityNotExistException,
   ForbiddenAccessException
@@ -128,7 +129,7 @@ describe('ProblemService', () => {
       db.tag.findMany.resolves([mockTag])
 
       // when
-      const result = await service.getProblems(1, 2)
+      const result = await service.getProblems(1, 2, OPEN_SPACE_ID)
 
       // then
       expect(result).to.deep.equal(
