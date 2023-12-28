@@ -4,7 +4,6 @@ import { Manrope, Noto_Sans_KR } from 'next/font/google'
 import Header from './_components/Header'
 import './globals.css'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const noto = Noto_Sans_KR({
   subsets: ['latin'],
   weight: ['400', '600'],
