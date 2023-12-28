@@ -56,7 +56,7 @@ export class ContestResolver {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -74,7 +74,7 @@ export class ContestResolver {
       } else if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -90,7 +90,7 @@ export class ContestResolver {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -117,7 +117,7 @@ export class ContestResolver {
       } else if (error instanceof ConflictFoundException) {
         throw new BadRequestException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -137,7 +137,7 @@ export class ContestResolver {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -158,7 +158,7 @@ export class ContestResolver {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }

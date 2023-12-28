@@ -33,7 +33,7 @@ export class ProblemAnnouncementController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -53,7 +53,7 @@ export class ProblemAnnouncementController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -78,7 +78,7 @@ export class ContestAnnouncementController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -98,7 +98,7 @@ export class ContestAnnouncementController {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
