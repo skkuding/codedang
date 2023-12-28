@@ -8,7 +8,11 @@ export const REFRESH_TOKEN_EXPIRE_TIME = SECONDS_PER_DAY
 export const REFRESH_TOKEN_COOKIE_OPTIONS = {
   maxAge: 1000 * SECONDS_PER_DAY,
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production'
+  secure: process.env.NODE_ENV === 'production',
+  path:
+    process.env.NODE_ENV === 'production'
+      ? '/api/auth/reissue'
+      : '/auth/reissue'
 }
 export const EMAIL_AUTH_EXPIRE_TIME = 5 * SECONDS_PER_MINUTE
 

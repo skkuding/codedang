@@ -12,7 +12,8 @@ import {
   type Workbook,
   type Submission,
   type ProblemTestcase,
-  UserProblem
+  type Announcement,
+  type UserProblem
 } from '@prisma/client'
 import { hash } from 'argon2'
 import * as dayjs from 'dayjs'
@@ -33,6 +34,7 @@ let contest: Contest
 const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
+const announcements: Announcement[] = []
 
 const createUsers = async () => {
   // create super admin user
@@ -940,16 +942,7 @@ const createContests = async () => {
   for (const problem of problems) {
     await prisma.contestProblem.create({
       data: {
-        id: String(problem.id),
-        contestId: contest.id,
-        problemId: problem.id
-      }
-    })
-
-    // add clarifications to contestProblem
-    await prisma.clarification.create({
-      data: {
-        content: `${problem.id}번 문제가 blah blah 수정되었습니다.`,
+        order: problem.id,
         contestId: contest.id,
         problemId: problem.id
       }
@@ -988,14 +981,14 @@ const createWorkbooks = async () => {
   for (const problem of problems) {
     await prisma.workbookProblem.create({
       data: {
-        id: String(problem.id),
+        order: problem.id,
         workbookId: workbooks[0].id,
         problemId: problem.id
       }
     })
     await prisma.workbookProblem.create({
       data: {
-        id: String(problem.id),
+        order: problem.id,
         workbookId: privateWorkbooks[0].id,
         problemId: problem.id
       }
@@ -1276,6 +1269,19 @@ int main(void) {
   })
 }
 
+const createAnnouncements = async () => {
+  for (let i = 0; i < 5; ++i) {
+    announcements.push(
+      await prisma.announcement.create({
+        data: {
+          content: `Announcement_${i}`,
+          problemId: problems[i].id
+        }
+      })
+    )
+  }
+}
+
 const createUserProblems = async () => {
   const userProblems: UserProblem[] = []
 
@@ -1340,6 +1346,7 @@ const main = async () => {
   await createContests()
   await createWorkbooks()
   await createSubmissions()
+  await createAnnouncements()
   await createUserProblems()
 }
 

@@ -48,7 +48,7 @@ export const problems: Problem[] = [
 
 export const contestProblems = [
   {
-    id: 'A',
+    order: 1,
     contestId: 1,
     problemId: 1,
     score: 0,
@@ -59,7 +59,7 @@ export const contestProblems = [
     }
   },
   {
-    id: 'B',
+    order: 2,
     contestId: 1,
     problemId: 2,
     score: 0,
@@ -73,7 +73,7 @@ export const contestProblems = [
 
 export const workbookProblems = [
   {
-    id: 'A',
+    order: 1,
     workbookId: 1,
     problemId: 1,
     score: 0,
@@ -81,7 +81,7 @@ export const workbookProblems = [
     updateTime: undefined
   },
   {
-    id: 'B',
+    order: 2,
     workbookId: 1,
     problemId: 2,
     score: 0,
@@ -95,6 +95,11 @@ export const problemTag = {
     id: 1,
     name: 'Tag'
   }
+}
+
+export const tag = {
+  id: 1,
+  name: 'Tag'
 }
 
 export const mockUser = {

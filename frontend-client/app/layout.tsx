@@ -1,6 +1,6 @@
-import Header from '@/components/global/Header'
 import type { Metadata } from 'next'
 import { Manrope } from 'next/font/google'
+import Header from './_components/Header'
 import './globals.css'
 
 const manrope = Manrope({ subsets: ['latin'], weight: ['400', '600', '700'] })
@@ -18,9 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={manrope.className}>
-        <Header />
-        <div className="flex w-full justify-center">
-          <main className="w-full max-w-7xl p-5">{children}</main>
+        <div className="w-screen overflow-hidden">
+          <Header />
+          {children}
         </div>
       </body>
     </html>

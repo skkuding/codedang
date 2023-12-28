@@ -1,7 +1,7 @@
 meta {
   name: Succeed
   type: http
-  seq: 2
+  seq: 1
 }
 
 get {
@@ -23,4 +23,10 @@ assert {
 
 script:pre-request {
   await require("./login").loginUser(req);
+}
+
+docs {
+  # Get Group Contest by ID
+  ---
+  - URL param으로 주어진 group ID와 contest ID에 해당하는 contest들을 반환합니다.
 }
