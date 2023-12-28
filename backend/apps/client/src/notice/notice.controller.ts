@@ -34,6 +34,19 @@ export class NoticeController {
     }
   }
 
+  @Get()
+  async getFixedNotices(
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
+  ) {
+    try {
+      return await this.noticeService.getFixedNoticesByGroupId(cursor, take)
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
+  }
+
   @Get(':id')
   async getNotice(@Param('id', ParseIntPipe) id: number) {
     try {
@@ -60,6 +73,20 @@ export class GroupNoticeController {
 
   @Get()
   async getNotices(
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('take', ParseIntPipe) take: number
+  ) {
+    try {
+      return await this.noticeService.getNoticesByGroupId(cursor, take, groupId)
+    } catch (error) {
+      this.logger.error(error.message, error.stack)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get()
+  async getFixedNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number,
     @Query('take', ParseIntPipe) take: number

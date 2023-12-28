@@ -47,6 +47,48 @@ export class NoticeService {
     })
   }
 
+  async getFixedNoticesByGroupId(
+    cursor: number,
+    take: number,
+    groupId = OPEN_SPACE_ID
+  ) {
+    let skip = 1
+    if (cursor === 0) {
+      cursor = 1
+      skip = 0
+    }
+    return (
+      await this.prisma.notice.findMany({
+        where: {
+          groupId,
+          isVisible: true,
+          isFixed: true
+        },
+        select: {
+          id: true,
+          title: true,
+          createTime: true,
+          isFixed: true,
+          createdBy: {
+            select: {
+              username: true
+            }
+          }
+        },
+        take,
+        skip,
+        cursor: {
+          id: cursor
+        }
+      })
+    ).map((notice) => {
+      return {
+        ...notice,
+        createdBy: notice.createdBy.username
+      }
+    })
+  }
+
   async getNotice(id: number, groupId = OPEN_SPACE_ID) {
     const current = await this.prisma.notice
       .findUniqueOrThrow({
