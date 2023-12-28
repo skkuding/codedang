@@ -60,12 +60,11 @@ export default function SignUpRegister() {
   const [userNameFocus, setUserNameFocus] = useState<boolean>(false)
   const [passwordFocus, setPasswordFocus] = useState<boolean>(false)
   const [passwordAgainFocus, setPasswordAgainFocus] = useState<boolean>(false)
+  const [userNameValid, setUserNameValid] = useState<boolean>(false)
+  const [passwordValid, setPasswordValid] = useState<boolean>(false)
+  const [passwordAgainValid, setPasswordAgainValid] = useState<boolean>(false)
 
-  const {
-    handleSubmit,
-    register,
-    formState: { errors }
-  } = useForm<SignUpFormInput>({
+  const { handleSubmit, register, getValues } = useForm<SignUpFormInput>({
     resolver: zodResolver(schema)
   })
 
@@ -123,6 +122,7 @@ export default function SignUpRegister() {
             setPasswordAgainFocus(false)
           }}
         />
+
         <div>
           <div className="flex gap-2">
             <Input
@@ -134,30 +134,36 @@ export default function SignUpRegister() {
                 setPasswordFocus(false)
                 setPasswordAgainFocus(false)
               }}
+              onChange={(e) => {
+                const value = e.target.value
+                const isValid = /^[a-zA-Z0-9]{3,10}$/.test(value)
+                setUserNameValid(isValid)
+              }}
             />
             <Button
               onClick={() => {}}
-              className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
+              className={`flex aspect-square w-12 items-center justify-center rounded-md ${
+                userNameValid ? 'bg-[#2279FD]' : 'bg-[#C4CBCD]'
+              }`}
             >
               <FaCheck className="text-white" size="20" />
             </Button>
           </div>
           {userNameFocus && (
             <div>
-              <p className="mt-1 text-xs text-slate-500">
-                &#x2022; User ID used for log in
-              </p>
-              <p className="mt-1 text-xs text-slate-500">
-                &#x2022; Your ID must be 3-10 characters of alphabet
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;letters, numbers
-              </p>
-              <p className="mt-1 text-xs text-blue-500">*Available</p>
+              <div className="mt-1 text-xs text-slate-500">
+                <p>&#x2022; User ID used for log in</p>
+                <p>
+                  &#x2022; Your ID must be 3-10 characters of alphabet
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;letters, numbers
+                </p>
+              </div>
+              {userNameValid ? (
+                <p className="mt-1 text-xs text-blue-500">*Available</p>
+              ) : (
+                <p className="mt-1 text-xs text-red-500">*Unavailable</p>
+              )}
             </div>
-          )}
-          {errors.username && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.username?.message}
-            </p>
           )}
         </div>
 
@@ -173,6 +179,11 @@ export default function SignUpRegister() {
                 setPasswordFocus(true)
                 setPasswordAgainFocus(false)
               }}
+              onChange={(e) => {
+                const value = e.target.value
+                const isValid = /^.{8,20}$/.test(value)
+                setPasswordValid(isValid)
+              }}
             />
             <span
               className="mt-3"
@@ -182,19 +193,14 @@ export default function SignUpRegister() {
             </span>
           </div>
           {passwordFocus && (
-            <div>
-              <p className="mt-1 text-xs text-slate-500">
-                &#x2022; Your password must be 8-20 characters
-              </p>
-              <p className="mt-1 text-xs text-slate-500">
-                &#x2022; Include alphabet letters and numbers
-              </p>
+            <div
+              className={`${
+                passwordValid ? 'text-slate-500' : 'text-red-500'
+              } mt-1 text-xs`}
+            >
+              <p>&#x2022; Your password must be 8-20 characters</p>
+              <p>&#x2022; Include alphabet letters and numbers</p>
             </div>
-          )}
-          {errors.password && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.password?.message}
-            </p>
           )}
         </div>
 
@@ -210,6 +216,12 @@ export default function SignUpRegister() {
                 setPasswordFocus(false)
                 setPasswordAgainFocus(true)
               }}
+              onChange={(e) => {
+                const password = getValues('password')
+                const passwordAgain = e.target.value
+                if (password === passwordAgain) setPasswordAgainValid(true)
+                else setPasswordAgainValid(false)
+              }}
             />
             <span
               className="mt-3"
@@ -218,15 +230,24 @@ export default function SignUpRegister() {
               {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
-          {passwordAgainFocus && errors.passwordAgain && (
+          {passwordAgainFocus && !passwordAgainValid && (
             <p className="mt-1 text-xs text-red-500">*Incorrect</p>
           )}
         </div>
 
-        <Button color="blue" onClick={() => {}} type="submit">
+        <Button
+          className={
+            userNameValid && passwordValid && passwordAgainValid
+              ? 'bg-blue-500'
+              : 'bg-gray-300'
+          }
+          onClick={() => {}}
+          type="submit"
+        >
           Register
         </Button>
       </form>
+
       <div className="mt-16 flex items-center justify-around">
         <Button
           variant={'link'}
