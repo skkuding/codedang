@@ -22,29 +22,16 @@ export class ProblemService {
     private readonly prisma: PrismaService
   ) {}
 
-  async getProblems(
-    cursor: number,
-    take: number,
-    groupId: number,
-    userId?: number
-  ) {
+  async getProblems(cursor: number, take: number, groupId: number) {
     let unprocessedProblems = await this.problemRepository.getProblems(
       cursor,
       take,
       groupId
     )
 
-    if (!userId) {
-      unprocessedProblems = unprocessedProblems.filter(
-        (problem) => problem.exposeTime <= new Date()
-      )
-    } else {
-      unprocessedProblems = unprocessedProblems.filter(
-        (problem) =>
-          problem.exposeTime <= new Date() ||
-          this.isProblemInUserParticipatingContest(groupId, problem.id)
-      )
-    }
+    unprocessedProblems = unprocessedProblems.filter(
+      (problem) => problem.exposeTime <= new Date()
+    )
 
     const uniqueTagIds = new Set(
       unprocessedProblems.flatMap((item) => {
