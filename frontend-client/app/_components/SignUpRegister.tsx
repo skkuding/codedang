@@ -130,7 +130,9 @@ export default function SignUpRegister() {
               }}
             />
             <Button
-              onClick={() => {}}
+              onClick={() => {
+                console.log('username: ' + getValues('username'))
+              }}
               className={`flex aspect-square w-12 items-center justify-center rounded-md ${
                 userNameValid ? 'bg-[#2279FD]' : 'bg-[#C4CBCD]'
               }`}
