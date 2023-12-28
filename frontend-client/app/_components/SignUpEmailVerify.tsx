@@ -108,12 +108,18 @@ export default function SignUpEmailVerify({
   }
 
   return (
-    <div>
+    <div className="mb-24 mt-24">
       <form onSubmit={handleSubmit(onSubmit)}>
+        <div>
+          <p className="mb-5 text-left text-xl font-bold text-blue-500">
+            Sign Up
+          </p>
+        </div>
         {!sentEmail && (
           <Input
             id="email"
             type="email"
+            className="w-64"
             placeholder="Email Address"
             {...register('email')}
           />
@@ -147,11 +153,15 @@ export default function SignUpEmailVerify({
         <p className="mt-1 text-xs text-red-500">{codeError}</p>
 
         {!sentEmail ? (
-          <Button type="button" onClick={() => sendEmail()}>
+          <Button
+            type="button"
+            className="mt-3 w-64"
+            onClick={() => sendEmail()}
+          >
             Send Email
           </Button>
         ) : (
-          <Button type="submit" disabled={!emailVerified}>
+          <Button type="submit" className="mt-3 w-64" disabled={!emailVerified}>
             Next
           </Button>
         )}
