@@ -48,11 +48,7 @@ export class NoticeService {
     })
   }
 
-  async getFixedNoticesByGroupId(groupId = OPEN_SPACE_ID) {
-    const cursor = 1
-    const take = 10
-    const skip = 0
-
+  async getFixedNoticesByGroupId(take: number, groupId = OPEN_SPACE_ID) {
     return (
       await this.prisma.notice.findMany({
         where: {
@@ -71,11 +67,10 @@ export class NoticeService {
             }
           }
         },
-        take,
-        skip,
-        cursor: {
-          id: cursor
-        }
+        orderBy: {
+          id: 'desc'
+        },
+        take
       })
     ).map((notice) => {
       return {
