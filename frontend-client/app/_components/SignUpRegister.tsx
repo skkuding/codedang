@@ -105,7 +105,7 @@ export default function SignUpRegister() {
 
   return (
     <div className="flex w-full flex-col p-4">
-      <div className="">
+      <div>
         <Image src={CodedangLogo} alt="코드당" width={70} className="mb-12" />
       </div>
 
@@ -113,20 +113,20 @@ export default function SignUpRegister() {
         className="flex w-full flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div>
-          <Input
-            placeholder="Your Name"
-            {...register('realName')}
-            onFocus={() => {
-              setUserNameFocus(false)
-              setPasswordFocus(false)
-              setPasswordAgainFocus(false)
-            }}
-          />
-        </div>
+        <Input
+          className="px-4 shadow-md"
+          placeholder="Your Name"
+          {...register('realName')}
+          onFocus={() => {
+            setUserNameFocus(false)
+            setPasswordFocus(false)
+            setPasswordAgainFocus(false)
+          }}
+        />
         <div>
           <div className="flex gap-2">
             <Input
+              className="px-4 shadow-md"
               placeholder="User ID"
               {...register('username')}
               onFocus={() => {
@@ -164,7 +164,7 @@ export default function SignUpRegister() {
         <div>
           <div className="flex justify-between gap-2">
             <Input
-              className="w-full"
+              className="px-4 shadow-md"
               placeholder="Password"
               {...register('password')}
               type={passwordShow ? 'text' : 'password'}
@@ -201,7 +201,7 @@ export default function SignUpRegister() {
         <div>
           <div className="flex justify-between gap-2">
             <Input
-              className="w-full"
+              className="px-4 shadow-md"
               {...register('passwordAgain')}
               placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
