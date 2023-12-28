@@ -1,5 +1,5 @@
 meta {
-  name: Succeed
+  name: 409: ConflictFoundError
   type: http
   seq: 1
 }
@@ -28,14 +28,10 @@ body:json {
 }
 
 assert {
-  res.status: eq 201
-  res.body.id: isNumber
-  res.body.userId: isNumber
-  res.body.problemId: isNumber
-  res.body.template[0].code[0].id: isNumber
-  res.body.template[0].code[0].text: isString
-  res.body.template[0].code[0].locked: isBoolean
-  res.body.template[0].language: isString
+  res.status: eq 409
+  res.body.message: eq "UserProblem already exists."
+  res.body.error: eq "Conflict"
+  res.body.statusCode: eq 409
 }
 
 script:pre-request {
@@ -46,6 +42,6 @@ docs {
   # Create User Code
   - 현재 `User`가 풀고 있는 `Problem`에 대해서 `User`의 `Code`를 저장합니다.
   - `User`와 `Problem`을 `N:M`으로 mapping한 `UserProblem` Table에 저장합니다.
-  - 현 Request는 `user01`(`id`:`4`)가 `problemId`가 8인 문제를 풀 때 상황을 가정했습니다.
-  
+  - 현 Request는 `user01`(`id`:`4`)가 `problemId`가 `8`인 문제를 풀 때 상황을 가정했습니다.
+  - `userId`가 `4`인 `User`가 `problemId`가 `8`인 `Problem`의 `UserProblem`은 이미 존재합니다. (`Succeed` request가 성공한 후에)
 }

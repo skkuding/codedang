@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Body,
+  ConflictException,
   Controller,
   Get,
   InternalServerErrorException,
@@ -70,7 +71,7 @@ export class UserProblemController {
       } else if (err instanceof ForbiddenAccessException) {
         throw new BadRequestException(err.message)
       } else if (err instanceof ConflictFoundException) {
-        throw new ConflictFoundException(err.message)
+        throw new ConflictException(err.message)
       }
       this.logger.error(err.message, err.stack)
       throw new InternalServerErrorException()
@@ -93,6 +94,11 @@ export class UserProblemController {
       if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
         err.name === 'NotFoundError'
+      ) {
+        throw new NotFoundException(err.message)
+      } else if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
       ) {
         throw new NotFoundException(err.message)
       } else if (err instanceof ForbiddenAccessException) {

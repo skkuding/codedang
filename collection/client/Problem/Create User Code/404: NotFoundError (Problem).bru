@@ -1,11 +1,11 @@
 meta {
-  name: Succeed
+  name: 404: NotFoundError (Problem)
   type: http
   seq: 1
 }
 
 post {
-  url: {{baseUrl}}/user/problem/8
+  url: {{baseUrl}}/user/problem/999
   body: json
   auth: none
 }
@@ -28,14 +28,10 @@ body:json {
 }
 
 assert {
-  res.status: eq 201
-  res.body.id: isNumber
-  res.body.userId: isNumber
-  res.body.problemId: isNumber
-  res.body.template[0].code[0].id: isNumber
-  res.body.template[0].code[0].text: isString
-  res.body.template[0].code[0].locked: isBoolean
-  res.body.template[0].language: isString
+  res.status: eq 404
+  res.body.message: eq "No Problem found"
+  res.body.error: eq "Not Found"
+  res.body.statusCode: eq 404
 }
 
 script:pre-request {
@@ -46,6 +42,6 @@ docs {
   # Create User Code
   - 현재 `User`가 풀고 있는 `Problem`에 대해서 `User`의 `Code`를 저장합니다.
   - `User`와 `Problem`을 `N:M`으로 mapping한 `UserProblem` Table에 저장합니다.
-  - 현 Request는 `user01`(`id`:`4`)가 `problemId`가 8인 문제를 풀 때 상황을 가정했습니다.
-  
+  - 현 Request는 `user01`(`id`:`4`)가 `problemId`가 999인 문제를 풀 때 상황을 가정했습니다.
+  - `problemId`가 999인 문제는 존재하지 않습니다.
 }

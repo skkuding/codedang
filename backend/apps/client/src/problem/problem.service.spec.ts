@@ -2,6 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { NotFoundException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Prisma, ResultStatus } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import * as dayjs from 'dayjs'
@@ -647,6 +648,23 @@ describe('WorkbookProblemService', () => {
         await expect(
           service.updateUserCode(mockUser.id, mockTemplate, mockUserProblem.id)
         ).to.be.rejectedWith(NotFoundException)
+      })
+      it('should throw error when the userProblem does not exist', async () => {
+        // given
+        db.user.findUniqueOrThrow.resolves(mockUser)
+        db.problem.findUniqueOrThrow.resolves(mockProblem)
+        db.userProblem.update.rejects(
+          new PrismaClientKnownRequestError('Record to update not found.', {
+            code: 'P2025',
+            meta: { target: ['UserProblem'] },
+            clientVersion: '5.1.1'
+          })
+        )
+
+        // then
+        await expect(
+          service.updateUserCode(mockUser.id, mockTemplate, mockUserProblem.id)
+        ).to.be.rejectedWith(PrismaClientKnownRequestError)
       })
     })
   })

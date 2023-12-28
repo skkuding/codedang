@@ -1279,51 +1279,54 @@ int main(void) {
 const createUserProblems = async () => {
   const userProblems: UserProblem[] = []
 
-  // Assuming you want to create a UserProblem for each user and problem combination
-  for (const user of users) {
-    for (const problem of problems) {
-      const userProblem = await prisma.userProblem.create({
-        data: {
-          userId: user.id,
-          problemId: problem.id,
-          // Example template (modify as needed)
-          template: [
-            {
-              language: Language.Cpp, // Example language
-              code: [
-                {
-                  id: 1,
-                  text: '#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n',
-                  locked: true
-                },
-                {
-                  id: 2,
-                  text: '    cout << "hello, world" << endl;\n',
-                  locked: false
-                },
-                {
-                  id: 3,
-                  text: '    return 0;\n}\n',
-                  locked: true
-                }
-                // ... add more code blocks if needed
-              ]
-            },
-            {
-              language: Language.Python3,
-              code: [
-                {
-                  id: 1,
-                  text: 'print("hello, world")\n',
-                  locked: false
-                }
-              ]
-            }
-          ]
-        }
-      })
-      userProblems.push(userProblem)
+  // Assuming you want to create a UserProblem for 'user01' and problem combination
+  const user = users[0]
+  for (const problem of problems) {
+    // Skip problemId: 8
+    if (problem.id === 8) {
+      continue
     }
+    const userProblem = await prisma.userProblem.create({
+      data: {
+        userId: user.id,
+        problemId: problem.id,
+        // Example template (modify as needed)
+        template: [
+          {
+            language: Language.Cpp, // Example language
+            code: [
+              {
+                id: 1,
+                text: '#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n',
+                locked: true
+              },
+              {
+                id: 2,
+                text: '    cout << "hello, world" << endl;\n',
+                locked: false
+              },
+              {
+                id: 3,
+                text: '    return 0;\n}\n',
+                locked: true
+              }
+              // ... add more code blocks if needed
+            ]
+          },
+          {
+            language: Language.Python3,
+            code: [
+              {
+                id: 1,
+                text: 'print("hello, world")\n',
+                locked: false
+              }
+            ]
+          }
+        ]
+      }
+    })
+    userProblems.push(userProblem)
   }
 
   return userProblems
