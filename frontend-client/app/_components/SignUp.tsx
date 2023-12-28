@@ -80,7 +80,7 @@ export default function SignUp() {
           </Button>
         </div>
       )}
-      <div className="mt-6 flex items-center text-sm text-gray-500">
+      <div className="flex items-center text-sm text-gray-500">
         Already have an account?
         <a className="ml-5 w-fit cursor-pointer text-sm underline hover:text-black active:text-black">
           Log In

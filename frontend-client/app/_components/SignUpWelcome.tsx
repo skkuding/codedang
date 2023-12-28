@@ -8,7 +8,7 @@ import { Button } from '../../components/ui/button'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function SignUpWelcome({ nextModal }: { nextModal: any }) {
   return (
-    <div className="mt-20">
+    <div className="mb-20 mt-32">
       <div>
         <p className="mb-3 text-center text-xl font-bold text-blue-500">
           &quot;Welcome to CODEDANG&quot;
