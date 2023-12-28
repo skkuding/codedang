@@ -320,7 +320,7 @@ export class SubmissionService implements OnModuleInit {
 
     // FIXME: 현재 코드는 message 하나에 특정 problem에 대한 모든 테스트케이스의 채점 결과가 전송된다고 가정하고, 이를 받아서 submission의 overall result를 업데이트합니다.
     //        테스트케이스별로 DB 업데이트가 이루어진다면 아래 코드를 수정해야 합니다.
-    await this.prisma.submission.update({
+    const submission = await this.prisma.submission.update({
       where: {
         id
       },
@@ -328,6 +328,34 @@ export class SubmissionService implements OnModuleInit {
         result: resultStatus
       }
     })
+
+    if (resultStatus !== ResultStatus.Judging) {
+      const problem = await this.prisma.problem.findFirst({
+        where: {
+          id: submission.problemId
+        },
+        select: {
+          submissionCount: true,
+          acceptedCount: true,
+          acceptedRate: true
+        }
+      })
+      const submissionCount = problem.submissionCount + 1
+      const acceptedCount =
+        resultStatus === ResultStatus.Accepted
+          ? problem.acceptedCount + 1
+          : problem.acceptedCount
+      await this.prisma.problem.update({
+        where: {
+          id: submission.problemId
+        },
+        data: {
+          submissionCount,
+          acceptedCount,
+          acceptedRate: acceptedCount / submissionCount
+        }
+      })
+    }
   }
 
   // FIXME: Workbook 구분
