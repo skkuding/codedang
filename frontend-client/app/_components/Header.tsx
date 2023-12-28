@@ -11,6 +11,7 @@ export default function Header() {
           <Link href="/">
             <Image src={CodedangLogo} alt="코드당" width={90} />
           </Link>
+
           <nav className="hidden gap-8 capitalize md:flex">
             <Link href="/notice" className="text-lg hover:opacity-60">
               Notice
@@ -26,6 +27,7 @@ export default function Header() {
             </Link>
           </nav>
         </div>
+
         <HeaderAuthPanel />
       </div>
     </header>
