@@ -2,6 +2,7 @@ import CodedangLogo from '@/public/codedang.svg'
 import Image from 'next/image'
 import Link from 'next/link'
 import HeaderAuthPanel from './HeaderAuthPanel'
+import NavLink from './NavLink'
 
 export default function Header() {
   return (
@@ -13,18 +14,10 @@ export default function Header() {
           </Link>
 
           <nav className="hidden gap-8 capitalize md:flex">
-            <Link href="/notice" className="text-lg hover:opacity-60">
-              Notice
-            </Link>
-            <Link href="/contest" className="text-lg hover:opacity-60">
-              Contest
-            </Link>
-            <Link href="/problem" className="text-lg hover:opacity-60">
-              problem
-            </Link>
-            <Link href="/group" className="text-lg hover:opacity-60">
-              Group
-            </Link>
+            <NavLink href="/notice" text="Notice" />
+            <NavLink href="/contest" text="Contest" />
+            <NavLink href="/problem" text="Problem" />
+            <NavLink href="/group" text="Group" />
           </nav>
         </div>
 
