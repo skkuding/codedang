@@ -267,6 +267,15 @@ export class ContestService {
       }
 
       try {
+        await this.prisma.problem.update({
+          where: {
+            id: problemId
+          },
+          data: {
+            exposeTime: contest.endTime
+          }
+        })
+
         const contestProblem = await this.prisma.contestProblem.create({
           data: {
             // TODO: 임시로 order 0 지정, 기획 정해지면 수정할 예정
