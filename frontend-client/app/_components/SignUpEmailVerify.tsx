@@ -148,11 +148,14 @@ export default function SignUpEmailVerify({
             {errors.verificationCode?.message}
           </p>
         )}
-        {sentEmail && !errors.verificationCode && codeError === '' && (
-          <p className="mt-1 text-xs text-blue-500">
-            *We&apos;ve sent an email!
-          </p>
-        )}
+        {sentEmail &&
+          !errors.verificationCode &&
+          codeError === '' &&
+          !emailVerified && (
+            <p className="mt-1 text-xs text-blue-500">
+              *We&apos;ve sent an email!
+            </p>
+          )}
         <p className="mt-1 text-xs text-red-500">{codeError}</p>
 
         {!sentEmail ? (
