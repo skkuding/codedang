@@ -5,6 +5,8 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { ContestProblem } from '@admin/@generated'
+import type { Problem } from '@admin/@generated'
 import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
 import type { PublicizingRequest } from './model/publicizing-request.model'
@@ -12,6 +14,7 @@ import type { PublicizingRequest } from './model/publicizing-request.model'
 const contestId = 1
 const userId = 1
 const groupId = 1
+const problemId = 2
 
 const contest: Contest = {
   id: contestId,
@@ -25,6 +28,37 @@ const contest: Contest = {
     isVisible: true,
     isRankVisible: true
   },
+  createTime: undefined,
+  updateTime: undefined
+}
+
+const problem: Problem = {
+  id: problemId,
+  createdById: 2,
+  groupId: 2,
+  title: 'test problem',
+  description: 'thisistestproblem',
+  inputDescription: 'inputdescription',
+  outputDescription: 'outputdescription',
+  hint: 'hint',
+  template: undefined,
+  languages: undefined,
+  timeLimit: 10000,
+  memoryLimit: 100000,
+  difficulty: undefined,
+  source: undefined,
+  exposeTime: undefined,
+  createTime: undefined,
+  updateTime: undefined,
+  inputExamples: undefined,
+  outputExamples: undefined
+}
+
+const contestProblem: ContestProblem = {
+  order: 0,
+  contestId: contestId,
+  problemId: problemId,
+  score: 50,
   createTime: undefined,
   updateTime: undefined
 }
@@ -60,6 +94,22 @@ const updateInput = {
 
 const db = {
   contest: {
+    findFirst: stub().resolves(Contest),
+    findUnique: stub().resolves(Contest),
+    findMany: stub().resolves([Contest]),
+    create: stub().resolves(Contest),
+    update: stub().resolves(Contest),
+    delete: stub().resolves(Contest)
+  },
+  contestProblem: {
+    findFirst: stub().resolves(ContestProblem),
+    findUnique: stub().resolves(ContestProblem),
+    findMany: stub().resolves([ContestProblem]),
+    create: stub().resolves(ContestProblem),
+    update: stub().resolves(ContestProblem),
+    delete: stub().resolves(ContestProblem)
+  },
+  problem: {
     findFirst: stub().resolves(Contest),
     findUnique: stub().resolves(Contest),
     findMany: stub().resolves([Contest]),
@@ -181,6 +231,23 @@ describe('ContestService', () => {
 
     it('should throw error when the contest is not requested to public', async () => {
       expect(service.handlePublicizingRequest(3, true)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
+  })
+
+  describe('addProblems', () => {
+    it('should return created ContestProblems', async () => {
+      db.contestProblem.create.resolves(contestProblem)
+      db.problem.create.resolves(problem)
+
+      const res = await service.addProblems(contestId, [problemId])
+
+      expect(res).to.deep.equal([contestProblem])
+    })
+
+    it('should throw error when the contestId not exist', async () => {
+      expect(service.addProblems(9999, [problemId])).to.be.rejectedWith(
         EntityNotExistException
       )
     })

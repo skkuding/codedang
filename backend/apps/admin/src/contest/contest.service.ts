@@ -244,6 +244,47 @@ export class ContestService {
     return newRequest
   }
 
+  async addProblems(contestId: number, problemIds: number[]) {
+    const contest = await this.prisma.contest.findUnique({
+      where: {
+        id: contestId
+      }
+    })
+    console.log('contest', contest)
+    if (!contest) {
+      throw new EntityNotExistException('contest')
+    }
+
+    const contestProblems = []
+    for (const problemId of problemIds) {
+      const problem = await this.prisma.problem.findUnique({
+        where: {
+          id: problemId
+        }
+      })
+      console.log('problem', problem)
+
+      if (!problem) {
+        throw new EntityNotExistException('problem')
+      }
+
+      try {
+        const contestProblem = await this.prisma.contestProblem.create({
+          data: {
+            // TODO: 임시로 order 0 지정, 기획 정해지면 수정할 예정
+            order: 0,
+            contestId,
+            problemId
+          }
+        })
+        contestProblems.push(contestProblem)
+      } catch {
+        continue
+      }
+    }
+    return contestProblems
+  }
+
   async importProblems(
     groupId: number,
     contestId: number,

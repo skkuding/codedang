@@ -143,6 +143,22 @@ export class ContestResolver {
   }
 
   @Mutation(() => [ContestProblem])
+  async addProblems(
+    @Args('contestId', ParseIntPipe) contestId: number,
+    @Args('problemIds', { type: () => [Int] }) problemIds: number[]
+  ) {
+    try {
+      return await this.contestService.addProblems(contestId, problemIds)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Mutation(() => [ContestProblem])
   async importProblems(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('contestId', ParseIntPipe) contestId: number,
