@@ -10,7 +10,6 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { GroupJoinRequest } from './interface/group-join-request.interface'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
 @Injectable()
@@ -230,17 +229,27 @@ export class GroupService {
     if (isJoined) {
       throw new ConflictFoundException('Already joined this group')
     } else if (group.config['requireApprovalBeforeJoin']) {
-      const joinGroupRequest = await this.cacheManager.get(
-        joinGroupCacheKey(userId, groupId)
+      let joinGroupRequest: [number, number][] = await this.cacheManager.get(
+        joinGroupCacheKey(groupId)
       )
       if (joinGroupRequest) {
-        throw new ConflictFoundException('Already requested to join this group')
+        joinGroupRequest = joinGroupRequest.filter((e) => e[1] > Date.now())
+        if (joinGroupRequest.find((e) => e[0] === userId)) {
+          throw new ConflictFoundException(
+            'Already requested to join this group'
+          )
+        }
       }
 
-      const userGroupValue: GroupJoinRequest = { userId, groupId }
+      const requestPair: [number, number] = [
+        userId,
+        Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
+      ]
+      if (joinGroupRequest !== undefined) joinGroupRequest.push(requestPair)
+      else joinGroupRequest = [requestPair]
       await this.cacheManager.set(
-        joinGroupCacheKey(userId, groupId),
-        userGroupValue,
+        joinGroupCacheKey(groupId),
+        joinGroupRequest,
         JOIN_GROUP_REQUEST_EXPIRE_TIME
       )
 
