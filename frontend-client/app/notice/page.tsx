@@ -13,26 +13,49 @@ export default async function Notice({
 }: {
   searchParams: { page: string | undefined }
 }) {
-  // Get data per slot(+ one more page for checking if there is next page) and slice it
+  /**
+   * To utilize cursor-based pagination, we need fetch data per slot, not per page.
+   * For example, if we fetch 10 data per page, we need to fetch 50 data per slot(if 5 pages per slot).
+   * Additionally, we need to fetch one more page for checking if there is next page.
+   * So, we need to fetch 51 data per slot.
+   */
+
+  /** The number of data per page */
   const take = 10
-  const currentPage = searchParams.page ? Number(searchParams.page) : 1
+
+  /**
+   * The number of pages per slot.
+   * Slot is a group of pages.
+   * If maxPagesPerSlot = 5, slot 0 = page 1~5, slot 1 = page 6~10, ...
+   */
   const maxPagesPerSlot = 5
-  const currentSlot = Math.floor((currentPage - 1) / maxPagesPerSlot) // if maxPagesPerSlot = 5, slot 0: 1~5, slot 1: 6~10, slot 2: 11~15, ...
-  const cursor = currentSlot * take * maxPagesPerSlot
-  const data = await fetch(
-    baseUrl +
-      `/notice?take=${take * (maxPagesPerSlot + 1)}${
-        // maxPagesPerSlot + 1: for checking if there is next page
-        cursor ? `&cursor=${cursor}` : ''
-      }`
-  ).then((res) => res.json())
+
+  /** The current page being shown in UI */
+  const currentPage = searchParams.page ? Number(searchParams.page) : 1
+
+  /** The current slot being shown in UI */
+  const currentSlot = Math.floor((currentPage - 1) / maxPagesPerSlot)
+
+  const query = new URLSearchParams({
+    // Take one more page for checking if there is next page
+    take: String(take * (maxPagesPerSlot + 1))
+  })
+  if (currentSlot > 0) {
+    // FIXME: Cursor needs to be loaded from the last page of previous slot.
+    // Do not manually calculate it.
+    query.append('cursor', String(currentSlot * take * maxPagesPerSlot))
+  }
+
+  const res = await fetch(baseUrl + '/notice' + query.toString())
+  const data = await res.json()
+
   const currentTotalPages = Math.ceil(data.length / take)
   const currentPageData = data.slice(
     (currentPage - 1 - currentSlot * maxPagesPerSlot) * take,
     (currentPage - currentSlot * maxPagesPerSlot) * take
   )
 
-  const canGoPrevious = currentPage > 1 // if currentPage <= 1, there is no previous page
+  const canGoPrevious = currentPage > 1
   const canGoNext =
     currentPage !== currentTotalPages || currentTotalPages > maxPagesPerSlot // if currentPage is last page and currentTotalPages is less than maxPagesPerSlot, there is no next page
 
