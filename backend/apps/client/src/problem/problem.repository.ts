@@ -7,6 +7,7 @@ import type {
   UserProblem
 } from '@prisma/client'
 import type { JsonArray } from '@prisma/client/runtime/library'
+import { ConflictFoundException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Template } from '@client/submission/dto/create-submission.dto'
 
@@ -55,6 +56,15 @@ export class ProblemRepository {
     problem: {
       select: this.problemsSelectOption
     }
+  }
+
+  private readonly UserProblemSelectOption = {
+    id: true,
+    userId: true,
+    problemId: true,
+    template: true,
+    createTime: true,
+    updateTime: true
   }
 
   async getProblems(
@@ -281,7 +291,21 @@ export class ProblemRepository {
         id: problemId
       }
     })
-
+    await this.prisma.userProblem
+      .findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          userId_problemId: {
+            userId: userId,
+            problemId: problemId
+          }
+        }
+      })
+      .then((userProblem) => {
+        if (userProblem) {
+          throw new ConflictFoundException('UserProblem')
+        }
+      })
     return await this.prisma.userProblem.create({
       data: {
         userId: userId,

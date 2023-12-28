@@ -4,8 +4,7 @@ import { plainToInstance } from 'class-transformer'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ForbiddenAccessException,
-  EntityNotExistException,
-  ConflictFoundException
+  EntityNotExistException
 } from '@libs/exception'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
@@ -160,9 +159,6 @@ export class UserProblemService {
     createTemplateDto: CreateTemplateDto,
     problemId: number
   ) {
-    if (await this.problemRepository.getUserProblem(userId, problemId)) {
-      throw new ConflictFoundException('UserProblem already exists.')
-    }
     const data = await this.problemRepository.createUserProblem(
       userId,
       createTemplateDto.template,

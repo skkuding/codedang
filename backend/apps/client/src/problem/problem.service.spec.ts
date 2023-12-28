@@ -566,7 +566,7 @@ describe('WorkbookProblemService', () => {
         // given
         db.user.findUniqueOrThrow.resolves(mockUser)
         db.problem.findUniqueOrThrow.resolves(mockProblem)
-        problemRepository.getUserProblem = stub().resolves(null)
+        db.userProblem.findUnique.resolves(null)
         db.userProblem.create.resolves(mockUserProblem)
         // when
         const result = await service.createUserCode(
@@ -605,7 +605,9 @@ describe('WorkbookProblemService', () => {
       })
       it('should throw error when the same userProblem already exist', async () => {
         // given
-        problemRepository.getUserProblem = stub().resolves(mockUserProblem)
+        db.user.findUniqueOrThrow.resolves(mockUser)
+        db.problem.findUniqueOrThrow.resolves(mockProblem)
+        db.userProblem.findUnique.resolves(mockUserProblem)
 
         // then
         await expect(

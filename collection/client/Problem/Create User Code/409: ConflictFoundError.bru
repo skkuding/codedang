@@ -29,7 +29,7 @@ body:json {
 
 assert {
   res.status: eq 409
-  res.body.message: eq "UserProblem already exists."
+  res.body.message: eq "UserProblem"
   res.body.error: eq "Conflict"
   res.body.statusCode: eq 409
 }
