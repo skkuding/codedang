@@ -241,6 +241,7 @@ export class ProblemRepository {
 
   async createUserProblem(
     userId: number,
+    // Template class를 submisison에서 가져오는 것은 좋지 않은 방법이지만, 현재는 이 방법밖에 없습니다.
     template: Template[],
     problemId: number
   ): Promise<Partial<UserProblem>> {
@@ -267,6 +268,7 @@ export class ProblemRepository {
 
   async updateUserProblem(
     userId: number,
+    // Template class를 submisison에서 가져오는 것은 좋지 않은 방법이지만, 현재는 이 방법밖에 없습니다.
     template: Template[],
     problemId: number
   ): Promise<Partial<UserProblem>> {
