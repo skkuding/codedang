@@ -250,14 +250,13 @@ model Contest {
   contestProblem ContestProblem[]
   contestRecord  ContestRecord[]
   submission     Submission[]
-  // contestAnnouncement ContestAnnouncement[]
 
   @@map("contest")
 }
 
 model ContestProblem {
   order      Int
-  contest    Contest  @relation(fields: [contestId], references: [id])
+  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
   contestId  Int      @map("contest_id")
   problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int      @map("problem_id")
@@ -278,40 +277,9 @@ model Announcement {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  // contestAnnouncement ContestAnnouncement[]
-  // problemAnnouncement ProblemAnnouncement[]
-
   @@unique([id])
   @@map("announcement")
 }
-
-// model ContestAnnouncement {
-// id             Int          @default(autoincrement())
-// contest        Contest      @relation(fields: [contestId], references: [id])
-// contestId      Int          @map("contest_id")
-// announcement   Announcement @relation(fields: [announcementId], references: [id])
-// announcementId Int          @map("announcement_id")
-// createTime     DateTime     @default(now()) @map("create_time")
-// updateTime     DateTime     @updatedAt @map("update_time")
-//
-// @@id([contestId, announcementId])
-// @@unique([contestId, id])
-// @@map("contest_announcement")
-// }
-//
-// model ProblemAnnouncement {
-// id             Int          @default(autoincrement())
-// problem        Problem      @relation(fields: [problemId], references: [id])
-// problemId      Int          @map("contest_id")
-// announcement   Announcement @relation(fields: [announcementId], references: [id])
-// announcementId Int          @map("announcement_id")
-// createTime     DateTime     @default(now()) @map("create_time")
-// updateTime     DateTime     @updatedAt @map("update_time")
-//
-// @@id([problemId, announcementId])
-// @@unique([problemId, id])
-// @@map("problem_announcement")
-// }
 
 model ContestRecord {
   id                 Int      @id @default(autoincrement())
@@ -348,7 +316,7 @@ model Workbook {
 
 model WorkbookProblem {
   order      Int
-  workbook   Workbook @relation(fields: [workbookId], references: [id])
+  workbook   Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
   workbookId Int      @map("workbook_id")
   problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int      @map("problem_id")

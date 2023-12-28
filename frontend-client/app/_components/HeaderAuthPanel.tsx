@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import SignIn from './SignIn'
+import SignUp from './SignUp'
 
 export default function HeaderAuthPanel() {
   return (
@@ -31,7 +32,7 @@ export default function HeaderAuthPanel() {
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-[22rem]">
-          <SignIn />
+          <SignUp />
         </DialogContent>
       </Dialog>
       <RxHamburgerMenu size="30" className="md:hidden" />
