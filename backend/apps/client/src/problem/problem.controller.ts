@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe } from '@libs/pipe'
 import { ProblemService } from './problem.service'
 
@@ -27,7 +28,7 @@ export class ProblemController {
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
-      return await this.problemService.getProblems(cursor, take)
+      return await this.problemService.getProblems(cursor, take, OPEN_SPACE_ID)
     } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()
