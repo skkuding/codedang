@@ -35,7 +35,7 @@ export class NoticeController {
   }
 
   @Get('fixed')
-  async getFixedNotices(@Query('take', ParseIntPipe) take = 10) {
+  async getFixedNotices(@Query('take', ParseIntPipe) take: number) {
     try {
       return await this.noticeService.getFixedNoticesByGroupId(take)
     } catch (error) {
@@ -85,7 +85,7 @@ export class GroupNoticeController {
   @Get('fixed')
   async getFixedNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('take', ParseIntPipe) take = 10
+    @Query('take', ParseIntPipe) take: number
   ) {
     try {
       return await this.noticeService.getFixedNoticesByGroupId(take, groupId)
