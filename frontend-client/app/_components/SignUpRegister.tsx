@@ -28,8 +28,8 @@ const schema = z
     email: z.string().email(),
     verificationCode: z.string().min(6).max(6),
     realName: z.string().min(1).max(20),
-    password: z.string().min(8).max(32),
-    passwordAgain: z.string().min(8).max(32)
+    password: z.string().min(8).max(20),
+    passwordAgain: z.string().min(8).max(20)
   })
   .refine(
     (data: { password: string; passwordAgain: string }) =>
