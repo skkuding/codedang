@@ -5,7 +5,11 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/notice/fixed
+  url: {{baseUrl}}/notice/fixed?take=5
   body: none
   auth: none
+}
+
+query {
+  take: 5
 }
