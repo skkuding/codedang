@@ -8,9 +8,9 @@ import { Button } from '../../components/ui/button'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function SignUpWelcome({ nextModal }: { nextModal: any }) {
   return (
-    <div>
+    <div className="mt-20">
       <div>
-        <p className="text-center text-xl font-bold text-blue-500">
+        <p className="mb-3 text-center text-xl font-bold text-blue-500">
           &quot;Welcome to CODEDANG&quot;
         </p>
       </div>
@@ -22,12 +22,12 @@ export default function SignUpWelcome({ nextModal }: { nextModal: any }) {
       </div>
       <div className="mb-1 mt-4 flex items-center justify-center gap-5">
         <Separator className="flex-1" />
-        <p className="w-fit flex-none text-center text-xs text-gray-500">
+        <p className="mb-3 w-fit flex-none text-center text-xs text-gray-500">
           continue with
         </p>
         <Separator className="flex-1" />
       </div>
-      <div className="flex w-full items-center justify-center gap-5">
+      <div className="mb-10 flex w-full items-center justify-center gap-5">
         <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#FEE500] hover:opacity-80">
           <Image src={KakaotalkLogo} alt="카카오톡" width={20} />
         </div>

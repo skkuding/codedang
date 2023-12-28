@@ -49,7 +49,12 @@ export default function SignUp() {
           <IoMdArrowBack />
         </button>
       )}
-      <Image src={CodedangLogo} alt="코드당" width={70} className="mb-5" />
+      <Image
+        src={CodedangLogo}
+        alt="코드당"
+        width={70}
+        className="absolute left-10 top-10"
+      />
 
       {modalPage === 0 && <SignUpWelcome nextModal={nextModal} />}
       {modalPage === 1 && (
