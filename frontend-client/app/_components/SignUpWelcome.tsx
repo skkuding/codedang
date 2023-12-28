@@ -6,7 +6,7 @@ import { FcGoogle } from 'react-icons/fc'
 import { Button } from '../../components/ui/button'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function SignUpWelcome(nextModal: any) {
+export default function SignUpWelcome({ nextModal }: { nextModal: any }) {
   return (
     <div>
       <div>
@@ -16,7 +16,7 @@ export default function SignUpWelcome(nextModal: any) {
       </div>
 
       <div className="flex w-full flex-col gap-3">
-        <Button className="w-full" onClick={nextModal}>
+        <Button className="w-full" onClick={() => nextModal()}>
           Sign up with Email
         </Button>
       </div>
