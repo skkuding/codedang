@@ -54,7 +54,7 @@ export class UserController {
       } else if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException('password reset failed')
     }
   }
@@ -72,7 +72,7 @@ export class UserController {
       } else if (error instanceof InvalidJwtTokenException) {
         throw new UnauthorizedException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -90,7 +90,7 @@ export class UserController {
       } else if (error instanceof InvalidJwtTokenException) {
         throw new UnauthorizedException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -115,7 +115,7 @@ export class UserController {
       } else if (error instanceof ConflictFoundException) {
         throw new ConflictException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -131,7 +131,7 @@ export class UserController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -154,7 +154,7 @@ export class UserController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -176,7 +176,7 @@ export class UserController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -201,7 +201,7 @@ export class EmailAuthenticationController {
       if (error instanceof UnidentifiedException) {
         throw new UnauthorizedException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -214,7 +214,7 @@ export class EmailAuthenticationController {
       if (error instanceof DuplicateFoundException) {
         throw new ConflictException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException(error.message)
     }
   }
@@ -233,7 +233,7 @@ export class EmailAuthenticationController {
       if (error instanceof UnidentifiedException) {
         throw new UnauthorizedException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
