@@ -12,8 +12,11 @@ interface EmailVerifyInput {
   verificationCode: string
 }
 const schema = z.object({
-  email: z.string().email(),
-  verificationCode: z.string().min(6).max(6)
+  email: z.string().email({ message: 'Invalid email address' }),
+  verificationCode: z
+    .string()
+    .min(6, { message: 'Code must be 6 characters long' })
+    .max(6, { message: 'Code must be 6 characters long' })
 })
 
 export default function SignUpEmailVerify({
@@ -29,6 +32,7 @@ export default function SignUpEmailVerify({
     handleSubmit,
     register,
     getValues,
+    trigger,
     formState: { errors }
   } = useForm<EmailVerifyInput>({
     resolver: zodResolver(schema)
@@ -37,6 +41,7 @@ export default function SignUpEmailVerify({
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [emailAuthToken, setEmailAuthToken] = useState<string>('') //TODO: submit시 헤더에 포함시켜야함.
   const onSubmit = (data: any) => {
+    console.log('email auth is ', emailAuthToken)
     setFormData({
       ...formData,
       ...data,
@@ -49,7 +54,9 @@ export default function SignUpEmailVerify({
   }
   const sendEmail = async () => {
     const { email } = getValues()
-    if (!sentEmail) {
+    console.log('sentEmail is ', sentEmail, 'email is ', email)
+    await trigger('email')
+    if (!errors.email && !sentEmail) {
       await fetch(baseUrl + '/email-auth/send-email/register-new', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,18 +81,24 @@ export default function SignUpEmailVerify({
   const verifyCode = async () => {
     const { email } = getValues()
     const { verificationCode } = getValues()
-
+    await trigger('verificationCode')
+    console.log('email and code are ', email, verificationCode)
     try {
       const response = await fetch(baseUrl + '/email-auth/verify-pin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           pin: verificationCode,
           email: email
         })
       })
-      if (response.status === 200) {
+      if (response.status === 201) {
         setEmailVerified(true)
+        console.log('response is ', response.headers)
+        console.log('response header is', response.headers.get('email-auth'))
+        //header 문제 수정 필요
+
         setEmailAuthToken(response.headers.get('email-auth') || '')
       } else {
         //'Verification code is not valid!',
@@ -94,34 +107,48 @@ export default function SignUpEmailVerify({
       //'Email verification failed!'
     }
   }
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Input
-        id="email"
-        type="email"
-        placeholder="Email Address"
-        {...register('email')}
-      />
-      {errors.email && (
-        <p className="mt-1 text-xs text-red-500">{errors.email?.message}</p>
-      )}
-      <Input
-        type="number"
-        placeholder="Verification Code"
-        {...register('verificationCode')}
-      />
-      {errors.verificationCode && (
-        <p className="mt-1 text-xs text-red-500">
-          {errors.verificationCode?.message}
-        </p>
-      )}
 
-      {sentEmail ? (
-        <Button onClick={() => sendEmail()}>Send Email</Button>
-      ) : (
-        <Button onClick={() => verifyCode()}>Next</Button>
-      )}
-      {sentEmail && emailVerified && <Button type="submit">Next</Button>}
-    </form>
+  return (
+    <div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {!sentEmail && (
+          <Input
+            id="email"
+            type="email"
+            placeholder="Email Address"
+            {...register('email')}
+          />
+        )}
+        {errors.email && (
+          <p className="mt-1 text-xs text-red-500">{errors.email?.message}</p>
+        )}
+        {sentEmail && (
+          <>
+            <div>email</div>
+            <Input
+              type="number"
+              placeholder="Verification Code"
+              {...register('verificationCode', {
+                onChange: () => verifyCode()
+              })}
+            />
+          </>
+        )}
+        {errors.verificationCode && (
+          <p className="mt-1 text-xs text-red-500">
+            {errors.verificationCode?.message}
+          </p>
+        )}
+        {!sentEmail ? (
+          <Button type="button" onClick={() => sendEmail()}>
+            Send Email
+          </Button>
+        ) : (
+          <Button type="submit" disabled={!emailVerified}>
+            Next
+          </Button>
+        )}
+      </form>
+    </div>
   )
 }
