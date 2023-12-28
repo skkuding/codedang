@@ -15,6 +15,7 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
+import Link from 'next/link'
 
 interface Notice {
   id: number
@@ -29,7 +30,14 @@ const columns: ColumnDef<Notice>[] = [
     header: 'Title',
     accessorKey: 'title',
     cell: ({ row }) => {
-      return <p className="text-sm md:text-base">{row.original.title}</p>
+      return (
+        <Link
+          href={`/notice/${row.original.id}`}
+          className="text-sm md:text-base"
+        >
+          {row.original.title}
+        </Link>
+      )
     }
   },
   {
