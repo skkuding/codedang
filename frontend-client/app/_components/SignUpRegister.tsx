@@ -57,6 +57,9 @@ export default function SignUpRegister() {
   const [emailAuthToken] = useState<string>('')
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
+  const [userNameFocus, setUserNameFocus] = useState<boolean>(false)
+  const [passwordFocus, setPasswordFocus] = useState<boolean>(false)
+  const [passwordAgainFocus, setPasswordAgainFocus] = useState<boolean>(false)
 
   const {
     handleSubmit,
@@ -111,16 +114,27 @@ export default function SignUpRegister() {
         onSubmit={handleSubmit(onSubmit)}
       >
         <div>
-          <Input placeholder="Your Name" {...register('realName')} />
-          {errors.realName && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.realName?.message}
-            </p>
-          )}
+          <Input
+            placeholder="Your Name"
+            {...register('realName')}
+            onFocus={() => {
+              setUserNameFocus(false)
+              setPasswordFocus(false)
+              setPasswordAgainFocus(false)
+            }}
+          />
         </div>
         <div>
           <div className="flex gap-2">
-            <Input placeholder="User ID" {...register('username')} />
+            <Input
+              placeholder="User ID"
+              {...register('username')}
+              onFocus={() => {
+                setUserNameFocus(true)
+                setPasswordFocus(false)
+                setPasswordAgainFocus(false)
+              }}
+            />
             <Button
               onClick={() => {}}
               className="flex aspect-square w-12 items-center justify-center rounded-md bg-[#2279FD]"
@@ -128,6 +142,18 @@ export default function SignUpRegister() {
               <FaCheck className="text-white" size="20" />
             </Button>
           </div>
+          {userNameFocus && (
+            <div>
+              <p className="mt-1 text-xs text-slate-500">
+                &#x2022; User ID used for log in
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                &#x2022; Your ID must be 3-10 characters of alphabet
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;letters, numbers
+              </p>
+              <p className="mt-1 text-xs text-blue-500">*Available</p>
+            </div>
+          )}
           {errors.username && (
             <p className="mt-1 text-xs text-red-500">
               {errors.username?.message}
@@ -142,6 +168,11 @@ export default function SignUpRegister() {
               placeholder="Password"
               {...register('password')}
               type={passwordShow ? 'text' : 'password'}
+              onFocus={() => {
+                setUserNameFocus(false)
+                setPasswordFocus(true)
+                setPasswordAgainFocus(false)
+              }}
             />
             <span
               className="mt-3"
@@ -150,6 +181,16 @@ export default function SignUpRegister() {
               {passwordShow ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
+          {passwordFocus && (
+            <div>
+              <p className="mt-1 text-xs text-slate-500">
+                &#x2022; Your password must be 8-20 characters
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                &#x2022; Include alphabet letters and numbers
+              </p>
+            </div>
+          )}
           {errors.password && (
             <p className="mt-1 text-xs text-red-500">
               {errors.password?.message}
@@ -164,6 +205,11 @@ export default function SignUpRegister() {
               {...register('passwordAgain')}
               placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
+              onFocus={() => {
+                setUserNameFocus(false)
+                setPasswordFocus(false)
+                setPasswordAgainFocus(true)
+              }}
             />
             <span
               className="mt-3"
@@ -172,10 +218,8 @@ export default function SignUpRegister() {
               {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
-          {errors.passwordAgain && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.passwordAgain?.message}
-            </p>
+          {passwordAgainFocus && errors.passwordAgain && (
+            <p className="mt-1 text-xs text-red-500">*Incorrect</p>
           )}
         </div>
 
