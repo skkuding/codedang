@@ -7,7 +7,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         title="Notice"
         description="Events and announcements of SKKU Coding Platform"
       />
-      <main className="flex w-full max-w-5xl flex-col gap-5 p-5 py-14">
+      <main className="flex w-full max-w-5xl flex-col gap-5 p-5 py-8 md:py-12">
         {children}
       </main>
     </div>

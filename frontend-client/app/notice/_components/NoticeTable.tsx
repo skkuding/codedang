@@ -25,45 +25,49 @@ interface Notice {
   createdBy: string
 }
 
-const columns: ColumnDef<Notice>[] = [
-  {
-    header: 'Title',
-    accessorKey: 'title',
-    cell: ({ row }) => {
-      return (
-        <Link
-          href={`/notice/${row.original.id}`}
-          className="text-sm md:text-base"
-        >
-          {row.original.title}
-        </Link>
-      )
-    }
-  },
-  {
-    header: () => (
-      <div className="flex justify-end">
-        <p className="flex w-24 justify-center md:w-32">Date</p>
-      </div>
-    ),
-    accessorKey: 'createTime',
-    cell: ({ row }) => {
-      return (
-        <div className="flex justify-end text-gray-500">
-          <p className="text eli flex w-24 justify-center text-xs md:w-32 md:text-sm">
-            {dayjs(row.original.createTime).format('YYYY-MM-DD')}
-          </p>
-        </div>
-      )
-    }
-  }
-]
-
 interface NoticeTableProps {
   data: Notice[]
+  currentPage: number
 }
 
-export default function NoticeTable({ data }: NoticeTableProps) {
+export default function NoticeTable({ data, currentPage }: NoticeTableProps) {
+  const columns: ColumnDef<Notice>[] = [
+    {
+      header: 'Title',
+      accessorKey: 'title',
+      cell: ({ row }) => {
+        return (
+          <Link
+            href={{
+              pathname: `/notice/${row.original.id}`,
+              query: { page: currentPage }
+            }}
+            className="text-sm md:text-base"
+          >
+            {row.original.title}
+          </Link>
+        )
+      }
+    },
+    {
+      header: () => (
+        <div className="flex justify-end">
+          <p className="flex w-24 justify-center md:w-32">Date</p>
+        </div>
+      ),
+      accessorKey: 'createTime',
+      cell: ({ row }) => {
+        return (
+          <div className="flex justify-end text-gray-500">
+            <p className="text eli flex w-24 justify-center text-xs md:w-32 md:text-sm">
+              {dayjs(row.original.createTime).format('YYYY-MM-DD')}
+            </p>
+          </div>
+        )
+      }
+    }
+  ]
+
   const table = useReactTable({
     data,
     columns,

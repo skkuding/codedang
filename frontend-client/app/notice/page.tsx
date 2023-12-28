@@ -39,7 +39,7 @@ export default async function Notice({
   return (
     <>
       {/* TODO: Add search bar */}
-      <NoticeTable data={currentPageData} />
+      <NoticeTable data={currentPageData} currentPage={currentPage} />
       <Pagination>
         <PaginationContent>
           <PaginationPrevious

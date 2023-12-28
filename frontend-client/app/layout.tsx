@@ -3,7 +3,7 @@ import { Manrope } from 'next/font/google'
 import Header from './_components/Header'
 import './globals.css'
 
-const manrope = Manrope({ subsets: ['latin'], weight: ['400', '600', '700'] })
+const manrope = Manrope({ subsets: ['latin'], weight: ['400', '600'] })
 
 export const metadata: Metadata = {
   title: 'Codedang 코드당',
