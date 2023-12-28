@@ -250,7 +250,6 @@ export class ContestService {
         id: contestId
       }
     })
-    console.log('contest', contest)
     if (!contest) {
       throw new EntityNotExistException('contest')
     }
@@ -262,7 +261,6 @@ export class ContestService {
           id: problemId
         }
       })
-      console.log('problem', problem)
 
       if (!problem) {
         throw new EntityNotExistException('problem')
