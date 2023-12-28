@@ -38,6 +38,8 @@ export default function SignUpEmailVerify({
     resolver: zodResolver(schema)
   })
   const [sentEmail, setSentEmail] = useState<boolean>(false)
+  const [emailError, setEmailError] = useState<string>('')
+  const [codeError, setCodeError] = useState<string>('')
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [emailAuthToken, setEmailAuthToken] = useState<string>('')
   const onSubmit = (data: any) => {
@@ -66,41 +68,42 @@ export default function SignUpEmailVerify({
       })
         .then((res) => {
           if (res.status === 409) {
-            //'You have already signed up!',
+            setEmailError('You have already signed up!')
           } else if (res.status === 201) {
             setSentEmail(true)
+            setEmailError('')
           }
         })
         .catch((err) => {
           console.log(err)
+          setEmailError('Something went wrong!')
         })
-    } else {
-      //email already sent!
     }
   }
   const verifyCode = async () => {
     const { email } = getValues()
     const { verificationCode } = getValues()
     await trigger('verificationCode')
-    console.log('email and code are ', email, verificationCode)
-    try {
-      const response = await fetch(baseUrl + '/email-auth/verify-pin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          pin: verificationCode,
-          email: email
+    if (!errors.verificationCode) {
+      try {
+        const response = await fetch(baseUrl + '/email-auth/verify-pin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            pin: verificationCode,
+            email: email
+          })
         })
-      })
-      if (response.status === 201) {
-        setEmailVerified(true)
-        setEmailAuthToken(response.headers.get('email-auth') || '')
-      } else {
-        //'Verification code is not valid!',
+        if (response.status === 201) {
+          setEmailVerified(true)
+          setEmailAuthToken(response.headers.get('email-auth') || '')
+        } else {
+          setCodeError('Verification code is not valid!')
+        }
+      } catch (error) {
+        setCodeError('Email verification failed!')
       }
-    } catch (error) {
-      //'Email verification failed!'
     }
   }
 
@@ -118,6 +121,7 @@ export default function SignUpEmailVerify({
         {errors.email && (
           <p className="mt-1 text-xs text-red-500">{errors.email?.message}</p>
         )}
+        <p className="mt-1 text-xs text-red-500">{emailError}</p>
         {sentEmail && (
           <>
             <div>email</div>
@@ -135,6 +139,13 @@ export default function SignUpEmailVerify({
             {errors.verificationCode?.message}
           </p>
         )}
+        {sentEmail && !errors.verificationCode && codeError === '' && (
+          <p className="mt-1 text-xs text-blue-500">
+            *We&apos;ve sent an email!
+          </p>
+        )}
+        <p className="mt-1 text-xs text-red-500">{codeError}</p>
+
         {!sentEmail ? (
           <Button type="button" onClick={() => sendEmail()}>
             Send Email
