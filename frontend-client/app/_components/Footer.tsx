@@ -55,7 +55,7 @@ export default function Footer() {
       {copied && (
         <>
           <Toaster />
-          {/* todo: 다른 토스터에서 반응하지 않게 조정*/ console.log('copied!')}
+          {/* todo: 다른 토스터에서 반응하지 않게 조정*/}
         </>
       )}
     </footer>
