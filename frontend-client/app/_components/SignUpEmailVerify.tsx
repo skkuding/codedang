@@ -83,7 +83,6 @@ export default function SignUpEmailVerify({
           }
         })
         .catch((err) => {
-          console.log(err)
           setEmailError('Something went wrong!')
         })
     }
@@ -92,7 +91,6 @@ export default function SignUpEmailVerify({
     const { verificationCode } = getValues()
     await trigger('verificationCode')
     if (!errors.verificationCode) {
-      console.log('code is ', verificationCode)
       try {
         const response = await fetch(baseUrl + '/email-auth/verify-pin', {
           method: 'POST',

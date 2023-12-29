@@ -1,3 +1,5 @@
+'use client'
+
 import { Separator } from '@/components/ui/separator'
 import KakaotalkLogo from '@/public/kakaotalk.svg'
 import Image from 'next/image'
@@ -5,8 +7,11 @@ import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
 import { Button } from '../../components/ui/button'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function SignUpWelcome({ nextModal }: { nextModal: any }) {
+export default function SignUpWelcome({
+  nextModal
+}: {
+  nextModal: () => void
+}) {
   return (
     <div className="mb-20 mt-32">
       <div>

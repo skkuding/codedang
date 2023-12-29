@@ -111,6 +111,10 @@ export default function SignUpRegister({
     await trigger('passwordAgain')
   }
 
+  const checkUserName = () => {
+    console.log('username: ' + getValues('username'))
+  }
+
   return (
     <div className="mb-5 mt-16 flex w-full flex-col p-4">
       <form
@@ -159,9 +163,7 @@ export default function SignUpRegister({
               }}
             />
             <Button
-              onClick={() => {
-                console.log('username: ' + getValues('username'))
-              }}
+              onClick={() => checkUserName()}
               className={`flex aspect-square w-12 items-center justify-center rounded-md ${
                 !errors.username ? 'bg-[#2279FD]' : 'bg-[#C4CBCD]'
               }`}
