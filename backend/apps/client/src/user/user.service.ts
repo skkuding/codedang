@@ -109,6 +109,7 @@ export class UserService {
     }
 
     const { email } = await this.verifyJwtFromRequestHeader(req)
+    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
     await this.updateUserPasswordInPrisma(email, newPassword)
 
     return 'Password Reset successfully'
@@ -149,7 +150,6 @@ export class UserService {
     email
   }: EmailAuthenticationPinDto): Promise<string> {
     await this.verifyPin(pin, email)
-    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
     const payload: EmailAuthJwtPayload = { email }
     const token = await this.createJwt(payload)
@@ -203,6 +203,8 @@ export class UserService {
     } else if (!this.isValidPassword(signUpDto.password)) {
       throw new UnprocessableDataException('Bad password')
     }
+
+    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
     const user: User = await this.createUser(signUpDto)
     const CreateUserProfileData: CreateUserProfileData = {
@@ -399,6 +401,8 @@ export class UserService {
     if (email != updateUserEmailDto.email) {
       throw new UnprocessableDataException('The email is not authenticated one')
     }
+
+    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
     await this.prisma.user.findUniqueOrThrow({
       where: { id: req.user.id }
