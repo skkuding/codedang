@@ -27,25 +27,7 @@ export default function SignUp() {
 
   const backModal = () => {
     setModalPage(modalPage - 1)
-    console.log('data is ', formData)
   }
-
-  // const onSubmit = async () => {
-  //   try {
-  //     await fetch(baseUrl + '/user/sign-up', {
-  //       method: 'POST',
-  //       // headers: {
-  //       //   'email-auth': emailAuthToken,
-  //       //   'Content-Type': 'application/json'
-  //       // },
-  //       //header는 formData에 포함됨
-  //       body: JSON.stringify(formData)
-  //     })
-  //     //Sign up succeed!
-  //   } catch (error) {
-  //     //Sign up failed!
-  //   }
-  // }
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -75,18 +57,7 @@ export default function SignUp() {
         </>
       )}
       {modalPage === 2 && (
-        <>
-          <SignUpRegister formData={formData} setFormData={setFormData} />
-          {/* <Button
-            type="submit"
-            onClick={() => {
-              console.log('final data is ', formData)
-              onSubmit()
-            }}
-          >
-            Register
-          </Button> */}
-        </>
+        <SignUpRegister formData={formData} setFormData={setFormData} />
       )}
       <div className="flex items-center text-sm text-gray-500">
         Already have an account?
