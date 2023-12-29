@@ -38,7 +38,7 @@ export default async function Notice({
 
   const query = new URLSearchParams({
     // Take one more page for checking if there is next page
-    take: String(take * (maxPagesPerSlot + 1))
+    take: String(take * maxPagesPerSlot + 1)
   })
   if (currentSlot > 0) {
     // FIXME: Cursor needs to be loaded from the last page of previous slot.
@@ -46,7 +46,7 @@ export default async function Notice({
     query.append('cursor', String(currentSlot * take * maxPagesPerSlot))
   }
 
-  const res = await fetch(baseUrl + '/notice' + query.toString())
+  const res = await fetch(baseUrl + '/notice?' + query)
   const data = await res.json()
 
   const currentTotalPages = Math.ceil(data.length / take)
@@ -57,8 +57,8 @@ export default async function Notice({
 
   const canGoPrevious = currentPage > 1
   const canGoNext =
-    currentPage !== currentTotalPages || currentTotalPages > maxPagesPerSlot // if currentPage is last page and currentTotalPages is less than maxPagesPerSlot, there is no next page
-
+    currentPage - currentSlot * maxPagesPerSlot !== currentTotalPages ||
+    currentTotalPages > maxPagesPerSlot // if currentPage is last page and currentTotalPages is less than maxPagesPerSlot, there is no next page
   return (
     <>
       {/* TODO: Add search bar */}
