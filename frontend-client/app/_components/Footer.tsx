@@ -14,8 +14,12 @@ export default function Footer() {
   const [copied, setCopied] = useState(false)
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText('testtest1')
+      await navigator.clipboard.writeText('skkucodingplatform@gmail.com/')
       setCopied(true)
+      toast({
+        description: 'Email Copied!',
+        variant: 'success'
+      })
     } catch (err) {
       console.error('clipboard failed', err)
     }
@@ -51,9 +55,7 @@ export default function Footer() {
       {copied && (
         <>
           <Toaster />
-          {toast({ description: 'Email Copied!' })}
-          {console.log('copied!')}
-          {setCopied(false)}
+          {/* todo: 다른 토스터에서 반응하지 않게 조정*/ console.log('copied!')}
         </>
       )}
     </footer>
