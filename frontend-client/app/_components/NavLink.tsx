@@ -14,9 +14,10 @@ export default function NavLink({ href, text }: NavLinkProps) {
   return (
     <Link
       href={href}
-      className={`text-lg hover:opacity-60 ${
-        pathname === href ? 'text-primary' : ''
-      }`}
+      className={cn(
+        'text-lg hover:opacity-60',
+        pathname === href && 'text-primary'
+      )}
     >
       {text}
     </Link>
