@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Manrope, Noto_Sans_KR } from 'next/font/google'
 import Header from './_components/Header'
 import './globals.css'
@@ -21,6 +21,10 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: 'Codedang 코드당',
   description: 'Codedang, Online Judge for SKKU'
+}
+
+export const viewport: Viewport = {
+  themeColor: '#3581FA'
 }
 
 export default function RootLayout({
