@@ -108,11 +108,16 @@ export default function SignUpRegister({
   }
 
   return (
-    <div className="mb-5 mt-20 flex w-full flex-col p-4">
+    <div className="mb-5 mt-16 flex w-full flex-col p-4">
       <form
         className="flex w-full flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
+        <div>
+          <p className="mb-2 text-left text-xl font-bold text-blue-500">
+            Sign Up
+          </p>
+        </div>
         <Input
           className="px-4 shadow-md"
           placeholder="Your Name"
@@ -239,7 +244,7 @@ export default function SignUpRegister({
         </div>
 
         <Button
-          disabled={!userNameValid && !passwordValid && !passwordAgainValid}
+          disabled={!userNameValid || !passwordValid || !passwordAgainValid}
           type="submit"
         >
           Register
