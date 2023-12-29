@@ -20,15 +20,13 @@ interface SignUpFormInput {
   passwordAgain: string
 }
 
-interface Header {
-  ContentType: string
-  emailAuth: string
-}
-
 interface FormData {
   email: string
   verificationCode: string
-  headers: Header
+  headers: {
+    'Content-Type': string
+    'email-auth': string
+  }
 }
 
 const schema = z
@@ -63,8 +61,7 @@ export default function SignUpRegister({
   setFormData
 }: {
   formData: FormData
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setFormData: any
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>
 }) {
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
