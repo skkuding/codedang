@@ -65,10 +65,7 @@ export default function SignUpRegister({
 }) {
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
-  const [realNameFocus, setRealNameFocus] = useState<boolean>(false)
-  const [userNameFocus, setUserNameFocus] = useState<boolean>(false)
-  const [passwordFocus, setPasswordFocus] = useState<boolean>(false)
-  const [passwordAgainFocus, setPasswordAgainFocus] = useState<boolean>(false)
+  const [inputFocus, setInputFocus] = useState<number>(0)
   const [realNameValid, setRealNameValid] = useState<boolean>(false)
   const [userNameValid, setUserNameValid] = useState<boolean>(false)
   const [passwordValid, setPasswordValid] = useState<boolean>(false)
@@ -129,10 +126,7 @@ export default function SignUpRegister({
             {...register('realName')}
             onFocus={() => {
               setRealNameClicked(true)
-              setRealNameFocus(true)
-              setUserNameFocus(false)
-              setPasswordFocus(false)
-              setPasswordAgainFocus(false)
+              setInputFocus(1)
             }}
             onChange={(e) => {
               const value = e.target.value
@@ -140,7 +134,7 @@ export default function SignUpRegister({
               setRealNameValid(isValid)
             }}
           />
-          {realNameFocus && (
+          {inputFocus === 1 && (
             <div>
               <div className="mt-1 text-xs text-slate-500">
                 <p>&#x2022; Your name must be less than 20 characters</p>
@@ -153,7 +147,7 @@ export default function SignUpRegister({
               )}
             </div>
           )}
-          {!realNameFocus && realNameClicked && !realNameValid && (
+          {inputFocus !== 1 && realNameClicked && !realNameValid && (
             <p className="mt-1 text-xs text-red-500">*Unavailable</p>
           )}
         </div>
@@ -166,10 +160,7 @@ export default function SignUpRegister({
               {...register('username')}
               onFocus={() => {
                 setUserNameClicked(true)
-                setRealNameFocus(false)
-                setUserNameFocus(true)
-                setPasswordFocus(false)
-                setPasswordAgainFocus(false)
+                setInputFocus(2)
               }}
               onChange={(e) => {
                 const value = e.target.value
@@ -188,7 +179,7 @@ export default function SignUpRegister({
               <FaCheck className="text-white" size="20" />
             </Button>
           </div>
-          {userNameFocus && (
+          {inputFocus === 2 && (
             <div>
               <div className="mt-1 text-xs text-slate-500">
                 <p>&#x2022; User ID used for log in</p>
@@ -204,7 +195,7 @@ export default function SignUpRegister({
               )}
             </div>
           )}
-          {!userNameFocus && userNameClicked && !userNameValid && (
+          {inputFocus !== 2 && userNameClicked && !userNameValid && (
             <p className="mt-1 text-xs text-red-500">*Unavailable</p>
           )}
         </div>
@@ -217,10 +208,7 @@ export default function SignUpRegister({
               {...register('password')}
               type={passwordShow ? 'text' : 'password'}
               onFocus={() => {
-                setRealNameFocus(false)
-                setUserNameFocus(false)
-                setPasswordFocus(true)
-                setPasswordAgainFocus(false)
+                setInputFocus(3)
               }}
               onChange={(e) => {
                 const value = e.target.value
@@ -235,7 +223,7 @@ export default function SignUpRegister({
               {passwordShow ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
-          {passwordFocus && (
+          {inputFocus === 3 && (
             <div
               className={`${
                 passwordValid ? 'text-slate-500' : 'text-red-500'
@@ -256,10 +244,7 @@ export default function SignUpRegister({
               type={passwordAgainShow ? 'text' : 'password'}
               onFocus={() => {
                 setPasswordAgainClicked(true)
-                setRealNameFocus(false)
-                setUserNameFocus(false)
-                setPasswordFocus(false)
-                setPasswordAgainFocus(true)
+                setInputFocus(4)
               }}
               onChange={(e) => {
                 const password = getValues('password')
@@ -275,14 +260,12 @@ export default function SignUpRegister({
               {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
-          {passwordAgainFocus && !passwordAgainValid && (
+          {inputFocus === 4 && !passwordAgainValid && (
             <p className="mt-1 text-xs text-red-500">*Incorrect</p>
           )}
-          {!passwordAgainFocus &&
-            passwordAgainClicked &&
-            !passwordAgainValid && (
-              <p className="mt-1 text-xs text-red-500">*Incorrect</p>
-            )}
+          {inputFocus !== 4 && passwordAgainClicked && !passwordAgainValid && (
+            <p className="mt-1 text-xs text-red-500">*Incorrect</p>
+          )}
         </div>
 
         <Button
