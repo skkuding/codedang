@@ -66,16 +66,18 @@ export default function SignUpRegister({
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
   const [inputFocus, setInputFocus] = useState<number>(0)
-  const [realNameValid, setRealNameValid] = useState<boolean>(false)
-  const [userNameValid, setUserNameValid] = useState<boolean>(false)
-  const [passwordValid, setPasswordValid] = useState<boolean>(false)
-  const [passwordAgainValid, setPasswordAgainValid] = useState<boolean>(false)
   const [realNameClicked, setRealNameClicked] = useState<boolean>(false)
   const [userNameClicked, setUserNameClicked] = useState<boolean>(false)
   const [passwordAgainClicked, setPasswordAgainClicked] =
     useState<boolean>(false)
 
-  const { handleSubmit, register, getValues } = useForm<SignUpFormInput>({
+  const {
+    handleSubmit,
+    register,
+    getValues,
+    trigger,
+    formState: { errors }
+  } = useForm<SignUpFormInput>({
     resolver: zodResolver(schema)
   })
 
@@ -106,6 +108,12 @@ export default function SignUpRegister({
       console.log(error)
     }
   }
+  const validation = async () => {
+    await trigger('realName')
+    await trigger('username')
+    await trigger('password')
+    await trigger('passwordAgain')
+  }
 
   return (
     <div className="mb-5 mt-16 flex w-full flex-col p-4">
@@ -123,15 +131,10 @@ export default function SignUpRegister({
           <Input
             className="px-4 shadow-md"
             placeholder="Your name"
-            {...register('realName')}
+            {...register('realName', { onChange: () => validation() })}
             onFocus={() => {
               setRealNameClicked(true)
               setInputFocus(1)
-            }}
-            onChange={(e) => {
-              const value = e.target.value
-              const isValid = /^[a-zA-Z\s]{1,20}$/.test(value)
-              setRealNameValid(isValid)
             }}
           />
           {inputFocus === 1 && (
@@ -140,14 +143,14 @@ export default function SignUpRegister({
                 <p>&#x2022; Your name must be less than 20 characters</p>
                 <p>&#x2022; Your name can only contain alphabet letters</p>
               </div>
-              {realNameValid ? (
+              {!errors.realName ? (
                 <p className="mt-1 text-xs text-blue-500">*Available</p>
               ) : (
                 <p className="mt-1 text-xs text-red-500">*Unavailable</p>
               )}
             </div>
           )}
-          {inputFocus !== 1 && realNameClicked && !realNameValid && (
+          {inputFocus !== 1 && realNameClicked && errors.realName && (
             <p className="mt-1 text-xs text-red-500">*Unavailable</p>
           )}
         </div>
@@ -157,15 +160,10 @@ export default function SignUpRegister({
             <Input
               className="px-4 shadow-md"
               placeholder="User ID"
-              {...register('username')}
+              {...register('username', { onChange: () => validation() })}
               onFocus={() => {
                 setUserNameClicked(true)
                 setInputFocus(2)
-              }}
-              onChange={(e) => {
-                const value = e.target.value
-                const isValid = /^[a-zA-Z0-9]{3,10}$/.test(value)
-                setUserNameValid(isValid)
               }}
             />
             <Button
@@ -173,7 +171,7 @@ export default function SignUpRegister({
                 console.log('username: ' + getValues('username'))
               }}
               className={`flex aspect-square w-12 items-center justify-center rounded-md ${
-                userNameValid ? 'bg-[#2279FD]' : 'bg-[#C4CBCD]'
+                !errors.username ? 'bg-[#2279FD]' : 'bg-[#C4CBCD]'
               }`}
             >
               <FaCheck className="text-white" size="20" />
@@ -188,14 +186,14 @@ export default function SignUpRegister({
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;letters, numbers
                 </p>
               </div>
-              {userNameValid ? (
+              {!errors.username ? (
                 <p className="mt-1 text-xs text-blue-500">*Available</p>
               ) : (
                 <p className="mt-1 text-xs text-red-500">*Unavailable</p>
               )}
             </div>
           )}
-          {inputFocus !== 2 && userNameClicked && !userNameValid && (
+          {inputFocus !== 2 && userNameClicked && errors.username && (
             <p className="mt-1 text-xs text-red-500">*Unavailable</p>
           )}
         </div>
@@ -205,15 +203,10 @@ export default function SignUpRegister({
             <Input
               className="px-4 shadow-md"
               placeholder="Password"
-              {...register('password')}
+              {...register('password', { onChange: () => validation() })}
               type={passwordShow ? 'text' : 'password'}
               onFocus={() => {
                 setInputFocus(3)
-              }}
-              onChange={(e) => {
-                const value = e.target.value
-                const isValid = /^.{8,20}$/.test(value)
-                setPasswordValid(isValid)
               }}
             />
             <span
@@ -226,7 +219,7 @@ export default function SignUpRegister({
           {inputFocus === 3 && (
             <div
               className={`${
-                passwordValid ? 'text-slate-500' : 'text-red-500'
+                !errors.password ? 'text-slate-500' : 'text-red-500'
               } mt-1 text-xs`}
             >
               <p>&#x2022; Your password must be 8-20 characters</p>
@@ -239,18 +232,12 @@ export default function SignUpRegister({
           <div className="flex justify-between gap-2">
             <Input
               className="px-4 shadow-md"
-              {...register('passwordAgain')}
+              {...register('passwordAgain', { onChange: () => validation() })}
               placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
               onFocus={() => {
                 setPasswordAgainClicked(true)
                 setInputFocus(4)
-              }}
-              onChange={(e) => {
-                const password = getValues('password')
-                const passwordAgain = e.target.value
-                if (password === passwordAgain) setPasswordAgainValid(true)
-                else setPasswordAgainValid(false)
               }}
             />
             <span
@@ -260,20 +247,22 @@ export default function SignUpRegister({
               {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
-          {inputFocus === 4 && !passwordAgainValid && (
+          {inputFocus === 4 && errors.passwordAgain && (
             <p className="mt-1 text-xs text-red-500">*Incorrect</p>
           )}
-          {inputFocus !== 4 && passwordAgainClicked && !passwordAgainValid && (
+          {inputFocus !== 4 && passwordAgainClicked && errors.passwordAgain && (
             <p className="mt-1 text-xs text-red-500">*Incorrect</p>
           )}
         </div>
 
         <Button
           disabled={
-            !realNameValid ||
-            !userNameValid ||
-            !passwordValid ||
-            !passwordAgainValid
+            !(
+              !errors.realName &&
+              !errors.username &&
+              !errors.password &&
+              !errors.passwordAgain
+            )
           }
           type="submit"
         >
