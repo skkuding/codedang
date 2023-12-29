@@ -76,6 +76,10 @@ export default function SignUpRegister({
   const [userNameValid, setUserNameValid] = useState<boolean>(false)
   const [passwordValid, setPasswordValid] = useState<boolean>(false)
   const [passwordAgainValid, setPasswordAgainValid] = useState<boolean>(false)
+  const [realNameClicked, setRealNameClicked] = useState<boolean>(false)
+  const [userNameClicked, setUserNameClicked] = useState<boolean>(false)
+  const [passwordAgainClicked, setPasswordAgainClicked] =
+    useState<boolean>(false)
 
   const { handleSubmit, register, getValues } = useForm<SignUpFormInput>({
     resolver: zodResolver(schema)
@@ -127,6 +131,7 @@ export default function SignUpRegister({
             placeholder="Your name"
             {...register('realName')}
             onFocus={() => {
+              setRealNameClicked(true)
               setRealNameFocus(true)
               setUserNameFocus(false)
               setPasswordFocus(false)
@@ -151,6 +156,9 @@ export default function SignUpRegister({
               )}
             </div>
           )}
+          {!realNameFocus && realNameClicked && !realNameValid && (
+            <p className="mt-1 text-xs text-red-500">*Unavailable</p>
+          )}
         </div>
 
         <div>
@@ -160,6 +168,7 @@ export default function SignUpRegister({
               placeholder="User ID"
               {...register('username')}
               onFocus={() => {
+                setUserNameClicked(true)
                 setRealNameFocus(false)
                 setUserNameFocus(true)
                 setPasswordFocus(false)
@@ -197,6 +206,9 @@ export default function SignUpRegister({
                 <p className="mt-1 text-xs text-red-500">*Unavailable</p>
               )}
             </div>
+          )}
+          {!userNameFocus && userNameClicked && !userNameValid && (
+            <p className="mt-1 text-xs text-red-500">*Unavailable</p>
           )}
         </div>
 
@@ -246,6 +258,7 @@ export default function SignUpRegister({
               placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
               onFocus={() => {
+                setPasswordAgainClicked(true)
                 setRealNameFocus(false)
                 setUserNameFocus(false)
                 setPasswordFocus(false)
@@ -268,6 +281,11 @@ export default function SignUpRegister({
           {passwordAgainFocus && !passwordAgainValid && (
             <p className="mt-1 text-xs text-red-500">*Incorrect</p>
           )}
+          {!passwordAgainFocus &&
+            passwordAgainClicked &&
+            !passwordAgainValid && (
+              <p className="mt-1 text-xs text-red-500">*Incorrect</p>
+            )}
         </div>
 
         <Button
