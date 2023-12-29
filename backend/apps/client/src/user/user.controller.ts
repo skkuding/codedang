@@ -12,7 +12,8 @@ import {
   NotFoundException,
   Logger,
   ConflictException,
-  Delete
+  Delete,
+  Query
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { Request, type Response } from 'express'
@@ -182,9 +183,9 @@ export class UserController {
     }
   }
 
-  @Post('username-check')
+  @Get('username-check')
   @AuthNotNeeded()
-  async checkDuplicatedUsername(@Body() usernameDto: UsernameDto) {
+  async checkDuplicatedUsername(@Query() usernameDto: UsernameDto) {
     try {
       return await this.userService.checkDuplicatedUsername(usernameDto)
     } catch (error) {
