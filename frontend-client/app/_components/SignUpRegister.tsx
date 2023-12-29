@@ -66,10 +66,6 @@ export default function SignUpRegister({
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
   const [inputFocus, setInputFocus] = useState<number>(0)
-  const [realNameClicked, setRealNameClicked] = useState<boolean>(false)
-  const [userNameClicked, setUserNameClicked] = useState<boolean>(false)
-  const [passwordAgainClicked, setPasswordAgainClicked] =
-    useState<boolean>(false)
 
   const {
     handleSubmit,
@@ -133,7 +129,6 @@ export default function SignUpRegister({
             placeholder="Your name"
             {...register('realName', { onChange: () => validation() })}
             onFocus={() => {
-              setRealNameClicked(true)
               setInputFocus(1)
             }}
           />
@@ -143,14 +138,12 @@ export default function SignUpRegister({
                 <p>&#x2022; Your name must be less than 20 characters</p>
                 <p>&#x2022; Your name can only contain alphabet letters</p>
               </div>
-              {!errors.realName ? (
+              {!errors.realName && (
                 <p className="mt-1 text-xs text-blue-500">*Available</p>
-              ) : (
-                <p className="mt-1 text-xs text-red-500">*Unavailable</p>
               )}
             </div>
           )}
-          {inputFocus !== 1 && realNameClicked && errors.realName && (
+          {errors.realName && (
             <p className="mt-1 text-xs text-red-500">*Unavailable</p>
           )}
         </div>
@@ -162,7 +155,6 @@ export default function SignUpRegister({
               placeholder="User ID"
               {...register('username', { onChange: () => validation() })}
               onFocus={() => {
-                setUserNameClicked(true)
                 setInputFocus(2)
               }}
             />
@@ -186,14 +178,12 @@ export default function SignUpRegister({
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;letters, numbers
                 </p>
               </div>
-              {!errors.username ? (
+              {!errors.username && (
                 <p className="mt-1 text-xs text-blue-500">*Available</p>
-              ) : (
-                <p className="mt-1 text-xs text-red-500">*Unavailable</p>
               )}
             </div>
           )}
-          {inputFocus !== 2 && userNameClicked && errors.username && (
+          {errors.username && (
             <p className="mt-1 text-xs text-red-500">*Unavailable</p>
           )}
         </div>
@@ -236,7 +226,6 @@ export default function SignUpRegister({
               placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
               onFocus={() => {
-                setPasswordAgainClicked(true)
                 setInputFocus(4)
               }}
             />
@@ -247,10 +236,7 @@ export default function SignUpRegister({
               {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
-          {inputFocus === 4 && errors.passwordAgain && (
-            <p className="mt-1 text-xs text-red-500">*Incorrect</p>
-          )}
-          {inputFocus !== 4 && passwordAgainClicked && errors.passwordAgain && (
+          {errors.passwordAgain && (
             <p className="mt-1 text-xs text-red-500">*Incorrect</p>
           )}
         </div>
