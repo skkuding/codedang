@@ -51,34 +51,34 @@ export default async function NoticeDetail({
           </Link>
         </div>
         {prev && (
-          <div className="border-b border-b-gray-200 p-5 py-4">
-            <span className="mr-5 font-bold text-gray-500">prev</span>
-            <Link
-              href={{
-                pathname: `/notice/${prev.id}`,
-                query: { page }
-              }}
-              key={prev.id}
-              className="text-gray-400 hover:text-gray-500"
-            >
+          <Link
+            href={{
+              pathname: `/notice/${prev.id}`,
+              query: { page }
+            }}
+            key={prev.id}
+            className="text-gray-400 hover:text-gray-500"
+          >
+            <div className="border-b border-b-gray-200 p-5 py-4">
+              <span className="mr-5 font-bold text-gray-500">prev</span>
               {prev.title}
-            </Link>
-          </div>
+            </div>
+          </Link>
         )}
         {next && (
-          <div className="border-b border-b-gray-200 p-5 py-4">
-            <span className="mr-5 font-bold text-gray-500">next</span>
-            <Link
-              href={{
-                pathname: `/notice/${next.id}`,
-                query: { page }
-              }}
-              key={next.id}
-              className="text-gray-400 hover:text-gray-500"
-            >
+          <Link
+            href={{
+              pathname: `/notice/${next.id}`,
+              query: { page }
+            }}
+            key={next.id}
+            className="text-gray-400 hover:text-gray-500"
+          >
+            <div className="border-b border-b-gray-200 p-5 py-4">
+              <span className="mr-5 font-bold text-gray-500">next</span>
               {next.title}
-            </Link>
-          </div>
+            </div>
+          </Link>
         )}
       </footer>
     </article>
