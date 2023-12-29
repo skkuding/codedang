@@ -21,7 +21,7 @@ export default async function Notice({
    */
 
   /** The number of data per page */
-  const take = 10
+  const take = 4
 
   /**
    * The number of pages per slot.
@@ -29,7 +29,7 @@ export default async function Notice({
    *
    * If maxPagesPerSlot = 5, slot 0 = page 1...5, slot 1 = page 6...10
    */
-  const maxPagesPerSlot = 5
+  const maxPagesPerSlot = 2
 
   /** The current page being shown in UI */
   const currentPage = searchParams.page ? Number(searchParams.page) : 1
@@ -56,10 +56,8 @@ export default async function Notice({
     (currentPage - currentSlot * maxPagesPerSlot) * take
   )
 
-  const canGoPrevious = currentPage > 1
-  const canGoNext =
-    currentPage - currentSlot * maxPagesPerSlot !== currentTotalPages ||
-    currentTotalPages > maxPagesPerSlot // if currentPage is last page and currentTotalPages is less than maxPagesPerSlot, there is no next page
+  const canGoPrevious = currentSlot > 0
+  const canGoNext = currentTotalPages > maxPagesPerSlot // if currentPage is last page and currentTotalPages is less than maxPagesPerSlot, there is no next page
   return (
     <>
       {/* TODO: Add search bar */}
@@ -67,7 +65,11 @@ export default async function Notice({
       <Pagination>
         <PaginationContent>
           <PaginationPrevious
-            href={canGoPrevious ? `?page=${currentPage - 1}` : undefined}
+            href={
+              canGoPrevious
+                ? `?page=${(currentSlot - 1) * maxPagesPerSlot + 1}`
+                : undefined
+            }
             className={canGoPrevious ? '' : 'cursor-not-allowed opacity-30'}
           />
           <div className="hidden items-center gap-1 md:flex">
@@ -90,7 +92,11 @@ export default async function Notice({
             {currentPage}
           </div>
           <PaginationNext
-            href={canGoNext ? `?page=${currentPage + 1}` : undefined}
+            href={
+              canGoNext
+                ? `?page=${(currentSlot + 1) * maxPagesPerSlot + 1}`
+                : undefined
+            }
             className={canGoNext ? '' : 'cursor-not-allowed opacity-30'}
           />
         </PaginationContent>
