@@ -4,10 +4,14 @@ meta {
   seq: 2
 }
 
-post {
-  url: {{baseUrl}}/user/username-check
-  body: json
+get {
+  url: {{baseUrl}}/user/username-check?username=admin
+  body: none
   auth: none
+}
+
+query {
+  username: admin
 }
 
 body:json {
