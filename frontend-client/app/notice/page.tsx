@@ -26,7 +26,8 @@ export default async function Notice({
   /**
    * The number of pages per slot.
    * Slot is a group of pages.
-   * If maxPagesPerSlot = 5, slot 0 = page 1~5, slot 1 = page 6~10, ...
+   *
+   * If maxPagesPerSlot = 5, slot 0 = page 1...5, slot 1 = page 6...10
    */
   const maxPagesPerSlot = 5
 
