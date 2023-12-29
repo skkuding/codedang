@@ -1,0 +1,24 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/user/username-check
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "newUser"
+  }
+}
+
+docs {
+  # Check Duplicated Username
+  ---
+  - username이 중복되었는지 확인합니다.
+  - 중복되는 경우 `409`, 중복되지 않는 경우 `201`을 반환합니다.
+}

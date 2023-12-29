@@ -1,0 +1,17 @@
+meta {
+  name: 409: Duplicated Username
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/user/username-check
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "admin"
+  }
+}
