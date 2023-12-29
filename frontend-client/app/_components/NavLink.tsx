@@ -17,7 +17,7 @@ export default function NavLink({ href, text }: NavLinkProps) {
       href={href}
       className={cn(
         'text-lg hover:opacity-60',
-        pathname === href && 'text-primary'
+        pathname.startsWith(href) && 'text-primary'
       )}
     >
       {text}
