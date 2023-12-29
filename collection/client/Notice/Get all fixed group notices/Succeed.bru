@@ -1,0 +1,15 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/group/1/notice/fixed?take=5
+  body: none
+  auth: none
+}
+
+query {
+  take: 5
+}

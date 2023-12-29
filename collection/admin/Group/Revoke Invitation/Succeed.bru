@@ -1,0 +1,29 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    revokeInvitation(groupId: 2)
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.revokeInvitation: isDefined
+}
+
+docs {
+  # Revoke Invitation
+  ---
+  - `groupId`에 해당하는 Group에서 발급되었던 Invitation Code를 폐기합니다.
+  - 폐기할 Invitation이 없는 경우 또는 존재하지 않는 `groupId`를 전달한 경우 'This group has no invitation to be revoked'를 반환합니다.
+}

@@ -1,0 +1,43 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createGroup(input: {
+      groupName: "new-group-3"
+      description: "thisisnewgroup"
+      config: {
+        showOnList: true
+        allowJoinFromSearch: true
+        allowJoinWithURL: false
+        requireApprovalBeforeJoin:false
+      }
+    }) {
+      id
+      groupName
+      description
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.createGroup.groupName: isString
+  res.body.data.createGroup.description: isString
+  res.body.data.createGroup: isDefined
+}
+
+docs {
+  # Create Group
+  ---
+  - Group을 생성합니다.
+}
