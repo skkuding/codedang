@@ -200,6 +200,7 @@ describe('UserService', () => {
   describe('updatePassword', () => {
     let verifyJwtFromRequestHeaderSpy: SinonStub
     let updateUserPasswordInPrismaSpy: SinonSpy
+    let deletePinFromCacheSpy: SinonStub
     beforeEach(() => {
       verifyJwtFromRequestHeaderSpy = stub(
         service,
@@ -210,6 +211,7 @@ describe('UserService', () => {
         exp: 0,
         iss: ''
       })
+      deletePinFromCacheSpy = stub(service, 'deletePinFromCache')
       updateUserPasswordInPrismaSpy = spy(service, 'updateUserPasswordInPrisma')
     })
 
@@ -232,6 +234,17 @@ describe('UserService', () => {
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(verifyJwtFromRequestHeaderSpy.called).to.be.false
       expect(updateUserPasswordInPrismaSpy.called).to.be.false
+    })
+
+    it('should delete pin', async () => {
+      await service.updatePassword(
+        { newPassword: 'thisIsNewPassword' },
+        requestObject
+      )
+      expect(deletePinFromCacheSpy.calledOnce).to.be.true
+      expect(deletePinFromCacheSpy.firstCall.firstArg).to.be.equal(
+        PASSWORD_RESET_PIN_KEY
+      )
     })
   })
 
@@ -273,9 +286,7 @@ describe('UserService', () => {
   })
 
   describe('verifyPinAndIssueJwt', () => {
-    let deletePinFromCacheSpy: SinonStub
     beforeEach(() => {
-      deletePinFromCacheSpy = stub(service, 'deletePinFromCache')
       jwtService.signAsync = stub().resolves('token')
     })
 
@@ -285,10 +296,6 @@ describe('UserService', () => {
         email: EMAIL_ADDRESS
       })
       expect(ret).to.equal('token')
-      expect(deletePinFromCacheSpy.calledOnce).to.be.true
-      expect(deletePinFromCacheSpy.firstCall.firstArg).to.be.equal(
-        PASSWORD_RESET_PIN_KEY
-      )
     })
 
     it('should fail verification with invalid pin', async () => {
@@ -310,7 +317,6 @@ describe('UserService', () => {
           email: EMAIL_ADDRESS
         })
       ).to.be.rejectedWith(UnidentifiedException)
-      expect(deletePinFromCacheSpy.called).to.be.false
     })
   })
 
@@ -325,6 +331,10 @@ describe('UserService', () => {
   })
 
   describe('deletePinFromCache', () => {
+    beforeEach(() => {
+      cacheMock.del.resetHistory()
+    })
+
     it('delete pin from cache', async () => {
       await service.deletePinFromCache(PASSWORD_RESET_PIN_KEY)
       expect(cacheMock.del.calledOnce).to.be.true
@@ -351,6 +361,7 @@ describe('UserService', () => {
     let createUserSpy: SinonSpy
     let createUserProfileSpy: SinonSpy
     let registerUserToPublicGroupSpy: SinonSpy
+    let deletePinFromCacheSpy: SinonSpy
     beforeEach(() => {
       service.verifyJwtFromRequestHeader = fake.resolves({
         email: EMAIL_ADDRESS,
@@ -361,6 +372,7 @@ describe('UserService', () => {
       createUserSpy = spy(service, 'createUser')
       createUserProfileSpy = spy(service, 'createUserProfile')
       registerUserToPublicGroupSpy = spy(service, 'registerUserToPublicGroup')
+      deletePinFromCacheSpy = stub(service, 'deletePinFromCache')
     })
 
     it('carry sign up process', async () => {
@@ -371,6 +383,14 @@ describe('UserService', () => {
       expect(createUserSpy.calledOnce).to.be.true
       expect(createUserProfileSpy.calledOnce).to.be.true
       expect(registerUserToPublicGroupSpy.calledOnce).to.be.true
+    })
+
+    it('should delete pin', async () => {
+      await service.signUp(authRequestObject, signUpDto)
+      expect(deletePinFromCacheSpy.calledOnce).to.be.true
+      expect(deletePinFromCacheSpy.firstCall.firstArg).to.be.equal(
+        PASSWORD_RESET_PIN_KEY
+      )
     })
 
     it('should not sign up non-authenticated user', async () => {
@@ -497,6 +517,7 @@ describe('UserService', () => {
   })
 
   describe('updateUserEmail', () => {
+    let deletePinFromCacheSpy: SinonSpy
     beforeEach(() => {
       service.verifyJwtFromRequestHeader = fake.resolves({
         email: 'new@email.com',
@@ -504,6 +525,7 @@ describe('UserService', () => {
         exp: 0,
         iss: ''
       })
+      deletePinFromCacheSpy = stub(service, 'deletePinFromCache')
     })
 
     it('update user email', async () => {
@@ -514,6 +536,16 @@ describe('UserService', () => {
         email: 'new@email.com'
       })
       expect(ret).to.deep.equal({ ...user, email: 'new@email.com' })
+    })
+
+    it('should delete pin', async () => {
+      await service.updateUserEmail(authRequestObject, {
+        email: 'new@email.com'
+      })
+      expect(deletePinFromCacheSpy.calledOnce).to.be.true
+      expect(deletePinFromCacheSpy.firstCall.firstArg).to.be.equal(
+        emailAuthenticationPinCacheKey('new@email.com')
+      )
     })
 
     it('should not update non authenticated user', async () => {
