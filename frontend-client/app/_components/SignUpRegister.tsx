@@ -68,9 +68,11 @@ export default function SignUpRegister({
 }) {
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
+  const [realNameFocus, setRealNameFocus] = useState<boolean>(false)
   const [userNameFocus, setUserNameFocus] = useState<boolean>(false)
   const [passwordFocus, setPasswordFocus] = useState<boolean>(false)
   const [passwordAgainFocus, setPasswordAgainFocus] = useState<boolean>(false)
+  const [realNameValid, setRealNameValid] = useState<boolean>(false)
   const [userNameValid, setUserNameValid] = useState<boolean>(false)
   const [passwordValid, setPasswordValid] = useState<boolean>(false)
   const [passwordAgainValid, setPasswordAgainValid] = useState<boolean>(false)
@@ -118,16 +120,38 @@ export default function SignUpRegister({
             Sign Up
           </p>
         </div>
-        <Input
-          className="px-4 shadow-md"
-          placeholder="Your Name"
-          {...register('realName')}
-          onFocus={() => {
-            setUserNameFocus(false)
-            setPasswordFocus(false)
-            setPasswordAgainFocus(false)
-          }}
-        />
+
+        <div>
+          <Input
+            className="px-4 shadow-md"
+            placeholder="Your name"
+            {...register('realName')}
+            onFocus={() => {
+              setRealNameFocus(true)
+              setUserNameFocus(false)
+              setPasswordFocus(false)
+              setPasswordAgainFocus(false)
+            }}
+            onChange={(e) => {
+              const value = e.target.value
+              const isValid = /^[a-zA-Z\s]{1,20}$/.test(value)
+              setRealNameValid(isValid)
+            }}
+          />
+          {realNameFocus && (
+            <div>
+              <div className="mt-1 text-xs text-slate-500">
+                <p>&#x2022; Your name must be less than 20 characters</p>
+                <p>&#x2022; Your name can only contain alphabet letters</p>
+              </div>
+              {realNameValid ? (
+                <p className="mt-1 text-xs text-blue-500">*Available</p>
+              ) : (
+                <p className="mt-1 text-xs text-red-500">*Unavailable</p>
+              )}
+            </div>
+          )}
+        </div>
 
         <div>
           <div className="flex gap-2">
@@ -136,6 +160,7 @@ export default function SignUpRegister({
               placeholder="User ID"
               {...register('username')}
               onFocus={() => {
+                setRealNameFocus(false)
                 setUserNameFocus(true)
                 setPasswordFocus(false)
                 setPasswordAgainFocus(false)
@@ -183,6 +208,7 @@ export default function SignUpRegister({
               {...register('password')}
               type={passwordShow ? 'text' : 'password'}
               onFocus={() => {
+                setRealNameFocus(false)
                 setUserNameFocus(false)
                 setPasswordFocus(true)
                 setPasswordAgainFocus(false)
@@ -220,6 +246,7 @@ export default function SignUpRegister({
               placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
               onFocus={() => {
+                setRealNameFocus(false)
                 setUserNameFocus(false)
                 setPasswordFocus(false)
                 setPasswordAgainFocus(true)
@@ -244,7 +271,12 @@ export default function SignUpRegister({
         </div>
 
         <Button
-          disabled={!userNameValid || !passwordValid || !passwordAgainValid}
+          disabled={
+            !realNameValid ||
+            !userNameValid ||
+            !passwordValid ||
+            !passwordAgainValid
+          }
           type="submit"
         >
           Register
