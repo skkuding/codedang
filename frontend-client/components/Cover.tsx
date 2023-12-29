@@ -8,7 +8,7 @@ interface CoverProps {
 
 export default function Cover({ title, description }: CoverProps) {
   return (
-    <div className="relative flex h-44 w-full items-center justify-center overflow-hidden">
+    <div className="relative flex h-44 w-screen items-center justify-center overflow-hidden">
       <div className="relative z-10 flex w-full items-start justify-center text-white">
         <h2 className="text-3xl font-bold md:text-4xl">{title}</h2>
         <p className="absolute mt-12 w-fit whitespace-nowrap text-sm opacity-70 md:text-base">

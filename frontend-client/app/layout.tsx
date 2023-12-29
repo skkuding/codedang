@@ -33,7 +33,9 @@ export default function RootLayout({
       <body>
         <div className="w-screen overflow-hidden">
           <Header />
-          {children}
+          <div className="flex w-full justify-center">
+            <main className="w-full max-w-7xl px-5">{children}</main>
+          </div>
         </div>
       </body>
     </html>
