@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -14,9 +15,10 @@ export default function NavLink({ href, text }: NavLinkProps) {
   return (
     <Link
       href={href}
-      className={`text-lg hover:opacity-60 ${
-        pathname === href ? 'text-primary' : ''
-      }`}
+      className={cn(
+        'text-lg hover:opacity-60',
+        pathname === href && 'text-primary'
+      )}
     >
       {text}
     </Link>
