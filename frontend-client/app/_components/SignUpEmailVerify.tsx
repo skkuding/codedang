@@ -82,7 +82,7 @@ export default function SignUpEmailVerify({
             setEmailError('')
           }
         })
-        .catch((err) => {
+        .catch(() => {
           setEmailError('Something went wrong!')
         })
     }
