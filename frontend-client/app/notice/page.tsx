@@ -21,7 +21,7 @@ export default async function Notice({
    */
 
   /** The number of data per page */
-  const take = 4
+  const take = 10
 
   /**
    * The number of pages per slot.
@@ -29,7 +29,7 @@ export default async function Notice({
    *
    * If maxPagesPerSlot = 5, slot 0 = page 1...5, slot 1 = page 6...10
    */
-  const maxPagesPerSlot = 2
+  const maxPagesPerSlot = 5
 
   /** The current page being shown in UI */
   const currentPage = searchParams.page ? Number(searchParams.page) : 1
