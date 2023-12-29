@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { baseUrl } from '@/lib/vars'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
@@ -10,6 +9,15 @@ import { Input } from '../../components/ui/input'
 interface EmailVerifyInput {
   email: string
   verificationCode: string
+}
+
+interface FormDataInput {
+  email: string
+  verificationCode: string
+  headers: {
+    'Content-Type': string
+    'email-auth': string
+  }
 }
 const schema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -24,9 +32,9 @@ export default function SignUpEmailVerify({
   formData,
   setFormData
 }: {
-  nextModal: any
-  formData: any
-  setFormData: any
+  nextModal: () => void
+  formData: FormDataInput
+  setFormData: React.Dispatch<React.SetStateAction<FormDataInput>>
 }) {
   const {
     handleSubmit,
@@ -43,8 +51,7 @@ export default function SignUpEmailVerify({
   const [codeError, setCodeError] = useState<string>('')
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [emailAuthToken, setEmailAuthToken] = useState<string>('')
-  const onSubmit = (data: any) => {
-    console.log('email auth is ', emailAuthToken)
+  const onSubmit = (data: EmailVerifyInput) => {
     setFormData({
       ...formData,
       ...data,
@@ -58,7 +65,6 @@ export default function SignUpEmailVerify({
   const sendEmail = async () => {
     const { email } = getValues()
     setEmailContent(email)
-    console.log('sentEmail is ', sentEmail, 'email is ', email)
     await trigger('email')
     if (!errors.email && !sentEmail) {
       await fetch(baseUrl + '/email-auth/send-email/register-new', {
