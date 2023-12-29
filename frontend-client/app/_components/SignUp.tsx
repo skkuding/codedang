@@ -75,7 +75,7 @@ export default function SignUp() {
         </>
       )}
       {modalPage === 2 && (
-        <div>
+        <>
           <SignUpRegister formData={formData} setFormData={setFormData} />
           {/* <Button
             type="submit"
@@ -86,7 +86,7 @@ export default function SignUp() {
           >
             Register
           </Button> */}
-        </div>
+        </>
       )}
       <div className="flex items-center text-sm text-gray-500">
         Already have an account?
