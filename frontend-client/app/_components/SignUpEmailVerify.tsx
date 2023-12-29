@@ -92,6 +92,7 @@ export default function SignUpEmailVerify({
     const { verificationCode } = getValues()
     await trigger('verificationCode')
     if (!errors.verificationCode) {
+      console.log('code is ', verificationCode)
       try {
         const response = await fetch(baseUrl + '/email-auth/verify-pin', {
           method: 'POST',
@@ -104,6 +105,7 @@ export default function SignUpEmailVerify({
         })
         if (response.status === 201) {
           setEmailVerified(true)
+          setCodeError('')
           setEmailAuthToken(response.headers.get('email-auth') || '')
         } else {
           setCodeError('Verification code is not valid!')
@@ -149,10 +151,12 @@ export default function SignUpEmailVerify({
             />
           </>
         )}
-        {errors.verificationCode && (
+        {errors.verificationCode ? (
           <p className="mt-1 text-xs text-red-500">
             {errors.verificationCode?.message}
           </p>
+        ) : (
+          <p className="mt-1 text-xs text-red-500">{codeError}</p>
         )}
         {sentEmail &&
           !errors.verificationCode &&
@@ -162,7 +166,6 @@ export default function SignUpEmailVerify({
               *We&apos;ve sent an email!
             </p>
           )}
-        <p className="mt-1 text-xs text-red-500">{codeError}</p>
 
         {!sentEmail ? (
           <Button
