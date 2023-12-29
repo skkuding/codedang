@@ -34,13 +34,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={cn(noto.variable, manrope.variable)}>
-      <body>
-        <div className="w-screen overflow-hidden">
-          <Header />
-          <div className="flex w-full justify-center">
-            <main className="w-full max-w-7xl px-5">{children}</main>
-          </div>
-        </div>
+      <body className="flex w-screen flex-col items-center overflow-x-hidden">
+        <Header />
+        <main className="flex w-full max-w-7xl flex-col items-center px-5">
+          {children}
+        </main>
       </body>
     </html>
   )

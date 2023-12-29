@@ -5,7 +5,7 @@ import HeaderAuthPanel from './HeaderAuthPanel'
 
 export default function Header() {
   return (
-    <header className="border-b-gray grid h-16 place-items-center border-b bg-white px-5">
+    <header className="border-b-gray grid h-16 w-full place-items-center border-b bg-white px-5">
       <div className="flex w-full max-w-7xl items-center justify-between gap-5">
         <div className="flex w-1/2 min-w-fit items-center justify-between gap-8">
           <Link href="/">
