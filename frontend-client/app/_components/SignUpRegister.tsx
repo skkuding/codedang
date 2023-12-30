@@ -61,6 +61,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
   const [inputFocus, setInputFocus] = useState<number>(0)
+  const [disableUsername, setDisableUsername] = useState<boolean>(false)
 
   const {
     handleSubmit,
@@ -117,7 +118,9 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
   }
 
   const checkUserName = () => {
+    //TODO: 백엔드 닉네임 중복확인 API 완성되면.
     console.log('username: ' + getValues('username'))
+    setDisableUsername(true)
   }
 
   return (
@@ -164,6 +167,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
             <Input
               className="px-4 shadow-md"
               placeholder="User ID"
+              disabled={disableUsername}
               {...register('username', {
                 onChange: () => validation('username')
               })}
@@ -174,7 +178,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
             <Button
               onClick={() => checkUserName()}
               className={`flex aspect-square w-12 items-center justify-center rounded-md ${
-                !errors.username ? 'bg-[#2279FD]' : 'bg-[#C4CBCD]'
+                !disableUsername ? 'bg-[#2279FD]' : 'bg-[#C4CBCD]'
               }`}
             >
               <FaCheck className="text-white" size="20" />
