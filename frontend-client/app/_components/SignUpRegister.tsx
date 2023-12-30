@@ -122,11 +122,8 @@ export default function SignUpRegister({
       })
     }
   }
-  const validation = async () => {
-    await trigger('realName')
-    await trigger('username')
-    await trigger('password')
-    await trigger('passwordAgain')
+  const validation = async (field: string) => {
+    await trigger(field as keyof SignUpFormInput)
   }
 
   const checkUserName = () => {
@@ -149,7 +146,9 @@ export default function SignUpRegister({
           <Input
             className="px-4 shadow-md"
             placeholder="Your name"
-            {...register('realName', { onChange: () => validation() })}
+            {...register('realName', {
+              onChange: () => validation('realName')
+            })}
             onFocus={() => {
               setInputFocus(1)
             }}
@@ -175,7 +174,9 @@ export default function SignUpRegister({
             <Input
               className="px-4 shadow-md"
               placeholder="User ID"
-              {...register('username', { onChange: () => validation() })}
+              {...register('username', {
+                onChange: () => validation('username')
+              })}
               onFocus={() => {
                 setInputFocus(2)
               }}
@@ -213,7 +214,9 @@ export default function SignUpRegister({
             <Input
               className="px-4 shadow-md"
               placeholder="Password"
-              {...register('password', { onChange: () => validation() })}
+              {...register('password', {
+                onChange: () => validation('password')
+              })}
               type={passwordShow ? 'text' : 'password'}
               onFocus={() => {
                 setInputFocus(3)
@@ -242,7 +245,9 @@ export default function SignUpRegister({
           <div className="flex justify-between gap-2">
             <Input
               className="px-4 shadow-md"
-              {...register('passwordAgain', { onChange: () => validation() })}
+              {...register('passwordAgain', {
+                onChange: () => validation('passwordAgain')
+              })}
               placeholder="Re-enter password"
               type={passwordAgainShow ? 'text' : 'password'}
               onFocus={() => {
