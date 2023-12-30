@@ -1,11 +1,9 @@
 'use client'
 
-// import { baseUrl } from '@/lib/vars'
 import CodedangLogo from '@/public/codedang.svg'
 import Image from 'next/image'
 import React, { useState } from 'react'
 import { IoMdArrowBack } from 'react-icons/io'
-// import { Button } from '../../components/ui/button'
 import SignUpEmailVerify from './SignUpEmailVerify'
 import SignUpRegister from './SignUpRegister'
 import SignUpWelcome from './SignUpWelcome'
