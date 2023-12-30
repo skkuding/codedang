@@ -69,8 +69,8 @@ export default async function Notice({
       <Pagination>
         <PaginationContent>
           <PaginationPrevious
-            href={canGoPrevious && `?page=${previousSlotPage}`}
-            className={!canGoPrevious && 'cursor-not-allowed opacity-30'}
+            href={canGoPrevious ? `?page=${previousSlotPage}` : undefined}
+            className={canGoPrevious ? '' : 'cursor-not-allowed opacity-30'}
           />
           <div className="flex items-center gap-1">
             {[...Array(Math.min(currentTotalPages, maxPagesPerSlot))].map(
@@ -89,8 +89,8 @@ export default async function Notice({
             )}
           </div>
           <PaginationNext
-            href={canGoNext && `?page=${nextSlotPage}`}
-            className={!canGoNext && 'cursor-not-allowed opacity-30'}
+            href={canGoNext ? `?page=${nextSlotPage}` : undefined}
+            className={canGoNext ? '' : 'cursor-not-allowed opacity-30'}
           />
         </PaginationContent>
       </Pagination>
