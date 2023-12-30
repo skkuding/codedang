@@ -40,7 +40,7 @@ export class WorkbookProblemController {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(err)
       throw new InternalServerErrorException()
     }
   }
@@ -62,7 +62,7 @@ export class WorkbookProblemController {
       ) {
         throw new NotFoundException(err.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(err)
       throw new InternalServerErrorException()
     }
   }
@@ -95,7 +95,7 @@ export class GroupWorkbookProblemController {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(err)
       throw new InternalServerErrorException()
     }
   }
@@ -121,7 +121,7 @@ export class GroupWorkbookProblemController {
       ) {
         throw new NotFoundException(err.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(err)
       throw new InternalServerErrorException()
     }
   }
