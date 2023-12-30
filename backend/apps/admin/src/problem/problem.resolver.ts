@@ -1,8 +1,10 @@
 import {
   ConflictException,
+  ForbiddenException,
   InternalServerErrorException,
   Logger,
   NotFoundException,
+  ParseArrayPipe,
   ParseIntPipe,
   UnprocessableEntityException,
   UsePipes,
@@ -14,10 +16,12 @@ import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
+  EntityNotExistException,
+  ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
-import { Problem } from '@admin/@generated'
+import { ContestProblem, Problem, WorkbookProblem } from '@admin/@generated'
 import {
   CreateProblemInput,
   UploadFileInput,
@@ -54,7 +58,7 @@ export class ProblemResolver {
       ) {
         throw new UnprocessableEntityException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -77,7 +81,7 @@ export class ProblemResolver {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -108,7 +112,7 @@ export class ProblemResolver {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -133,7 +137,7 @@ export class ProblemResolver {
       } else if (error instanceof ConflictFoundException) {
         throw new ConflictException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -153,8 +157,119 @@ export class ProblemResolver {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
+    }
+  }
+
+  @Query(() => [WorkbookProblem], { name: 'getWorkbookProblems' })
+  async getWorkbookProblems(
+    @Args(
+      'groupId',
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
+      ParseIntPipe
+    )
+    groupId: number,
+    @Args('workbookId', { type: () => Int }, ParseIntPipe) workbookId: number
+  ) {
+    try {
+      return this.problemService.getWorkbookProblems(groupId, workbookId)
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      } else if (error.code == 'P2025') {
+        throw new EntityNotExistException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException(error.message)
+    }
+  }
+
+  @Mutation(() => [WorkbookProblem])
+  async updateWorkbookProblemsOrder(
+    @Args(
+      'groupId',
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
+      ParseIntPipe
+    )
+    groupId: number,
+    @Args('workbookId', { type: () => Int }, ParseIntPipe) workbookId: number,
+    // orders는 항상 workbookId에 해당하는 workbookProblems들이 모두 딸려 온다.
+    @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
+  ) {
+    try {
+      return this.problemService.updateWorkbookProblemsOrder(
+        groupId,
+        workbookId,
+        orders
+      )
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      } else if (error.code == 'P2025') {
+        throw new EntityNotExistException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException(error.message)
+    }
+  }
+
+  @Query(() => [ContestProblem], { name: 'getContestProblems' })
+  async getContestProblems(
+    @Args(
+      'groupId',
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
+      ParseIntPipe
+    )
+    groupId: number,
+    @Args('contestId', { type: () => Int }, ParseIntPipe) contestId: number
+  ) {
+    try {
+      return this.problemService.getContestProblems(groupId, contestId)
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      } else if (error.code == 'P2025') {
+        throw new EntityNotExistException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException(error.message)
+    }
+  }
+
+  @Mutation(() => [ContestProblem])
+  async updateContestProblemsOrder(
+    @Args(
+      'groupId',
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
+      ParseIntPipe
+    )
+    groupId: number,
+    @Args('contestId', { type: () => Int }, ParseIntPipe) contestId: number,
+    @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
+  ) {
+    try {
+      return this.problemService.updateContestProblemsOrder(
+        groupId,
+        contestId,
+        orders
+      )
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
+      } else if (error.code == 'P2025') {
+        throw new EntityNotExistException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException(error.message)
     }
   }
 }

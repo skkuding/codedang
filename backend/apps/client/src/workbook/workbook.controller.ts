@@ -29,7 +29,7 @@ export class WorkbookController {
     try {
       return await this.workbookService.getWorkbooksByGroupId(cursor, take)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -45,7 +45,7 @@ export class WorkbookController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -71,7 +71,7 @@ export class GroupWorkbookController {
         groupId
       )
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -90,7 +90,7 @@ export class GroupWorkbookController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }

@@ -64,19 +64,12 @@ services:
 
   caddy:
     profiles: ['deploy']
-    image: caddy:2.7.5-alpine
+    image: caddy:2.7.6-alpine
     container_name: caddy
     restart: always
-    depends_on:
-      - backend-client
-      - backend-admin
-      - iris
     ports:
       - '80:80'
       - '443:443'
-    volumes:
-      - $PWD/Caddyfile:/etc/caddy/Caddyfile
-      - $PWD/dist:/var/www/html
     network_mode: host
 
   backend-client:

@@ -7,6 +7,7 @@ import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
 import type { Request } from 'express'
+import { generate } from 'generate-password'
 import { ExtractJwt } from 'passport-jwt'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
@@ -25,9 +26,11 @@ import type { UserGroupData } from '@client/group/interface/user-group-data.inte
 import type { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import type { NewPasswordDto } from './dto/newPassword.dto'
 import type { SignUpDto } from './dto/signup.dto'
+import type { SocialSignUpDto } from './dto/social-signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import type { UpdateUserProfileDto } from './dto/update-userprofile.dto'
 import type { UserEmailDto } from './dto/userEmail.dto'
+import type { UsernameDto } from './dto/username.dto'
 import type { CreateUserProfileData } from './interface/create-userprofile.interface'
 import type {
   EmailAuthJwtPayload,
@@ -107,6 +110,7 @@ export class UserService {
     }
 
     const { email } = await this.verifyJwtFromRequestHeader(req)
+    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
     await this.updateUserPasswordInPrisma(email, newPassword)
 
     return 'Password Reset successfully'
@@ -147,7 +151,6 @@ export class UserService {
     email
   }: EmailAuthenticationPinDto): Promise<string> {
     await this.verifyPin(pin, email)
-    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
     const payload: EmailAuthJwtPayload = { email }
     const token = await this.createJwt(payload)
@@ -202,6 +205,8 @@ export class UserService {
       throw new UnprocessableDataException('Bad password')
     }
 
+    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
+
     const user: User = await this.createUser(signUpDto)
     const CreateUserProfileData: CreateUserProfileData = {
       userId: user.id,
@@ -209,6 +214,38 @@ export class UserService {
     }
     await this.createUserProfile(CreateUserProfileData)
     await this.registerUserToPublicGroup(user.id)
+
+    return user
+  }
+
+  async socialSignUp(socialSignUpDto: SocialSignUpDto): Promise<User> {
+    const duplicatedUser = await this.prisma.user.findUnique({
+      where: {
+        username: socialSignUpDto.username
+      }
+    })
+    if (duplicatedUser) {
+      throw new DuplicateFoundException('Username')
+    }
+
+    if (!this.isValidUsername(socialSignUpDto.username)) {
+      throw new UnprocessableDataException('Bad username')
+    }
+
+    const user = await this.createUser({
+      username: socialSignUpDto.username,
+      password: generate({ length: 10, numbers: true }),
+      realName: socialSignUpDto.realName,
+      email: socialSignUpDto.email
+    })
+    const profile: CreateUserProfileData = {
+      userId: user.id,
+      realName: socialSignUpDto.realName
+    }
+
+    await this.createUserProfile(profile)
+    await this.registerUserToPublicGroup(user.id)
+    await this.createUserOAuth(socialSignUpDto, user.id)
 
     return user
   }
@@ -237,6 +274,16 @@ export class UserService {
         username: signUpDto.username,
         password: encryptedPassword,
         email: signUpDto.email
+      }
+    })
+  }
+
+  async createUserOAuth(socialSignUpDto: SocialSignUpDto, userId: number) {
+    return await this.prisma.userOAuth.create({
+      data: {
+        id: socialSignUpDto.id,
+        userId: userId,
+        provider: socialSignUpDto.provider
       }
     })
   }
@@ -356,6 +403,8 @@ export class UserService {
       throw new UnprocessableDataException('The email is not authenticated one')
     }
 
+    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
+
     await this.prisma.user.findUniqueOrThrow({
       where: { id: req.user.id }
     })
@@ -382,5 +431,17 @@ export class UserService {
         realName: updateUserProfileDto.realName
       }
     })
+  }
+
+  async checkDuplicatedUsername(usernameDto: UsernameDto) {
+    const duplicatedUser = await this.prisma.user.findUnique({
+      where: {
+        username: usernameDto.username
+      }
+    })
+
+    if (duplicatedUser) {
+      throw new DuplicateFoundException('user')
+    }
   }
 }

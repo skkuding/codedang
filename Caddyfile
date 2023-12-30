@@ -11,7 +11,7 @@
 		header Access-Control-Allow-Credentials true
 		header Access-Control-Allow-Origin "{args[0]}"
 		header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
-		header Access-Control-Allow-Headers "Content-Type, Authorization"
+		header Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth"
 		respond "" 204
 	}
 
@@ -35,7 +35,8 @@ dev.codedang.com {
 
 		# import <pattenr> [<args...>]
 		# cors 허용할 도메인 설정
-		import cors http://localhost:5173 # frontend server
+		import cors http://localhost:5173 # frontend server (Vue)
+		import cors http://localhost:5525 # frontend server (Next.js)
 		import cors http://localhost:5555 # api docs server
 	}
 

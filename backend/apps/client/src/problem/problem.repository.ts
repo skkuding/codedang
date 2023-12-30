@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { Problem, Submission, Tag, WorkbookProblem } from '@prisma/client'
+import type { Problem, ProblemTag, Submission, Tag } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
 
 /**
@@ -35,25 +35,15 @@ export class ProblemRepository {
     outputExamples: true
   }
 
-  private readonly relatedProblemSelectOption = {
-    id: true,
-    problem: {
-      select: this.problemSelectOption
-    }
-  }
-
-  private readonly relatedProblemsSelectOption = {
-    id: true,
-    problem: {
-      select: this.problemsSelectOption
-    }
-  }
-
   async getProblems(
     cursor: number,
     take: number,
     groupId: number
-  ): Promise<(Partial<Problem> & { submission: Partial<Submission>[] })[]> {
+  ): Promise<
+    (Partial<Problem> & { submission: Partial<Submission>[] } & {
+      problemTag: Partial<ProblemTag>[]
+    })[]
+  > {
     let skip = 1
     if (cursor === 0) {
       cursor = 1
@@ -73,6 +63,11 @@ export class ProblemRepository {
         submission: {
           select: {
             result: true
+          }
+        },
+        problemTag: {
+          select: {
+            tagId: true
           }
         }
       }
@@ -110,6 +105,20 @@ export class ProblemRepository {
     })
   }
 
+  async getProblemsTags(tagIds: number[]): Promise<Partial<Tag>[]> {
+    return await this.prisma.tag.findMany({
+      where: {
+        id: {
+          in: tagIds
+        }
+      },
+      select: {
+        id: true,
+        name: true
+      }
+    })
+  }
+
   async getContestProblems(contestId: number, cursor: number, take: number) {
     let skip = 1
     if (cursor === 0) {
@@ -128,7 +137,10 @@ export class ProblemRepository {
       take: take,
       where: { contestId: contestId },
       select: {
-        ...this.relatedProblemsSelectOption,
+        order: true,
+        problem: {
+          select: this.problemsSelectOption
+        },
         contest: {
           select: {
             startTime: true
@@ -148,7 +160,10 @@ export class ProblemRepository {
         }
       },
       select: {
-        ...this.relatedProblemSelectOption,
+        order: true,
+        problem: {
+          select: this.problemSelectOption
+        },
         contest: {
           select: {
             startTime: true
@@ -158,11 +173,7 @@ export class ProblemRepository {
     })
   }
 
-  async getWorkbookProblems(
-    workbookId: number,
-    cursor: number,
-    take: number
-  ): Promise<(Partial<WorkbookProblem> & { problem: Partial<Problem> })[]> {
+  async getWorkbookProblems(workbookId: number, cursor: number, take: number) {
     let skip = 1
     if (cursor === 0) {
       cursor = 1
@@ -179,7 +190,12 @@ export class ProblemRepository {
       skip: skip,
       take: take,
       where: { workbookId: workbookId },
-      select: this.relatedProblemsSelectOption
+      select: {
+        order: true,
+        problem: {
+          select: this.problemsSelectOption
+        }
+      }
     })
   }
 
@@ -192,7 +208,12 @@ export class ProblemRepository {
           problemId: problemId
         }
       },
-      select: this.relatedProblemSelectOption
+      select: {
+        order: true,
+        problem: {
+          select: this.problemSelectOption
+        }
+      }
     })
   }
 }

@@ -12,7 +12,8 @@ import {
   NotFoundException,
   Logger,
   ConflictException,
-  Delete
+  Delete,
+  Query
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { Request, type Response } from 'express'
@@ -28,9 +29,11 @@ import { DeleteUserDto } from './dto/deleteUser.dto'
 import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
 import { SignUpDto } from './dto/signup.dto'
+import { SocialSignUpDto } from './dto/social-signup.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import { UpdateUserProfileDto } from './dto/update-userprofile.dto'
 import { UserEmailDto } from './dto/userEmail.dto'
+import { UsernameDto } from './dto/username.dto'
 import { UserService } from './user.service'
 
 @Controller('user')
@@ -53,7 +56,7 @@ export class UserController {
       } else if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException('password reset failed')
     }
   }
@@ -71,7 +74,25 @@ export class UserController {
       } else if (error instanceof InvalidJwtTokenException) {
         throw new UnauthorizedException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Post('social-sign-up')
+  @AuthNotNeeded()
+  async socialSignUp(@Body() socialSignUpDto: SocialSignUpDto) {
+    try {
+      return await this.userService.socialSignUp(socialSignUpDto)
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof DuplicateFoundException) {
+        throw new ConflictException(error.message)
+      } else if (error instanceof InvalidJwtTokenException) {
+        throw new UnauthorizedException(error.message)
+      }
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -96,7 +117,7 @@ export class UserController {
       } else if (error instanceof ConflictFoundException) {
         throw new ConflictException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -112,7 +133,7 @@ export class UserController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -135,7 +156,7 @@ export class UserController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -157,7 +178,21 @@ export class UserController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('username-check')
+  @AuthNotNeeded()
+  async checkDuplicatedUsername(@Query() usernameDto: UsernameDto) {
+    try {
+      return await this.userService.checkDuplicatedUsername(usernameDto)
+    } catch (error) {
+      if (error instanceof DuplicateFoundException) {
+        throw new ConflictException(error.message)
+      }
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -182,7 +217,7 @@ export class EmailAuthenticationController {
       if (error instanceof UnidentifiedException) {
         throw new UnauthorizedException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -195,7 +230,7 @@ export class EmailAuthenticationController {
       if (error instanceof DuplicateFoundException) {
         throw new ConflictException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException(error.message)
     }
   }
@@ -214,7 +249,7 @@ export class EmailAuthenticationController {
       if (error instanceof UnidentifiedException) {
         throw new UnauthorizedException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }

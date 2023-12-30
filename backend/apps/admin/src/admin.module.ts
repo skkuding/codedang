@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
 import { GraphQLModule } from '@nestjs/graphql'
+import { LoggerModule } from 'nestjs-pino'
 import {
   JwtAuthModule,
   JwtAuthGuard,
@@ -11,9 +12,11 @@ import {
   GroupLeaderGuard
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
+import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
+import { AnnouncementModule } from './announcement/announcement.module'
 import { ContestModule } from './contest/contest.module'
 import { GroupModule } from './group/group.module'
 import { ProblemModule } from './problem/problem.module'
@@ -22,6 +25,10 @@ import { UserModule } from './user/user.module'
 
 @Module({
   imports: [
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useClass: CacheConfigService
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -40,7 +47,9 @@ import { UserModule } from './user/user.module'
     ProblemModule,
     StorageModule,
     GroupModule,
-    UserModule
+    UserModule,
+    AnnouncementModule,
+    LoggerModule.forRoot(pinoLoggerModuleOption)
   ],
   controllers: [AdminController],
   providers: [
