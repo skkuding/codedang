@@ -29,11 +29,9 @@ const schema = z.object({
 
 export default function SignUpEmailVerify({
   nextModal,
-  formData,
   setFormData
 }: {
   nextModal: () => void
-  formData: FormDataInput
   setFormData: React.Dispatch<React.SetStateAction<FormDataInput>>
 }) {
   const {
@@ -53,7 +51,6 @@ export default function SignUpEmailVerify({
   const [emailAuthToken, setEmailAuthToken] = useState<string>('')
   const onSubmit = (data: EmailVerifyInput) => {
     setFormData({
-      ...formData,
       ...data,
       headers: {
         'email-auth': emailAuthToken,
@@ -108,7 +105,7 @@ export default function SignUpEmailVerify({
         } else {
           setCodeError('Verification code is not valid!')
         }
-      } catch (error) {
+      } catch {
         setCodeError('Email verification failed!')
       }
     }

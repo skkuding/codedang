@@ -57,13 +57,7 @@ const schema = z
     path: ['realName']
   })
 
-export default function SignUpRegister({
-  formData,
-  setFormData
-}: {
-  formData: FormData
-  setFormData: React.Dispatch<React.SetStateAction<FormData>>
-}) {
+export default function SignUpRegister({ formData }: { formData: FormData }) {
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
   const [inputFocus, setInputFocus] = useState<number>(0)
@@ -86,10 +80,6 @@ export default function SignUpRegister({
     realName: string
     username: string
   }) => {
-    setFormData({
-      ...formData,
-      ...data
-    })
     try {
       await fetch(baseUrl + '/user/sign-up', {
         method: 'POST',

@@ -47,16 +47,10 @@ export default function SignUp() {
       {modalPage === 0 && <SignUpWelcome nextModal={nextModal} />}
       {modalPage === 1 && (
         <>
-          <SignUpEmailVerify
-            nextModal={nextModal}
-            formData={formData}
-            setFormData={setFormData}
-          />
+          <SignUpEmailVerify nextModal={nextModal} setFormData={setFormData} />
         </>
       )}
-      {modalPage === 2 && (
-        <SignUpRegister formData={formData} setFormData={setFormData} />
-      )}
+      {modalPage === 2 && <SignUpRegister formData={formData} />}
       <div className="flex items-center text-sm text-gray-500">
         Already have an account?
         <a className="ml-5 w-fit cursor-pointer text-sm underline hover:text-black active:text-black">
