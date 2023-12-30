@@ -68,7 +68,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
     register,
     getValues,
     trigger,
-    formState: { errors }
+    formState: { errors, isValid }
   } = useForm<SignUpFormInput>({
     resolver: zodResolver(schema)
   })
@@ -257,17 +257,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
           )}
         </div>
 
-        <Button
-          disabled={
-            !(
-              !errors.realName &&
-              !errors.username &&
-              !errors.password &&
-              !errors.passwordAgain
-            )
-          }
-          type="submit"
-        >
+        <Button disabled={!isValid} type="submit">
           Register
         </Button>
       </form>
