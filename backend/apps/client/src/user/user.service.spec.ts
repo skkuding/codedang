@@ -65,6 +65,10 @@ const userProfile = {
   }
 }
 
+const usernameDto = {
+  username: 'user'
+}
+
 const mailerMock = {
   sendMail: stub()
 }
@@ -597,6 +601,24 @@ describe('UserService', () => {
       await expect(
         service.updateUserProfile(ID, { realName: 'new name' })
       ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
+    })
+  })
+
+  describe('checkDuplicatedUsername', () => {
+    it('username not duplicated', async () => {
+      db.user.findUnique.resolves(null)
+
+      await expect(
+        service.checkDuplicatedUsername(usernameDto)
+      ).to.not.be.rejectedWith(DuplicateFoundException)
+    })
+
+    it('should throw error when username duplicated', async () => {
+      db.user.findUnique.resolves(user)
+
+      await expect(
+        service.checkDuplicatedUsername(usernameDto)
+      ).to.be.rejectedWith(DuplicateFoundException)
     })
   })
 })

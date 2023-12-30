@@ -30,6 +30,7 @@ import type { SocialSignUpDto } from './dto/social-signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import type { UpdateUserProfileDto } from './dto/update-userprofile.dto'
 import type { UserEmailDto } from './dto/userEmail.dto'
+import type { UsernameDto } from './dto/username.dto'
 import type { CreateUserProfileData } from './interface/create-userprofile.interface'
 import type {
   EmailAuthJwtPayload,
@@ -430,5 +431,17 @@ export class UserService {
         realName: updateUserProfileDto.realName
       }
     })
+  }
+
+  async checkDuplicatedUsername(usernameDto: UsernameDto) {
+    const duplicatedUser = await this.prisma.user.findUnique({
+      where: {
+        username: usernameDto.username
+      }
+    })
+
+    if (duplicatedUser) {
+      throw new DuplicateFoundException('user')
+    }
   }
 }
