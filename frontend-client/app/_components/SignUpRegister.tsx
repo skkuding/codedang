@@ -115,7 +115,7 @@ export default function SignUpRegister({
       })
     } catch {
       toast({
-        description: 'Sign up failed!',
+        title: 'Sign up failed!',
         className:
           'top-0 right-0 fixed md:max-w-[420px] md:top-4 md:right-4 absolute top-0 right-0 text-red-500',
         duration: 3000
