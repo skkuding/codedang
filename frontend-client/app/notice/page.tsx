@@ -72,7 +72,7 @@ export default async function Notice({
             }
             className={canGoPrevious ? '' : 'cursor-not-allowed opacity-30'}
           />
-          <div className="hidden items-center gap-1 md:flex">
+          <div className="flex items-center gap-1">
             {[...Array(Math.min(currentTotalPages, maxPagesPerSlot))].map(
               (_, i) => {
                 i = i + currentSlot * maxPagesPerSlot
@@ -87,9 +87,6 @@ export default async function Notice({
                 )
               }
             )}
-          </div>
-          <div className="inline-flex h-10 w-10 items-center justify-center whitespace-nowrap rounded-md border border-gray-200 bg-white text-sm font-medium ring-offset-white transition-colors  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300 md:hidden">
-            {currentPage}
           </div>
           <PaginationNext
             href={

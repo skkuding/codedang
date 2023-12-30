@@ -12,7 +12,8 @@ import {
   NotFoundException,
   Logger,
   ConflictException,
-  Delete
+  Delete,
+  Query
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { Request, type Response } from 'express'
@@ -32,6 +33,7 @@ import { SocialSignUpDto } from './dto/social-signup.dto'
 import { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import { UpdateUserProfileDto } from './dto/update-userprofile.dto'
 import { UserEmailDto } from './dto/userEmail.dto'
+import { UsernameDto } from './dto/username.dto'
 import { UserService } from './user.service'
 
 @Controller('user')
@@ -175,6 +177,20 @@ export class UserController {
         error.name === 'NotFoundError'
       ) {
         throw new NotFoundException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('username-check')
+  @AuthNotNeeded()
+  async checkDuplicatedUsername(@Query() usernameDto: UsernameDto) {
+    try {
+      return await this.userService.checkDuplicatedUsername(usernameDto)
+    } catch (error) {
+      if (error instanceof DuplicateFoundException) {
+        throw new ConflictException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
