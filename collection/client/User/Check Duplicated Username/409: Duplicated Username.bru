@@ -1,0 +1,15 @@
+meta {
+  name: 409: Duplicated Username
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/user/username-check?username=admin
+  body: none
+  auth: none
+}
+
+query {
+  username: admin
+}
