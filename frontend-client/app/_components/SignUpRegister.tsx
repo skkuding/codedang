@@ -152,9 +152,6 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
                 <p>&#x2022; Your name must be less than 20 characters</p>
                 <p>&#x2022; Your name can only contain alphabet letters</p>
               </div>
-              {!errors.realName && (
-                <p className="mt-1 text-xs text-blue-500">*Available</p>
-              )}
             </div>
           )}
           {errors.realName && (
