@@ -1,22 +1,24 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { Route } from 'next'
+import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+
+interface NavLinkProps<T extends string> {
+  href: Route<T> | URL
+  text: string
+}
 
 export default function NavLink<T extends string>({
   href,
   text
-}: {
-  href: Route<T> | URL
-  text: string
-}) {
+}: NavLinkProps<T>) {
   const pathname = usePathname()
 
   return (
     <Link
-      href={href}
+      href={href as Route<T>}
       className={cn(
         'text-lg hover:opacity-60',
         pathname.startsWith(String(href)) && 'text-primary'
