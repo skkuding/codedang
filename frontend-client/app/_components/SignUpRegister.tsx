@@ -1,5 +1,6 @@
 'use client'
 
+import { useToast } from '@/components/ui/use-toast'
 import { baseUrl } from '@/lib/vars'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
@@ -77,6 +78,8 @@ export default function SignUpRegister({
     resolver: zodResolver(schema)
   })
 
+  const { toast } = useToast()
+
   const onSubmit = async (data: {
     password: string
     passwordAgain: string
@@ -99,9 +102,24 @@ export default function SignUpRegister({
           username: data.username,
           verificationCode: formData.verificationCode
         })
-      }).then((res) => console.log('res is ', res))
-    } catch (error) {
-      console.log(error)
+      }).then((res) => {
+        if (res.status === 201) {
+          document.getElementById('closeDialog')?.click()
+          toast({
+            className:
+              'top-0 right-0 fixed md:max-w-[420px] md:top-4 md:right-4 text-blue-500',
+            title: 'Sign up succeed!',
+            duration: 3000
+          })
+        }
+      })
+    } catch {
+      toast({
+        description: 'Sign up failed!',
+        className:
+          'top-0 right-0 fixed md:max-w-[420px] md:top-4 md:right-4 absolute top-0 right-0 text-red-500',
+        duration: 3000
+      })
     }
   }
   const validation = async () => {

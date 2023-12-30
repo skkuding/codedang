@@ -1,3 +1,10 @@
+import { Toaster } from '@/components/ui/toaster'
+
 export default function Home() {
-  return <h2>index</h2>
+  return (
+    <div>
+      <h2>index</h2>
+      <Toaster />
+    </div>
+  )
 }
