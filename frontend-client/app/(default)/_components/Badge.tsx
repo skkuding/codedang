@@ -1,5 +1,3 @@
-import type { ContestStatus, Level } from '@/types/type'
-
 const variants = {
   ongoing: 'bg-primary',
   upcoming: 'bg-secondary',
@@ -12,7 +10,7 @@ const variants = {
 }
 
 interface Props {
-  badge: ContestStatus | Level
+  badge: keyof typeof variants
 }
 
 export default function Badge({ badge }: Props) {
