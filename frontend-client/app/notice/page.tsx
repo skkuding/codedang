@@ -57,7 +57,11 @@ export default async function Notice({
   )
 
   const canGoPrevious = currentSlot > 0
-  const canGoNext = currentTotalPages > maxPagesPerSlot // if currentPage is last page and currentTotalPages is less than maxPagesPerSlot, there is no next page
+  const canGoNext = currentTotalPages > maxPagesPerSlot
+
+  const previousSlotPage = (currentSlot - 1) * maxPagesPerSlot + 1
+  const nextSlotPage = (currentSlot + 1) * maxPagesPerSlot + 1
+
   return (
     <>
       {/* TODO: Add search bar */}
@@ -65,12 +69,8 @@ export default async function Notice({
       <Pagination>
         <PaginationContent>
           <PaginationPrevious
-            href={
-              canGoPrevious
-                ? `?page=${(currentSlot - 1) * maxPagesPerSlot + 1}`
-                : undefined
-            }
-            className={canGoPrevious ? '' : 'cursor-not-allowed opacity-30'}
+            href={canGoPrevious && `?page=${previousSlotPage}`}
+            className={!canGoPrevious && 'cursor-not-allowed opacity-30'}
           />
           <div className="flex items-center gap-1">
             {[...Array(Math.min(currentTotalPages, maxPagesPerSlot))].map(
@@ -89,12 +89,8 @@ export default async function Notice({
             )}
           </div>
           <PaginationNext
-            href={
-              canGoNext
-                ? `?page=${(currentSlot + 1) * maxPagesPerSlot + 1}`
-                : undefined
-            }
-            className={canGoNext ? '' : 'cursor-not-allowed opacity-30'}
+            href={canGoNext && `?page=${nextSlotPage}`}
+            className={!canGoNext && 'cursor-not-allowed opacity-30'}
           />
         </PaginationContent>
       </Pagination>
