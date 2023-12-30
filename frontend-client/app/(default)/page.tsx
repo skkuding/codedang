@@ -2,8 +2,11 @@ import { Button } from '@/components/ui/button'
 import { fetcher } from '@/lib/utils'
 import type { Contest, WorkbookProblem } from '@/types/type'
 import Link from 'next/link'
+import Carousel from './_components/Carousel'
 import ContestCard from './_components/ContestCard'
 import ProblemCard from './_components/ProblemCard'
+
+const slides = [{ href: 'bg-blue-500' }, { href: 'bg-red-500' }]
 
 const getContests = async () => {
   const data = await fetcher<{
@@ -38,6 +41,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col gap-12">
+      <Carousel slides={slides}></Carousel>
       <div>
         <div className="flex items-center justify-between pb-5">
           <p className="text-2xl font-bold text-gray-500">Contest</p>
