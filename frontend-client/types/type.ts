@@ -7,7 +7,7 @@ export interface Contest {
   startTime: Date
   endTime: Date
   group: { id: string; groupName: string }
-  badge: ContestStatus
+  status: ContestStatus
 }
 
 export interface WorkbookProblem {

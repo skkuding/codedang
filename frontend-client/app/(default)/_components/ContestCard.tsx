@@ -12,49 +12,48 @@ import Badge from './Badge'
 import TimeDiff from './TimeDiff'
 
 const variants = {
-  style: {
-    ongoing: 'bg-gradient-to-r from-primary to-secondary',
-    upcoming: 'bg-gradient-to-r from-[#23d7ce] to-[#fff42c]',
-    finished: 'bg-gray-300',
-    level: 'bg-gray-500'
-  },
-  description: {
-    ongoing: 'Participate Now!',
-    upcoming: 'Register Now!',
-    finished: 'Practice Now!'
-  }
+  ongoing: 'bg-gradient-to-r from-primary to-secondary',
+  upcoming: 'bg-gradient-to-r from-secondary to-[#fff42c]',
+  finished: 'bg-gray-400'
 }
 
 interface Props {
   contest: Contest
 }
 
+const format = (target: Date, year: number): string =>
+  new Date(target).getFullYear() === year
+    ? dayjs(target).format('MMM DD')
+    : dayjs(target).format('MMM DD, YYYY')
+
 export default function ContestCard({ contest }: Props) {
-  const startTime = dayjs(contest.startTime).format('MMM DD, YYYY')
-  const endTime = dayjs(contest.endTime).format('MMM DD, YYYY')
+  const year = new Date().getFullYear()
+  const startTime = format(contest.startTime, year)
+  const endTime = format(contest.endTime, year)
 
   return (
     <Card
       className={cn(
         'flex h-56 flex-col justify-between border-none bg-gray-500',
-        variants.style[contest.badge]
+        variants[contest.status]
       )}
     >
-      <Badge badge={contest.badge}></Badge>
+      <Badge badge={contest.status}></Badge>
       <div>
         <CardHeader className="space-y-0 p-5">
-          <CardDescription className="font-bold text-white">
-            {variants.description[contest.badge]}
-          </CardDescription>
+          {contest.status == 'ongoing' && (
+            <CardDescription className="font-bold text-white">
+              Participate Now!
+            </CardDescription>
+          )}
           <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-3xl tracking-normal text-white">
             {contest.title}
           </CardTitle>
         </CardHeader>
         <CardFooter className="justify-between rounded-b-3xl border border-gray-300 bg-white px-5 text-sm">
-          <p>{`${startTime} - ${endTime}`}</p>
-          {contest.badge == 'ongoing' && (
-            <div className="flex gap-1 text-red-500">
-              <p>-</p>
+          <p className="text-gray-500">{`${startTime} - ${endTime}`}</p>
+          {contest.status == 'ongoing' && (
+            <div className="text-red-500">
               <TimeDiff timeRef={contest.endTime}></TimeDiff>
             </div>
           )}

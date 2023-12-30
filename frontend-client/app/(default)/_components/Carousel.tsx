@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa6'
 
@@ -24,7 +25,7 @@ export default function Carousel({ slides }: Props) {
 
   return (
     <div className="relative h-80 w-full overflow-hidden rounded-3xl bg-gray-100">
-      <a href={slides[facade].href} target="_blank">
+      <Link href={slides[facade].href}>
         {slides.map((slide, index) => (
           <div
             key={index}
@@ -35,7 +36,7 @@ export default function Carousel({ slides }: Props) {
             {/* TODO: 슬라이드 데이터 삽입*/}
           </div>
         ))}
-      </a>
+      </Link>
       <div className="absolute bottom-5 left-0 right-0 flex justify-center bg-opacity-70">
         <div className="z-10 flex h-7 items-center rounded-full bg-gray-900 px-2.5">
           <Button

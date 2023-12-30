@@ -14,10 +14,10 @@ const getContests = async () => {
     upcoming: Contest[]
   }>('/contest')
   data.ongoing.forEach((contest) => {
-    contest.badge = 'ongoing'
+    contest.status = 'ongoing'
   })
   data.upcoming.forEach((contest) => {
-    contest.badge = 'upcoming'
+    contest.status = 'upcoming'
   })
   let contests = data.ongoing.concat(data.upcoming)
 
@@ -26,7 +26,7 @@ const getContests = async () => {
       '/contest/finished?take=3'
     )
     data.finished.forEach((contest) => {
-      contest.badge = 'finished'
+      contest.status = 'finished'
     })
     contests = contests.concat(data.finished)
   }
@@ -70,7 +70,7 @@ export default async function Home() {
       </div>
       <div>
         <div className="flex items-center justify-between pb-5">
-          <p className="text-2xl font-bold text-gray-500">[Prof. Kim] Pick!</p>
+          <p className="text-2xl font-bold text-gray-500">Dive in!</p>
           <Link href="/contest">
             <Button
               variant="outline"
