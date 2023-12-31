@@ -1,4 +1,5 @@
 {
+  "name": "codedang",
   "scripts": {
     "lint": "eslint . --ext .js,.ts,.vue,.tsx,.jsx",
     "format": "prettier --write .",
