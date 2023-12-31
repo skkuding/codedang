@@ -190,10 +190,10 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;letters, numbers
                 </p>
               </div>
-              {!errors.username && (
-                <p className="mt-1 text-xs text-blue-500">*Available</p>
-              )}
             </div>
+          )}
+          {!errors.username && disableUsername && (
+            <p className="mt-1 text-xs text-blue-500">*Available</p>
           )}
           {errors.username && (
             <p className="mt-1 text-xs text-red-500">*Unavailable</p>
