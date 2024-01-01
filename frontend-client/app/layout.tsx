@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={manrope.className}>
-        <div className="flex h-screen w-screen flex-col overflow-hidden">
+        <div className="h-dvh flex w-screen flex-col overflow-hidden">
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
