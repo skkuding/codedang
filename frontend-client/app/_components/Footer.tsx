@@ -20,7 +20,7 @@ export default function Footer() {
     }
   }
   return (
-    <footer className=" items-center py-7">
+    <footer className="w-full items-center py-7">
       <div className="flex h-20 w-full flex-col items-center justify-center gap-2 bg-gray-100 text-gray-500">
         <div className="flex flex-row items-center justify-center gap-4">
           <a
