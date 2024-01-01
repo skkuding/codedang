@@ -5,8 +5,8 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { ContestProblem } from '@admin/@generated'
-import type { Problem } from '@admin/@generated'
+import { ContestProblem, Group } from '@admin/@generated'
+import { Problem } from '@admin/@generated'
 import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
 import type { PublicizingRequest } from './model/publicizing-request.model'
@@ -27,6 +27,20 @@ const contest: Contest = {
   config: {
     isVisible: true,
     isRankVisible: true
+  },
+  createTime: undefined,
+  updateTime: undefined
+}
+
+const group: Group = {
+  id: groupId,
+  groupName: 'groupName',
+  description: 'description',
+  config: {
+    showOnList: true,
+    allowJoinFromSearch: true,
+    allowJoinWithURL: false,
+    requireApprovalBeforeJoin: true
   },
   createTime: undefined,
   updateTime: undefined
@@ -110,12 +124,20 @@ const db = {
     delete: stub().resolves(ContestProblem)
   },
   problem: {
-    findFirst: stub().resolves(Contest),
-    findUnique: stub().resolves(Contest),
-    findMany: stub().resolves([Contest]),
-    create: stub().resolves(Contest),
-    update: stub().resolves(Contest),
-    delete: stub().resolves(Contest)
+    findFirst: stub().resolves(Problem),
+    findUnique: stub().resolves(Problem),
+    findMany: stub().resolves([Problem]),
+    create: stub().resolves(Problem),
+    update: stub().resolves(Problem),
+    delete: stub().resolves(Problem)
+  },
+  group: {
+    findFirst: stub().resolves(Group),
+    findUnique: stub().resolves(Group),
+    findMany: stub().resolves([Group]),
+    create: stub().resolves(Group),
+    update: stub().resolves(Group),
+    delete: stub().resolves(Group)
   }
 }
 
@@ -173,6 +195,7 @@ describe('ContestService', () => {
   describe('createContest', () => {
     it('should return created contest', async () => {
       db.contest.create.resolves(contest)
+      db.group.findUnique.resolves(group)
 
       const res = await service.createContest(groupId, userId, input)
       expect(res).to.deep.equal(contest)
