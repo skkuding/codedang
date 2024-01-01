@@ -160,7 +160,7 @@ importers:
         version: 4.7.8
       nestjs-pino:
         specifier: ^3.5.0
-        version: 3.5.0(@nestjs/common@10.3.0)(pino-http@8.6.1)
+        version: 3.5.0(@nestjs/common@10.3.0)(pino-http@9.0.0)
       nodemailer:
         specifier: ^6.9.7
         version: 6.9.7
@@ -174,8 +174,8 @@ importers:
         specifier: ^4.0.1
         version: 4.0.1
       pino-http:
-        specifier: ^8.6.1
-        version: 8.6.1
+        specifier: ^9.0.0
+        version: 9.0.0
       pino-pretty:
         specifier: ^10.3.1
         version: 10.3.1
@@ -11883,7 +11883,7 @@ packages:
   /neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
-  /nestjs-pino@3.5.0(@nestjs/common@10.3.0)(pino-http@8.6.1):
+  /nestjs-pino@3.5.0(@nestjs/common@10.3.0)(pino-http@9.0.0):
     resolution: {integrity: sha512-IWJ3dzLVjg5istcd3Cz3rVO+gmvabfVAT1YmQgzL1HnC2hkc0H6qA6k6SZ7OIwQfewuRejYfPu3TlkxwRrqxHQ==}
     engines: {node: '>= 14'}
     requiresBuild: true
@@ -11892,7 +11892,7 @@ packages:
       pino-http: ^6.4.0 || ^7.0.0 || ^8.0.0
     dependencies:
       '@nestjs/common': 10.3.0(class-transformer@0.5.1)(class-validator@0.14.0)(reflect-metadata@0.1.14)(rxjs@7.8.1)
-      pino-http: 8.6.1
+      pino-http: 9.0.0
     dev: false
 
   /next@14.0.4(react-dom@18.2.0)(react@18.2.0):
@@ -12677,8 +12677,8 @@ packages:
       split2: 4.2.0
     dev: false
 
-  /pino-http@8.6.1:
-    resolution: {integrity: sha512-J0hiJgUExtBXP2BjrK4VB305tHXS31sCmWJ9XJo2wPkLHa1NFPuW4V9wjG27PAc2fmBCigiNhQKpvrx+kntBPA==}
+  /pino-http@9.0.0:
+    resolution: {integrity: sha512-Q9QDNEz0vQmbJtMFjOVr2c9yL92vHudjmr3s3m6J1hbw3DBGFZJm3TIj9TWyynZ4GEsEA9SOtni4heRUr6lNOg==}
     dependencies:
       get-caller-file: 2.0.5
       pino: 8.17.1
