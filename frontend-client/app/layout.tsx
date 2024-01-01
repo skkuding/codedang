@@ -2,6 +2,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
 import type { Metadata, Viewport } from 'next'
 import { Manrope, Noto_Sans_KR } from 'next/font/google'
+import Footer from './_components/Footer'
 import Header from './_components/Header'
 import './globals.css'
 
@@ -36,11 +37,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn(noto.variable, manrope.variable)}>
       <body>
-        <div className="flex w-screen flex-col items-center overflow-x-hidden">
+        <div className="flex min-h-dvh w-screen flex-col items-center overflow-x-hidden">
           <Header />
-          <main className="flex w-full max-w-7xl flex-col items-center px-5">
+          <main className="flex w-full max-w-7xl flex-1 flex-col items-center px-5">
             {children}
           </main>
+          <Footer />
         </div>
         <Toaster />
       </body>
