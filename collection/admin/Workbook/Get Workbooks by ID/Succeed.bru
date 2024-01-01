@@ -1,0 +1,57 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetWorkbooks($groupId: Int!, $cursor: Int!, $take: Int!) {
+    getWorkbooks(groupId: $groupId, cursor: $cursor, take: $take) {
+      id
+      createdById
+      groupId
+      title
+      description
+      isVisible
+      createTime
+      updateTime
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "cursor": 1,
+    "take": 2
+  }
+}
+
+assert {
+  res.body.data.getWorkbooks[0].id: isNumber
+  res.body.data.getWorkbooks[0].createdById: isNumber
+  res.body.data.getWorkbooks[0].groupId: isNumber
+  res.body.data.getWorkbooks[0].title: isString
+  res.body.data.getWorkbooks[0].description: isString
+  res.body.data.getWorkbooks[0].isVisible: isBoolean
+  res.body.data.getWorkbooks[0].createTime: isString
+  res.body.data.getWorkbooks[0].updateTime: isString
+}
+
+docs {
+  # Get Workbooks by ID
+  - `groupId`에 속하는 `workbook`들을 긁어 옵니다.
+  - `groupId`: `Group` ID
+  - `cursor`:
+    - 양수이어야 합니다. (0으로 설정하고 싶으면 `cursor`를 생략)
+    - `cursor`에 해당하는 `id` workbook은 포함되지 않습니다.
+    - 만약 해당 `cursor`가 `group`에 없다면 `group`에 존재하는  `cursor` 가장 다음의 workbook `id`가 `cursor`로 설정됩니다.
+  - `take`: 가져올 `workbook`의 개수, 만약 DB Table에 최대 4개가 있고, `take`를 5 혹은 그 이상으로 설정한다면, 최대 record의 개수만큼만 가져옵니다.
+}
