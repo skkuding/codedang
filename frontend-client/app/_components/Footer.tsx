@@ -21,7 +21,7 @@ export default function Footer() {
   }
   return (
     <footer className="w-full items-center py-7">
-      <div className="flex h-20 w-full flex-col items-center justify-center gap-2 bg-gray-100 text-gray-500">
+      <div className="flex h-20 w-full flex-col items-center justify-center gap-2 bg-gray-100 text-slate-500">
         <div className="flex flex-row items-center justify-center gap-4">
           <a
             href="https://pf.kakao.com/_UKraK/chat"
@@ -29,13 +29,13 @@ export default function Footer() {
             target="_blank"
           >
             <RiKakaoTalkFill
-              className="cursor-pointer hover:text-gray-400"
+              className="cursor-pointer hover:text-slate-600"
               size="24"
             />
           </a>
           <TbMailFilled
             onClick={copyToClipboard}
-            className="cursor-pointer hover:text-gray-400"
+            className="cursor-pointer hover:text-slate-600"
             size="24"
           />
           <a
@@ -44,7 +44,7 @@ export default function Footer() {
             href="https://github.com/skkuding/"
           >
             <RiGithubFill
-              className="cursor-pointer hover:text-gray-400"
+              className="cursor-pointer hover:text-slate-600"
               size="24"
             />
           </a>
@@ -54,7 +54,7 @@ export default function Footer() {
             href="https://skkuding.dev/"
           >
             <IoIosLink
-              className="cursor-pointer hover:text-gray-400"
+              className="cursor-pointer hover:text-slate-600"
               size="23"
             />
           </a>
