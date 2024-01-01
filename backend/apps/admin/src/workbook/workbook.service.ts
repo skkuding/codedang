@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { Workbook, Problem, Submission, WorkbookProblem } from '@generated'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import type { Workbook, WorkbookProblem } from '@generated'
 import {
   ConflictFoundException,
   UnprocessableDataException
@@ -8,6 +7,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { CreateWorkbookInput } from './model/workbook.input'
 import type { UpdateWorkbookInput } from './model/workbook.input'
+import type { WorkbookDetail } from './model/workbook.output'
 
 @Injectable()
 export class WorkbookService {
@@ -34,60 +34,35 @@ export class WorkbookService {
     return workbooks
   }
 
+  //TODO: 기획에서 WorkbookDetail에 대한 구체적인 정의가 필요함
+  //일단은 Workbook, Submission, Problem을 모두 포함하는 형태로 구현
   async getWorkbook(
     groupId: number,
     workbookId: number
-  ): Promise<
-    Partial<Workbook> & { problems: Partial<Problem>[] } & {
-      submissions: Partial<Submission>[]
-    }
-  > {
-    const workbook = await this.prisma.workbook.findFirstOrThrow({
+  ): Promise<Partial<WorkbookDetail>> {
+    const workbookAndSubmissions = await this.prisma.workbook.findFirstOrThrow({
       where: { groupId, id: workbookId },
-      select: { id: true, title: true }
-    })
-
-    const rawProblems = await this.prisma.workbookProblem.findMany({
-      where: { workbookId },
-      select: {
-        problem: {
-          select: {
-            id: true,
-            title: true
-          }
-        }
+      include: {
+        submission: true
       }
     })
 
-    if (rawProblems.length <= 0) {
-      throw new PrismaClientKnownRequestError('records NotFound', {
-        code: 'P2025',
-        meta: { target: ['rawproblem'] },
-        clientVersion: '5.1.1'
+    const workbookProblemsAndProblems =
+      await this.prisma.workbookProblem.findMany({
+        where: { workbookId: workbookId },
+        include: {
+          problem: true
+        }
       })
+    const { submission, ...workbook } = workbookAndSubmissions
+
+    if (workbookProblemsAndProblems.length === 0) {
+      return { ...workbook, submissions: submission, problems: [] }
     }
-
-    const problems = rawProblems.map((x) => ({
-      id: x.problem.id,
-      title: x.problem.title
-    }))
-
-    const submissions = await this.prisma.submission.findMany({
-      where: { workbookId }
-    })
-
-    if (submissions.length <= 0) {
-      throw new PrismaClientKnownRequestError('records NotFound', {
-        code: 'P2025',
-        meta: { target: ['submission'] },
-        clientVersion: '5.1.1'
-      })
-    }
-
     return {
       ...workbook,
-      problems,
-      submissions
+      submissions: submission,
+      problems: workbookProblemsAndProblems.map((record) => record.problem)
     }
   }
 
