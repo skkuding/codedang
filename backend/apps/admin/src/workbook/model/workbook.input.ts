@@ -1,7 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
 
-// import { WorkbookUpdateInput } from '@admin/@generated/workbook/workbook-update.input';
-
 @InputType()
 export class UpdateWorkbookInput {
   @Field(() => Int, { nullable: false })
