@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn(noto.variable, manrope.variable)}>
       <body>
-        <div className="min-h-dvh flex w-screen flex-col items-center overflow-x-hidden">
+        <div className="flex min-h-dvh w-screen flex-col items-center overflow-x-hidden">
           <Header />
           <main className="flex w-full max-w-7xl flex-1 flex-col items-center px-5">
             {children}
