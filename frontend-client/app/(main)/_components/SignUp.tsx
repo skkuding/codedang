@@ -13,8 +13,8 @@ import { FaCheck } from 'react-icons/fa'
 import { FaEyeSlash } from 'react-icons/fa'
 import { FaEye } from 'react-icons/fa'
 import { z } from 'zod'
-import { Button } from '../../components/ui/button'
-import { Input } from '../../components/ui/input'
+import { Button } from '../../../components/ui/button'
+import { Input } from '../../../components/ui/input'
 
 interface SignUpFormInput {
   username: string
