@@ -9,6 +9,7 @@
   - Added the required column `order` to the `workbook_problem` table without a default value. This is not possible if the table is not empty.
 
 */
+-- FIXME: This migration results in migration error, so comment it out for now.
 -- DropIndex
 -- DROP INDEX "contest_problem_contest_id_id_key";
 
