@@ -55,6 +55,8 @@ export class ContestResolver {
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()

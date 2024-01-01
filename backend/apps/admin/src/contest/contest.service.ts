@@ -61,6 +61,15 @@ export class ContestService {
       )
     }
 
+    const group = await this.prisma.group.findUnique({
+      where: {
+        id: groupId
+      }
+    })
+    if (!group) {
+      throw new EntityNotExistException('Group')
+    }
+
     const newContest: Contest = await this.prisma.contest.create({
       data: {
         createdById: userId,
