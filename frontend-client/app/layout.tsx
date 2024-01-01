@@ -1,9 +1,22 @@
+import { cn } from '@/lib/utils'
 import type { Metadata, Viewport } from 'next'
-import { Manrope } from 'next/font/google'
+import { Manrope, Noto_Sans_KR } from 'next/font/google'
 import Header from './_components/Header'
 import './globals.css'
 
-const manrope = Manrope({ subsets: ['latin'], weight: ['400', '600', '700'] })
+const noto = Noto_Sans_KR({
+  subsets: ['latin'],
+  weight: ['400', '600'],
+  adjustFontFallback: false,
+  variable: '--font-noto'
+})
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  weight: ['400', '600'],
+  adjustFontFallback: false,
+  variable: '--font-manrope'
+})
 
 export const metadata: Metadata = {
   title: 'Codedang 코드당',
@@ -20,11 +33,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={manrope.className}>
-        <div className="w-screen overflow-hidden">
+    <html lang="en" className={cn(noto.variable, manrope.variable)}>
+      <body>
+        <div className="flex w-screen flex-col items-center overflow-x-hidden">
           <Header />
-          {children}
+          <main className="flex w-full max-w-7xl flex-col items-center px-5">
+            {children}
+          </main>
         </div>
       </body>
     </html>
