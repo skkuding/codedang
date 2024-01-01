@@ -1,0 +1,44 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    updateContest(
+      groupId: 2
+      input: {
+        id: 3
+        title: "Updated Contest Group 2"
+        description: "thisisupdatedcontest"
+        startTime: "2024-01-01"
+        endTime: "2030-01-01"
+        config: {
+          isVisible: true
+          isRankVisible: true
+        }
+      }
+    ) {
+      id
+      title
+      description
+    }
+  }
+}
+
+assert {
+  res.body.data.updateContest: isDefined
+}
+
+docs {
+  # Update Contest
+  ---
+  - Contest를 update합니다.
+}

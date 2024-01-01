@@ -1,0 +1,24 @@
+meta {
+  name: Error: Request Publicizing to OpenSpace
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createPublicizingRequest(
+      contestId: 3
+      groupId: 1
+    ) {
+      contestId
+      expireTime
+      userId
+    }
+  }
+}

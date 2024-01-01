@@ -1,0 +1,36 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    deleteContest(
+      contestId: 3
+      groupId: 2
+    ) {
+      id
+      title
+      description
+      startTime
+      endTime
+    }
+  }
+}
+
+assert {
+  res.body.data.deleteContest: isDefined
+}
+
+docs {
+  # Delete Contest
+  ---
+  - Contest를 삭제하고 삭제된 Contest를 반환합니다.
+}

@@ -1,0 +1,28 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createPublicizingRequest(
+      contestId: 3
+      groupId: 2
+    ) {
+      contestId
+      expireTime
+      userId
+    }
+  }
+}
+
+assert {
+  res.body.data.createPublicizingRequest: isDefined
+}

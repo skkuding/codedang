@@ -1,0 +1,40 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    importProblems(
+      groupId: 2
+      contestId: 3
+      problemIds: [7, 8]
+    ) {
+      contestId
+      problemId
+      createTime
+      updateTime
+      order
+      score
+    }
+  }
+}
+
+assert {
+  res.body.data.importProblems: isDefined
+}
+
+docs {
+  # Import Problems
+  ---
+  - Group에 속해있는 문제들을 Contest에 import합니다.
+  - `problemIds`로 전달된 Problem들은 `groupId`로 전달된 Group에 속해 있는 경우에만 Contest에 import됩니다. 그렇지 않은 경우, 무시됩니다.
+  - 이미 Contest에 Problem이 속해있는 경우, 해당 Problem ID는 무시됩니다.
+}

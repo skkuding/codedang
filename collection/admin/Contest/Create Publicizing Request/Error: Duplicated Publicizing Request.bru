@@ -1,0 +1,28 @@
+meta {
+  name: Error: Duplicated Publicizing Request
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createPublicizingRequest(
+      contestId: 3
+      groupId: 2
+    ) {
+      contestId
+      expireTime
+      userId
+    }
+  }
+}
+
+assert {
+  res.body.errors: isDefined 
+}
