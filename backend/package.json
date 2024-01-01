@@ -13,9 +13,9 @@
   },
   "dependencies": {
     "@apollo/server": "^4.9.5",
-    "@aws-sdk/client-s3": "^3.478.0",
-    "@aws-sdk/client-ses": "^3.478.0",
-    "@aws-sdk/credential-provider-node": "^3.478.0",
+    "@aws-sdk/client-s3": "^3.481.0",
+    "@aws-sdk/client-ses": "^3.481.0",
+    "@aws-sdk/credential-provider-node": "^3.481.0",
     "@golevelup/nestjs-rabbitmq": "^4.1.0",
     "@nestjs-modules/mailer": "^1.10.3",
     "@nestjs/apollo": "^12.0.11",
@@ -47,12 +47,11 @@
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-jwt": "^4.0.1",
-    "pino-http": "^8.6.0",
-    "pino-pretty": "^10.3.0",
+    "pino-http": "^9.0.0",
+    "pino-pretty": "^10.3.1",
     "reflect-metadata": "^0.1.14"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.3.1",
     "@nestjs/cli": "^10.2.1",
     "@nestjs/schematics": "^10.0.3",
     "@nestjs/testing": "^10.3.0",

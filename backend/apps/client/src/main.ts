@@ -15,7 +15,7 @@ const bootstrap = async () => {
   app.use(cookieParser())
   app.enableCors({
     allowedHeaders: ['*'],
-    exposedHeaders: ['authorization'],
+    exposedHeaders: ['authorization', 'email-auth'],
     credentials: true
   })
   if (process.env.NODE_ENV !== 'production') {

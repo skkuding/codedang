@@ -30,6 +30,7 @@ import type { SocialSignUpDto } from './dto/social-signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import type { UpdateUserProfileDto } from './dto/update-userprofile.dto'
 import type { UserEmailDto } from './dto/userEmail.dto'
+import type { UsernameDto } from './dto/username.dto'
 import type { CreateUserProfileData } from './interface/create-userprofile.interface'
 import type {
   EmailAuthJwtPayload,
@@ -109,6 +110,7 @@ export class UserService {
     }
 
     const { email } = await this.verifyJwtFromRequestHeader(req)
+    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
     await this.updateUserPasswordInPrisma(email, newPassword)
 
     return 'Password Reset successfully'
@@ -149,7 +151,6 @@ export class UserService {
     email
   }: EmailAuthenticationPinDto): Promise<string> {
     await this.verifyPin(pin, email)
-    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
     const payload: EmailAuthJwtPayload = { email }
     const token = await this.createJwt(payload)
@@ -203,6 +204,8 @@ export class UserService {
     } else if (!this.isValidPassword(signUpDto.password)) {
       throw new UnprocessableDataException('Bad password')
     }
+
+    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
     const user: User = await this.createUser(signUpDto)
     const CreateUserProfileData: CreateUserProfileData = {
@@ -400,6 +403,8 @@ export class UserService {
       throw new UnprocessableDataException('The email is not authenticated one')
     }
 
+    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
+
     await this.prisma.user.findUniqueOrThrow({
       where: { id: req.user.id }
     })
@@ -426,5 +431,17 @@ export class UserService {
         realName: updateUserProfileDto.realName
       }
     })
+  }
+
+  async checkDuplicatedUsername(usernameDto: UsernameDto) {
+    const duplicatedUser = await this.prisma.user.findUnique({
+      where: {
+        username: usernameDto.username
+      }
+    })
+
+    if (duplicatedUser) {
+      throw new DuplicateFoundException('user')
+    }
   }
 }
