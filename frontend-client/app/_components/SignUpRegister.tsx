@@ -86,11 +86,8 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
         method: 'POST',
         headers: formData.headers,
         body: JSON.stringify({
+          ...data,
           email: formData.email,
-          password: data.password,
-          passwordAgain: data.passwordAgain,
-          realName: data.realName,
-          username: data.username,
           verificationCode: formData.verificationCode
         })
       }).then((res) => {
