@@ -23,6 +23,7 @@
     "eslint-plugin-vue": "^9.19.2",
     "knip": "^3.9.0",
     "lefthook": "^1.5.5",
+    "next": "14.0.4",
     "prettier": "^3.1.1",
     "prettier-plugin-tailwindcss": "^0.5.10",
     "ts-node": "^10.9.2",
