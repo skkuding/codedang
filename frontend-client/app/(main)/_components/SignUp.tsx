@@ -1,5 +1,7 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Toaster } from '@/components/ui/toaster'
 import { useToast } from '@/components/ui/use-toast'
 import { baseUrl } from '@/lib/vars'
@@ -13,8 +15,6 @@ import { FaCheck } from 'react-icons/fa'
 import { FaEyeSlash } from 'react-icons/fa'
 import { FaEye } from 'react-icons/fa'
 import { z } from 'zod'
-import { Button } from '../../../components/ui/button'
-import { Input } from '../../../components/ui/input'
 
 interface SignUpFormInput {
   username: string
