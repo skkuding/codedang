@@ -45,7 +45,6 @@ export default function RootLayout({
           <Footer />
           <Toaster richColors position="top-center" />
         </div>
-        <Toaster />
       </body>
     </html>
   )
