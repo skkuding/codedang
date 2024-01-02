@@ -96,12 +96,9 @@ export class WorkbookService {
       where: { id: groupId }
     })
 
-    await this.prisma.workbook.findFirstOrThrow({
-      where: { groupId: groupId, id: id }
-    })
-
     const updatedWorkbook = await this.prisma.workbook.update({
       where: {
+        groupId: groupId,
         id: id
       },
       data: {
@@ -117,11 +114,10 @@ export class WorkbookService {
     await this.prisma.group.findFirstOrThrow({
       where: { id: groupId }
     })
-    await this.prisma.workbook.findFirstOrThrow({
-      where: { groupId: groupId, id: id }
-    })
+
     const deletedWorkbook = await this.prisma.workbook.delete({
       where: {
+        groupId: groupId,
         id: id
       }
     })
