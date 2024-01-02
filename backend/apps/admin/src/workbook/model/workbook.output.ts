@@ -6,8 +6,8 @@ import { WorkbookModel } from './workbook.model'
 @ObjectType()
 export class WorkbookDetail extends WorkbookModel {
   @Field(() => [Problem], { nullable: true })
-  problems: Problem[]
+  problems: Partial<Problem>[]
 
   @Field(() => [Submission], { nullable: true })
-  submissions: Submission[]
+  submissions: Partial<Submission>[]
 }
