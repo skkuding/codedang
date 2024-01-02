@@ -1,0 +1,39 @@
+meta {
+  name: Error: No Group found
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+    mutation {
+    deleteWorkbook(groupId: 99, workbookId: 7) {
+      id
+      createdById
+      groupId
+      title
+      description
+      isVisible
+      createTime
+      updateTime
+    }
+  }
+
+}
+
+assert {
+  res.body.errors[0].message: eq "No Group found"
+}
+
+docs {
+  # Delete Workbook
+  - `groupId`: Group ID
+  - `workbookId`: Workbook ID
+  - 삭제 후, 삭제된 `Workbook`을 반환합니다.
+  - `groupId`에 해당하는 `Group`이 없을 경우, `No Group found` 에러를 반환합니다.
+}

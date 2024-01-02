@@ -1,0 +1,52 @@
+meta {
+  name: Error: No Workbook found
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getWorkbook(groupId: 99, workbookId: 1) {
+      id
+      createdById
+      groupId
+      title
+      description
+      isVisible
+      createTime
+      updateTime
+      problems {
+        id
+        title
+      }
+      submissions {
+        id
+        userId
+        problemId
+        contestId
+        workbookId
+      }
+    }
+  }
+
+}
+
+assert {
+  res.body.errors[0].message: eq "No Workbook found"
+}
+
+docs {
+  # Get Workbook by ID
+  - `groupId`와 `workbookId`에 매칭되는 `workbook`의 정보를 가져 옵니다.
+  - `groupId`: `Group` ID
+  - `workbookId`: `Workbook` ID
+  - `groupId`와 `workbookId`에 매칭되는 `workbook`이 없을 경우 에러가 발생합니다.
+  - `workbook`의 `problems`와 `submissions`는 `workbook`에 포함된 `problem`과 `submission`의 정보를 가져옵니다.
+  - `workbookId`가 `Workbook` table에 존재하지 않을 경우 에러가 발생합니다.
+}
