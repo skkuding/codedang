@@ -41,6 +41,9 @@ export class WorkbookService {
     groupId: number,
     workbookId: number
   ): Promise<Partial<WorkbookDetail>> {
+    await this.prisma.group.findFirstOrThrow({
+      where: { id: groupId }
+    })
     const workbookAndSubmissions = await this.prisma.workbook.findFirstOrThrow({
       where: { groupId, id: workbookId },
       include: {
