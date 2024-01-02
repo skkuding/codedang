@@ -156,7 +156,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
             </div>
           )}
           {errors.realName && (
-            <p className="mt-1 text-xs text-red-500">*Unavailable</p>
+            <p className="mt-1 text-xs text-red-500">Unavailable</p>
           )}
         </div>
 
@@ -195,13 +195,13 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
             </div>
           )}
           {errors.username ? (
-            <p className="mt-1 text-xs text-red-500">*Unavailable</p>
+            <p className="mt-1 text-xs text-red-500">Unavailable</p>
           ) : (
             usernameVerify &&
             (disableUsername ? (
-              <p className="mt-1 text-xs text-blue-500">*Available</p>
+              <p className="mt-1 text-xs text-blue-500">Available</p>
             ) : (
-              <p className="mt-1 text-xs text-red-500">*Unavailable</p>
+              <p className="mt-1 text-xs text-red-500">Unavailable</p>
             ))
           )}
         </div>
@@ -265,7 +265,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
             </span>
           </div>
           {errors.passwordAgain && (
-            <p className="mt-1 text-xs text-red-500">*Incorrect</p>
+            <p className="mt-1 text-xs text-red-500">Incorrect</p>
           )}
         </div>
 

@@ -158,7 +158,7 @@ export default function SignUpEmailVerify({
           codeError === '' &&
           !emailVerified && (
             <p className="mt-1 text-xs text-blue-500">
-              *We&apos;ve sent an email!
+              We&apos;ve sent an email!
             </p>
           )}
 
