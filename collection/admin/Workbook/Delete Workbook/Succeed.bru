@@ -1,0 +1,26 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    deleteWorkbook(groupId: 1, workbookId: 7) {
+      id
+      createdById
+      groupId
+      title
+      description
+      isVisible
+      createTime
+      updateTime
+    }
+  }
+}

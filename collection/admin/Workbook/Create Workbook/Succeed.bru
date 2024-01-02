@@ -1,0 +1,29 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createWorkbook(groupId: 1, input: {
+      title: "테스트 title입니다."
+      description: "테스트 description입니다."
+    }) {
+      id
+      createdById
+      groupId
+      title
+      description
+      isVisible
+      createTime
+      updateTime
+    }
+  }
+}

@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  query GetWorkbooks($groupId: Int!, $cursor: Int!, $take: Int!) {
-    getWorkbooks(groupId: $groupId, cursor: $cursor, take: $take) {
+  query {
+    getWorkbooks(groupId: 1, cursor: 1, take: 2) {
       id
       createdById
       groupId
@@ -23,15 +23,7 @@ body:graphql {
       updateTime
     }
   }
-
-}
-
-body:graphql:vars {
-  {
-    "groupId": 1,
-    "cursor": 1,
-    "take": 2
-  }
+  
 }
 
 assert {
