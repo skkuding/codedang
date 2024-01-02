@@ -1,11 +1,13 @@
-import { Pagination } from '@/components/ui/pagination'
+import { baseUrl } from '@/lib/vars'
 import Table from './_components/Table'
 
-export default function Problem() {
+export default async function Problem() {
+  const res = await fetch(baseUrl + '/problem?take=15')
+  const data = await res.json()
+
   return (
     <>
-      <Table></Table>
-      <Pagination></Pagination>
+      <Table data={data} currentPage={1} />
     </>
   )
 }
