@@ -270,8 +270,8 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
         </div>
 
         <Button
-          disabled={!isValid}
-          className={`${isValid ? '' : 'bg-gray-400'}`}
+          disabled={!isValid || !disableUsername}
+          className={`${isValid && disableUsername ? '' : 'bg-gray-400'}`}
           type="submit"
         >
           Register
