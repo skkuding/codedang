@@ -16,6 +16,7 @@ import {
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
+import { PiPushPinFill } from 'react-icons/pi'
 
 interface Notice {
   id: number
@@ -37,7 +38,14 @@ export default function NoticeTable({ data, currentPage }: NoticeTableProps) {
       accessorKey: 'title',
       cell: ({ row }) => {
         return (
-          <span className="text-sm md:text-base">{row.original.title}</span>
+          <div className="flex items-center justify-start gap-3 md:gap-4">
+            {row.original.isFixed && (
+              <div className="bg-primary flex h-5 w-5 items-center justify-center rounded-full p-1 text-white md:h-6 md:w-6">
+                <PiPushPinFill />
+              </div>
+            )}
+            <span className="text-sm md:text-base">{row.original.title}</span>
+          </div>
         )
       }
     },
