@@ -29,7 +29,8 @@ export default {
         ]
       },
       colors: {
-        primary: '#2279fd'
+        primary: '#3581FA',
+        secondary: '#30D7AE'
       },
       keyframes: {
         'accordion-down': {
