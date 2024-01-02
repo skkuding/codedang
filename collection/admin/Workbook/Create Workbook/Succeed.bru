@@ -27,3 +27,25 @@ body:graphql {
     }
   }
 }
+
+assert {
+  res.body.data.createWorkbook.id: isNumber
+  res.body.data.createWorkbook.createdById: isNumber
+  res.body.data.createWorkbook.groupId: isNumber
+  res.body.data.createWorkbook.title: isString
+  res.body.data.createWorkbook.description: isString
+  res.body.data.createWorkbook.isVisible: isBoolean
+  res.body.data.createWorkbook.createTime: isString
+  res.body.data.createWorkbook.updateTime: isString
+}
+
+docs {
+  # Create Workbook
+  - `groupId`: Group ID
+  - `input`: `CreateWorkbookInput`
+  - `CreateWorkbookInput`:
+    - `title`: `String`
+    - `description`: `String`
+    - `isVisible`: `Boolean`
+  - `Workbook` 생성 후 `Workbook`을 반환합니다.
+}

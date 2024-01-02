@@ -12,7 +12,7 @@ post {
 
 body:graphql {
   mutation {
-    updateWorkbook(groupId: 1, workbookId: 7, input: {
+    updateWorkbook(groupId: 1, workbookId: 43, input: {
       title: "테스트 update title입니다."
       description: "테스트 update description입니다."
     }) {
@@ -26,4 +26,27 @@ body:graphql {
       updateTime
     }
   }
+}
+
+assert {
+  res.body.data.updateWorkbook.id: isNumber
+  res.body.data.updateWorkbook.createdById: isNumber
+  res.body.data.updateWorkbook.groupId: isNumber
+  res.body.data.updateWorkbook.title: isString
+  res.body.data.updateWorkbook.description: isString
+  res.body.data.updateWorkbook.isVisible: isBoolean
+  res.body.data.updateWorkbook.createTime: isString
+  res.body.data.updateWorkbook.updateTime: isString
+}
+
+docs {
+  # Update Workbook
+  - `groupId`: Group ID
+  - `workbookId`: Workbook ID
+  - `input`: `UpdateWorkbookInput`
+  - `UpdateWorkbookInput`:
+    - `title`: `String`
+    - `description`: `String`
+    - `isVisible`: `Boolean`
+  - `Workbook` 업데이트 후 `Workbook`을 반환합니다.
 }
