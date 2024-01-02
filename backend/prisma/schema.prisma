@@ -175,7 +175,6 @@ model Problem {
   workbookProblem WorkbookProblem[]
   submission      Submission[]
   announcement    Announcement[]
-  // ProblemAnnouncement ProblemAnnouncement[]
 
   @@map("problem")
 }
@@ -255,6 +254,7 @@ model Contest {
   contestProblem ContestProblem[]
   contestRecord  ContestRecord[]
   submission     Submission[]
+  // contestAnnouncement ContestAnnouncement[]
 
   @@map("contest")
 }
