@@ -171,9 +171,11 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
             />
             <Button
               onClick={() => checkUserName()}
+              type="button"
               className={`flex aspect-square w-12 items-center justify-center rounded-md ${
                 !disableUsername ? 'bg-[#2279FD]' : 'bg-[#C4CBCD]'
               }`}
+              disabled={disableUsername}
             >
               <FaCheck className="text-white" size="20" />
             </Button>
@@ -254,7 +256,11 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
           )}
         </div>
 
-        <Button disabled={!isValid} type="submit">
+        <Button
+          disabled={!isValid}
+          className={`${isValid ? 'bg-[#2279FD]' : 'bg-[#C4CBCD]'}`}
+          type="submit"
+        >
           Register
         </Button>
       </form>
