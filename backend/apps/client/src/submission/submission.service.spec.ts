@@ -31,7 +31,8 @@ const db = {
   },
   problem: {
     findFirstOrThrow: stub(),
-    findUnique: stub()
+    findUnique: stub(),
+    update: stub()
   },
   contestProblem: {
     findUniqueOrThrow: stub(),
@@ -277,6 +278,9 @@ describe('SubmissionService', () => {
   describe('updateSubmissionResult', () => {
     it('should call update submission result', async () => {
       db.submission.update.reset()
+      db.submission.update.resolves(submissions[0])
+      db.problem.findFirstOrThrow.resolves(problems[0])
+      db.problem.update.reset()
       submissionResults.forEach((result, index) => {
         db.submissionResult.create.onCall(index).resolves(result)
       })
@@ -287,6 +291,7 @@ describe('SubmissionService', () => {
         submissionResults
       )
       expect(db.submission.update.calledOnce).to.be.true
+      expect(db.problem.update.calledOnce).to.be.true
     })
   })
 
