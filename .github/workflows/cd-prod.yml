@@ -36,7 +36,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_DEPLOY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_ECR }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -60,7 +60,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_DEPLOY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_ECR }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -84,7 +84,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_DEPLOY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_ECR }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
