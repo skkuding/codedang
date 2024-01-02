@@ -10,6 +10,7 @@ export const fetcher = async <T>(path: string, options?: RequestInit) => {
   const res = await fetch(baseUrl + path, {
     ...options,
     headers: {
+      ...options?.headers,
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Type': 'application/json'
     }
