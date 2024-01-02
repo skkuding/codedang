@@ -31,17 +31,17 @@ export class WorkbookResolver {
   private readonly logger = new Logger(WorkbookResolver.name)
   constructor(private readonly workbookService: WorkbookService) {}
 
-  @Query(() => [WorkbookModel], { name: 'getWorkbooks' })
+  @Query(() => [WorkbookModel])
   async getWorkbooks(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      ParseIntPipe
-    )
+    @Args('groupId', {
+      defaultValue: OPEN_SPACE_ID,
+      type: () => Int,
+      nullable: true
+    })
     groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number,
-    @Args('take', { type: () => Int }, ParseIntPipe) take: number
+    @Args('take', { type: () => Int }) take: number
   ) {
     try {
       return await this.workbookService.getWorkbooks(groupId, cursor, take)
@@ -58,10 +58,15 @@ export class WorkbookResolver {
     }
   }
 
-  @Query(() => WorkbookDetail, { name: 'getWorkbook' })
+  @Query(() => WorkbookDetail)
   async getWorkbook(
-    @Args('groupId', { type: () => Int }, ParseIntPipe) groupId: number,
-    @Args('workbookId', { type: () => Int }, ParseIntPipe) id: number
+    @Args('groupId', {
+      type: () => Int,
+      nullable: true,
+      defaultValue: OPEN_SPACE_ID
+    })
+    groupId: number,
+    @Args('workbookId', { type: () => Int }) id: number
   ) {
     try {
       return await this.workbookService.getWorkbook(groupId, id)
@@ -76,10 +81,14 @@ export class WorkbookResolver {
     }
   }
 
-  @Mutation(() => WorkbookModel, { name: 'createWorkbook' })
+  @Mutation(() => WorkbookModel)
   async createWorkbook(
     @Context('req') req: AuthenticatedRequest,
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    @Args('groupId', {
+      defaultValue: OPEN_SPACE_ID,
+      type: () => Int,
+      nullable: true
+    })
     groupId: number,
     @Args('input')
     input: CreateWorkbookInput
@@ -87,8 +96,8 @@ export class WorkbookResolver {
     try {
       return await this.workbookService.createWorkbook(
         groupId,
-        input,
-        req.user.id
+        req.user.id,
+        input
       )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
@@ -101,13 +110,19 @@ export class WorkbookResolver {
     }
   }
 
-  @Mutation(() => WorkbookModel, { name: 'updateWorkbook' })
+  @Mutation(() => WorkbookModel)
   async updateWorkbook(
-    @Args('groupId', { type: () => Int }, ParseIntPipe) groupdId: number,
+    @Args('groupId', {
+      type: () => Int,
+      nullable: true,
+      defaultValue: OPEN_SPACE_ID
+    })
+    groupId: number,
+    @Args('workbookId', { type: () => Int }) id: number,
     @Args('input') input: UpdateWorkbookInput
   ) {
     try {
-      return await this.workbookService.updateWorkbook(groupdId, input)
+      return await this.workbookService.updateWorkbook(groupId, id, input)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
@@ -119,12 +134,18 @@ export class WorkbookResolver {
     }
   }
 
-  @Mutation(() => WorkbookModel, { name: 'deleteWorkbook' })
+  @Mutation(() => WorkbookModel)
   async deleteWorkbook(
-    @Args('workbookId', { type: () => Int }, ParseIntPipe) id: number
+    @Args('groupId', {
+      type: () => Int,
+      nullable: true,
+      defaultValue: OPEN_SPACE_ID
+    })
+    groupId: number,
+    @Args('workbookId', { type: () => Int }) id: number
   ) {
     try {
-      return await this.workbookService.deleteWorkbook(id)
+      return await this.workbookService.deleteWorkbook(groupId, id)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
@@ -136,9 +157,11 @@ export class WorkbookResolver {
     }
   }
 
-  @Mutation(() => [WorkbookProblem], { name: 'createWorkbookProblems' })
+  // TODO: 기획 방향에 따라서, WorkbookProblem Record를 추가하는 것을 Workbook module에 추가할지, Problem module에 추가할지 결정해야 함.
+  // 아니면 둘 다 추가해야 할지도 모르겠음.
+  @Mutation(() => [WorkbookProblem])
   async createWorkbookProblems(
-    @Args('groupId', { type: () => Int }, ParseIntPipe) groupId: number,
+    @Args('groupId', { type: () => Int }) groupId: number,
     @Args('problemIds', { type: () => [Int] }, ParseArrayPipe)
     problemIds: number[],
     @Args('workbookId', { type: () => Int }, ParseIntPipe) workbookId: number
