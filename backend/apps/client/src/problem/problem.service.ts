@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { ResultStatus } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
@@ -42,23 +41,20 @@ export class ProblemService {
     const tagList = await this.problemRepository.getProblemsTags(tagIds)
 
     const problems = unprocessedProblems.map(async (problem) => {
-      const { submission, problemTag, ...data } = problem
-      const submissionCount = submission.length
-      const acceptedRate =
-        submission.filter(
-          (submission) => submission.result === ResultStatus.Accepted
-        ).length / submissionCount
+      const { problemTag, ...data } = problem
       const problemTags = problemTag.map((tag) => tag.tagId)
       const tags = tagList.filter((tagItem) => problemTags.includes(tagItem.id))
       return {
         ...data,
-        submissionCount,
-        acceptedRate,
         tags
       }
     })
 
     return plainToInstance(ProblemsResponseDto, await Promise.all(problems))
+  }
+  async searchProblemTitle(search: string) {
+    const data = await this.problemRepository.searchProblemTitle(search)
+    return plainToInstance(ProblemsResponseDto, data)
   }
 
   async getProblem(problemId: number, groupId = OPEN_SPACE_ID) {

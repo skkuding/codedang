@@ -1,3 +1,4 @@
+import { Toaster } from '@/components/ui/sonner'
 import Footer from './_components/Footer'
 import Header from './_components/Header'
 
@@ -9,6 +10,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <Footer />
+      <Toaster richColors position="top-center" />
     </div>
   )
 }

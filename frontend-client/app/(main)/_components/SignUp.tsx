@@ -2,8 +2,6 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Toaster } from '@/components/ui/toaster'
-import { useToast } from '@/components/ui/use-toast'
 import { baseUrl } from '@/lib/vars'
 import CodedangLogo from '@/public/codedang.svg'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -14,6 +12,7 @@ import { FaPaperPlane } from 'react-icons/fa'
 import { FaCheck } from 'react-icons/fa'
 import { FaEyeSlash } from 'react-icons/fa'
 import { FaEye } from 'react-icons/fa'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 interface SignUpFormInput {
@@ -70,8 +69,6 @@ export default function SignUp() {
     resolver: zodResolver(schema)
   })
 
-  const { toast } = useToast()
-
   const onSubmit = async (data: {
     username: string
     email: string
@@ -92,15 +89,9 @@ export default function SignUp() {
           password: data.password
         })
       })
-      toast({
-        description: 'Sign up succeed!',
-        className: 'text-blue-500'
-      })
+      toast.success('Sign up succeed!')
     } catch (error) {
-      toast({
-        description: 'Sign up failed!',
-        className: 'text-red-500'
-      })
+      toast.error('Sign up failed!')
     }
   }
 
@@ -115,25 +106,16 @@ export default function SignUp() {
       })
         .then((res) => {
           if (res.status === 409) {
-            toast({
-              description: 'You have already signed up!',
-              className: 'text-red-500'
-            })
+            toast.error('You have already signed up!')
           } else if (res.status === 201) {
             setSentEmail(true)
           }
         })
         .catch(() => {
-          toast({
-            description: 'Sending verification code failed!',
-            className: 'text-red-500'
-          })
+          toast.error('Sending verification code failed!')
         })
     } else {
-      toast({
-        description: 'You have already sent an email',
-        className: 'text-red-500'
-      })
+      toast.error('You have already sent an email!')
     }
   }
 
@@ -152,22 +134,13 @@ export default function SignUp() {
           setEmailVerified(true)
           setEmailAuthToken(response.headers.get('email-auth') || '')
         } else {
-          toast({
-            description: 'Verification code is not valid!',
-            className: 'text-red-500'
-          })
+          toast.error('Verification code is not valid!')
         }
       } catch (error) {
-        toast({
-          description: 'Email verification failed!',
-          className: 'text-red-500'
-        })
+        toast.error('Email verification failed!')
       }
     } else {
-      toast({
-        description: 'You have already verified code',
-        className: 'text-red-500'
-      })
+      toast.error('You have already verified code!')
     }
   }
 
@@ -309,7 +282,6 @@ export default function SignUp() {
           Log In
         </a>
       </div>
-      <Toaster />
     </div>
   )
 }

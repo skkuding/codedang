@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -16,6 +17,7 @@ import {
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
+import { PiPushPinFill } from 'react-icons/pi'
 
 interface Notice {
   id: number
@@ -37,24 +39,53 @@ export default function NoticeTable({ data, currentPage }: NoticeTableProps) {
       accessorKey: 'title',
       cell: ({ row }) => {
         return (
-          <span className="text-sm md:text-base">{row.original.title}</span>
+          <div className="flex items-center justify-start gap-3 md:gap-4">
+            {row.original.isFixed && (
+              <div className="bg-primary flex h-5 w-5 items-center justify-center rounded-full p-1 text-white md:h-6 md:w-6">
+                <PiPushPinFill />
+              </div>
+            )}
+            <span
+              className={cn(
+                row.original.isFixed && 'font-semibold',
+                'text-sm md:text-base'
+              )}
+            >
+              {row.original.title}
+            </span>
+          </div>
         )
       }
     },
     {
       header: () => (
-        <div className="flex justify-end">
-          <span className="flex w-24 justify-center md:w-32">Date</span>
-        </div>
+        <p className="text-center">
+          <span>Writer</span>
+        </p>
+      ),
+      accessorKey: 'createdBy',
+      cell: ({ row }) => {
+        return (
+          <p className="text-center">
+            <span className="text-xs md:text-sm">{row.original.createdBy}</span>
+          </p>
+        )
+      }
+    },
+    {
+      header: () => (
+        <p className="text-center">
+          <span>Date</span>
+        </p>
       ),
       accessorKey: 'createTime',
       cell: ({ row }) => {
         return (
-          <div className="flex justify-end text-gray-500">
-            <span className="text eli flex w-24 justify-center text-xs md:w-32 md:text-sm">
+          <p className="text-center">
+            <span className="text-xs md:text-sm">
               {dayjs(row.original.createTime).format('YYYY-MM-DD')}
             </span>
-          </div>
+          </p>
         )
       }
     }
@@ -69,13 +100,20 @@ export default function NoticeTable({ data, currentPage }: NoticeTableProps) {
   const router = useRouter()
 
   return (
-    <Table>
+    <Table className="table-fixed">
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
-                <TableHead key={header.id}>
+                <TableHead
+                  key={header.id}
+                  className={
+                    header.column.columnDef.header === 'Title'
+                      ? 'w-[60%] md:w-[64%]'
+                      : 'w-[20%] md:w-[18%]'
+                  }
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(

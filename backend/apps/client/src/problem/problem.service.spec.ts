@@ -136,13 +136,13 @@ describe('ProblemService', () => {
         plainToInstance(ProblemsResponseDto, [
           {
             ...mockProblems[0],
-            submissionCount: 2,
+            submissionCount: 10,
             acceptedRate: 0.5,
             tags: [mockProblemTag.tag]
           },
           {
             ...mockProblems[1],
-            submissionCount: 2,
+            submissionCount: 10,
             acceptedRate: 0.5,
             tags: [mockProblemTag.tag]
           }
