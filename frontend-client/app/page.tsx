@@ -1,12 +1,13 @@
 import { Button } from '@/components/ui/button'
 import { fetcher } from '@/lib/utils'
 import type { Contest, WorkbookProblem } from '@/types/type'
+import type { Route } from 'next'
 import Link from 'next/link'
 import Carousel from './_components/Carousel'
 import ContestCard from './_components/ContestCard'
 import ProblemCard from './_components/ProblemCard'
 
-const slides = [{ href: 'bg-blue-500' }, { href: 'bg-red-500' }]
+const slides = [{ href: '/problem/1' }, { href: '/problem/2' }]
 
 const getContests = async () => {
   const data = await fetcher<{
@@ -59,7 +60,7 @@ export default async function Home() {
             return (
               <Link
                 key={contest.id}
-                href={`/contest/${contest.id}`}
+                href={`/contest/${contest.id}` as Route}
                 className="hover:opacity-80"
               >
                 <ContestCard contest={contest} />
@@ -85,7 +86,7 @@ export default async function Home() {
             return (
               <Link
                 key={problem.problemId}
-                href={`/workbook/1/${problem.problemId}`}
+                href={`/workbook/1/${problem.problemId}` as Route}
                 className="hover:opacity-80"
               >
                 <ProblemCard problem={problem} />
