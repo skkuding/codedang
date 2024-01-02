@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -9,12 +10,15 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import {
   flexRender,
   getCoreRowModel,
-  useReactTable
+  useReactTable,
+  getSortedRowModel
 } from '@tanstack/react-table'
+import { ArrowUpDown } from 'lucide-react'
+import { useState } from 'react'
 
 interface Problem {
   id: number
@@ -40,6 +44,7 @@ const LevelColors = {
 }
 
 export default function Problem({ data, currentPage }: ProblemProps) {
+  const [sorting, setSorting] = useState<SortingState>([])
   const columns: ColumnDef<Problem>[] = [
     {
       header: '#',
@@ -61,7 +66,21 @@ export default function Problem({ data, currentPage }: ProblemProps) {
       }
     },
     {
-      header: 'Level',
+      header: ({ column }) => {
+        return (
+          <div className="flex items-center justify-center">
+            Level
+            <Button
+              variant="ghost"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+            >
+              <ArrowUpDown className="h-4 w-4" />
+            </Button>
+          </div>
+        )
+      },
       accessorKey: 'difficulty',
       cell: ({ row }) => {
         return (
@@ -116,7 +135,12 @@ export default function Problem({ data, currentPage }: ProblemProps) {
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel()
+    getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting
+    }
   })
 
   return (
