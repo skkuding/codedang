@@ -47,13 +47,26 @@ export default async function Notice({
     query.append('cursor', String(currentSlot * take * maxPagesPerSlot))
   }
 
+  const fixedRes = await fetch(
+    baseUrl +
+      '/notice/fixed?' +
+      new URLSearchParams({
+        take: String(10)
+      })
+  )
+  const fixedData = await fixedRes.json()
+
   const res = await fetch(baseUrl + '/notice?' + query)
   const data = await res.json()
 
   const currentTotalPages = Math.ceil(data.length / take)
-  const currentPageData = data.slice(
-    (currentPage - 1 - currentSlot * maxPagesPerSlot) * take,
-    (currentPage - currentSlot * maxPagesPerSlot) * take
+  const currentPageData = fixedData
+
+  currentPageData.push(
+    ...data.slice(
+      (currentPage - 1 - currentSlot * maxPagesPerSlot) * take,
+      (currentPage - currentSlot * maxPagesPerSlot) * take
+    )
   )
 
   const canGoPrevious = currentSlot > 0
