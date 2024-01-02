@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -44,8 +45,30 @@ export default function NoticeTable({ data, currentPage }: NoticeTableProps) {
                 <PiPushPinFill />
               </div>
             )}
-            <span className="text-sm md:text-base">{row.original.title}</span>
+            <span
+              className={cn(
+                row.original.isFixed && 'font-semibold',
+                'text-sm md:text-base'
+              )}
+            >
+              {row.original.title}
+            </span>
           </div>
+        )
+      }
+    },
+    {
+      header: () => (
+        <p className="text-center">
+          <span>Writer</span>
+        </p>
+      ),
+      accessorKey: 'createdBy',
+      cell: ({ row }) => {
+        return (
+          <p className="text-center">
+            <span className="text-xs md:text-sm">{row.original.createdBy}</span>
+          </p>
         )
       }
     },
@@ -87,8 +110,8 @@ export default function NoticeTable({ data, currentPage }: NoticeTableProps) {
                   key={header.id}
                   className={
                     header.column.columnDef.header === 'Title'
-                      ? 'w-[70%]'
-                      : 'w-[15%]'
+                      ? 'w-[60%] md:w-[64%]'
+                      : 'w-[20%] md:w-[18%]'
                   }
                 >
                   {header.isPlaceholder
