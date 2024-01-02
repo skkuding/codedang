@@ -1,6 +1,5 @@
 'use client'
 
-import { useToast } from '@/components/ui/use-toast'
 import { baseUrl } from '@/lib/vars'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
@@ -8,6 +7,7 @@ import { useForm } from 'react-hook-form'
 import { FaCheck } from 'react-icons/fa'
 import { FaEyeSlash } from 'react-icons/fa'
 import { FaEye } from 'react-icons/fa'
+import { toast } from 'sonner'
 import { z } from 'zod'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
@@ -73,8 +73,6 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
     resolver: zodResolver(schema)
   })
 
-  const { toast } = useToast()
-
   const onSubmit = async (data: {
     password: string
     passwordAgain: string
@@ -93,21 +91,11 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
       }).then((res) => {
         if (res.status === 201) {
           document.getElementById('closeDialog')?.click()
-          toast({
-            className:
-              'top-0 right-0 fixed md:max-w-[420px] md:top-4 md:right-4 text-blue-500',
-            title: 'Sign up succeed!',
-            duration: 3000
-          })
+          toast.success('Sign up succeed!')
         }
       })
     } catch {
-      toast({
-        title: 'Sign up failed!',
-        className:
-          'top-0 right-0 fixed md:max-w-[420px] md:top-4 md:right-4 absolute top-0 right-0 text-red-500',
-        duration: 3000
-      })
+      toast.error('Sign up failed!')
     }
   }
   const validation = async (field: string) => {
