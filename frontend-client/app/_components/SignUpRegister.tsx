@@ -1,6 +1,5 @@
 'use client'
 
-import { useToast } from '@/components/ui/use-toast'
 import { baseUrl } from '@/lib/vars'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
@@ -8,6 +7,7 @@ import { useForm } from 'react-hook-form'
 import { FaCheck } from 'react-icons/fa'
 import { FaEyeSlash } from 'react-icons/fa'
 import { FaEye } from 'react-icons/fa'
+import { toast } from 'sonner'
 import { z } from 'zod'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
@@ -74,8 +74,6 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
     resolver: zodResolver(schema)
   })
 
-  const { toast } = useToast()
-
   const onSubmit = async (data: {
     password: string
     passwordAgain: string
@@ -94,21 +92,11 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
       }).then((res) => {
         if (res.status === 201) {
           document.getElementById('closeDialog')?.click()
-          toast({
-            className:
-              'top-0 right-0 fixed md:max-w-[420px] md:top-4 md:right-4 text-blue-500',
-            title: 'Sign up succeed!',
-            duration: 3000
-          })
+          toast.success('Sign up succeed!')
         }
       })
     } catch {
-      toast({
-        title: 'Sign up failed!',
-        className:
-          'top-0 right-0 fixed md:max-w-[420px] md:top-4 md:right-4 absolute top-0 right-0 text-red-500',
-        duration: 3000
-      })
+      toast.error('Sign up failed!')
     }
   }
   const validation = async (field: string) => {
@@ -161,7 +149,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
           />
           {inputFocus === 1 && (
             <div>
-              <div className="mt-1 text-xs text-slate-500">
+              <div className="mt-1 text-xs text-gray-500">
                 <p>&#x2022; Your name must be less than 20 characters</p>
                 <p>&#x2022; Your name can only contain alphabet letters</p>
               </div>
@@ -188,7 +176,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
               onClick={() => checkUserName()}
               type="button"
               className={`flex aspect-square w-12 items-center justify-center rounded-md ${
-                !disableUsername ? 'bg-[#2279FD]' : 'bg-[#C4CBCD]'
+                !disableUsername ? '' : 'bg-gray-400'
               }`}
               disabled={disableUsername}
             >
@@ -197,7 +185,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
           </div>
           {inputFocus === 2 && (
             <div>
-              <div className="mt-1 text-xs text-slate-500">
+              <div className="mt-1 text-xs text-gray-500">
                 <p>&#x2022; User ID used for log in</p>
                 <p>
                   &#x2022; Your ID must be 3-10 characters of alphabet
@@ -234,13 +222,17 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
               className="mt-3"
               onClick={() => setPasswordShow(!passwordShow)}
             >
-              {passwordShow ? <FaEyeSlash /> : <FaEye />}
+              {passwordShow ? (
+                <FaEye className="text-gray-400" />
+              ) : (
+                <FaEyeSlash className="text-gray-400" />
+              )}
             </span>
           </div>
           {inputFocus === 3 && (
             <div
               className={`${
-                !errors.password ? 'text-slate-500' : 'text-red-500'
+                !errors.password ? 'text-gray-500' : 'text-red-500'
               } mt-1 text-xs`}
             >
               <p>&#x2022; Your password must be 8-20 characters</p>
@@ -265,7 +257,11 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
               className="mt-3"
               onClick={() => setPasswordAgainShow(!passwordAgainShow)}
             >
-              {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
+              {passwordAgainShow ? (
+                <FaEye className="text-gray-400" />
+              ) : (
+                <FaEyeSlash className="text-gray-400" />
+              )}
             </span>
           </div>
           {errors.passwordAgain && (
@@ -275,7 +271,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
 
         <Button
           disabled={!isValid}
-          className={`${isValid ? 'bg-[#2279FD]' : 'bg-[#C4CBCD]'}`}
+          className={`${isValid ? '' : 'bg-gray-400'}`}
           type="submit"
         >
           Register
