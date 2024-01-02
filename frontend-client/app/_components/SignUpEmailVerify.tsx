@@ -171,7 +171,13 @@ export default function SignUpEmailVerify({
             Send Email
           </Button>
         ) : (
-          <Button type="submit" className="mt-3 w-64" disabled={!emailVerified}>
+          <Button
+            type="submit"
+            className={`${
+              emailVerified ? 'mt-3 w-64' : 'mt-3 w-64 bg-gray-400'
+            }`}
+            disabled={!emailVerified}
+          >
             Next
           </Button>
         )}

@@ -213,7 +213,11 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
               className="mt-3"
               onClick={() => setPasswordShow(!passwordShow)}
             >
-              {passwordShow ? <FaEyeSlash /> : <FaEye />}
+              {passwordShow ? (
+                <FaEye className="text-gray-400" />
+              ) : (
+                <FaEyeSlash className="text-gray-400" />
+              )}
             </span>
           </div>
           {inputFocus === 3 && (
@@ -244,7 +248,11 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
               className="mt-3"
               onClick={() => setPasswordAgainShow(!passwordAgainShow)}
             >
-              {passwordAgainShow ? <FaEyeSlash /> : <FaEye />}
+              {passwordAgainShow ? (
+                <FaEye className="text-gray-400" />
+              ) : (
+                <FaEyeSlash className="text-gray-400" />
+              )}
             </span>
           </div>
           {errors.passwordAgain && (
