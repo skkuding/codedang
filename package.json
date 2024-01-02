@@ -10,13 +10,13 @@
     "knip": "knip"
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.481.0",
+    "@aws-sdk/client-s3": "^3.484.0",
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
     "@commitlint/types": "^18.4.3",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "@typescript-eslint/eslint-plugin": "^6.16.0",
-    "@typescript-eslint/parser": "^6.16.0",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.2",
@@ -27,7 +27,7 @@
     "prettier-plugin-tailwindcss": "^0.5.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
-    "vitepress": "1.0.0-rc.33",
+    "vitepress": "1.0.0-rc.34",
     "vue-eslint-parser": "^9.3.2"
   },
   "packageManager": "pnpm@8.13.1"
