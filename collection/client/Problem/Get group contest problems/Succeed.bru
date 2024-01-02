@@ -21,6 +21,8 @@ assert {
   res.body[0].problemId: isNumber
   res.body[0].title: isString
   res.body[0].difficulty: isString
+  res.body[0].submissionCount: isNumber 
+  res.body[0].acceptedRate: isNumber 
 }
 
 script:pre-request {

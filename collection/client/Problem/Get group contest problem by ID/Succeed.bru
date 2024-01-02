@@ -12,18 +12,21 @@ get {
 
 assert {
   res.status: eq 200
-  res("id"): isString
-  res("problem").id: isNumber 
-  res("problem").title: isString 
-  res("problem").description: isString 
-  res("problem").inputDescription: isString 
-  res("problem").outputDescription: isString 
-  res("problem").hint: isString 
-  res("problem").languages: isDefined 
-  res("problem").timeLimit: isNumber 
-  res("problem").memoryLimit: isNumber 
-  res("problem").difficulty: isString 
-  res("problem").source: isString 
+  res("order"): isNumber 
+  res("problem").id: isNumber
+  res("problem").title: isString
+  res("problem").description: isString
+  res("problem").inputDescription: isString
+  res("problem").outputDescription: isString
+  res("problem").hint: isString
+  res("problem").languages: isDefined
+  res("problem").timeLimit: isNumber
+  res("problem").memoryLimit: isNumber
+  res("problem").difficulty: isString
+  res("problem").source: isString
+  res("problem").submissionCount: isNumber 
+  res("problem").acceptedCount: isNumber 
+  res("problem").acceptedRate: isNumber 
 }
 
 script:pre-request {
