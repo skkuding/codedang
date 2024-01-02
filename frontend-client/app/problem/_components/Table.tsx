@@ -161,7 +161,7 @@ export default function Problem({ data, currentPage }: ProblemProps) {
                 }}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell className="px-1" key={cell.id}>
+                  <TableCell className="px-1 py-4" key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
