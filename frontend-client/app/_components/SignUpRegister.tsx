@@ -62,6 +62,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
   const [inputFocus, setInputFocus] = useState<number>(0)
   const [disableUsername, setDisableUsername] = useState<boolean>(false)
+  const [usernameVerify, setUsernameVerify] = useState<boolean>(false)
 
   const {
     handleSubmit,
@@ -114,10 +115,26 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
     await trigger(field as keyof SignUpFormInput)
   }
 
-  const checkUserName = () => {
-    //TODO: 백엔드 닉네임 중복확인 API 완성되면.
-    console.log('username: ' + getValues('username'))
-    setDisableUsername(true)
+  const checkUserName = async () => {
+    const { username } = getValues()
+    await trigger('username')
+    if (!errors.username) {
+      try {
+        await fetch(baseUrl + `/user/username-check?username=${username}`, {
+          method: 'GET'
+        }).then((res) => {
+          setUsernameVerify(true)
+
+          if (res.status === 200) {
+            setDisableUsername(true)
+          } else {
+            setDisableUsername(false)
+          }
+        })
+      } catch (err) {
+        console.log(err)
+      }
+    }
   }
 
   return (
@@ -134,7 +151,6 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
 
         <div>
           <Input
-            className="px-4 shadow-md"
             placeholder="Your name"
             {...register('realName', {
               onChange: () => validation('realName')
@@ -159,7 +175,6 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
         <div>
           <div className="flex gap-2">
             <Input
-              className="px-4 shadow-md"
               placeholder="User ID"
               disabled={disableUsername}
               {...register('username', {
@@ -191,18 +206,21 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
               </div>
             </div>
           )}
-          {!errors.username && disableUsername && (
-            <p className="mt-1 text-xs text-blue-500">*Available</p>
-          )}
-          {errors.username && (
+          {errors.username ? (
             <p className="mt-1 text-xs text-red-500">*Unavailable</p>
+          ) : (
+            usernameVerify &&
+            (disableUsername ? (
+              <p className="mt-1 text-xs text-blue-500">*Available</p>
+            ) : (
+              <p className="mt-1 text-xs text-red-500">*Unavailable</p>
+            ))
           )}
         </div>
 
         <div>
           <div className="flex justify-between gap-2">
             <Input
-              className="px-4 shadow-md"
               placeholder="Password"
               {...register('password', {
                 onChange: () => validation('password')
@@ -234,7 +252,6 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
         <div>
           <div className="flex justify-between gap-2">
             <Input
-              className="px-4 shadow-md"
               {...register('passwordAgain', {
                 onChange: () => validation('passwordAgain')
               })}
