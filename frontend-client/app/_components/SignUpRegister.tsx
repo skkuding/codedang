@@ -144,7 +144,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
           />
           {inputFocus === 1 && (
             <div>
-              <div className="mt-1 text-xs text-slate-500">
+              <div className="mt-1 text-xs text-gray-500">
                 <p>&#x2022; Your name must be less than 20 characters</p>
                 <p>&#x2022; Your name can only contain alphabet letters</p>
               </div>
@@ -171,7 +171,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
               onClick={() => checkUserName()}
               type="button"
               className={`flex aspect-square w-12 items-center justify-center rounded-md ${
-                !disableUsername ? 'bg-[#2279FD]' : 'bg-[#C4CBCD]'
+                !disableUsername ? '' : 'bg-gray-400'
               }`}
               disabled={disableUsername}
             >
@@ -180,7 +180,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
           </div>
           {inputFocus === 2 && (
             <div>
-              <div className="mt-1 text-xs text-slate-500">
+              <div className="mt-1 text-xs text-gray-500">
                 <p>&#x2022; User ID used for log in</p>
                 <p>
                   &#x2022; Your ID must be 3-10 characters of alphabet
@@ -219,7 +219,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
           {inputFocus === 3 && (
             <div
               className={`${
-                !errors.password ? 'text-slate-500' : 'text-red-500'
+                !errors.password ? 'text-gray-500' : 'text-red-500'
               } mt-1 text-xs`}
             >
               <p>&#x2022; Your password must be 8-20 characters</p>
@@ -254,7 +254,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
 
         <Button
           disabled={!isValid}
-          className={`${isValid ? 'bg-[#2279FD]' : 'bg-[#C4CBCD]'}`}
+          className={`${isValid ? '' : 'bg-gray-400'}`}
           type="submit"
         >
           Register
