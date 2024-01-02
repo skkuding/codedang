@@ -1,20 +1,17 @@
 'use client'
 
-import { useToast } from '@/components/ui/use-toast'
 import { IoIosLink } from 'react-icons/io'
 import { RiGithubFill } from 'react-icons/ri'
 import { RiKakaoTalkFill } from 'react-icons/ri'
 import { TbMailFilled } from 'react-icons/tb'
+import { toast } from 'sonner'
 
 export default function Footer() {
-  const { toast } = useToast()
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText('skkucodingplatform@gmail.com')
-      toast({
-        description: 'Email Copied!',
-        variant: 'success'
-      })
+      console.log('clipboard successfully set')
+      toast.success('Email Copied!')
     } catch (err) {
       console.error('clipboard failed', err)
     }
