@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { Workbook, WorkbookProblem } from '@generated'
+import type { WorkbookProblem } from '@generated'
 import {
   ConflictFoundException,
   UnprocessableDataException
@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { CreateWorkbookInput } from './model/workbook.input'
 import type { UpdateWorkbookInput } from './model/workbook.input'
+import type { WorkbookModel } from './model/workbook.model'
 import type { WorkbookDetail } from './model/workbook.output'
 
 @Injectable()
@@ -17,7 +18,7 @@ export class WorkbookService {
     groupId: number,
     cursor: number,
     take: number
-  ): Promise<Partial<Workbook>[]> {
+  ): Promise<Partial<WorkbookModel>[]> {
     let skip = 1
     if (!cursor) {
       cursor = 1
@@ -68,16 +69,19 @@ export class WorkbookService {
 
   async createWorkbook(
     groupId: number,
-    createWorkbookInput: CreateWorkbookInput,
-    userId: number
-  ): Promise<Workbook> {
+    userId: number,
+    input: CreateWorkbookInput
+  ): Promise<WorkbookModel> {
+    await this.prisma.group.findFirstOrThrow({
+      where: { id: groupId }
+    })
     const newWorkbook = await this.prisma.workbook.create({
       data: {
         createdById: userId,
         groupId: groupId,
-        title: createWorkbookInput.title,
-        description: createWorkbookInput.title,
-        isVisible: createWorkbookInput.isVisible
+        title: input.title,
+        description: input.title,
+        isVisible: input.isVisible
       }
     })
     return newWorkbook
@@ -85,9 +89,13 @@ export class WorkbookService {
 
   async updateWorkbook(
     groupId: number,
-    updateWorkbookInput: UpdateWorkbookInput
-  ): Promise<Workbook> {
-    const { id, ...data } = updateWorkbookInput
+    id: number,
+    input: UpdateWorkbookInput
+  ): Promise<WorkbookModel> {
+    await this.prisma.group.findFirstOrThrow({
+      where: { id: groupId }
+    })
+
     await this.prisma.workbook.findFirstOrThrow({
       where: { groupId: groupId, id: id }
     })
@@ -96,14 +104,21 @@ export class WorkbookService {
       where: {
         id: id
       },
-      data: data
+      data: {
+        title: input.title,
+        description: input.description,
+        isVisible: input.isVisible
+      }
     })
     return updatedWorkbook
   }
 
-  async deleteWorkbook(id: number): Promise<Workbook> {
+  async deleteWorkbook(groupId: number, id: number): Promise<WorkbookModel> {
+    await this.prisma.group.findFirstOrThrow({
+      where: { id: groupId }
+    })
     await this.prisma.workbook.findFirstOrThrow({
-      where: { id: id }
+      where: { groupId: groupId, id: id }
     })
     const deletedWorkbook = await this.prisma.workbook.delete({
       where: {
