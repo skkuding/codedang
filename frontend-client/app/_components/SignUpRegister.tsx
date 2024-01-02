@@ -134,7 +134,6 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
 
         <div>
           <Input
-            className="px-4 shadow-md"
             placeholder="Your name"
             {...register('realName', {
               onChange: () => validation('realName')
@@ -159,7 +158,6 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
         <div>
           <div className="flex gap-2">
             <Input
-              className="px-4 shadow-md"
               placeholder="User ID"
               disabled={disableUsername}
               {...register('username', {
@@ -202,7 +200,6 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
         <div>
           <div className="flex justify-between gap-2">
             <Input
-              className="px-4 shadow-md"
               placeholder="Password"
               {...register('password', {
                 onChange: () => validation('password')
@@ -234,7 +231,6 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
         <div>
           <div className="flex justify-between gap-2">
             <Input
-              className="px-4 shadow-md"
               {...register('passwordAgain', {
                 onChange: () => validation('passwordAgain')
               })}
