@@ -1,5 +1,5 @@
+import { Provider } from '@prisma/client'
 import { IsAlphanumeric, IsEmail, IsNotEmpty, Matches } from 'class-validator'
-import { Provider } from '../enum/provider.enum'
 
 export class SocialSignUpDto {
   @IsAlphanumeric()

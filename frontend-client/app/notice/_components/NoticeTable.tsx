@@ -15,6 +15,7 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
+import { useRouter } from 'next/navigation'
 
 interface Notice {
   id: number
@@ -24,43 +25,48 @@ interface Notice {
   createdBy: string
 }
 
-const columns: ColumnDef<Notice>[] = [
-  {
-    header: 'Title',
-    accessorKey: 'title',
-    cell: ({ row }) => {
-      return <p className="text-sm md:text-base">{row.original.title}</p>
-    }
-  },
-  {
-    header: () => (
-      <div className="flex justify-end">
-        <p className="flex w-24 justify-center md:w-32">Date</p>
-      </div>
-    ),
-    accessorKey: 'createTime',
-    cell: ({ row }) => {
-      return (
-        <div className="flex justify-end text-gray-500">
-          <p className="text eli flex w-24 justify-center text-xs md:w-32 md:text-sm">
-            {dayjs(row.original.createTime).format('YYYY-MM-DD')}
-          </p>
-        </div>
-      )
-    }
-  }
-]
-
 interface NoticeTableProps {
   data: Notice[]
+  currentPage: number
 }
 
-export default function NoticeTable({ data }: NoticeTableProps) {
+export default function NoticeTable({ data, currentPage }: NoticeTableProps) {
+  const columns: ColumnDef<Notice>[] = [
+    {
+      header: 'Title',
+      accessorKey: 'title',
+      cell: ({ row }) => {
+        return (
+          <span className="text-sm md:text-base">{row.original.title}</span>
+        )
+      }
+    },
+    {
+      header: () => (
+        <div className="flex justify-end">
+          <span className="flex w-24 justify-center md:w-32">Date</span>
+        </div>
+      ),
+      accessorKey: 'createTime',
+      cell: ({ row }) => {
+        return (
+          <div className="flex justify-end text-gray-500">
+            <span className="text eli flex w-24 justify-center text-xs md:w-32 md:text-sm">
+              {dayjs(row.original.createTime).format('YYYY-MM-DD')}
+            </span>
+          </div>
+        )
+      }
+    }
+  ]
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel()
   })
+
+  const router = useRouter()
 
   return (
     <Table>
@@ -88,6 +94,10 @@ export default function NoticeTable({ data }: NoticeTableProps) {
             <TableRow
               key={row.id}
               data-state={row.getIsSelected() && 'selected'}
+              className="cursor-pointer"
+              onClick={() => {
+                router.push(`/notice/${row.original.id}?page=${currentPage}`)
+              }}
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id}>

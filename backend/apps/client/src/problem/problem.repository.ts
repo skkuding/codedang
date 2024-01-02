@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { Problem, ProblemTag, Submission, Tag } from '@prisma/client'
+import type { Problem, ProblemTag, Tag } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
 
 /**
@@ -18,7 +18,10 @@ export class ProblemRepository {
   private readonly problemsSelectOption = {
     id: true,
     title: true,
-    difficulty: true
+    exposeTime: true,
+    difficulty: true,
+    acceptedRate: true,
+    submissionCount: true
   }
 
   private readonly problemSelectOption = {
@@ -31,6 +34,7 @@ export class ProblemRepository {
     timeLimit: true,
     memoryLimit: true,
     source: true,
+    acceptedCount: true,
     inputExamples: true,
     outputExamples: true
   }
@@ -40,7 +44,7 @@ export class ProblemRepository {
     take: number,
     groupId: number
   ): Promise<
-    (Partial<Problem> & { submission: Partial<Submission>[] } & {
+    (Partial<Problem> & {
       problemTag: Partial<ProblemTag>[]
     })[]
   > {
@@ -60,11 +64,6 @@ export class ProblemRepository {
       },
       select: {
         ...this.problemsSelectOption,
-        submission: {
-          select: {
-            result: true
-          }
-        },
         problemTag: {
           select: {
             tagId: true

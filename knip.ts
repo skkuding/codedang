@@ -6,7 +6,7 @@ const config: KnipConfig = {
     '.': {
       entry: [
         'scripts/*.ts',
-        'docs/.vitepress/config.ts',
+        'docs/.vitepress/config.mts',
         'docs/.vitepress/theme/index.ts'
       ]
     },
@@ -33,6 +33,9 @@ const config: KnipConfig = {
         '@libs/exception': ['libs/exception/src/index.ts'],
         '@libs/pipe': ['libs/pipe/src/index.ts'],
         '@libs/constants': ['libs/constants/src/index.ts']
+      },
+      mocha: {
+        entry: ['{apps,libs}/**/*.spec.ts']
       }
     },
     frontend: {
@@ -68,9 +71,15 @@ const config: KnipConfig = {
       paths: {
         '@/*': ['src/*']
       }
+    },
+    'frontend-client': {
+      ignoreDependencies: [
+        'eslint-config-next', // used by ESLint
+        'sharp' // used by next/image
+      ]
     }
   },
-  ignore: ['**/*.d.ts'],
+  ignore: ['**/*.d.ts', 'collection/**'],
   rules: {
     classMembers: 'off',
     unlisted: 'warn',
@@ -84,7 +93,7 @@ const config: KnipConfig = {
   compilers: {
     vue: (text) => {
       const vueCompiler = /<script\b[^>]*>([\s\S]*?)<\/script>/gm
-      const scripts = []
+      const scripts: string[] = []
       let match
       while ((match = vueCompiler.exec(text))) scripts.push(match[1])
       return scripts.join(';')
