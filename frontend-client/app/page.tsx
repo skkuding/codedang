@@ -7,6 +7,8 @@ import Carousel from './_components/Carousel'
 import ContestCard from './_components/ContestCard'
 import ProblemCard from './_components/ProblemCard'
 
+export const dynamic = 'force-dynamic'
+
 const slides = [{ href: '/problem/1' }, { href: '/problem/2' }]
 
 const getContests = async () => {
