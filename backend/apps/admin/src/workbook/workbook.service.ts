@@ -124,6 +124,8 @@ export class WorkbookService {
     return deletedWorkbook
   }
 
+  // TODO: 기획 방향에 따라서, WorkbookProblem Record를 추가하는 것을 Workbook module에 추가할지, Problem module에 추가할지 결정해야 함.
+  // 아니면 둘 다 추가해야 할지도 모르겠음.
   async createWorkbookProblems(
     groupId: number,
     problemIds: number[],
