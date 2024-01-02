@@ -1,5 +1,4 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import { type Problem, Language, Level } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { PrismaService } from '@libs/prisma'
@@ -12,50 +11,6 @@ const problemId = 1
 const groupId = 1
 const contestId = 1
 
-export const problems: Problem[] = [
-  {
-    id: 1,
-    createdById: 1,
-    groupId: 1,
-    title: 'public problem',
-    description: '',
-    inputDescription: '',
-    outputDescription: '',
-    hint: '',
-    languages: [Language.C],
-    timeLimit: 0,
-    memoryLimit: 0,
-    difficulty: Level.Level1,
-    source: '',
-    exposeTime: undefined,
-    createTime: undefined,
-    updateTime: undefined,
-    inputExamples: [],
-    outputExamples: [],
-    template: []
-  },
-  {
-    id: 2,
-    createdById: 1,
-    groupId: 1,
-    title: 'problem',
-    description: '',
-    inputDescription: '',
-    outputDescription: '',
-    hint: '',
-    languages: [Language.Cpp],
-    timeLimit: 0,
-    memoryLimit: 0,
-    difficulty: Level.Level2,
-    source: '',
-    exposeTime: undefined,
-    createTime: undefined,
-    updateTime: undefined,
-    inputExamples: [],
-    outputExamples: [],
-    template: []
-  }
-]
 const announcements: Announcement[] = [
   {
     id: 1,
