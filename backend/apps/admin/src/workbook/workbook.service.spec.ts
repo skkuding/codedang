@@ -282,6 +282,23 @@ describe('WorkbookService', () => {
       expect(result).to.deep.equals(exampleWorkbookDetail)
     })
 
+    it('should handle Group NotFoundError', async () => {
+      // given
+      db.workbook.findFirstOrThrow.rejects(
+        new PrismaClientKnownRequestError('Record does not exist', {
+          code: 'P2025',
+          meta: {
+            target: ['group']
+          },
+          clientVersion: '2.24.1'
+        })
+      )
+
+      // when & then
+      await expect(service.getWorkbook(1, 1)).to.be.rejectedWith(
+        PrismaClientKnownRequestError
+      )
+    })
     it('should handle NotFoundError', async () => {
       // given
       db.workbook.findFirstOrThrow.rejects(
