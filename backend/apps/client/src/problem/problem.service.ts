@@ -52,8 +52,8 @@ export class ProblemService {
 
     return plainToInstance(ProblemsResponseDto, await Promise.all(problems))
   }
-  async searchProblems(search: string) {
-    const data = await this.problemRepository.searchProblems(search)
+  async searchProblemTitle(search: string) {
+    const data = await this.problemRepository.searchProblemTitle(search)
     return plainToInstance(ProblemsResponseDto, data)
   }
 

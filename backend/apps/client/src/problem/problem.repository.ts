@@ -73,11 +73,11 @@ export class ProblemRepository {
     })
   }
 
-  async searchProblems(search: string): Promise<Partial<Problem>[]> {
+  async searchProblemTitle(search: string): Promise<Partial<Problem>[]> {
     return await this.prisma.problem.findMany({
       where: {
         title: {
-          search: search
+          contains: search
         }
       },
       select: this.problemsSelectOption
