@@ -3,17 +3,18 @@ import {
   ForbiddenException,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
   ParseArrayPipe,
   ParseIntPipe, // Req,
   UnprocessableEntityException // UseGuards
 } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   UnprocessableDataException,
   ForbiddenAccessException,
-  EntityNotExistException,
   ConflictFoundException
 } from '@libs/exception'
 import { CursorValidationPipe } from '@libs/pipe'
@@ -51,7 +52,7 @@ export class WorkbookResolver {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       } else if (error.code == 'P2025') {
-        throw new EntityNotExistException(error.message)
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -75,6 +76,11 @@ export class WorkbookResolver {
         throw new UnprocessableEntityException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
+      } else if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -104,6 +110,11 @@ export class WorkbookResolver {
         throw new UnprocessableEntityException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
+      } else if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -128,8 +139,13 @@ export class WorkbookResolver {
         throw new UnprocessableEntityException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
+      } else if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error.message, error.stack, error.code)
       throw new InternalServerErrorException()
     }
   }
@@ -151,6 +167,11 @@ export class WorkbookResolver {
         throw new UnprocessableEntityException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
+      } else if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
