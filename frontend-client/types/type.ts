@@ -16,3 +16,11 @@ export interface WorkbookProblem {
   title: string
   difficulty: Level
 }
+
+export interface Notice {
+  id: number
+  title: string
+  createTime: string
+  isFixed: boolean
+  createdBy: string
+}
