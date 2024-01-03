@@ -20,9 +20,7 @@ export default function Notice() {
 
   const [url, setUrl] = useState<URL>(new URL('/notice', baseUrl))
   const { items, paginator } = usePagination<Notice>(url)
-
   const notices = fixed.current.concat(!items ? [] : items)
-  window.scrollTo({ top: 0, behavior: 'smooth' })
 
   return (
     <>

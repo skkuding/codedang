@@ -29,7 +29,7 @@ export default function usePagination<T extends Item>(
 ) {
   const [items, setItems] = useState<T[]>()
 
-  const page = useRef(1)
+  const page = useRef(1) // TODO: 새로고침 후에 현재 페이지로 돌아갈 수 있도록 수정
   const slot = useRef(0)
   const nav = useRef({
     page: {
@@ -73,6 +73,10 @@ export default function usePagination<T extends Item>(
     }
     getItems()
   }, [url])
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  })
 
   // handles in-slot navigation
   const gotoPage = (newPage: number) => {
