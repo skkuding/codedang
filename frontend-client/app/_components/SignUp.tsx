@@ -59,7 +59,7 @@ export default function SignUp() {
         <SignUpEmailVerify nextModal={nextModal} setFormData={setFormData} />
       )}
       {modalPage === 2 && <SignUpRegister formData={formData} />}
-      <div className="mt-4 flex items-center justify-center">
+      <div className="absolute bottom-6 mt-4 flex items-center justify-center">
         <span className="h-5 w-fit text-xs leading-5 text-gray-500">
           Already have account?
         </span>

@@ -13,8 +13,8 @@ export default function SignUpWelcome({
   nextModal: () => void
 }) {
   return (
-    <div className="mb-20 mt-32">
-      <p className="mb-3 text-center text-xl font-bold text-blue-500">
+    <div className="mb-20 mt-36">
+      <p className="mb-3 text-center text-xl font-semibold text-blue-500">
         &quot;Welcome to CODEDANG&quot;
       </p>
 

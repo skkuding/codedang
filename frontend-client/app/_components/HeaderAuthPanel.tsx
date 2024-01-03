@@ -29,7 +29,7 @@ export default function HeaderAuthPanel() {
             Sign Up
           </Button>
         </DialogTrigger>
-        <DialogContent className="h-[500px] max-w-[22rem]">
+        <DialogContent className="h-[520px] max-w-[22rem]">
           <Auth />
         </DialogContent>
       </Dialog>

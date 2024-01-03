@@ -106,11 +106,9 @@ export default function SignUpEmailVerify({
   return (
     <div className="mb-24 mt-24">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <p className="mb-5 text-left text-xl font-bold text-blue-500">
-            Sign Up
-          </p>
-        </div>
+        <p className="mb-5 mt-8 text-left text-xl font-bold text-blue-500">
+          Sign Up
+        </p>
         {!sentEmail && (
           <Input
             id="email"
