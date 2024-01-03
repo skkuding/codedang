@@ -1,4 +1,3 @@
-// HACK: util import하도록
 import { fetcher } from '@/lib/utils'
 import { useEffect, useState, useRef } from 'react'
 
@@ -20,23 +19,21 @@ interface Item {
  * For slot navigation, call `paginator.slot.goto(${slot}, setPath)`.
  *
  * @param url a state containing url to fetch
- * @param currentPage current page index (>=1)
  * @param itemsPerPage number of items in a page
  * @param pagesPerSlot number of pages in a slot
  */
 export default function usePagination<T extends Item>(
   url: URL,
-  currentPage = 1,
   itemsPerPage = 10,
   pagesPerSlot = 5
 ) {
   const [items, setItems] = useState<T[]>()
 
-  const page = useRef(currentPage)
-  const slot = useRef(Math.floor((currentPage - 1) / pagesPerSlot))
+  const page = useRef(1)
+  const slot = useRef(0)
   const nav = useRef({
     page: {
-      first: currentPage,
+      first: 0,
       count: 0
     },
     slot: {
@@ -50,10 +47,11 @@ export default function usePagination<T extends Item>(
     const take = itemsPerPage * pagesPerSlot
     const getItems = async () => {
       const query = url.searchParams
-      if (query.has('take')) query.append('take', String(take + 1))
+      if (!query.has('take')) query.append('take', String(take + 1))
       const data = await fetcher<T[]>(`${url.pathname}?${query}`)
 
-      const baseQuery = query.toString() ? `${query.toString()}&` : '?'
+      query.delete('take'), query.delete('cursor')
+      const baseQuery = query.toString() ? `${query}&` : '?'
       nav.current = {
         page: {
           first: slot.current * pagesPerSlot + 1,
@@ -96,7 +94,7 @@ export default function usePagination<T extends Item>(
     slot.current = Math.floor((page.current - 1) / pagesPerSlot)
 
     // triggers useEffect hook
-    setUrl(new URL(nav.current.slot[direction], url))
+    setUrl(new URL(nav.current.slot[direction], url)) 
   }
 
   return {
