@@ -38,7 +38,7 @@ export default function SignUp() {
       )}
       <Image
         src={CodedangLogo}
-        alt="코드당"
+        alt="codedang"
         width={70}
         className="absolute left-10 top-10"
       />
