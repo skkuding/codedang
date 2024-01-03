@@ -46,9 +46,7 @@ export default function SignUp() {
 
       {modalPage === 0 && <SignUpWelcome nextModal={nextModal} />}
       {modalPage === 1 && (
-        <>
-          <SignUpEmailVerify nextModal={nextModal} setFormData={setFormData} />
-        </>
+        <SignUpEmailVerify nextModal={nextModal} setFormData={setFormData} />
       )}
       {modalPage === 2 && <SignUpRegister formData={formData} />}
       <div className="flex items-center text-sm text-gray-500">
