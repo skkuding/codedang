@@ -38,7 +38,7 @@ export default function SignUp() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center ">
       {!(modalPage === 0) && (
         <button
           onClick={backModal}
