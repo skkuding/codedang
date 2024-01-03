@@ -9,7 +9,7 @@ import Image from 'next/image'
 import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
 
-export default function SignIn() {
+export default function SignIn({ switchModal }: { switchModal: () => void }) {
   return (
     <div className="flex w-full flex-col gap-3">
       <div className="flex justify-center py-4">
@@ -47,6 +47,7 @@ export default function SignIn() {
       </div>
       <div className="mt-4 flex items-center justify-between">
         <Button
+          onClick={() => switchModal()}
           variant={'link'}
           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >

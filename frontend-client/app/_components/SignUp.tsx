@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import CodedangLogo from '@/public/codedang.svg'
 import Image from 'next/image'
 import React, { useState } from 'react'
@@ -16,7 +17,7 @@ export interface FormData {
   }
 }
 
-export default function SignUp() {
+export default function SignUp({ switchModal }: { switchModal: () => void }) {
   const [modalPage, setModalPage] = useState(0)
   const [formData, setFormData] = useState({
     email: '',
@@ -56,11 +57,17 @@ export default function SignUp() {
         <SignUpEmailVerify nextModal={nextModal} setFormData={setFormData} />
       )}
       {modalPage === 2 && <SignUpRegister formData={formData} />}
-      <div className="flex items-center text-sm text-gray-500">
-        Already have an account?
-        <a className="ml-5 w-fit cursor-pointer text-sm underline hover:text-black active:text-black">
+      <div className="mt-4 flex items-center justify-center">
+        <span className="h-5 w-fit text-xs leading-5 text-gray-500">
+          Already have account?
+        </span>
+        <Button
+          onClick={() => switchModal()}
+          variant={'link'}
+          className="h-5 w-fit text-xs text-gray-500"
+        >
           Sign In
-        </a>
+        </Button>
       </div>
     </div>
   )
