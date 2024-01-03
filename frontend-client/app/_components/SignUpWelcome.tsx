@@ -1,11 +1,11 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import KakaotalkLogo from '@/public/kakaotalk.svg'
 import Image from 'next/image'
 import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
-import { Button } from '../../components/ui/button'
 
 export default function SignUpWelcome({
   nextModal

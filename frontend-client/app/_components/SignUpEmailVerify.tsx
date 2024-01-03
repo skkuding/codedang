@@ -1,10 +1,10 @@
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { baseUrl } from '@/lib/vars'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Button } from '../../components/ui/button'
-import { Input } from '../../components/ui/input'
 
 interface EmailVerifyInput {
   email: string
