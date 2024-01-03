@@ -51,7 +51,7 @@ export default function SignUp() {
       <div className="flex items-center text-sm text-gray-500">
         Already have an account?
         <a className="ml-5 w-fit cursor-pointer text-sm underline hover:text-black active:text-black">
-          Log In
+          Sign In
         </a>
       </div>
     </div>
