@@ -11,11 +11,12 @@ export class NoticeService {
     take: number,
     groupId = OPEN_SPACE_ID
   ) {
-    let skip = 1
-    if (cursor === 0) {
+    let skip = take < 0 ? 0 : 1
+    if (!cursor) {
       cursor = 1
       skip = 0
     }
+
     return (
       await this.prisma.notice.findMany({
         where: {
