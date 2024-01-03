@@ -5,19 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { FormData } from './SignUp'
 
 interface EmailVerifyInput {
   email: string
   verificationCode: string
 }
 
-interface FormDataInput {
-  email: string
-  verificationCode: string
-  headers: {
-    'email-auth': string
-  }
-}
 const schema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
   verificationCode: z
@@ -31,7 +25,7 @@ export default function SignUpEmailVerify({
   setFormData
 }: {
   nextModal: () => void
-  setFormData: React.Dispatch<React.SetStateAction<FormDataInput>>
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>
 }) {
   const {
     handleSubmit,

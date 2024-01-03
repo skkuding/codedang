@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form'
 import { FaCheck, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { FormData } from './SignUp'
 
 interface SignUpFormInput {
   username: string
@@ -17,14 +18,6 @@ interface SignUpFormInput {
   realName: string
   password: string
   passwordAgain: string
-}
-
-interface FormData {
-  email: string
-  verificationCode: string
-  headers: {
-    'email-auth': string
-  }
 }
 
 const schema = z

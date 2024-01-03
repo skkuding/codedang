@@ -8,6 +8,14 @@ import SignUpEmailVerify from './SignUpEmailVerify'
 import SignUpRegister from './SignUpRegister'
 import SignUpWelcome from './SignUpWelcome'
 
+export interface FormData {
+  email: string
+  verificationCode: string
+  headers: {
+    'email-auth': string
+  }
+}
+
 export default function SignUp() {
   const [modalPage, setModalPage] = useState(0)
   const [formData, setFormData] = useState({
