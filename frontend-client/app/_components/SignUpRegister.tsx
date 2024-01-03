@@ -22,8 +22,16 @@ interface SignUpFormInput {
 
 const schema = z
   .object({
-    username: z.string().min(3).max(10),
-    realName: z.string().min(1).max(20),
+    username: z
+      .string()
+      .min(3)
+      .max(10)
+      .refine((data) => /^[a-zA-Z0-9]+$/.test(data)),
+    realName: z
+      .string()
+      .min(1)
+      .max(20)
+      .refine((data) => /^[a-zA-Z\s]+$/.test(data)),
     password: z.string().min(8).max(20),
     passwordAgain: z.string().min(8).max(20)
   })
@@ -31,21 +39,9 @@ const schema = z
     (data: { password: string; passwordAgain: string }) =>
       data.password === data.passwordAgain,
     {
-      message: 'Passwords do not match',
       path: ['passwordAgain']
     }
   )
-  .refine(
-    (data: { username: string }) => /^[a-zA-Z0-9]+$/.test(data.username),
-    {
-      message: 'Username can only contain alphabets and numbers',
-      path: ['username']
-    }
-  )
-  .refine((data: { realName: string }) => /^[a-zA-Z\s]+$/.test(data.realName), {
-    message: 'Real name can only contain alphabets',
-    path: ['realName']
-  })
 
 export default function SignUpRegister({ formData }: { formData: FormData }) {
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
