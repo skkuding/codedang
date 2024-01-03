@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { Prisma, Contest } from '@prisma/client'
+import type { Contest } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { ConflictFoundException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -118,8 +118,14 @@ export class ContestService {
   ): Promise<{
     finished: Partial<Contest>[]
   }> {
+    let skip = take < 0 ? 0 : 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
+    }
     const now = new Date()
-    let findOptions: Prisma.ContestFindManyArgs = {
+
+    const finished = await this.prisma.contest.findMany({
       where: {
         endTime: {
           lte: now
@@ -130,23 +136,16 @@ export class ContestService {
           equals: true
         }
       },
+      skip,
       take,
+      cursor: {
+        id: cursor
+      },
       select: this.contestSelectOption,
       orderBy: {
         endTime: 'desc'
       }
-    }
-    if (cursor) {
-      findOptions = {
-        ...findOptions,
-        skip: 1,
-        cursor: {
-          id: cursor
-        }
-      }
-    }
-
-    const finished = await this.prisma.contest.findMany(findOptions)
+    })
     return { finished }
   }
 

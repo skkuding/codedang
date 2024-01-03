@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import useAuthStore from '@/stores/auth'
 import { RxHamburgerMenu } from 'react-icons/rx'
-import Auth from './Auth'
+import AuthModal from './AuthModal'
 
 export default function HeaderAuthPanel() {
   const { showSignIn, showSignUp } = useAuthStore((state) => state)
@@ -30,7 +30,7 @@ export default function HeaderAuthPanel() {
           </Button>
         </DialogTrigger>
         <DialogContent className="h-[520px] max-w-[22rem]">
-          <Auth />
+          <AuthModal />
         </DialogContent>
       </Dialog>
       <RxHamburgerMenu size="30" className="md:hidden" />
