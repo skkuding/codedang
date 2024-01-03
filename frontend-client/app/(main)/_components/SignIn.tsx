@@ -5,11 +5,36 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import CodedangLogo from '@/public/codedang.svg'
 import KakaotalkLogo from '@/public/kakaotalk.svg'
+import { signIn } from 'next-auth/react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import type { SubmitHandler } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
+import { toast } from 'sonner'
+
+interface Inputs {
+  username: string
+  password: string
+}
 
 export default function SignIn() {
+  const router = useRouter()
+  const { register, handleSubmit } = useForm<Inputs>()
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    const res = await signIn('credentials', {
+      username: data.username,
+      password: data.password,
+      redirect: false
+    })
+    if (!res?.error) {
+      router.refresh()
+      toast.success('Successfully signed in')
+    } else {
+      toast.error('Failed to sign in')
+    }
+  }
   return (
     <div className="flex w-full flex-col gap-3">
       <div className="flex justify-center py-4">
@@ -17,12 +42,14 @@ export default function SignIn() {
       </div>
       <form
         className="flex w-full flex-col gap-3"
-        onSubmit={(e) => {
-          e.preventDefault()
-        }}
+        onSubmit={handleSubmit(onSubmit)}
       >
-        <Input placeholder="ID" type="text" id="username" />
-        <Input placeholder="Password" type="password" id="password" />
+        <Input placeholder="ID" type="text" {...register('username')} />
+        <Input
+          placeholder="Password"
+          type="password"
+          {...register('password')}
+        />
         <Button className="w-full" type="submit">
           Sign In
         </Button>
