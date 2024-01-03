@@ -8,17 +8,10 @@ interface NoticeDetailProps {
   params: {
     id: string
   }
-  searchParams: {
-    page: string | undefined
-  }
 }
 
-export default async function NoticeDetail({
-  params,
-  searchParams
-}: NoticeDetailProps) {
+export default async function NoticeDetail({ params }: NoticeDetailProps) {
   const { id } = params
-  const { page } = searchParams
   const {
     current: { title, content, createTime, createdBy },
     prev,
@@ -41,8 +34,7 @@ export default async function NoticeDetail({
         <div className="flex justify-end border-b border-b-gray-200 py-1">
           <Link
             href={{
-              pathname: '/notice',
-              query: { page }
+              pathname: '/notice'
             }}
             className="flex items-center justify-center gap-1 text-gray-400 hover:text-gray-500"
           >
@@ -53,8 +45,7 @@ export default async function NoticeDetail({
         {prev && (
           <Link
             href={{
-              pathname: `/notice/${prev.id}`,
-              query: { page }
+              pathname: `/notice/${prev.id}`
             }}
             key={prev.id}
             className="text-gray-400 hover:text-gray-500"
@@ -68,8 +59,7 @@ export default async function NoticeDetail({
         {next && (
           <Link
             href={{
-              pathname: `/notice/${next.id}`,
-              query: { page }
+              pathname: `/notice/${next.id}`
             }}
             key={next.id}
             className="text-gray-400 hover:text-gray-500"
