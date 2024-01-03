@@ -14,11 +14,9 @@ export default function SignUpWelcome({
 }) {
   return (
     <div className="mb-20 mt-32">
-      <div>
-        <p className="mb-3 text-center text-xl font-bold text-blue-500">
-          &quot;Welcome to CODEDANG&quot;
-        </p>
-      </div>
+      <p className="mb-3 text-center text-xl font-bold text-blue-500">
+        &quot;Welcome to CODEDANG&quot;
+      </p>
 
       <div className="flex w-full flex-col gap-3">
         <Button className="w-full" onClick={() => nextModal()}>
