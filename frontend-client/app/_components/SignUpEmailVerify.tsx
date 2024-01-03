@@ -15,7 +15,6 @@ interface FormDataInput {
   email: string
   verificationCode: string
   headers: {
-    'Content-Type': string
     'email-auth': string
   }
 }
@@ -53,8 +52,7 @@ export default function SignUpEmailVerify({
     setFormData({
       ...data,
       headers: {
-        'email-auth': emailAuthToken,
-        'Content-Type': 'application/json'
+        'email-auth': emailAuthToken
       }
     })
     nextModal()

@@ -25,7 +25,6 @@ interface FormData {
   email: string
   verificationCode: string
   headers: {
-    'Content-Type': string
     'email-auth': string
   }
 }
@@ -83,7 +82,10 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
     try {
       await fetch(baseUrl + '/user/sign-up', {
         method: 'POST',
-        headers: formData.headers,
+        headers: {
+          ...formData.headers,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           ...data,
           email: formData.email,

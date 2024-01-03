@@ -14,7 +14,6 @@ export default function SignUp() {
     email: '',
     verificationCode: '',
     headers: {
-      'Content-Type': '',
       'email-auth': ''
     }
   })
