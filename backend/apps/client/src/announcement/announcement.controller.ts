@@ -6,11 +6,14 @@ import {
   ParseIntPipe,
   NotFoundException,
   InternalServerErrorException,
-  UseGuards
+  UseGuards,
+  Query
 } from '@nestjs/common'
 import type { Announcement } from '@prisma/client'
 import { AuthNotNeeded, GroupMemberGuard, RolesGuard } from '@libs/auth'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
+import { AnnouncementCursorValidationPipe } from '@libs/pipe'
 import { AnnouncementService } from './announcement.service'
 
 @Controller('announcement/problem/:problemId')
@@ -22,12 +25,16 @@ export class ProblemAnnouncementController {
 
   @Get()
   async getPublicProblemAnnouncements(
-    @Param('problemId', ParseIntPipe) problemId: number
+    @Param('problemId', ParseIntPipe) problemId: number,
+    @Query('cursor', AnnouncementCursorValidationPipe) cursor: number | Date,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Announcement>[]> {
     try {
       return await this.announcementService.getProblemAnnouncements(
+        cursor,
+        take,
         problemId,
-        1
+        OPEN_SPACE_ID
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
@@ -42,10 +49,14 @@ export class ProblemAnnouncementController {
   @UseGuards(RolesGuard, GroupMemberGuard)
   async getGroupProblemAnnouncements(
     @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('groupId', ParseIntPipe) groupId: number
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Query('cursor', AnnouncementCursorValidationPipe) cursor: number | Date,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Announcement>[]> {
     try {
       return await this.announcementService.getProblemAnnouncements(
+        cursor,
+        take,
         problemId,
         groupId
       )
@@ -67,10 +78,14 @@ export class ContestAnnouncementController {
 
   @Get()
   async getPublicProblemAnnouncements(
-    @Param('contestId', ParseIntPipe) contestId: number
+    @Param('contestId', ParseIntPipe) contestId: number,
+    @Query('cursor', AnnouncementCursorValidationPipe) cursor: number | Date,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Announcement>[]> {
     try {
       return await this.announcementService.getContestAnnouncements(
+        cursor,
+        take,
         contestId,
         1
       )
@@ -87,10 +102,14 @@ export class ContestAnnouncementController {
   @UseGuards(RolesGuard, GroupMemberGuard)
   async getGroupProblemAnnouncements(
     @Param('contestId', ParseIntPipe) contestId: number,
-    @Param('groupId', ParseIntPipe) groupId: number
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Query('cursor', AnnouncementCursorValidationPipe) cursor: number | Date,
+    @Query('take', ParseIntPipe) take: number
   ): Promise<Partial<Announcement>[]> {
     try {
       return await this.announcementService.getContestAnnouncements(
+        cursor,
+        take,
         contestId,
         groupId
       )
