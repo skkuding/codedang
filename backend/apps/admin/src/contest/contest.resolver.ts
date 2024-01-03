@@ -145,12 +145,12 @@ export class ContestResolver {
   }
 
   @Mutation(() => [ContestProblem])
-  async addProblems(
+  async addContestProblems(
     @Args('contestId', ParseIntPipe) contestId: number,
     @Args('problemIds', { type: () => [Int] }) problemIds: number[]
   ) {
     try {
-      return await this.contestService.addProblems(contestId, problemIds)
+      return await this.contestService.addContestProblems(contestId, problemIds)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
