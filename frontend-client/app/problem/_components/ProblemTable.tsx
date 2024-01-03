@@ -9,29 +9,21 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
+import type { Problem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
   getCoreRowModel,
   useReactTable
 } from '@tanstack/react-table'
-
-interface Problem {
-  id: number
-  title: string
-  difficulty: string
-  submissionCount: number
-  acceptedRate: number
-  tags?: string[]
-  info?: string
-}
+import { Loader2 } from 'lucide-react'
 
 interface ProblemProps {
   data: Problem[]
-  currentPage: number
+  isLoading: boolean
 }
 
-const LevelColors = {
+const variants = {
   Level1: 'bg-sky-300',
   Level2: 'bg-green-300',
   Level3: 'bg-amber-200',
@@ -39,7 +31,7 @@ const LevelColors = {
   Level5: 'bg-rose-500'
 }
 
-export default function Problem({ data, currentPage }: ProblemProps) {
+export default function ProblemTable({ data, isLoading }: ProblemProps) {
   const columns: ColumnDef<Problem>[] = [
     {
       header: '#',
@@ -69,7 +61,7 @@ export default function Problem({ data, currentPage }: ProblemProps) {
             <div
               className={cn(
                 'h-3 w-3 rounded-full',
-                LevelColors[row.original.difficulty as keyof typeof LevelColors]
+                variants[row.original.difficulty]
               )}
             ></div>
             <div className="hidden md:block">
@@ -149,28 +141,44 @@ export default function Problem({ data, currentPage }: ProblemProps) {
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-                className="cursor-pointer text-center text-gray-700 hover:font-bold "
-                onClick={() => {
-                  console.log(row.original.id)
-                  console.log(currentPage)
-                }}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell className="px-1 py-4" key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+          {!isLoading ? (
+            table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className="cursor-pointer text-center text-gray-700 hover:font-bold "
+                  onClick={() => {
+                    console.log(row.original.id)
+                  }}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell className="px-1 py-4" key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
               </TableRow>
-            ))
+            )
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+              <TableCell colSpan={columns.length} className="h-24">
+                <div className="flex items-center justify-center gap-2 text-gray-500">
+                  <Loader2 className="w-5 animate-spin" />
+                  Loading...
+                </div>
               </TableCell>
             </TableRow>
           )}

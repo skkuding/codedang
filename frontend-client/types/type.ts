@@ -24,3 +24,13 @@ export interface Notice {
   isFixed: boolean
   createdBy: string
 }
+
+export interface Problem {
+  id: number
+  title: string
+  difficulty: Level
+  submissionCount: number
+  acceptedRate: number
+  tags?: string[]
+  info?: string
+}

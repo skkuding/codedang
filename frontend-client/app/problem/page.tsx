@@ -1,12 +1,19 @@
+'use client'
+
+import Paginator from '@/components/Paginator'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
+import { usePagination } from '@/lib/usePagination'
 import { baseUrl } from '@/lib/vars'
+import type { Problem } from '@/types/type'
+import { useState } from 'react'
 import { FiSearch } from 'react-icons/fi'
-import Table from './_components/Table'
+import ProblemTable from './_components/ProblemTable'
 
-export default async function Problem() {
-  const res = await fetch(baseUrl + '/problem?take=15')
-  const data = await res.json()
+export default function Page() {
+  const [url, setUrl] = useState<URL>(new URL('/problem', baseUrl))
+  const { items, paginator } = usePagination<Problem>(url)
+  const problems = items ?? []
 
   return (
     <>
@@ -29,7 +36,8 @@ export default async function Problem() {
           </div>
         </div>
       </div>
-      <Table data={data} currentPage={1} />
+      <ProblemTable data={problems} isLoading={!items} />
+      <Paginator page={paginator.page} slot={paginator.slot} setUrl={setUrl} />
     </>
   )
 }

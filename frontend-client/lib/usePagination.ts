@@ -1,5 +1,5 @@
 import { fetcher } from '@/lib/utils'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 
 interface Item {
   id: number
@@ -22,11 +22,11 @@ interface Item {
  * @param itemsPerPage number of items in a page
  * @param pagesPerSlot number of pages in a slot
  */
-export default function usePagination<T extends Item>(
+export const usePagination = <T extends Item>(
   url: URL,
   itemsPerPage = 10,
   pagesPerSlot = 5
-) {
+) => {
   const [items, setItems] = useState<T[]>()
 
   const page = useRef(1) // TODO: 새로고침 후에 현재 페이지로 돌아갈 수 있도록 수정
@@ -43,9 +43,39 @@ export default function usePagination<T extends Item>(
   })
   const slotItems = useRef<T[]>([])
 
+  // handles in-slot navigation
+  const gotoPage = useCallback(
+    (newPage: number) => {
+      page.current = newPage
+      const start =
+        ((newPage - nav.current.page.first) % pagesPerSlot) * itemsPerPage
+      setItems(slotItems.current.slice(start, start + itemsPerPage))
+    },
+    [itemsPerPage, pagesPerSlot]
+  )
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  })
+
+  // handles across-slot navigation
+  const gotoSlot = (
+    direction: 'prev' | 'next',
+    setUrl: (newUrl: URL) => void
+  ) => {
+    page.current =
+      direction === 'prev'
+        ? nav.current.page.first - 1
+        : nav.current.page.first + nav.current.page.count
+    slot.current = Math.floor((page.current - 1) / pagesPerSlot)
+
+    // triggers useEffect hook
+    setUrl(new URL(nav.current.slot[direction], url))
+  }
+
   useEffect(() => {
     const take = itemsPerPage * pagesPerSlot
-    const getItems = async () => {
+    ;(async () => {
       const query = url.searchParams
       if (!query.has('take')) query.append('take', String(take + 1))
       const data = await fetcher<T[]>(`${url.pathname}?${query}`)
@@ -70,36 +100,8 @@ export default function usePagination<T extends Item>(
       }
       slotItems.current = data
       gotoPage(page.current)
-    }
-    getItems()
-  }, [url])
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  })
-
-  // handles in-slot navigation
-  const gotoPage = (newPage: number) => {
-    page.current = newPage
-    const start =
-      ((newPage - nav.current.page.first) % pagesPerSlot) * itemsPerPage
-    setItems(slotItems.current.slice(start, start + itemsPerPage))
-  }
-
-  // handles across-slot navigation
-  const gotoSlot = (
-    direction: 'prev' | 'next',
-    setUrl: (newUrl: URL) => void
-  ) => {
-    page.current =
-      direction === 'prev'
-        ? nav.current.page.first - 1
-        : nav.current.page.first + nav.current.page.count
-    slot.current = Math.floor((page.current - 1) / pagesPerSlot)
-
-    // triggers useEffect hook
-    setUrl(new URL(nav.current.slot[direction], url))
-  }
+    })()
+  }, [url, itemsPerPage, pagesPerSlot, gotoPage])
 
   return {
     items,
