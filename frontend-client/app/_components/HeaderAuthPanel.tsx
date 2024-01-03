@@ -20,11 +20,6 @@ export default function HeaderAuthPanel() {
             Sign In
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-[22rem]">
-          <Auth />
-        </DialogContent>
-      </Dialog>
-      <Dialog>
         <DialogTrigger asChild>
           <Button
             onClick={() => showSignUp()}
