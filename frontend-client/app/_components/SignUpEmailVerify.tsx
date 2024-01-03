@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { FormData } from './SignUp'
+import type { FormData } from './SignUp'
 
 interface EmailVerifyInput {
   email: string

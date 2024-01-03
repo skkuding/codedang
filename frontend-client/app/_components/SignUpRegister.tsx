@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form'
 import { FaCheck, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { FormData } from './SignUp'
+import type { FormData } from './SignUp'
 
 interface SignUpFormInput {
   username: string
@@ -120,11 +120,9 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
         className="flex w-full flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div>
-          <p className="mb-2 text-left text-xl font-bold text-blue-500">
-            Sign Up
-          </p>
-        </div>
+        <p className="mb-2 text-left text-xl font-bold text-blue-500">
+          Sign Up
+        </p>
 
         <div>
           <Input
@@ -137,11 +135,9 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
             }}
           />
           {inputFocus === 1 && (
-            <div>
-              <div className="mt-1 text-xs text-gray-500">
-                <p>&#x2022; Your name must be less than 20 characters</p>
-                <p>&#x2022; Your name can only contain alphabet letters</p>
-              </div>
+            <div className="mt-1 text-xs text-gray-500">
+              <p>&#x2022; Your name must be less than 20 characters</p>
+              <p>&#x2022; Your name can only contain alphabet letters</p>
             </div>
           )}
           {errors.realName && (
@@ -173,14 +169,12 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
             </Button>
           </div>
           {inputFocus === 2 && (
-            <div>
-              <div className="mt-1 text-xs text-gray-500">
-                <p>&#x2022; User ID used for log in</p>
-                <p>
-                  &#x2022; Your ID must be 3-10 characters of alphabet
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;letters, numbers
-                </p>
-              </div>
+            <div className="mt-1 text-xs text-gray-500">
+              <p>&#x2022; User ID used for log in</p>
+              <p>
+                &#x2022; Your ID must be 3-10 characters of alphabet
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;letters, numbers
+              </p>
             </div>
           )}
           {errors.username ? (
