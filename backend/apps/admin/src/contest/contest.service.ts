@@ -34,7 +34,7 @@ export class ContestService {
     groupId: number,
     cursor?: number
   ): Promise<Partial<Contest>[]> {
-    let skip = 1
+    let skip = take < 0 ? 0 : 1
     if (!cursor) {
       cursor = 1
       skip = 0
@@ -42,8 +42,8 @@ export class ContestService {
 
     return await this.prisma.contest.findMany({
       where: { groupId },
-      skip: skip,
-      take: take,
+      skip,
+      take,
       cursor: {
         id: cursor
       }

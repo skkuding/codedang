@@ -279,8 +279,8 @@ export class ProblemService {
     cursor: number,
     take: number
   ) {
-    let skip = 1
-    if (cursor === 0) {
+    let skip = take < 0 ? 0 : 1
+    if (!cursor) {
       cursor = 1
       skip = 0
     }
@@ -303,8 +303,8 @@ export class ProblemService {
       cursor: {
         id: cursor
       },
-      skip: skip,
-      take: take
+      skip,
+      take
     })
   }
 
