@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import CodedangLogo from '@/public/codedang.svg'
+import useAuthStore from '@/stores/auth'
 import Image from 'next/image'
 import React, { useState } from 'react'
 import { IoMdArrowBack } from 'react-icons/io'
@@ -17,7 +18,8 @@ export interface FormData {
   }
 }
 
-export default function SignUp({ switchModal }: { switchModal: () => void }) {
+export default function SignUp() {
+  const { showSignIn } = useAuthStore((state) => state)
   const [modalPage, setModalPage] = useState(0)
   const [formData, setFormData] = useState({
     email: '',
@@ -62,7 +64,7 @@ export default function SignUp({ switchModal }: { switchModal: () => void }) {
           Already have account?
         </span>
         <Button
-          onClick={() => switchModal()}
+          onClick={() => showSignIn()}
           variant={'link'}
           className="h-5 w-fit text-xs text-gray-500"
         >

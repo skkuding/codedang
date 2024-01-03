@@ -5,11 +5,13 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import CodedangLogo from '@/public/codedang.svg'
 import KakaotalkLogo from '@/public/kakaotalk.svg'
+import useAuthStore from '@/stores/auth'
 import Image from 'next/image'
 import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
 
-export default function SignIn({ switchModal }: { switchModal: () => void }) {
+export default function SignIn() {
+  const { showSignUp } = useAuthStore((state) => state)
   return (
     <div className="flex w-full flex-col gap-3">
       <div className="flex justify-center py-4">
@@ -47,7 +49,7 @@ export default function SignIn({ switchModal }: { switchModal: () => void }) {
       </div>
       <div className="mt-4 flex items-center justify-between">
         <Button
-          onClick={() => switchModal()}
+          onClick={() => showSignUp()}
           variant={'link'}
           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >
