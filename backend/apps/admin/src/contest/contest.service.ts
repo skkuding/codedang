@@ -253,7 +253,7 @@ export class ContestService {
     return newRequest
   }
 
-  async addProblems(contestId: number, problemIds: number[]) {
+  async addContestProblems(contestId: number, problemIds: number[]) {
     const contest = await this.prisma.contest.findUnique({
       where: {
         id: contestId
@@ -265,18 +265,8 @@ export class ContestService {
 
     const contestProblems = []
     for (const problemId of problemIds) {
-      const problem = await this.prisma.problem.findUnique({
-        where: {
-          id: problemId
-        }
-      })
-
-      if (!problem) {
-        throw new EntityNotExistException('problem')
-      }
-
       try {
-        await this.prisma.problem.update({
+        const updatedProblem = this.prisma.problem.update({
           where: {
             id: problemId
           },
@@ -285,7 +275,7 @@ export class ContestService {
           }
         })
 
-        const contestProblem = await this.prisma.contestProblem.create({
+        const contestProblem = this.prisma.contestProblem.create({
           data: {
             // TODO: 임시로 order 0 지정, 기획 정해지면 수정할 예정
             order: 0,
@@ -293,8 +283,10 @@ export class ContestService {
             problemId
           }
         })
+        await this.prisma.$transaction([updatedProblem, contestProblem])
+
         contestProblems.push(contestProblem)
-      } catch {
+      } catch (error) {
         continue
       }
     }
