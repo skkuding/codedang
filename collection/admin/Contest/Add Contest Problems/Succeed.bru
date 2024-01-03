@@ -12,9 +12,9 @@ post {
 
 body:graphql {
   mutation {
-    addProblems(
+    addContestProblems(
       contestId: 2
-      problemIds: [1,2]
+      problemIds: [1, 2]
     ) {
       order
       contestId
@@ -25,7 +25,7 @@ body:graphql {
 }
 
 assert {
-  res.body.data.addProblems: isDefined
+  res.body.data.addContestProblems: isDefined
 }
 
 docs {
@@ -34,4 +34,5 @@ docs {
   - Contest에 Problem을 추가합니다.
   - 주어진 Contest Id와 Problem Ids에 따라 새로운 ContestProblem을 생성하고 반환합니다.
   - 주어진 Problem이 이미 Contest에 존재한다면 무시됩니다(변화 없음).
+  - 존재하지 않는 Problem Id를 전달하는 경우에도 무시됩니다.
 }
