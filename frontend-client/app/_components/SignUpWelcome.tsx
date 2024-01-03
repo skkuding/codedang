@@ -30,7 +30,7 @@ export default function SignUpWelcome({
         </p>
         <Separator className="flex-1" />
       </div>
-      <div className="mb-10 flex w-full items-center justify-center gap-5">
+      <div className="flex w-full items-center justify-center gap-5">
         <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#FEE500] hover:opacity-80">
           <Image src={KakaotalkLogo} alt="카카오톡" width={20} />
         </div>
