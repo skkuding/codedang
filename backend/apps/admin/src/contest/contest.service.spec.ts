@@ -1,5 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
+import { Prisma } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
@@ -65,7 +66,10 @@ const problem: Problem = {
   createTime: undefined,
   updateTime: undefined,
   inputExamples: undefined,
-  outputExamples: undefined
+  outputExamples: undefined,
+  submissionCount: undefined,
+  acceptedCount: undefined,
+  acceptedRate: undefined
 }
 
 const contestProblem: ContestProblem = {
@@ -116,29 +120,19 @@ const db = {
     delete: stub().resolves(Contest)
   },
   contestProblem: {
-    findFirst: stub().resolves(ContestProblem),
-    findUnique: stub().resolves(ContestProblem),
-    findMany: stub().resolves([ContestProblem]),
-    create: stub().resolves(ContestProblem),
-    update: stub().resolves(ContestProblem),
-    delete: stub().resolves(ContestProblem)
+    create: stub().resolves(ContestProblem)
   },
   problem: {
-    findFirst: stub().resolves(Problem),
-    findUnique: stub().resolves(Problem),
-    findMany: stub().resolves([Problem]),
-    create: stub().resolves(Problem),
-    update: stub().resolves(Problem),
-    delete: stub().resolves(Problem)
+    update: stub().resolves(Problem)
   },
   group: {
-    findFirst: stub().resolves(Group),
-    findUnique: stub().resolves(Group),
-    findMany: stub().resolves([Group]),
-    create: stub().resolves(Group),
-    update: stub().resolves(Group),
-    delete: stub().resolves(Group)
-  }
+    findUnique: stub().resolves(Group)
+  },
+  $transaction: stub().callsFake(async () => {
+    const updatedProblem = await db.problem.update()
+    const newContestProblem = await db.contestProblem.create()
+    return [updatedProblem, newContestProblem]
+  })
 }
 
 describe('ContestService', () => {
@@ -259,18 +253,36 @@ describe('ContestService', () => {
     })
   })
 
-  describe('addProblems', () => {
+  describe('addContestProblems', () => {
     it('should return created ContestProblems', async () => {
+      db.contest.findUnique.resolves(contest)
+      db.problem.update.resolves(problem)
       db.contestProblem.create.resolves(contestProblem)
-      db.problem.create.resolves(problem)
 
-      const res = await service.addProblems(contestId, [problemId])
+      const res = await Promise.all(
+        await service.addContestProblems(contestId, [problemId])
+      )
 
       expect(res).to.deep.equal([contestProblem])
     })
 
+    it('should return an empty array when the problem already exists in contest', async () => {
+      db.contest.findUnique.resolves(contest)
+      db.problem.update.resolves(problem)
+      db.contestProblem.create.throws(
+        new Prisma.PrismaClientKnownRequestError(
+          'ContestProblem already exists',
+          { code: 'P2002', clientVersion: undefined }
+        )
+      )
+
+      const res = await service.addContestProblems(contestId, [problemId])
+
+      expect(res).to.deep.equal([])
+    })
+
     it('should throw error when the contestId not exist', async () => {
-      expect(service.addProblems(9999, [problemId])).to.be.rejectedWith(
+      expect(service.addContestProblems(9999, [problemId])).to.be.rejectedWith(
         EntityNotExistException
       )
     })
