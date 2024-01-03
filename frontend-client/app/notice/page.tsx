@@ -22,6 +22,7 @@ export default function Notice() {
   const { items, paginator } = usePagination<Notice>(url)
 
   const notices = fixed.current.concat(!items ? [] : items)
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 
   return (
     <>

@@ -94,7 +94,7 @@ export default function usePagination<T extends Item>(
     slot.current = Math.floor((page.current - 1) / pagesPerSlot)
 
     // triggers useEffect hook
-    setUrl(new URL(nav.current.slot[direction], url)) 
+    setUrl(new URL(nav.current.slot[direction], url))
   }
 
   return {
