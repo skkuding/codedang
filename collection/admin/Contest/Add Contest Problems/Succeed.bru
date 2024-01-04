@@ -10,11 +10,16 @@ post {
   auth: none
 }
 
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsInVzZXJuYW1lIjoidXNlcjAxIiwiaWF0IjoxNzA0MzQ3NjM3LCJleHAiOjE3MDQzNDk0MzcsImlzcyI6InNra3VkaW5nLmRldiJ9.lUSTD0wMshh4yrvhsa69tFa65j-9xkisyZ70AF4SSTU
+}
+
 body:graphql {
   mutation {
     addContestProblems(
-      contestId: 2
-      problemIds: [1, 2]
+      contestId: 3
+      groupId: 2
+      problemIds: [1, 2, 3]
     ) {
       order
       contestId
