@@ -260,7 +260,7 @@ describe('ContestService', () => {
       db.contestProblem.create.resolves(contestProblem)
 
       const res = await Promise.all(
-        await service.addContestProblems(contestId, [problemId])
+        await service.addContestProblems(contestId, groupId, [problemId])
       )
 
       expect(res).to.deep.equal([contestProblem])
@@ -276,15 +276,17 @@ describe('ContestService', () => {
         )
       )
 
-      const res = await service.addContestProblems(contestId, [problemId])
+      const res = await service.addContestProblems(contestId, groupId, [
+        problemId
+      ])
 
       expect(res).to.deep.equal([])
     })
 
     it('should throw error when the contestId not exist', async () => {
-      expect(service.addContestProblems(9999, [problemId])).to.be.rejectedWith(
-        EntityNotExistException
-      )
+      expect(
+        service.addContestProblems(9999, groupId, [problemId])
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 })
