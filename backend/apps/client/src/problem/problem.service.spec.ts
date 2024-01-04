@@ -130,7 +130,11 @@ describe('ProblemService', () => {
       db.tag.findMany.resolves([mockTag])
 
       // when
-      const result = await service.getProblems(1, 2, OPEN_SPACE_ID)
+      const result = await service.getProblems({
+        cursor: 1,
+        take: 2,
+        groupId: OPEN_SPACE_ID
+      })
 
       // then
       expect(result).to.deep.equal(

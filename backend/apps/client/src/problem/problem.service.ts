@@ -17,12 +17,13 @@ import { ProblemRepository } from './problem.repository'
 export class ProblemService {
   constructor(private readonly problemRepository: ProblemRepository) {}
 
-  async getProblems(cursor: number | null, take: number, groupId: number) {
-    let unprocessedProblems = await this.problemRepository.getProblems(
-      cursor,
-      take,
-      groupId
-    )
+  async getProblems(options: {
+    cursor: number | null
+    take: number
+    groupId: number
+    search?: string
+  }) {
+    let unprocessedProblems = await this.problemRepository.getProblems(options)
 
     unprocessedProblems = unprocessedProblems.filter(
       (problem) => problem.exposeTime <= new Date()
@@ -47,10 +48,6 @@ export class ProblemService {
     })
 
     return plainToInstance(ProblemsResponseDto, await Promise.all(problems))
-  }
-  async searchProblemTitle(search: string) {
-    const data = await this.problemRepository.searchProblemTitle(search)
-    return plainToInstance(ProblemsResponseDto, data)
   }
 
   async getProblem(problemId: number, groupId = OPEN_SPACE_ID) {

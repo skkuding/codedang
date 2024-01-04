@@ -12,15 +12,31 @@ get {
 
 query {
   take: 5
+  ~search: 정
   ~cursor: 1
 }
 
 assert {
   res.status: eq 200
-  res.body[0].id: isNumber 
-  res.body[0].title: isString 
-  res.body[0].difficulty: isString 
-  res.body[0].submissionCount: isNumber 
-  res.body[0].acceptedRate: isNumber 
-  res.body[0].tags: isDefined 
+  res.body[0].id: isNumber
+  res.body[0].title: isString
+  res.body[0].difficulty: isString
+  res.body[0].submissionCount: isNumber
+  res.body[0].acceptedRate: isNumber
+  res.body[0].tags: isDefined
+}
+
+docs {
+  # Get Problems
+  
+  공개된 문제 목록을 가져옵니다.
+  
+  ## Query
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |take  |Integer|가져올 문제 개수|
+  |cursor|Integer|cursor 값 다음 take 만큼 문제들을 반환|
+  |search|String |검색 키워드|
+  
 }
