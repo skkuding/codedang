@@ -1,6 +1,9 @@
 -- DropForeignKey
 ALTER TABLE "submssion_result" DROP CONSTRAINT "submssion_result_submission_id_fkey";
 
+-- ChangeIdType
+SELECT id, REGEXP_REPLACE(id, '[^0-9]', '', 'g') FROM submission;
+
 -- AlterTable
 ALTER TABLE "submission"
 ALTER COLUMN "id" SET DATA TYPE INTEGER USING id::INTEGER,
