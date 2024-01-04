@@ -12,7 +12,7 @@ post {
 
 body:graphql {
   mutation {
-    importProblems(
+    importProblemsToContest(
       groupId: 2
       contestId: 3
       problemIds: [7, 9, 8]
@@ -28,7 +28,7 @@ body:graphql {
 }
 
 assert {
-  res.body.data.importProblems: isDefined
+  res.body.data.importProblemsToContest: isDefined
 }
 
 docs {
