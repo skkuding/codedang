@@ -6,33 +6,27 @@ import {
   ParseIntPipe,
   NotFoundException,
   InternalServerErrorException,
-  UseGuards,
-  Query
+  UseGuards
 } from '@nestjs/common'
 import type { Announcement } from '@prisma/client'
-import { AuthNotNeeded, GroupMemberGuard, RolesGuard } from '@libs/auth'
+import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
-import { AnnouncementCursorValidationPipe } from '@libs/pipe'
 import { AnnouncementService } from './announcement.service'
 
 @Controller('announcement/problem/:problemId')
-@AuthNotNeeded()
 export class ProblemAnnouncementController {
   private readonly logger = new Logger(ProblemAnnouncementController.name)
 
   constructor(private readonly announcementService: AnnouncementService) {}
 
   @Get()
-  async getPublicProblemAnnouncements(
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Query('cursor', AnnouncementCursorValidationPipe) cursor: number | Date,
-    @Query('take', ParseIntPipe) take: number
+  @AuthNotNeeded()
+  async getProblemAnnouncements(
+    @Param('problemId', ParseIntPipe) problemId: number
   ): Promise<Partial<Announcement>[]> {
     try {
       return await this.announcementService.getProblemAnnouncements(
-        cursor,
-        take,
         problemId,
         OPEN_SPACE_ID
       )
@@ -46,17 +40,13 @@ export class ProblemAnnouncementController {
   }
 
   @Get('group/:groupId')
-  @UseGuards(RolesGuard, GroupMemberGuard)
+  @UseGuards(GroupMemberGuard)
   async getGroupProblemAnnouncements(
     @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', AnnouncementCursorValidationPipe) cursor: number | Date,
-    @Query('take', ParseIntPipe) take: number
+    @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Partial<Announcement>[]> {
     try {
       return await this.announcementService.getProblemAnnouncements(
-        cursor,
-        take,
         problemId,
         groupId
       )
@@ -71,21 +61,17 @@ export class ProblemAnnouncementController {
 }
 
 @Controller('announcement/contest/:contestId')
-@AuthNotNeeded()
 export class ContestAnnouncementController {
   private readonly logger = new Logger(ContestAnnouncementController.name)
   constructor(private readonly announcementService: AnnouncementService) {}
 
   @Get()
-  async getPublicProblemAnnouncements(
-    @Param('contestId', ParseIntPipe) contestId: number,
-    @Query('cursor', AnnouncementCursorValidationPipe) cursor: number | Date,
-    @Query('take', ParseIntPipe) take: number
+  @AuthNotNeeded()
+  async getContestAnnouncements(
+    @Param('contestId', ParseIntPipe) contestId: number
   ): Promise<Partial<Announcement>[]> {
     try {
       return await this.announcementService.getContestAnnouncements(
-        cursor,
-        take,
         contestId,
         1
       )
@@ -99,17 +85,13 @@ export class ContestAnnouncementController {
   }
 
   @Get('group/:groupId')
-  @UseGuards(RolesGuard, GroupMemberGuard)
-  async getGroupProblemAnnouncements(
+  @UseGuards(GroupMemberGuard)
+  async getGroupContestAnnouncements(
     @Param('contestId', ParseIntPipe) contestId: number,
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', AnnouncementCursorValidationPipe) cursor: number | Date,
-    @Query('take', ParseIntPipe) take: number
+    @Param('groupId', ParseIntPipe) groupId: number
   ): Promise<Partial<Announcement>[]> {
     try {
       return await this.announcementService.getContestAnnouncements(
-        cursor,
-        take,
         contestId,
         groupId
       )

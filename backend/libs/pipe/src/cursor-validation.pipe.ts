@@ -28,24 +28,25 @@ export class CursorValidationPipe implements PipeTransform {
 }
 
 // For the Announcement module, ensure that the cursor is either a number or a valid Date.
-@Injectable()
-export class AnnouncementCursorValidationPipe implements PipeTransform {
-  transform(value: string) {
-    if (value == null) return 0
-    // check if cursor is number
-    let cursor: number | Date = parseInt(value, 10)
-    if (isNaN(cursor)) {
-      // check if cursor is Date
-      cursor = new Date(value)
-      if (isNaN(cursor.getTime())) {
-        throw new BadRequestException(
-          'Invalid cursor value. Must be a number or a valid date string.'
-        )
-      }
-    } else if (cursor <= 0) {
-      throw new InvalidCursorValueException(cursor)
-    }
+// @Injectable()
+// export class AnnouncementCursorValidationPipe implements PipeTransform {
+//   transform(value: string) {
+//     if (value == null) return 0
+//     // check if cursor is number
+//     let cursor: number | Date = Number(value)
+//     // console.log(`cursor ${cursor} value ${value} Number ${Number(value)}`)
+//     if (isNaN(cursor)) {
+//       // check if cursor is Date
+//       cursor = new Date(value)
+//       if (isNaN(cursor.getTime())) {
+//         throw new BadRequestException(
+//           'Invalid cursor value. Must be a number or a valid date string.'
+//         )
+//       }
+//     } else if (cursor <= 0) {
+//       throw new InvalidCursorValueException(cursor)
+//     }
 
-    return cursor
-  }
-}
+//     return cursor
+//   }
+// }
