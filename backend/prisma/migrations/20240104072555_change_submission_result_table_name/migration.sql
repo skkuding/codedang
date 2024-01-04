@@ -1,9 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `submssion_result` table. If the table is not empty, all the data it contains will be lost.
-
-*/
 -- AlterTable
 ALTER TABLE submssion_result RENAME TO submission_result;
 
