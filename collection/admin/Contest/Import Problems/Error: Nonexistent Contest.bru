@@ -1,5 +1,5 @@
 meta {
-  name: 404: Nonexistent Contest
+  name: Error: Nonexistent Contest
   type: graphql
   seq: 2
 }
@@ -28,5 +28,5 @@ body:graphql {
 }
 
 assert {
-  res.body.errors: isDefined 
+  res.body.errors: isDefined
 }
