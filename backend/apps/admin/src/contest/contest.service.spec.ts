@@ -253,14 +253,14 @@ describe('ContestService', () => {
     })
   })
 
-  describe('addContestProblems', () => {
+  describe('importProblemsToContest', () => {
     it('should return created ContestProblems', async () => {
       db.contest.findUnique.resolves(contest)
       db.problem.update.resolves(problem)
       db.contestProblem.create.resolves(contestProblem)
 
       const res = await Promise.all(
-        await service.addContestProblems(contestId, groupId, [problemId])
+        await service.importProblemsToContest(groupId, contestId, [problemId])
       )
 
       expect(res).to.deep.equal([contestProblem])
@@ -276,7 +276,7 @@ describe('ContestService', () => {
         )
       )
 
-      const res = await service.addContestProblems(contestId, groupId, [
+      const res = await service.importProblemsToContest(groupId, contestId, [
         problemId
       ])
 
@@ -285,42 +285,7 @@ describe('ContestService', () => {
 
     it('should throw error when the contestId not exist', async () => {
       expect(
-        service.addContestProblems(9999, groupId, [problemId])
-      ).to.be.rejectedWith(EntityNotExistException)
-    })
-  })
-
-  describe('importProblems', () => {
-    it('should return created ContestProblems', async () => {
-      db.contest.findUnique.resolves(contest)
-      db.problem.update.resolves(problem)
-      db.contestProblem.create.resolves(contestProblem)
-
-      const res = await Promise.all(
-        await service.importProblems(groupId, contestId, [problemId])
-      )
-
-      expect(res).to.deep.equal([contestProblem])
-    })
-
-    it('should return an empty array when the problem already exists in contest', async () => {
-      db.contest.findUnique.resolves(contest)
-      db.problem.update.resolves(problem)
-      db.contestProblem.create.throws(
-        new Prisma.PrismaClientKnownRequestError(
-          'ContestProblem already exists',
-          { code: 'P2002', clientVersion: undefined }
-        )
-      )
-
-      const res = await service.importProblems(groupId, contestId, [problemId])
-
-      expect(res).to.deep.equal([])
-    })
-
-    it('should throw error when the contestId not exist', async () => {
-      expect(
-        service.importProblems(groupId, 9999, [problemId])
+        service.importProblemsToContest(groupId, 9999, [problemId])
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })

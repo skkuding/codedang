@@ -5,15 +5,10 @@ import {
   NotFoundException,
   ParseBoolPipe,
   ParseIntPipe,
-  UnprocessableEntityException,
-  UseGuards
+  UnprocessableEntityException
 } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
-import {
-  AuthenticatedRequest,
-  GroupLeaderGuard,
-  UseRolesGuard
-} from '@libs/auth'
+import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -150,36 +145,13 @@ export class ContestResolver {
   }
 
   @Mutation(() => [ContestProblem])
-  @UseGuards(GroupLeaderGuard)
-  async addContestProblems(
-    @Args('contestId', ParseIntPipe) contestId: number,
-    @Args('groupId', ParseIntPipe) groupId: number,
-    @Args('problemIds', { type: () => [Int] }) problemIds: number[]
-  ) {
-    try {
-      return await this.contestService.addContestProblems(
-        contestId,
-        groupId,
-        problemIds
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Mutation(() => [ContestProblem])
-  @UseGuards(GroupLeaderGuard)
-  async importProblems(
+  async importProblemsToContest(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('contestId', ParseIntPipe) contestId: number,
     @Args('problemIds', { type: () => [Int] }) problemIds: number[]
   ) {
     try {
-      return await this.contestService.importProblems(
+      return await this.contestService.importProblemsToContest(
         groupId,
         contestId,
         problemIds
