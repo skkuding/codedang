@@ -2,7 +2,7 @@
 ALTER TABLE "submssion_result" DROP CONSTRAINT "submssion_result_submission_id_fkey";
 
 -- ChangeIdType
-SELECT id, REGEXP_REPLACE(id, '[^0-9]', '', 'g') FROM submission;
+SELECT id, REGEXP_REPLACE(id, '[^[:digit:]]', '') FROM submission;
 
 -- AlterTable
 ALTER TABLE "submission"
