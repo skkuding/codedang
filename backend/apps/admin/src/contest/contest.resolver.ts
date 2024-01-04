@@ -172,6 +172,7 @@ export class ContestResolver {
   }
 
   @Mutation(() => [ContestProblem])
+  @UseGuards(GroupLeaderGuard)
   async importProblems(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('contestId', ParseIntPipe) contestId: number,

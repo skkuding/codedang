@@ -315,30 +315,29 @@ export class ContestService {
 
     const contestProblems = []
     for (const problemId of problemIds) {
-      const problem = await this.prisma.problem.findUnique({
-        where: {
-          id: problemId
-        }
-      })
-      if (!problem) {
-        throw new EntityNotExistException('problem')
-      }
-
-      if (problem.groupId != groupId) {
-        continue
-      }
-
       try {
-        const newContestProblem = await this.prisma.contestProblem.create({
-          data: {
-            // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
-            // 임시 방편으로 order: 0으로 설정합니다.
-            order: 0,
-            contestId: contestId,
-            problemId: problemId
-          }
-        })
-        contestProblems.push(newContestProblem)
+        const [, contestProblem] = await this.prisma.$transaction([
+          this.prisma.problem.update({
+            where: {
+              id: problemId,
+              groupId
+            },
+            data: {
+              exposeTime: contest.endTime
+            }
+          }),
+          this.prisma.contestProblem.create({
+            data: {
+              // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
+              // 임시 방편으로 order: 0으로 설정합니다.
+              order: 0,
+              contestId: contestId,
+              problemId: problemId
+            }
+          })
+        ])
+
+        contestProblems.push(contestProblem)
       } catch (error) {
         continue
       }
