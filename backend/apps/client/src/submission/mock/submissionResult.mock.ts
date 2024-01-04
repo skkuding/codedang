@@ -7,7 +7,7 @@ export const submissionResults: SubmissionResult[] = [
     createTime: new Date('2023-01-01'),
     problemTestcaseId: 1,
     result: ResultStatus.Accepted,
-    submissionId: 'test01',
+    submissionId: 1,
     updateTime: new Date('2023-01-01'),
     cpuTime: BigInt(12345),
     memoryUsage: 12345
@@ -17,7 +17,7 @@ export const submissionResults: SubmissionResult[] = [
     createTime: new Date('2023-01-01'),
     problemTestcaseId: 2,
     result: ResultStatus.Accepted,
-    submissionId: 'test01',
+    submissionId: 2,
     updateTime: new Date('2023-01-01'),
     cpuTime: BigInt(12345),
     memoryUsage: 12345
@@ -27,7 +27,7 @@ export const submissionResults: SubmissionResult[] = [
     createTime: new Date('2023-01-01'),
     problemTestcaseId: 3,
     result: ResultStatus.WrongAnswer,
-    submissionId: 'test01',
+    submissionId: 1,
     updateTime: new Date('2023-01-01'),
     cpuTime: BigInt(12345),
     memoryUsage: 12345
@@ -37,7 +37,7 @@ export const submissionResults: SubmissionResult[] = [
     createTime: new Date('2023-01-01'),
     problemTestcaseId: 4,
     result: ResultStatus.CompileError,
-    submissionId: 'test01',
+    submissionId: 1,
     updateTime: new Date('2023-01-01'),
     cpuTime: BigInt(12345),
     memoryUsage: 12345
@@ -46,7 +46,7 @@ export const submissionResults: SubmissionResult[] = [
 
 export const judgerResponse: JudgerResponse = {
   resultCode: 6,
-  submissionId: 'test01',
+  submissionId: 1,
   error: '',
   data: {
     acceptedNum: 2,

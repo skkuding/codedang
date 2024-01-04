@@ -4,7 +4,7 @@ import { type CreateSubmissionDto, Snippet } from '../dto/create-submission.dto'
 
 export const submissions = [
   {
-    id: 'test01',
+    id: 1,
     code: [
       { id: 1, text: 'code', locked: false },
       { id: 2, text: 'unchanged', locked: true }
@@ -19,7 +19,7 @@ export const submissions = [
     workbookId: null
   },
   {
-    id: 'test02',
+    id: 2,
     code: [
       { id: 1, text: 'code', locked: false },
       { id: 2, text: 'changed', locked: true }

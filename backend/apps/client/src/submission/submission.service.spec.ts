@@ -250,7 +250,7 @@ describe('SubmissionService', () => {
       const target: JudgerResponse = {
         resultCode: 7,
         error: 'succeed',
-        submissionId: 'abc123',
+        submissionId: 1,
         data: {
           acceptedNum: 1,
           totalTestcase: 1,
@@ -440,7 +440,7 @@ describe('SubmissionService', () => {
         resultCode: -1,
         data: 'Test Error',
         error: 'Test Error',
-        submissionId: 'abc123'
+        submissionId: 1
       }
 
       await expect(service.validateJudgerResponse(target)).to.be.rejected
@@ -450,7 +450,7 @@ describe('SubmissionService', () => {
       const target: JudgerResponse = {
         resultCode: 5,
         error: 'succeed',
-        submissionId: 'abc123',
+        submissionId: 1,
         data: {
           acceptedNum: 1,
           totalTestcase: 1,
@@ -478,7 +478,7 @@ describe('SubmissionService', () => {
   it('should handle message without error', async () => {
     const target = {
       resultCode: 0,
-      submissionId: 'a84f8d',
+      submissionId: 1,
       error: '',
       data: {
         acceptedNum: 1,
@@ -596,7 +596,7 @@ describe('SubmissionService', () => {
 
   // describe('getSubmissionResults', () => {
   //   it('should return judgeFinished=true when judge finished', async () => {
-  //     const submissionId = 'test01'
+  //     const submissionId = 1
   //     const results = submissionResults.filter(
   //       (submissionResult) => submissionResult.submissionId === submissionId
   //     )
@@ -613,7 +613,7 @@ describe('SubmissionService', () => {
   //   })
 
   //   it('shoud return judgeFinished=false when judge not finished', async () => {
-  //     const submissionId = 'test02'
+  //     const submissionId = 2
   //     db.submissionResult.findMany.resolves
   //     const results = submissionResults.filter(
   //       (submissionResult) => submissionResult.submissionId === submissionId
@@ -631,7 +631,7 @@ describe('SubmissionService', () => {
   //   })
 
   //   it('shoud return passed=false when at least one of judge failed', async () => {
-  //     const submissionId = 'test03'
+  //     const submissionId = 3
   //     db.submissionResult.findMany.resolves
   //     const results = submissionResults.filter(
   //       (submissionResult) => submissionResult.submissionId === submissionId
