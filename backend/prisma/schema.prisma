@@ -374,7 +374,7 @@ model SubmissionResult {
   createTime        DateTime        @default(now()) @map("create_time")
   updateTime        DateTime        @updatedAt @map("update_time")
 
-  @@map("submssion_result")
+  @@map("submission_result")
 }
 
 enum ResultStatus {
