@@ -253,10 +253,15 @@ export class ContestService {
     return newRequest
   }
 
-  async addContestProblems(contestId: number, problemIds: number[]) {
+  async addContestProblems(
+    contestId: number,
+    groupId: number,
+    problemIds: number[]
+  ) {
     const contest = await this.prisma.contest.findUnique({
       where: {
-        id: contestId
+        id: contestId,
+        groupId
       }
     })
     if (!contest) {
@@ -266,25 +271,25 @@ export class ContestService {
     const contestProblems = []
     for (const problemId of problemIds) {
       try {
-        const updatedProblem = this.prisma.problem.update({
-          where: {
-            id: problemId
-          },
-          data: {
-            exposeTime: contest.endTime
-          }
-        })
-
-        const contestProblem = this.prisma.contestProblem.create({
-          data: {
-            // TODO: 임시로 order 0 지정, 기획 정해지면 수정할 예정
-            order: 0,
-            contestId,
-            problemId
-          }
-        })
-        await this.prisma.$transaction([updatedProblem, contestProblem])
-
+        // TODO: 현재 Group에 속해 있는 Problem만 추가를 허용할 지 여부 결정되지 않음, 결정되면 groupId 조건 추가 예정
+        const [, contestProblem] = await this.prisma.$transaction([
+          this.prisma.problem.update({
+            where: {
+              id: problemId
+            },
+            data: {
+              exposeTime: contest.endTime
+            }
+          }),
+          this.prisma.contestProblem.create({
+            data: {
+              // TODO: 임시로 order 0 지정, 기획 정해지면 수정할 예정
+              order: 0,
+              contestId,
+              problemId
+            }
+          })
+        ])
         contestProblems.push(contestProblem)
       } catch (error) {
         continue
