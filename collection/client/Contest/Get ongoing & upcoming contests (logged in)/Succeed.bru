@@ -18,6 +18,7 @@ assert {
   res("ongoing")[0].group.id: isNumber
   res("ongoing")[0].group.groupName: isString
   res.status: eq 200
+  res("ongoing")[0].participants: isNumber 
 }
 
 docs {
