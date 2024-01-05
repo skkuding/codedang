@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import CodedangLogo from '@/public/codedang.svg'
-import useAuthStore from '@/stores/auth'
+import useAuthModalStore from '@/stores/authModal'
 import Image from 'next/image'
 import React, { useState } from 'react'
 import { IoMdArrowBack } from 'react-icons/io'
@@ -19,7 +19,7 @@ export interface FormData {
 }
 
 export default function SignUp() {
-  const { showSignIn } = useAuthStore((state) => state)
+  const { showSignIn } = useAuthModalStore((state) => state)
   const [modalPage, setModalPage] = useState(0)
   const [formData, setFormData] = useState({
     email: '',

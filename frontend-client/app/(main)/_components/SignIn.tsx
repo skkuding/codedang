@@ -5,13 +5,13 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import CodedangLogo from '@/public/codedang.svg'
 import KakaotalkLogo from '@/public/kakaotalk.svg'
-import useAuthStore from '@/stores/auth'
+import useAuthModalStore from '@/stores/authModal'
 import Image from 'next/image'
 import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
 
 export default function SignIn() {
-  const { showSignUp } = useAuthStore((state) => state)
+  const { showSignUp } = useAuthModalStore((state) => state)
   return (
     <div className="flex w-full flex-col gap-3">
       <div className="flex justify-center py-4">

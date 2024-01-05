@@ -2,12 +2,12 @@
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import useAuthStore from '@/stores/auth'
+import useAuthModalStore from '@/stores/authModal'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import AuthModal from './AuthModal'
 
 export default function HeaderAuthPanel() {
-  const { showSignIn, showSignUp } = useAuthStore((state) => state)
+  const { showSignIn, showSignUp } = useAuthModalStore((state) => state)
   return (
     <div className="ml-2 flex items-center gap-2">
       <Dialog>
