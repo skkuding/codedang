@@ -1,9 +1,6 @@
-import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
 import type { Metadata, Viewport } from 'next'
 import { Manrope, Noto_Sans_KR } from 'next/font/google'
-import Footer from './_components/Footer'
-import Header from './_components/Header'
 import './globals.css'
 
 const noto = Noto_Sans_KR({
@@ -15,7 +12,7 @@ const noto = Noto_Sans_KR({
 
 const manrope = Manrope({
   subsets: ['latin'],
-  weight: ['400', '600'],
+  weight: ['400', '500', '600', '700'],
   adjustFontFallback: false,
   variable: '--font-manrope'
 })
@@ -36,16 +33,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={cn(noto.variable, manrope.variable)}>
-      <body>
-        <div className="flex min-h-dvh w-screen flex-col items-center overflow-x-hidden">
-          <Header />
-          <main className="flex w-full max-w-7xl flex-1 flex-col items-center px-5">
-            {children}
-          </main>
-          <Footer />
-          <Toaster richColors position="top-center" />
-        </div>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }

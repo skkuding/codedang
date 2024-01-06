@@ -1,11 +1,11 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import KakaotalkLogo from '@/public/kakaotalk.svg'
 import Image from 'next/image'
 import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
-import { Button } from '../../components/ui/button'
 
 export default function SignUpWelcome({
   nextModal
@@ -14,11 +14,9 @@ export default function SignUpWelcome({
 }) {
   return (
     <div className="mb-20 mt-32">
-      <div>
-        <p className="mb-3 text-center text-xl font-bold text-blue-500">
-          &quot;Welcome to CODEDANG&quot;
-        </p>
-      </div>
+      <p className="mb-3 text-center text-xl font-bold text-blue-500">
+        &quot;Welcome to CODEDANG&quot;
+      </p>
 
       <div className="flex w-full flex-col gap-3">
         <Button className="w-full" onClick={() => nextModal()}>
@@ -32,7 +30,7 @@ export default function SignUpWelcome({
         </p>
         <Separator className="flex-1" />
       </div>
-      <div className="mb-10 flex w-full items-center justify-center gap-5">
+      <div className="flex w-full items-center justify-center gap-5">
         <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#FEE500] hover:opacity-80">
           <Image src={KakaotalkLogo} alt="카카오톡" width={20} />
         </div>

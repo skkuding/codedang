@@ -26,17 +26,21 @@ export class UserService {
     take: number,
     leaderOnly: boolean
   ) {
+    let skip = take < 0 ? 0 : 1
+    if (!cursor) {
+      cursor = 1
+      skip = 0
+    }
+
     if (leaderOnly) {
       return (
         await this.prisma.userGroup.findMany({
           take,
-          skip: cursor ? 1 : 0,
-          ...(cursor && {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            cursor: { userId_groupId: { userId: cursor, groupId } }
-          }),
+          skip,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          cursor: { userId_groupId: { userId: cursor, groupId } },
           where: {
-            groupId: groupId,
+            groupId,
             isGroupLeader: leaderOnly
           },
           select: {
@@ -68,13 +72,11 @@ export class UserService {
       return (
         await this.prisma.userGroup.findMany({
           take,
-          skip: cursor ? 1 : 0,
-          ...(cursor && {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            cursor: { userId_groupId: { userId: cursor, groupId } }
-          }),
+          skip,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          cursor: { userId_groupId: { userId: cursor, groupId } },
           where: {
-            groupId: groupId
+            groupId
           },
           select: {
             user: {

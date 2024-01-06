@@ -1,14 +1,15 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { baseUrl } from '@/lib/vars'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { FaCheck, FaEyeSlash, FaEye } from 'react-icons/fa'
+import { FaCheck, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { Button } from '../../components/ui/button'
-import { Input } from '../../components/ui/input'
+import type { FormData } from './SignUp'
 
 interface SignUpFormInput {
   username: string
@@ -17,15 +18,6 @@ interface SignUpFormInput {
   realName: string
   password: string
   passwordAgain: string
-}
-
-interface FormData {
-  email: string
-  verificationCode: string
-  headers: {
-    'Content-Type': string
-    'email-auth': string
-  }
 }
 
 const schema = z
@@ -47,21 +39,9 @@ const schema = z
     (data: { password: string; passwordAgain: string }) =>
       data.password === data.passwordAgain,
     {
-      message: 'Passwords do not match',
       path: ['passwordAgain']
     }
   )
-  .refine(
-    (data: { username: string }) => /^[a-zA-Z0-9]+$/.test(data.username),
-    {
-      message: 'Username can only contain alphabets and numbers',
-      path: ['username']
-    }
-  )
-  .refine((data: { realName: string }) => /^[a-zA-Z\s]+$/.test(data.realName), {
-    message: 'Real name can only contain alphabets',
-    path: ['realName']
-  })
 
 export default function SignUpRegister({ formData }: { formData: FormData }) {
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
@@ -89,7 +69,10 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
     try {
       await fetch(baseUrl + '/user/sign-up', {
         method: 'POST',
-        headers: formData.headers,
+        headers: {
+          ...formData.headers,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           ...data,
           email: formData.email,
@@ -137,11 +120,9 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
         className="flex w-full flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div>
-          <p className="mb-2 text-left text-xl font-bold text-blue-500">
-            Sign Up
-          </p>
-        </div>
+        <p className="mb-2 text-left text-xl font-bold text-blue-500">
+          Sign Up
+        </p>
 
         <div>
           <Input
@@ -154,11 +135,9 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
             }}
           />
           {inputFocus === 1 && (
-            <div>
-              <div className="mt-1 text-xs text-gray-500">
-                <p>&#x2022; Your name must be less than 20 characters</p>
-                <p>&#x2022; Your name can only contain alphabet letters</p>
-              </div>
+            <div className="mt-1 text-xs text-gray-500">
+              <p>&#x2022; Your name must be less than 20 characters</p>
+              <p>&#x2022; Your name can only contain alphabet letters</p>
             </div>
           )}
           {errors.realName && (
@@ -190,14 +169,12 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
             </Button>
           </div>
           {inputFocus === 2 && (
-            <div>
-              <div className="mt-1 text-xs text-gray-500">
-                <p>&#x2022; User ID used for log in</p>
-                <p>
-                  &#x2022; Your ID must be 3-10 characters of alphabet
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;letters, numbers
-                </p>
-              </div>
+            <div className="mt-1 text-xs text-gray-500">
+              <p>&#x2022; User ID used for log in</p>
+              <p>
+                &#x2022; Your ID must be 3-10 characters of alphabet
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;letters, numbers
+              </p>
             </div>
           )}
           {errors.username ? (
