@@ -70,7 +70,7 @@ export default async function Home() {
               )
             })}
             {Array.from({ length: 3 - contests.length }).map((_, i) => {
-              return <div key={-i} className="w-60 md:w-72"></div>
+              return <div key={i} className="w-60 md:w-72"></div>
             })}
             <div className="sticky right-0 z-10 -ml-10 bg-gradient-to-l from-white to-transparent pl-10"></div>
           </div>
@@ -107,7 +107,7 @@ export default async function Home() {
               )
             })}
             {Array.from({ length: 3 - problems.length }).map((_, i) => {
-              return <div key={-i} className="w-60 md:w-72"></div>
+              return <div key={i} className="w-60 md:w-72"></div>
             })}
             <div className="sticky right-0 z-10 -ml-10 bg-gradient-to-l from-white to-transparent pl-10"></div>
           </div>
