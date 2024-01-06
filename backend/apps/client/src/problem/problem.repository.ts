@@ -39,15 +39,12 @@ export class ProblemRepository {
     outputExamples: true
   }
 
-  async getProblems(cursor: number, take: number, groupId: number) {
-    let skip = 1
-    if (cursor === 0) {
-      cursor = 1
-      skip = 0
-    }
+  async getProblems(cursor: number | null, take: number, groupId: number) {
+    const skip = cursor ? 1 : 0
+
     return await this.prisma.problem.findMany({
       cursor: {
-        id: cursor
+        id: cursor ?? 1
       },
       skip,
       take,
@@ -127,18 +124,19 @@ export class ProblemRepository {
     })
   }
 
-  async getContestProblems(contestId: number, cursor: number, take: number) {
-    let skip = 1
-    if (cursor === 0) {
-      cursor = 1
-      skip = 0
-    }
+  async getContestProblems(
+    contestId: number,
+    cursor: number | null,
+    take: number
+  ) {
+    const skip = cursor ? 1 : 0
+
     return await this.prisma.contestProblem.findMany({
       cursor: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_problemId: {
           contestId,
-          problemId: cursor
+          problemId: cursor ?? 1
         }
       },
       skip,
@@ -181,18 +179,19 @@ export class ProblemRepository {
     })
   }
 
-  async getWorkbookProblems(workbookId: number, cursor: number, take: number) {
-    let skip = 1
-    if (cursor === 0) {
-      cursor = 1
-      skip = 0
-    }
+  async getWorkbookProblems(
+    workbookId: number,
+    cursor: number | null,
+    take: number
+  ) {
+    const skip = cursor ? 1 : 0
+
     return await this.prisma.workbookProblem.findMany({
       cursor: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
           workbookId,
-          problemId: cursor
+          problemId: cursor ?? 1
         }
       },
       skip,

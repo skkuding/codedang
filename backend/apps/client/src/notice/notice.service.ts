@@ -7,15 +7,11 @@ export class NoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getNoticesByGroupId(
-    cursor: number,
+    cursor: number | null,
     take: number,
     groupId = OPEN_SPACE_ID
   ) {
-    let skip = take < 0 ? 0 : 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
+    const skip = cursor ? 1 : 0
 
     const notices = await this.prisma.notice.findMany({
       where: {
@@ -37,7 +33,7 @@ export class NoticeService {
       take,
       skip,
       cursor: {
-        id: cursor
+        id: cursor ?? 1
       }
     })
 

@@ -23,7 +23,7 @@ export class NoticeController {
 
   @Get()
   async getNotices(
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
@@ -71,7 +71,7 @@ export class GroupNoticeController {
   @Get()
   async getNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {

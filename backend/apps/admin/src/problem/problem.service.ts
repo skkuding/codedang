@@ -271,14 +271,10 @@ export class ProblemService {
   async getProblems(
     input: FilterProblemsInput,
     groupId: number,
-    cursor: number,
+    cursor: number | null,
     take: number
   ) {
-    let skip = take < 0 ? 0 : 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
+    const skip = cursor ? 1 : 0
 
     const whereOptions: ProblemWhereInput = {}
     if (input.difficulty) {
@@ -296,7 +292,7 @@ export class ProblemService {
         groupId
       },
       cursor: {
-        id: cursor
+        id: cursor ?? 1
       },
       skip,
       take
