@@ -23,88 +23,52 @@ export class UserService {
 
   async getGroupMembers(
     groupId: number,
-    cursor: number,
+    cursor: number | null,
     take: number,
     leaderOnly: boolean
   ) {
-    let skip = take < 0 ? 0 : 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
+    const skip = cursor ? 1 : 0
 
-    if (leaderOnly) {
-      return (
-        await this.prisma.userGroup.findMany({
-          take,
-          skip,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          cursor: { userId_groupId: { userId: cursor, groupId } },
-          where: {
-            groupId,
-            isGroupLeader: leaderOnly
-          },
-          select: {
-            user: {
-              select: {
-                id: true,
-                username: true,
-                userProfile: {
-                  select: {
-                    realName: true
-                  }
-                },
-                email: true
-              }
-            }
-          }
-        })
-      ).map((userGroup) => {
-        return {
-          username: userGroup.user.username,
-          userId: userGroup.user.id,
-          name: userGroup.user.userProfile?.realName
-            ? userGroup.user.userProfile.realName
-            : '',
-          email: userGroup.user.email
+    const userGroups = await this.prisma.userGroup.findMany({
+      take,
+      skip,
+      cursor: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: {
+          userId: cursor ?? 1,
+          groupId
         }
-      })
-    } else {
-      return (
-        await this.prisma.userGroup.findMany({
-          take,
-          skip,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          cursor: { userId_groupId: { userId: cursor, groupId } },
-          where: {
-            groupId
-          },
+      },
+      where: {
+        groupId,
+        isGroupLeader: leaderOnly ? true : undefined
+      },
+      select: {
+        user: {
           select: {
-            user: {
+            id: true,
+            username: true,
+            userProfile: {
               select: {
-                id: true,
-                username: true,
-                userProfile: {
-                  select: {
-                    realName: true
-                  }
-                },
-                email: true
+                realName: true
               }
-            }
+            },
+            email: true
           }
-        })
-      ).map((userGroup) => {
-        return {
-          username: userGroup.user.username,
-          userId: userGroup.user.id,
-          name: userGroup.user.userProfile?.realName
-            ? userGroup.user.userProfile.realName
-            : '',
-          email: userGroup.user.email
         }
-      })
-    }
+      }
+    })
+
+    return userGroups.map((userGroup) => {
+      return {
+        username: userGroup.user.username,
+        userId: userGroup.user.id,
+        name: userGroup.user.userProfile?.realName
+          ? userGroup.user.userProfile.realName
+          : '',
+        email: userGroup.user.email
+      }
+    })
   }
 
   async updateGroupRole(

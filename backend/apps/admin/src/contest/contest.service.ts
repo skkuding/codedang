@@ -30,23 +30,15 @@ export class ContestService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getContests(
-    take: number,
-    groupId: number,
-    cursor?: number
-  ): Promise<Partial<Contest>[]> {
-    let skip = take < 0 ? 0 : 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
+  async getContests(take: number, groupId: number, cursor: number | null) {
+    const skip = cursor ? 1 : 0
 
     return await this.prisma.contest.findMany({
       where: { groupId },
       skip,
       take,
       cursor: {
-        id: cursor
+        id: cursor ?? 1
       }
     })
   }

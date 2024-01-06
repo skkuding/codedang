@@ -8,15 +8,11 @@ export class WorkbookService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getWorkbooksByGroupId(
-    cursor: number,
+    cursor: number | null,
     take: number,
     groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Workbook>[]> {
-    let skip = take < 0 ? 0 : 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
+  ) {
+    const skip = cursor ? 1 : 0
 
     const workbooks = await this.prisma.workbook.findMany({
       where: {
@@ -27,7 +23,7 @@ export class WorkbookService {
       skip,
       take,
       cursor: {
-        id: cursor
+        id: cursor ?? 1
       }
     })
     return workbooks

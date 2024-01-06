@@ -54,12 +54,8 @@ export class GroupService {
     return group
   }
 
-  async getGroups(cursor: number, take: number) {
-    let skip = take < 0 ? 0 : 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
+  async getGroups(cursor: number | null, take: number) {
+    const skip = cursor ? 1 : 0
 
     return (
       await this.prisma.group.findMany({
@@ -73,7 +69,7 @@ export class GroupService {
         take,
         skip,
         cursor: {
-          id: cursor
+          id: cursor ?? 1
         }
       })
     ).map((data) => {

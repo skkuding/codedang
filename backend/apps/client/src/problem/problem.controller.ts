@@ -34,7 +34,7 @@ export class ProblemController {
 
   @Get()
   async getProblems(
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
@@ -72,7 +72,7 @@ export class GroupProblemController {
   @Get()
   async getProblems(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
