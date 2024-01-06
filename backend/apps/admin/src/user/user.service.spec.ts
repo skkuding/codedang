@@ -340,9 +340,9 @@ describe('UserService', () => {
       const groupId = 1
       const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
       const cacheSpyGet = stub(cache, 'get').resolves([
-        [userGroup1.userId, joinRequestTimeLimit],
-        [userGroup2.userId, joinRequestTimeLimit],
-        [userGroup3.userId, joinRequestTimeLimit]
+        { userId: userGroup1.userId, expiresAt: joinRequestTimeLimit },
+        { userId: userGroup2.userId, expiresAt: joinRequestTimeLimit },
+        { userId: userGroup3.userId, expiresAt: joinRequestTimeLimit }
       ])
       const cacheSpySet = stub(cache, 'set').resolves()
 
@@ -369,8 +369,8 @@ describe('UserService', () => {
         cacheSpySet.calledOnceWithExactly(
           joinGroupCacheKey(groupId),
           [
-            [userGroup1.userId, joinRequestTimeLimit],
-            [userGroup2.userId, joinRequestTimeLimit]
+            { userId: userGroup1.userId, expiresAt: joinRequestTimeLimit },
+            { userId: userGroup2.userId, expiresAt: joinRequestTimeLimit }
           ],
           JOIN_GROUP_REQUEST_EXPIRE_TIME
         )
@@ -390,9 +390,9 @@ describe('UserService', () => {
       const groupId = 1
       const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
       const cacheSpyGet = stub(cache, 'get').resolves([
-        [userGroup1.userId, joinRequestTimeLimit],
-        [userGroup2.userId, joinRequestTimeLimit],
-        [userGroup3.userId, joinRequestTimeLimit]
+        { userId: userGroup1.userId, expiresAt: joinRequestTimeLimit },
+        { userId: userGroup2.userId, expiresAt: joinRequestTimeLimit },
+        { userId: userGroup3.userId, expiresAt: joinRequestTimeLimit }
       ])
       const cacheSpySet = stub(cache, 'set').resolves()
       const res = await service.handleJoinRequest(
@@ -407,8 +407,8 @@ describe('UserService', () => {
         cacheSpySet.calledOnceWithExactly(
           joinGroupCacheKey(groupId),
           [
-            [userGroup1.userId, joinRequestTimeLimit],
-            [userGroup2.userId, joinRequestTimeLimit]
+            { userId: userGroup1.userId, expiresAt: joinRequestTimeLimit },
+            { userId: userGroup2.userId, expiresAt: joinRequestTimeLimit }
           ],
           JOIN_GROUP_REQUEST_EXPIRE_TIME
         )
@@ -422,8 +422,8 @@ describe('UserService', () => {
       const groupId = 1
       const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
       const cacheSpyGet = stub(cache, 'get').resolves([
-        [userGroup1.userId, joinRequestTimeLimit],
-        [userGroup2.userId, joinRequestTimeLimit]
+        { userId: userGroup1.userId, expiresAt: joinRequestTimeLimit },
+        { userId: userGroup2.userId, expiresAt: joinRequestTimeLimit }
       ])
 
       const res = async () =>
