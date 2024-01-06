@@ -100,7 +100,7 @@ export default async function Home() {
               return (
                 <Link
                   key={problem.problemId}
-                  href={`/workbook/1/problem/${problem.problemId}` as Route}
+                  href={`/problem/${problem.problemId}` as Route}
                 >
                   <ProblemCard problem={problem} />
                 </Link>

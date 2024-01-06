@@ -8,7 +8,7 @@ import TimeDiff from './TimeDiff'
 const variants = {
   ongoing: 'bg-gradient-to-br from-[#9BE299] to-[#82D4E7]',
   upcoming: 'bg-gradient-to-br from-[#A6B8FF] to-[#86C8DE]',
-  finished: 'bg-gradient-to-br from-[#d1c9d9] to-[#b9c8e6]'
+  finished: 'bg-gradient-to-br from-[#D1C9D9] to-[#B9C8E6]'
 }
 
 interface Props {

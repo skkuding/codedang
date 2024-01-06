@@ -25,7 +25,7 @@ export default function Badge({ type, filled, children }: Props) {
       )}
     >
       {!filled && (
-        <div className={`h-2.5 w-2.5 rounded-full ${variants[type]}`}></div>
+        <div className={cn('h-2.5 w-2.5 rounded-full', variants[type])}></div>
       )}
       <div className="text-sm">{children}</div>
     </div>
