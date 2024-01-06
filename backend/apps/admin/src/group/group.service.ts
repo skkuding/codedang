@@ -7,6 +7,7 @@ import { INVIATION_EXPIRE_TIME, OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   DuplicateFoundException,
+  EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -85,7 +86,7 @@ export class GroupService {
   }
 
   async getGroup(id: number) {
-    const { userGroup, ...group } = await this.prisma.group.findUnique({
+    const data = await this.prisma.group.findUnique({
       where: {
         id
       },
@@ -93,6 +94,12 @@ export class GroupService {
         userGroup: true
       }
     })
+
+    if (!data) {
+      throw new EntityNotExistException('Group')
+    }
+
+    const { userGroup, ...group } = data
     const code = await this.cacheManager.get<string>(invitationGroupKey(id))
 
     return {
@@ -171,7 +178,10 @@ export class GroupService {
         config: true
       }
     })
-    if (!group.config['allowJoinWithURL']) {
+    if (!group) {
+      throw new EntityNotExistException('Group')
+    }
+    if (!group.config?.['allowJoinWithURL']) {
       throw new ConflictFoundException(
         'Allow join by url in group configuration to make invitation'
       )
@@ -199,7 +209,7 @@ export class GroupService {
   }
 
   async revokeInvitation(id: number) {
-    const invitation: string = await this.cacheManager.get(
+    const invitation = await this.cacheManager.get<string>(
       invitationGroupKey(id)
     )
     if (!invitation) {

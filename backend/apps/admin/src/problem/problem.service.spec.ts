@@ -442,7 +442,7 @@ describe('ProblemService', () => {
 
       const result = await service.createProblem(
         input,
-        problems[0].createdById,
+        problems[0].createdById!,
         groupId
       )
       expect(result).to.deep.equal(problems[0])
@@ -455,7 +455,7 @@ describe('ProblemService', () => {
       await expect(
         service.createProblem(
           { ...input, languages: [] },
-          problems[0].createdById,
+          problems[0].createdById!,
           groupId
         )
       ).to.be.rejectedWith(UnprocessableDataException)
@@ -468,7 +468,7 @@ describe('ProblemService', () => {
       await expect(
         service.createProblem(
           { ...input, template: [{ ...template, language: 'Java' }] },
-          problems[0].createdById,
+          problems[0].createdById!,
           groupId
         )
       ).to.be.rejectedWith(UnprocessableDataException)

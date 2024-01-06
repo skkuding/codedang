@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { Problem, ProblemTag, Tag } from '@prisma/client'
+import type { Problem, Tag } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
 
 /**
@@ -39,15 +39,7 @@ export class ProblemRepository {
     outputExamples: true
   }
 
-  async getProblems(
-    cursor: number,
-    take: number,
-    groupId: number
-  ): Promise<
-    (Partial<Problem> & {
-      problemTag: Partial<ProblemTag>[]
-    })[]
-  > {
+  async getProblems(cursor: number, take: number, groupId: number) {
     let skip = 1
     if (cursor === 0) {
       cursor = 1
@@ -121,7 +113,7 @@ export class ProblemRepository {
     })
   }
 
-  async getProblemsTags(tagIds: number[]): Promise<Partial<Tag>[]> {
+  async getProblemsTags(tagIds: number[]) {
     return await this.prisma.tag.findMany({
       where: {
         id: {

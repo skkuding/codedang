@@ -51,7 +51,7 @@ export class GroupLeaderGuard implements CanActivate {
     }
 
     const userGroup = await this.service.getUserGroup(user.id, groupId)
-    const isGroupLeader: boolean = userGroup && userGroup.isGroupLeader
+    const isGroupLeader = userGroup?.isGroupLeader
     if (isGroupLeader) {
       return true
     }

@@ -50,7 +50,7 @@ const contestDetail = {
   endTime: dayjs().add(-1, 'day').toDate()
 }
 
-const ongoingContests: Partial<Contest>[] = [
+const ongoingContests = [
   {
     ...contest,
     id: contestId,
@@ -61,8 +61,9 @@ const ongoingContests: Partial<Contest>[] = [
       isRankisVisible: true
     }
   }
-]
-const finishedContests: Partial<Contest>[] = [
+] satisfies Partial<Contest>[]
+
+const finishedContests = [
   {
     ...contest,
     id: contestId + 1,
@@ -73,8 +74,9 @@ const finishedContests: Partial<Contest>[] = [
       isRankisVisible: true
     }
   }
-]
-const upcomingContests: Partial<Contest>[] = [
+] satisfies Partial<Contest>[]
+
+const upcomingContests = [
   {
     ...contest,
     id: contestId + 6,
@@ -85,8 +87,9 @@ const upcomingContests: Partial<Contest>[] = [
       isRankisVisible: true
     }
   }
-]
-const registeredOngoingContests: Partial<Contest>[] = [
+] satisfies Partial<Contest>[]
+
+const registeredOngoingContests = [
   {
     ...contest,
     id: contestId,
@@ -96,8 +99,9 @@ const registeredOngoingContests: Partial<Contest>[] = [
       isRankisVisible: true
     }
   }
-]
-const registeredUpcomingContests: Partial<Contest>[] = [
+] satisfies Partial<Contest>[]
+
+const registeredUpcomingContests = [
   {
     ...contest,
     id: contestId + 6,
@@ -108,17 +112,20 @@ const registeredUpcomingContests: Partial<Contest>[] = [
       isRankisVisible: true
     }
   }
-]
-const contests: Partial<Contest>[] = [
+] satisfies Partial<Contest>[]
+
+const contests = [
   ...ongoingContests,
   ...finishedContests,
   ...upcomingContests
-]
-const userContests: Partial<Contest>[] = [
+] satisfies Partial<Contest>[]
+
+const userContests = [
   ...registeredOngoingContests,
   ...registeredUpcomingContests
-]
-const ongoingContest: Partial<Contest> = ongoingContests[0]
+] satisfies Partial<Contest>[]
+
+const ongoingContest = ongoingContests[0]
 
 const earlierContest: Contest = {
   ...contest,
