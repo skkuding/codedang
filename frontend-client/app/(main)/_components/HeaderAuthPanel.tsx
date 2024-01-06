@@ -1,6 +1,6 @@
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import { authOptions } from '@/lib/auth'
 import { getServerSession } from 'next-auth'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import SignIn from './SignIn'
