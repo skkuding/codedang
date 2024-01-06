@@ -1,29 +1,60 @@
-import icon from '@/app/icon.png'
-import Image from 'next/image'
-import { IoIosArrowForward } from 'react-icons/io'
+import HeaderEditor from '@/app/problem/[id]/_components/HeaderEditor'
+import SelectScrollable from '@/app/problem/[id]/_components/SelectScrollable'
+import { Button } from '@/components/ui/button'
+import { baseUrl } from '@/lib/vars'
+import * as React from 'react'
+import { TbReload } from 'react-icons/tb'
 import MainResizablePanel from './_components/MainResizablePanel'
 
+// Interface for the subset of information for editor
+interface ProblemInfo {
+  id: number
+  title: string
+  description: string
+  inputDescription: string
+  outputDescription: string
+  inputExamples: string[]
+  outputExamples: string[]
+}
+
 export default async function ProblemEditor() {
+  // 임시로 id=1로 고정
+  const response = await fetch(baseUrl + '/problem/1')
+  const data = await response.json()
+
+  // Specific information for editor main page
+  const editorData: ProblemInfo = {
+    id: data.id,
+    title: data.title,
+    description: data.description,
+    inputDescription: data.inputDescription,
+    outputDescription: data.outputDescription,
+    inputExamples: data.inputExamples,
+    outputExamples: data.outputExamples
+  }
+
   return (
     <div className="flex h-dvh w-full flex-col bg-slate-700 text-white">
-      <header className="flex h-12 shrink-0 justify-between bg-slate-800 px-5">
-        <div className="flex items-center justify-center gap-7 font-bold text-slate-500">
-          <Image src={icon} alt="코드당" width={30} />
-          <div className="flex items-center gap-1">
-            <p>Problem</p>
-            <IoIosArrowForward className="size-6" />
-            {/* Problem Name 임의 */}
-            <h1 className="text-lg text-white">가파른 경사</h1>
+      <HeaderEditor title={data.title} />
+
+      <main className="flex h-full flex-col border border-slate-600">
+        <div className="flex h-10 shrink-0 justify-between border-b border-b-slate-600">
+          <div className="ml-6 flex items-center justify-center gap-4">
+            {/* 임시 */}
+            <div className="text-primary cursor-pointer">Editor</div>
+            <div className="cursor-pointer">Submissions</div>
+          </div>
+          <div className="mr-5 flex items-center gap-3">
+            <Button size="icon" className="size-7 rounded-[5px] bg-slate-500">
+              <TbReload className="size-4" />
+            </Button>
+            <Button className="bg-primary h-7 rounded-[5px] px-2">
+              <span className="font-semibold">Submit</span>
+            </Button>
+            <SelectScrollable languages={data.languages} />
           </div>
         </div>
-        <div className="flex items-center justify-center">
-          <span className="text-slate-500">ENG</span>
-          <span className="mx-2">l</span>
-        </div>
-      </header>
-      <main className="flex h-full flex-col border border-slate-600">
-        <div className="h-12 shrink-0 border-b border-b-slate-600"></div>
-        <MainResizablePanel />
+        <MainResizablePanel data={editorData} />
       </main>
     </div>
   )
