@@ -4,6 +4,7 @@ import {
   Injectable,
   UnprocessableEntityException
 } from '@nestjs/common'
+import type { ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
   OPEN_SPACE_ID,
@@ -230,7 +231,7 @@ export class ContestService {
 
     const newRequest: PublicizingRequest = {
       contestId,
-      userId: contest.createdById,
+      userId: contest.createdById!, // TODO: createdById가 null일 경우 예외처리
       expireTime: new Date(Date.now() + PUBLICIZING_REQUEST_EXPIRE_TIME)
     }
     requests.push(newRequest)
@@ -259,7 +260,8 @@ export class ContestService {
       throw new EntityNotExistException('contest')
     }
 
-    const contestProblems = []
+    const contestProblems: ContestProblem[] = []
+
     for (const problemId of problemIds) {
       const problem = await this.prisma.problem.findUnique({
         where: {

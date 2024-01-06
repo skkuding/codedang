@@ -217,7 +217,7 @@ export class UserService {
   }
 
   async getJoinRequests(groupId: number) {
-    let joinGroupRequest: [number, number][] = await this.cacheManager.get(
+    let joinGroupRequest = await this.cacheManager.get<[number, number][]>(
       joinGroupCacheKey(groupId)
     )
     if (joinGroupRequest === undefined) {
@@ -239,7 +239,7 @@ export class UserService {
     userId: number,
     isAccepted: boolean
   ): Promise<UserGroup | number> {
-    let joinGroupRequest: [number, number][] = await this.cacheManager.get(
+    let joinGroupRequest = await this.cacheManager.get<[number, number][]>(
       joinGroupCacheKey(groupId)
     )
     if (joinGroupRequest)
@@ -267,6 +267,10 @@ export class UserService {
           role: true
         }
       })
+
+      if (!requestedUser) {
+        throw new NotFoundException(`userId ${userId} not found`)
+      }
 
       return await this.prisma.userGroup.create({
         data: {

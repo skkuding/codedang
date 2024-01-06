@@ -60,7 +60,7 @@ export class GroupService {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
-        allowJoin: invited ? true : group.config['allowJoinFromSearch'],
+        allowJoin: invited ? true : group.config?.['allowJoinFromSearch'],
         memberNum: group.userGroup.length,
         leaders: await this.getGroupLeaders(groupId),
         isJoined: false
@@ -75,7 +75,7 @@ export class GroupService {
   }
 
   async getGroupByInvitation(code: string, userId: number) {
-    const groupId: number = await this.cacheManager.get(invitationCodeKey(code))
+    const groupId = await this.cacheManager.get<number>(invitationCodeKey(code))
 
     if (!groupId) {
       throw new EntityNotExistException('Invalid invitation')
@@ -234,8 +234,8 @@ export class GroupService {
 
     if (isJoined) {
       throw new ConflictFoundException('Already joined this group')
-    } else if (group.config['requireApprovalBeforeJoin']) {
-      let joinGroupRequest: [number, number][] = await this.cacheManager.get(
+    } else if (group.config?.['requireApprovalBeforeJoin']) {
+      let joinGroupRequest = await this.cacheManager.get<[number, number][]>(
         joinGroupCacheKey(groupId)
       )
       if (joinGroupRequest) {

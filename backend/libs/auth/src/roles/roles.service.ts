@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import type { User } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
 
 @Injectable()
 export class RolesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getUserRole(userId: number): Promise<Partial<User>> {
+  async getUserRole(userId: number) {
     return await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
       select: {

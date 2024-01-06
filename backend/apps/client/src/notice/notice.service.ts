@@ -17,34 +17,34 @@ export class NoticeService {
       skip = 0
     }
 
-    return (
-      await this.prisma.notice.findMany({
-        where: {
-          groupId,
-          isVisible: true,
-          isFixed: false
-        },
-        select: {
-          id: true,
-          title: true,
-          createTime: true,
-          isFixed: true,
-          createdBy: {
-            select: {
-              username: true
-            }
+    const notices = await this.prisma.notice.findMany({
+      where: {
+        groupId,
+        isVisible: true,
+        isFixed: false
+      },
+      select: {
+        id: true,
+        title: true,
+        createTime: true,
+        isFixed: true,
+        createdBy: {
+          select: {
+            username: true
           }
-        },
-        take,
-        skip,
-        cursor: {
-          id: cursor
         }
-      })
-    ).map((notice) => {
+      },
+      take,
+      skip,
+      cursor: {
+        id: cursor
+      }
+    })
+
+    return notices.map((notice) => {
       return {
         ...notice,
-        createdBy: notice.createdBy.username
+        createdBy: notice.createdBy?.username
       }
     })
   }
@@ -76,7 +76,7 @@ export class NoticeService {
     ).map((notice) => {
       return {
         ...notice,
-        createdBy: notice.createdBy.username
+        createdBy: notice.createdBy?.username
       }
     })
   }
@@ -102,7 +102,7 @@ export class NoticeService {
         }
       })
       .then((notice) => {
-        return { ...notice, createdBy: notice.createdBy.username }
+        return { ...notice, createdBy: notice.createdBy?.username }
       })
 
     const navigate = (pos: 'prev' | 'next') => {

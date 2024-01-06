@@ -1,6 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { BadRequestException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
+import { faker } from '@faker-js/faker'
 import type { User, UserGroup } from '@prisma/client'
 import { Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
@@ -19,9 +20,9 @@ const user1: User = {
   email: 'example@codedang.com',
   password: 'password',
   role: Role.User,
-  lastLogin: undefined,
-  createTime: undefined,
-  updateTime: undefined
+  lastLogin: faker.date.past(),
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const user2: User = {
@@ -30,9 +31,9 @@ const user2: User = {
   email: 'example@codedang.com',
   password: 'password',
   role: Role.Admin,
-  lastLogin: undefined,
-  createTime: undefined,
-  updateTime: undefined
+  lastLogin: faker.date.past(),
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const user3: User = {
@@ -41,33 +42,33 @@ const user3: User = {
   email: 'example@codedang.com',
   password: 'password',
   role: Role.User,
-  lastLogin: undefined,
-  createTime: undefined,
-  updateTime: undefined
+  lastLogin: faker.date.past(),
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const userGroup1: UserGroup = {
   userId: 3,
   groupId: 2,
   isGroupLeader: true,
-  createTime: undefined,
-  updateTime: undefined
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const userGroup2: UserGroup = {
   userId: 4,
   groupId: 2,
   isGroupLeader: true,
-  createTime: undefined,
-  updateTime: undefined
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const userGroup3: UserGroup = {
   userId: 5,
   groupId: 2,
   isGroupLeader: false,
-  createTime: undefined,
-  updateTime: undefined
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const updateFindResult = [
@@ -168,7 +169,7 @@ describe('UserService', () => {
       ]
       db.userGroup.findMany.resolves(result)
 
-      const res = await service.getGroupMembers(groupId, null, 2, true)
+      const res = await service.getGroupMembers(groupId, 0, 2, true)
       expect(res).to.deep.equal([
         {
           username: user1.username,
