@@ -5,23 +5,10 @@ import {
   baseUrl
 } from '@/lib/vars'
 import type { NextAuthOptions, Session, User } from 'next-auth'
-import NextAuth, { getServerSession } from 'next-auth'
+import NextAuth from 'next-auth'
 import type { JWT } from 'next-auth/jwt'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { parseCookie } from 'next/dist/compiled/@edge-runtime/cookies'
-
-export const fetcherWithAuth = fetcher.extend({
-  hooks: {
-    beforeRequest: [
-      async (request) => {
-        const session = await getServerSession(authOptions)
-        if (session) {
-          request.headers.set('Authorization', session.token.accessToken)
-        }
-      }
-    ]
-  }
-})
 
 const getToken = (res: Response) => {
   const Authorization = res.headers.get('authorization')
@@ -63,7 +50,7 @@ export const authOptions: NextAuthOptions = {
             return {
               username: user.username,
               role: user.role,
-              accessToken: 'Authorization',
+              accessToken: Authorization,
               refreshToken: refreshToken
             } as User
           }
@@ -84,7 +71,7 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role
         token.accessToken = user.accessToken
         token.refreshToken = user.refreshToken
-        token.accessTokenExpires = now + (ACCESS_TOKEN_EXPIRE_TIME - 60) * 1000
+        token.accessTokenExpires = now + 2000
         token.refreshTokenExpires =
           now + (REFRESH_TOKEN_EXPIRE_TIME - 60) * 1000
       }
@@ -99,8 +86,7 @@ export const authOptions: NextAuthOptions = {
           const { Authorization, refreshToken } = getToken(res)
           token.accessToken = Authorization
           token.refreshToken = refreshToken
-          token.accessTokenExpires =
-            now + (ACCESS_TOKEN_EXPIRE_TIME - 60) * 1000
+          token.accessTokenExpires = now + 2000
           token.refreshTokenExpires =
             now + (REFRESH_TOKEN_EXPIRE_TIME - 60) * 1000
         }
