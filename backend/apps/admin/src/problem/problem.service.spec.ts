@@ -643,7 +643,7 @@ describe('ProblemService', () => {
             where: {
               // eslint-disable-next-line @typescript-eslint/naming-convention
               workbookId_problemId: {
-                workbookId: workbookId,
+                workbookId,
                 problemId: record.problemId
               }
             },
@@ -765,7 +765,7 @@ describe('ProblemService', () => {
             where: {
               // eslint-disable-next-line @typescript-eslint/naming-convention
               contestId_problemId: {
-                contestId: contestId,
+                contestId,
                 problemId: record.problemId
               }
             },

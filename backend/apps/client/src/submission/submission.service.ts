@@ -106,7 +106,7 @@ export class SubmissionService implements OnModuleInit {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_userId: {
-          contestId: contestId,
+          contestId,
           userId
         }
       },
@@ -132,8 +132,8 @@ export class SubmissionService implements OnModuleInit {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_problemId: {
-          problemId: problemId,
-          contestId: contestId
+          problemId,
+          contestId
         }
       },
       include: {
@@ -155,8 +155,8 @@ export class SubmissionService implements OnModuleInit {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
-          problemId: problemId,
-          workbookId: workbookId
+          problemId,
+          workbookId
         }
       },
       include: {

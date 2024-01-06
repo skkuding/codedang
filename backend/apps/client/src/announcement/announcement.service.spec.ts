@@ -13,14 +13,14 @@ const announcements: Announcement[] = [
   {
     id: 1,
     content: 'Announcement 0',
-    problemId: problemId,
+    problemId,
     createTime: new Date('1970-12-01T12:00:00.000+09:00'),
     updateTime: new Date('1971-12-01T12:00:00.000+09:00')
   },
   {
     id: 2,
     content: 'Announcement 1',
-    problemId: problemId,
+    problemId,
     createTime: new Date('1980-12-01T12:00:00.000+09:00'),
     updateTime: new Date('1981-12-01T12:00:00.000+09:00')
   }

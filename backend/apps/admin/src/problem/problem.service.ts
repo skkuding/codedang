@@ -199,7 +199,7 @@ export class ProblemService {
         inputDescription: '',
         outputDescription: '',
         hint: '',
-        template: template,
+        template,
         languages,
         timeLimit: 2000,
         memoryLimit: 512,
@@ -298,7 +298,7 @@ export class ProblemService {
     return await this.prisma.problem.findMany({
       where: {
         ...whereOptions,
-        groupId: groupId
+        groupId
       },
       cursor: {
         id: cursor
@@ -356,9 +356,9 @@ export class ProblemService {
       where: { id },
       data: {
         ...data,
-        ...(languages && { languages: languages }),
+        ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
-        problemTag: problemTag
+        problemTag
       }
     })
   }
@@ -370,8 +370,8 @@ export class ProblemService {
     const createIds = problemTags.create.map(async (tagId) => {
       const check = await this.prisma.problemTag.findFirst({
         where: {
-          tagId: tagId,
-          problemId: problemId
+          tagId,
+          problemId
         }
       })
       if (check) {
@@ -383,8 +383,8 @@ export class ProblemService {
     const deleteIds = problemTags.delete.map(async (tagId) => {
       const check = await this.prisma.problemTag.findFirstOrThrow({
         where: {
-          tagId: tagId,
-          problemId: problemId
+          tagId,
+          problemId
         },
         select: { id: true }
       })
@@ -481,7 +481,7 @@ export class ProblemService {
     await this.getProblem(id, groupId)
 
     const result = await this.prisma.problem.delete({
-      where: { id: id }
+      where: { id }
     })
     await this.storageService.deleteObject(`${id}.json`)
 
@@ -495,7 +495,7 @@ export class ProblemService {
     // id를 받은 workbook이 현재 접속된 group의 것인지 확인
     // 아니면 에러 throw
     await this.prisma.workbook.findFirstOrThrow({
-      where: { id: workbookId, groupId: groupId }
+      where: { id: workbookId, groupId }
     })
     const workbookProblems = await this.prisma.workbookProblem.findMany({
       where: { workbookId }
@@ -512,7 +512,7 @@ export class ProblemService {
   ): Promise<Partial<WorkbookProblem>[]> {
     // id를 받은 workbook이 현재 접속된 group의 것인지 확인
     await this.prisma.workbook.findFirstOrThrow({
-      where: { id: workbookId, groupId: groupId }
+      where: { id: workbookId, groupId }
     })
     // workbookId를 가지고 있는 workbookProblem을 모두 가져옴
     const workbookProblemsToBeUpdated =
@@ -533,7 +533,7 @@ export class ProblemService {
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           workbookId_problemId: {
-            workbookId: workbookId,
+            workbookId,
             problemId: record.problemId
           }
         },
@@ -548,7 +548,7 @@ export class ProblemService {
     contestId: number
   ): Promise<Partial<ContestProblem>[]> {
     await this.prisma.contest.findFirstOrThrow({
-      where: { id: contestId, groupId: groupId }
+      where: { id: contestId, groupId }
     })
     const contestProblems = await this.prisma.contestProblem.findMany({
       where: { contestId }
@@ -562,7 +562,7 @@ export class ProblemService {
     orders: number[]
   ): Promise<Partial<ContestProblem>[]> {
     await this.prisma.contest.findFirstOrThrow({
-      where: { id: contestId, groupId: groupId }
+      where: { id: contestId, groupId }
     })
 
     const contestProblemsToBeUpdated =
@@ -583,7 +583,7 @@ export class ProblemService {
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           contestId_problemId: {
-            contestId: contestId,
+            contestId,
             problemId: record.problemId
           }
         },

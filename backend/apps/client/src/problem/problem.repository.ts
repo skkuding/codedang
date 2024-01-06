@@ -57,8 +57,8 @@ export class ProblemRepository {
       cursor: {
         id: cursor
       },
-      skip: skip,
-      take: take,
+      skip,
+      take,
       where: {
         groupId
       },
@@ -115,7 +115,7 @@ export class ProblemRepository {
     return await this.prisma.problem.findUniqueOrThrow({
       where: {
         id: problemId,
-        groupId: groupId
+        groupId
       },
       select: this.problemSelectOption
     })
@@ -145,13 +145,13 @@ export class ProblemRepository {
       cursor: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_problemId: {
-          contestId: contestId,
+          contestId,
           problemId: cursor
         }
       },
-      skip: skip,
-      take: take,
-      where: { contestId: contestId },
+      skip,
+      take,
+      where: { contestId },
       select: {
         order: true,
         problem: {
@@ -171,8 +171,8 @@ export class ProblemRepository {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_problemId: {
-          contestId: contestId,
-          problemId: problemId
+          contestId,
+          problemId
         }
       },
       select: {
@@ -199,13 +199,13 @@ export class ProblemRepository {
       cursor: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
-          workbookId: workbookId,
+          workbookId,
           problemId: cursor
         }
       },
-      skip: skip,
-      take: take,
-      where: { workbookId: workbookId },
+      skip,
+      take,
+      where: { workbookId },
       select: {
         order: true,
         problem: {
@@ -220,8 +220,8 @@ export class ProblemRepository {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
-          workbookId: workbookId,
-          problemId: problemId
+          workbookId,
+          problemId
         }
       },
       select: {

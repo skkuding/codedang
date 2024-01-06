@@ -16,7 +16,7 @@ const groupId = 1
 const contest: Contest = {
   id: contestId,
   createdById: userId,
-  groupId: groupId,
+  groupId,
   title: 'title',
   description: 'description',
   startTime: undefined,
@@ -30,8 +30,8 @@ const contest: Contest = {
 }
 
 const publicizingRequest: PublicizingRequest = {
-  contestId: contestId,
-  userId: userId,
+  contestId,
+  userId,
   expireTime: new Date('2050-08-19T07:32:07.533Z')
 }
 
@@ -168,7 +168,7 @@ describe('ContestService', () => {
 
       expect(cacheSpyGet.called).to.be.true
       expect(res).to.deep.equal({
-        contestId: contestId,
+        contestId,
         isAccepted: true
       })
     })
