@@ -10,10 +10,10 @@ import ProblemCard from './_components/ProblemCard'
 const slides = [{ href: '/problem/1' }, { href: '/problem/2' }]
 
 const getContests = async () => {
-  const data = (await fetcher.get('contest').json()) as {
+  const data: {
     ongoing: Contest[]
     upcoming: Contest[]
-  }
+  } = await fetcher.get('contest').json()
   data.ongoing.forEach((contest) => {
     contest.status = 'ongoing'
   })
@@ -23,15 +23,15 @@ const getContests = async () => {
   let contests = data.ongoing.concat(data.upcoming)
 
   if (contests.length < 3) {
-    const data = (await fetcher
+    const data: {
+      finished: Contest[]
+    } = await fetcher
       .get('contest/finished', {
         searchParams: {
           take: 3
         }
       })
-      .json()) as {
-      finished: Contest[]
-    }
+      .json()
     data.finished.forEach((contest) => {
       contest.status = 'finished'
     })
@@ -42,13 +42,13 @@ const getContests = async () => {
 
 export default async function Home() {
   const contests = await getContests()
-  const problems = (await fetcher
+  const problems: WorkbookProblem[] = await fetcher
     .get('workbook/1/problem', {
       searchParams: {
         take: 3
       }
     })
-    .json()) as WorkbookProblem[]
+    .json()
   return (
     <div className="flex flex-col gap-12">
       <Carousel slides={slides}></Carousel>
