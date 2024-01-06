@@ -71,7 +71,7 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role
         token.accessToken = user.accessToken
         token.refreshToken = user.refreshToken
-        token.accessTokenExpires = now + 2000
+        token.accessTokenExpires = now + (ACCESS_TOKEN_EXPIRE_TIME - 60) * 1000
         token.refreshTokenExpires =
           now + (REFRESH_TOKEN_EXPIRE_TIME - 60) * 1000
       }
@@ -86,7 +86,8 @@ export const authOptions: NextAuthOptions = {
           const { Authorization, refreshToken } = getToken(res)
           token.accessToken = Authorization
           token.refreshToken = refreshToken
-          token.accessTokenExpires = now + 2000
+          token.accessTokenExpires =
+            now + (ACCESS_TOKEN_EXPIRE_TIME - 60) * 1000
           token.refreshTokenExpires =
             now + (REFRESH_TOKEN_EXPIRE_TIME - 60) * 1000
         }
