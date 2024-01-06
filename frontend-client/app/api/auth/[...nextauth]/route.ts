@@ -1,9 +1,5 @@
 import { fetcher } from '@/lib/utils'
-import {
-  ACCESS_TOKEN_EXPIRE_TIME,
-  REFRESH_TOKEN_EXPIRE_TIME,
-  baseUrl
-} from '@/lib/vars'
+import { ACCESS_TOKEN_EXPIRE_TIME, REFRESH_TOKEN_EXPIRE_TIME } from '@/lib/vars'
 import type { NextAuthOptions, Session, User } from 'next-auth'
 import NextAuth from 'next-auth'
 import type { JWT } from 'next-auth/jwt'
@@ -29,14 +25,11 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'password', type: 'password' }
       },
       async authorize(credentials) {
-        const res = await fetch(baseUrl + '/auth/login', {
-          method: 'POST',
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        const res = await fetcher.post('auth/login', {
+          json: {
             username: credentials?.username,
             password: credentials?.password
-          })
+          }
         })
         if (res.ok) {
           const { Authorization, refreshToken } = getToken(res)
