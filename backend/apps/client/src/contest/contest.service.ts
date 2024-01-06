@@ -232,7 +232,7 @@ export class ContestService {
           path: ['isVisible'],
           equals: true
         },
-        groupId: groupId
+        groupId
       }
     }))
   }

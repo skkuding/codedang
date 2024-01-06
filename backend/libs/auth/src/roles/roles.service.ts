@@ -18,8 +18,8 @@ export class RolesService {
   async getUserGroup(userId: number, groupId: number) {
     return await this.prisma.userGroup.findFirst({
       where: {
-        userId: userId,
-        groupId: groupId
+        userId,
+        groupId
       },
       select: {
         isGroupLeader: true

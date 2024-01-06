@@ -282,7 +282,7 @@ export class UserService {
     return await this.prisma.userOAuth.create({
       data: {
         id: socialSignUpDto.id,
-        userId: userId,
+        userId,
         provider: socialSignUpDto.provider
       }
     })

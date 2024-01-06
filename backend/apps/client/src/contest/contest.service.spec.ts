@@ -21,7 +21,7 @@ const undefinedUserId = undefined
 const contest = {
   id: contestId,
   createdById: userId,
-  groupId: groupId,
+  groupId,
   title: 'title',
   description: 'description',
   startTime: dayjs().add(-1, 'day').toDate(),
@@ -148,8 +148,8 @@ const user = {
 }
 
 const userGroup: UserGroup = {
-  userId: userId,
-  groupId: groupId,
+  userId,
+  groupId,
   isGroupLeader: true,
   createTime: new Date(),
   updateTime: new Date()
@@ -163,8 +163,8 @@ const userGroups: UserGroup[] = [
 ]
 const record: ContestRecord = {
   id: 1,
-  contestId: contestId,
-  userId: userId,
+  contestId,
+  userId,
   acceptedProblemNum: 0,
   totalPenalty: 0,
   createTime: new Date(),

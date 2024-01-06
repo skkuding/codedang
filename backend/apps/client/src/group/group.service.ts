@@ -22,8 +22,8 @@ export class GroupService {
   async getGroup(groupId: number, userId: number, invited = false) {
     const isJoined = await this.prisma.userGroup.findFirst({
       where: {
-        userId: userId,
-        groupId: groupId
+        userId,
+        groupId
       },
       select: {
         group: {
@@ -87,7 +87,7 @@ export class GroupService {
     const leaders = (
       await this.prisma.userGroup.findMany({
         where: {
-          groupId: groupId,
+          groupId,
           isGroupLeader: true
         },
         select: {
@@ -107,7 +107,7 @@ export class GroupService {
     const members = (
       await this.prisma.userGroup.findMany({
         where: {
-          groupId: groupId,
+          groupId,
           isGroupLeader: false
         },
         select: {
@@ -170,7 +170,7 @@ export class GroupService {
           NOT: {
             groupId: 1
           },
-          userId: userId
+          userId
         },
         select: {
           group: {
@@ -261,8 +261,8 @@ export class GroupService {
 
       return {
         userGroupData: {
-          userId: userId,
-          groupId: groupId
+          userId,
+          groupId
         },
         isJoined: false
       }
@@ -283,7 +283,7 @@ export class GroupService {
     const groupLeaders = await this.prisma.userGroup.findMany({
       where: {
         isGroupLeader: true,
-        groupId: groupId
+        groupId
       }
     })
     if (groupLeaders.length == 1 && groupLeaders[0].userId == userId) {
@@ -294,8 +294,8 @@ export class GroupService {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         userId_groupId: {
-          userId: userId,
-          groupId: groupId
+          userId,
+          groupId
         }
       }
     })
@@ -306,7 +306,7 @@ export class GroupService {
     return (
       await this.prisma.userGroup.findMany({
         where: {
-          userId: userId,
+          userId,
           isGroupLeader: true
         },
         select: {

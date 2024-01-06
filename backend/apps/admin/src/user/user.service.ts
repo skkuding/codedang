@@ -114,8 +114,8 @@ export class UserService {
     // find the user
     const groupMember = await this.prisma.userGroup.findFirst({
       where: {
-        groupId: groupId,
-        userId: userId
+        groupId,
+        userId
       },
       select: {
         user: {
@@ -136,7 +136,7 @@ export class UserService {
     const userRole = groupMember.user.role
     const groupLeaderNum = await this.prisma.userGroup.count({
       where: {
-        groupId: groupId,
+        groupId,
         isGroupLeader: true
       }
     })
@@ -173,7 +173,7 @@ export class UserService {
     const groupMembers = (
       await this.prisma.userGroup.findMany({
         where: {
-          groupId: groupId
+          groupId
         },
         select: {
           userId: true,
