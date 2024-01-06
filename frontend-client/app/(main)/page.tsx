@@ -7,6 +7,11 @@ import Carousel from './_components/Carousel'
 import ContestCard from './_components/ContestCard'
 import ProblemCard from './_components/ProblemCard'
 
+// FIXME: Build error occurs when using static routes
+// Disable static routes as a workaround for now
+// https://github.com/vercel/next.js/issues/54961
+export const dynamic = 'force-dynamic'
+
 const slides = [{ href: '/problem/1' }, { href: '/problem/2' }]
 
 const getContests = async () => {
