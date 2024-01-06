@@ -33,9 +33,12 @@ export class ContestService {
         }
   >
 
-  async getContestsByGroupId(userId = -1, groupId = OPEN_SPACE_ID) {
+  async getContestsByGroupId(
+    userId: number | null = null,
+    groupId = OPEN_SPACE_ID
+  ) {
     const now = new Date()
-    if (userId === -1) {
+    if (userId == null) {
       const contests = await this.prisma.contest.findMany({
         where: {
           groupId,
