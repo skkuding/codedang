@@ -18,6 +18,7 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 interface ContestTableProps {
@@ -115,6 +116,8 @@ export default function ContestTable({ data }: ContestTableProps) {
     getCoreRowModel: getCoreRowModel()
   })
 
+  const router = useRouter()
+
   return (
     <>
       <div className="mt-4 flex items-center">
@@ -182,7 +185,9 @@ export default function ContestTable({ data }: ContestTableProps) {
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
                 className="cursor-pointer"
-                onClick={() => {}}
+                onClick={() => {
+                  router.push(`/contest/${row.original.id}`)
+                }}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
