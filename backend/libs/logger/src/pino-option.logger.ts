@@ -1,9 +1,22 @@
+import { gray, italic, white } from 'colorette'
 import type { Params } from 'nestjs-pino'
+import PinoPretty from 'pino-pretty'
 import type { PrettyOptions } from 'pino-pretty'
+import { format } from 'sql-formatter'
 
-// TODO: include context in message format of pino-pretty
-// TODO: add customPrettiers option to refine logs, such as query
-const pinoPrettyOptions: PrettyOptions = {}
+const pinoPrettyOptions: PrettyOptions = {
+  messageFormat: (log, messageKey) => {
+    const msg = log[messageKey] as string
+    const contextName = gray(italic(log.context as string))
+    return msg && contextName
+      ? `${msg} ${white('--')} ${contextName}`
+      : `${msg}${contextName}`
+  },
+  customPrettifiers: {
+    query: (q: string) => format(q, { language: 'postgresql' })
+  },
+  ignore: 'context,hostname,pid,message'
+}
 
 // TODO: change log level to nestjs-style. e.g. INFO -> LOG
 export const pinoLoggerModuleOption: Params = {
@@ -15,12 +28,9 @@ export const pinoLoggerModuleOption: Params = {
         return { level: label }
       }
     },
-    transport:
+    stream:
       process.env.NODE_ENV !== 'production'
-        ? {
-            target: 'pino-pretty',
-            options: pinoPrettyOptions
-          }
+        ? PinoPretty(pinoPrettyOptions)
         : undefined
   }
 }
