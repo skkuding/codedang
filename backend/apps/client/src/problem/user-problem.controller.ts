@@ -64,7 +64,7 @@ export class CodeDraftController {
         throw new NotFoundException(err.message)
       } else if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === 'P2025'
+        err.code == 'P2003'
       ) {
         throw new NotFoundException(err.message)
       } else if (err instanceof ForbiddenAccessException) {
