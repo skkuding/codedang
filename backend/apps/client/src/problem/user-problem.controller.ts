@@ -13,8 +13,8 @@ import {
   Put,
   Req
 } from '@nestjs/common'
-import { Prisma, Role } from '@prisma/client'
-import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
+import { Prisma } from '@prisma/client'
+import { AuthenticatedRequest } from '@libs/auth'
 import {
   ConflictFoundException,
   ForbiddenAccessException
@@ -23,7 +23,6 @@ import { CreateTemplateDto } from './dto/create-user-problem.dto'
 import { UserProblemService } from './problem.service'
 
 @Controller('user/problem/:problemId')
-@UseRolesGuard(Role.User)
 export class UserProblemController {
   private readonly logger = new Logger(UserProblemController.name)
 
