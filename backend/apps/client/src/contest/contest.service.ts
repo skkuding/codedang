@@ -116,10 +116,11 @@ export class ContestService {
     take: number,
     groupId = OPEN_SPACE_ID
   ) {
-    const skip = cursor ? 1 : 0
+    const paginator = this.prisma.getPaginator(cursor)
     const now = new Date()
 
     const finished = await this.prisma.contest.findMany({
+      ...paginator,
       where: {
         endTime: {
           lte: now
@@ -129,11 +130,6 @@ export class ContestService {
           path: ['isVisible'],
           equals: true
         }
-      },
-      skip,
-      take,
-      cursor: {
-        id: cursor ?? 1
       },
       select: this.contestSelectOption,
       orderBy: {

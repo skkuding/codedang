@@ -31,15 +31,12 @@ export class ContestService {
   ) {}
 
   async getContests(take: number, groupId: number, cursor: number | null) {
-    const skip = cursor ? 1 : 0
+    const paginator = this.prisma.getPaginator(cursor)
 
     return await this.prisma.contest.findMany({
+      ...paginator,
       where: { groupId },
-      skip,
-      take,
-      cursor: {
-        id: cursor ?? 1
-      }
+      take
     })
   }
 

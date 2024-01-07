@@ -27,18 +27,17 @@ export class UserService {
     take: number,
     leaderOnly: boolean
   ) {
-    const skip = cursor ? 1 : 0
+    const paginator = this.prisma.getPaginator(cursor, (value) => ({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      userId_groupId: {
+        userId: value,
+        groupId
+      }
+    }))
 
     const userGroups = await this.prisma.userGroup.findMany({
+      ...paginator,
       take,
-      skip,
-      cursor: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        userId_groupId: {
-          userId: cursor ?? 1,
-          groupId
-        }
-      },
       where: {
         groupId,
         isGroupLeader: leaderOnly ? true : undefined

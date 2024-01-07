@@ -55,21 +55,18 @@ export class GroupService {
   }
 
   async getGroups(cursor: number | null, take: number) {
-    const skip = cursor ? 1 : 0
+    const paginator = this.prisma.getPaginator(cursor)
 
     return (
       await this.prisma.group.findMany({
+        ...paginator,
+        take,
         select: {
           id: true,
           groupName: true,
           description: true,
           config: true,
           userGroup: true
-        },
-        take,
-        skip,
-        cursor: {
-          id: cursor ?? 1
         }
       })
     ).map((data) => {

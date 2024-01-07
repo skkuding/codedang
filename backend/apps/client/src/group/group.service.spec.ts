@@ -41,7 +41,8 @@ const db = {
     findFirst: stub(),
     findMany: stub(),
     findUnique: stub()
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('GroupService', () => {

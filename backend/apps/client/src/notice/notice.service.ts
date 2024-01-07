@@ -11,14 +11,16 @@ export class NoticeService {
     take: number,
     groupId = OPEN_SPACE_ID
   ) {
-    const skip = cursor ? 1 : 0
+    const paginator = this.prisma.getPaginator(cursor)
 
     const notices = await this.prisma.notice.findMany({
+      ...paginator,
       where: {
         groupId,
         isVisible: true,
         isFixed: false
       },
+      take,
       select: {
         id: true,
         title: true,
@@ -29,11 +31,6 @@ export class NoticeService {
             username: true
           }
         }
-      },
-      take,
-      skip,
-      cursor: {
-        id: cursor ?? 1
       }
     })
 
