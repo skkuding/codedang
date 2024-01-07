@@ -386,7 +386,7 @@ enum ResultStatus {
   ServerError
 }
 
-model UserProblem {
+model CodeDraft {
   id        Int     @default(autoincrement())
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int     @map("user_id")
