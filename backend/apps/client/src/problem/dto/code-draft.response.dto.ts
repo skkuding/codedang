@@ -1,9 +1,8 @@
 import { Exclude, Expose } from 'class-transformer'
-import { CreateTemplateDto } from './create-user-problem.dto'
+import { CreateTemplateDto } from './create-code-draft.dto'
 
 @Exclude()
-export class UserProblemResponseDto {
-  @Expose() id: number
+export class CodeDraftResponseDto {
   @Expose() userId: string
   @Expose() problemId: string
   @Expose() template: CreateTemplateDto

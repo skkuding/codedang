@@ -1,5 +1,5 @@
 import { type Problem, Language, Level, Role } from '@generated'
-import type { CreateTemplateDto } from '../dto/create-user-problem.dto'
+import type { CreateTemplateDto } from '../dto/create-code-draft.dto'
 
 export const problems: Problem[] = [
   {

@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Body,
-  ConflictException,
   Controller,
   Get,
   InternalServerErrorException,
@@ -9,32 +8,28 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
-  Post,
   Put,
   Req
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
-import {
-  ConflictFoundException,
-  ForbiddenAccessException
-} from '@libs/exception'
-import { CreateTemplateDto } from './dto/create-user-problem.dto'
-import { UserProblemService } from './problem.service'
+import { ForbiddenAccessException } from '@libs/exception'
+import { CreateTemplateDto } from './dto/create-code-draft.dto'
+import { CodeDraftService } from './problem.service'
 
 @Controller('user/problem/:problemId')
-export class UserProblemController {
-  private readonly logger = new Logger(UserProblemController.name)
+export class CodeDraftController {
+  private readonly logger = new Logger(CodeDraftController.name)
 
-  constructor(private readonly userProblemService: UserProblemService) {}
+  constructor(private readonly codeDraftService: CodeDraftService) {}
 
   @Get()
-  async getUserCode(
+  async getCodeDraft(
     @Req() req: AuthenticatedRequest,
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {
-      return await this.userProblemService.getUserCode(req.user.id, problemId)
+      return await this.codeDraftService.getCodeDraft(req.user.id, problemId)
     } catch (err) {
       if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
@@ -49,45 +44,17 @@ export class UserProblemController {
     }
   }
 
-  @Post()
-  async createUserCode(
-    @Req() req: AuthenticatedRequest,
-    @Body() createTemplateDto: CreateTemplateDto,
-    @Param('problemId', ParseIntPipe) problemId: number
-  ) {
-    try {
-      return await this.userProblemService.createUserCode(
-        req.user.id,
-        createTemplateDto,
-        problemId
-      )
-    } catch (err) {
-      if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.name == 'NotFoundError'
-      ) {
-        throw new NotFoundException(err.message)
-      } else if (err instanceof ForbiddenAccessException) {
-        throw new BadRequestException(err.message)
-      } else if (err instanceof ConflictFoundException) {
-        throw new ConflictException(err.message)
-      }
-      this.logger.error(err.message, err.stack)
-      throw new InternalServerErrorException()
-    }
-  }
-
   @Put()
-  async updateUserCode(
+  async upsertCodeDraft(
     @Req() req: AuthenticatedRequest,
     @Body() createTemplateDto: CreateTemplateDto,
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {
-      return await this.userProblemService.updateUserCode(
+      return await this.codeDraftService.upsertCodeDraft(
         req.user.id,
-        createTemplateDto,
-        problemId
+        problemId,
+        createTemplateDto
       )
     } catch (err) {
       if (

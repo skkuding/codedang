@@ -8,12 +8,12 @@ import {
 } from '@libs/exception'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
-import type { CreateTemplateDto } from './dto/create-user-problem.dto'
+import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
+import type { CreateTemplateDto } from './dto/create-code-draft.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
-import { UserProblemResponseDto } from './dto/user-problem.response.dto'
 import { ProblemRepository } from './problem.repository'
 
 @Injectable()
@@ -147,35 +147,24 @@ export class WorkbookProblemService {
 }
 
 @Injectable()
-export class UserProblemService {
+export class CodeDraftService {
   constructor(private readonly problemRepository: ProblemRepository) {}
 
-  async getUserCode(userId: number, problemId: number) {
-    const data = await this.problemRepository.getUserProblem(userId, problemId)
-    return plainToInstance(UserProblemResponseDto, data)
+  async getCodeDraft(userId: number, problemId: number) {
+    const data = await this.problemRepository.getCodeDraft(userId, problemId)
+    return plainToInstance(CodeDraftResponseDto, data)
   }
-  async createUserCode(
+
+  async upsertCodeDraft(
     userId: number,
-    createTemplateDto: CreateTemplateDto,
-    problemId: number
+    problemId: number,
+    createTemplateDto: CreateTemplateDto
   ) {
-    const data = await this.problemRepository.createUserProblem(
+    const data = await this.problemRepository.upsertCodeDraft(
       userId,
-      createTemplateDto.template,
-      problemId
+      problemId,
+      createTemplateDto.template
     )
-    return plainToInstance(UserProblemResponseDto, data)
-  }
-  async updateUserCode(
-    userId: number,
-    createTemplateDto: CreateTemplateDto,
-    problemId: number
-  ) {
-    const data = await this.problemRepository.updateUserProblem(
-      userId,
-      createTemplateDto.template,
-      problemId
-    )
-    return plainToInstance(UserProblemResponseDto, data)
+    return plainToInstance(CodeDraftResponseDto, data)
   }
 }
