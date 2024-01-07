@@ -35,7 +35,7 @@ export class StorageService {
         Key: filename
       })
     )
-    return res.Body.transformToString()
+    return res.Body?.transformToString() ?? ''
   }
 
   async deleteObject(filename: string) {

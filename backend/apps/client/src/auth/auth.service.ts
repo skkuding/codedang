@@ -4,12 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import { Cache } from 'cache-manager'
 import type { Response } from 'express'
-import {
-  JwtAuthService,
-  type JwtObject,
-  type JwtPayload,
-  type JwtTokens
-} from '@libs/auth'
+import { JwtAuthService, type JwtPayload } from '@libs/auth'
 import { refreshTokenCacheKey } from '@libs/cache'
 import {
   ACCESS_TOKEN_EXPIRE_TIME,
@@ -36,26 +31,28 @@ export class AuthService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async issueJwtTokens(
-    loginUserDto: LoginUserDto,
-    isSocialUser?: boolean
-  ): Promise<JwtTokens> {
+  async issueJwtTokens(loginUserDto: LoginUserDto, isSocialUser?: boolean) {
     const user = await this.userService.getUserCredential(loginUserDto.username)
-    if (
-      !(await this.jwtAuthService.isValidUser(
-        user,
-        loginUserDto.password,
-        isSocialUser
-      ))
-    ) {
+    if (!user) {
       throw new UnidentifiedException('username or password')
     }
+
+    const isValidUser = await this.jwtAuthService.isValidUser(
+      user,
+      loginUserDto.password,
+      isSocialUser
+    )
+
+    if (!isValidUser) {
+      throw new UnidentifiedException('username or password')
+    }
+
     await this.userService.updateLastLogin(user.username)
 
     return await this.createJwtTokens(user.id, user.username)
   }
 
-  async updateJwtTokens(refreshToken: string): Promise<JwtTokens> {
+  async updateJwtTokens(refreshToken: string) {
     const { userId, username } = await this.verifyJwtToken(refreshToken)
     if (!(await this.isValidRefreshToken(refreshToken, userId))) {
       throw new InvalidJwtTokenException('Unidentified refresh token')
@@ -63,10 +60,7 @@ export class AuthService {
     return await this.createJwtTokens(userId, username)
   }
 
-  async verifyJwtToken(
-    token: string,
-    options: JwtVerifyOptions = {}
-  ): Promise<JwtObject> {
+  async verifyJwtToken(token: string, options: JwtVerifyOptions = {}) {
     const jwtVerifyOptions = {
       secret: this.config.get('JWT_SECRET'),
       ...options
@@ -88,7 +82,7 @@ export class AuthService {
     return true
   }
 
-  async createJwtTokens(userId: number, username: string): Promise<JwtTokens> {
+  async createJwtTokens(userId: number, username: string) {
     const payload: JwtPayload = { userId, username }
     const accessToken = await this.jwtService.signAsync(payload, {
       expiresIn: ACCESS_TOKEN_EXPIRE_TIME
@@ -133,6 +127,10 @@ export class AuthService {
         id: userOAuth.userId
       }
     })
+
+    if (!user) {
+      throw new UnidentifiedException('user')
+    }
 
     const jwtTokens = await this.issueJwtTokens(
       {
