@@ -4,10 +4,9 @@ import type {
   ProblemTag,
   Submission,
   Tag,
-  UserProblem
+  CodeDraft
 } from '@prisma/client'
 import type { JsonArray } from '@prisma/client/runtime/library'
-import { ConflictFoundException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { Template } from '@client/submission/dto/create-submission.dto'
 
@@ -44,22 +43,7 @@ export class ProblemRepository {
     outputExamples: true
   }
 
-  private readonly relatedProblemSelectOption = {
-    id: true,
-    problem: {
-      select: this.problemSelectOption
-    }
-  }
-
-  private readonly relatedProblemsSelectOption = {
-    id: true,
-    problem: {
-      select: this.problemsSelectOption
-    }
-  }
-
-  private readonly UserProblemSelectOption = {
-    id: true,
+  private readonly codeDraftSelectOption = {
     userId: true,
     problemId: true,
     template: true,
@@ -249,101 +233,42 @@ export class ProblemRepository {
     })
   }
 
-  async getUserProblem(
+  async getCodeDraft(
     userId: number,
     problemId: number
-  ): Promise<Partial<UserProblem>> {
-    await this.prisma.user.findUniqueOrThrow({
+  ): Promise<Partial<CodeDraft>> {
+    return await this.prisma.codeDraft.findUniqueOrThrow({
       where: {
-        id: userId
-      }
-    })
-    await this.prisma.problem.findUniqueOrThrow({
-      where: {
-        id: problemId
-      }
-    })
-    return await this.prisma.userProblem.findUniqueOrThrow({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        userId_problemId: {
+        codeDraftId: {
           userId: userId,
           problemId: problemId
         }
       },
-      select: this.UserProblemSelectOption
+      select: this.codeDraftSelectOption
     })
   }
 
-  async createUserProblem(
+  async upsertCodeDraft(
     userId: number,
-    // Template class를 submisison에서 가져오는 것은 좋지 않은 방법이지만, 현재는 이 방법밖에 없습니다.
-    template: Template[],
-    problemId: number
-  ): Promise<Partial<UserProblem>> {
-    await this.prisma.user.findUniqueOrThrow({
+    problemId: number,
+    template: Template[]
+  ): Promise<Partial<CodeDraft>> {
+    return await this.prisma.codeDraft.upsert({
       where: {
-        id: userId
-      }
-    })
-    await this.prisma.problem.findUniqueOrThrow({
-      where: {
-        id: problemId
-      }
-    })
-    await this.prisma.userProblem
-      .findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          userId_problemId: {
-            userId: userId,
-            problemId: problemId
-          }
+        codeDraftId: {
+          userId: userId,
+          problemId: problemId
         }
-      })
-      .then((userProblem) => {
-        if (userProblem) {
-          throw new ConflictFoundException('UserProblem')
-        }
-      })
-    return await this.prisma.userProblem.create({
-      data: {
+      },
+      update: {
+        template: template as unknown as JsonArray
+      },
+      create: {
         userId: userId,
         problemId: problemId,
         template: template as unknown as JsonArray
       },
-      select: this.UserProblemSelectOption
-    })
-  }
-
-  async updateUserProblem(
-    userId: number,
-    // Template class를 submisison에서 가져오는 것은 좋지 않은 방법이지만, 현재는 이 방법밖에 없습니다.
-    template: Template[],
-    problemId: number
-  ): Promise<Partial<UserProblem>> {
-    await this.prisma.user.findUniqueOrThrow({
-      where: {
-        id: userId
-      }
-    })
-    await this.prisma.problem.findUniqueOrThrow({
-      where: {
-        id: problemId
-      }
-    })
-    return await this.prisma.userProblem.update({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        userId_problemId: {
-          userId: userId,
-          problemId: problemId
-        }
-      },
-      data: {
-        template: template as unknown as JsonArray
-      },
-      select: this.UserProblemSelectOption
+      select: this.codeDraftSelectOption
     })
   }
 }
