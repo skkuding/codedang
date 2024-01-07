@@ -1,17 +1,16 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import { getServerSession } from 'next-auth'
+import { getAuth } from '@/lib/auth'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import SignIn from './SignIn'
 import SignUp from './SignUp'
 
 export default async function HeaderAuthPanel() {
-  const session = await getServerSession(authOptions)
+  const { isAuth, user } = await getAuth()
   return (
     <div className="ml-2 flex items-center gap-2">
-      {session ? (
-        <p className="font-bold">{session.user.username}</p>
+      {isAuth ? (
+        <p className="font-bold">{user.username}</p>
       ) : (
         <>
           <Dialog>

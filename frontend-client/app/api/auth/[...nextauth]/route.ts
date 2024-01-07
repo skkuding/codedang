@@ -58,34 +58,41 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     jwt: async ({ token, user }: { token: JWT; user?: User }) => {
-      const now = Date.now()
       if (user) {
+        // When user logs in, set token.
         token.username = user.username
         token.role = user.role
         token.accessToken = user.accessToken
         token.refreshToken = user.refreshToken
-        token.accessTokenExpires = now + (ACCESS_TOKEN_EXPIRE_TIME - 60) * 1000
+        token.accessTokenExpires =
+          Date.now() + (ACCESS_TOKEN_EXPIRE_TIME - 60) * 1000
         token.refreshTokenExpires =
-          now + (REFRESH_TOKEN_EXPIRE_TIME - 60) * 1000
-      }
-      // if access token is expired, reissue it
-      if (Date.now() >= token.accessTokenExpires) {
-        const res = await fetcher.get('auth/reissue', {
-          headers: {
-            cookie: `refresh_token=${token.refreshToken}`
-          }
-        })
-        if (res.ok) {
-          const { Authorization, refreshToken } = getToken(res)
-          token.accessToken = Authorization
-          token.refreshToken = refreshToken
-          token.accessTokenExpires =
-            now + (ACCESS_TOKEN_EXPIRE_TIME - 60) * 1000
-          token.refreshTokenExpires =
-            now + (REFRESH_TOKEN_EXPIRE_TIME - 60) * 1000
+          Date.now() + (REFRESH_TOKEN_EXPIRE_TIME - 60) * 1000
+      } else {
+        // When user requests session
+        if (Date.now() >= token.accessTokenExpires) {
+          // if access token is expired, reissue it
+          const res = await fetcher.get('auth/reissue', {
+            headers: {
+              cookie: `refresh_token=${token.refreshToken}`
+            }
+          })
+          const now = Date.now()
+          if (res.ok) {
+            const { Authorization, refreshToken } = getToken(res)
+            token.accessToken = Authorization
+            token.refreshToken = refreshToken
+            token.accessTokenExpires =
+              now + (ACCESS_TOKEN_EXPIRE_TIME - 60) * 1000
+            token.refreshTokenExpires =
+              now + (REFRESH_TOKEN_EXPIRE_TIME - 60) * 1000
+          } else token.username = ''
         }
+
+        if (Date.now() >= token.refreshTokenExpires)
+          // If refresh token is expired, clear username. so if username is empty, then user has to login again.
+          token.username = ''
       }
-      // TODO: Handle refresh token expiration
       return token
     },
     session: async ({ session, token }: { session: Session; token: JWT }) => {

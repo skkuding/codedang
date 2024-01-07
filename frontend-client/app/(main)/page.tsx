@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { fetcher } from '@/lib'
+import { fetcher } from '@/lib/utils'
 import type { Contest, WorkbookProblem } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
