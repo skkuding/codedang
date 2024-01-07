@@ -68,8 +68,8 @@ export const authOptions: NextAuthOptions = {
           Date.now() + (ACCESS_TOKEN_EXPIRE_TIME - 60) * 1000
         token.refreshTokenExpires =
           Date.now() + (REFRESH_TOKEN_EXPIRE_TIME - 60) * 1000
-      } else {
-        // When user requests session
+      } else if (token.username) {
+        // When user is logged in and request session
         if (Date.now() >= token.accessTokenExpires) {
           // if access token is expired, reissue it
           const res = await fetcher.get('auth/reissue', {
