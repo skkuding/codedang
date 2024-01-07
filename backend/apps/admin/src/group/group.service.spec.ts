@@ -78,7 +78,8 @@ const db = {
     create: stub().resolves(null),
     findUnique: stub(),
     deleteMany: stub().resolves({ count: userGroup.length })
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('GroupService', () => {

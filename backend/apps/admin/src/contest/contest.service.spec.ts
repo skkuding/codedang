@@ -71,7 +71,8 @@ const db = {
     create: stub().resolves(Contest),
     update: stub().resolves(Contest),
     delete: stub().resolves(Contest)
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('ContestService', () => {

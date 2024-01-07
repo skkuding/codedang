@@ -62,7 +62,8 @@ const db = {
   },
   userGroup: {
     findMany: stub().resolves([groupId])
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('NoticeService', () => {

@@ -53,7 +53,8 @@ const db = {
   },
   problemTag: {
     findMany: stub()
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 const ARBITRARY_VAL = 1

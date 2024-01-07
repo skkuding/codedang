@@ -196,7 +196,8 @@ const mockPrismaService = {
   },
   user: {
     findUnique: stub().resolves(user)
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('ContestService', () => {

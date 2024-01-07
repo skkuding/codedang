@@ -59,7 +59,8 @@ const db = {
     findMany: stub(),
     update: stub()
   },
-  $transaction: stub()
+  $transaction: stub(),
+  getPaginator: PrismaService.prototype.getPaginator
 }
 const exampleWorkbook: Workbook = {
   id: 1,

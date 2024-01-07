@@ -110,7 +110,8 @@ const db = {
   },
   workbookProblem: {
     findMany: stub()
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('WorkbookService', () => {
