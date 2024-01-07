@@ -52,7 +52,7 @@ model User {
   workbook      Workbook[]
   submission    Submission[]
   useroauth     UserOAuth?
-  UserProblem   UserProblem[]
+  CodeDraft     CodeDraft[]
 
   @@map("user")
 }
@@ -172,7 +172,7 @@ model Problem {
   submission      Submission[]
   announcement    Announcement[]
   // ProblemAnnouncement ProblemAnnouncement[]
-  UserProblem     UserProblem[]
+  CodeDraft       CodeDraft[]
 
   @@map("problem")
 }
@@ -387,7 +387,6 @@ enum ResultStatus {
 }
 
 model CodeDraft {
-  id        Int     @default(autoincrement())
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int     @map("user_id")
   problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
@@ -406,6 +405,6 @@ model CodeDraft {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  @@id([userId, problemId])
-  @@map("user_problem")
+  @@id(name: "codeDraftId", [userId, problemId])
+  @@map("code_draft")
 }
