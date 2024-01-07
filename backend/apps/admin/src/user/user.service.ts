@@ -27,30 +27,13 @@ export class UserService {
     take: number,
     leaderOnly: boolean
   ) {
-    // Cannot use prisma paginator because of composite key
-    type Paginator = {
-      skip?: number
-      cursor?: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        userId_groupId: {
-          userId: number
-          groupId: number
-        }
+    const paginator = this.prisma.getPaginator(cursor, (value) => ({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      userId_groupId: {
+        userId: value,
+        groupId
       }
-    }
-
-    const paginator: Paginator = cursor
-      ? {
-          skip: 1,
-          cursor: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            userId_groupId: {
-              userId: cursor,
-              groupId
-            }
-          }
-        }
-      : {}
+    }))
 
     const userGroups = await this.prisma.userGroup.findMany({
       ...paginator,

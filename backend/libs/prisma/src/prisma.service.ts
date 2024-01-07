@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PrismaClient } from '@prisma/client'
 
-type Paginator = { skip?: number; cursor?: { id: number } }
+type Paginator<T> = {
+  skip?: number
+  cursor?: T extends number ? { id: number } : T
+}
 
 @Injectable()
 export class PrismaService extends PrismaClient {
@@ -17,9 +20,21 @@ export class PrismaService extends PrismaClient {
   }
 
   // Use explicit type to avoid Prisma query argument type error
-  getPaginator(cursor: number | null): Paginator {
+  getPaginator(cursor: number | null): Paginator<number>
+  getPaginator<T>(
+    cursor: number | null,
+    customCursor: (number) => T
+  ): Paginator<T>
+
+  getPaginator<T>(cursor: number | T | null, customCursor?: (number) => T) {
     if (cursor == null) {
       return {}
+    }
+    if (customCursor) {
+      return {
+        skip: 1,
+        cursor: customCursor(cursor)
+      }
     }
     return {
       skip: 1,
