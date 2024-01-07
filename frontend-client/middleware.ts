@@ -4,7 +4,8 @@ export { withAuth } from 'next-auth/middleware'
 export default withAuth({
   callbacks: {
     authorized({ token }) {
-      if (token?.role === 'admin') return true
+      console.log('authorized', token)
+      if (token?.role === 'Admin') return true
       return false
     }
   }
