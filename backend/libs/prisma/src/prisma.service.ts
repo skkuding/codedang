@@ -21,19 +21,16 @@ export class PrismaService extends PrismaClient {
 
   // Use explicit type to avoid Prisma query argument type error
   getPaginator(cursor: number | null): Paginator<number>
-  getPaginator<T>(
-    cursor: number | null,
-    customCursor: (number) => T
-  ): Paginator<T>
+  getPaginator<T>(cursor: number | null, transform: (number) => T): Paginator<T>
 
-  getPaginator<T>(cursor: number | null, customCursor?: (arg: number) => T) {
+  getPaginator<T>(cursor: number | null, transform?: (arg: number) => T) {
     if (cursor == null) {
       return {}
     }
-    if (customCursor) {
+    if (transform) {
       return {
         skip: 1,
-        cursor: customCursor(cursor)
+        cursor: transform(cursor)
       }
     }
     return {
