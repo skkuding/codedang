@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { Injectable } from '@nestjs/common'
-import type { Problem, Tag } from '@prisma/client'
+import type { Prisma, Problem, Tag } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
+import type { ProblemOrder } from './schema/problem-order.schema'
 
 /**
  * repository에서는 partial entity를 반환합니다.
@@ -43,18 +45,39 @@ export class ProblemRepository {
     cursor,
     take,
     groupId,
+    order,
     search
   }: {
     cursor: number | null
     take: number
     groupId: number
+    order?: ProblemOrder
     search?: string
   }) {
     const paginator = this.prisma.getPaginator(cursor)
 
+    const orderByMapper: Record<
+      ProblemOrder,
+      Prisma.ProblemOrderByWithRelationAndSearchRelevanceInput
+    > = {
+      'id-asc': { id: 'asc' },
+      'id-desc': { id: 'desc' },
+      'title-asc': { title: 'asc' },
+      'title-desc': { title: 'desc' },
+      'level-asc': { difficulty: 'asc' },
+      'level-desc': { difficulty: 'desc' },
+      'acrate-asc': { acceptedRate: 'asc' },
+      'acrate-desc': { acceptedRate: 'desc' },
+      'submit-asc': { submissionCount: 'asc' },
+      'submit-desc': { submissionCount: 'desc' }
+    }
+
+    const orderBy = orderByMapper[order ?? 'id-asc']
+
     return await this.prisma.problem.findMany({
       ...paginator,
       take,
+      orderBy,
       where: {
         groupId,
         title: {

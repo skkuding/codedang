@@ -12,8 +12,9 @@ import {
 import { Prisma } from '@prisma/client'
 import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, ZodValidationPipe } from '@libs/pipe'
 import { ProblemService } from './problem.service'
+import { ProblemOrder, problemOrderSchema } from './schema/problem-order.schema'
 
 @Controller('problem')
 @AuthNotNeeded()
@@ -25,13 +26,16 @@ export class ProblemController {
   async getProblems(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number,
-    @Query('search') search: string
+    @Query('search') search: string,
+    @Query('order', new ZodValidationPipe(problemOrderSchema))
+    order: ProblemOrder
   ) {
     try {
       return await this.problemService.getProblems({
         cursor,
         take,
         search,
+        order,
         groupId: OPEN_SPACE_ID
       })
     } catch (error) {

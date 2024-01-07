@@ -12,6 +12,7 @@ import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemRepository } from './problem.repository'
+import type { ProblemOrder } from './schema/problem-order.schema'
 
 @Injectable()
 export class ProblemService {
@@ -21,6 +22,7 @@ export class ProblemService {
     cursor: number | null
     take: number
     groupId: number
+    order?: ProblemOrder
     search?: string
   }) {
     let unprocessedProblems = await this.problemRepository.getProblems(options)
