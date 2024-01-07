@@ -13,7 +13,7 @@ import {
   type Submission,
   type ProblemTestcase,
   type Announcement,
-  type UserProblem
+  type CodeDraft
 } from '@prisma/client'
 import { hash } from 'argon2'
 import * as dayjs from 'dayjs'
@@ -1282,17 +1282,17 @@ const createAnnouncements = async () => {
   }
 }
 
-const createUserProblems = async () => {
-  const userProblems: UserProblem[] = []
+const createCodeDrafts = async () => {
+  const codeDrafts: CodeDraft[] = []
 
-  // Assuming you want to create a UserProblem for 'user01' and problem combination
+  // Assuming you want to create a CodeDraft for 'user01' and problem combination
   const user = users[0]
   for (const problem of problems) {
     // Skip problemId: 8
     if (problem.id === 8) {
       continue
     }
-    const userProblem = await prisma.userProblem.create({
+    const codeDraft = await prisma.codeDraft.create({
       data: {
         userId: user.id,
         problemId: problem.id,
@@ -1332,10 +1332,10 @@ const createUserProblems = async () => {
         ]
       }
     })
-    userProblems.push(userProblem)
+    codeDrafts.push(codeDraft)
   }
 
-  return userProblems
+  return codeDrafts
 }
 
 const main = async () => {
@@ -1347,7 +1347,7 @@ const main = async () => {
   await createWorkbooks()
   await createSubmissions()
   await createAnnouncements()
-  await createUserProblems()
+  await createCodeDrafts()
 }
 
 main()
