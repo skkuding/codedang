@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import type { Contest } from '@/types/type'
 import dayjs from 'dayjs'
@@ -12,9 +6,9 @@ import Badge from './Badge'
 import TimeDiff from './TimeDiff'
 
 const variants = {
-  ongoing: 'bg-gradient-to-r from-primary to-secondary',
-  upcoming: 'bg-gradient-to-r from-secondary to-[#fff42c]',
-  finished: 'bg-gray-400'
+  ongoing: 'bg-gradient-to-br from-[#9BE299] to-[#82D4E7]',
+  upcoming: 'bg-gradient-to-br from-[#A6B8FF] to-[#86C8DE]',
+  finished: 'bg-gradient-to-br from-[#D1C9D9] to-[#B9C8E6]'
 }
 
 interface Props {
@@ -34,31 +28,26 @@ export default function ContestCard({ contest }: Props) {
   return (
     <Card
       className={cn(
-        'flex h-56 flex-col justify-between border-none bg-gray-500',
+        'my-2 flex h-40 w-60 flex-col justify-between border-0 shadow-md transition hover:scale-105 hover:opacity-80 md:h-44 md:w-72',
         variants[contest.status]
       )}
     >
-      <Badge badge={contest.status}></Badge>
-      <div>
-        <CardHeader className="space-y-0 p-5">
-          {contest.status == 'ongoing' && (
-            <CardDescription className="font-bold text-white">
-              Participate Now!
-            </CardDescription>
-          )}
-          <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-3xl tracking-normal text-white">
-            {contest.title}
-          </CardTitle>
-        </CardHeader>
-        <CardFooter className="justify-between rounded-b-3xl border border-gray-300 bg-white px-5 text-sm">
-          <p className="text-gray-500">{`${startTime} - ${endTime}`}</p>
-          {contest.status == 'ongoing' && (
+      <CardHeader className="m-4 space-y-0 p-0 text-sm">
+        {contest.status == 'ongoing' ? (
+          <Badge type={contest.status}>
             <div className="text-red-500">
               <TimeDiff timeRef={contest.endTime}></TimeDiff>
             </div>
-          )}
-        </CardFooter>
-      </div>
+          </Badge>
+        ) : (
+          <p className="text-right text-blue-50">{`${startTime} - ${endTime}`}</p>
+        )}
+      </CardHeader>
+      <CardContent className="p-5 pt-0">
+        <CardTitle className="line-clamp-2 overflow-hidden break-keep text-xl tracking-normal text-white md:text-2xl">
+          {contest.title}
+        </CardTitle>
+      </CardContent>
     </Card>
   )
 }

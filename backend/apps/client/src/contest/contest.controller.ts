@@ -55,7 +55,7 @@ export class ContestController {
   @Get('finished')
   @AuthNotNeeded()
   async getFinishedContests(
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
@@ -140,7 +140,7 @@ export class GroupContestController {
   @Get('finished')
   async getFinishedContests(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {

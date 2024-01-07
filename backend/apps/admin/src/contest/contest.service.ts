@@ -4,6 +4,7 @@ import {
   Injectable,
   UnprocessableEntityException
 } from '@nestjs/common'
+import type { ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
   OPEN_SPACE_ID,
@@ -29,23 +30,15 @@ export class ContestService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getContests(
-    take: number,
-    groupId: number,
-    cursor?: number
-  ): Promise<Partial<Contest>[]> {
-    let skip = take < 0 ? 0 : 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
+  async getContests(take: number, groupId: number, cursor: number | null) {
+    const skip = cursor ? 1 : 0
 
     return await this.prisma.contest.findMany({
       where: { groupId },
       skip,
       take,
       cursor: {
-        id: cursor
+        id: cursor ?? 1
       }
     })
   }
@@ -64,7 +57,7 @@ export class ContestService {
     const newContest: Contest = await this.prisma.contest.create({
       data: {
         createdById: userId,
-        groupId: groupId,
+        groupId,
         title: contest.title,
         description: contest.description,
         startTime: contest.startTime,
@@ -86,7 +79,7 @@ export class ContestService {
     const contestFound = await this.prisma.contest.findFirst({
       where: {
         id: contest.id,
-        groupId: groupId
+        groupId
       }
     })
     if (!contestFound) {
@@ -120,7 +113,7 @@ export class ContestService {
     const contest = await this.prisma.contest.findFirst({
       where: {
         id: contestId,
-        groupId: groupId
+        groupId
       }
     })
     if (!contest) {
@@ -194,8 +187,8 @@ export class ContestService {
     }
 
     return {
-      contestId: contestId,
-      isAccepted: isAccepted
+      contestId,
+      isAccepted
     } as PublicizingResponse
   }
 
@@ -209,7 +202,7 @@ export class ContestService {
     const contest = await this.prisma.contest.findFirst({
       where: {
         id: contestId,
-        groupId: groupId
+        groupId
       }
     })
     if (!contest) {
@@ -229,8 +222,8 @@ export class ContestService {
     }
 
     const newRequest: PublicizingRequest = {
-      contestId: contestId,
-      userId: contest.createdById,
+      contestId,
+      userId: contest.createdById!, // TODO: createdById가 null일 경우 예외처리
       expireTime: new Date(Date.now() + PUBLICIZING_REQUEST_EXPIRE_TIME)
     }
     requests.push(newRequest)
@@ -252,14 +245,15 @@ export class ContestService {
     const contest = await this.prisma.contest.findUnique({
       where: {
         id: contestId,
-        groupId: groupId
+        groupId
       }
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
     }
 
-    const contestProblems = []
+    const contestProblems: ContestProblem[] = []
+
     for (const problemId of problemIds) {
       const problem = await this.prisma.problem.findUnique({
         where: {
@@ -280,8 +274,8 @@ export class ContestService {
             // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
             // 임시 방편으로 order: 0으로 설정합니다.
             order: 0,
-            contestId: contestId,
-            problemId: problemId
+            contestId,
+            problemId
           }
         })
       )

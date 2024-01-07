@@ -1,4 +1,5 @@
 import { Test } from '@nestjs/testing'
+import { faker } from '@faker-js/faker'
 import type { User } from '@prisma/client'
 import { expect } from 'chai'
 import * as proxyquire from 'proxyquire'
@@ -9,9 +10,9 @@ const user: User = {
   password: 'thisIsPassword',
   role: 'User',
   email: 'email@codedang.com',
-  lastLogin: undefined,
-  createTime: undefined,
-  updateTime: undefined
+  lastLogin: faker.date.past(),
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 describe('JwtAuthService', () => {
