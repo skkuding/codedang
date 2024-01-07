@@ -19,7 +19,8 @@ const manrope = Manrope({
 
 export const metadata: Metadata = {
   title: 'Codedang 코드당',
-  description: 'Codedang, Online Judge for SKKU'
+  description: 'Codedang, Online Judge for SKKU',
+  metadataBase: new URL(process.env.NEXTAUTH_URL || 'https://codedang.com')
 }
 
 export const viewport: Viewport = {
