@@ -26,7 +26,7 @@ export class PrismaService extends PrismaClient {
     customCursor: (number) => T
   ): Paginator<T>
 
-  getPaginator<T>(cursor: number | T | null, customCursor?: (number) => T) {
+  getPaginator<T>(cursor: number | null, customCursor?: (arg: number) => T) {
     if (cursor == null) {
       return {}
     }
