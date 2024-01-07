@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
@@ -24,9 +25,11 @@ interface ContestTableProps {
 }
 
 export default function ContestTable({ data }: ContestTableProps) {
+  const [filter, setFilter] = useState('all')
   const [filteredData, setFilteredData] = useState<Contest[]>(data)
 
   const filterContests = (filterType: string) => {
+    setFilter(filterType)
     if (filterType === 'all') {
       setFilteredData(data)
     } else if (filterType === 'upcoming') {
@@ -114,24 +117,33 @@ export default function ContestTable({ data }: ContestTableProps) {
 
   return (
     <>
-      <div className="mt-4 flex items-center gap-8">
+      <div className="mt-4 flex items-center">
         <Button
           variant={'link'}
-          className="h-5 w-fit p-0 py-2 text-xl font-semibold text-gray-500"
+          className={cn(
+            'text-xl font-semibold text-gray-500',
+            filter === 'all' && 'text-primary'
+          )}
           onClick={() => filterContests('all')}
         >
           All
         </Button>
         <Button
           variant={'link'}
-          className="h-5 w-fit p-0 py-2 text-xl font-semibold text-gray-500"
+          className={cn(
+            'text-xl font-semibold text-gray-500',
+            filter === 'upcoming' && 'text-primary'
+          )}
           onClick={() => filterContests('upcoming')}
         >
           Upcoming
         </Button>
         <Button
           variant={'link'}
-          className="h-5 w-fit p-0 py-2 text-xl font-semibold text-gray-500"
+          className={cn(
+            'text-xl font-semibold text-gray-500',
+            filter === 'finished' && 'text-primary'
+          )}
           onClick={() => filterContests('finished')}
         >
           Finished
