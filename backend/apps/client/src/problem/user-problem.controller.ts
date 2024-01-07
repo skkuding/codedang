@@ -44,7 +44,7 @@ export class UserProblemController {
       } else if (err instanceof ForbiddenAccessException) {
         throw new BadRequestException(err.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(err)
       throw new InternalServerErrorException()
     }
   }
@@ -103,7 +103,7 @@ export class UserProblemController {
       } else if (err instanceof ForbiddenAccessException) {
         throw new BadRequestException(err.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(err)
       throw new InternalServerErrorException()
     }
   }
