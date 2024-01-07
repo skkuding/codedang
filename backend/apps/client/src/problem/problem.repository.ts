@@ -8,7 +8,7 @@ import type {
 } from '@prisma/client'
 import type { JsonArray } from '@prisma/client/runtime/library'
 import { PrismaService } from '@libs/prisma'
-import type { Template } from '@client/submission/dto/create-submission.dto'
+import type { CreateSubmissionDto } from '@client/submission/dto/create-submission.dto'
 
 /**
  * repository에서는 partial entity를 반환합니다.
@@ -251,7 +251,7 @@ export class ProblemRepository {
   async upsertCodeDraft(
     userId: number,
     problemId: number,
-    template: Template[]
+    template: CreateSubmissionDto[]
   ): Promise<Partial<CodeDraft>> {
     return await this.prisma.codeDraft.upsert({
       where: {
