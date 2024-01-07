@@ -44,7 +44,7 @@ export const authOptions: NextAuthOptions = {
               username: user.username,
               role: user.role,
               accessToken: Authorization,
-              refreshToken: refreshToken
+              refreshToken
             } as User
           }
         }
