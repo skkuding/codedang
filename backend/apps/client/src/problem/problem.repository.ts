@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { Injectable } from '@nestjs/common'
 import type { Problem, Tag } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
@@ -40,13 +41,10 @@ export class ProblemRepository {
   }
 
   async getProblems(cursor: number | null, take: number, groupId: number) {
-    const skip = cursor ? 1 : 0
+    const paginator = this.prisma.getPaginator(cursor)
 
     return await this.prisma.problem.findMany({
-      cursor: {
-        id: cursor ?? 1
-      },
-      skip,
+      ...paginator,
       take,
       where: {
         groupId
@@ -129,17 +127,31 @@ export class ProblemRepository {
     cursor: number | null,
     take: number
   ) {
-    const skip = cursor ? 1 : 0
+    // Cannot use prisma paginator because of composite key
+    type Paginator = {
+      skip?: number
+      cursor?: {
+        contestId_problemId: {
+          contestId: number
+          problemId: number
+        }
+      }
+    }
+
+    const paginator: Paginator = cursor
+      ? {
+          skip: 1,
+          cursor: {
+            contestId_problemId: {
+              contestId,
+              problemId: cursor
+            }
+          }
+        }
+      : {}
 
     return await this.prisma.contestProblem.findMany({
-      cursor: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        contestId_problemId: {
-          contestId,
-          problemId: cursor ?? 1
-        }
-      },
-      skip,
+      ...paginator,
       take,
       where: { contestId },
       select: {
@@ -184,17 +196,31 @@ export class ProblemRepository {
     cursor: number | null,
     take: number
   ) {
-    const skip = cursor ? 1 : 0
+    // Cannot use prisma paginator because of composite key
+    type Paginator = {
+      skip?: number
+      cursor?: {
+        workbookId_problemId: {
+          workbookId: number
+          problemId: number
+        }
+      }
+    }
+
+    const paginator: Paginator = cursor
+      ? {
+          skip: 1,
+          cursor: {
+            workbookId_problemId: {
+              workbookId,
+              problemId: cursor
+            }
+          }
+        }
+      : {}
 
     return await this.prisma.workbookProblem.findMany({
-      cursor: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        workbookId_problemId: {
-          workbookId,
-          problemId: cursor ?? 1
-        }
-      },
-      skip,
+      ...paginator,
       take,
       where: { workbookId },
       select: {
