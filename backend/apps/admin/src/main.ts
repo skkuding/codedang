@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core'
 import { graphqlUploadExpress } from 'graphql-upload'
-import { Logger } from 'nestjs-pino'
+import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
 import { AdminModule } from './admin.module'
 
 const bootstrap = async () => {
@@ -12,6 +12,7 @@ const bootstrap = async () => {
     credentials: true
   })
   app.useLogger(app.get(Logger))
+  app.useGlobalInterceptors(new LoggerErrorInterceptor())
 
   await app.listen(3000)
 }

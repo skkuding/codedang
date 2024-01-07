@@ -2,7 +2,7 @@ import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import * as cookieParser from 'cookie-parser'
-import { Logger } from 'nestjs-pino'
+import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
 import { AppModule } from './app.module'
 
 const bootstrap = async () => {
@@ -11,6 +11,7 @@ const bootstrap = async () => {
   })
 
   app.useLogger(app.get(Logger))
+  app.useGlobalInterceptors(new LoggerErrorInterceptor())
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
   app.use(cookieParser())
   app.enableCors({
