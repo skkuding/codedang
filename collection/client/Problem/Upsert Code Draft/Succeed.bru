@@ -18,7 +18,7 @@ body:json {
         "code": [
           {
             "id": 1,
-            "text": "update cpp code",
+            "text": "#include <bits/stdc++.h>\n using namespace std;\n int main() { cout << \"hello, world\" << endl;\n return 0; }",
             "locked": false
           }
         ]
@@ -29,7 +29,6 @@ body:json {
 
 assert {
   res.status: eq 200
-  res.body.id: isNumber
   res.body.userId: isNumber
   res.body.problemId: isNumber
   res.body.template[0].code[0].id: isNumber
@@ -39,8 +38,8 @@ assert {
 }
 
 docs {
-  # Create User Code
-  - 현재 `User`가 풀고 있는 `Problem`에 대해서 `User`의 `Code`를 업데이트합니다.
-  - `User`와 `Problem`을 `N:M`으로 mapping한 `UserProblem` Table에서 업데이트합니다.
+  # Upsert Code Draft
+  - 현재 `User`가 풀고 있는 `Problem`에 대해서 `User`의 `Code`를 upsert합니다.
+  - `User`와 `Problem`을 `N:M`으로 mapping한 `UserProblem` Table에서 upsert합니다.
   - 현 Request는 `user01`(`id`:`4`)가 `problemId`가 8인 문제를 풀 때 상황을 가정했습니다.
 }

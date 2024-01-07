@@ -12,7 +12,7 @@ get {
 
 assert {
   res.status: eq 404
-  res.body.message: eq "No Problem found"
+  res.body.message: eq "No CodeDraft found"
   res.body.error: eq "Not Found"
   res.body.statusCode: eq 404
 }
@@ -22,9 +22,9 @@ script:pre-request {
 }
 
 docs {
-  # Get User Code by Problem ID
+  # Get CodeDraft by Problem ID
 
-  - `problemId`를 이용해 현재 유저가 풀고 있는 User Code를 조회합니다.
+  - `problemId`를 이용해 현재 유저가 풀고 있는 CodeDraft를 조회합니다.
   - 이 request는 `user01`(`userId`: 4)로 로그인했을 때, `problemId` 999번에 대한 코드를 조회합니다.
   - 999번 문제는 조회되지 않는 오류가 나와야 합니다.
 

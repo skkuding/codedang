@@ -1,11 +1,11 @@
 meta {
-  name: 404: RecordNotFound
+  name: 404: NotFoundError
   type: http
   seq: 1
 }
 
 put {
-  url: {{baseUrl}}/user/problem/1
+  url: {{baseUrl}}/user/problem/999
   body: json
   auth: none
 }
@@ -29,19 +29,19 @@ body:json {
 
 assert {
   res.status: eq 404
-  res.body.message: contains "Record to update not found."
+  res.body.message: contains "Foreign key constraint failed"
   res.body.error: eq "Not Found"
   res.body.statusCode: eq 404
 }
 
 script:pre-request {
-  await require("./login").loginUser2nd(req);
+  await require("./login").loginUser(req);
 }
 
 docs {
-  # Create User Code
+  # Upsert Code Draft
   - 현재 `User`가 풀고 있는 `Problem`에 대해서 `User`의 `Code`를 업데이트합니다.
   - `User`와 `Problem`을 `N:M`으로 mapping한 `UserProblem` Table의 record를 업데이트합니다.
-  - 현 Request는 `user02`(`id`:`5`)가 `problemId`가 1인 문제를 풀 때 상황을 가정했습니다.
-  - 해당 레코드(`user02`가 `problemId`가 1인 문제를 푸는 상황)는 존재하지 않습니다.
+  - 현 Request는 `user01`(`id`:`4`)가 `problemId`가 999인 문제를 풀 때 상황을 가정했습니다.
+  - `problemId`가 999인 문제는 존재하지 않습니다.
 }
