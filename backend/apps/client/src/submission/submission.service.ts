@@ -106,7 +106,7 @@ export class SubmissionService implements OnModuleInit {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_userId: {
-          contestId: contestId,
+          contestId,
           userId
         }
       },
@@ -132,8 +132,8 @@ export class SubmissionService implements OnModuleInit {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_problemId: {
-          problemId: problemId,
-          contestId: contestId
+          problemId,
+          contestId
         }
       },
       include: {
@@ -155,8 +155,8 @@ export class SubmissionService implements OnModuleInit {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
-          problemId: problemId,
-          workbookId: workbookId
+          problemId,
+          workbookId
         }
       },
       include: {
@@ -246,6 +246,11 @@ export class SubmissionService implements OnModuleInit {
         memoryLimit: true
       }
     })
+
+    if (!problem) {
+      throw new EntityNotExistException('problem')
+    }
+
     const judgeRequest = new JudgeRequest(code, submission.language, problem)
     // TODO: problem 단위가 아닌 testcase 단위로 채점하도록 iris 수정
 
@@ -295,7 +300,10 @@ export class SubmissionService implements OnModuleInit {
   async updateSubmissionResult(
     id: string,
     resultStatus: ResultStatus,
-    results: Partial<SubmissionResult>[]
+    results: Array<
+      Partial<SubmissionResult> &
+        Pick<SubmissionResult, 'result' | 'cpuTime' | 'memoryUsage'>
+    >
   ) {
     await Promise.all(
       results.map(
@@ -441,7 +449,7 @@ export class SubmissionService implements OnModuleInit {
 
       return {
         problemId,
-        username: submission.user.username,
+        username: submission.user?.username,
         code: code.map((snippet) => snippet.text).join('\n'),
         language: submission.language,
         createTime: submission.createTime,

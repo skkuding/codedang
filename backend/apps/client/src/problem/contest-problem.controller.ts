@@ -30,7 +30,7 @@ export class ContestProblemController {
   @Get()
   async getContestProblems(
     @Param('contestId', ParseIntPipe) contestId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
@@ -86,7 +86,7 @@ export class GroupContestProblemController {
   async getContestProblems(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {

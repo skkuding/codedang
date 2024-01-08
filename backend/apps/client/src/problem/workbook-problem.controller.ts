@@ -27,7 +27,7 @@ export class WorkbookProblemController {
   @Get()
   async getWorkbookProblems(
     @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
@@ -81,7 +81,7 @@ export class GroupWorkbookProblemController {
   async getWorkbookProblems(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {

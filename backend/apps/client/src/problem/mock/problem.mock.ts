@@ -1,3 +1,5 @@
+import { faker } from '@faker-js/faker'
+import type { Contest, ContestProblem, WorkbookProblem } from '@prisma/client'
 import { type Problem, Language, Level } from '@prisma/client'
 
 export const problems: Problem[] = [
@@ -19,8 +21,8 @@ export const problems: Problem[] = [
     acceptedCount: 5,
     acceptedRate: 0.5,
     exposeTime: new Date('2000-01-01'),
-    createTime: undefined,
-    updateTime: undefined,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
     inputExamples: [],
     outputExamples: [],
     template: []
@@ -43,8 +45,8 @@ export const problems: Problem[] = [
     acceptedCount: 5,
     acceptedRate: 0.5,
     exposeTime: new Date('2000-01-01'),
-    createTime: undefined,
-    updateTime: undefined,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
     inputExamples: [],
     outputExamples: [],
     template: []
@@ -57,8 +59,8 @@ export const contestProblems = [
     contestId: 1,
     problemId: 1,
     score: 0,
-    createTime: undefined,
-    updateTime: undefined,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
     contest: {
       startTime: new Date()
     }
@@ -68,32 +70,30 @@ export const contestProblems = [
     contestId: 1,
     problemId: 2,
     score: 0,
-    createTime: undefined,
-    updateTime: undefined,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
     contest: {
       startTime: new Date()
     }
   }
-]
+] satisfies Array<ContestProblem & { contest: Partial<Contest> }>
 
 export const workbookProblems = [
   {
     order: 1,
     workbookId: 1,
     problemId: 1,
-    score: 0,
-    createTime: undefined,
-    updateTime: undefined
+    createTime: faker.date.past(),
+    updateTime: faker.date.past()
   },
   {
     order: 2,
     workbookId: 1,
     problemId: 2,
-    score: 0,
-    createTime: undefined,
-    updateTime: undefined
+    createTime: faker.date.past(),
+    updateTime: faker.date.past()
   }
-]
+] satisfies WorkbookProblem[]
 
 export const problemTag = {
   tag: {

@@ -3,6 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test, type TestingModule } from '@nestjs/testing'
+import { faker } from '@faker-js/faker'
 import type { User } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
@@ -32,9 +33,9 @@ describe('AuthService', () => {
     password: VALID_PASSWORD,
     role: 'User',
     email: '',
-    lastLogin: undefined,
-    createTime: undefined,
-    updateTime: undefined
+    lastLogin: faker.date.past(),
+    createTime: faker.date.past(),
+    updateTime: faker.date.past()
   }
   const userMock = {
     getUserCredential: stub().resolves(user),
