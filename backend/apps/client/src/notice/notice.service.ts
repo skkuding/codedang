@@ -9,11 +9,13 @@ export class NoticeService {
   async getNotices({
     cursor,
     take,
+    search,
     fixed = false,
     groupId = OPEN_SPACE_ID
   }: {
     cursor: number | null
     take: number
+    search?: string
     fixed?: boolean
     groupId?: number
   }) {
@@ -24,7 +26,10 @@ export class NoticeService {
       where: {
         groupId,
         isVisible: true,
-        isFixed: fixed
+        isFixed: fixed,
+        title: {
+          contains: search
+        }
       },
       take,
       select: {

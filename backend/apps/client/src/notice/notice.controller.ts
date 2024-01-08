@@ -27,13 +27,15 @@ export class NoticeController {
   async getNotices(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
-    @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean
+    @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
+    @Query('search', new DefaultValuePipe('')) search: string
   ) {
     try {
       return await this.noticeService.getNotices({
         cursor,
         take,
-        fixed
+        fixed,
+        search
       })
     } catch (error) {
       this.logger.error(error)
@@ -42,7 +44,7 @@ export class NoticeController {
   }
 
   @Get(':id')
-  async getNotice(@Param('id', ParseIntPipe) id: number) {
+  async getNoticeByID(@Param('id', ParseIntPipe) id: number) {
     try {
       return await this.noticeService.getNoticeByID(id)
     } catch (error) {
@@ -70,13 +72,15 @@ export class GroupNoticeController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
-    @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean
+    @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
+    @Query('search', new DefaultValuePipe('')) search: string
   ) {
     try {
       return await this.noticeService.getNotices({
         cursor,
         take,
         fixed,
+        search,
         groupId
       })
     } catch (error) {
@@ -86,7 +90,7 @@ export class GroupNoticeController {
   }
 
   @Get(':id')
-  async getNotice(
+  async getNoticeByID(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('id', ParseIntPipe) id: number
   ) {
