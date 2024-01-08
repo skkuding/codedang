@@ -13,6 +13,7 @@ UPDATE submssion_result T SET submission_id = (SELECT id FROM submission WHERE h
 -- AlterTable
 ALTER TABLE "submission" DROP COLUMN "hex_code";
 ALTER TABLE "submssion_result" DROP COLUMN "hex_code_id";
+ALTER TABLE "submission_result" ALTER COLUMN "submission_id" SET NOT NULL;
 
 -- AddForeignKey
 ALTER TABLE "submssion_result" ADD CONSTRAINT "submssion_result_submission_id_fkey" FOREIGN KEY ("submission_id") REFERENCES "submission"("id") ON DELETE CASCADE ON UPDATE CASCADE;
