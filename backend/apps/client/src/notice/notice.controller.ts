@@ -28,7 +28,7 @@ export class NoticeController {
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
     @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
-    @Query('search', new DefaultValuePipe('')) search: string
+    @Query('search') search?: string
   ) {
     try {
       return await this.noticeService.getNotices({
