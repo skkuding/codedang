@@ -6,19 +6,40 @@ import { Switch } from '@/components/ui/switch'
 import { usePagination } from '@/lib/usePagination'
 import { baseUrl } from '@/lib/vars'
 import type { Problem } from '@/types/type'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { FiSearch } from 'react-icons/fi'
 import ProblemTable from './_components/ProblemTable'
 
 export default function Page() {
-  const [url, setUrl] = useState<URL>(new URL('/problem', baseUrl))
+  const searchParmas = new URLSearchParams()
+  const [url, setUrl] = useState<URL>(
+    new URL(`/problem?${searchParmas}`, baseUrl)
+  )
+  const [isTagChecked, setIsTagChecked] = useState(false)
   const { items, paginator } = usePagination<Problem>(url)
-  const [isChecked, setIsChecked] = useState(false)
-  const onCheckedChange = (isChecked: boolean) => {
-    setIsChecked(isChecked)
-  }
-  const problems = items ?? []
+  const [search, setSearch] = useState('')
 
+  const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value)
+  }
+
+  const router = useRouter()
+  const handleSearchSubmit = () => {
+    console.log(searchParmas)
+    const url = new URL('/problem', baseUrl)
+    search && url.searchParams.set('search', search)
+    router.replace(`?${url.searchParams}`, { scroll: false })
+    setUrl(url)
+  }
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit()
+    }
+  }
+
+  const problems = items ?? []
   return (
     <>
       <div className="flex text-gray-500">
@@ -27,15 +48,22 @@ export default function Page() {
           <p className="text-primary">{problems.length}</p>
         </div>
         <div className="flex items-center gap-1">
-          <Switch checked={isChecked} onCheckedChange={onCheckedChange} />
+          <Switch
+            onClick={() => {
+              setIsTagChecked(!isTagChecked)
+            }}
+          />
           <p className="font-bold"> Tags</p>
           <div className="flex items-center py-4">
-            <button>
+            <button onClick={handleSearchSubmit}>
               <FiSearch className="relative left-7 top-2 h-5 w-5 -translate-y-1/2 transform font-bold text-gray-300" />
             </button>
             <Input
               className="max-w-sm border-2 pl-10 font-bold placeholder:font-normal placeholder:text-gray-300"
               placeholder="Keyword..."
+              value={search}
+              onChange={onSearchChange}
+              onKeyDown={onKeyDown}
             />
           </div>
         </div>
@@ -43,7 +71,7 @@ export default function Page() {
       <ProblemTable
         data={problems}
         isLoading={!items}
-        isTagChecked={isChecked}
+        isTagChecked={isTagChecked}
       />
       <Paginator page={paginator.page} slot={paginator.slot} setUrl={setUrl} />
     </>
