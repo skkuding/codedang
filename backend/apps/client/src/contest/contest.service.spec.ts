@@ -36,7 +36,9 @@ const contest = {
     id: groupId,
     groupName: 'group'
   }
-} satisfies Contest & { group: Partial<Group> }
+} satisfies Contest & {
+  group: Partial<Group>
+}
 
 const contestDetail = {
   title: 'contest',
@@ -171,6 +173,11 @@ const record: ContestRecord = {
   updateTime: new Date()
 }
 
+const participantContests = [
+  { ...ongoingContests[0], contestRecord: [record] },
+  { ...upcomingContests[0], contestRecord: [record] }
+]
+
 const mockPrismaService = {
   contest: {
     findUnique: stub().resolves(contest),
@@ -209,25 +216,30 @@ describe('ContestService', () => {
   })
 
   describe('getContests', () => {
+    beforeEach(() => {
+      mockPrismaService.contest.findMany.resolves(participantContests)
+    })
+    afterEach(() => {
+      mockPrismaService.contest.findMany.reset()
+    })
     it('should return ongoing, upcoming contests when userId is undefined', async () => {
-      mockPrismaService.contest.findMany.resolves(contests)
       expect(
         await service.getContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
-        ongoing: ongoingContests,
-        upcoming: upcomingContests
+        ongoing: [{ ...ongoingContests[0], participants: 1 }],
+        upcoming: [{ ...upcomingContests[0], participants: 1 }]
       })
     })
 
     it('should return registered ongoing, registered upcoming, ongoing, upcoming contests', async () => {
       mockPrismaService.user.findUnique.resolves(user)
-      mockPrismaService.contest.findMany.resolves(contests)
+
       expect(await service.getContestsByGroupId(userId, groupId)).to.deep.equal(
         {
           registeredOngoing: registeredOngoingContests,
           registeredUpcoming: registeredUpcomingContests,
-          ongoing: ongoingContests,
-          upcoming: upcomingContests
+          ongoing: [{ ...ongoingContests[0], participants: 1 }],
+          upcoming: [{ ...upcomingContests[0], participants: 1 }]
         }
       )
     })
@@ -276,13 +288,14 @@ describe('ContestService', () => {
 
   describe('getContestsByGroupId', () => {
     it('should return ongoing, upcoming, finished contests', async () => {
-      mockPrismaService.contest.findMany.resolves(contests)
+      mockPrismaService.contest.findMany.resolves(participantContests)
       expect(
         await service.getContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
-        ongoing: ongoingContests,
-        upcoming: upcomingContests
+        ongoing: [{ ...ongoingContests[0], participants: 1 }],
+        upcoming: [{ ...upcomingContests[0], participants: 1 }]
       })
+      mockPrismaService.contest.findMany.reset()
     })
 
     //TODO: test when userId is given
