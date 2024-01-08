@@ -64,6 +64,7 @@ export class CodeDraftController {
         throw new NotFoundException(err.message)
       } else if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
+        // foreign key constraint failed error code
         err.code == 'P2003'
       ) {
         throw new NotFoundException(err.message)
