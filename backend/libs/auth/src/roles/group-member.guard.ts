@@ -24,7 +24,10 @@ export class GroupMemberGuard implements CanActivate {
       )
     } else {
       request = context.switchToHttp().getRequest()
-      groupId = parseInt(request.params.groupId)
+      groupId =
+        !request.params.groupId && !request.query.groupId
+          ? 1
+          : parseInt(request.params.groupId ?? request.query.groupId)
     }
 
     const user = request.user
@@ -37,7 +40,7 @@ export class GroupMemberGuard implements CanActivate {
     }
 
     const userGroup = await this.service.getUserGroup(user.id, groupId)
-    if (userGroup) {
+    if (userGroup || groupId === 1) {
       return true
     }
     return false
