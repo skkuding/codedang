@@ -51,7 +51,7 @@ export class ProblemSubmissionController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -82,7 +82,7 @@ export class ProblemSubmissionController {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -113,7 +113,7 @@ export class GroupProblemSubmissionController {
       if (error instanceof ConflictFoundException) {
         throw new ConflictException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -149,7 +149,7 @@ export class GroupProblemSubmissionController {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -185,7 +185,7 @@ export class ContestSubmissionController {
       ) {
         throw new NotFoundException(error)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -226,7 +226,7 @@ export class ContestSubmissionController {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -265,7 +265,7 @@ export class GroupContestSubmissionController {
       ) {
         throw new NotFoundException(error)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -310,7 +310,7 @@ export class GroupContestSubmissionController {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -342,7 +342,7 @@ export class WorkbookSubmissionController {
       } else if (error instanceof ConflictFoundException) {
         throw new ConflictException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -373,7 +373,7 @@ export class WorkbookSubmissionController {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -408,7 +408,7 @@ export class GroupWorkbookSubmissionController {
       } else if (error instanceof ConflictFoundException) {
         throw new ConflictException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -444,7 +444,7 @@ export class GroupWorkbookSubmissionController {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }

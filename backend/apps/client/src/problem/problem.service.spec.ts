@@ -6,6 +6,7 @@ import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import * as dayjs from 'dayjs'
 import { stub } from 'sinon'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   EntityNotExistException,
   ForbiddenAccessException
@@ -69,7 +70,8 @@ const db = {
     create: stub(),
     update: stub(),
     upsert: stub()
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 const ARBITRARY_VAL = 1
@@ -145,20 +147,24 @@ describe('ProblemService', () => {
       db.tag.findMany.resolves([mockTag])
 
       // when
-      const result = await service.getProblems(1, 2)
+      const result = await service.getProblems({
+        cursor: 1,
+        take: 2,
+        groupId: OPEN_SPACE_ID
+      })
 
       // then
       expect(result).to.deep.equal(
         plainToInstance(ProblemsResponseDto, [
           {
             ...mockProblems[0],
-            submissionCount: 2,
+            submissionCount: 10,
             acceptedRate: 0.5,
             tags: [mockProblemTag.tag]
           },
           {
             ...mockProblems[1],
-            submissionCount: 2,
+            submissionCount: 10,
             acceptedRate: 0.5,
             tags: [mockProblemTag.tag]
           }

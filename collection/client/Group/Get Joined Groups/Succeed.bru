@@ -22,3 +22,9 @@ assert {
 script:pre-request {
   await require("./login").loginUser(req);
 }
+
+docs {
+  # Get Joined Groups
+  ---
+  - 현재 User가 속해있는 Group 정보를 반환합니다.
+}

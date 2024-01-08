@@ -1,5 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
+import { faker } from '@faker-js/faker'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
@@ -7,6 +8,10 @@ import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
+import type {
+  CreateContestInput,
+  UpdateContestInput
+} from './model/contest.input'
 import type { PublicizingRequest } from './model/publicizing-request.model'
 
 const contestId = 1
@@ -16,47 +21,47 @@ const groupId = 1
 const contest: Contest = {
   id: contestId,
   createdById: userId,
-  groupId: groupId,
+  groupId,
   title: 'title',
   description: 'description',
-  startTime: undefined,
-  endTime: undefined,
+  startTime: faker.date.past(),
+  endTime: faker.date.future(),
   config: {
     isVisible: true,
     isRankVisible: true
   },
-  createTime: undefined,
-  updateTime: undefined
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const publicizingRequest: PublicizingRequest = {
-  contestId: contestId,
-  userId: userId,
+  contestId,
+  userId,
   expireTime: new Date('2050-08-19T07:32:07.533Z')
 }
 
 const input = {
   title: 'test title10',
   description: 'test description',
-  startTime: undefined,
-  endTime: undefined,
+  startTime: faker.date.past(),
+  endTime: faker.date.future(),
   config: {
     isVisible: false,
     isRankVisible: false
   }
-}
+} satisfies CreateContestInput
 
 const updateInput = {
   id: 1,
   title: 'test title10',
   description: 'test description',
-  startTime: undefined,
-  endTime: undefined,
+  startTime: faker.date.past(),
+  endTime: faker.date.future(),
   config: {
     isVisible: false,
     isRankVisible: false
   }
-}
+} satisfies UpdateContestInput
 
 const db = {
   contest: {
@@ -66,7 +71,8 @@ const db = {
     create: stub().resolves(Contest),
     update: stub().resolves(Contest),
     delete: stub().resolves(Contest)
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('ContestService', () => {
@@ -168,7 +174,7 @@ describe('ContestService', () => {
 
       expect(cacheSpyGet.called).to.be.true
       expect(res).to.deep.equal({
-        contestId: contestId,
+        contestId,
         isAccepted: true
       })
     })

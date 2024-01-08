@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker'
 import { type Problem, Language, Level } from '@prisma/client'
 
 export const problems: Problem[] = [
@@ -24,9 +25,12 @@ export const problems: Problem[] = [
     memoryLimit: 4096,
     difficulty: Level.Level1,
     source: '',
+    submissionCount: 10,
+    acceptedCount: 5,
+    acceptedRate: 0.5,
     exposeTime: new Date(),
-    createTime: undefined,
-    updateTime: undefined,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
     inputExamples: [],
     outputExamples: []
   }

@@ -14,6 +14,9 @@ export class ProblemResponseDto {
   @Expose() memoryLimit: number
   @Expose() difficulty: Level
   @Expose() source: string[]
+  @Expose() submissionCount: number
+  @Expose() acceptedCount: number
+  @Expose() acceptedRate: number
   @Expose() inputExamples: string[]
   @Expose() outputExamples: string[]
 }

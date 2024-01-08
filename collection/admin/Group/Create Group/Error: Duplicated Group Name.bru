@@ -1,0 +1,35 @@
+meta {
+  name: Error: Duplicated Group Name
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createGroup(input: {
+      groupName: "Example Private Group"
+      description: "thisisnewgroup"
+      config: {
+        showOnList: true
+        allowJoinFromSearch: true
+        allowJoinWithURL: false
+        requireApprovalBeforeJoin:false
+      }
+    }) {
+      id
+      groupName
+      description
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.errors: isDefined
+}

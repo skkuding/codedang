@@ -58,7 +58,7 @@ export class ProblemResolver {
       ) {
         throw new UnprocessableEntityException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -81,7 +81,7 @@ export class ProblemResolver {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -90,7 +90,8 @@ export class ProblemResolver {
   async getProblems(
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
     groupId: number,
-    @Args('cursor', { nullable: true }, CursorValidationPipe) cursor: number,
+    @Args('cursor', { nullable: true }, CursorValidationPipe)
+    cursor: number | null,
     @Args('take', { type: () => Int }) take: number,
     @Args('input') input: FilterProblemsInput
   ) {
@@ -112,7 +113,7 @@ export class ProblemResolver {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -137,7 +138,7 @@ export class ProblemResolver {
       } else if (error instanceof ConflictFoundException) {
         throw new ConflictException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -157,7 +158,7 @@ export class ProblemResolver {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -182,7 +183,7 @@ export class ProblemResolver {
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException(error.message)
     }
   }
@@ -213,7 +214,7 @@ export class ProblemResolver {
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException(error.message)
     }
   }
@@ -238,7 +239,7 @@ export class ProblemResolver {
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException(error.message)
     }
   }
@@ -268,7 +269,7 @@ export class ProblemResolver {
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException(error.message)
     }
   }

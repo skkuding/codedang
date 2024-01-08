@@ -10,7 +10,7 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { GroupJoinRequest } from './interface/group-join-request.interface'
+import type { GroupJoinRequest } from '@libs/types'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
 @Injectable()
@@ -23,8 +23,8 @@ export class GroupService {
   async getGroup(groupId: number, userId: number, invited = false) {
     const isJoined = await this.prisma.userGroup.findFirst({
       where: {
-        userId: userId,
-        groupId: groupId
+        userId,
+        groupId
       },
       select: {
         group: {
@@ -61,7 +61,7 @@ export class GroupService {
         id: group.id,
         groupName: group.groupName,
         description: group.description,
-        allowJoin: invited ? true : group.config['allowJoinFromSearch'],
+        allowJoin: invited ? true : group.config?.['allowJoinFromSearch'],
         memberNum: group.userGroup.length,
         leaders: await this.getGroupLeaders(groupId),
         isJoined: false
@@ -76,7 +76,7 @@ export class GroupService {
   }
 
   async getGroupByInvitation(code: string, userId: number) {
-    const groupId: number = await this.cacheManager.get(invitationCodeKey(code))
+    const groupId = await this.cacheManager.get<number>(invitationCodeKey(code))
 
     if (!groupId) {
       throw new EntityNotExistException('Invalid invitation')
@@ -88,7 +88,7 @@ export class GroupService {
     const leaders = (
       await this.prisma.userGroup.findMany({
         where: {
-          groupId: groupId,
+          groupId,
           isGroupLeader: true
         },
         select: {
@@ -108,7 +108,7 @@ export class GroupService {
     const members = (
       await this.prisma.userGroup.findMany({
         where: {
-          groupId: groupId,
+          groupId,
           isGroupLeader: false
         },
         select: {
@@ -124,12 +124,13 @@ export class GroupService {
     return members
   }
 
-  async getGroups(cursor: number, take: number) {
+  async getGroups(cursor: number | null, take: number) {
+    const paginator = this.prisma.getPaginator(cursor)
+
     const groups = (
       await this.prisma.group.findMany({
+        ...paginator,
         take,
-        skip: cursor ? 1 : 0,
-        ...(cursor && { cursor: { id: cursor } }),
         where: {
           NOT: {
             id: 1
@@ -165,7 +166,7 @@ export class GroupService {
           NOT: {
             groupId: 1
           },
-          userId: userId
+          userId
         },
         select: {
           group: {
@@ -229,25 +230,39 @@ export class GroupService {
 
     if (isJoined) {
       throw new ConflictFoundException('Already joined this group')
-    } else if (group.config['requireApprovalBeforeJoin']) {
-      const joinGroupRequest = await this.cacheManager.get(
-        joinGroupCacheKey(userId, groupId)
-      )
-      if (joinGroupRequest) {
-        throw new ConflictFoundException('Already requested to join this group')
+    } else if (group.config?.['requireApprovalBeforeJoin']) {
+      const groupJoinRequests =
+        (await this.cacheManager.get<GroupJoinRequest[]>(
+          joinGroupCacheKey(groupId)
+        )) || []
+
+      if (groupJoinRequests) {
+        const validRequests = groupJoinRequests.filter(
+          (req) => req.expiresAt > Date.now()
+        )
+        if (validRequests.find((req) => req.userId === userId)) {
+          throw new ConflictFoundException(
+            'Already requested to join this group'
+          )
+        }
       }
 
-      const userGroupValue: GroupJoinRequest = { userId, groupId }
+      const newRequest: GroupJoinRequest = {
+        userId,
+        expiresAt: Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
+      }
+      groupJoinRequests.push(newRequest)
+
       await this.cacheManager.set(
-        joinGroupCacheKey(userId, groupId),
-        userGroupValue,
+        joinGroupCacheKey(groupId),
+        groupJoinRequests,
         JOIN_GROUP_REQUEST_EXPIRE_TIME
       )
 
       return {
         userGroupData: {
-          userId: userId,
-          groupId: groupId
+          userId,
+          groupId
         },
         isJoined: false
       }
@@ -268,7 +283,7 @@ export class GroupService {
     const groupLeaders = await this.prisma.userGroup.findMany({
       where: {
         isGroupLeader: true,
-        groupId: groupId
+        groupId
       }
     })
     if (groupLeaders.length == 1 && groupLeaders[0].userId == userId) {
@@ -279,8 +294,8 @@ export class GroupService {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         userId_groupId: {
-          userId: userId,
-          groupId: groupId
+          userId,
+          groupId
         }
       }
     })
@@ -291,7 +306,7 @@ export class GroupService {
     return (
       await this.prisma.userGroup.findMany({
         where: {
-          userId: userId,
+          userId,
           isGroupLeader: true
         },
         select: {

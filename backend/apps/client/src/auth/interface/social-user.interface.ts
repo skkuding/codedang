@@ -4,5 +4,5 @@ export interface GithubUser extends Express.User {
   email: string
 }
 
-export interface KakaoUser extends Express.User {}
-export interface GoogleUser extends Express.User {}
+// export interface KakaoUser extends Express.User {}
+// export interface GoogleUser extends Express.User {}

@@ -14,9 +14,9 @@ const notice = {
   id: noticeId,
   createdById: userId,
   createdBy: {
-    username: username
+    username
   },
-  groupId: groupId,
+  groupId,
   title: 'Title',
   content: 'Content',
   isVisible: true,
@@ -62,7 +62,8 @@ const db = {
   },
   userGroup: {
     findMany: stub().resolves([groupId])
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('NoticeService', () => {
@@ -121,6 +122,48 @@ describe('NoticeService', () => {
         group.id
       )
       expect(getNoticesByGroupId).to.deep.equal(userNotices)
+    })
+  })
+
+  describe('getFixedNoticesByGroupId', () => {
+    const noticeArray = [
+      {
+        id: noticePrev.id,
+        title: noticePrev.title,
+        createTime: noticePrev.createTime,
+        isFixed: noticePrev.isFixed,
+        createdBy: noticePrev.createdBy
+      },
+      {
+        id: notice.id,
+        title: notice.title,
+        createTime: notice.createTime,
+        isFixed: notice.isFixed,
+        createdBy: notice.createdBy
+      },
+      {
+        id: noticeNext.id,
+        title: noticeNext.title,
+        createTime: noticeNext.createTime,
+        isFixed: noticeNext.isFixed,
+        createdBy: noticeNext.createdBy
+      }
+    ]
+
+    const userNotices = noticeArray.map((notice) => {
+      return {
+        ...notice,
+        createdBy: notice.createdBy.username
+      }
+    })
+
+    it('should return notice list of the group', async () => {
+      db.notice.findMany.resolves(noticeArray)
+
+      const getFixedNoticesByGroupId = await service.getFixedNoticesByGroupId(
+        group.id
+      )
+      expect(getFixedNoticesByGroupId).to.deep.equal(userNotices)
     })
   })
 

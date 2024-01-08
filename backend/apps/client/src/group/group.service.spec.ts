@@ -3,8 +3,9 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { Prisma, type UserGroup } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
-import { spy, stub } from 'sinon'
+import { spy, stub, match } from 'sinon'
 import { joinGroupCacheKey } from '@libs/cache'
+import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException
@@ -40,7 +41,8 @@ const db = {
     findFirst: stub(),
     findMany: stub(),
     findUnique: stub()
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('GroupService', () => {
@@ -243,14 +245,14 @@ describe('GroupService', () => {
       const result = await service.joinGroupById(userId, groupId)
 
       //then
-      expect(cacheSpyGet.calledWith(joinGroupCacheKey(userId, groupId))).to.be
-        .true
+      expect(cacheSpyGet.calledWith(joinGroupCacheKey(groupId))).to.be.true
       expect(cacheSpyGet.calledOnce).to.be.true
       expect(
-        cacheSpySet.calledWith(joinGroupCacheKey(userId, groupId), {
-          userId,
-          groupId
-        })
+        cacheSpySet.calledWith(
+          joinGroupCacheKey(groupId),
+          match.any,
+          JOIN_GROUP_REQUEST_EXPIRE_TIME
+        )
       ).to.be.true
       expect(cacheSpySet.calledOnce).to.be.true
       expect(result).to.deep.equal({
@@ -290,9 +292,10 @@ describe('GroupService', () => {
           (userGroup) => userGroup.groupId === groupId
         )
       })
-      const cacheSpy = stub(cache, 'get').resolves(
-        `user:${userId}:group:${groupId}`
-      )
+      const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
+      const cacheSpy = stub(cache, 'get').resolves([
+        { userId, expiresAt: joinRequestTimeLimit }
+      ])
 
       //when
       await expect(service.joinGroupById(userId, groupId)).to.be.rejectedWith(
@@ -301,7 +304,7 @@ describe('GroupService', () => {
 
       //then
       expect(cacheSpy.calledOnce).to.be.true
-      expect(cacheSpy.calledWith(joinGroupCacheKey(userId, groupId))).to.be.true
+      expect(cacheSpy.calledWith(joinGroupCacheKey(groupId))).to.be.true
     })
   })
 

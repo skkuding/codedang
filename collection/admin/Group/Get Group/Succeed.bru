@@ -1,0 +1,32 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getGroup(groupId: 2){
+    	id
+      groupName
+      description
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.getGroup: isDefined
+}
+
+docs {
+  # Get Group
+  ---
+  - 주어진 groupId에 해당하는 Group 정보를 반환합니다.
+}

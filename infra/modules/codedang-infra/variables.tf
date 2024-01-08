@@ -77,11 +77,13 @@ variable "rabbitmq_submission_routing_key" {
 }
 
 variable "github_client_id" {
-  type    = string
-  default = "github_client_id"
+  type      = string
+  default   = "github_client_id"
+  sensitive = true
 }
 
 variable "github_client_secret" {
-  type    = string
-  default = "github_client_secret"
+  type      = string
+  default   = "github_client_secret"
+  sensitive = true
 }

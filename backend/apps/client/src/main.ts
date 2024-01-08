@@ -2,20 +2,22 @@ import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import * as cookieParser from 'cookie-parser'
+import { Logger } from 'nestjs-pino'
 import { AppModule } from './app.module'
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule, {
-    logger: ['error', 'warn', 'log']
+    bufferLogs: true
   })
+
+  app.useLogger(app.get(Logger))
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
   app.use(cookieParser())
   app.enableCors({
     allowedHeaders: ['*'],
-    exposedHeaders: ['authorization'],
+    exposedHeaders: ['authorization', 'email-auth'],
     credentials: true
   })
-
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('SKKU coding platform')

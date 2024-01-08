@@ -37,13 +37,13 @@ export class GroupController {
   @Get()
   @AuthNotNeeded()
   async getGroups(
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
       return await this.groupService.getGroups(cursor, take)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -53,7 +53,7 @@ export class GroupController {
     try {
       return await this.groupService.getJoinedGroups(req.user.id)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -72,7 +72,7 @@ export class GroupController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -96,7 +96,7 @@ export class GroupController {
       } else if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -124,7 +124,7 @@ export class GroupController {
       } else if (error instanceof ConflictFoundException) {
         throw new ConflictException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -142,7 +142,7 @@ export class GroupController {
         throw new ConflictException(error.message)
       }
 
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -153,7 +153,7 @@ export class GroupController {
     try {
       return await this.groupService.getGroupLeaders(groupId)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -164,7 +164,7 @@ export class GroupController {
     try {
       return await this.groupService.getGroupMembers(groupId)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }

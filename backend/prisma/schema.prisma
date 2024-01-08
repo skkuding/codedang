@@ -2,7 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  // PostgreSQL full-text search feature를 사요하기 위해 previewFeatures를 추가합니다.
+  previewFeatures = ["fullTextSearch"]
 }
 
 generator graphql {
@@ -159,6 +161,9 @@ model Problem {
   memoryLimit       Int        @map("memory_limit") // unit: MegaBytes
   difficulty        Level
   source            String
+  submissionCount   Int        @default(0) @map("submission_count")
+  acceptedCount     Int        @default(0) @map("accepted_count")
+  acceptedRate      Float      @default(0) @map("accepted_rate")
   exposeTime        DateTime   @default(now()) @map("expose_time")
   createTime        DateTime   @default(now()) @map("create_time")
   updateTime        DateTime   @updatedAt @map("update_time")
@@ -252,6 +257,7 @@ model Contest {
   contestProblem ContestProblem[]
   contestRecord  ContestRecord[]
   submission     Submission[]
+  // contestAnnouncement ContestAnnouncement[]
 
   @@map("contest")
 }

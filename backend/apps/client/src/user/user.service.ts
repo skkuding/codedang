@@ -30,6 +30,7 @@ import type { SocialSignUpDto } from './dto/social-signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import type { UpdateUserProfileDto } from './dto/update-userprofile.dto'
 import type { UserEmailDto } from './dto/userEmail.dto'
+import type { UsernameDto } from './dto/username.dto'
 import type { CreateUserProfileData } from './interface/create-userprofile.interface'
 import type {
   EmailAuthJwtPayload,
@@ -74,7 +75,7 @@ export class UserService {
     return this.createPinAndSendEmail(user.email)
   }
 
-  async getUserCredentialByEmail(email: string): Promise<User> {
+  async getUserCredentialByEmail(email: string) {
     return await this.prisma.user.findUnique({
       where: { email }
     })
@@ -109,6 +110,7 @@ export class UserService {
     }
 
     const { email } = await this.verifyJwtFromRequestHeader(req)
+    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
     await this.updateUserPasswordInPrisma(email, newPassword)
 
     return 'Password Reset successfully'
@@ -118,7 +120,7 @@ export class UserService {
     req: Request,
     jwtVerifyOptions: JwtVerifyOptions = {}
   ): Promise<EmailAuthJwtObject> {
-    const token = ExtractJwt.fromHeader('email-auth')(req)
+    const token = ExtractJwt.fromHeader('email-auth')(req) ?? ''
     const options = {
       secret: this.config.get('JWT_SECRET'),
       ...jwtVerifyOptions
@@ -149,7 +151,6 @@ export class UserService {
     email
   }: EmailAuthenticationPinDto): Promise<string> {
     await this.verifyPin(pin, email)
-    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
     const payload: EmailAuthJwtPayload = { email }
     const token = await this.createJwt(payload)
@@ -158,7 +159,7 @@ export class UserService {
   }
 
   async verifyPin(pin: string, email: string): Promise<boolean> | never {
-    const storedResetPin: string = await this.getPinFromCache(
+    const storedResetPin = await this.getPinFromCache(
       emailAuthenticationPinCacheKey(email)
     )
 
@@ -168,28 +169,28 @@ export class UserService {
     return true
   }
 
-  async getPinFromCache(key: string): Promise<string> {
-    const storedPin: string = await this.cacheManager.get(key)
+  async getPinFromCache(key: string) {
+    const storedPin = await this.cacheManager.get<string>(key)
     return storedPin
   }
 
-  async deletePinFromCache(key: string): Promise<void> {
+  async deletePinFromCache(key: string) {
     await this.cacheManager.del(key)
   }
 
-  async createJwt(payload: EmailAuthJwtPayload): Promise<string> {
+  async createJwt(payload: EmailAuthJwtPayload) {
     return await this.jwtService.signAsync(payload, {
       expiresIn: EMAIL_AUTH_EXPIRE_TIME
     })
   }
 
-  async signUp(req: Request, signUpDto: SignUpDto): Promise<User> {
+  async signUp(req: Request, signUpDto: SignUpDto) {
     const { email } = await this.verifyJwtFromRequestHeader(req)
     if (email != signUpDto.email) {
       throw new UnprocessableDataException('The email is not authenticated one')
     }
 
-    const duplicatedUser: User = await this.prisma.user.findUnique({
+    const duplicatedUser = await this.prisma.user.findUnique({
       where: {
         username: signUpDto.username
       }
@@ -203,6 +204,8 @@ export class UserService {
     } else if (!this.isValidPassword(signUpDto.password)) {
       throw new UnprocessableDataException('Bad password')
     }
+
+    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
     const user: User = await this.createUser(signUpDto)
     const CreateUserProfileData: CreateUserProfileData = {
@@ -279,7 +282,7 @@ export class UserService {
     return await this.prisma.userOAuth.create({
       data: {
         id: socialSignUpDto.id,
-        userId: userId,
+        userId,
         provider: socialSignUpDto.provider
       }
     })
@@ -309,7 +312,7 @@ export class UserService {
 
   async deleteUser(username: string, password: string) {
     const user = await this.getUserCredential(username)
-    if (!(await this.jwtAuthService.isValidUser(user, password))) {
+    if (!(user && (await this.jwtAuthService.isValidUser(user, password)))) {
       throw new UnidentifiedException('password')
     }
 
@@ -367,7 +370,7 @@ export class UserService {
     })
   }
 
-  async getUserCredential(username: string): Promise<User> {
+  async getUserCredential(username: string) {
     return await this.prisma.user.findUnique({
       where: { username }
     })
@@ -400,6 +403,8 @@ export class UserService {
       throw new UnprocessableDataException('The email is not authenticated one')
     }
 
+    await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
+
     await this.prisma.user.findUniqueOrThrow({
       where: { id: req.user.id }
     })
@@ -426,5 +431,17 @@ export class UserService {
         realName: updateUserProfileDto.realName
       }
     })
+  }
+
+  async checkDuplicatedUsername(usernameDto: UsernameDto) {
+    const duplicatedUser = await this.prisma.user.findUnique({
+      where: {
+        username: usernameDto.username
+      }
+    })
+
+    if (duplicatedUser) {
+      throw new DuplicateFoundException('user')
+    }
   }
 }

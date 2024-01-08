@@ -23,13 +23,13 @@ export class WorkbookController {
 
   @Get()
   async getWorkbooks(
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
       return await this.workbookService.getWorkbooksByGroupId(cursor, take)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -45,7 +45,7 @@ export class WorkbookController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -61,7 +61,7 @@ export class GroupWorkbookController {
   @Get()
   async getGroupWorkbooks(
     @Param('groupId', ParseIntPipe) groupId,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
@@ -71,7 +71,7 @@ export class GroupWorkbookController {
         groupId
       )
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -90,7 +90,7 @@ export class GroupWorkbookController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }

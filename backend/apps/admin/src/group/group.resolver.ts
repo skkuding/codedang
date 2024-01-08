@@ -37,7 +37,7 @@ export class GroupResolver {
       if (error instanceof DuplicateFoundException) {
         throw new ConflictException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -45,7 +45,8 @@ export class GroupResolver {
   @Query(() => [FindGroup])
   @UseRolesGuard()
   async getGroups(
-    @Args('cursor', { nullable: true }, CursorValidationPipe) cursor: number,
+    @Args('cursor', { nullable: true }, CursorValidationPipe)
+    cursor: number | null,
     @Args('take', { type: () => Int }) take: number
   ) {
     return await this.groupService.getGroups(cursor, take)
@@ -69,7 +70,7 @@ export class GroupResolver {
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -85,7 +86,7 @@ export class GroupResolver {
       if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -98,7 +99,7 @@ export class GroupResolver {
       if (error instanceof ConflictFoundException) {
         throw new ConflictException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -108,7 +109,7 @@ export class GroupResolver {
     try {
       return await this.groupService.revokeInvitation(id)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }

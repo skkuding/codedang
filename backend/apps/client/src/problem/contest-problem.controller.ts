@@ -30,7 +30,7 @@ export class ContestProblemController {
   @Get()
   async getContestProblems(
     @Param('contestId', ParseIntPipe) contestId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
@@ -45,7 +45,7 @@ export class ContestProblemController {
       } else if (err instanceof ForbiddenAccessException) {
         throw new ForbiddenException(err.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(err)
       throw new InternalServerErrorException()
     }
   }
@@ -69,7 +69,7 @@ export class ContestProblemController {
       } else if (err instanceof ForbiddenAccessException) {
         throw new BadRequestException(err.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(err)
       throw new InternalServerErrorException()
     }
   }
@@ -86,7 +86,7 @@ export class GroupContestProblemController {
   async getContestProblems(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
@@ -100,7 +100,7 @@ export class GroupContestProblemController {
       if (err instanceof EntityNotExistException) {
         throw new NotFoundException(err.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(err)
       throw new InternalServerErrorException()
     }
   }
@@ -126,7 +126,7 @@ export class GroupContestProblemController {
       ) {
         throw new NotFoundException(err.message)
       }
-      this.logger.error(err.message, err.stack)
+      this.logger.error(err)
       throw new InternalServerErrorException()
     }
   }

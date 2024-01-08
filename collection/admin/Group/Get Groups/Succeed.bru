@@ -1,0 +1,35 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getGroups(cursor: 1, take: 5){
+    	id
+      groupName
+      description
+      config
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.getGroups: isDefined
+}
+
+docs {
+  # Get Groups
+  ---
+  - Group 정보를 반환합니다.
+  - `cursor`: Group 정보를 어디서부터 불러올 것인지 결정합니다. 지정하지 않는 경우 처음부터 `take`만큼을 불러옵니다.
+  - `take`: 페이지 당 몇 개의 Group 정보를 불러올 것인지 결정합니다.
+}

@@ -23,11 +23,21 @@ export class NoticeController {
 
   @Get()
   async getNotices(
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
       return await this.noticeService.getNoticesByGroupId(cursor, take)
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('fixed')
+  async getFixedNotices(@Query('take', ParseIntPipe) take: number) {
+    try {
+      return await this.noticeService.getFixedNoticesByGroupId(take)
     } catch (error) {
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -45,7 +55,7 @@ export class NoticeController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -61,11 +71,24 @@ export class GroupNoticeController {
   @Get()
   async getNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
       return await this.noticeService.getNoticesByGroupId(cursor, take, groupId)
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('fixed')
+  async getFixedNotices(
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Query('take', ParseIntPipe) take: number
+  ) {
+    try {
+      return await this.noticeService.getFixedNoticesByGroupId(take, groupId)
     } catch (error) {
       this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
@@ -86,7 +109,7 @@ export class GroupNoticeController {
       ) {
         throw new NotFoundException(error.message)
       }
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }

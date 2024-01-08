@@ -54,15 +54,13 @@ export class SubmissionService implements OnModuleInit {
             Array.isArray(error) &&
             error.every((e) => e instanceof ValidationError)
           ) {
-            this.logger.error('Message format error', { ...error })
-            return new Nack()
+            this.logger.error(error, 'Message format error')
           } else if (error instanceof UnprocessableDataException) {
-            this.logger.error('Iris exception', error)
-            return new Nack()
+            this.logger.error(error, 'Iris exception')
           } else {
-            this.logger.error('Unexpected error', error)
-            return new Nack()
+            this.logger.error(error, 'Unexpected error')
           }
+          return new Nack()
         }
       },
       {
@@ -108,7 +106,7 @@ export class SubmissionService implements OnModuleInit {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_userId: {
-          contestId: contestId,
+          contestId,
           userId
         }
       },
@@ -134,8 +132,8 @@ export class SubmissionService implements OnModuleInit {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_problemId: {
-          problemId: problemId,
-          contestId: contestId
+          problemId,
+          contestId
         }
       },
       include: {
@@ -157,8 +155,8 @@ export class SubmissionService implements OnModuleInit {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
-          problemId: problemId,
-          workbookId: workbookId
+          problemId,
+          workbookId
         }
       },
       include: {
@@ -248,6 +246,11 @@ export class SubmissionService implements OnModuleInit {
         memoryLimit: true
       }
     })
+
+    if (!problem) {
+      throw new EntityNotExistException('problem')
+    }
+
     const judgeRequest = new JudgeRequest(code, submission.language, problem)
     // TODO: problem 단위가 아닌 testcase 단위로 채점하도록 iris 수정
 
@@ -297,7 +300,10 @@ export class SubmissionService implements OnModuleInit {
   async updateSubmissionResult(
     id: string,
     resultStatus: ResultStatus,
-    results: Partial<SubmissionResult>[]
+    results: Array<
+      Partial<SubmissionResult> &
+        Pick<SubmissionResult, 'result' | 'cpuTime' | 'memoryUsage'>
+    >
   ) {
     await Promise.all(
       results.map(
@@ -320,7 +326,7 @@ export class SubmissionService implements OnModuleInit {
 
     // FIXME: 현재 코드는 message 하나에 특정 problem에 대한 모든 테스트케이스의 채점 결과가 전송된다고 가정하고, 이를 받아서 submission의 overall result를 업데이트합니다.
     //        테스트케이스별로 DB 업데이트가 이루어진다면 아래 코드를 수정해야 합니다.
-    await this.prisma.submission.update({
+    const submission = await this.prisma.submission.update({
       where: {
         id
       },
@@ -328,6 +334,37 @@ export class SubmissionService implements OnModuleInit {
         result: resultStatus
       }
     })
+
+    if (
+      resultStatus !== ResultStatus.Judging &&
+      resultStatus !== ResultStatus.ServerError
+    ) {
+      const problem = await this.prisma.problem.findFirstOrThrow({
+        where: {
+          id: submission.problemId
+        },
+        select: {
+          submissionCount: true,
+          acceptedCount: true,
+          acceptedRate: true
+        }
+      })
+      const submissionCount = problem.submissionCount + 1
+      const acceptedCount =
+        resultStatus === ResultStatus.Accepted
+          ? problem.acceptedCount + 1
+          : problem.acceptedCount
+      await this.prisma.problem.update({
+        where: {
+          id: submission.problemId
+        },
+        data: {
+          submissionCount,
+          acceptedCount,
+          acceptedRate: acceptedCount / submissionCount
+        }
+      })
+    }
   }
 
   // FIXME: Workbook 구분
@@ -412,7 +449,7 @@ export class SubmissionService implements OnModuleInit {
 
       return {
         problemId,
-        username: submission.user.username,
+        username: submission.user?.username,
         code: code.map((snippet) => snippet.text).join('\n'),
         language: submission.language,
         createTime: submission.createTime,

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { ResultStatus } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
@@ -15,38 +14,39 @@ import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemRepository } from './problem.repository'
+import type { ProblemOrder } from './schema/problem-order.schema'
 
 @Injectable()
 export class ProblemService {
   constructor(private readonly problemRepository: ProblemRepository) {}
 
-  async getProblems(cursor: number, take: number, groupId = OPEN_SPACE_ID) {
-    const problem = await this.problemRepository.getProblems(
-      cursor,
-      take,
-      groupId
+  async getProblems(options: {
+    cursor: number | null
+    take: number
+    groupId: number
+    order?: ProblemOrder
+    search?: string
+  }) {
+    let unprocessedProblems = await this.problemRepository.getProblems(options)
+
+    unprocessedProblems = unprocessedProblems.filter(
+      (problem) => problem.exposeTime <= new Date()
     )
+
     const uniqueTagIds = new Set(
-      problem.flatMap((item) => {
+      unprocessedProblems.flatMap((item) => {
         return item.problemTag.map((item2) => item2.tagId)
       })
     )
     const tagIds = [...uniqueTagIds]
     const tagList = await this.problemRepository.getProblemsTags(tagIds)
 
-    const problems = problem.map(async (problem) => {
-      const { submission, problemTag, ...data } = problem
-      const submissionCount = submission.length
-      const acceptedRate =
-        submission.filter(
-          (submission) => submission.result === ResultStatus.Accepted
-        ).length / submissionCount
+    const problems = unprocessedProblems.map(async (problem) => {
+      const { problemTag, ...data } = problem
       const problemTags = problemTag.map((tag) => tag.tagId)
       const tags = tagList.filter((tagItem) => problemTags.includes(tagItem.id))
       return {
         ...data,
-        submissionCount,
-        acceptedRate,
         tags
       }
     })
@@ -69,7 +69,7 @@ export class ContestProblemService {
 
   async getContestProblems(
     contestId: number,
-    cursor: number,
+    cursor: number | null,
     take: number,
     groupId = OPEN_SPACE_ID
   ) {
@@ -115,7 +115,7 @@ export class WorkbookProblemService {
 
   async getWorkbookProblems(
     workbookId: number,
-    cursor: number,
+    cursor: number | null,
     take: number,
     groupId = OPEN_SPACE_ID
   ) {

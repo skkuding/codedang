@@ -1,0 +1,28 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    issueInvitation(groupId: 3)
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.issueInvitation: isString
+}
+
+docs {
+  # Issue Invitation
+  ---
+  - `groupId`에 해당하는 Group의 Invitation Code를 발급합니다.
+}

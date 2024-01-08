@@ -238,7 +238,7 @@ const joinGroup = async (id: number) => {
 
         <div
           v-else-if="modalType === 'info'"
-          class="max-w-96 flex w-full items-center justify-center px-6 py-12"
+          class="flex w-full max-w-96 items-center justify-center px-6 py-12"
         >
           <p class="text-center font-bold">
             Invitation has been succeed!
@@ -248,7 +248,7 @@ const joinGroup = async (id: number) => {
         </div>
         <div
           v-else-if="modalType === 'wait'"
-          class="max-w-96 flex w-full items-center justify-center px-6 py-12"
+          class="flex w-full max-w-96 items-center justify-center px-6 py-12"
         >
           <p class="text-center font-bold">
             Invitation succesfully requested!
@@ -258,7 +258,7 @@ const joinGroup = async (id: number) => {
         </div>
         <div
           v-else-if="modalType === 'error'"
-          class="max-w-96 flex w-full items-center justify-center px-6 py-12"
+          class="flex w-full max-w-96 items-center justify-center px-6 py-12"
         >
           <p class="text-center font-bold">
             You have already joined or sent request to this group!

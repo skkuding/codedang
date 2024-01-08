@@ -1,4 +1,5 @@
 {
+  "name": "codedang",
   "scripts": {
     "lint": "eslint . --ext .js,.ts,.vue,.tsx,.jsx",
     "format": "prettier --write .",
@@ -9,26 +10,25 @@
     "knip": "knip"
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.478.0",
-    "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.3",
-    "@commitlint/types": "^18.4.3",
+    "@aws-sdk/client-s3": "^3.485.0",
+    "@commitlint/cli": "^18.4.4",
+    "@commitlint/config-conventional": "^18.4.4",
+    "@commitlint/types": "^18.4.4",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
+    "@typescript-eslint/eslint-plugin": "^6.18.0",
+    "@typescript-eslint/parser": "^6.18.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.1.0",
+    "eslint-plugin-prettier": "^5.1.2",
     "eslint-plugin-vue": "^9.19.2",
-    "knip": "^2.43.0",
+    "knip": "^3.12.0",
     "lefthook": "^1.5.5",
-    "next": "14.0.4",
     "prettier": "^3.1.1",
-    "prettier-plugin-tailwindcss": "^0.5.9",
+    "prettier-plugin-tailwindcss": "^0.5.11",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
-    "vitepress": "1.0.0-rc.32",
+    "vitepress": "1.0.0-rc.35",
     "vue-eslint-parser": "^9.3.2"
   },
-  "packageManager": "pnpm@8.12.1"
+  "packageManager": "pnpm@8.14.0"
 }

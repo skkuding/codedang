@@ -1,0 +1,26 @@
+meta {
+  name: Error: Invalid Group ID
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getGroup(groupId: 999999){
+    	id
+      groupName
+      description
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.errors: isDefined
+}

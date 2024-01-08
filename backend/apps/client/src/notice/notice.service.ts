@@ -7,20 +7,48 @@ export class NoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getNoticesByGroupId(
-    cursor: number,
+    cursor: number | null,
     take: number,
     groupId = OPEN_SPACE_ID
   ) {
-    let skip = 1
-    if (cursor === 0) {
-      cursor = 1
-      skip = 0
-    }
+    const paginator = this.prisma.getPaginator(cursor)
+
+    const notices = await this.prisma.notice.findMany({
+      ...paginator,
+      where: {
+        groupId,
+        isVisible: true,
+        isFixed: false
+      },
+      take,
+      select: {
+        id: true,
+        title: true,
+        createTime: true,
+        isFixed: true,
+        createdBy: {
+          select: {
+            username: true
+          }
+        }
+      }
+    })
+
+    return notices.map((notice) => {
+      return {
+        ...notice,
+        createdBy: notice.createdBy?.username
+      }
+    })
+  }
+
+  async getFixedNoticesByGroupId(take: number, groupId = OPEN_SPACE_ID) {
     return (
       await this.prisma.notice.findMany({
         where: {
           groupId,
-          isVisible: true
+          isVisible: true,
+          isFixed: true
         },
         select: {
           id: true,
@@ -33,16 +61,15 @@ export class NoticeService {
             }
           }
         },
-        take,
-        skip,
-        cursor: {
-          id: cursor
-        }
+        orderBy: {
+          id: 'desc'
+        },
+        take
       })
     ).map((notice) => {
       return {
         ...notice,
-        createdBy: notice.createdBy.username
+        createdBy: notice.createdBy?.username
       }
     })
   }
@@ -68,7 +95,7 @@ export class NoticeService {
         }
       })
       .then((notice) => {
-        return { ...notice, createdBy: notice.createdBy.username }
+        return { ...notice, createdBy: notice.createdBy?.username }
       })
 
     const navigate = (pos: 'prev' | 'next') => {

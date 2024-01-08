@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import typography from '@tailwindcss/typography'
 import type { Config } from 'tailwindcss'
 import animate from 'tailwindcss-animate'
+import defaultTheme from 'tailwindcss/defaultTheme'
 
 export default {
   darkMode: ['class'],
@@ -19,8 +21,16 @@ export default {
       }
     },
     extend: {
+      fontFamily: {
+        sans: [
+          'var(--font-manrope)',
+          'var(--font-noto)',
+          ...defaultTheme.fontFamily.sans
+        ]
+      },
       colors: {
-        primary: '#2279fd'
+        primary: '#3581FA',
+        secondary: '#30D7AE'
       },
       keyframes: {
         'accordion-down': {
@@ -38,5 +48,5 @@ export default {
       }
     }
   },
-  plugins: [animate]
+  plugins: [animate, typography, require('tailwind-scrollbar-hide')]
 } satisfies Config

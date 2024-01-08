@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker'
 import { createReadStream } from 'fs'
 import { Language, Level } from '@admin/@generated'
 import type { Problem } from '@admin/@generated/problem/problem.model'
@@ -34,9 +35,12 @@ export const problems: Problem[] = [
     memoryLimit: 0,
     difficulty: Level.Level2,
     source: 'mustard source',
-    createTime: undefined,
-    updateTime: undefined,
-    exposeTime: undefined,
+    submissionCount: 10,
+    acceptedCount: 5,
+    acceptedRate: 0.5,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    exposeTime: faker.date.anytime(),
     inputExamples: [],
     outputExamples: []
   },
@@ -55,9 +59,12 @@ export const problems: Problem[] = [
     memoryLimit: 0,
     difficulty: Level.Level2,
     source: 'soy source',
-    createTime: undefined,
-    updateTime: undefined,
-    exposeTime: undefined,
+    submissionCount: 10,
+    acceptedCount: 5,
+    acceptedRate: 0.5,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    exposeTime: faker.date.anytime(),
     inputExamples: [],
     outputExamples: []
   }
@@ -105,9 +112,12 @@ export const importedProblems: Problem[] = [
     memoryLimit: 512,
     difficulty: 'Level3',
     source: '',
-    createTime: undefined,
-    updateTime: undefined,
-    exposeTime: undefined,
+    submissionCount: 10,
+    acceptedCount: 5,
+    acceptedRate: 0.5,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    exposeTime: faker.date.anytime(),
     inputExamples: [],
     outputExamples: []
   },
@@ -142,9 +152,12 @@ export const importedProblems: Problem[] = [
     memoryLimit: 512,
     difficulty: 'Level4',
     source: '',
-    createTime: undefined,
-    updateTime: undefined,
-    exposeTime: undefined,
+    submissionCount: 10,
+    acceptedCount: 5,
+    acceptedRate: 0.5,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    exposeTime: faker.date.anytime(),
     inputExamples: [],
     outputExamples: []
   }

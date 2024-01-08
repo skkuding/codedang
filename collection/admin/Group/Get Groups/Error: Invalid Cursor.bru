@@ -1,0 +1,27 @@
+meta {
+  name: Error: Invalid Cursor
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getGroups(cursor: -1, take: 5){
+    	id
+      groupName
+      description
+      config
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.errors: isDefined
+}
