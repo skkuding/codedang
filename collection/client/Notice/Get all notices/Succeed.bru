@@ -12,6 +12,7 @@ get {
 
 query {
   take: 5
+  ~fixed: true
   ~cursor: 1
 }
 
@@ -22,4 +23,20 @@ assert {
   res.body[0].createTime: isString
   res.body[0].isFixed: isBoolean
   res.body[0].createdBy: isString
+}
+
+docs {
+  # Get Notices
+  
+  공개된 공지사항 목록을 가져옵니다.
+  
+  ## Query
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |take  |Integer|가져올 공지사항 개수 (default: 10)|
+  |cursor|Integer|cursor 값 다음 take 만큼 공지사항들을 반환 (default: false)|
+  |fixed |Boolean|고정된 공지사항|
+  |search|String |검색 키워드|
+  
 }
