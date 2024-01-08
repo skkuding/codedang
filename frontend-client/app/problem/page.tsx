@@ -6,27 +6,27 @@ import { Switch } from '@/components/ui/switch'
 import { usePagination } from '@/lib/usePagination'
 import { baseUrl } from '@/lib/vars'
 import type { Problem } from '@/types/type'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { FiSearch } from 'react-icons/fi'
 import ProblemTable from './_components/ProblemTable'
 
 export default function Page() {
-  const searchParmas = new URLSearchParams()
+  const searchParams = useSearchParams()
   const [url, setUrl] = useState<URL>(
-    new URL(`/problem?${searchParmas}`, baseUrl)
+    new URL(`/problem?search=${searchParams.get('search')}`, baseUrl)
   )
-  const [isTagChecked, setIsTagChecked] = useState(false)
   const { items, paginator } = usePagination<Problem>(url)
-  const [search, setSearch] = useState('')
 
+  const [isTagChecked, setIsTagChecked] = useState(false)
+
+  const [search, setSearch] = useState('')
   const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value)
   }
 
   const router = useRouter()
   const handleSearchSubmit = () => {
-    console.log(searchParmas)
     const url = new URL('/problem', baseUrl)
     search && url.searchParams.set('search', search)
     router.replace(`?${url.searchParams}`, { scroll: false })
