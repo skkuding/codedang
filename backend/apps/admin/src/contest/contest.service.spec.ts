@@ -1,11 +1,14 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
+import { Prisma } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { ContestProblem, Group } from '@admin/@generated'
+import { Problem } from '@admin/@generated'
 import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
 import type {
@@ -17,6 +20,7 @@ import type { PublicizingRequest } from './model/publicizing-request.model'
 const contestId = 1
 const userId = 1
 const groupId = 1
+const problemId = 2
 
 const contest: Contest = {
   id: contestId,
@@ -30,6 +34,54 @@ const contest: Contest = {
     isVisible: true,
     isRankVisible: true
   },
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
+}
+
+const group: Group = {
+  id: groupId,
+  groupName: 'groupName',
+  description: 'description',
+  config: {
+    showOnList: true,
+    allowJoinFromSearch: true,
+    allowJoinWithURL: false,
+    requireApprovalBeforeJoin: true
+  },
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
+}
+
+const problem: Problem = {
+  id: problemId,
+  createdById: 2,
+  groupId: 2,
+  title: 'test problem',
+  description: 'thisistestproblem',
+  inputDescription: 'inputdescription',
+  outputDescription: 'outputdescription',
+  hint: 'hint',
+  template: [],
+  languages: ['C'],
+  timeLimit: 10000,
+  memoryLimit: 100000,
+  difficulty: 'Level1',
+  source: 'source',
+  exposeTime: faker.date.past(),
+  createTime: faker.date.past(),
+  updateTime: faker.date.past(),
+  inputExamples: ['input'],
+  outputExamples: ['input'],
+  submissionCount: 0,
+  acceptedCount: 0,
+  acceptedRate: 0
+}
+
+const contestProblem: ContestProblem = {
+  order: 0,
+  contestId,
+  problemId,
+  score: 50,
   createTime: faker.date.past(),
   updateTime: faker.date.past()
 }
@@ -72,6 +124,20 @@ const db = {
     update: stub().resolves(Contest),
     delete: stub().resolves(Contest)
   },
+  contestProblem: {
+    create: stub().resolves(ContestProblem)
+  },
+  problem: {
+    update: stub().resolves(Problem)
+  },
+  group: {
+    findUnique: stub().resolves(Group)
+  },
+  $transaction: stub().callsFake(async () => {
+    const updatedProblem = await db.problem.update()
+    const newContestProblem = await db.contestProblem.create()
+    return [updatedProblem, newContestProblem]
+  }),
   getPaginator: PrismaService.prototype.getPaginator
 }
 
@@ -129,6 +195,7 @@ describe('ContestService', () => {
   describe('createContest', () => {
     it('should return created contest', async () => {
       db.contest.create.resolves(contest)
+      db.group.findUnique.resolves(group)
 
       const res = await service.createContest(groupId, userId, input)
       expect(res).to.deep.equal(contest)
@@ -189,6 +256,43 @@ describe('ContestService', () => {
       expect(service.handlePublicizingRequest(3, true)).to.be.rejectedWith(
         EntityNotExistException
       )
+    })
+  })
+
+  describe('importProblemsToContest', () => {
+    it('should return created ContestProblems', async () => {
+      db.contest.findUnique.resolves(contest)
+      db.problem.update.resolves(problem)
+      db.contestProblem.create.resolves(contestProblem)
+
+      const res = await Promise.all(
+        await service.importProblemsToContest(groupId, contestId, [problemId])
+      )
+
+      expect(res).to.deep.equal([contestProblem])
+    })
+
+    it('should return an empty array when the problem already exists in contest', async () => {
+      db.contest.findUnique.resolves(contest)
+      db.problem.update.resolves(problem)
+      db.contestProblem.create.throws(
+        new Prisma.PrismaClientKnownRequestError(
+          'ContestProblem already exists',
+          { code: 'P2002', clientVersion: 'version' }
+        )
+      )
+
+      const res = await service.importProblemsToContest(groupId, contestId, [
+        problemId
+      ])
+
+      expect(res).to.deep.equal([])
+    })
+
+    it('should throw error when the contestId not exist', async () => {
+      expect(
+        service.importProblemsToContest(groupId, 9999, [problemId])
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 })
