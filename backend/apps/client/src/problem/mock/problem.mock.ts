@@ -113,7 +113,7 @@ export const mockUser = {
   updateTime: undefined
 }
 
-export const mockUserProblem = {
+export const mockCodeDraft = {
   id: 2,
   userId: 4,
   problemId: 2,
