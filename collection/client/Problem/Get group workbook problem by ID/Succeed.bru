@@ -12,7 +12,7 @@ get {
 
 assert {
   res.status: eq 200
-  res("id"): isString
+  res("order"): isNumber 
   res("problem").id: isNumber
   res("problem").title: isString
   res("problem").description: isString
@@ -24,6 +24,9 @@ assert {
   res("problem").memoryLimit: isNumber
   res("problem").difficulty: isString
   res("problem").source: isString
+  res("problem").submissionCount: isNumber 
+  res("problem").acceptedCount: isNumber 
+  res("problem").acceptedRate: isNumber 
 }
 
 script:pre-request {
