@@ -61,9 +61,10 @@ const ongoingContests = [
     config: {
       isVisible: false,
       isRankisVisible: true
-    }
+    },
+    participants: 1
   }
-] satisfies Partial<Contest>[]
+] satisfies Partial<Contest & { participants: number }>[]
 
 const finishedContests = [
   {
@@ -74,9 +75,10 @@ const finishedContests = [
     config: {
       isVisible: false,
       isRankisVisible: true
-    }
+    },
+    participants: 1
   }
-] satisfies Partial<Contest>[]
+] satisfies Partial<Contest & { participants: number }>[]
 
 const upcomingContests = [
   {
@@ -87,9 +89,10 @@ const upcomingContests = [
     config: {
       isVisible: false,
       isRankisVisible: true
-    }
+    },
+    participants: 1
   }
-] satisfies Partial<Contest>[]
+] satisfies Partial<Contest & { participants: number }>[]
 
 const registeredOngoingContests = [
   {
@@ -234,8 +237,8 @@ describe('ContestService', () => {
       expect(
         await service.getContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
-        ongoing: [{ ...ongoingContests[0], participants: 1 }],
-        upcoming: [{ ...upcomingContests[0], participants: 1 }]
+        ongoing: ongoingContests,
+        upcoming: upcomingContests
       })
     })
 
@@ -246,8 +249,8 @@ describe('ContestService', () => {
         {
           registeredOngoing: registeredOngoingContests,
           registeredUpcoming: registeredUpcomingContests,
-          ongoing: [{ ...ongoingContests[0], participants: 1 }],
-          upcoming: [{ ...upcomingContests[0], participants: 1 }]
+          ongoing: ongoingContests,
+          upcoming: upcomingContests
         }
       )
     })
@@ -300,8 +303,8 @@ describe('ContestService', () => {
       expect(
         await service.getContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
-        ongoing: [{ ...ongoingContests[0], participants: 1 }],
-        upcoming: [{ ...upcomingContests[0], participants: 1 }]
+        ongoing: ongoingContests,
+        upcoming: upcomingContests
       })
       mockPrismaService.contest.findMany.reset()
     })
