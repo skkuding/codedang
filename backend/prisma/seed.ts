@@ -251,6 +251,7 @@ const createNotices = async () => {
       },
       {
         title: 'HTML element들 테스트해봐요 (4)',
+        isFixed: true,
         content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <p>Simple Text</p>
@@ -299,6 +300,7 @@ int main() {
       },
       {
         title: '제일 중요한 공지사항 (7)',
+        isFixed: true,
         content: `<p>아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.</p>
 <p>민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로 정한다.</p>
 <p>형사피의자 또는 형사피고인으로서 구금되었던 자가 법률이 정하는 불기소처분을 받거나 무죄판결을 받은 때에는 법률이 정하는 바에 의하여 국가에 정당한 보상을 청구할 수 있다.</p>
