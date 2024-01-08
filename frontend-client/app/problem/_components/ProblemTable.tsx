@@ -25,6 +25,10 @@ interface ProblemProps {
   isTagChecked: boolean
 }
 
+interface TagProps {
+  id: number
+  name: string
+}
 const variants = {
   Level1: 'bg-sky-300',
   Level2: 'bg-green-300',
@@ -52,16 +56,24 @@ export default function ProblemTable({
       accessorKey: 'title',
       cell: ({ row }) => {
         return (
-          <div className="flex flex-col text-left">
+          <div className="flex flex-col gap-2 text-left">
             <span className="text-sm md:text-base">{row.original.title}</span>
-            {/*row.original.tags[0]['name']
-              ? (tag) => <Badge className="text-sm md:text-base">{tag}</Badge>: null*/}
-            {isTagChecked ? (
-              <div className="mt-2 flex flex-row gap-1 font-normal">
-                <Badge className="text-sm md:text-base">tag1</Badge>
-                <Badge className="text-sm md:text-base">tag2</Badge>
+            {isTagChecked &&
+            row.original.tags &&
+            row.original.tags.length > 0 ? (
+              <div className="flex flex-row">
+                {row.original.tags.map((tag: TagProps) => (
+                  <Badge
+                    key={tag.id}
+                    className="hover:gray-300 text-sm md:text-base"
+                  >
+                    {tag.name}
+                  </Badge>
+                ))}
               </div>
-            ) : null}
+            ) : (
+              <div></div>
+            )}
           </div>
         )
       }

@@ -31,6 +31,9 @@ export interface Problem {
   difficulty: Level
   submissionCount: number
   acceptedRate: number
-  tags?: string[]
+  tags?: {
+    id: number
+    name: string
+  }[]
   info?: string
 }
