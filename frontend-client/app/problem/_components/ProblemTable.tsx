@@ -1,5 +1,6 @@
 'use client'
 
+//import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -46,9 +47,12 @@ export default function ProblemTable({ data, isLoading }: ProblemProps) {
       accessorKey: 'title',
       cell: ({ row }) => {
         return (
-          <p className="text-left">
+          <div className="flex flex-col text-left">
             <span className="text-sm md:text-base">{row.original.title}</span>
-          </p>
+            {/*row.original.tags[0]['name']
+              ? (tag) => <Badge className="text-sm md:text-base">{tag}</Badge>
+        : null*/}
+          </div>
         )
       }
     },
