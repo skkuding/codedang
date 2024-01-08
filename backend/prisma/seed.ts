@@ -998,16 +998,9 @@ const createWorkbooks = async () => {
 }
 
 const createSubmissions = async () => {
-  const generateHash = () => {
-    return Math.floor(Math.random() * 16777215)
-      .toString(16)
-      .padStart(6, '0')
-  }
-
   submissions.push(
     await prisma.submission.create({
       data: {
-        id: generateHash(),
         userId: users[0].id,
         problemId: problems[0].id,
         contestId: contest.id,
@@ -1046,7 +1039,6 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        id: generateHash(),
         userId: users[1].id,
         problemId: problems[1].id,
         contestId: contest.id,
@@ -1085,7 +1077,6 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        id: generateHash(),
         userId: users[2].id,
         problemId: problems[2].id,
         contestId: contest.id,
@@ -1124,7 +1115,6 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        id: generateHash(),
         userId: users[3].id,
         problemId: problems[3].id,
         contestId: contest.id,
@@ -1159,7 +1149,6 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        id: generateHash(),
         userId: users[4].id,
         problemId: problems[4].id,
         contestId: contest.id,
@@ -1198,7 +1187,6 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        id: generateHash(),
         userId: users[5].id,
         problemId: problems[5].id,
         workbookId: workbooks[0].id,
@@ -1237,7 +1225,6 @@ int main(void) {
   submissions.push(
     await prisma.submission.create({
       data: {
-        id: generateHash(),
         userId: users[6].id,
         problemId: problems[6].id,
         workbookId: workbooks[0].id,
