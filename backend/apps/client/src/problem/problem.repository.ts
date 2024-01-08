@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Injectable } from '@nestjs/common'
-import type { Problem, Tag, CodeDraft } from '@prisma/client'
-import type { JsonArray } from '@prisma/client/runtime/library'
+import type { Problem, Tag, CodeDraft, Prisma } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
-import type { CreateSubmissionDto } from '@client/submission/dto/create-submission.dto'
+import type { CodeDraftUpdateInput } from '@admin/@generated'
+import type { CreateTemplateDto } from './dto/create-code-draft.dto'
 import type { ProblemOrder } from './schema/problem-order.schema'
 
 /**
@@ -41,14 +41,6 @@ export class ProblemRepository {
     acceptedCount: true,
     inputExamples: true,
     outputExamples: true
-  }
-
-  private readonly codeDraftSelectOption = {
-    userId: true,
-    problemId: true,
-    template: true,
-    createTime: true,
-    updateTime: true
   }
 
   private readonly codeDraftSelectOption = {
@@ -263,8 +255,8 @@ export class ProblemRepository {
     return await this.prisma.codeDraft.findUniqueOrThrow({
       where: {
         codeDraftId: {
-          userId: userId,
-          problemId: problemId
+          userId,
+          problemId
         }
       },
       select: this.codeDraftSelectOption
@@ -274,22 +266,22 @@ export class ProblemRepository {
   async upsertCodeDraft(
     userId: number,
     problemId: number,
-    template: CreateSubmissionDto[]
+    template: CreateTemplateDto
   ): Promise<Partial<CodeDraft>> {
     return await this.prisma.codeDraft.upsert({
       where: {
         codeDraftId: {
-          userId: userId,
-          problemId: problemId
+          userId,
+          problemId
         }
       },
       update: {
-        template: template as unknown as JsonArray
+        template: template.template as CodeDraftUpdateInput['template']
       },
       create: {
-        userId: userId,
-        problemId: problemId,
-        template: template as unknown as JsonArray
+        userId,
+        problemId,
+        template: template.template as CodeDraftUpdateInput['template']
       },
       select: this.codeDraftSelectOption
     })

@@ -163,7 +163,7 @@ export class CodeDraftService {
     const data = await this.problemRepository.upsertCodeDraft(
       userId,
       problemId,
-      createTemplateDto.template
+      createTemplateDto
     )
     return plainToInstance(CodeDraftResponseDto, data)
   }
