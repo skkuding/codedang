@@ -41,7 +41,8 @@ const db = {
     findFirst: stub(),
     findMany: stub(),
     findUnique: stub()
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('GroupService', () => {
@@ -293,7 +294,7 @@ describe('GroupService', () => {
       })
       const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
       const cacheSpy = stub(cache, 'get').resolves([
-        [userId, joinRequestTimeLimit]
+        { userId, expiresAt: joinRequestTimeLimit }
       ])
 
       //when

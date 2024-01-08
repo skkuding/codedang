@@ -2,6 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
 import type { Group } from '@generated'
 import type { User } from '@generated'
+import { faker } from '@faker-js/faker'
 import { Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
@@ -16,8 +17,8 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { GroupService } from './group.service'
 
-const userId = 1
-const groupId = 2
+const userId = faker.number.int()
+const groupId = faker.number.int()
 const input = {
   groupName: 'Group',
   description: 'Group',
@@ -28,44 +29,41 @@ const input = {
     requireApprovalBeforeJoin: true
   }
 }
-const group: Group = {
-  id: 1,
-  createTime: undefined,
-  updateTime: undefined,
+
+const group = {
+  id: faker.number.int(),
+  createTime: faker.date.past(),
+  updateTime: faker.date.past(),
   userGroup: [
     {
-      userId: 1,
-      groupId: 2,
+      userId: faker.number.int(),
+      groupId: faker.number.int(),
       isGroupLeader: true,
-      createTime: undefined,
-      updateTime: undefined
+      createTime: faker.date.past(),
+      updateTime: faker.date.past()
     },
     {
-      userId: 2,
-      groupId: 2,
+      userId: faker.number.int(),
+      groupId: faker.number.int(),
       isGroupLeader: false,
-      createTime: undefined,
-      updateTime: undefined
+      createTime: faker.date.past(),
+      updateTime: faker.date.past()
     }
   ],
-  config: {
-    showOnList: false,
-    allowJoinFromSearch: false,
-    allowJoinWithURL: false,
-    requireApprovalBeforeJoin: true
-  },
   ...input
-}
+} satisfies Group
+
 const { userGroup, ...simpleGroup } = group
+
 const user: User = {
   id: 1,
   username: 'user',
   email: 'example@codedang.com',
   password: 'password',
   role: Role.Admin,
-  lastLogin: undefined,
-  createTime: undefined,
-  updateTime: undefined
+  lastLogin: faker.date.past(),
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const db = {
@@ -80,7 +78,8 @@ const db = {
     create: stub().resolves(null),
     findUnique: stub(),
     deleteMany: stub().resolves({ count: userGroup.length })
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('GroupService', () => {

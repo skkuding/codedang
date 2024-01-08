@@ -1,0 +1,23 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/problem?search=사
+  body: none
+  auth: none
+}
+
+query {
+  search: 사
+}
+
+docs {
+  # Search Problem Title
+  - `{{baseUrl}}/problem?search`
+  - query params
+    - `search`: 검색어
+  - 검색어를 이용하여, `Problem`의 `title`을 검색합니다.
+}

@@ -41,7 +41,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_iris_scale-up" {
 resource "aws_appautoscaling_target" "service_asg_iris" {
   max_capacity       = 8
   min_capacity       = 2
-  resource_id        = "service/${aws_ecs_cluster.iris.name}/${aws_ecs_service.iris.name}}"
+  resource_id        = "service/${aws_ecs_cluster.iris.name}/${aws_ecs_service.iris.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }

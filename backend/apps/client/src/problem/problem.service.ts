@@ -5,7 +5,6 @@ import {
   ForbiddenAccessException,
   EntityNotExistException
 } from '@libs/exception'
-import { PrismaService } from '@libs/prisma'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { ProblemResponseDto } from './dto/problem.response.dto'
@@ -13,20 +12,20 @@ import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemRepository } from './problem.repository'
+import type { ProblemOrder } from './schema/problem-order.schema'
 
 @Injectable()
 export class ProblemService {
-  constructor(
-    private readonly problemRepository: ProblemRepository,
-    private readonly prisma: PrismaService
-  ) {}
+  constructor(private readonly problemRepository: ProblemRepository) {}
 
-  async getProblems(cursor: number, take: number, groupId: number) {
-    let unprocessedProblems = await this.problemRepository.getProblems(
-      cursor,
-      take,
-      groupId
-    )
+  async getProblems(options: {
+    cursor: number | null
+    take: number
+    groupId: number
+    order?: ProblemOrder
+    search?: string
+  }) {
+    let unprocessedProblems = await this.problemRepository.getProblems(options)
 
     unprocessedProblems = unprocessedProblems.filter(
       (problem) => problem.exposeTime <= new Date()
@@ -68,7 +67,7 @@ export class ContestProblemService {
 
   async getContestProblems(
     contestId: number,
-    cursor: number,
+    cursor: number | null,
     take: number,
     groupId = OPEN_SPACE_ID
   ) {
@@ -114,7 +113,7 @@ export class WorkbookProblemService {
 
   async getWorkbookProblems(
     workbookId: number,
-    cursor: number,
+    cursor: number | null,
     take: number,
     groupId = OPEN_SPACE_ID
   ) {

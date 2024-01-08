@@ -12,8 +12,8 @@ export const S3Provider = {
       endpoint: config.get('TESTCASE_ENDPOINT_URL'),
       forcePathStyle: true,
       credentials: {
-        accessKeyId: config.get('TESTCASE_ACCESS_KEY'),
-        secretAccessKey: config.get('TESTCASE_SECRET_KEY')
+        accessKeyId: config.get('TESTCASE_ACCESS_KEY') ?? '',
+        secretAccessKey: config.get('TESTCASE_SECRET_KEY') ?? ''
       }
     })
 }

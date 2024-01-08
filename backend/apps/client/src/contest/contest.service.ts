@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { Prisma, Contest } from '@prisma/client'
+import type { Contest } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { ConflictFoundException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -34,11 +34,11 @@ export class ContestService {
   >
 
   async getContestsByGroupId(
-    userId: number = undefined,
+    userId: number | null = null,
     groupId = OPEN_SPACE_ID
   ) {
     const now = new Date()
-    if (userId === undefined) {
+    if (userId == null) {
       const contests = await this.prisma.contest.findMany({
         where: {
           groupId,
@@ -61,26 +61,26 @@ export class ContestService {
       }
     }
 
-    const registeredContests = (
-      await this.prisma.user.findUnique({
-        where: {
-          id: userId
-        },
-        select: {
-          contest: {
-            where: {
-              endTime: {
-                gt: now
-              }
-            },
-            select: this.contestSelectOption,
-            orderBy: {
-              endTime: 'asc'
+    const userWithRegisteredContests = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        contest: {
+          where: {
+            endTime: {
+              gt: now
             }
+          },
+          select: this.contestSelectOption,
+          orderBy: {
+            endTime: 'asc'
           }
         }
-      })
-    ).contest
+      }
+    })
+
+    const registeredContests = userWithRegisteredContests?.contest ?? []
 
     const registeredContestId = registeredContests.map((contest) => contest.id)
     const contests = await this.prisma.contest.findMany({
@@ -112,14 +112,15 @@ export class ContestService {
   }
 
   async getFinishedContestsByGroupId(
-    cursor: number,
+    cursor: number | null,
     take: number,
     groupId = OPEN_SPACE_ID
-  ): Promise<{
-    finished: Partial<Contest>[]
-  }> {
+  ) {
+    const paginator = this.prisma.getPaginator(cursor)
     const now = new Date()
-    let findOptions: Prisma.ContestFindManyArgs = {
+
+    const finished = await this.prisma.contest.findMany({
+      ...paginator,
       where: {
         endTime: {
           lte: now
@@ -130,27 +131,18 @@ export class ContestService {
           equals: true
         }
       },
-      take,
       select: this.contestSelectOption,
       orderBy: {
         endTime: 'desc'
       }
-    }
-    if (cursor) {
-      findOptions = {
-        ...findOptions,
-        skip: 1,
-        cursor: {
-          id: cursor
-        }
-      }
-    }
-
-    const finished = await this.prisma.contest.findMany(findOptions)
+    })
     return { finished }
   }
 
-  startTimeCompare(a: Contest, b: Contest) {
+  startTimeCompare(
+    a: Partial<Contest> & Pick<Contest, 'startTime'>,
+    b: Partial<Contest> & Pick<Contest, 'startTime'>
+  ) {
     if (a.startTime < b.startTime) {
       return -1
     }
@@ -160,7 +152,9 @@ export class ContestService {
     return 0
   }
 
-  filterOngoing(contests: Partial<Contest>[]): Partial<Contest>[] {
+  filterOngoing(
+    contests: Array<Partial<Contest> & Pick<Contest, 'startTime' | 'endTime'>>
+  ) {
     const now = new Date()
     const ongoingContest = contests.filter(
       (contest) => contest.startTime <= now && contest.endTime > now
@@ -168,7 +162,9 @@ export class ContestService {
     return ongoingContest
   }
 
-  filterUpcoming(contests: Partial<Contest>[]): Partial<Contest>[] {
+  filterUpcoming(
+    contests: Array<Partial<Contest> & Pick<Contest, 'startTime'>>
+  ) {
     const now = new Date()
     const upcomingContest = contests.filter(
       (contest) => contest.startTime > now
@@ -233,7 +229,7 @@ export class ContestService {
           path: ['isVisible'],
           equals: true
         },
-        groupId: groupId
+        groupId
       }
     }))
   }

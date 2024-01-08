@@ -12,8 +12,9 @@ import {
 import { Prisma } from '@prisma/client'
 import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, ZodValidationPipe } from '@libs/pipe'
 import { ProblemService } from './problem.service'
+import { ProblemOrder, problemOrderSchema } from './schema/problem-order.schema'
 
 @Controller('problem')
 @AuthNotNeeded()
@@ -21,14 +22,22 @@ export class ProblemController {
   private readonly logger = new Logger(ProblemController.name)
 
   constructor(private readonly problemService: ProblemService) {}
-
   @Get()
   async getProblems(
-    @Query('cursor', CursorValidationPipe) cursor: number,
-    @Query('take', ParseIntPipe) take: number
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
+    @Query('take', ParseIntPipe) take: number,
+    @Query('search') search: string,
+    @Query('order', new ZodValidationPipe(problemOrderSchema))
+    order: ProblemOrder
   ) {
     try {
-      return await this.problemService.getProblems(cursor, take, OPEN_SPACE_ID)
+      return await this.problemService.getProblems({
+        cursor,
+        take,
+        search,
+        order,
+        groupId: OPEN_SPACE_ID
+      })
     } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -62,11 +71,11 @@ export class GroupProblemController {
   @Get()
   async getProblems(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
-      return await this.problemService.getProblems(cursor, take, groupId)
+      return await this.problemService.getProblems({ cursor, take, groupId })
     } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()

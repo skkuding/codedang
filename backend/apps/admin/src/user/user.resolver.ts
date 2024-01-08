@@ -23,7 +23,8 @@ export class UserResolver {
   async getGroupMembers(
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
     groupId: number,
-    @Args('cursor', { nullable: true }, CursorValidationPipe) cursor: number,
+    @Args('cursor', { nullable: true }, CursorValidationPipe)
+    cursor: number | null,
     @Args('take', ParseIntPipe) take: number,
     @Args('leaderOnly', { defaultValue: false }) leaderOnly: boolean
   ) {

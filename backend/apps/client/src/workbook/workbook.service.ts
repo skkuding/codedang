@@ -8,25 +8,24 @@ export class WorkbookService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getWorkbooksByGroupId(
-    cursor: number,
+    cursor: number | null,
     take: number,
     groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Workbook>[]> {
-    let skip = 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
+  ) {
+    const paginator = this.prisma.getPaginator(cursor)
+
     const workbooks = await this.prisma.workbook.findMany({
+      ...paginator,
       where: {
         groupId,
         isVisible: true
       },
-      select: { id: true, title: true, description: true, updateTime: true },
-      skip,
       take,
-      cursor: {
-        id: cursor
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        updateTime: true
       }
     })
     return workbooks

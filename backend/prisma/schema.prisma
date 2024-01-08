@@ -2,7 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  // PostgreSQL full-text search feature를 사요하기 위해 previewFeatures를 추가합니다.
+  previewFeatures = ["fullTextSearch"]
 }
 
 generator graphql {
@@ -173,7 +175,6 @@ model Problem {
   workbookProblem WorkbookProblem[]
   submission      Submission[]
   announcement    Announcement[]
-  // ProblemAnnouncement ProblemAnnouncement[]
 
   @@map("problem")
 }
@@ -253,6 +254,7 @@ model Contest {
   contestProblem ContestProblem[]
   contestRecord  ContestRecord[]
   submission     Submission[]
+  // contestAnnouncement ContestAnnouncement[]
 
   @@map("contest")
 }

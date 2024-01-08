@@ -14,9 +14,9 @@ const notice = {
   id: noticeId,
   createdById: userId,
   createdBy: {
-    username: username
+    username
   },
-  groupId: groupId,
+  groupId,
   title: 'Title',
   content: 'Content',
   isVisible: true,
@@ -62,7 +62,8 @@ const db = {
   },
   userGroup: {
     findMany: stub().resolves([groupId])
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('NoticeService', () => {
