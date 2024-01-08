@@ -1,6 +1,6 @@
 'use client'
 
-//import { Badge } from '@/components/ui/badge'
+import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -22,6 +22,7 @@ import { Loader2 } from 'lucide-react'
 interface ProblemProps {
   data: Problem[]
   isLoading: boolean
+  isTagChecked: boolean
 }
 
 const variants = {
@@ -32,7 +33,11 @@ const variants = {
   Level5: 'bg-rose-500'
 }
 
-export default function ProblemTable({ data, isLoading }: ProblemProps) {
+export default function ProblemTable({
+  data,
+  isLoading,
+  isTagChecked
+}: ProblemProps) {
   const columns: ColumnDef<Problem>[] = [
     {
       header: '#',
@@ -50,8 +55,13 @@ export default function ProblemTable({ data, isLoading }: ProblemProps) {
           <div className="flex flex-col text-left">
             <span className="text-sm md:text-base">{row.original.title}</span>
             {/*row.original.tags[0]['name']
-              ? (tag) => <Badge className="text-sm md:text-base">{tag}</Badge>
-        : null*/}
+              ? (tag) => <Badge className="text-sm md:text-base">{tag}</Badge>: null*/}
+            {isTagChecked ? (
+              <div className="mt-2 flex flex-row gap-1 font-normal">
+                <Badge className="text-sm md:text-base">tag1</Badge>
+                <Badge className="text-sm md:text-base">tag2</Badge>
+              </div>
+            ) : null}
           </div>
         )
       }

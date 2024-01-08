@@ -13,6 +13,10 @@ import ProblemTable from './_components/ProblemTable'
 export default function Page() {
   const [url, setUrl] = useState<URL>(new URL('/problem', baseUrl))
   const { items, paginator } = usePagination<Problem>(url)
+  const [isChecked, setIsChecked] = useState(false)
+  const onCheckedChange = (isChecked: boolean) => {
+    setIsChecked(isChecked)
+  }
   const problems = items ?? []
 
   return (
@@ -20,10 +24,10 @@ export default function Page() {
       <div className="flex text-gray-500">
         <div className="flex flex-1 items-center gap-1 text-xl font-extrabold">
           All
-          <p className="text-primary">244{/*추후 숫자 수정*/}</p>
+          <p className="text-primary">{problems.length}</p>
         </div>
         <div className="flex items-center gap-1">
-          <Switch />
+          <Switch checked={isChecked} onCheckedChange={onCheckedChange} />
           <p className="font-bold"> Tags</p>
           <div className="flex items-center py-4">
             <button>
@@ -36,7 +40,11 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <ProblemTable data={problems} isLoading={!items} />
+      <ProblemTable
+        data={problems}
+        isLoading={!items}
+        isTagChecked={isChecked}
+      />
       <Paginator page={paginator.page} slot={paginator.slot} setUrl={setUrl} />
     </>
   )
