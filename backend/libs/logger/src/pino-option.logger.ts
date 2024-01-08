@@ -31,6 +31,13 @@ export const pinoLoggerModuleOption: Params = {
     stream:
       process.env.NODE_ENV !== 'production'
         ? PinoPretty(pinoPrettyOptions)
-        : undefined
+        : undefined,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mixin(mergeObject: any) {
+      if (!mergeObject.msg && mergeObject.message) {
+        mergeObject = { ...mergeObject, msg: mergeObject.message }
+      }
+      return mergeObject
+    }
   }
 }

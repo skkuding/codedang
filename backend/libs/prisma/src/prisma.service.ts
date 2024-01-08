@@ -40,22 +40,13 @@ export class PrismaService
 
   async onModuleInit() {
     this.$on('error', (event) => {
-      this.logger.error({
-        ...event,
-        msg: event.message
-      })
+      this.logger.error(event)
     })
     this.$on('warn', (event) => {
-      this.logger.warn({
-        ...event,
-        msg: event.message
-      })
+      this.logger.warn(event)
     })
     this.$on('info', (event) => {
-      this.logger.log({
-        ...event,
-        msg: event.message
-      })
+      this.logger.log(event)
     })
     this.$on('query', (event) => {
       this.logger.debug(event, 'SQL Query')
