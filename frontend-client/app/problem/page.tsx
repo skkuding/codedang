@@ -6,31 +6,36 @@ import { Switch } from '@/components/ui/switch'
 import { usePagination } from '@/lib/usePagination'
 import { baseUrl } from '@/lib/vars'
 import type { Problem } from '@/types/type'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { FiSearch } from 'react-icons/fi'
 import ProblemTable from './_components/ProblemTable'
 
-export default function Page() {
-  const searchParams = useSearchParams()
-  const [url, setUrl] = useState<URL>(
-    new URL(`/problem?search=${searchParams.get('search')}`, baseUrl)
-  )
+export default function Page({
+  searchParams
+}: {
+  searchParams?: { search?: string | undefined }
+}) {
+  const currentSearchUrl = searchParams?.search
+    ? `/problem?search=${searchParams?.search}`
+    : '/problem'
+  const [url, setUrl] = useState<URL>(new URL(currentSearchUrl, baseUrl))
   const { items, paginator } = usePagination<Problem>(url)
-
-  const [isTagChecked, setIsTagChecked] = useState(false)
-
-  const [search, setSearch] = useState('')
-  const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value)
-  }
+  const [searchKeyword, setSearchKeyword] = useState('')
 
   const router = useRouter()
+
+  const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchKeyword(e.target.value)
+  }
+
   const handleSearchSubmit = () => {
-    const url = new URL('/problem', baseUrl)
-    search && url.searchParams.set('search', search)
-    router.replace(`?${url.searchParams}`, { scroll: false })
-    setUrl(url)
+    const newUrl = new URL('/problem', baseUrl)
+    if (searchKeyword) {
+      newUrl.searchParams.set('search', searchKeyword)
+      router.replace(`?${newUrl.searchParams}`, { scroll: false })
+      setUrl(newUrl)
+    }
   }
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -39,6 +44,7 @@ export default function Page() {
     }
   }
 
+  const [isTagChecked, setIsTagChecked] = useState(false)
   const problems = items ?? []
   return (
     <>
@@ -61,7 +67,7 @@ export default function Page() {
             <Input
               className="max-w-sm border-2 pl-10 font-bold placeholder:font-normal placeholder:text-gray-300"
               placeholder="Keyword..."
-              value={search}
+              value={searchKeyword}
               onChange={onSearchChange}
               onKeyDown={onKeyDown}
             />
