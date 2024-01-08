@@ -6,7 +6,7 @@ import { PrismaService } from '@libs/prisma'
 export class NoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getNoticesByGroupId({
+  async getNotices({
     cursor,
     take,
     fixed = false,
@@ -48,39 +48,7 @@ export class NoticeService {
     })
   }
 
-  async getFixedNoticesByGroupId(take: number, groupId = OPEN_SPACE_ID) {
-    return (
-      await this.prisma.notice.findMany({
-        where: {
-          groupId,
-          isVisible: true,
-          isFixed: true
-        },
-        select: {
-          id: true,
-          title: true,
-          createTime: true,
-          isFixed: true,
-          createdBy: {
-            select: {
-              username: true
-            }
-          }
-        },
-        orderBy: {
-          id: 'desc'
-        },
-        take
-      })
-    ).map((notice) => {
-      return {
-        ...notice,
-        createdBy: notice.createdBy?.username
-      }
-    })
-  }
-
-  async getNotice(id: number, groupId = OPEN_SPACE_ID) {
+  async getNoticeByID(id: number, groupId = OPEN_SPACE_ID) {
     const current = await this.prisma.notice
       .findUniqueOrThrow({
         where: {

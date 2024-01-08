@@ -30,7 +30,7 @@ export class NoticeController {
     @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean
   ) {
     try {
-      return await this.noticeService.getNoticesByGroupId({
+      return await this.noticeService.getNotices({
         cursor,
         take,
         fixed
@@ -44,7 +44,7 @@ export class NoticeController {
   @Get(':id')
   async getNotice(@Param('id', ParseIntPipe) id: number) {
     try {
-      return await this.noticeService.getNotice(id)
+      return await this.noticeService.getNoticeByID(id)
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -73,7 +73,7 @@ export class GroupNoticeController {
     @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean
   ) {
     try {
-      return await this.noticeService.getNoticesByGroupId({
+      return await this.noticeService.getNotices({
         cursor,
         take,
         fixed,
@@ -91,7 +91,7 @@ export class GroupNoticeController {
     @Param('id', ParseIntPipe) id: number
   ) {
     try {
-      return await this.noticeService.getNotice(id, groupId)
+      return await this.noticeService.getNoticeByID(id, groupId)
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&

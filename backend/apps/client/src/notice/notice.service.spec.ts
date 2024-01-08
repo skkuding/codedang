@@ -116,11 +116,11 @@ describe('NoticeService', () => {
     it('should return notice list of the group', async () => {
       db.notice.findMany.resolves(noticeArray)
 
-      const getNoticesByGroupId = await service.getNoticesByGroupId(
-        0,
-        3,
-        group.id
-      )
+      const getNoticesByGroupId = await service.getNotices({
+        cursor: 0,
+        take: 3,
+        groupId: group.id
+      })
       expect(getNoticesByGroupId).to.deep.equal(userNotices)
     })
   })
@@ -160,9 +160,11 @@ describe('NoticeService', () => {
     it('should return notice list of the group', async () => {
       db.notice.findMany.resolves(noticeArray)
 
-      const getFixedNoticesByGroupId = await service.getFixedNoticesByGroupId(
-        group.id
-      )
+      const getFixedNoticesByGroupId = await service.getNotices({
+        cursor: null,
+        take: 3,
+        groupId: group.id
+      })
       expect(getFixedNoticesByGroupId).to.deep.equal(userNotices)
     })
   })
@@ -195,7 +197,7 @@ describe('NoticeService', () => {
       db.notice.findFirst.onFirstCall().resolves(userNotice.prev)
       db.notice.findFirst.onSecondCall().resolves(userNotice.next)
 
-      const getNotice = await service.getNotice(noticeId, group.id)
+      const getNotice = await service.getNoticeByID(noticeId, group.id)
       expect(getNotice).to.deep.equal(userNotice)
     })
 
@@ -207,9 +209,9 @@ describe('NoticeService', () => {
         })
       )
 
-      await expect(service.getNotice(noticeId, group.id)).to.be.rejectedWith(
-        Prisma.PrismaClientKnownRequestError
-      )
+      await expect(
+        service.getNoticeByID(noticeId, group.id)
+      ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
     })
   })
 })
