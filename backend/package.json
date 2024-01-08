@@ -9,6 +9,7 @@
     "start:prod": "node dist/apps/backend/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "mocha \"*/**/*.spec.ts\"",
+    "test:watch": "mocha --watch \"*/**/*.spec.ts\"",
     "test:debug": "mocha --inspect \"*/**/*.spec.ts\""
   },
   "dependencies": {
@@ -49,7 +50,8 @@
     "passport-jwt": "^4.0.1",
     "pino-http": "^9.0.0",
     "pino-pretty": "^10.3.1",
-    "reflect-metadata": "^0.1.14"
+    "reflect-metadata": "^0.1.14",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
