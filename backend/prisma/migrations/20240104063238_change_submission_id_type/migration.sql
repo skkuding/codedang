@@ -1,24 +1,18 @@
 -- DropForeignKey
 ALTER TABLE "submssion_result" DROP CONSTRAINT "submssion_result_submission_id_fkey";
-
--- ChangeIdType
-SELECT id, REGEXP_REPLACE(id, '[^[:digit:]]', '') FROM submission;
-
--- AlterTable
-ALTER TABLE "submission"
-ALTER COLUMN "id" SET DATA TYPE INTEGER USING id::INTEGER,
-ALTER COLUMN "id" SET NOT NULL;
-
--- CreateSequence
-CREATE SEQUENCE submission_id_seq;
+ALTER TABLE "submssion_result" RENAME COLUMN "submission_id" TO "hex_code_id";
+ALTER TABLE "submssion_result" ADD COLUMN "submission_id" INTEGER;
 
 -- AlterTable
-ALTER TABLE "submission"
-ALTER COLUMN "id" SET DEFAULT nextval('submission_id_seq');
+ALTER TABLE "submission" RENAME COLUMN "id" TO "hex_code";
+ALTER TABLE "submission" DROP CONSTRAINT "submission_pkey";
+ALTER TABLE "submission" ADD COLUMN "id" SERIAL PRIMARY KEY;
+
+UPDATE submssion_result T SET submission_id = (SELECT id FROM submission WHERE hex_code = T.hex_code_id);
 
 -- AlterTable
-ALTER TABLE "submssion_result"
-ALTER COLUMN "submission_id" SET DATA TYPE INTEGER USING submission_id::INTEGER;
+ALTER TABLE "submission" DROP COLUMN "hex_code";
+ALTER TABLE "submssion_result" DROP COLUMN "hex_code_id";
 
 -- AddForeignKey
 ALTER TABLE "submssion_result" ADD CONSTRAINT "submssion_result_submission_id_fkey" FOREIGN KEY ("submission_id") REFERENCES "submission"("id") ON DELETE CASCADE ON UPDATE CASCADE;
