@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Prisma } from '@prisma/client'
 import { faker } from '@faker-js/faker'
+import { Prisma } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { stub } from 'sinon'
@@ -48,8 +48,8 @@ const group: Group = {
     allowJoinWithURL: false,
     requireApprovalBeforeJoin: true
   },
-  createTime: undefined,
-  updateTime: undefined
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const problem: Problem = {
@@ -61,29 +61,29 @@ const problem: Problem = {
   inputDescription: 'inputdescription',
   outputDescription: 'outputdescription',
   hint: 'hint',
-  template: undefined,
-  languages: undefined,
+  template: [],
+  languages: ['C'],
   timeLimit: 10000,
   memoryLimit: 100000,
-  difficulty: undefined,
-  source: undefined,
-  exposeTime: undefined,
-  createTime: undefined,
-  updateTime: undefined,
-  inputExamples: undefined,
-  outputExamples: undefined,
-  submissionCount: undefined,
-  acceptedCount: undefined,
-  acceptedRate: undefined
+  difficulty: 'Level1',
+  source: 'source',
+  exposeTime: faker.date.past(),
+  createTime: faker.date.past(),
+  updateTime: faker.date.past(),
+  inputExamples: ['input'],
+  outputExamples: ['input'],
+  submissionCount: 0,
+  acceptedCount: 0,
+  acceptedRate: 0
 }
 
 const contestProblem: ContestProblem = {
   order: 0,
-  contestId: contestId,
-  problemId: problemId,
+  contestId,
+  problemId,
   score: 50,
-  createTime: undefined,
-  updateTime: undefined
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const publicizingRequest: PublicizingRequest = {
@@ -137,7 +137,7 @@ const db = {
     const updatedProblem = await db.problem.update()
     const newContestProblem = await db.contestProblem.create()
     return [updatedProblem, newContestProblem]
-  })
+  }),
   getPaginator: PrismaService.prototype.getPaginator
 }
 
@@ -278,7 +278,7 @@ describe('ContestService', () => {
       db.contestProblem.create.throws(
         new Prisma.PrismaClientKnownRequestError(
           'ContestProblem already exists',
-          { code: 'P2002', clientVersion: undefined }
+          { code: 'P2002', clientVersion: 'version' }
         )
       )
 
