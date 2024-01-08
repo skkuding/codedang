@@ -92,12 +92,16 @@ export const authOptions: NextAuthOptions = {
               now + (ACCESS_TOKEN_EXPIRE_TIME - 60) * 1000
             token.refreshTokenExpires =
               now + (REFRESH_TOKEN_EXPIRE_TIME - 60) * 1000
-          } // If reissue is failed, clear username. so if username is empty, then user has to login again.
-          else token.username = ''
+          } else {
+            // If reissue is failed, clear username. so if username is empty, then user has to login again.
+            token.username = ''
+            token.role = ''
+          }
         }
         if (Date.now() >= token.refreshTokenExpires)
           // If refresh token is expired, clear username. so if username is empty, then user has to login again.
           token.username = ''
+        token.role = ''
       }
       return token
     },
