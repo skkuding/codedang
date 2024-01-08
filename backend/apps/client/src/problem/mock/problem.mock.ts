@@ -1,6 +1,11 @@
-import { type Problem, Language, Level, Role } from '@generated'
 import { faker } from '@faker-js/faker'
-import type { Contest, ContestProblem, WorkbookProblem } from '@prisma/client'
+import { Language, Level, Role } from '@prisma/client'
+import type {
+  Problem,
+  Contest,
+  ContestProblem,
+  WorkbookProblem
+} from '@prisma/client'
 import type { CreateTemplateDto } from '../dto/create-code-draft.dto'
 
 export const problems: Problem[] = [
