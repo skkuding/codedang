@@ -7,7 +7,9 @@ import {
   UseGuards,
   NotFoundException,
   InternalServerErrorException,
-  Logger
+  Logger,
+  DefaultValuePipe,
+  ParseBoolPipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
@@ -24,22 +26,17 @@ export class NoticeController {
   @Get()
   async getNotices(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', ParseIntPipe) take: number
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
+    @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean
   ) {
     try {
-      return await this.noticeService.getNoticesByGroupId(cursor, take)
+      return await this.noticeService.getNoticesByGroupId({
+        cursor,
+        take,
+        fixed
+      })
     } catch (error) {
       this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get('fixed')
-  async getFixedNotices(@Query('take', ParseIntPipe) take: number) {
-    try {
-      return await this.noticeService.getFixedNoticesByGroupId(take)
-    } catch (error) {
-      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }
@@ -72,25 +69,18 @@ export class GroupNoticeController {
   async getNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', ParseIntPipe) take: number
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
+    @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean
   ) {
     try {
-      return await this.noticeService.getNoticesByGroupId(cursor, take, groupId)
+      return await this.noticeService.getNoticesByGroupId({
+        cursor,
+        take,
+        fixed,
+        groupId
+      })
     } catch (error) {
       this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get('fixed')
-  async getFixedNotices(
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('take', ParseIntPipe) take: number
-  ) {
-    try {
-      return await this.noticeService.getFixedNoticesByGroupId(take, groupId)
-    } catch (error) {
-      this.logger.error(error.message, error.stack)
       throw new InternalServerErrorException()
     }
   }

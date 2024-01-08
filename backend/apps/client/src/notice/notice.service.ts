@@ -6,11 +6,17 @@ import { PrismaService } from '@libs/prisma'
 export class NoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getNoticesByGroupId(
-    cursor: number | null,
-    take: number,
+  async getNoticesByGroupId({
+    cursor,
+    take,
+    fixed = false,
     groupId = OPEN_SPACE_ID
-  ) {
+  }: {
+    cursor: number | null
+    take: number
+    fixed?: boolean
+    groupId?: number
+  }) {
     const paginator = this.prisma.getPaginator(cursor)
 
     const notices = await this.prisma.notice.findMany({
@@ -18,7 +24,7 @@ export class NoticeService {
       where: {
         groupId,
         isVisible: true,
-        isFixed: false
+        isFixed: fixed
       },
       take,
       select: {
