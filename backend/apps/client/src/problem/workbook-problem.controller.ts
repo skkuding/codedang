@@ -27,7 +27,7 @@ export class WorkbookProblemController {
   @Get()
   async getWorkbookProblems(
     @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
@@ -36,11 +36,11 @@ export class WorkbookProblemController {
         cursor,
         take
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -55,14 +55,14 @@ export class WorkbookProblemController {
         workbookId,
         problemId
       )
-    } catch (err) {
+    } catch (error) {
       if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.name === 'NotFoundError'
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
       ) {
-        throw new NotFoundException(err.message)
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -81,7 +81,7 @@ export class GroupWorkbookProblemController {
   async getWorkbookProblems(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
@@ -91,11 +91,11 @@ export class GroupWorkbookProblemController {
         take,
         groupId
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -112,16 +112,16 @@ export class GroupWorkbookProblemController {
         problemId,
         groupId
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       } else if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.name === 'NotFoundError'
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
       ) {
-        throw new NotFoundException(err.message)
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }

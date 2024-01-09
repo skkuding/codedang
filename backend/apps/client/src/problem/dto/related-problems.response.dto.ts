@@ -17,4 +17,12 @@ export class RelatedProblemsResponseDto {
   @Expose()
   @Transform(({ obj }) => obj.problem.difficulty, { toClassOnly: true })
   difficulty: Level
+
+  @Expose()
+  @Transform(({ obj }) => obj.problem.submissionCount, { toClassOnly: true })
+  submissionCount: number
+
+  @Expose()
+  @Transform(({ obj }) => obj.problem.acceptedRate, { toClassOnly: true })
+  acceptedRate: number
 }

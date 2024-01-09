@@ -54,9 +54,7 @@ export default function SignUpEmailVerify() {
       await fetch(baseUrl + '/email-auth/send-email/register-new', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email
-        })
+        body: JSON.stringify({ email })
       })
         .then((res) => {
           if (res.status === 409) {

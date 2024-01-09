@@ -7,11 +7,7 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type {
-  ContestProblem,
-  ProblemTagUncheckedUpdateManyWithoutProblemNestedInput,
-  WorkbookProblem
-} from '@admin/@generated'
+import type { ContestProblem, WorkbookProblem } from '@admin/@generated'
 import { Level } from '@admin/@generated/prisma/level.enum'
 import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 import { StorageService } from '@admin/storage/storage.service'
@@ -24,6 +20,7 @@ import type {
   UpdateProblemInput,
   UpdateProblemTagInput
 } from './model/problem.input'
+import type { Template } from './model/template.input'
 import type { Testcase } from './model/testcase.input'
 
 @Injectable()
@@ -90,10 +87,9 @@ export class ProblemService {
     //TODO: iris testcaseId return 문제가 해결되면 밑 코드 없앨 예정
     const data = JSON.stringify(
       testcases.map((tc, index) => {
+        const testcaseId = testcaseIds.find((record) => record.index === index)
         return {
-          id: `${problemId}:${
-            testcaseIds.find((record) => record.index === index).id
-          }`,
+          id: `${problemId}:${testcaseId!.id}`,
           input: tc.input,
           output: tc.output
         }
@@ -158,32 +154,31 @@ export class ProblemService {
       const levelText = row.getCell(header['난이도']).text
       const languages: Language[] = []
       const level: Level = Level['Level' + levelText]
-      const template = []
+      const template: Template[] = []
 
-      for (let language of languagesText) {
-        let code: string
-        switch (language) {
-          case 'Python':
-            language = 'Python3'
-            break
-          default:
-            if (!(language in Language)) continue
-            code = row.getCell(header[`${language}SampleCode`]).text
+      for (let text of languagesText) {
+        if (text === 'Python') {
+          text = 'Python3'
         }
-        if (code) {
-          template.push({
-            language,
-            code: [
-              {
-                id: 1,
-                text: code,
-                locked: false
-              }
-            ]
-          })
-        }
+
+        if (!(text in Language)) continue
+
+        const language = text as keyof typeof Language
+        const code = row.getCell(header[`${language}SampleCode`]).text
+
+        template.push({
+          language,
+          code: [
+            {
+              id: 1,
+              text: code,
+              locked: false
+            }
+          ]
+        })
         languages.push(Language[language])
       }
+
       if (!languages.length) {
         throw new UnprocessableFileDataException(
           'A problem should support at least one language',
@@ -199,7 +194,7 @@ export class ProblemService {
         inputDescription: '',
         outputDescription: '',
         hint: '',
-        template: template,
+        template,
         languages,
         timeLimit: 2000,
         memoryLimit: 512,
@@ -217,7 +212,7 @@ export class ProblemService {
 
       if (testCnt === 0) return
 
-      let inputs: string[]
+      let inputs: string[] = []
       if (inputText === '' && testCnt !== 0) {
         for (let i = 0; i < testCnt; i++) inputs.push('')
       } else {
@@ -235,7 +230,7 @@ export class ProblemService {
         )
       }
 
-      const testcaseInput = []
+      const testcaseInput: Testcase[] = []
       for (let i = 0; i < testCnt; i++) {
         testcaseInput.push({
           input: inputs[i],
@@ -276,14 +271,10 @@ export class ProblemService {
   async getProblems(
     input: FilterProblemsInput,
     groupId: number,
-    cursor: number,
+    cursor: number | null,
     take: number
   ) {
-    let skip = take < 0 ? 0 : 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
+    const paginator = this.prisma.getPaginator(cursor)
 
     const whereOptions: ProblemWhereInput = {}
     if (input.difficulty) {
@@ -296,14 +287,11 @@ export class ProblemService {
     }
 
     return await this.prisma.problem.findMany({
+      ...paginator,
       where: {
         ...whereOptions,
-        groupId: groupId
+        groupId
       },
-      cursor: {
-        id: cursor
-      },
-      skip,
       take
     })
   }
@@ -343,10 +331,7 @@ export class ProblemService {
       }
     })
 
-    let problemTag: ProblemTagUncheckedUpdateManyWithoutProblemNestedInput
-    if (tags) {
-      problemTag = await this.updateProblemTag(id, tags)
-    }
+    const problemTag = tags ? await this.updateProblemTag(id, tags) : undefined
 
     if (testcases?.length) {
       await this.updateTestcases(id, testcases)
@@ -356,9 +341,9 @@ export class ProblemService {
       where: { id },
       data: {
         ...data,
-        ...(languages && { languages: languages }),
+        ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
-        problemTag: problemTag
+        problemTag
       }
     })
   }
@@ -370,8 +355,8 @@ export class ProblemService {
     const createIds = problemTags.create.map(async (tagId) => {
       const check = await this.prisma.problemTag.findFirst({
         where: {
-          tagId: tagId,
-          problemId: problemId
+          tagId,
+          problemId
         }
       })
       if (check) {
@@ -383,8 +368,8 @@ export class ProblemService {
     const deleteIds = problemTags.delete.map(async (tagId) => {
       const check = await this.prisma.problemTag.findFirstOrThrow({
         where: {
-          tagId: tagId,
-          problemId: problemId
+          tagId,
+          problemId
         },
         select: { id: true }
       })
@@ -401,8 +386,8 @@ export class ProblemService {
     problemId: number,
     testcases: Array<Testcase & { id: number }>
   ) {
-    const deletedIds = [],
-      createdOrUpdated = []
+    const deletedIds: number[] = []
+    const createdOrUpdated: typeof testcases = []
 
     for (const tc of testcases) {
       if (!tc.input && !tc.output) {
@@ -481,7 +466,7 @@ export class ProblemService {
     await this.getProblem(id, groupId)
 
     const result = await this.prisma.problem.delete({
-      where: { id: id }
+      where: { id }
     })
     await this.storageService.deleteObject(`${id}.json`)
 
@@ -495,7 +480,7 @@ export class ProblemService {
     // id를 받은 workbook이 현재 접속된 group의 것인지 확인
     // 아니면 에러 throw
     await this.prisma.workbook.findFirstOrThrow({
-      where: { id: workbookId, groupId: groupId }
+      where: { id: workbookId, groupId }
     })
     const workbookProblems = await this.prisma.workbookProblem.findMany({
       where: { workbookId }
@@ -512,7 +497,7 @@ export class ProblemService {
   ): Promise<Partial<WorkbookProblem>[]> {
     // id를 받은 workbook이 현재 접속된 group의 것인지 확인
     await this.prisma.workbook.findFirstOrThrow({
-      where: { id: workbookId, groupId: groupId }
+      where: { id: workbookId, groupId }
     })
     // workbookId를 가지고 있는 workbookProblem을 모두 가져옴
     const workbookProblemsToBeUpdated =
@@ -533,7 +518,7 @@ export class ProblemService {
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           workbookId_problemId: {
-            workbookId: workbookId,
+            workbookId,
             problemId: record.problemId
           }
         },
@@ -548,7 +533,7 @@ export class ProblemService {
     contestId: number
   ): Promise<Partial<ContestProblem>[]> {
     await this.prisma.contest.findFirstOrThrow({
-      where: { id: contestId, groupId: groupId }
+      where: { id: contestId, groupId }
     })
     const contestProblems = await this.prisma.contestProblem.findMany({
       where: { contestId }
@@ -562,7 +547,7 @@ export class ProblemService {
     orders: number[]
   ): Promise<Partial<ContestProblem>[]> {
     await this.prisma.contest.findFirstOrThrow({
-      where: { id: contestId, groupId: groupId }
+      where: { id: contestId, groupId }
     })
 
     const contestProblemsToBeUpdated =
@@ -583,7 +568,7 @@ export class ProblemService {
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           contestId_problemId: {
-            contestId: contestId,
+            contestId,
             problemId: record.problemId
           }
         },

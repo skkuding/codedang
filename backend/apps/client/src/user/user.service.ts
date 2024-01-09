@@ -75,7 +75,7 @@ export class UserService {
     return this.createPinAndSendEmail(user.email)
   }
 
-  async getUserCredentialByEmail(email: string): Promise<User> {
+  async getUserCredentialByEmail(email: string) {
     return await this.prisma.user.findUnique({
       where: { email }
     })
@@ -120,7 +120,7 @@ export class UserService {
     req: Request,
     jwtVerifyOptions: JwtVerifyOptions = {}
   ): Promise<EmailAuthJwtObject> {
-    const token = ExtractJwt.fromHeader('email-auth')(req)
+    const token = ExtractJwt.fromHeader('email-auth')(req) ?? ''
     const options = {
       secret: this.config.get('JWT_SECRET'),
       ...jwtVerifyOptions
@@ -159,7 +159,7 @@ export class UserService {
   }
 
   async verifyPin(pin: string, email: string): Promise<boolean> | never {
-    const storedResetPin: string = await this.getPinFromCache(
+    const storedResetPin = await this.getPinFromCache(
       emailAuthenticationPinCacheKey(email)
     )
 
@@ -169,28 +169,28 @@ export class UserService {
     return true
   }
 
-  async getPinFromCache(key: string): Promise<string> {
-    const storedPin: string = await this.cacheManager.get(key)
+  async getPinFromCache(key: string) {
+    const storedPin = await this.cacheManager.get<string>(key)
     return storedPin
   }
 
-  async deletePinFromCache(key: string): Promise<void> {
+  async deletePinFromCache(key: string) {
     await this.cacheManager.del(key)
   }
 
-  async createJwt(payload: EmailAuthJwtPayload): Promise<string> {
+  async createJwt(payload: EmailAuthJwtPayload) {
     return await this.jwtService.signAsync(payload, {
       expiresIn: EMAIL_AUTH_EXPIRE_TIME
     })
   }
 
-  async signUp(req: Request, signUpDto: SignUpDto): Promise<User> {
+  async signUp(req: Request, signUpDto: SignUpDto) {
     const { email } = await this.verifyJwtFromRequestHeader(req)
     if (email != signUpDto.email) {
       throw new UnprocessableDataException('The email is not authenticated one')
     }
 
-    const duplicatedUser: User = await this.prisma.user.findUnique({
+    const duplicatedUser = await this.prisma.user.findUnique({
       where: {
         username: signUpDto.username
       }
@@ -282,7 +282,7 @@ export class UserService {
     return await this.prisma.userOAuth.create({
       data: {
         id: socialSignUpDto.id,
-        userId: userId,
+        userId,
         provider: socialSignUpDto.provider
       }
     })
@@ -312,7 +312,7 @@ export class UserService {
 
   async deleteUser(username: string, password: string) {
     const user = await this.getUserCredential(username)
-    if (!(await this.jwtAuthService.isValidUser(user, password))) {
+    if (!(user && (await this.jwtAuthService.isValidUser(user, password)))) {
       throw new UnidentifiedException('password')
     }
 
@@ -370,7 +370,7 @@ export class UserService {
     })
   }
 
-  async getUserCredential(username: string): Promise<User> {
+  async getUserCredential(username: string) {
     return await this.prisma.user.findUnique({
       where: { username }
     })

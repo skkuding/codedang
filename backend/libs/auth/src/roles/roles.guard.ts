@@ -7,7 +7,6 @@ import { Reflector } from '@nestjs/core'
 import { type GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
 import { Role } from '@prisma/client'
 import type { AuthenticatedRequest } from '../authenticated-request.interface'
-import type { AuthenticatedUser } from '../authenticated-user.class'
 import { ROLES_KEY } from './roles.decorator'
 import { RolesService } from './roles.service'
 
@@ -38,7 +37,7 @@ export class RolesGuard implements CanActivate {
         context.getClass()
       ]) ?? Role.User
 
-    const user: AuthenticatedUser = request.user
+    const user = request.user
     if (!user.role) {
       const userRole = (await this.service.getUserRole(user.id)).role
       user.role = userRole
