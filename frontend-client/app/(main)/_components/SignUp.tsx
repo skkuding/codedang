@@ -3,39 +3,17 @@
 import { Button } from '@/components/ui/button'
 import CodedangLogo from '@/public/codedang.svg'
 import useAuthModalStore from '@/stores/authModal'
+import useSignUpModalStore from '@/stores/signUpModal'
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React from 'react'
 import { IoMdArrowBack } from 'react-icons/io'
 import SignUpEmailVerify from './SignUpEmailVerify'
 import SignUpRegister from './SignUpRegister'
 import SignUpWelcome from './SignUpWelcome'
 
-export interface FormData {
-  email: string
-  verificationCode: string
-  headers: {
-    'email-auth': string
-  }
-}
-
 export default function SignUp() {
   const { showSignIn } = useAuthModalStore((state) => state)
-  const [modalPage, setModalPage] = useState(0)
-  const [formData, setFormData] = useState({
-    email: '',
-    verificationCode: '',
-    headers: {
-      'email-auth': ''
-    }
-  })
-
-  const nextModal = () => {
-    setModalPage(modalPage + 1)
-  }
-
-  const backModal = () => {
-    setModalPage(modalPage - 1)
-  }
+  const { modalPage, backModal } = useSignUpModalStore((state) => state)
 
   return (
     <div className="flex flex-col items-center justify-center ">
@@ -54,11 +32,9 @@ export default function SignUp() {
         className="absolute left-10 top-10"
       />
 
-      {modalPage === 0 && <SignUpWelcome nextModal={nextModal} />}
-      {modalPage === 1 && (
-        <SignUpEmailVerify nextModal={nextModal} setFormData={setFormData} />
-      )}
-      {modalPage === 2 && <SignUpRegister formData={formData} />}
+      {modalPage === 0 && <SignUpWelcome />}
+      {modalPage === 1 && <SignUpEmailVerify />}
+      {modalPage === 2 && <SignUpRegister />}
       <div className="absolute bottom-6 mt-4 flex items-center justify-center">
         <span className="h-5 w-fit text-xs leading-5 text-gray-500">
           Already have account?

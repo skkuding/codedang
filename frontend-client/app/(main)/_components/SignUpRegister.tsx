@@ -3,13 +3,13 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { baseUrl } from '@/lib/vars'
+import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaCheck, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import type { FormData } from './SignUp'
 
 interface SignUpFormInput {
   username: string
@@ -43,7 +43,8 @@ const schema = z
     }
   )
 
-export default function SignUpRegister({ formData }: { formData: FormData }) {
+export default function SignUpRegister() {
+  const formData = useSignUpModalStore((state) => state.formData)
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
   const [inputFocus, setInputFocus] = useState<number>(0)
@@ -101,7 +102,6 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
           method: 'GET'
         }).then((res) => {
           setUsernameVerify(true)
-
           if (res.status === 200) {
             setDisableUsername(true)
           } else {
