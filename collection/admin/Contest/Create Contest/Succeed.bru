@@ -1,0 +1,43 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createContest(
+      groupId: 2
+      input: {
+        title: "New Contest Group 2"
+        description: "thisisnewcontest"
+        startTime: "2024-01-01"
+        endTime: "2030-01-01"
+        config: {
+          isVisible: true
+          isRankVisible: true
+        }
+      }
+    ) {
+      id
+      title
+      description
+    }
+  }
+}
+
+assert {
+  res.body.data.createContest: isDefined 
+}
+
+docs {
+  # Create Contest
+  ---
+  - 주어진 Group에 새로운 Contest를 생성합니다.
+}

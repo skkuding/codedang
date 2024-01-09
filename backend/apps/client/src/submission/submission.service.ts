@@ -193,7 +193,6 @@ export class SubmissionService implements OnModuleInit {
 
     const submission = await this.prisma.submission.create({
       data: {
-        id: this.hash(),
         code: code.map((snippet) => ({ ...snippet })), // convert to plain object
         result: ResultStatus.Judging,
         userId,
@@ -298,7 +297,7 @@ export class SubmissionService implements OnModuleInit {
   }
 
   async updateSubmissionResult(
-    id: string,
+    id: number,
     resultStatus: ResultStatus,
     results: Array<
       Partial<SubmissionResult> &
@@ -401,7 +400,7 @@ export class SubmissionService implements OnModuleInit {
   }
 
   async getSubmission(
-    id: string,
+    id: number,
     problemId: number,
     userId: number,
     groupId = OPEN_SPACE_ID
@@ -524,7 +523,7 @@ export class SubmissionService implements OnModuleInit {
   }
 
   async getContestSubmission(
-    id: string,
+    id: number,
     problemId: number,
     contestId: number,
     userId: number,

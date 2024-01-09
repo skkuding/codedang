@@ -1,0 +1,35 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    handlePublicizingRequest(
+      contestId: 3
+      isAccepted:true
+    ) {
+      contestId
+      isAccepted
+    }
+  }
+}
+
+assert {
+  res.body.data.handlePublicizingRequest: isDefined
+}
+
+docs {
+  # Handle Publicizing Requests
+  ---
+  - 주어진 Contest의 Publicizing Request를 수락하거나, 거절합니다.
+  - `isAccept`가 `true`인 경우 수락, `isAccept`가 `false`인 경우 거절합니다.
+  - 존재하지 않는 Contest이거나, Publicizing Request되지 않은 Contest인 경우 에러를 반환합니다.
+}
