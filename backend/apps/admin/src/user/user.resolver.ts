@@ -6,7 +6,7 @@ import {
   ParseIntPipe,
   NotFoundException
 } from '@nestjs/common'
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
+import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { User } from '@generated'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe } from '@libs/pipe'
@@ -23,7 +23,7 @@ export class UserResolver {
   async getGroupMembers(
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
     groupId: number,
-    @Args('cursor', { nullable: true }, CursorValidationPipe)
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', ParseIntPipe) take: number,
     @Args('leaderOnly', { defaultValue: false }) leaderOnly: boolean
