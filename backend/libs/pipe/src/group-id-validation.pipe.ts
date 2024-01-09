@@ -11,7 +11,7 @@ export class GroupIdValidationPipe implements PipeTransform {
       return null
     } else if (typeof value === 'string') {
       const groupId = parseInt(value)
-      if (groupId >= 0) {
+      if (groupId > 0) {
         return groupId
       }
     }
