@@ -45,7 +45,7 @@ func (r Request) Validate() (*Request, error) {
 		return nil, fmt.Errorf("memoryLimit must not be empty or less than 0")
 	}
 	if r.TestcaseId < 0 {
-		return nil, fmt.Errorf("memoryLimit must not be less than 0")
+		return nil, fmt.Errorf("testcaseId must not be less than 0")
 	}
 
 	return &r, nil
