@@ -311,7 +311,7 @@ func (j *JudgeHandler) compile(out chan<- result.ChResult, dto sandbox.CompileRe
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler) getTestcase(out chan<- result.ChResult, problemId string, testcaseId int) {
+func (j *JudgeHandler) getTestcase(out chan<- result.ChResult, problemId string, testcaseId int) { // Add testcaseId Parameter
 
 	res, err := j.testcaseManager.GetTestcase(problemId, testcaseId)
 
