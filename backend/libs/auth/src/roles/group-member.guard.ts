@@ -4,6 +4,7 @@ import {
   Injectable
 } from '@nestjs/common'
 import { type GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import type { AuthenticatedRequest } from '../authenticated-request.interface'
 import { RolesService } from './roles.service'
 
@@ -26,7 +27,7 @@ export class GroupMemberGuard implements CanActivate {
       request = context.switchToHttp().getRequest()
       groupId =
         !request.params.groupId && !request.query.groupId
-          ? 1
+          ? OPEN_SPACE_ID
           : parseInt(request.params.groupId ?? request.query.groupId)
     }
 
@@ -40,7 +41,7 @@ export class GroupMemberGuard implements CanActivate {
     }
 
     const userGroup = await this.service.getUserGroup(user.id, groupId)
-    if (userGroup || groupId === 1) {
+    if (userGroup || groupId === OPEN_SPACE_ID) {
       return true
     }
     return false
