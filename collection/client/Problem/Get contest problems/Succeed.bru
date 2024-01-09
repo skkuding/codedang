@@ -12,15 +12,16 @@ get {
 
 query {
   take: 5
+  ~groupId: 1
   ~cursor: 1
 }
 
 assert {
   res.status: eq 200
-  res.body[0].order: isNumber 
+  res.body[0].order: isNumber
   res.body[0].problemId: isNumber
   res.body[0].title: isString
-  res.body[0].difficulty: isString 
-  res.body[0].submissionCount: isNumber 
-  res.body[0].acceptedRate: isNumber 
+  res.body[0].difficulty: isString
+  res.body[0].submissionCount: isNumber
+  res.body[0].acceptedRate: isNumber
 }

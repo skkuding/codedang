@@ -10,17 +10,21 @@ get {
   auth: none
 }
 
+query {
+  ~groupId: 2
+}
+
 assert {
   res.status: eq 200
   res("id"): isNumber 1
-  res("title"): isString 
-  res("description"): isString 
-  res("inputDescription"): isString 
-  res("outputDescription"): isString 
-  res("hint"): isString 
-  res("languages"): isDefined 
-  res("timeLimit"): isNumber 
-  res("memoryLimit"): isNumber 
-  res("difficulty"): isString 
-  res("source"): isString 
+  res("title"): isString
+  res("description"): isString
+  res("inputDescription"): isString
+  res("outputDescription"): isString
+  res("hint"): isString
+  res("languages"): isDefined
+  res("timeLimit"): isNumber
+  res("memoryLimit"): isNumber
+  res("difficulty"): isString
+  res("source"): isString
 }
