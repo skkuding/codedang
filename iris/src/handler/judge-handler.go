@@ -22,6 +22,7 @@ type Request struct {
 	ProblemId   int    `json:"problemId"`
 	TimeLimit   int    `json:"timeLimit"`
 	MemoryLimit int    `json:"memoryLimit"`
+	TestcaseId  int    `json:"testcaseId"`
 }
 
 func (r Request) Validate() (*Request, error) {
@@ -43,6 +44,10 @@ func (r Request) Validate() (*Request, error) {
 	if r.MemoryLimit <= 0 {
 		return nil, fmt.Errorf("memoryLimit must not be empty or less than 0")
 	}
+	if r.TestcaseId < 0 {
+		return nil, fmt.Errorf("memoryLimit must not be less than 0")
+	}
+
 	return &r, nil
 }
 
@@ -195,7 +200,7 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 
 	// err = j.judger.Judge(task)
 	testcaseOutCh := make(chan result.ChResult)
-	go j.getTestcase(testcaseOutCh, strconv.Itoa(validReq.ProblemId))
+	go j.getTestcase(testcaseOutCh, strconv.Itoa(validReq.ProblemId), validReq.TestcaseId)
 	compileOutCh := make(chan result.ChResult)
 	go j.compile(compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
 
@@ -306,8 +311,10 @@ func (j *JudgeHandler) compile(out chan<- result.ChResult, dto sandbox.CompileRe
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler) getTestcase(out chan<- result.ChResult, problemId string) {
-	res, err := j.testcaseManager.GetTestcase(problemId)
+func (j *JudgeHandler) getTestcase(out chan<- result.ChResult, problemId string, testcaseId int) {
+
+	res, err := j.testcaseManager.GetTestcase(problemId, testcaseId)
+
 	if err != nil {
 		out <- result.ChResult{Err: err}
 		return

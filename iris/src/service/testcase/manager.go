@@ -9,7 +9,7 @@ import (
 )
 
 type TestcaseManager interface {
-	GetTestcase(problemId string) (Testcase, error)
+	GetTestcase(problemId string, testcaseId int) (Testcase, error)
 }
 
 type testcaseManager struct {
@@ -21,7 +21,7 @@ func NewTestcaseManager(source loader.Read, cache cache.Cache) *testcaseManager 
 	return &testcaseManager{source: source, cache: cache}
 }
 
-func (t *testcaseManager) GetTestcase(problemId string) (Testcase, error) {
+func (t *testcaseManager) GetTestcase(problemId string, testcaseId int) (Testcase, error) {
 	isExist, err := t.cache.IsExist(problemId)
 	if err != nil {
 		return Testcase{}, fmt.Errorf("GetTestcase: %w", err)
@@ -39,8 +39,14 @@ func (t *testcaseManager) GetTestcase(problemId string) (Testcase, error) {
 			return Testcase{}, fmt.Errorf("invalid testcase data: %w", err)
 		}
 
-		testcase := Testcase{Elements: elements}
-		err = t.cache.Set(problemId, testcase)
+		var testcase Testcase
+		if testcaseId == 0 {
+			testcase = Testcase{Elements: elements}
+		} else {
+			testcase = Testcase{Elements: elements[testcaseId : testcaseId+1]}
+		}
+
+		err = t.cache.Set(problemId, Testcase{Elements: elements})
 		if err != nil {
 			return Testcase{}, fmt.Errorf("cache set: %w", err)
 		}
@@ -58,5 +64,10 @@ func (t *testcaseManager) GetTestcase(problemId string) (Testcase, error) {
 	if err != nil {
 		return Testcase{}, fmt.Errorf("testcase: %w", err)
 	}
+
+	if testcaseId != 0 {
+		testcase.Elements = testcase.Elements[testcaseId : testcaseId+1]
+	}
+
 	return testcase, nil
 }
