@@ -1,3 +1,10 @@
+import ContestCardList from '../_components/ContestCardList'
+
 export default function Contest() {
-  return <h2>contest</h2>
+  //auth session 따라 registered 타입 추가
+  return (
+    <>
+      <ContestCardList type={'Ongoing'} />
+    </>
+  )
 }
