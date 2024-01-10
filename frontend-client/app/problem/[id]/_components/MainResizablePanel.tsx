@@ -37,15 +37,24 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
           <div>
             {/* TODO: get rid of <p>tag at 'Problem' api description part */}
             <h1 className="mb-4 text-lg">Description</h1>
-            <p className="text-sm text-slate-300">{data.description}</p>
+            <p
+              className="text-sm text-slate-300"
+              dangerouslySetInnerHTML={{ __html: data.description }}
+            />
           </div>
           <div>
             <h1 className="mb-3 text-lg">Input</h1>
-            <p className="text-sm text-slate-300">{data.inputDescription}</p>
+            <p
+              className="text-sm text-slate-300"
+              dangerouslySetInnerHTML={{ __html: data.inputDescription }}
+            />
           </div>
           <div>
             <h1 className="mb-3 text-lg">Output</h1>
-            <p className="text-sm text-slate-300">{data.outputDescription}</p>
+            <p
+              className="text-sm text-slate-300"
+              dangerouslySetInnerHTML={{ __html: data.outputDescription }}
+            />
           </div>
           <div>
             <div className="flex justify-between">
