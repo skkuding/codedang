@@ -176,7 +176,6 @@ model Problem {
   workbookProblem WorkbookProblem[]
   submission      Submission[]
   announcement    Announcement[]
-  // ProblemAnnouncement ProblemAnnouncement[]
   CodeDraft       CodeDraft[]
 
   @@map("problem")
