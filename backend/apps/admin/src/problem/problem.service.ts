@@ -274,7 +274,7 @@ export class ProblemService {
     cursor: number | null,
     take: number
   ) {
-    const skip = cursor ? 1 : 0
+    const paginator = this.prisma.getPaginator(cursor)
 
     const whereOptions: ProblemWhereInput = {}
     if (input.difficulty) {
@@ -287,14 +287,11 @@ export class ProblemService {
     }
 
     return await this.prisma.problem.findMany({
+      ...paginator,
       where: {
         ...whereOptions,
         groupId
       },
-      cursor: {
-        id: cursor ?? 1
-      },
-      skip,
       take
     })
   }

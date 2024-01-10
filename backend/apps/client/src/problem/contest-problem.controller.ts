@@ -39,13 +39,13 @@ export class ContestProblemController {
         cursor,
         take
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
-      } else if (err instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
       }
-      this.logger.error(err)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -60,16 +60,16 @@ export class ContestProblemController {
         contestId,
         problemId
       )
-    } catch (err) {
+    } catch (error) {
       if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.name === 'NotFoundError'
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
       ) {
-        throw new NotFoundException(err.message)
-      } else if (err instanceof ForbiddenAccessException) {
-        throw new BadRequestException(err.message)
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new BadRequestException(error.message)
       }
-      this.logger.error(err)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -96,11 +96,11 @@ export class GroupContestProblemController {
         take,
         groupId
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -117,16 +117,16 @@ export class GroupContestProblemController {
         problemId,
         groupId
       )
-    } catch (err) {
-      if (err instanceof EntityNotExistException) {
-        throw new NotFoundException(err.message)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       } else if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.name === 'NotFoundError'
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
       ) {
-        throw new NotFoundException(err.message)
+        throw new NotFoundException(error.message)
       }
-      this.logger.error(err)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
