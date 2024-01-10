@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -13,7 +12,6 @@ import {
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
-import { ForbiddenAccessException } from '@libs/exception'
 import { CreateTemplateDto } from './dto/create-code-draft.dto'
 import { CodeDraftService } from './problem.service'
 
@@ -36,8 +34,6 @@ export class CodeDraftController {
         err.name === 'NotFoundError'
       ) {
         throw new NotFoundException(err.message)
-      } else if (err instanceof ForbiddenAccessException) {
-        throw new BadRequestException(err.message)
       }
       this.logger.error(err)
       throw new InternalServerErrorException()
@@ -59,17 +55,10 @@ export class CodeDraftController {
     } catch (err) {
       if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.name === 'NotFoundError'
-      ) {
-        throw new NotFoundException(err.message)
-      } else if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
         // foreign key constraint failed error code
         err.code == 'P2003'
       ) {
         throw new NotFoundException(err.message)
-      } else if (err instanceof ForbiddenAccessException) {
-        throw new BadRequestException(err.message)
       }
       this.logger.error(err)
       throw new InternalServerErrorException()
