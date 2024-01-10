@@ -3,6 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test, type TestingModule } from '@nestjs/testing'
+import { faker } from '@faker-js/faker'
 import { Prisma, type User, type UserProfile } from '@prisma/client'
 import { expect } from 'chai'
 import type { Request } from 'express'
@@ -43,16 +44,16 @@ const user: User = {
   password: 'thisIsPassword',
   role: 'User',
   email: EMAIL_ADDRESS,
-  lastLogin: undefined,
-  createTime: undefined,
-  updateTime: undefined
+  lastLogin: faker.date.past(),
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 const profile: UserProfile = {
   id: ID,
   userId: ID,
   realName: 'real name',
-  createTime: undefined,
-  updateTime: undefined
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 const userProfile = {
   username: user.username,

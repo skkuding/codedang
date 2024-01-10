@@ -1,5 +1,6 @@
 import { UnauthorizedException } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
+import { faker } from '@faker-js/faker'
 import type { User, UserGroup } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
@@ -12,16 +13,16 @@ const user: User = {
   password: 'thisIsPassword',
   role: 'User',
   email: 'email@codedang.com',
-  lastLogin: undefined,
-  createTime: undefined,
-  updateTime: undefined
+  lastLogin: faker.date.past(),
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const userGroup: UserGroup = {
   groupId: 1,
   userId: 1,
-  createTime: undefined,
-  updateTime: undefined,
+  createTime: faker.date.past(),
+  updateTime: faker.date.past(),
   isGroupLeader: true
 }
 

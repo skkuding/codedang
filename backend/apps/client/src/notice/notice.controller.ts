@@ -7,7 +7,9 @@ import {
   UseGuards,
   NotFoundException,
   InternalServerErrorException,
-  Logger
+  Logger,
+  DefaultValuePipe,
+  ParseBoolPipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
@@ -23,31 +25,28 @@ export class NoticeController {
 
   @Get()
   async getNotices(
-    @Query('cursor', CursorValidationPipe) cursor: number,
-    @Query('take', ParseIntPipe) take: number
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
+    @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
+    @Query('search') search?: string
   ) {
     try {
-      return await this.noticeService.getNoticesByGroupId(cursor, take)
+      return await this.noticeService.getNotices({
+        cursor,
+        take,
+        fixed,
+        search
+      })
     } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
 
-  @Get('fixed')
-  async getFixedNotices(@Query('take', ParseIntPipe) take: number) {
-    try {
-      return await this.noticeService.getFixedNoticesByGroupId(take)
-    } catch (error) {
-      this.logger.error(error.message, error.stack)
-      throw new InternalServerErrorException()
-    }
-  }
-
   @Get(':id')
-  async getNotice(@Param('id', ParseIntPipe) id: number) {
+  async getNoticeByID(@Param('id', ParseIntPipe) id: number) {
     try {
-      return await this.noticeService.getNotice(id)
+      return await this.noticeService.getNoticeByID(id)
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -71,37 +70,32 @@ export class GroupNoticeController {
   @Get()
   async getNotices(
     @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number,
-    @Query('take', ParseIntPipe) take: number
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
+    @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
+    @Query('search', new DefaultValuePipe('')) search: string
   ) {
     try {
-      return await this.noticeService.getNoticesByGroupId(cursor, take, groupId)
+      return await this.noticeService.getNotices({
+        cursor,
+        take,
+        fixed,
+        search,
+        groupId
+      })
     } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
 
-  @Get('fixed')
-  async getFixedNotices(
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('take', ParseIntPipe) take: number
-  ) {
-    try {
-      return await this.noticeService.getFixedNoticesByGroupId(take, groupId)
-    } catch (error) {
-      this.logger.error(error.message, error.stack)
-      throw new InternalServerErrorException()
-    }
-  }
-
   @Get(':id')
-  async getNotice(
+  async getNoticeByID(
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('id', ParseIntPipe) id: number
   ) {
     try {
-      return await this.noticeService.getNotice(id, groupId)
+      return await this.noticeService.getNoticeByID(id, groupId)
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&

@@ -1,6 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { BadRequestException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
+import { faker } from '@faker-js/faker'
 import type { User, UserGroup } from '@prisma/client'
 import { Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
@@ -19,9 +20,9 @@ const user1: User = {
   email: 'example@codedang.com',
   password: 'password',
   role: Role.User,
-  lastLogin: undefined,
-  createTime: undefined,
-  updateTime: undefined
+  lastLogin: faker.date.past(),
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const user2: User = {
@@ -30,9 +31,9 @@ const user2: User = {
   email: 'example@codedang.com',
   password: 'password',
   role: Role.Admin,
-  lastLogin: undefined,
-  createTime: undefined,
-  updateTime: undefined
+  lastLogin: faker.date.past(),
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const user3: User = {
@@ -41,33 +42,33 @@ const user3: User = {
   email: 'example@codedang.com',
   password: 'password',
   role: Role.User,
-  lastLogin: undefined,
-  createTime: undefined,
-  updateTime: undefined
+  lastLogin: faker.date.past(),
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const userGroup1: UserGroup = {
   userId: 3,
   groupId: 2,
   isGroupLeader: true,
-  createTime: undefined,
-  updateTime: undefined
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const userGroup2: UserGroup = {
   userId: 4,
   groupId: 2,
   isGroupLeader: true,
-  createTime: undefined,
-  updateTime: undefined
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const userGroup3: UserGroup = {
   userId: 5,
   groupId: 2,
   isGroupLeader: false,
-  createTime: undefined,
-  updateTime: undefined
+  createTime: faker.date.past(),
+  updateTime: faker.date.past()
 }
 
 const updateFindResult = [
@@ -123,7 +124,8 @@ const db = {
   user: {
     findUnique: stub(),
     findMany: stub()
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('UserService', () => {
@@ -168,7 +170,7 @@ describe('UserService', () => {
       ]
       db.userGroup.findMany.resolves(result)
 
-      const res = await service.getGroupMembers(groupId, null, 2, true)
+      const res = await service.getGroupMembers(groupId, 0, 2, true)
       expect(res).to.deep.equal([
         {
           username: user1.username,
@@ -339,9 +341,9 @@ describe('UserService', () => {
       const groupId = 1
       const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
       const cacheSpyGet = stub(cache, 'get').resolves([
-        [userGroup1.userId, joinRequestTimeLimit],
-        [userGroup2.userId, joinRequestTimeLimit],
-        [userGroup3.userId, joinRequestTimeLimit]
+        { userId: userGroup1.userId, expiresAt: joinRequestTimeLimit },
+        { userId: userGroup2.userId, expiresAt: joinRequestTimeLimit },
+        { userId: userGroup3.userId, expiresAt: joinRequestTimeLimit }
       ])
       const cacheSpySet = stub(cache, 'set').resolves()
 
@@ -368,8 +370,8 @@ describe('UserService', () => {
         cacheSpySet.calledOnceWithExactly(
           joinGroupCacheKey(groupId),
           [
-            [userGroup1.userId, joinRequestTimeLimit],
-            [userGroup2.userId, joinRequestTimeLimit]
+            { userId: userGroup1.userId, expiresAt: joinRequestTimeLimit },
+            { userId: userGroup2.userId, expiresAt: joinRequestTimeLimit }
           ],
           JOIN_GROUP_REQUEST_EXPIRE_TIME
         )
@@ -389,9 +391,9 @@ describe('UserService', () => {
       const groupId = 1
       const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
       const cacheSpyGet = stub(cache, 'get').resolves([
-        [userGroup1.userId, joinRequestTimeLimit],
-        [userGroup2.userId, joinRequestTimeLimit],
-        [userGroup3.userId, joinRequestTimeLimit]
+        { userId: userGroup1.userId, expiresAt: joinRequestTimeLimit },
+        { userId: userGroup2.userId, expiresAt: joinRequestTimeLimit },
+        { userId: userGroup3.userId, expiresAt: joinRequestTimeLimit }
       ])
       const cacheSpySet = stub(cache, 'set').resolves()
       const res = await service.handleJoinRequest(
@@ -406,8 +408,8 @@ describe('UserService', () => {
         cacheSpySet.calledOnceWithExactly(
           joinGroupCacheKey(groupId),
           [
-            [userGroup1.userId, joinRequestTimeLimit],
-            [userGroup2.userId, joinRequestTimeLimit]
+            { userId: userGroup1.userId, expiresAt: joinRequestTimeLimit },
+            { userId: userGroup2.userId, expiresAt: joinRequestTimeLimit }
           ],
           JOIN_GROUP_REQUEST_EXPIRE_TIME
         )
@@ -421,8 +423,8 @@ describe('UserService', () => {
       const groupId = 1
       const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
       const cacheSpyGet = stub(cache, 'get').resolves([
-        [userGroup1.userId, joinRequestTimeLimit],
-        [userGroup2.userId, joinRequestTimeLimit]
+        { userId: userGroup1.userId, expiresAt: joinRequestTimeLimit },
+        { userId: userGroup2.userId, expiresAt: joinRequestTimeLimit }
       ])
 
       const res = async () =>

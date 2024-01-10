@@ -21,7 +21,7 @@ const undefinedUserId = undefined
 const contest = {
   id: contestId,
   createdById: userId,
-  groupId: groupId,
+  groupId,
   title: 'title',
   description: 'description',
   startTime: dayjs().add(-1, 'day').toDate(),
@@ -36,7 +36,9 @@ const contest = {
     id: groupId,
     groupName: 'group'
   }
-} satisfies Contest & { group: Partial<Group> }
+} satisfies Contest & {
+  group: Partial<Group>
+}
 
 const contestDetail = {
   title: 'contest',
@@ -50,7 +52,7 @@ const contestDetail = {
   endTime: dayjs().add(-1, 'day').toDate()
 }
 
-const ongoingContests: Partial<Contest>[] = [
+const ongoingContests = [
   {
     ...contest,
     id: contestId,
@@ -59,10 +61,12 @@ const ongoingContests: Partial<Contest>[] = [
     config: {
       isVisible: false,
       isRankisVisible: true
-    }
+    },
+    participants: 1
   }
-]
-const finishedContests: Partial<Contest>[] = [
+] satisfies Partial<Contest & { participants: number }>[]
+
+const finishedContests = [
   {
     ...contest,
     id: contestId + 1,
@@ -71,10 +75,12 @@ const finishedContests: Partial<Contest>[] = [
     config: {
       isVisible: false,
       isRankisVisible: true
-    }
+    },
+    participants: 1
   }
-]
-const upcomingContests: Partial<Contest>[] = [
+] satisfies Partial<Contest & { participants: number }>[]
+
+const upcomingContests = [
   {
     ...contest,
     id: contestId + 6,
@@ -83,10 +89,12 @@ const upcomingContests: Partial<Contest>[] = [
     config: {
       isVisible: false,
       isRankisVisible: true
-    }
+    },
+    participants: 1
   }
-]
-const registeredOngoingContests: Partial<Contest>[] = [
+] satisfies Partial<Contest & { participants: number }>[]
+
+const registeredOngoingContests = [
   {
     ...contest,
     id: contestId,
@@ -96,8 +104,9 @@ const registeredOngoingContests: Partial<Contest>[] = [
       isRankisVisible: true
     }
   }
-]
-const registeredUpcomingContests: Partial<Contest>[] = [
+] satisfies Partial<Contest>[]
+
+const registeredUpcomingContests = [
   {
     ...contest,
     id: contestId + 6,
@@ -108,17 +117,20 @@ const registeredUpcomingContests: Partial<Contest>[] = [
       isRankisVisible: true
     }
   }
-]
-const contests: Partial<Contest>[] = [
+] satisfies Partial<Contest>[]
+
+const contests = [
   ...ongoingContests,
   ...finishedContests,
   ...upcomingContests
-]
-const userContests: Partial<Contest>[] = [
+] satisfies Partial<Contest>[]
+
+const userContests = [
   ...registeredOngoingContests,
   ...registeredUpcomingContests
-]
-const ongoingContest: Partial<Contest> = ongoingContests[0]
+] satisfies Partial<Contest>[]
+
+const ongoingContest = ongoingContests[0]
 
 const earlierContest: Contest = {
   ...contest,
@@ -148,8 +160,8 @@ const user = {
 }
 
 const userGroup: UserGroup = {
-  userId: userId,
-  groupId: groupId,
+  userId,
+  groupId,
   isGroupLeader: true,
   createTime: new Date(),
   updateTime: new Date()
@@ -163,13 +175,18 @@ const userGroups: UserGroup[] = [
 ]
 const record: ContestRecord = {
   id: 1,
-  contestId: contestId,
-  userId: userId,
+  contestId,
+  userId,
   acceptedProblemNum: 0,
   totalPenalty: 0,
   createTime: new Date(),
   updateTime: new Date()
 }
+
+const participantContests = [
+  { ...ongoingContests[0], contestRecord: [record] },
+  { ...upcomingContests[0], contestRecord: [record] }
+]
 
 const mockPrismaService = {
   contest: {
@@ -189,7 +206,8 @@ const mockPrismaService = {
   },
   user: {
     findUnique: stub().resolves(user)
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('ContestService', () => {
@@ -209,8 +227,13 @@ describe('ContestService', () => {
   })
 
   describe('getContests', () => {
+    beforeEach(() => {
+      mockPrismaService.contest.findMany.resolves(participantContests)
+    })
+    afterEach(() => {
+      mockPrismaService.contest.findMany.reset()
+    })
     it('should return ongoing, upcoming contests when userId is undefined', async () => {
-      mockPrismaService.contest.findMany.resolves(contests)
       expect(
         await service.getContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
@@ -221,7 +244,7 @@ describe('ContestService', () => {
 
     it('should return registered ongoing, registered upcoming, ongoing, upcoming contests', async () => {
       mockPrismaService.user.findUnique.resolves(user)
-      mockPrismaService.contest.findMany.resolves(contests)
+
       expect(await service.getContestsByGroupId(userId, groupId)).to.deep.equal(
         {
           registeredOngoing: registeredOngoingContests,
@@ -276,13 +299,14 @@ describe('ContestService', () => {
 
   describe('getContestsByGroupId', () => {
     it('should return ongoing, upcoming, finished contests', async () => {
-      mockPrismaService.contest.findMany.resolves(contests)
+      mockPrismaService.contest.findMany.resolves(participantContests)
       expect(
         await service.getContestsByGroupId(undefinedUserId, groupId)
       ).to.deep.equal({
         ongoing: ongoingContests,
         upcoming: upcomingContests
       })
+      mockPrismaService.contest.findMany.reset()
     })
 
     //TODO: test when userId is given
