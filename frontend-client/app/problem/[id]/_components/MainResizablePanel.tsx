@@ -24,7 +24,7 @@ interface MainResizablePanelProps {
 }
 
 export default function MainResizablePanel({ data }: MainResizablePanelProps) {
-  const [tag, setTag] = useState(false) // tag button on/off 상태
+  const [tag, setTag] = useState(false) // tag button on/off
 
   return (
     <ResizablePanelGroup direction="horizontal" className="h-full">

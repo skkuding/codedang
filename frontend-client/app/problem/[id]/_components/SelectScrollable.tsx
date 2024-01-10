@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Select,
   SelectContent,
@@ -6,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import * as React from 'react'
+import { useLocalStorage } from 'react-use'
 
 interface MainResizablePanelProps {
   languages: string[]
@@ -15,15 +17,21 @@ interface MainResizablePanelProps {
 export default function SelectScrollable({
   languages
 }: MainResizablePanelProps) {
+  const [value, setValue] = useLocalStorage('programming_lang')
+
   return (
-    <Select>
+    <Select
+      onValueChange={(language) => {
+        setValue(language)
+      }}
+    >
       <SelectTrigger className="bg h-7 w-[82px] rounded-[5px] border-none bg-slate-500">
-        <SelectValue placeholder="Cpp" />
+        <SelectValue placeholder={value as string} />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup className="text-white">
           {languages.map((language) => (
-            <SelectItem key={language} value={language.toLowerCase()}>
+            <SelectItem key={language} value={language}>
               {language}
             </SelectItem>
           ))}

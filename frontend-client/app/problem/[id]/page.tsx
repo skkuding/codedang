@@ -51,7 +51,7 @@ export default async function ProblemEditor() {
             <Button className="bg-primary h-7 rounded-[5px] px-2">
               <span className="font-semibold">Submit</span>
             </Button>
-            <SelectScrollable languages={data.languages} />
+            {<SelectScrollable languages={data.languages} />}
           </div>
         </div>
 
