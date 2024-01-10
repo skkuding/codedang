@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { RolesModule } from '@libs/auth'
 import { ContestModule } from '@client/contest/contest.module'
 import { WorkbookModule } from '@client/workbook/workbook.module'
+import { CodeDraftController } from './code-draft.controller'
 import {
   ContestProblemController,
   GroupContestProblemController
@@ -14,7 +15,6 @@ import {
   CodeDraftService,
   WorkbookProblemService
 } from './problem.service'
-import { CodeDraftController } from './user-problem.controller'
 import {
   WorkbookProblemController,
   GroupWorkbookProblemController
