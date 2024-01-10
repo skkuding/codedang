@@ -1,0 +1,31 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getPublicizingRequests {
+      contestId
+      userId
+      expireTime
+    }
+  }
+}
+
+assert {
+  res.body.data.getPublicizingRequests: isDefined
+}
+
+docs {
+  # Get Publicizing Requests
+  ---
+  - Expire Time이 도래하지 않은 Publicizing Request들을 반환합니다.
+}

@@ -45,7 +45,7 @@ export class GroupResolver {
   @Query(() => [FindGroup])
   @UseRolesGuard()
   async getGroups(
-    @Args('cursor', { nullable: true }, CursorValidationPipe)
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { type: () => Int }) take: number
   ) {
