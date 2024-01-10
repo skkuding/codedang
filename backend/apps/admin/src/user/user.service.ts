@@ -11,6 +11,7 @@ import { Cache } from 'cache-manager'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
+import type { GroupJoinRequest } from '@libs/types'
 import type { UserGroup } from '@admin/@generated/user-group/user-group.model'
 
 @Injectable()
@@ -22,88 +23,51 @@ export class UserService {
 
   async getGroupMembers(
     groupId: number,
-    cursor: number,
+    cursor: number | null,
     take: number,
     leaderOnly: boolean
   ) {
-    let skip = take < 0 ? 0 : 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
+    const paginator = this.prisma.getPaginator(cursor, (value) => ({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      userId_groupId: {
+        userId: value,
+        groupId
+      }
+    }))
 
-    if (leaderOnly) {
-      return (
-        await this.prisma.userGroup.findMany({
-          take,
-          skip,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          cursor: { userId_groupId: { userId: cursor, groupId } },
-          where: {
-            groupId,
-            isGroupLeader: leaderOnly
-          },
+    const userGroups = await this.prisma.userGroup.findMany({
+      ...paginator,
+      take,
+      where: {
+        groupId,
+        isGroupLeader: leaderOnly ? true : undefined
+      },
+      select: {
+        user: {
           select: {
-            user: {
+            id: true,
+            username: true,
+            userProfile: {
               select: {
-                id: true,
-                username: true,
-                userProfile: {
-                  select: {
-                    realName: true
-                  }
-                },
-                email: true
+                realName: true
               }
-            }
+            },
+            email: true
           }
-        })
-      ).map((userGroup) => {
-        return {
-          username: userGroup.user.username,
-          userId: userGroup.user.id,
-          name: userGroup.user.userProfile?.realName
-            ? userGroup.user.userProfile.realName
-            : '',
-          email: userGroup.user.email
         }
-      })
-    } else {
-      return (
-        await this.prisma.userGroup.findMany({
-          take,
-          skip,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          cursor: { userId_groupId: { userId: cursor, groupId } },
-          where: {
-            groupId
-          },
-          select: {
-            user: {
-              select: {
-                id: true,
-                username: true,
-                userProfile: {
-                  select: {
-                    realName: true
-                  }
-                },
-                email: true
-              }
-            }
-          }
-        })
-      ).map((userGroup) => {
-        return {
-          username: userGroup.user.username,
-          userId: userGroup.user.id,
-          name: userGroup.user.userProfile?.realName
-            ? userGroup.user.userProfile.realName
-            : '',
-          email: userGroup.user.email
-        }
-      })
-    }
+      }
+    })
+
+    return userGroups.map((userGroup) => {
+      return {
+        username: userGroup.user.username,
+        userId: userGroup.user.id,
+        name: userGroup.user.userProfile?.realName
+          ? userGroup.user.userProfile.realName
+          : '',
+        email: userGroup.user.email
+      }
+    })
   }
 
   async updateGroupRole(
@@ -114,8 +78,8 @@ export class UserService {
     // find the user
     const groupMember = await this.prisma.userGroup.findFirst({
       where: {
-        groupId: groupId,
-        userId: userId
+        groupId,
+        userId
       },
       select: {
         user: {
@@ -136,7 +100,7 @@ export class UserService {
     const userRole = groupMember.user.role
     const groupLeaderNum = await this.prisma.userGroup.count({
       where: {
-        groupId: groupId,
+        groupId,
         isGroupLeader: true
       }
     })
@@ -173,7 +137,7 @@ export class UserService {
     const groupMembers = (
       await this.prisma.userGroup.findMany({
         where: {
-          groupId: groupId
+          groupId
         },
         select: {
           userId: true,
@@ -217,14 +181,17 @@ export class UserService {
   }
 
   async getJoinRequests(groupId: number) {
-    let joinGroupRequest: [number, number][] = await this.cacheManager.get(
+    const groupJoinRequests = await this.cacheManager.get<GroupJoinRequest[]>(
       joinGroupCacheKey(groupId)
     )
-    if (joinGroupRequest === undefined) {
+    if (!groupJoinRequests) {
       return []
     }
-    joinGroupRequest = joinGroupRequest.filter((e) => e[1] > Date.now())
-    const userIds = joinGroupRequest.map((e) => e[0])
+
+    const validRequests = groupJoinRequests.filter(
+      (req) => req.expiresAt > Date.now()
+    )
+    const userIds = validRequests.map((req) => req.userId)
     return await this.prisma.user.findMany({
       where: {
         id: {
@@ -239,23 +206,30 @@ export class UserService {
     userId: number,
     isAccepted: boolean
   ): Promise<UserGroup | number> {
-    let joinGroupRequest: [number, number][] = await this.cacheManager.get(
-      joinGroupCacheKey(groupId)
+    const groupJoinRequests =
+      (await this.cacheManager.get<GroupJoinRequest[]>(
+        joinGroupCacheKey(groupId)
+      )) || []
+
+    const validRequests = groupJoinRequests.filter(
+      (req) => req.expiresAt > Date.now()
     )
-    if (joinGroupRequest)
-      joinGroupRequest = joinGroupRequest.filter((e) => e[1] > Date.now())
-    if (
-      joinGroupRequest === undefined ||
-      !joinGroupRequest.find((e) => e[0] === userId)
-    ) {
+
+    const userRequested = validRequests.find((req) => req.userId === userId)
+
+    if (!userRequested) {
       throw new ConflictException(
         `userId ${userId} didn't request join to groupId ${groupId}`
       )
     }
-    const filtered = joinGroupRequest.filter((e) => e[0] !== userId)
+
+    const remainingRequests = validRequests.filter(
+      (req) => req.userId !== userId
+    )
+
     await this.cacheManager.set(
       joinGroupCacheKey(groupId),
-      filtered,
+      remainingRequests,
       JOIN_GROUP_REQUEST_EXPIRE_TIME
     )
     if (isAccepted) {
@@ -267,6 +241,10 @@ export class UserService {
           role: true
         }
       })
+
+      if (!requestedUser) {
+        throw new NotFoundException(`userId ${userId} not found`)
+      }
 
       return await this.prisma.userGroup.create({
         data: {

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import type { Announcement } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
 
@@ -9,7 +9,7 @@ export class AnnouncementService {
   async getProblemAnnouncements(
     problemId: number,
     groupId: number
-  ): Promise<Partial<Announcement>[]> {
+  ): Promise<Announcement[]> {
     const result = await this.prisma.announcement.findMany({
       where: {
         problem: {
@@ -17,12 +17,8 @@ export class AnnouncementService {
           groupId
         }
       },
-      orderBy: { id: 'asc' }
+      orderBy: { updateTime: 'desc' }
     })
-
-    if (!result) {
-      throw new NotFoundException('no corresponding announcement')
-    }
 
     return result
   }
@@ -30,24 +26,20 @@ export class AnnouncementService {
   async getContestAnnouncements(
     contestId: number,
     groupId: number
-  ): Promise<Partial<Announcement>[]> {
+  ): Promise<Announcement[]> {
     const result = await this.prisma.announcement.findMany({
       where: {
         problem: {
           contestProblem: {
-            every: {
+            some: {
               contestId
             }
           },
           groupId
         }
       },
-      orderBy: { id: 'asc' }
+      orderBy: { updateTime: 'desc' }
     })
-
-    if (!result) {
-      throw new NotFoundException('no corresponding announcement')
-    }
 
     return result
   }

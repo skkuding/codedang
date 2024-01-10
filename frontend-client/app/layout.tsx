@@ -13,7 +13,7 @@ const noto = Noto_Sans_KR({
 
 const manrope = Manrope({
   subsets: ['latin'],
-  weight: ['400', '600'],
+  weight: ['400', '500', '600', '700'],
   adjustFontFallback: false,
   variable: '--font-manrope'
 })

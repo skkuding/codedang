@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker'
 import { createReadStream } from 'fs'
 import { Language, Level } from '@admin/@generated'
 import type { Problem } from '@admin/@generated/problem/problem.model'
@@ -37,9 +38,9 @@ export const problems: Problem[] = [
     submissionCount: 10,
     acceptedCount: 5,
     acceptedRate: 0.5,
-    createTime: undefined,
-    updateTime: undefined,
-    exposeTime: undefined,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    exposeTime: faker.date.anytime(),
     inputExamples: [],
     outputExamples: []
   },
@@ -61,9 +62,9 @@ export const problems: Problem[] = [
     submissionCount: 10,
     acceptedCount: 5,
     acceptedRate: 0.5,
-    createTime: undefined,
-    updateTime: undefined,
-    exposeTime: undefined,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    exposeTime: faker.date.anytime(),
     inputExamples: [],
     outputExamples: []
   }
@@ -114,9 +115,9 @@ export const importedProblems: Problem[] = [
     submissionCount: 10,
     acceptedCount: 5,
     acceptedRate: 0.5,
-    createTime: undefined,
-    updateTime: undefined,
-    exposeTime: undefined,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    exposeTime: faker.date.anytime(),
     inputExamples: [],
     outputExamples: []
   },
@@ -154,9 +155,9 @@ export const importedProblems: Problem[] = [
     submissionCount: 10,
     acceptedCount: 5,
     acceptedRate: 0.5,
-    createTime: undefined,
-    updateTime: undefined,
-    exposeTime: undefined,
+    createTime: faker.date.past(),
+    updateTime: faker.date.past(),
+    exposeTime: faker.date.anytime(),
     inputExamples: [],
     outputExamples: []
   }

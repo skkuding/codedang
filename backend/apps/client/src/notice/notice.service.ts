@@ -6,82 +6,54 @@ import { PrismaService } from '@libs/prisma'
 export class NoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getNoticesByGroupId(
-    cursor: number,
-    take: number,
+  async getNotices({
+    cursor,
+    take,
+    search,
+    fixed = false,
     groupId = OPEN_SPACE_ID
-  ) {
-    let skip = take < 0 ? 0 : 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
+  }: {
+    cursor: number | null
+    take: number
+    search?: string
+    fixed?: boolean
+    groupId?: number
+  }) {
+    const paginator = this.prisma.getPaginator(cursor)
 
-    return (
-      await this.prisma.notice.findMany({
-        where: {
-          groupId,
-          isVisible: true,
-          isFixed: false
-        },
-        select: {
-          id: true,
-          title: true,
-          createTime: true,
-          isFixed: true,
-          createdBy: {
-            select: {
-              username: true
-            }
-          }
-        },
-        take,
-        skip,
-        cursor: {
-          id: cursor
+    const notices = await this.prisma.notice.findMany({
+      ...paginator,
+      where: {
+        groupId,
+        isVisible: true,
+        isFixed: fixed,
+        title: {
+          contains: search
         }
-      })
-    ).map((notice) => {
-      return {
-        ...notice,
-        createdBy: notice.createdBy.username
-      }
-    })
-  }
-
-  async getFixedNoticesByGroupId(take: number, groupId = OPEN_SPACE_ID) {
-    return (
-      await this.prisma.notice.findMany({
-        where: {
-          groupId,
-          isVisible: true,
-          isFixed: true
-        },
-        select: {
-          id: true,
-          title: true,
-          createTime: true,
-          isFixed: true,
-          createdBy: {
-            select: {
-              username: true
-            }
+      },
+      take,
+      select: {
+        id: true,
+        title: true,
+        createTime: true,
+        isFixed: true,
+        createdBy: {
+          select: {
+            username: true
           }
-        },
-        orderBy: {
-          id: 'desc'
-        },
-        take
-      })
-    ).map((notice) => {
+        }
+      }
+    })
+
+    return notices.map((notice) => {
       return {
         ...notice,
-        createdBy: notice.createdBy.username
+        createdBy: notice.createdBy?.username
       }
     })
   }
 
-  async getNotice(id: number, groupId = OPEN_SPACE_ID) {
+  async getNoticeByID(id: number, groupId = OPEN_SPACE_ID) {
     const current = await this.prisma.notice
       .findUniqueOrThrow({
         where: {
@@ -102,7 +74,7 @@ export class NoticeService {
         }
       })
       .then((notice) => {
-        return { ...notice, createdBy: notice.createdBy.username }
+        return { ...notice, createdBy: notice.createdBy?.username }
       })
 
     const navigate = (pos: 'prev' | 'next') => {

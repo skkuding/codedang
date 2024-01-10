@@ -34,7 +34,8 @@ export class ContestResolver {
     @Args('take', ParseIntPipe) take: number,
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
     groupId: number,
-    @Args('cursor', { nullable: true }, CursorValidationPipe) cursor?: number
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
+    cursor: number | null
   ) {
     return await this.contestService.getContests(take, groupId, cursor)
   }
@@ -55,6 +56,8 @@ export class ContestResolver {
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw new UnprocessableEntityException(error.message)
+      } else if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -143,13 +146,13 @@ export class ContestResolver {
   }
 
   @Mutation(() => [ContestProblem])
-  async importProblems(
+  async importProblemsToContest(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('contestId', ParseIntPipe) contestId: number,
     @Args('problemIds', { type: () => [Int] }) problemIds: number[]
   ) {
     try {
-      return await this.contestService.importProblems(
+      return await this.contestService.importProblemsToContest(
         groupId,
         contestId,
         problemIds

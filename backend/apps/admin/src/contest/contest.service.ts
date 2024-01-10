@@ -4,6 +4,7 @@ import {
   Injectable,
   UnprocessableEntityException
 } from '@nestjs/common'
+import type { ContestProblem } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import {
   OPEN_SPACE_ID,
@@ -29,24 +30,13 @@ export class ContestService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async getContests(
-    take: number,
-    groupId: number,
-    cursor?: number
-  ): Promise<Partial<Contest>[]> {
-    let skip = take < 0 ? 0 : 1
-    if (!cursor) {
-      cursor = 1
-      skip = 0
-    }
+  async getContests(take: number, groupId: number, cursor: number | null) {
+    const paginator = this.prisma.getPaginator(cursor)
 
     return await this.prisma.contest.findMany({
+      ...paginator,
       where: { groupId },
-      skip,
-      take,
-      cursor: {
-        id: cursor
-      }
+      take
     })
   }
 
@@ -61,10 +51,19 @@ export class ContestService {
       )
     }
 
+    const group = await this.prisma.group.findUnique({
+      where: {
+        id: groupId
+      }
+    })
+    if (!group) {
+      throw new EntityNotExistException('Group')
+    }
+
     const newContest: Contest = await this.prisma.contest.create({
       data: {
         createdById: userId,
-        groupId: groupId,
+        groupId,
         title: contest.title,
         description: contest.description,
         startTime: contest.startTime,
@@ -86,7 +85,7 @@ export class ContestService {
     const contestFound = await this.prisma.contest.findFirst({
       where: {
         id: contest.id,
-        groupId: groupId
+        groupId
       }
     })
     if (!contestFound) {
@@ -120,7 +119,7 @@ export class ContestService {
     const contest = await this.prisma.contest.findFirst({
       where: {
         id: contestId,
-        groupId: groupId
+        groupId
       }
     })
     if (!contest) {
@@ -194,8 +193,8 @@ export class ContestService {
     }
 
     return {
-      contestId: contestId,
-      isAccepted: isAccepted
+      contestId,
+      isAccepted
     } as PublicizingResponse
   }
 
@@ -209,7 +208,7 @@ export class ContestService {
     const contest = await this.prisma.contest.findFirst({
       where: {
         id: contestId,
-        groupId: groupId
+        groupId
       }
     })
     if (!contest) {
@@ -229,8 +228,8 @@ export class ContestService {
     }
 
     const newRequest: PublicizingRequest = {
-      contestId: contestId,
-      userId: contest.createdById,
+      contestId,
+      userId: contest.createdById!, // TODO: createdById가 null일 경우 예외처리
       expireTime: new Date(Date.now() + PUBLICIZING_REQUEST_EXPIRE_TIME)
     }
     requests.push(newRequest)
@@ -244,7 +243,7 @@ export class ContestService {
     return newRequest
   }
 
-  async importProblems(
+  async importProblemsToContest(
     groupId: number,
     contestId: number,
     problemIds: number[]
@@ -252,39 +251,42 @@ export class ContestService {
     const contest = await this.prisma.contest.findUnique({
       where: {
         id: contestId,
-        groupId: groupId
+        groupId
       }
     })
     if (!contest) {
       throw new EntityNotExistException('contest')
     }
 
-    const contestProblems = []
-    for (const problemId of problemIds) {
-      const problem = await this.prisma.problem.findUnique({
-        where: {
-          id: problemId
-        }
-      })
-      if (!problem) {
-        throw new EntityNotExistException('problem')
-      }
+    const contestProblems: ContestProblem[] = []
 
-      if (problem.groupId != groupId) {
+    for (const problemId of problemIds) {
+      try {
+        const [, contestProblem] = await this.prisma.$transaction([
+          this.prisma.problem.update({
+            where: {
+              id: problemId,
+              groupId
+            },
+            data: {
+              exposeTime: contest.endTime
+            }
+          }),
+          this.prisma.contestProblem.create({
+            data: {
+              // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
+              // 임시 방편으로 order: 0으로 설정합니다.
+              order: 0,
+              contestId,
+              problemId
+            }
+          })
+        ])
+
+        contestProblems.push(contestProblem)
+      } catch (error) {
         continue
       }
-
-      contestProblems.push(
-        await this.prisma.contestProblem.create({
-          data: {
-            // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
-            // 임시 방편으로 order: 0으로 설정합니다.
-            order: 0,
-            contestId: contestId,
-            problemId: problemId
-          }
-        })
-      )
     }
 
     return contestProblems

@@ -25,7 +25,7 @@ export default function Carousel({ slides }: Props) {
   }
 
   return (
-    <div className="relative h-80 w-full overflow-hidden rounded-3xl bg-gray-100">
+    <div className="relative my-5 h-80 w-full overflow-hidden rounded-3xl bg-gray-100">
       <Link href={slides[facade].href as Route<string>}>
         {slides.map((slide, index) => (
           <div
@@ -38,8 +38,8 @@ export default function Carousel({ slides }: Props) {
           </div>
         ))}
       </Link>
-      <div className="absolute bottom-5 left-0 right-0 flex justify-center bg-opacity-70">
-        <div className="z-10 flex h-7 items-center rounded-full bg-gray-900 px-2.5">
+      <div className="absolute bottom-5 left-0 right-0 flex justify-center">
+        <div className="z-10 flex h-7 items-center rounded-full bg-gray-900/80 px-2.5">
           <Button
             variant="ghost"
             className="px-0 hover:bg-transparent"
