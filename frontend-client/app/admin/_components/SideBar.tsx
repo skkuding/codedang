@@ -23,7 +23,7 @@ export default function Page() {
       {navItems.map((item) => (
         <Link
           key={item.name}
-          href={item.path}
+          href={item.path as Route}
           className={cn(
             'rounded px-4 py-2 transition',
             pathname === item.path

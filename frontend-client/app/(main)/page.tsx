@@ -56,7 +56,7 @@ export default async function Home() {
               <Trophy />
               <p className="text-xl font-bold md:text-2xl">Contest</p>
             </div>
-            <Link href="/contest">
+            <Link href={'/contest' as Route}>
               <Button
                 variant="ghost"
                 className="text-md rounded-full border-gray-500 px-5 font-semibold"
