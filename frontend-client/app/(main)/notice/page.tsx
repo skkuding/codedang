@@ -28,4 +28,3 @@ export default function Notice() {
     </>
   )
 }
-export const runtime = 'edge'
