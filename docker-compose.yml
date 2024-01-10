@@ -110,6 +110,22 @@ services:
     env_file: .env.development
     network_mode: host
 
+  promtail:
+    profiles: ['deploy']
+    image: grafana/promtail
+    container_name: grafana-promtail
+    restart: on-failure
+    env_file: .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./grafana-logs/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
+      - ./scripts/gen-promtail-config.sh:/usr/local/bin/generate-config.sh
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - '/usr/local/bin/generate-config.sh && /usr/bin/promtail -config.file=/etc/promtail/promtail-config.yml'
+    network_mode: host
+
   dozzle:
     profiles: ['deploy']
     image: amir20/dozzle:latest
