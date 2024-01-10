@@ -28,7 +28,11 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
 
   return (
     <ResizablePanelGroup direction="horizontal" className="h-full">
-      <ResizablePanel defaultSize={35}>
+      <ResizablePanel
+        defaultSize={35}
+        style={{ overflowY: 'auto' }}
+        minSize={20}
+      >
         <div className="flex flex-col gap-y-4 py-4 pl-6 pr-8">
           <div>
             {/* TODO: get rid of <p>tag at 'Problem' api description part */}
