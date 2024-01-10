@@ -65,7 +65,7 @@ export class ProblemSubmissionController {
   async getSubmission(
     @Req() req: AuthenticatedRequest,
     @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('id') id: string
+    @Param('id') id: number
   ) {
     try {
       return await this.submissionService.getSubmission(
@@ -131,7 +131,7 @@ export class GroupProblemSubmissionController {
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('id') id: string
+    @Param('id') id: number
   ) {
     try {
       return await this.submissionService.getSubmission(
@@ -208,7 +208,7 @@ export class ContestSubmissionController {
     @Req() req: AuthenticatedRequest,
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('id') id: string
+    @Param('id') id: number
   ) {
     try {
       return await this.submissionService.getContestSubmission(
@@ -291,7 +291,7 @@ export class GroupContestSubmissionController {
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('id') id: string
+    @Param('id') id: number
   ) {
     try {
       return await this.submissionService.getContestSubmission(
@@ -356,7 +356,7 @@ export class WorkbookSubmissionController {
   async getSubmission(
     @Req() req: AuthenticatedRequest,
     @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('id') id: string
+    @Param('id') id: number
   ) {
     try {
       return await this.submissionService.getSubmission(
@@ -426,7 +426,7 @@ export class GroupWorkbookSubmissionController {
     @Req() req: AuthenticatedRequest,
     @Param('groupId', ParseIntPipe) groupId: number,
     @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('id') id: string
+    @Param('id') id: number
   ) {
     try {
       return await this.submissionService.getSubmission(
