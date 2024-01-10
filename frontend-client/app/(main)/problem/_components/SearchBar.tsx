@@ -18,7 +18,7 @@ export default function SearchBar() {
     const newUrl = new URL('/problem', baseUrl)
     if (searchKeyword) {
       newUrl.searchParams.set('search', searchKeyword)
-      router.replace(`?${newUrl.searchParams}`, { scroll: false })
+      router.push(`?${newUrl.searchParams}`, { scroll: false })
     }
   }
 
