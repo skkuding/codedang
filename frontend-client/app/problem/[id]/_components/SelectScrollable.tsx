@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useLocalStorage } from 'react-use'
+import { useStorage } from '@/lib/hooks'
 
 interface MainResizablePanelProps {
   languages: string[]
@@ -17,8 +17,7 @@ interface MainResizablePanelProps {
 export default function SelectScrollable({
   languages
 }: MainResizablePanelProps) {
-  const [value, setValue] = useLocalStorage('programming_lang')
-
+  const [value, setValue] = useStorage('programming_lang', '')
   return (
     <Select
       onValueChange={(language) => {
