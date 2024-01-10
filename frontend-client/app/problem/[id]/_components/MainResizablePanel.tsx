@@ -6,6 +6,7 @@ import {
   ResizablePanelGroup
 } from '@/components/ui/resizable'
 import { Switch } from '@/components/ui/switch'
+import { sanitize } from 'isomorphic-dompurify'
 import { useState } from 'react'
 import { FiClipboard } from 'react-icons/fi'
 import { LuFileText } from 'react-icons/lu'
@@ -35,25 +36,28 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
       >
         <div className="flex flex-col gap-y-4 py-4 pl-6 pr-8">
           <div>
-            {/* TODO: get rid of <p>tag at 'Problem' api description part */}
             <h1 className="mb-4 text-lg">Description</h1>
-            <p
+            <div
               className="text-sm text-slate-300"
-              dangerouslySetInnerHTML={{ __html: data.description }}
+              dangerouslySetInnerHTML={{ __html: sanitize(data.description) }}
             />
           </div>
           <div>
             <h1 className="mb-3 text-lg">Input</h1>
-            <p
+            <div
               className="text-sm text-slate-300"
-              dangerouslySetInnerHTML={{ __html: data.inputDescription }}
+              dangerouslySetInnerHTML={{
+                __html: sanitize(data.inputDescription)
+              }}
             />
           </div>
           <div>
             <h1 className="mb-3 text-lg">Output</h1>
-            <p
+            <div
               className="text-sm text-slate-300"
-              dangerouslySetInnerHTML={{ __html: data.outputDescription }}
+              dangerouslySetInnerHTML={{
+                __html: sanitize(data.outputDescription)
+              }}
             />
           </div>
           <div>
