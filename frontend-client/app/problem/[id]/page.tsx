@@ -17,9 +17,15 @@ interface ProblemInfo {
   outputExamples: string[]
 }
 
-export default async function ProblemEditor() {
-  // 임시로 id=1로 고정
-  const response = await fetch(baseUrl + '/problem/1')
+interface ProblemEditorProps {
+  params: {
+    id: string
+  }
+}
+
+export default async function ProblemEditor({ params }: ProblemEditorProps) {
+  const { id } = params
+  const response = await fetch(baseUrl + '/problem/' + id)
   const data = await response.json()
 
   // Specific information for editor main page
