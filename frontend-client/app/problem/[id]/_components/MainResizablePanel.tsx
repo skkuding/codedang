@@ -32,20 +32,20 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
         <div className="flex flex-col gap-y-4 py-4 pl-6 pr-8">
           <div>
             {/* TODO: get rid of <p>tag at 'Problem' api description part */}
-            <h1 className="mb-4">Description</h1>
-            <p className="text-xs text-slate-300">{data.description}</p>
+            <h1 className="mb-4 text-lg">Description</h1>
+            <p className="text-sm text-slate-300">{data.description}</p>
           </div>
           <div>
-            <h1 className="mb-3">Input</h1>
-            <p className="text-xs text-slate-300">{data.inputDescription}</p>
+            <h1 className="mb-3 text-lg">Input</h1>
+            <p className="text-sm text-slate-300">{data.inputDescription}</p>
           </div>
           <div>
-            <h1 className="mb-3">Output</h1>
-            <p className="text-xs text-slate-300">{data.outputDescription}</p>
+            <h1 className="mb-3 text-lg">Output</h1>
+            <p className="text-sm text-slate-300">{data.outputDescription}</p>
           </div>
           <div>
             <div className="flex justify-between">
-              <h1 className="mb-2 mt-3">Sample Input 1</h1>
+              <h1 className="mb-2 mt-3 text-lg">Sample Input 1</h1>
               <div className="flex items-center justify-center">
                 <FiClipboard className="cursor-pointer" />
               </div>
@@ -59,7 +59,7 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
           </div>
           <div>
             <div className="flex justify-between">
-              <h1 className="mb-2 mt-3">Sample Output 1</h1>
+              <h1 className="mb-2 mt-3 text-lg">Sample Output 1</h1>
             </div>
             <div className="h-24 w-full bg-slate-800 p-2">
               {/* 임시 Sample description -> use outputExamples later*/}
@@ -69,8 +69,8 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
             </div>
           </div>
           <div>
-            {/* 임시 writer name */}
-            <h1 className="mb-2">Writer: Gildong Hong</h1>
+            {/* TODO: need writer name at api*/}
+            <h1 className="mb-2 text-lg">Writer: Gildong Hong</h1>
           </div>
           <div className="flex h-28 flex-col gap-2">
             <div className="flex items-center justify-start gap-2">

@@ -54,6 +54,7 @@ export default async function ProblemEditor() {
             <SelectScrollable languages={data.languages} />
           </div>
         </div>
+
         <MainResizablePanel data={editorData} />
       </main>
     </div>
