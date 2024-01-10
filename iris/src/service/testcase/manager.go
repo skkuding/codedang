@@ -43,7 +43,7 @@ func (t *testcaseManager) GetTestcase(problemId string, testcaseId int) (Testcas
 		if testcaseId == 0 {
 			testcase = Testcase{Elements: elements}
 		} else {
-			testcase = Testcase{Elements: elements[testcaseId : testcaseId+1]}
+			testcase = Testcase{Elements: elements[testcaseId-1 : testcaseId]}
 		}
 
 		err = t.cache.Set(problemId, Testcase{Elements: elements})
