@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { RolesModule } from '@libs/auth'
 import { ContestModule } from '@client/contest/contest.module'
 import { WorkbookModule } from '@client/workbook/workbook.module'
+import { CodeDraftController } from './code-draft.controller'
 import {
   ContestProblemController,
   GroupContestProblemController
@@ -11,6 +12,7 @@ import { ProblemRepository } from './problem.repository'
 import {
   ContestProblemService,
   ProblemService,
+  CodeDraftService,
   WorkbookProblemService
 } from './problem.service'
 import {
@@ -26,12 +28,14 @@ import {
     ContestProblemController,
     GroupContestProblemController,
     WorkbookProblemController,
-    GroupWorkbookProblemController
+    GroupWorkbookProblemController,
+    CodeDraftController
   ],
   providers: [
     ProblemService,
     ContestProblemService,
     WorkbookProblemService,
+    CodeDraftService,
     ProblemRepository
   ]
 })

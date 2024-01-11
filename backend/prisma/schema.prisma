@@ -54,6 +54,7 @@ model User {
   workbook      Workbook[]
   submission    Submission[]
   useroauth     UserOAuth?
+  CodeDraft     CodeDraft[]
 
   @@map("user")
 }
@@ -175,6 +176,7 @@ model Problem {
   workbookProblem WorkbookProblem[]
   submission      Submission[]
   announcement    Announcement[]
+  CodeDraft       CodeDraft[]
 
   @@map("problem")
 }
@@ -387,4 +389,27 @@ enum ResultStatus {
   MemoryLimitExceeded
   OutputLimitExceeded
   ServerError
+}
+
+model CodeDraft {
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int     @map("user_id")
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int     @map("problem_id")
+
+  /// template code item structure
+  /// {
+  ///   "lanaguage": Language,
+  ///   "code": {
+  ///             "id": number,
+  ///             "text": string,
+  ///             "locked": boolean
+  ///           }[]
+  /// }
+  template   Json[]
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+
+  @@id(name: "codeDraftId", [userId, problemId])
+  @@map("code_draft")
 }
