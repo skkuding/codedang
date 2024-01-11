@@ -119,11 +119,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./grafana-logs/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
-      - ./scripts/gen-promtail-config.sh:/usr/local/bin/generate-config.sh
-    entrypoint: /bin/sh
     command:
-      - -c
-      - '/usr/local/bin/generate-config.sh && /usr/bin/promtail -config.file=/etc/promtail/promtail-config.yml'
+      - -config.file=/etc/promtail/promtail-config.yml
+      - -config.expand-env=true
     network_mode: host
 
   dozzle:

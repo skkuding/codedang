@@ -100,7 +100,6 @@ jobs:
           sparse-checkout: |
             docker-compose.yml
             scripts/deploy.sh
-            scripts/gen-promtail-config.sh
             .env.development
             Caddyfile
             grafana-logs/promtail/promtail-config.yml
@@ -131,9 +130,6 @@ jobs:
 
       - name: Pull docker images
         run: docker compose --profile update-target pull
-
-      - name: Set promtail script execution permission
-        run: chmod +x ./scripts/gen-promtail-config.sh
 
       - name: Run docker compose up
         run: |
