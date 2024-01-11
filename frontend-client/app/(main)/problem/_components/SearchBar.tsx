@@ -9,7 +9,9 @@ import { FiSearch } from 'react-icons/fi'
 
 export default function SearchBar() {
   const searchParams = useSearchParams()
-  const [searchKeyword, setSearchKeyword] = useState('')
+  const [searchKeyword, setSearchKeyword] = useState(
+    searchParams?.get('search')
+  )
   const router = useRouter()
 
   const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
