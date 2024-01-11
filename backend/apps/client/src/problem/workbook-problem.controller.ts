@@ -10,7 +10,7 @@ import {
   UseGuards
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { GroupIdValidationPipe } from 'libs/pipe/src/group-id-validation.pipe'
+import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
@@ -32,7 +32,7 @@ export class WorkbookProblemController {
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number,
-    @Query('groupId', GroupIdValidationPipe) groupId: number | null
+    @Query('groupId', IdValidationPipe) groupId: number | null
   ) {
     try {
       return await this.workbookProblemService.getWorkbookProblems(
@@ -54,7 +54,7 @@ export class WorkbookProblemController {
   async getWorkbookProblem(
     @Param('workbookId', ParseIntPipe) workbookId: number,
     @Param('problemId', ParseIntPipe) problemId: number,
-    @Query('groupId', GroupIdValidationPipe) groupId: number | null
+    @Query('groupId', IdValidationPipe) groupId: number | null
   ) {
     try {
       return await this.workbookProblemService.getWorkbookProblem(

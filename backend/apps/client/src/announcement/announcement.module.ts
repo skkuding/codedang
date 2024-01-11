@@ -1,14 +1,11 @@
 import { Module } from '@nestjs/common'
 import { RolesModule } from '@libs/auth'
-import {
-  ContestAnnouncementController,
-  ProblemAnnouncementController
-} from './announcement.controller'
+import { AnnouncementController } from './announcement.controller'
 import { AnnouncementService } from './announcement.service'
 
 @Module({
   imports: [RolesModule],
-  controllers: [ProblemAnnouncementController, ContestAnnouncementController],
+  controllers: [AnnouncementController],
   providers: [AnnouncementService],
   exports: [AnnouncementService]
 })

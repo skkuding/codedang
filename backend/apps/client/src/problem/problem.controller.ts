@@ -6,20 +6,18 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
-  Query,
-  UseGuards
+  Query
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { GroupIdValidationPipe } from 'libs/pipe/src/group-id-validation.pipe'
-import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
+import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
+import { UseGroupMemberGuardOrNoAuth } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe, ZodValidationPipe } from '@libs/pipe'
 import { ProblemService } from './problem.service'
 import { ProblemOrder, problemOrderSchema } from './schema/problem-order.schema'
 
 @Controller('problem')
-@AuthNotNeeded()
-@UseGuards(GroupMemberGuard)
+@UseGroupMemberGuardOrNoAuth()
 export class ProblemController {
   private readonly logger = new Logger(ProblemController.name)
 
@@ -27,7 +25,7 @@ export class ProblemController {
 
   @Get()
   async getProblems(
-    @Query('groupId', GroupIdValidationPipe) groupId: number | null,
+    @Query('groupId', IdValidationPipe) groupId: number | null,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number,
     @Query('order', new ZodValidationPipe(problemOrderSchema))
@@ -50,7 +48,7 @@ export class ProblemController {
 
   @Get(':problemId')
   async getProblem(
-    @Query('groupId', GroupIdValidationPipe) groupId: number | null,
+    @Query('groupId', IdValidationPipe) groupId: number | null,
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {

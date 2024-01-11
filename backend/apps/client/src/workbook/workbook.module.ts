@@ -1,14 +1,11 @@
 import { Module } from '@nestjs/common'
 import { RolesModule } from '@libs/auth'
-import {
-  GroupWorkbookController,
-  WorkbookController
-} from './workbook.controller'
+import { WorkbookController } from './workbook.controller'
 import { WorkbookService } from './workbook.service'
 
 @Module({
   imports: [RolesModule],
-  controllers: [WorkbookController, GroupWorkbookController],
+  controllers: [WorkbookController],
   providers: [WorkbookService],
   exports: [WorkbookService]
 })

@@ -12,7 +12,7 @@ import {
   UseGuards
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { GroupIdValidationPipe } from 'libs/pipe/src/group-id-validation.pipe'
+import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
@@ -33,7 +33,7 @@ export class ContestProblemController {
   @Get()
   async getContestProblems(
     @Param('contestId', ParseIntPipe) contestId: number,
-    @Query('groupId', GroupIdValidationPipe) groupId: number | null,
+    @Query('groupId', IdValidationPipe) groupId: number | null,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
@@ -59,7 +59,7 @@ export class ContestProblemController {
   async getContestProblem(
     @Param('contestId', ParseIntPipe) contestId: number,
     @Param('problemId', ParseIntPipe) problemId: number,
-    @Query('groupId', GroupIdValidationPipe) groupId: number | null
+    @Query('groupId', IdValidationPipe) groupId: number | null
   ) {
     try {
       return await this.contestProblemService.getContestProblem(

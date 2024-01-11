@@ -3,14 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { RolesModule } from '@libs/auth'
 import { CONSUME_CHANNEL, PUBLISH_CHANNEL } from '@libs/constants'
-import {
-  ContestSubmissionController,
-  GroupContestSubmissionController,
-  GroupProblemSubmissionController,
-  GroupWorkbookSubmissionController,
-  ProblemSubmissionController,
-  WorkbookSubmissionController
-} from './submission.controller'
+import { SubmissionController } from './submission.controller'
 import { SubmissionService } from './submission.service'
 
 @Module({
@@ -51,14 +44,7 @@ import { SubmissionService } from './submission.service'
     }),
     RolesModule
   ],
-  controllers: [
-    ProblemSubmissionController,
-    GroupProblemSubmissionController,
-    ContestSubmissionController,
-    GroupContestSubmissionController,
-    WorkbookSubmissionController,
-    GroupWorkbookSubmissionController
-  ],
+  controllers: [SubmissionController],
   providers: [SubmissionService]
 })
 export class SubmissionModule {}
