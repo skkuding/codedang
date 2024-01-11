@@ -65,7 +65,7 @@ export default function ProblemTable({
                 {row.original.tags.map((tag: TagProps) => (
                   <Badge
                     key={tag.id}
-                    className="hover:gray-300 text-sm md:text-base"
+                    className="text-sm hover:bg-gray-300 md:text-base"
                   >
                     {tag.name}
                   </Badge>

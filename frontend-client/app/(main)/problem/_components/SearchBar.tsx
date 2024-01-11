@@ -3,10 +3,12 @@
 import { Input } from '@/components/ui/input'
 import { baseUrl } from '@/lib/vars'
 import { useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { FiSearch } from 'react-icons/fi'
 
 export default function SearchBar() {
+  const searchParams = useSearchParams()
   const [searchKeyword, setSearchKeyword] = useState('')
   const router = useRouter()
 
@@ -16,6 +18,7 @@ export default function SearchBar() {
 
   const handleSearchSubmit = () => {
     const newUrl = new URL('/problem', baseUrl)
+    searchParams?.get('tag') && newUrl.searchParams.set('tag', 'tag')
     searchKeyword && newUrl.searchParams.set('search', searchKeyword)
     router.push(`?${newUrl.searchParams}`, { scroll: false })
   }
