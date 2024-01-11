@@ -16,10 +16,8 @@ export default function SearchBar() {
 
   const handleSearchSubmit = () => {
     const newUrl = new URL('/problem', baseUrl)
-    if (searchKeyword) {
-      newUrl.searchParams.set('search', searchKeyword)
-      router.push(`?${newUrl.searchParams}`, { scroll: false })
-    }
+    searchKeyword && newUrl.searchParams.set('search', searchKeyword)
+    router.push(`?${newUrl.searchParams}`, { scroll: false })
   }
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
