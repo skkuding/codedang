@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/group/9999/contest
+  url: {{baseUrl}}/contest?groupId=9999
   body: none
   auth: none
+}
+
+query {
+  groupId: 9999
 }
 
 assert {

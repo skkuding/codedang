@@ -5,19 +5,23 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/group/2/contest
+  url: {{baseUrl}}/contest?groupId=2
   body: none
   auth: none
 }
 
+query {
+  groupId: 2
+}
+
 assert {
   res.status: eq 200
-  res("upcoming")[0].id: isNumber 
-  res("upcoming")[0].title: isString 
-  res("upcoming")[0].startTime: isString 
-  res("upcoming")[0].endTime: isString 
-  res("upcoming")[0].group.id: isNumber 
-  res("upcoming")[0].group.groupName: isString 
+  res("upcoming")[0].id: isNumber
+  res("upcoming")[0].title: isString
+  res("upcoming")[0].startTime: isString
+  res("upcoming")[0].endTime: isString
+  res("upcoming")[0].group.id: isNumber
+  res("upcoming")[0].group.groupName: isString
 }
 
 script:pre-request {

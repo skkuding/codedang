@@ -5,12 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/group/9999/contest/finished?take=10
+  url: {{baseUrl}}/contest/finished?groupId=99999&take=10
   body: none
   auth: none
 }
 
 query {
+  groupId: 99999
   take: 10
 }
 

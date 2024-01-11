@@ -5,24 +5,25 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/group/1/contest/finished?take=10
+  url: {{baseUrl}}/contest/finished?groupId=1&take=10
   body: none
   auth: none
 }
 
 query {
+  groupId: 1
   take: 10
   ~cursor: 1
 }
 
 assert {
   res.status: eq 200
-  res("finished")[0].id: isNumber 
-  res("finished")[0].title: isString 
-  res("finished")[0].startTime: isString 
-  res("finished")[0].endTime: isString 
-  res("finished")[0].group.id: isNumber 
-  res("finished")[0].group.groupName: isString 
+  res("finished")[0].id: isNumber
+  res("finished")[0].title: isString
+  res("finished")[0].startTime: isString
+  res("finished")[0].endTime: isString
+  res("finished")[0].group.id: isNumber
+  res("finished")[0].group.groupName: isString
 }
 
 script:pre-request {
