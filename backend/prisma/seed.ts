@@ -16,7 +16,6 @@ import {
   type CodeDraft
 } from '@prisma/client'
 import { hash } from 'argon2'
-import * as dayjs from 'dayjs'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
 
@@ -902,8 +901,8 @@ const createContests = async () => {
 </p>`,
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
-        startTime: dayjs().add(-30, 'day').toDate(),
-        endTime: dayjs().add(30, 'day').toDate(),
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: true
@@ -919,8 +918,8 @@ const createContests = async () => {
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup.id,
-        startTime: dayjs().add(-1, 'hour').add(0, 'year').toDate(),
-        endTime: dayjs().add(2, 'hour').add(0, 'year').toDate(),
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: true
@@ -936,8 +935,8 @@ const createContests = async () => {
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup.id,
-        startTime: dayjs().add(-1, 'hour').add(0, 'year').toDate(),
-        endTime: dayjs().add(2, 'hour').add(0, 'year').toDate(),
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: true
@@ -953,8 +952,8 @@ const createContests = async () => {
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup.id,
-        startTime: dayjs().add(-1, 'hour').add(0, 'year').toDate(),
-        endTime: dayjs().add(2, 'hour').add(0, 'year').toDate(),
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: true
@@ -971,8 +970,8 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
-        startTime: dayjs().add(-1, 'hour').add(-1, 'year').toDate(),
-        endTime: dayjs().add(2, 'hour').add(-1, 'year').toDate(),
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: false
@@ -988,8 +987,8 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
-        startTime: dayjs().add(-1, 'hour').add(-1, 'year').toDate(),
-        endTime: dayjs().add(2, 'hour').add(-1, 'year').toDate(),
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: false
@@ -1005,8 +1004,8 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
-        startTime: dayjs().add(-1, 'hour').add(-1, 'year').toDate(),
-        endTime: dayjs().add(2, 'hour').add(-1, 'year').toDate(),
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: false
@@ -1022,8 +1021,8 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
-        startTime: dayjs().add(-1, 'hour').add(-1, 'year').toDate(),
-        endTime: dayjs().add(2, 'hour').add(-1, 'year').toDate(),
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: false
@@ -1039,8 +1038,8 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
-        startTime: dayjs().add(-1, 'hour').add(-1, 'year').toDate(),
-        endTime: dayjs().add(2, 'hour').add(-1, 'year').toDate(),
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: false
@@ -1056,8 +1055,8 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
-        startTime: dayjs().add(-1, 'hour').add(-1, 'year').toDate(),
-        endTime: dayjs().add(2, 'hour').add(-1, 'year').toDate(),
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: false
@@ -1073,8 +1072,8 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
-        startTime: dayjs().add(-1, 'hour').add(-1, 'year').toDate(),
-        endTime: dayjs().add(2, 'hour').add(-1, 'year').toDate(),
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: false
@@ -1090,8 +1089,8 @@ const createContests = async () => {
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
-        startTime: dayjs().add(-1, 'hour').add(-1, 'year').toDate(),
-        endTime: dayjs().add(2, 'hour').add(-1, 'year').toDate(),
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: false
@@ -1108,8 +1107,8 @@ const createContests = async () => {
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup.id,
-        startTime: dayjs().add(-1, 'hour').add(1, 'year').toDate(),
-        endTime: dayjs().add(2, 'hour').add(1, 'year').toDate(),
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: true
@@ -1125,8 +1124,8 @@ const createContests = async () => {
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup.id,
-        startTime: dayjs().add(-1, 'hour').add(1, 'year').toDate(),
-        endTime: dayjs().add(2, 'hour').add(1, 'year').toDate(),
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
           isRankVisible: true
