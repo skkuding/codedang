@@ -34,7 +34,7 @@ export class ContestResolver {
     @Args('take', ParseIntPipe) take: number,
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
     groupId: number,
-    @Args('cursor', { nullable: true }, CursorValidationPipe)
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
   ) {
     return await this.contestService.getContests(take, groupId, cursor)

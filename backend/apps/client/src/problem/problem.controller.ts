@@ -26,9 +26,9 @@ export class ProblemController {
   async getProblems(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number,
-    @Query('search') search: string,
     @Query('order', new ZodValidationPipe(problemOrderSchema))
-    order: ProblemOrder
+    order: ProblemOrder,
+    @Query('search') search?: string
   ) {
     try {
       return await this.problemService.getProblems({
