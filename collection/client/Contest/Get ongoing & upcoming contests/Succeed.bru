@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest
+  url: {{baseUrl}}/contest?groupId=1
   body: none
   auth: none
+}
+
+query {
+  groupId: 1
 }
 
 assert {
@@ -18,7 +22,7 @@ assert {
   res("ongoing")[0].endTime: isString
   res("ongoing")[0].group.id: isNumber
   res("ongoing")[0].group.groupName: isString
-  res("ongoing")[0].participants: isNumber 
+  res("ongoing")[0].participants: isNumber
 }
 
 docs {

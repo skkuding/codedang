@@ -10,16 +10,16 @@ get {
   auth: none
 }
 
+query {
+  ~groupId: 2
+}
+
 assert {
   res.status: eq 200
   res("id"): isNumber
   res("title"): isString
   res("problems")[0].id: isNumber
   res("problems")[0].title: isString
-}
-
-script:pre-request {
-  await require("./login").loginUser(req);
 }
 
 docs {

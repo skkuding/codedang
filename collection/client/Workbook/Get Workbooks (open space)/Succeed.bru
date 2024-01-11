@@ -13,6 +13,7 @@ get {
 query {
   take: 10
   cursor: 1
+  ~groupId: 2
 }
 
 assert {
@@ -21,10 +22,6 @@ assert {
   res.body[0].title: isString
   res.body[0].description: isString
   res.body[0].updateTime: isString
-}
-
-script:pre-request {
-  await require("./login").loginUser(req);
 }
 
 docs {
