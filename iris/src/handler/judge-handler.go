@@ -160,85 +160,48 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 	}
 
 	dir := utils.RandString(constants.DIR_NAME_LEN) + id
-	// isExisted := j.file.CheckDir(dir)
 	defer func() {
-		err := j.file.RemoveOutputs(dir)
-		if err != nil {
-			j.logger.Log(logger.ERROR, fmt.Sprintf("failed to remove files: %s", err.Error()))
-		}
-		// j.file.RemoveDir(dir)
+		j.file.RemoveDir(dir)
 		j.logger.Log(logger.DEBUG, fmt.Sprintf("task %s done: total time: %s", dir, time.Since(startedAt)))
 	}()
 
-	// compileCompleteCh := make(chan result.ChResult)
-	testcaseOutCh := make(chan result.ChResult)
-	go j.getTestcase(testcaseOutCh, strconv.Itoa(validReq.ProblemId), validReq.TestcaseId)
-
-	if !j.file.CheckDir(dir) {
-		if err := j.file.CreateDir(dir); err != nil {
-			return nil, &HandlerError{
-				caller:  "handle",
-				err:     fmt.Errorf("creating base directory: %w", err),
-				level:   logger.ERROR,
-				Message: err.Error(),
-			}
-		}
-
-		srcPath, err := j.langConfig.MakeSrcPath(dir, sandbox.Language(validReq.Language))
-		if err != nil {
-			return nil, &HandlerError{
-				caller:  "handle",
-				err:     fmt.Errorf("creating src path: %w", err),
-				level:   logger.ERROR,
-				Message: err.Error(),
-			}
-		}
-
-		if err := j.file.CreateFile(srcPath, validReq.Code); err != nil {
-			return nil, &HandlerError{
-				caller:  "handle",
-				err:     fmt.Errorf("creating src file: %w", err),
-				level:   logger.ERROR,
-				Message: err.Error(),
-			}
-		}
-
-		// err = j.judger.Judge(task)
-		compileOutCh := make(chan result.ChResult)
-		go j.compile(compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
-		compileOut := <-compileOutCh
-
-		if compileOut.Err != nil {
-			// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
-			return nil, &HandlerError{
-				caller: "handle",
-				err:    fmt.Errorf("%w: %s", ErrSandbox, compileOut.Err),
-				level:  logger.ERROR,
-			}
-		}
-		compileResult, ok := compileOut.Data.(sandbox.CompileResult)
-		if !ok {
-			return nil, &HandlerError{
-				caller: "handle",
-				err:    fmt.Errorf("%w: CompileResult", ErrTypeAssertionFail),
-				level:  logger.INFO,
-			}
-		}
-		if compileResult.ExecResult.ResultCode != sandbox.SUCCESS {
-			// 컴파일러를 실행했으나 컴파일에 실패한 경우
-			// FIXME: 함수로 분리
-			if marshaledRes, err := res.Marshal(); err != nil {
-				return nil, &HandlerError{err: ErrMarshalJson}
-			} else {
-				return marshaledRes, &HandlerError{
-					err:     ErrCompile,
-					Message: compileResult.ErrOutput,
-				}
-			}
+	if err := j.file.CreateDir(dir); err != nil {
+		return nil, &HandlerError{
+			caller:  "handle",
+			err:     fmt.Errorf("creating base directory: %w", err),
+			level:   logger.ERROR,
+			Message: err.Error(),
 		}
 	}
 
+	srcPath, err := j.langConfig.MakeSrcPath(dir, sandbox.Language(validReq.Language))
+	if err != nil {
+		return nil, &HandlerError{
+			caller:  "handle",
+			err:     fmt.Errorf("creating src path: %w", err),
+			level:   logger.ERROR,
+			Message: err.Error(),
+		}
+	}
+
+	if err := j.file.CreateFile(srcPath, validReq.Code); err != nil {
+		return nil, &HandlerError{
+			caller:  "handle",
+			err:     fmt.Errorf("creating src file: %w", err),
+			level:   logger.ERROR,
+			Message: err.Error(),
+		}
+	}
+
+	// err = j.judger.Judge(task)
+	testcaseOutCh := make(chan result.ChResult)
+	go j.getTestcase(testcaseOutCh, strconv.Itoa(validReq.ProblemId))
+	compileOutCh := make(chan result.ChResult)
+	go j.compile(compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
+
 	testcaseOut := <-testcaseOutCh
+	compileOut := <-compileOutCh
+
 	if testcaseOut.Err != nil {
 		return nil, &HandlerError{
 			caller:  "handle",
@@ -255,6 +218,35 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 			caller: "handle",
 			err:    fmt.Errorf("%w: Testcase", ErrTypeAssertionFail),
 			level:  logger.ERROR,
+		}
+	}
+
+	if compileOut.Err != nil {
+		// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
+		return nil, &HandlerError{
+			caller: "handle",
+			err:    fmt.Errorf("%w: %s", ErrSandbox, compileOut.Err),
+			level:  logger.ERROR,
+		}
+	}
+	compileResult, ok := compileOut.Data.(sandbox.CompileResult)
+	if !ok {
+		return nil, &HandlerError{
+			caller: "handle",
+			err:    fmt.Errorf("%w: CompileResult", ErrTypeAssertionFail),
+			level:  logger.INFO,
+		}
+	}
+	if compileResult.ExecResult.ResultCode != sandbox.SUCCESS {
+		// 컴파일러를 실행했으나 컴파일에 실패한 경우
+		// FIXME: 함수로 분리
+		if marshaledRes, err := res.Marshal(); err != nil {
+			return nil, &HandlerError{err: ErrMarshalJson}
+		} else {
+			return marshaledRes, &HandlerError{
+				err:     ErrCompile,
+				Message: compileResult.ErrOutput,
+			}
 		}
 	}
 

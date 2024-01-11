@@ -67,7 +67,5 @@ func (c *compiler) Compile(dto CompileRequest) (CompileResult, error) {
 		}
 		compileResult.ErrOutput = string(data)
 	}
-
-	fmt.Println(execResult)
 	return compileResult, nil
 }
