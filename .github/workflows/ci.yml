@@ -78,6 +78,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: iris/go.mod
+          cache-dependency-path: iris/go.sum
 
       - name: Lint pull request title
         if: ${{ github.event_name == 'pull_request' }}

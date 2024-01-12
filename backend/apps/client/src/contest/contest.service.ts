@@ -13,7 +13,8 @@ export class ContestService {
     title: true,
     startTime: true,
     endTime: true,
-    group: { select: { id: true, groupName: true } }
+    group: { select: { id: true, groupName: true } },
+    contestRecord: { select: { id: true } }
   }
 
   async getContestsByGroupId<T extends number>(
@@ -55,9 +56,17 @@ export class ContestService {
           endTime: 'asc'
         }
       })
+
+      const contestsWithParticipants = contests.map(
+        ({ contestRecord, ...rest }) => ({
+          ...rest,
+          participants: contestRecord.length
+        })
+      )
+
       return {
-        ongoing: this.filterOngoing(contests),
-        upcoming: this.filterUpcoming(contests)
+        ongoing: this.filterOngoing(contestsWithParticipants),
+        upcoming: this.filterUpcoming(contestsWithParticipants)
       }
     }
 
@@ -103,11 +112,18 @@ export class ContestService {
       }
     })
 
+    const contestsWithParticipants = contests.map(
+      ({ contestRecord, ...rest }) => ({
+        ...rest,
+        participants: contestRecord.length
+      })
+    )
+
     return {
       registeredOngoing: this.filterOngoing(registeredContests),
       registeredUpcoming: this.filterUpcoming(registeredContests),
-      ongoing: this.filterOngoing(contests),
-      upcoming: this.filterUpcoming(contests)
+      ongoing: this.filterOngoing(contestsWithParticipants),
+      upcoming: this.filterUpcoming(contestsWithParticipants)
     }
   }
 
@@ -116,10 +132,11 @@ export class ContestService {
     take: number,
     groupId = OPEN_SPACE_ID
   ) {
-    const skip = cursor ? 1 : 0
+    const paginator = this.prisma.getPaginator(cursor)
     const now = new Date()
 
     const finished = await this.prisma.contest.findMany({
+      ...paginator,
       where: {
         endTime: {
           lte: now
@@ -129,11 +146,6 @@ export class ContestService {
           path: ['isVisible'],
           equals: true
         }
-      },
-      skip,
-      take,
-      cursor: {
-        id: cursor ?? 1
       },
       select: this.contestSelectOption,
       orderBy: {

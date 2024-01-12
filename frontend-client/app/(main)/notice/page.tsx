@@ -49,9 +49,10 @@ export default async function Notice({
 
   const fixedRes = await fetch(
     baseUrl +
-      '/notice/fixed?' +
+      '/notice?' +
       new URLSearchParams({
-        take: String(10)
+        take: '10',
+        fixed: 'true'
       })
   )
   const fixedData = await fixedRes.json()
