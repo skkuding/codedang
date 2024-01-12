@@ -1,41 +1,30 @@
 import { Injectable } from '@nestjs/common'
-import type { Contest } from '@prisma/client'
+import type { Contest, Prisma } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { ConflictFoundException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
-type ContestReturnType = {
-  id: number
-  title: string
-  startTime: Date
-  endTime: Date
-  group: {
-    id: number
-    groupName: string
-  }
+const contestSelectOption = {
+  id: true,
+  title: true,
+  startTime: true,
+  endTime: true,
+  group: { select: { id: true, groupName: true } },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
-    contestRecord: number
+    select: {
+      contestRecord: true
+    }
   }
-}
+} satisfies Prisma.ContestSelect
+
+export type ContestSelectResult = Prisma.ContestGetPayload<{
+  select: typeof contestSelectOption
+}>
 
 @Injectable()
 export class ContestService {
   constructor(private readonly prisma: PrismaService) {}
-
-  // TODO: select option 수정 시, ContestReturnType도 수정 요망
-  private readonly contestSelectOption = {
-    id: true,
-    title: true,
-    startTime: true,
-    endTime: true,
-    group: { select: { id: true, groupName: true } },
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    _count: {
-      select: {
-        contestRecord: true
-      }
-    }
-  }
 
   async getContestsByGroupId<T extends number>(
     userId?: T,
@@ -71,7 +60,7 @@ export class ContestService {
             equals: true
           }
         },
-        select: this.contestSelectOption,
+        select: contestSelectOption,
         orderBy: {
           endTime: 'asc'
         }
@@ -96,7 +85,7 @@ export class ContestService {
               gt: now
             }
           },
-          select: this.contestSelectOption,
+          select: contestSelectOption,
           orderBy: {
             endTime: 'asc'
           }
@@ -121,7 +110,7 @@ export class ContestService {
           notIn: registeredContestId
         }
       },
-      select: this.contestSelectOption,
+      select: contestSelectOption,
       orderBy: {
         endTime: 'asc'
       }
@@ -158,7 +147,7 @@ export class ContestService {
           equals: true
         }
       },
-      select: this.contestSelectOption,
+      select: contestSelectOption,
       orderBy: {
         endTime: 'desc'
       }
@@ -168,7 +157,7 @@ export class ContestService {
 
   // TODO: participants 대신 _count.contestRecord 그대로 사용하는 것 고려해보기
   /** 가독성을 위해 _count.contestRecord를 participants로 변경한다. */
-  renameToParticipants(contests: ContestReturnType[]) {
+  renameToParticipants(contests: ContestSelectResult[]) {
     return contests.map(({ _count: countObject, ...rest }) => ({
       ...rest,
       participants: countObject.contestRecord
@@ -223,7 +212,7 @@ export class ContestService {
         }
       },
       select: {
-        ...this.contestSelectOption,
+        ...contestSelectOption,
         description: true
       }
     })
