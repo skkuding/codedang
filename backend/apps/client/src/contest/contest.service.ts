@@ -74,29 +74,41 @@ export class ContestService {
       }
     }
 
-    const userWithRegisteredContests = await this.prisma.user.findUnique({
+    const registeredContestRecords = await this.prisma.contestRecord.findMany({
       where: {
-        id: userId
+        userId
       },
       select: {
-        contest: {
-          where: {
-            endTime: {
-              gt: now
-            }
-          },
-          select: contestSelectOption,
-          orderBy: {
-            endTime: 'asc'
-          }
-        }
+        contestId: true
       }
     })
 
-    const registeredContests = userWithRegisteredContests?.contest ?? []
+    const registeredContestIds = registeredContestRecords.map(
+      (obj) => obj.contestId
+    )
 
-    const registeredContestId = registeredContests.map((contest) => contest.id)
-    const contests = await this.prisma.contest.findMany({
+    let registeredContests: ContestSelectResult[] = []
+    let restContests: ContestSelectResult[] = []
+
+    if (registeredContestIds) {
+      registeredContests = await this.prisma.contest.findMany({
+        where: {
+          groupId, // TODO: 기획 상 필요한 부분인지 확인하고 삭제
+          id: {
+            in: registeredContestIds
+          },
+          endTime: {
+            gt: now
+          }
+        },
+        select: contestSelectOption,
+        orderBy: {
+          endTime: 'asc'
+        }
+      })
+    }
+
+    restContests = await this.prisma.contest.findMany({
       where: {
         groupId,
         endTime: {
@@ -107,7 +119,7 @@ export class ContestService {
           equals: true
         },
         id: {
-          notIn: registeredContestId
+          notIn: registeredContestIds
         }
       },
       select: contestSelectOption,
@@ -116,13 +128,17 @@ export class ContestService {
       }
     })
 
-    const contestsWithParticipants = this.renameToParticipants(contests)
+    const registeredContestsWithParticipants =
+      this.renameToParticipants(registeredContests)
+    const restContestsWithParticipants = this.renameToParticipants(restContests)
 
     return {
-      registeredOngoing: this.filterOngoing(registeredContests),
-      registeredUpcoming: this.filterUpcoming(registeredContests),
-      ongoing: this.filterOngoing(contestsWithParticipants),
-      upcoming: this.filterUpcoming(contestsWithParticipants)
+      registeredOngoing: this.filterOngoing(registeredContestsWithParticipants),
+      registeredUpcoming: this.filterUpcoming(
+        registeredContestsWithParticipants
+      ),
+      ongoing: this.filterOngoing(restContestsWithParticipants),
+      upcoming: this.filterUpcoming(restContestsWithParticipants)
     }
   }
 
