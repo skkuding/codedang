@@ -21,6 +21,16 @@ export const fetcherWithAuth = fetcher.extend({
         const { isAuth, token } = await getAuth()
         if (isAuth) request.headers.set('Authorization', token.accessToken)
       }
+    ],
+    afterResponse: [
+      async (request, options, response) => {
+        if (response.status === 401) {
+          // If access token is expired, reissue it. and then retry.
+          const { isAuth, token } = await getAuth()
+          if (isAuth) request.headers.set('Authorization', token.accessToken)
+          fetcher(request, options)
+        }
+      }
     ]
   }
 })

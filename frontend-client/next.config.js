@@ -6,6 +6,14 @@ const nextConfig = {
   output: 'standalone',
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL
+  },
+  async headers() {
+    return [
+      {
+        source: '/next-auth/api/auth/:slug',
+        headers: [{ key: 'Cache-Control', value: 'no-store, max-age=0' }]
+      }
+    ]
   }
 }
 

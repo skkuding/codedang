@@ -1,5 +1,5 @@
 import { fetcher } from '@/lib/utils'
-import { ACCESS_TOKEN_EXPIRE_TIME, REFRESH_TOKEN_EXPIRE_TIME } from '@/lib/vars'
+import { ACCESS_TOKEN_EXPIRE_TIME } from '@/lib/vars'
 import type { Token, UserData } from '@/types/next-auth'
 import { getServerSession } from 'next-auth'
 import type { NextAuthOptions, Session, User } from 'next-auth'
@@ -16,8 +16,8 @@ const getToken = (res: Response) => {
   return {
     accessToken: Authorization || '',
     refreshToken: refreshToken || '',
-    accessTokenExpires: Date.now() + ACCESS_TOKEN_EXPIRE_TIME * 1000 - 1000, // 1 second before
-    refreshTokenExpires: Date.parse(refreshTokenExpires) - 1000 // 1 second before
+    accessTokenExpires: Date.now() + ACCESS_TOKEN_EXPIRE_TIME * 1000 - 1000, // 29 minutes 59 seconds
+    refreshTokenExpires: Date.parse(refreshTokenExpires) - 1000 // 23 hours 59 minutes 59 seconds
   }
 }
 
@@ -102,16 +102,7 @@ export const authOptions: NextAuthOptions = {
             token.refreshToken = refreshToken
             token.accessTokenExpires = accessTokenExpires
             token.refreshTokenExpires = refreshTokenExpires
-          } else {
-            // If reissue is failed, clear username. so if username is empty, then user has to login again.
-            token.username = ''
-            token.role = ''
           }
-        }
-        if (Date.now() >= token.refreshTokenExpires) {
-          // If refresh token is expired, clear username. so if username is empty, then user has to login again.
-          token.username = ''
-          token.role = ''
         }
       }
       return token
@@ -130,9 +121,6 @@ export const authOptions: NextAuthOptions = {
       }
       return session
     }
-  },
-  pages: {
-    error: '/next-auth/api/auth/error' // Error code passed in query string as ?error=
   }
 }
 
@@ -158,7 +146,11 @@ export const getAuth = async (): Promise<AuthResult> => {
       ? await getServerSession(authOptions) // Server-side: directly get session.
       : await getSession() // Client-side: get session from /api/auth/session.
   // If refresh token is expired, session.user.username will be empty string.
-  if (session && session.user.username)
+  if (
+    session &&
+    session.user.username &&
+    session.token.refreshTokenExpires > Date.now()
+  )
     return { isAuth: true, user: session.user, token: session.token }
   return { isAuth: false, user: null, token: null }
 }
