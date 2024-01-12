@@ -17,7 +17,7 @@ const getToken = (res: Response) => {
     accessToken: Authorization || '',
     refreshToken: refreshToken || '',
     accessTokenExpires: Date.now() + ACCESS_TOKEN_EXPIRE_TIME * 1000 - 1000, // 29 minutes 59 seconds
-    refreshTokenExpires: Date.now() + 2000 // 23 hours 59 minutes 59 seconds
+    refreshTokenExpires: Date.parse(refreshTokenExpires) - 1000 // 23 hours 59 minutes 59 seconds
   }
 }
 
