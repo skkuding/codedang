@@ -5,14 +5,16 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import CodedangLogo from '@/public/codedang.svg'
 import KakaotalkLogo from '@/public/kakaotalk.svg'
+import useAuthModalStore from '@/stores/authModal'
 import Image from 'next/image'
 import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
 
 export default function SignIn() {
+  const { showSignUp } = useAuthModalStore((state) => state)
   return (
     <div className="flex w-full flex-col gap-3">
-      <div className="flex justify-center py-4">
+      <div className="mb-8 flex justify-center py-4">
         <Image src={CodedangLogo} alt="코드당" height={64} />
       </div>
       <form
@@ -45,8 +47,9 @@ export default function SignIn() {
           <FaGithub className="text-white" size="22" />
         </div>
       </div>
-      <div className="mt-4 flex items-center justify-between">
+      <div className="mt-12 flex items-center justify-between">
         <Button
+          onClick={() => showSignUp()}
           variant={'link'}
           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >

@@ -90,7 +90,7 @@ export class ProblemResolver {
   async getProblems(
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
     groupId: number,
-    @Args('cursor', { nullable: true }, CursorValidationPipe)
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { type: () => Int }) take: number,
     @Args('input') input: FilterProblemsInput

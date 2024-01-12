@@ -1,0 +1,33 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/user/problem/2
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.userId: isNumber
+  res.body.problemId: isNumber
+  res.body.template[0].code[0].id: isNumber
+  res.body.template[0].code[0].text: isString
+  res.body.template[0].code[0].locked: isBoolean
+  res.body.template[0].language: isString
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get CodeDraft by Problem ID
+
+  - `problemId`를 이용해 현재 유저가 풀고 있는 CodeDraft를 조회합니다.
+  - 이 request는 `user01`(`userId`: 4)로 로그인했을 때, `problemId` 2번에 대한 코드를 조회합니다.
+
+}
