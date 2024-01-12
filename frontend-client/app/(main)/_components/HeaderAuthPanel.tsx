@@ -11,7 +11,7 @@ import AuthModal from './AuthModal'
 
 interface HeaderAuthPanelProps {
   isAuth: boolean
-  user: UserData
+  user: UserData | null
 }
 
 export default function HeaderAuthPanel({
@@ -29,7 +29,7 @@ export default function HeaderAuthPanel({
             signOut()
           }}
         >
-          {user.username}
+          {user?.username}
         </p>
       ) : (
         <Dialog>
