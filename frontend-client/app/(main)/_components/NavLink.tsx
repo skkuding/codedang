@@ -18,7 +18,7 @@ export default function NavLink<T extends string>({
 
   return (
     <Link
-      href={href as Route<T>}
+      href={new URL(href)}
       className={cn(
         'text-lg hover:opacity-60',
         pathname.startsWith(String(href)) && 'text-primary'

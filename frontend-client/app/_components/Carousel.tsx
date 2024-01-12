@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import type { Route } from 'next'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa6'
@@ -26,8 +25,8 @@ export default function Carousel({ slides }: Props) {
 
   return (
     <div className="relative h-80 w-full overflow-hidden rounded-3xl bg-gray-100">
-      <Link href={slides[facade].href as Route<string>}>
-        {slides.map((slide, index) => (
+      <Link href={new URL(slides[facade].href)}>
+        {slides.map((_, index) => (
           <div
             key={index}
             className={`absolute left-0 top-0 h-full w-full transition-opacity duration-1000 ease-in-out ${

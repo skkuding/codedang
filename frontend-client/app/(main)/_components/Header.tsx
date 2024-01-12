@@ -1,5 +1,4 @@
 import CodedangLogo from '@/public/codedang.svg'
-import { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import HeaderAuthPanel from './HeaderAuthPanel'
@@ -10,7 +9,7 @@ export default function Header() {
     <header className="border-b-gray grid h-16 w-full place-items-center border-b bg-white px-5">
       <div className="flex w-full max-w-7xl items-center justify-between gap-5">
         <div className="flex w-1/2 min-w-fit items-center justify-between gap-8">
-          <Link href={'/' as Route}>
+          <Link href="/">
             <Image src={CodedangLogo} alt="코드당" width={90} />
           </Link>
 
