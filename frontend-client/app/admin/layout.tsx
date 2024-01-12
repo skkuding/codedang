@@ -1,5 +1,5 @@
 import { Separator } from '@/components/ui/separator'
-import { Route } from 'next'
+import type { Route } from 'next'
 import Link from 'next/link'
 import { FaArrowRightFromBracket } from 'react-icons/fa6'
 import GroupSelect from './_components/GroupSelect'

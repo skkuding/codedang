@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import { fetcher } from '@/lib/utils'
 import type { Contest, WorkbookProblem } from '@/types/type'
 import { Trophy, ThumbsUp } from 'lucide-react'
+import type { Route } from 'next'
 import Link from 'next/link'
 import Carousel from './_components/Carousel'
 import ContestCard from './_components/ContestCard'
@@ -68,7 +69,7 @@ export default async function Home() {
             <div className="sticky left-0 z-10 -mr-10 bg-gradient-to-r from-white to-transparent pr-10"></div>
             {contests.map((contest) => {
               return (
-                <Link key={contest.id} href={new URL(`/contest/${contest.id}`)}>
+                <Link key={contest.id} href={`/contest/${contest.id}` as Route}>
                   <ContestCard contest={contest} />
                 </Link>
               )
@@ -89,7 +90,7 @@ export default async function Home() {
               </div>
               <p className="text-xl font-bold md:text-2xl">Dive in!</p>
             </div>
-            <Link href={new URL('/workbook/1')}>
+            <Link href={'/workbook/1' as Route}>
               <Button
                 variant="ghost"
                 className="text-md rounded-full border-gray-500 px-5 font-semibold"
@@ -104,7 +105,7 @@ export default async function Home() {
               return (
                 <Link
                   key={problem.problemId}
-                  href={new URL(`/problem/${problem.problemId}`)}
+                  href={`/problem/${problem.problemId}` as Route}
                 >
                   <ProblemCard problem={problem} />
                 </Link>

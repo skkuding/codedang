@@ -101,7 +101,7 @@ export default function SignUp() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: email
+          email
         })
       })
         .then((res) => {
@@ -127,7 +127,7 @@ export default function SignUp() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             pin: verificationCode,
-            email: email
+            email
           })
         })
         if (response.status === 200) {
