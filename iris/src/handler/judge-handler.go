@@ -64,6 +64,11 @@ type JudgeResult struct {
 	Error      string          `json:"error"`
 }
 
+type JudgeResultMessage struct {
+	Result json.RawMessage
+	Err    error
+}
+
 func (r *Result) Accepted() {
 	r.AcceptedNum += 1
 }
@@ -133,7 +138,7 @@ func NewJudgeHandler(
 }
 
 // handle top layer logical flow
-func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
+func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessage) {
 	startedAt := time.Now()
 
 	//TODO: validation logic here
@@ -142,21 +147,23 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 
 	err := json.Unmarshal(data, &req)
 	if err != nil {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("%w: %s", ErrValidate, err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}
+		}}
+		return
 	}
 	validReq, err := req.Validate()
 	if err != nil {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "request validate",
 			err:     fmt.Errorf("%w: %s", ErrValidate, err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}
+		}}
+		return
 	}
 
 	dir := utils.RandString(constants.DIR_NAME_LEN) + id
@@ -166,31 +173,34 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 	}()
 
 	if err := j.file.CreateDir(dir); err != nil {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("creating base directory: %w", err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}
+		}}
+		return
 	}
 
 	srcPath, err := j.langConfig.MakeSrcPath(dir, sandbox.Language(validReq.Language))
 	if err != nil {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("creating src path: %w", err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}
+		}}
+		return
 	}
 
 	if err := j.file.CreateFile(srcPath, validReq.Code); err != nil {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("creating src file: %w", err),
 			level:   logger.ERROR,
 			Message: err.Error(),
-		}
+		}}
+		return
 	}
 
 	// err = j.judger.Judge(task)
@@ -203,50 +213,56 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 	compileOut := <-compileOutCh
 
 	if testcaseOut.Err != nil {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller:  "handle",
 			err:     fmt.Errorf("%w: %s", ErrTestcaseGet, testcaseOut.Err),
 			level:   logger.ERROR,
 			Message: testcaseOut.Err.Error(),
-		}
+		}}
+		return
 	}
 	// elements, ok := testcaseOut.Data.([]testcase.Element)
 	// tc := testcase.Testcase{Elements: elements}
 	tc, ok := testcaseOut.Data.(testcase.Testcase)
 	if !ok {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller: "handle",
 			err:    fmt.Errorf("%w: Testcase", ErrTypeAssertionFail),
 			level:  logger.ERROR,
-		}
+		}}
+		return
 	}
 
 	if compileOut.Err != nil {
 		// 컴파일러 실행 과정이나 이후 처리 과정에서 오류가 생긴 경우
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller: "handle",
 			err:    fmt.Errorf("%w: %s", ErrSandbox, compileOut.Err),
 			level:  logger.ERROR,
-		}
+		}}
+		return
 	}
 	compileResult, ok := compileOut.Data.(sandbox.CompileResult)
 	if !ok {
-		return nil, &HandlerError{
+		out <- JudgeResultMessage{nil, &HandlerError{
 			caller: "handle",
 			err:    fmt.Errorf("%w: CompileResult", ErrTypeAssertionFail),
 			level:  logger.INFO,
-		}
+		}}
+		return
 	}
 	if compileResult.ExecResult.ResultCode != sandbox.SUCCESS {
 		// 컴파일러를 실행했으나 컴파일에 실패한 경우
 		// FIXME: 함수로 분리
 		if marshaledRes, err := res.Marshal(); err != nil {
-			return nil, &HandlerError{err: ErrMarshalJson}
+			out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson}}
+			return
 		} else {
-			return marshaledRes, &HandlerError{
+			out <- JudgeResultMessage{marshaledRes, &HandlerError{
 				err:     ErrCompile,
 				Message: compileResult.ErrOutput,
-			}
+			}}
+			return
 		}
 	}
 
@@ -290,9 +306,10 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {
-		return nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}
+		out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}}
+		return
 	}
-	return marshaledRes, ParseFirstError(res.JudgeResult)
+	out <- JudgeResultMessage{marshaledRes, ParseFirstError(res.JudgeResult)}
 }
 
 // wrapper to use goroutine

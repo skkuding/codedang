@@ -68,23 +68,31 @@ func (c *connector) Connect(ctx context.Context) {
 func (c *connector) Disconnect() {}
 
 func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
-	var result []byte
+	// var result []byte
 
+	var resultChan chan []byte
 	if message.Type == "" {
-		result = router.NewResponse("", nil, fmt.Errorf("type(message property) must not be empty")).Marshal()
+		resultChan <- router.NewResponse("", nil, fmt.Errorf("type(message property) must not be empty")).Marshal()
 	} else if message.MessageId == "" {
-		result = router.NewResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal()
+		resultChan <- router.NewResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal()
 	} else {
-		result = c.router.Route(message.Type, message.MessageId, message.Body)
+		go c.router.Route(message.Type, message.MessageId, message.Body, resultChan)
 	}
 
-	if err := c.producer.Publish(result, ctx); err != nil {
-		c.logger.Log(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result), err))
-		// nack
+	for result := range resultChan {
+		if result == nil {
+			break
+		}
+
+		if err := c.producer.Publish(result, ctx); err != nil {
+			c.logger.Log(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result), err))
+			// nack
+		}
+   
+		if err := message.Ack(false); err != nil {
+			c.logger.Log(logger.ERROR, fmt.Sprintf("failed to ack message: %s: %s", string(message.Body), err))
+			// retry
+		}
 	}
 
-	if err := message.Ack(false); err != nil {
-		c.logger.Log(logger.ERROR, fmt.Sprintf("failed to ack message: %s: %s", string(message.Body), err))
-		// retry
-	}
 }

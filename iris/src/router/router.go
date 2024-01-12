@@ -1,7 +1,6 @@
 package router
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/skkuding/codedang/iris/src/handler"
@@ -16,7 +15,8 @@ const (
 )
 
 type Router interface {
-	Route(path string, id string, data []byte) []byte
+	// Route(path string, id string, data []byte, resultChan chan []byte) []byte
+	Route(path string, id string, data []byte, resultChan chan []byte)
 }
 
 type router struct {
@@ -31,21 +31,33 @@ func NewRouter(
 	return &router{judgeHandler, logger}
 }
 
-func (r *router) Route(path string, id string, data []byte) []byte {
-	var handlerResult json.RawMessage
-	var err error
+func (r *router) Route(path string, id string, data []byte, out chan []byte) {
+	// var handlerResult json.RawMessage
+	// var err error
 
+	judgeChan := make(chan handler.JudgeResultMessage)
 	switch path {
 	case Judge:
-		handlerResult, err = r.judgeHandler.Handle(id, data)
+		go r.judgeHandler.Handle(id, data, judgeChan)
 	case SpecialJudge:
 		// special-judge handler
 	case Run:
 		// custom-testcase handler
 	default:
-		err = fmt.Errorf("invalid request type: %s", path)
+		err := fmt.Errorf("invalid request type: %s", path)
+		r.errHandle(err)
+		out <- NewResponse(id, nil, err).Marshal()
 	}
 
+	for result := range judgeChan {
+		r.errHandle(result.Err)
+		out <- NewResponse(id, result.Result, result.Err).Marshal()
+	}
+	// return NewResponse(id, handlerResult, err).Marshal()
+	out <- nil
+}
+
+func (r *router) errHandle(err error) {
 	if err != nil {
 		if u, ok := err.(*handler.HandlerError); ok {
 			r.logger.Log(u.Level(), err.Error())
@@ -53,5 +65,4 @@ func (r *router) Route(path string, id string, data []byte) []byte {
 			r.logger.Log(logger.ERROR, fmt.Sprintf("router: %s", err.Error()))
 		}
 	}
-	return NewResponse(id, handlerResult, err).Marshal()
 }
