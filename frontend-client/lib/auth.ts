@@ -12,9 +12,12 @@ const getToken = (res: Response) => {
   const Authorization = res.headers.get('authorization')
   const parsedCookie = parseCookie(res.headers.get('set-cookie') || '')
   const refreshToken = parsedCookie.get('refresh_token')
+  const refreshTokenExpires = parsedCookie.get('Expires') as string
   return {
-    Authorization: Authorization || '',
-    refreshToken: refreshToken || ''
+    accessToken: Authorization || '',
+    refreshToken: refreshToken || '',
+    accessTokenExpires: Date.now() + ACCESS_TOKEN_EXPIRE_TIME * 1000 - 1000, // 1 second before
+    refreshTokenExpires: Date.parse(refreshTokenExpires) - 1000 // 1 second before
   }
 }
 
@@ -35,10 +38,15 @@ export const authOptions: NextAuthOptions = {
         })
         if (res.ok) {
           // If login is successful, get user data.
-          const { Authorization, refreshToken } = getToken(res)
+          const {
+            accessToken,
+            refreshToken,
+            refreshTokenExpires,
+            accessTokenExpires
+          } = getToken(res)
           const userRes = await fetcher.get('user', {
             headers: {
-              Authorization: Authorization || ''
+              Authorization: accessToken
             }
           })
           if (userRes.ok) {
@@ -47,8 +55,10 @@ export const authOptions: NextAuthOptions = {
             return {
               username: user.username,
               role: user.role,
-              accessToken: Authorization,
-              refreshToken
+              accessToken,
+              refreshToken,
+              accessTokenExpires,
+              refreshTokenExpires
             } as User
           }
         }
@@ -69,10 +79,8 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role
         token.accessToken = user.accessToken
         token.refreshToken = user.refreshToken
-        token.accessTokenExpires =
-          Date.now() + (ACCESS_TOKEN_EXPIRE_TIME - 60) * 1000
-        token.refreshTokenExpires =
-          Date.now() + (REFRESH_TOKEN_EXPIRE_TIME - 60) * 1000
+        token.accessTokenExpires = user.accessTokenExpires
+        token.refreshTokenExpires = user.refreshTokenExpires
       } else if (token.username) {
         // When user is logged in and request session
         if (Date.now() >= token.accessTokenExpires) {
@@ -84,24 +92,27 @@ export const authOptions: NextAuthOptions = {
           })
           if (res.ok) {
             // If reissue is successful, update token.
-            const { Authorization, refreshToken } = getToken(res)
-            const now = Date.now()
-            token.accessToken = Authorization
+            const {
+              accessToken,
+              refreshToken,
+              refreshTokenExpires,
+              accessTokenExpires
+            } = getToken(res)
+            token.accessToken = accessToken
             token.refreshToken = refreshToken
-            token.accessTokenExpires =
-              now + (ACCESS_TOKEN_EXPIRE_TIME - 60) * 1000
-            token.refreshTokenExpires =
-              now + (REFRESH_TOKEN_EXPIRE_TIME - 60) * 1000
+            token.accessTokenExpires = accessTokenExpires
+            token.refreshTokenExpires = refreshTokenExpires
           } else {
             // If reissue is failed, clear username. so if username is empty, then user has to login again.
             token.username = ''
             token.role = ''
           }
         }
-        if (Date.now() >= token.refreshTokenExpires)
+        if (Date.now() >= token.refreshTokenExpires) {
           // If refresh token is expired, clear username. so if username is empty, then user has to login again.
           token.username = ''
-        token.role = ''
+          token.role = ''
+        }
       }
       return token
     },
@@ -121,8 +132,7 @@ export const authOptions: NextAuthOptions = {
     }
   },
   pages: {
-    signIn: '/',
-    error: '/'
+    error: '/next-auth/api/auth/error' // Error code passed in query string as ?error=
   }
 }
 

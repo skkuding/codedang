@@ -4,13 +4,8 @@ const nextConfig = {
     typedRoutes: true
   },
   output: 'standalone',
-  async headers() {
-    return [
-      {
-        source: '/api/auth/:path*',
-        headers: [{ key: 'Cache-Control', value: 'no-store, max-age=0' }]
-      }
-    ]
+  env: {
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL
   }
 }
 
