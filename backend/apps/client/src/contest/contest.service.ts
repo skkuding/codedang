@@ -4,17 +4,37 @@ import { OPEN_SPACE_ID } from '@libs/constants'
 import { ConflictFoundException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
+type ContestReturnType = {
+  id: number
+  title: string
+  startTime: Date
+  endTime: Date
+  group: {
+    id: number
+    groupName: string
+  }
+  _count: {
+    contestRecord: number
+  }
+}
+
 @Injectable()
 export class ContestService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private contestSelectOption = {
+  // TODO: select option 수정 시, ContestReturnType도 수정 요망
+  private readonly contestSelectOption = {
     id: true,
     title: true,
     startTime: true,
     endTime: true,
     group: { select: { id: true, groupName: true } },
-    contestRecord: { select: { id: true } }
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    _count: {
+      select: {
+        contestRecord: true
+      }
+    }
   }
 
   async getContestsByGroupId<T extends number>(
@@ -57,12 +77,7 @@ export class ContestService {
         }
       })
 
-      const contestsWithParticipants = contests.map(
-        ({ contestRecord, ...rest }) => ({
-          ...rest,
-          participants: contestRecord.length
-        })
-      )
+      const contestsWithParticipants = this.renameToParticipants(contests)
 
       return {
         ongoing: this.filterOngoing(contestsWithParticipants),
@@ -112,12 +127,7 @@ export class ContestService {
       }
     })
 
-    const contestsWithParticipants = contests.map(
-      ({ contestRecord, ...rest }) => ({
-        ...rest,
-        participants: contestRecord.length
-      })
-    )
+    const contestsWithParticipants = this.renameToParticipants(contests)
 
     return {
       registeredOngoing: this.filterOngoing(registeredContests),
@@ -153,7 +163,16 @@ export class ContestService {
         endTime: 'desc'
       }
     })
-    return { finished }
+    return { finished: this.renameToParticipants(finished) }
+  }
+
+  // TODO: participants 대신 _count.contestRecord 그대로 사용하는 것 고려해보기
+  /** 가독성을 위해 _count.contestRecord를 participants로 변경한다. */
+  renameToParticipants(contests: ContestReturnType[]) {
+    return contests.map(({ _count: countObject, ...rest }) => ({
+      ...rest,
+      participants: countObject.contestRecord
+    }))
   }
 
   startTimeCompare(
