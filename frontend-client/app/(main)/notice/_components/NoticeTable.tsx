@@ -9,7 +9,6 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import type { Notice } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -17,16 +16,23 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
-import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { PiPushPinFill } from 'react-icons/pi'
 
-interface NoticeTableProps {
-  data: Notice[]
-  isLoading: boolean
+interface Notice {
+  id: number
+  title: string
+  createTime: string
+  isFixed: boolean
+  createdBy: string
 }
 
-export default function NoticeTable({ data, isLoading }: NoticeTableProps) {
+interface NoticeTableProps {
+  data: Notice[]
+  currentPage: number
+}
+
+export default function NoticeTable({ data, currentPage }: NoticeTableProps) {
   const columns: ColumnDef<Notice>[] = [
     {
       header: 'Title',
@@ -121,41 +127,27 @@ export default function NoticeTable({ data, isLoading }: NoticeTableProps) {
         ))}
       </TableHeader>
       <TableBody>
-        {!isLoading ? (
-          table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-                className="cursor-pointer"
-                onClick={() => {
-                  router.push(`/notice/${row.original.id}`)
-                }}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={columns.length}
-                className="h-24 text-center text-gray-500"
-              >
-                No results.
-              </TableCell>
+        {table.getRowModel().rows?.length ? (
+          table.getRowModel().rows.map((row) => (
+            <TableRow
+              key={row.id}
+              data-state={row.getIsSelected() && 'selected'}
+              className="cursor-pointer"
+              onClick={() => {
+                router.push(`/notice/${row.original.id}?page=${currentPage}`)
+              }}
+            >
+              {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
             </TableRow>
-          )
+          ))
         ) : (
           <TableRow>
-            <TableCell colSpan={columns.length} className="h-24">
-              <div className="flex items-center justify-center gap-2 text-gray-500">
-                <Loader2 className="w-5 animate-spin" />
-                Loading...
-              </div>
+            <TableCell colSpan={columns.length} className="h-24 text-center">
+              No results.
             </TableCell>
           </TableRow>
         )}
