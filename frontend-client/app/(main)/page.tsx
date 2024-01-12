@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { fetcher, fetcherWithAuth } from '@/lib/utils'
+import { fetcher } from '@/lib/utils'
 import type { Contest, WorkbookProblem } from '@/types/type'
 import { Trophy, ThumbsUp } from 'lucide-react'
 import type { Route } from 'next'
@@ -47,8 +47,6 @@ const getContests = async () => {
 }
 
 export default async function Home() {
-  const data = await fetcherWithAuth.get('user').json()
-  console.log(data)
   const contests = await getContests()
   const problems: WorkbookProblem[] = await fetcher
     .get('workbook/1/problem', {
