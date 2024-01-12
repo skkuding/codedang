@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { metaBaseUrl } from '@/lib/vars'
 import type { Metadata, Viewport } from 'next'
 import { Manrope, Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
@@ -20,9 +21,7 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: 'Codedang 코드당',
   description: 'Codedang, Online Judge for SKKU',
-  metadataBase: new URL(
-    process.env.VERCEL_URL || process.env.NEXTAUTH_URL || 'https://codedang.com'
-  )
+  metadataBase: metaBaseUrl ? new URL(metaBaseUrl) : null
 }
 
 export const viewport: Viewport = {
