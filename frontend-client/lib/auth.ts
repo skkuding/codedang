@@ -17,7 +17,7 @@ const getToken = (res: Response) => {
     accessToken: Authorization || '',
     refreshToken: refreshToken || '',
     accessTokenExpires: Date.now() + ACCESS_TOKEN_EXPIRE_TIME * 1000 - 1000, // 29 minutes 59 seconds
-    refreshTokenExpires: Date.parse(refreshTokenExpires) - 1000 // 23 hours 59 minutes 59 seconds
+    refreshTokenExpires: Date.now() + 2000 // 23 hours 59 minutes 59 seconds
   }
 }
 
@@ -81,7 +81,7 @@ export const authOptions: NextAuthOptions = {
         token.refreshToken = user.refreshToken
         token.accessTokenExpires = user.accessTokenExpires
         token.refreshTokenExpires = user.refreshTokenExpires
-      } else if (token.username) {
+      } else if (token.refreshTokenExpires) {
         // When user is logged in and request session
         if (Date.now() >= token.accessTokenExpires) {
           // if access token is expired, reissue it
@@ -102,7 +102,24 @@ export const authOptions: NextAuthOptions = {
             token.refreshToken = refreshToken
             token.accessTokenExpires = accessTokenExpires
             token.refreshTokenExpires = refreshTokenExpires
+          } else {
+            // If reissue is failed, delete token.
+            token.username = ''
+            token.role = ''
+            token.accessToken = ''
+            token.refreshToken = ''
+            token.accessTokenExpires = 0
+            token.refreshTokenExpires = 0
           }
+        }
+        if (Date.now() >= token.refreshTokenExpires) {
+          // If refresh token is expired, delete token.
+          token.username = ''
+          token.role = ''
+          token.accessToken = ''
+          token.refreshToken = ''
+          token.accessTokenExpires = 0
+          token.refreshTokenExpires = 0
         }
       }
       return token
@@ -146,11 +163,7 @@ export const getAuth = async (): Promise<AuthResult> => {
       ? await getServerSession(authOptions) // Server-side: directly get session.
       : await getSession() // Client-side: get session from /api/auth/session.
   // If refresh token is expired, session.user.username will be empty string.
-  if (
-    session &&
-    session.user.username &&
-    session.token.refreshTokenExpires > Date.now()
-  )
+  if (session && session.token.refreshTokenExpires)
     return { isAuth: true, user: session.user, token: session.token }
   return { isAuth: false, user: null, token: null }
 }
