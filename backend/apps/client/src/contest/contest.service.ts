@@ -137,6 +137,7 @@ export class ContestService {
 
     const finished = await this.prisma.contest.findMany({
       ...paginator,
+      take,
       where: {
         endTime: {
           lte: now
