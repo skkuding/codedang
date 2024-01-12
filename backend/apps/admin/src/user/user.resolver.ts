@@ -49,12 +49,12 @@ export class UserResolver {
         toGroupLeader
       )
     } catch (error) {
-      this.logger.error(error.message, error.stack)
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message)
       } else if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -67,12 +67,12 @@ export class UserResolver {
     try {
       return await this.userService.deleteGroupMember(userId, groupId)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message)
       } else if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -82,7 +82,7 @@ export class UserResolver {
     try {
       return await this.userService.getJoinRequests(groupId)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -96,10 +96,10 @@ export class UserResolver {
     try {
       return await this.userService.handleJoinRequest(groupId, userId, isAccept)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
       if (error instanceof ConflictException) {
         throw new ConflictException(error.message)
       }
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
