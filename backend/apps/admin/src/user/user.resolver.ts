@@ -6,7 +6,7 @@ import {
   ParseIntPipe,
   NotFoundException
 } from '@nestjs/common'
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
+import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { User } from '@generated'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe } from '@libs/pipe'
@@ -23,7 +23,8 @@ export class UserResolver {
   async getGroupMembers(
     @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
     groupId: number,
-    @Args('cursor', { nullable: true }, CursorValidationPipe) cursor: number,
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
+    cursor: number | null,
     @Args('take', ParseIntPipe) take: number,
     @Args('leaderOnly', { defaultValue: false }) leaderOnly: boolean
   ) {
@@ -48,12 +49,12 @@ export class UserResolver {
         toGroupLeader
       )
     } catch (error) {
-      this.logger.error(error.message, error.stack)
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message)
       } else if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -66,12 +67,12 @@ export class UserResolver {
     try {
       return await this.userService.deleteGroupMember(userId, groupId)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message)
       } else if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message)
       }
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -81,7 +82,7 @@ export class UserResolver {
     try {
       return await this.userService.getJoinRequests(groupId)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
@@ -95,10 +96,10 @@ export class UserResolver {
     try {
       return await this.userService.handleJoinRequest(groupId, userId, isAccept)
     } catch (error) {
-      this.logger.error(error.message, error.stack)
       if (error instanceof ConflictException) {
         throw new ConflictException(error.message)
       }
+      this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }

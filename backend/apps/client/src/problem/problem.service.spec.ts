@@ -1,6 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Prisma, ResultStatus } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import * as dayjs from 'dayjs'
@@ -14,6 +15,7 @@ import { PrismaService } from '@libs/prisma'
 import { ContestService } from '@client/contest/contest.service'
 import { GroupService } from '@client/group/group.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
+import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
@@ -23,12 +25,16 @@ import {
   problemTag,
   problems,
   workbookProblems,
-  tag
+  mockUser,
+  mockTemplate,
+  tag,
+  mockCodeDraft
 } from './mock/problem.mock'
 import { ProblemRepository } from './problem.repository'
 import {
   ContestProblemService,
   ProblemService,
+  CodeDraftService,
   WorkbookProblemService
 } from './problem.service'
 
@@ -53,7 +59,19 @@ const db = {
   },
   problemTag: {
     findMany: stub()
-  }
+  },
+  user: {
+    findUniqueOrThrow: stub()
+  },
+  codeDraft: {
+    findMany: stub(),
+    findUnique: stub(),
+    findUniqueOrThrow: stub(),
+    create: stub(),
+    update: stub(),
+    upsert: stub()
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 const ARBITRARY_VAL = 1
@@ -129,7 +147,11 @@ describe('ProblemService', () => {
       db.tag.findMany.resolves([mockTag])
 
       // when
-      const result = await service.getProblems(1, 2, OPEN_SPACE_ID)
+      const result = await service.getProblems({
+        cursor: 1,
+        take: 2,
+        groupId: OPEN_SPACE_ID
+      })
 
       // then
       expect(result).to.deep.equal(
@@ -467,6 +489,101 @@ describe('WorkbookProblemService', () => {
       await expect(
         service.getWorkbookProblem(contestId, problemId)
       ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+
+  describe('CodeDraftService', () => {
+    let service: CodeDraftService
+    let problemRepository: ProblemRepository
+
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          CodeDraftService,
+          ProblemRepository,
+          { provide: PrismaService, useValue: db },
+          {
+            provide: CACHE_MANAGER,
+            useFactory: () => ({
+              set: () => [],
+              get: () => [],
+              del: () => [],
+              store: {
+                keys: () => []
+              }
+            })
+          }
+        ]
+      }).compile()
+
+      service = module.get<CodeDraftService>(CodeDraftService)
+      problemRepository = module.get<ProblemRepository>(ProblemRepository)
+    })
+
+    it('should be defined', () => {
+      expect(service).to.be.ok
+    })
+
+    it('should be defined', () => {
+      expect(problemRepository).to.be.ok
+    })
+
+    describe('getCodeDraft', () => {
+      it('should return Code Draft', async () => {
+        // given
+        db.codeDraft.findUniqueOrThrow.resolves(mockCodeDraft)
+        // when
+        const result = await service.getCodeDraft(mockUser.id, mockProblem.id)
+
+        // then
+        expect(result).to.deep.equal(
+          plainToInstance(CodeDraftResponseDto, mockCodeDraft)
+        )
+      })
+      it('should throw error when the problem does not exist', async () => {
+        // given
+        db.codeDraft.findUniqueOrThrow.rejects(
+          new Prisma.PrismaClientKnownRequestError('problem', {
+            code: 'P2025',
+            clientVersion: '5.1.1'
+          })
+        )
+        // then
+        await expect(
+          service.getCodeDraft(mockUser.id, mockProblem.id)
+        ).to.be.rejectedWith(PrismaClientKnownRequestError)
+      })
+    })
+    describe('upsertCodeDraft', () => {
+      it('should upsert code draft', async () => {
+        // given
+        db.codeDraft.upsert.resolves(mockCodeDraft)
+        // when
+        const result = await service.upsertCodeDraft(
+          mockUser.id,
+          mockProblem.id,
+          mockTemplate
+        )
+
+        // then
+        expect(result).to.deep.equal(
+          plainToInstance(CodeDraftResponseDto, mockCodeDraft)
+        )
+      })
+      it('should throw error when the problem does not exist', async () => {
+        // given
+        db.codeDraft.upsert.rejects(
+          new Prisma.PrismaClientKnownRequestError('problem', {
+            code: 'P2003',
+            clientVersion: '5.1.1'
+          })
+        )
+
+        // then
+        await expect(
+          service.upsertCodeDraft(mockUser.id, mockProblem.id, mockTemplate)
+        ).to.be.rejectedWith(PrismaClientKnownRequestError)
+      })
     })
   })
 })

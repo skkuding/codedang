@@ -23,7 +23,7 @@ export class WorkbookController {
 
   @Get()
   async getWorkbooks(
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {
@@ -61,7 +61,7 @@ export class GroupWorkbookController {
   @Get()
   async getGroupWorkbooks(
     @Param('groupId', ParseIntPipe) groupId,
-    @Query('cursor', CursorValidationPipe) cursor: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
     try {

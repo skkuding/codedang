@@ -30,7 +30,7 @@ export const useWorkbook = () => {
     const res = await axios.get('/api/workbook', {
       params: {
         cursor: workbookList.value[workbookList.value.length - 1].id,
-        take: take
+        take
       }
     })
     if (res.data.length < take) containLastItem.value = true

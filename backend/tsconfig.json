@@ -12,7 +12,7 @@
     "baseUrl": ".",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
@@ -27,7 +27,8 @@
       "@libs/exception": ["libs/exception/src/index.ts"],
       "@libs/pipe": ["libs/pipe/src/index.ts"],
       "@libs/constants": ["libs/constants/src/index.ts"],
-      "@libs/logger": ["libs/logger/src/index.ts"]
+      "@libs/logger": ["libs/logger/src/index.ts"],
+      "@libs/types": ["libs/types/src/index.ts"]
     }
   }
 }

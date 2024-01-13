@@ -1,6 +1,10 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { Injectable } from '@nestjs/common'
-import type { Problem, ProblemTag, Tag } from '@prisma/client'
+import type { Problem, Tag, CodeDraft, Prisma } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
+import type { CodeDraftUpdateInput } from '@admin/@generated'
+import type { CreateTemplateDto } from './dto/create-code-draft.dto'
+import type { ProblemOrder } from './schema/problem-order.schema'
 
 /**
  * repository에서는 partial entity를 반환합니다.
@@ -39,28 +43,56 @@ export class ProblemRepository {
     outputExamples: true
   }
 
-  async getProblems(
-    cursor: number,
-    take: number,
+  private readonly codeDraftSelectOption = {
+    userId: true,
+    problemId: true,
+    template: true,
+    createTime: true,
+    updateTime: true
+  }
+
+  async getProblems({
+    cursor,
+    take,
+    groupId,
+    order,
+    search
+  }: {
+    cursor: number | null
+    take: number
     groupId: number
-  ): Promise<
-    (Partial<Problem> & {
-      problemTag: Partial<ProblemTag>[]
-    })[]
-  > {
-    let skip = 1
-    if (cursor === 0) {
-      cursor = 1
-      skip = 0
+    order?: ProblemOrder
+    search?: string
+  }) {
+    const paginator = this.prisma.getPaginator(cursor)
+
+    const orderByMapper: Record<
+      ProblemOrder,
+      Prisma.ProblemOrderByWithRelationAndSearchRelevanceInput
+    > = {
+      'id-asc': { id: 'asc' },
+      'id-desc': { id: 'desc' },
+      'title-asc': { title: 'asc' },
+      'title-desc': { title: 'desc' },
+      'level-asc': { difficulty: 'asc' },
+      'level-desc': { difficulty: 'desc' },
+      'acrate-asc': { acceptedRate: 'asc' },
+      'acrate-desc': { acceptedRate: 'desc' },
+      'submit-asc': { submissionCount: 'asc' },
+      'submit-desc': { submissionCount: 'desc' }
     }
+
+    const orderBy = orderByMapper[order ?? 'id-asc']
+
     return await this.prisma.problem.findMany({
-      cursor: {
-        id: cursor
-      },
-      skip: skip,
-      take: take,
+      ...paginator,
+      take,
+      orderBy,
       where: {
-        groupId
+        groupId,
+        title: {
+          contains: search
+        }
       },
       select: {
         ...this.problemsSelectOption,
@@ -70,23 +102,6 @@ export class ProblemRepository {
           }
         }
       }
-    })
-  }
-
-  // TODO/FIXME: postgreSQL의 full text search를 사용하여 검색하려 했으나
-  // 그럴 경우 띄어쓰기를 기준으로 나눠진 단어 단위로만 검색이 가능하다
-  // ex) "hello world"를 검색하면 "hello"와 "world"로 검색이 된다.
-  // 글자 단위로 검색하기 위해서, 성능을 희생하더라도 contains를 사용하여 구현했다.
-  // 추후에 검색 성능을 개선할 수 있는 방법을 찾아보자
-  // 아니면 텍스트가 많은 field에서는 full-text search를 사용하고, 텍스트가 적은 field에서는 contains를 사용하는 방법도 고려해보자.
-  async searchProblemTitle(search: string): Promise<Partial<Problem>[]> {
-    return await this.prisma.problem.findMany({
-      where: {
-        title: {
-          contains: search
-        }
-      },
-      select: this.problemsSelectOption
     })
   }
 
@@ -115,13 +130,13 @@ export class ProblemRepository {
     return await this.prisma.problem.findUniqueOrThrow({
       where: {
         id: problemId,
-        groupId: groupId
+        groupId
       },
       select: this.problemSelectOption
     })
   }
 
-  async getProblemsTags(tagIds: number[]): Promise<Partial<Tag>[]> {
+  async getProblemsTags(tagIds: number[]) {
     return await this.prisma.tag.findMany({
       where: {
         id: {
@@ -135,23 +150,23 @@ export class ProblemRepository {
     })
   }
 
-  async getContestProblems(contestId: number, cursor: number, take: number) {
-    let skip = 1
-    if (cursor === 0) {
-      cursor = 1
-      skip = 0
-    }
+  async getContestProblems(
+    contestId: number,
+    cursor: number | null,
+    take: number
+  ) {
+    const paginator = this.prisma.getPaginator(cursor, (value) => ({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      contestId_problemId: {
+        contestId,
+        problemId: value
+      }
+    }))
+
     return await this.prisma.contestProblem.findMany({
-      cursor: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        contestId_problemId: {
-          contestId: contestId,
-          problemId: cursor
-        }
-      },
-      skip: skip,
-      take: take,
-      where: { contestId: contestId },
+      ...paginator,
+      take,
+      where: { contestId },
       select: {
         order: true,
         problem: {
@@ -171,8 +186,8 @@ export class ProblemRepository {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         contestId_problemId: {
-          contestId: contestId,
-          problemId: problemId
+          contestId,
+          problemId
         }
       },
       select: {
@@ -189,23 +204,23 @@ export class ProblemRepository {
     })
   }
 
-  async getWorkbookProblems(workbookId: number, cursor: number, take: number) {
-    let skip = 1
-    if (cursor === 0) {
-      cursor = 1
-      skip = 0
-    }
+  async getWorkbookProblems(
+    workbookId: number,
+    cursor: number | null,
+    take: number
+  ) {
+    const paginator = this.prisma.getPaginator(cursor, (value) => ({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      workbookId_problemId: {
+        workbookId,
+        problemId: value
+      }
+    }))
+
     return await this.prisma.workbookProblem.findMany({
-      cursor: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        workbookId_problemId: {
-          workbookId: workbookId,
-          problemId: cursor
-        }
-      },
-      skip: skip,
-      take: take,
-      where: { workbookId: workbookId },
+      ...paginator,
+      take,
+      where: { workbookId },
       select: {
         order: true,
         problem: {
@@ -220,8 +235,8 @@ export class ProblemRepository {
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         workbookId_problemId: {
-          workbookId: workbookId,
-          problemId: problemId
+          workbookId,
+          problemId
         }
       },
       select: {
@@ -230,6 +245,45 @@ export class ProblemRepository {
           select: this.problemSelectOption
         }
       }
+    })
+  }
+
+  async getCodeDraft(
+    userId: number,
+    problemId: number
+  ): Promise<Partial<CodeDraft>> {
+    return await this.prisma.codeDraft.findUniqueOrThrow({
+      where: {
+        codeDraftId: {
+          userId,
+          problemId
+        }
+      },
+      select: this.codeDraftSelectOption
+    })
+  }
+
+  async upsertCodeDraft(
+    userId: number,
+    problemId: number,
+    template: CreateTemplateDto
+  ): Promise<Partial<CodeDraft>> {
+    return await this.prisma.codeDraft.upsert({
+      where: {
+        codeDraftId: {
+          userId,
+          problemId
+        }
+      },
+      update: {
+        template: template.template as CodeDraftUpdateInput['template']
+      },
+      create: {
+        userId,
+        problemId,
+        template: template.template as CodeDraftUpdateInput['template']
+      },
+      select: this.codeDraftSelectOption
     })
   }
 }
