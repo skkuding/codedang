@@ -3,7 +3,6 @@ import { RolesModule } from '@libs/auth'
 import { ContestModule } from '@client/contest/contest.module'
 import { WorkbookModule } from '@client/workbook/workbook.module'
 import { CodeDraftController } from './code-draft.controller'
-import { ContestProblemController } from './contest-problem.controller'
 import { ProblemController } from './problem.controller'
 import { ProblemRepository } from './problem.repository'
 import {
@@ -12,16 +11,10 @@ import {
   CodeDraftService,
   WorkbookProblemService
 } from './problem.service'
-import { WorkbookProblemController } from './workbook-problem.controller'
 
 @Module({
   imports: [RolesModule, ContestModule, WorkbookModule],
-  controllers: [
-    ProblemController,
-    ContestProblemController,
-    WorkbookProblemController,
-    CodeDraftController
-  ],
+  controllers: [ProblemController, CodeDraftController],
   providers: [
     ProblemService,
     ContestProblemService,
