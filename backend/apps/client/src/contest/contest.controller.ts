@@ -28,7 +28,6 @@ import { CursorValidationPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
 
 @Controller('contest')
-@UseGuards(GroupMemberGuard)
 export class ContestController {
   private readonly logger = new Logger(ContestController.name)
 

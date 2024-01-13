@@ -37,10 +37,7 @@ export class AnnouncementController {
           groupId ?? OPEN_SPACE_ID
         )
       }
-
-      if (!problemId && !contestId) {
-        throw new InternalServerErrorException()
-      }
+      throw new InternalServerErrorException()
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
