@@ -11,13 +11,16 @@ import {
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import type { Problem } from '@/types/type'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import {
   flexRender,
   getCoreRowModel,
-  useReactTable
+  useReactTable,
+  getSortedRowModel
 } from '@tanstack/react-table'
 import { Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import SortableHeader from './SortableHeader'
 
 interface ProblemProps {
   data: Problem[]
@@ -42,6 +45,8 @@ export default function ProblemTable({
   isLoading,
   isTagChecked
 }: ProblemProps) {
+  const [sorting, setSorting] = useState<SortingState>([])
+
   const columns: ColumnDef<Problem>[] = [
     {
       header: '#',
@@ -59,27 +64,25 @@ export default function ProblemTable({
           <div className="flex flex-col gap-2 text-left">
             <span className="text-sm md:text-base">{row.original.title}</span>
             {isTagChecked &&
-            row.original.tags &&
-            row.original.tags.length > 0 ? (
-              <div className="flex flex-row">
-                {row.original.tags.map((tag: TagProps) => (
-                  <Badge
-                    key={tag.id}
-                    className="text-sm hover:bg-gray-300 md:text-base"
-                  >
-                    {tag.name}
-                  </Badge>
-                ))}
-              </div>
-            ) : (
-              <div></div>
-            )}
+              row.original.tags &&
+              row.original.tags.length > 0 && (
+                <div className="flex flex-row">
+                  {row.original.tags.map((tag: TagProps) => (
+                    <Badge
+                      key={tag.id}
+                      className="text-sm hover:bg-gray-300 md:text-base"
+                    >
+                      {tag.name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
           </div>
         )
       }
     },
     {
-      header: 'Level',
+      header: ({ column }) => <SortableHeader column={column} title="Level" />,
       accessorKey: 'difficulty',
       cell: ({ row }) => {
         return (
@@ -101,7 +104,9 @@ export default function ProblemTable({
       }
     },
     {
-      header: 'Submission',
+      header: ({ column }) => (
+        <SortableHeader column={column} title="Submission" />
+      ),
       accessorKey: 'submissionCount',
       cell: ({ row }) => {
         return (
@@ -112,7 +117,9 @@ export default function ProblemTable({
       }
     },
     {
-      header: 'Solved Rate',
+      header: ({ column }) => (
+        <SortableHeader column={column} title="Solved Rate" />
+      ),
       accessorKey: 'acceptedRate',
       cell: ({ row }) => {
         return (
@@ -134,7 +141,12 @@ export default function ProblemTable({
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel()
+    getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting
+    }
   })
 
   return (
@@ -149,7 +161,7 @@ export default function ProblemTable({
                     className={cn(
                       'font-bold',
                       header.column.columnDef.header === 'Title'
-                        ? 'w-[40%] text-sm md:w-[50%] md:text-base'
+                        ? 'w-[30%] text-sm md:w-[35%] md:text-base'
                         : 'w-[20%] text-center text-sm md:w-[25%] md:text-base'
                     )}
                     key={header.id}

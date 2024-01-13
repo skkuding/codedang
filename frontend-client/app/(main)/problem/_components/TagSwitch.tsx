@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation'
 export default function TagSwitch() {
   const searchParams = useSearchParams()
   const search = searchParams?.get('search') ?? ''
-  const isTagChecked = searchParams?.get('tag') === 'tag'
+  const isTagChecked = searchParams?.get('tag') === 'tag' /*boolean*/
 
   const router = useRouter()
   const onClick = () => {

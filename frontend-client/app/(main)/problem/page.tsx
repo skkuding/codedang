@@ -10,7 +10,12 @@ export default async function Page({
 }) {
   const search = searchParams?.search ?? ''
   const searchRes = await fetch(
-    baseUrl + '/problem?take=15&search=' + search
+    baseUrl +
+      '/problem?' +
+      new URLSearchParams({
+        take: '15',
+        search: search ?? ''
+      })
   ) /* take 값 조정 필요*/
   const searchData = await searchRes.json()
   const problems = searchData ?? []
