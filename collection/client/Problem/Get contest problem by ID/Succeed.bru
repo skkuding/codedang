@@ -5,12 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/1/problem/1
+  url: {{baseUrl}}/problem/1?contestId=1
   body: none
   auth: none
 }
 
 query {
+  contestId: 1
   ~groupId: 1
 }
 
