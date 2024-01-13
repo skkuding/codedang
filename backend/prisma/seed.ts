@@ -951,6 +951,20 @@ const createContests = async () => {
         }
       }
     },
+    {
+      data: {
+        title: '24년도 아늑배 스파게티 코드 만들기 대회',
+        description: '<p>이 대회는 현재 진행 중입니다 ! (private group)</p>',
+        createdById: superAdminUser.id,
+        groupId: privateGroup.id,
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
+        config: {
+          isVisible: true,
+          isRankVisible: true
+        }
+      }
+    },
     // Finished Contests
     {
       data: {
@@ -1064,6 +1078,20 @@ const createContests = async () => {
         }
       }
     },
+    {
+      data: {
+        title: '23년도 아늑배 스파게티 코드 만들기 대회',
+        description: '<p>이 대회는 오래 전에 끝났어요 (private group)</p>',
+        createdById: superAdminUser.id,
+        groupId: privateGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        config: {
+          isVisible: true,
+          isRankVisible: true
+        }
+      }
+    },
     // Upcoming Contests
     {
       data: {
@@ -1104,6 +1132,20 @@ const createContests = async () => {
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         config: {
           isVisible: false,
+          isRankVisible: true
+        }
+      }
+    },
+    {
+      data: {
+        title: '25년도 아늑배 스파게티 코드 만들기 대회',
+        description: '<p>이 대회는 언젠가 열리겠죠...? (private group)</p>',
+        createdById: superAdminUser.id,
+        groupId: privateGroup.id,
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        config: {
+          isVisible: true,
           isRankVisible: true
         }
       }
