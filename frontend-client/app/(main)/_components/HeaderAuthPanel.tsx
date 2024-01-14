@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import { fetcherWithAuth } from '@/lib/utils'
 import useAuthModalStore from '@/stores/authModal'
 import useSignUpModalStore from '@/stores/signUpModal'
 import type { Session } from 'next-auth'
