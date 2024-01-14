@@ -3,13 +3,13 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { baseUrl } from '@/lib/vars'
+import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaCheck, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import type { FormData } from './SignUp'
 
 interface SignUpFormInput {
   username: string
@@ -43,7 +43,8 @@ const schema = z
     }
   )
 
-export default function SignUpRegister({ formData }: { formData: FormData }) {
+export default function SignUpRegister() {
+  const formData = useSignUpModalStore((state) => state.formData)
   const [passwordShow, setPasswordShow] = useState<boolean>(false)
   const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
   const [inputFocus, setInputFocus] = useState<number>(0)
@@ -101,7 +102,6 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
           method: 'GET'
         }).then((res) => {
           setUsernameVerify(true)
-
           if (res.status === 200) {
             setDisableUsername(true)
           } else {
@@ -115,15 +115,12 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
   }
 
   return (
-    <div className="mb-5 mt-16 flex w-full flex-col p-4">
+    <div className="mb-5 mt-12 flex w-full flex-col p-4">
       <form
         className="flex w-full flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <p className="mb-2 text-left text-xl font-bold text-blue-500">
-          Sign Up
-        </p>
-
+        <p className="text-left text-xl font-bold text-blue-500">Sign Up</p>
         <div>
           <Input
             placeholder="Your name"
@@ -173,7 +170,7 @@ export default function SignUpRegister({ formData }: { formData: FormData }) {
               <p>&#x2022; User ID used for log in</p>
               <p>
                 &#x2022; Your ID must be 3-10 characters of alphabet
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;letters, numbers
+                &nbsp;&nbsp;letters, numbers
               </p>
             </div>
           )}

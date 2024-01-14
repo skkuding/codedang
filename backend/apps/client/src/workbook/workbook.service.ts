@@ -12,18 +12,20 @@ export class WorkbookService {
     take: number,
     groupId = OPEN_SPACE_ID
   ) {
-    const skip = cursor ? 1 : 0
+    const paginator = this.prisma.getPaginator(cursor)
 
     const workbooks = await this.prisma.workbook.findMany({
+      ...paginator,
       where: {
         groupId,
         isVisible: true
       },
-      select: { id: true, title: true, description: true, updateTime: true },
-      skip,
       take,
-      cursor: {
-        id: cursor ?? 1
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        updateTime: true
       }
     })
     return workbooks

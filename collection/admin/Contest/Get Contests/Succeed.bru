@@ -1,0 +1,38 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getContests(
+      groupId: 1
+      cursor: 1
+      take: 10
+    ) {
+      id
+      title
+      description
+      startTime
+      endTime
+    }
+  }
+}
+
+assert {
+  res.body.data.getContests: isDefined
+}
+
+docs {
+  # Get Contests
+  ---
+  - 주어진 Group에 속한 Contest들을 반환합니다.
+  - `cursor`을 생략하면 처음부터 `take`만큼의 Contest들을 반환합니다.
+}

@@ -124,7 +124,8 @@ const db = {
   user: {
     findUnique: stub(),
     findMany: stub()
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 describe('UserService', () => {
