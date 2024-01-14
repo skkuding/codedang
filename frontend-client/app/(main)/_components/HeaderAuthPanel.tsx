@@ -2,34 +2,31 @@
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import { fetcherWithAuth } from '@/lib/utils'
 import useAuthModalStore from '@/stores/authModal'
 import useSignUpModalStore from '@/stores/signUpModal'
-import type { UserData } from '@/types/next-auth'
+import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import AuthModal from './AuthModal'
 
 interface HeaderAuthPanelProps {
-  isAuth: boolean
-  user: UserData | null
+  session: Session | null
 }
 
-export default function HeaderAuthPanel({
-  isAuth,
-  user
-}: HeaderAuthPanelProps) {
+export default function HeaderAuthPanel({ session }: HeaderAuthPanelProps) {
   const { showSignIn, showSignUp } = useAuthModalStore((state) => state)
   const { setModalPage } = useSignUpModalStore((state) => state)
   return (
     <div className="ml-2 flex items-center gap-2">
-      {isAuth ? (
+      {session ? (
         <p
           className="font-bold"
           onClick={() => {
             signOut()
           }}
         >
-          {user?.username}
+          {session.user.username}
         </p>
       ) : (
         <Dialog>
