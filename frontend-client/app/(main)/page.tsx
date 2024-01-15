@@ -58,7 +58,7 @@ export default async function Home() {
     <div className="flex w-full flex-col gap-12 lg:items-center">
       <Carousel slides={slides} />
       {contests.length !== 0 && (
-        <div className="w-full">
+        <div className="flex w-full flex-col gap-3">
           <div className="flex w-full items-center justify-between text-gray-700">
             <p className="text-xl font-bold md:text-2xl">Contest</p>
             <Link href="/contest">
