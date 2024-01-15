@@ -16,10 +16,10 @@ export const dynamic = 'force-dynamic'
 const slides = [{ href: '/problem/1' }, { href: '/problem/2' }]
 
 const getContests = async () => {
-  const data = await fetcher<{
+  const data: {
     ongoing: Contest[]
     upcoming: Contest[]
-  }>('/contest')
+  } = await fetcher.get('contest').json()
   data.ongoing.forEach((contest) => {
     contest.status = 'ongoing'
   })
@@ -29,9 +29,15 @@ const getContests = async () => {
   let contests = data.ongoing.concat(data.upcoming)
 
   if (contests.length < 3) {
-    const data = await fetcher<{ finished: Contest[] }>(
-      '/contest/finished?take=3'
-    )
+    const data: {
+      finished: Contest[]
+    } = await fetcher
+      .get('contest/finished', {
+        searchParams: {
+          take: 3
+        }
+      })
+      .json()
     data.finished.forEach((contest) => {
       contest.status = 'finished'
     })
@@ -42,10 +48,13 @@ const getContests = async () => {
 
 export default async function Home() {
   const contests = await getContests()
-  const problems = await fetcher<WorkbookProblem[]>(
-    '/workbook/1/problem?take=3'
-  )
-
+  const problems: WorkbookProblem[] = await fetcher
+    .get('workbook/1/problem', {
+      searchParams: {
+        take: 3
+      }
+    })
+    .json()
   return (
     <div className="flex w-full flex-col gap-12 lg:items-center">
       <Carousel slides={slides}></Carousel>
