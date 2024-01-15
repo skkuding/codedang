@@ -467,7 +467,8 @@ export class ProblemService {
         EXCHANGE,
         SUBMISSION_KEY,
         {
-          cacheClear: true
+          action: 'evict',
+          problemId
         },
         {
           persistent: true,
