@@ -16,7 +16,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       AUTH_NOT_NEEDED_KEY,
       [context.getHandler(), context.getClass()]
     )
-    if (isAuthNotNeeded && !request.query.groupId) {
+    if (
+      isAuthNotNeeded &&
+      (!request.query.groupId || request.query.groupId === '1')
+    ) {
       return true
     }
     return super.canActivate(context)

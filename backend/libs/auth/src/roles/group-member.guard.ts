@@ -26,7 +26,7 @@ export class GroupMemberGuard implements CanActivate {
     } else {
       request = context.switchToHttp().getRequest()
       groupId =
-        !request.params.groupId && !request.query.groupId
+        !request.query.groupId || request.query.groupId === '1'
           ? OPEN_SPACE_ID
           : parseInt(request.params.groupId ?? request.query.groupId)
     }
