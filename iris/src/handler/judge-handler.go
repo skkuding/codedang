@@ -16,7 +16,7 @@ import (
 	"github.com/skkuding/codedang/iris/src/utils"
 )
 
-type Request struct {
+type JudgeRequest struct {
 	Code        string `json:"code"`
 	Language    string `json:"language"`
 	ProblemId   int    `json:"problemId"`
@@ -24,7 +24,7 @@ type Request struct {
 	MemoryLimit int    `json:"memoryLimit"`
 }
 
-func (r Request) Validate() (*Request, error) {
+func (r JudgeRequest) Validate() (*JudgeRequest, error) {
 	if r.Code == "" {
 		return nil, fmt.Errorf("code must not be empty")
 	}
@@ -136,8 +136,8 @@ func NewJudgeHandler(
 func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 	startedAt := time.Now()
 
-	//TODO: validation logic here
-	req := Request{}
+	//TODO: validation logichere
+	req := JudgeRequest{}
 	res := Result{}
 
 	err := json.Unmarshal(data, &req)
