@@ -2,27 +2,28 @@ import React from 'react'
 import { RxTriangleDown, RxTriangleUp } from 'react-icons/rx'
 
 interface UpAndDownButtonProps {
-  state: boolean | 'asc' | 'desc'
+  state: string
+  name: string
 }
 
-export default function UpAndDownButton({ state }: UpAndDownButtonProps) {
+export default function UpAndDownButton({ state, name }: UpAndDownButtonProps) {
   return (
     <div>
-      {state === 'asc' && (
+      {state === `${name}-asc` && (
         <>
           <RxTriangleUp className=" relative top-1.5 h-5 w-5 text-gray-500" />
           <RxTriangleDown className="relative bottom-1.5 h-5 w-5 text-gray-300" />
         </>
       )}
-      {state === 'desc' && (
+      {state === `${name}-desc` && (
         <>
           <RxTriangleUp className="relative top-1.5 h-5 w-5 text-gray-300" />
           <RxTriangleDown className="relative bottom-1.5 h-5 w-5 text-gray-500" />
         </>
       )}
-      {state === false && (
+      {state !== `${name}-asc` && state !== `${name}-desc` && (
         <>
-          <RxTriangleUp className="relative top-1.5  h-5 w-5 text-gray-300" />
+          <RxTriangleUp className="relative top-1.5 h-5 w-5 text-gray-300" />
           <RxTriangleDown className="relative bottom-1.5 h-5 w-5 text-gray-300" />
         </>
       )}

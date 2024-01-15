@@ -82,7 +82,9 @@ export default function ProblemTable({
       }
     },
     {
-      header: ({ column }) => <SortableHeader column={column} title="Level" />,
+      header: ({ column }) => (
+        <SortableHeader column={column} title="Level" name="level" />
+      ),
       accessorKey: 'difficulty',
       cell: ({ row }) => {
         return (
@@ -105,7 +107,7 @@ export default function ProblemTable({
     },
     {
       header: ({ column }) => (
-        <SortableHeader column={column} title="Submission" />
+        <SortableHeader column={column} title="Submission" name="submit" />
       ),
       accessorKey: 'submissionCount',
       cell: ({ row }) => {
@@ -118,7 +120,7 @@ export default function ProblemTable({
     },
     {
       header: ({ column }) => (
-        <SortableHeader column={column} title="Solved Rate" />
+        <SortableHeader column={column} title="Solved Rate" name="acrate" />
       ),
       accessorKey: 'acceptedRate',
       cell: ({ row }) => {

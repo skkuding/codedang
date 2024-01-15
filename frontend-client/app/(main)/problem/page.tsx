@@ -6,17 +6,20 @@ import TagSwitch from './_components/TagSwitch'
 export default async function Page({
   searchParams
 }: {
-  searchParams?: { search?: string; tag?: string }
+  searchParams?: { search?: string; tag?: string; order?: string }
 }) {
   const search = searchParams?.search ?? ''
+  const order = searchParams?.order ?? 'id-asc'
   const searchRes = await fetch(
     baseUrl +
       '/problem?' +
       new URLSearchParams({
         take: '15',
-        search: search ?? ''
+        search: search ?? '',
+        order: order ?? ''
       })
   ) /* take 값 조정 필요*/
+
   const searchData = await searchRes.json()
   const problems = searchData ?? []
 

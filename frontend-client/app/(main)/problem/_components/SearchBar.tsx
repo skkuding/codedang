@@ -20,7 +20,9 @@ export default function SearchBar() {
 
   const handleSearchSubmit = () => {
     const newUrl = new URL('/problem', baseUrl)
+    const order = searchParams?.get('order') ?? ''
     searchParams?.get('tag') && newUrl.searchParams.set('tag', 'tag')
+    searchParams?.get('order') && newUrl.searchParams.set('order', order)
     searchKeyword && newUrl.searchParams.set('search', searchKeyword)
     router.push(`?${newUrl.searchParams}`, { scroll: false })
   }
