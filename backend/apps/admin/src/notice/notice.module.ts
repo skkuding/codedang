@@ -7,4 +7,4 @@ import { NoticeService } from './notice.service'
   imports: [RolesModule],
   providers: [NoticeService, NoticeResolver]
 })
-export class ContestModule {}
+export class NoticeModule {}
