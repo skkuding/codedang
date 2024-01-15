@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from 'clsx'
 import ky from 'ky'
 import { twMerge } from 'tailwind-merge'
-import { auth } from './auth'
+// import { auth } from './auth'
 import { baseUrl } from './vars'
 
 export const cn = (...inputs: ClassValue[]) => {
