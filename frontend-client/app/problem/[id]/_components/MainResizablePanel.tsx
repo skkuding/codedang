@@ -6,6 +6,11 @@ import {
   ResizablePanelGroup
 } from '@/components/ui/resizable'
 import { Switch } from '@/components/ui/switch'
+import { tags as t } from '@lezer/highlight'
+import { createTheme } from '@uiw/codemirror-themes'
+import CodeMirror from '@uiw/react-codemirror'
+import 'codemirror/keymap/sublime'
+import 'codemirror/theme/dracula.css'
 import { sanitize } from 'isomorphic-dompurify'
 import { useState } from 'react'
 import { FiClipboard } from 'react-icons/fi'
@@ -26,6 +31,37 @@ interface MainResizablePanelProps {
 
 export default function MainResizablePanel({ data }: MainResizablePanelProps) {
   const [tag, setTag] = useState(false) // tag button on/off
+
+  const editorTheme = createTheme({
+    theme: 'dark',
+    settings: {
+      background: '#1E293B',
+      backgroundImage: '',
+      foreground: '#75baff',
+      caret: '#5d00ff',
+      selection: '#036dd626',
+      selectionMatch: '#036dd626',
+      lineHighlight: '#8a91991a',
+      gutterBackground: '#1E293B',
+      gutterForeground: '#8a919966'
+    },
+    styles: [
+      { tag: t.comment, color: '#787b8099' },
+      { tag: t.variableName, color: '#0080ff' },
+      { tag: [t.string, t.special(t.brace)], color: '#5c6166' },
+      { tag: t.number, color: '#5c6166' },
+      { tag: t.bool, color: '#5c6166' },
+      { tag: t.null, color: '#5c6166' },
+      { tag: t.keyword, color: '#5c6166' },
+      { tag: t.operator, color: '#5c6166' },
+      { tag: t.className, color: '#5c6166' },
+      { tag: t.definition(t.typeName), color: '#5c6166' },
+      { tag: t.typeName, color: '#5c6166' },
+      { tag: t.angleBracket, color: '#5c6166' },
+      { tag: t.tagName, color: '#5c6166' },
+      { tag: t.attributeName, color: '#5c6166' }
+    ]
+  })
 
   return (
     <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -110,10 +146,9 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
         </div>
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel
-        defaultSize={65}
-        className="bg-slate-800"
-      ></ResizablePanel>
+      <ResizablePanel defaultSize={65} className="bg-slate-800">
+        <CodeMirror theme={editorTheme} />
+      </ResizablePanel>
     </ResizablePanelGroup>
   )
 }
