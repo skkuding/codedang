@@ -17,12 +17,12 @@ export default function Footer() {
     }
   }
   return (
-    <footer className="mt-8 w-full items-center">
-      <div className="flex h-[125px] w-full flex-col items-end justify-center gap-3 bg-gray-50 px-20 pb-[30px] text-gray-400 md:flex-row md:justify-between">
-        <div>
-          <p className="font-bold">(c) SKKUDING / Since 2021</p>
-        </div>
-        <div className="flex flex-row items-center justify-center gap-4">
+    <footer className="mt-8 flex h-[100px] w-full items-center justify-center bg-gray-50 md:h-[125px] md:items-end">
+      <div className="flex w-full max-w-7xl flex-col justify-center gap-1 p-5 text-gray-400 md:flex-row md:justify-between md:gap-3">
+        <p className="text-center text-sm font-bold">
+          (c) SKKUDING / Since 2021
+        </p>
+        <div className="flex items-center justify-center gap-4">
           <a
             href="https://pf.kakao.com/_UKraK/chat"
             rel="noreferrer noopener"
@@ -54,7 +54,7 @@ export default function Footer() {
             href="https://skkuding.dev/"
           >
             <IoIosLink
-              className="cursor-pointer hover:text-slate-600"
+              className="cursor-pointer hover:text-gray-500"
               size="26"
             />
           </a>
