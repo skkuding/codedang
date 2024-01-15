@@ -3,7 +3,10 @@ const nextConfig = {
   experimental: {
     typedRoutes: true
   },
-  output: 'standalone'
+  output: 'standalone',
+  env: {
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL
+  }
 }
 
 module.exports = nextConfig
