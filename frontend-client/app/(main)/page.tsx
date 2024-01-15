@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { fetcher } from '@/lib/utils'
 import type { Contest, WorkbookProblem } from '@/types/type'
-import { Trophy, ThumbsUp } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import Carousel from './_components/Carousel'
@@ -52,14 +51,11 @@ export default async function Home() {
       {contests.length !== 0 && (
         <div className="max-w-max">
           <div className="flex items-center justify-between p-2 text-gray-700">
-            <div className="flex items-center gap-2">
-              <Trophy />
-              <p className="text-xl font-bold md:text-2xl">Contest</p>
-            </div>
+            <p className="text-xl font-bold md:text-2xl">Contest</p>
             <Link href="/contest">
               <Button
                 variant="ghost"
-                className="h-6 rounded-md border border-gray-500 px-5 text-sm font-semibold"
+                className="h-6 rounded-md border border-gray-700 px-5 text-sm font-semibold"
               >
                 More
               </Button>
@@ -84,16 +80,13 @@ export default async function Home() {
       {problems.length !== 0 && (
         <div className="max-w-max">
           <div className="flex items-center justify-between p-2 text-gray-700">
-            <div className="flex items-center gap-2">
-              <div>
-                <ThumbsUp />
-              </div>
-              <p className="text-xl font-bold md:text-2xl">Dive in!</p>
-            </div>
+            <p className="text-xl font-bold md:text-2xl">
+              Professor’s Recommendation
+            </p>
             <Link href={'/workbook/1' as Route}>
               <Button
                 variant="ghost"
-                className="h-6 rounded-md border border-gray-500 px-5 text-sm font-semibold"
+                className="h-6 rounded-md border border-gray-700 px-5 text-sm font-semibold"
               >
                 More
               </Button>
