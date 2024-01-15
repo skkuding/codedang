@@ -25,8 +25,8 @@ export default function TimeDiff({ timeRef }: Props) {
     .padStart(2, '0')
 
   return (
-    <p>
+    <>
       {days}D {hours + diff.format(':mm:ss')}
-    </p>
+    </>
   )
 }

@@ -60,17 +60,14 @@ export default async function Home() {
       {contests.length !== 0 && (
         <div className="flex w-full flex-col gap-3">
           <div className="flex w-full items-center justify-between text-gray-700">
-            <p className="text-xl font-bold md:text-2xl">Contest</p>
+            <p className="text-xl font-bold">Contest</p>
             <Link href="/contest">
-              <Button
-                variant="ghost"
-                className="h-6 rounded-md border border-gray-500 px-3 text-sm font-semibold text-gray-500"
-              >
+              <Button variant="outline" className="h-8">
                 More
               </Button>
             </Link>
           </div>
-          <div className="flex w-full gap-5">
+          <div className="grid w-full grid-cols-3 gap-5">
             {contests.map((contest) => {
               return (
                 <Link
@@ -88,19 +85,14 @@ export default async function Home() {
       {problems.length !== 0 && (
         <div className="flex w-full flex-col gap-3">
           <div className="flex w-full items-center justify-between text-gray-700">
-            <p className="text-xl font-bold md:text-2xl">
-              Professor’s Recommendation
-            </p>
+            <p className="text-xl font-bold">Professor’s Recommendation</p>
             <Link href={'/workbook/1' as Route}>
-              <Button
-                variant="ghost"
-                className="h-6 rounded-md border border-gray-500 px-3 text-sm font-semibold text-gray-500"
-              >
+              <Button variant="outline" className="h-8">
                 More
               </Button>
             </Link>
           </div>
-          <div className="flex w-full gap-5">
+          <div className="grid w-full grid-cols-3 gap-5">
             {problems.map((problem) => {
               return (
                 <Link

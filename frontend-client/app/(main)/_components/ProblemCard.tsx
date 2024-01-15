@@ -9,13 +9,12 @@ interface Props {
 
 export default function ProblemCard({ problem }: Props) {
   return (
-    <Card className="flex w-full flex-col justify-between gap-1 rounded-md border-gray-300 bg-gray-50 transition hover:scale-105 hover:opacity-80">
+    <Card className="flex w-full flex-col justify-between gap-1 shadow-none transition hover:scale-105 hover:opacity-80">
       <CardHeader className="pb-0">
         <Badge
           type={problem.difficulty}
         >{`Level ${problem.difficulty[5]}`}</Badge>
-
-        <CardTitle className="line-clamp-2 overflow-hidden break-keep text-lg font-semibold tracking-normal text-gray-700">
+        <CardTitle className="overflow-hidden text-ellipsis text-nowrap text-lg font-semibold">
           {`#${problem.problemId} ${problem.title}`}
         </CardTitle>
       </CardHeader>

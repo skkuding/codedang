@@ -30,7 +30,7 @@ export default function ContestCard({ contest }: Props) {
   return (
     <Card
       className={cn(
-        'flex w-full flex-col justify-between gap-1 rounded-md border-0 text-white transition hover:scale-105 hover:opacity-80',
+        'flex w-full flex-col justify-between gap-1 border-none text-white shadow-none transition hover:scale-105 hover:opacity-80',
         variants[contest.status]
       )}
     >
@@ -38,21 +38,25 @@ export default function ContestCard({ contest }: Props) {
         <Badge type={contest.status}>
           <p>{contest.status}</p>
         </Badge>
-
-        <CardTitle className="text-lg font-semibold">{contest.title}</CardTitle>
+        <CardTitle className="overflow-hidden text-ellipsis text-nowrap text-lg font-semibold">
+          {contest.title}
+        </CardTitle>
       </CardHeader>
-
-      <CardContent className="flex items-center gap-1 text-xs text-white opacity-80">
+      <CardContent className="inline-flex items-center gap-1 text-nowrap text-xs text-white opacity-80">
         {contest.status === 'finished' ? (
           <>
-            <FaRegCalendarAlt />
-            {startTime} - {endTime}
+            <FaRegCalendarAlt className="shrink-0" />
+            <p className="overflow-hidden text-ellipsis text-nowrap">
+              {startTime} - {endTime}
+            </p>
           </>
         ) : (
           <>
-            <FaRegClock />
+            <FaRegClock className="shrink-0" />
             {contest.status === 'ongoing' ? 'Ends in' : 'Starts in'}
-            <TimeDiff timeRef={contest.endTime}></TimeDiff>
+            <p className="overflow-hidden text-ellipsis text-nowrap">
+              <TimeDiff timeRef={contest.endTime}></TimeDiff>
+            </p>
           </>
         )}
       </CardContent>
