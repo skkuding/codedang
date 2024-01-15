@@ -23,6 +23,16 @@ export class ProblemController {
 
   constructor(private readonly problemService: ProblemService) {}
   @Get()
+  async searchProblemTitle(@Query('search') search: string) {
+    try {
+      return await this.problemService.searchProblemTitle(search)
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get()
   async getProblems(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number,

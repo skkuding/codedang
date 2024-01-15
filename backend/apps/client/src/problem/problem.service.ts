@@ -53,6 +53,10 @@ export class ProblemService {
 
     return plainToInstance(ProblemsResponseDto, await Promise.all(problems))
   }
+  async searchProblemTitle(search: string) {
+    const data = await this.problemRepository.searchProblemTitle(search)
+    return plainToInstance(ProblemsResponseDto, data)
+  }
 
   async getProblem(problemId: number, groupId = OPEN_SPACE_ID) {
     const data = await this.problemRepository.getProblem(problemId, groupId)
