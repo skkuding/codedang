@@ -9,7 +9,7 @@ interface Props {
 
 export default function ProblemCard({ problem }: Props) {
   return (
-    <Card className="my-2 flex h-32 w-96 flex-col justify-between rounded-md border-gray-300 bg-gray-50 transition hover:scale-105 hover:opacity-80">
+    <Card className="flex w-full flex-col justify-between gap-1 rounded-md border-gray-300 bg-gray-50 transition hover:scale-105 hover:opacity-80">
       <CardHeader className="pb-0">
         <Badge
           type={problem.difficulty}
