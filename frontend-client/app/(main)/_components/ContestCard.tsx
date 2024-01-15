@@ -30,7 +30,7 @@ export default function ContestCard({ contest }: Props) {
   return (
     <Card
       className={cn(
-        'lex-col flex w-full flex-col justify-between gap-1 rounded-md border-0 text-white transition hover:scale-105 hover:opacity-80',
+        'flex w-full flex-col justify-between gap-1 rounded-md border-0 text-white transition hover:scale-105 hover:opacity-80',
         variants[contest.status]
       )}
     >
