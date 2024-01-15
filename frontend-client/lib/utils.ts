@@ -27,13 +27,15 @@ export const fetcherWithAuth = fetcher.extend({
     afterResponse: [
       // Retry option is not working, so we use this workaround.
       async (request, options, response) => {
-        const session = await auth()
-        if (session && response.status === 401) {
-          request.headers.set('Authorization', session.token.accessToken)
-          fetcher(request, {
-            ...options,
-            hooks: {} // Remove hooks to prevent infinite loop.
-          })
+        if (response.status === 401) {
+          const session = await auth()
+          if (session) {
+            request.headers.set('Authorization', session.token.accessToken)
+            fetcher(request, {
+              ...options,
+              hooks: {} // Remove hooks to prevent infinite loop.
+            })
+          }
         }
       }
     ]

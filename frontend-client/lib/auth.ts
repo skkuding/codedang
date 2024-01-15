@@ -12,15 +12,15 @@ import { getSession } from 'next-auth/react'
 import { parseCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 
 const getAuthToken = (res: Response) => {
-  const Authorization = res.headers.get('authorization')
+  const Authorization = res.headers.get('authorization') as string
   const parsedCookie = parseCookie(res.headers.get('set-cookie') || '')
-  const refreshToken = parsedCookie.get('refresh_token')
+  const refreshToken = parsedCookie.get('refresh_token') as string
   const refreshTokenExpires = parsedCookie.get('Expires') as string
   return {
-    accessToken: Authorization || '',
-    refreshToken: refreshToken || '',
-    accessTokenExpires: Date.now() + ACCESS_TOKEN_EXPIRE_TIME - 1000, // 29 minutes 59 seconds
-    refreshTokenExpires: Date.parse(refreshTokenExpires) - 1000 // 23 hours 59 minutes 59 seconds
+    accessToken: Authorization,
+    refreshToken,
+    accessTokenExpires: Date.now() + ACCESS_TOKEN_EXPIRE_TIME - 30 * 1000, // 29 minutes 30 seconds
+    refreshTokenExpires: Date.parse(refreshTokenExpires) - 30 * 1000 // 23 hours 59 minutes 30 seconds
   }
 }
 
