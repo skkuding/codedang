@@ -4,7 +4,7 @@ import { GraphQLUpload } from 'graphql-upload'
 import { Language, Level } from '@admin/@generated'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import { Template } from './template.input'
-import { Testcase } from './testcase.input'
+import { ExtendedTestcase, Testcase } from './testcase.input'
 
 @InputType()
 export class CreateProblemInput {
@@ -139,7 +139,7 @@ export class UpdateProblemInput {
   @Field(() => [String], { nullable: true })
   outputExamples?: Array<string>
 
-  @Field(() => [Testcase], { nullable: true })
+  @Field(() => [ExtendedTestcase], { nullable: true })
   testcases?: Array<Testcase & { id: number }>
 
   @Field(() => UpdateProblemTagInput, { nullable: true })

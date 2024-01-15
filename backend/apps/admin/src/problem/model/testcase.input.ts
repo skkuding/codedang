@@ -11,3 +11,9 @@ export class Testcase {
   @Field(() => Int, { nullable: true })
   scoreWeight?: number
 }
+
+@InputType()
+export class ExtendedTestcase extends Testcase {
+  @Field(() => Int, { nullable: false })
+  id!: number
+}

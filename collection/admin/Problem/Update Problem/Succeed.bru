@@ -1,0 +1,37 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateProblem($updateInput: UpdateProblemInput!) {
+    updateProblem(input: $updateInput) {
+      id
+      title
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "updateInput": {
+      "id": 1,
+      "testcases": [
+        {
+          "id": 1,
+          "input": "updatedInput",
+          "output": "updatedOutput"
+        }
+      ]
+    }
+  }
+  
+}
