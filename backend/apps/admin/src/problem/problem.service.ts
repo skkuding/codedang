@@ -471,7 +471,7 @@ export class ProblemService {
         },
         {
           persistent: true,
-          type: 'evict'
+          type: 'cache'
         }
       )
     }
