@@ -51,14 +51,18 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte) {
 
 	for result := range judgeChan {
 		r.errHandle(result.Err)
+		if result.Err == handler.ErrJudgeEnd {
+			break
+		}
 		out <- NewResponse(id, result.Result, result.Err).Marshal()
 	}
 	// return NewResponse(id, handlerResult, err).Marshal()
 	out <- nil
+	r.logger.Log(logger.DEBUG, "Router done...")
 }
 
 func (r *router) errHandle(err error) {
-	if err != nil {
+	if err != nil && err != handler.ErrJudgeEnd {
 		if u, ok := err.(*handler.HandlerError); ok {
 			r.logger.Log(u.Level(), err.Error())
 		} else {

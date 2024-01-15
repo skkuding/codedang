@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -47,9 +48,9 @@ func (r Request) Validate() (*Request, error) {
 }
 
 type Result struct {
-	TotalTestcase int           `json:"totalTestcase"`
-	AcceptedNum   int           `json:"acceptedNum"`
-	JudgeResult   []JudgeResult `json:"judgeResult"`
+	// TotalTestcase int         `json:"totalTestcase"`
+	AcceptedNum int         `json:"acceptedNum"`
+	JudgeResult JudgeResult `json:"judgeResult"`
 }
 
 type JudgeResult struct {
@@ -69,24 +70,26 @@ type JudgeResultMessage struct {
 	Err    error
 }
 
+var ErrJudgeEnd = errors.New("judge handle end")
+
 func (r *Result) Accepted() {
 	r.AcceptedNum += 1
 }
 
-func (r *Result) SetJudgeResult(idx int, testcaseId string, execResult sandbox.ExecResult) {
-	r.JudgeResult[idx].TestcaseId = testcaseId
-	r.JudgeResult[idx].CpuTime = execResult.CpuTime
-	r.JudgeResult[idx].RealTime = execResult.RealTime
-	r.JudgeResult[idx].Memory = execResult.Memory
-	r.JudgeResult[idx].Signal = execResult.Signal
-	r.JudgeResult[idx].ErrorCode = execResult.ErrorCode
-	r.JudgeResult[idx].ExitCode = execResult.ExitCode
-	r.JudgeResult[idx].ResultCode = SandboxResultCodeToJudgeResultCode(execResult.ResultCode)
+func (r *Result) SetJudgeResult(testcaseId string, execResult sandbox.ExecResult) {
+	r.JudgeResult.TestcaseId = testcaseId
+	r.JudgeResult.CpuTime = execResult.CpuTime
+	r.JudgeResult.RealTime = execResult.RealTime
+	r.JudgeResult.Memory = execResult.Memory
+	r.JudgeResult.Signal = execResult.Signal
+	r.JudgeResult.ErrorCode = execResult.ErrorCode
+	r.JudgeResult.ExitCode = execResult.ExitCode
+	r.JudgeResult.ResultCode = SandboxResultCodeToJudgeResultCode(execResult.ResultCode)
 	// system error가 아니면 run result task에 반영(Resource usage)
 }
 
-func (r *Result) SetJudgeResultCode(idx int, code JudgeResultCode) {
-	r.JudgeResult[idx].ResultCode = code
+func (r *Result) SetJudgeResultCode(code JudgeResultCode) {
+	r.JudgeResult.ResultCode = code
 }
 
 func (r *Result) Marshal() (json.RawMessage, error) {
@@ -142,8 +145,8 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 	startedAt := time.Now()
 
 	//TODO: validation logic here
+	// res location modification // here
 	req := Request{}
-	res := Result{}
 
 	err := json.Unmarshal(data, &req)
 	if err != nil {
@@ -153,6 +156,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			level:   logger.ERROR,
 			Message: err.Error(),
 		}}
+		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 	validReq, err := req.Validate()
@@ -163,6 +167,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			level:   logger.ERROR,
 			Message: err.Error(),
 		}}
+		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 
@@ -179,6 +184,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			level:   logger.ERROR,
 			Message: err.Error(),
 		}}
+		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 
@@ -190,6 +196,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			level:   logger.ERROR,
 			Message: err.Error(),
 		}}
+		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 
@@ -200,6 +207,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			level:   logger.ERROR,
 			Message: err.Error(),
 		}}
+		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 
@@ -219,6 +227,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			level:   logger.ERROR,
 			Message: testcaseOut.Err.Error(),
 		}}
+		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 	// elements, ok := testcaseOut.Data.([]testcase.Element)
@@ -230,6 +239,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			err:    fmt.Errorf("%w: Testcase", ErrTypeAssertionFail),
 			level:  logger.ERROR,
 		}}
+		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 
@@ -240,6 +250,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			err:    fmt.Errorf("%w: %s", ErrSandbox, compileOut.Err),
 			level:  logger.ERROR,
 		}}
+		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 	compileResult, ok := compileOut.Data.(sandbox.CompileResult)
@@ -249,67 +260,36 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			err:    fmt.Errorf("%w: CompileResult", ErrTypeAssertionFail),
 			level:  logger.INFO,
 		}}
+		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 	if compileResult.ExecResult.ResultCode != sandbox.SUCCESS {
 		// 컴파일러를 실행했으나 컴파일에 실패한 경우
 		// FIXME: 함수로 분리
-		if marshaledRes, err := res.Marshal(); err != nil {
-			out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson}}
-			return
-		} else {
-			out <- JudgeResultMessage{marshaledRes, &HandlerError{
-				err:     ErrCompile,
-				Message: compileResult.ErrOutput,
-			}}
-			return
-		}
+		out <- JudgeResultMessage{nil, &HandlerError{
+			err: ErrCompile, Message: compileResult.ErrOutput,
+		}}
+		out <- JudgeResultMessage{nil, ErrJudgeEnd}
+		return
 	}
 
 	tcNum := tc.Count()
-	// FIXME: res.Init으로 분리
-	res.JudgeResult = make([]JudgeResult, tcNum)
-	res.TotalTestcase = tcNum
-
+	fmt.Println("total testcase : ", tcNum)
+	cnt := make(chan int)
 	for i := 0; i < tcNum; i++ {
-		time.Sleep(time.Millisecond)
-		runResult, err := j.runner.Run(sandbox.RunRequest{
-			Order:       i,
-			Dir:         dir,
-			Language:    sandbox.Language(validReq.Language),
-			TimeLimit:   validReq.TimeLimit,
-			MemoryLimit: validReq.MemoryLimit,
-		}, []byte(tc.Elements[i].In))
+		go j.judgeTestcase(i, dir, validReq, tc.Elements[i], out, cnt)
+	}
 
-		if err != nil {
-			j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
-			res.JudgeResult[i].ResultCode = SYSTEM_ERROR
-			res.JudgeResult[i].Error = string(runResult.ErrOutput)
-			continue
-		}
-		res.SetJudgeResult(i, tc.Elements[i].Id, runResult.ExecResult)
-		if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
-			continue
-		}
-
-		// 하나당 약 50microsec 10개 채점시 500microsec.
-		// output이 커지면 더 길어짐 -> FIXME: 최적화 과정에서 goroutine으로 수정
-		// st := time.Now()
-		accepted := grader.Grade([]byte(tc.Elements[i].Out), runResult.Output)
-		if accepted {
-			res.Accepted()
-			res.SetJudgeResultCode(i, ACCEPTED)
-		} else {
-			res.SetJudgeResultCode(i, WRONG_ANSWER)
+	done := 0
+	for num := range cnt {
+		done += num
+		if done >= tcNum {
+			break
 		}
 	}
 
-	marshaledRes, err := json.Marshal(res)
-	if err != nil {
-		out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}}
-		return
-	}
-	out <- JudgeResultMessage{marshaledRes, ParseFirstError(res.JudgeResult)}
+	out <- JudgeResultMessage{nil, ErrJudgeEnd}
+	return
 }
 
 // wrapper to use goroutine
@@ -330,4 +310,51 @@ func (j *JudgeHandler) getTestcase(out chan<- result.ChResult, problemId string)
 		return
 	}
 	out <- result.ChResult{Data: res}
+}
+
+func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
+	tc testcase.Element, out chan JudgeResultMessage, cnt chan int) {
+
+	var accepted bool
+	res := Result{}
+
+	time.Sleep(time.Millisecond)
+	runResult, err := j.runner.Run(sandbox.RunRequest{
+		Order:       idx,
+		Dir:         dir,
+		Language:    sandbox.Language(validReq.Language),
+		TimeLimit:   validReq.TimeLimit,
+		MemoryLimit: validReq.MemoryLimit,
+	}, []byte(tc.In))
+
+	if err != nil {
+		j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
+		res.JudgeResult.ResultCode = SYSTEM_ERROR
+		res.JudgeResult.Error = string(runResult.ErrOutput)
+		goto Send
+	}
+	res.SetJudgeResult(tc.Id, runResult.ExecResult)
+	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
+		goto Send
+	}
+
+	// 하나당 약 50microsec 10개 채점시 500microsec.
+	// output이 커지면 더 길어짐 -> FIXME: 최적화 과정에서 goroutine으로 수정
+	// st := time.Now()
+	accepted = grader.Grade([]byte(tc.Out), runResult.Output)
+	if accepted {
+		res.Accepted()
+		res.SetJudgeResultCode(ACCEPTED)
+	} else {
+		res.SetJudgeResultCode(WRONG_ANSWER)
+	}
+
+Send:
+	marshaledRes, err := json.Marshal(res)
+	if err != nil {
+		out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}}
+	} else {
+		out <- JudgeResultMessage{marshaledRes, ParseError(res.JudgeResult)}
+	}
+	cnt <- 1
 }

@@ -70,7 +70,7 @@ func (c *connector) Disconnect() {}
 func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 	// var result []byte
 
-	var resultChan chan []byte
+	resultChan := make(chan []byte)
 	if message.Type == "" {
 		resultChan <- router.NewResponse("", nil, fmt.Errorf("type(message property) must not be empty")).Marshal()
 	} else if message.MessageId == "" {
@@ -87,12 +87,18 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 		if err := c.producer.Publish(result, ctx); err != nil {
 			c.logger.Log(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result), err))
 			// nack
+		} else {
+			c.logger.Log(logger.DEBUG, fmt.Sprintf("result published: %s", string(result)))
 		}
-   
+
 		if err := message.Ack(false); err != nil {
 			c.logger.Log(logger.ERROR, fmt.Sprintf("failed to ack message: %s: %s", string(message.Body), err))
 			// retry
+		} else {
+			c.logger.Log(logger.DEBUG, "message ack")
 		}
 	}
+
+	c.logger.Log(logger.DEBUG, "connector done")
 
 }
