@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
-import { RolesModule } from '@libs/auth'
+import { APP_GUARD } from '@nestjs/core'
+import { GroupMemberGuard, RolesModule } from '@libs/auth'
 import { ContestModule } from '@client/contest/contest.module'
 import { WorkbookModule } from '@client/workbook/workbook.module'
 import { CodeDraftController } from './code-draft.controller'
@@ -20,7 +21,8 @@ import {
     ContestProblemService,
     WorkbookProblemService,
     CodeDraftService,
-    ProblemRepository
+    ProblemRepository,
+    { provide: APP_GUARD, useClass: GroupMemberGuard }
   ]
 })
 export class ProblemModule {}

@@ -7,13 +7,13 @@ import {
   Query
 } from '@nestjs/common'
 import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
-import { UseGroupMemberGuardOrNoAuth } from '@libs/auth'
+import { AuthNotNeededIfOpenSpace } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { AnnouncementService } from './announcement.service'
 
 @Controller('announcement')
-@UseGroupMemberGuardOrNoAuth()
+@AuthNotNeededIfOpenSpace()
 export class AnnouncementController {
   private readonly logger = new Logger(AnnouncementController.name)
 

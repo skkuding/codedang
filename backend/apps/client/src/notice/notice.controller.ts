@@ -12,13 +12,13 @@ import {
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
-import { UseGroupMemberGuardOrNoAuth } from '@libs/auth'
+import { AuthNotNeededIfOpenSpace } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe } from '@libs/pipe'
 import { NoticeService } from './notice.service'
 
 @Controller('notice')
-@UseGroupMemberGuardOrNoAuth()
+@AuthNotNeededIfOpenSpace()
 export class NoticeController {
   private readonly logger = new Logger(NoticeController.name)
 

@@ -7,18 +7,13 @@ import {
   Post,
   Req,
   Get,
-  UseGuards,
   Query,
   Logger,
   ConflictException
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
-import {
-  AuthenticatedRequest,
-  GroupMemberGuard,
-  UseGroupMemberGuardOrNoAuth
-} from '@libs/auth'
+import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -34,7 +29,7 @@ export class ContestController {
   constructor(private readonly contestService: ContestService) {}
 
   @Get()
-  @UseGroupMemberGuardOrNoAuth()
+  @AuthNotNeededIfOpenSpace()
   async getContests(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', IdValidationPipe) groupId: number | null
@@ -67,7 +62,7 @@ export class ContestController {
   }
 
   @Get('finished')
-  @UseGroupMemberGuardOrNoAuth()
+  @AuthNotNeededIfOpenSpace()
   async getFinishedContests(
     @Query('groupId', IdValidationPipe) groupId: number | null,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
@@ -86,7 +81,7 @@ export class ContestController {
   }
 
   @Get(':id')
-  @UseGroupMemberGuardOrNoAuth()
+  @AuthNotNeededIfOpenSpace()
   async getContest(
     @Query('groupId', IdValidationPipe) groupId: number | null,
     @Param('id', ParseIntPipe) id: number
@@ -107,7 +102,6 @@ export class ContestController {
   }
 
   @Post(':id/participation')
-  @UseGuards(GroupMemberGuard)
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', IdValidationPipe) groupId: number | null,

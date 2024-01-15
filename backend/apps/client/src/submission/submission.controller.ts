@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Param,
-  UseGuards,
   Body,
   Req,
   NotFoundException,
@@ -15,7 +14,7 @@ import {
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
-import { AuthenticatedRequest, GroupMemberGuard } from '@libs/auth'
+import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -26,7 +25,6 @@ import { CreateSubmissionDto } from './dto/create-submission.dto'
 import { SubmissionService } from './submission.service'
 
 @Controller('submission')
-@UseGuards(GroupMemberGuard)
 export class SubmissionController {
   private readonly logger = new Logger(SubmissionController.name)
 

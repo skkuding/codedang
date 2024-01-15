@@ -10,13 +10,13 @@ import {
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
-import { UseGroupMemberGuardOrNoAuth } from '@libs/auth'
+import { AuthNotNeededIfOpenSpace } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe } from '@libs/pipe'
 import { WorkbookService } from './workbook.service'
 
 @Controller('workbook')
-@UseGroupMemberGuardOrNoAuth()
+@AuthNotNeededIfOpenSpace()
 export class WorkbookController {
   private readonly logger = new Logger(WorkbookController.name)
 
