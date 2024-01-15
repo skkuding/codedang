@@ -78,7 +78,7 @@ export const usePagination = <T extends Item>(
     ;(async () => {
       const query = url.searchParams
       if (!query.has('take')) query.append('take', String(take + 1))
-      const data = await fetcher<T[]>(`${url.pathname}?${query}`)
+      const data = (await fetcher(`${url.pathname}?${query}`)) as unknown as T[]
 
       query.delete('take'), query.delete('cursor')
       const baseQuery = query.toString() ? `${query}&` : '?'
