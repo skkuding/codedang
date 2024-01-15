@@ -27,6 +27,8 @@ func (t *testcaseManager) GetTestcase(problemId string) (Testcase, error) {
 		return Testcase{}, fmt.Errorf("GetTestcase: %w", err)
 	}
 
+	fmt.Println("cache here", isExist)
+
 	if !isExist {
 		bytes, err := t.source.Get(problemId)
 		if err != nil {
@@ -58,5 +60,6 @@ func (t *testcaseManager) GetTestcase(problemId string) (Testcase, error) {
 	if err != nil {
 		return Testcase{}, fmt.Errorf("testcase: %w", err)
 	}
+	// t.cache.Evict(problemId)
 	return testcase, nil
 }

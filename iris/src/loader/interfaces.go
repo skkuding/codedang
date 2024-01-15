@@ -8,7 +8,12 @@ type Write interface {
 	Set(key string, value interface{}) error
 }
 
-type ReadWrite interface {
+type Evict interface {
+	Evict(key string) error
+}
+
+type CRUD interface {
 	Read
 	Write
+	Evict
 }
