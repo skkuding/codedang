@@ -1,30 +1,21 @@
 import { Injectable } from '@nestjs/common'
-import type { Contest, Prisma } from '@prisma/client'
+import type { Contest } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { ConflictFoundException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
-const contestSelectOption = {
-  id: true,
-  title: true,
-  startTime: true,
-  endTime: true,
-  group: { select: { id: true, groupName: true } },
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  _count: {
-    select: {
-      contestRecord: true
-    }
-  }
-} satisfies Prisma.ContestSelect
-
-export type ContestSelectResult = Prisma.ContestGetPayload<{
-  select: typeof contestSelectOption
-}>
-
 @Injectable()
 export class ContestService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private contestSelectOption = {
+    id: true,
+    title: true,
+    startTime: true,
+    endTime: true,
+    group: { select: { id: true, groupName: true } },
+    contestRecord: { select: { id: true } }
+  }
 
   async getContestsByGroupId<T extends number>(
     userId?: T,
@@ -60,13 +51,18 @@ export class ContestService {
             equals: true
           }
         },
-        select: contestSelectOption,
+        select: this.contestSelectOption,
         orderBy: {
           endTime: 'asc'
         }
       })
 
-      const contestsWithParticipants = this.renameToParticipants(contests)
+      const contestsWithParticipants = contests.map(
+        ({ contestRecord, ...rest }) => ({
+          ...rest,
+          participants: contestRecord.length
+        })
+      )
 
       return {
         ongoing: this.filterOngoing(contestsWithParticipants),
@@ -74,41 +70,29 @@ export class ContestService {
       }
     }
 
-    const registeredContestRecords = await this.prisma.contestRecord.findMany({
+    const userWithRegisteredContests = await this.prisma.user.findUnique({
       where: {
-        userId
+        id: userId
       },
       select: {
-        contestId: true
+        contest: {
+          where: {
+            endTime: {
+              gt: now
+            }
+          },
+          select: this.contestSelectOption,
+          orderBy: {
+            endTime: 'asc'
+          }
+        }
       }
     })
 
-    const registeredContestIds = registeredContestRecords.map(
-      (obj) => obj.contestId
-    )
+    const registeredContests = userWithRegisteredContests?.contest ?? []
 
-    let registeredContests: ContestSelectResult[] = []
-    let restContests: ContestSelectResult[] = []
-
-    if (registeredContestIds) {
-      registeredContests = await this.prisma.contest.findMany({
-        where: {
-          groupId, // TODO: 기획 상 필요한 부분인지 확인하고 삭제
-          id: {
-            in: registeredContestIds
-          },
-          endTime: {
-            gt: now
-          }
-        },
-        select: contestSelectOption,
-        orderBy: {
-          endTime: 'asc'
-        }
-      })
-    }
-
-    restContests = await this.prisma.contest.findMany({
+    const registeredContestId = registeredContests.map((contest) => contest.id)
+    const contests = await this.prisma.contest.findMany({
       where: {
         groupId,
         endTime: {
@@ -119,26 +103,27 @@ export class ContestService {
           equals: true
         },
         id: {
-          notIn: registeredContestIds
+          notIn: registeredContestId
         }
       },
-      select: contestSelectOption,
+      select: this.contestSelectOption,
       orderBy: {
         endTime: 'asc'
       }
     })
 
-    const registeredContestsWithParticipants =
-      this.renameToParticipants(registeredContests)
-    const restContestsWithParticipants = this.renameToParticipants(restContests)
+    const contestsWithParticipants = contests.map(
+      ({ contestRecord, ...rest }) => ({
+        ...rest,
+        participants: contestRecord.length
+      })
+    )
 
     return {
-      registeredOngoing: this.filterOngoing(registeredContestsWithParticipants),
-      registeredUpcoming: this.filterUpcoming(
-        registeredContestsWithParticipants
-      ),
-      ongoing: this.filterOngoing(restContestsWithParticipants),
-      upcoming: this.filterUpcoming(restContestsWithParticipants)
+      registeredOngoing: this.filterOngoing(registeredContests),
+      registeredUpcoming: this.filterUpcoming(registeredContests),
+      ongoing: this.filterOngoing(contestsWithParticipants),
+      upcoming: this.filterUpcoming(contestsWithParticipants)
     }
   }
 
@@ -152,7 +137,6 @@ export class ContestService {
 
     const finished = await this.prisma.contest.findMany({
       ...paginator,
-      take,
       where: {
         endTime: {
           lte: now
@@ -163,21 +147,12 @@ export class ContestService {
           equals: true
         }
       },
-      select: contestSelectOption,
+      select: this.contestSelectOption,
       orderBy: {
         endTime: 'desc'
       }
     })
-    return { finished: this.renameToParticipants(finished) }
-  }
-
-  // TODO: participants 대신 _count.contestRecord 그대로 사용하는 것 고려해보기
-  /** 가독성을 위해 _count.contestRecord를 participants로 변경한다. */
-  renameToParticipants(contests: ContestSelectResult[]) {
-    return contests.map(({ _count: countObject, ...rest }) => ({
-      ...rest,
-      participants: countObject.contestRecord
-    }))
+    return { finished }
   }
 
   startTimeCompare(
@@ -228,7 +203,7 @@ export class ContestService {
         }
       },
       select: {
-        ...contestSelectOption,
+        ...this.contestSelectOption,
         description: true
       }
     })
