@@ -7,6 +7,8 @@ import {
 } from '@libs/exception'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
+import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
+import type { CreateTemplateDto } from './dto/create-code-draft.dto'
 import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
@@ -145,5 +147,28 @@ export class WorkbookProblemService {
       problemId
     )
     return plainToInstance(RelatedProblemResponseDto, data)
+  }
+}
+
+@Injectable()
+export class CodeDraftService {
+  constructor(private readonly problemRepository: ProblemRepository) {}
+
+  async getCodeDraft(userId: number, problemId: number) {
+    const data = await this.problemRepository.getCodeDraft(userId, problemId)
+    return plainToInstance(CodeDraftResponseDto, data)
+  }
+
+  async upsertCodeDraft(
+    userId: number,
+    problemId: number,
+    createTemplateDto: CreateTemplateDto
+  ) {
+    const data = await this.problemRepository.upsertCodeDraft(
+      userId,
+      problemId,
+      createTemplateDto
+    )
+    return plainToInstance(CodeDraftResponseDto, data)
   }
 }

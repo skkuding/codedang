@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Injectable } from '@nestjs/common'
-import type { Prisma, Problem, Tag } from '@prisma/client'
+import type { Problem, Tag, CodeDraft, Prisma } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
+import type { CodeDraftUpdateInput } from '@admin/@generated'
+import type { CreateTemplateDto } from './dto/create-code-draft.dto'
 import type { ProblemOrder } from './schema/problem-order.schema'
 
 /**
@@ -39,6 +41,14 @@ export class ProblemRepository {
     acceptedCount: true,
     inputExamples: true,
     outputExamples: true
+  }
+
+  private readonly codeDraftSelectOption = {
+    userId: true,
+    problemId: true,
+    template: true,
+    createTime: true,
+    updateTime: true
   }
 
   async getProblems({
@@ -252,6 +262,45 @@ export class ProblemRepository {
           select: this.problemSelectOption
         }
       }
+    })
+  }
+
+  async getCodeDraft(
+    userId: number,
+    problemId: number
+  ): Promise<Partial<CodeDraft>> {
+    return await this.prisma.codeDraft.findUniqueOrThrow({
+      where: {
+        codeDraftId: {
+          userId,
+          problemId
+        }
+      },
+      select: this.codeDraftSelectOption
+    })
+  }
+
+  async upsertCodeDraft(
+    userId: number,
+    problemId: number,
+    template: CreateTemplateDto
+  ): Promise<Partial<CodeDraft>> {
+    return await this.prisma.codeDraft.upsert({
+      where: {
+        codeDraftId: {
+          userId,
+          problemId
+        }
+      },
+      update: {
+        template: template.template as CodeDraftUpdateInput['template']
+      },
+      create: {
+        userId,
+        problemId,
+        template: template.template as CodeDraftUpdateInput['template']
+      },
+      select: this.codeDraftSelectOption
     })
   }
 }
