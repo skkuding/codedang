@@ -18,7 +18,7 @@ export default function Footer() {
   }
   return (
     <footer className="mt-8 w-full items-center">
-      <div className="flex h-[125px] w-full flex-col items-end justify-center gap-5 bg-gray-50 px-20 pb-[30px] text-gray-400 md:flex-row md:justify-between">
+      <div className="flex h-[125px] w-full flex-col items-end justify-center gap-3 bg-gray-50 px-20 pb-[30px] text-gray-400 md:flex-row md:justify-between">
         <div>
           <p className="font-bold">(c) SKKUDING / Since 2021</p>
         </div>
