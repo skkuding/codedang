@@ -3,11 +3,10 @@ import {
   Logger,
   NotFoundException,
   ParseIntPipe,
-  UnprocessableEntityException,
-  UseGuards
+  UnprocessableEntityException
 } from '@nestjs/common'
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql'
-import { AuthenticatedRequest, GroupLeaderGuard } from '@libs/auth'
+import { AuthenticatedRequest } from '@libs/auth'
 import {
   EntityNotExistException,
   UnprocessableDataException
@@ -22,7 +21,6 @@ export class NoticeResolver {
   constructor(private readonly noticeService: NoticeService) {}
 
   @Mutation(() => Notice)
-  @UseGuards(GroupLeaderGuard)
   async createNotice(
     @Args('input') input: CreateNoticeInput,
     @Args('groupId', ParseIntPipe)
@@ -43,7 +41,6 @@ export class NoticeResolver {
   }
 
   @Mutation(() => Notice)
-  @UseGuards(GroupLeaderGuard)
   async deleteNotice(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('noticeId', ParseIntPipe) noticeId: number
@@ -60,7 +57,6 @@ export class NoticeResolver {
   }
 
   @Mutation(() => Notice)
-  @UseGuards(GroupLeaderGuard)
   async updateNotice(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('input') input: UpdateNoticeInput
