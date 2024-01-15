@@ -1,3 +1,3 @@
 export default function ContestStandings() {
-  return <h1>Contest Standings</h1>
+  return <h1>Standings</h1>
 }

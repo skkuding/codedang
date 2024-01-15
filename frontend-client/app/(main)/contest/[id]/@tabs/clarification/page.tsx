@@ -1,3 +1,3 @@
 export default function ContestClarification() {
-  return <h1>Contest Clarification</h1>
+  return <h1>Clarification</h1>
 }
