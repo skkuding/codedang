@@ -17,8 +17,11 @@ export default function Footer() {
     }
   }
   return (
-    <footer className="w-full items-center py-7">
-      <div className="flex h-20 w-full flex-col items-center justify-center gap-2 bg-gray-100 text-slate-500">
+    <footer className="mt-8 w-full items-center">
+      <div className="flex h-[125px] w-full flex-col items-end justify-center gap-3 bg-gray-50 px-20 pb-[30px] text-gray-400 md:flex-row md:justify-between">
+        <div>
+          <p className="font-bold">(c) SKKUDING / Since 2021</p>
+        </div>
         <div className="flex flex-row items-center justify-center gap-4">
           <a
             href="https://pf.kakao.com/_UKraK/chat"
@@ -26,14 +29,14 @@ export default function Footer() {
             target="_blank"
           >
             <RiKakaoTalkFill
-              className="cursor-pointer hover:text-slate-600"
-              size="24"
+              className="cursor-pointer hover:text-gray-500"
+              size="27"
             />
           </a>
           <TbMailFilled
             onClick={copyToClipboard}
-            className="cursor-pointer hover:text-slate-600"
-            size="24"
+            className="cursor-pointer hover:text-gray-500"
+            size="27"
           />
           <a
             rel="noreferrer noopener"
@@ -41,8 +44,8 @@ export default function Footer() {
             href="https://github.com/skkuding/"
           >
             <RiGithubFill
-              className="cursor-pointer hover:text-slate-600"
-              size="24"
+              className="cursor-pointer hover:text-gray-500"
+              size="27"
             />
           </a>
           <a
@@ -52,14 +55,9 @@ export default function Footer() {
           >
             <IoIosLink
               className="cursor-pointer hover:text-slate-600"
-              size="23"
+              size="26"
             />
           </a>
-        </div>
-        <div>
-          <p className="text-sm font-bold">
-            (c) SKKUDING &nbsp;&nbsp;/ Since 2021
-          </p>
         </div>
       </div>
     </footer>
