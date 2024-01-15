@@ -60,12 +60,13 @@ export class NoticeResolver {
   }
 
   @Mutation(() => Notice)
+  @UseGuards(GroupLeaderGuard)
   async updateNotice(
     @Args('groupId', ParseIntPipe) groupId: number,
     @Args('input') input: UpdateNoticeInput
   ) {
     try {
-      return await this.noticeService.updateContest(groupId, input)
+      return await this.noticeService.updateNotice(groupId, input)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)

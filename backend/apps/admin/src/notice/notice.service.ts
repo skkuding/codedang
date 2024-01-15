@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { Notice } from '@admin/@generated'
-import { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
+import type { Notice } from '@admin/@generated'
+import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 
 @Injectable()
 export class NoticeService {
@@ -37,6 +37,15 @@ export class NoticeService {
   }
 
   async deleteNotice(groupId: number, noticeId: number) {
+    const group = await this.prisma.group.findUnique({
+      where: {
+        id: groupId
+      }
+    })
+    if (!group) {
+      throw new EntityNotExistException('Group')
+    }
+
     const notice = await this.prisma.notice.findFirst({
       where: {
         id: noticeId,
@@ -47,7 +56,7 @@ export class NoticeService {
       throw new EntityNotExistException('notice')
     }
 
-    await this.prisma.contest.delete({
+    await this.prisma.notice.delete({
       where: {
         id: noticeId
       }
@@ -56,7 +65,7 @@ export class NoticeService {
     return notice
   }
 
-  async updateContest(
+  async updateNotice(
     groupId: number,
     notice: UpdateNoticeInput
   ): Promise<Notice> {
