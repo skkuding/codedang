@@ -59,7 +59,7 @@ export default async function Home() {
             <Link href="/contest">
               <Button
                 variant="ghost"
-                className="text-md rounded-full border-gray-500 px-5 font-semibold"
+                className="h-6 rounded-md border border-gray-500 px-5 text-sm font-semibold"
               >
                 More
               </Button>
@@ -93,7 +93,7 @@ export default async function Home() {
             <Link href={'/workbook/1' as Route}>
               <Button
                 variant="ghost"
-                className="text-md rounded-full border-gray-500 px-5 font-semibold"
+                className="h-6 rounded-md border border-gray-500 px-5 text-sm font-semibold"
               >
                 More
               </Button>
