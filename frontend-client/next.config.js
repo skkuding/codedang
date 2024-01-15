@@ -3,7 +3,12 @@ const nextConfig = {
   experimental: {
     typedRoutes: true
   },
-  output: 'standalone'
+  output: 'standalone',
+  env: {
+    NEXTAUTH_URL: process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}/next-auth/api/auth`
+      : process.env.NEXTAUTH_URL
+  }
 }
 
 module.exports = nextConfig
