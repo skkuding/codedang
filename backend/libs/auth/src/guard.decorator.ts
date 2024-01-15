@@ -5,7 +5,8 @@ import { ROLES_KEY } from './roles/roles.decorator'
 import { RolesGuard } from './roles/roles.guard'
 
 export const AUTH_NOT_NEEDED_KEY = 'auth-not-needed'
-export const AuthNotNeeded = () => SetMetadata('auth-not-needed', true)
+export const AuthNotNeededIfOpenSpace = () =>
+  SetMetadata('auth-not-needed', true)
 
 export const LEADER_NOT_NEEDED_KEY = 'leader-not-needed'
 export const UseRolesGuard = (role: Role = Role.Admin) => {
@@ -18,5 +19,8 @@ export const UseRolesGuard = (role: Role = Role.Admin) => {
 
 // groupId가 URL query로 주어지는지 여부에 따라 주어지지 않는 경우 AuthNotNeeded가, 주어지는 경우 GroupMemberGuard가 작동됨
 export const UseGroupMemberGuardOrNoAuth = () => {
-  return applyDecorators(AuthNotNeeded(), UseGuards(GroupMemberGuard))
+  return applyDecorators(
+    AuthNotNeededIfOpenSpace(),
+    UseGuards(GroupMemberGuard)
+  )
 }
