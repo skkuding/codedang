@@ -43,6 +43,14 @@ func (c *cache) Set(key string, value interface{}) error {
 	return nil
 }
 
+func (c *cache) Evict(key string) error {
+	res := c.client.Del(c.ctx, key)
+	if _, err := res.Result(); err != nil {
+		return fmt.Errorf("failed to evict key: %w", err)
+	}
+	return nil
+}
+
 func (c *cache) IsExist(key string) (bool, error) {
 	val, err := c.client.Exists(c.ctx, key).Result()
 	if val > 0 {

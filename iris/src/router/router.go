@@ -13,6 +13,7 @@ const (
 	SpecialJudge = "specialJudge"
 	Run          = "run"
 	Interactive  = "interactive"
+	Cache        = "cache"
 )
 
 type Router interface {
@@ -38,6 +39,8 @@ func (r *router) Route(path string, id string, data []byte) []byte {
 	switch path {
 	case Judge:
 		handlerResult, err = r.judgeHandler.Handle(id, data)
+	case Cache:
+		// cache handler
 	case SpecialJudge:
 		// special-judge handler
 	case Run:
