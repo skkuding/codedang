@@ -1,17 +1,13 @@
 meta {
-  name: Succeed
+  name: Succeed(Open Space)
   type: http
   seq: 1
 }
 
 get {
-  url: {{baseUrl}}/notice/2?groupId=1
+  url: {{baseUrl}}/notice/2
   body: none
   auth: none
-}
-
-query {
-  groupId: 1
 }
 
 assert {
@@ -23,8 +19,4 @@ assert {
   res("current").createdBy: isString
   res("prev"): isDefined
   res("next"): isDefined
-}
-
-script:pre-request {
-  await require("./login").loginUser(req);
 }

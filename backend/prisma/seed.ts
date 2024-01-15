@@ -864,9 +864,9 @@ const createProblems = async () => {
 }
 
 const createContests = async () => {
-  // add ongoing contenst
-  ongoingContests.push(
-    await prisma.contest.create({
+  const contestData = [
+    // Ongoing Contests
+    {
       data: {
         title: 'SKKU Coding Platform 모의대회',
         description: `<p>
@@ -908,16 +908,13 @@ const createContests = async () => {
           isRankVisible: true
         }
       }
-    })
-  )
-
-  ongoingContests.push(
-    await prisma.contest.create({
+    },
+    {
       data: {
         title: '24년도 소프트웨어학과 신입생 입학 테스트1',
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        groupId: privateGroup.id,
+        groupId: publicGroup.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         config: {
@@ -925,16 +922,13 @@ const createContests = async () => {
           isRankVisible: true
         }
       }
-    })
-  )
-
-  ongoingContests.push(
-    await prisma.contest.create({
+    },
+    {
       data: {
         title: '24년도 소프트웨어학과 신입생 입학 테스트2',
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
         createdById: superAdminUser.id,
-        groupId: privateGroup.id,
+        groupId: publicGroup.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         config: {
@@ -942,14 +936,25 @@ const createContests = async () => {
           isRankVisible: true
         }
       }
-    })
-  )
-
-  ongoingContests.push(
-    await prisma.contest.create({
+    },
+    {
       data: {
         title: '24년도 소프트웨어학과 신입생 입학 테스트3',
         description: '<p>이 대회는 현재 진행 중입니다 !</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('2024-01-01T00:00:00.000Z'),
+        endTime: new Date('2028-01-01T23:59:59.000Z'),
+        config: {
+          isVisible: true,
+          isRankVisible: true
+        }
+      }
+    },
+    {
+      data: {
+        title: '24년도 아늑배 스파게티 코드 만들기 대회',
+        description: '<p>이 대회는 현재 진행 중입니다 ! (private group)</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
@@ -959,12 +964,9 @@ const createContests = async () => {
           isRankVisible: true
         }
       }
-    })
-  )
-
-  // add ended contests
-  endedContests.push(
-    await prisma.contest.create({
+    },
+    // Finished Contests
+    {
       data: {
         title: 'Long Time Ago Contest',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
@@ -977,11 +979,8 @@ const createContests = async () => {
           isRankVisible: false
         }
       }
-    })
-  )
-
-  endedContests.push(
-    await prisma.contest.create({
+    },
+    {
       data: {
         title: '23년도 소프트웨어학과 신입생 입학 테스트',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
@@ -991,14 +990,11 @@ const createContests = async () => {
         endTime: new Date('2024-01-01T23:59:59.000Z'),
         config: {
           isVisible: true,
-          isRankVisible: false
+          isRankVisible: true
         }
       }
-    })
-  )
-
-  endedContests.push(
-    await prisma.contest.create({
+    },
+    {
       data: {
         title: '소프트의 아침',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
@@ -1011,11 +1007,8 @@ const createContests = async () => {
           isRankVisible: false
         }
       }
-    })
-  )
-
-  endedContests.push(
-    await prisma.contest.create({
+    },
+    {
       data: {
         title: '소프트의 낮',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
@@ -1028,11 +1021,8 @@ const createContests = async () => {
           isRankVisible: false
         }
       }
-    })
-  )
-
-  endedContests.push(
-    await prisma.contest.create({
+    },
+    {
       data: {
         title: '소프트의 밤',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
@@ -1045,11 +1035,8 @@ const createContests = async () => {
           isRankVisible: false
         }
       }
-    })
-  )
-
-  endedContests.push(
-    await prisma.contest.create({
+    },
+    {
       data: {
         title: '2023 SKKU 프로그래밍 대회',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
@@ -1062,11 +1049,8 @@ const createContests = async () => {
           isRankVisible: false
         }
       }
-    })
-  )
-
-  endedContests.push(
-    await prisma.contest.create({
+    },
+    {
       data: {
         title: '소프트의 오전',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
@@ -1079,11 +1063,8 @@ const createContests = async () => {
           isRankVisible: false
         }
       }
-    })
-  )
-
-  endedContests.push(
-    await prisma.contest.create({
+    },
+    {
       data: {
         title: '소프트의 오후',
         description: '<p>이 대회는 오래 전에 끝났어요</p>',
@@ -1096,17 +1077,28 @@ const createContests = async () => {
           isRankVisible: false
         }
       }
-    })
-  )
-
-  // add upcoming contests
-  upcomingContests.push(
-    await prisma.contest.create({
+    },
+    {
+      data: {
+        title: '23년도 아늑배 스파게티 코드 만들기 대회',
+        description: '<p>이 대회는 오래 전에 끝났어요 (private group)</p>',
+        createdById: superAdminUser.id,
+        groupId: privateGroup.id,
+        startTime: new Date('2023-01-01T00:00:00.000Z'),
+        endTime: new Date('2024-01-01T23:59:59.000Z'),
+        config: {
+          isVisible: true,
+          isRankVisible: true
+        }
+      }
+    },
+    // Upcoming Contests
+    {
       data: {
         title: 'Future Contest',
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
         createdById: superAdminUser.id,
-        groupId: privateGroup.id,
+        groupId: publicGroup.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
         config: {
@@ -1114,14 +1106,40 @@ const createContests = async () => {
           isRankVisible: true
         }
       }
-    })
-  )
-
-  upcomingContests.push(
-    await prisma.contest.create({
+    },
+    {
       data: {
         title: '2024 SKKU 프로그래밍 대회',
         description: '<p>이 대회는 언젠가 열리겠죠...?</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        config: {
+          isVisible: true,
+          isRankVisible: true
+        }
+      }
+    },
+    {
+      data: {
+        title: '2024 스꾸딩 프로그래밍 대회',
+        description:
+          '<p>이 대회는 언젠가 열리겠죠...? isVisible이 false인 contest입니다</p>',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        startTime: new Date('3024-01-01T00:00:00.000Z'),
+        endTime: new Date('3025-01-01T23:59:59.000Z'),
+        config: {
+          isVisible: false,
+          isRankVisible: true
+        }
+      }
+    },
+    {
+      data: {
+        title: '25년도 아늑배 스파게티 코드 만들기 대회',
+        description: '<p>이 대회는 언젠가 열리겠죠...? (private group)</p>',
         createdById: superAdminUser.id,
         groupId: privateGroup.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
@@ -1131,8 +1149,20 @@ const createContests = async () => {
           isRankVisible: true
         }
       }
-    })
-  )
+    }
+  ]
+
+  const now = new Date()
+  for (const obj of contestData) {
+    const contest = await prisma.contest.create(obj)
+    if (now < obj.data.startTime) {
+      upcomingContests.push(contest)
+    } else if (obj.data.endTime < now) {
+      endedContests.push(contest)
+    } else {
+      ongoingContests.push(contest)
+    }
+  }
 
   // add problems to contest
   for (const problem of problems) {

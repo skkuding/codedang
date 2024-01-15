@@ -5,13 +5,9 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/2?groupId=1
+  url: {{baseUrl}}/group/1/contest/2
   body: none
   auth: none
-}
-
-query {
-  groupId: 1
 }
 
 assert {
@@ -23,6 +19,7 @@ assert {
   res("group").id: isNumber
   res("group").groupName: isString
   res("description"): isString
+  res("_count.contestRecord"): isNumber 
 }
 
 script:pre-request {

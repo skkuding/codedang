@@ -1,18 +1,18 @@
 meta {
   name: Succeed
   type: http
-  seq: 1
+  seq: 3
 }
 
 get {
-  url: {{baseUrl}}/problem/1?contestId=1
+  url: {{baseUrl}}/problem/1?contestId=1&groupId=1
   body: none
   auth: none
 }
 
 query {
   contestId: 1
-  ~groupId: 1
+  groupId: 1
 }
 
 assert {

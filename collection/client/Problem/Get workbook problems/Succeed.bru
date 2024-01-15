@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/problem?workbookId=1&take=5
+  url: {{baseUrl}}/problem?workbookId=1&take=5&groupId=1
   body: none
   auth: none
 }
@@ -13,7 +13,7 @@ get {
 query {
   workbookId: 1
   take: 5
-  ~groupId: 1
+  groupId: 1
   ~cursor: 1
 }
 
@@ -21,5 +21,5 @@ assert {
   res.status: eq 200
   res.body[0].order: isNumber
   res.body[0].problemId: isNumber
-  res.body[0].difficulty: string
+  res.body[0].difficulty: isString string
 }

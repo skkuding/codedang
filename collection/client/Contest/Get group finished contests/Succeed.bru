@@ -5,13 +5,12 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/finished?groupId=1&take=10
+  url: {{baseUrl}}/group/1/contest/finished?take=10
   body: none
   auth: none
 }
 
 query {
-  groupId: 1
   take: 10
   ~cursor: 1
 }
@@ -24,6 +23,7 @@ assert {
   res("finished")[0].endTime: isString
   res("finished")[0].group.id: isNumber
   res("finished")[0].group.groupName: isString
+  res("finished")[0].participants: isNumber 
 }
 
 script:pre-request {
