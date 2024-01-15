@@ -1,11 +1,11 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { baseUrl } from '@/lib/vars'
+import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import type { FormData } from './SignUp'
 
 interface EmailVerifyInput {
   email: string
@@ -20,13 +20,8 @@ const schema = z.object({
     .max(6, { message: 'Code must be 6 characters long' })
 })
 
-export default function SignUpEmailVerify({
-  nextModal,
-  setFormData
-}: {
-  nextModal: () => void
-  setFormData: React.Dispatch<React.SetStateAction<FormData>>
-}) {
+export default function SignUpEmailVerify() {
+  const { nextModal, setFormData } = useSignUpModalStore((state) => state)
   const {
     handleSubmit,
     register,
@@ -104,11 +99,9 @@ export default function SignUpEmailVerify({
   return (
     <div className="mb-24 mt-24">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <p className="mb-5 text-left text-xl font-bold text-blue-500">
-            Sign Up
-          </p>
-        </div>
+        <p className="mb-5 mt-8 text-left text-xl font-bold text-blue-500">
+          Sign Up
+        </p>
         {!sentEmail && (
           <Input
             id="email"

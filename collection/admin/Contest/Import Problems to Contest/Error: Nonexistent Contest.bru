@@ -1,0 +1,32 @@
+meta {
+  name: Error: Nonexistent Contest
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    importProblemsToContest(
+      groupId: 1
+      contestId: 99999
+      problemIds: [7, 8]
+    ) {
+      contestId
+      problemId
+      createTime
+      updateTime
+      order
+      score
+    }
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+}

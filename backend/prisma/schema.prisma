@@ -54,6 +54,7 @@ model User {
   workbook      Workbook[]
   submission    Submission[]
   useroauth     UserOAuth?
+  CodeDraft     CodeDraft[]
 
   @@map("user")
 }
@@ -175,6 +176,7 @@ model Problem {
   workbookProblem WorkbookProblem[]
   submission      Submission[]
   announcement    Announcement[]
+  CodeDraft       CodeDraft[]
 
   @@map("problem")
 }
@@ -334,7 +336,7 @@ model WorkbookProblem {
 }
 
 model Submission {
-  id         String       @id // 6 digit hex hash
+  id         Int          @id @default(autoincrement())
   user       User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId     Int?         @map("user_id")
   problem    Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
@@ -365,7 +367,7 @@ model Submission {
 model SubmissionResult {
   id                Int             @id @default(autoincrement())
   submission        Submission      @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  submissionId      String          @map("submission_id")
+  submissionId      Int             @map("submission_id")
   problemTestcase   ProblemTestcase @relation(fields: [problemTestcaseId], references: [id], onDelete: Cascade)
   problemTestcaseId Int             @map("problem_test_case_id")
   result            ResultStatus
@@ -374,7 +376,7 @@ model SubmissionResult {
   createTime        DateTime        @default(now()) @map("create_time")
   updateTime        DateTime        @updatedAt @map("update_time")
 
-  @@map("submssion_result")
+  @@map("submission_result")
 }
 
 enum ResultStatus {
@@ -387,4 +389,27 @@ enum ResultStatus {
   MemoryLimitExceeded
   OutputLimitExceeded
   ServerError
+}
+
+model CodeDraft {
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int     @map("user_id")
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int     @map("problem_id")
+
+  /// template code item structure
+  /// {
+  ///   "lanaguage": Language,
+  ///   "code": {
+  ///             "id": number,
+  ///             "text": string,
+  ///             "locked": boolean
+  ///           }[]
+  /// }
+  template   Json[]
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+
+  @@id(name: "codeDraftId", [userId, problemId])
+  @@map("code_draft")
 }

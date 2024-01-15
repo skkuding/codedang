@@ -36,6 +36,7 @@ jobs:
         if: ${{ matrix.target == 'frontend-client' }}
         run: |
           echo "NEXT_PUBLIC_BASEURL=https://dev.codedang.com/api" >> frontend-client/.env
+          echo "NEXT_URL=https://dev.codedang.com" >> frontend-client/.env
 
       # If target is backend-admin, run `pnpm --filter backend build admin`
       # For other targets, run `pnpm --filter <target> build`
@@ -78,6 +79,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: iris/go.mod
+          cache-dependency-path: iris/go.sum
 
       - name: Lint pull request title
         if: ${{ github.event_name == 'pull_request' }}
