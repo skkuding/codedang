@@ -156,7 +156,7 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			level:   logger.ERROR,
 			Message: err.Error(),
 		}}
-		out <- JudgeResultMessage{nil, ErrJudgeEnd}
+		close(out)
 		return
 	}
 	validReq, err := req.Validate()
@@ -167,13 +167,14 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			level:   logger.ERROR,
 			Message: err.Error(),
 		}}
-		out <- JudgeResultMessage{nil, ErrJudgeEnd}
+		close(out)
 		return
 	}
 
 	dir := utils.RandString(constants.DIR_NAME_LEN) + id
 	defer func() {
 		j.file.RemoveDir(dir)
+		close(out)
 		j.logger.Log(logger.DEBUG, fmt.Sprintf("task %s done: total time: %s", dir, time.Since(startedAt)))
 	}()
 
@@ -184,7 +185,6 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			level:   logger.ERROR,
 			Message: err.Error(),
 		}}
-		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 
@@ -196,7 +196,6 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			level:   logger.ERROR,
 			Message: err.Error(),
 		}}
-		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 
@@ -207,7 +206,6 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			level:   logger.ERROR,
 			Message: err.Error(),
 		}}
-		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 
@@ -227,7 +225,6 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			level:   logger.ERROR,
 			Message: testcaseOut.Err.Error(),
 		}}
-		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 	// elements, ok := testcaseOut.Data.([]testcase.Element)
@@ -239,7 +236,6 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			err:    fmt.Errorf("%w: Testcase", ErrTypeAssertionFail),
 			level:  logger.ERROR,
 		}}
-		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 
@@ -250,7 +246,6 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			err:    fmt.Errorf("%w: %s", ErrSandbox, compileOut.Err),
 			level:  logger.ERROR,
 		}}
-		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 	compileResult, ok := compileOut.Data.(sandbox.CompileResult)
@@ -260,7 +255,6 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 			err:    fmt.Errorf("%w: CompileResult", ErrTypeAssertionFail),
 			level:  logger.INFO,
 		}}
-		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 	if compileResult.ExecResult.ResultCode != sandbox.SUCCESS {
@@ -269,27 +263,18 @@ func (j *JudgeHandler) Handle(id string, data []byte, out chan JudgeResultMessag
 		out <- JudgeResultMessage{nil, &HandlerError{
 			err: ErrCompile, Message: compileResult.ErrOutput,
 		}}
-		out <- JudgeResultMessage{nil, ErrJudgeEnd}
 		return
 	}
 
 	tcNum := tc.Count()
-	fmt.Println("total testcase : ", tcNum)
 	cnt := make(chan int)
 	for i := 0; i < tcNum; i++ {
 		go j.judgeTestcase(i, dir, validReq, tc.Elements[i], out, cnt)
 	}
 
-	done := 0
-	for num := range cnt {
-		done += num
-		if done >= tcNum {
-			break
-		}
+	for i := 0; i < tcNum; i++ {
+		<-cnt
 	}
-
-	out <- JudgeResultMessage{nil, ErrJudgeEnd}
-	return
 }
 
 // wrapper to use goroutine
