@@ -20,7 +20,9 @@ export default function TimeDiff({ timeRef }: Props) {
 
   const diff = dayjs.duration(dayjs(timeRef).diff(now))
   const days = Math.floor(diff.asDays())
-  const hours = Math.floor(diff.asHours()).toString().padStart(2, '0')
+  const hours = Math.floor(diff.asHours() % 24)
+    .toString()
+    .padStart(2, '0')
 
   return (
     <p>
