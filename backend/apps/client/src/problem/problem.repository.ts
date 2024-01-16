@@ -105,6 +105,23 @@ export class ProblemRepository {
     })
   }
 
+  // TODO/FIXME: postgreSQL의 full text search를 사용하여 검색하려 했으나
+  // 그럴 경우 띄어쓰기를 기준으로 나눠진 단어 단위로만 검색이 가능하다
+  // ex) "hello world"를 검색하면 "hello"와 "world"로 검색이 된다.
+  // 글자 단위로 검색하기 위해서, 성능을 희생하더라도 contains를 사용하여 구현했다.
+  // 추후에 검색 성능을 개선할 수 있는 방법을 찾아보자
+  // 아니면 텍스트가 많은 field에서는 full-text search를 사용하고, 텍스트가 적은 field에서는 contains를 사용하는 방법도 고려해보자.
+  async searchProblemTitle(search: string): Promise<Partial<Problem>[]> {
+    return await this.prisma.problem.findMany({
+      where: {
+        title: {
+          contains: search
+        }
+      },
+      select: this.problemsSelectOption
+    })
+  }
+
   async getProblemTags(problemId: number): Promise<Partial<Tag>[]> {
     return (
       await this.prisma.problemTag.findMany({
