@@ -19,7 +19,7 @@ export default function Layout({
         <Button
           variant={'link'}
           onClick={() => {
-            router.push(`/contest/${id}/top`)
+            router.push(`/contest/${id}`)
           }}
         >
           Top
