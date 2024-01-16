@@ -24,55 +24,58 @@ export default async function Layout({
   tabs: React.ReactNode
 }) {
   const { id } = params
-  const contest: Contest = await fetcher.get(`contest/${id}`).json()
+  const res = await fetcher.get(`contest/${id}`)
+  if (res.ok) {
+    const data: Contest = await res.json()
+    const currentTime = new Date()
+    const startTime = new Date(data.startTime)
+    const endTime = new Date(data.endTime)
 
-  const currentTime = new Date()
-  const startTime = new Date(contest.startTime)
-  const endTime = new Date(contest.endTime)
+    if (currentTime < startTime) {
+      data.status = 'upcoming'
+    } else if (currentTime > endTime) {
+      data.status = 'finished'
+    } else {
+      data.status = 'ongoing'
+    }
 
-  if (currentTime < startTime) {
-    contest.status = 'upcoming'
-  } else if (currentTime > endTime) {
-    contest.status = 'finished'
-  } else {
-    contest.status = 'ongoing'
+    const year = new Date().getFullYear()
+    const start = format(data.startTime, year)
+    const end = format(data.endTime, year)
+
+    return (
+      <article>
+        <header className="flex justify-between p-5 py-8">
+          <h2 className="break-words text-2xl font-extrabold">{data.title}</h2>
+          {data.status === 'finished' && (
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <p>Finished</p>
+              <FaRegCalendarAlt className="shrink-0" />
+              <p>
+                {start} - {end}
+              </p>
+            </div>
+          )}
+          {data.status === 'ongoing' && (
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <p>Ongoing</p>
+              <FaRegClock className="shrink-0" />
+              <p className="text-red-500">
+                <TimeDiff timeRef={data.endTime}></TimeDiff>
+              </p>
+            </div>
+          )}
+          {data.status === 'upcoming' && (
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <p>Upcoming</p>
+              <FaRegClock className="shrink-0" />
+              <TimeDiff timeRef={data.startTime}></TimeDiff>
+            </div>
+          )}
+        </header>
+        {tabs}
+      </article>
+    )
   }
-
-  const year = new Date().getFullYear()
-  const start = format(contest.startTime, year)
-  const end = format(contest.endTime, year)
-
-  return (
-    <article>
-      <header className="flex justify-between p-5 py-8">
-        <h2 className="break-words text-2xl font-extrabold">{contest.title}</h2>
-        {contest.status === 'finished' && (
-          <div className="flex items-center gap-2 text-sm text-gray-400">
-            <p>Finished</p>
-            <FaRegCalendarAlt className="shrink-0" />
-            <p>
-              {start} - {end}
-            </p>
-          </div>
-        )}
-        {contest.status === 'ongoing' && (
-          <div className="flex items-center gap-2 text-sm text-gray-400">
-            <p>Ongoing</p>
-            <FaRegClock className="shrink-0" />
-            <p className="text-red-500">
-              <TimeDiff timeRef={contest.endTime}></TimeDiff>
-            </p>
-          </div>
-        )}
-        {contest.status === 'upcoming' && (
-          <div className="flex items-center gap-2 text-sm text-gray-400">
-            <p>Upcoming</p>
-            <FaRegClock className="shrink-0" />
-            <TimeDiff timeRef={contest.startTime}></TimeDiff>
-          </div>
-        )}
-      </header>
-      {tabs}
-    </article>
-  )
+  return <p className="text-center">No Results</p>
 }

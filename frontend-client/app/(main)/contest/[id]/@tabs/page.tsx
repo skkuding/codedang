@@ -1,7 +1,11 @@
 import { Button } from '@/components/ui/button'
-import { baseUrl } from '@/lib/vars'
+import { fetcher } from '@/lib/utils'
 import { sanitize } from 'isomorphic-dompurify'
 import type { ContestDetailProps } from '../layout'
+
+interface ContestTop {
+  description: string
+}
 
 export default async function ContestTop({
   params
@@ -10,14 +14,12 @@ export default async function ContestTop({
   tabs: React.ReactNode
 }) {
   const { id } = params
-  const { description } = await fetch(baseUrl + `/contest/${id}`).then((res) =>
-    res.json()
-  )
+  const data: ContestTop = await fetcher.get(`contest/${id}`).json()
   return (
     <>
       <main
         className="prose w-full max-w-full border-b border-t border-b-gray-400 border-t-gray-400 p-5 py-12"
-        dangerouslySetInnerHTML={{ __html: sanitize(description) }}
+        dangerouslySetInnerHTML={{ __html: sanitize(data.description) }}
       />
       {/* TODO: Participate Contest API */}
       <div className="mt-10 flex justify-center">

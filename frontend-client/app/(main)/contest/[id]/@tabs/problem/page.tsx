@@ -19,17 +19,17 @@ export default async function ContestProblem({
   params: ContestDetailProps['params']
 }) {
   const { id } = params
-  const contest: ContestProblem[] = await fetcher
+  const data: ContestProblem[] = await fetcher
     .get(`contest/${id}/problem?take=10`)
     .json()
-  contest.forEach((problem: ContestProblem) => {
+  data.forEach((problem: ContestProblem) => {
     problem.id = problem.problemId
   })
   return (
     // Info 부분은 필요 없는데 ProblemTable에 showInfo prop 추가는 어떤지?
     <ProblemTable
-      data={contest as Problem[]}
-      isLoading={!contest}
+      data={data as Problem[]}
+      isLoading={!data}
       isTagChecked={false}
     />
   )
