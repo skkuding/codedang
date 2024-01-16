@@ -1,6 +1,6 @@
 import { baseUrl } from '@/lib/vars'
 import { sanitize } from 'isomorphic-dompurify'
-import { ContestDetailProps } from '../layout'
+import type { ContestDetailProps } from '../layout'
 
 export default async function ContestTop({
   params
