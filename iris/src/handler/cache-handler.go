@@ -102,13 +102,13 @@ func (c *CacheHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 
 	switch validReq.Action {
 	case EVICT:
-		if err := c.cache.Evict(fmt.Sprint(validReq.ProblemId)); err != nil {
-			return nil, &HandlerError{
-				caller: "handle",
-				err:    err,
-			}
+		key := fmt.Sprint(validReq.ProblemId)
+		if err := c.cache.Evict(key); err != nil {
+			res.Error = fmt.Sprintf("failed to evict: %s", err)
+			res.ErrorCode = EVICT_FAILED
+		} else {
+			res.ErrorCode = EVICTED
 		}
-		res.ErrorCode = EVICTED
 	default:
 		res.Error = fmt.Sprintf("unsupported action %s", validReq.Action)
 		res.ErrorCode = UNSUPPORTED
