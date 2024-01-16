@@ -22,14 +22,16 @@ type Router interface {
 
 type router struct {
 	judgeHandler *handler.JudgeHandler
+	cacheHandler *handler.CacheHandler
 	logger       logger.Logger
 }
 
 func NewRouter(
 	judgeHandler *handler.JudgeHandler,
+	cacheHandler *handler.CacheHandler,
 	logger logger.Logger,
 ) *router {
-	return &router{judgeHandler, logger}
+	return &router{judgeHandler, cacheHandler, logger}
 }
 
 func (r *router) Route(path string, id string, data []byte) []byte {
@@ -40,6 +42,7 @@ func (r *router) Route(path string, id string, data []byte) []byte {
 	case Judge:
 		handlerResult, err = r.judgeHandler.Handle(id, data)
 	case Cache:
+		handlerResult, err = r.cacheHandler.Handle(id, data)
 		// cache handler
 	case SpecialJudge:
 		// special-judge handler

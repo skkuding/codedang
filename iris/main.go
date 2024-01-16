@@ -56,7 +56,9 @@ func main() {
 		logProvider,
 	)
 
-	routeProvider := router.NewRouter(judgeHandler, logProvider)
+	cacheHandler := handler.NewCacheHandler(cache, logProvider)
+
+	routeProvider := router.NewRouter(judgeHandler, cacheHandler, logProvider)
 
 	logProvider.Log(logger.INFO, "Server Started")
 

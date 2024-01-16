@@ -20,10 +20,10 @@ func (c CacheRequest) Validate() (*CacheRequest, error) {
 	if c.Action == "" {
 		return nil, fmt.Errorf("action must not be empty")
 	}
-	if c.Action == EVICT {
+	if c.Action != EVICT {
 		return nil, fmt.Errorf("unsupported action")
 	}
-	if c.ProblemId == 0 {
+	if c.ProblemId <= 0 {
 		return nil, fmt.Errorf("problemId must not be empty or zero")
 	}
 	return &c, nil
@@ -53,6 +53,7 @@ type CacheResultCode int8
 const (
 	EVICTED = 0 + iota
 	EVICT_FAILED
+	UNSUPPORTED
 )
 
 type CacheHandler struct {
@@ -77,7 +78,6 @@ func (c *CacheHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 		c.logger.Log(logger.DEBUG, fmt.Sprintf("task done: total time: %s", time.Since(startedAt)))
 	}()
 
-	//TODO: validation logichere
 	req := CacheRequest{}
 	res := CacheResult{}
 
@@ -100,18 +100,24 @@ func (c *CacheHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 		}
 	}
 
-	if err := c.cache.Evict(fmt.Sprint(validReq.ProblemId)); err != nil {
-		return nil, &HandlerError{
-			caller: "handle",
-			err:    err,
+	switch validReq.Action {
+	case EVICT:
+		if err := c.cache.Evict(fmt.Sprint(validReq.ProblemId)); err != nil {
+			return nil, &HandlerError{
+				caller: "handle",
+				err:    err,
+			}
 		}
-	} else {
-		res.ProblemId = validReq.ProblemId
 		res.ErrorCode = EVICTED
-		marshaledRes, err := json.Marshal(res)
-		if err != nil {
-			return nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}
-		}
-		return marshaledRes, err
+	default:
+		res.Error = fmt.Sprintf("unsupported action %s", validReq.Action)
+		res.ErrorCode = UNSUPPORTED
 	}
+
+	res.ProblemId = validReq.ProblemId
+	marshaledRes, err := json.Marshal(res)
+	if err != nil {
+		return nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}
+	}
+	return marshaledRes, err
 }
