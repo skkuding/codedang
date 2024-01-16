@@ -23,15 +23,15 @@ export default function Layout({
 
   return (
     <>
-      <div className="flex justify-center gap-2 border-b border-b-gray-200">
+      <div className="mb-1 flex justify-center gap-4">
         <Button
           variant={'link'}
           onClick={() => {
             router.push(`/contest/${id}`)
           }}
           className={cn(
-            'rounded-none border-b-2 border-b-white',
-            isCurrentTab('') && 'border-green-500'
+            'text-lg text-gray-400',
+            isCurrentTab('') && 'text-primary'
           )}
         >
           Top
@@ -42,8 +42,8 @@ export default function Layout({
             router.push(`/contest/${id}/problem`)
           }}
           className={cn(
-            'rounded-none border-b-2 border-b-white',
-            isCurrentTab('problem') && 'border-green-500'
+            'text-lg text-gray-400',
+            isCurrentTab('problem') && 'text-primary'
           )}
         >
           Problem
@@ -54,8 +54,8 @@ export default function Layout({
             router.push(`/contest/${id}/clarification`)
           }}
           className={cn(
-            'rounded-none border-b-2 border-b-white',
-            isCurrentTab('clarification') && 'border-green-500'
+            'text-lg text-gray-400',
+            isCurrentTab('clarification') && 'text-primary'
           )}
         >
           Clarification
@@ -66,8 +66,8 @@ export default function Layout({
             router.push(`/contest/${id}/standings`)
           }}
           className={cn(
-            'rounded-none border-b-2 border-b-white',
-            isCurrentTab('standings') && 'border-green-500'
+            'text-lg text-gray-400',
+            isCurrentTab('standings') && 'text-primary'
           )}
         >
           Standings
