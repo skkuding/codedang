@@ -10,17 +10,16 @@ import { IoIosArrowBack } from 'react-icons/io'
 import ContestCard from '../_components/ContestCard'
 
 const getContests = async () => {
-  const data = await fetcher<{
+  const data: {
     ongoing: Contest[]
     upcoming: Contest[]
-  }>('/contest')
+  } = await fetcher.get('contest').json()
   data.ongoing.forEach((contest) => {
     contest.status = 'ongoing'
   })
   data.upcoming.forEach((contest) => {
     contest.status = 'upcoming'
   })
-
   return data.ongoing.concat(data.upcoming)
 }
 //TODO: Registered로 요청했을 떄, 로그인 토큰 담아서 /contest/auth로 contest 받아오는 함수
