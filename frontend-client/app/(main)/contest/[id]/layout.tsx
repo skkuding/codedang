@@ -43,10 +43,10 @@ export default async function Layout({
 
   return (
     <article>
-      <header className="flex justify-between p-5 py-4">
+      <header className="flex justify-between p-5 py-8">
         <h2 className="break-words text-2xl font-extrabold">{contest.title}</h2>
         {contest.status === 'finished' && (
-          <div className="flex items-center gap-1 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-sm text-gray-400">
             <p>Finished</p>
             <FaRegCalendarAlt className="shrink-0" />
             <p>
@@ -55,7 +55,7 @@ export default async function Layout({
           </div>
         )}
         {contest.status === 'ongoing' && (
-          <div className="flex items-center gap-1 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-sm text-gray-400">
             <p>Ongoing</p>
             <FaRegClock className="shrink-0" />
             <p className="text-red-500">
@@ -64,7 +64,7 @@ export default async function Layout({
           </div>
         )}
         {contest.status === 'upcoming' && (
-          <div className="flex items-center gap-1 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-sm text-gray-400">
             <p>Upcoming</p>
             <FaRegClock className="shrink-0" />
             <TimeDiff timeRef={contest.startTime}></TimeDiff>
