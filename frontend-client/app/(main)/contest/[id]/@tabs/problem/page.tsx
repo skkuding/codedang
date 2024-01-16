@@ -1,6 +1,17 @@
 import ProblemTable from '@/app/(main)/problem/_components/ProblemTable'
 import { fetcher } from '@/lib/utils'
+import { Problem } from '@/types/type'
 import { ContestDetailProps } from '../../layout'
+
+interface ContestProblem {
+  id: number
+  order: number
+  problemId: number
+  title: string
+  difficulty: string
+  submissionCount: number
+  acceptedRate: number
+}
 
 export default async function ContestProblem({
   params
@@ -8,11 +19,18 @@ export default async function ContestProblem({
   params: ContestDetailProps['params']
 }) {
   const { id } = params
-  const contest = await fetcher.get(`contest/${id}/problem?take=10`).json()
-  contest.forEach((problem: { id: string; problemId: string }) => {
+  const contest: ContestProblem[] = await fetcher
+    .get(`contest/${id}/problem?take=10`)
+    .json()
+  contest.forEach((problem: ContestProblem) => {
     problem.id = problem.problemId
   })
   return (
-    <ProblemTable data={contest} isLoading={!contest} isTagChecked={false} />
+    // Info 부분은 필요 없는데 ProblemTable에 showInfo prop 추가는 어떤지?
+    <ProblemTable
+      data={contest as Problem[]}
+      isLoading={!contest}
+      isTagChecked={false}
+    />
   )
 }

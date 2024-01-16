@@ -1,4 +1,5 @@
 import { fetcher } from '@/lib/utils'
+import { Contest } from '@/types/type'
 import dayjs from 'dayjs'
 import { FaRegClock } from 'react-icons/fa'
 import { FaRegCalendarAlt } from 'react-icons/fa'
@@ -23,7 +24,7 @@ export default async function Layout({
   tabs: React.ReactNode
 }) {
   const { id } = params
-  const contest = await fetcher.get(`contest/${id}`).json()
+  const contest: Contest = await fetcher.get(`contest/${id}`).json()
 
   const currentTime = new Date()
   const startTime = new Date(contest.startTime)
