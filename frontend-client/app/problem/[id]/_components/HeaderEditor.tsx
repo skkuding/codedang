@@ -8,10 +8,11 @@ import { FiUser } from 'react-icons/fi'
 import { IoIosArrowForward } from 'react-icons/io'
 
 interface HeaderEditorProps {
+  id: number
   title: string
 }
 
-export default function HeaderEditor({ title }: HeaderEditorProps) {
+export default function HeaderEditor({ id, title }: HeaderEditorProps) {
   const [eng, setEng] = useState(false) // Eng
   return (
     <header className="flex h-12 shrink-0 justify-between bg-slate-800 px-4">
@@ -22,7 +23,7 @@ export default function HeaderEditor({ title }: HeaderEditorProps) {
         <div className="flex items-center gap-1">
           <p>Problem</p>
           <IoIosArrowForward className="size-6" />
-          <h1 className="text-lg text-white">{title}</h1>
+          <h1 className="text-lg font-bold text-white">{`#${id}. ${title}`}</h1>
         </div>
       </div>
       <div className="flex items-center justify-center">

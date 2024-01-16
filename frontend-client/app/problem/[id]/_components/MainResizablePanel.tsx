@@ -1,11 +1,14 @@
 'use client'
 
+import SelectScrollable from '@/app/problem/[id]/_components/SelectScrollable'
+import { Button } from '@/components/ui/button'
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup
 } from '@/components/ui/resizable'
 import { Switch } from '@/components/ui/switch'
+import { cn } from '@/lib/utils'
 import { tags as t } from '@lezer/highlight'
 import { createTheme } from '@uiw/codemirror-themes'
 import CodeMirror from '@uiw/react-codemirror'
@@ -13,6 +16,7 @@ import { sanitize } from 'isomorphic-dompurify'
 import { useState } from 'react'
 import { FiClipboard } from 'react-icons/fi'
 import { LuFileText } from 'react-icons/lu'
+import { TbReload } from 'react-icons/tb'
 
 // 우선 Editor 페이지에서 사용할 데이터들만 받아옴
 interface MainResizablePanelProps {
@@ -24,11 +28,15 @@ interface MainResizablePanelProps {
     outputDescription: string
     inputExamples: string[]
     outputExamples: string[]
+    languages: string[]
+    timeLimit: number
+    memoryLimit: number
   }
 }
 
 export default function MainResizablePanel({ data }: MainResizablePanelProps) {
   const [tag, setTag] = useState(false) // tag button on/off
+  const [page, setPage] = useState('desc') // description/submission which page
 
   const editorTheme = createTheme({
     theme: 'dark',
@@ -68,16 +76,34 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
         style={{ overflowY: 'auto' }}
         minSize={20}
       >
-        <div className="flex flex-col gap-y-4 py-4 pl-6 pr-8">
-          <div>
-            <h1 className="mb-4 text-lg">Description</h1>
-            <div
-              className="text-sm text-slate-300"
-              dangerouslySetInnerHTML={{ __html: sanitize(data.description) }}
-            />
+        <div className="flex flex-col gap-y-4 pb-4 pl-6 pr-8">
+          <div className="flex h-[51px] items-center">
+            <div className="flex gap-5 text-lg">
+              <h1
+                className={cn('cursor-pointer', page == 'desc' && 'font-bold')}
+                onClick={() => {
+                  setPage('desc')
+                }}
+              >
+                Description
+              </h1>
+              <h1
+                className={cn('cursor-pointer', page == 'subm' && 'font-bold')}
+                onClick={() => {
+                  setPage('subm')
+                }}
+              >
+                Submissions
+              </h1>
+            </div>
           </div>
+          <div className="text-lg font-bold">{`#${data.id}. ${data.title}`}</div>
+          <div
+            className="text-sm text-slate-300"
+            dangerouslySetInnerHTML={{ __html: sanitize(data.description) }}
+          />
           <div>
-            <h1 className="mb-3 text-lg">Input</h1>
+            <div className="mb-3 text-lg">Input</div>
             <div
               className="text-sm text-slate-300"
               dangerouslySetInnerHTML={{
@@ -86,7 +112,7 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
             />
           </div>
           <div>
-            <h1 className="mb-3 text-lg">Output</h1>
+            <div className="mb-3 text-lg">Output</div>
             <div
               className="text-sm text-slate-300"
               dangerouslySetInnerHTML={{
@@ -96,7 +122,7 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
           </div>
           <div>
             <div className="flex justify-between">
-              <h1 className="mb-2 mt-3 text-lg">Sample Input 1</h1>
+              <div className="mb-2 mt-3 text-lg">Sample Input 1</div>
               <div className="flex items-center justify-center">
                 <FiClipboard className="cursor-pointer" />
               </div>
@@ -110,7 +136,7 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
           </div>
           <div>
             <div className="flex justify-between">
-              <h1 className="mb-2 mt-3 text-lg">Sample Output 1</h1>
+              <div className="mb-2 mt-3 text-lg">Sample Output 1</div>
             </div>
             <div className="h-24 w-full bg-slate-800 p-2">
               {/* 임시 Sample description -> use outputExamples later*/}
@@ -119,17 +145,20 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
               </p>
             </div>
           </div>
-          <div>
+          <div className="text-lg">{`Time Limit: ${data.timeLimit} ms`}</div>
+          <div className="text-lg">{`Memory Limit: ${data.memoryLimit} MB`}</div>
+          <div className="mb-2 text-lg">
             {/* TODO: need writer name at api*/}
-            <h1 className="mb-2 text-lg">Writer: Gildong Hong</h1>
+            Writer: Gildong Hong
           </div>
-          <div className="flex h-28 flex-col gap-2">
+          <div className="flex h-24 flex-col gap-2">
             <div className="flex items-center justify-start gap-2">
-              <div>Tag</div>
+              <div className="text-lg">Tags</div>
               <Switch
                 onClick={() => {
                   setTag((tag: boolean) => !tag)
                 }}
+                className="hover:border-primary"
               />
             </div>
             {tag && <div>tag button on 됐을때 tag들 들어갈 자리</div>}
@@ -145,6 +174,20 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel defaultSize={65} className="bg-slate-800">
+        <div className="flex h-[51px] shrink-0 justify-between border-b border-b-slate-600">
+          <div className="ml-6 flex items-center justify-center gap-4">
+            <div className="cursor-pointer text-lg font-bold">Editor</div>
+          </div>
+          <div className="mr-5 flex items-center gap-3">
+            <Button size="icon" className="size-7 rounded-[5px] bg-slate-500">
+              <TbReload className="size-4" />
+            </Button>
+            <Button className="bg-primary h-7 rounded-[5px] px-2">
+              <span className="font-semibold">Submit</span>
+            </Button>
+            <SelectScrollable languages={data.languages} />
+          </div>
+        </div>
         <CodeMirror theme={editorTheme} />
       </ResizablePanel>
     </ResizablePanelGroup>
