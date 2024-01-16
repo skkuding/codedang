@@ -58,7 +58,9 @@ export default async function Layout({
           <div className="flex items-center gap-1 text-sm text-gray-400">
             <p>Ongoing</p>
             <FaRegClock className="shrink-0" />
-            <TimeDiff timeRef={contest.endTime}></TimeDiff>
+            <p className="text-red-500">
+              <TimeDiff timeRef={contest.endTime}></TimeDiff>
+            </p>
           </div>
         )}
         {contest.status === 'upcoming' && (
