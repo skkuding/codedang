@@ -10,11 +10,9 @@ interface ProblemEditorProps {
 }
 
 export default async function layout({
-  params,
-  tabs
+  params
 }: {
   params: ProblemEditorProps['params']
-  tabs: React.ReactNode
 }) {
   const { id } = params
   const response = await fetch(baseUrl + '/problem/' + id)
@@ -25,10 +23,8 @@ export default async function layout({
   return (
     <div className="flex h-dvh w-full flex-col bg-slate-700 text-white">
       <HeaderEditor id={data.id} title={data.title} />
-
       <main className="flex h-full flex-col overflow-hidden border border-slate-600">
         <MainResizablePanel data={data} />
-        {tabs}
       </main>
     </div>
   )

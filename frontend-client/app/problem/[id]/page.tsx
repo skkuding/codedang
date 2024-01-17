@@ -1,3 +1,3 @@
-export default async function ProblemEditor() {
+export default function ProblemEditor() {
   return null
 }
