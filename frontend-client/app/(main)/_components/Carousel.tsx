@@ -59,12 +59,19 @@ export default function Carousel({ slides }: Props) {
         {slides.map((slide, index) => (
           <div
             key={index}
-            className={`absolute left-0 top-0 h-full w-full bg-yellow-200 transition-opacity duration-1000 ease-in-out ${
-              facade !== index && ' opacity-0'
-            }`}
+            className={cn(
+              'absolute left-0 top-0 h-full w-full transition-opacity duration-1000 ease-in-out',
+              facade !== index && ' opacity-0',
+              bgColors[slides[index].color]
+            )}
           >
-            <div className="flex w-full max-w-7xl flex-col-reverse justify-between gap-5 p-8 py-14 md:flex-row md:items-center md:px-14 md:py-0">
-              <div className="flex flex-col items-start justify-center gap-3">
+            <div className="flex h-full w-full max-w-7xl flex-col-reverse justify-between gap-5 p-8 py-14 md:flex-row md:items-center md:px-14 md:py-0">
+              <div
+                className={cn(
+                  'flex flex-col items-start justify-center gap-3',
+                  textColors[slide.color]
+                )}
+              >
                 <p className="mb-1 whitespace-nowrap text-2xl font-semibold md:text-3xl">
                   {slide.topTitle}
                 </p>
@@ -72,10 +79,14 @@ export default function Carousel({ slides }: Props) {
                   {slide.bottomTitle}
                 </p>
                 <p className="md:text-lg">{slide.sub}</p>
-                <div>
-                  <Image src={slide.img} alt={slide.imgAlt} />
-                </div>
                 {/* TODO: 슬라이드 데이터 삽입*/}
+              </div>
+              <div className="flex items-center justify-center">
+                <Image
+                  src={slide.img}
+                  alt={slide.imgAlt}
+                  className="size-[150px] object-contain md:size-[250px]"
+                />
               </div>
             </div>
           </div>
