@@ -8,12 +8,16 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { Contest, Notice, Problem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
   getCoreRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import type { Route } from 'next'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -21,18 +25,19 @@ interface DataTableProps<TData, TValue> {
   headerStyle: {
     [key: string]: string
   }
+  name: string
 }
 
-export default function DataTable<TData, TValue>({
-  columns,
-  data,
-  headerStyle
-}: DataTableProps<TData, TValue>) {
+export default function DataTable<
+  TData extends Notice | Contest | Problem,
+  TValue
+>({ columns, data, headerStyle, name }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel()
   })
+  const router = useRouter()
 
   return (
     <Table className="table-fixed">
@@ -56,19 +61,26 @@ export default function DataTable<TData, TValue>({
       </TableHeader>
       <TableBody>
         {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              data-state={row.getIsSelected() && 'selected'}
-              className="cursor-pointer"
-            >
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))
+          table.getRowModel().rows.map((row) => {
+            const href = `/${name}/${row.original.id}` as Route
+            return (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+                className="cursor-pointer"
+                onClick={() => {
+                  router.push(href)
+                }}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    <Link href={href} />
+                  </TableCell>
+                ))}
+              </TableRow>
+            )
+          })
         ) : (
           <TableRow>
             <TableCell colSpan={columns.length} className="h-24 text-center">

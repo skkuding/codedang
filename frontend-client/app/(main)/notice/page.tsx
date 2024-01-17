@@ -15,7 +15,9 @@ export default async function Notice() {
         title: 'w-2/4 md:w-4/6',
         createdBy: 'text-center w-1/4 md:w-1/6',
         createTime: 'text-center w-1/4 md:w-1/6'
-      }}/>
+      }}
+      name="notice"
+      />
     </>
   )
 }
