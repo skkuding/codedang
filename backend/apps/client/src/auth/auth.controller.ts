@@ -8,7 +8,9 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
   Logger,
-  UseGuards
+  UseGuards,
+  Query,
+  Header
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { Request, Response } from 'express'
@@ -115,5 +117,22 @@ export class AuthController {
       this.logger.error(error)
       throw new InternalServerErrorException('Login failed')
     }
+  }
+
+  /** Kakao Login page로 이동 */
+  @AuthNotNeeded()
+  @Get('kakao-login-page')
+  @Header('Content-Type', 'text/html')
+  async kakaoRedirect(@Res() res: Response): Promise<void> {
+    const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.KAKAO_API_KEY}&redirect_uri=${process.env.CODE_REDIRECT_URI}`
+    res.redirect(url)
+  }
+
+  /** Kakao 측으로 auth 요청 */
+  @Get('kakao')
+  async getKakaoInfo(@Query() query: { code }) {
+    const apikey = process.env.KAKAO_API_KEY as string
+    const redirectUri = process.env.CODE_REDIRECT_URI as string
+    await this.authService.kakaoLogin(apikey, redirectUri, query.code)
   }
 }
