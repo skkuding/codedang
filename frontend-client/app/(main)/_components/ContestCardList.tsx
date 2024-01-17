@@ -10,10 +10,10 @@ import { IoIosArrowBack } from 'react-icons/io'
 import ContestCard from '../_components/ContestCard'
 
 const getContests = async () => {
-  const data = await fetcher<{
+  const data: {
     ongoing: Contest[]
     upcoming: Contest[]
-  }>('/contest')
+  } = await fetcher.get('contest').json()
   data.ongoing.forEach((contest) => {
     contest.status = 'ongoing'
   })

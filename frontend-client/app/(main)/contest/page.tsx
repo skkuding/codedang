@@ -7,9 +7,9 @@ import ContestCardList from '../_components/ContestCardList'
 import ContestTable from './_components/ContestTable'
 
 const getFinished = async () => {
-  const data = await fetcher<{
+  const data: {
     finished: Contest[]
-  }>('/contest/finished?take=51')
+  } = await fetcher.get('contest/finished?take=51').json()
   data.finished.forEach((contest) => {
     contest.status = 'finished'
   })
