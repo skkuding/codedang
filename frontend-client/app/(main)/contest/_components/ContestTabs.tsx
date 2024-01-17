@@ -14,7 +14,7 @@ export default function ContestTabs({ contestId }: { contestId: string }) {
   }
 
   return (
-    <div className="mb-4 flex justify-center gap-12">
+    <div className="flex justify-center gap-12 border-b-2 border-gray-300 pb-4">
       <Link
         href={`/contest/${id}`}
         className={cn(

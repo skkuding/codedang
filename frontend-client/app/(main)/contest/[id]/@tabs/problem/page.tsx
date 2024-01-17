@@ -1,7 +1,7 @@
 import ProblemTable from '@/app/(main)/problem/_components/ProblemTable'
 import { fetcher } from '@/lib/utils'
-import { Problem } from '@/types/type'
-import { ContestDetailProps } from '../../layout'
+import type { Problem } from '@/types/type'
+import type { ContestDetailProps } from '../../layout'
 
 interface ContestProblem {
   id: number
@@ -26,7 +26,6 @@ export default async function ContestProblem({
     problem.id = problem.problemId
   })
   return (
-    // Info 부분은 필요 없는데 ProblemTable에 showInfo prop 추가는 어떤지?
     <ProblemTable
       data={data as Problem[]}
       isLoading={!data}

@@ -18,7 +18,7 @@ export default async function ContestTop({
   return (
     <>
       <main
-        className="prose w-full max-w-full border-b border-t border-b-gray-400 border-t-gray-400 p-5 py-12"
+        className="prose w-full max-w-full border-b-2 border-b-gray-300 p-5 py-12"
         dangerouslySetInnerHTML={{ __html: sanitize(data.description) }}
       />
       {/* TODO: Participate Contest API */}
