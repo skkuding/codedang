@@ -1,6 +1,6 @@
 import { fetcher } from '@/lib/utils'
 import type { Contest } from '@/types/type'
-import ContestCardList from '../_components/ContestCardList'
+import ContestCardList from './_components/ContestCardList'
 import ContestTable from './_components/ContestTable'
 
 export default async function Contest() {
@@ -14,7 +14,7 @@ export default async function Contest() {
   return (
     <>
       {/* TODO: Add contest card list */}
-      <ContestCardList type={'Ongoing'} />
+      <ContestCardList />
 
       <p className="text-xl font-bold md:text-2xl">Finished</p>
       {/* TODO: Add search bar */}

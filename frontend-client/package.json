@@ -21,6 +21,7 @@
     "@tanstack/react-table": "^8.11.6",
     "cmdk": "^0.2.0",
     "dayjs": "^1.11.10",
+    "embla-carousel-react": "8.0.0-rc19",
     "isomorphic-dompurify": "^2.2.0",
     "ky": "^1.2.0",
     "next": "14.0.4",

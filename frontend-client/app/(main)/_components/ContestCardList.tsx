@@ -78,18 +78,21 @@ export default function ContestCardList({ type }: { type: string }) {
           </div>
         )}
       </div>
-      <div className="flex justify-between gap-4 overflow-hidden">
-        <div className="flex" style={carouselStyle}>
-          {contests.map((contest) => (
-            <Link
-              key={contest.id}
-              href={`/contest/${contest.id}` as Route}
-              className="mr-5 w-72 hover:opacity-80"
-            >
-              <ContestCard contest={contest} />
-            </Link>
-          ))}
+      <div>
+        <div className="bottom-30 flex w-full justify-between gap-5 overflow-hidden">
+          {contests.map((contest) => {
+            return (
+              <Link
+                key={contest.id}
+                href={`/contest/${contest.id}` as Route}
+                className="inline-block h-[120] w-[325]"
+              >
+                <ContestCard contest={contest} />
+              </Link>
+            )
+          })}
         </div>
+        <div className="relative bottom-[122px] left-[900px] h-[125px] w-[125px] bg-gradient-to-r from-transparent to-white"></div>
       </div>
     </>
   )
