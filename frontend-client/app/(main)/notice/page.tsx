@@ -1,10 +1,3 @@
-import {
-  Pagination,
-  PaginationContent,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious
-} from '@/components/ui/pagination'
 import { baseUrl } from '@/lib/vars'
 import NoticeTable from './_components/NoticeTable'
 
@@ -60,7 +53,7 @@ export default async function Notice({
   const res = await fetch(baseUrl + '/notice?' + query)
   const data = await res.json()
 
-  const currentTotalPages = Math.ceil(data.length / take)
+  // const currentTotalPages = Math.ceil(data.length / take)
   const currentPageData = fixedData
 
   currentPageData.push(
@@ -70,44 +63,16 @@ export default async function Notice({
     )
   )
 
-  const canGoPrevious = currentSlot > 0
-  const canGoNext = currentTotalPages > maxPagesPerSlot
+  // const canGoPrevious = currentSlot > 0
+  // const canGoNext = currentTotalPages > maxPagesPerSlot
 
-  const previousSlotPage = (currentSlot - 1) * maxPagesPerSlot + 1
-  const nextSlotPage = (currentSlot + 1) * maxPagesPerSlot + 1
+  // const previousSlotPage = (currentSlot - 1) * maxPagesPerSlot + 1
+  // const nextSlotPage = (currentSlot + 1) * maxPagesPerSlot + 1
 
   return (
     <>
       {/* TODO: Add search bar */}
       <NoticeTable data={currentPageData} currentPage={currentPage} />
-      <Pagination>
-        <PaginationContent>
-          <PaginationPrevious
-            href={canGoPrevious ? `?page=${previousSlotPage}` : undefined}
-            className={canGoPrevious ? '' : 'cursor-not-allowed opacity-30'}
-          />
-          <div className="flex items-center gap-1">
-            {[...Array(Math.min(currentTotalPages, maxPagesPerSlot))].map(
-              (_, i) => {
-                i = i + currentSlot * maxPagesPerSlot
-                return (
-                  <PaginationLink
-                    key={i}
-                    isActive={currentPage === i + 1}
-                    href={`?page=${i + 1}`}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                )
-              }
-            )}
-          </div>
-          <PaginationNext
-            href={canGoNext ? `?page=${nextSlotPage}` : undefined}
-            className={canGoNext ? '' : 'cursor-not-allowed opacity-30'}
-          />
-        </PaginationContent>
-      </Pagination>
     </>
   )
 }
