@@ -55,6 +55,7 @@ export default function Carousel({ slides }: Props) {
         'relative my-5 h-72 w-full overflow-hidden rounded-3xl bg-gray-100'
       )}
     >
+      {/* todo : 반응형 수정 */}
       <Link href={slides[facade].href as Route<string>}>
         {slides.map((slide, index) => (
           <div
@@ -79,14 +80,14 @@ export default function Carousel({ slides }: Props) {
                   <p className="whitespace-nowrap text-2xl font-semibold md:text-3xl">
                     {slide.bottomTitle}
                   </p>
-                  <p className="md:text-lg">{slide.sub}</p>
                 </div>
+                <p className="md:text-lg">{slide.sub}</p>
               </div>
               <div className="flex items-center justify-center">
                 <Image
                   src={slide.img}
                   alt={slide.imgAlt}
-                  className="size-[150px] object-contain md:size-[250px]"
+                  className="size-[150px] object-contain md:size-[230px]"
                 />
               </div>
             </div>
