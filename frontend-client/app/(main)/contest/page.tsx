@@ -14,8 +14,10 @@ export default async function Contest() {
   return (
     <>
       {/* TODO: Add contest card list */}
-      <ContestCardList />
-
+      <div className="mb-12 flex flex-col gap-12">
+        <ContestCardList type="Ongoing" />
+        <ContestCardList type="Upcoming" />
+      </div>
       <p className="text-xl font-bold md:text-2xl">Finished</p>
       {/* TODO: Add search bar */}
       <ContestTable data={data.finished} />

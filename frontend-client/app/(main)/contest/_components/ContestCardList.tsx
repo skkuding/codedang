@@ -4,7 +4,9 @@ import {
   CarouselContent,
   CarouselItem,
   CarouselNext,
-  CarouselPrevious
+  CarouselPrevious,
+  CarouselNextGradient,
+  CarouselPrevGradient
 } from '@/components/ui/carousel'
 import { fetcher } from '@/lib/utils'
 import type { Contest } from '@/types/type'
@@ -22,35 +24,42 @@ const getContests = async () => {
   data.upcoming.forEach((contest) => {
     contest.status = 'upcoming'
   })
-
   return data.ongoing.concat(data.upcoming)
 }
 
-export default async function Contest() {
+export default async function Contest({ type }: { type: string }) {
   const contests = await getContests()
 
   return (
-    <Carousel>
-      <CarouselPrevious />
-      <CarouselNext />
-      <CarouselContent>
-        {contests.map((contest) => {
-          return (
-            <CarouselItem
-              key={contest.id}
-              className="bottom-30 flex w-full justify-between gap-5 overflow-hidden"
-            >
-              <Link
-                key={contest.id}
-                href={`/contest/${contest.id}` as Route}
-                className="inline-block h-[120] w-[325]"
-              >
-                <ContestCard contest={contest} />
-              </Link>
-            </CarouselItem>
-          )
-        })}
-      </CarouselContent>
-    </Carousel>
+    <div className="flex h-full flex-col ">
+      <div className="relative top-5 text-2xl font-bold text-gray-700 ">
+        {type}
+      </div>
+      <Carousel>
+        <div className="flex items-center justify-end gap-2">
+          <CarouselPrevious />
+          <CarouselNext />
+        </div>
+        <CarouselContent className="bottom-30 flex w-full gap-1.5 py-2">
+          {contests
+            .filter(
+              (contest) => contest.status.toLowerCase() === type.toLowerCase()
+            )
+            .map((contest) => (
+              <CarouselItem key={contest.id}>
+                <Link
+                  key={contest.id}
+                  href={`/contest/${contest.id}` as Route}
+                  className="inline-block h-[120px] w-[375px]"
+                >
+                  <ContestCard contest={contest} />
+                </Link>
+              </CarouselItem>
+            ))}
+        </CarouselContent>
+        <CarouselPrevGradient />
+        <CarouselNextGradient />
+      </Carousel>
+    </div>
   )
 }

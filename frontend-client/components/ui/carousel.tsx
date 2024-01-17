@@ -206,9 +206,9 @@ const CarouselPrevious = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        'absolute  h-8 w-8 rounded-full',
+        ' h-8 w-8',
         orientation === 'horizontal'
-          ? '-left-12 top-1/2 -translate-y-1/2'
+          ? '-right-12 -translate-y-1/2'
           : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
         className
       )}
@@ -222,7 +222,6 @@ const CarouselPrevious = React.forwardRef<
   )
 })
 CarouselPrevious.displayName = 'CarouselPrevious'
-
 const CarouselNext = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button>
@@ -235,7 +234,7 @@ const CarouselNext = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        'absolute h-8 w-8 rounded-full',
+        ' h-8 w-8 ',
         orientation === 'horizontal'
           ? '-right-12 top-1/2 -translate-y-1/2'
           : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
@@ -252,11 +251,43 @@ const CarouselNext = React.forwardRef<
 })
 CarouselNext.displayName = 'CarouselNext'
 
+const CarouselNextGradient = () => {
+  const { canScrollNext } = useCarousel()
+
+  return (
+    <>
+      {canScrollNext ? (
+        <div className=" absolute bottom-[4px] right-0 h-[130px] w-[120px] self-end bg-gradient-to-r from-transparent to-white/70"></div>
+      ) : (
+        <div></div>
+      )}
+    </>
+  )
+}
+CarouselNextGradient.displayName = 'CarouselNextGradient'
+
+const CarouselPrevGradient = () => {
+  const { canScrollPrev } = useCarousel()
+
+  return (
+    <>
+      {canScrollPrev ? (
+        <div className=" absolute bottom-[4px] left-0 h-[130px] w-[120px] self-start bg-gradient-to-r from-white/70 to-transparent"></div>
+      ) : (
+        <div> </div>
+      )}
+    </>
+  )
+}
+CarouselPrevGradient.displayName = 'CarouselPrevGradient'
+
 export {
   type CarouselApi,
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselPrevious,
-  CarouselNext
+  CarouselNext,
+  CarouselNextGradient,
+  CarouselPrevGradient
 }
