@@ -52,7 +52,7 @@ export default function Carousel({ slides }: Props) {
   return (
     <div
       className={cn(
-        'relative my-5 h-80 w-full overflow-hidden rounded-3xl bg-gray-100'
+        'relative my-5 h-72 w-full overflow-hidden rounded-3xl bg-gray-100'
       )}
     >
       <Link href={slides[facade].href as Route<string>}>
@@ -72,14 +72,15 @@ export default function Carousel({ slides }: Props) {
                   textColors[slide.color]
                 )}
               >
-                <p className="mb-1 whitespace-nowrap text-2xl font-semibold md:text-3xl">
-                  {slide.topTitle}
-                </p>
-                <p className="whitespace-nowrap text-2xl font-semibold md:text-3xl">
-                  {slide.bottomTitle}
-                </p>
-                <p className="md:text-lg">{slide.sub}</p>
-                {/* TODO: 슬라이드 데이터 삽입*/}
+                <div>
+                  <p className="mb-1 whitespace-nowrap text-2xl font-semibold md:text-3xl">
+                    {slide.topTitle}
+                  </p>
+                  <p className="whitespace-nowrap text-2xl font-semibold md:text-3xl">
+                    {slide.bottomTitle}
+                  </p>
+                  <p className="md:text-lg">{slide.sub}</p>
+                </div>
               </div>
               <div className="flex items-center justify-center">
                 <Image
