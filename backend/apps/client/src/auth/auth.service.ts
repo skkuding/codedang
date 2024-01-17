@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -146,5 +147,26 @@ export class AuthService {
       jwtTokens.refreshToken,
       REFRESH_TOKEN_COOKIE_OPTIONS
     )
+  }
+
+  async kakaoLogin(apikey: string, redirectUri: string, code: string) {
+    const config = {
+      grant_type: 'authorization_code',
+      client_id: apikey,
+      redirect_uri: redirectUri,
+      code
+    }
+    const params = new URLSearchParams(config).toString()
+    const tokenHeaders = {
+      'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
+    }
+    const tokenUrl = `https://kauth.kakao.com/oauth/token?${params}`
+
+    console.log(tokenHeaders)
+    console.log(tokenUrl)
+
+    /** 여기까지 인가 token 받음
+        이어서 Kakao 측으로 auth 요청 전송 */
+    // const res = await this.http.post(tokenUrl, '', { headers: tokenHeaders })
   }
 }
