@@ -1,13 +1,38 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import type { Route } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa6'
 
 interface Props {
-  slides: { href: string }[]
+  slides: {
+    topTitle: string
+    bottomTitle: string
+    sub: string
+    img: string
+    imgAlt: string
+    color: keyof typeof bgColors
+    href: string
+  }[]
+}
+
+const bgColors: { [key: string]: string } = {
+  green: 'bg-[#2e4e3f]',
+  black: 'bg-[#333333]',
+  white: 'bg-[#ffffff]',
+  yellow: 'bg-[#f9de4a]',
+  blue: 'bg-[#3581FA]'
+}
+const textColors: { [key: string]: string } = {
+  green: 'text-white',
+  black: 'text-white',
+  white: 'text-black',
+  yellow: 'text-black',
+  blue: 'text-white'
 }
 
 export default function Carousel({ slides }: Props) {
@@ -25,16 +50,34 @@ export default function Carousel({ slides }: Props) {
   }
 
   return (
-    <div className="relative my-5 h-80 w-full overflow-hidden rounded-3xl bg-gray-100">
+    <div
+      className={cn(
+        'relative my-5 h-80 w-full overflow-hidden rounded-3xl bg-gray-100'
+      )}
+    >
       <Link href={slides[facade].href as Route<string>}>
         {slides.map((slide, index) => (
           <div
             key={index}
-            className={`absolute left-0 top-0 h-full w-full transition-opacity duration-1000 ease-in-out ${
+            className={`absolute left-0 top-0 h-full w-full bg-yellow-200 transition-opacity duration-1000 ease-in-out ${
               facade !== index && ' opacity-0'
             }`}
           >
-            {/* TODO: 슬라이드 데이터 삽입*/}
+            <div className="flex w-full max-w-7xl flex-col-reverse justify-between gap-5 p-8 py-14 md:flex-row md:items-center md:px-14 md:py-0">
+              <div className="flex flex-col items-start justify-center gap-3">
+                <p className="mb-1 whitespace-nowrap text-2xl font-semibold md:text-3xl">
+                  {slide.topTitle}
+                </p>
+                <p className="whitespace-nowrap text-2xl font-semibold md:text-3xl">
+                  {slide.bottomTitle}
+                </p>
+                <p className="md:text-lg">{slide.sub}</p>
+                <div>
+                  <Image src={slide.img} alt={slide.imgAlt} />
+                </div>
+                {/* TODO: 슬라이드 데이터 삽입*/}
+              </div>
+            </div>
           </div>
         ))}
       </Link>
