@@ -11,10 +11,9 @@ import { tags as t } from '@lezer/highlight'
 import { createTheme } from '@uiw/codemirror-themes'
 import CodeMirror from '@uiw/react-codemirror'
 import { TbReload } from 'react-icons/tb'
-import Description from './Description'
 
 // 우선 Editor 페이지에서 사용할 데이터들만 받아옴
-interface MainResizablePanelProps {
+interface ProblemEditorProps {
   data: {
     id: number
     title: string
@@ -27,9 +26,17 @@ interface MainResizablePanelProps {
     timeLimit: number
     memoryLimit: number
   }
+  tabs: React.ReactNode
 }
 
-export default function MainResizablePanel({ data }: MainResizablePanelProps) {
+export default function MainResizablePanel({
+  data,
+  // children
+  tabs
+}: {
+  data: ProblemEditorProps['data']
+  tabs: React.ReactNode
+}) {
   const editorTheme = createTheme({
     theme: 'dark',
     settings: {
@@ -60,15 +67,14 @@ export default function MainResizablePanel({ data }: MainResizablePanelProps) {
       { tag: t.attributeName, color: '#5c6166' }
     ]
   })
-
   return (
     <ResizablePanelGroup direction="horizontal" className="h-full">
       <ResizablePanel
         defaultSize={35}
-        style={{ overflowY: 'auto' }}
+        style={{ overflowY: 'auto', minWidth: '400px' }}
         minSize={20}
       >
-        <Description data={data} />
+        {tabs}
       </ResizablePanel>
 
       <ResizableHandle withHandle />

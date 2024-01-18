@@ -1,7 +1,6 @@
 'use client'
 
 import { Switch } from '@/components/ui/switch'
-import { cn } from '@/lib/utils'
 import { sanitize } from 'isomorphic-dompurify'
 import { useState } from 'react'
 import { FiClipboard } from 'react-icons/fi'
@@ -22,30 +21,9 @@ interface DescriptionProps {
 
 export default function Description({ data }: { data: DescriptionProps }) {
   const [tag, setTag] = useState(false) // tag button on/off
-  const [page, setPage] = useState('desc') // description/submission which page
 
   return (
     <div className="flex flex-col gap-y-4 pb-4 pl-6 pr-8">
-      <div className="flex h-[51px] items-center">
-        <div className="flex gap-5 text-lg">
-          <h1
-            className={cn('cursor-pointer', page == 'desc' && 'font-bold')}
-            onClick={() => {
-              setPage('desc')
-            }}
-          >
-            Description
-          </h1>
-          <h1
-            className={cn('cursor-pointer', page == 'subm' && 'font-bold')}
-            onClick={() => {
-              setPage('subm')
-            }}
-          >
-            Submissions
-          </h1>
-        </div>
-      </div>
       <div className="text-lg font-bold">{`#${data.id}. ${data.title}`}</div>
       <div
         className="text-sm text-slate-300"
