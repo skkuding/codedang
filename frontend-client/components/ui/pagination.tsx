@@ -32,6 +32,33 @@ const PaginationItem = React.forwardRef<
 ))
 PaginationItem.displayName = 'PaginationItem'
 
+type PaginationButtonProps = {
+  isActive?: boolean
+} & Pick<ButtonProps, 'size'> &
+  React.ComponentProps<'button'>
+
+const PaginationButton = ({
+  className,
+  isActive,
+  size = 'icon',
+  ...props
+}: PaginationButtonProps) => (
+  <PaginationItem>
+    <button
+      aria-current={isActive ? 'page' : undefined}
+      className={cn(
+        buttonVariants({
+          variant: isActive ? 'outline' : 'ghost',
+          size
+        }),
+        className
+      )}
+      {...props}
+    />
+  </PaginationItem>
+)
+PaginationButton.displayName = 'PaginationButton'
+
 type PaginationLinkProps = {
   isActive?: boolean
 } & Pick<ButtonProps, 'size'> &
@@ -62,30 +89,30 @@ PaginationLink.displayName = 'PaginationLink'
 const PaginationPrevious = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink
+}: React.ComponentProps<typeof PaginationButton>) => (
+  <PaginationButton
     aria-label="Go to previous page"
     size="default"
     className={className}
     {...props}
   >
     <ChevronLeft className="h-4 w-4" />
-  </PaginationLink>
+  </PaginationButton>
 )
 PaginationPrevious.displayName = 'PaginationPrevious'
 
 const PaginationNext = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink
+}: React.ComponentProps<typeof PaginationButton>) => (
+  <PaginationButton
     aria-label="Go to next page"
     size="default"
     className={className}
     {...props}
   >
     <ChevronRight className="h-4 w-4" />
-  </PaginationLink>
+  </PaginationButton>
 )
 
 const PaginationEllipsis = ({
@@ -107,6 +134,7 @@ export {
   PaginationContent,
   PaginationEllipsis,
   PaginationItem,
+  PaginationButton,
   PaginationLink,
   PaginationNext,
   PaginationPrevious
