@@ -28,6 +28,9 @@ module "codedang-infra" {
   rabbitmq_port        = var.rabbitmq_port
   github_client_id     = var.github_client_id
   github_client_secret = var.github_client_secret
+  kakao_client_id      = var.kakao_client_id
+  kakao_client_secret  = var.kakao_client_secret
+
 }
 
 # module "codedang-tf-backend" {
