@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtModule, type JwtModuleOptions } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
 import { GithubStrategy } from 'libs/auth/src/github/github.strategy'
+import { KakaoStrategy } from 'libs/auth/src/kakao/kakao.strategy'
 import { JwtAuthModule } from '@libs/auth'
 import { UserModule } from '@client/user/user.module'
 import { AuthController } from './auth.controller'
@@ -27,11 +28,11 @@ import { AuthService } from './auth.service'
     JwtAuthModule,
     UserModule,
     PassportModule.register({
-      strategies: [GithubStrategy]
+      strategies: [GithubStrategy, KakaoStrategy]
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, GithubStrategy],
+  providers: [AuthService, GithubStrategy, KakaoStrategy],
   exports: [AuthService]
 })
 export class AuthModule {}

@@ -18,5 +18,5 @@ export class SocialSignUpDto {
   readonly provider: Provider
 
   @IsNotEmpty()
-  readonly id: number // github, kakao 등에서 로그인 시 받아오게 되는 고유 id
+  readonly id: string // github, kakao 등에서 로그인 시 받아오게 되는 고유 id
 }

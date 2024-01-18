@@ -19,7 +19,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { UserService } from '@client/user/user.service'
 import type { LoginUserDto } from './dto/login-user.dto'
-import type { GithubUser } from './interface/social-user.interface'
+import type { GithubUser, KakaoUser } from './interface/social-user.interface'
 
 @Injectable()
 export class AuthService {
@@ -110,7 +110,7 @@ export class AuthService {
 
     const userOAuth = await this.prisma.userOAuth.findFirst({
       where: {
-        id: parseInt(githubId),
+        id: githubId.toString(),
         provider: 'github'
       }
     })
@@ -149,24 +149,47 @@ export class AuthService {
     )
   }
 
-  async kakaoLogin(apikey: string, redirectUri: string, code: string) {
-    const config = {
-      grant_type: 'authorization_code',
-      client_id: apikey,
-      redirect_uri: redirectUri,
-      code
-    }
-    const params = new URLSearchParams(config).toString()
-    const tokenHeaders = {
-      'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
-    }
-    const tokenUrl = `https://kauth.kakao.com/oauth/token?${params}`
+  async kakaoLogin(res: Response, kakaoUser: KakaoUser) {
+    const { kakaoId } = kakaoUser
 
-    console.log(tokenHeaders)
-    console.log(tokenUrl)
+    const userOAuth = await this.prisma.userOAuth.findFirst({
+      where: {
+        id: kakaoId.toString(),
+        provider: 'kakao'
+      }
+    })
 
-    /** 여기까지 인가 token 받음
-        이어서 Kakao 측으로 auth 요청 전송 */
-    // const res = await this.http.post(tokenUrl, '', { headers: tokenHeaders })
+    if (!userOAuth) {
+      // 소셜 회원가입 페이지 url 전달
+      // TODO: 소셜 회원가입 페이지 url 확정되면 여기에 삽입
+      return {
+        signUpUrl: `https://codedang.com/social-signup?provider=kakao&id=${kakaoUser.kakaoId}}`
+      }
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userOAuth.userId
+      }
+    })
+
+    if (!user) {
+      throw new UnidentifiedException('user')
+    }
+
+    const jwtTokens = await this.issueJwtTokens(
+      {
+        username: user.username,
+        password: user.password
+      },
+      true
+    )
+
+    res.setHeader('authorization', `Bearer ${jwtTokens.accessToken}`)
+    res.cookie(
+      'refresh_token',
+      jwtTokens.refreshToken,
+      REFRESH_TOKEN_COOKIE_OPTIONS
+    )
   }
 }
