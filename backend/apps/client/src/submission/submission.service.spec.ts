@@ -254,18 +254,16 @@ describe('SubmissionService', () => {
         data: {
           acceptedNum: 1,
           totalTestcase: 1,
-          judgeResult: [
-            {
-              testcaseId: '1',
-              resultCode: 1,
-              cpuTime: 1,
-              realTime: 1,
-              memory: 1,
-              signal: 1,
-              exitCode: 1,
-              errorCode: 1
-            }
-          ]
+          judgeResult: {
+            testcaseId: '1',
+            resultCode: 1,
+            cpuTime: 1,
+            realTime: 1,
+            memory: 1,
+            signal: 1,
+            exitCode: 1,
+            errorCode: 1
+          }
         }
       }
 
@@ -288,7 +286,9 @@ describe('SubmissionService', () => {
       await service.updateSubmissionResult(
         submissions[0].id,
         ResultStatus.CompileError,
-        submissionResults
+        {
+          result: ResultStatus.CompileError
+        }
       )
       expect(db.submission.update.calledOnce).to.be.true
       expect(db.problem.update.calledOnce).to.be.true
@@ -321,7 +321,7 @@ describe('SubmissionService', () => {
       const testcaseResult = submissionResults.map((result) => {
         return {
           ...result,
-          cpuTime: result.cpuTime.toString()
+          cpuTime: result.cpuTime ? result.cpuTime.toString() : null
         }
       })
 
@@ -454,18 +454,16 @@ describe('SubmissionService', () => {
         data: {
           acceptedNum: 1,
           totalTestcase: 1,
-          judgeResult: [
-            {
-              testcaseId: '1',
-              resultCode: 1,
-              cpuTime: 1,
-              realTime: 1,
-              memory: 1,
-              signal: 1,
-              exitCode: 1,
-              errorCode: 1
-            }
-          ]
+          judgeResult: {
+            testcaseId: '1',
+            resultCode: 1,
+            cpuTime: 1,
+            realTime: 1,
+            memory: 1,
+            signal: 1,
+            exitCode: 1,
+            errorCode: 1
+          }
         }
       }
 
