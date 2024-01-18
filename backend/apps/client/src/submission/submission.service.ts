@@ -274,8 +274,6 @@ export class SubmissionService implements OnModuleInit {
 
     if (resultStatus === ResultStatus.ServerError) {
       await this.updateSubmissionResult(submissionId, resultStatus, {
-        cpuTime: BigInt(0),
-        memoryUsage: 0,
         result: ResultStatus.ServerError
       })
       throw new UnprocessableDataException(
@@ -286,8 +284,6 @@ export class SubmissionService implements OnModuleInit {
     // TODO: 컴파일 메시지 데이터베이스에 저장하기
     if (resultStatus === ResultStatus.CompileError) {
       await this.updateSubmissionResult(submissionId, resultStatus, {
-        cpuTime: BigInt(0),
-        memoryUsage: 0,
         result: ResultStatus.CompileError
       })
       return
@@ -309,8 +305,7 @@ export class SubmissionService implements OnModuleInit {
   async updateSubmissionResult(
     id: number,
     resultStatus: ResultStatus,
-    result: Partial<SubmissionResult> &
-      Pick<SubmissionResult, 'result' | 'cpuTime' | 'memoryUsage'>
+    result: Partial<SubmissionResult> & Pick<SubmissionResult, 'result'>
   ) {
     // console.log(results)
     await this.prisma.submissionResult.create({
@@ -442,7 +437,7 @@ export class SubmissionService implements OnModuleInit {
       const results = submission.submissionResult.map((result) => {
         return {
           ...result,
-          cpuTime: result.cpuTime.toString()
+          cpuTime: result.cpuTime ? result.cpuTime.toString() : null
         }
       })
 
