@@ -3,6 +3,7 @@ import type { Params } from 'nestjs-pino'
 import PinoPretty from 'pino-pretty'
 import type { PrettyOptions } from 'pino-pretty'
 import { format } from 'sql-formatter'
+import type { AuthenticatedRequest } from '@libs/auth'
 
 const pinoPrettyOptions: PrettyOptions = {
   messageFormat: (log, messageKey) => {
@@ -38,6 +39,16 @@ export const pinoLoggerModuleOption: Params = {
         mergeObject = { ...mergeObject, msg: mergeObject.message }
       }
       return mergeObject
+    },
+    customProps(req: AuthenticatedRequest) {
+      return req.user
+        ? {
+            user: {
+              id: req.user.id,
+              username: req.user.username
+            }
+          }
+        : { user: 'undefined' }
     }
   }
 }
