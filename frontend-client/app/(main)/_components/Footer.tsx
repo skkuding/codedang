@@ -17,23 +17,26 @@ export default function Footer() {
     }
   }
   return (
-    <footer className="w-full items-center py-7">
-      <div className="flex h-20 w-full flex-col items-center justify-center gap-2 bg-gray-100 text-slate-500">
-        <div className="flex flex-row items-center justify-center gap-4">
+    <footer className="mt-8 flex h-[100px] w-full items-center justify-center bg-gray-50 md:h-[125px] md:items-end">
+      <div className="flex w-full max-w-7xl flex-col justify-center gap-1 p-5 text-gray-400 md:flex-row md:justify-between md:gap-3">
+        <p className="text-center text-sm font-bold">
+          (c) SKKUDING / Since 2021
+        </p>
+        <div className="flex items-center justify-center gap-4">
           <a
             href="https://pf.kakao.com/_UKraK/chat"
             rel="noreferrer noopener"
             target="_blank"
           >
             <RiKakaoTalkFill
-              className="cursor-pointer hover:text-slate-600"
-              size="24"
+              className="cursor-pointer hover:text-gray-500"
+              size="27"
             />
           </a>
           <TbMailFilled
             onClick={copyToClipboard}
-            className="cursor-pointer hover:text-slate-600"
-            size="24"
+            className="cursor-pointer hover:text-gray-500"
+            size="27"
           />
           <a
             rel="noreferrer noopener"
@@ -41,8 +44,8 @@ export default function Footer() {
             href="https://github.com/skkuding/"
           >
             <RiGithubFill
-              className="cursor-pointer hover:text-slate-600"
-              size="24"
+              className="cursor-pointer hover:text-gray-500"
+              size="27"
             />
           </a>
           <a
@@ -51,15 +54,10 @@ export default function Footer() {
             href="https://skkuding.dev/"
           >
             <IoIosLink
-              className="cursor-pointer hover:text-slate-600"
-              size="23"
+              className="cursor-pointer hover:text-gray-500"
+              size="26"
             />
           </a>
-        </div>
-        <div>
-          <p className="text-sm font-bold">
-            (c) SKKUDING &nbsp;&nbsp;/ Since 2021
-          </p>
         </div>
       </div>
     </footer>

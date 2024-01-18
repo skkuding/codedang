@@ -22,6 +22,7 @@ export class ProblemController {
   private readonly logger = new Logger(ProblemController.name)
 
   constructor(private readonly problemService: ProblemService) {}
+
   @Get()
   async getProblems(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
