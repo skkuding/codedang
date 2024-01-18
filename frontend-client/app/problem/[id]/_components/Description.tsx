@@ -3,6 +3,7 @@
 import { Switch } from '@/components/ui/switch'
 import { sanitize } from 'isomorphic-dompurify'
 import { useState } from 'react'
+import CopyToClipboard from 'react-copy-to-clipboard'
 import { FiClipboard } from 'react-icons/fi'
 import { LuFileText } from 'react-icons/lu'
 
@@ -51,7 +52,13 @@ export default function Description({ data }: { data: DescriptionProps }) {
         <div className="flex justify-between">
           <div className="mb-2 mt-3 text-lg">Sample Input 1</div>
           <div className="flex items-center justify-center">
-            <FiClipboard className="cursor-pointer" />
+            {/* 임시 sample input */}
+            <CopyToClipboard
+              text="sample input"
+              onCopy={() => console.log('복사됨')}
+            >
+              <FiClipboard className="cursor-pointer" />
+            </CopyToClipboard>
           </div>
         </div>
         <div className="h-24 w-full bg-slate-800 p-2">

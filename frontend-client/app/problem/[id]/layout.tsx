@@ -20,8 +20,6 @@ export default async function layout({
       <HeaderEditor id={data.id} title={data.title} />
       <main className="flex h-full flex-col overflow-hidden border border-slate-600">
         <MainResizablePanel data={data} tabs={tabs} />
-        {/* <MainResizablePanel data={data} >{tabs}</MainResizablePanel> */}
-        {/* {tabs} */}
       </main>
     </div>
   )
