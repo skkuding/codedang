@@ -37,3 +37,16 @@ export interface Problem {
   }[]
   info?: string
 }
+
+interface ProblemScore {
+  problemId: number
+  score: number
+  time: string
+}
+export interface Standings {
+  ranking: number
+  userId: number
+  problemScore: ProblemScore[]
+  solved: number
+  score: number
+}
