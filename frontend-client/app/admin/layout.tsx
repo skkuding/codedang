@@ -1,4 +1,5 @@
 import { Separator } from '@/components/ui/separator'
+import type { Route } from 'next'
 import Link from 'next/link'
 import { FaArrowRightFromBracket } from 'react-icons/fa6'
 import GroupSelect from './_components/GroupSelect'
@@ -12,7 +13,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <Separator className="my-4 transition" />
         <SideBar />
         <Link
-          href="/"
+          href={'/' as Route}
           className="mt-auto rounded px-4 py-2 text-slate-600 transition hover:bg-slate-100"
         >
           <FaArrowRightFromBracket className="mr-2 inline-block" />
