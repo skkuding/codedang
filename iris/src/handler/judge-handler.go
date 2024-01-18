@@ -339,6 +339,7 @@ Send:
 	if err != nil {
 		out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}}
 	} else {
+		// j.logger.Log(logger.DEBUG, string(marshaledRes))
 		out <- JudgeResultMessage{marshaledRes, ParseError(res.JudgeResult)}
 	}
 	cnt <- 1

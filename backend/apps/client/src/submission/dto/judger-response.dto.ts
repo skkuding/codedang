@@ -30,7 +30,7 @@ class JudgeData {
 
   @Type(() => JudgeResult)
   @IsNotEmpty()
-  judgeResult: JudgeResult[]
+  judgeResult: JudgeResult
 }
 
 export class JudgerResponse {

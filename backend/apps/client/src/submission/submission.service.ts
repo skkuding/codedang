@@ -262,6 +262,7 @@ export class SubmissionService implements OnModuleInit {
 
   async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
     const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
+    console.log(msg)
     await validateOrReject(res)
 
     return res
@@ -272,7 +273,11 @@ export class SubmissionService implements OnModuleInit {
     const resultStatus = Status(msg.resultCode)
 
     if (resultStatus === ResultStatus.ServerError) {
-      await this.updateSubmissionResult(submissionId, resultStatus, [])
+      await this.updateSubmissionResult(submissionId, resultStatus, {
+        cpuTime: BigInt(0),
+        memoryUsage: 0,
+        result: ResultStatus.ServerError
+      })
       throw new UnprocessableDataException(
         `${msg.submissionId} ${msg.error} ${msg.data}`
       )
@@ -280,18 +285,23 @@ export class SubmissionService implements OnModuleInit {
 
     // TODO: 컴파일 메시지 데이터베이스에 저장하기
     if (resultStatus === ResultStatus.CompileError) {
-      await this.updateSubmissionResult(submissionId, resultStatus, [])
+      await this.updateSubmissionResult(submissionId, resultStatus, {
+        cpuTime: BigInt(0),
+        memoryUsage: 0,
+        result: ResultStatus.CompileError
+      })
       return
     }
 
-    const results = msg.data.judgeResult.map((result) => {
-      return {
-        problemTestcaseId: parseInt(result.testcaseId.split(':')[1], 10),
-        result: Status(result.resultCode),
-        cpuTime: BigInt(result.cpuTime),
-        memoryUsage: result.memory
-      }
-    })
+    const results = {
+      problemTestcaseId: parseInt(
+        msg.data.judgeResult.testcaseId.split(':')[1],
+        10
+      ),
+      result: Status(msg.data.judgeResult.resultCode),
+      cpuTime: BigInt(msg.data.judgeResult.cpuTime),
+      memoryUsage: msg.data.judgeResult.memory
+    }
 
     await this.updateSubmissionResult(submissionId, resultStatus, results)
   }
@@ -299,29 +309,19 @@ export class SubmissionService implements OnModuleInit {
   async updateSubmissionResult(
     id: number,
     resultStatus: ResultStatus,
-    results: Array<
-      Partial<SubmissionResult> &
-        Pick<SubmissionResult, 'result' | 'cpuTime' | 'memoryUsage'>
-    >
+    result: Partial<SubmissionResult> &
+      Pick<SubmissionResult, 'result' | 'cpuTime' | 'memoryUsage'>
   ) {
-    await Promise.all(
-      results.map(
-        async (result) =>
-          await this.prisma.submissionResult.create({
-            data: {
-              submission: {
-                connect: { id }
-              },
-              problemTestcase: {
-                connect: { id: result.problemTestcaseId }
-              },
-              result: result.result,
-              cpuTime: result.cpuTime,
-              memoryUsage: result.memoryUsage
-            }
-          })
-      )
-    )
+    // console.log(results)
+    await this.prisma.submissionResult.create({
+      data: {
+        submissionId: id,
+        problemTestcaseId: result.problemTestcaseId,
+        result: result.result,
+        cpuTime: result.cpuTime,
+        memoryUsage: result.memoryUsage
+      }
+    })
 
     // FIXME: 현재 코드는 message 하나에 특정 problem에 대한 모든 테스트케이스의 채점 결과가 전송된다고 가정하고, 이를 받아서 submission의 overall result를 업데이트합니다.
     //        테스트케이스별로 DB 업데이트가 이루어진다면 아래 코드를 수정해야 합니다.
