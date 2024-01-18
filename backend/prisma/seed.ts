@@ -13,7 +13,8 @@ import {
   type Submission,
   type ProblemTestcase,
   type Announcement,
-  type CodeDraft
+  type CodeDraft,
+  ContestRecord
 } from '@prisma/client'
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
@@ -1562,6 +1563,30 @@ const createCodeDrafts = async () => {
   return codeDrafts
 }
 
+const createContestRecords = async () => {
+  const contestRecords: ContestRecord[] = []
+
+  // group 1 users
+  const group1Users = await prisma.userGroup.findMany({
+    where: {
+      groupId: 1
+    }
+  })
+  for (const user of group1Users) {
+    const contestRecord = await prisma.contestRecord.create({
+      data: {
+        userId: user.userId,
+        contestId: 1,
+        acceptedProblemNum: user.userId,
+        totalPenalty: 0
+      }
+    })
+    contestRecords.push(contestRecord)
+  }
+
+  return contestRecords
+}
+
 const main = async () => {
   await createUsers()
   await createGroups()
@@ -1572,6 +1597,7 @@ const main = async () => {
   await createSubmissions()
   await createAnnouncements()
   await createCodeDrafts()
+  await createContestRecords()
 }
 
 main()
