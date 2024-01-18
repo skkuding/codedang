@@ -32,15 +32,15 @@ export default async function Contest({ type }: { type: string }) {
 
   return (
     <div className="flex h-full flex-col ">
-      <div className="relative top-5 text-2xl font-bold text-gray-700 ">
-        {type}
-      </div>
       <Carousel>
-        <div className="flex items-center justify-end gap-2">
-          <CarouselPrevious />
-          <CarouselNext />
+        <div className="flex items-center justify-between">
+          <div className="pb-5 text-2xl font-bold text-gray-700">{type}</div>
+          <div className="flex items-center justify-end gap-2">
+            <CarouselPrevious />
+            <CarouselNext />
+          </div>
         </div>
-        <CarouselContent className="bottom-30 flex w-full gap-1.5 py-2">
+        <CarouselContent className="bottom-30 flex w-full gap-1.5 px-3 py-2">
           {contests
             .filter(
               (contest) => contest.status.toLowerCase() === type.toLowerCase()

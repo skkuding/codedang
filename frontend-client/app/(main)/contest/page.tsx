@@ -13,7 +13,6 @@ export default async function Contest() {
 
   return (
     <>
-      {/* TODO: Add contest card list */}
       <div className="mb-12 flex flex-col gap-12">
         <ContestCardList type="Ongoing" />
         <ContestCardList type="Upcoming" />
