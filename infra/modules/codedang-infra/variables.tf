@@ -87,3 +87,8 @@ variable "github_client_secret" {
   default   = "github_client_secret"
   sensitive = true
 }
+
+variable "loki_url" {
+  type    = string
+  default = "https://grafana.codedang.com/lokiaws/loki/api/v1/push"
+}
