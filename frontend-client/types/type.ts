@@ -48,5 +48,5 @@ export interface Standings {
   userId: number
   problemScore: ProblemScore[]
   solved: number
-  score: number
+  totalScore: number
 }

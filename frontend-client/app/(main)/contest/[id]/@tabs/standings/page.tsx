@@ -1,17 +1,5 @@
+import type { Standings } from '@/types/type'
 import StandingsTable from '../../../_components/StandingsTable'
-
-interface ProblemScore {
-  problemId: number
-  score: number
-  time: string
-}
-interface Standings {
-  ranking: number
-  userId: number
-  problemScore: ProblemScore[]
-  solved: number
-  score: number
-}
 
 const dummyData: Standings[] = [
   {
@@ -28,7 +16,7 @@ const dummyData: Standings[] = [
       { problemId: 8, score: 670, time: '04:00' }
     ],
     solved: 8,
-    score: 8191
+    totalScore: 8191
   },
   {
     ranking: 2,
@@ -44,7 +32,7 @@ const dummyData: Standings[] = [
       { problemId: 8, score: 693, time: '02:10' }
     ],
     solved: 8,
-    score: 8180
+    totalScore: 8180
   },
   {
     ranking: 3,
@@ -60,7 +48,7 @@ const dummyData: Standings[] = [
       { problemId: 8, score: 660, time: '02:15' }
     ],
     solved: 8,
-    score: 8000
+    totalScore: 8000
   },
   {
     ranking: 4,
@@ -76,7 +64,7 @@ const dummyData: Standings[] = [
       { problemId: 8, score: 605, time: '02:00' }
     ],
     solved: 8,
-    score: 7650
+    totalScore: 7650
   },
   {
     ranking: 5,
@@ -92,7 +80,7 @@ const dummyData: Standings[] = [
       { problemId: 8, score: 550, time: '04:00' }
     ],
     solved: 8,
-    score: 7650
+    totalScore: 7650
   },
   {
     ranking: 6,
@@ -108,7 +96,7 @@ const dummyData: Standings[] = [
       { problemId: 8, score: 615, time: '01:35' }
     ],
     solved: 8,
-    score: 7644
+    totalScore: 7644
   },
   {
     ranking: 7,
@@ -124,7 +112,7 @@ const dummyData: Standings[] = [
       { problemId: 8, score: 580, time: '02:50' }
     ],
     solved: 8,
-    score: 7095
+    totalScore: 7095
   },
   {
     ranking: 8,
@@ -140,7 +128,7 @@ const dummyData: Standings[] = [
       { problemId: 8, score: 495, time: '03:55' }
     ],
     solved: 8,
-    score: 6600
+    totalScore: 6600
   },
   {
     ranking: 9,
@@ -156,7 +144,7 @@ const dummyData: Standings[] = [
       { problemId: 8, score: 511, time: '03:40' }
     ],
     solved: 8,
-    score: 6542
+    totalScore: 6542
   },
   {
     ranking: 10,
@@ -172,10 +160,23 @@ const dummyData: Standings[] = [
       { problemId: 8, score: 330, time: '04:20' }
     ],
     solved: 8,
-    score: 4810
+    totalScore: 4810
   }
 ]
 
+export const myUserId = 2020312938
+
+const myRecord: Standings | undefined = dummyData.find(
+  (data) => data.userId === myUserId
+)
+
+let data: Standings[]
+if (myRecord) {
+  data = [myRecord, ...dummyData]
+} else {
+  data = dummyData
+}
+
 export default function ContestStandings() {
-  return <StandingsTable data={dummyData} />
+  return <StandingsTable data={data} />
 }

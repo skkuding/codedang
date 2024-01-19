@@ -16,6 +16,7 @@ import {
   getCoreRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import { myUserId } from '../[id]/@tabs/standings/page'
 
 interface StandingsTableProps {
   data: Standings[]
@@ -26,7 +27,7 @@ const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 export default function StandingsTable({ data }: StandingsTableProps) {
   const columns: ColumnDef<Standings>[] = [
     {
-      header: () => <p className="text-base font-medium text-gray-500">#</p>,
+      header: () => <p className="text-lg font-medium text-gray-500">#</p>,
       accessorKey: 'ranking',
       cell: ({ row }) => {
         return <p className="text-xs md:text-sm">{row.original.ranking}</p>
@@ -93,7 +94,9 @@ export default function StandingsTable({ data }: StandingsTableProps) {
           header: () => <p className="text-sm">Score</p>,
           accessorKey: 'score',
           cell: ({ row }) => {
-            return <p className="text-xs md:text-sm">{row.original.score}</p>
+            return (
+              <p className="text-xs md:text-sm">{row.original.totalScore}</p>
+            )
           },
           id: 'score'
         }
@@ -181,7 +184,9 @@ export default function StandingsTable({ data }: StandingsTableProps) {
                     'text-center text-gray-500',
                     cell.column.columnDef.id === 'ranking'
                       ? ''
-                      : 'border-l border-l-gray-200'
+                      : 'border-l border-l-gray-200',
+                    row.original.userId === myUserId &&
+                      'bg-gray-300 font-extrabold text-gray-800'
                   )}
                   style={{ padding: 3 }}
                 >
