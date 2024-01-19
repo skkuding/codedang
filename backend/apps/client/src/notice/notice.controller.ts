@@ -26,7 +26,7 @@ export class NoticeController {
 
   @Get()
   async getNotices(
-    @Query('groupId', IdValidationPipe) groupId: number | null,
+    @Query('groupId', IdValidationPipe) groupId: number | undefined,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
     @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
@@ -48,7 +48,7 @@ export class NoticeController {
 
   @Get(':id')
   async getNoticeByID(
-    @Query('groupId', IdValidationPipe) groupId: number | null,
+    @Query('groupId', IdValidationPipe) groupId: number | undefined,
     @Param('id', ParseIntPipe) id: number
   ) {
     try {

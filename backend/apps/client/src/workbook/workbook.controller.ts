@@ -26,7 +26,7 @@ export class WorkbookController {
   async getWorkbooks(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number,
-    @Query('groupId', IdValidationPipe) groupId: number | null
+    @Query('groupId', IdValidationPipe) groupId: number | undefined
   ) {
     try {
       return await this.workbookService.getWorkbooksByGroupId(
@@ -43,7 +43,7 @@ export class WorkbookController {
   @Get(':workbookId')
   async getWorkbook(
     @Param('workbookId', ParseIntPipe) workbookId,
-    @Query('groupId', IdValidationPipe) groupId: number | null
+    @Query('groupId', IdValidationPipe) groupId: number | undefined
   ) {
     try {
       return await this.workbookService.getWorkbook(

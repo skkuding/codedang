@@ -32,7 +32,7 @@ export class ContestController {
   @AuthNotNeededIfOpenSpace()
   async getContests(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', IdValidationPipe) groupId: number | null
+    @Query('groupId', IdValidationPipe) groupId: number | undefined
   ) {
     try {
       return await this.contestService.getContestsByGroupId(
@@ -64,7 +64,7 @@ export class ContestController {
   @Get('finished')
   @AuthNotNeededIfOpenSpace()
   async getFinishedContests(
-    @Query('groupId', IdValidationPipe) groupId: number | null,
+    @Query('groupId', IdValidationPipe) groupId: number | undefined,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number
   ) {
@@ -83,7 +83,7 @@ export class ContestController {
   @Get(':id')
   @AuthNotNeededIfOpenSpace()
   async getContest(
-    @Query('groupId', IdValidationPipe) groupId: number | null,
+    @Query('groupId', IdValidationPipe) groupId: number | undefined,
     @Param('id', ParseIntPipe) id: number
   ) {
     try {
@@ -104,7 +104,7 @@ export class ContestController {
   @Post(':id/participation')
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', IdValidationPipe) groupId: number | null,
+    @Query('groupId', IdValidationPipe) groupId: number | undefined,
     @Param('id', ParseIntPipe) contestId: number
   ) {
     try {

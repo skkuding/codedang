@@ -36,9 +36,9 @@ export class SubmissionController {
     @Req() req: AuthenticatedRequest,
     @Body() submissionDto: CreateSubmissionDto,
     @Query('problemId', ParseIntPipe) problemId: number,
-    @Query('groupId', IdValidationPipe) groupId: number | null,
-    @Query('contestId', IdValidationPipe) contestId: number | null,
-    @Query('workbookId', IdValidationPipe) workbookId: number | null
+    @Query('groupId', IdValidationPipe) groupId: number | undefined,
+    @Query('contestId', IdValidationPipe) contestId: number | undefined,
+    @Query('workbookId', IdValidationPipe) workbookId: number | undefined
   ) {
     try {
       if (!contestId && !workbookId) {
@@ -85,8 +85,8 @@ export class SubmissionController {
   async getSubmissions(
     @Req() req: AuthenticatedRequest,
     @Query('problemId', ParseIntPipe) problemId: number,
-    @Query('groupId', IdValidationPipe) groupId: number | null,
-    @Query('contestId', IdValidationPipe) contestId: number | null
+    @Query('groupId', IdValidationPipe) groupId: number | undefined,
+    @Query('contestId', IdValidationPipe) contestId: number | undefined
   ) {
     try {
       if (contestId) {
@@ -120,8 +120,8 @@ export class SubmissionController {
   async getSubmission(
     @Req() req: AuthenticatedRequest,
     @Query('problemId', ParseIntPipe) problemId: number,
-    @Query('groupId', IdValidationPipe) groupId: number | null,
-    @Query('contestId', IdValidationPipe) contestId: number | null,
+    @Query('groupId', IdValidationPipe) groupId: number | undefined,
+    @Query('contestId', IdValidationPipe) contestId: number | undefined,
     @Param('id', ParseIntPipe) id: number
   ) {
     try {
