@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { fetcher } from '@/lib/utils'
 import type { Contest, WorkbookProblem } from '@/types/type'
-import { Trophy, ThumbsUp } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import Carousel from './_components/Carousel'
@@ -57,73 +56,54 @@ export default async function Home() {
     .json()
   return (
     <div className="flex w-full flex-col gap-12 lg:items-center">
-      <Carousel slides={slides}></Carousel>
+      <Carousel slides={slides} />
       {contests.length !== 0 && (
-        <div className="max-w-max">
-          <div className="flex items-center justify-between p-2 text-gray-700">
-            <div className="flex items-center gap-2">
-              <Trophy />
-              <p className="text-xl font-bold md:text-2xl">Contest</p>
-            </div>
+        <div className="flex w-full flex-col gap-3">
+          <div className="flex w-full items-center justify-between text-gray-700">
+            <p className="text-xl font-bold">Contest</p>
             <Link href="/contest">
-              <Button
-                variant="ghost"
-                className="text-md rounded-full border-gray-500 px-5 font-semibold"
-              >
+              <Button variant="outline" className="h-8">
                 More
               </Button>
             </Link>
           </div>
-          <div className="scrollbar-hide h-46 -ml-8 -mr-8 flex gap-10 overflow-x-auto">
-            <div className="sticky left-0 z-10 -mr-10 bg-gradient-to-r from-white to-transparent pr-10"></div>
+          <div className="grid w-full grid-cols-3 gap-5">
             {contests.map((contest) => {
               return (
-                <Link key={contest.id} href={`/contest/${contest.id}` as Route}>
+                <Link
+                  key={contest.id}
+                  href={`/contest/${contest.id}` as Route}
+                  className="inline-block w-full"
+                >
                   <ContestCard contest={contest} />
                 </Link>
               )
             })}
-            {Array.from({ length: 3 - contests.length }).map((_, i) => {
-              return <div key={i} className="w-60 md:w-72"></div>
-            })}
-            <div className="sticky right-0 z-10 -ml-10 bg-gradient-to-l from-white to-transparent pl-10"></div>
           </div>
         </div>
       )}
       {problems.length !== 0 && (
-        <div className="max-w-max">
-          <div className="flex items-center justify-between p-2 text-gray-700">
-            <div className="flex items-center gap-2">
-              <div>
-                <ThumbsUp />
-              </div>
-              <p className="text-xl font-bold md:text-2xl">Dive in!</p>
-            </div>
+        <div className="flex w-full flex-col gap-3">
+          <div className="flex w-full items-center justify-between text-gray-700">
+            <p className="text-xl font-bold">Professor’s Recommendation</p>
             <Link href={'/workbook/1' as Route}>
-              <Button
-                variant="ghost"
-                className="text-md rounded-full border-gray-500 px-5 font-semibold"
-              >
+              <Button variant="outline" className="h-8">
                 More
               </Button>
             </Link>
           </div>
-          <div className="scrollbar-hide h-46 -ml-8 -mr-8 flex gap-10 overflow-x-auto">
-            <div className="sticky left-0 z-10 -mr-10 bg-gradient-to-r from-white to-transparent pr-10"></div>
+          <div className="grid w-full grid-cols-3 gap-5">
             {problems.map((problem) => {
               return (
                 <Link
                   key={problem.problemId}
                   href={`/problem/${problem.problemId}` as Route}
+                  className="inline-block w-full"
                 >
                   <ProblemCard problem={problem} />
                 </Link>
               )
             })}
-            {Array.from({ length: 3 - problems.length }).map((_, i) => {
-              return <div key={i} className="w-60 md:w-72"></div>
-            })}
-            <div className="sticky right-0 z-10 -ml-10 bg-gradient-to-l from-white to-transparent pl-10"></div>
           </div>
         </div>
       )}

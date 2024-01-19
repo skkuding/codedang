@@ -8,5 +8,5 @@ export class ProblemsResponseDto {
   @Expose() difficulty: Level
   @Expose() submissionCount: number
   @Expose() acceptedRate: number
-  @Expose() tags: Partial<Tag>
+  @Expose() tags: Partial<Tag>[]
 }
