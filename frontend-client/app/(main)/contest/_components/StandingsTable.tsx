@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 import type { Standings } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
@@ -25,27 +26,33 @@ const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 export default function StandingsTable({ data }: StandingsTableProps) {
   const columns: ColumnDef<Standings>[] = [
     {
-      header: () => <p className="text-center text-sm">#</p>,
+      header: () => <p className="text-base font-medium text-gray-500">#</p>,
       accessorKey: 'ranking',
       cell: ({ row }) => {
         return <p className="text-xs md:text-sm">{row.original.ranking}</p>
-      }
+      },
+      id: 'ranking'
     },
     {
-      header: () => <p className="text-center text-sm">User ID</p>,
+      header: () => (
+        <p className="text-base font-medium text-gray-500">User ID</p>
+      ),
       accessorKey: 'userId',
       cell: ({ row }) => {
         return <p className="text-xs md:text-sm">{row.original.userId}</p>
-      }
+      },
+      id: 'userId'
     },
     {
-      header: () => <p className="text-center text-sm">Problem</p>,
+      header: () => (
+        <p className="text-base font-medium text-gray-500">Problem</p>
+      ),
       accessorKey: 'problem',
       columns: Array.from({ length: data[0].problemScore.length }).map(
         (_, i) => {
           return {
             header: () => (
-              <div className="text-center">
+              <div>
                 <p className="text-xs md:text-sm">{alphabet[i]}</p>
                 <p className="text-xs">(1500)</p>
               </div>
@@ -65,27 +72,33 @@ export default function StandingsTable({ data }: StandingsTableProps) {
             }
           }
         }
-      )
+      ),
+      id: 'problem'
     },
     {
-      header: () => <p className="text-center text-sm">Total</p>,
+      header: () => (
+        <p className="text-base font-medium text-gray-500">Total</p>
+      ),
       accessorKey: 'total',
       columns: [
         {
-          header: () => <p className="text-center text-sm">Solved</p>,
+          header: () => <p className="text-sm">Solved</p>,
           accessorKey: 'solved',
           cell: ({ row }) => {
             return <p className="text-xs md:text-sm">{row.original.solved}</p>
-          }
+          },
+          id: 'solved'
         },
         {
-          header: () => <p className="text-center text-sm">Score</p>,
+          header: () => <p className="text-sm">Score</p>,
           accessorKey: 'score',
           cell: ({ row }) => {
             return <p className="text-xs md:text-sm">{row.original.score}</p>
-          }
+          },
+          id: 'score'
         }
-      ]
+      ],
+      id: 'total'
     }
   ]
 
@@ -117,12 +130,30 @@ export default function StandingsTable({ data }: StandingsTableProps) {
                 rowSpan = leafs[leafs.length - 1].depth - header.depth
               }
 
+              const className = cn(
+                'border-b border-b-gray-200 text-center text-gray-600',
+                header.column.columnDef.id !== 'ranking' &&
+                  'border-l border-l-gray-200',
+                ` w-[${
+                  {
+                    ranking: '4%',
+                    userId: '15%'
+                  }[header.column.columnDef.id as string]
+                }]`,
+                ` h-${
+                  {
+                    problem: '8',
+                    total: '8'
+                  }[header.column.columnDef.id as string]
+                }`
+              )
+
               return (
                 <TableHead
                   key={header.id}
                   colSpan={header.colSpan}
                   rowSpan={rowSpan}
-                  className="border-x border-gray-200 text-center"
+                  className={className}
                 >
                   {flexRender(
                     header.column.columnDef.header,
@@ -134,7 +165,7 @@ export default function StandingsTable({ data }: StandingsTableProps) {
           </TableRow>
         ))}
       </TableHeader>
-      <TableBody>
+      <TableBody className="border-b border-b-gray-200">
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
             <TableRow
@@ -144,7 +175,16 @@ export default function StandingsTable({ data }: StandingsTableProps) {
               onClick={() => {}}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="border-x border-gray-200">
+                <TableCell
+                  key={cell.id}
+                  className={cn(
+                    'text-center text-gray-500',
+                    cell.column.columnDef.id === 'ranking'
+                      ? ''
+                      : 'border-l border-l-gray-200'
+                  )}
+                  style={{ padding: 3 }}
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
