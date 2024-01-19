@@ -178,5 +178,5 @@ if (myRecord) {
 }
 
 export default function ContestStandings() {
-  return <StandingsTable data={data} />
+  return <StandingsTable data={data} theme="light" />
 }

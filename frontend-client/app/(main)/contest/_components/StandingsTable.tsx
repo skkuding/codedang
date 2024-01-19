@@ -20,14 +20,30 @@ import { myUserId } from '../[id]/@tabs/standings/page'
 
 interface StandingsTableProps {
   data: Standings[]
+  theme: string
 }
 
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
-export default function StandingsTable({ data }: StandingsTableProps) {
+export default function StandingsTable({ data, theme }: StandingsTableProps) {
+  const darkTextColor = 'text-slate-300'
+  const lightTextColor = 'text-gray-500'
+  const darkBorderColor = 'border-slate-500'
+  const lightBorderColor = 'border-gray-200'
+
+  const textColor = theme === 'dark' ? darkTextColor : lightTextColor
+  const borderColor = theme === 'dark' ? darkBorderColor : lightBorderColor
+
+  const myRecordStyle =
+    theme === 'dark'
+      ? 'bg-slate-800 font-extrabold text-primary'
+      : 'bg-gray-300 font-extrabold text-gray-800'
+
   const columns: ColumnDef<Standings>[] = [
     {
-      header: () => <p className="text-lg font-medium text-gray-500">#</p>,
+      header: () => (
+        <p className={cn('text-base font-medium md:text-lg', textColor)}>#</p>
+      ),
       accessorKey: 'ranking',
       cell: ({ row }) => {
         return <p className="text-xs md:text-sm">{row.original.ranking}</p>
@@ -36,7 +52,9 @@ export default function StandingsTable({ data }: StandingsTableProps) {
     },
     {
       header: () => (
-        <p className="text-base font-medium text-gray-500">User ID</p>
+        <p className={cn('text-xs font-medium md:text-base', textColor)}>
+          User ID
+        </p>
       ),
       accessorKey: 'userId',
       cell: ({ row }) => {
@@ -46,7 +64,9 @@ export default function StandingsTable({ data }: StandingsTableProps) {
     },
     {
       header: () => (
-        <p className="text-base font-medium text-gray-500">Problem</p>
+        <p className={cn('text-sm font-medium md:text-base', textColor)}>
+          Problem
+        </p>
       ),
       accessorKey: 'problem',
       columns: Array.from({ length: data[0].problemScore.length }).map(
@@ -55,20 +75,20 @@ export default function StandingsTable({ data }: StandingsTableProps) {
             header: () => (
               <div>
                 <p className="text-xs md:text-sm">{alphabet[i]}</p>
-                <p className="text-xs">(1500)</p>
+                <p className="text-xs md:text-sm">(1500)</p>
               </div>
             ),
             accessorKey: i.toString(),
             cell: ({ row }) => {
               return (
-                <div>
+                <>
                   <p className="text-xs md:text-sm">
                     {row.original.problemScore[i].score}
                   </p>
                   <p className="text-xs md:text-sm">
                     {row.original.problemScore[i].time}
                   </p>
-                </div>
+                </>
               )
             }
           }
@@ -78,12 +98,14 @@ export default function StandingsTable({ data }: StandingsTableProps) {
     },
     {
       header: () => (
-        <p className="text-base font-medium text-gray-500">Total</p>
+        <p className={cn('text-sm font-medium md:text-base', textColor)}>
+          Total
+        </p>
       ),
       accessorKey: 'total',
       columns: [
         {
-          header: () => <p className="text-sm">Solved</p>,
+          header: () => <p className="text-xs md:text-sm">Solved</p>,
           accessorKey: 'solved',
           cell: ({ row }) => {
             return <p className="text-xs md:text-sm">{row.original.solved}</p>
@@ -91,7 +113,7 @@ export default function StandingsTable({ data }: StandingsTableProps) {
           id: 'solved'
         },
         {
-          header: () => <p className="text-sm">Score</p>,
+          header: () => <p className="text-xs md:text-sm">Score</p>,
           accessorKey: 'score',
           cell: ({ row }) => {
             return (
@@ -112,10 +134,13 @@ export default function StandingsTable({ data }: StandingsTableProps) {
   })
 
   return (
-    <Table className="table-fixed">
+    <Table className={cn('table-fixed', theme === 'dark' && 'bg-slate-600')}>
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow key={headerGroup.id}>
+          <TableRow
+            key={headerGroup.id}
+            className={cn(theme === 'dark' && 'hover:bg-gray-700/50')}
+          >
             {headerGroup.headers.map((header) => {
               const columnRelativeDepth = header.depth - header.column.depth
 
@@ -134,15 +159,17 @@ export default function StandingsTable({ data }: StandingsTableProps) {
               }
 
               const className = cn(
-                'border-b border-b-gray-200 text-center text-gray-600',
-                header.column.columnDef.id !== 'ranking' &&
-                  'border-l border-l-gray-200',
-                ` w-[${
+                'border-b text-center',
+                textColor,
+                borderColor,
+                header.column.columnDef.id !== 'ranking' && 'border-l',
+                ` w-${
                   {
-                    ranking: '4%',
-                    userId: '15%'
+                    ranking: '10',
+                    userId: '[15%]',
+                    total: '[15%]'
                   }[header.column.columnDef.id as string]
-                }]`,
+                }`,
                 ` h-${
                   {
                     problem: '8',
@@ -157,6 +184,7 @@ export default function StandingsTable({ data }: StandingsTableProps) {
                   colSpan={header.colSpan}
                   rowSpan={rowSpan}
                   className={className}
+                  style={{ padding: 0 }}
                 >
                   {flexRender(
                     header.column.columnDef.header,
@@ -168,25 +196,26 @@ export default function StandingsTable({ data }: StandingsTableProps) {
           </TableRow>
         ))}
       </TableHeader>
-      <TableBody className="border-b border-b-gray-200">
+      <TableBody className={cn('border-b text-center', borderColor)}>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
               data-state={row.getIsSelected() && 'selected'}
-              className="cursor-pointer"
-              onClick={() => {}}
+              className={cn(
+                'cursor-pointer',
+                theme === 'dark' && 'hover:bg-gray-700/50'
+              )}
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell
                   key={cell.id}
                   className={cn(
-                    'text-center text-gray-500',
-                    cell.column.columnDef.id === 'ranking'
-                      ? ''
-                      : 'border-l border-l-gray-200',
-                    row.original.userId === myUserId &&
-                      'bg-gray-300 font-extrabold text-gray-800'
+                    'border-b text-center',
+                    textColor,
+                    borderColor,
+                    cell.column.columnDef.id !== 'ranking' && 'border-l',
+                    row.original.userId === myUserId && myRecordStyle
                   )}
                   style={{ padding: 3 }}
                 >
