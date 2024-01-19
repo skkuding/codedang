@@ -101,18 +101,33 @@ export default function StandingsTable({ data }: StandingsTableProps) {
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
+              const columnRelativeDepth = header.depth - header.column.depth
+
+              if (
+                !header.isPlaceholder &&
+                columnRelativeDepth > 1 &&
+                header.id === header.column.id
+              ) {
+                return null
+              }
+
+              let rowSpan = 1
+              if (header.isPlaceholder) {
+                const leafs = header.getLeafHeaders()
+                rowSpan = leafs[leafs.length - 1].depth - header.depth
+              }
+
               return (
                 <TableHead
                   key={header.id}
                   colSpan={header.colSpan}
-                  className="border-x border-gray-200"
+                  rowSpan={rowSpan}
+                  className="border-x border-gray-200 text-center"
                 >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
                 </TableHead>
               )
             })}
@@ -129,10 +144,7 @@ export default function StandingsTable({ data }: StandingsTableProps) {
               onClick={() => {}}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell
-                  key={cell.id}
-                  className="border-x border-gray-200 text-center"
-                >
+                <TableCell key={cell.id} className="border-x border-gray-200">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
