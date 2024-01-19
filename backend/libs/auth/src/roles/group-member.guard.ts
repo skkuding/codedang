@@ -28,7 +28,7 @@ export class GroupMemberGuard implements CanActivate {
       groupId =
         !request.query.groupId || request.query.groupId === '1'
           ? OPEN_SPACE_ID
-          : parseInt(request.params.groupId ?? request.query.groupId)
+          : parseInt(request.query.groupId as string)
     }
 
     if (groupId === OPEN_SPACE_ID) {

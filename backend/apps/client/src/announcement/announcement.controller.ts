@@ -4,12 +4,16 @@ import {
   Logger,
   NotFoundException,
   InternalServerErrorException,
-  Query
+  Query,
+  ConflictException
 } from '@nestjs/common'
 import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  ConflictFoundException,
+  EntityNotExistException
+} from '@libs/exception'
 import { AnnouncementService } from './announcement.service'
 
 @Controller('announcement')
@@ -37,10 +41,14 @@ export class AnnouncementController {
           groupId ?? OPEN_SPACE_ID
         )
       }
-      throw new InternalServerErrorException()
+      throw new ConflictException(
+        'Both problemId and contestId are not entered'
+      )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
+      } else if (error instanceof ConflictException) {
+        throw new ConflictFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()

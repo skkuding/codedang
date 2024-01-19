@@ -10,7 +10,8 @@ import {
   ConflictException,
   ForbiddenException,
   Logger,
-  Query
+  Query,
+  ParseIntPipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
@@ -34,7 +35,7 @@ export class SubmissionController {
   async createSubmission(
     @Req() req: AuthenticatedRequest,
     @Body() submissionDto: CreateSubmissionDto,
-    @Query('problemId', IdValidationPipe) problemId: number,
+    @Query('problemId', ParseIntPipe) problemId: number,
     @Query('groupId', IdValidationPipe) groupId: number | null,
     @Query('contestId', IdValidationPipe) contestId: number | null,
     @Query('workbookId', IdValidationPipe) workbookId: number | null
@@ -69,12 +70,10 @@ export class SubmissionController {
         throw new ConflictException(error.message)
       }
       if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
+        (error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.name == 'NotFoundError') ||
+        error instanceof EntityNotExistException
       ) {
-        throw new NotFoundException(error.message)
-      }
-      if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
       this.logger.error(error)
@@ -85,7 +84,7 @@ export class SubmissionController {
   @Get()
   async getSubmissions(
     @Req() req: AuthenticatedRequest,
-    @Query('problemId', IdValidationPipe) problemId: number,
+    @Query('problemId', ParseIntPipe) problemId: number,
     @Query('groupId', IdValidationPipe) groupId: number | null,
     @Query('contestId', IdValidationPipe) contestId: number | null
   ) {
@@ -104,8 +103,9 @@ export class SubmissionController {
       )
     } catch (error) {
       if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
+        (error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.name == 'NotFoundError') ||
+        error instanceof EntityNotExistException
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
@@ -119,10 +119,10 @@ export class SubmissionController {
   @Get(':id')
   async getSubmission(
     @Req() req: AuthenticatedRequest,
-    @Query('problemId', IdValidationPipe) problemId: number,
+    @Query('problemId', ParseIntPipe) problemId: number,
     @Query('groupId', IdValidationPipe) groupId: number | null,
     @Query('contestId', IdValidationPipe) contestId: number | null,
-    @Param('id', IdValidationPipe) id: number
+    @Param('id', ParseIntPipe) id: number
   ) {
     try {
       if (contestId) {
@@ -142,8 +142,9 @@ export class SubmissionController {
       )
     } catch (error) {
       if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
+        (error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.name == 'NotFoundError') ||
+        error instanceof EntityNotExistException
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {

@@ -72,7 +72,11 @@ export class ProblemController {
         groupId ?? OPEN_SPACE_ID
       )
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
+      if (
+        (error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.name === 'NotFoundError') ||
+        error instanceof EntityNotExistException
+      ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
         throw new ForbiddenException(error.message)
@@ -109,8 +113,9 @@ export class ProblemController {
       )
     } catch (error) {
       if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name === 'NotFoundError'
+        (error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.name === 'NotFoundError') ||
+        error instanceof EntityNotExistException
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
