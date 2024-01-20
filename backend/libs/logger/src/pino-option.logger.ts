@@ -1,8 +1,10 @@
 import { gray, italic, white } from 'colorette'
+import { randomUUID } from 'crypto'
 import type { Params } from 'nestjs-pino'
 import PinoPretty from 'pino-pretty'
 import type { PrettyOptions } from 'pino-pretty'
 import { format } from 'sql-formatter'
+import type { AuthenticatedRequest } from '@libs/auth'
 
 const pinoPrettyOptions: PrettyOptions = {
   messageFormat: (log, messageKey) => {
@@ -38,6 +40,22 @@ export const pinoLoggerModuleOption: Params = {
         mergeObject = { ...mergeObject, msg: mergeObject.message }
       }
       return mergeObject
+    },
+    customProps(req: AuthenticatedRequest) {
+      return req.user
+        ? {
+            user: {
+              id: req.user.id,
+              username: req.user.username
+            }
+          }
+        : { user: 'undefined' }
+    },
+    genReqId(req, res) {
+      // TODO: x-request-id를 reverse proxy에서 추가하는 경우, 아래 코드를 변경해야 함. 현재는 request id를 nest에서만 할당하는 것으로 가정.
+      const id = randomUUID()
+      res.setHeader('X-Request-Id', id)
+      return id
     }
   }
 }

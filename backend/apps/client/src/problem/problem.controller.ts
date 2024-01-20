@@ -22,15 +22,6 @@ export class ProblemController {
   private readonly logger = new Logger(ProblemController.name)
 
   constructor(private readonly problemService: ProblemService) {}
-  @Get()
-  async searchProblemTitle(@Query('search') search: string) {
-    try {
-      return await this.problemService.searchProblemTitle(search)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
 
   @Get()
   async getProblems(
