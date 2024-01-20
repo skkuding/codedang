@@ -9,7 +9,8 @@ import {
   Get,
   Query,
   Logger,
-  ConflictException
+  ConflictException,
+  DefaultValuePipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
@@ -66,7 +67,7 @@ export class ContestController {
   async getFinishedContests(
     @Query('groupId', IdValidationPipe) groupId: number | undefined,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', ParseIntPipe) take: number
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number
   ) {
     try {
       return await this.contestService.getFinishedContestsByGroupId(

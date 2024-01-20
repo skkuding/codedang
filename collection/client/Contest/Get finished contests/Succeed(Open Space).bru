@@ -27,8 +27,15 @@ assert {
 
 docs {
   # Add Finished Contests
-  ---
-  - Query param으로 `cursor`, `take` 두 개의 값을 전달받습니다.
-  - `cursor` 로부터 `take` 개의 종료된 Contest를 반환합니다.
-  - `cursor` 가 주어지지 않는 경우 처음부터 `take` 개의 Contest를 반환합니다.
+
+  종료된 대회들을 가져옵니다.
+
+  ## Query
+
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |take  |Integer|가져올 대회 개수 (default: 10)|
+  |cursor|Integer|cursor 값 다음의 ID를 가진 대회들을 반환|
+  |groupId |Integer|대회가 속한 Group ID (default: 1)|
+
 }

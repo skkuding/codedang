@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Controller,
+  DefaultValuePipe,
   Delete,
   ForbiddenException,
   Get,
@@ -38,7 +39,7 @@ export class GroupController {
   @AuthNotNeededIfOpenSpace()
   async getGroups(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', ParseIntPipe) take: number
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number
   ) {
     try {
       return await this.groupService.getGroups(cursor, take)

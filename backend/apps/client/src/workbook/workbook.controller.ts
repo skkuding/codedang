@@ -1,5 +1,6 @@
 import {
   Controller,
+  DefaultValuePipe,
   Get,
   InternalServerErrorException,
   Logger,
@@ -25,7 +26,7 @@ export class WorkbookController {
   @Get()
   async getWorkbooks(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', ParseIntPipe) take: number,
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
     @Query('groupId', IdValidationPipe) groupId: number | undefined
   ) {
     try {

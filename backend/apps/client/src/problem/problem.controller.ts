@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Controller,
+  DefaultValuePipe,
   ForbiddenException,
   Get,
   InternalServerErrorException,
@@ -43,7 +44,7 @@ export class ProblemController {
     @Query('contestId', IdValidationPipe) contestId: number | undefined,
     @Query('workbookId', IdValidationPipe) workbookId: number | undefined,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', ParseIntPipe) take: number,
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
     @Query('order', new ZodValidationPipe(problemOrderSchema))
     order: ProblemOrder,
     @Query('search') search?: string
