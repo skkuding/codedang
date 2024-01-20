@@ -5,7 +5,7 @@ import {
   NotFoundException,
   InternalServerErrorException,
   Query,
-  ConflictException
+  BadRequestException
 } from '@nestjs/common'
 import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
@@ -45,6 +45,8 @@ export class AnnouncementController {
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
-    throw new ConflictException('Both problemId and contestId are not entered')
+    throw new BadRequestException(
+      'Both problemId and contestId are not entered'
+    )
   }
 }
