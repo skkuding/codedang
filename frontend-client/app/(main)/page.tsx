@@ -22,8 +22,8 @@ const slides = [
     sub: 'Level up your coding skills with us',
     img: dummyImg,
     imgAlt: 'Codedang Intro Banner',
-    color: 'blue',
-    href: 'https://github.com/skkuding/codedang'
+    color: 'green',
+    href: '/problem'
   },
   {
     topTitle: 'SKKUDING',
@@ -32,7 +32,7 @@ const slides = [
     img: SkkudingLogo,
     imgAlt: 'SKKUDING Beta service Banner',
     color: 'black',
-    href: 'https://github.com/skkuding/codedang'
+    href: '/'
   },
   {
     topTitle: 'Contribute to',

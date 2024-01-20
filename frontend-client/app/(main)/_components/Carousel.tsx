@@ -50,52 +50,36 @@ export default function Carousel({ slides }: Props) {
   }
 
   return (
-    <div
-      className={cn(
-        'relative my-5 h-72 w-full overflow-hidden rounded-3xl bg-gray-100'
-      )}
-    >
-      {/* todo : 반응형 수정 */}
-      <Link href={slides[facade].href as Route<string>}>
-        {slides.map((slide, index) => (
-          <div
-            key={index}
-            className={cn(
-              'absolute left-0 top-0 h-full w-full transition-opacity duration-1000 ease-in-out',
-              facade !== index && ' opacity-0',
-              bgColors[slides[index].color]
-            )}
-          >
-            <div className="flex h-full w-full max-w-7xl flex-col-reverse justify-between gap-5 p-8 py-14 md:flex-row md:items-center md:px-14 md:py-0">
-              <div
-                className={cn(
-                  'flex flex-col items-start justify-center gap-3',
-                  textColors[slide.color]
-                )}
-              >
-                <div>
-                  <p className="mb-1 whitespace-nowrap text-2xl font-semibold md:text-3xl">
-                    {slide.topTitle}
-                  </p>
-                  <p className="whitespace-nowrap text-2xl font-semibold md:text-3xl">
-                    {slide.bottomTitle}
-                  </p>
-                </div>
-                <p className="md:text-lg">{slide.sub}</p>
-              </div>
-              <div className="flex items-center justify-center">
-                <Image
-                  src={slide.img}
-                  alt={slide.imgAlt}
-                  className="size-[150px] object-contain md:size-[230px]"
-                />
-              </div>
-            </div>
+    <div className="relative my-5 h-[350px] w-full overflow-hidden rounded-xl bg-gray-100 sm:h-72">
+      {slides.map((slide, index) => (
+        <Link
+          href={slide.href as Route}
+          key={slide.href + slide.topTitle}
+          className={cn(
+            'absolute inset-0 z-10 flex flex-col-reverse items-center justify-between gap-5 p-8 py-14 transition-opacity duration-1000 ease-in-out sm:flex-row md:px-14 md:py-0',
+            facade !== index && 'z-0 opacity-0',
+            bgColors[slide.color],
+            textColors[slide.color]
+          )}
+        >
+          <div className="w-full whitespace-nowrap text-2xl font-semibold md:text-3xl">
+            <p>{slide.topTitle}</p>
+            <p>{slide.bottomTitle}</p>
+            <p className="mt-2 text-base font-normal opacity-70 md:text-lg">
+              {slide.sub}
+            </p>
           </div>
-        ))}
-      </Link>
-      <div className="absolute bottom-5 left-0 right-0 flex justify-center">
-        <div className="z-10 flex h-7 items-center rounded-full bg-gray-900/80 px-2.5">
+          <Image
+            src={slide.img}
+            alt={slide.imgAlt}
+            className="size-[150px] object-contain md:size-[230px]"
+            sizes="(max-width: 768px) 150px, 230px"
+            priority
+          />
+        </Link>
+      ))}
+      <div className="absolute bottom-4 left-0 right-0 z-20 flex justify-center">
+        <div className="flex h-7 items-center rounded-full bg-gray-900/80 px-2.5">
           <Button
             variant="ghost"
             className="px-0 hover:bg-transparent"
