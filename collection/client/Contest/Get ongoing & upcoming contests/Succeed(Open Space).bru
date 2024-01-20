@@ -1,0 +1,29 @@
+meta {
+  name: Succeed(Open Space)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/contest
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res("ongoing")[0].id: isNumber
+  res("ongoing")[0].title: isString
+  res("ongoing")[0].startTime: isString
+  res("ongoing")[0].endTime: isString
+  res("ongoing")[0].group.id: isNumber
+  res("ongoing")[0].group.groupName: isString
+  res("ongoing")[0].participants: isNumber
+}
+
+docs {
+  # Get Ongoing & Upcoming Contests
+  ---
+  - 아직 종료되지 않은 모든 Contest 정보를 반환합니다.
+  
+}

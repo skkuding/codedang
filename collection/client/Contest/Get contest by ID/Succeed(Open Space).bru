@@ -1,0 +1,28 @@
+meta {
+  name: Succeed(Open Space)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/contest/1
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res("id"): isNumber
+  res("title"): isString
+  res("startTime"): isString
+  res("endTime"): isString
+  res("group.id"): isNumber
+  res("group.groupName"): isString
+  res("description"): isString
+}
+
+docs {
+  # Get Contest by ID
+  ---
+  - URL param으로 전달된 Contest ID를 통해 해당 contest 정보를 가져와 반환합니다.
+}

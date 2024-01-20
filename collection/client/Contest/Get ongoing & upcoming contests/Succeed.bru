@@ -1,13 +1,17 @@
 meta {
   name: Succeed
   type: http
-  seq: 1
+  seq: 2
 }
 
 get {
-  url: {{baseUrl}}/contest
+  url: {{baseUrl}}/contest?groupId=2
   body: none
   auth: none
+}
+
+query {
+  groupId: 2
 }
 
 assert {
@@ -18,7 +22,7 @@ assert {
   res("ongoing")[0].endTime: isString
   res("ongoing")[0].group.id: isNumber
   res("ongoing")[0].group.groupName: isString
-  res("ongoing")[0].participants: isNumber 
+  res("ongoing")[0].participants: isNumber
 }
 
 docs {

@@ -4,7 +4,6 @@ import {
   Query,
   Param,
   ParseIntPipe,
-  UseGuards,
   NotFoundException,
   InternalServerErrorException,
   Logger,
@@ -12,12 +11,14 @@ import {
   ParseBoolPipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
+import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
+import { AuthNotNeededIfOpenSpace } from '@libs/auth'
+import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe } from '@libs/pipe'
 import { NoticeService } from './notice.service'
 
 @Controller('notice')
-@AuthNotNeeded()
+@AuthNotNeededIfOpenSpace()
 export class NoticeController {
   private readonly logger = new Logger(NoticeController.name)
 
@@ -25,6 +26,7 @@ export class NoticeController {
 
   @Get()
   async getNotices(
+    @Query('groupId', IdValidationPipe) groupId: number | undefined,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
     @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
@@ -35,53 +37,8 @@ export class NoticeController {
         cursor,
         take,
         fixed,
-        search
-      })
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get(':id')
-  async getNoticeByID(@Param('id', ParseIntPipe) id: number) {
-    try {
-      return await this.noticeService.getNoticeByID(id)
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name === 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-}
-
-@Controller('group/:groupId/notice')
-@UseGuards(GroupMemberGuard)
-export class GroupNoticeController {
-  private readonly logger = new Logger(GroupNoticeController.name)
-
-  constructor(private readonly noticeService: NoticeService) {}
-
-  @Get()
-  async getNotices(
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
-    @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
-    @Query('search', new DefaultValuePipe('')) search: string
-  ) {
-    try {
-      return await this.noticeService.getNotices({
-        cursor,
-        take,
-        fixed,
         search,
-        groupId
+        groupId: groupId ?? OPEN_SPACE_ID
       })
     } catch (error) {
       this.logger.error(error)
@@ -91,11 +48,14 @@ export class GroupNoticeController {
 
   @Get(':id')
   async getNoticeByID(
-    @Param('groupId', ParseIntPipe) groupId: number,
+    @Query('groupId', IdValidationPipe) groupId: number | undefined,
     @Param('id', ParseIntPipe) id: number
   ) {
     try {
-      return await this.noticeService.getNoticeByID(id, groupId)
+      return await this.noticeService.getNoticeByID(
+        id,
+        groupId ?? OPEN_SPACE_ID
+      )
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&

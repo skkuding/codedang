@@ -1,22 +1,30 @@
 meta {
   name: Succeed
   type: http
-  seq: 1
+  seq: 2
 }
 
 get {
-  url: {{baseUrl}}/notice/2
+  url: {{baseUrl}}/notice/2?groupId=1
   body: none
   auth: none
 }
 
+query {
+  groupId: 1
+}
+
 assert {
   res.status: eq 200
-  res("current").title: isString 
-  res("current").content: isString 
-  res("current").createTime: isString 
-  res("current").updateTime: isString 
-  res("current").createdBy: isString 
-  res("prev"): isDefined 
-  res("next"): isDefined 
+  res("current").title: isString
+  res("current").content: isString
+  res("current").createTime: isString
+  res("current").updateTime: isString
+  res("current").createdBy: isString
+  res("prev"): isDefined
+  res("next"): isDefined
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
 }

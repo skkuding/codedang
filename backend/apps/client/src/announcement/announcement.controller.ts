@@ -1,35 +1,43 @@
 import {
   Controller,
   Get,
-  Param,
   Logger,
-  ParseIntPipe,
   NotFoundException,
   InternalServerErrorException,
-  UseGuards
+  Query,
+  BadRequestException
 } from '@nestjs/common'
-import type { Announcement } from '@prisma/client'
-import { AuthNotNeeded, GroupMemberGuard } from '@libs/auth'
+import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
+import { AuthNotNeededIfOpenSpace } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { AnnouncementService } from './announcement.service'
 
-@Controller('announcement/problem/:problemId')
-export class ProblemAnnouncementController {
-  private readonly logger = new Logger(ProblemAnnouncementController.name)
+@Controller('announcement')
+@AuthNotNeededIfOpenSpace()
+export class AnnouncementController {
+  private readonly logger = new Logger(AnnouncementController.name)
 
   constructor(private readonly announcementService: AnnouncementService) {}
 
   @Get()
-  @AuthNotNeeded()
-  async getProblemAnnouncements(
-    @Param('problemId', ParseIntPipe) problemId: number
-  ): Promise<Partial<Announcement>[]> {
+  async getAnnouncements(
+    @Query('problemId', IdValidationPipe) problemId: number | undefined,
+    @Query('contestId', IdValidationPipe) contestId: number | undefined,
+    @Query('groupId', IdValidationPipe) groupId: number | undefined
+  ) {
     try {
-      return await this.announcementService.getProblemAnnouncements(
-        problemId,
-        OPEN_SPACE_ID
-      )
+      if (problemId) {
+        return await this.announcementService.getProblemAnnouncements(
+          problemId,
+          groupId ?? OPEN_SPACE_ID
+        )
+      } else if (contestId) {
+        return await this.announcementService.getContestAnnouncements(
+          contestId,
+          groupId ?? OPEN_SPACE_ID
+        )
+      }
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -37,70 +45,8 @@ export class ProblemAnnouncementController {
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
-  }
-
-  @Get('group/:groupId')
-  @UseGuards(GroupMemberGuard)
-  async getGroupProblemAnnouncements(
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('groupId', ParseIntPipe) groupId: number
-  ): Promise<Partial<Announcement>[]> {
-    try {
-      return await this.announcementService.getProblemAnnouncements(
-        problemId,
-        groupId
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-}
-
-@Controller('announcement/contest/:contestId')
-export class ContestAnnouncementController {
-  private readonly logger = new Logger(ContestAnnouncementController.name)
-  constructor(private readonly announcementService: AnnouncementService) {}
-
-  @Get()
-  @AuthNotNeeded()
-  async getContestAnnouncements(
-    @Param('contestId', ParseIntPipe) contestId: number
-  ): Promise<Partial<Announcement>[]> {
-    try {
-      return await this.announcementService.getContestAnnouncements(
-        contestId,
-        1
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get('group/:groupId')
-  @UseGuards(GroupMemberGuard)
-  async getGroupContestAnnouncements(
-    @Param('contestId', ParseIntPipe) contestId: number,
-    @Param('groupId', ParseIntPipe) groupId: number
-  ): Promise<Partial<Announcement>[]> {
-    try {
-      return await this.announcementService.getContestAnnouncements(
-        contestId,
-        groupId
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    throw new BadRequestException(
+      'Both problemId and contestId are not entered'
+    )
   }
 }

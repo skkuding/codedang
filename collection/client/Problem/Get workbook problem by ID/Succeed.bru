@@ -5,23 +5,27 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/workbook/1/problem/1
+  url: {{baseUrl}}/problem/1?workbookId=1&groupId=1
   body: none
   auth: none
 }
 
+query {
+  workbookId: 1
+  groupId: 1
+}
+
 assert {
   res.status: eq 200
-  res("id"): isString 
-  res("problem").id: isNumber 
-  res("problem").title: isString 
-  res("problem").description: isString 
-  res("problem").inputDescription: isString 
-  res("problem").outputDescription: isString 
-  res("problem").hint: isString 
-  res("problem").languages: isDefined 
-  res("problem").timeLimit: isNumber 
-  res("problem").memoryLimit: isNumber 
-  res("problem").difficulty: isString 
-  res("problem").source: isString 
+  res("problem").id: isNumber
+  res("problem").title: isString
+  res("problem").description: isString
+  res("problem").inputDescription: isString
+  res("problem").outputDescription: isString
+  res("problem").hint: isString
+  res("problem").languages: isDefined
+  res("problem").timeLimit: isNumber
+  res("problem").memoryLimit: isNumber
+  res("problem").difficulty: isString
+  res("problem").source: isString
 }
