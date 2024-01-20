@@ -22,7 +22,7 @@ export default function SortButton({ children, order }: SortButtonProps) {
       onClick={() => {
         const newParam = new URLSearchParams()
         // set all searchParam to newParam
-        for (const [key, value] of param.entries()) newParam.set(key, value)
+        param.forEach((value, key) => newParam.set(key, value))
         if (currentOrder == `${order}-asc`)
           newParam.set('order', `${order}-desc`)
         else newParam.set('order', `${order}-asc`)

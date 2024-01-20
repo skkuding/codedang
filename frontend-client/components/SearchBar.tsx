@@ -25,9 +25,11 @@ export default function SearchBar({ className }: SearchBarProps) {
   const onSubmit = (data: Inputs) => {
     const newParam = new URLSearchParams()
     // set all searchParam to newParam
-    for (const [key, value] of searchParam.entries()) newParam.set(key, value)
+    searchParam.forEach((value, key) => newParam.set(key, value))
     // set search data to newParam
-    if (data.search) newParam.set('search', data.search)
+    if (data.search) {
+      newParam.set('search', data.search)
+    } else newParam.delete('search')
     const newParamString = newParam.toString()
     router.push(
       `${pathname}${newParamString ? '?' + newParamString : ''}` as Route
