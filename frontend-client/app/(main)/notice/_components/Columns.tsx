@@ -33,25 +33,11 @@ export const columns: ColumnDef<Notice>[] = [
   {
     header: 'Writer',
     accessorKey: 'createdBy',
-    cell: ({ row }) => {
-      return (
-        <p className="text-center">
-          <span className="text-xs md:text-sm">{row.original.createdBy}</span>
-        </p>
-      )
-    }
+    cell: ({ row }) => row.original.createdBy
   },
   {
     header: 'Date',
     accessorKey: 'createTime',
-    cell: ({ row }) => {
-      return (
-        <p className="text-center">
-          <span className="text-xs md:text-sm">
-            {dayjs(row.original.createTime).format('YYYY-MM-DD')}
-          </span>
-        </p>
-      )
-    }
+    cell: ({ row }) => dayjs(row.original.createTime).format('YYYY-MM-DD')
   }
 ]
