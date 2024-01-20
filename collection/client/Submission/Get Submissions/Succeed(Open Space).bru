@@ -12,4 +12,30 @@ get {
 
 query {
   problemId: 1
+  ~contestId: 1
+  ~groupId: 1
+  ~take: 10
+  ~cursor: 5
+}
+
+script:pre-request {
+  require("./login").loginUser(req);
+}
+
+docs {
+  # Get Submissions
+  
+  문제의 제출 내역을 가져옵니다.
+  
+  ## Query
+  
+  > 필수 query는 * 표시하였습니다.
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |problemId *|Integer|문제 ID|
+  |contestId|Integer|문제가 속한 대회 ID|
+  |groupId|Integer|문제가 속한 Group ID (default: 1)|
+  |take|Integer|가져올 제출 내역 개수 (default: 10)|
+  |cursor|Integer|cursor 값 다음의 ID를 가진 제출 내역들을 반환|
 }

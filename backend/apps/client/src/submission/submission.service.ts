@@ -367,10 +367,19 @@ export class SubmissionService implements OnModuleInit {
   }
 
   // FIXME: Workbook 구분
-  async getSubmissions(
-    problemId: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Submission>[]> {
+  async getSubmissions({
+    problemId,
+    groupId,
+    cursor,
+    take
+  }: {
+    problemId: number
+    groupId: number
+    cursor: number | null
+    take: number
+  }): Promise<Partial<Submission>[]> {
+    const paginator = this.prisma.getPaginator(cursor)
+
     await this.prisma.problem.findFirstOrThrow({
       where: {
         id: problemId,
@@ -382,6 +391,8 @@ export class SubmissionService implements OnModuleInit {
     })
 
     return await this.prisma.submission.findMany({
+      ...paginator,
+      take,
       where: {
         problemId
       },
@@ -478,12 +489,23 @@ export class SubmissionService implements OnModuleInit {
     )
   }
 
-  async getContestSubmissions(
-    problemId: number,
-    contestId: number,
-    userId: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Submission>[]> {
+  async getContestSubmissions({
+    problemId,
+    contestId,
+    userId,
+    groupId,
+    cursor,
+    take
+  }: {
+    problemId: number
+    contestId: number
+    userId: number
+    groupId: number
+    cursor: number | null
+    take: number
+  }): Promise<Partial<Submission>[]> {
+    const paginator = this.prisma.getPaginator(cursor)
+
     await this.prisma.contestRecord.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -504,6 +526,8 @@ export class SubmissionService implements OnModuleInit {
     })
 
     return await this.prisma.submission.findMany({
+      ...paginator,
+      take,
       where: {
         problemId,
         contestId

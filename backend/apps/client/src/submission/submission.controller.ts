@@ -11,7 +11,8 @@ import {
   ForbiddenException,
   Logger,
   Query,
-  ParseIntPipe
+  ParseIntPipe,
+  DefaultValuePipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
@@ -22,6 +23,7 @@ import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
+import { CursorValidationPipe } from '@libs/pipe'
 import { CreateSubmissionDto } from './dto/create-submission.dto'
 import { SubmissionService } from './submission.service'
 
@@ -84,23 +86,29 @@ export class SubmissionController {
   @Get()
   async getSubmissions(
     @Req() req: AuthenticatedRequest,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
     @Query('problemId', ParseIntPipe) problemId: number,
     @Query('groupId', IdValidationPipe) groupId: number | undefined,
     @Query('contestId', IdValidationPipe) contestId: number | undefined
   ) {
     try {
       if (contestId) {
-        return await this.submissionService.getContestSubmissions(
+        return await this.submissionService.getContestSubmissions({
+          cursor,
+          take,
           problemId,
           contestId,
-          req.user.id,
-          groupId ?? OPEN_SPACE_ID
-        )
+          userId: req.user.id,
+          groupId: groupId ?? OPEN_SPACE_ID
+        })
       }
-      return await this.submissionService.getSubmissions(
+      return await this.submissionService.getSubmissions({
+        cursor,
+        take,
         problemId,
-        groupId ?? OPEN_SPACE_ID
-      )
+        groupId: groupId ?? OPEN_SPACE_ID
+      })
     } catch (error) {
       if (
         (error instanceof Prisma.PrismaClientKnownRequestError &&
