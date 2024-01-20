@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from '@/lib/utils'
 import { Search } from 'lucide-react'
 import type { Route } from 'next'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -10,7 +11,12 @@ import { Input } from './ui/input'
 interface Inputs {
   search: string
 }
-export default function SearchBar() {
+
+interface SearchBarProps {
+  className?: string
+}
+
+export default function SearchBar({ className }: SearchBarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParam = useSearchParams()
@@ -27,12 +33,17 @@ export default function SearchBar() {
       `${pathname}${newParamString ? '?' + newParamString : ''}` as Route
     )
   }
+
   useEffect(() => {
     // set search value from searchParam when page is loaded
     setValue('search', search ?? '')
   }, [search, setValue])
+
   return (
-    <form className="relative" onSubmit={handleSubmit(onSubmit)}>
+    <form
+      className={cn('relative', className)}
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <Search className="text-muted-foreground absolute left-2 top-3 h-4 w-4" />
       <Input
         placeholder="Search"
