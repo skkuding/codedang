@@ -1,49 +1,46 @@
-import { baseUrl } from '@/lib/vars'
-import ProblemTable from './_components/ProblemTable'
-import SearchBar from './_components/SearchBar'
-import TagSwitch from './_components/TagSwitch'
+import DataTable from '@/components/DataTable'
+import SearchBar from '@/components/SearchBar'
+import { fetcher } from '@/lib/utils'
+import type { Problem } from '@/types/type'
+import { columns } from './_components/Columns'
 
-export default async function Page({
-  searchParams
-}: {
-  searchParams?: { search?: string; tag?: string; order?: string }
-}) {
+interface ProblemProps {
+  searchParams: { search: string; tag: string; order: string }
+}
+
+export default async function Problem({ searchParams }: ProblemProps) {
   const search = searchParams?.search ?? ''
   const order = searchParams?.order ?? 'id-asc'
-  const searchRes = await fetch(
-    baseUrl +
-      '/problem?' +
-      new URLSearchParams({
-        take: '15',
-        search: search ?? '',
-        order: order ?? ''
-      })
-  ) /* take 값 조정 필요*/
-
-  const searchData = await searchRes.json()
-  const problems = searchData ?? []
+  const problems: Problem[] = await fetcher
+    .get('problem', {
+      searchParams: {
+        take: 10,
+        search,
+        order
+      }
+    })
+    .json()
 
   return (
     <>
-      <div className="flex text-gray-500">
-        <div className="flex flex-1 items-center gap-1 text-xl font-extrabold">
-          All
-          <p className="text-primary">{problems.length}</p>
-        </div>
-        <div className="flex items-center gap-1">
-          <TagSwitch />
-          <p className="font-bold"> Tags</p>
-          <div className="flex items-center py-4">
-            <SearchBar />
-          </div>
-        </div>
+      <div className="flex justify-between text-gray-500">
+        <p className="text-xl font-extrabold">
+          All <span className="text-primary">{problems.length}</span>
+        </p>
+        <SearchBar />
       </div>
-      <ProblemTable
+      <DataTable
         data={problems}
-        isLoading={!problems}
-        isTagChecked={searchParams?.tag === 'tag'}
+        columns={columns}
+        headerStyle={{
+          title: 'text-left w-5/12',
+          difficulty: 'w-2/12',
+          submissionCount: 'w-2/12',
+          acceptedRate: 'w-2/12',
+          info: 'w-1/12'
+        }}
+        name="problem"
       />
-      {/*<Paginator page={paginator.page} slot={paginator.slot} setUrl={setUrl} />*/}
     </>
   )
 }

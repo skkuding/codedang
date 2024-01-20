@@ -3,7 +3,6 @@ import { fetcher } from '@/lib/utils'
 import type { Contest } from '@/types/type'
 import ContestCardList from '../_components/ContestCardList'
 import { columns } from './_components/Columns'
-import ContestTable from './_components/ContestTable'
 
 export default async function Contest() {
   const data: {
@@ -24,10 +23,10 @@ export default async function Contest() {
         data={data.finished}
         columns={columns}
         headerStyle={{
-          title: 'w-2/4 md:w-4/6',
-          startTime: 'text-center w-1/4 md:w-1/6',
-          endTime: 'text-center w-1/4 md:w-1/6',
-          participants: 'text-center w-1/4 md:w-1/6'
+          title: 'text-left w-2/4 md:w-4/6',
+          startTime: 'w-1/4 md:w-1/6',
+          endTime: 'w-1/4 md:w-1/6',
+          participants: 'w-1/4 md:w-1/6'
         }}
         name="contest"
       />

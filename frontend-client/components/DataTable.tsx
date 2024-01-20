@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 import type { Contest, Notice, Problem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
@@ -41,9 +42,9 @@ interface DataTableProps<TData, TValue> {
  * ```tsx
  * // page.tsx
  * <DataTable data={data} columns={columns} headerStyle={{
- *  title: 'w-2/4 md:w-4/6',
- *  createdBy: 'text-center w-1/4 md:w-1/6',
- *  createTime: 'text-center w-1/4 md:w-1/6'
+ *  title: 'text-left w-2/4 md:w-4/6',
+ *  createdBy: 'w-1/4 md:w-1/6',
+ *  createTime: 'w-1/4 md:w-1/6'
  *  }}
  *  name="notice"
  * />
@@ -77,10 +78,16 @@ export default function DataTable<
     <Table className="table-fixed">
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow key={headerGroup.id}>
+          <TableRow className="hover:bg-white" key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
-                <TableHead key={header.id} className={headerStyle[header.id]}>
+                <TableHead
+                  key={header.id}
+                  className={cn(
+                    'text-center text-sm md:text-base',
+                    headerStyle[header.id]
+                  )}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
