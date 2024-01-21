@@ -11,9 +11,8 @@ import {
   ParseBoolPipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { GroupIDPipe } from 'libs/pipe/src/group-id.pipe'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import { NoticeService } from './notice.service'
 
 @Controller('notice')

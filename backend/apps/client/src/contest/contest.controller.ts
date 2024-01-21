@@ -13,13 +13,12 @@ import {
   DefaultValuePipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { GroupIDPipe } from 'libs/pipe/src/group-id.pipe'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
 import {
   ConflictFoundException,
   EntityNotExistException
 } from '@libs/exception'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
 
 @Controller('contest')

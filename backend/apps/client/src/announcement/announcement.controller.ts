@@ -7,10 +7,9 @@ import {
   Query,
   BadRequestException
 } from '@nestjs/common'
-import { GroupIDPipe } from 'libs/pipe/src/group-id.pipe'
-import { IDValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
+import { GroupIDPipe, IDValidationPipe } from '@libs/pipe'
 import { AnnouncementService } from './announcement.service'
 
 @Controller('announcement')

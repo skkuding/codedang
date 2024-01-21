@@ -10,9 +10,8 @@ import {
   Query
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { GroupIDPipe } from 'libs/pipe/src/group-id.pipe'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import { WorkbookService } from './workbook.service'
 
 @Controller('workbook')

@@ -12,14 +12,17 @@ import {
   Query
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { GroupIDPipe } from 'libs/pipe/src/group-id.pipe'
-import { IDValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
 import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
-import { CursorValidationPipe, ZodValidationPipe } from '@libs/pipe'
+import {
+  CursorValidationPipe,
+  ZodValidationPipe,
+  GroupIDPipe,
+  IDValidationPipe
+} from '@libs/pipe'
 import {
   ContestProblemService,
   ProblemService,

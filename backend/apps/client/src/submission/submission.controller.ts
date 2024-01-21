@@ -15,15 +15,13 @@ import {
   DefaultValuePipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { GroupIDPipe } from 'libs/pipe/src/group-id.pipe'
-import { IDValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthenticatedRequest } from '@libs/auth'
 import {
   ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, IDValidationPipe } from '@libs/pipe'
 import { CreateSubmissionDto } from './dto/create-submission.dto'
 import { SubmissionService } from './submission.service'
 
