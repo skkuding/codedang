@@ -122,7 +122,7 @@ export class AuthController {
   }
 
   /** Kakao Login page로 이동 */
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   @Get('kakao')
   @UseGuards(AuthGuard('kakao'))
   async moveToKakaoLogin() {
@@ -130,7 +130,7 @@ export class AuthController {
   }
 
   /** Kakao login page에서 로그인에 성공한 후 이 endpoint로 redirection */
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   @Get('kakao-callback')
   @UseGuards(AuthGuard('kakao'))
   async kakaoLogin(
