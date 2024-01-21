@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common'
 
 @Injectable()
-export class IdValidationPipe implements PipeTransform {
+export class IDValidationPipe implements PipeTransform {
   transform(value: unknown) {
     if (value == null) {
       return null
@@ -15,6 +15,6 @@ export class IdValidationPipe implements PipeTransform {
         return id
       }
     }
-    throw new BadRequestException('Id must be a positive number')
+    throw new BadRequestException('ID must be a positive number')
   }
 }

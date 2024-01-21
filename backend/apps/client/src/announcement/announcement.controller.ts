@@ -8,7 +8,7 @@ import {
   BadRequestException
 } from '@nestjs/common'
 import { GroupIDPipe } from 'libs/pipe/src/group-id.pipe'
-import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
+import { IDValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
 import { AnnouncementService } from './announcement.service'
@@ -22,8 +22,8 @@ export class AnnouncementController {
 
   @Get()
   async getAnnouncements(
-    @Query('problemId', IdValidationPipe) problemId: number | null,
-    @Query('contestId', IdValidationPipe) contestId: number | null,
+    @Query('problemId', IDValidationPipe) problemId: number | null,
+    @Query('contestId', IDValidationPipe) contestId: number | null,
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
     try {

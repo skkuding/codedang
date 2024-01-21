@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { GroupIDPipe } from 'libs/pipe/src/group-id.pipe'
-import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
+import { IDValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
 import {
   EntityNotExistException,
@@ -41,8 +41,8 @@ export class ProblemController {
   @Get()
   async getProblems(
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('contestId', IdValidationPipe) contestId: number | null,
-    @Query('workbookId', IdValidationPipe) workbookId: number | null,
+    @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Query('workbookId', IDValidationPipe) workbookId: number | null,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
     @Query('order', new ZodValidationPipe(problemOrderSchema))
@@ -90,8 +90,8 @@ export class ProblemController {
   @Get(':problemId')
   async getProblem(
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('contestId', IdValidationPipe) contestId: number | null,
-    @Query('workbookId', IdValidationPipe) workbookId: number | null,
+    @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Query('workbookId', IDValidationPipe) workbookId: number | null,
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {

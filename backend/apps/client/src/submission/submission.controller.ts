@@ -16,7 +16,7 @@ import {
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { GroupIDPipe } from 'libs/pipe/src/group-id.pipe'
-import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
+import { IDValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthenticatedRequest } from '@libs/auth'
 import {
   ConflictFoundException,
@@ -39,8 +39,8 @@ export class SubmissionController {
     @Body() submissionDto: CreateSubmissionDto,
     @Query('problemId', ParseIntPipe) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('contestId', IdValidationPipe) contestId: number | null,
-    @Query('workbookId', IdValidationPipe) workbookId: number | null
+    @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Query('workbookId', IDValidationPipe) workbookId: number | null
   ) {
     try {
       if (!contestId && !workbookId) {
@@ -90,7 +90,7 @@ export class SubmissionController {
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
     @Query('problemId', ParseIntPipe) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('contestId', IdValidationPipe) contestId: number | null
+    @Query('contestId', IDValidationPipe) contestId: number | null
   ) {
     try {
       if (contestId) {
@@ -129,7 +129,7 @@ export class SubmissionController {
     @Req() req: AuthenticatedRequest,
     @Query('problemId', ParseIntPipe) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('contestId', IdValidationPipe) contestId: number | null,
+    @Query('contestId', IDValidationPipe) contestId: number | null,
     @Param('id', ParseIntPipe) id: number
   ) {
     try {
