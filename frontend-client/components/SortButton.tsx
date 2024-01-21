@@ -39,7 +39,7 @@ export default function SortButton({ children, order }: SortButtonProps) {
           )}
         />
         <FaSortDown
-          className={currentOrder == `${order}-desc` && 'text-gray-900'}
+          className={cn(currentOrder == `${order}-desc` && 'text-gray-900')}
         />
       </div>
     </Button>
