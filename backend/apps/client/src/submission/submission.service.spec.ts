@@ -43,7 +43,8 @@ const db = {
   },
   contestRecord: {
     findUniqueOrThrow: stub()
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 const CONTEST_ID = 1
