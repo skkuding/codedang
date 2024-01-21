@@ -17,7 +17,7 @@ import {
 import { Prisma } from '@prisma/client'
 import {
   AuthenticatedRequest,
-  AuthNotNeeded,
+  AuthNotNeededIfOpenSpace,
   GroupMemberGuard
 } from '@libs/auth'
 import {
@@ -35,7 +35,7 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Get()
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   async getGroups(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', ParseIntPipe) take: number

@@ -12,7 +12,11 @@ import {
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { Request, Response } from 'express'
-import { AuthenticatedRequest, AuthNotNeeded, type JwtTokens } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  AuthNotNeededIfOpenSpace,
+  type JwtTokens
+} from '@libs/auth'
 import { REFRESH_TOKEN_COOKIE_OPTIONS } from '@libs/constants'
 import {
   InvalidJwtTokenException,
@@ -37,7 +41,7 @@ export class AuthController {
     )
   }
 
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   @Post('login')
   async login(
     @Body() loginUserDto: LoginUserDto,
@@ -69,7 +73,7 @@ export class AuthController {
     }
   }
 
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   @Get('reissue')
   async reIssueJwtTokens(
     @Req() req: Request,
@@ -90,7 +94,7 @@ export class AuthController {
     }
   }
 
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   @Get('github')
   @UseGuards(AuthGuard('github'))
   async moveToGithubLogin() {
@@ -98,7 +102,7 @@ export class AuthController {
   }
 
   /** github login page에서 로그인에 성공한 후 이 endpoint로 redirection */
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   @Get('github-callback')
   @UseGuards(AuthGuard('github'))
   async githubLogin(
