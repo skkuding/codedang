@@ -17,7 +17,7 @@ import {
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { Request, type Response } from 'express'
-import { AuthenticatedRequest, AuthNotNeeded } from '@libs/auth'
+import { AuthenticatedRequest, AuthNotNeededIfOpenSpace } from '@libs/auth'
 import {
   UnprocessableDataException,
   InvalidJwtTokenException,
@@ -43,7 +43,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Patch('password-reset')
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   async updatePassword(
     @Body() newPasswordDto: NewPasswordDto,
     @Req() req: Request
@@ -62,7 +62,7 @@ export class UserController {
   }
 
   @Post('sign-up')
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   async signUp(@Body() signUpDto: SignUpDto, @Req() req: Request) {
     try {
       await this.userService.signUp(req, signUpDto)
@@ -80,7 +80,7 @@ export class UserController {
   }
 
   @Post('social-sign-up')
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   async socialSignUp(@Body() socialSignUpDto: SocialSignUpDto) {
     try {
       return await this.userService.socialSignUp(socialSignUpDto)
@@ -184,7 +184,7 @@ export class UserController {
   }
 
   @Get('username-check')
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   async checkDuplicatedUsername(@Query() usernameDto: UsernameDto) {
     try {
       return await this.userService.checkDuplicatedUsername(usernameDto)
@@ -199,7 +199,7 @@ export class UserController {
 }
 
 @Controller('email-auth')
-@AuthNotNeeded()
+@AuthNotNeededIfOpenSpace()
 export class EmailAuthenticationController {
   private readonly logger = new Logger(EmailAuthenticationController.name)
 
