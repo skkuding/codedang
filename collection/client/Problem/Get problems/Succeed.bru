@@ -32,11 +32,14 @@ assert {
 
 docs {
   # Get Problems
-  
+
   공개된 문제 목록을 가져옵니다.
-  
+
   ## Query
-  
+
+  > contestId 또는 workbookId 중 하나 값은 필수로 주어져야 합니다.
+  > 두 값이 모두 주어진 경우, contestId 우선 적용되어 대회의 문제들이 반환됩니다.
+
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |take      |Integer|가져올 문제 개수 (default: 10)|
@@ -46,9 +49,9 @@ docs {
   |groupId   |Integer|문제가 속한 Group ID (default: 1)|
   |contestId |Integer|문제가 속한 대회 ID|
   |workbookId|Integer|문제가 속한 문제집 ID|
-  
+
   ### 정렬 기준 옵션
-  
+
   - `id-asc`, `id-desc`
   - `title-asc`, `title-desc`
   - `level-asc`, `level-desc`
