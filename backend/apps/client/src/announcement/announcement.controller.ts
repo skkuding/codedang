@@ -22,8 +22,8 @@ export class AnnouncementController {
 
   @Get()
   async getAnnouncements(
-    @Query('problemId', IdValidationPipe) problemId: number | undefined,
-    @Query('contestId', IdValidationPipe) contestId: number | undefined,
+    @Query('problemId', IdValidationPipe) problemId: number | null,
+    @Query('contestId', IdValidationPipe) contestId: number | null,
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
     try {

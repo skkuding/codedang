@@ -41,8 +41,8 @@ export class ProblemController {
   @Get()
   async getProblems(
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('contestId', IdValidationPipe) contestId: number | undefined,
-    @Query('workbookId', IdValidationPipe) workbookId: number | undefined,
+    @Query('contestId', IdValidationPipe) contestId: number | null,
+    @Query('workbookId', IdValidationPipe) workbookId: number | null,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
     @Query('order', new ZodValidationPipe(problemOrderSchema))
@@ -90,8 +90,8 @@ export class ProblemController {
   @Get(':problemId')
   async getProblem(
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('contestId', IdValidationPipe) contestId: number | undefined,
-    @Query('workbookId', IdValidationPipe) workbookId: number | undefined,
+    @Query('contestId', IdValidationPipe) contestId: number | null,
+    @Query('workbookId', IdValidationPipe) workbookId: number | null,
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {

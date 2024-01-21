@@ -7,8 +7,8 @@ import {
 @Injectable()
 export class IdValidationPipe implements PipeTransform {
   transform(value: unknown) {
-    if (value === undefined) {
-      return value
+    if (value == null) {
+      return null
     } else if (typeof value === 'string') {
       const id = parseInt(value)
       if (id > 0) {
