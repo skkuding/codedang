@@ -79,8 +79,9 @@ const getContests = async () => {
 export default async function Home() {
   const contests = await getContests()
   const problems: WorkbookProblem[] = await fetcher
-    .get('workbook/1/problem', {
+    .get('problem', {
       searchParams: {
+        workbookId: 1,
         take: 3
       }
     })
