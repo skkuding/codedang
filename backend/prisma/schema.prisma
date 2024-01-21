@@ -60,7 +60,7 @@ model User {
 }
 
 model UserOAuth {
-  id         Int // social ID (OAuth 서비스로부터 제공받는 id)
+  id         String // social ID (OAuth 서비스로부터 제공받는 id)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int      @unique @map("user_id")
   provider   Provider
