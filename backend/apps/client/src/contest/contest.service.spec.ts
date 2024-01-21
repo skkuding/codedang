@@ -187,6 +187,29 @@ const record: ContestRecord = {
   createTime: new Date(),
   updateTime: new Date()
 }
+const sortedContestRecordsWithUserDetail = [
+  {
+    user: {
+      id: 13,
+      username: 'user10'
+    },
+    acceptedProblemNum: 13
+  },
+  {
+    user: {
+      id: 12,
+      username: 'user09'
+    },
+    acceptedProblemNum: 12
+  },
+  {
+    user: {
+      id: 11,
+      username: 'user08'
+    },
+    acceptedProblemNum: 11
+  }
+]
 
 const mockPrismaService = {
   contest: {
@@ -330,10 +353,14 @@ describe('ContestService', () => {
 
     it('should return contest', async () => {
       mockPrismaService.contest.findUniqueOrThrow.resolves(contestDetail)
-
-      expect(await service.getContest(groupId, contestId)).to.deep.equal(
-        contestDetail
+      mockPrismaService.contestRecord.findMany.resolves(
+        sortedContestRecordsWithUserDetail
       )
+
+      expect(await service.getContest(groupId, contestId)).to.deep.equal({
+        ...contestDetail,
+        rankings: sortedContestRecordsWithUserDetail
+      })
     })
   })
 
