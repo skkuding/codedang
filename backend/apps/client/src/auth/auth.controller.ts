@@ -24,7 +24,7 @@ import {
 } from '@libs/exception'
 import { AuthService } from './auth.service'
 import { LoginUserDto } from './dto/login-user.dto'
-import type { GithubUser } from './interface/social-user.interface'
+import type { GithubUser, KakaoUser } from './interface/social-user.interface'
 
 @Controller('auth')
 export class AuthController {
@@ -112,6 +112,34 @@ export class AuthController {
     try {
       const githubUser = req.user as GithubUser
       return await this.authService.githubLogin(res, githubUser)
+    } catch (error) {
+      if (error instanceof UnidentifiedException) {
+        throw new UnauthorizedException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException('Login failed')
+    }
+  }
+
+  /** Kakao Login page로 이동 */
+  @AuthNotNeeded()
+  @Get('kakao')
+  @UseGuards(AuthGuard('kakao'))
+  async moveToKakaoLogin() {
+    /* 자동으로 kakao login page로 redirection */
+  }
+
+  /** Kakao login page에서 로그인에 성공한 후 이 endpoint로 redirection */
+  @AuthNotNeeded()
+  @Get('kakao-callback')
+  @UseGuards(AuthGuard('kakao'))
+  async kakaoLogin(
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: Request
+  ) {
+    try {
+      const kakaoUser = req.user as KakaoUser
+      return await this.authService.kakaoLogin(res, kakaoUser)
     } catch (error) {
       if (error instanceof UnidentifiedException) {
         throw new UnauthorizedException(error.message)
