@@ -230,28 +230,29 @@ export class ContestService {
       }
     })
     // get contest participants ranking using ContestRecord
-    const contestRecords = await this.prisma.contestRecord.findMany({
-      where: {
-        contestId: id
-      },
-      select: {
-        user: {
-          select: {
-            id: true,
-            username: true
-          }
+    const sortedContestRecordsWithUserDetail =
+      await this.prisma.contestRecord.findMany({
+        where: {
+          contestId: id
         },
-        acceptedProblemNum: true
-      },
-      orderBy: {
-        acceptedProblemNum: 'desc'
-      }
-    })
+        select: {
+          user: {
+            select: {
+              id: true,
+              username: true
+            }
+          },
+          acceptedProblemNum: true
+        },
+        orderBy: {
+          acceptedProblemNum: 'desc'
+        }
+      })
 
-    // combine contest and contestRecords
+    // combine contest and sortedContestRecordsWithUserDetail
     return {
       ...contest,
-      contestRecords
+      rankings: sortedContestRecordsWithUserDetail
     }
   }
 
