@@ -12,9 +12,9 @@ import {
   Query
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
+import { GroupIDPipe } from 'libs/pipe/src/group-id.pipe'
 import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   EntityNotExistException,
   ForbiddenAccessException
@@ -40,7 +40,7 @@ export class ProblemController {
 
   @Get()
   async getProblems(
-    @Query('groupId', IdValidationPipe) groupId: number | undefined,
+    @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IdValidationPipe) contestId: number | undefined,
     @Query('workbookId', IdValidationPipe) workbookId: number | undefined,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
@@ -54,7 +54,7 @@ export class ProblemController {
         return await this.problemService.getProblems({
           cursor,
           take,
-          groupId: groupId ?? OPEN_SPACE_ID,
+          groupId,
           order,
           search
         })
@@ -63,14 +63,14 @@ export class ProblemController {
           contestId,
           cursor,
           take,
-          groupId ?? OPEN_SPACE_ID
+          groupId
         )
       }
       return await this.workbookProblemService.getWorkbookProblems(
         workbookId!,
         cursor,
         take,
-        groupId ?? OPEN_SPACE_ID
+        groupId
       )
     } catch (error) {
       if (
@@ -89,28 +89,25 @@ export class ProblemController {
 
   @Get(':problemId')
   async getProblem(
-    @Query('groupId', IdValidationPipe) groupId: number | undefined,
+    @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IdValidationPipe) contestId: number | undefined,
     @Query('workbookId', IdValidationPipe) workbookId: number | undefined,
     @Param('problemId', ParseIntPipe) problemId: number
   ) {
     try {
       if (!contestId && !workbookId) {
-        return await this.problemService.getProblem(
-          problemId,
-          groupId ?? OPEN_SPACE_ID
-        )
+        return await this.problemService.getProblem(problemId, groupId)
       } else if (contestId) {
         return await this.contestProblemService.getContestProblem(
           contestId,
           problemId,
-          groupId ?? OPEN_SPACE_ID
+          groupId
         )
       }
       return await this.workbookProblemService.getWorkbookProblem(
         workbookId!,
         problemId,
-        groupId ?? OPEN_SPACE_ID
+        groupId
       )
     } catch (error) {
       if (

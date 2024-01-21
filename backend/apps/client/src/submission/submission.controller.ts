@@ -15,9 +15,9 @@ import {
   DefaultValuePipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
+import { GroupIDPipe } from 'libs/pipe/src/group-id.pipe'
 import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthenticatedRequest } from '@libs/auth'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -38,7 +38,7 @@ export class SubmissionController {
     @Req() req: AuthenticatedRequest,
     @Body() submissionDto: CreateSubmissionDto,
     @Query('problemId', ParseIntPipe) problemId: number,
-    @Query('groupId', IdValidationPipe) groupId: number | undefined,
+    @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IdValidationPipe) contestId: number | undefined,
     @Query('workbookId', IdValidationPipe) workbookId: number | undefined
   ) {
@@ -48,7 +48,7 @@ export class SubmissionController {
           submissionDto,
           req.user.id,
           problemId,
-          groupId ?? OPEN_SPACE_ID
+          groupId
         )
       } else if (contestId) {
         return await this.submissionService.submitToContest(
@@ -56,7 +56,7 @@ export class SubmissionController {
           req.user.id,
           problemId,
           contestId,
-          groupId ?? OPEN_SPACE_ID
+          groupId
         )
       } else if (workbookId) {
         return await this.submissionService.submitToWorkbook(
@@ -64,7 +64,7 @@ export class SubmissionController {
           req.user.id,
           problemId,
           workbookId,
-          groupId ?? OPEN_SPACE_ID
+          groupId
         )
       }
     } catch (error) {
@@ -89,7 +89,7 @@ export class SubmissionController {
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
     @Query('problemId', ParseIntPipe) problemId: number,
-    @Query('groupId', IdValidationPipe) groupId: number | undefined,
+    @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IdValidationPipe) contestId: number | undefined
   ) {
     try {
@@ -100,14 +100,14 @@ export class SubmissionController {
           problemId,
           contestId,
           userId: req.user.id,
-          groupId: groupId ?? OPEN_SPACE_ID
+          groupId
         })
       }
       return await this.submissionService.getSubmissions({
         cursor,
         take,
         problemId,
-        groupId: groupId ?? OPEN_SPACE_ID
+        groupId
       })
     } catch (error) {
       if (
@@ -128,7 +128,7 @@ export class SubmissionController {
   async getSubmission(
     @Req() req: AuthenticatedRequest,
     @Query('problemId', ParseIntPipe) problemId: number,
-    @Query('groupId', IdValidationPipe) groupId: number | undefined,
+    @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IdValidationPipe) contestId: number | undefined,
     @Param('id', ParseIntPipe) id: number
   ) {
@@ -139,14 +139,14 @@ export class SubmissionController {
           problemId,
           contestId,
           req.user.id,
-          groupId ?? OPEN_SPACE_ID
+          groupId
         )
       }
       return await this.submissionService.getSubmission(
         id,
         problemId,
         req.user.id,
-        groupId ?? OPEN_SPACE_ID
+        groupId
       )
     } catch (error) {
       if (
