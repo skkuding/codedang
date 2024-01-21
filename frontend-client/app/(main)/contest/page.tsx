@@ -1,8 +1,8 @@
 import DataTable from '@/components/DataTable'
 import { fetcher } from '@/lib/utils'
 import type { Contest } from '@/types/type'
-import ContestCardList from './_components/ContestCardList'
 import { columns } from './_components/Columns'
+import ContestCardList from './_components/ContestCardList'
 
 export default async function Contest() {
   const data: {
