@@ -1,20 +1,19 @@
 meta {
   name: Succeed
   type: http
-  seq: 1
+  seq: 2
 }
 
 get {
-  url: {{baseUrl}}/notice?take=5
+  url: {{baseUrl}}/notice?groupId=1&take=5
   body: none
   auth: none
 }
 
 query {
+  groupId: 1
   take: 5
   ~cursor: 1
-  ~fixed: true
-  ~search: 더
 }
 
 assert {
@@ -26,18 +25,6 @@ assert {
   res.body[0].createdBy: isString
 }
 
-docs {
-  # Get Notices
-
-  공개된 공지사항 목록을 가져옵니다.
-
-  ## Query
-
-  | 이름 | 타입 | 설명 |
-  |-----|-----|-----|
-  |take  |Integer|가져올 공지사항 개수 (default: 10)|
-  |cursor|Integer|cursor 값 다음 take 만큼 공지사항들을 반환 (default: false)|
-  |fixed |Boolean|고정된 공지사항|
-  |search|String |검색 키워드|
-
+script:pre-request {
+  await require("./login").loginUser(req);
 }

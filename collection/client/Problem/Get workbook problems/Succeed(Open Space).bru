@@ -1,0 +1,24 @@
+meta {
+  name: Succeed(Open Space)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/problem?workbookId=1&take=5
+  body: none
+  auth: none
+}
+
+query {
+  workbookId: 1
+  take: 5
+  ~cursor: 1
+}
+
+assert {
+  res.status: eq 200
+  res.body[0].order: isNumber
+  res.body[0].problemId: isNumber
+  res.body[0].difficulty: isString string
+}

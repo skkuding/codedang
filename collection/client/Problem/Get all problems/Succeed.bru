@@ -1,17 +1,18 @@
 meta {
   name: Succeed
   type: http
-  seq: 1
+  seq: 2
 }
 
 get {
-  url: {{baseUrl}}/problem?take=5
+  url: {{baseUrl}}/problem?take=5&groupId=2
   body: none
   auth: none
 }
 
 query {
   take: 5
+  groupId: 2
   ~search: 정
   ~cursor: 4
   ~order: level-desc
@@ -19,33 +20,10 @@ query {
 
 assert {
   res.status: eq 200
-  res.body[0].id: isNumber
-  res.body[0].title: isString
-  res.body[0].difficulty: isString
-  res.body[0].submissionCount: isNumber
-  res.body[0].acceptedRate: isNumber
-  res.body[0].tags: isDefined
-}
-
-docs {
-  # Get Problems
-  
-  공개된 문제 목록을 가져옵니다.
-  
-  ## Query
-  
-  | 이름 | 타입 | 설명 |
-  |-----|-----|-----|
-  |take  |Integer|가져올 문제 개수|
-  |cursor|Integer|cursor 값 다음 take 만큼 문제들을 반환|
-  |search|String |검색 키워드|
-  |order |String |정렬 기준 (아래 참고)|
-  
-  ### 정렬 기준 옵션
-  
-  - `id-asc`, `id-desc`
-  - `title-asc`, `title-desc`
-  - `level-asc`, `level-desc`
-  - `acrate-asc`, `acrate-desc`
-  - `submit-asc`, `submit-desc`
+  res.body[0].id: isNumber 
+  res.body[0].title: isString 
+  res.body[0].difficulty: isString 
+  res.body[0].submissionCount: isNumber 
+  res.body[0].acceptedRate: isNumber 
+  res.body[0].tags: isDefined 
 }
