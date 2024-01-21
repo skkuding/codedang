@@ -9,8 +9,9 @@ import {
 } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { ValidationError, validateOrReject } from 'class-validator'
-import { OPEN_SPACE_ID, Status } from '@libs/constants'
 import {
+  OPEN_SPACE_ID,
+  Status,
   CONSUME_CHANNEL,
   EXCHANGE,
   ORIGIN_HANDLER_NAME,
@@ -369,14 +370,14 @@ export class SubmissionService implements OnModuleInit {
   // FIXME: Workbook 구분
   async getSubmissions({
     problemId,
-    groupId,
-    cursor,
-    take
+    groupId = OPEN_SPACE_ID,
+    cursor = null,
+    take = 10
   }: {
     problemId: number
-    groupId: number
-    cursor: number | null
-    take: number
+    groupId?: number
+    cursor?: number | null
+    take?: number
   }): Promise<Partial<Submission>[]> {
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -493,16 +494,16 @@ export class SubmissionService implements OnModuleInit {
     problemId,
     contestId,
     userId,
-    groupId,
-    cursor,
-    take
+    groupId = OPEN_SPACE_ID,
+    cursor = null,
+    take = 10
   }: {
     problemId: number
     contestId: number
     userId: number
-    groupId: number
-    cursor: number | null
-    take: number
+    groupId?: number
+    cursor?: number | null
+    take?: number
   }): Promise<Partial<Submission>[]> {
     const paginator = this.prisma.getPaginator(cursor)
 
