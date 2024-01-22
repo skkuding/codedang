@@ -251,7 +251,7 @@ describe('SubmissionService', () => {
       const target: JudgerResponse = {
         resultCode: 7,
         error: 'succeed',
-        submissionId: 1,
+        submissionId: '1',
         data: {
           acceptedNum: 1,
           totalTestcase: 1,
@@ -459,7 +459,7 @@ describe('SubmissionService', () => {
       const target: JudgerResponse = {
         resultCode: 5,
         error: 'succeed',
-        submissionId: 1,
+        submissionId: '1',
         data: {
           acceptedNum: 1,
           totalTestcase: 1,
@@ -487,7 +487,7 @@ describe('SubmissionService', () => {
   it('should handle message without error', async () => {
     const target = {
       resultCode: 0,
-      submissionId: 1,
+      submissionId: '1',
       error: '',
       data: {
         acceptedNum: 1,
