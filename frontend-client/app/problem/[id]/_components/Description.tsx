@@ -24,7 +24,7 @@ export default function Description({ data }: { data: DescriptionProps }) {
   const [tag, setTag] = useState(false) // tag button on/off
 
   return (
-    <div className="flex flex-col gap-y-4 pb-4 pl-6 pr-8">
+    <div className="flex flex-col gap-y-4 p-6">
       <div className="text-lg font-bold">{`#${data.id}. ${data.title}`}</div>
       <div
         className="text-sm text-slate-300"

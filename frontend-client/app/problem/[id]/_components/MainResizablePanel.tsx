@@ -80,7 +80,11 @@ export default function MainResizablePanel({
       </ResizablePanel>
 
       <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={65} className="bg-slate-800">
+      <ResizablePanel
+        defaultSize={65}
+        className="bg-slate-800"
+        style={{ overflowY: 'auto' }}
+      >
         <div className="flex h-[51px] shrink-0 justify-between border-b border-b-slate-600">
           <div className="ml-6 flex items-center justify-center gap-4">
             <div className="cursor-pointer text-lg font-bold">Editor</div>
