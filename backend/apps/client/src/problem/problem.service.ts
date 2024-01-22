@@ -56,7 +56,8 @@ export class ProblemService {
 
   async getProblem(problemId: number, groupId = OPEN_SPACE_ID) {
     const data = await this.problemRepository.getProblem(problemId, groupId)
-    return plainToInstance(ProblemResponseDto, data)
+    const tags = await this.problemRepository.getProblemTags(problemId)
+    return plainToInstance(ProblemResponseDto, { ...data, tags })
   }
 }
 
