@@ -3,7 +3,6 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Post,
   Req,
   Get,
@@ -18,7 +17,7 @@ import {
   ConflictFoundException,
   EntityNotExistException
 } from '@libs/exception'
-import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
 
 @Controller('contest')
@@ -65,7 +64,8 @@ export class ContestController {
   async getFinishedContests(
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number
   ) {
     try {
       return await this.contestService.getFinishedContestsByGroupId(
@@ -83,7 +83,7 @@ export class ContestController {
   @AuthNotNeededIfOpenSpace()
   async getContest(
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
       return await this.contestService.getContest(id, groupId)
@@ -104,7 +104,7 @@ export class ContestController {
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Param('id', ParseIntPipe) contestId: number
+    @Param('id', new RequiredIntPipe('id')) contestId: number
   ) {
     try {
       await this.contestService.createContestRecord(

@@ -6,12 +6,11 @@ import {
   Logger,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Query
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
-import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { WorkbookService } from './workbook.service'
 
 @Controller('workbook')
@@ -24,7 +23,8 @@ export class WorkbookController {
   @Get()
   async getWorkbooks(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number,
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
     try {
@@ -41,7 +41,7 @@ export class WorkbookController {
 
   @Get(':workbookId')
   async getWorkbook(
-    @Param('workbookId', ParseIntPipe) workbookId,
+    @Param('workbookId', new RequiredIntPipe('workbookId')) workbookId,
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
     try {
