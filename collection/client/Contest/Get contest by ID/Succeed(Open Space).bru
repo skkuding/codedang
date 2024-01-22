@@ -19,10 +19,14 @@ assert {
   res("group.id"): isNumber
   res("group.groupName"): isString
   res("description"): isString
+  res("_count.contestRecord"): isNumber
+  res("rankings[0].user.id"): isNumber
+  res("rankings[0].user.username"): isString
+  res("rankings[0].acceptedProblemNum"): isNumber 
 }
 
 docs {
   # Get Contest by ID
   ---
-  - URL param으로 전달된 Contest ID를 통해 해당 contest 정보를 가져와 반환합니다.
+  - URL param으로 전달된 Contest ID를 통해 해당 contest 정보와 Contest 참여자 정보를 가져와 반환합니다.  
 }
