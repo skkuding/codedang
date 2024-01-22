@@ -11,6 +11,7 @@ import { tags as t } from '@lezer/highlight'
 import { createTheme } from '@uiw/codemirror-themes'
 import CodeMirror from '@uiw/react-codemirror'
 import { TbReload } from 'react-icons/tb'
+import Tab from './Tab'
 
 // 우선 Editor 페이지에서 사용할 데이터들만 받아옴
 interface ProblemEditorProps {
@@ -74,6 +75,7 @@ export default function MainResizablePanel({
         style={{ overflowY: 'auto', minWidth: '400px' }}
         minSize={20}
       >
+        <Tab id={data.id} />
         {tabs}
       </ResizablePanel>
 
