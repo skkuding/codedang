@@ -1,0 +1,39 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/workbook?take=10
+  body: none
+  auth: none
+}
+
+query {
+  take: 10
+  ~cursor: 1
+  ~groupId: 2
+}
+
+assert {
+  res.status: eq 200
+  res.body[0].id: isNumber
+  res.body[0].title: isString
+  res.body[0].description: isString
+  res.body[0].updateTime: isString
+}
+
+docs {
+  # Get Workbooks
+  
+  공개된 문제집 목록을 가져옵니다.
+  
+  ## Query
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |take  |Integer|가져올 문제집 개수 (default: 10)|
+  |cursor|Integer|cursor 값 다음의 ID를 가진 문제집들을 반환|
+  
+}

@@ -87,3 +87,15 @@ variable "github_client_secret" {
   default   = "github_client_secret"
   sensitive = true
 }
+
+variable "kakao_client_id" {
+  type      = string
+  default   = "kakao_client_id"
+  sensitive = true
+}
+
+variable "kakao_client_secret" {
+  type      = string
+  default   = "kakao_client_secret"
+  sensitive = true
+}

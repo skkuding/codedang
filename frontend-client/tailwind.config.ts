@@ -2,6 +2,7 @@
 import typography from '@tailwindcss/typography'
 import type { Config } from 'tailwindcss'
 import animate from 'tailwindcss-animate'
+import colors from 'tailwindcss/colors'
 import defaultTheme from 'tailwindcss/defaultTheme'
 
 export default {
@@ -30,7 +31,14 @@ export default {
       },
       colors: {
         primary: '#3581FA',
-        secondary: '#30D7AE'
+        secondary: '#30D7AE',
+        level: {
+          1: colors.violet[400],
+          2: colors.violet[600],
+          3: colors.violet[800],
+          4: colors.rose[700],
+          5: colors.rose[900]
+        }
       },
       keyframes: {
         'accordion-down': {
