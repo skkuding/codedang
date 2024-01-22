@@ -20,6 +20,17 @@ module.exports = {
     '@typescript-eslint/no-import-type-side-effects': 'error',
     '@typescript-eslint/no-inferrable-types': 'warn',
     'func-style': ['error', 'expression'],
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['apps/*', 'libs/*'],
+            message: 'Please import with path alias like `@apps/*` or `@libs/*`'
+          }
+        ]
+      }
+    ],
     'object-shorthand': ['warn', 'always']
   },
   overrides: [
