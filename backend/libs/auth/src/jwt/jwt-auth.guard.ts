@@ -11,11 +11,15 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   canActivate(context: ExecutionContext) {
+    const request = this.getRequest(context)
     const isAuthNotNeeded = this.reflector.getAllAndOverride<boolean>(
       AUTH_NOT_NEEDED_KEY,
       [context.getHandler(), context.getClass()]
     )
-    if (isAuthNotNeeded) {
+    if (
+      isAuthNotNeeded &&
+      (!request.query.groupId || request.query.groupId === '1')
+    ) {
       return true
     }
     return super.canActivate(context)

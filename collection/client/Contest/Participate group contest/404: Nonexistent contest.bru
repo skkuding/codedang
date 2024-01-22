@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/group/2/contest/999999/participation
+  url: {{baseUrl}}/contest/999999/participation?groupId=2
   body: none
   auth: none
+}
+
+query {
+  groupId: 2
 }
 
 assert {

@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { fetcher } from '@/lib/utils'
 import { sanitize } from 'isomorphic-dompurify'
+import ContestTabs from '../../_components/ContestTabs'
 import type { ContestDetailProps } from '../layout'
 
 interface ContestTop {
@@ -17,6 +18,8 @@ export default async function ContestTop({
   const data: ContestTop = await fetcher.get(`contest/${id}`).json()
   return (
     <>
+      {/* Top 일 때 Tabs가 안 보여서 임시로 넣어둠 */}
+      <ContestTabs contestId={id} />
       <main
         className="prose w-full max-w-full border-b-2 border-b-gray-300 p-5 py-12"
         dangerouslySetInnerHTML={{ __html: sanitize(data.description) }}

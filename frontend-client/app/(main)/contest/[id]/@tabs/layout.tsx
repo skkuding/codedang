@@ -11,7 +11,7 @@ export default function Layout({
   const { id } = params
   return (
     <>
-      <ContestTabs contestId={id}></ContestTabs>
+      <ContestTabs contestId={id} />
       {children}
     </>
   )
