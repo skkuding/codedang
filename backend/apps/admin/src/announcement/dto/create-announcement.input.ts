@@ -2,6 +2,9 @@ import { InputType, Int, Field } from '@nestjs/graphql'
 
 @InputType()
 export class CreateAnnouncementInput {
-  @Field(() => Int, { description: 'Example field (placeholder)' })
-  exampleField: number
+  @Field(() => Int, { description: 'problemId field' })
+  problemId: number
+
+  @Field(() => String, { description: 'content field' })
+  content: string
 }
