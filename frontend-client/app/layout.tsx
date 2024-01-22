@@ -22,7 +22,11 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: 'Codedang 코드당',
   description: 'Codedang, Online Judge for SKKU',
-  metadataBase: metaBaseUrl ? new URL(metaBaseUrl) : null
+  metadataBase: metaBaseUrl
+    ? new URL(
+        !metaBaseUrl.startsWith('http') ? `https://${metaBaseUrl}` : metaBaseUrl
+      )
+    : null
 }
 
 export const viewport: Viewport = {

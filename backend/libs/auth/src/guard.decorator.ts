@@ -4,7 +4,8 @@ import { ROLES_KEY } from './roles/roles.decorator'
 import { RolesGuard } from './roles/roles.guard'
 
 export const AUTH_NOT_NEEDED_KEY = 'auth-not-needed'
-export const AuthNotNeeded = () => SetMetadata('auth-not-needed', true)
+export const AuthNotNeededIfOpenSpace = () =>
+  SetMetadata('auth-not-needed', true)
 
 export const LEADER_NOT_NEEDED_KEY = 'leader-not-needed'
 export const UseRolesGuard = (role: Role = Role.Admin) => {

@@ -114,8 +114,12 @@ services:
     profiles: ['deploy']
     image: grafana/promtail
     container_name: grafana-promtail
-    restart: on-failure
+    restart: always
     env_file: .env
+    depends_on:
+      - backend-client
+      - backend-admin
+      - iris
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./grafana-logs/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
