@@ -32,5 +32,6 @@
     "source=${localEnv:HOME}/.aws,target=/home/node/.aws,type=bind,consistency=cached"
   ],
   // Connect as non-root user (https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user)
-  "remoteUser": "node"
+  "remoteUser": "node",
+  "initializeCommand": "echo 'Hello World!'"
 }
