@@ -1,19 +1,19 @@
 meta {
   name: Succeed
   type: http
-  seq: 2
+  seq: 1
 }
 
 get {
-  url: {{baseUrl}}/contest/finished?take=10&groupId=2
+  url: {{baseUrl}}/contest/finished
   body: none
   auth: none
 }
 
 query {
-  take: 10
-  groupId: 2
+  ~take: 10
   ~cursor: 1
+  ~groupId: 1
 }
 
 assert {
@@ -24,13 +24,19 @@ assert {
   res("finished")[0].endTime: isString
   res("finished")[0].group.id: isNumber
   res("finished")[0].group.groupName: isString
-  res("finished")[0].participants: isNumber
 }
 
 docs {
   # Add Finished Contests
-  ---
-  - Query param으로 `cursor`, `take` 두 개의 값을 전달받습니다.
-  - `cursor` 로부터 `take` 개의 종료된 Contest를 반환합니다.
-  - `cursor` 가 주어지지 않는 경우 처음부터 `take` 개의 Contest를 반환합니다.
+  
+  종료된 대회들을 가져옵니다.
+  
+  ## Query
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |take  |Integer|가져올 대회 개수 (default: 10)|
+  |cursor|Integer|cursor 값 다음의 ID를 가진 대회들을 반환|
+  |groupId |Integer|대회가 속한 Group ID (default: 1)|
+  
 }

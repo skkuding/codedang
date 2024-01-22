@@ -1,17 +1,17 @@
 meta {
   name: Succeed
   type: http
-  seq: 3
+  seq: 1
 }
 
 get {
-  url: {{baseUrl}}/contest/13?groupId=2
+  url: {{baseUrl}}/contest/13
   body: none
   auth: none
 }
 
 query {
-  groupId: 2
+  ~groupId: 2
 }
 
 assert {
@@ -23,11 +23,17 @@ assert {
   res("group.id"): isNumber
   res("group.groupName"): isString
   res("description"): isString
-  res("_count.contestRecord"): isNumber 
+  res("_count.contestRecord"): isNumber
 }
 
 docs {
   # Get Contest by ID
-  ---
-  - URL param으로 전달된 Contest ID를 통해 해당 contest 정보를 가져와 반환합니다.
+  
+  하나의 대회 정보를 가져옵니다.
+  
+  ## Query
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |groupId|Integer|대회가 속한 Group ID|
 }

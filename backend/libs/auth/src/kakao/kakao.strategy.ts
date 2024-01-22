@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
-import { KAKAO_CALLBACK_URL } from 'libs/constants/src/oauth.constants'
 import { Strategy } from 'passport-kakao'
+import { KAKAO_CALLBACK_URL } from '@libs/constants'
 
 @Injectable()
 export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {

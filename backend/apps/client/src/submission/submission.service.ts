@@ -9,8 +9,9 @@ import {
 } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { ValidationError, validateOrReject } from 'class-validator'
-import { OPEN_SPACE_ID, Status } from '@libs/constants'
 import {
+  OPEN_SPACE_ID,
+  Status,
   CONSUME_CHANNEL,
   EXCHANGE,
   ORIGIN_HANDLER_NAME,
@@ -367,10 +368,19 @@ export class SubmissionService implements OnModuleInit {
   }
 
   // FIXME: Workbook 구분
-  async getSubmissions(
-    problemId: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Submission>[]> {
+  async getSubmissions({
+    problemId,
+    groupId = OPEN_SPACE_ID,
+    cursor = null,
+    take = 10
+  }: {
+    problemId: number
+    groupId?: number
+    cursor?: number | null
+    take?: number
+  }): Promise<Partial<Submission>[]> {
+    const paginator = this.prisma.getPaginator(cursor)
+
     await this.prisma.problem.findFirstOrThrow({
       where: {
         id: problemId,
@@ -382,6 +392,8 @@ export class SubmissionService implements OnModuleInit {
     })
 
     return await this.prisma.submission.findMany({
+      ...paginator,
+      take,
       where: {
         problemId
       },
@@ -478,12 +490,23 @@ export class SubmissionService implements OnModuleInit {
     )
   }
 
-  async getContestSubmissions(
-    problemId: number,
-    contestId: number,
-    userId: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Submission>[]> {
+  async getContestSubmissions({
+    problemId,
+    contestId,
+    userId,
+    groupId = OPEN_SPACE_ID,
+    cursor = null,
+    take = 10
+  }: {
+    problemId: number
+    contestId: number
+    userId: number
+    groupId?: number
+    cursor?: number | null
+    take?: number
+  }): Promise<Partial<Submission>[]> {
+    const paginator = this.prisma.getPaginator(cursor)
+
     await this.prisma.contestRecord.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -504,6 +527,8 @@ export class SubmissionService implements OnModuleInit {
     })
 
     return await this.prisma.submission.findMany({
+      ...paginator,
+      take,
       where: {
         problemId,
         contestId
