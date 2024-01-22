@@ -1,38 +1,19 @@
 import { Injectable } from '@nestjs/common'
-import { PrismaService } from '@libs/prisma'
 import type { CreateAnnouncementInput } from './dto/create-announcement.input'
 import type { UpdateAnnouncementInput } from './dto/update-announcement.input'
 
 @Injectable()
 export class AnnouncementService {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async create(
-    announcement: CreateAnnouncementInput
-  ): Promise<CreateAnnouncementInput> {
-    await this.prisma.announcement.create({
-      data: {
-        problemId: announcement.problemId,
-        content: announcement.content
-      }
-    })
-    return announcement
+  create(createAnnouncementInput: CreateAnnouncementInput) {
+    return createAnnouncementInput
   }
 
-  async findAll(problemId: number) {
-    return await this.prisma.announcement.findMany({
-      where: {
-        problemId
-      }
-    })
+  findAll() {
+    return `This action returns all announcement`
   }
 
-  async findOne(id: number) {
-    return await this.prisma.announcement.findFirstOrThrow({
-      where: {
-        id
-      }
-    })
+  findOne(id: number) {
+    return `This action returns a #${id} announcement`
   }
 
   update(id: number, updateAnnouncementInput: UpdateAnnouncementInput) {

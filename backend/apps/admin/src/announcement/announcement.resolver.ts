@@ -17,8 +17,8 @@ export class AnnouncementResolver {
   }
 
   @Query(() => [Announcement], { name: 'announcement' })
-  findAll(@Args('problemId', { type: () => Int }) problemId: number) {
-    return this.announcementService.findAll(problemId)
+  findAll() {
+    return this.announcementService.findAll()
   }
 
   @Query(() => Announcement, { name: 'announcement' })
