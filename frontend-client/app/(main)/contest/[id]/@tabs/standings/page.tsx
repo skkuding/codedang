@@ -1,3 +1,10 @@
+import {
+  Pagination,
+  PaginationContent,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '@/components/ui/pagination'
 import type { Standings } from '@/types/type'
 import StandingsTable from '../../../_components/StandingsTable'
 
@@ -322,6 +329,22 @@ const dummyData: Standings[] = [
     ],
     solved: 8,
     totalScore: 1192
+  },
+  {
+    ranking: 21,
+    userId: 2020312960,
+    problemScore: [
+      { problemId: 1, score: 167, time: '04:20' },
+      { problemId: 2, score: 102, time: '06:55' },
+      { problemId: 3, score: 37, time: '04:20' },
+      { problemId: 4, score: 42, time: '04:45' },
+      { problemId: 5, score: 47, time: '05:10' },
+      { problemId: 6, score: 52, time: '05:35' },
+      { problemId: 7, score: 57, time: '06:00' },
+      { problemId: 8, score: 0, time: '' }
+    ],
+    solved: 7,
+    totalScore: 1130
   }
 ]
 
@@ -331,13 +354,68 @@ const myRecord: Standings | undefined = dummyData.find(
   (data) => data.userId === myUserId
 )
 
-let data: Standings[]
-if (myRecord) {
-  data = [myRecord, ...dummyData]
-} else {
-  data = dummyData
-}
+export default function ContestStandings({
+  searchParams
+}: {
+  searchParams: { page: string | undefined }
+}) {
+  const take = 10
+  const currentPage = searchParams.page ? Number(searchParams.page) : 1
+  const maxPagesPerSlot = 5
+  const currentSlot = Math.floor((currentPage - 1) / maxPagesPerSlot)
+  // const cursor = currentSlot * take * maxPagesPerSlot
+  const currentTotalPages = Math.ceil(dummyData.length / take)
+  const currentPageData = dummyData.slice(
+    (currentPage - 1 - currentSlot * maxPagesPerSlot) * take,
+    (currentPage - currentSlot * maxPagesPerSlot) * take
+  )
+  let data: Standings[]
+  if (myRecord) {
+    data = [myRecord, ...currentPageData]
+  } else {
+    data = currentPageData
+  }
 
-export default function ContestStandings() {
-  return <StandingsTable data={data} theme="light" />
+  const canGoPrevious = currentPage > 1 // if currentPage <= 1, there is no previous page
+  const canGoNext =
+    currentPage !== currentTotalPages || currentTotalPages > maxPagesPerSlot // if currentPage is last page and currentTotalPages is less than maxPagesPerSlot, there is no next page
+
+  return (
+    <>
+      <StandingsTable data={data} theme="light" />
+      <div className="justify-end">
+        <Pagination>
+          <PaginationContent>
+            <PaginationPrevious
+              // href={canGoPrevious ? `?page=${currentPage - 1}` : undefined}
+              className={canGoPrevious ? '' : 'cursor-not-allowed opacity-30'}
+            />
+            <div className="hidden items-center gap-1 md:flex">
+              {[...Array(Math.min(currentTotalPages, maxPagesPerSlot))].map(
+                (_, i) => {
+                  i = i + currentSlot * maxPagesPerSlot
+                  return (
+                    <PaginationLink
+                      key={i}
+                      isActive={currentPage === i + 1}
+                      href={`?page=${i + 1}`}
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  )
+                }
+              )}
+            </div>
+            <div className="inline-flex h-10 w-10 items-center justify-center whitespace-nowrap rounded-md border border-gray-200 bg-white text-sm font-medium ring-offset-white transition-colors  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 md:hidden dark:border-gray-800 dark:bg-gray-950 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300">
+              {currentPage}
+            </div>
+            <PaginationNext
+              // href={canGoNext ? `?page=${currentPage + 1}` : undefined}
+              className={canGoNext ? '' : 'cursor-not-allowed opacity-30'}
+            />
+          </PaginationContent>
+        </Pagination>
+      </div>
+    </>
+  )
 }
