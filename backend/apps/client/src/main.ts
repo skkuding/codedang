@@ -4,7 +4,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import * as cookieParser from 'cookie-parser'
 import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
 import { AppModule } from './app.module'
+import tracer from './tracer'
 
+tracer.init()
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true
