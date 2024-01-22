@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Language } from '@generated'
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { Workbook } from 'exceljs'
-import { EXCHANGE, SUBMISSION_KEY } from '@libs/constants'
 import {
   DuplicateFoundException,
   UnprocessableDataException,
@@ -29,8 +27,7 @@ import type { Testcase } from './model/testcase.input'
 export class ProblemService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly storageService: StorageService,
-    private readonly amqpConnection: AmqpConnection
+    private readonly storageService: StorageService
   ) {}
 
   async createProblem(
@@ -462,19 +459,6 @@ export class ProblemService {
 
       const data = JSON.stringify(uploaded)
       await this.storageService.uploadObject(filename, data, 'json')
-      // publish cache clear message to rabbitmq
-      await this.amqpConnection.publish(
-        EXCHANGE,
-        SUBMISSION_KEY,
-        {
-          action: 'evict',
-          problemId
-        },
-        {
-          persistent: true,
-          type: 'cache'
-        }
-      )
     }
   }
 
