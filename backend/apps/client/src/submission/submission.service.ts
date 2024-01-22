@@ -255,7 +255,7 @@ export class SubmissionService implements OnModuleInit {
     // TODO: problem 단위가 아닌 testcase 단위로 채점하도록 iris 수정
 
     this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
-      messageId: submission.id,
+      messageId: String(submission.id),
       persistent: true,
       type: PUBLISH_TYPE
     })
@@ -269,7 +269,7 @@ export class SubmissionService implements OnModuleInit {
   }
 
   async handleJudgerMessage(msg: JudgerResponse) {
-    const submissionId = msg.submissionId
+    const submissionId = parseInt(msg.submissionId)
     const resultStatus = Status(msg.resultCode)
 
     if (resultStatus === ResultStatus.ServerError) {

@@ -4,7 +4,6 @@ import {
   Logger,
   NotFoundException,
   ParseBoolPipe,
-  ParseIntPipe,
   UnprocessableEntityException
 } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
@@ -15,7 +14,7 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestProblem } from '@admin/@generated'
 import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
@@ -31,8 +30,8 @@ export class ContestResolver {
 
   @Query(() => [Contest])
   async getContests(
-    @Args('take', ParseIntPipe) take: number,
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    @Args('take', new RequiredIntPipe('take')) take: number,
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
     groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
@@ -43,7 +42,7 @@ export class ContestResolver {
   @Mutation(() => Contest)
   async createContest(
     @Args('input') input: CreateContestInput,
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
     groupId: number,
     @Context('req') req: AuthenticatedRequest
   ) {
@@ -66,7 +65,7 @@ export class ContestResolver {
 
   @Mutation(() => Contest)
   async updateContest(
-    @Args('groupId', ParseIntPipe) groupId: number,
+    @Args('groupId', GroupIDPipe) groupId: number,
     @Args('input') input: UpdateContestInput
   ) {
     try {
@@ -84,8 +83,8 @@ export class ContestResolver {
 
   @Mutation(() => Contest)
   async deleteContest(
-    @Args('groupId', ParseIntPipe) groupId: number,
-    @Args('contestId', ParseIntPipe) contestId: number
+    @Args('groupId', GroupIDPipe) groupId: number,
+    @Args('contestId', new RequiredIntPipe('contestId')) contestId: number
   ) {
     try {
       return await this.contestService.deleteContest(groupId, contestId)
@@ -106,8 +105,8 @@ export class ContestResolver {
 
   @Mutation(() => PublicizingRequest)
   async createPublicizingRequest(
-    @Args('groupId', ParseIntPipe) groupId: number,
-    @Args('contestId', ParseIntPipe) contestId: number
+    @Args('groupId', GroupIDPipe) groupId: number,
+    @Args('contestId', new RequiredIntPipe('contestId')) contestId: number
   ) {
     try {
       return await this.contestService.createPublicizingRequest(
@@ -128,7 +127,7 @@ export class ContestResolver {
   @Mutation(() => PublicizingResponse)
   @UseRolesGuard()
   async handlePublicizingRequest(
-    @Args('contestId', ParseIntPipe) contestId: number,
+    @Args('contestId', new RequiredIntPipe('contestId')) contestId: number,
     @Args('isAccepted', ParseBoolPipe) isAccepted: boolean
   ) {
     try {
@@ -147,8 +146,8 @@ export class ContestResolver {
 
   @Mutation(() => [ContestProblem])
   async importProblemsToContest(
-    @Args('groupId', ParseIntPipe) groupId: number,
-    @Args('contestId', ParseIntPipe) contestId: number,
+    @Args('groupId', GroupIDPipe) groupId: number,
+    @Args('contestId', new RequiredIntPipe('contestId')) contestId: number,
     @Args('problemIds', { type: () => [Int] }) problemIds: number[]
   ) {
     try {

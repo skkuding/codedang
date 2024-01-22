@@ -105,7 +105,7 @@ export default async function Home() {
                 <Link
                   key={contest.id}
                   href={`/contest/${contest.id}` as Route}
-                  className="inline-block w-full"
+                  className="inline-block h-[125px] w-[375px]"
                 >
                   <ContestCard contest={contest} />
                 </Link>
