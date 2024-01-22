@@ -1,4 +1,4 @@
-import { type Language, Level } from '@prisma/client'
+import { type Language, Level, Tag } from '@prisma/client'
 import { Exclude, Expose } from 'class-transformer'
 
 @Exclude()
@@ -19,4 +19,5 @@ export class ProblemResponseDto {
   @Expose() acceptedRate: number
   @Expose() inputExamples: string[]
   @Expose() outputExamples: string[]
+  @Expose() tags: Partial<Tag>[]
 }
