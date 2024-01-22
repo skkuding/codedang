@@ -161,6 +161,167 @@ const dummyData: Standings[] = [
     ],
     solved: 8,
     totalScore: 4810
+  },
+
+  {
+    ranking: 11,
+    userId: 2020312950,
+    problemScore: [
+      { problemId: 1, score: 725, time: '03:10' },
+      { problemId: 2, score: 660, time: '04:35' },
+      { problemId: 3, score: 595, time: '02:00' },
+      { problemId: 4, score: 530, time: '03:25' },
+      { problemId: 5, score: 465, time: '02:50' },
+      { problemId: 6, score: 400, time: '03:15' },
+      { problemId: 7, score: 335, time: '04:00' },
+      { problemId: 8, score: 270, time: '04:45' }
+    ],
+    solved: 8,
+    totalScore: 3940
+  },
+  {
+    ranking: 12,
+    userId: 2020312951,
+    problemScore: [
+      { problemId: 1, score: 663, time: '02:55' },
+      { problemId: 2, score: 598, time: '04:20' },
+      { problemId: 3, score: 533, time: '01:45' },
+      { problemId: 4, score: 468, time: '03:30' },
+      { problemId: 5, score: 403, time: '02:55' },
+      { problemId: 6, score: 338, time: '02:10' },
+      { problemId: 7, score: 273, time: '03:35' },
+      { problemId: 8, score: 208, time: '04:20' }
+    ],
+    solved: 8,
+    totalScore: 3633
+  },
+  {
+    ranking: 13,
+    userId: 2020312952,
+    problemScore: [
+      { problemId: 1, score: 601, time: '03:20' },
+      { problemId: 2, score: 536, time: '04:45' },
+      { problemId: 3, score: 471, time: '02:10' },
+      { problemId: 4, score: 406, time: '03:45' },
+      { problemId: 5, score: 341, time: '02:15' },
+      { problemId: 6, score: 276, time: '03:00' },
+      { problemId: 7, score: 211, time: '04:35' },
+      { problemId: 8, score: 146, time: '05:10' }
+    ],
+    solved: 8,
+    totalScore: 3328
+  },
+  {
+    ranking: 14,
+    userId: 2020312953,
+    problemScore: [
+      { problemId: 1, score: 539, time: '02:40' },
+      { problemId: 2, score: 474, time: '04:05' },
+      { problemId: 3, score: 409, time: '01:30' },
+      { problemId: 4, score: 344, time: '03:55' },
+      { problemId: 5, score: 279, time: '02:20' },
+      { problemId: 6, score: 214, time: '03:45' },
+      { problemId: 7, score: 149, time: '04:30' },
+      { problemId: 8, score: 84, time: '05:05' }
+    ],
+    solved: 8,
+    totalScore: 3022
+  },
+  {
+    ranking: 15,
+    userId: 2020312954,
+    problemScore: [
+      { problemId: 1, score: 477, time: '02:25' },
+      { problemId: 2, score: 412, time: '04:50' },
+      { problemId: 3, score: 347, time: '02:15' },
+      { problemId: 4, score: 282, time: '03:40' },
+      { problemId: 5, score: 217, time: '02:05' },
+      { problemId: 6, score: 152, time: '03:30' },
+      { problemId: 7, score: 87, time: '04:05' },
+      { problemId: 8, score: 22, time: '05:20' }
+    ],
+    solved: 8,
+    totalScore: 2712
+  },
+  {
+    ranking: 16,
+    userId: 2020312955,
+    problemScore: [
+      { problemId: 1, score: 415, time: '02:10' },
+      { problemId: 2, score: 350, time: '05:15' },
+      { problemId: 3, score: 285, time: '02:40' },
+      { problemId: 4, score: 220, time: '03:15' },
+      { problemId: 5, score: 155, time: '01:50' },
+      { problemId: 6, score: 90, time: '03:00' },
+      { problemId: 7, score: 25, time: '04:25' },
+      { problemId: 8, score: 20, time: '05:50' }
+    ],
+    solved: 8,
+    totalScore: 2405
+  },
+  {
+    ranking: 17,
+    userId: 2020312956,
+    problemScore: [
+      { problemId: 1, score: 353, time: '03:35' },
+      { problemId: 2, score: 288, time: '05:40' },
+      { problemId: 3, score: 223, time: '03:05' },
+      { problemId: 4, score: 158, time: '02:30' },
+      { problemId: 5, score: 93, time: '03:25' },
+      { problemId: 6, score: 28, time: '04:50' },
+      { problemId: 7, score: 33, time: '05:15' },
+      { problemId: 8, score: 38, time: '06:10' }
+    ],
+    solved: 8,
+    totalScore: 2096
+  },
+  {
+    ranking: 18,
+    userId: 2020312957,
+    problemScore: [
+      { problemId: 1, score: 291, time: '03:50' },
+      { problemId: 2, score: 226, time: '06:05' },
+      { problemId: 3, score: 161, time: '03:30' },
+      { problemId: 4, score: 96, time: '02:55' },
+      { problemId: 5, score: 31, time: '03:50' },
+      { problemId: 6, score: 36, time: '04:15' },
+      { problemId: 7, score: 41, time: '04:40' },
+      { problemId: 8, score: 46, time: '05:05' }
+    ],
+    solved: 8,
+    totalScore: 1796
+  },
+  {
+    ranking: 19,
+    userId: 2020312958,
+    problemScore: [
+      { problemId: 1, score: 229, time: '04:05' },
+      { problemId: 2, score: 164, time: '06:30' },
+      { problemId: 3, score: 99, time: '03:55' },
+      { problemId: 4, score: 34, time: '03:20' },
+      { problemId: 5, score: 39, time: '03:45' },
+      { problemId: 6, score: 44, time: '04:10' },
+      { problemId: 7, score: 49, time: '04:35' },
+      { problemId: 8, score: 54, time: '05:00' }
+    ],
+    solved: 8,
+    totalScore: 1494
+  },
+  {
+    ranking: 20,
+    userId: 2020312959,
+    problemScore: [
+      { problemId: 1, score: 167, time: '04:20' },
+      { problemId: 2, score: 102, time: '06:55' },
+      { problemId: 3, score: 37, time: '04:20' },
+      { problemId: 4, score: 42, time: '04:45' },
+      { problemId: 5, score: 47, time: '05:10' },
+      { problemId: 6, score: 52, time: '05:35' },
+      { problemId: 7, score: 57, time: '06:00' },
+      { problemId: 8, score: 62, time: '06:25' }
+    ],
+    solved: 8,
+    totalScore: 1192
   }
 ]
 

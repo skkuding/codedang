@@ -1,9 +1,10 @@
 import { fetcher } from '@/lib/utils'
-import { Contest } from '@/types/type'
+import type { Contest } from '@/types/type'
 import dayjs from 'dayjs'
 import { FaRegClock } from 'react-icons/fa'
 import { FaRegCalendarAlt } from 'react-icons/fa'
 import TimeDiff from '../../_components/TimeDiff'
+import ContestTabs from '../_components/ContestTabs'
 
 export interface ContestDetailProps {
   params: {
@@ -73,6 +74,7 @@ export default async function Layout({
             </div>
           )}
         </header>
+        <ContestTabs contestId={id} />
         {tabs}
       </article>
     )
