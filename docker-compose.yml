@@ -44,6 +44,18 @@ services:
     volumes:
       - codedang-database:/var/lib/postgresql/data
 
+  test-database:
+    container_name: codedang-test-database
+    image: postgres:16-alpine
+    ports:
+      - 5434:5431
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: skkuding-test
+    volumes:
+      - codedang-test-database:/var/lib/postgresql/data
+
   cache:
     container_name: codedang-cache
     image: redis:7-alpine
@@ -156,4 +168,5 @@ services:
 volumes:
   codedang-testcase:
   codedang-database:
+  codedang-test-database:
   codedang-rabbitmq:
