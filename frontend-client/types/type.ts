@@ -1,4 +1,9 @@
-export type ContestStatus = 'ongoing' | 'upcoming' | 'finished'
+export type ContestStatus =
+  | 'ongoing'
+  | 'upcoming'
+  | 'finished'
+  | 'registeredOngoing'
+  | 'registeredUpcoming'
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
 
 export interface Contest {

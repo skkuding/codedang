@@ -2,6 +2,8 @@ import { cn } from '@/lib/utils'
 import React from 'react'
 
 const variants = {
+  registeredOngoing: 'bg-emerald-700',
+  registeredUpcoming: 'bg-blue-700',
   ongoing: 'bg-emerald-700',
   upcoming: 'bg-blue-700',
   finished: 'bg-gray-700',

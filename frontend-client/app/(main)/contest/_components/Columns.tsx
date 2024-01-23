@@ -1,5 +1,6 @@
 'use client'
 
+import Badge from '@/app/(main)/_components/Badge'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
@@ -10,6 +11,15 @@ export const columns: ColumnDef<Contest>[] = [
     accessorKey: 'title',
     cell: ({ row }) => (
       <p className="text-left text-sm md:text-base">{row.original.title}</p>
+    )
+  },
+  {
+    header: 'Status',
+    accessorKey: 'status',
+    cell: ({ row }) => (
+      <Badge type={row.original.status}>
+        <p>{row.original.status}</p>
+      </Badge>
     )
   },
   {
