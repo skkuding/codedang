@@ -8,8 +8,10 @@ import {
   ResizablePanelGroup
 } from '@/components/ui/resizable'
 import { tags as t } from '@lezer/highlight'
+// import { loadLanguage } from '@uiw/codemirror-extensions-langs'
 import { createTheme } from '@uiw/codemirror-themes'
 import CodeMirror from '@uiw/react-codemirror'
+// import { useState } from 'react'
 import { TbReload } from 'react-icons/tb'
 import Tab from './Tab'
 
@@ -38,6 +40,8 @@ export default function MainResizablePanel({
   data: ProblemEditorProps['data']
   tabs: React.ReactNode
 }) {
+  // code editor에 사용할 언어 선택
+  // const [selectLang, setSelectLang] = useState(data.languages[0].toLowerCase())
   const editorTheme = createTheme({
     theme: 'dark',
     settings: {
@@ -96,10 +100,16 @@ export default function MainResizablePanel({
             <Button className="bg-primary h-7 rounded-[5px] px-2">
               <span className="font-semibold">Submit</span>
             </Button>
-            <SelectScrollable languages={data.languages} />
+            <SelectScrollable
+              languages={data.languages}
+              // setLang={setSelectLang}
+            />
           </div>
         </div>
-        <CodeMirror theme={editorTheme} />
+        <CodeMirror
+          theme={editorTheme}
+          // extensions={[loadLanguage(selectLang)] as any}
+        />
       </ResizablePanel>
     </ResizablePanelGroup>
   )

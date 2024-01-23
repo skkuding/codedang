@@ -12,10 +12,12 @@ import { useStorage } from '@/lib/hooks'
 
 interface MainResizablePanelProps {
   languages: string[]
+  // setLang: React.Dispatch<React.SetStateAction<string>>
 }
 
 export default function SelectScrollable({
   languages
+  // setLang
 }: MainResizablePanelProps) {
   const [value, setValue] = useStorage('programming_lang', languages[0])
   // if value in storage is not in languages, set value to the first language

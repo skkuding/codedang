@@ -18,6 +18,10 @@ interface DescriptionProps {
   languages: string[]
   timeLimit: number
   memoryLimit: number
+  tags: {
+    id: number
+    name: string
+  }[]
 }
 
 export default function Description({ data }: { data: DescriptionProps }) {
@@ -81,7 +85,7 @@ export default function Description({ data }: { data: DescriptionProps }) {
       <div className="text-lg">{`Memory Limit: ${data.memoryLimit} MB`}</div>
       <div className="mb-2 text-lg">
         {/* TODO: need writer name at api*/}
-        Writer: Gildong Hong
+        Source: Gildong Hong
       </div>
       <div className="flex h-24 flex-col gap-2">
         <div className="flex items-center justify-start gap-2">
@@ -93,7 +97,18 @@ export default function Description({ data }: { data: DescriptionProps }) {
             className="hover:border-primary"
           />
         </div>
-        {tag && <div>tag button on 됐을때 tag들 들어갈 자리</div>}
+        {tag && (
+          <div className="flex gap-1">
+            {data.tags.map((tag) => (
+              <div
+                key={tag.id}
+                className="flex items-center justify-center rounded-2xl bg-white px-3 py-1 text-[15px] text-blue-400"
+              >
+                {tag.name}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       <div className="flex gap-3">
         {/* 임시 이모티콘 이용 -> 해당 이모티콘 찾는중 */}
