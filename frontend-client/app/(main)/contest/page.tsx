@@ -60,7 +60,9 @@ export default async function Contest({ searchParams }: ContestProps) {
       {authData ? (
         <TableSwitchButton />
       ) : (
-        <p className="w-fit text-xl font-bold md:text-2xl">Finished</p>
+        <p className="w-fit text-xl font-bold text-gray-700 md:text-2xl ">
+          Finished
+        </p>
       )}
       {/* TODO: Add search bar */}
 

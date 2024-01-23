@@ -19,7 +19,7 @@ export default function TableSwitchButton() {
     <div className="flex gap-3">
       <button
         className={cn(
-          'w-fit text-xl font-bold md:text-2xl',
+          'w-fit text-xl font-bold text-gray-700 md:text-2xl',
           registered ? 'text-blue-500' : ''
         )}
         onClick={onClick}
@@ -29,7 +29,7 @@ export default function TableSwitchButton() {
       </button>
       <button
         className={cn(
-          'w-fit text-xl font-bold md:text-2xl',
+          'w-fit text-xl font-bold text-gray-700 md:text-2xl',
           !registered ? 'text-blue-500' : ''
         )}
         onClick={onClick}
