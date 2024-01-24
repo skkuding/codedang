@@ -1,4 +1,5 @@
-import { baseUrl } from '@/lib/vars'
+import { fetcher } from '@/lib/utils'
+import type { ProblemDetail } from '@/types/type'
 import Description from './_components/Description'
 
 export default async function DescriptionPage({
@@ -7,8 +8,7 @@ export default async function DescriptionPage({
   params: { id: number }
 }) {
   const { id } = params
-  const response = await fetch(baseUrl + '/problem/' + id)
-  const data = await response.json()
+  const data: ProblemDetail = await fetcher(`problem/${id}`).json()
 
   return <Description data={data} />
 }

@@ -1,6 +1,5 @@
 import HeaderEditor from '@/app/problem/[id]/_components/HeaderEditor'
 import { baseUrl } from '@/lib/vars'
-import * as React from 'react'
 import MainResizablePanel from './_components/MainResizablePanel'
 
 export default async function layout({

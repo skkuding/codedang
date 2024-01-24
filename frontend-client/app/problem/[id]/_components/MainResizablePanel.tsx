@@ -7,28 +7,17 @@ import {
   ResizablePanel,
   ResizablePanelGroup
 } from '@/components/ui/resizable'
+import type { ProblemDetail } from '@/types/type'
 import { tags as t } from '@lezer/highlight'
 // import { loadLanguage } from '@uiw/codemirror-extensions-langs'
 import { createTheme } from '@uiw/codemirror-themes'
 import CodeMirror from '@uiw/react-codemirror'
-// import { useState } from 'react'
 import { TbReload } from 'react-icons/tb'
 import Tab from './Tab'
 
 // 우선 Editor 페이지에서 사용할 데이터들만 받아옴
 interface ProblemEditorProps {
-  data: {
-    id: number
-    title: string
-    description: string
-    inputDescription: string
-    outputDescription: string
-    inputExamples: string[]
-    outputExamples: string[]
-    languages: string[]
-    timeLimit: number
-    memoryLimit: number
-  }
+  data: ProblemDetail
   tabs: React.ReactNode
 }
 
@@ -89,16 +78,14 @@ export default function MainResizablePanel({
         className="bg-slate-800"
         style={{ overflowY: 'auto' }}
       >
-        <div className="flex h-[51px] shrink-0 justify-between border-b border-b-slate-600">
-          <div className="ml-6 flex items-center justify-center gap-4">
-            <div className="cursor-pointer text-lg font-bold">Editor</div>
-          </div>
-          <div className="mr-5 flex items-center gap-3">
-            <Button size="icon" className="size-7 rounded-[5px] bg-slate-500">
+        <div className="flex h-[51px] shrink-0 items-center justify-between border-b border-b-slate-600 px-5">
+          <div className="cursor-pointer text-lg font-bold">Editor</div>
+          <div className="flex items-center gap-3">
+            <Button size="icon" className="size-7 rounded-md bg-slate-500">
               <TbReload className="size-4" />
             </Button>
-            <Button className="bg-primary h-7 rounded-[5px] px-2">
-              <span className="font-semibold">Submit</span>
+            <Button className="bg-primary h-7 rounded-md px-2 font-semibold">
+              Submit
             </Button>
             <SelectScrollable
               languages={data.languages}
