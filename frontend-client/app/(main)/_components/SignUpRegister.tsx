@@ -26,14 +26,20 @@ const schema = z
       .string()
       .min(3)
       .max(10)
-      .refine((data) => /^[a-zA-Z0-9]+$/.test(data)),
+      .refine((data) => /^[a-z0-9]+$/.test(data)),
     realName: z
       .string()
       .min(1)
       .max(20)
       .refine((data) => /^[a-zA-Z\s]+$/.test(data)),
-    password: z.string().min(8).max(20),
-    passwordAgain: z.string().min(8).max(20)
+    password: z
+      .string()
+      .min(8)
+      .refine((data) => {
+        const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
+        return !invalidPassword.test(data)
+      }),
+    passwordAgain: z.string().min(8)
   })
   .refine(
     (data: { password: string; passwordAgain: string }) =>
@@ -170,7 +176,7 @@ export default function SignUpRegister() {
               <p>&#x2022; User ID used for log in</p>
               <p>
                 &#x2022; Your ID must be 3-10 characters of alphabet
-                &nbsp;&nbsp;letters, numbers
+                &nbsp;&nbsp;&nbsp;&nbsp;lowercase letters, numbers
               </p>
             </div>
           )}
@@ -215,7 +221,7 @@ export default function SignUpRegister() {
                 !errors.password ? 'text-gray-500' : 'text-red-500'
               } mt-1 text-xs`}
             >
-              <p>&#x2022; Your password must be 8-20 characters</p>
+              <p>&#x2022; Your password must be more than 7 characters</p>
               <p>&#x2022; Include alphabet letters and numbers</p>
             </div>
           )}
