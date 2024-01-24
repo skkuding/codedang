@@ -295,6 +295,7 @@ model ContestRecord {
   user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId             Int?     @map("user_id")
   acceptedProblemNum Int      @default(0) @map("accepted_problem_num")
+  score              Int      @default(0)
   totalPenalty       Int      @default(0) @map("total_penalty")
   createTime         DateTime @default(now()) @map("create_time")
   updateTime         DateTime @updatedAt @map("update_time")
