@@ -44,7 +44,7 @@ export default function UserDropdownMenu({ username }: UserDropdownMenuProps) {
             signOut()
           }}
         >
-          Logout
+          Sign Out
         </DropdownMenuCheckboxItem>
       </DropdownMenuContent>
     </DropdownMenu>
