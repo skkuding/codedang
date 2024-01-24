@@ -25,6 +25,7 @@ interface StandingsTableProps {
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const myUserId = 2020312938
 
+// TODO: theme 넘겨주는 방식이 바뀔 수도 있습니다.
 export default function StandingsTable({ data, theme }: StandingsTableProps) {
   const darkTextColor = 'text-slate-300'
   const lightTextColor = 'text-gray-500'

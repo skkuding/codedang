@@ -79,5 +79,5 @@ export default async function Layout({
       </article>
     )
   }
-  return <p className="text-center">No Results</p>
+  return <p className="text-center">No Results.</p>
 }

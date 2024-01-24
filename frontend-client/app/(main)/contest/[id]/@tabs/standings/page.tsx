@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/pagination'
 import type { Standings } from '@/types/type'
 
+// TODO: Standings API 연결되면 dummyData 지우기
 const dummyData: Standings[] = [
   {
     ranking: 1,
