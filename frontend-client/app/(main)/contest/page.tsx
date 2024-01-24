@@ -1,6 +1,7 @@
 import DataTable from '@/components/DataTable'
 import { auth } from '@/lib/auth'
 import { fetcher } from '@/lib/utils'
+import { fetcherWithAuth } from '@/lib/utils'
 import type { Contest } from '@/types/type'
 import { columns } from './_components/Columns'
 import ContestCardList from './_components/ContestCardList'
@@ -17,28 +18,20 @@ const getFinishedData = async () => {
 }
 
 const getAuthData = async () => {
-  const session = await auth()
-  if (session) {
-    const data: {
-      /* TODO: Add registeredFinised data */
-      registeredOngoing: Contest[]
-      registeredUpcoming: Contest[]
-    } = await fetcher
-      .get('contest/auth', {
-        headers: {
-          Authorization: `${session.token.accessToken}`
-        }
-      })
-      .json()
-    data.registeredOngoing.forEach((contest) => {
-      contest.status = 'ongoing'
-    })
-    data.registeredUpcoming.forEach((contest) => {
-      contest.status = 'upcoming'
-    })
-    return data.registeredOngoing.concat(data.registeredUpcoming)
-  }
-  return null
+  const data: {
+    /* TODO: Add registeredFinised data */
+    /* 현재 토큰 만료 시 오류 있음 */
+    registeredOngoing: Contest[]
+    registeredUpcoming: Contest[]
+  } = await fetcherWithAuth.get('contest/auth').json()
+  console.log(data)
+  data.registeredOngoing.forEach((contest) => {
+    contest.status = 'ongoing'
+  })
+  data.registeredUpcoming.forEach((contest) => {
+    contest.status = 'upcoming'
+  })
+  return data.registeredOngoing.concat(data.registeredUpcoming)
 }
 
 interface ContestProps {
@@ -46,9 +39,10 @@ interface ContestProps {
 }
 
 export default async function Contest({ searchParams }: ContestProps) {
+  const session = await auth()
   const registered = searchParams?.registered ?? ''
   const finishedData = await getFinishedData()
-  const authData = await getAuthData()
+  const authData = session && (await getAuthData())
   const contests = registered && authData ? authData : finishedData
 
   return (
