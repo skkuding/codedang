@@ -175,8 +175,8 @@ export default function SignUpRegister() {
             <div className="mt-1 text-xs text-gray-500">
               <p>&#x2022; User ID used for log in</p>
               <p>
-                &#x2022; Your ID must be 3-10 characters of alphabet
-                &nbsp;&nbsp;&nbsp;&nbsp;lowercase letters, numbers
+                &#x2022; Your ID must be 3-10 characters of small
+                &nbsp;&nbsp;&nbsp;&nbsp;alphabet letters, numbers
               </p>
             </div>
           )}
@@ -221,8 +221,12 @@ export default function SignUpRegister() {
                 !errors.password ? 'text-gray-500' : 'text-red-500'
               } mt-1 text-xs`}
             >
-              <p>&#x2022; Your password must be more than 7 characters</p>
-              <p>&#x2022; Include alphabet letters and numbers</p>
+              <p>&#x2022; Your password must be at least 8 characters</p>
+              <p>&nbsp;&nbsp;&nbsp;&nbsp;and include two of the followings:</p>
+              <p>
+                &nbsp;&nbsp;&nbsp;&nbsp;Capital letters, Small letters, or
+                Numbers
+              </p>
             </div>
           )}
         </div>
