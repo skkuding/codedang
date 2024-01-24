@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
+import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -16,7 +17,7 @@ export default function ContestTabs({ contestId }: { contestId: string }) {
   return (
     <div className="flex justify-center gap-12 border-b-2 border-gray-300 pb-4">
       <Link
-        href={`/contest/${id}`}
+        href={`/contest/${id}` as Route}
         className={cn(
           'text-lg text-gray-400',
           isCurrentTab('') && 'text-primary'
@@ -25,7 +26,7 @@ export default function ContestTabs({ contestId }: { contestId: string }) {
         Top
       </Link>
       <Link
-        href={`/contest/${id}/problem`}
+        href={`/contest/${id}/problem` as Route}
         className={cn(
           'text-lg text-gray-400',
           isCurrentTab('problem') && 'text-primary'
@@ -34,7 +35,7 @@ export default function ContestTabs({ contestId }: { contestId: string }) {
         Problem
       </Link>
       <Link
-        href={`/contest/${id}/clarification`}
+        href={`/contest/${id}/clarification` as Route}
         className={cn(
           'text-lg text-gray-400',
           isCurrentTab('clarification') && 'text-primary'
@@ -43,7 +44,7 @@ export default function ContestTabs({ contestId }: { contestId: string }) {
         Clarification
       </Link>
       <Link
-        href={`/contest/${id}/standings`}
+        href={`/contest/${id}/standings` as Route}
         className={cn(
           'text-lg text-gray-400',
           isCurrentTab('standings') && 'text-primary'
