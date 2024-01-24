@@ -1,6 +1,5 @@
 'use client'
 
-import { myUserId } from '@/app/(main)/contest/[id]/@tabs/standings/page'
 import {
   Table,
   TableBody,
@@ -24,6 +23,7 @@ interface StandingsTableProps {
 }
 
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+const myUserId = 2020312938
 
 export default function StandingsTable({ data, theme }: StandingsTableProps) {
   const darkTextColor = 'text-slate-300'

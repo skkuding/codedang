@@ -348,7 +348,7 @@ const dummyData: Standings[] = [
   }
 ]
 
-export const myUserId = 2020312938
+const myUserId = 2020312938
 
 const myRecord: Standings | undefined = dummyData.find(
   (data) => data.userId === myUserId
