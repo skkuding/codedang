@@ -32,7 +32,7 @@ assert {
 }
 
 script:pre-request {
-  await require("./login").loginAdmin(req);
+  await require("./login").loginUser(req);
 }
 
 docs {
