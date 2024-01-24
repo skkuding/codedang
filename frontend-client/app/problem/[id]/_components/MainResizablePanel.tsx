@@ -23,7 +23,6 @@ interface ProblemEditorProps {
 
 export default function MainResizablePanel({
   data,
-  // children
   tabs
 }: {
   data: ProblemEditorProps['data']
