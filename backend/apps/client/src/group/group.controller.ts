@@ -9,7 +9,6 @@ import {
   Logger,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Post,
   Query,
   Req,
@@ -26,7 +25,7 @@ import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
 
 @Controller('group')
@@ -39,7 +38,8 @@ export class GroupController {
   @AuthNotNeededIfOpenSpace()
   async getGroups(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number
   ) {
     try {
       return await this.groupService.getGroups(cursor, take)
@@ -62,7 +62,7 @@ export class GroupController {
   @Get(':groupId')
   async getGroup(
     @Req() req: AuthenticatedRequest,
-    @Param('groupId', ParseIntPipe) groupId: number
+    @Param('groupId', GroupIDPipe) groupId: number
   ) {
     try {
       return await this.groupService.getGroup(groupId, req.user.id)
@@ -105,7 +105,7 @@ export class GroupController {
   @Post(':groupId/join')
   async joinGroupById(
     @Req() req: AuthenticatedRequest,
-    @Param('groupId', ParseIntPipe) groupId: number,
+    @Param('groupId', GroupIDPipe) groupId: number,
     @Query('invitation') invitation?: string
   ) {
     try {
@@ -134,7 +134,7 @@ export class GroupController {
   @UseGuards(GroupMemberGuard)
   async leaveGroup(
     @Req() req: AuthenticatedRequest,
-    @Param('groupId', ParseIntPipe) groupId: number
+    @Param('groupId', GroupIDPipe) groupId: number
   ) {
     try {
       return await this.groupService.leaveGroup(req.user.id, groupId)
@@ -150,7 +150,7 @@ export class GroupController {
 
   @Get(':groupId/leaders')
   @UseGuards(GroupMemberGuard)
-  async getGroupLeaders(@Param('groupId', ParseIntPipe) groupId: number) {
+  async getGroupLeaders(@Param('groupId', GroupIDPipe) groupId: number) {
     try {
       return await this.groupService.getGroupLeaders(groupId)
     } catch (error) {
@@ -161,7 +161,7 @@ export class GroupController {
 
   @Get(':groupId/members')
   @UseGuards(GroupMemberGuard)
-  async getGroupMembers(@Param('groupId', ParseIntPipe) groupId: number) {
+  async getGroupMembers(@Param('groupId', GroupIDPipe) groupId: number) {
     try {
       return await this.groupService.getGroupMembers(groupId)
     } catch (error) {
