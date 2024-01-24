@@ -1,34 +1,22 @@
-import { Field, InputType, Int } from '@nestjs/graphql'
+import { Field, InputType, Int, PartialType } from '@nestjs/graphql'
 
 @InputType()
 export class CreateNoticeInput {
-  @Field(() => String, { nullable: false })
+  @Field()
   title: string
 
-  @Field(() => String, { nullable: false })
+  @Field()
   content: string
 
-  @Field(() => Boolean, { nullable: false })
+  @Field()
   isVisible: boolean
 
-  @Field(() => Boolean, { nullable: false })
+  @Field()
   isFixed: boolean
 }
 
 @InputType()
-export class UpdateNoticeInput {
-  @Field(() => Int, { nullable: false })
-  id!: number
-
-  @Field(() => String, { nullable: false })
-  title: string
-
-  @Field(() => String, { nullable: false })
-  content: string
-
-  @Field(() => Boolean, { nullable: false })
-  isVisible: boolean
-
-  @Field(() => Boolean, { nullable: false })
-  isFixed: boolean
+export class UpdateNoticeInput extends PartialType(CreateNoticeInput) {
+  @Field(() => Int)
+  id: number
 }
