@@ -38,6 +38,20 @@ export interface Problem {
   info?: string
 }
 
+interface ProblemScore {
+  problemId: number
+  score: number
+  time: string
+}
+
+export interface Standings {
+  ranking: number
+  userId: number
+  problemScore: ProblemScore[]
+  solved: number
+  totalScore: number
+}
+
 export interface ProblemDetail {
   id: number
   title: string
