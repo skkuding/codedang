@@ -242,17 +242,29 @@ export class ContestService {
               username: true
             }
           },
-          acceptedProblemNum: true
+          score: true,
+          totalPenalty: true
         },
-        orderBy: {
-          acceptedProblemNum: 'desc'
-        }
+        orderBy: [
+          {
+            score: 'desc'
+          },
+          {
+            totalPenalty: 'asc'
+          }
+        ]
       })
 
+    const UsersWithStandingDetail = sortedContestRecordsWithUserDetail.map(
+      (contestRecord, index) => ({
+        ...contestRecord,
+        standing: index + 1
+      })
+    )
     // combine contest and sortedContestRecordsWithUserDetail
     return {
       ...contest,
-      rankings: sortedContestRecordsWithUserDetail
+      standings: UsersWithStandingDetail
     }
   }
 
