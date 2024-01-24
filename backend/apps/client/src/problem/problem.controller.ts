@@ -8,7 +8,6 @@ import {
   Logger,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Query
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
@@ -21,7 +20,8 @@ import {
   CursorValidationPipe,
   ZodValidationPipe,
   GroupIDPipe,
-  IDValidationPipe
+  IDValidationPipe,
+  RequiredIntPipe
 } from '@libs/pipe'
 import {
   ContestProblemService,
@@ -47,7 +47,8 @@ export class ProblemController {
     @Query('contestId', IDValidationPipe) contestId: number | null,
     @Query('workbookId', IDValidationPipe) workbookId: number | null,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number,
     @Query('order', new ZodValidationPipe(problemOrderSchema))
     order: ProblemOrder,
     @Query('search') search?: string
@@ -95,7 +96,7 @@ export class ProblemController {
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IDValidationPipe) contestId: number | null,
     @Query('workbookId', IDValidationPipe) workbookId: number | null,
-    @Param('problemId', ParseIntPipe) problemId: number
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     try {
       if (!contestId && !workbookId) {

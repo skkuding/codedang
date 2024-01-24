@@ -2,8 +2,7 @@ import {
   ConflictException,
   ForbiddenException,
   InternalServerErrorException,
-  Logger,
-  ParseIntPipe
+  Logger
 } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
 import { Group } from '@generated'
@@ -14,7 +13,7 @@ import {
   DuplicateFoundException,
   ForbiddenAccessException
 } from '@libs/exception'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
 import { CreateGroupInput, UpdateGroupInput } from './model/group.input'
 import { DeletedUserGroup, FindGroup } from './model/group.output'
@@ -53,13 +52,15 @@ export class GroupResolver {
   }
 
   @Query(() => FindGroup)
-  async getGroup(@Args('groupId', { type: () => Int }) id: number) {
+  async getGroup(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
+  ) {
     return await this.groupService.getGroup(id)
   }
 
   @Mutation(() => Group)
   async updateGroup(
-    @Args('groupId', { type: () => Int }) id: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) id: number,
     @Args('input') input: UpdateGroupInput
   ) {
     try {
@@ -78,7 +79,7 @@ export class GroupResolver {
   @Mutation(() => DeletedUserGroup)
   async deleteGroup(
     @Context('req') req: AuthenticatedRequest,
-    @Args('groupId', { type: () => Int }) id: number
+    @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
   ) {
     try {
       return await this.groupService.deleteGroup(id, req.user)
@@ -92,7 +93,7 @@ export class GroupResolver {
   }
 
   @Mutation(() => String)
-  async issueInvitation(@Args('groupId', ParseIntPipe) id: number) {
+  async issueInvitation(@Args('groupId', GroupIDPipe) id: number) {
     try {
       return await this.groupService.issueInvitation(id)
     } catch (error) {
@@ -105,7 +106,7 @@ export class GroupResolver {
   }
 
   @Mutation(() => String)
-  async revokeInvitation(@Args('groupId', ParseIntPipe) id: number) {
+  async revokeInvitation(@Args('groupId', GroupIDPipe) id: number) {
     try {
       return await this.groupService.revokeInvitation(id)
     } catch (error) {
