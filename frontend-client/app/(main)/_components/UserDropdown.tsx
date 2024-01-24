@@ -17,6 +17,7 @@ type Checked = DropdownMenuCheckboxItemProps['checked']
 
 export default function UserDropdownMenu({ username }: UserDropdownMenuProps) {
   const [showLogout, setShowLogout] = useState<Checked>(false)
+  const [showSettings, setShowSettings] = useState<Checked>(false)
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex gap-2 px-4 py-1">
@@ -24,6 +25,17 @@ export default function UserDropdownMenu({ username }: UserDropdownMenuProps) {
         <User className="text-gray-500" width={24} />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
+        <DropdownMenuCheckboxItem
+          checked={showSettings}
+          onCheckedChange={setShowSettings}
+          className="font-semibold"
+          // TODO: 설정 페이지 추가되면 라우팅 추가
+          onClick={() => {
+            console.log('Settings')
+          }}
+        >
+          Settings
+        </DropdownMenuCheckboxItem>
         <DropdownMenuCheckboxItem
           checked={showLogout}
           onCheckedChange={setShowLogout}
