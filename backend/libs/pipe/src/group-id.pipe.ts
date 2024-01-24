@@ -10,8 +10,8 @@ export class GroupIDPipe implements PipeTransform {
   transform(value: unknown) {
     if (value == null) {
       return OPEN_SPACE_ID
-    } else if (typeof value === 'string') {
-      const id = parseInt(value)
+    } else if (typeof value === 'string' || typeof value === 'number') {
+      const id = typeof value === 'string' ? parseInt(value) : value
       if (id > 0) {
         return id
       }

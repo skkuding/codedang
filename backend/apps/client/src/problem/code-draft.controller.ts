@@ -6,12 +6,12 @@ import {
   Logger,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Put,
   Req
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
+import { RequiredIntPipe } from '@libs/pipe'
 import { CreateTemplateDto } from './dto/create-code-draft.dto'
 import { CodeDraftService } from './problem.service'
 
@@ -24,7 +24,7 @@ export class CodeDraftController {
   @Get()
   async getCodeDraft(
     @Req() req: AuthenticatedRequest,
-    @Param('problemId', ParseIntPipe) problemId: number
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     try {
       return await this.codeDraftService.getCodeDraft(req.user.id, problemId)
@@ -44,7 +44,7 @@ export class CodeDraftController {
   async upsertCodeDraft(
     @Req() req: AuthenticatedRequest,
     @Body() createTemplateDto: CreateTemplateDto,
-    @Param('problemId', ParseIntPipe) problemId: number
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     try {
       return await this.codeDraftService.upsertCodeDraft(
