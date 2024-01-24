@@ -10,18 +10,22 @@ import CopyToClipboard from 'react-copy-to-clipboard'
 import { FiClipboard } from 'react-icons/fi'
 import { LuFileText } from 'react-icons/lu'
 
+// import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
+
 export default function Description({ data }: { data: ProblemDetail }) {
   const [tag, setTag] = useState(false) // tag button on/off
+  // const [text, setText] = useState('')
+  // const [state, copyToClipboard] = useCopyToClipboard()
 
   return (
     <div className="flex flex-col gap-4 p-6 text-lg">
-      <div className=" font-bold">{`#${data.id}. ${data.title}`}</div>
+      <h1 className="font-bold">{`#${data.id}. ${data.title}`}</h1>
       <div
         className="text-sm text-slate-300"
         dangerouslySetInnerHTML={{ __html: sanitize(data.description) }}
       />
       <div>
-        <div className="mb-3 ">Input</div>
+        <h2 className="mb-3 ">Input</h2>
         <div
           className="text-sm text-slate-300"
           dangerouslySetInnerHTML={{
@@ -30,7 +34,7 @@ export default function Description({ data }: { data: ProblemDetail }) {
         />
       </div>
       <div>
-        <div className="mb-3 ">Output</div>
+        <h2 className="mb-3 ">Output</h2>
         <div
           className="text-sm text-slate-300"
           dangerouslySetInnerHTML={{
@@ -40,9 +44,13 @@ export default function Description({ data }: { data: ProblemDetail }) {
       </div>
       <div>
         <div className="flex justify-between">
-          <div className="mb-2 mt-3 ">Sample Input 1</div>
+          <h2 className="mb-2 mt-3 ">Sample Input 1</h2>
           <div className="flex items-center justify-center">
             {/* 임시 sample input */}
+            {/* <input value={text} onChange={(e) => setText(e.target.value)} />
+            <button type="button" onClick={() => copyToClipboard(text)}>
+              <FiClipboard className="cursor-pointer" />
+            </button> */}
             <CopyToClipboard
               text="sample input"
               onCopy={() => console.log('복사됨')}
@@ -51,31 +59,31 @@ export default function Description({ data }: { data: ProblemDetail }) {
             </CopyToClipboard>
           </div>
         </div>
-        <div className="h-24 w-full bg-slate-800 p-2 text-sm">
+        <div className="h-24 w-full rounded-md bg-slate-800 p-2 text-sm">
           {/* 임시 Sample description -> use inputExamples later*/}
           <p className="text-slate-300">A description of the Sample Input 1.</p>
         </div>
       </div>
       <div>
         <div className="flex justify-between">
-          <div className="mb-2 mt-3 ">Sample Output 1</div>
+          <h2 className="mb-2 mt-3 ">Sample Output 1</h2>
         </div>
-        <div className="h-24 w-full bg-slate-800 p-2 text-sm">
+        <div className="h-24 w-full rounded-md bg-slate-800 p-2 text-sm">
           {/* 임시 Sample description -> use outputExamples later*/}
           <p className="text-slate-300">
             A description of the Sample Output 1.
           </p>
         </div>
       </div>
-      <div>{`Time Limit: ${data.timeLimit} ms`}</div>
-      <div>{`Memory Limit: ${data.memoryLimit} MB`}</div>
-      <div className="mb-2 ">
+      <h2>{`Time Limit: ${data.timeLimit} ms`}</h2>
+      <h2>{`Memory Limit: ${data.memoryLimit} MB`}</h2>
+      <h2 className="mb-2 ">
         {/* TODO: need writer name at api*/}
         Source: Gildong Hong
-      </div>
+      </h2>
       <div className="flex h-24 flex-col gap-2">
         <div className="flex items-center justify-start gap-2">
-          <div>Tags</div>
+          <h2>Tags</h2>
           <Switch
             onClick={() => {
               setTag((tag: boolean) => !tag)
