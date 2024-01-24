@@ -5,10 +5,10 @@ import MainResizablePanel from './_components/MainResizablePanel'
 
 export default async function layout({
   params,
-  tabs
+  children
 }: {
   params: { id: number }
-  tabs: React.ReactNode
+  children: React.ReactNode
 }) {
   const { id } = params
   const response = await fetch(baseUrl + '/problem/' + id)
@@ -19,7 +19,7 @@ export default async function layout({
     <div className="flex h-dvh w-full min-w-[1000px] flex-col overflow-x-auto bg-slate-700 text-white">
       <HeaderEditor id={data.id} title={data.title} />
       <main className="flex h-full flex-col overflow-hidden border border-slate-600">
-        <MainResizablePanel data={data} tabs={tabs} />
+        <MainResizablePanel data={data} tabs={children} />
       </main>
     </div>
   )
