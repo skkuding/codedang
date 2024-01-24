@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-// import { fetcher } from '@/lib/utils'
+import { fetcher } from '@/lib/utils'
 import dummyImg from '@/public/dummy.png'
 import GithubLogo from '@/public/github.svg'
 import SkkudingLogo from '@/public/skkudingLogo.png'
@@ -46,17 +46,10 @@ const slides = [
 ]
 
 const getContests = async () => {
-  // const data: {
-  //   ongoing: Contest[]
-  //   upcoming: Contest[]
-  // } = await fetcher.get('contest').json()
   const data: {
     ongoing: Contest[]
     upcoming: Contest[]
-  } = {
-    ongoing: [],
-    upcoming: []
-  }
+  } = await fetcher.get('contest').json()
 
   data.ongoing.forEach((contest) => {
     contest.status = 'ongoing'

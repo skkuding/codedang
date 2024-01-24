@@ -11,7 +11,8 @@ export const cn = (...inputs: ClassValue[]) => {
 export const fetcher = ky.create({
   prefixUrl: baseUrl,
   throwHttpErrors: false,
-  retry: 0
+  retry: 0,
+  timeout: 3000
 })
 
 export const fetcherWithAuth = fetcher.extend({
