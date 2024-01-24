@@ -16,7 +16,7 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
-import { Route } from 'next'
+import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 
 interface ContestTableProps {
@@ -89,7 +89,7 @@ export default function ContestTable({ data }: ContestTableProps) {
   ]
 
   const table = useReactTable({
-    data: data,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel()
   })
