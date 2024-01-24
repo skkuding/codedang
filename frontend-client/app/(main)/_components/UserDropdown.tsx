@@ -28,7 +28,9 @@ export default function UserDropdownMenu({ username }: UserDropdownMenuProps) {
           checked={showLogout}
           onCheckedChange={setShowLogout}
           className="font-semibold"
-          onClick={signOut}
+          onClick={() => {
+            signOut()
+          }}
         >
           Logout
         </DropdownMenuCheckboxItem>
