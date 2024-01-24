@@ -35,6 +35,6 @@ export const columns: ColumnDef<Contest>[] = [
   {
     header: 'Participants',
     accessorKey: 'participants',
-    cell: ({ row }) => row.original.id
+    cell: ({ row }) => row.original.participants
   }
 ]
