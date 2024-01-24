@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
-import { GITHUB_CALLBACK_URL } from 'libs/constants/src/oauth.constants'
 import { Strategy } from 'passport-github2'
+import { GITHUB_CALLBACK_URL } from '@libs/constants'
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {

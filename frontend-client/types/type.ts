@@ -16,3 +16,55 @@ export interface WorkbookProblem {
   title: string
   difficulty: Level
 }
+
+export interface Notice {
+  id: number
+  title: string
+  createTime: string
+  isFixed: boolean
+  createdBy: string
+}
+
+export interface Problem {
+  id: number
+  title: string
+  difficulty: Level
+  submissionCount: number
+  acceptedRate: number
+  tags?: {
+    id: number
+    name: string
+  }[]
+  info?: string
+}
+
+interface ProblemScore {
+  problemId: number
+  score: number
+  time: string
+}
+
+export interface Standings {
+  ranking: number
+  userId: number
+  problemScore: ProblemScore[]
+  solved: number
+  totalScore: number
+}
+
+export interface ProblemDetail {
+  id: number
+  title: string
+  description: string
+  inputDescription: string
+  outputDescription: string
+  inputExamples: string[]
+  outputExamples: string[]
+  languages: string[]
+  timeLimit: number
+  memoryLimit: number
+  tags: {
+    id: number
+    name: string
+  }[]
+}

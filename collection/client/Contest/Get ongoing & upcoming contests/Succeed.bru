@@ -10,6 +10,10 @@ get {
   auth: none
 }
 
+query {
+  ~groupId: 2
+}
+
 assert {
   res.status: eq 200
   res("ongoing")[0].id: isNumber
@@ -18,12 +22,17 @@ assert {
   res("ongoing")[0].endTime: isString
   res("ongoing")[0].group.id: isNumber
   res("ongoing")[0].group.groupName: isString
-  res("ongoing")[0].participants: isNumber 
+  res("ongoing")[0].participants: isNumber
 }
 
 docs {
   # Get Ongoing & Upcoming Contests
-  ---
-  - 아직 종료되지 않은 모든 Contest 정보를 반환합니다.
   
+  아직 종료되지 않은 대회들을 가져옵니다.
+  
+  ## Query
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |groupId |Integer|대회가 속한 Group ID (default: 1)|
 }

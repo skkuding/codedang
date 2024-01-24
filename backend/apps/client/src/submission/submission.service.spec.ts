@@ -43,7 +43,8 @@ const db = {
   },
   contestRecord: {
     findUniqueOrThrow: stub()
-  }
+  },
+  getPaginator: PrismaService.prototype.getPaginator
 }
 
 const CONTEST_ID = 1
@@ -250,7 +251,7 @@ describe('SubmissionService', () => {
       const target: JudgerResponse = {
         resultCode: 7,
         error: 'succeed',
-        submissionId: 1,
+        submissionId: '1',
         data: {
           acceptedNum: 1,
           totalTestcase: 1,
@@ -300,9 +301,9 @@ describe('SubmissionService', () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.submission.findMany.resolves(submissions)
 
-      expect(await service.getSubmissions(problems[0].id)).to.be.deep.equal(
-        submissions
-      )
+      expect(
+        await service.getSubmissions({ problemId: problems[0].id })
+      ).to.be.deep.equal(submissions)
     })
 
     it('should throw not found error', async () => {
@@ -310,9 +311,9 @@ describe('SubmissionService', () => {
         new NotFoundException('No problem found error')
       )
 
-      await expect(service.getSubmissions(problems[0].id)).to.be.rejectedWith(
-        NotFoundException
-      )
+      await expect(
+        service.getSubmissions({ problemId: problems[0].id })
+      ).to.be.rejectedWith(NotFoundException)
     })
   })
 
@@ -404,11 +405,11 @@ describe('SubmissionService', () => {
       db.submission.findMany.resolves(submissions)
 
       expect(
-        await service.getContestSubmissions(
-          problems[0].id,
-          1,
-          submissions[0].userId
-        )
+        await service.getContestSubmissions({
+          problemId: problems[0].id,
+          contestId: 1,
+          userId: submissions[0].userId
+        })
       )
     })
 
@@ -418,7 +419,11 @@ describe('SubmissionService', () => {
       )
 
       await expect(
-        service.getContestSubmissions(problems[0].id, 1, submissions[0].userId)
+        service.getContestSubmissions({
+          problemId: problems[0].id,
+          contestId: 1,
+          userId: submissions[0].userId
+        })
       ).to.be.rejectedWith(NotFoundException)
     })
 
@@ -429,7 +434,11 @@ describe('SubmissionService', () => {
       )
 
       await expect(
-        service.getContestSubmissions(problems[0].id, 1, submissions[0].userId)
+        service.getContestSubmissions({
+          problemId: problems[0].id,
+          contestId: 1,
+          userId: submissions[0].userId
+        })
       ).to.be.rejectedWith(NotFoundException)
     })
   })
@@ -450,7 +459,7 @@ describe('SubmissionService', () => {
       const target: JudgerResponse = {
         resultCode: 5,
         error: 'succeed',
-        submissionId: 1,
+        submissionId: '1',
         data: {
           acceptedNum: 1,
           totalTestcase: 1,
@@ -478,7 +487,7 @@ describe('SubmissionService', () => {
   it('should handle message without error', async () => {
     const target = {
       resultCode: 0,
-      submissionId: 1,
+      submissionId: '1',
       error: '',
       data: {
         acceptedNum: 1,
