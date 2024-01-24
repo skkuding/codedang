@@ -27,8 +27,12 @@ assert {
   res("standings[0].user.id"): isNumber
   res("standings[0].user.username"): isString
   res("standings[0].score"): isNumber
-  res("standings[0].totalPenalty"): isNumber 
-  res("standings[0].standing"): isNumber 
+  res("standings[0].totalPenalty"): isNumber
+  res("standings[0].standing"): isNumber
+}
+
+script:pre-request {
+  await require("./login").loginAdmin(req);
 }
 
 docs {
