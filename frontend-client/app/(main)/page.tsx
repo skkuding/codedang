@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { fetcher } from '@/lib/utils'
+// import { fetcher } from '@/lib/utils'
 import dummyImg from '@/public/dummy.png'
 import GithubLogo from '@/public/github.svg'
 import SkkudingLogo from '@/public/skkudingLogo.png'
@@ -46,46 +46,56 @@ const slides = [
 ]
 
 const getContests = async () => {
+  // const data: {
+  //   ongoing: Contest[]
+  //   upcoming: Contest[]
+  // } = await fetcher.get('contest').json()
   const data: {
     ongoing: Contest[]
     upcoming: Contest[]
-  } = await fetcher.get('contest').json()
+  } = {
+    ongoing: [],
+    upcoming: []
+  }
+
   data.ongoing.forEach((contest) => {
     contest.status = 'ongoing'
   })
   data.upcoming.forEach((contest) => {
     contest.status = 'upcoming'
   })
-  let contests = data.ongoing.concat(data.upcoming)
+  const contests = data.ongoing.concat(data.upcoming)
 
-  if (contests.length < 3) {
-    const data: {
-      finished: Contest[]
-    } = await fetcher
-      .get('contest/finished', {
-        searchParams: {
-          take: 3
-        }
-      })
-      .json()
-    data.finished.forEach((contest) => {
-      contest.status = 'finished'
-    })
-    contests = contests.concat(data.finished)
-  }
+  // if (contests.length < 3) {
+  //   const data: {
+  //     finished: Contest[]
+  //   } = await fetcher
+  //     .get('contest/finished', {
+  //       searchParams: {
+  //         take: 3
+  //       }
+  //     })
+  //     .json()
+  //   data.finished.forEach((contest) => {
+  //     contest.status = 'finished'
+  //   })
+  //   contests = contests.concat(data.finished)
+  // }
   return contests.slice(0, 3)
 }
 
 export default async function Home() {
   const contests = await getContests()
-  const problems: WorkbookProblem[] = await fetcher
-    .get('problem', {
-      searchParams: {
-        take: 3,
-        workbookId: 1
-      }
-    })
-    .json()
+  // const problems: WorkbookProblem[] = await fetcher
+  //   .get('problem', {
+  //     searchParams: {
+  //       take: 3,
+  //       workbookId: 1
+  //     }
+  //   })
+  //   .json()
+  const problems: WorkbookProblem[] = []
+
   return (
     <div className="flex w-full flex-col gap-12 lg:items-center">
       <Carousel slides={slides} />
