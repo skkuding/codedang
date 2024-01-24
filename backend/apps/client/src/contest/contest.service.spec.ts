@@ -183,6 +183,7 @@ const record: ContestRecord = {
   contestId,
   userId,
   acceptedProblemNum: 0,
+  score: 0,
   totalPenalty: 0,
   createTime: new Date(),
   updateTime: new Date()
@@ -193,21 +194,24 @@ const sortedContestRecordsWithUserDetail = [
       id: 13,
       username: 'user10'
     },
-    acceptedProblemNum: 13
+    score: 36,
+    totalPenalty: 720
   },
   {
     user: {
       id: 12,
       username: 'user09'
     },
-    acceptedProblemNum: 12
+    score: 33,
+    totalPenalty: 660
   },
   {
     user: {
       id: 11,
       username: 'user08'
     },
-    acceptedProblemNum: 11
+    score: 30,
+    totalPenalty: 600
   }
 ]
 
@@ -359,7 +363,10 @@ describe('ContestService', () => {
 
       expect(await service.getContest(groupId, contestId)).to.deep.equal({
         ...contestDetail,
-        rankings: sortedContestRecordsWithUserDetail
+        standings: sortedContestRecordsWithUserDetail.map((record, index) => ({
+          ...record,
+          standing: index + 1
+        }))
       })
     })
   })
