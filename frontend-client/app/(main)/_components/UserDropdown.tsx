@@ -4,7 +4,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem
 } from '@/components/ui/dropdown-menu'
-import { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu'
+import type { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu'
 import { User } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { useState } from 'react'
