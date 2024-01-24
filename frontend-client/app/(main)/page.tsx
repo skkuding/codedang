@@ -46,10 +46,13 @@ const slides = [
 ]
 
 const getContests = async () => {
+  const before = new Date()
   const data: {
     ongoing: Contest[]
     upcoming: Contest[]
-  } = await fetcher.get('contest').json()
+  } = await fetcher.get('contest', {}).json()
+  const after = new Date()
+  console.log('Response time:', after.getTime() - before.getTime())
 
   data.ongoing.forEach((contest) => {
     contest.status = 'ongoing'
