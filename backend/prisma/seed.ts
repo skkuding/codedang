@@ -1565,7 +1565,7 @@ const createCodeDrafts = async () => {
 
 const createContestRecords = async () => {
   const contestRecords: ContestRecord[] = []
-
+  let i = 0
   // group 1 users
   const group1Users = await prisma.userGroup.findMany({
     where: {
@@ -1578,10 +1578,15 @@ const createContestRecords = async () => {
         userId: user.userId,
         contestId: 1,
         acceptedProblemNum: user.userId,
-        totalPenalty: 0
+        // TODO: 아직 점수 계산 로직을 구현하지 않아서,
+        // 임시로 임의로 좀수와 페널티를 부여하도록 하였습니다.
+        // 점수 계산 로직을 구현하면 아래의 코드를 수정해주세요.
+        score: i < 3 ? 3 : i * 3,
+        totalPenalty: i * 60
       }
     })
     contestRecords.push(contestRecord)
+    i++
   }
 
   return contestRecords
