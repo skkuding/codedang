@@ -1,5 +1,6 @@
 'use client'
 
+import { myUserId } from '@/app/(main)/contest/[id]/@tabs/standings/page'
 import {
   Table,
   TableBody,
@@ -16,7 +17,6 @@ import {
   getCoreRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import { myUserId } from '../[id]/@tabs/standings/page'
 
 interface StandingsTableProps {
   data: Standings[]
@@ -72,6 +72,7 @@ export default function StandingsTable({ data, theme }: StandingsTableProps) {
       columns: Array.from({ length: data[0].problemScore.length }).map(
         (_, i) => {
           return {
+            // TODO: Contest Problem API 연결하기
             header: () => (
               <div>
                 <p className="text-xs md:text-sm">{alphabet[i]}</p>

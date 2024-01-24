@@ -1,3 +1,4 @@
+import StandingsTable from '@/components/StandingsTable'
 import {
   Pagination,
   PaginationContent,
@@ -6,7 +7,6 @@ import {
   PaginationPrevious
 } from '@/components/ui/pagination'
 import type { Standings } from '@/types/type'
-import StandingsTable from '../../../_components/StandingsTable'
 
 const dummyData: Standings[] = [
   {
