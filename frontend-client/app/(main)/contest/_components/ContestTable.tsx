@@ -16,6 +16,7 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
+import { Route } from 'next'
 import { useRouter } from 'next/navigation'
 
 interface ContestTableProps {
@@ -130,7 +131,7 @@ export default function ContestTable({ data }: ContestTableProps) {
               data-state={row.getIsSelected() && 'selected'}
               className="cursor-pointer"
               onClick={() => {
-                router.push(`/contest/${row.original.id}`)
+                router.push(`/contest/${row.original.id}` as Route)
               }}
             >
               {row.getVisibleCells().map((cell) => (
