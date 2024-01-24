@@ -37,3 +37,20 @@ export interface Problem {
   }[]
   info?: string
 }
+
+export interface ProblemDetail {
+  id: number
+  title: string
+  description: string
+  inputDescription: string
+  outputDescription: string
+  inputExamples: string[]
+  outputExamples: string[]
+  languages: string[]
+  timeLimit: number
+  memoryLimit: number
+  tags: {
+    id: number
+    name: string
+  }[]
+}

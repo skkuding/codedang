@@ -1,3 +1,4 @@
+import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
 import { metaBaseUrl } from '@/lib/vars'
 import type { Metadata, Viewport } from 'next'
@@ -37,7 +38,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={cn(noto.variable, manrope.variable)}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster richColors position="top-center" />
+      </body>
     </html>
   )
 }
