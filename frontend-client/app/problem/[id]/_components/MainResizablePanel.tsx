@@ -12,7 +12,9 @@ import { tags as t } from '@lezer/highlight'
 // import { loadLanguage } from '@uiw/codemirror-extensions-langs'
 import { createTheme } from '@uiw/codemirror-themes'
 import CodeMirror from '@uiw/react-codemirror'
+import { Suspense } from 'react'
 import { TbReload } from 'react-icons/tb'
+import Loading from '../loading'
 import Tab from './Tab'
 
 // 우선 Editor 페이지에서 사용할 데이터들만 받아옴
@@ -68,7 +70,7 @@ export default function MainResizablePanel({
         minSize={20}
       >
         <Tab id={data.id} />
-        {tabs}
+        <Suspense fallback={<Loading />}>{tabs}</Suspense>
       </ResizablePanel>
 
       <ResizableHandle withHandle />
