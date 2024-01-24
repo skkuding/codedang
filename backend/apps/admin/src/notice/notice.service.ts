@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { Notice } from '@admin/@generated'
 import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 
 @Injectable()
@@ -11,8 +10,8 @@ export class NoticeService {
   async createNotice(
     userId: number,
     groupId: number,
-    notice: CreateNoticeInput
-  ): Promise<Notice> {
+    createNoticeInput: CreateNoticeInput
+  ) {
     const group = await this.prisma.group.findUnique({
       where: {
         id: groupId
@@ -22,18 +21,13 @@ export class NoticeService {
       throw new EntityNotExistException('Group')
     }
 
-    const newNotice: Notice = await this.prisma.notice.create({
+    return await this.prisma.notice.create({
       data: {
         createdById: userId,
-        title: notice.title,
-        content: notice.content,
-        isVisible: notice.isVisible,
-        isFixed: notice.isFixed,
-        groupId
+        groupId,
+        ...createNoticeInput
       }
     })
-
-    return newNotice
   }
 
   async deleteNotice(groupId: number, noticeId: number) {
@@ -53,42 +47,36 @@ export class NoticeService {
       }
     })
     if (!notice) {
-      throw new EntityNotExistException('notice')
+      throw new EntityNotExistException('Notice')
     }
 
-    await this.prisma.notice.delete({
+    return await this.prisma.notice.delete({
       where: {
-        id: noticeId
+        id: noticeId,
+        groupId
       }
     })
-
-    return notice
   }
 
   async updateNotice(
     groupId: number,
-    notice: UpdateNoticeInput
-  ): Promise<Notice> {
+    { id, ...restUpdateNoticeInput }: UpdateNoticeInput
+  ) {
     const noticeFound = await this.prisma.notice.findFirst({
       where: {
-        id: notice.id,
+        id,
         groupId
       }
     })
     if (!noticeFound) {
-      throw new EntityNotExistException('notice')
+      throw new EntityNotExistException('Notice')
     }
 
     return await this.prisma.notice.update({
       where: {
-        id: notice.id
+        id
       },
-      data: {
-        title: notice.title,
-        content: notice.content,
-        isVisible: notice.isFixed,
-        isFixed: notice.isFixed
-      }
+      data: restUpdateNoticeInput
     })
   }
 }
