@@ -38,6 +38,7 @@ enum Provider {
 model User {
   id         Int       @id @default(autoincrement())
   username   String    @unique
+  /// @HideField()
   password   String
   role       Role      @default(User)
   email      String    @unique
