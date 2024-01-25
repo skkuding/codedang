@@ -116,8 +116,7 @@ export class ContestResolver {
   @Mutation(() => Contest)
   async deleteContest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('contestId', { type: () => Int })
-    contestId: number
+    @Args('contestId', { type: () => Int }) contestId: number
   ) {
     try {
       return await this.contestService.deleteContest(groupId, contestId)
@@ -139,8 +138,7 @@ export class ContestResolver {
   @Mutation(() => PublicizingRequest)
   async createPublicizingRequest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('contestId', { type: () => Int })
-    contestId: number
+    @Args('contestId', { type: () => Int }) contestId: number
   ) {
     try {
       return await this.contestService.createPublicizingRequest(
@@ -162,8 +160,7 @@ export class ContestResolver {
   @Mutation(() => PublicizingResponse)
   @UseRolesGuard()
   async handlePublicizingRequest(
-    @Args('contestId', { type: () => Int })
-    contestId: number,
+    @Args('contestId', { type: () => Int }) contestId: number,
     @Args('isAccepted', ParseBoolPipe) isAccepted: boolean
   ) {
     try {
@@ -183,8 +180,7 @@ export class ContestResolver {
   @Mutation(() => [ContestProblem])
   async importProblemsToContest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('contestId', { type: () => Int })
-    contestId: number,
+    @Args('contestId', { type: () => Int }) contestId: number,
     @Args('problemIds', { type: () => [Int] }) problemIds: number[]
   ) {
     try {

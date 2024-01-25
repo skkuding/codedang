@@ -207,8 +207,7 @@ export class ProblemResolver {
       GroupIDPipe
     )
     groupId: number,
-    @Args('workbookId', { type: () => Int }, new RequiredIntPipe('workbookId'))
-    workbookId: number
+    @Args('workbookId', { type: () => Int }) workbookId: number
   ) {
     try {
       return await this.problemService.getWorkbookProblems(groupId, workbookId)
@@ -234,8 +233,7 @@ export class ProblemResolver {
       GroupIDPipe
     )
     groupId: number,
-    @Args('workbookId', { type: () => Int }, new RequiredIntPipe('workbookId'))
-    workbookId: number,
+    @Args('workbookId', { type: () => Int }) workbookId: number,
     // orders는 항상 workbookId에 해당하는 workbookProblems들이 모두 딸려 온다.
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
@@ -267,8 +265,7 @@ export class ProblemResolver {
       GroupIDPipe
     )
     groupId: number,
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
-    contestId: number
+    @Args('contestId', { type: () => Int }) contestId: number
   ) {
     try {
       return await this.problemService.getContestProblems(groupId, contestId)
@@ -294,8 +291,7 @@ export class ProblemResolver {
       GroupIDPipe
     )
     groupId: number,
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
-    contestId: number,
+    @Args('contestId', { type: () => Int }) contestId: number,
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
     try {
