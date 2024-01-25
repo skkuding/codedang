@@ -5,12 +5,13 @@ import {
   ParseIntPipe,
   UnprocessableEntityException
 } from '@nestjs/common'
-import { Args, Context, Mutation, Resolver } from '@nestjs/graphql'
+import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
 import { AuthenticatedRequest } from '@libs/auth'
 import {
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
+import { GroupIDPipe } from '@libs/pipe'
 import { Notice } from '@admin/@generated'
 import { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 import { NoticeService } from './notice.service'
@@ -23,7 +24,7 @@ export class NoticeResolver {
   @Mutation(() => Notice)
   async createNotice(
     @Args('input') input: CreateNoticeInput,
-    @Args('groupId', ParseIntPipe)
+    @Args('groupId', { type: () => Int }, GroupIDPipe)
     groupId: number,
     @Context('req') req: AuthenticatedRequest
   ) {
@@ -42,8 +43,8 @@ export class NoticeResolver {
 
   @Mutation(() => Notice)
   async deleteNotice(
-    @Args('groupId', ParseIntPipe) groupId: number,
-    @Args('noticeId', ParseIntPipe) noticeId: number
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('noticeId', { type: () => Int }, ParseIntPipe) noticeId: number
   ) {
     try {
       return await this.noticeService.deleteNotice(groupId, noticeId)
@@ -58,7 +59,7 @@ export class NoticeResolver {
 
   @Mutation(() => Notice)
   async updateNotice(
-    @Args('groupId', ParseIntPipe) groupId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('input') input: UpdateNoticeInput
   ) {
     try {
