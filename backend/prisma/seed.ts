@@ -1171,6 +1171,7 @@ const createContests = async () => {
       data: {
         order: problem.id,
         contestId: ongoingContests[0].id,
+        score: problem.id + 3,
         problemId: problem.id
       }
     })
