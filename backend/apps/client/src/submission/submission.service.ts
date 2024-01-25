@@ -262,7 +262,6 @@ export class SubmissionService implements OnModuleInit {
 
   async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
     const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
-    console.log(msg)
     await validateOrReject(res)
 
     return res
@@ -307,7 +306,6 @@ export class SubmissionService implements OnModuleInit {
     resultStatus: ResultStatus,
     result: Partial<SubmissionResult> & Pick<SubmissionResult, 'result'>
   ) {
-    // console.log(results)
     await this.prisma.submissionResult.create({
       data: {
         submissionId: id,

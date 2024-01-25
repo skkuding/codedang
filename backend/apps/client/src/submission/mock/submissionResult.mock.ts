@@ -61,36 +61,5 @@ export const judgerResponse: JudgerResponse = {
       exitCode: 0,
       errorCode: 0
     }
-    //   {
-    //     testcaseId: '1:2',
-    //     resultCode: 0,
-    //     cpuTime: 12345,
-    //     realTime: 20000,
-    //     memory: 12345,
-    //     signal: 0,
-    //     exitCode: 0,
-    //     errorCode: 0
-    //   },
-    //   {
-    //     testcaseId: '1:3',
-    //     resultCode: 1,
-    //     cpuTime: 12345,
-    //     realTime: 20000,
-    //     memory: 12345,
-    //     signal: 0,
-    //     exitCode: 0,
-    //     errorCode: 0
-    //   },
-    //   {
-    //     testcaseId: '1:4',
-    //     resultCode: 6,
-    //     cpuTime: 12345,
-    //     realTime: 20000,
-    //     memory: 12345,
-    //     signal: 0,
-    //     exitCode: 0,
-    //     errorCode: 0
-    //   }
-    // ]
   }
 }
