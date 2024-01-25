@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 interface NavLinkProps<T extends string> {
-  href: Route<T> | URL
+  href: Route<T>
   text: string
 }
 
@@ -18,7 +18,7 @@ export default function NavLink<T extends string>({
 
   return (
     <Link
-      href={href as Route<T>}
+      href={href}
       className={cn(
         'text-lg hover:opacity-60',
         pathname.startsWith(String(href)) && 'text-primary'

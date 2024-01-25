@@ -114,6 +114,8 @@ resource "aws_ecs_task_definition" "client_api" {
     rabbitmq_vhost       = rabbitmq_vhost.vh.name,
     github_client_id     = var.github_client_id,
     github_client_secret = var.github_client_secret,
+    kakao_client_id      = var.kakao_client_id,
+    kakao_client_secret  = var.kakao_client_secret,
   })
 
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
