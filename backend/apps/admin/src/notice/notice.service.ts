@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
@@ -77,6 +78,38 @@ export class NoticeService {
         id
       },
       data: restUpdateNoticeInput
+    })
+  }
+
+  async getNotice(groupId: number, noticeId: number) {
+    try {
+      return await this.prisma.notice.findFirstOrThrow({
+        where: {
+          id: noticeId,
+          groupId
+        }
+      })
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('Notice')
+      }
+    }
+  }
+
+  async getNotices(groupId: number, cursor: number | null, take: number) {
+    const paginator = this.prisma.getPaginator(cursor)
+    return await this.prisma.notice.findMany({
+      ...paginator,
+      take,
+      where: {
+        groupId
+      },
+      orderBy: {
+        createTime: 'desc'
+      }
     })
   }
 }

@@ -5,13 +5,13 @@ import {
   ParseIntPipe,
   UnprocessableEntityException
 } from '@nestjs/common'
-import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
+import { Args, Context, Int, Mutation, Resolver, Query } from '@nestjs/graphql'
 import { AuthenticatedRequest } from '@libs/auth'
 import {
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
-import { GroupIDPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import { Notice } from '@admin/@generated'
 import { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 import { NoticeService } from './notice.service'
@@ -64,6 +64,41 @@ export class NoticeResolver {
   ) {
     try {
       return await this.noticeService.updateNotice(groupId, input)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Query(() => Notice)
+  async getNotice(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('noticeId', { type: () => Int }) noticeId: number
+  ) {
+    try {
+      return await this.noticeService.getNotice(groupId, noticeId)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw new NotFoundException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Query(() => [Notice], { nullable: 'items' })
+  async getNotices(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('cursor', { type: () => Int, nullable: true }, CursorValidationPipe)
+    cursor: number | null,
+    @Args('take', { type: () => Int, defaultValue: 10 })
+    take: number
+  ) {
+    try {
+      return await this.noticeService.getNotices(groupId, cursor, take)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
