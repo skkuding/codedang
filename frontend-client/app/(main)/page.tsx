@@ -48,6 +48,10 @@ const slides = [
 ]
 
 const getContests = async () => {
+  let count = 0
+  setInterval(() => {
+    console.log('Fetching contest data...', ++count, 'times')
+  }, 1000)
   const before = new Date()
   const data = (await fetcher(baseUrl + '/contest').then((res) =>
     res.json()
