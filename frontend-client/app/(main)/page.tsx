@@ -1,11 +1,13 @@
 import { Button } from '@/components/ui/button'
-import { fetcher } from '@/lib/utils'
+import { baseUrl } from '@/lib/vars'
+// import { fetcher } from '@/lib/utils'
 import dummyImg from '@/public/dummy.png'
 import GithubLogo from '@/public/github.svg'
 import SkkudingLogo from '@/public/skkudingLogo.png'
 import type { Contest, WorkbookProblem } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
+import fetcher from 'node-fetch'
 import Carousel from './_components/Carousel'
 import ContestCard from './_components/ContestCard'
 import ProblemCard from './_components/ProblemCard'
@@ -47,12 +49,14 @@ const slides = [
 
 const getContests = async () => {
   const before = new Date()
-  const data: {
+  const data = (await fetcher(baseUrl + '/contest').then((res) =>
+    res.json()
+  )) as {
     ongoing: Contest[]
     upcoming: Contest[]
-  } = await fetcher.get('contest', {}).json()
+  }
   const after = new Date()
-  console.log('Response time:', after.getTime() - before.getTime())
+  console.log('Response time:', after.getTime() - before.getTime(), 'ms')
 
   data.ongoing.forEach((contest) => {
     contest.status = 'ongoing'
