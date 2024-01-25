@@ -1321,12 +1321,13 @@ int main(void) {
       }
     })
   )
-  await prisma.submissionResult.create({
-    data: {
-      submissionId: submissions[2].id,
-      result: ResultStatus.CompileError
-    }
-  })
+  // await prisma.submissionResult.create({
+  //   data: {
+  //     problemTestcaseId: su
+  //     submissionId: submissions[2].id,
+  //     result: ResultStatus.CompileError
+  //   }
+  // })
   await prisma.submission.update({
     where: {
       id: submissions[0].id
