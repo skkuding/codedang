@@ -99,9 +99,6 @@ export class NoticeResolver {
     try {
       return await this.noticeService.getNotices(groupId, cursor, take)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      }
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
