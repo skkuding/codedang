@@ -5,7 +5,6 @@ import dummyImg from '@/public/dummy.png'
 import GithubLogo from '@/public/github.svg'
 import SkkudingLogo from '@/public/skkudingLogo.png'
 import type { Contest, WorkbookProblem } from '@/types/type'
-import axios from 'axios'
 import type { Route } from 'next'
 import Link from 'next/link'
 import Carousel from './_components/Carousel'
@@ -53,10 +52,12 @@ const getContests = async () => {
     console.log('Fetching contest data...', ++count, 'times')
   }, 1000)
   const before = new Date()
-  const { data } = await axios.get<{
+  const data = (await fetch(baseUrl + '/contest').then((res) =>
+    res.json()
+  )) as {
     ongoing: Contest[]
     upcoming: Contest[]
-  }>(baseUrl + '/contest')
+  }
   const after = new Date()
   console.log('Response time:', after.getTime() - before.getTime(), 'ms')
   clearInterval(interval)
