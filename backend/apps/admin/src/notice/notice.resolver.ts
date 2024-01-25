@@ -1,8 +1,7 @@
 import {
   InternalServerErrorException,
   Logger,
-  NotFoundException,
-  UnprocessableEntityException
+  NotFoundException
 } from '@nestjs/common'
 import {
   Args,
@@ -15,10 +14,7 @@ import {
   Parent
 } from '@nestjs/graphql'
 import { AuthenticatedRequest } from '@libs/auth'
-import {
-  EntityNotExistException,
-  UnprocessableDataException
-} from '@libs/exception'
+import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import { Group, Notice, User } from '@admin/@generated'
 import { GroupService } from '@admin/group/group.service'
@@ -45,9 +41,7 @@ export class NoticeResolver {
     try {
       return await this.noticeService.createNotice(req.user.id, groupId, input)
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof EntityNotExistException) {
+      if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
       }
       this.logger.error(error)
