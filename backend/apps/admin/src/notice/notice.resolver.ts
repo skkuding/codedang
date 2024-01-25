@@ -2,7 +2,6 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
-  ParseIntPipe,
   UnprocessableEntityException
 } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Resolver, Query } from '@nestjs/graphql'
@@ -44,7 +43,7 @@ export class NoticeResolver {
   @Mutation(() => Notice)
   async deleteNotice(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('noticeId', { type: () => Int }, ParseIntPipe) noticeId: number
+    @Args('noticeId', { type: () => Int }) noticeId: number
   ) {
     try {
       return await this.noticeService.deleteNotice(groupId, noticeId)
