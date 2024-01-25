@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { Contest, Prisma } from '@prisma/client'
+import { ResultStatus, type Contest, type Prisma } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { ConflictFoundException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -215,7 +215,7 @@ export class ContestService {
   }
 
   async getContest(id: number, groupId = OPEN_SPACE_ID) {
-    const contest = await this.prisma.contest.findUniqueOrThrow({
+    return await this.prisma.contest.findUniqueOrThrow({
       where: {
         id,
         groupId,
@@ -229,43 +229,6 @@ export class ContestService {
         description: true
       }
     })
-    // get contest participants ranking using ContestRecord
-    const sortedContestRecordsWithUserDetail =
-      await this.prisma.contestRecord.findMany({
-        where: {
-          contestId: id
-        },
-        select: {
-          user: {
-            select: {
-              id: true,
-              username: true
-            }
-          },
-          score: true,
-          totalPenalty: true
-        },
-        orderBy: [
-          {
-            score: 'desc'
-          },
-          {
-            totalPenalty: 'asc'
-          }
-        ]
-      })
-
-    const UsersWithStandingDetail = sortedContestRecordsWithUserDetail.map(
-      (contestRecord, index) => ({
-        ...contestRecord,
-        standing: index + 1
-      })
-    )
-    // combine contest and sortedContestRecordsWithUserDetail
-    return {
-      ...contest,
-      standings: UsersWithStandingDetail
-    }
   }
 
   async createContestRecord(
@@ -292,6 +255,112 @@ export class ContestService {
     return await this.prisma.contestRecord.create({
       data: { contestId, userId }
     })
+  }
+
+  async getStandings(contestId: number, groupId = OPEN_SPACE_ID) {
+    const contest = await this.getContest(contestId, groupId)
+
+    // TODO: take 적용할지?
+    const contestRecords = await this.prisma.contestRecord.findMany({
+      where: {
+        contestId
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        },
+        score: true,
+        penalty: true
+      },
+      orderBy: [
+        {
+          score: 'desc'
+        },
+        {
+          penalty: 'asc'
+        }
+      ]
+    })
+
+    // TODO: take 적용하면 userId: in 구문 필요
+    const submissions = await this.prisma.submission.findMany({
+      where: {
+        contestId
+      },
+      select: {
+        userId: true,
+        problemId: true,
+        result: true,
+        createTime: true
+      }
+    })
+
+    // build user-problem-submission table for later calculation
+    const userRecords: {
+      [userId: number]: {
+        [problemId: number]: {
+          result: ResultStatus
+          createTime: Date
+        }[]
+      }
+    } = {}
+    submissions.forEach((submission) => {
+      const { userId, problemId, ...data } = submission
+      if (userId === null) return
+
+      if (!(userId in userRecords)) {
+        userRecords[userId] = {}
+      }
+      if (!(userId in userRecords[userId])) {
+        userRecords[userId][problemId] = []
+      }
+      userRecords[userId][problemId].push(data)
+    })
+
+    contestRecords.forEach((contestRecord, index) => {
+      if (contestRecord.user === null) return
+
+      const userRecord = userRecords[contestRecord.user.id]
+      const problemRecord: {
+        problemId: number
+        lastAccepted: number
+        unaccepted: number
+      }[] = []
+
+      // retrieve last accepted time and unaccepted number of submissions for each problem
+      for (const problemId in userRecord) {
+        let lastAccepted = contest.startTime
+        const unaccepted = userRecord[problemId].reduce(
+          (unaccepted, submission) => {
+            if (submission.result === ResultStatus.Accepted) {
+              if (lastAccepted > submission.createTime) {
+                lastAccepted = submission.createTime
+              }
+              return unaccepted
+            }
+            return unaccepted + 1
+          },
+          0
+        )
+        problemRecord.push({
+          problemId: Number(problemId),
+          lastAccepted:
+            lastAccepted.getTime() - contest.startTime.getTime() / 1000, // in seconds
+          unaccepted
+        })
+      }
+
+      return {
+        ...contestRecord,
+        rank: index,
+        problemRecord
+      }
+    })
+
+    return contestRecords
   }
 
   async isVisible(contestId: number, groupId: number): Promise<boolean> {
