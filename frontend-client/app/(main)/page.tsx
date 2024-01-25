@@ -5,9 +5,9 @@ import dummyImg from '@/public/dummy.png'
 import GithubLogo from '@/public/github.svg'
 import SkkudingLogo from '@/public/skkudingLogo.png'
 import type { Contest, WorkbookProblem } from '@/types/type'
+import axios from 'axios'
 import type { Route } from 'next'
 import Link from 'next/link'
-import fetcher from 'node-fetch'
 import Carousel from './_components/Carousel'
 import ContestCard from './_components/ContestCard'
 import ProblemCard from './_components/ProblemCard'
@@ -49,18 +49,17 @@ const slides = [
 
 const getContests = async () => {
   let count = 0
-  setInterval(() => {
+  const interval = setInterval(() => {
     console.log('Fetching contest data...', ++count, 'times')
   }, 1000)
   const before = new Date()
-  const data = (await fetcher(baseUrl + '/contest').then((res) =>
-    res.json()
-  )) as {
+  const { data } = await axios.get<{
     ongoing: Contest[]
     upcoming: Contest[]
-  }
+  }>(baseUrl + '/contest')
   const after = new Date()
   console.log('Response time:', after.getTime() - before.getTime(), 'ms')
+  clearInterval(interval)
 
   data.ongoing.forEach((contest) => {
     contest.status = 'ongoing'

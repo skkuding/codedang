@@ -27,6 +27,7 @@
     "@tanstack/react-table": "^8.11.6",
     "@uiw/codemirror-themes": "^4.21.21",
     "@uiw/react-codemirror": "^4.21.21",
+    "axios": "^1.6.5",
     "cmdk": "^0.2.0",
     "dayjs": "^1.11.10",
     "embla-carousel-react": "8.0.0-rc20",
