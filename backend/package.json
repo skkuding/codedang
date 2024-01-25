@@ -13,7 +13,7 @@
     "test:watch": "pnpm run pretest && cross-env DATABASE_URL=$TEST_DATABASE_URL mocha --watch \"*/**/*.spec.ts\"",
     "test:debug": "pnpm run pretest && cross-env DATABASE_URL=$TEST_DATABASE_URL mocha --inspect \"*/**/*.spec.ts\"",
     "studio": "npx prisma studio",
-    "studio:test": "cross-env DATABASE_URL=postgresql://postgres:1234@127.0.0.1:5434/skkuding?schema=public npx prisma studio"
+    "studio:test": "cross-env DATABASE_URL=$TEST_DATABASE_URL npx prisma studio"
   },
   "dependencies": {
     "@apollo/server": "^4.10.0",
