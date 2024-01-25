@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -18,7 +19,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { UserService } from '@client/user/user.service'
 import type { LoginUserDto } from './dto/login-user.dto'
-import type { GithubUser } from './interface/social-user.interface'
+import type { GithubUser, KakaoUser } from './interface/social-user.interface'
 
 @Injectable()
 export class AuthService {
@@ -109,7 +110,7 @@ export class AuthService {
 
     const userOAuth = await this.prisma.userOAuth.findFirst({
       where: {
-        id: parseInt(githubId),
+        id: githubId.toString(),
         provider: 'github'
       }
     })
@@ -119,6 +120,50 @@ export class AuthService {
       // TODO: 소셜 회원가입 페이지 url 확정되면 여기에 삽입
       return {
         signUpUrl: `https://codedang.com/social-signup?provider=github&id=${githubUser.githubId}}&email=${githubUser.email}`
+      }
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userOAuth.userId
+      }
+    })
+
+    if (!user) {
+      throw new UnidentifiedException('user')
+    }
+
+    const jwtTokens = await this.issueJwtTokens(
+      {
+        username: user.username,
+        password: user.password
+      },
+      true
+    )
+
+    res.setHeader('authorization', `Bearer ${jwtTokens.accessToken}`)
+    res.cookie(
+      'refresh_token',
+      jwtTokens.refreshToken,
+      REFRESH_TOKEN_COOKIE_OPTIONS
+    )
+  }
+
+  async kakaoLogin(res: Response, kakaoUser: KakaoUser) {
+    const { kakaoId } = kakaoUser
+
+    const userOAuth = await this.prisma.userOAuth.findFirst({
+      where: {
+        id: kakaoId.toString(),
+        provider: 'kakao'
+      }
+    })
+
+    if (!userOAuth) {
+      // 소셜 회원가입 페이지 url 전달
+      // TODO: 소셜 회원가입 페이지 url 확정되면 여기에 삽입
+      return {
+        signUpUrl: `https://codedang.com/social-signup?provider=kakao&id=${kakaoUser.kakaoId}}`
       }
     }
 

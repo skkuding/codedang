@@ -60,7 +60,7 @@ model User {
 }
 
 model UserOAuth {
-  id         Int // social ID (OAuth 서비스로부터 제공받는 id)
+  id         String // social ID (OAuth 서비스로부터 제공받는 id)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int      @unique @map("user_id")
   provider   Provider
@@ -295,6 +295,7 @@ model ContestRecord {
   user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId             Int?     @map("user_id")
   acceptedProblemNum Int      @default(0) @map("accepted_problem_num")
+  score              Int      @default(0)
   totalPenalty       Int      @default(0) @map("total_penalty")
   createTime         DateTime @default(now()) @map("create_time")
   updateTime         DateTime @updatedAt @map("update_time")

@@ -25,7 +25,7 @@ jobs:
 
       - name: Setup Next.js build cache
         if: ${{ matrix.target == 'frontend-client' }}
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: frontend-client/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}

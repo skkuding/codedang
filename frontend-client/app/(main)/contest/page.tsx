@@ -1,7 +1,8 @@
+import DataTable from '@/components/DataTable'
 import { fetcher } from '@/lib/utils'
 import type { Contest } from '@/types/type'
-import ContestCardList from '../_components/ContestCardList'
-import ContestTable from './_components/ContestTable'
+import { columns } from './_components/Columns'
+import ContestCardList from './_components/ContestCardList'
 
 export default async function Contest() {
   const data: {
@@ -13,12 +14,23 @@ export default async function Contest() {
 
   return (
     <>
-      {/* TODO: Add contest card list */}
-      <ContestCardList type={'Ongoing'} />
-
+      <div className="mb-12 flex flex-col gap-12">
+        <ContestCardList type="Ongoing" />
+        <ContestCardList type="Upcoming" />
+      </div>
       <p className="text-xl font-bold md:text-2xl">Finished</p>
       {/* TODO: Add search bar */}
-      <ContestTable data={data.finished} />
+      <DataTable
+        data={data.finished}
+        columns={columns}
+        headerStyle={{
+          title: 'text-left w-2/4 md:w-4/6',
+          startTime: 'w-1/4 md:w-1/6',
+          endTime: 'w-1/4 md:w-1/6',
+          participants: 'w-1/4 md:w-1/6'
+        }}
+        name="contest"
+      />
     </>
   )
 }
