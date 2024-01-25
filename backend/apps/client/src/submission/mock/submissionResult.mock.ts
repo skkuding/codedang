@@ -46,7 +46,7 @@ export const submissionResults: SubmissionResult[] = [
 
 export const judgerResponse: JudgerResponse = {
   resultCode: 6,
-  submissionId: 1,
+  submissionId: '1',
   error: '',
   data: {
     acceptedNum: 2,

@@ -2,6 +2,9 @@ export * from './authenticated-user.class'
 export * from './authenticated-request.interface'
 export * from './guard.decorator'
 
+export * from './github/github.strategy'
+export * from './kakao/kakao.strategy'
+
 export * from './jwt/jwt-auth.module'
 export * from './jwt/jwt-auth.service'
 export * from './jwt/jwt.interface'

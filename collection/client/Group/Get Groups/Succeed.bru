@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/group?cursor=1&take=5
+  url: {{baseUrl}}/group?take=5
   body: none
   auth: none
 }
 
 query {
-  cursor: 1
   take: 5
+  ~cursor: 1
 }
 
 assert {
@@ -25,8 +25,14 @@ assert {
 
 docs {
   # Get Groups
-  ---
-  - Group 정보를 반환합니다.
-  - `cursor`: Group 정보를 어디서부터 불러올 것인지 결정합니다. 지정하지 않는 경우 처음부터 `take`만큼을 불러옵니다.
-  - `take`: 페이지 당 몇 개의 Group 정보를 불러올 것인지 결정합니다.
+  
+  공개된 그룹들의 정보를 가져옵니다.
+  
+  ## Query
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |take  |Integer|가져올 그룹 개수 (default: 10)|
+  |cursor|Integer|cursor 값 다음의 ID를 가진 그룹들을 반환|
+  
 }

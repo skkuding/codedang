@@ -177,13 +177,17 @@ describe('ProblemService', () => {
     it('should return the public problem', async () => {
       // given
       db.problem.findUniqueOrThrow.resolves(mockProblem)
+      db.problemTag.findMany.resolves([mockProblemTag])
 
       // when
       const result = await service.getProblem(problemId)
 
       // then
       expect(result).to.deep.equal(
-        plainToInstance(ProblemResponseDto, mockProblem)
+        plainToInstance(ProblemResponseDto, {
+          ...mockProblem,
+          tags: [mockProblemTag.tag]
+        })
       )
     })
 

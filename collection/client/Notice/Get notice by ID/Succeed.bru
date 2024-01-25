@@ -5,18 +5,38 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/notice/2
+  url: {{baseUrl}}/notice/1
   body: none
   auth: none
 }
 
+query {
+  ~groupId: 1
+}
+
 assert {
   res.status: eq 200
-  res("current").title: isString 
-  res("current").content: isString 
-  res("current").createTime: isString 
-  res("current").updateTime: isString 
-  res("current").createdBy: isString 
-  res("prev"): isDefined 
-  res("next"): isDefined 
+  res("current").title: isString
+  res("current").content: isString
+  res("current").createTime: isString
+  res("current").updateTime: isString
+  res("current").createdBy: isString
+  res("prev"): isDefined
+  res("next"): isDefined
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get Notice by ID
+  
+  하나의 공지사항 내용을 가져옵니다.
+  
+  ## Query
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |groupId|Integer|공지사항이 속한 Group ID|
 }

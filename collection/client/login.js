@@ -1,13 +1,18 @@
 const axios = require('axios')
 
 const login = async (req, body) => {
-  // TODO: call API only if not already logged in
-  // TODO: refresh token automatically
-  const baseUrl = bru.getEnvVar('baseUrl')
-  const res = await axios.post(baseUrl + '/auth/login', body)
-  bru.setVar('jwtToken', res.headers.authorization)
-  req.setHeader('Authorization', res.headers.authorization)
-  req.setHeader('Cookie', res.headers['set-cookie'])
+  try {
+    // TODO: call API only if not already logged in
+    // TODO: refresh token automatically
+    const baseUrl = bru.getEnvVar('baseUrl')
+    const res = await axios.post(baseUrl + '/auth/login', body, { timeout: 5000 })
+    bru.setVar('jwtToken', res.headers.authorization)
+    req.setHeader('Authorization', res.headers.authorization)
+    req.setHeader('Cookie', res.headers['set-cookie'])
+  } catch (error) {
+    if (axios.isAxiosError(error)) error.message += ' (in pre-script)'
+    throw error
+  }
 }
 
 const loginAdmin = async (req) => {

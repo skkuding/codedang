@@ -1,16 +1,10 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
+import { APP_GUARD } from '@nestjs/core'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
-import { RolesModule } from '@libs/auth'
+import { GroupMemberGuard, RolesModule } from '@libs/auth'
 import { CONSUME_CHANNEL, PUBLISH_CHANNEL } from '@libs/constants'
-import {
-  ContestSubmissionController,
-  GroupContestSubmissionController,
-  GroupProblemSubmissionController,
-  GroupWorkbookSubmissionController,
-  ProblemSubmissionController,
-  WorkbookSubmissionController
-} from './submission.controller'
+import { SubmissionController } from './submission.controller'
 import { SubmissionService } from './submission.service'
 
 @Module({
@@ -51,14 +45,10 @@ import { SubmissionService } from './submission.service'
     }),
     RolesModule
   ],
-  controllers: [
-    ProblemSubmissionController,
-    GroupProblemSubmissionController,
-    ContestSubmissionController,
-    GroupContestSubmissionController,
-    WorkbookSubmissionController,
-    GroupWorkbookSubmissionController
-  ],
-  providers: [SubmissionService]
+  controllers: [SubmissionController],
+  providers: [
+    SubmissionService,
+    { provide: APP_GUARD, useClass: GroupMemberGuard }
+  ]
 })
 export class SubmissionModule {}
