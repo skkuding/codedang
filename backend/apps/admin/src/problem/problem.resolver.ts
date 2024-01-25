@@ -52,7 +52,7 @@ export class ProblemResolver {
     @Context('req') req: AuthenticatedRequest,
     @Args(
       'groupId',
-      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
       GroupIDPipe
     )
     groupId: number,
@@ -84,7 +84,7 @@ export class ProblemResolver {
     @Context('req') req: AuthenticatedRequest,
     @Args(
       'groupId',
-      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
       GroupIDPipe
     )
     groupId: number,
@@ -109,13 +109,13 @@ export class ProblemResolver {
   async getProblems(
     @Args(
       'groupId',
-      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
       GroupIDPipe
     )
     groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
-    @Args('take', { type: () => Int, defaultValue: 10 }) take: number,
+    @Args('take', { defaultValue: 10, type: () => Int }) take: number,
     @Args('input') input: FilterProblemsInput
   ) {
     return await this.problemService.getProblems(input, groupId, cursor, take)
@@ -125,7 +125,7 @@ export class ProblemResolver {
   async getProblem(
     @Args(
       'groupId',
-      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
       GroupIDPipe
     )
     groupId: number,
@@ -149,7 +149,7 @@ export class ProblemResolver {
   async updateProblem(
     @Args(
       'groupId',
-      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
       GroupIDPipe
     )
     groupId: number,
@@ -179,7 +179,7 @@ export class ProblemResolver {
   async deleteProblem(
     @Args(
       'groupId',
-      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
       GroupIDPipe
     )
     groupId: number,

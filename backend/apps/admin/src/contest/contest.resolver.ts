@@ -5,8 +5,7 @@ import {
   ParseBoolPipe
 } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { ContestProblem } from '@generated'
-import { Contest } from '@generated'
+import { Contest, ContestProblem } from '@generated'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
@@ -38,7 +37,7 @@ export class ContestResolver {
     take: number,
     @Args(
       'groupId',
-      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
       GroupIDPipe
     )
     groupId: number,
@@ -70,7 +69,7 @@ export class ContestResolver {
     @Args('input') input: CreateContestInput,
     @Args(
       'groupId',
-      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
       GroupIDPipe
     )
     groupId: number,
