@@ -1,0 +1,25 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getAnnouncementsByProblemId(
+      problemId: 3
+    ) {
+    	id
+      problemId
+      content
+    }
+  }
+
+
+}

@@ -1,22 +1,31 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { CreateAnnouncementInput } from './dto/create-announcement.input'
-import type { UpdateAnnouncementInput } from './dto/update-announcement.input'
+import type { AnnouncementInput } from './dto/announcement.input'
 
 @Injectable()
 export class AnnouncementService {
+  private readonly logger = new Logger(AnnouncementService.name)
+
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
-    announcement: CreateAnnouncementInput
-  ): Promise<CreateAnnouncementInput> {
-    await this.prisma.announcement.create({
-      data: {
-        problemId: announcement.problemId,
-        content: announcement.content
+    announcementInput: AnnouncementInput
+  ): Promise<AnnouncementInput> {
+    const announcement = await this.prisma.announcement.findFirst({
+      where: {
+        problemId: announcementInput.problemId,
+        content: announcementInput.content
       }
     })
-    return announcement
+    if (announcement) throw new Error('Announcement already exist')
+    return await this.prisma.announcement.create({
+      data: {
+        problemId: announcementInput.problemId,
+        content: announcementInput.content
+      }
+    })
   }
 
   async findAll(problemId: number) {
@@ -28,18 +37,37 @@ export class AnnouncementService {
   }
 
   async findOne(id: number) {
-    return await this.prisma.announcement.findFirstOrThrow({
+    const announcement = await this.prisma.announcement.findFirst({
       where: {
         id
       }
     })
+    if (!announcement) throw new EntityNotExistException('announcement')
+    return announcement
   }
 
-  update(id: number, updateAnnouncementInput: UpdateAnnouncementInput) {
-    return updateAnnouncementInput
+  async update(id: number, announcementInput: AnnouncementInput) {
+    try {
+      return await this.prisma.announcement.update({
+        where: { id },
+        data: announcementInput
+      })
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw new EntityNotExistException('announcement')
+      }
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} announcement`
+  async delete(id: number) {
+    try {
+      return await this.prisma.announcement.delete({
+        where: { id }
+      })
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw new EntityNotExistException('announcement')
+      }
+    }
   }
 }

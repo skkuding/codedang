@@ -1,0 +1,23 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    removeAnnouncement(
+      id: 3
+    ) {
+      id
+      problemId
+      content
+    }
+  }
+}
