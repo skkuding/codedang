@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
@@ -12,50 +13,42 @@ export class NoticeService {
     groupId: number,
     createNoticeInput: CreateNoticeInput
   ) {
-    const group = await this.prisma.group.findUnique({
-      where: {
-        id: groupId
+    try {
+      return await this.prisma.notice.create({
+        data: {
+          createdById: userId,
+          groupId,
+          ...createNoticeInput
+        }
+      })
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2003'
+      ) {
+        throw new EntityNotExistException('Group')
       }
-    })
-    if (!group) {
-      throw new EntityNotExistException('Group')
+      throw error
     }
-
-    return await this.prisma.notice.create({
-      data: {
-        createdById: userId,
-        groupId,
-        ...createNoticeInput
-      }
-    })
   }
 
   async deleteNotice(groupId: number, noticeId: number) {
-    const group = await this.prisma.group.findUnique({
-      where: {
-        id: groupId
+    try {
+      return await this.prisma.notice.delete({
+        where: {
+          id: noticeId,
+          groupId
+        }
+      })
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('Notice')
       }
-    })
-    if (!group) {
-      throw new EntityNotExistException('Group')
+      throw error
     }
-
-    const notice = await this.prisma.notice.findFirst({
-      where: {
-        id: noticeId,
-        groupId
-      }
-    })
-    if (!notice) {
-      throw new EntityNotExistException('Notice')
-    }
-
-    return await this.prisma.notice.delete({
-      where: {
-        id: noticeId,
-        groupId
-      }
-    })
   }
 
   async updateNotice(
@@ -63,22 +56,23 @@ export class NoticeService {
     id: number,
     updateNoticeInput: UpdateNoticeInput
   ) {
-    const noticeFound = await this.prisma.notice.findFirst({
-      where: {
-        id,
-        groupId
+    try {
+      return await this.prisma.notice.update({
+        where: {
+          id,
+          groupId
+        },
+        data: updateNoticeInput
+      })
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('Notice')
       }
-    })
-    if (!noticeFound) {
-      throw new EntityNotExistException('Notice')
+      throw error
     }
-
-    return await this.prisma.notice.update({
-      where: {
-        id
-      },
-      data: updateNoticeInput
-    })
   }
 
   async getNotice(groupId: number, noticeId: number) {
