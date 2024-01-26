@@ -1,4 +1,4 @@
-import { Field, InputType, Int, PartialType } from '@nestjs/graphql'
+import { Field, InputType, PartialType } from '@nestjs/graphql'
 
 @InputType()
 export class CreateNoticeInput {
@@ -16,7 +16,4 @@ export class CreateNoticeInput {
 }
 
 @InputType()
-export class UpdateNoticeInput extends PartialType(CreateNoticeInput) {
-  @Field(() => Int)
-  id: number
-}
+export class UpdateNoticeInput extends PartialType(CreateNoticeInput) {}

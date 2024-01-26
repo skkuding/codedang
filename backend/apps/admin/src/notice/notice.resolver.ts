@@ -15,7 +15,7 @@ import {
 } from '@nestjs/graphql'
 import { AuthenticatedRequest } from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
-import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, IDValidationPipe } from '@libs/pipe'
 import { Group, Notice, User } from '@admin/@generated'
 import { GroupService } from '@admin/group/group.service'
 import { UserService } from '@admin/user/user.service'
@@ -34,7 +34,7 @@ export class NoticeResolver {
   @Mutation(() => Notice)
   async createNotice(
     @Args('input') input: CreateNoticeInput,
-    @Args('groupId', { type: () => Int }, GroupIDPipe)
+    @Args('groupId', { type: () => Int, nullable: true }, GroupIDPipe)
     groupId: number,
     @Context('req') req: AuthenticatedRequest
   ) {
@@ -51,8 +51,9 @@ export class NoticeResolver {
 
   @Mutation(() => Notice)
   async deleteNotice(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('noticeId', { type: () => Int }) noticeId: number
+    @Args('groupId', { type: () => Int, nullable: true }, GroupIDPipe)
+    groupId: number,
+    @Args('noticeId', { type: () => Int }, IDValidationPipe) noticeId: number
   ) {
     try {
       return await this.noticeService.deleteNotice(groupId, noticeId)
@@ -67,11 +68,13 @@ export class NoticeResolver {
 
   @Mutation(() => Notice)
   async updateNotice(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('groupId', { type: () => Int, nullable: true }, GroupIDPipe)
+    groupId: number,
+    @Args('noticeId', { type: () => Int }, IDValidationPipe) noticeId: number,
     @Args('input') input: UpdateNoticeInput
   ) {
     try {
-      return await this.noticeService.updateNotice(groupId, input)
+      return await this.noticeService.updateNotice(groupId, noticeId, input)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw new NotFoundException(error.message)
@@ -83,8 +86,9 @@ export class NoticeResolver {
 
   @Query(() => Notice)
   async getNotice(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('noticeId', { type: () => Int }) noticeId: number
+    @Args('groupId', { type: () => Int, nullable: true }, GroupIDPipe)
+    groupId: number,
+    @Args('noticeId', { type: () => Int }, IDValidationPipe) noticeId: number
   ) {
     try {
       return await this.noticeService.getNotice(groupId, noticeId)
@@ -99,7 +103,8 @@ export class NoticeResolver {
 
   @Query(() => [Notice], { nullable: 'items' })
   async getNotices(
-    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('groupId', { type: () => Int, nullable: true }, GroupIDPipe)
+    groupId: number,
     @Args('cursor', { type: () => Int, nullable: true }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { type: () => Int, defaultValue: 10 })
