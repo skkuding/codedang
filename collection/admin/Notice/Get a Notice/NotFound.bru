@@ -1,0 +1,39 @@
+meta {
+  name: NotFound
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query ($groupId: Int, $noticeId: Int!) {
+    getNotice(groupId: $groupId, noticeId: $noticeId) {
+      id
+      groupId
+      group {
+        groupName
+      }
+      createdById
+      createdBy {
+        username
+      }
+      title
+      content
+      isVisible
+      isFixed
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "noticeId": 9999999
+  }
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Success
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getNotices {
+      id
+      content
+      title
+      createTime
+    }
+  }
+}
+
+docs {
+  ## Get a List of Notices
+  cursor-based pagination을 적용하여 조건에 맞는 공지사항을 다수 가져옵니다.
+  
+  #### Query Args
+  - cursor는 pagination의 기준이 되는 값으로, 보통 이전 페이지의 마지막 기준값으로 설정합니다. cursor를 전달하지 않으면 맨 처음 페이지부터 가져옵니다.
+  - groupId를 전달하지 않으면 Open Space의 공지사항을 가져옵니다.
+  - take는 한 페이지에 포함할 공지사항의 개수입니다. take를 전달하지 않으면 기본값 10이 적용됩니다.
+}

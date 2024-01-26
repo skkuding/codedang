@@ -1,0 +1,38 @@
+meta {
+  name: NotFound
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ($groupId: Int, $noticeInput: CreateNoticeInput!) {
+    createNotice(groupId: $groupId, input: $noticeInput) {
+      id
+      title
+      content
+      isFixed
+      groupId
+      createdBy {
+        username
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 99999,
+    "noticeInput": {
+      "title": "Notice created by bruno",
+      "content": "123",
+      "isFixed": false,
+      "isVisible": true
+    }
+  }
+}

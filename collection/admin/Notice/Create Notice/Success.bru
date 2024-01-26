@@ -1,0 +1,50 @@
+meta {
+  name: Success
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ($groupId: Int, $noticeInput: CreateNoticeInput!) {
+    createNotice(groupId: $groupId, input: $noticeInput) {
+      id
+      title
+      content
+      isFixed
+      groupId
+      createdBy {
+        username
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "noticeInput": {
+      "title": "Notice created by bruno",
+      "content": "123",
+      "isFixed": false,
+      "isVisible": true
+    }
+  }
+}
+
+docs {
+  ## Create a Notice
+  단일 공지사항을 생성합니다.
+  
+  #### Mutation Args
+  - groupId를 포함하지 않으면 Open Space에 대한 요청이 됩니다.
+  - input에는 공지사항을 구성하는 요소가 포함되어야 하며, isVisible과 isFixed는 기본값으로 true와 false를 갖습니다. 따라서 isVisible과 isFixed는 생략해도 무방합니다.
+  
+  #### Error Case
+  - NotFound: groupId에 맞는 group이 존재하지 않는 경우 
+}
