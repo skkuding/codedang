@@ -1,7 +1,5 @@
 'use client'
 
-import SelectScrollable from '@/app/problem/[id]/_components/SelectScrollable'
-import { Button } from '@/components/ui/button'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -14,8 +12,8 @@ import { LanguageName, loadLanguage } from '@uiw/codemirror-extensions-langs'
 import { createTheme } from '@uiw/codemirror-themes'
 import CodeMirror, { Extension } from '@uiw/react-codemirror'
 import { Suspense } from 'react'
-import { TbReload } from 'react-icons/tb'
 import Loading from '../loading'
+import Editor from './Editor'
 import Tab from './Tab'
 
 // 우선 Editor 페이지에서 사용할 데이터들만 받아옴
@@ -67,9 +65,13 @@ export default function MainResizablePanel({
     theme: 'dark'
   })
   // get programming language from localStorage
-  const [value, setValue] = useStorage('programming_lang', data.languages[0])
-  // if value in storage is not in languages, set value to the first language
-  if (value && !data.languages.includes(value)) setValue(data.languages[0])
+  const [langValue, setValue] = useStorage(
+    'programming_lang',
+    data.languages[0]
+  )
+  // if langValue in storage is not in languages, set langValue to the first language
+  if (langValue && !data.languages.includes(langValue))
+    setValue(data.languages[0])
 
   return (
     <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -88,25 +90,13 @@ export default function MainResizablePanel({
         className="bg-slate-800"
         style={{ overflowY: 'auto' }}
       >
-        <div className="flex h-[51px] shrink-0 items-center justify-between border-b border-b-slate-600 px-5">
-          <div className="cursor-pointer text-lg font-bold">Editor</div>
-          <div className="flex items-center gap-3">
-            <Button size="icon" className="size-7 rounded-md bg-slate-500">
-              <TbReload className="size-4" />
-            </Button>
-            <Button className="bg-primary h-7 rounded-md px-2 font-semibold">
-              Submit
-            </Button>
-            <SelectScrollable
-              languages={data.languages}
-              // setLang={setSelectLang}
-            />
-          </div>
-        </div>
+        <Editor data={data} />
         <CodeMirror
           theme={editorTheme}
           extensions={
-            [loadLanguage(value?.toLowerCase() as LanguageName)] as Extension[]
+            [
+              loadLanguage(langValue?.toLowerCase() as LanguageName)
+            ] as Extension[]
           }
         />
       </ResizablePanel>
