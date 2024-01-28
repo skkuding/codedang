@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { baseUrl } from '@/lib/vars'
+import { fetcher } from '@/lib/utils'
 import type { Contest } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
@@ -11,12 +11,10 @@ const getContests = async () => {
     console.log('Fetching contest data...', ++count, 'times')
   }, 1000)
   const before = new Date()
-  const data = (await fetch(baseUrl + '/contest').then((res) =>
-    res.json()
-  )) as {
+  const data: {
     ongoing: Contest[]
     upcoming: Contest[]
-  }
+  } = await fetcher.get('contest').json()
   const after = new Date()
   console.log('Response time:', after.getTime() - before.getTime(), 'ms')
   clearInterval(interval)
@@ -27,23 +25,24 @@ const getContests = async () => {
   data.upcoming.forEach((contest) => {
     contest.status = 'upcoming'
   })
-  const contests = data.ongoing.concat(data.upcoming)
+  let contests = data.ongoing.concat(data.upcoming)
 
-  // if (contests.length < 3) {
-  //   const data: {
-  //     finished: Contest[]
-  //   } = await fetcher
-  //     .get('contest/finished', {
-  //       searchParams: {
-  //         take: 3
-  //       }
-  //     })
-  //     .json()
-  //   data.finished.forEach((contest) => {
-  //     contest.status = 'finished'
-  //   })
-  //   contests = contests.concat(data.finished)
-  // }
+  if (contests.length < 3) {
+    const data: {
+      finished: Contest[]
+    } = await fetcher
+      .get('contest/finished', {
+        searchParams: {
+          take: 3
+        }
+      })
+      .json()
+    data.finished.forEach((contest) => {
+      contest.status = 'finished'
+    })
+    contests = contests.concat(data.finished)
+  }
+
   return contests.slice(0, 3)
 }
 
