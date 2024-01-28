@@ -85,12 +85,13 @@ export default function MainResizablePanel({
       </ResizablePanel>
 
       <ResizableHandle withHandle />
+
       <ResizablePanel
         defaultSize={65}
         className="bg-slate-800"
         style={{ overflowY: 'auto' }}
       >
-        <Editor data={data} />
+        <Editor data={data} langValue={langValue} />
         <CodeMirror
           theme={editorTheme}
           extensions={
