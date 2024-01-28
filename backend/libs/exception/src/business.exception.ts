@@ -23,8 +23,8 @@ abstract class BusinessException extends Error {
     this.name = this.constructor.name
   }
 
-  abstract convert2HTTPException(): HttpException
-  abstract convert2GraphQLException(): GraphQLError
+  abstract convert2HTTPException(message?: string): HttpException
+  abstract convert2GraphQLException(message?: string): GraphQLError
 }
 
 /** [401] Throw when a user cannot be identified with given credential. */
@@ -33,12 +33,12 @@ export class UnidentifiedException extends BusinessException {
     super(`Incorrect ${credential}`)
   }
 
-  convert2HTTPException() {
-    return new UnauthorizedException(this.message)
+  convert2HTTPException(message?: string) {
+    return new UnauthorizedException(message ?? this.message)
   }
 
-  convert2GraphQLException() {
-    return new UnauthorizedGraphQLError(this.message)
+  convert2GraphQLException(message?: string) {
+    return new UnauthorizedGraphQLError(message ?? this.message)
   }
 }
 
@@ -48,12 +48,12 @@ export class InvalidJwtTokenException extends BusinessException {
     super(`Invalid token: ${message}`)
   }
 
-  convert2HTTPException() {
-    return new UnauthorizedException(this.message)
+  convert2HTTPException(message?: string) {
+    return new UnauthorizedException(message ?? this.message)
   }
 
-  convert2GraphQLException() {
-    return new UnauthorizedGraphQLError(this.message)
+  convert2GraphQLException(message?: string) {
+    return new UnauthorizedGraphQLError(message ?? this.message)
   }
 }
 
@@ -63,12 +63,12 @@ export class EntityNotExistException extends BusinessException {
     super(`${entity} does not exist`)
   }
 
-  convert2HTTPException() {
-    return new NotFoundException(this.message)
+  convert2HTTPException(message?: string) {
+    return new NotFoundException(message ?? this.message)
   }
 
-  convert2GraphQLException() {
-    return new NotFoundGraphQLError(this.message)
+  convert2GraphQLException(message?: string) {
+    return new NotFoundGraphQLError(message ?? this.message)
   }
 }
 
@@ -76,12 +76,12 @@ export class EntityNotExistException extends BusinessException {
  * e.g., participation is not allowed to ended contest.
  */
 export class ConflictFoundException extends BusinessException {
-  convert2HTTPException() {
-    return new ConflictException(this.message)
+  convert2HTTPException(message?: string) {
+    return new ConflictException(message ?? this.message)
   }
 
-  convert2GraphQLException() {
-    return new ConflictGraphQLError(this.message)
+  convert2GraphQLException(message?: string) {
+    return new ConflictGraphQLError(message ?? this.message)
   }
 }
 
@@ -96,12 +96,12 @@ export class DuplicateFoundException extends ConflictFoundException {
 
 /** [422] Throw when data is invalid or cannot be processed. */
 export class UnprocessableDataException extends BusinessException {
-  convert2HTTPException() {
-    return new UnprocessableEntityException(this.message)
+  convert2HTTPException(message?: string) {
+    return new UnprocessableEntityException(message ?? this.message)
   }
 
-  convert2GraphQLException() {
-    return new UnprocessableGraphQLError(this.message)
+  convert2GraphQLException(message?: string) {
+    return new UnprocessableGraphQLError(message ?? this.message)
   }
 }
 
@@ -114,11 +114,11 @@ export class UnprocessableFileDataException extends UnprocessableDataException {
 
 /** [403] Throw when request cannot be carried due to lack of permission. */
 export class ForbiddenAccessException extends BusinessException {
-  convert2HTTPException() {
-    return new ForbiddenException(this.message)
+  convert2HTTPException(message?: string) {
+    return new ForbiddenException(message ?? this.message)
   }
 
-  convert2GraphQLException() {
-    return new ForbiddenGraphQLError(this.message)
+  convert2GraphQLException(message?: string) {
+    return new ForbiddenGraphQLError(message ?? this.message)
   }
 }
