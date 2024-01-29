@@ -1,7 +1,7 @@
 meta {
-  name: Succeed
+  name: Error: Duplicated Announcement
   type: graphql
-  seq: 1
+  seq: 2
 }
 
 post {
@@ -12,11 +12,10 @@ post {
 
 body:graphql {
   mutation {
-    updateAnnouncement(
-      id: 1
-      announcementInput: {
-        problemId: 2
-        content: "updated announcement"
+    createAnnouncement(
+      createAnnouncementInput: {
+        problemId: 1
+        content: "Announcement_1_0"
       }
     ) {
       id
@@ -24,6 +23,4 @@ body:graphql {
       content
     }
   }
-  
-  
 }

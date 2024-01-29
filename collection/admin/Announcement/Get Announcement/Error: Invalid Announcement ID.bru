@@ -1,7 +1,7 @@
 meta {
-  name: Succeed
+  name: Error: Invalid Announcement ID
   type: graphql
-  seq: 1
+  seq: 2
 }
 
 post {
@@ -11,13 +11,14 @@ post {
 }
 
 body:graphql {
-  mutation {
-    removeAnnouncement(
-      id: 1
+  query {
+    getAnnouncement(
+      id: -99999
     ) {
-      id
+    	id
       problemId
       content
     }
   }
+  
 }
