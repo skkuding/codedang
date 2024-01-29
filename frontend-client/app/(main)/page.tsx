@@ -45,7 +45,7 @@ const slides = [
   }
 ]
 
-export default async function Home() {
+export default function Home() {
   return (
     <div className="flex w-full flex-col gap-12 lg:items-center">
       <Carousel slides={slides} />
