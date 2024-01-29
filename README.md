@@ -11,13 +11,13 @@ Codedang은 스꾸딩(skkuding) 팀에서 만들고 관리하는 성균관대학
 
 ## Contact 📞
 
-[카카오톡 채널](https://pf.kakao.com/_UKraK/chat)을 이용해주세요.
+[카카오톡 채널](https://skkuding.dev/contact)을 이용해주세요.
 
 ## Documentation 🔍
 
-문서 웹페이지를 참고해주세요. https://docs.skkuding.dev
+문서 웹페이지를 참고해주세요. https://docs.codedang.com
 
-Frontend component 문서(story)는 Histoire로 관리하고 있습니다. https://story.skkuding.dev
+문서 미리보기는 `pnpm docs:dev` 명령어로 가능합니다.
 
 ## Contributing Guide 👏
 
