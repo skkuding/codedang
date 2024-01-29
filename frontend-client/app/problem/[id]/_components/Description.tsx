@@ -4,18 +4,14 @@ import { Switch } from '@/components/ui/switch'
 import type { ProblemDetail } from '@/types/type'
 import { sanitize } from 'isomorphic-dompurify'
 import { useState } from 'react'
-// FIXME: react-use library 사용하기
-import CopyToClipboard from 'react-copy-to-clipboard'
-// FIXME: react-icons library 사용하지 않기
 import { FiClipboard } from 'react-icons/fi'
 import { LuFileText } from 'react-icons/lu'
-
-// import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
+import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
+import { toast } from 'sonner'
 
 export default function Description({ data }: { data: ProblemDetail }) {
   const [tag, setTag] = useState(false) // tag button on/off
-  // const [text, setText] = useState('')
-  // const [state, copyToClipboard] = useCopyToClipboard()
+  const [state, copyToClipboard] = useCopyToClipboard()
 
   return (
     <div className="flex flex-col gap-4 p-6 text-lg">
@@ -47,16 +43,20 @@ export default function Description({ data }: { data: ProblemDetail }) {
           <h2 className="mb-2 mt-3 ">Sample Input 1</h2>
           <div className="flex items-center justify-center">
             {/* 임시 sample input */}
-            {/* <input value={text} onChange={(e) => setText(e.target.value)} />
-            <button type="button" onClick={() => copyToClipboard(text)}>
-              <FiClipboard className="cursor-pointer" />
-            </button> */}
-            <CopyToClipboard
-              text="sample input"
-              onCopy={() => console.log('복사됨')}
+            {/* <input value={text} onChange={(e) => setText(e.target.value)} /> */}
+            <button
+              type="button"
+              onClick={() => {
+                copyToClipboard('A description of the Sample Input 1.')
+                {
+                  state.error
+                    ? toast.error(state.error.message) // or toast.error('Failed to copy!')
+                    : toast.success(`Copied to clipboard!`)
+                }
+              }}
             >
               <FiClipboard className="cursor-pointer" />
-            </CopyToClipboard>
+            </button>
           </div>
         </div>
         <div className="h-24 w-full rounded-md bg-slate-800 p-2 text-sm">
