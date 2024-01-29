@@ -1578,12 +1578,11 @@ const createContestRecords = async () => {
       data: {
         userId: user.userId,
         contestId: 1,
-        acceptedProblemNum: user.userId,
+        acceptedProblemNum: 1,
         // TODO: 아직 점수 계산 로직을 구현하지 않아서,
         // 임시로 임의로 좀수와 페널티를 부여하도록 하였습니다.
         // 점수 계산 로직을 구현하면 아래의 코드를 수정해주세요.
-        score: i < 3 ? 3 : i * 3,
-        totalPenalty: i * 60
+        score: (i % 8) + 4
       }
     })
     contestRecords.push(contestRecord)
