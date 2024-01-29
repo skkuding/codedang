@@ -30,7 +30,10 @@ export class BadUserInputGraphQLError extends GraphQLError {
 }
 
 export class InternalServerGraphQLError extends GraphQLError {
-  constructor(message: string, customExtensions?: GraphQLErrorExtensions) {
+  constructor(
+    message = 'internal server error',
+    customExtensions?: GraphQLErrorExtensions
+  ) {
     super(message, {
       extensions: {
         code: GraphQLErrorCode.internalServerError,
