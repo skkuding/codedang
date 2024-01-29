@@ -1,7 +1,6 @@
 import DataTable from '@/components/DataTable'
 import { auth } from '@/lib/auth'
-import { fetcher } from '@/lib/utils'
-import { fetcherWithAuth } from '@/lib/utils'
+import { fetcher, fetcherWithAuth } from '@/lib/utils'
 import type { Contest } from '@/types/type'
 import { columns } from './_components/Columns'
 import ContestCardList from './_components/ContestCardList'
@@ -41,17 +40,15 @@ interface ContestProps {
 export default async function Contest({ searchParams }: ContestProps) {
   const session = await auth()
   const registered = searchParams?.registered ?? ''
-  const finishedData = await getFinishedData()
-  const authData = session && (await getAuthData())
-  const contests = registered && authData ? authData : finishedData
-
+  const contests =
+    registered && session ? await getAuthData() : await getFinishedData()
   return (
     <>
       <div className="mb-12 flex flex-col gap-12">
         <ContestCardList type="Ongoing" />
         <ContestCardList type="Upcoming" />
       </div>
-      {authData ? (
+      {session?.user ? (
         <TableSwitchButton />
       ) : (
         <p className="w-fit text-xl font-bold text-gray-700 md:text-2xl ">

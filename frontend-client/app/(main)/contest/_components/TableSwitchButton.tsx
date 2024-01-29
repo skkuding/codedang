@@ -1,42 +1,35 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import type { Route } from 'next'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 
 export default function TableSwitchButton() {
-  const router = useRouter()
-  const pathname = usePathname()
   const searchParam = useSearchParams()
   const registered = searchParam.get('registered')
 
-  const onClick = () => {
-    const url = registered ? `${pathname}` : `${pathname + '?registered=true'}`
-    router.push(url as Route, { scroll: false })
-  }
-
   return (
     <div className="flex gap-3">
-      <button
+      <Link
+        href="/contest?registered=true"
         className={cn(
           'w-fit text-xl font-bold text-gray-700 md:text-2xl',
           registered ? 'text-blue-500' : ''
         )}
-        onClick={onClick}
-        disabled={registered === 'true'}
+        scroll={false}
       >
         Registered
-      </button>
-      <button
+      </Link>
+      <Link
+        href="/contest"
         className={cn(
           'w-fit text-xl font-bold text-gray-700 md:text-2xl',
           !registered ? 'text-blue-500' : ''
         )}
-        onClick={onClick}
-        disabled={!registered}
+        scroll={false}
       >
         Finished
-      </button>
+      </Link>
     </div>
   )
 }
