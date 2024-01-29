@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function TimeDiff({ timeRef }: Props) {
-  const [now, setNow] = useState(timeRef)
+  const [now, setNow] = useState(new Date())
 
   useInterval(() => {
     setNow(new Date())
@@ -26,7 +26,7 @@ export default function TimeDiff({ timeRef }: Props) {
 
   return (
     <>
-      {days}D {hours + diff.format(':mm:ss')}
+      {days}d {hours + diff.format(':mm:ss')}
     </>
   )
 }
