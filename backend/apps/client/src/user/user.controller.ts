@@ -3,7 +3,6 @@ import {
   Get,
   InternalServerErrorException,
   Patch,
-  UnprocessableEntityException,
   Post,
   Req,
   Res,
@@ -11,7 +10,6 @@ import {
   Controller,
   NotFoundException,
   Logger,
-  ConflictException,
   Delete,
   Query
 } from '@nestjs/common'
@@ -51,10 +49,11 @@ export class UserController {
     try {
       return await this.userService.updatePassword(newPasswordDto, req)
     } catch (error) {
-      if (error instanceof UnidentifiedException) {
-        throw new UnauthorizedException(error.message)
-      } else if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+      if (
+        error instanceof UnidentifiedException ||
+        error instanceof UnprocessableDataException
+      ) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException('password reset failed')
@@ -67,12 +66,12 @@ export class UserController {
     try {
       await this.userService.signUp(req, signUpDto)
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof DuplicateFoundException) {
-        throw new ConflictException(error.message)
-      } else if (error instanceof InvalidJwtTokenException) {
-        throw new UnauthorizedException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof DuplicateFoundException ||
+        error instanceof InvalidJwtTokenException
+      ) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -85,12 +84,12 @@ export class UserController {
     try {
       return await this.userService.socialSignUp(socialSignUpDto)
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof DuplicateFoundException) {
-        throw new ConflictException(error.message)
-      } else if (error instanceof InvalidJwtTokenException) {
-        throw new UnauthorizedException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof DuplicateFoundException ||
+        error instanceof InvalidJwtTokenException
+      ) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -110,12 +109,14 @@ export class UserController {
     } catch (error) {
       if (
         error instanceof UnidentifiedException ||
-        (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.name === 'RecordNotFound')
+        error instanceof ConflictFoundException
+      ) {
+        throw error.convert2HTTPException()
+      } else if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'RecordNotFound'
       ) {
         throw new UnauthorizedException(error.message)
-      } else if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -146,10 +147,11 @@ export class UserController {
     try {
       return await this.userService.updateUserEmail(req, updateUserEmail)
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof InvalidJwtTokenException) {
-        throw new UnauthorizedException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof InvalidJwtTokenException
+      ) {
+        throw error.convert2HTTPException()
       } else if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.name === 'NotFoundError'
@@ -190,7 +192,7 @@ export class UserController {
       return await this.userService.checkDuplicatedUsername(usernameDto)
     } catch (error) {
       if (error instanceof DuplicateFoundException) {
-        throw new ConflictException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -215,7 +217,7 @@ export class EmailAuthenticationController {
       return await this.userService.sendPinForPasswordReset(userEmailDto)
     } catch (error) {
       if (error instanceof UnidentifiedException) {
-        throw new UnauthorizedException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -228,7 +230,7 @@ export class EmailAuthenticationController {
       return await this.userService.sendPinForRegisterNewEmail(userEmailDto)
     } catch (error) {
       if (error instanceof DuplicateFoundException) {
-        throw new ConflictException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
@@ -247,7 +249,7 @@ export class EmailAuthenticationController {
       this.setJwtInHeader(res, jwt)
     } catch (error) {
       if (error instanceof UnidentifiedException) {
-        throw new UnauthorizedException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()

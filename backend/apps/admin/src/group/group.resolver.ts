@@ -1,9 +1,4 @@
-import {
-  ConflictException,
-  ForbiddenException,
-  InternalServerErrorException,
-  Logger
-} from '@nestjs/common'
+import { Logger } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
 import { Group } from '@generated'
 import { Role } from '@prisma/client'
@@ -11,7 +6,8 @@ import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import {
   ConflictFoundException,
   DuplicateFoundException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  InternalServerGraphQLError
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
@@ -34,10 +30,10 @@ export class GroupResolver {
       return await this.groupService.createGroup(input, req.user.id)
     } catch (error) {
       if (error instanceof DuplicateFoundException) {
-        throw new ConflictException(error.message)
+        throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerErrorException()
+      throw new InternalServerGraphQLError()
     }
   }
 
@@ -66,13 +62,14 @@ export class GroupResolver {
     try {
       return await this.groupService.updateGroup(id, input)
     } catch (error) {
-      if (error instanceof DuplicateFoundException) {
-        throw new ConflictException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+      if (
+        error instanceof DuplicateFoundException ||
+        error instanceof ForbiddenAccessException
+      ) {
+        throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerErrorException()
+      throw new InternalServerGraphQLError()
     }
   }
 
@@ -85,10 +82,10 @@ export class GroupResolver {
       return await this.groupService.deleteGroup(id, req.user)
     } catch (error) {
       if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+        throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerErrorException()
+      throw new InternalServerGraphQLError()
     }
   }
 
@@ -98,10 +95,10 @@ export class GroupResolver {
       return await this.groupService.issueInvitation(id)
     } catch (error) {
       if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
+        throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerErrorException()
+      throw new InternalServerGraphQLError()
     }
   }
 
@@ -111,7 +108,7 @@ export class GroupResolver {
       return await this.groupService.revokeInvitation(id)
     } catch (error) {
       this.logger.error(error)
-      throw new InternalServerErrorException()
+      throw new InternalServerGraphQLError()
     }
   }
 }
