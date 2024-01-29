@@ -13,7 +13,7 @@ import { createTheme } from '@uiw/codemirror-themes'
 import CodeMirror, { Extension } from '@uiw/react-codemirror'
 import { Suspense } from 'react'
 import Loading from '../loading'
-import Editor from './Editor'
+import EditorHeader from './EditorHeader'
 import Tab from './Tab'
 
 // 우선 Editor 페이지에서 사용할 데이터들만 받아옴
@@ -69,6 +69,10 @@ export default function MainResizablePanel({
     'programming_lang',
     data.languages[0]
   )
+
+  const editorLang =
+    langValue === 'Python3' ? 'python' : langValue?.toLowerCase()
+
   // if langValue in storage is not in languages, set langValue to the first language
   if (langValue && !data.languages.includes(langValue))
     setValue(data.languages[0])
@@ -91,14 +95,10 @@ export default function MainResizablePanel({
         className="bg-slate-800"
         style={{ overflowY: 'auto' }}
       >
-        <Editor data={data} />
+        <EditorHeader data={data} langValue={langValue} />
         <CodeMirror
           theme={editorTheme}
-          extensions={
-            [
-              loadLanguage(langValue?.toLowerCase() as LanguageName)
-            ] as Extension[]
-          }
+          extensions={[loadLanguage(editorLang as LanguageName)] as Extension[]}
         />
       </ResizablePanel>
     </ResizablePanelGroup>
