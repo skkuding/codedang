@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  DuplicateFoundException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { AnnouncementInput } from './dto/announcement.input'
 
@@ -19,7 +22,15 @@ export class AnnouncementService {
         content: announcementInput.content
       }
     })
-    if (announcement) throw new Error('Announcement already exist')
+    if (announcement) throw new DuplicateFoundException('announcement')
+
+    const problem = await this.prisma.problem.findFirst({
+      where: {
+        id: announcementInput.problemId
+      }
+    })
+    if (!problem) throw new EntityNotExistException('problem')
+
     return await this.prisma.announcement.create({
       data: {
         problemId: announcementInput.problemId,
