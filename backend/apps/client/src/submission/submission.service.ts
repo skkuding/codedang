@@ -91,7 +91,7 @@ export class SubmissionService implements OnModuleInit {
         }
       }
     })
-    return await this.createSubmission(submissionDto, problem, userId)
+    return await this.createSubmission({ submissionDto, problem, userId })
   }
 
   async submitToContest(
@@ -141,8 +141,25 @@ export class SubmissionService implements OnModuleInit {
         problem: true
       }
     })
-
-    return await this.createSubmission(submissionDto, problem, userId)
+    // 해당 대회에서 해당 유저가 해당 문제를 이미 맞혔는지 확인한다. (이미 AC를 받았으면 return)
+    if (
+      await this.prisma.submission.findFirst({
+        where: {
+          contestId,
+          userId,
+          problemId,
+          result: ResultStatus.Accepted
+        }
+      })
+    ) {
+      throw new ConflictFoundException('You already got AC for this problem')
+    }
+    return await this.createSubmission({
+      submissionDto,
+      problem,
+      userId,
+      contestId
+    })
   }
 
   async submitToWorkbook(
@@ -168,14 +185,27 @@ export class SubmissionService implements OnModuleInit {
       throw new EntityNotExistException('problem')
     }
 
-    return await this.createSubmission(submissionDto, problem, userId)
+    return await this.createSubmission({
+      submissionDto,
+      problem,
+      userId,
+      workbookId
+    })
   }
 
-  async createSubmission(
-    submissionDto: CreateSubmissionDto,
-    problem: Problem,
+  async createSubmission({
+    submissionDto,
+    problem,
+    userId,
+    contestId,
+    workbookId
+  }: {
+    submissionDto: CreateSubmissionDto
+    problem: Problem
     userId: number
-  ) {
+    contestId?: number
+    workbookId?: number
+  }) {
     if (!problem.languages.includes(submissionDto.language)) {
       throw new ConflictFoundException(
         `This problem does not support language ${submissionDto.language}`
@@ -198,6 +228,8 @@ export class SubmissionService implements OnModuleInit {
         result: ResultStatus.Judging,
         userId,
         problemId: problem.id,
+        contestId,
+        workbookId,
         ...data
       }
     })
@@ -289,7 +321,7 @@ export class SubmissionService implements OnModuleInit {
       return {
         problemTestcaseId: parseInt(result.testcaseId.split(':')[1], 10),
         result: Status(result.resultCode),
-        cpuTime: BigInt(result.cpuTime),
+        cpuTime: Number(result.cpuTime),
         memoryUsage: result.memory
       }
     })
@@ -364,6 +396,79 @@ export class SubmissionService implements OnModuleInit {
           acceptedRate: acceptedCount / submissionCount
         }
       })
+      // id에 해당하는 submission record에 contestId가 존재하는지 먼저 확인하고, 없으면 return (대회에 참여 중인 게 아니게 되므로)
+      if (!submission.contestId) {
+        return
+      }
+      // userId가 존재하는지 확인하고, 없으면 return (대회에 참여 중인 게 아니게 되므로)
+      if (!submission.userId) {
+        return
+      }
+      // 해당 대회에 해당 유저가 이미 해당 문제를 맞혔는지 확인한다. (이미 AC를 받았으면 return)
+      if (
+        await this.prisma.submission.findFirst({
+          where: {
+            contestId: submission.contestId,
+            userId: submission.userId,
+            problemId: submission.problemId,
+            result: ResultStatus.Accepted
+          }
+        })
+      ) {
+        return
+      }
+      // ContestProblem의 score를 참고한다.
+      const contestProblem = await this.prisma.contestProblem.findUniqueOrThrow(
+        {
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestId_problemId: {
+              contestId: submission.contestId,
+              problemId: submission.problemId
+            }
+          },
+          select: {
+            score: true
+          }
+        }
+      )
+      if (resultStatus === ResultStatus.Accepted) {
+        // 문제를 맞혔으면, User의 ContestRecord의 score를 upsert한다.
+        await this.prisma.contestRecord.update({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestId_userId: {
+              contestId: submission.contestId,
+              userId: submission.userId
+            }
+          },
+          data: {
+            score: {
+              increment: contestProblem.score
+            },
+            acceptedProblemNum: {
+              increment: 1
+            },
+            latestAcceptedTime: new Date()
+          }
+        })
+      } else {
+        // 문제를 틀렸으면, User의 ContestRecord의 penalty(5분)를 upsert한다.
+        await this.prisma.contestRecord.update({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestId_userId: {
+              contestId: submission.contestId,
+              userId: submission.userId
+            }
+          },
+          data: {
+            totalPenalty: {
+              increment: 5
+            }
+          }
+        })
+      }
     }
   }
 
@@ -380,7 +485,7 @@ export class SubmissionService implements OnModuleInit {
     take?: number
   }): Promise<Partial<Submission>[]> {
     const paginator = this.prisma.getPaginator(cursor)
-
+    console.log(paginator)
     await this.prisma.problem.findFirstOrThrow({
       where: {
         id: problemId,
@@ -588,7 +693,7 @@ export class SubmissionService implements OnModuleInit {
         submissionResult: true
       }
     })
-
+    this.logger.debug('pass')
     if (
       contest.startTime <= now &&
       contest.endTime > now &&
