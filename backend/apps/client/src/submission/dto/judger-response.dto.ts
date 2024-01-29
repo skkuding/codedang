@@ -24,10 +24,6 @@ class JudgeData {
   @IsNotEmpty()
   acceptedNum: number
 
-  @IsNumber()
-  @IsNotEmpty()
-  totalTestcase: number
-
   @Type(() => JudgeResult)
   @IsNotEmpty()
   judgeResult: JudgeResult
@@ -36,13 +32,12 @@ class JudgeData {
 export class JudgerResponse {
   @Max(8)
   @Min(0)
-  @IsNumber()
   @IsNotEmpty()
   resultCode: number
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  submissionId: string
+  submissionId: number
 
   @IsString()
   error: string

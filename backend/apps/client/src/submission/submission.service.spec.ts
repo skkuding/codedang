@@ -27,7 +27,8 @@ const db = {
     update: stub()
   },
   submissionResult: {
-    create: stub()
+    create: stub(),
+    createMany: stub()
   },
   problem: {
     findFirstOrThrow: stub(),
@@ -251,10 +252,9 @@ describe('SubmissionService', () => {
       const target: JudgerResponse = {
         resultCode: 7,
         error: 'succeed',
-        submissionId: '1',
+        submissionId: 1,
         data: {
           acceptedNum: 1,
-          totalTestcase: 1,
           judgeResult: {
             testcaseId: '1',
             resultCode: 1,
@@ -268,6 +268,9 @@ describe('SubmissionService', () => {
         }
       }
 
+      db.submission.findFirstOrThrow.resolves(submissions[0])
+      db.problem.findFirstOrThrow.resolves(problems[0])
+
       await expect(service.handleJudgerMessage(target)).to.be.rejectedWith(
         UnprocessableDataException
       )
@@ -278,6 +281,7 @@ describe('SubmissionService', () => {
     it('should call update submission result', async () => {
       db.submission.update.reset()
       db.submission.update.resolves(submissions[0])
+      db.submission.findFirstOrThrow.resolves(submissions[0])
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.update.reset()
       submissionResults.forEach((result, index) => {
@@ -459,10 +463,9 @@ describe('SubmissionService', () => {
       const target: JudgerResponse = {
         resultCode: 5,
         error: 'succeed',
-        submissionId: '1',
+        submissionId: 1,
         data: {
           acceptedNum: 1,
-          totalTestcase: 1,
           judgeResult: {
             testcaseId: '1',
             resultCode: 1,
@@ -485,11 +488,10 @@ describe('SubmissionService', () => {
   it('should handle message without error', async () => {
     const target = {
       resultCode: 0,
-      submissionId: '1',
+      submissionId: 1,
       error: '',
       data: {
         acceptedNum: 1,
-        totalTestcase: 1,
         judgeResult: [
           {
             testcaseId: '18:30',
@@ -506,7 +508,7 @@ describe('SubmissionService', () => {
     }
 
     const result = await service.validateJudgerResponse(target)
-
+    console.log(result)
     expect(result).to.be.deep.equal(target)
   })
 

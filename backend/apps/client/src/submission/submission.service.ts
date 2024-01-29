@@ -270,7 +270,7 @@ export class SubmissionService implements OnModuleInit {
   }
 
   async handleJudgerMessage(msg: JudgerResponse) {
-    const submissionId = parseInt(msg.submissionId)
+    const submissionId = msg.submissionId
     const resultStatus = Status(msg.resultCode)
 
     if (resultStatus === ResultStatus.ServerError) {
