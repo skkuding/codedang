@@ -296,6 +296,9 @@ model ContestRecord {
   userId             Int?     @map("user_id")
   acceptedProblemNum Int      @default(0) @map("accepted_problem_num")
   score              Int      @default(0)
+  // FIXME: latestAcceptedTime(최근 정답 제출 시간)의 default 값을 now()로 설정했습니다.
+  // 구현 로직에 따라 추후 수정이 필요할 수 있습니다.
+  latestAcceptedTime DateTime @default(now()) @map("latest_accepted_time")
   totalPenalty       Int      @default(0) @map("total_penalty")
   createTime         DateTime @default(now()) @map("create_time")
   updateTime         DateTime @updatedAt @map("update_time")
@@ -372,7 +375,7 @@ model SubmissionResult {
   problemTestcase   ProblemTestcase @relation(fields: [problemTestcaseId], references: [id], onDelete: Cascade)
   problemTestcaseId Int             @map("problem_test_case_id")
   result            ResultStatus
-  cpuTime           BigInt          @map("cpu_time")
+  cpuTime           Int             @map("cpu_time")
   memoryUsage       Int             @map("memory_usage")
   createTime        DateTime        @default(now()) @map("create_time")
   updateTime        DateTime        @updatedAt @map("update_time")
