@@ -1,0 +1,42 @@
+meta {
+  name: 409: You already got AC for this problem
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/submission?problemId=1&groupId=1&contestId=1
+  body: json
+  auth: none
+}
+
+query {
+  problemId: 1
+  groupId: 1
+  contestId: 1
+  ~workbookId: 1
+}
+
+body:json {
+  {
+    "code": [
+      {
+        "id": 1,
+        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a + b);}",
+        "locked": false
+      }
+    ],
+    "language": "C"
+  }
+}
+
+assert {
+  res.status: eq 409
+  res.body.message: eq You already got AC for this problem
+  res.body.error: eq Conflict
+  res.body.statusCode: eq 409
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}

@@ -13,3 +13,10 @@ get {
 query {
   problemId: 1
 }
+
+assert {
+  res.status: eq 404
+  res.body.message: eq No Submission found
+  res.body.error: eq Not Found
+  res.body.statusCode: eq 404
+}

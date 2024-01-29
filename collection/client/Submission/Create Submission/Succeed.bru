@@ -5,15 +5,15 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/submission?problemId=1
+  url: {{baseUrl}}/submission?problemId=1&groupId=1&contestId=1
   body: json
   auth: none
 }
 
 query {
   problemId: 1
-  ~groupId: 1
-  ~contestId: 1
+  groupId: 1
+  contestId: 1
   ~workbookId: 1
 }
 
@@ -30,24 +30,47 @@ body:json {
   }
 }
 
+assert {
+  res.status: eq 201
+  res.body.id: isNumber
+  res.body.userId: isNumber
+  res.body.problemId: isNumber
+  res.body.language: isString
+  res.body.result: isString
+  res.body.createTime: isString
+  res.body.updateTime: isString
+  res.body.code[0].id: isNumber
+  res.body.code[0].text: isString
+  res.body.code[0].locked: isBoolean
+}
+
 script:pre-request {
   await require("./login").loginUser(req);
 }
 
 docs {
-  # Create Submission
-  
+  ## Create Submission
+
   코드를 제출하여 채점 요청을 보냅니다.
-  
-  ## Query
-  
+
+  ### Query
+
   > 필수 query는 * 표시하였습니다.
-  
+
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |problemId *|Integer|문제 ID|
   |groupId|Integer|문제가 속한 Group ID (default: 1)|
   |contestId|Integer|문제가 속한 대회 ID|
   |workbookId|Integer|문제가 속한 문제집 ID|
-  
+
+  ### Error Case
+
+  #### 422: Required query is missing: problemId
+
+  query parameter인 problemId가 없습니다.
+
+  #### 409: You already got AC for this problem
+
+  이미 같은 문제로 AC를 받은 경우, 재제출을 할 수가 없습니다.
 }
