@@ -1,6 +1,7 @@
 # Codedang
 
 [![CI](https://github.com/skkuding/next/actions/workflows/ci.yml/badge.svg)](https://github.com/skkuding/next/actions/workflows/ci.yml)
+[![Contributors](https://img.shields.io/github/contributors/skkuding/codedang)](https://github.com/skkuding/codedang/graphs/contributors)
 [![MIT License](https://img.shields.io/github/license/skkuding/next)](https://github.com/skkuding/next/blob/main/LICENSE)
 
 > 아직 개발 중인 repo입니다. This repo is currently under development.
