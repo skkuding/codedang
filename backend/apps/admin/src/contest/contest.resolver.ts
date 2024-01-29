@@ -5,7 +5,7 @@ import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
-  InternalServerGraphQLError,
+  InternalServerGraphQLException,
   UnprocessableDataException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
@@ -54,7 +54,7 @@ export class ContestResolver {
         throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLError()
+      throw new InternalServerGraphQLException()
     }
   }
 
@@ -73,7 +73,7 @@ export class ContestResolver {
         throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLError()
+      throw new InternalServerGraphQLException()
     }
   }
 
@@ -89,7 +89,7 @@ export class ContestResolver {
         throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLError()
+      throw new InternalServerGraphQLException()
     }
   }
 
@@ -117,7 +117,7 @@ export class ContestResolver {
         throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLError()
+      throw new InternalServerGraphQLException()
     }
   }
 
@@ -137,7 +137,7 @@ export class ContestResolver {
         throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLError()
+      throw new InternalServerGraphQLException()
     }
   }
 
@@ -158,7 +158,7 @@ export class ContestResolver {
         throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLError()
+      throw new InternalServerGraphQLException()
     }
   }
 }

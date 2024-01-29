@@ -18,7 +18,7 @@ enum GraphQLErrorCode {
   unprocessable = 'UNPROCESSABLE'
 }
 
-export class BadUserInputGraphQLError extends GraphQLError {
+export class BadUserInputGraphQLException extends GraphQLError {
   constructor(message: string, customExtensions?: GraphQLErrorExtensions) {
     super(message, {
       extensions: {
@@ -29,7 +29,7 @@ export class BadUserInputGraphQLError extends GraphQLError {
   }
 }
 
-export class InternalServerGraphQLError extends GraphQLError {
+export class InternalServerGraphQLException extends GraphQLError {
   constructor(
     message = 'internal server error',
     customExtensions?: GraphQLErrorExtensions
@@ -43,7 +43,7 @@ export class InternalServerGraphQLError extends GraphQLError {
   }
 }
 
-export class UnauthorizedGraphQLError extends GraphQLError {
+export class UnauthorizedGraphQLException extends GraphQLError {
   constructor(message: string, customExtensions?: GraphQLErrorExtensions) {
     super(message, {
       extensions: {
@@ -54,7 +54,7 @@ export class UnauthorizedGraphQLError extends GraphQLError {
   }
 }
 
-export class ForbiddenGraphQLError extends GraphQLError {
+export class ForbiddenGraphQLException extends GraphQLError {
   constructor(message: string, customExtensions?: GraphQLErrorExtensions) {
     super(message, {
       extensions: {
@@ -65,7 +65,7 @@ export class ForbiddenGraphQLError extends GraphQLError {
   }
 }
 
-export class NotFoundGraphQLError extends GraphQLError {
+export class NotFoundGraphQLException extends GraphQLError {
   constructor(message: string, customExtensions?: GraphQLErrorExtensions) {
     super(message, {
       extensions: {
@@ -76,7 +76,7 @@ export class NotFoundGraphQLError extends GraphQLError {
   }
 }
 
-export class ConflictGraphQLError extends GraphQLError {
+export class ConflictGraphQLException extends GraphQLError {
   constructor(message: string, customExtensions?: GraphQLErrorExtensions) {
     super(message, {
       extensions: {
@@ -87,7 +87,7 @@ export class ConflictGraphQLError extends GraphQLError {
   }
 }
 
-export class UnprocessableGraphQLError extends GraphQLError {
+export class UnprocessableGraphQLException extends GraphQLError {
   constructor(message: string, customExtensions?: GraphQLErrorExtensions) {
     super(message, {
       extensions: {

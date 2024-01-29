@@ -8,11 +8,11 @@ import {
 } from '@nestjs/common/exceptions'
 import type { GraphQLError } from 'graphql/error'
 import {
-  ConflictGraphQLError,
-  ForbiddenGraphQLError,
-  NotFoundGraphQLError,
-  UnauthorizedGraphQLError,
-  UnprocessableGraphQLError
+  ConflictGraphQLException,
+  ForbiddenGraphQLException,
+  NotFoundGraphQLException,
+  UnauthorizedGraphQLException,
+  UnprocessableGraphQLException
 } from './graphql-error.exception'
 
 abstract class BusinessException extends Error {
@@ -38,7 +38,7 @@ export class UnidentifiedException extends BusinessException {
   }
 
   convert2GraphQLException(message?: string) {
-    return new UnauthorizedGraphQLError(message ?? this.message)
+    return new UnauthorizedGraphQLException(message ?? this.message)
   }
 }
 
@@ -53,7 +53,7 @@ export class InvalidJwtTokenException extends BusinessException {
   }
 
   convert2GraphQLException(message?: string) {
-    return new UnauthorizedGraphQLError(message ?? this.message)
+    return new UnauthorizedGraphQLException(message ?? this.message)
   }
 }
 
@@ -68,7 +68,7 @@ export class EntityNotExistException extends BusinessException {
   }
 
   convert2GraphQLException(message?: string) {
-    return new NotFoundGraphQLError(message ?? this.message)
+    return new NotFoundGraphQLException(message ?? this.message)
   }
 }
 
@@ -81,7 +81,7 @@ export class ConflictFoundException extends BusinessException {
   }
 
   convert2GraphQLException(message?: string) {
-    return new ConflictGraphQLError(message ?? this.message)
+    return new ConflictGraphQLException(message ?? this.message)
   }
 }
 
@@ -101,7 +101,7 @@ export class UnprocessableDataException extends BusinessException {
   }
 
   convert2GraphQLException(message?: string) {
-    return new UnprocessableGraphQLError(message ?? this.message)
+    return new UnprocessableGraphQLException(message ?? this.message)
   }
 }
 
@@ -119,6 +119,6 @@ export class ForbiddenAccessException extends BusinessException {
   }
 
   convert2GraphQLException(message?: string) {
-    return new ForbiddenGraphQLError(message ?? this.message)
+    return new ForbiddenGraphQLException(message ?? this.message)
   }
 }

@@ -7,7 +7,7 @@ import {
   ConflictFoundException,
   DuplicateFoundException,
   ForbiddenAccessException,
-  InternalServerGraphQLError
+  InternalServerGraphQLException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
@@ -33,7 +33,7 @@ export class GroupResolver {
         throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLError()
+      throw new InternalServerGraphQLException()
     }
   }
 
@@ -69,7 +69,7 @@ export class GroupResolver {
         throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLError()
+      throw new InternalServerGraphQLException()
     }
   }
 
@@ -85,7 +85,7 @@ export class GroupResolver {
         throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLError()
+      throw new InternalServerGraphQLException()
     }
   }
 
@@ -98,7 +98,7 @@ export class GroupResolver {
         throw error.convert2GraphQLException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLError()
+      throw new InternalServerGraphQLException()
     }
   }
 
@@ -108,7 +108,7 @@ export class GroupResolver {
       return await this.groupService.revokeInvitation(id)
     } catch (error) {
       this.logger.error(error)
-      throw new InternalServerGraphQLError()
+      throw new InternalServerGraphQLException()
     }
   }
 }
