@@ -11,7 +11,10 @@ export const cn = (...inputs: ClassValue[]) => {
 export const fetcher = ky.create({
   prefixUrl: baseUrl,
   throwHttpErrors: false,
-  retry: 0
+  retry: 0,
+  next: {
+    revalidate: 10 // 10 seconds
+  }
 })
 
 export const fetcherWithAuth = fetcher.extend({
