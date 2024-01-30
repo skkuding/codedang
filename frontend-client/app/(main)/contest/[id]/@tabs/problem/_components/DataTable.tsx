@@ -9,7 +9,7 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import type { Contest, Notice, Problem } from '@/types/type'
+import type { ContestProblem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -63,10 +63,14 @@ interface DataTableProps<TData, TValue> {
  * ```
  */
 
-export default function DataTable<
-  TData extends Notice | Contest | Problem,
-  TValue
->({ columns, data, headerStyle, name }: DataTableProps<TData, TValue>) {
+// Todo: DataTable에는 id가 있어야 되는데
+// ContestProblem에는 id가 없어서 만든 임시 DataTable
+export default function DataTable<TData extends ContestProblem, TValue>({
+  columns,
+  data,
+  headerStyle,
+  name
+}: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
@@ -103,7 +107,7 @@ export default function DataTable<
       <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
-            const href = `/${name}/${row.original.id}` as Route
+            const href = `/${name}/${row.original.problemId}` as Route
             return (
               <TableRow
                 key={row.id}

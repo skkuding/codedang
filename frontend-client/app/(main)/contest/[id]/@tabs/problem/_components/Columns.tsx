@@ -10,7 +10,7 @@ export const columns: ColumnDef<ContestProblem>[] = [
     accessorKey: 'title',
     cell: ({ row }) => {
       return (
-        <p className="text-left text-sm md:text-base">{`${row.original.id}. ${row.original.title}`}</p>
+        <p className="text-left text-sm md:text-base">{`${row.original.order}. ${row.original.title}`}</p>
       )
     }
   },
