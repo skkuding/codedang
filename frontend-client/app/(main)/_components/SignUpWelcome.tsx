@@ -11,19 +11,16 @@ import { FcGoogle } from 'react-icons/fc'
 export default function SignUpWelcome() {
   const { nextModal } = useSignUpModalStore((state) => state)
   return (
-    <div className="mb-20 mt-36">
-      <p className="mb-3 text-center text-xl font-semibold text-blue-500">
+    <div className="flex flex-col gap-3">
+      <p className="text-center text-xl font-semibold text-blue-500">
         &quot;Welcome to CODEDANG&quot;
       </p>
-
-      <div className="flex w-full flex-col gap-3">
-        <Button className="w-full" onClick={() => nextModal()}>
-          Sign up with Email
-        </Button>
-      </div>
-      <div className="mb-1 mt-4 flex items-center justify-center gap-5">
+      <Button className="w-full" onClick={() => nextModal()}>
+        Sign up with Email
+      </Button>
+      <div className="flex items-center justify-center gap-5">
         <Separator className="flex-1" />
-        <p className="mb-3 w-fit flex-none text-center text-xs text-gray-500">
+        <p className="w-fit flex-none text-center text-xs text-gray-500">
           continue with
         </p>
         <Separator className="flex-1" />
