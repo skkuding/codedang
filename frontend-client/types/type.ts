@@ -10,6 +10,16 @@ export interface Contest {
   status: ContestStatus
 }
 
+export interface ContestProblem {
+  id: number
+  order: number
+  problemId: number
+  title: string
+  difficulty: Level
+  submissionCount: number
+  acceptedRate: number
+}
+
 export interface WorkbookProblem {
   order: number
   problemId: number

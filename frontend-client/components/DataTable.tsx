@@ -9,7 +9,7 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import type { Contest, Notice, Problem } from '@/types/type'
+import type { Contest, ContestProblem, Notice, Problem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -64,7 +64,7 @@ interface DataTableProps<TData, TValue> {
  */
 
 export default function DataTable<
-  TData extends Notice | Contest | Problem,
+  TData extends Notice | Contest | Problem | ContestProblem,
   TValue
 >({ columns, data, headerStyle, name }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
