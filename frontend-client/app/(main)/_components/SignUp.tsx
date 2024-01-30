@@ -25,7 +25,7 @@ export default function SignUp() {
         </button>
       )}
 
-      <div className="absolute left-10 top-10">
+      <div className="absolute left-8 top-10">
         <Image src={CodedangLogo} alt="codedang" width={70} />
       </div>
 

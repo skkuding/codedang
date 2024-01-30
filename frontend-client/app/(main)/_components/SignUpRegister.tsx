@@ -122,14 +122,12 @@ export default function SignUpRegister() {
   }
 
   return (
-    <div className="mb-5 mt-12 flex w-full flex-col p-4">
+    <div className="mb-5 mt-12 flex w-full flex-col px-2 py-4">
       <form
         className="flex w-full flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <p className="mb-2 text-left text-xl font-bold text-blue-500">
-          Sign Up
-        </p>
+        <p className="text-left text-xl font-bold text-blue-500">Sign Up</p>
         <div className="flex flex-col gap-1">
           <Input
             placeholder="Your name"
