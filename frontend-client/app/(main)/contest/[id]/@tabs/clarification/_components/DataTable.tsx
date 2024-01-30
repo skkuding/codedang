@@ -100,10 +100,9 @@ export default function DataTable<TData extends ContestClarification, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
-                className="cursor-pointer"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell key={cell.id} className="align-top">
                     <div className="text-center text-xs md:text-sm">
                       {flexRender(
                         cell.column.columnDef.cell,

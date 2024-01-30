@@ -3,6 +3,7 @@
 import type { ContestClarification } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
+import ExpandableCell from './ExpandableCell'
 
 export const columns: ColumnDef<ContestClarification>[] = [
   {
@@ -13,7 +14,7 @@ export const columns: ColumnDef<ContestClarification>[] = [
   {
     header: () => 'Description',
     accessorKey: 'content',
-    cell: ({ row }) => <p className="text-left">{row.original.content}</p>
+    cell: ({ row }) => <ExpandableCell>{row.original.content}</ExpandableCell>
   },
   {
     header: () => 'Time',
