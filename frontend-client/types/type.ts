@@ -78,3 +78,11 @@ export interface ProblemDetail {
     name: string
   }[]
 }
+
+export interface ContestClarification {
+  id: number
+  content: string
+  problemId: number
+  createTime: string
+  updateTime: string
+}

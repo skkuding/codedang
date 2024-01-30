@@ -1,3 +1,33 @@
-export default function ContestClarification() {
-  return <h1>Clarification</h1>
+import { fetcher } from '@/lib/utils'
+import type { ContestClarification } from '@/types/type'
+import { columns } from './_components/Columns'
+import DataTable from './_components/DataTable'
+
+interface ContestClarificationProps {
+  params: { id: string }
+}
+
+export default async function ContestClarification({
+  params
+}: ContestClarificationProps) {
+  const { id } = params
+  const contestClarifications: ContestClarification[] = await fetcher
+    .get('announcement', {
+      searchParams: {
+        contestId: id
+      }
+    })
+    .json()
+
+  return (
+    <DataTable
+      data={contestClarifications}
+      columns={columns}
+      headerStyle={{
+        title: 'w-1/12',
+        content: 'w-8/12',
+        createTime: 'w-3/12'
+      }}
+    />
+  )
 }
