@@ -1,7 +1,7 @@
+import DataTable from '@/components/DataTable'
 import { fetcher } from '@/lib/utils'
 import type { ContestProblem } from '@/types/type'
 import { columns } from './_components/Columns'
-import DataTable from './_components/DataTable'
 
 interface ContestProblemProps {
   params: { id: string }
@@ -17,6 +17,10 @@ export default async function ContestProblem({ params }: ContestProblemProps) {
       }
     })
     .json()
+  contestProblems.forEach((problem) => {
+    problem.id = problem.problemId
+  })
+
   return (
     <DataTable
       data={contestProblems}
