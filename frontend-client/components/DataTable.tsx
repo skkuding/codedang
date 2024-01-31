@@ -114,18 +114,21 @@ export default function DataTable<
       <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
-            const href =
+            const href = `/${name}/${row.original.id}` as Route
+            const handleClick =
               name === ''
-                ? ('' as Route)
-                : (`/${name}/${row.original.id}` as Route)
+                ? (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                    e.currentTarget.classList.toggle('expanded')
+                  }
+                : () => {
+                    router.push(href)
+                  }
             return (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
                 className="cursor-pointer"
-                onClick={() => {
-                  router.push(href)
-                }}
+                onClick={handleClick}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className="align-top">
