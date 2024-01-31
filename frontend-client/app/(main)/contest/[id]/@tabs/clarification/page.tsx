@@ -1,7 +1,7 @@
+import DataTable from '@/components/DataTable'
 import { fetcher } from '@/lib/utils'
 import type { ContestClarification } from '@/types/type'
 import { columns } from './_components/Columns'
-import DataTable from './_components/DataTable'
 
 interface ContestClarificationProps {
   params: { id: string }
@@ -28,6 +28,7 @@ export default async function ContestClarification({
         content: 'w-8/12',
         createTime: 'w-3/12'
       }}
+      name=""
     />
   )
 }
