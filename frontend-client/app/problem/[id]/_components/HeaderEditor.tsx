@@ -16,7 +16,7 @@ interface HeaderEditorProps {
 export default function HeaderEditor({ id, title }: HeaderEditorProps) {
   const [eng, setEng] = useState(false) // FIXME: query로 받아오기
   return (
-    <header className="flex h-12 shrink-0 justify-between bg-slate-800 px-4">
+    <header className="flex justify-between bg-slate-800 px-4">
       <div className="flex items-center justify-center gap-6 font-bold text-slate-500">
         <Link href="/">
           <Image src={icon} alt="코드당" width={33} />
