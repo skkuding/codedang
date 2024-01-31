@@ -128,7 +128,7 @@ export default function DataTable<
                 }}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell key={cell.id} className="align-top">
                     <div className="text-center text-xs md:text-sm">
                       {flexRender(
                         cell.column.columnDef.cell,

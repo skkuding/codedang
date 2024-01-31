@@ -9,12 +9,28 @@ export const columns: ColumnDef<ContestClarification>[] = [
   {
     header: '#',
     accessorKey: 'id',
-    cell: ({ row }) => row.original.id
+    cell: ({ row }) => (
+      <div className="h-full" style={{ verticalAlign: 'top' }}>
+        {row.original.id}
+      </div>
+    )
   },
+  // {
+  //   header: () => 'Description',
+  //   accessorKey: 'content',
+  //   cell: ({ row }) => <ExpandableCell>{row.original.content}</ExpandableCell>
+  // },
   {
     header: () => 'Description',
     accessorKey: 'content',
-    cell: ({ row }) => <ExpandableCell>{row.original.content}</ExpandableCell>
+    cell: () => (
+      <ExpandableCell>
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eveniet itaque
+        reiciendis alias quisquam saepe, cumque magni nam obcaecati possimus
+        labore animi natus consequatur voluptatem, eum repudiandae quia in
+        ducimus culpa.
+      </ExpandableCell>
+    )
   },
   {
     header: () => 'Time',
