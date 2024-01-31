@@ -22,23 +22,24 @@ const sessionCookieName = process.env.NEXTAUTH_URL?.startsWith('https://')
   : 'next-auth.session-token'
 
 export const middleware = async (req: NextRequest) => {
-  let res = NextResponse.next()
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  let res = null
+  let token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
   if (token && token.accessTokenExpires <= Date.now()) {
     // If access token is expired, reissue access token.
     const reissueRes = await fetch(baseUrl + '/auth/reissue', {
       headers: {
         cookie: `refresh_token=${token.refreshToken}`
-      }
+      },
+      cache: 'no-store'
     })
-    const {
-      accessToken,
-      refreshToken,
-      accessTokenExpires,
-      refreshTokenExpires
-    } = getAuthToken(reissueRes)
     if (reissueRes.ok) {
       // If reissue is successful, update session token.
+      const {
+        accessToken,
+        refreshToken,
+        accessTokenExpires,
+        refreshTokenExpires
+      } = getAuthToken(reissueRes)
       const newToken = await encode({
         secret: process.env.NEXTAUTH_SECRET as string,
         token: {
@@ -63,8 +64,8 @@ export const middleware = async (req: NextRequest) => {
         httpOnly: true,
         sameSite: 'lax'
       })
-    } else if (token.refreshTokenExpires <= Date.now()) {
-      // If reissue is failed and refresh token is expired, delete session token.
+    } else if (reissueRes.status == 401) {
+      // If reissue is failed, delete session token.
       req.cookies.delete(sessionCookieName)
       res = NextResponse.next({
         request: {
@@ -72,12 +73,16 @@ export const middleware = async (req: NextRequest) => {
         }
       })
       res.cookies.delete(sessionCookieName)
+      token = null
     }
   }
   if (
     req.nextUrl.pathname.startsWith('/admin') &&
     (!token || token.role !== 'Admin')
   )
-    return NextResponse.redirect(new URL('/', req.url), res)
-  return res
+    return NextResponse.redirect(
+      new URL('/', req.url),
+      res || NextResponse.next()
+    )
+  return res || NextResponse.next()
 }
