@@ -30,8 +30,10 @@ export default function SelectScrollable({
       }}
       value={value}
     >
-      <SelectTrigger className="bg h-7 w-full min-w-[70px] rounded-[5px] border-none bg-slate-500 focus:outline-none focus:ring-0 focus:ring-offset-0">
-        <SelectValue />
+      <SelectTrigger className="h-7 w-fit shrink-0 rounded-md border-none bg-slate-500 px-2 focus:outline-none focus:ring-0 focus:ring-offset-0">
+        <p className="pr-1">
+          <SelectValue />
+        </p>
       </SelectTrigger>
       <SelectContent className="bg-slate-800">
         <SelectGroup className="text-white">

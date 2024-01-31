@@ -2,7 +2,7 @@ import Skeleton from '@/components/ui/skeleton'
 
 export default function DescriptionLoading() {
   return (
-    <div className="flex flex-col gap-4 p-6 text-lg">
+    <div className="flex h-fit flex-col gap-4 p-6 text-lg">
       <Skeleton className="h-7 w-32 bg-slate-900" />
       <div className="flex flex-col gap-1 ">
         <Skeleton className="h-4 w-full bg-slate-900" />

@@ -3,7 +3,7 @@
 import SelectScrollable from '@/app/problem/[id]/_components/SelectScrollable'
 import { Button } from '@/components/ui/button'
 import { fetcherWithAuth } from '@/lib/utils'
-import { ProblemDetail } from '@/types/type'
+import type { ProblemDetail } from '@/types/type'
 import { TbReload } from 'react-icons/tb'
 
 interface ProblemEditorProps {
@@ -13,14 +13,14 @@ interface ProblemEditorProps {
 
 export default function Editor({ data, langValue }: ProblemEditorProps) {
   return (
-    <div className="flex h-[51px] shrink-0 items-center justify-between border-b border-b-slate-600 px-5">
+    <div className="flex shrink-0 items-center justify-between border-b border-b-slate-600 px-5">
       <div className="cursor-pointer text-lg font-bold">Editor</div>
       <div className="flex items-center gap-3">
-        <Button size="icon" className="size-7 rounded-md bg-slate-500">
+        <Button size="icon" className="size-7 shrink-0 rounded-md bg-slate-500">
           <TbReload className="size-4" />
         </Button>
         <Button
-          className="bg-primary h-7 rounded-md px-2 font-semibold"
+          className="bg-primary h-7 shrink-0 rounded-md px-2 font-semibold"
           onClick={async () => {
             const res = await fetcherWithAuth.post('submission', {
               json: {

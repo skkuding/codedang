@@ -8,9 +8,11 @@ import {
 import { useStorage } from '@/lib/hooks'
 import type { ProblemDetail } from '@/types/type'
 import { tags as t } from '@lezer/highlight'
-import { LanguageName, loadLanguage } from '@uiw/codemirror-extensions-langs'
+import type { LanguageName } from '@uiw/codemirror-extensions-langs'
+import { loadLanguage } from '@uiw/codemirror-extensions-langs'
 import { createTheme } from '@uiw/codemirror-themes'
-import CodeMirror, { Extension } from '@uiw/react-codemirror'
+import type { Extension } from '@uiw/react-codemirror'
+import CodeMirror from '@uiw/react-codemirror'
 import { Suspense } from 'react'
 import Loading from '../loading'
 import EditorHeader from './EditorHeader'
@@ -19,15 +21,15 @@ import Tab from './Tab'
 // 우선 Editor 페이지에서 사용할 데이터들만 받아옴
 interface ProblemEditorProps {
   data: ProblemDetail
-  tabs: React.ReactNode
+  children: React.ReactNode
 }
 
 export default function MainResizablePanel({
   data,
-  tabs
+  children
 }: {
   data: ProblemEditorProps['data']
-  tabs: React.ReactNode
+  children: React.ReactNode
 }) {
   const editorTheme = createTheme({
     settings: {
@@ -78,28 +80,37 @@ export default function MainResizablePanel({
     setValue(data.languages[0])
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="h-full">
+    <ResizablePanelGroup
+      direction="horizontal"
+      className="border border-slate-600"
+    >
       <ResizablePanel
         defaultSize={35}
-        style={{ overflowY: 'auto', minWidth: '400px' }}
+        style={{ minWidth: '400px' }}
         minSize={20}
       >
-        <Tab id={data.id} />
-        <Suspense fallback={<Loading />}>{tabs}</Suspense>
+        <div className="grid-rows-editor grid h-full">
+          <Tab id={data.id} />
+          <Suspense fallback={<Loading />}>{children}</Suspense>
+        </div>
       </ResizablePanel>
 
       <ResizableHandle withHandle />
 
-      <ResizablePanel
-        defaultSize={65}
-        className="bg-slate-800"
-        style={{ overflowY: 'auto' }}
-      >
-        <EditorHeader data={data} langValue={langValue} />
-        <CodeMirror
-          theme={editorTheme}
-          extensions={[loadLanguage(editorLang as LanguageName)] as Extension[]}
-        />
+      <ResizablePanel defaultSize={65} className="shrink-0 bg-slate-800">
+        <div className="grid-rows-editor grid h-full">
+          <EditorHeader data={data} langValue={langValue} />
+          <div className="h-full overflow-auto">
+            <CodeMirror
+              theme={editorTheme}
+              className="h-full"
+              extensions={
+                [loadLanguage(editorLang as LanguageName)] as Extension[]
+              }
+              height="100%"
+            />
+          </div>
+        </div>
       </ResizablePanel>
     </ResizablePanelGroup>
   )
