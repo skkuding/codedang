@@ -12,7 +12,6 @@ interface ContestTopProps {
   params: {
     id: string
   }
-  tabs: React.ReactNode
 }
 
 export default async function ContestTop({ params }: ContestTopProps) {
