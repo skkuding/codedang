@@ -1,30 +1,35 @@
-import { Button } from '@/components/ui/button'
+import { auth } from '@/lib/auth'
 import { fetcher } from '@/lib/utils'
 import { sanitize } from 'isomorphic-dompurify'
-import type { ContestDetailProps } from '../layout'
+import ParticipateButton from './_components/ParticipateButton'
 
 interface ContestTop {
   description: string
 }
 
-export default async function ContestTop({
-  params
-}: {
-  params: ContestDetailProps['params']
+interface ContestTopProps {
+  params: {
+    id: string
+  }
   tabs: React.ReactNode
-}) {
+}
+
+export default async function ContestTop({ params }: ContestTopProps) {
+  const session = await auth()
   const { id } = params
   const data: ContestTop = await fetcher.get(`contest/${id}`).json()
+
   return (
     <>
       <main
         className="prose w-full max-w-full border-b-2 border-b-gray-300 p-5 py-12"
         dangerouslySetInnerHTML={{ __html: sanitize(data.description) }}
       />
-      {/* TODO: Participate Contest API */}
-      <div className="mt-10 flex justify-center">
-        <Button className="px-12 py-6 text-lg font-light">Register</Button>
-      </div>
+      {session && (
+        <div className="mt-10 flex justify-center">
+          <ParticipateButton id={id} />
+        </div>
+      )}
     </>
   )
 }
