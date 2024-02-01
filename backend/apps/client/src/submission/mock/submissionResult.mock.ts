@@ -48,17 +48,14 @@ export const judgerResponse: JudgerResponse = {
   resultCode: 6,
   submissionId: 1,
   error: '',
-  data: {
-    acceptedNum: 2,
-    judgeResult: {
-      testcaseId: '1:1',
-      resultCode: 0,
-      cpuTime: 12345,
-      realTime: 20000,
-      memory: 12345,
-      signal: 0,
-      exitCode: 0,
-      errorCode: 0
-    }
+  judgeResult: {
+    testcaseId: '1:1',
+    resultCode: 0,
+    cpuTime: 12345,
+    realTime: 20000,
+    memory: 12345,
+    signal: 0,
+    exitCode: 0,
+    errorCode: 0
   }
 }

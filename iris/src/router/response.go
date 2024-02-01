@@ -13,7 +13,7 @@ type ResultCode int8
 type Response struct {
 	SubmissionId int             `json:"submissionId"`
 	ResultCode   ResultCode      `json:"resultCode"`
-	Data         json.RawMessage `json:"data"`
+	JudgeResult  json.RawMessage `json:"judgeResult"`
 	Error        string          `json:"error"`
 }
 
@@ -47,7 +47,7 @@ func NewResponse(id string, data json.RawMessage, err error) *Response {
 	return &Response{
 		SubmissionId: _id,
 		ResultCode:   resultCode,
-		Data:         data,
+		JudgeResult:  data,
 		Error:        errMessage,
 	}
 }

@@ -1,12 +1,5 @@
 import { Type } from 'class-transformer'
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Max,
-  Min
-} from 'class-validator'
+import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator'
 
 class JudgeResult {
   testcaseId: string
@@ -17,16 +10,6 @@ class JudgeResult {
   signal: number
   exitCode: number
   errorCode: number
-}
-
-class JudgeData {
-  @IsNumber()
-  @IsNotEmpty()
-  acceptedNum: number
-
-  @Type(() => JudgeResult)
-  @IsNotEmpty()
-  judgeResult: JudgeResult
 }
 
 export class JudgerResponse {
@@ -42,7 +25,7 @@ export class JudgerResponse {
   @IsString()
   error: string
 
-  @Type(() => JudgeData)
-  @IsOptional()
-  data: JudgeData
+  @Type(() => JudgeResult)
+  @IsNotEmpty()
+  judgeResult: JudgeResult
 }

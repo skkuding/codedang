@@ -47,11 +47,11 @@ func (r Request) Validate() (*Request, error) {
 	return &r, nil
 }
 
-type Result struct {
-	// TotalTestcase int         `json:"totalTestcase"`
-	AcceptedNum int         `json:"acceptedNum"`
-	JudgeResult JudgeResult `json:"judgeResult"`
-}
+// type Result struct {
+// 	// TotalTestcase int         `json:"totalTestcase"`
+// 	// AcceptedNum int         `json:"acceptedNum"`
+// 	JudgeResult JudgeResult `json:"judgeResult"`
+// }
 
 type JudgeResult struct {
 	TestcaseId string          `json:"testcaseId"`
@@ -72,27 +72,27 @@ type JudgeResultMessage struct {
 
 var ErrJudgeEnd = errors.New("judge handle end")
 
-func (r *Result) Accepted() {
-	r.AcceptedNum += 1
+// func (r *Result) Accepted() {
+// 	r.AcceptedNum += 1
+// }
+
+// func (r *JudgeResult) SetJudgeResult(testcaseId string, execResult sandbox.ExecResult) {
+// 	r.TestcaseId = testcaseId
+// 	r.CpuTime = execResult.CpuTime
+// 	r.realtime = execresult.realtime
+// 	r.Memory = execResult.Memory
+// 	r.Signal = execResult.Signal
+// 	r.ErrorCode = execResult.ErrorCode
+// 	r.ExitCode = execResult.ExitCode
+// 	r.ResultCode = SandboxResultCodeToJudgeResultCode(execResult.ResultCode)
+// 	// system error가 아니면 run result task에 반영(Resource usage)
+// }
+
+func (r *JudgeResult) SetJudgeResultCode(code JudgeResultCode) {
+	r.ResultCode = code
 }
 
-func (r *Result) SetJudgeResult(testcaseId string, execResult sandbox.ExecResult) {
-	r.JudgeResult.TestcaseId = testcaseId
-	r.JudgeResult.CpuTime = execResult.CpuTime
-	r.JudgeResult.RealTime = execResult.RealTime
-	r.JudgeResult.Memory = execResult.Memory
-	r.JudgeResult.Signal = execResult.Signal
-	r.JudgeResult.ErrorCode = execResult.ErrorCode
-	r.JudgeResult.ExitCode = execResult.ExitCode
-	r.JudgeResult.ResultCode = SandboxResultCodeToJudgeResultCode(execResult.ResultCode)
-	// system error가 아니면 run result task에 반영(Resource usage)
-}
-
-func (r *Result) SetJudgeResultCode(code JudgeResultCode) {
-	r.JudgeResult.ResultCode = code
-}
-
-func (r *Result) Marshal() (json.RawMessage, error) {
+func (r *JudgeResult) Marshal() (json.RawMessage, error) {
 	if res, err := json.Marshal(r); err != nil {
 		return nil, &HandlerError{caller: "judge-handler", err: fmt.Errorf("marshaling result: %w", err)}
 	} else {
@@ -301,7 +301,7 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 	tc testcase.Element, out chan JudgeResultMessage, cnt chan int) {
 
 	var accepted bool
-	res := Result{}
+	res := JudgeResult{}
 
 	time.Sleep(time.Millisecond)
 	runResult, err := j.runner.Run(sandbox.RunRequest{
@@ -314,11 +314,12 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 
 	if err != nil {
 		j.logger.Log(logger.ERROR, fmt.Sprintf("Error while running sandbox: %s", err.Error()))
-		res.JudgeResult.ResultCode = SYSTEM_ERROR
-		res.JudgeResult.Error = string(runResult.ErrOutput)
+		res.ResultCode = SYSTEM_ERROR
+		res.Error = string(runResult.ErrOutput)
 		goto Send
 	}
-	res.SetJudgeResult(tc.Id, runResult.ExecResult)
+	// res.SetJudgeResult(tc.Id, runResult.ExecResult)
+	res.TestcaseId = tc.Id
 	if runResult.ExecResult.ResultCode != sandbox.RUN_SUCCESS {
 		goto Send
 	}
@@ -328,7 +329,7 @@ func (j *JudgeHandler) judgeTestcase(idx int, dir string, validReq *Request,
 	// st := time.Now()
 	accepted = grader.Grade([]byte(tc.Out), runResult.Output)
 	if accepted {
-		res.Accepted()
+		// res.Accepted()
 		res.SetJudgeResultCode(ACCEPTED)
 	} else {
 		res.SetJudgeResultCode(WRONG_ANSWER)
@@ -340,7 +341,7 @@ Send:
 		out <- JudgeResultMessage{nil, &HandlerError{err: ErrMarshalJson, level: logger.ERROR}}
 	} else {
 		// j.logger.Log(logger.DEBUG, string(marshaledRes))
-		out <- JudgeResultMessage{marshaledRes, ParseError(res.JudgeResult)}
+		out <- JudgeResultMessage{marshaledRes, ParseError(res)}
 	}
 	cnt <- 1
 }

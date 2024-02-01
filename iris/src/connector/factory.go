@@ -45,6 +45,7 @@ func Factory(c Module, p Providers, args ...any) Connector {
 
 		return rabbitmq.NewConnector(consumer, producer, p.Router, p.Logger)
 	case HTTP:
+    
 		panic("Need to be implemented")
 	case FILE:
 		panic("Need to be implemented")

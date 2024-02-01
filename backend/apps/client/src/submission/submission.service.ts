@@ -27,7 +27,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { SubmissionResultCreateManyInput } from '@admin/@generated'
+import type { SubmissionResultCreateManyInput } from '@admin/@generated'
 import {
   type CreateSubmissionDto,
   Snippet,
@@ -278,7 +278,7 @@ export class SubmissionService implements OnModuleInit {
         result: ResultStatus.ServerError
       })
       throw new UnprocessableDataException(
-        `${msg.submissionId} ${msg.error} ${msg.data}`
+        `${msg.submissionId} ${msg.error} ${msg.judgeResult}`
       )
     }
 
@@ -291,13 +291,10 @@ export class SubmissionService implements OnModuleInit {
     }
 
     const results = {
-      problemTestcaseId: parseInt(
-        msg.data.judgeResult.testcaseId.split(':')[1],
-        10
-      ),
-      result: Status(msg.data.judgeResult.resultCode),
-      cpuTime: BigInt(msg.data.judgeResult.cpuTime),
-      memoryUsage: msg.data.judgeResult.memory
+      problemTestcaseId: parseInt(msg.judgeResult.testcaseId.split(':')[1], 10),
+      result: Status(msg.judgeResult.resultCode),
+      cpuTime: BigInt(msg.judgeResult.cpuTime),
+      memoryUsage: msg.judgeResult.memory
     }
 
     await this.updateSubmissionResult(submissionId, resultStatus, results)
