@@ -9,7 +9,13 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import type { Contest, Notice, Problem } from '@/types/type'
+import type {
+  Contest,
+  ContestClarification,
+  ContestProblem,
+  Notice,
+  Problem
+} from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -64,7 +70,12 @@ interface DataTableProps<TData, TValue> {
  */
 
 export default function DataTable<
-  TData extends Notice | Contest | Problem,
+  TData extends
+    | Notice
+    | Contest
+    | Problem
+    | ContestProblem
+    | ContestClarification,
   TValue
 >({ columns, data, headerStyle, name }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
@@ -104,17 +115,23 @@ export default function DataTable<
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
             const href = `/${name}/${row.original.id}` as Route
+            const handleClick =
+              name === ''
+                ? (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                    e.currentTarget.classList.toggle('expanded')
+                  }
+                : () => {
+                    router.push(href)
+                  }
             return (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
                 className="cursor-pointer"
-                onClick={() => {
-                  router.push(href)
-                }}
+                onClick={handleClick}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell key={cell.id} className="align-top">
                     <div className="text-center text-xs md:text-sm">
                       {flexRender(
                         cell.column.columnDef.cell,

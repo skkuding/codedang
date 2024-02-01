@@ -6,7 +6,7 @@ import { FaRegCalendarAlt } from 'react-icons/fa'
 import TimeDiff from '../../_components/TimeDiff'
 import ContestTabs from '../_components/ContestTabs'
 
-export interface ContestDetailProps {
+interface ContestDetailProps {
   params: {
     id: string
   }
