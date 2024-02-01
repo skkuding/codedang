@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 import { baseUrl } from '@/lib/vars'
 import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -121,13 +122,13 @@ export default function SignUpRegister() {
   }
 
   return (
-    <div className="mb-5 mt-12 flex w-full flex-col p-4">
+    <div className="mb-5 mt-12 flex w-full flex-col px-2 py-4">
       <form
         className="flex w-full flex-col gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
         <p className="text-left text-xl font-bold text-blue-500">Sign Up</p>
-        <div>
+        <div className="flex flex-col gap-1">
           <Input
             placeholder="Your name"
             {...register('realName', {
@@ -138,7 +139,7 @@ export default function SignUpRegister() {
             }}
           />
           {inputFocus === 1 && (
-            <div className="mt-1 text-xs text-gray-500">
+            <div className="text-xs text-gray-500">
               <ul className="list-disc pl-4">
                 <li>Your name must be less than 20 characters</li>
                 <li>Your name can only contain alphabet letters</li>
@@ -146,11 +147,11 @@ export default function SignUpRegister() {
             </div>
           )}
           {errors.realName && (
-            <p className="mt-1 text-xs text-red-500">Unavailable</p>
+            <p className="text-xs text-red-500">Unavailable</p>
           )}
         </div>
 
-        <div>
+        <div className="flex flex-col gap-1">
           <div className="flex gap-2">
             <Input
               placeholder="User ID"
@@ -165,16 +166,17 @@ export default function SignUpRegister() {
             <Button
               onClick={() => checkUserName()}
               type="button"
-              className={`flex aspect-square w-12 items-center justify-center rounded-md ${
-                !disableUsername ? '' : 'bg-gray-400'
-              }`}
+              className={cn(
+                disableUsername && 'bg-gray-400',
+                'flex aspect-square w-12 items-center justify-center rounded-md'
+              )}
               disabled={disableUsername}
             >
               <FaCheck className="text-white" size="20" />
             </Button>
           </div>
           {inputFocus === 2 && (
-            <div className="mt-1 text-xs text-gray-500">
+            <div className="text-xs text-gray-500">
               <ul className="list-disc pl-4">
                 <li>User ID used for log in</li>
                 <li>
@@ -186,18 +188,18 @@ export default function SignUpRegister() {
             </div>
           )}
           {errors.username ? (
-            <p className="mt-1 text-xs text-red-500">Unavailable</p>
+            <p className="text-xs text-red-500">Unavailable</p>
           ) : (
             usernameVerify &&
             (disableUsername ? (
-              <p className="mt-1 text-xs text-blue-500">Available</p>
+              <p className="text-xs text-blue-500">Available</p>
             ) : (
-              <p className="mt-1 text-xs text-red-500">Unavailable</p>
+              <p className="text-xs text-red-500">Unavailable</p>
             ))
           )}
         </div>
 
-        <div>
+        <div className="flex flex-col gap-1">
           <div className="flex justify-between gap-2">
             <Input
               placeholder="Password"
@@ -210,7 +212,7 @@ export default function SignUpRegister() {
               }}
             />
             <span
-              className="mt-3"
+              className="flex items-center"
               onClick={() => setPasswordShow(!passwordShow)}
             >
               {passwordShow ? (
@@ -222,9 +224,10 @@ export default function SignUpRegister() {
           </div>
           {inputFocus === 3 && (
             <div
-              className={`${
-                !errors.password ? 'text-gray-500' : 'text-red-500'
-              } mt-1 text-xs`}
+              className={cn(
+                errors.password ? 'text-red-500' : 'text-gray-500',
+                'text-xs'
+              )}
             >
               <ul className="pl-4">
                 <li className="list-disc">
@@ -237,7 +240,7 @@ export default function SignUpRegister() {
           )}
         </div>
 
-        <div>
+        <div className="flex flex-col gap-1">
           <div className="flex justify-between gap-2">
             <Input
               {...register('passwordAgain', {
@@ -250,7 +253,7 @@ export default function SignUpRegister() {
               }}
             />
             <span
-              className="mt-3"
+              className="flex items-center"
               onClick={() => setPasswordAgainShow(!passwordAgainShow)}
             >
               {passwordAgainShow ? (
@@ -261,13 +264,13 @@ export default function SignUpRegister() {
             </span>
           </div>
           {errors.passwordAgain && (
-            <p className="mt-1 text-xs text-red-500">Incorrect</p>
+            <p className="text-xs text-red-500">Incorrect</p>
           )}
         </div>
 
         <Button
           disabled={!isValid || !disableUsername}
-          className={`${isValid && disableUsername ? '' : 'bg-gray-400'}`}
+          className={cn(isValid && disableUsername ? '' : 'bg-gray-400')}
           type="submit"
         >
           Register
