@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useStorage } from '@/lib/hooks'
+import useEditorStore from '@/stores/editor'
 
 interface MainResizablePanelProps {
   languages: string[]
@@ -19,16 +19,13 @@ export default function SelectScrollable({
   languages
   // setLang
 }: MainResizablePanelProps) {
-  const [value, setValue] = useStorage('programming_lang', languages[0])
-  // if value in storage is not in languages, set value to the first language
-  if (value && !languages.includes(value)) setValue(languages[0])
-
+  const { language, setLanguage } = useEditorStore()
   return (
     <Select
       onValueChange={(language) => {
-        setValue(language)
+        setLanguage(language)
       }}
-      value={value}
+      value={language}
     >
       <SelectTrigger className="h-7 w-fit shrink-0 rounded-md border-none bg-slate-600 px-2 hover:bg-slate-700 focus:outline-none focus:ring-0 focus:ring-offset-0">
         <p className="pr-1">

@@ -1,5 +1,13 @@
 import Codeeditor from '@/components/Codeeditor'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 import { fetcherWithAuth } from '@/lib/utils'
 import type { SubmissionDetail } from '@/types/type'
 import dayjs from 'dayjs'
@@ -70,6 +78,39 @@ export default async function SubmissionDetail({
           className="max-h-96 min-h-16 w-full"
         />
       </div>
+      {data.testcaseResult.length !== 0 && (
+        <div>
+          <h2 className="text-lg font-bold">Test case</h2>
+          <Table className="[&_*]:text-center [&_*]:text-sm [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
+            <TableHeader className="[&_*]:text-slate-100">
+              <TableRow>
+                <TableHead>#</TableHead>
+                <TableHead>Result</TableHead>
+                <TableHead>Runtime</TableHead>
+                <TableHead>Memory</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.testcaseResult.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.id}</TableCell>
+                  <TableCell
+                    className={
+                      item.result === 'Accepted'
+                        ? 'text-green-500'
+                        : 'text-red-500'
+                    }
+                  >
+                    {item.result}
+                  </TableCell>
+                  <TableCell>{item.cpuTime}</TableCell>
+                  <TableCell>{item.memoryUsage}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   )
 }

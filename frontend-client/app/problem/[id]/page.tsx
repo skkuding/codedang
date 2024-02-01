@@ -49,7 +49,7 @@ export default async function DescriptionPage({
         <h2>Time Limit:</h2>
         <p className="text-slate-300">{data.timeLimit} ms</p>
         <h2>Memory Limit:</h2>
-        <p className="text-slate-300">{data.memoryLimit} ms</p>
+        <p className="text-slate-300">{data.memoryLimit} MB</p>
       </div>
       <Accordion type="multiple">
         <AccordionItem value="item-1" className="border-b-slate-700">

@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useStorage } from '@/lib/hooks'
 import useEditorStore from '@/stores/editor'
 import type { ProblemDetail } from '@/types/type'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 import Loading from '../loading'
 import EditorHeader from './EditorHeader'
 import Tab from './Tab'
@@ -28,18 +28,16 @@ export default function MainResizablePanel({
   data: ProblemEditorProps['data']
   children: React.ReactNode
 }) {
-  // get programming language from localStorage
-  const [langValue, setValue] = useStorage(
-    'programming_lang',
-    data.languages[0]
-  )
+  // get programming language from localStorage for default value
+  const { value } = useStorage('programming_lang', data.languages[0])
 
-  // if langValue in storage is not in languages, set langValue to the first language
-  if (langValue && !data.languages.includes(langValue))
-    setValue(data.languages[0])
-
-  const { code, setCode } = useEditorStore()
-
+  const { code, setCode, setLanguage } = useEditorStore()
+  useEffect(() => {
+    if (value && !data.languages.includes(value)) {
+      // if value in storage is not in languages, set value to the first language
+      setLanguage(data.languages[0])
+    } else setLanguage(value as string)
+  }, [data.languages, value, setLanguage])
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -65,7 +63,7 @@ export default function MainResizablePanel({
           <EditorHeader data={data} />
           <Codeeditor
             value={code}
-            language={langValue as string}
+            language={value as string}
             onChange={setCode}
             height="100%"
             className="h-full"

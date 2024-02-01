@@ -10,7 +10,7 @@ import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 
 export default function SubmitButton({ problemId }: { problemId: number }) {
-  const { code } = useEditorStore()
+  const { code, language } = useEditorStore()
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const router = useRouter()
@@ -47,7 +47,7 @@ export default function SubmitButton({ problemId }: { problemId: number }) {
         setSubmissionId(null)
         const res = await fetcherWithAuth.post('submission', {
           json: {
-            language: 'C',
+            language,
             code: [
               {
                 id: 1,
