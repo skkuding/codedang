@@ -25,9 +25,12 @@ export default function SignUp() {
         </button>
       )}
 
-      <div className="absolute left-8 top-10">
-        <Image src={CodedangLogo} alt="codedang" width={70} />
-      </div>
+      <Image
+        className="absolute left-8 top-10"
+        src={CodedangLogo}
+        alt="codedang"
+        width={70}
+      />
 
       {modalPage === 0 && <SignUpWelcome />}
       {modalPage === 1 && <SignUpEmailVerify />}
