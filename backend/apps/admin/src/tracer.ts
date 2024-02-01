@@ -19,7 +19,7 @@ class Tracer {
 
   private provider = new BasicTracerProvider({
     resource: new Resource({
-      [SemanticResourceAttributes.SERVICE_NAME]: 'CLIENT-API'
+      [SemanticResourceAttributes.SERVICE_NAME]: 'ADMIN-API'
     })
   })
 
