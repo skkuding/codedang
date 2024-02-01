@@ -31,35 +31,33 @@ export default async function Contest({ type }: { type: string }) {
   const contests = await getContests()
 
   return (
-    <div className="flex h-full flex-col ">
-      <Carousel>
-        <div className="flex items-center justify-between">
-          <div className="pb-5 text-2xl font-bold text-gray-700">{type}</div>
-          <div className="flex items-center justify-end gap-2">
-            <CarouselPrevious />
-            <CarouselNext />
-          </div>
+    <Carousel>
+      <div className="flex items-center justify-between">
+        <div className="pb-5 text-2xl font-bold text-gray-700">{type}</div>
+        <div className="flex items-center justify-end gap-2">
+          <CarouselPrevious />
+          <CarouselNext />
         </div>
-        <CarouselContent className="bottom-30 flex w-full gap-1.5 px-3 py-2">
-          {contests
-            .filter(
-              (contest) => contest.status.toLowerCase() === type.toLowerCase()
-            )
-            .map((contest) => (
-              <CarouselItem key={contest.id}>
-                <Link
-                  key={contest.id}
-                  href={`/contest/${contest.id}` as Route}
-                  className="inline-block h-[120px] w-[375px]"
-                >
-                  <ContestCard contest={contest} />
-                </Link>
-              </CarouselItem>
-            ))}
-        </CarouselContent>
-        <CarouselPrevGradient />
-        <CarouselNextGradient />
-      </Carousel>
-    </div>
+      </div>
+      <CarouselContent className="bottom-30 flex w-full gap-1.5 px-3 py-2">
+        {contests
+          .filter(
+            (contest) => contest.status.toLowerCase() === type.toLowerCase()
+          )
+          .map((contest) => (
+            <CarouselItem key={contest.id}>
+              <Link
+                key={contest.id}
+                href={`/contest/${contest.id}` as Route}
+                className="inline-block h-[120px] w-[375px]"
+              >
+                <ContestCard contest={contest} />
+              </Link>
+            </CarouselItem>
+          ))}
+      </CarouselContent>
+      <CarouselPrevGradient />
+      <CarouselNextGradient />
+    </Carousel>
   )
 }

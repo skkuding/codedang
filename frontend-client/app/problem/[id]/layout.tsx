@@ -1,5 +1,9 @@
-import HeaderEditor from '@/app/problem/[id]/_components/HeaderEditor'
-import { baseUrl } from '@/lib/vars'
+import icon from '@/app/favicon.ico'
+import { fetcher } from '@/lib/utils'
+import type { ProblemDetail } from '@/types/type'
+import Image from 'next/image'
+import Link from 'next/link'
+import { IoIosArrowForward } from 'react-icons/io'
 import MainResizablePanel from './_components/MainResizablePanel'
 
 export default async function layout({
@@ -10,16 +14,23 @@ export default async function layout({
   children: React.ReactNode
 }) {
   const { id } = params
-  const response = await fetch(baseUrl + '/problem/' + id)
-  const data = await response.json()
-  // Specific information for editor main page
+  const data: ProblemDetail = await fetcher(`problem/${id}`).json()
 
   return (
-    <div className="flex h-dvh w-full min-w-[1000px] flex-col overflow-x-auto bg-slate-700 text-white">
-      <HeaderEditor id={data.id} title={data.title} />
-      <main className="flex h-full flex-col overflow-hidden border border-slate-600">
-        <MainResizablePanel data={data} tabs={children} />
-      </main>
+    <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
+      <header className="flex justify-between bg-slate-900 px-4">
+        <div className="flex items-center justify-center gap-6 font-bold text-slate-500">
+          <Link href="/">
+            <Image src={icon} alt="코드당" width={33} />
+          </Link>
+          <div className="flex items-center gap-1">
+            <Link href="/problem">Problem</Link>
+            <IoIosArrowForward className="size-6" />
+            <h1 className="text-lg font-bold text-white">{`#${id}. ${data.title}`}</h1>
+          </div>
+        </div>
+      </header>
+      <MainResizablePanel data={data}>{children}</MainResizablePanel>
     </div>
   )
 }
