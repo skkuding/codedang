@@ -6,12 +6,17 @@ export const apolloErrorFormatter = (
   formattedError: GraphQLFormattedError
 ): GraphQLFormattedError => {
   if (formattedError.extensions?.originalError) {
+    const { extensions, ...restFormattedError } = formattedError
     const httpStatusCode =
-      (formattedError.extensions?.originalError as { statusCode: number })
-        .statusCode ?? HttpStatus.INTERNAL_SERVER_ERROR
-    formattedError.extensions['code'] = GqlErrorCodeMapTable[httpStatusCode]
-    delete formattedError.extensions.originalError
-    delete formattedError.extensions.status
+      (extensions?.originalError as { statusCode: number })?.statusCode ??
+      HttpStatus.INTERNAL_SERVER_ERROR
+    return {
+      ...restFormattedError,
+      extensions: {
+        code: GqlErrorCodeMapTable[httpStatusCode],
+        stacktrace: extensions?.stacktrace
+      }
+    }
   }
   return formattedError
 }
