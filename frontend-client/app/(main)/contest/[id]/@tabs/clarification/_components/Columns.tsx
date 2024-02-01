@@ -1,6 +1,5 @@
 'use client'
 
-import { cn } from '@/lib/utils'
 import type { ContestClarification } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
@@ -16,7 +15,7 @@ export const columns: ColumnDef<ContestClarification>[] = [
     header: () => 'Description',
     accessorKey: 'content',
     cell: ({ row }) => (
-      <div className={cn('expandable text-left')}>{row.original.content}</div>
+      <div className="expandable text-left">{row.original.content}</div>
     )
   },
   {
