@@ -11,6 +11,7 @@ export const apolloErrorFormatter = (
         .statusCode ?? HttpStatus.INTERNAL_SERVER_ERROR
     formattedError.extensions['code'] = GqlErrorCodeMapTable[httpStatusCode]
     delete formattedError.extensions.originalError
+    delete formattedError.extensions.status
   }
   return formattedError
 }
