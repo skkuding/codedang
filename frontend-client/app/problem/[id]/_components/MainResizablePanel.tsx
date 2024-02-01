@@ -33,13 +33,13 @@ export default function MainResizablePanel({
 }) {
   const editorTheme = createTheme({
     settings: {
-      background: '#1E293B',
+      background: '#0f172a',
       foreground: '#9cdcfe',
       caret: '#c6c6c6',
       selection: '#6199ff2f',
       selectionMatch: '#72a1ff59',
       lineHighlight: '#ffffff0f',
-      gutterBackground: '#1E293B',
+      gutterBackground: '#0f172a',
       gutterActiveForeground: '#fff'
     },
     styles: [
@@ -82,7 +82,7 @@ export default function MainResizablePanel({
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="border border-slate-600"
+      className="border border-slate-700"
     >
       <ResizablePanel
         defaultSize={35}
@@ -95,9 +95,9 @@ export default function MainResizablePanel({
         </div>
       </ResizablePanel>
 
-      <ResizableHandle withHandle />
+      <ResizableHandle withHandle className="border border-slate-700" />
 
-      <ResizablePanel defaultSize={65} className="shrink-0 bg-slate-800">
+      <ResizablePanel defaultSize={65} className="bg-slate-900">
         <div className="grid-rows-editor grid h-full">
           <EditorHeader data={data} langValue={langValue} />
           <div className="h-full overflow-auto">
