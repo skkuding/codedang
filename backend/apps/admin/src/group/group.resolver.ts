@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common'
+import { InternalServerErrorException, Logger } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
 import { Group } from '@generated'
 import { Role } from '@prisma/client'
@@ -6,8 +6,7 @@ import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import {
   ConflictFoundException,
   DuplicateFoundException,
-  ForbiddenAccessException,
-  InternalServerGraphQLException
+  ForbiddenAccessException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
@@ -33,7 +32,7 @@ export class GroupResolver {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -69,7 +68,7 @@ export class GroupResolver {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -85,7 +84,7 @@ export class GroupResolver {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -98,7 +97,7 @@ export class GroupResolver {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -108,7 +107,7 @@ export class GroupResolver {
       return await this.groupService.revokeInvitation(id)
     } catch (error) {
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 }

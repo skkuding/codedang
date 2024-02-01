@@ -1,4 +1,5 @@
 import {
+  InternalServerErrorException,
   Logger,
   NotFoundException,
   ParseArrayPipe,
@@ -14,7 +15,6 @@ import {
   ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException,
-  InternalServerGraphQLException,
   UnprocessableDataException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
@@ -56,7 +56,7 @@ export class ProblemResolver {
         throw new UnprocessableEntityException(error.message)
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -79,7 +79,7 @@ export class ProblemResolver {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -111,7 +111,7 @@ export class ProblemResolver {
         throw new NotFoundException(error.message)
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -137,7 +137,7 @@ export class ProblemResolver {
         }
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -157,7 +157,7 @@ export class ProblemResolver {
         throw new NotFoundException(error.message)
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -184,7 +184,7 @@ export class ProblemResolver {
         throw new EntityNotExistException(error.message)
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException(error.message)
+      throw new InternalServerErrorException(error.message)
     }
   }
 
@@ -217,7 +217,7 @@ export class ProblemResolver {
         throw new EntityNotExistException(error.message)
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException(error.message)
+      throw new InternalServerErrorException(error.message)
     }
   }
 
@@ -244,7 +244,7 @@ export class ProblemResolver {
         throw new EntityNotExistException(error.message)
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException(error.message)
+      throw new InternalServerErrorException(error.message)
     }
   }
 
@@ -276,7 +276,7 @@ export class ProblemResolver {
         throw new EntityNotExistException(error.message)
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException(error.message)
+      throw new InternalServerErrorException(error.message)
     }
   }
 }

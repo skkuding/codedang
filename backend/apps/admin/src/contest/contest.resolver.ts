@@ -1,11 +1,14 @@
-import { Logger, ParseBoolPipe } from '@nestjs/common'
+import {
+  InternalServerErrorException,
+  Logger,
+  ParseBoolPipe
+} from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
-  InternalServerGraphQLException,
   UnprocessableDataException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
@@ -54,7 +57,7 @@ export class ContestResolver {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -73,7 +76,7 @@ export class ContestResolver {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -89,7 +92,7 @@ export class ContestResolver {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -117,7 +120,7 @@ export class ContestResolver {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -137,7 +140,7 @@ export class ContestResolver {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 
@@ -158,7 +161,7 @@ export class ContestResolver {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
-      throw new InternalServerGraphQLException()
+      throw new InternalServerErrorException()
     }
   }
 }
