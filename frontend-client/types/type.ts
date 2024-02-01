@@ -69,3 +69,35 @@ export interface ProblemDetail {
   }[]
   hint: string
 }
+
+export interface Submission {
+  id: number
+  userId: number
+  problemId: number
+  contestId: number | null
+  workbookId: number | null
+  code: { id: number; text: string; lockded: boolean }[]
+  language: string
+  result: string
+  createTime: string
+  updateTime: string
+}
+
+export interface SubmissionDetail {
+  problemId: number
+  username: string
+  code: string
+  language: string
+  createTime: string
+  result: string
+  testcaseResult: {
+    id: number
+    submissionId: number
+    problemTestCaseId: number
+    result: string
+    cpuTime: string
+    memoryUsage: number
+    createTime: string
+    updateTime: string
+  }[]
+}

@@ -19,7 +19,7 @@ export default async function DescriptionPage({
   const data: ProblemDetail = await fetcher(`problem/${id}`).json()
 
   return (
-    <div className="flex h-full flex-col gap-8 overflow-auto p-6 text-lg">
+    <div className="flex h-full flex-col gap-8 p-6 text-lg">
       <div>
         <h1 className="mb-3 text-xl font-bold">{`#${data.id}. ${data.title}`}</h1>
         <div

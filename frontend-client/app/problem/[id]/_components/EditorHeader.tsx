@@ -15,8 +15,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { fetcherWithAuth } from '@/lib/utils'
 import useEditorStore from '@/stores/editor'
-import type { ProblemDetail } from '@/types/type'
+import type { ProblemDetail, Submission } from '@/types/type'
+import { useRouter } from 'next/navigation'
 import { TbReload } from 'react-icons/tb'
+import { toast } from 'sonner'
 
 interface ProblemEditorProps {
   data: ProblemDetail
@@ -24,7 +26,8 @@ interface ProblemEditorProps {
 }
 
 export default function Editor({ data, langValue }: ProblemEditorProps) {
-  const { clearCode } = useEditorStore()
+  const { clearCode, code } = useEditorStore()
+  const router = useRouter()
   return (
     <div className="flex shrink-0 items-center justify-end border-b border-b-slate-700 bg-slate-800 px-5">
       <div className="flex items-center gap-3">
@@ -53,25 +56,40 @@ export default function Editor({ data, langValue }: ProblemEditorProps) {
           </AlertDialogContent>
         </AlertDialog>
         <Button
-          className="bg-primary h-7 shrink-0 rounded-md px-2 font-semibold"
+          className="h-7 shrink-0 rounded-md px-2"
           onClick={async () => {
+            if (code === '') {
+              toast.error('Please write your code.')
+              return
+            }
             const res = await fetcherWithAuth.post('submission', {
               json: {
                 language: langValue,
                 code: [
                   {
                     id: 1,
-                    text: '#include <stdio.h>\nint main() { int a, b; scanf("%d%d", &a, &b); printf("%d\\n", a + b);}',
+                    text: code,
                     locked: false
                   }
                 ]
               },
               searchParams: {
                 problemId: data.id // 문제 ID
+              },
+              next: {
+                revalidate: 0
               }
             })
-            const submission = await res.json()
-            return submission
+            if (res.ok) {
+              const submission: Submission = await res.json()
+              router.push(`/problem/${data.id}/submission/${submission.id}`)
+            } else {
+              if (res.status === 401) {
+                toast.error('If you want to submit, please login.')
+              } else {
+                toast.error('Please try again later.')
+              }
+            }
           }}
         >
           Submit
