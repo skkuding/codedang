@@ -51,7 +51,7 @@ export class ContestResolver {
         error instanceof UnprocessableDataException ||
         error instanceof EntityNotExistException
       ) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerGraphQLException()
@@ -70,7 +70,7 @@ export class ContestResolver {
         error instanceof EntityNotExistException ||
         error instanceof UnprocessableDataException
       ) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerGraphQLException()
@@ -86,7 +86,7 @@ export class ContestResolver {
       return await this.contestService.deleteContest(groupId, contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerGraphQLException()
@@ -114,7 +114,7 @@ export class ContestResolver {
         error instanceof EntityNotExistException ||
         error instanceof ConflictFoundException
       ) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerGraphQLException()
@@ -134,7 +134,7 @@ export class ContestResolver {
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerGraphQLException()
@@ -155,7 +155,7 @@ export class ContestResolver {
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerGraphQLException()

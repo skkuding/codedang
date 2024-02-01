@@ -30,7 +30,7 @@ export class GroupResolver {
       return await this.groupService.createGroup(input, req.user.id)
     } catch (error) {
       if (error instanceof DuplicateFoundException) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerGraphQLException()
@@ -66,7 +66,7 @@ export class GroupResolver {
         error instanceof DuplicateFoundException ||
         error instanceof ForbiddenAccessException
       ) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerGraphQLException()
@@ -82,7 +82,7 @@ export class GroupResolver {
       return await this.groupService.deleteGroup(id, req.user)
     } catch (error) {
       if (error instanceof ForbiddenAccessException) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerGraphQLException()
@@ -95,7 +95,7 @@ export class GroupResolver {
       return await this.groupService.issueInvitation(id)
     } catch (error) {
       if (error instanceof ConflictFoundException) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerGraphQLException()

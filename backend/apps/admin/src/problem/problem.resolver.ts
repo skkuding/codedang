@@ -48,7 +48,7 @@ export class ProblemResolver {
       )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       } else if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2003'
@@ -76,7 +76,7 @@ export class ProblemResolver {
       )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerGraphQLException()
@@ -128,7 +128,7 @@ export class ProblemResolver {
         error instanceof UnprocessableDataException ||
         error instanceof ConflictFoundException
       ) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.name == 'NotFoundError') {
           throw new NotFoundException(error.message)
@@ -179,7 +179,7 @@ export class ProblemResolver {
         error instanceof UnprocessableDataException ||
         error instanceof ForbiddenAccessException
       ) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
@@ -212,7 +212,7 @@ export class ProblemResolver {
         error instanceof UnprocessableDataException ||
         error instanceof ForbiddenAccessException
       ) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
@@ -239,7 +239,7 @@ export class ProblemResolver {
         error instanceof UnprocessableDataException ||
         error instanceof ForbiddenAccessException
       ) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
@@ -271,7 +271,7 @@ export class ProblemResolver {
         error instanceof UnprocessableDataException ||
         error instanceof ForbiddenAccessException
       ) {
-        throw error.convert2GraphQLException()
+        throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
