@@ -38,5 +38,16 @@ export const columns: ColumnDef<Submission>[] = [
     accessorKey: 'createTime',
     cell: ({ row }) =>
       dayjs(row.original.createTime).format('YYYY-MM-DD HH:mm:ss')
+  },
+  {
+    header: () => 'Code Size',
+    accessorKey: 'codeSize',
+    cell: ({ row }) => {
+      return row.original.codeSize === null ? (
+        <p>N/A</p>
+      ) : (
+        <p>{row.original.codeSize} B</p>
+      )
+    }
   }
 ]

@@ -118,7 +118,15 @@ export default function DataTable<TData extends Submission, TValue>({
                 }}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} style={{ padding: 10 }}>
+                  <TableCell
+                    key={cell.id}
+                    style={{
+                      paddingTop: 10,
+                      paddingBottom: 10,
+                      paddingLeft: 2,
+                      paddingRight: 2
+                    }}
+                  >
                     <div className="text-center text-xs">
                       {flexRender(
                         cell.column.columnDef.cell,

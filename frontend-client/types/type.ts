@@ -88,6 +88,7 @@ export interface Submission {
   createTime: string
   language: string
   result: string
+  codeSize: number
 }
 
 export interface ContestClarification {
