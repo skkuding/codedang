@@ -23,11 +23,11 @@ export default async function Submission({
         data={data}
         columns={columns}
         headerStyle={{
-          id: 'w-[5%]',
-          username: 'w-[20%]',
-          result: 'w-[30%]',
-          language: 'w-[15%]',
-          createTime: 'w-[30%]'
+          id: 'w-[9%]',
+          username: 'w-[19%]',
+          result: 'w-[29%]',
+          language: 'w-[14%]',
+          createTime: 'w-[29%]'
         }}
         problemId={id}
       />

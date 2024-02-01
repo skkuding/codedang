@@ -22,7 +22,7 @@ export const columns: ColumnDef<Submission>[] = [
       return row.original.result === 'Accepted' ? (
         <p className="text-green-500">{row.original.result}</p>
       ) : row.original.result === 'Judging' ? (
-        <p className="text-gray-400">{row.original.result}</p>
+        <p className="text-gray-300">{row.original.result}</p>
       ) : (
         <p className="text-red-500">{row.original.result}</p>
       )
