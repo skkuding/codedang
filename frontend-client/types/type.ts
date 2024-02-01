@@ -67,4 +67,5 @@ export interface ProblemDetail {
     id: number
     name: string
   }[]
+  hint: string
 }

@@ -13,10 +13,13 @@ interface ProblemEditorProps {
 
 export default function Editor({ data, langValue }: ProblemEditorProps) {
   return (
-    <div className="flex shrink-0 items-center justify-between border-b border-b-slate-600 px-5">
+    <div className="flex shrink-0 items-center justify-between border-b border-b-slate-700 bg-slate-800 px-5">
       <div className="cursor-pointer text-lg font-bold">Editor</div>
       <div className="flex items-center gap-3">
-        <Button size="icon" className="size-7 shrink-0 rounded-md bg-slate-500">
+        <Button
+          size="icon"
+          className="size-7 shrink-0 rounded-md bg-slate-600 hover:bg-slate-700"
+        >
           <TbReload className="size-4" />
         </Button>
         <Button
