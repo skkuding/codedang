@@ -62,7 +62,7 @@ export default function MainResizablePanel({
 
       <ResizablePanel defaultSize={65} className="bg-slate-900">
         <div className="grid-rows-editor grid h-full">
-          <EditorHeader data={data} langValue={langValue} />
+          <EditorHeader data={data} />
           <Codeeditor
             value={code}
             language={langValue as string}

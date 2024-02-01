@@ -9,10 +9,12 @@ interface Props {
 
 export default function Tab({ id }: Props) {
   const pathname = usePathname()
+  console.log(pathname)
+  console.log(pathname.startsWith(`/problem/${id}/submission`))
   return (
     <div className="flex h-full w-full items-center border-b border-slate-700 bg-slate-800 px-6">
       <Tabs
-        defaultValue={
+        value={
           pathname.startsWith(`/problem/${id}/submission`)
             ? 'Submission'
             : 'Description'
