@@ -6,6 +6,7 @@ import {
   ResizablePanelGroup
 } from '@/components/ui/resizable'
 import { useStorage } from '@/lib/hooks'
+import useEditorStore from '@/stores/editor'
 import type { ProblemDetail } from '@/types/type'
 import { tags as t } from '@lezer/highlight'
 import type { LanguageName } from '@uiw/codemirror-extensions-langs'
@@ -79,6 +80,8 @@ export default function MainResizablePanel({
   if (langValue && !data.languages.includes(langValue))
     setValue(data.languages[0])
 
+  const { code } = useEditorStore()
+
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -108,6 +111,10 @@ export default function MainResizablePanel({
                 [loadLanguage(editorLang as LanguageName)] as Extension[]
               }
               height="100%"
+              value={code}
+              onChange={(value) => {
+                useEditorStore.setState({ code: value })
+              }}
             />
           </div>
         </div>
