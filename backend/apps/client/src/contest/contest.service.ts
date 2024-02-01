@@ -96,9 +96,6 @@ export class ContestService {
           groupId, // TODO: 기획 상 필요한 부분인지 확인하고 삭제
           id: {
             in: registeredContestIds
-          },
-          endTime: {
-            gt: now
           }
         },
         select: contestSelectOption,
@@ -111,9 +108,6 @@ export class ContestService {
     restContests = await this.prisma.contest.findMany({
       where: {
         groupId,
-        endTime: {
-          gt: now
-        },
         config: {
           path: ['isVisible'],
           equals: true
@@ -137,8 +131,12 @@ export class ContestService {
       registeredUpcoming: this.filterUpcoming(
         registeredContestsWithParticipants
       ),
+      registeredFinished: this.filterFinished(
+        registeredContestsWithParticipants
+      ),
       ongoing: this.filterOngoing(restContestsWithParticipants),
-      upcoming: this.filterUpcoming(restContestsWithParticipants)
+      upcoming: this.filterUpcoming(restContestsWithParticipants),
+      finished: this.filterFinished(restContestsWithParticipants)
     }
   }
 
@@ -212,6 +210,12 @@ export class ContestService {
     )
     upcomingContest.sort(this.startTimeCompare)
     return upcomingContest
+  }
+
+  filterFinished(contests: Array<Partial<Contest> & Pick<Contest, 'endTime'>>) {
+    const now = new Date()
+    const finishedContest = contests.filter((contest) => contest.endTime <= now)
+    return finishedContest
   }
 
   async getContest(id: number, groupId = OPEN_SPACE_ID) {

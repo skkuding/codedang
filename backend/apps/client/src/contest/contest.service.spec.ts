@@ -137,6 +137,17 @@ const registeredOngoingContestsWithParticipants = [
   }
 ]
 
+const registeredFinishedContestsWithParticipants = [
+  {
+    id: contest.id + 1,
+    group: contest.group,
+    title: contest.title,
+    startTime: now.add(-2, 'day').toDate(),
+    endTime: now.add(-1, 'day').toDate(),
+    participants: 1
+  }
+]
+
 const registeredUpcomingContestsWithParticipants = [
   {
     id: contest.id + 6,
@@ -268,13 +279,15 @@ describe('ContestService', () => {
       })
     })
 
-    it('should return registered ongoing, registered upcoming, ongoing, upcoming contests', async () => {
+    it('should return registered ongoing, registered upcoming, registered finished, ongoing, upcoming, finished contests', async () => {
       expect(await service.getContestsByGroupId(userId, groupId)).to.deep.equal(
         {
           registeredOngoing: registeredOngoingContestsWithParticipants,
           registeredUpcoming: registeredUpcomingContestsWithParticipants,
+          registeredFinished: registeredFinishedContestsWithParticipants,
           ongoing: ongoingContestsWithParticipants,
-          upcoming: upcomingContestsWithParticipants
+          upcoming: upcomingContestsWithParticipants,
+          finished: finishedContestsWithParticipants
         }
       )
     })
