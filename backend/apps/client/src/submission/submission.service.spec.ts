@@ -253,18 +253,15 @@ describe('SubmissionService', () => {
         resultCode: 7,
         error: 'succeed',
         submissionId: 1,
-        data: {
-          acceptedNum: 1,
-          judgeResult: {
-            testcaseId: '1',
-            resultCode: 1,
-            cpuTime: 1,
-            realTime: 1,
-            memory: 1,
-            signal: 1,
-            exitCode: 1,
-            errorCode: 1
-          }
+        judgeResult: {
+          testcaseId: '1',
+          resultCode: 1,
+          cpuTime: 1,
+          realTime: 1,
+          memory: 1,
+          signal: 1,
+          exitCode: 1,
+          errorCode: 1
         }
       }
 
@@ -464,18 +461,15 @@ describe('SubmissionService', () => {
         resultCode: 5,
         error: 'succeed',
         submissionId: 1,
-        data: {
-          acceptedNum: 1,
-          judgeResult: {
-            testcaseId: '1',
-            resultCode: 1,
-            cpuTime: 1,
-            realTime: 1,
-            memory: 1,
-            signal: 1,
-            exitCode: 1,
-            errorCode: 1
-          }
+        judgeResult: {
+          testcaseId: '1',
+          resultCode: 1,
+          cpuTime: 1,
+          realTime: 1,
+          memory: 1,
+          signal: 1,
+          exitCode: 1,
+          errorCode: 1
         }
       }
 
