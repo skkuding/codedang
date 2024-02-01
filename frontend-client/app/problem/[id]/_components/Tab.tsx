@@ -1,5 +1,3 @@
-'use client'
-
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { Route } from 'next'
 import Link from 'next/link'
@@ -10,24 +8,22 @@ interface Props {
 }
 
 export default function Tab({ id }: Props) {
-  // const [tag, setTag] = useState(false) // tag button on/off
   const pathname = usePathname()
 
   return (
-    <div className="border-b border-slate-600 pb-[6px]">
+    <div className="flex h-full items-center border-b border-slate-700 bg-slate-800 px-6">
       <Tabs
         defaultValue={
           pathname === `/problem/${id}/submission`
             ? 'Submission'
             : 'Description'
         }
-        className="ml-6 mt-1"
       >
-        <TabsList className="h-10 bg-slate-800">
+        <TabsList className="bg-slate-900">
           <Link href={`/problem/${id}`}>
             <TabsTrigger
               value="Description"
-              className="h-8 data-[state=active]:bg-slate-700 data-[state=active]:text-blue-400"
+              className="data-[state=active]:bg-slate-700 data-[state=active]:text-blue-400"
             >
               Description
             </TabsTrigger>
@@ -35,7 +31,7 @@ export default function Tab({ id }: Props) {
           <Link href={`/problem/${id}/submission` as Route}>
             <TabsTrigger
               value="Submission"
-              className="h-8 data-[state=active]:bg-slate-700 data-[state=active]:text-blue-400"
+              className="data-[state=active]:bg-slate-700 data-[state=active]:text-blue-400"
             >
               Submission
             </TabsTrigger>

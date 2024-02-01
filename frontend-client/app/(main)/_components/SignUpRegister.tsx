@@ -26,14 +26,20 @@ const schema = z
       .string()
       .min(3)
       .max(10)
-      .refine((data) => /^[a-zA-Z0-9]+$/.test(data)),
+      .refine((data) => /^[a-z0-9]+$/.test(data)),
     realName: z
       .string()
       .min(1)
       .max(20)
       .refine((data) => /^[a-zA-Z\s]+$/.test(data)),
-    password: z.string().min(8).max(20),
-    passwordAgain: z.string().min(8).max(20)
+    password: z
+      .string()
+      .min(8)
+      .refine((data) => {
+        const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
+        return !invalidPassword.test(data)
+      }),
+    passwordAgain: z.string().min(8)
   })
   .refine(
     (data: { password: string; passwordAgain: string }) =>
@@ -133,8 +139,10 @@ export default function SignUpRegister() {
           />
           {inputFocus === 1 && (
             <div className="mt-1 text-xs text-gray-500">
-              <p>&#x2022; Your name must be less than 20 characters</p>
-              <p>&#x2022; Your name can only contain alphabet letters</p>
+              <ul className="list-disc pl-4">
+                <li>Your name must be less than 20 characters</li>
+                <li>Your name can only contain alphabet letters</li>
+              </ul>
             </div>
           )}
           {errors.realName && (
@@ -167,11 +175,14 @@ export default function SignUpRegister() {
           </div>
           {inputFocus === 2 && (
             <div className="mt-1 text-xs text-gray-500">
-              <p>&#x2022; User ID used for log in</p>
-              <p>
-                &#x2022; Your ID must be 3-10 characters of alphabet
-                &nbsp;&nbsp;letters, numbers
-              </p>
+              <ul className="list-disc pl-4">
+                <li>User ID used for log in</li>
+                <li>
+                  Your ID must be 3-10 characters of small
+                  <br />
+                  alphabet letters, numbers
+                </li>
+              </ul>
             </div>
           )}
           {errors.username ? (
@@ -215,8 +226,13 @@ export default function SignUpRegister() {
                 !errors.password ? 'text-gray-500' : 'text-red-500'
               } mt-1 text-xs`}
             >
-              <p>&#x2022; Your password must be 8-20 characters</p>
-              <p>&#x2022; Include alphabet letters and numbers</p>
+              <ul className="pl-4">
+                <li className="list-disc">
+                  Your password must be at least 8 characters
+                </li>
+                <li>and include two of the followings:</li>
+                <li>Capital letters, Small letters, or Numbers</li>
+              </ul>
             </div>
           )}
         </div>

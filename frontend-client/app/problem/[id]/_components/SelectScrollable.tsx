@@ -30,16 +30,18 @@ export default function SelectScrollable({
       }}
       value={value}
     >
-      <SelectTrigger className="bg h-7 w-[82px] rounded-[5px] border-none bg-slate-500 focus:outline-none focus:ring-0 focus:ring-offset-0">
-        <SelectValue />
+      <SelectTrigger className="h-7 w-fit shrink-0 rounded-md border-none bg-slate-600 px-2 hover:bg-slate-700 focus:outline-none focus:ring-0 focus:ring-offset-0">
+        <p className="pr-1">
+          <SelectValue />
+        </p>
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="border-slate-700 bg-slate-800">
         <SelectGroup className="text-white">
           {languages.map((language) => (
             <SelectItem
               key={language}
               value={language}
-              className="cursor-pointer ring-0 hover:bg-slate-600"
+              className="cursor-pointer ring-0 hover:bg-slate-700"
             >
               {language}
             </SelectItem>
