@@ -84,7 +84,7 @@ describe('GroupService', () => {
       const user01Id = 4
       const groupId = 99999
 
-      expect(service.getGroup(groupId, user01Id)).to.be.rejectedWith(
+      await expect(service.getGroup(groupId, user01Id)).to.be.rejectedWith(
         Prisma.PrismaClientKnownRequestError
       )
     })
@@ -114,7 +114,7 @@ describe('GroupService', () => {
       const userId = 4
       stub(cache, 'get').resolves(null)
 
-      expect(
+      await expect(
         service.getGroupByInvitation('invalidInvitationCodeKey', userId)
       ).to.be.rejectedWith(EntityNotExistException)
     })
@@ -259,7 +259,7 @@ describe('GroupService', () => {
         }
       })
 
-      expect(service.joinGroupById(userId, groupId)).to.be.rejectedWith(
+      await expect(service.joinGroupById(userId, groupId)).to.be.rejectedWith(
         ConflictFoundException
       )
     })
@@ -269,7 +269,19 @@ describe('GroupService', () => {
         { userId, expiresAt: Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME }
       ])
 
-      expect(service.joinGroupById(userId, groupId)).to.be.rejectedWith(
+      await prisma.group.update({
+        where: {
+          id: groupId
+        },
+        data: {
+          config: {
+            allowJoinFromSearch: true,
+            requireApprovalBeforeJoin: true
+          }
+        }
+      })
+
+      await expect(service.joinGroupById(userId, groupId)).to.be.rejectedWith(
         ConflictFoundException
       )
     })
