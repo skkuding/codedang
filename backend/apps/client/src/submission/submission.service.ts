@@ -9,8 +9,9 @@ import {
 } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { ValidationError, validateOrReject } from 'class-validator'
-import { OPEN_SPACE_ID, Status } from '@libs/constants'
 import {
+  OPEN_SPACE_ID,
+  Status,
   CONSUME_CHANNEL,
   EXCHANGE,
   ORIGIN_HANDLER_NAME,
@@ -197,6 +198,7 @@ export class SubmissionService implements OnModuleInit {
         result: ResultStatus.Judging,
         userId,
         problemId: problem.id,
+        codeSize: new TextEncoder().encode(code[0].text).length,
         ...data
       }
     })
@@ -254,7 +256,7 @@ export class SubmissionService implements OnModuleInit {
     // TODO: problem 단위가 아닌 testcase 단위로 채점하도록 iris 수정
 
     this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
-      messageId: submission.id,
+      messageId: String(submission.id),
       persistent: true,
       type: PUBLISH_TYPE
     })
@@ -268,7 +270,7 @@ export class SubmissionService implements OnModuleInit {
   }
 
   async handleJudgerMessage(msg: JudgerResponse) {
-    const submissionId = msg.submissionId
+    const submissionId = parseInt(msg.submissionId)
     const resultStatus = Status(msg.resultCode)
 
     if (resultStatus === ResultStatus.ServerError) {
@@ -367,10 +369,19 @@ export class SubmissionService implements OnModuleInit {
   }
 
   // FIXME: Workbook 구분
-  async getSubmissions(
-    problemId: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Submission>[]> {
+  async getSubmissions({
+    problemId,
+    groupId = OPEN_SPACE_ID,
+    cursor = null,
+    take = 10
+  }: {
+    problemId: number
+    groupId?: number
+    cursor?: number | null
+    take?: number
+  }): Promise<Partial<Submission>[]> {
+    const paginator = this.prisma.getPaginator(cursor)
+
     await this.prisma.problem.findFirstOrThrow({
       where: {
         id: problemId,
@@ -382,6 +393,8 @@ export class SubmissionService implements OnModuleInit {
     })
 
     return await this.prisma.submission.findMany({
+      ...paginator,
+      take,
       where: {
         problemId
       },
@@ -394,7 +407,8 @@ export class SubmissionService implements OnModuleInit {
         },
         createTime: true,
         language: true,
-        result: true
+        result: true,
+        codeSize: true
       }
     })
   }
@@ -431,7 +445,8 @@ export class SubmissionService implements OnModuleInit {
         code: true,
         createTime: true,
         result: true,
-        submissionResult: true
+        submissionResult: true,
+        codeSize: true
       }
     })
     if (
@@ -478,12 +493,23 @@ export class SubmissionService implements OnModuleInit {
     )
   }
 
-  async getContestSubmissions(
-    problemId: number,
-    contestId: number,
-    userId: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Submission>[]> {
+  async getContestSubmissions({
+    problemId,
+    contestId,
+    userId,
+    groupId = OPEN_SPACE_ID,
+    cursor = null,
+    take = 10
+  }: {
+    problemId: number
+    contestId: number
+    userId: number
+    groupId?: number
+    cursor?: number | null
+    take?: number
+  }): Promise<Partial<Submission>[]> {
+    const paginator = this.prisma.getPaginator(cursor)
+
     await this.prisma.contestRecord.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -504,6 +530,8 @@ export class SubmissionService implements OnModuleInit {
     })
 
     return await this.prisma.submission.findMany({
+      ...paginator,
+      take,
       where: {
         problemId,
         contestId
@@ -517,7 +545,8 @@ export class SubmissionService implements OnModuleInit {
         },
         createTime: true,
         language: true,
-        result: true
+        result: true,
+        codeSize: true
       }
     })
   }
@@ -560,7 +589,8 @@ export class SubmissionService implements OnModuleInit {
       },
       select: {
         userId: true,
-        submissionResult: true
+        submissionResult: true,
+        codeSize: true
       }
     })
 

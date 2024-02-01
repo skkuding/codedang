@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/workbook?take=10&cursor=1
+  url: {{baseUrl}}/workbook?take=10
   body: none
   auth: none
 }
 
 query {
   take: 10
-  cursor: 1
+  ~cursor: 1
   ~groupId: 2
 }
 
@@ -25,13 +25,15 @@ assert {
 }
 
 docs {
-  # Get Group Workbooks
-  - `/group/workbook`의 형태로 `GET` request를 요청합니다.
-  - Query Parameter로 `take`와 `cursor`를 취합니다.
-  - `take`는 가져올 workbook의 개수를 의미합니다.
-    - 가져 올 workbook 개수가 `take`보다 적다면, 그만큼만 가져옵니다.
-  - `cursor`는 가져올 workbook의 시작 `id`를 의미합니다.
-    - 양수이어야 합니다.
-    - `cursor`에 해당하는 `id` workbook은 포함되지 않습니다.
-    - 만약 해당 `cursor`가 `group`에 없다면 `group`에 존재하는  `cursor` 가장 다음의 workbook `id`가 `cursor`로 설정됩니다.
+  # Get Workbooks
+  
+  공개된 문제집 목록을 가져옵니다.
+  
+  ## Query
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |take  |Integer|가져올 문제집 개수 (default: 10)|
+  |cursor|Integer|cursor 값 다음의 ID를 가진 문제집들을 반환|
+  
 }

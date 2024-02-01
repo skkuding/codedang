@@ -3,23 +3,21 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Post,
   Req,
   Get,
   Query,
   Logger,
-  ConflictException
+  ConflictException,
+  DefaultValuePipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException
 } from '@libs/exception'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
 
 @Controller('contest')
@@ -32,12 +30,12 @@ export class ContestController {
   @AuthNotNeededIfOpenSpace()
   async getContests(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', IdValidationPipe) groupId: number | undefined
+    @Query('groupId', GroupIDPipe) groupId: number
   ) {
     try {
       return await this.contestService.getContestsByGroupId(
         req.user?.id,
-        groupId ?? OPEN_SPACE_ID
+        groupId
       )
     } catch (error) {
       if (
@@ -64,15 +62,16 @@ export class ContestController {
   @Get('finished')
   @AuthNotNeededIfOpenSpace()
   async getFinishedContests(
-    @Query('groupId', IdValidationPipe) groupId: number | undefined,
+    @Query('groupId', GroupIDPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', ParseIntPipe) take: number
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number
   ) {
     try {
       return await this.contestService.getFinishedContestsByGroupId(
         cursor,
         take,
-        groupId ?? OPEN_SPACE_ID
+        groupId
       )
     } catch (error) {
       this.logger.error(error)
@@ -83,11 +82,11 @@ export class ContestController {
   @Get(':id')
   @AuthNotNeededIfOpenSpace()
   async getContest(
-    @Query('groupId', IdValidationPipe) groupId: number | undefined,
-    @Param('id', ParseIntPipe) id: number
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
-      return await this.contestService.getContest(id, groupId ?? OPEN_SPACE_ID)
+      return await this.contestService.getContest(id, groupId)
     } catch (error) {
       if (
         (error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -104,14 +103,14 @@ export class ContestController {
   @Post(':id/participation')
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
-    @Query('groupId', IdValidationPipe) groupId: number | undefined,
-    @Param('id', ParseIntPipe) contestId: number
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Param('id', new RequiredIntPipe('id')) contestId: number
   ) {
     try {
       await this.contestService.createContestRecord(
         contestId,
         req.user?.id,
-        groupId ?? OPEN_SPACE_ID
+        groupId
       )
     } catch (error) {
       if (

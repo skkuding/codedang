@@ -5,16 +5,16 @@ import {
 } from '@nestjs/common'
 
 @Injectable()
-export class IdValidationPipe implements PipeTransform {
+export class IDValidationPipe implements PipeTransform {
   transform(value: unknown) {
-    if (value === undefined) {
-      return value
-    } else if (typeof value === 'string') {
-      const id = parseInt(value)
+    if (value == null) {
+      return null
+    } else if (typeof value === 'string' || typeof value === 'number') {
+      const id = typeof value === 'string' ? parseInt(value) : value
       if (id > 0) {
         return id
       }
     }
-    throw new BadRequestException('Id must be a positive number')
+    throw new BadRequestException('ID must be a positive number')
   }
 }

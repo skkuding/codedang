@@ -1,18 +1,16 @@
 import {
   Controller,
+  DefaultValuePipe,
   Get,
   InternalServerErrorException,
   Logger,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Query
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
-import { OPEN_SPACE_ID } from '@libs/constants'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { WorkbookService } from './workbook.service'
 
 @Controller('workbook')
@@ -25,14 +23,15 @@ export class WorkbookController {
   @Get()
   async getWorkbooks(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', ParseIntPipe) take: number,
-    @Query('groupId', IdValidationPipe) groupId: number | undefined
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number,
+    @Query('groupId', GroupIDPipe) groupId: number
   ) {
     try {
       return await this.workbookService.getWorkbooksByGroupId(
         cursor,
         take,
-        groupId ?? OPEN_SPACE_ID
+        groupId
       )
     } catch (error) {
       this.logger.error(error)
@@ -42,14 +41,11 @@ export class WorkbookController {
 
   @Get(':workbookId')
   async getWorkbook(
-    @Param('workbookId', ParseIntPipe) workbookId,
-    @Query('groupId', IdValidationPipe) groupId: number | undefined
+    @Param('workbookId', new RequiredIntPipe('workbookId')) workbookId,
+    @Query('groupId', GroupIDPipe) groupId: number
   ) {
     try {
-      return await this.workbookService.getWorkbook(
-        workbookId,
-        groupId ?? OPEN_SPACE_ID
-      )
+      return await this.workbookService.getWorkbook(workbookId, groupId)
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&

@@ -40,9 +40,9 @@ export class JudgerResponse {
   @IsNotEmpty()
   resultCode: number
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  submissionId: number
+  submissionId: string
 
   @IsString()
   error: string

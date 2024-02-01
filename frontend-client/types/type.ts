@@ -37,3 +37,53 @@ export interface Problem {
   }[]
   info?: string
 }
+
+interface ProblemScore {
+  problemId: number
+  score: number
+  time: string
+}
+
+export interface Standings {
+  ranking: number
+  userId: number
+  problemScore: ProblemScore[]
+  solved: number
+  totalScore: number
+}
+
+export interface ContestProblem {
+  id: number
+  order: number
+  problemId: number
+  title: string
+  difficulty: Level
+  submissionCount: number
+  acceptedRate: number
+}
+
+export interface ProblemDetail {
+  id: number
+  title: string
+  description: string
+  inputDescription: string
+  outputDescription: string
+  inputExamples: string[]
+  outputExamples: string[]
+  languages: string[]
+  timeLimit: number
+  memoryLimit: number
+  tags: {
+    id: number
+    name: string
+  }[]
+  hint: string
+}
+
+export interface ContestClarification {
+  id: number
+  content: string
+  problemId: number
+  createTime: string
+  updateTime: string
+}

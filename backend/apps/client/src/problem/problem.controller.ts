@@ -1,24 +1,28 @@
 import {
   BadRequestException,
   Controller,
+  DefaultValuePipe,
   ForbiddenException,
   Get,
   InternalServerErrorException,
   Logger,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Query
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
-import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
-import { CursorValidationPipe, ZodValidationPipe } from '@libs/pipe'
+import {
+  CursorValidationPipe,
+  ZodValidationPipe,
+  GroupIDPipe,
+  IDValidationPipe,
+  RequiredIntPipe
+} from '@libs/pipe'
 import {
   ContestProblemService,
   ProblemService,
@@ -39,11 +43,12 @@ export class ProblemController {
 
   @Get()
   async getProblems(
-    @Query('groupId', IdValidationPipe) groupId: number | undefined,
-    @Query('contestId', IdValidationPipe) contestId: number | undefined,
-    @Query('workbookId', IdValidationPipe) workbookId: number | undefined,
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Query('workbookId', IDValidationPipe) workbookId: number | null,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', ParseIntPipe) take: number,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number,
     @Query('order', new ZodValidationPipe(problemOrderSchema))
     order: ProblemOrder,
     @Query('search') search?: string
@@ -53,7 +58,7 @@ export class ProblemController {
         return await this.problemService.getProblems({
           cursor,
           take,
-          groupId: groupId ?? OPEN_SPACE_ID,
+          groupId,
           order,
           search
         })
@@ -62,14 +67,14 @@ export class ProblemController {
           contestId,
           cursor,
           take,
-          groupId ?? OPEN_SPACE_ID
+          groupId
         )
       }
       return await this.workbookProblemService.getWorkbookProblems(
         workbookId!,
         cursor,
         take,
-        groupId ?? OPEN_SPACE_ID
+        groupId
       )
     } catch (error) {
       if (
@@ -88,28 +93,25 @@ export class ProblemController {
 
   @Get(':problemId')
   async getProblem(
-    @Query('groupId', IdValidationPipe) groupId: number | undefined,
-    @Query('contestId', IdValidationPipe) contestId: number | undefined,
-    @Query('workbookId', IdValidationPipe) workbookId: number | undefined,
-    @Param('problemId', ParseIntPipe) problemId: number
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Query('workbookId', IDValidationPipe) workbookId: number | null,
+    @Param('problemId', new RequiredIntPipe('problemId')) problemId: number
   ) {
     try {
       if (!contestId && !workbookId) {
-        return await this.problemService.getProblem(
-          problemId,
-          groupId ?? OPEN_SPACE_ID
-        )
+        return await this.problemService.getProblem(problemId, groupId)
       } else if (contestId) {
         return await this.contestProblemService.getContestProblem(
           contestId,
           problemId,
-          groupId ?? OPEN_SPACE_ID
+          groupId
         )
       }
       return await this.workbookProblemService.getWorkbookProblem(
         workbookId!,
         problemId,
-        groupId ?? OPEN_SPACE_ID
+        groupId
       )
     } catch (error) {
       if (

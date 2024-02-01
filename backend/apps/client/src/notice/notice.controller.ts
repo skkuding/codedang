@@ -3,7 +3,6 @@ import {
   Get,
   Query,
   Param,
-  ParseIntPipe,
   NotFoundException,
   InternalServerErrorException,
   Logger,
@@ -11,10 +10,8 @@ import {
   ParseBoolPipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { IdValidationPipe } from 'libs/pipe/src/id-validation.pipe'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
-import { OPEN_SPACE_ID } from '@libs/constants'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { NoticeService } from './notice.service'
 
 @Controller('notice')
@@ -26,9 +23,10 @@ export class NoticeController {
 
   @Get()
   async getNotices(
-    @Query('groupId', IdValidationPipe) groupId: number | undefined,
+    @Query('groupId', GroupIDPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number,
     @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
     @Query('search') search?: string
   ) {
@@ -38,7 +36,7 @@ export class NoticeController {
         take,
         fixed,
         search,
-        groupId: groupId ?? OPEN_SPACE_ID
+        groupId
       })
     } catch (error) {
       this.logger.error(error)
@@ -48,14 +46,11 @@ export class NoticeController {
 
   @Get(':id')
   async getNoticeByID(
-    @Query('groupId', IdValidationPipe) groupId: number | undefined,
-    @Param('id', ParseIntPipe) id: number
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
-      return await this.noticeService.getNoticeByID(
-        id,
-        groupId ?? OPEN_SPACE_ID
-      )
+      return await this.noticeService.getNoticeByID(id, groupId)
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
