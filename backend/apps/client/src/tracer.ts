@@ -8,6 +8,7 @@ import {
   SimpleSpanProcessor
 } from '@opentelemetry/sdk-trace-node'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
+import { PrismaInstrumentation } from '@prisma/instrumentation'
 
 class Tracer {
   private sdk: NodeSDK | null = null
@@ -33,7 +34,8 @@ class Tracer {
         traceExporter: this.exporter,
         instrumentations: [
           new HttpInstrumentation(),
-          new ExpressInstrumentation()
+          new ExpressInstrumentation(),
+          new PrismaInstrumentation()
         ]
       })
 

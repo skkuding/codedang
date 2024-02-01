@@ -4,7 +4,7 @@
 generator client {
   provider        = "prisma-client-js"
   // PostgreSQL full-text search feature를 사요하기 위해 previewFeatures를 추가합니다.
-  previewFeatures = ["fullTextSearch"]
+  previewFeatures = ["fullTextSearch", "tracing"]
 }
 
 generator graphql {
@@ -14,6 +14,7 @@ generator graphql {
   // emitCompiled       = true
   purgeOutput        = true
   reExport           = Single
+  previewFeatures    = ["tracing"]
 }
 
 datasource db {
