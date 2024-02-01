@@ -616,7 +616,9 @@ const createProblems = async () => {
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
-        source: ''
+        source: '',
+        inputExamples: ['1 2', '11 12'],
+        outputExamples: ['3', '23']
       }
     })
   )
@@ -644,7 +646,9 @@ const createProblems = async () => {
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
-        source: 'Canadian Computing Competition(CCC) 2012 Junior 2번'
+        source: 'Canadian Computing Competition(CCC) 2012 Junior 2번',
+        inputExamples: ['1\n10\n12\n13'],
+        outputExamples: ['Uphill']
       }
     })
   )
@@ -672,7 +676,9 @@ const createProblems = async () => {
         hint: '',
         timeLimit: 1000,
         memoryLimit: 128,
-        source: 'Canadian Computing Competition(CCC) 2013 Junior 2번'
+        source: 'Canadian Computing Competition(CCC) 2013 Junior 2번',
+        inputExamples: ['SHINS', 'NO', 'SHOW'],
+        outputExamples: ['YES', 'YES', 'NO']
       }
     })
   )
@@ -700,7 +706,9 @@ const createProblems = async () => {
         hint: await readFile(join(fixturePath, 'problem/4-hint.html'), 'utf-8'),
         timeLimit: 1000,
         memoryLimit: 128,
-        source: 'USACO 2012 US Open Bronze 1번'
+        source: 'USACO 2012 US Open Bronze 1번',
+        inputExamples: ['9\n2\n7\n3\n7\n7\n3\n7\n5\n7\n'],
+        outputExamples: ['4']
       }
     })
   )
@@ -728,7 +736,9 @@ const createProblems = async () => {
         hint: '',
         timeLimit: 1000,
         memoryLimit: 128,
-        source: 'ICPC Regionals NCPC 2009 B번'
+        source: 'ICPC Regionals NCPC 2009 B번',
+        inputExamples: ['5 3\n100\n-75\n-25\n-42\n42\n0 1\n1 2\n3 4'],
+        outputExamples: ['POSSIBLE']
       }
     })
   )
@@ -756,7 +766,9 @@ const createProblems = async () => {
         hint: await readFile(join(fixturePath, 'problem/6-hint.html'), 'utf-8'),
         timeLimit: 1000,
         memoryLimit: 128,
-        source: 'USACO November 2011 Silver 3번'
+        source: 'USACO November 2011 Silver 3번',
+        inputExamples: ['3 6', '3', '3', '1'],
+        outputExamples: ['5']
       }
     })
   )
@@ -784,7 +796,13 @@ const createProblems = async () => {
         hint: '',
         timeLimit: 2000,
         memoryLimit: 512,
-        source: 'COCI 2019/2020 Contest #3 2번'
+        source: 'COCI 2019/2020 Contest #3 2번',
+        inputExamples: [
+          'aaaaa\n2\n1 2\n4 5\n2 4 1 5 3',
+          'abbabaab\n3\n1 3\n4 7\n3 5\n6 3 5 1 4 2 7 8',
+          'abcd\n1\n1 4\n1 2 3 4'
+        ],
+        outputExamples: ['2', '5', '0']
       }
     })
   )
@@ -812,7 +830,12 @@ const createProblems = async () => {
         hint: await readFile(join(fixturePath, 'problem/8-hint.html'), 'utf-8'),
         timeLimit: 2000,
         memoryLimit: 256,
-        source: 'ICPC Regionals SEERC 2019 J번'
+        source: 'ICPC Regionals SEERC 2019 J번',
+        inputExamples: [
+          '3\n1 2 1\n2 3 1\n3 1 1',
+          '5\n4 5 4\n1 3 4\n1 2 4\n3 2 3\n3 5 2\n1 4 3\n4 2 2\n1 5 4\n5 2 4\n3 4 2'
+        ],
+        outputExamples: ['3', '35']
       }
     })
   )
