@@ -5,8 +5,8 @@ import (
 )
 
 type connector struct {
-	done     chan error
-	logger   logger.Logger
+	done   chan error
+	logger logger.Logger
 }
 
 func NewConnector(
