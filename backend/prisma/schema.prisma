@@ -355,6 +355,7 @@ model Submission {
   ///   "locked": boolean
   /// }
   code       Json[]
+  codeSize   Int?         @map("code_size")
   language   Language
   result     ResultStatus
   createTime DateTime     @default(now()) @map("create_time")

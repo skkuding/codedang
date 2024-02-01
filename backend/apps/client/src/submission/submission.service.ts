@@ -198,6 +198,7 @@ export class SubmissionService implements OnModuleInit {
         result: ResultStatus.Judging,
         userId,
         problemId: problem.id,
+        codeSize: new TextEncoder().encode(code[0].text).length,
         ...data
       }
     })
@@ -406,7 +407,8 @@ export class SubmissionService implements OnModuleInit {
         },
         createTime: true,
         language: true,
-        result: true
+        result: true,
+        codeSize: true
       }
     })
   }
@@ -443,7 +445,8 @@ export class SubmissionService implements OnModuleInit {
         code: true,
         createTime: true,
         result: true,
-        submissionResult: true
+        submissionResult: true,
+        codeSize: true
       }
     })
     if (
@@ -542,7 +545,8 @@ export class SubmissionService implements OnModuleInit {
         },
         createTime: true,
         language: true,
-        result: true
+        result: true,
+        codeSize: true
       }
     })
   }
@@ -585,7 +589,8 @@ export class SubmissionService implements OnModuleInit {
       },
       select: {
         userId: true,
-        submissionResult: true
+        submissionResult: true,
+        codeSize: true
       }
     })
 
