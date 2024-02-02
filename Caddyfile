@@ -33,7 +33,7 @@ dev.codedang.com {
 			defer
 		}
 
-		# import <pattenr> [<args...>]
+		# import <pattern> [<args...>]
 		# cors 허용할 도메인 설정
 		import cors http://localhost:5173 # frontend server (Vue)
 		import cors http://localhost:5525 # frontend server (Next.js)
