@@ -52,6 +52,16 @@ export interface Standings {
   totalScore: number
 }
 
+export interface ContestProblem {
+  id: number
+  order: number
+  problemId: number
+  title: string
+  difficulty: Level
+  submissionCount: number
+  acceptedRate: number
+}
+
 export interface ProblemDetail {
   id: number
   title: string
@@ -69,6 +79,7 @@ export interface ProblemDetail {
   }[]
   hint: string
 }
+
 
 export interface Submission {
   id: number
@@ -101,3 +112,12 @@ export interface SubmissionDetail {
     updateTime: string
   }[]
 }
+
+export interface ContestClarification {
+  id: number
+  content: string
+  problemId: number
+  createTime: string
+  updateTime: string
+}
+

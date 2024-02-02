@@ -43,7 +43,7 @@ export default function HeaderAuthPanel({ session }: HeaderAuthPanelProps) {
               Sign Up
             </Button>
           </DialogTrigger>
-          <DialogContent className="h-[520px] max-w-[22rem]">
+          <DialogContent className="min-h-[30rem] max-w-[20.5rem]">
             <AuthModal />
           </DialogContent>
         </Dialog>
