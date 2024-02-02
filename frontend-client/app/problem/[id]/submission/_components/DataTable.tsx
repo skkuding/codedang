@@ -9,7 +9,6 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import type { Submission } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -63,7 +62,11 @@ interface DataTableProps<TData, TValue> {
  * ```
  */
 
-export default function DataTable<TData extends Submission, TValue>({
+interface Item {
+  id: number
+}
+
+export default function DataTable<TData extends Item, TValue>({
   columns,
   data,
   headerStyle,

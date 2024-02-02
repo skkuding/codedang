@@ -1,10 +1,10 @@
 'use client'
 
-import type { Submission } from '@/types/type'
+import type { SubmissionItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 
-export const columns: ColumnDef<Submission>[] = [
+export const columns: ColumnDef<SubmissionItem>[] = [
   {
     header: '#',
     accessorKey: 'id',

@@ -1,5 +1,5 @@
 import { fetcherWithAuth } from '@/lib/utils'
-import type { Submission } from '@/types/type'
+import type { SubmissionItem } from '@/types/type'
 import { columns } from './_components/Columns'
 import DataTable from './_components/DataTable'
 
@@ -9,7 +9,7 @@ export default async function Submission({
   params: { id: number }
 }) {
   const { id } = params
-  const data: Submission[] = await fetcherWithAuth
+  const data: SubmissionItem[] = await fetcherWithAuth
     .get('submission', {
       searchParams: {
         problemId: id

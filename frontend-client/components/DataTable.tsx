@@ -9,13 +9,6 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import type {
-  Contest,
-  ContestClarification,
-  ContestProblem,
-  Notice,
-  Problem
-} from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -25,6 +18,10 @@ import {
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+
+interface Item {
+  id: number
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -69,15 +66,12 @@ interface DataTableProps<TData, TValue> {
  * ```
  */
 
-export default function DataTable<
-  TData extends
-    | Notice
-    | Contest
-    | Problem
-    | ContestProblem
-    | ContestClarification,
-  TValue
->({ columns, data, headerStyle, name }: DataTableProps<TData, TValue>) {
+export default function DataTable<TData extends Item, TValue>({
+  columns,
+  data,
+  headerStyle,
+  name
+}: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
