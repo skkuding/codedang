@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common'
 import type { GraphQLFormattedError } from 'graphql/error/GraphQLError'
-import { GqlErrorCodeMapTable } from './graphql-error.exception'
+import { GqlErrorCodeMapTable } from './graphql-error-code'
 
 export const apolloErrorFormatter = (
   formattedError: GraphQLFormattedError
