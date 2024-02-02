@@ -6,14 +6,6 @@ import {
   UnprocessableEntityException,
   ForbiddenException
 } from '@nestjs/common/exceptions'
-import type { GraphQLError } from 'graphql/error'
-import {
-  ConflictGraphQLException,
-  ForbiddenGraphQLException,
-  NotFoundGraphQLException,
-  UnauthorizedGraphQLException,
-  UnprocessableGraphQLException
-} from './graphql-error.exception'
 
 abstract class BusinessException extends Error {
   name: string
@@ -24,7 +16,6 @@ abstract class BusinessException extends Error {
   }
 
   abstract convert2HTTPException(message?: string): HttpException
-  abstract convert2GraphQLException(message?: string): GraphQLError
 }
 
 /** [401] Throw when a user cannot be identified with given credential. */
@@ -35,10 +26,6 @@ export class UnidentifiedException extends BusinessException {
 
   convert2HTTPException(message?: string) {
     return new UnauthorizedException(message ?? this.message)
-  }
-
-  convert2GraphQLException(message?: string) {
-    return new UnauthorizedGraphQLException(message ?? this.message)
   }
 }
 
@@ -51,10 +38,6 @@ export class InvalidJwtTokenException extends BusinessException {
   convert2HTTPException(message?: string) {
     return new UnauthorizedException(message ?? this.message)
   }
-
-  convert2GraphQLException(message?: string) {
-    return new UnauthorizedGraphQLException(message ?? this.message)
-  }
 }
 
 /** [404] Throw when requested entity is not found. */
@@ -66,10 +49,6 @@ export class EntityNotExistException extends BusinessException {
   convert2HTTPException(message?: string) {
     return new NotFoundException(message ?? this.message)
   }
-
-  convert2GraphQLException(message?: string) {
-    return new NotFoundGraphQLException(message ?? this.message)
-  }
 }
 
 /** [409] Throw when the request has a conflict with relevant entities.
@@ -78,10 +57,6 @@ export class EntityNotExistException extends BusinessException {
 export class ConflictFoundException extends BusinessException {
   convert2HTTPException(message?: string) {
     return new ConflictException(message ?? this.message)
-  }
-
-  convert2GraphQLException(message?: string) {
-    return new ConflictGraphQLException(message ?? this.message)
   }
 }
 
@@ -99,10 +74,6 @@ export class UnprocessableDataException extends BusinessException {
   convert2HTTPException(message?: string) {
     return new UnprocessableEntityException(message ?? this.message)
   }
-
-  convert2GraphQLException(message?: string) {
-    return new UnprocessableGraphQLException(message ?? this.message)
-  }
 }
 
 /** [422] Throw when file data is invalid or cannot be processed. */
@@ -116,9 +87,5 @@ export class UnprocessableFileDataException extends UnprocessableDataException {
 export class ForbiddenAccessException extends BusinessException {
   convert2HTTPException(message?: string) {
     return new ForbiddenException(message ?? this.message)
-  }
-
-  convert2GraphQLException(message?: string) {
-    return new ForbiddenGraphQLException(message ?? this.message)
   }
 }
