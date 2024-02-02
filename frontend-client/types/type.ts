@@ -80,6 +80,16 @@ export interface ProblemDetail {
   hint: string
 }
 
+export interface SubmissionItem {
+  id: number
+  user: {
+    username: string
+  }
+  createTime: string
+  language: string
+  result: string
+  codeSize: number
+}
 
 export interface Submission {
   id: number
@@ -120,4 +130,3 @@ export interface ContestClarification {
   createTime: string
   updateTime: string
 }
-
