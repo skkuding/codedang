@@ -49,8 +49,9 @@ dev.codedang.com {
 	}
 
 	handle {
-		root * /var/www/html
-		try_files {path} /index.html
-		file_server
+		reverse_proxy https://codedang.vercel.app {
+			# Must override host to avoid Vercel error
+			header_up Host codedang.vercel.app
+		}
 	}
 }
