@@ -168,21 +168,17 @@ describe('GroupService', () => {
     const userId = 4
 
     beforeEach(async () => {
-      try {
-        const group = await prisma.group.create({
-          data: {
-            groupName: 'test',
-            description: 'test',
-            config: {
-              allowJoinFromSearch: true,
-              requireApprovalBeforeJoin: false
-            }
+      const group = await prisma.group.create({
+        data: {
+          groupName: 'test',
+          description: 'test',
+          config: {
+            allowJoinFromSearch: true,
+            requireApprovalBeforeJoin: false
           }
-        })
-        groupId = group.id
-      } catch {
-        return
-      }
+        }
+      })
+      groupId = group.id
     })
 
     afterEach(async () => {
@@ -193,13 +189,18 @@ describe('GroupService', () => {
             userId_groupId: { userId, groupId }
           }
         })
+      } catch {
+        /* 삭제할 내용이 없는 경우 예외 무시 */
+      }
+
+      try {
         await prisma.group.delete({
           where: {
             id: groupId
           }
         })
       } catch {
-        return
+        /* 삭제할 내용 없을 경우 예외 무시 */
       }
     })
 
