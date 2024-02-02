@@ -10,7 +10,6 @@ terraform {
 module "codedang-infra" {
   source               = "../modules/codedang-infra"
   region               = var.region
-  s3_bucket            = var.s3_bucket
   postgres_username    = var.postgres_username
   postgres_port        = var.postgres_port
   redis_port           = var.redis_port
