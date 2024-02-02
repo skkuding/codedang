@@ -23,7 +23,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_ECR }}
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_ECR_PUSH }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -47,7 +47,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_ECR }}
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_ECR_PUSH }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -71,7 +71,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_ECR }}
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_ECR_PUSH }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -99,7 +99,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_DEPLOY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - uses: hashicorp/setup-terraform@v3
@@ -109,13 +109,9 @@ jobs:
       - name: Create Terraform variable file
         working-directory: ./infra/deploy
         run: |
-          echo "$TFVARS" >> terraform.tfvars
-          echo "$OAUTH_GITHUB" >> terraform.tfvars
-          echo "$OAUTH_KAKAO" >> terraform.tfvars
-        env:
-          TFVARS: ${{ secrets.TF_TFVARS }}
-          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
-          OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
+          echo "${{ secrets.TFVARS }}" >> terraform.tfvars
+          echo "${{ secrets.OAUTH_GITHUB }}" >> terraform.tfvars
+          echo "${{ secrets.OAUTH_KAKAO }}" >> terraform.tfvars
 
       - name: Terraform Init
         working-directory: ./infra/deploy
