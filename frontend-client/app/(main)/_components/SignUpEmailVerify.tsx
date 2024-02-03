@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 import { baseUrl } from '@/lib/vars'
 import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -97,74 +98,61 @@ export default function SignUpEmailVerify() {
   }
 
   return (
-    <div className="mb-24 mt-24">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <p className="mb-5 mt-8 text-left text-xl font-bold text-blue-500">
-          Sign Up
-        </p>
-        {!sentEmail && (
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-1">
+      <p className="mb-4 text-left text-xl font-bold text-blue-500">Sign Up</p>
+      {!sentEmail && (
+        <Input
+          id="email"
+          type="email"
+          className="w-64"
+          placeholder="Email Address"
+          {...register('email')}
+        />
+      )}
+      {errors.email && (
+        <p className="text-xs text-red-500">{errors.email?.message}</p>
+      )}
+      <p className="text-xs text-red-500">{emailError}</p>
+      {sentEmail && (
+        <>
+          <div className="text-sm font-semibold text-gray-500">
+            {emailContent}
+          </div>
           <Input
-            id="email"
-            type="email"
-            className="w-64"
-            placeholder="Email Address"
-            {...register('email')}
+            type="number"
+            placeholder="Verification Code"
+            {...register('verificationCode', {
+              onChange: () => verifyCode()
+            })}
           />
+        </>
+      )}
+      <p className="text-xs text-red-500">
+        {errors.verificationCode ? errors.verificationCode?.message : codeError}
+      </p>
+      {sentEmail &&
+        !errors.verificationCode &&
+        codeError === '' &&
+        !emailVerified && (
+          <p className="text-xs text-blue-500">We&apos;ve sent an email!</p>
         )}
-        {errors.email && (
-          <p className="mt-1 text-xs text-red-500">{errors.email?.message}</p>
-        )}
-        <p className="mt-1 text-xs text-red-500">{emailError}</p>
-        {sentEmail && (
-          <>
-            <div className="mb-2 text-sm font-semibold text-gray-500">
-              {emailContent}
-            </div>
-            <Input
-              type="number"
-              placeholder="Verification Code"
-              {...register('verificationCode', {
-                onChange: () => verifyCode()
-              })}
-            />
-          </>
-        )}
-        {errors.verificationCode ? (
-          <p className="mt-1 text-xs text-red-500">
-            {errors.verificationCode?.message}
-          </p>
-        ) : (
-          <p className="mt-1 text-xs text-red-500">{codeError}</p>
-        )}
-        {sentEmail &&
-          !errors.verificationCode &&
-          codeError === '' &&
-          !emailVerified && (
-            <p className="mt-1 text-xs text-blue-500">
-              We&apos;ve sent an email!
-            </p>
-          )}
-
-        {!sentEmail ? (
-          <Button
-            type="button"
-            className="mt-3 w-64"
-            onClick={() => sendEmail()}
-          >
-            Send Email
-          </Button>
-        ) : (
-          <Button
-            type="submit"
-            className={`${
-              emailVerified ? 'mt-3 w-64' : 'mt-3 w-64 bg-gray-400'
-            }`}
-            disabled={!emailVerified}
-          >
-            Next
-          </Button>
-        )}
-      </form>
-    </div>
+      {!sentEmail ? (
+        <Button
+          type="button"
+          className="mb-8 mt-2 w-64"
+          onClick={() => sendEmail()}
+        >
+          Send Email
+        </Button>
+      ) : (
+        <Button
+          type="submit"
+          className={cn('mb-8 mt-2 w-64', !emailVerified && 'bg-gray-400')}
+          disabled={!emailVerified}
+        >
+          Next
+        </Button>
+      )}
+    </form>
   )
 }

@@ -38,43 +38,45 @@ export default function SignIn() {
     }
   }
   return (
-    <div className="flex w-full flex-col gap-3">
-      <div className="mb-8 flex justify-center py-4">
+    <div className="flex h-full w-full flex-col justify-between">
+      <div className="flex justify-center pt-4">
         <Image src={CodedangLogo} alt="코드당" height={64} />
       </div>
-      <form
-        className="flex w-full flex-col gap-3"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <Input placeholder="ID" type="text" {...register('username')} />
-        <Input
-          placeholder="Password"
-          type="password"
-          {...register('password')}
-        />
-        <Button className="w-full" type="submit">
-          Sign In
-        </Button>
-      </form>
-      <div className="mb-1 mt-4 flex items-center justify-center gap-5">
-        <Separator className="flex-1" />
-        <p className="w-fit flex-none text-center text-xs text-gray-500">
-          OR continue with
-        </p>
-        <Separator className="flex-1" />
+      <div className="flex flex-col gap-4">
+        <form
+          className="flex w-full flex-col gap-3"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <Input placeholder="ID" type="text" {...register('username')} />
+          <Input
+            placeholder="Password"
+            type="password"
+            {...register('password')}
+          />
+          <Button className="w-full" type="submit">
+            Sign In
+          </Button>
+        </form>
+        <div className="flex items-center justify-center gap-5">
+          <Separator className="flex-1" />
+          <p className="w-fit flex-none text-center text-xs text-gray-500">
+            OR continue with
+          </p>
+          <Separator className="flex-1" />
+        </div>
+        <div className="flex w-full items-center justify-center gap-5">
+          <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#FEE500] hover:opacity-80">
+            <Image src={KakaotalkLogo} alt="카카오톡" width={20} />
+          </div>
+          <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#EEEEEE] hover:opacity-80">
+            <FcGoogle size="22" />
+          </div>
+          <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#212528] hover:opacity-80">
+            <FaGithub className="text-white" size="22" />
+          </div>
+        </div>
       </div>
-      <div className="flex w-full items-center justify-center gap-5">
-        <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#FEE500] hover:opacity-80">
-          <Image src={KakaotalkLogo} alt="카카오톡" width={20} />
-        </div>
-        <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#EEEEEE] hover:opacity-80">
-          <FcGoogle size="22" />
-        </div>
-        <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#212528] hover:opacity-80">
-          <FaGithub className="text-white" size="22" />
-        </div>
-      </div>
-      <div className="mt-12 flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <Button
           onClick={() => showSignUp()}
           variant={'link'}

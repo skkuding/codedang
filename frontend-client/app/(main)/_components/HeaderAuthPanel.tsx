@@ -5,9 +5,9 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import useAuthModalStore from '@/stores/authModal'
 import useSignUpModalStore from '@/stores/signUpModal'
 import type { Session } from 'next-auth'
-import { signOut } from 'next-auth/react'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import AuthModal from './AuthModal'
+import UserDropdownMenu from './UserDropdown'
 
 interface HeaderAuthPanelProps {
   session: Session | null
@@ -19,14 +19,7 @@ export default function HeaderAuthPanel({ session }: HeaderAuthPanelProps) {
   return (
     <div className="ml-2 flex items-center gap-2">
       {session ? (
-        <p
-          className="font-bold"
-          onClick={() => {
-            signOut()
-          }}
-        >
-          {session.user.username}
-        </p>
+        <UserDropdownMenu username={session.user.username} />
       ) : (
         <Dialog>
           <DialogTrigger asChild>
@@ -50,7 +43,7 @@ export default function HeaderAuthPanel({ session }: HeaderAuthPanelProps) {
               Sign Up
             </Button>
           </DialogTrigger>
-          <DialogContent className="h-[520px] max-w-[22rem]">
+          <DialogContent className="min-h-[30rem] max-w-[20.5rem]">
             <AuthModal />
           </DialogContent>
         </Dialog>

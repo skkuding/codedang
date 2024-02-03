@@ -1,14 +1,14 @@
 import { Button } from '@/components/ui/button'
-import { fetcher } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
 import dummyImg from '@/public/dummy.png'
 import GithubLogo from '@/public/github.svg'
 import SkkudingLogo from '@/public/skkudingLogo.png'
-import type { Contest, WorkbookProblem } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import Carousel from './_components/Carousel'
-import ContestCard from './_components/ContestCard'
-import ProblemCard from './_components/ProblemCard'
+import ContestCards from './_components/ContestCards'
+import ProblemCards from './_components/ProblemCards'
 
 // FIXME: Build error occurs when using static routes
 // Disable static routes as a workaround for now
@@ -45,100 +45,48 @@ const slides = [
   }
 ]
 
-const getContests = async () => {
-  const data: {
-    ongoing: Contest[]
-    upcoming: Contest[]
-  } = await fetcher.get('contest').json()
-  data.ongoing.forEach((contest) => {
-    contest.status = 'ongoing'
-  })
-  data.upcoming.forEach((contest) => {
-    contest.status = 'upcoming'
-  })
-  let contests = data.ongoing.concat(data.upcoming)
-
-  if (contests.length < 3) {
-    const data: {
-      finished: Contest[]
-    } = await fetcher
-      .get('contest/finished', {
-        searchParams: {
-          take: 3
-        }
-      })
-      .json()
-    data.finished.forEach((contest) => {
-      contest.status = 'finished'
-    })
-    contests = contests.concat(data.finished)
-  }
-  return contests.slice(0, 3)
-}
-
-export default async function Home() {
-  const contests = await getContests()
-  const problems: WorkbookProblem[] = await fetcher
-    .get('problem', {
-      searchParams: {
-        take: 3,
-        workbookId: 1
-      }
-    })
-    .json()
+export default function Home() {
   return (
     <div className="flex w-full flex-col gap-12 lg:items-center">
       <Carousel slides={slides} />
-      {contests.length !== 0 && (
-        <div className="flex w-full flex-col gap-3">
-          <div className="flex w-full items-center justify-between text-gray-700">
-            <p className="text-xl font-bold">Contest</p>
-            <Link href="/contest">
-              <Button variant="outline" className="h-8">
-                More
-              </Button>
-            </Link>
-          </div>
-          <div className="grid w-full grid-cols-3 gap-5">
-            {contests.map((contest) => {
-              return (
-                <Link
-                  key={contest.id}
-                  href={`/contest/${contest.id}` as Route}
-                  className="inline-block h-[125px] w-[375px]"
-                >
-                  <ContestCard contest={contest} />
-                </Link>
-              )
-            })}
-          </div>
+      <div className="flex w-full flex-col gap-3">
+        <div className="flex w-full items-center justify-between text-gray-700">
+          <p className="text-xl font-bold">Contest</p>
+          <Link href="/contest">
+            <Button variant="outline" className="h-8">
+              More
+            </Button>
+          </Link>
         </div>
-      )}
-      {problems.length !== 0 && (
-        <div className="flex w-full flex-col gap-3">
-          <div className="flex w-full items-center justify-between text-gray-700">
-            <p className="text-xl font-bold">Professor’s Recommendation</p>
-            <Link href={'/workbook/1' as Route}>
-              <Button variant="outline" className="h-8">
-                More
-              </Button>
-            </Link>
-          </div>
-          <div className="grid w-full grid-cols-3 gap-5">
-            {problems.map((problem) => {
-              return (
-                <Link
-                  key={problem.problemId}
-                  href={`/problem/${problem.problemId}` as Route}
-                  className="inline-block w-full"
-                >
-                  <ProblemCard problem={problem} />
-                </Link>
-              )
-            })}
-          </div>
+        <div className="grid w-full grid-cols-3 gap-5">
+          <Suspense
+            fallback={[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="flex h-[120px] w-full rounded-xl" />
+            ))}
+          >
+            <ContestCards />
+          </Suspense>
         </div>
-      )}
+      </div>
+      <div className="flex w-full flex-col gap-3">
+        <div className="flex w-full items-center justify-between text-gray-700">
+          <p className="text-xl font-bold">Professor’s Recommendation</p>
+          <Link href={'/workbook/1' as Route}>
+            <Button variant="outline" className="h-8">
+              More
+            </Button>
+          </Link>
+        </div>
+        <div className="grid w-full grid-cols-3 gap-5">
+          <Suspense
+            fallback={[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="flex h-[120px] w-full rounded-xl" />
+            ))}
+          >
+            <ProblemCards />
+          </Suspense>
+        </div>
+      </div>
     </div>
   )
 }
