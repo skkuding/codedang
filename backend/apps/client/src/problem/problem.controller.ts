@@ -1,8 +1,6 @@
 import {
-  BadRequestException,
   Controller,
   DefaultValuePipe,
-  ForbiddenException,
   Get,
   InternalServerErrorException,
   Logger,
@@ -84,7 +82,7 @@ export class ProblemController {
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -121,7 +119,7 @@ export class ProblemController {
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
-        throw new BadRequestException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()

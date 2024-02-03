@@ -1,10 +1,7 @@
 import {
-  BadRequestException,
   InternalServerErrorException,
   Logger,
-  NotFoundException,
-  ParseBoolPipe,
-  UnprocessableEntityException
+  ParseBoolPipe
 } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
@@ -53,10 +50,11 @@ export class ContestResolver {
         input
       )
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof EntityNotExistException
+      ) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -71,10 +69,11 @@ export class ContestResolver {
     try {
       return await this.contestService.updateContest(groupId, input)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+      if (
+        error instanceof EntityNotExistException ||
+        error instanceof UnprocessableDataException
+      ) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -90,7 +89,7 @@ export class ContestResolver {
       return await this.contestService.deleteContest(groupId, contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -114,10 +113,11 @@ export class ContestResolver {
         contestId
       )
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ConflictFoundException) {
-        throw new BadRequestException(error.message)
+      if (
+        error instanceof EntityNotExistException ||
+        error instanceof ConflictFoundException
+      ) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -137,7 +137,7 @@ export class ContestResolver {
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -158,7 +158,7 @@ export class ContestResolver {
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()

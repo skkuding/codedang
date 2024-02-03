@@ -1,6 +1,4 @@
 import {
-  ConflictException,
-  ForbiddenException,
   InternalServerErrorException,
   Logger,
   NotFoundException,
@@ -50,7 +48,7 @@ export class ProblemResolver {
       )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+        throw error.convert2HTTPException()
       } else if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2003'
@@ -78,7 +76,7 @@ export class ProblemResolver {
       )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -126,16 +124,17 @@ export class ProblemResolver {
     try {
       return await this.problemService.updateProblem(input, groupId)
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof ConflictFoundException
+      ) {
+        throw error.convert2HTTPException()
       } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.name == 'NotFoundError') {
           throw new NotFoundException(error.message)
         } else if (error.code === 'P2003') {
           throw new UnprocessableEntityException(error.message)
         }
-      } else if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -176,10 +175,11 @@ export class ProblemResolver {
     try {
       return this.problemService.getWorkbookProblems(groupId, workbookId)
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof ForbiddenAccessException
+      ) {
+        throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
@@ -208,10 +208,11 @@ export class ProblemResolver {
         orders
       )
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof ForbiddenAccessException
+      ) {
+        throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
@@ -234,10 +235,11 @@ export class ProblemResolver {
     try {
       return this.problemService.getContestProblems(groupId, contestId)
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof ForbiddenAccessException
+      ) {
+        throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
@@ -265,10 +267,11 @@ export class ProblemResolver {
         orders
       )
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof ForbiddenAccessException
+      ) {
+        throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
         throw new EntityNotExistException(error.message)
       }
