@@ -53,13 +53,13 @@ export class NoticeService {
 
   async updateNotice(
     groupId: number,
-    id: number,
+    noticeId: number,
     updateNoticeInput: UpdateNoticeInput
   ) {
     try {
       return await this.prisma.notice.update({
         where: {
-          id,
+          id: noticeId,
           groupId
         },
         data: updateNoticeInput
