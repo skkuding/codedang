@@ -95,9 +95,6 @@ export class NoticeService {
       take,
       where: {
         groupId
-      },
-      orderBy: {
-        createTime: 'desc'
       }
     })
   }
