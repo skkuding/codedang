@@ -197,7 +197,7 @@ export class ProblemResolver {
     workbookId: number
   ) {
     try {
-      return this.problemService.getWorkbookProblems(groupId, workbookId)
+      return await this.problemService.getWorkbookProblems(groupId, workbookId)
     } catch (error) {
       if (
         error instanceof UnprocessableDataException ||
@@ -226,7 +226,7 @@ export class ProblemResolver {
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
     try {
-      return this.problemService.updateWorkbookProblemsOrder(
+      return await this.problemService.updateWorkbookProblemsOrder(
         groupId,
         workbookId,
         orders
@@ -257,7 +257,7 @@ export class ProblemResolver {
     contestId: number
   ) {
     try {
-      return this.problemService.getContestProblems(groupId, contestId)
+      return await this.problemService.getContestProblems(groupId, contestId)
     } catch (error) {
       if (
         error instanceof UnprocessableDataException ||
@@ -285,7 +285,7 @@ export class ProblemResolver {
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
     try {
-      return this.problemService.updateContestProblemsOrder(
+      return await this.problemService.updateContestProblemsOrder(
         groupId,
         contestId,
         orders

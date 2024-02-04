@@ -34,4 +34,5 @@ body:graphql:vars {
 
 assert {
   res.body.errors[0].message: eq the len of orders and the len of contestProblem are not equal.
+  res.body.errors[0].extensions.code: eq UNPROCESSABLE
 }
