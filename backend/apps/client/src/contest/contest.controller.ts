@@ -147,7 +147,7 @@ export class ContestController {
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
-        throw new convert2HTTPException()
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
