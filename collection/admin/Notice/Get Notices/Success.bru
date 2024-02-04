@@ -21,12 +21,20 @@ body:graphql {
   }
 }
 
+assert {
+  res.body.data.getNotices: isDefined
+}
+
 docs {
   ## Get a List of Notices
-  cursor-based pagination을 적용하여 조건에 맞는 공지사항을 다수 가져옵니다.
+  cursor-based pagination을 적용하여 조건에 맞는 공지사항을 다수 조회한다.
   
-  #### Query Args
-  - cursor는 pagination의 기준이 되는 값으로, 보통 이전 페이지의 마지막 기준값으로 설정합니다. cursor를 전달하지 않으면 맨 처음 페이지부터 가져옵니다.
-  - groupId를 전달하지 않으면 Open Space의 공지사항을 가져옵니다.
-  - take는 한 페이지에 포함할 공지사항의 개수입니다. take를 전달하지 않으면 기본값 10이 적용됩니다.
+  ### Args
+  
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |groupId|int|포함하지 않으면 Open Space에 대한 요청이 된다. 기본값은 1.|
+  |cursor|int|pagination의 기준이 되는 noticeId. 이전 페이지의 마지막 noticeId가 되어야 한다. 없으면 첫번째 페이지를 가져온다.|
+  |take|int|한 번에 가져올 공지사항의 수. 기본값은 10.|
+  
 }

@@ -25,13 +25,23 @@ body:graphql:vars {
   }
 }
 
+assert {
+  res.body.data.deleteNotice: isDefined
+}
+
 docs {
   ## Delete a Notice
-  단일 공지사항을 삭제합니다.
+  단일 공지사항을 삭제한다.
   
-  #### Mutation Args
-  - groupId를 포함하지 않으면 Open Space에 대한 요청이 됩니다.
+  ### Args
   
-  #### Error Case
-  - NotFound: 전달한 groupId와 noticeId에 맞는 공지사항이 없는 경우
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |groupId|int|포함하지 않으면 Open Space에 대한 요청이 된다. 기본값은 1.|
+  |noticeId|int|삭제할 공지사항의 id|
+  
+  ### Error Case
+  
+  #### NOT_FOUND
+  전달한 groupId와 noticeId에 맞는 공지사항이 없는 경우에 해당한다.
 }

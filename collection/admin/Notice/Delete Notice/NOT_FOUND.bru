@@ -1,5 +1,5 @@
 meta {
-  name: NotFound
+  name: NOT_FOUND
   type: graphql
   seq: 2
 }
@@ -24,4 +24,9 @@ body:graphql:vars {
     "groupId": 1,
     "noticeId": 9999999
   }
+}
+
+assert {
+  res.body.errors[0].extensions.code: eq "NOT_FOUND"
+  res.body.errors[0].message: eq "Notice does not exist"
 }

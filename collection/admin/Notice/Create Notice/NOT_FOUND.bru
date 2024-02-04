@@ -1,5 +1,5 @@
 meta {
-  name: NotFound
+  name: NOT_FOUND
   type: graphql
   seq: 2
 }
@@ -35,4 +35,9 @@ body:graphql:vars {
       "isVisible": true
     }
   }
+}
+
+assert {
+  res.body.errors[0].extensions.code: eq "NOT_FOUND"
+  res.body.errors[0].message: eq "Group does not exist"
 }
