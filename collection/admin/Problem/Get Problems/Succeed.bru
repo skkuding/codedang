@@ -1,0 +1,57 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetProblems($groupId: Int!, $cursor: Int, $take: Int!, $input: FilterProblemsInput!) {
+    getProblems(groupId: $groupId, cursor: $cursor, take: $take, input: $input) {
+      id
+      createdById
+      groupId
+      title
+      description
+      inputDescription
+      outputDescription
+      hint
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "cursor": 1,
+    "take": 10,
+    "input": {
+      "difficulty": ["Level1", "Level2", "Level3", "Level4", "Level5"],
+      "languages": ["C", "Cpp", "Java", "Python3"]
+    }
+  }
+}
+
+assert {
+  res.body.data: isDefined
+}
+
+docs {
+  ## Get Problems
+  조건에 맞는 Problem들을 가져옵니다.
+  조건에 맞는 Problem이 없다면, 빈 배열을 반환합니다.
+  
+  ### Args
+  | 이름 | 타입 | 설명 |
+  | -- | -- | -- |
+  | groupId | Int | Problem이 속해있는 Group의 ID (기본값: `OPEN_SPACE_ID`) |
+  | cursor | Int | pagenation을 위한 cursor값|
+  | take | Int | 가져올 값의 개수 |
+  | input | FilterProblemsInput | 가져올 Problem의 조건 지정을 위한 객체 |
+  
+}

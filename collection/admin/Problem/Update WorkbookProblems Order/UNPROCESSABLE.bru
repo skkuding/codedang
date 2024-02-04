@@ -1,5 +1,5 @@
 meta {
-  name: Error: No Workbook found
+  name: UNPROCESSABLE
   type: graphql
   seq: 1
 }
@@ -20,23 +20,17 @@ body:graphql {
       updateTime
     }
   }
-
+  
 }
 
 body:graphql:vars {
   {
     "groupId": 1,
-    "workbookId": 99,
-    "orders": [8, 7, 6, 5, 4, 3, 2, 1]
+    "workbookId": 1,
+    "orders": [8, 7, 6, 5, 4, 3, 2]
   }
 }
 
 assert {
-  res.body.errors[0].message: eq No Workbook found
-}
-
-docs {
-  # Error: No Workbook found
-
-  - `workbookId`가 `groupId`에 속하지 않으면, `No Workbook found` Error를 반환합니다.
+  res.body.errors[0].message: eq the len of orders and the len of workbookProblem are not equal.
 }

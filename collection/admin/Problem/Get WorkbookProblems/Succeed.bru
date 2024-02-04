@@ -1,7 +1,7 @@
 meta {
-  name: Error: No Workbook found
+  name: Succeed
   type: graphql
-  seq: 2
+  seq: 1
 }
 
 post {
@@ -26,16 +26,24 @@ body:graphql {
 body:graphql:vars {
   {
     "groupId": 1,
-    "workbookId":  99
+    "workbookId":  1
   }
 }
 
 assert {
-  res.body.errors[0].message: eq No Workbook found
+  res.body.data: isDefined
 }
 
 docs {
-  # Error: No Workbook found
+  ## Get WorkbookProblems
+  workbook problem들을 가져옵니다.
   
-  - `workbookId`가 `groupId`에 속하지 않으면, `No Workbook found` Error를 반환합니다.
+  ### Args
+  | 이름 | 타입 | 설명 |
+  | -- | -- | -- |
+  | groupId | Int | workbook이 속한 Group의 ID (기본값: `OPEN_SPACE_ID`) |
+  | workbookId | Int | workbook의 id |
+  
+  ### Error Cases
+  (TODO)
 }

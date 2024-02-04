@@ -1,0 +1,84 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateProblem($groupId: Int!, $input:  CreateProblemInput!) {
+    createProblem(groupId: $groupId, input: $input) {
+      id
+      createdById
+      groupId
+      title
+      description
+      inputDescription
+      outputDescription
+      hint
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "input": {
+      "title": "createdProblem",
+      "description": "description",
+      "inputDescription": "input description",
+      "outputDescription": "output description",
+      "hint": "hint",
+      "template": {
+        "language": "Cpp",
+        "code": [
+          {
+            "id": 1,
+            "text": "int main() {}",
+            "locked": false
+          }
+        ]
+      },
+      "languages": ["Cpp"],
+      "timeLimit": 0,
+      "memoryLimit": 0,
+      "difficulty": "Level2",
+      "source": "source",
+      "inputExamples": [],
+      "outputExamples": [],
+      "testcases": [
+        {
+          "input": "input",
+          "output": "output"
+        }
+      ],
+      "tagIds": [1]
+    }
+  }
+}
+
+assert {
+  res.body.data: isDefined
+}
+
+docs {
+  ## Create Problem
+  Problem을 생성합니다.
+  
+  ### Args
+  | 이름 | 타입 | 설명 |
+  | -- | -- | -- |
+  | groupId | Int | 생성된 Problem이 속할 Group의 ID (기본값: `OPEN_SPACE_ID`) |
+  | input | CreateProblemInput | Problem 생성에 필요한 데이터 |
+  
+  ### Error Cases
+  #### UNPROCESSABLE(1)
+  Problem은 최소 1개 이상의 프로그래밍 언어를 지원해야 합니다.
+  #### UNPROCESSABLE(2)
+  Problem은 Template에 존재하는 프로그래밍 언어를 지원해야 합니다.
+}

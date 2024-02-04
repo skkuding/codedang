@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation DeleteProblem($groupId: Int!, $id: Int!) {
-    deleteProblem(groupId: $groupId, id: $id) {
+  query GetProblem($groupId: Int!, $id: Int!) {
+    getProblem(groupId: $groupId, id: $id) {
       id
       createdById
       groupId
@@ -28,7 +28,7 @@ body:graphql {
 body:graphql:vars {
   {
     "groupId": 1,
-    "id": 5
+    "id": 1
   }
 }
 
@@ -37,16 +37,16 @@ assert {
 }
 
 docs {
-  ## Delete Problem
-  Problem을 삭제합니다.
+  ## Get a Problem
+  Problem을 가져옵니다.
   
   ### Args
   | 이름 | 타입 | 설명 |
   | -- | -- | -- |
-  | groupId | Int | 삭제할 Problem이 속한 Group의 ID (기본값: `OPEN_SPACE_ID`) |
-  | id | Int | 삭제할 Problem의 id |
+  | groupId | Int | Problem이 속해있는 Group의 ID (기본값: `OPEN_SPACE_ID`) |
+  | id | Int | Problem의 id |
   
   ### Error Cases
   #### NOT_FOUND
-  존재하는 id, groupId를 사용해야 합니다.
+  존재하지 않는 groupId 또는 id를 전달하는 경우 발생합니다.
 }

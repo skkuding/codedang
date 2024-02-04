@@ -1,5 +1,5 @@
 meta {
-  name: Error: Length not equal
+  name: NOT_FOUND
   type: graphql
   seq: 1
 }
@@ -20,23 +20,23 @@ body:graphql {
       updateTime
     }
   }
-
+  
 }
 
 body:graphql:vars {
   {
     "groupId": 1,
-    "workbookId": 1,
-    "orders": [8, 7, 6, 5, 4, 3, 2]
+    "workbookId": 99,
+    "orders": [8, 7, 6, 5, 4, 3, 2, 1]
   }
 }
 
 assert {
-  res.body.errors[0].message: eq the len of orders and the len of workbookProblem are not equal.
+  res.body.errors[0].message: eq No Workbook found
 }
 
 docs {
-  # Error: the len of orders and the len of workbookProblem are not equal
-
-  - `orders`와 `workbookId`에서 긁어온 `workbookProblem`의 길이가 다를 때 발생하는 에러입니다.
+  # Error: No Workbook found
+  
+  - `workbookId`가 `groupId`에 속하지 않으면, `No Workbook found` Error를 반환합니다.
 }
