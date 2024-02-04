@@ -1,0 +1,30 @@
+meta {
+  name: Error: Not a Member
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteGroupMember($userId: Int!, $groupId: Int!) {
+    deleteGroupMember(userId: $userId, groupId: $groupId) {
+    	userId
+      groupId
+      isGroupLeader
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2,
+    "userId": 99
+  }
+}

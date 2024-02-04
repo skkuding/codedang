@@ -1,0 +1,30 @@
+meta {
+  name: Error: Delete Manager when Num(Manager) = 1
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteGroupMember($userId: Int!, $groupId: Int!) {
+    deleteGroupMember(userId: $userId, groupId: $groupId) {
+    	userId
+      groupId
+      isGroupLeader
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 3,
+    "userId": 3
+  }
+}

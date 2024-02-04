@@ -1,0 +1,31 @@
+meta {
+  name: Error: Invalid Request
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation HandleJoinRequest($userId: Int!, $groupId: Int!, $isAccept: Boolean!) {
+  	handleJoinRequest(userId: $userId, groupId: $groupId, isAccept: $isAccept) {
+    	userId
+      groupId
+      isGroupLeader
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "userId": 77,
+    "groupId": 777,
+    "isAccept": true
+  }
+}

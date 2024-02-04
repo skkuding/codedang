@@ -1,0 +1,57 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteGroupMember($userId: Int!, $groupId: Int!) {
+  	deleteGroupMember(userId: $userId, groupId: $groupId) {
+    	userId
+      groupId
+      isGroupLeader
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2,
+    "userId": 5
+  }
+}
+
+assert {
+  res.body.data.DeleteGroupMember[0].userId: isDefined 
+  res.body.data.DeleteGroupMember[0].groupId: isDefined 
+  res.body.data.DeleteGroupMember[0].isGroupLeader: isBoolean 
+  res.body.data.DeleteGroupMember[0].createTime: isDefined 
+  res.body.data.DeleteGroupMember[0].updateTime: isDefined 
+}
+
+docs {
+  ## Delete Group Member
+  특정 Group Member를 삭제합니다.
+  
+  ### Args / Query / Params / Body
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |groupId|Int|삭제할 유저가 포함된 group의 Id|
+  |userId|Int|삭제하고 싶은 유저의 Id|
+  
+  ### Error Case
+  
+  #### Not a Member
+  특정 group에 대해서 해당 userId의 유저가 포함되어 있지 않을 경우 (해당 userId의 유저가 존재하지 않을 때에도 위 에러로 반환됩니다.)
+  
+  #### Delete Manager when num(Manager)=1
+  특정 group의 Manager가 삭제할 userId의 유저 한 명 뿐일 경우
+}

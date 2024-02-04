@@ -11,10 +11,10 @@ post {
 }
 
 body:graphql {
-  mutation {
+  mutation CreatePublicizingRequest($contestId: Int!, $groupId: Int!){
     createPublicizingRequest(
-      contestId: 3
-      groupId: 2
+      contestId: $contestId,
+      groupId: $groupId
     ) {
       contestId
       expireTime

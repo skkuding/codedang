@@ -1,0 +1,35 @@
+meta {
+  name: Error: Already Member
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateGroupMember($userId: Int!, $groupId: Int!, $toGroupLeader: Boolean!) {
+    updateGroupMember(userId: $userId, groupId: $groupId, toGroupLeader: $toGroupLeader) {
+    	userId
+      groupId
+      isGroupLeader
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2,
+    "userId": 5,
+    "toGroupLeader": false
+  }
+}
+
+assert {
+  res.body.errors[0].message: eq userId 5 is already member
+}
