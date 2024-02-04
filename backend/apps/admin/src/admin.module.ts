@@ -12,6 +12,7 @@ import {
   GroupLeaderGuard
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
+import { apolloErrorFormatter } from '@libs/exception'
 import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { NoticeModule } from '@admin/notice/notice.module'
@@ -35,7 +36,8 @@ import { UserModule } from './user/user.module'
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
       sortSchema: true,
-      introspection: true
+      introspection: true,
+      formatError: apolloErrorFormatter
     }),
     CacheModule.registerAsync({
       isGlobal: true,

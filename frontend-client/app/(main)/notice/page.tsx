@@ -1,48 +1,43 @@
-import DataTable from '@/components/DataTable'
 import SearchBar from '@/components/SearchBar'
-import { fetcher } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { Notice } from '@/types/type'
-import { columns } from './_components/Columns'
+import { Suspense } from 'react'
+import NoticeTable from './_components/NoticeTable'
 
 interface NoticeProps {
   searchParams: { search: string }
 }
 
-export default async function Notice({ searchParams }: NoticeProps) {
+export default function Notice({ searchParams }: NoticeProps) {
   const search = searchParams.search ?? ''
-  const fixedData: Notice[] = await fetcher
-    .get('notice', {
-      searchParams: {
-        fixed: 'true',
-        take: '10'
-      }
-    })
-    .json()
-  const data: Notice[] = await fetcher
-    .get('notice', {
-      searchParams: {
-        search,
-        take: '10'
-      }
-    })
-    .json()
-  const currentPageData = fixedData.concat(data)
 
   return (
     <>
       <div className="flex w-full justify-end">
         <SearchBar />
       </div>
-      <DataTable
-        data={currentPageData}
-        columns={columns}
-        headerStyle={{
-          title: 'text-left w-2/4 md:w-4/6',
-          createdBy: 'w-1/4 md:w-1/6',
-          createTime: 'w-1/4 md:w-1/6'
-        }}
-        name="notice"
-      />
+      <Suspense
+        fallback={
+          <>
+            <div className="mt-4 flex">
+              <span className="w-2/4 md:w-4/6">
+                <Skeleton className="h-6 w-20" />
+              </span>
+              <span className="w-1/4 md:w-1/6">
+                <Skeleton className="mx-auto h-6 w-20" />
+              </span>
+              <span className="w-1/4 md:w-1/6">
+                <Skeleton className="mx-auto h-6 w-20" />
+              </span>
+            </div>
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} className="my-2 flex h-12 w-full rounded-xl" />
+            ))}
+          </>
+        }
+      >
+        <NoticeTable search={search} />
+      </Suspense>
     </>
   )
 }
