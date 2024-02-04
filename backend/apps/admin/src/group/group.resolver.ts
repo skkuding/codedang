@@ -41,7 +41,7 @@ export class GroupResolver {
   async getGroups(
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
-    @Args('take', { type: () => Int }) take: number
+    @Args('take', { type: () => Int, defaultValue: 10 }) take: number
   ) {
     return await this.groupService.getGroups(cursor, take)
   }
