@@ -28,7 +28,11 @@ export class UserResolver {
     groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
-    @Args('take', { type: () => Int }, new RequiredIntPipe('take'))
+    @Args(
+      'take',
+      { type: () => Int, defaultValue: 10 },
+      new RequiredIntPipe('take')
+    )
     take: number,
     @Args('leaderOnly', { defaultValue: false }) leaderOnly: boolean
   ) {

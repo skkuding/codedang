@@ -101,7 +101,7 @@ export class ProblemResolver {
     groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
-    @Args('take', { type: () => Int }) take: number,
+    @Args('take', { type: () => Int, defaultValue: 10 }) take: number,
     @Args('input') input: FilterProblemsInput
   ) {
     return await this.problemService.getProblems(input, groupId, cursor, take)

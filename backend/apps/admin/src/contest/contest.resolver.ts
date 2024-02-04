@@ -27,7 +27,11 @@ export class ContestResolver {
 
   @Query(() => [Contest])
   async getContests(
-    @Args('take', { type: () => Int }, new RequiredIntPipe('take'))
+    @Args(
+      'take',
+      { type: () => Int, defaultValue: 10 },
+      new RequiredIntPipe('take')
+    )
     take: number,
     @Args(
       'groupId',
