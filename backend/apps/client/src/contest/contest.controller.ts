@@ -8,10 +8,8 @@ import {
   Get,
   Query,
   Logger,
-  ConflictException,
   DefaultValuePipe,
-  Delete,
-  ForbiddenException
+  Delete
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
@@ -122,7 +120,7 @@ export class ContestController {
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
@@ -149,7 +147,7 @@ export class ContestController {
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+        throw new convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)

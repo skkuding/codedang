@@ -12,13 +12,13 @@ const useAuthModalStore = create<AuthModalStore>(
       set({ currentModal: '' })
       setTimeout(() => {
         set({ currentModal: 'signIn' })
-      }, 150)
+      }, 180)
     },
     showSignUp: () => {
       set({ currentModal: '' })
       setTimeout(() => {
         set({ currentModal: 'signUp' })
-      }, 150)
+      }, 180)
     }
   })
 )

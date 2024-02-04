@@ -19,17 +19,13 @@ import type { Route } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-interface Item {
-  id: number
-}
-
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   headerStyle: {
     [key: string]: string
   }
-  name: string
+  problemId: number
 }
 
 /**
@@ -66,11 +62,15 @@ interface DataTableProps<TData, TValue> {
  * ```
  */
 
+interface Item {
+  id: number
+}
+
 export default function DataTable<TData extends Item, TValue>({
   columns,
   data,
   headerStyle,
-  name
+  problemId
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -83,15 +83,16 @@ export default function DataTable<TData extends Item, TValue>({
     <Table className="table-fixed">
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow className="hover:bg-white" key={headerGroup.id}>
+          <TableRow className="hover:bg-slate-600/50" key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
                 <TableHead
                   key={header.id}
                   className={cn(
-                    'text-center text-sm md:text-base',
+                    'border-b border-slate-600 text-center text-xs font-semibold text-white',
                     headerStyle[header.id]
                   )}
+                  style={{ padding: 0 }}
                 >
                   {header.isPlaceholder
                     ? null
@@ -108,25 +109,28 @@ export default function DataTable<TData extends Item, TValue>({
       <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
-            const href = `/${name}/${row.original.id}` as Route
-            const handleClick =
-              name === ''
-                ? (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-                    e.currentTarget.classList.toggle('expanded')
-                  }
-                : () => {
-                    router.push(href)
-                  }
+            const href =
+              `/problem/${problemId}/submission/${row.original.id}` as Route
             return (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
-                className="cursor-pointer"
-                onClick={handleClick}
+                className="cursor-pointer border-t border-slate-600 text-slate-300 hover:bg-slate-600/50 hover:font-semibold"
+                onClick={() => {
+                  router.push(href)
+                }}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="align-top">
-                    <div className="text-center text-xs md:text-sm">
+                  <TableCell
+                    key={cell.id}
+                    style={{
+                      paddingTop: 10,
+                      paddingBottom: 10,
+                      paddingLeft: 2,
+                      paddingRight: 2
+                    }}
+                  >
+                    <div className="text-center text-xs">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -140,7 +144,7 @@ export default function DataTable<TData extends Item, TValue>({
             )
           })
         ) : (
-          <TableRow>
+          <TableRow className="hover:bg-slate-600/50">
             <TableCell colSpan={columns.length} className="h-24 text-center">
               No results.
             </TableCell>
