@@ -9,13 +9,16 @@ import {
   Query,
   Logger,
   ConflictException,
-  DefaultValuePipe
+  DefaultValuePipe,
+  Delete,
+  ForbiddenException
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
 import {
   ConflictFoundException,
-  EntityNotExistException
+  EntityNotExistException,
+  ForbiddenAccessException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
@@ -107,7 +110,7 @@ export class ContestController {
     @Param('id', new RequiredIntPipe('id')) contestId: number
   ) {
     try {
-      await this.contestService.createContestRecord(
+      return await this.contestService.createContestRecord(
         contestId,
         req.user?.id,
         groupId
@@ -120,6 +123,33 @@ export class ContestController {
         throw new NotFoundException(error.message)
       } else if (error instanceof ConflictFoundException) {
         throw new ConflictException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException(error.message)
+    }
+  }
+
+  // unregister only for upcoming contest
+  @Delete(':id/participation')
+  async deleteContestRecord(
+    @Req() req: AuthenticatedRequest,
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Param('id', new RequiredIntPipe('id')) contestId: number
+  ) {
+    try {
+      return await this.contestService.deleteContestRecord(
+        contestId,
+        req.user?.id,
+        groupId
+      )
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      } else if (error instanceof ForbiddenAccessException) {
+        throw new ForbiddenException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
