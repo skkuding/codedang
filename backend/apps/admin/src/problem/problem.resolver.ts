@@ -36,7 +36,11 @@ export class ProblemResolver {
   @Mutation(() => Problem)
   async createProblem(
     @Context('req') req: AuthenticatedRequest,
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
     @Args('input') input: CreateProblemInput
   ) {
@@ -64,7 +68,11 @@ export class ProblemResolver {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async uploadProblems(
     @Context('req') req: AuthenticatedRequest,
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
     @Args('input') input: UploadFileInput
   ) {
@@ -85,7 +93,11 @@ export class ProblemResolver {
 
   @Query(() => [Problem])
   async getProblems(
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
@@ -97,9 +109,13 @@ export class ProblemResolver {
 
   @Query(() => Problem)
   async getProblem(
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
-    @Args('id', new RequiredIntPipe('id')) id: number
+    @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     try {
       return await this.problemService.getProblem(id, groupId)
@@ -117,7 +133,11 @@ export class ProblemResolver {
 
   @Mutation(() => Problem)
   async updateProblem(
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
     @Args('input') input: UpdateProblemInput
   ) {
@@ -143,9 +163,13 @@ export class ProblemResolver {
 
   @Mutation(() => Problem)
   async deleteProblem(
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
-    @Args('id', new RequiredIntPipe('id')) id: number
+    @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     try {
       return await this.problemService.deleteProblem(id, groupId)
