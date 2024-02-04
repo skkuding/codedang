@@ -5,10 +5,14 @@ import {
   type ContestRecord,
   type Group
 } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { expect } from 'chai'
 import * as dayjs from 'dayjs'
 import { stub } from 'sinon'
-import { ConflictFoundException } from '@libs/exception'
+import {
+  ConflictFoundException,
+  ForbiddenAccessException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { type ContestSelectResult, ContestService } from './contest.service'
 
@@ -39,6 +43,11 @@ const contest = {
   }
 } satisfies Contest & {
   group: Partial<Group>
+}
+const upcomingContest = {
+  ...contest,
+  startTime: now.add(1, 'day').toDate(),
+  endTime: now.add(2, 'day').toDate()
 }
 
 const contestDetail = {
@@ -225,8 +234,10 @@ const mockPrismaService = {
   },
   contestRecord: {
     findFirst: stub(),
+    findFirstOrThrow: stub(),
     findMany: stub(),
-    create: stub()
+    create: stub(),
+    delete: stub()
   },
   userGroup: {
     findFirst: stub(),
@@ -411,6 +422,44 @@ describe('ContestService', () => {
       mockPrismaService.contestRecord.create.reset()
       await service.createContestRecord(contestId, userId)
       expect(mockPrismaService.contestRecord.create.calledOnce).to.be.true
+    })
+  })
+  describe('deleteContestRecord', () => {
+    it('should return deleted contest record', async () => {
+      mockPrismaService.contest.findUniqueOrThrow.resolves(upcomingContest)
+      mockPrismaService.contestRecord.findFirst.resolves(record)
+      mockPrismaService.contestRecord.delete.resolves(record)
+      expect(
+        await service.deleteContestRecord(contestId, userId)
+      ).to.deep.equal(record)
+    })
+    it('should throw error when contest does not exist', async () => {
+      mockPrismaService.contest.findUniqueOrThrow.rejects(
+        new PrismaClientKnownRequestError('contest', {
+          code: 'P2025',
+          clientVersion: '5.8.1'
+        })
+      )
+      await expect(
+        service.deleteContestRecord(contestId, userId)
+      ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
+    })
+    it('should throw error when contest record does not exist', async () => {
+      mockPrismaService.contestRecord.findFirst.rejects(
+        new PrismaClientKnownRequestError('contestRecord', {
+          code: 'P2025',
+          clientVersion: '5.8.1'
+        })
+      )
+      await expect(
+        service.deleteContestRecord(contestId, userId)
+      ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
+    })
+    it('should throw error when contest is ongoing', async () => {
+      mockPrismaService.contest.findUniqueOrThrow.resolves(ongoingContest)
+      await expect(
+        service.deleteContestRecord(contestId, userId)
+      ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
 })
