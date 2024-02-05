@@ -261,8 +261,8 @@ export class SubmissionService implements OnModuleInit {
         password: this.configService.get('RABBITMQ_DEFAULT_PASS') + ''
       }
     }
-    const res = await this.httpService.axiosRef(url, config),
-      threshold = 0.9
+    const res = await this.httpService.axiosRef(url, config)
+    const threshold = 0.9
 
     if (res.status == 200) {
       if (res.data.consumer_capacity > threshold) return { isDelay: false }
