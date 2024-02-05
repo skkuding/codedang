@@ -6,25 +6,24 @@ import { fetcher } from './utils'
 interface Item {
   id: number
 }
+
 /**
- * A custom hook for implementing infinite scrolling functionality.
  *
- * @template T - The type of items being fetched.
- * @param dataType - The type of data being fetched.
- * @param url - The URL for fetching the data.
- * @param itemsPerPage - The number of items to fetch per page.
- * @example
- * ```ts
- * const { items, fetchNextPage, isFetchingNextPage, ref } = useInfiniteScroll<ItemType>('dataType', new URL('http://example.com/api'), 10);
- * ```
+ * @param dataType
+ *  The type of data being fetched.
+ * @param url
+ * The URL for fetching the data.
+ * @param itemsPerPage
+ * The number of items to fetch per page.
+ * @returns
  */
 
 export const useInfiniteScroll = <T extends Item>(
   dataType: string,
-  url: URL,
-  itemsPerPage: 10
+  url: URL, //url 목록
+  itemsPerPage = 2 //한번에 가져올 아이템의 개수
 ) => {
-  const [items, setItems] = useState<T[]>([])
+  const [items, setItems] = useState<T[]>([]) //T[] 형태로 return 해야 함
   //fetch datas with pageParams and url
   const getInfiniteData = async ({
     pageParam
