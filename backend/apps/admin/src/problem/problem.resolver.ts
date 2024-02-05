@@ -8,6 +8,7 @@ import {
   ValidationPipe
 } from '@nestjs/common'
 import { Args, Context, Query, Int, Mutation, Resolver } from '@nestjs/graphql'
+import { ContestProblem, Problem, WorkbookProblem } from '@generated'
 import { Prisma } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
@@ -18,7 +19,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
-import { ContestProblem, Problem, WorkbookProblem } from '@admin/@generated'
 import {
   CreateProblemInput,
   UploadFileInput,

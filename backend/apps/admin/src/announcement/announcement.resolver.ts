@@ -1,5 +1,5 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
-import { Announcement } from '@admin/@generated'
+import { Announcement } from '@generated'
 import { AnnouncementService } from './announcement.service'
 import { CreateAnnouncementInput } from './dto/create-announcement.input'
 import { UpdateAnnouncementInput } from './dto/update-announcement.input'
