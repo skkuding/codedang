@@ -295,6 +295,7 @@ export class SubmissionService implements OnModuleInit {
     })
 
     await this.updateSubmissionResult(submissionId, resultStatus, results)
+    await this.updateContestRecord(submissionId, resultStatus)
   }
 
   async updateSubmissionResult(
@@ -335,10 +336,7 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    if (
-      resultStatus !== ResultStatus.Judging &&
-      resultStatus !== ResultStatus.ServerError
-    ) {
+    if (resultStatus !== ResultStatus.Judging) {
       const problem = await this.prisma.problem.findFirstOrThrow({
         where: {
           id: submission.problemId
@@ -346,7 +344,8 @@ export class SubmissionService implements OnModuleInit {
         select: {
           submissionCount: true,
           acceptedCount: true,
-          acceptedRate: true
+          acceptedRate: true,
+          exposeTime: true
         }
       })
       const submissionCount = problem.submissionCount + 1
@@ -362,6 +361,69 @@ export class SubmissionService implements OnModuleInit {
           submissionCount,
           acceptedCount,
           acceptedRate: acceptedCount / submissionCount
+        }
+      })
+    }
+  }
+
+  async updateContestRecord(submissionId: number, resultStatus: ResultStatus) {
+    const submission = await this.prisma.submission.findUniqueOrThrow({
+      where: {
+        id: submissionId
+      },
+      select: {
+        contestId: true,
+        userId: true,
+        problemId: true,
+        createTime: true
+      }
+    })
+    if (!submission.contestId || !submission.userId) return // contest record does not exist
+
+    const contestProblem = await this.prisma.contestProblem.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_problemId: {
+          contestId: submission.contestId,
+          problemId: submission.problemId
+        }
+      }
+    })
+    const contestRecord = await this.prisma.contestRecord.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        contestId_userId: {
+          contestId: submission.contestId,
+          userId: submission.userId
+        }
+      }
+    })
+
+    if (resultStatus === ResultStatus.Accepted) {
+      await this.prisma.contestRecord.update({
+        where: {
+          id: contestRecord.id
+        },
+        data: {
+          score: contestRecord.score + contestProblem.score,
+          lastAccepted: submission.createTime,
+          // penalty will be subtracted by the start time of contest when presented
+          // do not subtract here to reduce DB read operations
+          penalty: new Date(
+            submission.createTime.getTime() +
+              contestRecord.unaccepted * 5 * 60 * 1000
+          )
+        }
+      })
+    } else {
+      await this.prisma.contestRecord.update({
+        where: {
+          id: contestRecord.id
+        },
+        data: {
+          unaccepted: contestRecord.unaccepted + 1,
+          // add penalty of 5 min for each unaccepted answer
+          penalty: new Date(contestRecord.penalty.getTime() + 5 * 60 * 1000)
         }
       })
     }

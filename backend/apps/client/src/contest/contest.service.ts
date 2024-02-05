@@ -348,13 +348,16 @@ export class ContestService {
         problemRecord.push({
           problemId: Number(problemId),
           lastAccepted:
-            lastAccepted.getTime() - contest.startTime.getTime() / 1000, // in seconds
+            (lastAccepted.getTime() - contest.startTime.getTime()) / 1000, // in seconds
           unaccepted
         })
       }
 
       return {
         ...contestRecord,
+        penalty:
+          (contestRecord.penalty.getTime() - contest.startTime.getTime()) /
+          1000, // in seconds
         rank: index,
         problemRecord
       }

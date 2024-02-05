@@ -21,7 +21,7 @@ export const calculateMemoryLimit = (language: Language, memory: number) =>
   memoryLimitTable[language](memory)
 
 // ref: https://github.com/skkuding/codedang/blob/033c3bb5fd7c75cf40de6adea6f05e403f55518f/iris/src/router/response.go#L19-L29
-export const Status = (code: number) => {
+export const Status = (code: number): ResultStatus => {
   switch (code) {
     case 0:
       return ResultStatus.Accepted
