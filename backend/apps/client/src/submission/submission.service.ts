@@ -142,7 +142,11 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    return await this.createSubmission(submissionDto, problem, userId)
+    return await this.createSubmission(
+      { ...submissionDto, contestId },
+      problem,
+      userId
+    )
   }
 
   async submitToWorkbook(
@@ -168,11 +172,18 @@ export class SubmissionService implements OnModuleInit {
       throw new EntityNotExistException('problem')
     }
 
-    return await this.createSubmission(submissionDto, problem, userId)
+    return await this.createSubmission(
+      { ...submissionDto, workbookId },
+      problem,
+      userId
+    )
   }
 
   async createSubmission(
-    submissionDto: CreateSubmissionDto,
+    submissionDto: CreateSubmissionDto & {
+      contestId?: number
+      workbookId?: number
+    },
     problem: Problem,
     userId: number
   ) {
@@ -295,7 +306,7 @@ export class SubmissionService implements OnModuleInit {
     })
 
     await this.updateSubmissionResult(submissionId, resultStatus, results)
-    await this.updateContestRecord(submissionId, resultStatus)
+    await this.updateContestRecord(submissionId)
   }
 
   async updateSubmissionResult(
@@ -366,7 +377,7 @@ export class SubmissionService implements OnModuleInit {
     }
   }
 
-  async updateContestRecord(submissionId: number, resultStatus: ResultStatus) {
+  async updateContestRecord(submissionId: number) {
     const submission = await this.prisma.submission.findUniqueOrThrow({
       where: {
         id: submissionId
@@ -375,7 +386,8 @@ export class SubmissionService implements OnModuleInit {
         contestId: true,
         userId: true,
         problemId: true,
-        createTime: true
+        createTime: true,
+        result: true
       }
     })
     if (!submission.contestId || !submission.userId) return // contest record does not exist
@@ -399,7 +411,7 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    if (resultStatus === ResultStatus.Accepted) {
+    if (submission.result === ResultStatus.Accepted) {
       await this.prisma.contestRecord.update({
         where: {
           id: contestRecord.id
