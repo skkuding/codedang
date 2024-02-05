@@ -22,8 +22,13 @@ const sessionCookieName = process.env.NEXTAUTH_URL?.startsWith('https://')
   : 'next-auth.session-token'
 
 export const middleware = async (req: NextRequest) => {
-  let res = null
-  let token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  if (
+    req.nextUrl.pathname.startsWith('/admin') &&
+    (!token || token.role === 'User')
+  )
+    return NextResponse.redirect(new URL('/', req.url))
+
   if (token && token.accessTokenExpires <= Date.now()) {
     // If access token is expired, reissue access token.
     const reissueRes = await fetch(baseUrl + '/auth/reissue', {
@@ -52,7 +57,7 @@ export const middleware = async (req: NextRequest) => {
         maxAge: 24 * 60 * 60 // 24 hours
       })
       req.cookies.set(sessionCookieName, newToken)
-      res = NextResponse.next({
+      const res = NextResponse.next({
         request: {
           headers: req.headers
         }
@@ -64,25 +69,22 @@ export const middleware = async (req: NextRequest) => {
         httpOnly: true,
         sameSite: 'lax'
       })
+      return res
     } else if (reissueRes.status == 401) {
       // If reissue is failed, delete session token.
       req.cookies.delete(sessionCookieName)
-      res = NextResponse.next({
+      const res = NextResponse.next({
         request: {
           headers: req.headers
         }
       })
       res.cookies.delete(sessionCookieName)
-      token = null
+      return res
     }
   }
-  if (
-    req.nextUrl.pathname.startsWith('/admin') &&
-    (!token || token.role !== 'Admin')
-  )
-    return NextResponse.redirect(
-      new URL('/', req.url),
-      res || NextResponse.next()
-    )
-  return res || NextResponse.next()
+  return NextResponse.next({
+    request: {
+      headers: req.headers
+    }
+  })
 }
