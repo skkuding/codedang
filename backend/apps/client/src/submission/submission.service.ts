@@ -30,6 +30,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { Cause } from './dto/check-delay.dto'
 import {
   type CreateSubmissionDto,
   Snippet,
@@ -242,7 +243,7 @@ export class SubmissionService implements OnModuleInit {
       .padStart(6, '0')
   }
 
-  async checkAmqpStatus() {
+  async checkDelay() {
     const url =
       'http://' +
       this.configService.get('RABBITMQ_HOST') +
@@ -262,13 +263,14 @@ export class SubmissionService implements OnModuleInit {
       }
     }
     const res = await this.httpService.axiosRef(url, config),
-      threshold = 50
-    console.log(res.data)
+      threshold = 0.9
+
     if (res.status == 200) {
-      if (!res.data.messages_ready) return false
-      if (res.data.messages_ready > threshold) return true
+      if (res.data.consumer_capacity > threshold) return { isDelay: false }
+      else return { isDelay: true, cause: Cause.iris }
+    } else {
+      return { isDelay: true, cause: Cause.rabbitMq }
     }
-    return false
   }
 
   async publishJudgeRequestMessage(code: Snippet[], submission: Submission) {

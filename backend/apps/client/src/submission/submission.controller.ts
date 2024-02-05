@@ -83,6 +83,12 @@ export class SubmissionController {
     }
   }
 
+  @Get('delay')
+  async checkDelay() {
+    console.log('here')
+    return await this.submissionService.checkDelay()
+  }
+
   @Get()
   async getSubmissions(
     @Req() req: AuthenticatedRequest,

@@ -1,0 +1,21 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/submission/delay
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Check Delay
+  
+  채점 지연의 원인을 파악해 반환합니다.
+}
