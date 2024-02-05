@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common'
-import type { Contest, Prisma } from '@prisma/client'
+import { type Contest, Prisma } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
+  EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -315,13 +316,31 @@ export class ContestService {
     userId: number,
     groupId = OPEN_SPACE_ID
   ) {
-    const contest = await this.prisma.contest.findUniqueOrThrow({
-      where: { id: contestId, groupId }
-    })
-
-    await this.prisma.contestRecord.findFirstOrThrow({
-      where: { userId, contestId }
-    })
+    let contest
+    try {
+      contest = await this.prisma.contest.findUniqueOrThrow({
+        where: { id: contestId, groupId }
+      })
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('Contest')
+      }
+    }
+    try {
+      await this.prisma.contestRecord.findFirstOrThrow({
+        where: { userId, contestId }
+      })
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('ContestRecord')
+      }
+    }
     const now = new Date()
     if (now >= contest.startTime) {
       throw new ForbiddenAccessException(
@@ -329,9 +348,18 @@ export class ContestService {
       )
     }
 
-    return await this.prisma.contestRecord.delete({
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { contestId_userId: { contestId, userId } }
-    })
+    try {
+      return await this.prisma.contestRecord.delete({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        where: { contestId_userId: { contestId, userId } }
+      })
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('ContestRecord')
+      }
+    }
   }
 }
