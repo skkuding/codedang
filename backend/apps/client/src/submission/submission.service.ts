@@ -30,7 +30,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { Cause } from './dto/check-delay.dto'
 import {
   type CreateSubmissionDto,
   Snippet,
@@ -267,9 +266,9 @@ export class SubmissionService implements OnModuleInit {
 
     if (res.status == 200) {
       if (res.data.consumer_capacity > threshold) return { isDelay: false }
-      else return { isDelay: true, cause: Cause.iris }
+      else return { isDelay: true, cause: 'Iris' }
     } else {
-      return { isDelay: true, cause: Cause.rabbitMq }
+      return { isDelay: true, cause: 'RabbitMq' }
     }
   }
 
