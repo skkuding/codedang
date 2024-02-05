@@ -34,4 +34,5 @@ body:graphql:vars {
 
 assert {
   res.body.errors[0].message: eq No Contest found
+  res.body.errors[0].extensions.code: eq NOT_FOUND
 }

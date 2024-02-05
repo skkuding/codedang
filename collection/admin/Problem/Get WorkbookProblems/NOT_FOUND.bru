@@ -11,12 +11,11 @@ post {
 }
 
 body:graphql {
-  query GetContestProblems($groupId: Int!, $contestId: Int!) {
-    getContestProblems(groupId: $groupId, contestId: $contestId) {
+  query GetWorkbookProblems($groupId: Int!, $workbookId: Int!) {
+    getWorkbookProblems(groupId: $groupId, workbookId: $workbookId) {
       order
-      contestId
+      workbookId
       problemId
-      score
       createTime
       updateTime
     }
@@ -26,12 +25,12 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "groupId": 1,
-    "contestId":  99
+    "groupId": 99999,
+    "workbookId":  1
   }
 }
 
 assert {
-  res.body.errors[0].message: eq No Contest found
   res.body.errors[0].extensions.code: eq NOT_FOUND
+  res.body.errors[0].message: eq No Workbook found
 }
