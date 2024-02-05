@@ -267,7 +267,7 @@ model ContestProblem {
   contestId  Int      @map("contest_id")
   problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId  Int      @map("problem_id")
-  score      Int      @default(0)
+  score      Int      @default(10)
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 

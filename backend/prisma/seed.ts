@@ -14,7 +14,7 @@ import {
   type ProblemTestcase,
   type Announcement,
   type CodeDraft,
-  ContestRecord
+  type ContestRecord
 } from '@prisma/client'
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
@@ -30,9 +30,10 @@ let publicGroup: Group
 let privateGroup: Group
 const problems: Problem[] = []
 const problemTestcases: ProblemTestcase[] = []
-const endedContests: Contest[] = []
+const finishedContests: Contest[] = []
 const ongoingContests: Contest[] = []
 const upcomingContests: Contest[] = []
+const contestRecords: ContestRecord[] = []
 const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
@@ -1159,7 +1160,7 @@ const createContests = async () => {
     if (now < obj.data.startTime) {
       upcomingContests.push(contest)
     } else if (obj.data.endTime < now) {
-      endedContests.push(contest)
+      finishedContests.push(contest)
     } else {
       ongoingContests.push(contest)
     }
@@ -1176,7 +1177,16 @@ const createContests = async () => {
     })
   }
 
-  // TODO: add records and ranks
+  for (const user of users) {
+    const contestRecord = await prisma.contestRecord.create({
+      data: {
+        userId: user.id,
+        contestId: ongoingContests[0].id,
+        penalty: ongoingContests[0].startTime
+      }
+    })
+    contestRecords.push(contestRecord)
+  }
 }
 
 const createWorkbooks = async () => {
@@ -1261,6 +1271,35 @@ int main(void) {
     },
     data: { result: ResultStatus.Accepted }
   })
+  await prisma.problem.update({
+    where: {
+      id: problems[0].id
+    },
+    data: {
+      submissionCount: 1,
+      acceptedCount: 1,
+      acceptedRate: 1 / 1
+    }
+  })
+  const contestProblem = await prisma.contestProblem.findUniqueOrThrow({
+    where: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      contestId_problemId: {
+        contestId: ongoingContests[0].id,
+        problemId: problems[0].id
+      }
+    }
+  })
+  await prisma.contestRecord.update({
+    where: {
+      id: contestRecords[0].id
+    },
+    data: {
+      score: contestProblem.score,
+      lastAccepted: submissions[0].createTime,
+      penalty: submissions[0].createTime
+    }
+  })
 
   submissions.push(
     await prisma.submission.create({
@@ -1295,9 +1334,28 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[1].id
     },
     data: { result: ResultStatus.WrongAnswer }
+  })
+  await prisma.problem.update({
+    where: {
+      id: problems[1].id
+    },
+    data: {
+      submissionCount: 1,
+      acceptedCount: 0,
+      acceptedRate: 0 / 1
+    }
+  })
+  await prisma.contestRecord.update({
+    where: {
+      id: contestRecords[1].id
+    },
+    data: {
+      unaccepted: 1,
+      penalty: new Date(contestRecords[1].penalty.getTime() + 5 * 60 * 1000)
+    }
   })
 
   submissions.push(
@@ -1333,7 +1391,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[2].id
     },
     data: { result: ResultStatus.CompileError }
   })
@@ -1367,7 +1425,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[3].id
     },
     data: { result: ResultStatus.RuntimeError }
   })
@@ -1405,7 +1463,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[4].id
     },
     data: { result: ResultStatus.TimeLimitExceeded }
   })
@@ -1443,7 +1501,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[5].id
     },
     data: { result: ResultStatus.MemoryLimitExceeded }
   })
@@ -1477,7 +1535,7 @@ int main(void) {
   })
   await prisma.submission.update({
     where: {
-      id: submissions[0].id
+      id: submissions[6].id
     },
     data: { result: ResultStatus.OutputLimitExceeded }
   })
@@ -1563,35 +1621,6 @@ const createCodeDrafts = async () => {
   return codeDrafts
 }
 
-const createContestRecords = async () => {
-  const contestRecords: ContestRecord[] = []
-  let i = 0
-  // group 1 users
-  const group1Users = await prisma.userGroup.findMany({
-    where: {
-      groupId: 1
-    }
-  })
-  for (const user of group1Users) {
-    const contestRecord = await prisma.contestRecord.create({
-      data: {
-        userId: user.userId,
-        contestId: 1,
-        acceptedProblemNum: user.userId,
-        // TODO: 아직 점수 계산 로직을 구현하지 않아서,
-        // 임시로 임의로 좀수와 페널티를 부여하도록 하였습니다.
-        // 점수 계산 로직을 구현하면 아래의 코드를 수정해주세요.
-        score: i < 3 ? 3 : i * 3,
-        totalPenalty: i * 60
-      }
-    })
-    contestRecords.push(contestRecord)
-    i++
-  }
-
-  return contestRecords
-}
-
 const main = async () => {
   await createUsers()
   await createGroups()
@@ -1602,7 +1631,6 @@ const main = async () => {
   await createSubmissions()
   await createAnnouncements()
   await createCodeDrafts()
-  await createContestRecords()
 }
 
 main()
