@@ -5,7 +5,8 @@ import { Resource } from '@opentelemetry/resources'
 import { NodeSDK } from '@opentelemetry/sdk-node'
 import {
   BasicTracerProvider,
-  SimpleSpanProcessor
+  SimpleSpanProcessor,
+  BatchSpanProcessor
 } from '@opentelemetry/sdk-trace-node'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 import { PrismaInstrumentation } from '@prisma/instrumentation'
@@ -27,7 +28,11 @@ class Tracer {
   public init() {
     try {
       // export spans to opentelemetry collector
-      this.provider.addSpanProcessor(new SimpleSpanProcessor(this.exporter))
+      if (process.env.NODE_ENV == 'production') {
+        this.provider.addSpanProcessor(new BatchSpanProcessor(this.exporter))
+      } else {
+        this.provider.addSpanProcessor(new SimpleSpanProcessor(this.exporter))
+      }
       this.provider.register()
 
       this.sdk = new NodeSDK({
