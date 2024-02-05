@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
+import type { Announcement } from '@generated'
 import { expect } from 'chai'
 import * as chai from 'chai'
 import chaiExclude from 'chai-exclude'

@@ -64,8 +64,10 @@ jobs:
       - name: Check types (frontend)
         run: pnpm --filter frontend exec vue-tsc --noEmit
 
-      - name: Check types (frontend-client)
-        run: pnpm --filter frontend-client exec tsc --noEmit
+      # Typecheck is not performed for frontend-client intentionally.
+      # Check: https://github.com/vercel/next.js/issues/53959
+      # Unlike backend, we don't have spec file to check types.
+      # So typechecking performed in the build step is enough.
 
   lint:
     name: Lint

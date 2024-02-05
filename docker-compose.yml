@@ -115,7 +115,6 @@ services:
     image: ghcr.io/skkuding/codedang-iris:latest
     container_name: iris
     restart: always
-    read_only: true
     depends_on:
       setup:
         condition: service_completed_successfully

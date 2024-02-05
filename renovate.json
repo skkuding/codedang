@@ -10,5 +10,6 @@
   ],
   "rangeStrategy": "bump",
   "reviewers": ["dotoleeoak"],
-  "lockFileMaintenance": { "enabled": true }
+  "lockFileMaintenance": { "enabled": true },
+  "ignoreDeps": ["reflect-metadata"]
 }
