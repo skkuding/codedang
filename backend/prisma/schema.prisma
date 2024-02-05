@@ -38,6 +38,7 @@ enum Provider {
 model User {
   id         Int       @id @default(autoincrement())
   username   String    @unique
+  /// @HideField()
   password   String
   role       Role      @default(User)
   email      String    @unique
@@ -355,6 +356,7 @@ model Submission {
   ///   "locked": boolean
   /// }
   code       Json[]
+  codeSize   Int?         @map("code_size")
   language   Language
   result     ResultStatus
   createTime DateTime     @default(now()) @map("create_time")

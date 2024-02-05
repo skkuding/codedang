@@ -1,0 +1,47 @@
+meta {
+  name: Success
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation( $groupId: Int, $noticeId: Int! ) {
+    deleteNotice( groupId: $groupId, noticeId: $noticeId) {
+      id
+      title
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "noticeId": 2
+  }
+}
+
+assert {
+  res.body.data.deleteNotice: isDefined
+}
+
+docs {
+  ## Delete a Notice
+  단일 공지사항을 삭제한다.
+  
+  ### Args
+  
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |groupId|int|포함하지 않으면 Open Space에 대한 요청이 된다. 기본값은 1.|
+  |noticeId|int|삭제할 공지사항의 id|
+  
+  ### Error Case
+  
+  #### NOT_FOUND
+  전달한 groupId와 noticeId에 맞는 공지사항이 없는 경우에 해당한다.
+}
