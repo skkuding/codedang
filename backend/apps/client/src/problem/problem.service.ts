@@ -5,6 +5,7 @@ import {
   ForbiddenAccessException,
   EntityNotExistException
 } from '@libs/exception'
+import { ProblemOrder } from '@libs/types'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
@@ -14,7 +15,8 @@ import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import { ProblemRepository } from './problem.repository'
-import type { ProblemOrder } from './schema/problem-order.schema'
+
+// import type { ProblemOrder } from './schema/problem-order.schema'
 
 @Injectable()
 export class ProblemService {

@@ -3,13 +3,13 @@ import {
   Injectable,
   type PipeTransform
 } from '@nestjs/common'
-import { ProblemOrderList, type ProblemOrder } from '@libs/types'
+import { ProblemOrder, ProblemOrderList } from '@libs/types'
 
 @Injectable()
 export class ProblemOrderPipe implements PipeTransform {
   transform(value: unknown) {
     const orderValue: ProblemOrder =
-      (value as ProblemOrder) || ('id-asc' as ProblemOrder)
+      (value as ProblemOrder) ?? ProblemOrder.idASC
 
     if (!this.isValidProblemOrder(orderValue)) {
       throw new BadRequestException('Validation failed')
@@ -19,6 +19,7 @@ export class ProblemOrderPipe implements PipeTransform {
   }
 
   private isValidProblemOrder(value: ProblemOrder) {
+    console.log(ProblemOrderList, value)
     return (ProblemOrderList as ProblemOrder[]).includes(value)
   }
 }

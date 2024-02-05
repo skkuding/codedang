@@ -1,24 +1,14 @@
-export type ProblemOrder =
-  | 'id-asc'
-  | 'id-desc'
-  | 'title-asc'
-  | 'title-desc'
-  | 'level-asc'
-  | 'level-desc'
-  | 'acrate-asc'
-  | 'acrate-desc'
-  | 'submit-asc'
-  | 'submit-desc'
+export enum ProblemOrder {
+  idASC = 'id-asc',
+  idDESC = 'id-desc',
+  titleASC = 'title-asc',
+  titleDESC = 'title-desc',
+  levelASC = 'level-asc',
+  levelDESC = 'level-desc',
+  acrateASC = 'acrate-asc',
+  acrateDESC = 'acrate-desc',
+  submitASC = 'submit-asc',
+  submitDESC = 'submit-desc'
+}
 
-export const ProblemOrderList: ProblemOrder[] = [
-  'id-asc',
-  'id-desc',
-  'title-asc',
-  'title-desc',
-  'level-asc',
-  'level-desc',
-  'acrate-asc',
-  'acrate-desc',
-  'submit-asc',
-  'submit-desc'
-]
+export const ProblemOrderList: ProblemOrder[] = Object.values(ProblemOrder)
