@@ -13,7 +13,6 @@ import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
-  EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -205,7 +204,7 @@ export class ProblemResolver {
       ) {
         throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
-        throw new EntityNotExistException(error.message)
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
@@ -238,7 +237,7 @@ export class ProblemResolver {
       ) {
         throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
-        throw new EntityNotExistException(error.message)
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
@@ -265,7 +264,7 @@ export class ProblemResolver {
       ) {
         throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
-        throw new EntityNotExistException(error.message)
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
@@ -297,7 +296,7 @@ export class ProblemResolver {
       ) {
         throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
-        throw new EntityNotExistException(error.message)
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
