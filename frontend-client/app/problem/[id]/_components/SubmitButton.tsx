@@ -26,6 +26,7 @@ export default function SubmitButton({ problemId }: { problemId: number }) {
         if (data.result !== 'Judging') {
           setLoading(false)
           router.push(`/problem/${problemId}/submission/${submissionId}`)
+          router.refresh()
         }
       } else {
         setLoading(false)

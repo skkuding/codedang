@@ -1,7 +1,9 @@
+'use client'
+
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 interface Props {
   id: number
@@ -9,6 +11,7 @@ interface Props {
 
 export default function Tab({ id }: Props) {
   const pathname = usePathname()
+  const router = useRouter()
   return (
     <div className="flex h-full w-full items-center border-b border-slate-700 bg-slate-800 px-6">
       <Tabs
@@ -27,7 +30,12 @@ export default function Tab({ id }: Props) {
               Description
             </TabsTrigger>
           </Link>
-          <Link href={`/problem/${id}/submission` as Route}>
+          <Link
+            href={`/problem/${id}/submission` as Route}
+            onClick={() => {
+              router.refresh()
+            }}
+          >
             <TabsTrigger
               value="Submission"
               className="data-[state=active]:bg-slate-700 data-[state=active]:text-blue-400"
