@@ -1,8 +1,8 @@
 import { Test, type TestingModule } from '@nestjs/testing'
+import type { Announcement } from '@generated'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { PrismaService } from '@libs/prisma'
-import type { Announcement } from '@admin/@generated'
 import { AnnouncementService } from './announcement.service'
 
 const problemId = 1
