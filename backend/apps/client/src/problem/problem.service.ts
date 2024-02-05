@@ -5,7 +5,7 @@ import {
   ForbiddenAccessException,
   EntityNotExistException
 } from '@libs/exception'
-import { ProblemOrder } from '@libs/types'
+import type { ProblemOrder } from '@libs/types'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
