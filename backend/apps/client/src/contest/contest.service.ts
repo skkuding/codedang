@@ -253,7 +253,7 @@ export class ContestService {
     }
 
     return await this.prisma.contestRecord.create({
-      data: { contestId, userId }
+      data: { contestId, userId, penalty: contest.startTime }
     })
   }
 

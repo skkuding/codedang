@@ -297,7 +297,7 @@ model ContestRecord {
   score        Int       @default(0)
   lastAccepted DateTime? @map("last_accepted")
   unaccepted   Int       @default(0)
-  penalty      DateTime  @default(now())
+  penalty      DateTime
   createTime   DateTime  @default(now()) @map("create_time")
   updateTime   DateTime  @updatedAt @map("update_time")
 
