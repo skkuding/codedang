@@ -31,7 +31,7 @@ export default function MainResizablePanel({
   // get programming language from localStorage for default value
   const { value } = useStorage('programming_lang', data.languages[0])
 
-  const { code, setCode, setLanguage } = useEditorStore()
+  const { code, setCode, setLanguage, language } = useEditorStore()
   useEffect(() => {
     if (value && !data.languages.includes(value)) {
       // if value in storage is not in languages, set value to the first language
@@ -63,7 +63,7 @@ export default function MainResizablePanel({
           <EditorHeader data={data} />
           <Codeeditor
             value={code}
-            language={value as string}
+            language={language as string}
             onChange={setCode}
             height="100%"
             className="h-full"
