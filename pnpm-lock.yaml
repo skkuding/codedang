@@ -307,13 +307,13 @@ importers:
         specifier: ^6.23.1
         version: 6.23.1
       '@tiptap/pm':
-        specifier: ^2.1.16
+        specifier: ^2.2.1
         version: 2.2.1
       '@tiptap/starter-kit':
-        specifier: ^2.1.16
+        specifier: ^2.2.1
         version: 2.2.1(@tiptap/pm@2.2.1)
       '@tiptap/vue-3':
-        specifier: ^2.1.16
+        specifier: ^2.2.1
         version: 2.2.1(@tiptap/core@2.2.1)(@tiptap/pm@2.2.1)(vue@3.4.15)
       '@vee-validate/zod':
         specifier: ^4.12.5
