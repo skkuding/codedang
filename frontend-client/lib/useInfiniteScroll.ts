@@ -6,41 +6,56 @@ import { fetcher } from './utils'
 interface Item {
   id: number
 }
+/**
+ * A custom hook for implementing infinite scrolling functionality.
+ *
+ * @template T - The type of items being fetched.
+ * @param dataType - The type of data being fetched.
+ * @param url - The URL for fetching the data.
+ * @param itemsPerPage - The number of items to fetch per page.
+ * @example
+ * ```ts
+ * const { items, fetchNextPage, isFetchingNextPage, ref } = useInfiniteScroll<ItemType>('dataType', new URL('http://example.com/api'), 10);
+ * ```
+ */
 
 export const useInfiniteScroll = <T extends Item>(
   dataType: string,
   url: URL,
-  itemsPerPage = 10 //한번에 가져올 아이템의 개수
+  itemsPerPage: 10
 ) => {
   const [items, setItems] = useState<T[]>([])
-  //fetch datas with pageParams
-  const OFFSET = 0 //cursor
-  const getInfiniteData = async ({ pageParam = OFFSET }): Promise<T[]> => {
+  //fetch datas with pageParams and url
+  const getInfiniteData = async ({
+    pageParam
+  }: {
+    pageParam?: number
+  }): Promise<T[]> => {
     const query = url.searchParams
     if (!query.has('take')) query.append('take', String(itemsPerPage))
     pageParam && pageParam > 0 && query.set('cursor', pageParam.toString())
+
     const data: T[] = await fetcher
       .get(dataType, {
         searchParams: query
       })
       .json()
-    console.log(query.toString())
     return data
   }
 
-  const { data, fetchNextPage, isFetching, hasNextPage, status } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
       queryKey: [dataType, url],
       queryFn: getInfiniteData,
       initialPageParam: 0,
       getNextPageParam: (lastPage: T[]) => {
         return lastPage?.length === 0 || lastPage?.length < itemsPerPage
-          ? undefined
+          ? undefined //페이지에 있는 아이템 수가 0이거나 itemsPerPage보다 작으면 undefined를 반환합니다.
           : lastPage.at(-1)?.id //cursor를 getData의 params로 넘겨줍니다.
       }
     })
 
-  //data가 T[][] 형태이므로 필요한 형태로 가공
+  //data가 T[][] 형태이므로 T[]로 가공
   useEffect(() => {
     if (data && data.pages && data.pages.length > 0) {
       const allItems: T[] = []
@@ -54,10 +69,10 @@ export const useInfiniteScroll = <T extends Item>(
   //To detect the bottom div
   const { ref, inView } = useInView()
   useEffect(() => {
-    if (inView) {
-      !isFetching && hasNextPage && fetchNextPage()
+    if (inView && !isFetchingNextPage && hasNextPage) {
+      fetchNextPage()
     }
-  }, [inView, isFetching, hasNextPage, fetchNextPage])
+  }, [inView, isFetchingNextPage, hasNextPage, fetchNextPage, url])
 
-  return { items, fetchNextPage, status, ref }
+  return { items, fetchNextPage, isFetchingNextPage, ref }
 }
