@@ -15,6 +15,7 @@ import { CacheConfigService } from '@libs/cache'
 import { apolloErrorFormatter } from '@libs/exception'
 import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
+import { NoticeModule } from '@admin/notice/notice.module'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { AnnouncementModule } from './announcement/announcement.module'
@@ -51,6 +52,7 @@ import { UserModule } from './user/user.module'
     GroupModule,
     UserModule,
     AnnouncementModule,
+    NoticeModule,
     LoggerModule.forRoot(pinoLoggerModuleOption)
   ],
   controllers: [AdminController],

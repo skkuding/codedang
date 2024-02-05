@@ -1,0 +1,32 @@
+meta {
+  name: NOT_FOUND
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation( $groupId: Int, $noticeId: Int! ) {
+    deleteNotice( groupId: $groupId, noticeId: $noticeId) {
+      id
+      title
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "noticeId": 9999999
+  }
+}
+
+assert {
+  res.body.errors[0].extensions.code: eq "NOT_FOUND"
+  res.body.errors[0].message: eq "Notice does not exist"
+}

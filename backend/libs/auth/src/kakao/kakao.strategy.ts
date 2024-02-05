@@ -10,7 +10,9 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
 
   constructor(private readonly config: ConfigService) {
     super({
-      clientID: config.get('KAKAO_REST_API_KEY'),
+      clientID:
+        config.get('KAKAO_CLIENT_ID') || config.get('KAKAO_REST_API_KEY'),
+      // Leave KAKAO_REST_API_KEY for backward compatibility (for local development)
       clientSecret: config.get('KAKAO_CLIENT_SECRET'),
       callbackURL: KAKAO_CALLBACK_URL
     })
