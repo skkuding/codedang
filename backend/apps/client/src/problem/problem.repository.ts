@@ -2,9 +2,9 @@
 import { Injectable } from '@nestjs/common'
 import type { Problem, Tag, CodeDraft, Prisma } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
+import type { ProblemOrder } from '@libs/types'
 import type { CodeDraftUpdateInput } from '@admin/@generated'
 import type { CreateTemplateDto } from './dto/create-code-draft.dto'
-import type { ProblemOrder } from './schema/problem-order.schema'
 
 /**
  * repository에서는 partial entity를 반환합니다.

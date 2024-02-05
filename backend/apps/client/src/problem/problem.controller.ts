@@ -16,17 +16,17 @@ import {
 } from '@libs/exception'
 import {
   CursorValidationPipe,
-  ZodValidationPipe,
   GroupIDPipe,
   IDValidationPipe,
-  RequiredIntPipe
+  RequiredIntPipe,
+  ProblemOrderPipe
 } from '@libs/pipe'
 import {
   ContestProblemService,
   ProblemService,
   WorkbookProblemService
 } from './problem.service'
-import { ProblemOrder, problemOrderSchema } from './schema/problem-order.schema'
+import { ProblemOrder } from './schema/problem-order.schema'
 
 @Controller('problem')
 @AuthNotNeededIfOpenSpace()
@@ -47,7 +47,7 @@ export class ProblemController {
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
-    @Query('order', new ZodValidationPipe(problemOrderSchema))
+    @Query('order', ProblemOrderPipe)
     order: ProblemOrder,
     @Query('search') search?: string
   ) {
