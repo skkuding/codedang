@@ -16,7 +16,7 @@ query {
 
 assert {
   res.status: eq 404
-  res.body.message: eq No ContestRecord found
+  res.body.message: eq ContestRecord does not exist
   res.body.error: eq Not Found
   res.body.statusCode: eq 404
 }
