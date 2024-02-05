@@ -18,7 +18,12 @@ import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
-import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import {
+  CursorValidationPipe,
+  GroupIDPipe,
+  IDValidationPipe,
+  RequiredIntPipe
+} from '@libs/pipe'
 import { ContestService } from './contest.service'
 
 @Controller('contest')
@@ -105,12 +110,12 @@ export class ContestController {
   async createContestRecord(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Param('id', new RequiredIntPipe('id')) contestId: number
+    @Param('id', IDValidationPipe) contestId: number
   ) {
     try {
       return await this.contestService.createContestRecord(
         contestId,
-        req.user?.id,
+        req.user.id,
         groupId
       )
     } catch (error) {
@@ -132,21 +137,19 @@ export class ContestController {
   async deleteContestRecord(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Param('id', new RequiredIntPipe('id')) contestId: number
+    @Param('id', IDValidationPipe) contestId: number
   ) {
     try {
       return await this.contestService.deleteContestRecord(
         contestId,
-        req.user?.id,
+        req.user.id,
         groupId
       )
     } catch (error) {
       if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name === 'NotFoundError'
+        error instanceof ForbiddenAccessException ||
+        error instanceof EntityNotExistException
       ) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
