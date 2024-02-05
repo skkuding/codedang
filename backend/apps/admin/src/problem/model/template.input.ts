@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
-import { Language } from '@admin/@generated'
+import { Language } from '@generated'
 
 @InputType()
 class Snippet {
