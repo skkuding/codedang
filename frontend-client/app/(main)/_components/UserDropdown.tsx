@@ -24,7 +24,7 @@ export default function UserDropdownMenu({ session }: UserDropdownMenuProps) {
         {session?.user.role !== 'User' && (
           <Link href="/admin">
             <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-              <UserRoundCog className="size-4" /> Mangement
+              <UserRoundCog className="size-4" /> Management
             </DropdownMenuItem>
           </Link>
         )}
