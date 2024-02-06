@@ -20,16 +20,24 @@ export default function NoticeInfiniteTable() {
   }
 
   const [fixedNotices, setFixedNotices] = useState<Notice[]>([])
+  const [isLoadingFixedData, setIsLoadingFixedData] = useState(true)
+
   useEffect(() => {
     const fetchFixedNotices = async () => {
-      const data: Notice[] = await fetcher
-        .get('notice', {
-          searchParams: {
-            fixed: 'true'
-          }
-        })
-        .json()
-      setFixedNotices(data)
+      try {
+        const data: Notice[] = await fetcher
+          .get('notice', {
+            searchParams: {
+              fixed: 'true'
+            }
+          })
+          .json()
+        setFixedNotices(data)
+      } catch (error) {
+        console.error('Error fetching fixed notices:', error)
+      } finally {
+        setIsLoadingFixedData(false) // 페칭이 완료되면 상태 업데이트
+      }
     }
     fetchFixedNotices()
   }, [])
@@ -46,16 +54,21 @@ export default function NoticeInfiniteTable() {
 
   return (
     <div className="flex flex-col items-center">
-      <DataTable
-        data={notices}
-        columns={columns}
-        headerStyle={{
-          title: 'text-left w-2/4 md:w-4/6',
-          createdBy: 'w-1/4 md:w-1/6',
-          createTime: 'w-1/4 md:w-1/6'
-        }}
-        name="notice"
-      />
+      {isLoadingFixedData ? (
+        <ClipLoader />
+      ) : (
+        <DataTable
+          data={notices}
+          columns={columns}
+          headerStyle={{
+            title: 'text-left w-2/4 md:w-4/6',
+            createdBy: 'w-1/4 md:w-1/6',
+            createTime: 'w-1/4 md:w-1/6'
+          }}
+          name="notice"
+        />
+      )}
+
       {isFetchingNextPage && hasNextPage && <ClipLoader />}
       {!isFetchingNextPage && hasNextPage && scrollCounter.current >= 5 && (
         <Button onClick={() => fetchNextPage()} className="w-40">
