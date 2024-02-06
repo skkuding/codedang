@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -20,13 +20,6 @@ import Label from './_components/Lable'
 const inputStyle =
   'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
 const errorBorderStyle = 'border-red-500 focus-visible:ring-red-500'
-
-interface ExampleTextarea {
-  id: number
-  input: string
-  output: string
-  type: 'sample' | 'testcase'
-}
 
 // TODO: language tags string[]로 변경
 interface Info {
@@ -45,7 +38,7 @@ interface Limit {
   memory: number
 }
 
-interface FormData {
+export interface ProblemData {
   title: string
   info: Info
   description: string
@@ -69,8 +62,12 @@ const schema = z.object({
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
-  sample: z.array(z.object({ input: z.string(), output: z.string() })).min(1),
-  testcase: z.array(z.object({ input: z.string(), output: z.string() })).min(1),
+  sample: z
+    .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
+    .min(1),
+  testcase: z
+    .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
+    .min(1),
   limit: z.object({ time: z.number().min(0), memory: z.number().min(0) }),
   hint: z.string().optional(),
   source: z.string().optional()
@@ -80,81 +77,58 @@ export default function Page() {
   const {
     handleSubmit,
     register,
+    unregister,
     getValues,
+    setValue,
     formState: { errors }
-  } = useForm<FormData>({
-    resolver: zodResolver(schema)
+  } = useForm<ProblemData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      sample: [{ input: '', output: '' }],
+      testcase: [{ input: '', output: '' }]
+    }
   })
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: ProblemData) => {
     console.log(data)
   }
 
   const [showHint, setShowHint] = useState<boolean>(false)
   const [showSource, setShowSource] = useState<boolean>(false)
-
-  const [samples, setSamples] = useState<ExampleTextarea[]>([
-    { id: 1, input: '', output: '', type: 'sample' }
+  const [samples, setSamples] = useState<Example[]>([{ input: '', output: '' }])
+  const [testcases, setTestcases] = useState<Example[]>([
+    { input: '', output: '' }
   ])
-  const [testcases, setTestcases] = useState<ExampleTextarea[]>([
-    { id: 1, input: '', output: '', type: 'testcase' }
-  ])
-  const sampleCounter = useRef(1)
-  const testcaseCounter = useRef(1)
 
   const addExample = (type: 'sample' | 'testcase') => {
-    const newId =
-      type === 'sample' ? ++sampleCounter.current : ++testcaseCounter.current
-    if (type === 'sample') {
-      setSamples((prevSamples) => [
-        ...prevSamples,
-        { id: newId, input: '', output: '', type }
-      ])
-    } else if (type === 'testcase') {
-      setTestcases((prevTestcases) => [
-        ...prevTestcases,
-        { id: newId, input: '', output: '', type }
-      ])
-    }
+    const currentValues = getValues(type)
+    setValue(type, [...currentValues, { input: '', output: '' }])
+    type === 'sample'
+      ? setSamples(() => [...samples, { input: '', output: '' }])
+      : setTestcases(() => [...testcases, { input: '', output: '' }])
   }
 
-  const removeExample = (type: 'sample' | 'testcase', id: number) => {
-    const examples = type === 'sample' ? samples : testcases
-    if (examples.length <= 1) {
+  const removeExample = (type: 'sample' | 'testcase', index: number) => {
+    const currentValues = getValues(type)
+    if (currentValues.length === 1) {
       toast.warning(`At least one ${type} is required`)
       return
     }
+    const updatedValues = currentValues.filter((_, i) => i !== index)
+    setValue(type, updatedValues)
 
-    if (type === 'sample') {
-      setSamples((prevSamples) =>
-        prevSamples.filter((sample) => sample.id !== id)
-      )
-    } else if (type === 'testcase') {
-      setTestcases((prevTestcases) =>
-        prevTestcases.filter((testcase) => testcase.id !== id)
-      )
-    }
-  }
+    unregister(`${type}.${index}.input`)
+    unregister(`${type}.${index}.output`)
 
-  const updateExample = (
-    type: 'sample' | 'testcase',
-    id: number,
-    input: string,
-    output: string
-  ) => {
-    if (type === 'sample') {
-      setSamples((prevSamples) =>
-        prevSamples.map((sample) =>
-          sample.id === id ? { ...sample, input, output } : sample
-        )
-      )
-    } else if (type === 'testcase') {
-      setTestcases((prevTestcases) =>
-        prevTestcases.map((testcase) =>
-          testcase.id === id ? { ...testcase, input, output } : testcase
-        )
-      )
-    }
+    type === 'sample' ? setSamples(updatedValues) : setTestcases(updatedValues)
+
+    updatedValues.forEach((example, i) => {
+      unregister(`${type}.${i}.input`)
+      unregister(`${type}.${i}.output`)
+
+      setValue(`${type}.${i}.input`, example.input)
+      setValue(`${type}.${i}.output`, example.output)
+    })
   }
 
   return (
@@ -209,7 +183,6 @@ export default function Page() {
               className={cn(inputStyle, 'w-[115px]')}
               {...register('info.language')}
             />
-            <p>{errors.info?.language?.message}</p>
             <Input
               id="tags"
               type="text"
@@ -283,28 +256,25 @@ export default function Page() {
             </Badge>
           </div>
           <div className="flex flex-col gap-2">
-            {samples.map(({ id, input, output }) => (
-              <>
-                <ExampleTextarea
-                  key={id}
-                  id={id}
-                  onRemove={() => removeExample('sample', id)}
-                  onInputChange={(newInput: string) =>
-                    updateExample('sample', id, newInput, output)
-                  }
-                  onOutputChange={(newOutput: string) =>
-                    updateExample('sample', id, input, newOutput)
-                  }
-                  className={errors.sample && errorBorderStyle}
-                />
-                {errors.sample && (
-                  <div className="flex items-center gap-1 text-xs text-red-500">
-                    <PiWarningBold />
-                    required
-                  </div>
-                )}
-              </>
-            ))}
+            {getValues('sample') &&
+              getValues('sample').map((_sample, index) => (
+                <>
+                  <ExampleTextarea
+                    key={index}
+                    onRemove={() => removeExample('sample', index)}
+                    inputName={`sample.${index}.input`}
+                    outputName={`sample.${index}.output`}
+                    className={errors.sample?.[index] && errorBorderStyle}
+                    register={register}
+                  />
+                  {errors.sample?.[index] && (
+                    <div className="flex items-center gap-1 text-xs text-red-500">
+                      <PiWarningBold />
+                      required{errors.sample?.message}
+                    </div>
+                  )}
+                </>
+              ))}
           </div>
         </div>
 
@@ -319,28 +289,25 @@ export default function Page() {
             </Badge>
           </div>
           <div className="flex flex-col gap-2">
-            {testcases.map(({ id, input, output }) => (
-              <>
-                <ExampleTextarea
-                  key={id}
-                  id={id}
-                  onRemove={() => removeExample('testcase', id)}
-                  onInputChange={(newInput: string) =>
-                    updateExample('testcase', id, newInput, output)
-                  }
-                  onOutputChange={(newOutput: string) =>
-                    updateExample('testcase', id, input, newOutput)
-                  }
-                  className={errors.testcase && errorBorderStyle}
-                />
-                {errors.testcase && (
-                  <div className="flex items-center gap-1 text-xs text-red-500">
-                    <PiWarningBold />
-                    required
-                  </div>
-                )}
-              </>
-            ))}
+            {getValues('testcase') &&
+              getValues('testcase').map((_testcase, index) => (
+                <>
+                  <ExampleTextarea
+                    key={index}
+                    onRemove={() => removeExample('testcase', index)}
+                    inputName={`testcase.${index}.input`}
+                    outputName={`testcase.${index}.output`}
+                    className={errors.testcase?.[index] && errorBorderStyle}
+                    register={register}
+                  />
+                  {errors.testcase?.[index] && (
+                    <div className="flex items-center gap-1 text-xs text-red-500">
+                      <PiWarningBold />
+                      required
+                    </div>
+                  )}
+                </>
+              ))}
           </div>
         </div>
 

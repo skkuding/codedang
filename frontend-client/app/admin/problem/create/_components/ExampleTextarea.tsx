@@ -3,27 +3,21 @@ import { cn } from '@/lib/utils'
 import { RxCross2 } from 'react-icons/rx'
 
 interface ExampleTextareaProps {
-  id: number
-  onRemove: (id: number) => void
-  onInputChange: (input: string) => void
-  onOutputChange: (output: string) => void
+  onRemove: () => void
+  inputName: string
+  outputName: string
   className?: string
+  // TODO: any를 다른 type으로 대체
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  register: any
 }
 export default function ExampleTextarea({
-  id,
   onRemove,
-  onInputChange,
-  onOutputChange,
-  className
+  inputName,
+  outputName,
+  className,
+  register
 }: ExampleTextareaProps) {
-  const handleInputChange = (event: { target: { value: string } }) => {
-    onInputChange(event.target.value)
-  }
-
-  const handleOutputChange = (event: { target: { value: string } }) => {
-    onOutputChange(event.target.value)
-  }
-
   return (
     <div
       className={cn(
@@ -33,17 +27,17 @@ export default function ExampleTextarea({
     >
       <RxCross2
         className="absolute right-2 top-2 w-3 cursor-pointer p-0 text-gray-400 "
-        onClick={() => onRemove(id)}
+        onClick={() => onRemove()}
       />
       <Textarea
         placeholder="Input"
         className="resize-none border-0 px-4 py-0 shadow-none focus-visible:ring-0"
-        onChange={handleInputChange}
+        {...register(inputName)}
       />
       <Textarea
         placeholder="Output"
         className="resize-none rounded-none border-l border-transparent border-l-gray-200 px-4 py-0 shadow-none focus-visible:ring-0"
-        onChange={handleOutputChange}
+        {...register(outputName)}
       />
     </div>
   )
