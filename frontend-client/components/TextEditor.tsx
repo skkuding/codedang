@@ -18,6 +18,7 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Bold, Italic, List, ListOrdered, Link as LinkIcon } from 'lucide-react'
 import { useCallback, useState } from 'react'
+import { Button } from './ui/button'
 
 export default function TextEditor({ placeholder }: { placeholder: string }) {
   const [url, setUrl] = useState('')
@@ -30,17 +31,13 @@ export default function TextEditor({ placeholder }: { placeholder: string }) {
         emptyEditorClass:
           'before:absolute before:text-gray-300 before:float-left before:content-[attr(data-placeholder)] before:pointer-events-none'
       }),
-      Link.configure()
+      Link
     ],
     editorProps: {
       attributes: {
         class:
           'rounded-b-md border overflow-y-auto w-full h-[200px] border-input bg-backround px-3 ring-offset-2 disabled:cursur-not-allowed disabled:opacity-50'
       }
-    },
-    onUpdate({ editor }) {
-      // onChange(editor.getHTML())
-      console.log(editor.getHTML())
     }
   })
 
@@ -69,7 +66,6 @@ export default function TextEditor({ placeholder }: { placeholder: string }) {
     },
     [editor]
   )
-
   if (!editor) return null
 
   return (
@@ -120,7 +116,7 @@ export default function TextEditor({ placeholder }: { placeholder: string }) {
             </DialogHeader>
             <DialogDescription>
               <Input
-                placeholder="Enter URL for the link"
+                placeholder="Enter URL"
                 onChange={(e) => {
                   setUrl(e.target.value)
                 }}
@@ -128,13 +124,13 @@ export default function TextEditor({ placeholder }: { placeholder: string }) {
             </DialogDescription>
             <DialogFooter>
               <DialogClose asChild>
-                <button
+                <Button
                   onClick={() => {
                     setLink(url)
                   }}
                 >
-                  Complete
-                </button>
+                  Insert
+                </Button>
               </DialogClose>
             </DialogFooter>
           </DialogContent>
