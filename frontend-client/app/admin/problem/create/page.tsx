@@ -88,17 +88,16 @@ export default function Page() {
       testcase: [{ input: '', output: '' }]
     }
   })
-
-  const onSubmit = async (data: ProblemData) => {
-    console.log(data)
-  }
-
   const [showHint, setShowHint] = useState<boolean>(false)
   const [showSource, setShowSource] = useState<boolean>(false)
   const [samples, setSamples] = useState<Example[]>([{ input: '', output: '' }])
   const [testcases, setTestcases] = useState<Example[]>([
     { input: '', output: '' }
   ])
+
+  const onSubmit = async (data: ProblemData) => {
+    console.log(data)
+  }
 
   const addExample = (type: 'sample' | 'testcase') => {
     const currentValues = getValues(type)
@@ -374,7 +373,10 @@ export default function Page() {
           <div className="flex items-center gap-2">
             <Label required={false}>Hint</Label>
             <Switch
-              onCheckedChange={() => setShowHint(!showHint)}
+              onCheckedChange={() => {
+                setShowHint(!showHint)
+                unregister('hint')
+              }}
               className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
             />
           </div>
@@ -392,7 +394,10 @@ export default function Page() {
           <div className="flex items-center gap-2">
             <Label required={false}>Source</Label>
             <Switch
-              onCheckedChange={() => setShowSource(!showSource)}
+              onCheckedChange={() => {
+                setShowSource(!showSource)
+                unregister('source')
+              }}
               className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
             />
           </div>
