@@ -539,8 +539,8 @@ importers:
         specifier: ^0.5.10
         version: 0.5.10(tailwindcss@3.4.1)
       '@tanstack/react-query':
-        specifier: ^5.17.19
-        version: 5.17.19(react@18.2.0)
+        specifier: ^5.18.1
+        version: 5.18.1(react@18.2.0)
       '@tanstack/react-table':
         specifier: ^8.11.8
         version: 8.11.8(react-dom@18.2.0)(react@18.2.0)
@@ -609,10 +609,10 @@ importers:
         version: 5.0.1(react@18.2.0)
       react-intersection-observer:
         specifier: ^9.5.3
-        version: 9.5.3(react@18.2.0)
+        version: 9.7.0(react-dom@18.2.0)(react@18.2.0)
       react-resizable-panels:
-        specifier: ^2.0.3
-        version: 2.0.3(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^1.0.9
+        version: 1.0.10(react-dom@18.2.0)(react@18.2.0)
       react-spinners:
         specifier: ^0.13.8
         version: 0.13.8(react-dom@18.2.0)(react@18.2.0)
@@ -1555,6 +1555,7 @@ packages:
 
   /@aws-sdk/middleware-bucket-endpoint@3.502.0:
     resolution: {integrity: sha512-mUSP2DUcjhO5zM2b21CvZ9AqwI8DaAeZA6NYHOxWGTV9BUxHcdGWXEjDkcVj9CQ0gvNwTtw6B5L/q52rVAnZbw==}
+    engines: {node: '>=14.0.0'}
     dependencies:
       '@aws-sdk/types': 3.502.0
       '@aws-sdk/util-arn-parser': 3.495.0
@@ -1575,6 +1576,7 @@ packages:
 
   /@aws-sdk/middleware-flexible-checksums@3.502.0:
     resolution: {integrity: sha512-kCt2zQDFumz/LnJJJOSd2GW4dr8oT8YMJKgxC/pph3aRXoSHXRwhrMbFnQ8swEE9vjywxtcED8sym0b0tNhhoA==}
+    engines: {node: '>=14.0.0'}
     dependencies:
       '@aws-crypto/crc32': 3.0.0
       '@aws-crypto/crc32c': 3.0.0
@@ -1687,6 +1689,7 @@ packages:
 
   /@aws-sdk/token-providers@3.504.0(@aws-sdk/credential-provider-node@3.504.0):
     resolution: {integrity: sha512-YIJWWsZi2ClUiILS1uh5L6VjmCUSTI6KKMuL9DkGjYqJ0aI6M8bd8fT9Wm7QmXCyjcArTgr/Atkhia4T7oKvzQ==}
+    engines: {node: '>=14.0.0'}
     dependencies:
       '@aws-sdk/client-sso-oidc': 3.504.0(@aws-sdk/credential-provider-node@3.504.0)
       '@aws-sdk/types': 3.502.0
@@ -2207,6 +2210,7 @@ packages:
 
   /@commitlint/cli@18.6.0(@types/node@20.11.16)(typescript@5.3.3):
     resolution: {integrity: sha512-FiH23cr9QG8VdfbmvJJZmdfHGVMCouOOAzoXZ3Cd7czGC52RbycwNt8YCI7SA69pAl+t30vh8LMaO/N+kcel6w==}
+    engines: {node: '>=v18'}
     hasBin: true
     dependencies:
       '@commitlint/format': 18.6.0
@@ -2562,6 +2566,7 @@ packages:
 
   /@esbuild/linux-ia32@0.19.12:
     resolution: {integrity: sha512-Thsa42rrP1+UIGaWz47uydHSBOgTUnwBwNq59khgIwktK6x60Hivfbux9iNR0eHCHzOLjLMLfUMLCypBkZXMHA==}
+    engines: {node: '>=12'}
     cpu: [ia32]
     os: [linux]
     requiresBuild: true
@@ -6140,21 +6145,21 @@ packages:
       postcss-selector-parser: 6.0.10
       tailwindcss: 3.4.1(ts-node@10.9.2)
 
-  /@tanstack/query-core@5.17.19:
-    resolution: {integrity: sha512-Lzw8FUtnLCc9Jwz0sw9xOjZB+/mCCmJev38v2wHMUl/ioXNIhnNWeMxu0NKUjIhAd62IRB3eAtvxAGDJ55UkyA==}
+  /@tanstack/query-core@5.18.1:
+    resolution: {integrity: sha512-fYhrG7bHgSNbnkIJF2R4VUXb4lF7EBiQjKkDc5wOlB7usdQOIN4LxxHpDxyE3qjqIst1WBGvDtL48T0sHJGKCw==}
     dev: false
 
-  /@tanstack/react-query@5.17.19(react@18.2.0):
-    resolution: {integrity: sha512-qaQENB6/03Gj3dFZGvdmUoqeUGlGm7P1p0RmaR04Bf1Ib1T9lLGimcC9T3oCFbrx0b2ZF21ngjFZNjj9uPJMcg==}
+  /@tanstack/react-query@5.18.1(react@18.2.0):
+    resolution: {integrity: sha512-PdI07BbsahZ+04PxSuDQsQvBWe008eWFk/YYWzt8fvzt2sALUM0TpAJa/DFpqa7+SSo7j1EQR6Jx6znXNHyaXw==}
     peerDependencies:
       react: ^18.0.0
     dependencies:
-      '@tanstack/query-core': 5.17.19
+      '@tanstack/query-core': 5.18.1
       react: 18.2.0
     dev: false
 
-  /@tanstack/react-table@8.11.7(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-ZbzfMkLjxUTzNPBXJYH38pv2VpC9WUA+Qe5USSHEBz0dysDTv4z/ARI3csOed/5gmlmrPzVUN3UXGuUMbod3Jg==}
+  /@tanstack/react-table@8.11.8(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-NEwvIq4iSiDQozEyvbdiSdCOiLa+g5xHmdEnvwDb98FObcK6YkBOkRrs/CNqrKdDy+/lqoIllIWHk+M80GW6+g==}
     engines: {node: '>=12'}
     peerDependencies:
       react: '>=16'
@@ -6167,6 +6172,7 @@ packages:
 
   /@tanstack/react-virtual@3.0.4(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-tiqKW/e2MJVCr7/pRUXulpkyxllaOclkHNfhKTo4pmHjJIqnhMfwIjc1Q1R0Un3PI3kQywywu/791c8z9u0qeA==}
+    peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
@@ -6365,6 +6371,7 @@ packages:
 
   /@tiptap/extension-placeholder@2.2.1(@tiptap/core@2.2.1)(@tiptap/pm@2.2.1):
     resolution: {integrity: sha512-QEUEhzvUOLRjdvzm45CGNqdzqNalKjYgnkmdiNr7HPsmXJ+Teoe/dP7HTo2ssGRqkziE9OJrDRu12kCr+H73MQ==}
+    peerDependencies:
       '@tiptap/core': ^2.0.0
       '@tiptap/pm': ^2.0.0
     dependencies:
@@ -15179,12 +15186,17 @@ packages:
       react: 18.2.0
     dev: false
 
-  /react-intersection-observer@9.5.3(react@18.2.0):
-    resolution: {integrity: sha512-NJzagSdUPS5rPhaLsHXYeJbsvdpbJwL6yCHtMk91hc0ufQ2BnXis+0QQ9NBh6n9n+Q3OyjR6OQLShYbaNBkThQ==}
+  /react-intersection-observer@9.7.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-euleEjBVaMRwSOMNVcMX5WGn74GfZ9I78nx9SUb5a0eXd0IhegjJcUliSO9Jd+xiaZ5rgFvbGoVln66lpMyUUg==}
     peerDependencies:
       react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
     dependencies:
       react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /react-is@16.13.1:
@@ -15262,8 +15274,8 @@ packages:
       use-sidecar: 1.1.2(@types/react@18.2.53)(react@18.2.0)
     dev: false
 
-  /react-resizable-panels@2.0.3(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-m0upi03cdqCt/g/dUxRQkHiBzo0UDtMIYwcf8qhKM+QG0cnpusOVFKOD2ElpGrtxB/oIxTItuKYsDOeu76JHvg==}
+  /react-resizable-panels@1.0.10(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-0+g0CNqregkuocr+Mi+e6wgWVARnKTYIX3U1QK7GlkLQKCmbymZakx80YGwcRO7HNnKJTQ5v38HlBos/cGxWvg==}
     peerDependencies:
       react: ^16.14.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0
@@ -15282,7 +15294,7 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /react-style-singleton@2.2.1(@types/react@18.2.48)(react@18.2.0):
+  /react-style-singleton@2.2.1(@types/react@18.2.53)(react@18.2.0):
     resolution: {integrity: sha512-ZWj0fHEMyWkHzKYUr2Bs/4zU6XLmq9HsgBURm7g5pAVfyn49DgUiNgY2d4lXRlYSiCif9YBGpQleewkcqddc7g==}
     engines: {node: '>=10'}
     peerDependencies:
