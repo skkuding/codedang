@@ -95,6 +95,7 @@ export default function Page() {
     { input: '', output: '' }
   ])
 
+  // TODO: Create Problem API 연결
   const onSubmit = async (data: ProblemData) => {
     console.log(data)
   }
@@ -115,19 +116,7 @@ export default function Page() {
     }
     const updatedValues = currentValues.filter((_, i) => i !== index)
     setValue(type, updatedValues)
-
-    unregister(`${type}.${index}.input`)
-    unregister(`${type}.${index}.output`)
-
     type === 'sample' ? setSamples(updatedValues) : setTestcases(updatedValues)
-
-    updatedValues.forEach((example, i) => {
-      unregister(`${type}.${i}.input`)
-      unregister(`${type}.${i}.output`)
-
-      setValue(`${type}.${i}.input`, example.input)
-      setValue(`${type}.${i}.output`, example.output)
-    })
   }
 
   return (
@@ -257,9 +246,8 @@ export default function Page() {
           <div className="flex flex-col gap-2">
             {getValues('sample') &&
               getValues('sample').map((_sample, index) => (
-                <>
+                <div key={index}>
                   <ExampleTextarea
-                    key={index}
                     onRemove={() => removeExample('sample', index)}
                     inputName={`sample.${index}.input`}
                     outputName={`sample.${index}.output`}
@@ -272,7 +260,7 @@ export default function Page() {
                       required{errors.sample?.message}
                     </div>
                   )}
-                </>
+                </div>
               ))}
           </div>
         </div>
