@@ -278,7 +278,7 @@ export default function Page() {
           <div className="flex flex-col gap-2">
             {getValues('testcase') &&
               getValues('testcase').map((_testcase, index) => (
-                <>
+                <div key={index}>
                   <ExampleTextarea
                     key={index}
                     onRemove={() => removeExample('testcase', index)}
@@ -293,7 +293,7 @@ export default function Page() {
                       required
                     </div>
                   )}
-                </>
+                </div>
               ))}
           </div>
         </div>
