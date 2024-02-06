@@ -2,16 +2,9 @@ import SearchBar from '@/components/SearchBar'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Problem } from '@/types/type'
 import { Suspense } from 'react'
-import ProblemTable from './_components/ProblemTable'
+import ProblemInfiniteTable from './_components/ProblemInfiniteTable'
 
-interface ProblemProps {
-  searchParams: { search: string; tag: string; order: string }
-}
-
-export default function Problem({ searchParams }: ProblemProps) {
-  const search = searchParams?.search ?? ''
-  const order = searchParams?.order ?? 'id-asc'
-
+export default function Problem() {
   return (
     <>
       <div className="flex justify-end text-gray-500">
@@ -43,7 +36,7 @@ export default function Problem({ searchParams }: ProblemProps) {
           </>
         }
       >
-        <ProblemTable search={search} order={order} />
+        <ProblemInfiniteTable />
       </Suspense>
     </>
   )
