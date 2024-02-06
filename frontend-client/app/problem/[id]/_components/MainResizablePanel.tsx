@@ -30,14 +30,15 @@ export default function MainResizablePanel({
 }) {
   // get programming language from localStorage for default value
   const { value } = useStorage('programming_lang', data.languages[0])
-
   const { code, setCode, setLanguage, language } = useEditorStore()
   useEffect(() => {
-    if (value && !data.languages.includes(value)) {
+    if (!language) {
+      setLanguage(value ?? data.languages[0])
+    } else if (language && !data.languages.includes(language)) {
       // if value in storage is not in languages, set value to the first language
       setLanguage(data.languages[0])
-    } else setLanguage(value as string)
-  }, [data.languages, value, setLanguage])
+    }
+  }, [data.languages, value, setLanguage, language])
   return (
     <ResizablePanelGroup
       direction="horizontal"
