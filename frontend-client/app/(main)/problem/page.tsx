@@ -2,7 +2,6 @@ import SearchBar from '@/components/SearchBar'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Problem } from '@/types/type'
 import { Suspense } from 'react'
-import ProblemNumber from './_components/ProblemNumber'
 import ProblemTable from './_components/ProblemTable'
 
 interface ProblemProps {
@@ -15,10 +14,7 @@ export default function Problem({ searchParams }: ProblemProps) {
 
   return (
     <>
-      <div className="flex justify-between text-gray-500">
-        <Suspense fallback={<Skeleton className="h-8 w-20" />}>
-          <ProblemNumber search={search} order={order} />
-        </Suspense>
+      <div className="flex justify-end text-gray-500">
         <SearchBar />
       </div>
       <Suspense

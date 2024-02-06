@@ -45,10 +45,13 @@ export default function Contest() {
     <>
       <div className="mb-12 flex flex-col gap-12">
         <Suspense fallback={<ContestCardListFallback />}>
-          <ContestCardList type="Ongoing" />
+          <ContestCardList title="Join the contest now!" type="Ongoing" />
         </Suspense>
         <Suspense fallback={<ContestCardListFallback />}>
-          <ContestCardList type="Upcoming" />
+          <ContestCardList
+            title="Check out upcoming contests"
+            type="Upcoming"
+          />
         </Suspense>
       </div>
       <Suspense fallback={<FinishedContestTableFallback />}>
