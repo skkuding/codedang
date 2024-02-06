@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { fetcher } from './utils'
 
@@ -15,12 +15,12 @@ interface Item {
  * The URL for fetching the data.
  * @param itemsPerPage
  * The number of items to fetch per page.
- * @returns
  */
 
 export const useInfiniteScroll = <T extends Item>(
   dataType: string,
   url: URL, //url 목록
+  extraData?: Promise<T[]>,
   itemsPerPage = 2 //한번에 가져올 아이템의 개수
 ) => {
   const [items, setItems] = useState<T[]>([]) //T[] 형태로 return 해야 함
@@ -33,7 +33,6 @@ export const useInfiniteScroll = <T extends Item>(
     const query = url.searchParams
     if (!query.has('take')) query.append('take', String(itemsPerPage))
     pageParam && pageParam > 0 && query.set('cursor', pageParam.toString())
-
     const data: T[] = await fetcher
       .get(dataType, {
         searchParams: query
@@ -66,12 +65,23 @@ export const useInfiniteScroll = <T extends Item>(
   }, [data])
 
   //To detect the bottom div
+  const scrollCounter = useRef(0) // 바닥에 닿은 횟수를 세는 카운터
   const { ref, inView } = useInView()
   useEffect(() => {
     if (inView && !isFetchingNextPage && hasNextPage) {
-      fetchNextPage()
+      if (scrollCounter.current < 5) {
+        fetchNextPage()
+        scrollCounter.current += 1
+      }
     }
   }, [inView, isFetchingNextPage, hasNextPage, fetchNextPage, url])
 
-  return { items, fetchNextPage, isFetchingNextPage, ref }
+  return {
+    items,
+    fetchNextPage,
+    isFetchingNextPage,
+    hasNextPage,
+    ref,
+    scrollCounter
+  }
 }
