@@ -6,7 +6,7 @@ export default function Label({
   required?: boolean
 }) {
   return (
-    <div className="mb-1 mt-6">
+    <div>
       <span className="font-bold">{children} </span>
       {required && <span className="text-red-500">*</span>}
     </div>
