@@ -1,20 +1,27 @@
 'use client'
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { Toggle } from '@/components/ui/toggle'
+import { DialogClose } from '@radix-ui/react-dialog'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Bold, Italic, List, ListOrdered, Link as LinkIcon } from 'lucide-react'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
-export default function Tiptap({
-  placeholder
-  // onChange,
-}: {
-  placeholder: string
-  // onChange: (richText: string) => void
-}) {
+export default function TextEditor({ placeholder }: { placeholder: string }) {
+  const [url, setUrl] = useState('')
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -37,29 +44,31 @@ export default function Tiptap({
     }
   })
 
-  const setLink = useCallback(() => {
-    if (!editor) return null
-    const previousUrl = editor.getAttributes('link')?.href
-    const url = window.prompt('URL', previousUrl)
-    // cancelled
-    if (url === null) {
-      return
-    }
-    // empty
-    if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run()
-      return
-    }
-    // update link
-    console.log(url)
-    // console.log('previous: ' + previousUrl)
-    editor
-      .chain()
-      .focus()
-      .extendMarkRange('link')
-      .setLink({ href: url, target: '_blank' })
-      .run()
-  }, [editor])
+  const setLink = useCallback(
+    (linkUrl: string | null) => {
+      if (!editor) return null
+
+      // cancelled
+      if (linkUrl === null) {
+        return
+      }
+      console.log('실행됨')
+      console.log('url: ' + linkUrl)
+      // empty
+      if (linkUrl === '') {
+        editor.chain().focus().extendMarkRange('link').unsetLink().run()
+        return
+      }
+      // update link
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange('link')
+        .setLink({ href: linkUrl, target: '_blank' })
+        .run()
+    },
+    [editor]
+  )
 
   if (!editor) return null
 
@@ -98,13 +107,38 @@ export default function Tiptap({
         >
           <ListOrdered className="h-[14px] w-[14px]" />
         </Toggle>
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('link')}
-          onPressedChange={setLink}
-        >
-          <LinkIcon className="h-[14px] w-[14px]" />
-        </Toggle>
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <Toggle size="sm" pressed={editor.isActive('link')}>
+              <LinkIcon className="h-[14px] w-[14px]" />
+            </Toggle>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Insert URL</DialogTitle>
+            </DialogHeader>
+            <DialogDescription>
+              <Input
+                placeholder="Enter URL for the link"
+                onChange={(e) => {
+                  setUrl(e.target.value)
+                }}
+              />
+            </DialogDescription>
+            <DialogFooter>
+              <DialogClose asChild>
+                <button
+                  onClick={() => {
+                    setLink(url)
+                  }}
+                >
+                  Complete
+                </button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
       <EditorContent className="prose" editor={editor} />
     </div>
