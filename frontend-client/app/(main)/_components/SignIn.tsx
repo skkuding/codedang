@@ -34,7 +34,7 @@ export default function SignIn() {
       router.refresh()
       toast.success('Successfully signed in')
     } else {
-      toast.error('Failed to sign in')
+      toast.error('Failed to log in')
     }
   }
   return (
@@ -54,7 +54,7 @@ export default function SignIn() {
             {...register('password')}
           />
           <Button className="w-full" type="submit">
-            Sign In
+            Log in
           </Button>
         </form>
         <div className="flex items-center justify-center gap-5">
