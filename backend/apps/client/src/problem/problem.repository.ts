@@ -68,18 +68,18 @@ export class ProblemRepository {
 
     const orderByMapper: Record<
       ProblemOrder,
-      Prisma.ProblemOrderByWithRelationAndSearchRelevanceInput
+      Prisma.ProblemOrderByWithRelationAndSearchRelevanceInput[]
     > = {
-      'id-asc': { id: 'asc' },
-      'id-desc': { id: 'desc' },
-      'title-asc': { title: 'asc' },
-      'title-desc': { title: 'desc' },
-      'level-asc': { difficulty: 'asc' },
-      'level-desc': { difficulty: 'desc' },
-      'acrate-asc': { acceptedRate: 'asc' },
-      'acrate-desc': { acceptedRate: 'desc' },
-      'submit-asc': { submissionCount: 'asc' },
-      'submit-desc': { submissionCount: 'desc' }
+      'id-asc': [{ id: 'asc' }],
+      'id-desc': [{ id: 'desc' }],
+      'title-asc': [{ title: 'asc' }, { id: 'asc' }],
+      'title-desc': [{ title: 'desc' }, { id: 'asc' }],
+      'level-asc': [{ difficulty: 'asc' }, { id: 'asc' }],
+      'level-desc': [{ difficulty: 'desc' }, { id: 'asc' }],
+      'acrate-asc': [{ acceptedRate: 'asc' }, { id: 'asc' }],
+      'acrate-desc': [{ acceptedRate: 'desc' }, { id: 'asc' }],
+      'submit-asc': [{ submissionCount: 'asc' }, { id: 'asc' }],
+      'submit-desc': [{ submissionCount: 'desc' }, { id: 'asc' }]
     }
 
     const orderBy = orderByMapper[order ?? 'id-asc']
