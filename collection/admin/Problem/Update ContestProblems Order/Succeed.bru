@@ -21,7 +21,7 @@ body:graphql {
       updateTime
     }
   }
-
+  
 }
 
 body:graphql:vars {
@@ -33,21 +33,19 @@ body:graphql:vars {
 }
 
 assert {
-  res.body.data.getContestProblems[0].order: isNumber
-  res.body.data.getContestProblems[0].contestId: isNumber
-  res.body.data.getContestProblems[0].problemId: isNumber
-  res.body.data.getContestProblems[0].score: isNumber
-  res.body.data.getContestProblems[0].createTime: isString
-  res.body.data.getContestProblems[0].createTime: isString
+  res.body.data.updateContestProblemsOrder: isDefined
 }
 
 docs {
-  # Update ContestProblems Order
-
-  - `groupId`, `contestId` and `orders`가 필요합니다.
-  - `contestId`가 `groupId`에 속해있지 않으면 실패합니다.
-  - `orders`의 길이가 `contestId`에 속한 `problem`의 개수와 다르면 실패합니다.
-  - `orders`의 원소값은 `contestId`에 속한 `problemId`를 의미합니다.
-  - `orders`: [3, 4, 5, 6, 7, 8, 1, 2]와 같이 `problemId`의 순서를 변경할 수 있습니다.
-  - 위의 예시는 3번, 4번, 5번, 6번, 7번, 8번, 1번, 2번 `problemId` 순으로 (3번 problem이 1번 `order`, 2번 problem이 10번 `order`) `problemId`의 순서를 변경합니다.
+  ## Update ContestProblems order
+  contest problems의 정렬 순서를 변경합니다.
+  
+  order: [3, 4, 5, 6, 7, 8, 1, 2]와 같이 `problemId`의 순서를 변경할 수 있습니다.
+  위의 예시는 3번, 4번, 5번, 6번, 7번, 8번, 1번, 2번 `problemId` 순으로 (3번 problem이 1번 `order`, 2번 problem이 10번 `order`) `problemId`의 순서를 변경합니다.
+  
+  ### Error Cases
+  #### UNPROCESSABLE
+  `orders`의 길이는 contest에 속한 문제들의 개수와 같아야 합니다.
+  #### NOT_FOUND
+  존재하는 group id와 contest id가 필요합니다.
 }

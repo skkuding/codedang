@@ -1,0 +1,55 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
+    updateProblem(groupId: $groupId, input: $input) {
+      id
+      createdById
+      groupId
+      title
+      description
+      inputDescription
+      outputDescription
+      hint
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "input": {
+      "id": 4,
+      "title": "updatedProblem",
+      "description": "updated description",
+      "inputDescription": "updated input description",
+      "outputDescription": "updated output description",
+      "hint": "updated hint"
+    }
+  }
+}
+
+assert {
+  res.body.data.updateProblem: isDefined
+}
+
+docs {
+  ## Update Problem
+  Problem 정보를 수정합니다.
+  
+  ### Error Cases
+  #### UNPROCESSABLE(1)
+  수정된 Problem은 최소 1개 이상의 프로그래밍 언어를 지원해야 합니다.
+  #### UNPROCESSABLE(2)
+  수정된 Problem은 Template에 존재하는 프로그래밍 언어를 지원해야 합니다.
+}

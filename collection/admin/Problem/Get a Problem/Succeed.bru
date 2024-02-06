@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation DeleteProblem($groupId: Int!, $id: Int!) {
-    deleteProblem(groupId: $groupId, id: $id) {
+  query GetProblem($groupId: Int!, $id: Int!) {
+    getProblem(groupId: $groupId, id: $id) {
       id
       createdById
       groupId
@@ -28,19 +28,19 @@ body:graphql {
 body:graphql:vars {
   {
     "groupId": 1,
-    "id": 5
+    "id": 1
   }
 }
 
 assert {
-  res.body.data.deleteProblem: isDefined
+  res.body.data.getProblem: isDefined
 }
 
 docs {
-  ## Delete Problem
-  Problem을 삭제합니다.
+  ## Get a Problem
+  Problem을 가져옵니다.
   
   ### Error Cases
   #### NOT_FOUND
-  존재하는 id, groupId를 사용해야 합니다.
+  존재하지 않는 groupId 또는 id를 전달하는 경우 발생합니다.
 }

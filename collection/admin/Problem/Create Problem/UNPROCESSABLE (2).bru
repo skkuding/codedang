@@ -1,0 +1,68 @@
+meta {
+  name: UNPROCESSABLE (2)
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateProblem($groupId: Int!, $input:  CreateProblemInput!) {
+    createProblem(groupId: $groupId, input: $input) {
+      id
+      createdById
+      groupId
+      title
+      description
+      inputDescription
+      outputDescription
+      hint
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "input": {
+      "title": "createdProblem",
+      "description": "description",
+      "inputDescription": "input description",
+      "outputDescription": "output description",
+      "hint": "hint",
+      "template": {
+        "language": "Cpp",
+        "code": [
+          {
+            "id": 1,
+            "text": "int main() {}",
+            "locked": false
+          }
+        ]
+      },
+      "languages": ["Python3"],
+      "timeLimit": 0,
+      "memoryLimit": 0,
+      "difficulty": "Level2",
+      "source": "source",
+      "inputExamples": [],
+      "outputExamples": [],
+      "testcases": [
+        {
+          "input": "input",
+          "output": "output"
+        }
+      ],
+      "tagIds": [1]
+    }
+  }
+}
+
+assert {
+  res.body.errors[0].extensions.code: eq UNPROCESSABLE
+  res.body.errors[0].message: eq This problem does not support Cpp
+}

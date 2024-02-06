@@ -1,5 +1,5 @@
 meta {
-  name: Error: Length not equal
+  name: UNPROCESSABLE
   type: graphql
   seq: 1
 }
@@ -20,7 +20,7 @@ body:graphql {
       updateTime
     }
   }
-
+  
 }
 
 body:graphql:vars {
@@ -33,10 +33,5 @@ body:graphql:vars {
 
 assert {
   res.body.errors[0].message: eq the len of orders and the len of workbookProblem are not equal.
-}
-
-docs {
-  # Error: the len of orders and the len of workbookProblem are not equal
-
-  - `orders`와 `workbookId`에서 긁어온 `workbookProblem`의 길이가 다를 때 발생하는 에러입니다.
+  res.body.errors[0].extensions.code: eq UNPROCESSABLE
 }
