@@ -1,8 +1,3 @@
-variable "s3_bucket" {
-  type    = string
-  default = "codedang"
-}
-
 variable "region" {
   type = string
   # default = "ap-northeast-2"

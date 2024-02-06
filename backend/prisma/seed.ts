@@ -14,7 +14,7 @@ import {
   type ProblemTestcase,
   type Announcement,
   type CodeDraft,
-  ContestRecord
+  type ContestRecord
 } from '@prisma/client'
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
@@ -1601,10 +1601,6 @@ const createContestRecords = async () => {
         userId: user.userId,
         contestId: 1,
         acceptedProblemNum: user.userId,
-        // TODO: 아직 점수 계산 로직을 구현하지 않아서,
-        // 임시로 임의로 좀수와 페널티를 부여하도록 하였습니다.
-        // 점수 계산 로직을 구현하면 아래의 코드를 수정해주세요.
-        score: i < 3 ? 3 : i * 3,
         totalPenalty: i * 60
       }
     })
