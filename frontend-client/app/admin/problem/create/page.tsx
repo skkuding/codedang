@@ -1,5 +1,6 @@
 'use client'
 
+import TextEditor from '@/components/TextEditor'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { PiWarningBold } from 'react-icons/pi'
@@ -77,6 +78,7 @@ const schema = z.object({
 export default function Page() {
   const {
     handleSubmit,
+    control,
     register,
     unregister,
     getValues,
@@ -183,15 +185,25 @@ export default function Page() {
             </div>
           </div>
 
-          {/* TODO: Description Component로 변경 */}
           <div className="flex flex-col gap-1">
             <Label>Description</Label>
-            <Textarea
-              id="description"
-              placeholder="Enter a description..."
-              className="h-[200px] resize-none"
-              {...register('description')}
+            <Controller
+              render={({ field }) => (
+                <TextEditor
+                  placeholder="Enter a description..."
+                  {...field}
+                  onChange={field.onChange}
+                />
+              )}
+              name="description"
+              control={control}
             />
+            {errors.description && (
+              <div className="flex items-center gap-1 text-xs text-red-500">
+                <PiWarningBold />
+                required
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-1">
