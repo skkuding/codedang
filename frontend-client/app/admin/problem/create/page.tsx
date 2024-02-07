@@ -26,7 +26,6 @@ import Label from './_components/Lable'
 
 const inputStyle =
   'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
-const errorBorderStyle = 'border-red-500 focus-visible:ring-red-500'
 
 // dummy data
 const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
@@ -85,8 +84,8 @@ const schema = z.object({
   testcase: z
     .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
     .min(1),
-  timeLimit: z.number().min(1),
-  memoryLimit: z.number().min(1),
+  timeLimit: z.number().min(0),
+  memoryLimit: z.number().min(0),
   hint: z.string().optional(),
   source: z.string().optional()
 })
@@ -170,11 +169,7 @@ export default function Page() {
               id="title"
               type="text"
               placeholder="Name your problem"
-              className={cn(
-                inputStyle,
-                'w-[380px]',
-                errors.title && errorBorderStyle
-              )}
+              className={cn(inputStyle, 'w-[380px]')}
               {...register('title')}
             />
             {errors.title && (
@@ -279,10 +274,7 @@ export default function Page() {
                 <Textarea
                   id="inputDescription"
                   placeholder="Enter a description..."
-                  className={cn(
-                    'h-[120px] w-[360px] resize-none',
-                    errors.inputDescription && errorBorderStyle
-                  )}
+                  className={cn('h-[120px] w-[360px] resize-none')}
                   {...register('inputDescription')}
                 />
                 {errors.inputDescription && (
@@ -297,10 +289,7 @@ export default function Page() {
                 <Textarea
                   id="outputDescription"
                   placeholder="Enter a description..."
-                  className={cn(
-                    'h-[120px] w-[360px] resize-none',
-                    errors.outputDescription && errorBorderStyle
-                  )}
+                  className={cn('h-[120px] w-[360px] resize-none')}
                   {...register('outputDescription')}
                 />
                 {errors.outputDescription && (
@@ -331,7 +320,6 @@ export default function Page() {
                       onRemove={() => removeExample('sample', index)}
                       inputName={`sample.${index}.input`}
                       outputName={`sample.${index}.output`}
-                      className={errors.sample?.[index] && errorBorderStyle}
                       register={register}
                     />
                     {errors.sample?.[index] && (
@@ -364,7 +352,6 @@ export default function Page() {
                       onRemove={() => removeExample('testcase', index)}
                       inputName={`testcase.${index}.input`}
                       outputName={`testcase.${index}.output`}
-                      className={errors.testcase?.[index] && errorBorderStyle}
                       register={register}
                     />
                     {errors.testcase?.[index] && (
@@ -386,12 +373,9 @@ export default function Page() {
                   <Input
                     id="time"
                     type="number"
+                    min={0}
                     placeholder="Time"
-                    className={cn(
-                      inputStyle,
-                      'h-[36px] w-[112px]',
-                      errors.timeLimit && errorBorderStyle
-                    )}
+                    className={cn(inputStyle, 'h-[36px] w-[112px]')}
                     {...register('timeLimit', {
                       setValueAs: (value: string) => parseInt(value, 10)
                     })}
@@ -413,12 +397,9 @@ export default function Page() {
                   <Input
                     id="memory"
                     type="number"
+                    min={0}
                     placeholder="Memory"
-                    className={cn(
-                      inputStyle,
-                      'h-[36px] w-[112px]',
-                      errors.memoryLimit && errorBorderStyle
-                    )}
+                    className={cn(inputStyle, 'h-[36px] w-[112px]')}
                     {...register('memoryLimit', {
                       setValueAs: (value: string) => parseInt(value, 10)
                     })}
