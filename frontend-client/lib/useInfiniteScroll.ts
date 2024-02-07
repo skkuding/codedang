@@ -40,7 +40,7 @@ export const useInfiniteScroll = <T extends Item>(
     return data
   }
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
       queryKey: [dataType, url],
       queryFn: getInfiniteData,
@@ -77,6 +77,7 @@ export const useInfiniteScroll = <T extends Item>(
 
   return {
     items,
+    isLoading,
     fetchNextPage,
     isFetchingNextPage,
     hasNextPage,
