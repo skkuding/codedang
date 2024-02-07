@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { PlusCircledIcon } from '@radix-ui/react-icons'
+import { CommandList } from 'cmdk'
 import { useState } from 'react'
 import { IoClose } from 'react-icons/io5'
 
@@ -17,6 +18,7 @@ interface DataProps {
 
 export default function TagsSelect({ options }: DataProps) {
   const [selectedValues, setSelectedValues] = useState([] as string[])
+  const [inputValue, setInputValue] = useState('')
 
   const handleCheckboxChange = (option: string) => {
     setSelectedValues((prevSelectedValues) => {
@@ -66,43 +68,54 @@ export default function TagsSelect({ options }: DataProps) {
 
       <PopoverContent className="w-96 p-0" align="start">
         <Command className="">
-          <CommandInput placeholder="search" />
-          <div className="p-2">
-            {options.map((value) => (
-              <>
-                <Badge
-                  key={value}
-                  variant="secondary"
-                  className={`mr-2 cursor-pointer rounded-lg border-solid px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80
+          <CommandInput
+            placeholder="search"
+            value={inputValue}
+            onValueChange={(e) => setInputValue(e)}
+          />
+          <CommandList>
+            <div className="p-2">
+              {inputValue === ''
+                ? options.map((value) => (
+                    <Badge
+                      key={value}
+                      variant="secondary"
+                      className={`mr-2 cursor-pointer rounded-lg border-solid px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80
                   ${selectedValues.includes(value) ? 'border-gray-100/80 bg-gray-100/80' : 'border-gray-200/80 bg-white '}
                 `}
-                  onClick={() => handleCheckboxChange(value)}
-                >
-                  {value}
-                  {selectedValues.includes(value) ? (
-                    <IoClose className="ml-2 h-[14px] w-[14px] text-gray-500" />
-                  ) : (
-                    ''
-                  )}
-                </Badge>
-              </>
-            ))}
-          </div>
-
-          {/* <CommandList>
-            <CommandEmpty>No language found.</CommandEmpty>
-            <CommandGroup>
-              {options.map((option) => (
-                <CommandItem key={option} value={option} className="gap-x-2">
-                  <Checkbox
-                    checked={selectedValues.includes(option)}
-                    onCheckedChange={() => handleCheckboxChange(option)}
-                  />
-                  {option}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList> */}
+                      onClick={() => handleCheckboxChange(value)}
+                    >
+                      {value}
+                      {selectedValues.includes(value) ? (
+                        <IoClose className="ml-2 h-[14px] w-[14px] text-gray-500" />
+                      ) : (
+                        ''
+                      )}
+                    </Badge>
+                  ))
+                : options
+                    .filter((value) =>
+                      value.toLowerCase().includes(inputValue.toLowerCase())
+                    )
+                    .map((value) => (
+                      <Badge
+                        key={value}
+                        variant="secondary"
+                        className={`mr-2 cursor-pointer rounded-lg border-solid px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80
+                  ${selectedValues.includes(value) ? 'border-gray-100/80 bg-gray-100/80' : 'border-gray-200/80 bg-white '}
+                `}
+                        onClick={() => handleCheckboxChange(value)}
+                      >
+                        {value}
+                        {selectedValues.includes(value) ? (
+                          <IoClose className="ml-2 h-[14px] w-[14px] text-gray-500" />
+                        ) : (
+                          ''
+                        )}
+                      </Badge>
+                    ))}
+            </div>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
