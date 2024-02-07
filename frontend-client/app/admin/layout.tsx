@@ -14,7 +14,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* <GroupSelect /> */}
         <Button
           variant="ghost"
-          className="h-fit justify-between text-wrap py-2 text-left text-lg font-bold text-slate-800"
+          className="h-fit justify-between py-2 text-left text-lg font-bold text-slate-800"
         >
           Public
         </Button>

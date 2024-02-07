@@ -38,15 +38,15 @@ export default function ContestCard({ contest }: Props) {
         <Badge type={contest.status}>
           <p>{contest.status}</p>
         </Badge>
-        <CardTitle className="overflow-hidden text-ellipsis text-nowrap text-lg font-semibold">
+        <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-lg font-semibold">
           {contest.title}
         </CardTitle>
       </CardHeader>
-      <CardContent className="inline-flex items-center gap-1 text-nowrap text-xs text-white opacity-80">
+      <CardContent className="inline-flex items-center gap-1 whitespace-nowrap text-xs text-white opacity-80">
         {contest.status === 'finished' ? (
           <>
             <FaRegCalendarAlt className="shrink-0" />
-            <p className="overflow-hidden text-ellipsis text-nowrap">
+            <p className="overflow-hidden text-ellipsis whitespace-nowrap">
               {startTime} - {endTime}
             </p>
           </>
@@ -54,7 +54,7 @@ export default function ContestCard({ contest }: Props) {
           <>
             <FaRegClock className="shrink-0" />
             {contest.status === 'ongoing' ? 'Ends in' : 'Starts in'}
-            <p className="overflow-hidden text-ellipsis text-nowrap">
+            <p className="overflow-hidden text-ellipsis whitespace-nowrap">
               <TimeDiff timeRef={contest.endTime}></TimeDiff>
             </p>
           </>
