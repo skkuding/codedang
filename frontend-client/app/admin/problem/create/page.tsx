@@ -1,5 +1,8 @@
 'use client'
 
+import CheckboxSelect from '@/components/CheckboxSelect'
+import OptionSelect from '@/components/OptionSelect'
+import TagsSelect from '@/components/TagsSelect'
 import TextEditor from '@/components/TextEditor'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -23,11 +26,24 @@ const inputStyle =
   'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
 const errorBorderStyle = 'border-red-500 focus-visible:ring-red-500'
 
-// TODO: language tags string[]로 변경
+// dummy data
+const levels = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5']
+// dummy data
+const languageOptions = ['C', 'C++', 'Java', 'Python']
+// dummy data
+const tags = [
+  { id: 1, name: 'Array' },
+  { id: 2, name: 'String' },
+  { id: 3, name: 'Dynamic Programming' },
+  { id: 4, name: 'Graph' },
+  { id: 5, name: 'Tree' },
+  { id: 6, name: 'Math' }
+]
+
 interface Info {
   level: string
-  language: string
-  tags: string
+  language: string[]
+  tags: number[]
 }
 
 interface Example {
@@ -53,13 +69,12 @@ export interface ProblemData {
   source?: string
 }
 
-// TODO: language tags z.array(z.string())로 변경
 const schema = z.object({
   title: z.string().min(1).max(25),
   info: z.object({
     level: z.string().min(1),
-    language: z.string().min(1),
-    tags: z.string().min(1)
+    language: z.array(z.string().min(1)).min(1),
+    tags: z.array(z.number()).min(1)
   }),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
@@ -161,26 +176,39 @@ export default function Page() {
           <div className="flex flex-col gap-1">
             <Label>Info</Label>
             <div className="flex gap-4">
-              <Input
-                id="level"
-                type="text"
-                placeholder="level"
-                className={cn(inputStyle, 'w-[115px]')}
-                {...register('info.level')}
+              <Controller
+                render={({ field }) => (
+                  <OptionSelect
+                    levels={levels}
+                    {...field}
+                    onChange={field.onChange}
+                  />
+                )}
+                name="info.level"
+                control={control}
               />
-              <Input
-                id="language"
-                type="text"
-                placeholder="language"
-                className={cn(inputStyle, 'w-[115px]')}
-                {...register('info.language')}
+              <Controller
+                render={({ field }) => (
+                  <CheckboxSelect
+                    title="Language"
+                    options={languageOptions}
+                    {...field}
+                    onChange={field.onChange}
+                  />
+                )}
+                name="info.language"
+                control={control}
               />
-              <Input
-                id="tags"
-                type="text"
-                placeholder="tags"
-                className={cn(inputStyle, 'w-[115px]')}
-                {...register('info.tags')}
+              <Controller
+                render={({ field }) => (
+                  <TagsSelect
+                    options={tags}
+                    {...field}
+                    onChange={field.onChange}
+                  />
+                )}
+                name="info.tags"
+                control={control}
               />
             </div>
           </div>

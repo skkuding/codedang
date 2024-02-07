@@ -10,17 +10,22 @@ import { useState } from 'react'
 
 interface OptionSelectProps {
   levels: string[]
+  onChange: (level: string) => void
 }
 
-export default function OptionSelect({ levels }: OptionSelectProps) {
+export default function OptionSelect({ levels, onChange }: OptionSelectProps) {
   const [level, setLevel] = useState(levels[0])
 
   return (
-    <Select onValueChange={setLevel} value={level}>
+    <Select
+      onValueChange={setLevel}
+      value={level}
+      onOpenChange={() => onChange(level)}
+    >
       <SelectTrigger className="w-[115px] font-bold hover:bg-gray-100 focus:outline-none focus:ring-0 focus:ring-offset-0">
         <SelectValue />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="w-[115px] bg-white">
         <SelectGroup>
           {levels.map((level) => (
             <SelectItem
