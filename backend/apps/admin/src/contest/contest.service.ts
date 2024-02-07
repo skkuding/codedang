@@ -82,15 +82,12 @@ export class ContestService {
     groupId: number,
     contest: UpdateContestInput
   ): Promise<Contest> {
-    const contestFound = await this.prisma.contest.findFirst({
+    await this.prisma.contest.findFirstOrThrow({
       where: {
         id: contest.id,
         groupId
       }
     })
-    if (!contestFound) {
-      throw new EntityNotExistException('contest')
-    }
 
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
@@ -116,23 +113,18 @@ export class ContestService {
   }
 
   async deleteContest(groupId: number, contestId: number) {
-    const contest = await this.prisma.contest.findFirst({
+    await this.prisma.contest.findFirstOrThrow({
       where: {
         id: contestId,
         groupId
       }
     })
-    if (!contest) {
-      throw new EntityNotExistException('contest')
-    }
 
-    await this.prisma.contest.delete({
+    return await this.prisma.contest.delete({
       where: {
         id: contestId
       }
     })
-
-    return contest
   }
 
   async getPublicizingRequests() {
@@ -205,15 +197,12 @@ export class ContestService {
       )
     }
 
-    const contest = await this.prisma.contest.findFirst({
+    const contest = await this.prisma.contest.findFirstOrThrow({
       where: {
         id: contestId,
         groupId
       }
     })
-    if (!contest) {
-      throw new EntityNotExistException('contest')
-    }
 
     let requests = (await this.cacheManager.get(
       PUBLICIZING_REQUEST_KEY
@@ -248,15 +237,12 @@ export class ContestService {
     contestId: number,
     problemIds: number[]
   ) {
-    const contest = await this.prisma.contest.findUnique({
+    const contest = await this.prisma.contest.findFirstOrThrow({
       where: {
         id: contestId,
         groupId
       }
     })
-    if (!contest) {
-      throw new EntityNotExistException('contest')
-    }
 
     const contestProblems: ContestProblem[] = []
 

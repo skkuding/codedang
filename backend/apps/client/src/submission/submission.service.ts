@@ -244,11 +244,8 @@ export class SubmissionService implements OnModuleInit {
 
   async checkDelay() {
     const url =
-      'http://' +
-      this.configService.get('RABBITMQ_HOST') +
-      ':' +
-      this.configService.get('RABBITMQ_API_PORT') +
-      '/api/queues/' +
+      this.configService.get('RABBITMQ_API_URL') +
+      '/queues/' +
       this.configService.get('RABBITMQ_DEFAULT_VHOST') +
       '/' +
       this.configService.get('JUDGE_SUBMISSION_QUEUE_NAME')
