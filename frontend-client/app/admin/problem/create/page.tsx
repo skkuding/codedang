@@ -102,7 +102,13 @@ export default function Page() {
 
   useEffect(() => {
     fetcherGql(GET_TAGS).then((data) => {
-      setTags(data.getTags as Tag[])
+      const transformedData = data.getTags.map(
+        (tag: { id: string; name: string }) => ({
+          ...tag,
+          id: Number(tag.id)
+        })
+      )
+      setTags(transformedData)
     })
   }, [])
 
@@ -184,40 +190,64 @@ export default function Page() {
           <div className="flex flex-col gap-1">
             <Label>Info</Label>
             <div className="flex gap-4">
-              <Controller
-                render={({ field }) => (
-                  <OptionSelect
-                    levels={levels}
-                    {...field}
-                    onChange={field.onChange}
-                  />
+              <div className="flex flex-col gap-1">
+                <Controller
+                  render={({ field }) => (
+                    <OptionSelect
+                      levels={levels}
+                      {...field}
+                      onChange={field.onChange}
+                    />
+                  )}
+                  name="difficulty"
+                  control={control}
+                />
+                {errors.difficulty && (
+                  <div className="flex items-center gap-1 text-xs text-red-500">
+                    <PiWarningBold />
+                    required
+                  </div>
                 )}
-                name="difficulty"
-                control={control}
-              />
-              <Controller
-                render={({ field }) => (
-                  <CheckboxSelect
-                    title="Language"
-                    options={languageOptions}
-                    {...field}
-                    onChange={field.onChange}
-                  />
+              </div>
+              <div className="flex flex-col gap-1">
+                <Controller
+                  render={({ field }) => (
+                    <CheckboxSelect
+                      title="Language"
+                      options={languageOptions}
+                      {...field}
+                      onChange={field.onChange}
+                    />
+                  )}
+                  name="languages"
+                  control={control}
+                />
+                {errors.languages && (
+                  <div className="flex items-center gap-1 text-xs text-red-500">
+                    <PiWarningBold />
+                    required
+                  </div>
                 )}
-                name="languages"
-                control={control}
-              />
-              <Controller
-                render={({ field }) => (
-                  <TagsSelect
-                    options={tags}
-                    {...field}
-                    onChange={field.onChange}
-                  />
+              </div>
+              <div className="flex flex-col gap-1">
+                <Controller
+                  render={({ field }) => (
+                    <TagsSelect
+                      options={tags}
+                      {...field}
+                      onChange={field.onChange}
+                    />
+                  )}
+                  name="tagIds"
+                  control={control}
+                />
+                {errors.tagIds && (
+                  <div className="flex items-center gap-1 text-xs text-red-500">
+                    <PiWarningBold />
+                    required
+                  </div>
                 )}
-                name="tagIds"
-                control={control}
-              />
+              </div>
             </div>
           </div>
 

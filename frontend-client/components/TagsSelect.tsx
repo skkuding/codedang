@@ -16,6 +16,7 @@ interface Tag {
   id: number
   name: string
 }
+
 interface DataProps {
   options: Tag[]
   onChange: (selectedValues: number[]) => void
