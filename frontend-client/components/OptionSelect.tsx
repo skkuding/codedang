@@ -23,7 +23,11 @@ export default function OptionSelect({ levels }: OptionSelectProps) {
       <SelectContent>
         <SelectGroup>
           {levels.map((level) => (
-            <SelectItem key={level} value={level}>
+            <SelectItem
+              key={level}
+              value={level}
+              className="cursor-pointer hover:bg-gray-100/80"
+            >
               {level}
             </SelectItem>
           ))}
