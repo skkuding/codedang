@@ -10,9 +10,10 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
+import { fetcherGql, cn } from '@/lib/utils'
+import { gql } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -27,18 +28,13 @@ const inputStyle =
 const errorBorderStyle = 'border-red-500 focus-visible:ring-red-500'
 
 // dummy data
-const levels = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5']
-// dummy data
-const languageOptions = ['C', 'C++', 'Java', 'Python']
-// dummy data
-const tags = [
-  { id: 1, name: 'Array' },
-  { id: 2, name: 'String' },
-  { id: 3, name: 'Dynamic Programming' },
-  { id: 4, name: 'Graph' },
-  { id: 5, name: 'Tree' },
-  { id: 6, name: 'Math' }
-]
+const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
+const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
+
+interface Tag {
+  id: number
+  name: string
+}
 
 interface Info {
   level: string
@@ -69,6 +65,17 @@ export interface ProblemData {
   source?: string
 }
 
+const GET_TAGS = gql`
+  query GetTags {
+    getTags {
+      id
+      name
+      createTime
+      updateTime
+    }
+  }
+`
+
 const schema = z.object({
   title: z.string().min(1).max(25),
   info: z.object({
@@ -91,6 +98,20 @@ const schema = z.object({
 })
 
 export default function Page() {
+  const [showHint, setShowHint] = useState<boolean>(false)
+  const [showSource, setShowSource] = useState<boolean>(false)
+  const [samples, setSamples] = useState<Example[]>([{ input: '', output: '' }])
+  const [testcases, setTestcases] = useState<Example[]>([
+    { input: '', output: '' }
+  ])
+  const [tags, setTags] = useState<Tag[]>([])
+
+  useEffect(() => {
+    fetcherGql(GET_TAGS).then((data) => {
+      setTags(data.getTags as Tag[])
+    })
+  }, [])
+
   const {
     handleSubmit,
     control,
@@ -106,12 +127,6 @@ export default function Page() {
       testcase: [{ input: '', output: '' }]
     }
   })
-  const [showHint, setShowHint] = useState<boolean>(false)
-  const [showSource, setShowSource] = useState<boolean>(false)
-  const [samples, setSamples] = useState<Example[]>([{ input: '', output: '' }])
-  const [testcases, setTestcases] = useState<Example[]>([
-    { input: '', output: '' }
-  ])
 
   // TODO: Create Problem API 연결
   const onSubmit = async (data: ProblemData) => {
