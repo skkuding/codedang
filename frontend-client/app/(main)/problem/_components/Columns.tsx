@@ -42,7 +42,7 @@ export const columns: ColumnDef<Problem>[] = [
   {
     header: () => <SortButton order="acrate">Solved</SortButton>,
     accessorKey: 'acceptedRate',
-    cell: ({ row }) => `${parseFloat(row.original.acceptedRate.toFixed(4))}%`
+    cell: ({ row }) => `${row.original.acceptedRate.toFixed(2)}%`
   },
   {
     header: 'Info',
