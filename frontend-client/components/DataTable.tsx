@@ -18,6 +18,7 @@ import {
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useWindowScroll, useSessionStorage } from 'react-use'
 
 interface Item {
   id: number
@@ -78,6 +79,20 @@ export default function DataTable<TData extends Item, TValue>({
     getCoreRowModel: getCoreRowModel()
   })
   const router = useRouter()
+  const [, setScrollPosition] = useSessionStorage(`${name}scrollPosition`, 0)
+  const [, setPreviousItmes] = useSessionStorage<TData[]>(
+    `${name}previousItems`,
+    []
+  )
+  const { y } = useWindowScroll()
+  const setScrollDataInStorage = () => {
+    if (y) {
+      setScrollPosition(y)
+      if (data) {
+        setPreviousItmes(data)
+      }
+    }
+  }
 
   return (
     <Table className="table-fixed">
@@ -115,6 +130,7 @@ export default function DataTable<TData extends Item, TValue>({
                     e.currentTarget.classList.toggle('expanded')
                   }
                 : () => {
+                    setScrollDataInStorage()
                     router.push(href)
                   }
             return (
