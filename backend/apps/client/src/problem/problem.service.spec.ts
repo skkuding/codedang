@@ -42,17 +42,20 @@ const db = {
   problem: {
     findMany: stub(),
     findFirst: stub(),
-    findUniqueOrThrow: stub()
+    findUniqueOrThrow: stub(),
+    count: stub().resolves(2)
   },
   contestProblem: {
     findMany: stub(),
     findUnique: stub(),
-    findUniqueOrThrow: stub()
+    findUniqueOrThrow: stub(),
+    count: stub().resolves(2)
   },
   workbookProblem: {
     findMany: stub(),
     findUnique: stub(),
-    findUniqueOrThrow: stub()
+    findUniqueOrThrow: stub(),
+    count: stub().resolves(2)
   },
   tag: {
     findMany: stub()
