@@ -125,4 +125,29 @@ export class ContestController {
       throw new InternalServerErrorException(error.message)
     }
   }
+
+  @Get(':id/record')
+  @AuthNotNeededIfOpenSpace()
+  async getContestRecords(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', new RequiredIntPipe('id')) contestId: number,
+    @Query('groupId', GroupIDPipe) groupId: number
+  ) {
+    try {
+      return await this.contestService.getContestRecords(
+        contestId,
+        req.user?.id,
+        groupId
+      )
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException(error.message)
+    }
+  }
 }

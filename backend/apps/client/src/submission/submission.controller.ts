@@ -72,8 +72,7 @@ export class SubmissionController {
     } catch (error) {
       if (error instanceof ConflictFoundException) {
         throw new ConflictException(error.message)
-      }
-      if (
+      } else if (
         (error instanceof Prisma.PrismaClientKnownRequestError &&
           error.name == 'NotFoundError') ||
         error instanceof EntityNotExistException
