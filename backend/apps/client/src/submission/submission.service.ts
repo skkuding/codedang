@@ -243,8 +243,13 @@ export class SubmissionService implements OnModuleInit {
   }
 
   async checkDelay() {
+    const baseUrl = this.configService.get(
+      'RABBITMQ_API_URL',
+      'http://127.0.0.1:15672/api'
+    )
+
     const url =
-      this.configService.get('RABBITMQ_API_URL') +
+      baseUrl +
       '/queues/' +
       this.configService.get('RABBITMQ_DEFAULT_VHOST') +
       '/' +
