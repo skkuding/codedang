@@ -83,7 +83,7 @@ export class SubmissionController {
     }
   }
 
-  @Get('delay')
+  @Get('delay-cause')
   async checkDelay() {
     return await this.submissionService.checkDelay()
   }
