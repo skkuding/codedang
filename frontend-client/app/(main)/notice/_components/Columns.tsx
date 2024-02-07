@@ -21,7 +21,7 @@ export const columns: ColumnDef<Notice>[] = [
           <span
             className={cn(
               row.original.isFixed && 'font-semibold',
-              'text-sm md:text-base'
+              'overflow-hidden text-ellipsis whitespace-nowrap text-sm md:text-base'
             )}
           >
             {row.original.title}
