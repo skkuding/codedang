@@ -254,8 +254,8 @@ export class SubmissionService implements OnModuleInit {
       method: 'GET',
       withCredentials: true,
       auth: {
-        username: this.configService.get('RABBITMQ_DEFAULT_USER') + '',
-        password: this.configService.get('RABBITMQ_DEFAULT_PASS') + ''
+        username: this.configService.get('RABBITMQ_DEFAULT_USER', ''),
+        password: this.configService.get('RABBITMQ_DEFAULT_PASS', '')
       }
     }
     const res = await this.httpService.axiosRef(url, config)
