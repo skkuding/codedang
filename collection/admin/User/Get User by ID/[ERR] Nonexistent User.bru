@@ -1,0 +1,35 @@
+meta {
+  name: [ERR] Nonexistent User
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query ($id: Int!) {
+    getUser(id: $id) {
+      id
+      username
+      role
+      email
+      lastLogin
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "id": 999999
+  }
+}
+
+assert {
+  res.body.errors[0].message: eq Cannot return null for non-nullable field Query.getUser.
+}
