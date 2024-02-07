@@ -26,11 +26,11 @@ export type ContestSelectResult = Prisma.ContestGetPayload<{
 export class ContestService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getContestsByGroupId<T extends number>(
-    userId?: T,
-    groupId?: number
+  async getContestsByGroupId<T extends number | undefined | null>(
+    groupId: number,
+    userId?: T
   ): Promise<
-    T extends undefined
+    T extends undefined | null
       ? {
           ongoing: Partial<Contest>[]
           upcoming: Partial<Contest>[]
@@ -42,11 +42,7 @@ export class ContestService {
           upcoming: Partial<Contest>[]
         }
   >
-
-  async getContestsByGroupId(
-    userId: number | null = null,
-    groupId = OPEN_SPACE_ID
-  ) {
+  async getContestsByGroupId(groupId: number, userId: number | null = null) {
     const now = new Date()
     if (userId == null) {
       const contests = await this.prisma.contest.findMany({
@@ -74,18 +70,7 @@ export class ContestService {
       }
     }
 
-    const registeredContestRecords = await this.prisma.contestRecord.findMany({
-      where: {
-        userId
-      },
-      select: {
-        contestId: true
-      }
-    })
-
-    const registeredContestIds = registeredContestRecords.map(
-      (obj) => obj.contestId
-    )
+    const registeredContestIds = await this.getRegisteredContestIds(userId)
 
     let registeredContests: ContestSelectResult[] = []
     let restContests: ContestSelectResult[] = []
@@ -96,6 +81,9 @@ export class ContestService {
           groupId, // TODO: 기획 상 필요한 부분인지 확인하고 삭제
           id: {
             in: registeredContestIds
+          },
+          endTime: {
+            gt: now
           }
         },
         select: contestSelectOption,
@@ -114,6 +102,9 @@ export class ContestService {
         },
         id: {
           notIn: registeredContestIds
+        },
+        endTime: {
+          gt: now
         }
       },
       select: contestSelectOption,
@@ -131,13 +122,81 @@ export class ContestService {
       registeredUpcoming: this.filterUpcoming(
         registeredContestsWithParticipants
       ),
-      registeredFinished: this.filterFinished(
-        registeredContestsWithParticipants
-      ),
       ongoing: this.filterOngoing(restContestsWithParticipants),
-      upcoming: this.filterUpcoming(restContestsWithParticipants),
-      finished: this.filterFinished(restContestsWithParticipants)
+      upcoming: this.filterUpcoming(restContestsWithParticipants)
     }
+  }
+
+  async getRegisteredOngoingUpcomingContests(groupId: number, userId: number) {
+    const now = new Date()
+    const registeredContestIds = await this.getRegisteredContestIds(userId)
+
+    const ongoingAndUpcomings = await this.prisma.contest.findMany({
+      where: {
+        groupId,
+        id: {
+          in: registeredContestIds
+        },
+        endTime: {
+          gt: now
+        }
+      },
+      select: contestSelectOption
+    })
+
+    const ongoingAndUpcomingsWithParticipants =
+      this.renameToParticipants(ongoingAndUpcomings)
+
+    return {
+      registeredOngoing: this.filterOngoing(
+        ongoingAndUpcomingsWithParticipants
+      ),
+      registeredUpcoming: this.filterUpcoming(
+        ongoingAndUpcomingsWithParticipants
+      )
+    }
+  }
+
+  async getRegisteredContestIds(userId: number) {
+    const registeredContestRecords = await this.prisma.contestRecord.findMany({
+      where: {
+        userId
+      },
+      select: {
+        contestId: true
+      }
+    })
+
+    return registeredContestRecords.map((obj) => obj.contestId)
+  }
+
+  async getRegisteredFinishedContests(
+    cursor: number | null,
+    take: number,
+    groupId: number,
+    userId: number
+  ) {
+    const now = new Date()
+    const paginator = this.prisma.getPaginator(cursor)
+
+    const registeredContestIds = await this.getRegisteredContestIds(userId)
+    const contests = await this.prisma.contest.findMany({
+      ...paginator,
+      take,
+      where: {
+        groupId,
+        endTime: {
+          lte: now
+        },
+        id: {
+          in: registeredContestIds
+        }
+      },
+      select: contestSelectOption,
+      orderBy: [{ endTime: 'desc' }, { id: 'desc' }]
+    })
+
+    return this.renameToParticipants(contests)
   }
 
   async getFinishedContestsByGroupId(
@@ -162,9 +221,7 @@ export class ContestService {
         }
       },
       select: contestSelectOption,
-      orderBy: {
-        endTime: 'desc'
-      }
+      orderBy: [{ endTime: 'desc' }, { id: 'desc' }]
     })
     return { finished: this.renameToParticipants(finished) }
   }
@@ -178,26 +235,13 @@ export class ContestService {
     }))
   }
 
-  startTimeCompare(
-    a: Partial<Contest> & Pick<Contest, 'startTime'>,
-    b: Partial<Contest> & Pick<Contest, 'startTime'>
-  ) {
-    if (a.startTime < b.startTime) {
-      return -1
-    }
-    if (a.startTime > b.startTime) {
-      return 1
-    }
-    return 0
-  }
-
   filterOngoing(
     contests: Array<Partial<Contest> & Pick<Contest, 'startTime' | 'endTime'>>
   ) {
     const now = new Date()
-    const ongoingContest = contests.filter(
-      (contest) => contest.startTime <= now && contest.endTime > now
-    )
+    const ongoingContest = contests
+      .filter((contest) => contest.startTime <= now && contest.endTime > now)
+      .sort((a, b) => a.endTime.getTime() - b.endTime.getTime())
     return ongoingContest
   }
 
@@ -205,17 +249,10 @@ export class ContestService {
     contests: Array<Partial<Contest> & Pick<Contest, 'startTime'>>
   ) {
     const now = new Date()
-    const upcomingContest = contests.filter(
-      (contest) => contest.startTime > now
-    )
-    upcomingContest.sort(this.startTimeCompare)
+    const upcomingContest = contests
+      .filter((contest) => contest.startTime > now)
+      .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
     return upcomingContest
-  }
-
-  filterFinished(contests: Array<Partial<Contest> & Pick<Contest, 'endTime'>>) {
-    const now = new Date()
-    const finishedContest = contests.filter((contest) => contest.endTime <= now)
-    return finishedContest
   }
 
   async getContest(id: number, groupId = OPEN_SPACE_ID) {

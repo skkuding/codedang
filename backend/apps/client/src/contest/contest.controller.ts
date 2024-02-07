@@ -26,17 +26,13 @@ export class ContestController {
 
   constructor(private readonly contestService: ContestService) {}
 
-  @Get()
+  @Get('ongoing-upcoming')
   @AuthNotNeededIfOpenSpace()
-  async getContests(
-    @Req() req: AuthenticatedRequest,
+  async getOngoingUpcomingContests(
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
     try {
-      return await this.contestService.getContestsByGroupId(
-        req.user?.id,
-        groupId
-      )
+      return await this.contestService.getContestsByGroupId(groupId)
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -49,11 +45,23 @@ export class ContestController {
     }
   }
 
-  @Get('auth')
-  async authGetContests(@Req() req: AuthenticatedRequest) {
+  @Get('ongoing-upcoming-with-registered')
+  async getOngoingUpcomingContestsWithRegistered(
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Req() req: AuthenticatedRequest
+  ) {
     try {
-      return await this.contestService.getContestsByGroupId(req.user.id)
+      return await this.contestService.getContestsByGroupId(
+        groupId,
+        req.user.id
+      )
     } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name === 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      }
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
@@ -72,6 +80,43 @@ export class ContestController {
         cursor,
         take,
         groupId
+      )
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('registered-finished')
+  async getRegisteredFinishedContests(
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number,
+    @Req() req: AuthenticatedRequest
+  ) {
+    try {
+      return await this.contestService.getRegisteredFinishedContests(
+        cursor,
+        take,
+        groupId,
+        req.user.id
+      )
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('registered-ongoing-upcoming')
+  async getRegisteredOngoingUpcomingContests(
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Req() req: AuthenticatedRequest
+  ) {
+    try {
+      return await this.contestService.getRegisteredOngoingUpcomingContests(
+        groupId,
+        req.user.id
       )
     } catch (error) {
       this.logger.error(error)
