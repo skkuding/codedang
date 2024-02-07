@@ -73,8 +73,8 @@ export default function TagsSelect({ options }: DataProps) {
                 <Badge
                   key={value}
                   variant="secondary"
-                  className={`mr-2 cursor-pointer rounded-lg border-solid border-gray-100/80 px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80
-                  ${selectedValues.includes(value) ? 'bg-gray-100/80' : 'bg-white'}
+                  className={`mr-2 cursor-pointer rounded-lg border-solid px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80
+                  ${selectedValues.includes(value) ? 'border-gray-100/80 bg-gray-100/80' : 'border-gray-200/80 bg-white '}
                 `}
                   onClick={() => handleCheckboxChange(value)}
                 >
