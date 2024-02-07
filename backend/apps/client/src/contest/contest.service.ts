@@ -257,7 +257,11 @@ export class ContestService {
     })
   }
 
-  async getStandings(contestId: number, groupId = OPEN_SPACE_ID) {
+  async getContestRecords(
+    contestId: number,
+    userId: number,
+    groupId = OPEN_SPACE_ID
+  ) {
     const contest = await this.getContest(contestId, groupId)
 
     // TODO: take 적용할지?

@@ -423,6 +423,7 @@ export class SubmissionService implements OnModuleInit {
           // do not subtract here to reduce DB read operations
           penalty: new Date(
             submission.createTime.getTime() +
+              // add penalty of 5 min for each unaccepted answer
               contestRecord.unaccepted * 5 * 60 * 1000
           )
         }
@@ -433,9 +434,7 @@ export class SubmissionService implements OnModuleInit {
           id: contestRecord.id
         },
         data: {
-          unaccepted: contestRecord.unaccepted + 1,
-          // add penalty of 5 min for each unaccepted answer
-          penalty: new Date(contestRecord.penalty.getTime() + 5 * 60 * 1000)
+          unaccepted: contestRecord.unaccepted + 1
         }
       })
     }
