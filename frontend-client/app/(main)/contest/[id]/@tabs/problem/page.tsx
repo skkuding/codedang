@@ -26,10 +26,11 @@ export default async function ContestProblem({ params }: ContestProblemProps) {
       data={contestProblems}
       columns={columns}
       headerStyle={{
-        title: 'text-left w-6/12',
-        difficulty: 'w-2/12',
-        submissionCount: 'w-2/12',
-        acceptedRate: 'w-2/12'
+        order: 'w-[8%]',
+        title: 'text-left w-[50%]',
+        difficulty: 'w-[14%]',
+        submissionCount: 'w-[14%]',
+        acceptedRate: 'w-[14%]'
       }}
       name="problem"
     />

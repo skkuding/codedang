@@ -123,7 +123,7 @@ export interface SubmissionDetail {
   }[]
 }
 
-export interface ContestClarification {
+export interface ContestAnnouncement {
   id: number
   content: string
   problemId: number
