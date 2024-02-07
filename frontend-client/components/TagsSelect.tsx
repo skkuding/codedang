@@ -1,12 +1,6 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem
-} from '@/components/ui/command'
+import { Command, CommandInput } from '@/components/ui/command'
 import {
   Popover,
   PopoverContent,
@@ -15,6 +9,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { PlusCircledIcon } from '@radix-ui/react-icons'
 import { useState } from 'react'
+import { IoClose } from 'react-icons/io5'
 
 interface DataProps {
   options: string[]
@@ -69,20 +64,45 @@ export default function TagsSelect({ options }: DataProps) {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[115px] p-0" align="start">
-        <Command>
-          <CommandEmpty>No language found.</CommandEmpty>
-          <CommandGroup>
-            {options.map((option) => (
-              <CommandItem key={option} value={option} className="gap-x-2">
-                <Checkbox
-                  checked={selectedValues.includes(option)}
-                  onCheckedChange={() => handleCheckboxChange(option)}
-                ></Checkbox>
-                {option}
-              </CommandItem>
+      <PopoverContent className="w-96 p-0" align="start">
+        <Command className="">
+          <CommandInput placeholder="search" />
+          <div className="p-2">
+            {options.map((value) => (
+              <>
+                <Badge
+                  key={value}
+                  variant="secondary"
+                  className={`mr-2 cursor-pointer rounded-lg border-solid border-gray-100/80 px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80
+                  ${selectedValues.includes(value) ? 'bg-gray-100/80' : 'bg-white'}
+                `}
+                  onClick={() => handleCheckboxChange(value)}
+                >
+                  {value}
+                  {selectedValues.includes(value) ? (
+                    <IoClose className="ml-2 h-[14px] w-[14px] text-gray-500" />
+                  ) : (
+                    ''
+                  )}
+                </Badge>
+              </>
             ))}
-          </CommandGroup>
+          </div>
+
+          {/* <CommandList>
+            <CommandEmpty>No language found.</CommandEmpty>
+            <CommandGroup>
+              {options.map((option) => (
+                <CommandItem key={option} value={option} className="gap-x-2">
+                  <Checkbox
+                    checked={selectedValues.includes(option)}
+                    onCheckedChange={() => handleCheckboxChange(option)}
+                  />
+                  {option}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList> */}
         </Command>
       </PopoverContent>
     </Popover>
