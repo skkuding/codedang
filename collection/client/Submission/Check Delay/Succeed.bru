@@ -16,6 +16,21 @@ script:pre-request {
 
 docs {
   # Check Delay
-
+  
   채점 지연의 원인을 파악해 반환합니다.
+  
+  ## Response
+  
+  ```
+  {
+    "isDelay": true | false
+    "cause": "<message>"
+  }
+  ```
+  
+  - `isDelay`가 true인 경우 `cause`에 메시지가 추가됩니다.
+  - `cause`로 가능한 메시지
+    - Judge server is not working.
+    - RabbitMQ is not working.
+  
 }

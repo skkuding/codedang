@@ -268,9 +268,9 @@ export class SubmissionService implements OnModuleInit {
 
     if (res.status == 200) {
       if (res.data.consumer_capacity > threshold) return { isDelay: false }
-      else return { isDelay: true, cause: 'Iris' }
+      return { isDelay: true, cause: 'Judge server is not working.' }
     } else {
-      return { isDelay: true, cause: 'RabbitMq' }
+      return { isDelay: true, cause: 'RabbitMQ is not working.' }
     }
   }
 
