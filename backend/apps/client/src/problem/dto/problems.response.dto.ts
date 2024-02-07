@@ -1,15 +1,33 @@
-import type { Level, Tag } from '@prisma/client'
-import { Exclude, Expose } from 'class-transformer'
+import { Level, type Tag } from '@prisma/client'
+import { Exclude, Expose, Type } from 'class-transformer'
 
 @Exclude()
 export class ProblemsResponseDto {
-  @Expose() problems: {
-    id: number
-    title: string
-    difficulty: Level
-    submissionCount: number
-    acceptedRate: number
-    tags: Partial<Tag>[]
-  }[]
-  @Expose() total: number
+  @Expose()
+  @Type(() => Problem)
+  problems: Problem[]
+
+  @Expose()
+  total: number
+}
+
+@Exclude()
+class Problem {
+  @Expose()
+  id: number
+
+  @Expose()
+  title: string
+
+  @Expose()
+  difficulty: Level
+
+  @Expose()
+  submissionCount: number
+
+  @Expose()
+  acceptedRate: number
+
+  @Expose()
+  tags: Partial<Tag>[]
 }
