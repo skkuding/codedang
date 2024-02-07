@@ -79,23 +79,22 @@ export class ContestController {
   }
 
   @Get(':id')
-  @AuthNotNeededIfOpenSpace()
+  // FIXME: Contest 조회 시 로그인을 하지 않은 사용자도 조회할 수 있는지 확인 필요
+  // 그래서 일단은 조회를 할 수 있게 COMMENTED OUT 처리함
+  // @AuthNotNeededIfOpenSpace()
   async getContest(
+    @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
-      return await this.contestService.getContest(id, groupId)
+      return await this.contestService.getContest(id, groupId, req.user?.id)
     } catch (error) {
-      if (
-        (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.name === 'NotFoundError') ||
-        error instanceof EntityNotExistException
-      ) {
-        throw new NotFoundException(error.message)
+      if (error instanceof EntityNotExistException) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
-      throw new InternalServerErrorException()
+      throw new InternalServerErrorException(error.message)
     }
   }
 
