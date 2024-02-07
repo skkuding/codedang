@@ -14,7 +14,7 @@ export default function ProblemCard({ problem }: Props) {
         <Badge
           type={problem.difficulty}
         >{`Level ${problem.difficulty[5]}`}</Badge>
-        <CardTitle className="overflow-hidden text-ellipsis text-nowrap text-lg font-semibold">
+        <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-lg font-semibold">
           {`#${problem.problemId} ${problem.title}`}
         </CardTitle>
       </CardHeader>

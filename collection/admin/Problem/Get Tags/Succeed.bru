@@ -1,0 +1,31 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetTags {
+    getTags {
+      id
+      name
+      createTime
+      updateTime
+    }
+  }
+}
+
+assert {
+  res.body.data.getTags[0]: isDefined
+}
+
+docs {
+  ## Get Tags
+  Tag 정보들을 가져옵니다.
+}

@@ -6,10 +6,12 @@ import dayjs from 'dayjs'
 
 export const columns: ColumnDef<Contest>[] = [
   {
-    header: 'Name',
+    header: 'Title',
     accessorKey: 'title',
     cell: ({ row }) => (
-      <p className="text-left text-sm md:text-base">{row.original.title}</p>
+      <p className="overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm md:text-base">
+        {row.original.title}
+      </p>
     )
   },
   {
