@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import type { Contest, Prisma } from '@prisma/client'
+import { type Contest, Prisma } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { ConflictFoundException } from '@libs/exception'
+import {
+  ConflictFoundException,
+  EntityNotExistException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
 const contestSelectOption = {
@@ -214,21 +217,43 @@ export class ContestService {
     return upcomingContest
   }
 
-  async getContest(id: number, groupId = OPEN_SPACE_ID) {
-    const contest = await this.prisma.contest.findUniqueOrThrow({
-      where: {
-        id,
-        groupId,
-        config: {
-          path: ['isVisible'],
-          equals: true
-        }
-      },
-      select: {
-        ...contestSelectOption,
-        description: true
+  async getContest(id: number, groupId = OPEN_SPACE_ID, userId: number) {
+    // check if user can register this contest
+    let canRegister = false
+    let contest
+    // if user is not logged in, canRegister is always true
+    if (userId) {
+      const hasRegistered = await this.prisma.contestRecord.findFirst({
+        where: { userId, contestId: id }
+      })
+      if (!hasRegistered) {
+        canRegister = true
       }
-    })
+    }
+    try {
+      contest = await this.prisma.contest.findUniqueOrThrow({
+        where: {
+          id,
+          groupId,
+          config: {
+            path: ['isVisible'],
+            equals: true
+          }
+        },
+        select: {
+          ...contestSelectOption,
+          description: true
+        }
+      })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('Contest')
+      }
+      throw error
+    }
     // get contest participants ranking using ContestRecord
     const sortedContestRecordsWithUserDetail =
       await this.prisma.contestRecord.findMany({
@@ -264,7 +289,8 @@ export class ContestService {
     // combine contest and sortedContestRecordsWithUserDetail
     return {
       ...contest,
-      standings: UsersWithStandingDetail
+      standings: UsersWithStandingDetail,
+      canRegister
     }
   }
 
