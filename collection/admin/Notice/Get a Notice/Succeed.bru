@@ -1,0 +1,60 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query ($groupId: Int, $noticeId: Int!) {
+    getNotice(groupId: $groupId, noticeId: $noticeId) {
+      id
+      groupId
+      group {
+        groupName
+      }
+      createdById
+      createdBy {
+        username
+      }
+      title
+      content
+      isVisible
+      isFixed
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "noticeId": 2
+  }
+}
+
+assert {
+  res.body.data.getNotice: isDefined
+}
+
+docs {
+  ## Get a Notice
+  단일 공지사항을 조회한다.
+
+  ### Args
+
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |groupId|int|포함하지 않으면 Open Space에 대한 요청이 된다. 기본값은 1.|
+  |noticdId|int|조회할 공지사항의 id|
+
+  ### Error Case
+
+  #### NOT_FOUND
+  groupId와 noticeId에 맞는 공지사항이 없는 경우에 해당한다.
+}
