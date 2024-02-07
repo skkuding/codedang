@@ -11,6 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { fetcherGql, cn } from '@/lib/utils'
+import type { Level, Language } from '@/types/type'
 import { gql } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
@@ -36,31 +37,23 @@ interface Tag {
   name: string
 }
 
-interface Info {
-  level: string
-  language: string[]
-  tags: number[]
-}
-
 interface Example {
   input: string
   output: string
 }
 
-interface Limit {
-  time: number
-  memory: number
-}
-
 export interface ProblemData {
   title: string
-  info: Info
+  difficulty: Level
+  languages: Language[]
+  tagIds: number[]
   description: string
   inputDescription: string
   outputDescription: string
   sample: Example[]
   testcase: Example[]
-  limit: Limit
+  timeLimit: number
+  memoryLimit: number
   hint?: string
   source?: string
 }
@@ -78,11 +71,11 @@ const GET_TAGS = gql`
 
 const schema = z.object({
   title: z.string().min(1).max(25),
-  info: z.object({
-    level: z.string().min(1),
-    language: z.array(z.string().min(1)).min(1),
-    tags: z.array(z.number()).min(1)
-  }),
+  difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
+  languages: z.array(
+    z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
+  ),
+  tagIds: z.array(z.number()).min(1),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
@@ -92,7 +85,8 @@ const schema = z.object({
   testcase: z
     .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
     .min(1),
-  limit: z.object({ time: z.number().min(0), memory: z.number().min(0) }),
+  timeLimit: z.number().min(1),
+  memoryLimit: z.number().min(1),
   hint: z.string().optional(),
   source: z.string().optional()
 })
@@ -187,7 +181,6 @@ export default function Page() {
             )}
           </div>
 
-          {/* TODO: Info Component로 변경 */}
           <div className="flex flex-col gap-1">
             <Label>Info</Label>
             <div className="flex gap-4">
@@ -199,7 +192,7 @@ export default function Page() {
                     onChange={field.onChange}
                   />
                 )}
-                name="info.level"
+                name="difficulty"
                 control={control}
               />
               <Controller
@@ -211,7 +204,7 @@ export default function Page() {
                     onChange={field.onChange}
                   />
                 )}
-                name="info.language"
+                name="languages"
                 control={control}
               />
               <Controller
@@ -222,7 +215,7 @@ export default function Page() {
                     onChange={field.onChange}
                   />
                 )}
-                name="info.tags"
+                name="tagIds"
                 control={control}
               />
             </div>
@@ -367,20 +360,20 @@ export default function Page() {
                     className={cn(
                       inputStyle,
                       'h-[36px] w-[112px]',
-                      errors.limit?.time && errorBorderStyle
+                      errors.timeLimit && errorBorderStyle
                     )}
-                    {...register('limit.time', {
+                    {...register('timeLimit', {
                       setValueAs: (value: string) => parseInt(value, 10)
                     })}
                   />
                   <p className="text-sm font-bold text-gray-600">ms</p>
                 </div>
-                {errors.limit?.time && (
+                {errors.timeLimit && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
                     <PiWarningBold />
-                    {Number.isNaN(getValues('limit.time'))
+                    {Number.isNaN(getValues('timeLimit'))
                       ? 'required'
-                      : errors.limit?.time?.message}
+                      : errors.timeLimit?.message}
                   </div>
                 )}
               </div>
@@ -394,20 +387,20 @@ export default function Page() {
                     className={cn(
                       inputStyle,
                       'h-[36px] w-[112px]',
-                      errors.limit?.memory && errorBorderStyle
+                      errors.memoryLimit && errorBorderStyle
                     )}
-                    {...register('limit.memory', {
+                    {...register('memoryLimit', {
                       setValueAs: (value: string) => parseInt(value, 10)
                     })}
                   />
                   <p className="text-sm font-bold text-gray-600">MB</p>
                 </div>
-                {errors.limit?.memory && (
+                {errors.memoryLimit && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
                     <PiWarningBold />
-                    {Number.isNaN(getValues('limit.memory'))
+                    {Number.isNaN(getValues('memoryLimit'))
                       ? 'required'
-                      : errors.limit?.memory?.message}
+                      : errors.memoryLimit?.message}
                   </div>
                 )}
               </div>

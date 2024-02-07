@@ -14,7 +14,7 @@ import { Toggle } from '@/components/ui/toggle'
 import { DialogClose } from '@radix-ui/react-dialog'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
-import { type Editor, useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Bold, Italic, List, ListOrdered, Link as LinkIcon } from 'lucide-react'
 import { useCallback, useState } from 'react'
@@ -45,7 +45,7 @@ export default function TextEditor({
           'rounded-b-md border overflow-y-auto w-full h-[200px] border-input bg-backround px-3 ring-offset-2 disabled:cursur-not-allowed disabled:opacity-50'
       }
     },
-    onUpdate({ editor }: Editor) {
+    onUpdate({ editor }) {
       onChange(editor.getHTML())
     }
   })
