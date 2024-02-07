@@ -32,7 +32,7 @@ export default function SignIn() {
     })
     if (!res?.error) {
       router.refresh()
-      toast.success('Successfully signed in')
+      toast.success('Successfully logged in')
     } else {
       toast.error('Failed to log in')
     }
