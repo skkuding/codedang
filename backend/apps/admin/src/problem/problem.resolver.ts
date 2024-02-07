@@ -8,7 +8,7 @@ import {
   ValidationPipe
 } from '@nestjs/common'
 import { Args, Context, Query, Int, Mutation, Resolver } from '@nestjs/graphql'
-import { ContestProblem, Problem, WorkbookProblem } from '@generated'
+import { ContestProblem, Problem, Tag, WorkbookProblem } from '@generated'
 import { Prisma } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
@@ -301,5 +301,10 @@ export class ProblemResolver {
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
     }
+  }
+
+  @Query(() => [Tag])
+  async getTags() {
+    return await this.problemService.getTags()
   }
 }
