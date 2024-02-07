@@ -260,7 +260,7 @@ export default function Page() {
             <div className="flex flex-col gap-2">
               {getValues('sample') &&
                 getValues('sample').map((_sample, index) => (
-                  <div key={index}>
+                  <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       onRemove={() => removeExample('sample', index)}
                       inputName={`sample.${index}.input`}
@@ -292,7 +292,7 @@ export default function Page() {
             <div className="flex flex-col gap-2">
               {getValues('testcase') &&
                 getValues('testcase').map((_testcase, index) => (
-                  <div key={index}>
+                  <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
                       onRemove={() => removeExample('testcase', index)}
@@ -315,7 +315,7 @@ export default function Page() {
           <div className="flex flex-col gap-1">
             <Label>Limit</Label>
             <div className="flex gap-8">
-              <div>
+              <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
                   <Input
                     id="time"
@@ -342,7 +342,7 @@ export default function Page() {
                 )}
               </div>
 
-              <div>
+              <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
                   <Input
                     id="memory"
