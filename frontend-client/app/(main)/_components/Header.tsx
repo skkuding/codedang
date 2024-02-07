@@ -19,7 +19,8 @@ export default async function Header() {
             <NavLink href="/notice" text="Notice" />
             <NavLink href="/contest" text="Contest" />
             <NavLink href="/problem" text="Problem" />
-            <NavLink href="/group" text="Group" />
+            {/* TODO: Uncomment a group tab when we start to implement a group feature*/}
+            {/* <NavLink href="/group" text="Group" /> */}
           </nav>
         </div>
 

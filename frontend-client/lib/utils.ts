@@ -23,9 +23,6 @@ export const fetcher = ky.create({
         return error
       }
     ]
-  },
-  next: {
-    revalidate: 10 // 10 seconds
   }
 })
 

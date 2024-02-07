@@ -1,7 +1,7 @@
 meta {
-  name: Error: No Contest found
+  name: Succeed
   type: graphql
-  seq: 2
+  seq: 1
 }
 
 post {
@@ -27,16 +27,19 @@ body:graphql {
 body:graphql:vars {
   {
     "groupId": 1,
-    "contestId":  99
+    "contestId":  1
   }
 }
 
 assert {
-  res.body.errors[0].message: eq No Contest found
+  res.body.data.getContestProblems: isDefined
 }
 
 docs {
-  # Error: No Contest found
+  ## Get Contest Problems
+  Contest Problem들을 가져옵니다.
   
-  - `contestId`가 `groupId`에 속하지 않으면, `No Contest found` Error를 반환합니다.
+  ### Error Cases
+  #### NOT_FOUND
+  존재하는 group id와 contest id가 필요합니다.
 }

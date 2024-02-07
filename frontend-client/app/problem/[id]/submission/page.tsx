@@ -12,7 +12,8 @@ export default async function Submission({
   const data: SubmissionItem[] = await fetcherWithAuth
     .get('submission', {
       searchParams: {
-        problemId: id
+        problemId: id,
+        take: 20
       }
     })
     .json()

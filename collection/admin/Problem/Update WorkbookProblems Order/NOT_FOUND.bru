@@ -1,5 +1,5 @@
 meta {
-  name: Error: No Workbook found
+  name: NOT_FOUND
   type: graphql
   seq: 1
 }
@@ -20,7 +20,7 @@ body:graphql {
       updateTime
     }
   }
-
+  
 }
 
 body:graphql:vars {
@@ -33,10 +33,5 @@ body:graphql:vars {
 
 assert {
   res.body.errors[0].message: eq No Workbook found
-}
-
-docs {
-  # Error: No Workbook found
-
-  - `workbookId`가 `groupId`에 속하지 않으면, `No Workbook found` Error를 반환합니다.
+  res.body.errors[0].extensions.code: eq NOT_FOUND
 }

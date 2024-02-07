@@ -13,6 +13,7 @@ import type { SubmissionDetail } from '@/types/type'
 import dayjs from 'dayjs'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export default async function SubmissionDetail({
   params
@@ -23,17 +24,15 @@ export default async function SubmissionDetail({
   }
 }) {
   const { submissionId, id } = params
-  const data: SubmissionDetail = await fetcherWithAuth(
-    `submission/${submissionId}`,
-    {
-      searchParams: {
-        problemId: id
-      },
-      next: {
-        revalidate: 0
-      }
-    }
-  ).json()
+  const res = await fetcherWithAuth(`submission/${submissionId}`, {
+    searchParams: {
+      problemId: id
+    },
+    cache: 'no-store'
+  })
+  if (!res.ok) redirect(`/problem/${id}/submission`)
+
+  const data: SubmissionDetail = await res.json()
   return (
     <div className="flex flex-col gap-5 overflow-auto p-6">
       <div className="flex items-center gap-3 ">
