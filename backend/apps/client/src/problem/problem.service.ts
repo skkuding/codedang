@@ -51,7 +51,10 @@ export class ProblemService {
       }
     })
 
-    return plainToInstance(ProblemsResponseDto, await Promise.all(problems))
+    return plainToInstance(ProblemsResponseDto, {
+      problems: await Promise.all(problems),
+      total: problems.length
+    })
   }
 
   async getProblem(problemId: number, groupId = OPEN_SPACE_ID) {
@@ -85,7 +88,10 @@ export class ContestProblemService {
     if (data.length > 0 && data[0].contest.startTime > new Date()) {
       throw new ForbiddenAccessException('Contest is not started yet.')
     }
-    return plainToInstance(RelatedProblemsResponseDto, data)
+    return plainToInstance(RelatedProblemsResponseDto, {
+      problems: data,
+      total: data.length
+    })
   }
 
   async getContestProblem(
@@ -128,7 +134,10 @@ export class WorkbookProblemService {
       cursor,
       take
     )
-    return plainToInstance(RelatedProblemsResponseDto, data)
+    return plainToInstance(RelatedProblemsResponseDto, {
+      problems: data,
+      total: data.length
+    })
   }
 
   async getWorkbookProblem(
