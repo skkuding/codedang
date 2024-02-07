@@ -1,4 +1,6 @@
+import { HttpModule } from '@nestjs/axios'
 import { NotFoundException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { Language, ResultStatus } from '@prisma/client'
@@ -56,6 +58,7 @@ describe('SubmissionService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [HttpModule],
       providers: [
         SubmissionService,
         { provide: PrismaService, useValue: db },
@@ -65,7 +68,8 @@ describe('SubmissionService', () => {
             publish: () => [],
             createSubscriber: () => []
           })
-        }
+        },
+        ConfigService
       ]
     }).compile()
 

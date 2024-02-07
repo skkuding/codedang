@@ -1,18 +1,28 @@
 import { Level } from '@prisma/client'
-import { Exclude, Expose, Transform } from 'class-transformer'
+import { Exclude, Expose, Transform, Type } from 'class-transformer'
 
 @Exclude()
 export class RelatedProblemsResponseDto {
+  @Expose()
+  @Type(() => Problem)
+  problems: Problem[]
+
+  @Expose()
+  total: number
+}
+
+@Exclude()
+class Problem {
   @Expose()
   order: number
 
   @Expose()
   @Transform(({ obj }) => obj.problem.id, { toClassOnly: true })
-  problemId: number
+  id: number
 
   @Expose()
   @Transform(({ obj }) => obj.problem.title, { toClassOnly: true })
-  title: string
+  title: number
 
   @Expose()
   @Transform(({ obj }) => obj.problem.difficulty, { toClassOnly: true })
