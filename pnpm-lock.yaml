@@ -284,7 +284,7 @@ importers:
     dependencies:
       '@apollo/client':
         specifier: ^3.9.2
-        version: 3.9.2(graphql@16.8.1)(react@18.2.0)
+        version: 3.9.2(@types/react@18.2.53)(graphql@16.8.1)(react-dom@18.2.0)(react@18.2.0)
       '@codemirror/autocomplete':
         specifier: ^6.12.0
         version: 6.12.0(@codemirror/language@6.10.1)(@codemirror/state@6.4.0)(@codemirror/view@6.23.1)(@lezer/common@1.2.1)
@@ -472,6 +472,9 @@ importers:
 
   frontend-client:
     dependencies:
+      '@apollo/client':
+        specifier: ^3.9.2
+        version: 3.9.2(@types/react@18.2.53)(graphql@16.8.1)(react-dom@18.2.0)(react@18.2.0)
       '@codemirror/state':
         specifier: ^6.4.0
         version: 6.4.0
@@ -574,6 +577,9 @@ importers:
       embla-carousel-react:
         specifier: 8.0.0-rc22
         version: 8.0.0-rc22(react@18.2.0)
+      graphql:
+        specifier: ^16.8.1
+        version: 16.8.1
       isomorphic-dompurify:
         specifier: ^2.3.0
         version: 2.3.0
@@ -890,7 +896,7 @@ packages:
       graphql: 16.8.1
     dev: false
 
-  /@apollo/client@3.9.2(graphql@16.8.1)(react@18.2.0):
+  /@apollo/client@3.9.2(@types/react@18.2.53)(graphql@16.8.1)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-Zw9WvXjqhpbgkvAvnj52vstOWwM0iedKWtn1hSq1cODQyoe1CF2uFwMYFI7l56BrAY9CzLi6MQA0AhxpgJgvxw==}
     peerDependencies:
       graphql: ^15.0.0 || ^16.0.0
@@ -918,7 +924,8 @@ packages:
       optimism: 0.18.0
       prop-types: 15.8.1
       react: 18.2.0
-      rehackt: 0.0.3(react@18.2.0)
+      react-dom: 18.2.0(react@18.2.0)
+      rehackt: 0.0.3(@types/react@18.2.53)(react@18.2.0)
       response-iterator: 0.2.6
       symbol-observable: 4.0.0
       ts-invariant: 0.10.3
@@ -7149,7 +7156,7 @@ packages:
       '@vue/composition-api':
         optional: true
     dependencies:
-      '@apollo/client': 3.9.2(graphql@16.8.1)(react@18.2.0)
+      '@apollo/client': 3.9.2(@types/react@18.2.53)(graphql@16.8.1)(react-dom@18.2.0)(react@18.2.0)
       graphql: 16.8.1
       throttle-debounce: 5.0.0
       ts-essentials: 9.4.1(typescript@5.3.3)
@@ -15447,7 +15454,7 @@ packages:
       set-function-name: 2.0.1
     dev: true
 
-  /rehackt@0.0.3(react@18.2.0):
+  /rehackt@0.0.3(@types/react@18.2.53)(react@18.2.0):
     resolution: {integrity: sha512-aBRHudKhOWwsTvCbSoinzq+Lej/7R8e8UoPvLZo5HirZIIBLGAgdG7SL9QpdcBoQ7+3QYPi3lRLknAzXBlhZ7g==}
     peerDependencies:
       '@types/react': '*'
@@ -15458,6 +15465,7 @@ packages:
       react:
         optional: true
     dependencies:
+      '@types/react': 18.2.53
       react: 18.2.0
     dev: false
 
