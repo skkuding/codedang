@@ -188,11 +188,7 @@ export default function Page() {
               <div className="flex flex-col gap-1">
                 <Controller
                   render={({ field }) => (
-                    <OptionSelect
-                      levels={levels}
-                      {...field}
-                      onChange={field.onChange}
-                    />
+                    <OptionSelect levels={levels} onChange={field.onChange} />
                   )}
                   name="difficulty"
                   control={control}
@@ -210,7 +206,6 @@ export default function Page() {
                     <CheckboxSelect
                       title="Language"
                       options={languageOptions}
-                      {...field}
                       onChange={field.onChange}
                     />
                   )}
@@ -227,11 +222,7 @@ export default function Page() {
               <div className="flex flex-col gap-1">
                 <Controller
                   render={({ field }) => (
-                    <TagsSelect
-                      options={tags}
-                      {...field}
-                      onChange={field.onChange}
-                    />
+                    <TagsSelect options={tags} onChange={field.onChange} />
                   )}
                   name="tagIds"
                   control={control}
@@ -252,7 +243,6 @@ export default function Page() {
               render={({ field }) => (
                 <TextEditor
                   placeholder="Enter a description..."
-                  {...field}
                   onChange={field.onChange}
                 />
               )}

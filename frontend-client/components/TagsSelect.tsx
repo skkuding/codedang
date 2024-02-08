@@ -23,7 +23,7 @@ interface DataProps {
 }
 
 export default function TagsSelect({ options, onChange }: DataProps) {
-  const [selectedValues, setSelectedValues] = useState([] as number[])
+  const [selectedValues, setSelectedValues] = useState<number[]>([])
   const [inputValue, setInputValue] = useState('')
 
   const handleCheckboxChange = (value: number) => {
