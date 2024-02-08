@@ -47,8 +47,8 @@ export class ContestController {
 
   @Get('ongoing-upcoming-with-registered')
   async getOngoingUpcomingContestsWithRegistered(
-    @Query('groupId', GroupIDPipe) groupId: number,
-    @Req() req: AuthenticatedRequest
+    @Req() req: AuthenticatedRequest,
+    @Query('groupId', GroupIDPipe) groupId: number
   ) {
     try {
       return await this.contestService.getContestsByGroupId(
@@ -91,11 +91,11 @@ export class ContestController {
 
   @Get('registered-finished')
   async getRegisteredFinishedContests(
+    @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
-    @Req() req: AuthenticatedRequest,
     @Query('search') search?: string
   ) {
     try {
@@ -114,8 +114,8 @@ export class ContestController {
 
   @Get('registered-ongoing-upcoming')
   async getRegisteredOngoingUpcomingContests(
-    @Query('groupId', GroupIDPipe) groupId: number,
     @Req() req: AuthenticatedRequest,
+    @Query('groupId', GroupIDPipe) groupId: number,
     @Query('search') search?: string
   ) {
     try {
