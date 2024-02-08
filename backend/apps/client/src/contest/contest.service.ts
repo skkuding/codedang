@@ -127,7 +127,11 @@ export class ContestService {
     }
   }
 
-  async getRegisteredOngoingUpcomingContests(groupId: number, userId: number) {
+  async getRegisteredOngoingUpcomingContests(
+    groupId: number,
+    userId: number,
+    search?: string
+  ) {
     const now = new Date()
     const registeredContestIds = await this.getRegisteredContestIds(userId)
 
@@ -139,6 +143,9 @@ export class ContestService {
         },
         endTime: {
           gt: now
+        },
+        title: {
+          contains: search
         }
       },
       select: contestSelectOption
@@ -174,7 +181,8 @@ export class ContestService {
     cursor: number | null,
     take: number,
     groupId: number,
-    userId: number
+    userId: number,
+    search?: string
   ) {
     const now = new Date()
     const paginator = this.prisma.getPaginator(cursor)
@@ -190,6 +198,9 @@ export class ContestService {
         },
         id: {
           in: registeredContestIds
+        },
+        title: {
+          contains: search
         }
       },
       select: contestSelectOption,
@@ -202,7 +213,8 @@ export class ContestService {
   async getFinishedContestsByGroupId(
     cursor: number | null,
     take: number,
-    groupId = OPEN_SPACE_ID
+    groupId: number,
+    search?: string
   ) {
     const paginator = this.prisma.getPaginator(cursor)
     const now = new Date()
@@ -218,6 +230,9 @@ export class ContestService {
         config: {
           path: ['isVisible'],
           equals: true
+        },
+        title: {
+          contains: search
         }
       },
       select: contestSelectOption,

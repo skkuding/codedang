@@ -73,13 +73,15 @@ export class ContestController {
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
-    take: number
+    take: number,
+    @Query('search') search?: string
   ) {
     try {
       return await this.contestService.getFinishedContestsByGroupId(
         cursor,
         take,
-        groupId
+        groupId,
+        search
       )
     } catch (error) {
       this.logger.error(error)
@@ -93,14 +95,16 @@ export class ContestController {
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
-    @Req() req: AuthenticatedRequest
+    @Req() req: AuthenticatedRequest,
+    @Query('search') search?: string
   ) {
     try {
       return await this.contestService.getRegisteredFinishedContests(
         cursor,
         take,
         groupId,
-        req.user.id
+        req.user.id,
+        search
       )
     } catch (error) {
       this.logger.error(error)
@@ -111,12 +115,14 @@ export class ContestController {
   @Get('registered-ongoing-upcoming')
   async getRegisteredOngoingUpcomingContests(
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Req() req: AuthenticatedRequest
+    @Req() req: AuthenticatedRequest,
+    @Query('search') search?: string
   ) {
     try {
       return await this.contestService.getRegisteredOngoingUpcomingContests(
         groupId,
-        req.user.id
+        req.user.id,
+        search
       )
     } catch (error) {
       this.logger.error(error)
