@@ -201,6 +201,10 @@ export class ContestService {
         },
         title: {
           contains: search
+        },
+        config: {
+          path: ['isVisible'],
+          equals: true
         }
       },
       select: contestSelectOption,
