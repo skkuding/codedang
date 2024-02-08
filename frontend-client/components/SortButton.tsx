@@ -23,9 +23,11 @@ export default function SortButton({ children, order }: SortButtonProps) {
         const newParam = new URLSearchParams()
         // set all searchParam to newParam
         param.forEach((value, key) => newParam.set(key, value))
-        if (currentOrder == `${order}-asc`)
+        if (!currentOrder || !currentOrder.includes(order))
           newParam.set('order', `${order}-desc`)
-        else newParam.set('order', `${order}-asc`)
+        else if (currentOrder == `${order}-desc`)
+          newParam.set('order', `${order}-asc`)
+        else if (currentOrder == `${order}-asc`) newParam.delete('order')
         router.push(`${pathname}?${newParam.toString()}` as Route)
       }}
       className="items-center justify-center gap-1 md:text-base"

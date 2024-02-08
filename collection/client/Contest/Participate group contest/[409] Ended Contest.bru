@@ -1,0 +1,24 @@
+meta {
+  name: [409] Ended contest
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/contest/2/participation?groupId=1
+  body: none
+  auth: none
+}
+
+query {
+  groupId: 1
+}
+
+assert {
+  res.status: eq 409
+  res("message"): eq Cannot participate ended contest
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}

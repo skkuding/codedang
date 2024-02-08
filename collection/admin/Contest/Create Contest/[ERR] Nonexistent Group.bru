@@ -1,0 +1,37 @@
+meta {
+  name: [ERR] Nonexistent Group
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createContest(
+      groupId: 99999
+      input: {
+        title: "New Contest Group 2"
+        description: "thisisnewcontest"
+        startTime: "2024-01-01"
+        endTime: "2030-01-01"
+        config: {
+          isVisible: true
+          isRankVisible: true
+        }
+      }
+    ) {
+      id
+      title
+      description
+    }
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+}
