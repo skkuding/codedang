@@ -10,7 +10,7 @@ export const useStorage = <T>(key: string, initialValue?: T) => {
   }, [])
 
   if (!isMounted) {
-    return [initialValue, setValue] as const
+    return { value: initialValue, setValue } as const
   }
-  return [value, setValue] as const
+  return { value, setValue } as const
 }

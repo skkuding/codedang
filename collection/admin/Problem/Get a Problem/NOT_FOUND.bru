@@ -1,0 +1,38 @@
+meta {
+  name: NOT_FOUND
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetProblem($groupId: Int!, $id: Int!) {
+    getProblem(groupId: $groupId, id: $id) {
+      id
+      groupId
+      inputDescription
+      outputDescription
+      languages
+      submissionCount
+      difficulty
+      exposeTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 99999,
+    "id": 1
+  }
+}
+
+assert {
+  res.body.errors[0].extensions.code: eq NOT_FOUND
+  res.body.errors[0].message: eq No Problem found
+}

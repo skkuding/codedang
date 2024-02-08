@@ -1,0 +1,23 @@
+meta {
+  name: [400] Empty field
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "",
+    "password": ""
+  }
+}
+
+assert {
+  res.status: 400
+  res("message"): length 2
+}

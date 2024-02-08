@@ -52,7 +52,7 @@ export class AuthController {
       this.setJwtResponse(res, jwtTokens)
     } catch (error) {
       if (error instanceof UnidentifiedException) {
-        throw new UnauthorizedException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException('Login failed')
@@ -87,7 +87,7 @@ export class AuthController {
       this.setJwtResponse(res, newJwtTokens)
     } catch (error) {
       if (error instanceof InvalidJwtTokenException) {
-        throw new UnauthorizedException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException('Failed to reissue tokens')
@@ -114,7 +114,7 @@ export class AuthController {
       return await this.authService.githubLogin(res, githubUser)
     } catch (error) {
       if (error instanceof UnidentifiedException) {
-        throw new UnauthorizedException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException('Login failed')
@@ -142,7 +142,7 @@ export class AuthController {
       return await this.authService.kakaoLogin(res, kakaoUser)
     } catch (error) {
       if (error instanceof UnidentifiedException) {
-        throw new UnauthorizedException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException('Login failed')

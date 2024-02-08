@@ -7,8 +7,6 @@ import {
   Req,
   NotFoundException,
   InternalServerErrorException,
-  ConflictException,
-  ForbiddenException,
   Logger,
   Query,
   DefaultValuePipe
@@ -71,7 +69,7 @@ export class SubmissionController {
       }
     } catch (error) {
       if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
+        throw error.convert2HTTPException()
       }
       if (
         (error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -83,6 +81,11 @@ export class SubmissionController {
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
+  }
+
+  @Get('delay-cause')
+  async checkDelay() {
+    return await this.submissionService.checkDelay()
   }
 
   @Get()
@@ -120,7 +123,7 @@ export class SubmissionController {
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -159,7 +162,7 @@ export class SubmissionController {
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()

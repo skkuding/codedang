@@ -5,6 +5,7 @@ import { GroupService } from './group.service'
 
 @Module({
   imports: [RolesModule],
-  providers: [GroupResolver, GroupService]
+  providers: [GroupResolver, GroupService],
+  exports: [GroupService]
 })
 export class GroupModule {}

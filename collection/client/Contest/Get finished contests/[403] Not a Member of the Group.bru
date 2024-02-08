@@ -1,0 +1,19 @@
+meta {
+  name: [403] Not a user of the group
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/contest/finished?groupId=99999
+  body: none
+  auth: none
+}
+
+query {
+  groupId: 99999
+}
+
+assert {
+  res.status: eq 403
+}

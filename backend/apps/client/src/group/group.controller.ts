@@ -1,9 +1,7 @@
 import {
-  ConflictException,
   Controller,
   DefaultValuePipe,
   Delete,
-  ForbiddenException,
   Get,
   InternalServerErrorException,
   Logger,
@@ -95,7 +93,7 @@ export class GroupController {
       ) {
         throw new NotFoundException('Invalid invitation')
       } else if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -120,10 +118,11 @@ export class GroupController {
         error.name === 'NotFoundError'
       ) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
-      } else if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
+      } else if (
+        error instanceof ForbiddenAccessException ||
+        error instanceof ConflictFoundException
+      ) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -140,7 +139,7 @@ export class GroupController {
       return await this.groupService.leaveGroup(req.user.id, groupId)
     } catch (error) {
       if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
+        throw error.convert2HTTPException()
       }
 
       this.logger.error(error)

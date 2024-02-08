@@ -1,10 +1,12 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Prisma, type UserGroup } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
-import { spy, stub, match } from 'sinon'
-import { joinGroupCacheKey } from '@libs/cache'
+import * as chai from 'chai'
+import chaiExclude from 'chai-exclude'
+import { stub } from 'sinon'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -12,47 +14,20 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { GroupService } from './group.service'
-import {
-  groups,
-  userGroups,
-  publicGroupDatas,
-  mockGroupData,
-  userGroupsForJoinedGroups
-} from './mock/group.mock'
+import type { UserGroupData } from './interface/user-group-data.interface'
 
-const db = {
-  user: {
-    findMany: stub(),
-    findFirst: stub(),
-    findFirstOrThrow: stub(),
-    findUnique: stub(),
-    findUniqueOrThrow: stub()
-  },
-  group: {
-    findMany: stub(),
-    findFirst: stub(),
-    findFirstOrThrow: stub(),
-    findUnique: stub(),
-    findUniqueOrThrow: stub()
-  },
-  userGroup: {
-    create: stub(),
-    delete: stub(),
-    findFirst: stub(),
-    findMany: stub(),
-    findUnique: stub()
-  },
-  getPaginator: PrismaService.prototype.getPaginator
-}
+chai.use(chaiExclude)
 
 describe('GroupService', () => {
   let service: GroupService
   let cache: Cache
+  let prisma: PrismaService
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GroupService,
-        { provide: PrismaService, useValue: db },
+        PrismaService,
+        ConfigService,
         {
           provide: CACHE_MANAGER,
           useFactory: () => ({
@@ -64,6 +39,7 @@ describe('GroupService', () => {
     }).compile()
     service = module.get<GroupService>(GroupService)
     cache = module.get<Cache>(CACHE_MANAGER)
+    prisma = module.get<PrismaService>(PrismaService)
   })
 
   it('should be defined', () => {
@@ -72,190 +48,199 @@ describe('GroupService', () => {
 
   describe('getGroup', () => {
     it('should return groupData for join when user is not joined to a group', async () => {
-      //given
-      const userId = 3
-      const groupId = 2
-      db.userGroup.findFirst.resolves(null)
-      db.group.findUniqueOrThrow.resolves(mockGroupData)
-      stub(service, 'getGroupLeaders').resolves(['manager'])
+      const user01Id = 4
+      const groupId = 3
+      const res = await service.getGroup(groupId, user01Id)
 
-      //when
-      const result = await service.getGroup(groupId, userId)
-
-      //then
-      expect(result).to.deep.equal({
-        ...publicGroupDatas[1],
+      expect(res).to.deep.equal({
+        id: 3,
+        groupName: 'Example Private Group 2',
+        description:
+          'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
         allowJoin: true,
+        memberNum: 1,
         leaders: ['manager'],
         isJoined: false
       })
     })
 
     it('should return groupData when user is joined to a group', async () => {
-      //given
-      const userId = 1
-      const groupId = 1
-      const mockGroup = groups.filter((group) => group.id === groupId)[0]
-      db.userGroup.findFirst.resolves({
-        group: {
-          id: mockGroup.id,
-          groupName: mockGroup.groupName,
-          description: mockGroup.description
-        },
-        isGroupLeader: true
-      })
+      const user01Id = 4
+      const groupId = 2
 
-      //when
-      const result = await service.getGroup(groupId, userId)
+      const res = await service.getGroup(groupId, user01Id)
 
-      //then
-      expect(result).to.deep.equal({
-        id: mockGroup.id,
-        groupName: mockGroup.groupName,
-        description: mockGroup.description,
+      expect(res).to.deep.equal({
+        id: 2,
+        groupName: 'Example Private Group',
+        description:
+          'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
         isGroupLeader: true,
         isJoined: true
       })
     })
 
     it('should throw PrismaClientKnownRequestError when group not exists', async () => {
-      //given
-      const userId = 1
-      const groupId = 4
-      db.userGroup.findFirst.resolves(null)
-      db.group.findUniqueOrThrow.rejects(
-        new Prisma.PrismaClientKnownRequestError('group', {
-          code: 'P2002',
-          clientVersion: '5.1.1'
-        })
-      )
+      const user01Id = 4
+      const groupId = 99999
 
-      //when
-
-      //then
-      await expect(service.getGroup(groupId, userId)).to.be.rejectedWith(
+      await expect(service.getGroup(groupId, user01Id)).to.be.rejectedWith(
         Prisma.PrismaClientKnownRequestError
       )
     })
   })
 
   describe('getGroupByInvitation', () => {
-    const userId = 1
-    const groupId = 1
-
     it('should call getGroup', async () => {
-      const getGroupSpy = stub(service, 'getGroup').resolves()
+      const groupId = 2
+      const userId = 4
       stub(cache, 'get').resolves(groupId)
 
-      await service.getGroupByInvitation('abcdef', userId)
-      expect(getGroupSpy.calledWith(groupId)).to.be.true
+      const res = await service.getGroupByInvitation(
+        'invitationCodeKey',
+        userId
+      )
+      expect(res).to.deep.equal({
+        id: 2,
+        groupName: 'Example Private Group',
+        description:
+          'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+        isGroupLeader: true,
+        isJoined: true
+      })
     })
 
     it('should throw error if given invitation is invalid', async () => {
-      const getGroupSpy = spy(service, 'getGroup')
+      const userId = 4
       stub(cache, 'get').resolves(null)
 
       await expect(
-        service.getGroupByInvitation('abcdef', userId)
+        service.getGroupByInvitation('invalidInvitationCodeKey', userId)
       ).to.be.rejectedWith(EntityNotExistException)
-      expect(getGroupSpy.called).to.be.false
     })
   })
 
   describe('getGroups', () => {
     it('should return a list of groups that showOnList is true', async () => {
-      //given
-      const cursor = 0
-      const take = 5
-      db.group.findMany.resolves([mockGroupData])
+      const take = 10
+      const cursor = null
+      const res = await service.getGroups(cursor, take)
 
-      //when
-      const result = await service.getGroups(cursor, take)
-
-      //then
-      expect(result).to.deep.equal([publicGroupDatas[1]])
+      expect(res).to.deep.equal([
+        {
+          id: 3,
+          groupName: 'Example Private Group 2',
+          description:
+            'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+          memberNum: 1
+        },
+        {
+          id: 4,
+          groupName: 'Example Private Group 3',
+          description:
+            'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+          memberNum: 2
+        }
+      ])
     })
   })
 
   describe('getJoinedGroups', () => {
     it('should return a list of groups to which user belongs to', async () => {
-      //given
-      const userId = 1
-      db.userGroup.findMany.resolves(
-        userGroupsForJoinedGroups.filter(
-          (userGroup) => userGroup.userId == userId && userGroup.groupId !== 1
-        )
-      )
-      db.group.findMany.resolves([mockGroupData])
+      const userId = 4
+      const res = await service.getJoinedGroups(userId)
 
-      //when
-      const result = await service.getJoinedGroups(userId)
-
-      //then
-      expect(result).to.deep.equal([
-        { ...publicGroupDatas[1], isGroupLeader: true }
+      expect(res).to.deep.equal([
+        {
+          id: 2,
+          groupName: 'Example Private Group',
+          description:
+            'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+          memberNum: 11,
+          isGroupLeader: true
+        }
       ])
     })
   })
 
   describe('joinGroupById', () => {
+    let groupId: number
+    const userId = 4
+
+    beforeEach(async () => {
+      const group = await prisma.group.create({
+        data: {
+          groupName: 'test',
+          description: 'test',
+          config: {
+            allowJoinFromSearch: true,
+            requireApprovalBeforeJoin: false
+          }
+        }
+      })
+      groupId = group.id
+    })
+
+    afterEach(async () => {
+      try {
+        await prisma.userGroup.delete({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_groupId: { userId, groupId }
+          }
+        })
+      } catch {
+        /* 삭제할 내용이 없는 경우 예외 무시 */
+      }
+
+      try {
+        await prisma.group.delete({
+          where: {
+            id: groupId
+          }
+        })
+      } catch {
+        /* 삭제할 내용 없을 경우 예외 무시 */
+      }
+    })
+
     it('should return {isJoined: true} when group not set as requireApprovalBeforeJoin', async () => {
-      //given
-      const userId = 3
-      const groupId = 1
-      const fakeUserGroup: UserGroup = {
+      const res = await service.joinGroupById(userId, groupId)
+      const userGroupData: UserGroupData = {
         userId,
         groupId,
-        isGroupLeader: false,
-        createTime: new Date('2023-02-22T00:00:00.000Z'),
-        updateTime: new Date('2023-02-22T0:00:00.000Z')
+        isGroupLeader: false
       }
-      db.group.findUniqueOrThrow.resolves({
-        config: groups[0].config,
-        userGroup: userGroups.filter(
-          (userGroup) => userGroup.groupId === groupId
-        )
-      })
-      stub(service, 'createUserGroup').resolves(fakeUserGroup)
 
-      //when
-      const result = await service.joinGroupById(userId, groupId)
-
-      //then
-      expect(result).to.deep.equal({
-        userGroupData: fakeUserGroup,
-        isJoined: true
-      })
+      expect(res)
+        .excludingEvery(['createTime', 'updateTime'])
+        .to.deep.equal({
+          userGroupData: {
+            ...userGroupData,
+            createTime: undefined,
+            updateTime: undefined
+          },
+          isJoined: true
+        })
     })
 
     it('should return {isJoined: false} when group set as requireApprovalBeforeJoin', async () => {
-      //given
-      const userId = 3
-      const groupId = 2
-      db.group.findUniqueOrThrow.resolves({
-        config: groups[1].config,
-        userGroup: userGroups.filter(
-          (userGroup) => userGroup.groupId === groupId
-        )
+      await prisma.group.update({
+        where: {
+          id: groupId
+        },
+        data: {
+          config: {
+            allowJoinFromSearch: true,
+            requireApprovalBeforeJoin: true
+          }
+        }
       })
-      const cacheSpyGet = stub(cache, 'get').resolves(undefined)
-      const cacheSpySet = stub(cache, 'set').resolves()
 
-      //when
-      const result = await service.joinGroupById(userId, groupId)
+      stub(cache, 'get').resolves([])
 
-      //then
-      expect(cacheSpyGet.calledWith(joinGroupCacheKey(groupId))).to.be.true
-      expect(cacheSpyGet.calledOnce).to.be.true
-      expect(
-        cacheSpySet.calledWith(
-          joinGroupCacheKey(groupId),
-          match.any,
-          JOIN_GROUP_REQUEST_EXPIRE_TIME
-        )
-      ).to.be.true
-      expect(cacheSpySet.calledOnce).to.be.true
-      expect(result).to.deep.equal({
+      const res = await service.joinGroupById(userId, groupId)
+      expect(res).to.deep.equal({
         userGroupData: {
           userId,
           groupId
@@ -265,101 +250,116 @@ describe('GroupService', () => {
     })
 
     it('should throw ConflictFoundException when user is already group memeber', async () => {
-      //given
-      const userId = 2
-      const groupId = 2
-      db.group.findUniqueOrThrow.resolves({
-        config: groups[1].config,
-        userGroup: userGroups.filter(
-          (userGroup) => userGroup.groupId === groupId
-        )
+      await prisma.userGroup.create({
+        data: {
+          userId,
+          groupId,
+          isGroupLeader: false,
+          createTime: new Date(),
+          updateTime: new Date()
+        }
       })
 
-      //when
-      const result = async () => await service.joinGroupById(userId, groupId)
-
-      //then
-      expect(result()).to.be.rejectedWith(ConflictFoundException)
-    })
-
-    it('should throw ConflictFoundException when join request already exists in cache', async () => {
-      //given
-      const userId = 3
-      const groupId = 2
-      db.group.findFirst.resolves({
-        config: groups[1].config,
-        userGroup: userGroups.filter(
-          (userGroup) => userGroup.groupId === groupId
-        )
-      })
-      const joinRequestTimeLimit = Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME
-      const cacheSpy = stub(cache, 'get').resolves([
-        { userId, expiresAt: joinRequestTimeLimit }
-      ])
-
-      //when
       await expect(service.joinGroupById(userId, groupId)).to.be.rejectedWith(
         ConflictFoundException
       )
+    })
 
-      //then
-      expect(cacheSpy.calledOnce).to.be.true
-      expect(cacheSpy.calledWith(joinGroupCacheKey(groupId))).to.be.true
+    it('should throw ConflictFoundException when join request already exists in cache', async () => {
+      stub(cache, 'get').resolves([
+        { userId, expiresAt: Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME }
+      ])
+
+      await prisma.group.update({
+        where: {
+          id: groupId
+        },
+        data: {
+          config: {
+            allowJoinFromSearch: true,
+            requireApprovalBeforeJoin: true
+          }
+        }
+      })
+
+      await expect(service.joinGroupById(userId, groupId)).to.be.rejectedWith(
+        ConflictFoundException
+      )
     })
   })
 
   describe('leaveGroup', () => {
+    const groupId = 3
+    const userId = 4
+
+    beforeEach(async () => {
+      await prisma.userGroup.createMany({
+        data: [
+          {
+            userId,
+            groupId,
+            isGroupLeader: false
+          },
+          {
+            userId: 5,
+            groupId,
+            isGroupLeader: true
+          }
+        ]
+      })
+    })
+
+    afterEach(async () => {
+      try {
+        await prisma.userGroup.deleteMany({
+          where: {
+            OR: [
+              { AND: [{ userId }, { groupId }] },
+              { AND: [{ userId: 5 }, { groupId }] }
+            ]
+          }
+        })
+      } catch {
+        return
+      }
+    })
+
     it('should return deleted userGroup when valid userId and groupId passed', async () => {
-      //given
-      const userId = 2
-      const groupId = 2
-      db.userGroup.delete.resolves(
-        userGroups
-          .filter(
-            (userGroup) =>
-              userGroup.userId === userId && userGroup.groupId === groupId
-          )
-          .pop()
-      )
+      const res = await service.leaveGroup(userId, groupId)
 
-      //when
-      const result = await service.leaveGroup(userId, groupId)
-
-      //then
-      expect(result).to.deep.equal(userGroups[3])
+      expect(res).excluding(['createTime', 'updateTime']).to.deep.equal({
+        userId,
+        groupId,
+        isGroupLeader: false,
+        createTime: undefined,
+        updateTime: undefined
+      })
     })
   })
 
   describe('getGroupMembers', () => {
     it('should return group members', async () => {
-      //given
-      const groupId = 2
-      const queryResult = [
-        { user: { username: 'user01' } },
-        { user: { username: 'user03' } }
-      ]
-      db.userGroup.findMany.resolves(queryResult)
+      const res = await service.getGroupMembers(2)
 
-      //when
-      const result = await service.getGroupMembers(groupId)
-
-      //then
-      expect(result).to.deep.equal(['user01', 'user03'])
+      expect(res).to.deep.equal([
+        'user02',
+        'user03',
+        'user04',
+        'user05',
+        'user06',
+        'user07',
+        'user08',
+        'user09',
+        'user10'
+      ])
     })
   })
 
   describe('getGroupLeaders', () => {
     it('should return group leaders', async () => {
-      //given
-      const groupId = 2
-      const queryResult = [{ user: { username: 'manager' } }]
-      db.userGroup.findMany.resolves(queryResult)
+      const res = await service.getGroupLeaders(2)
 
-      //when
-      const result = await service.getGroupLeaders(groupId)
-
-      //then
-      expect(result).to.deep.equal(['manager'])
+      expect(res).to.deep.equal(['manager', 'user01'])
     })
   })
 })

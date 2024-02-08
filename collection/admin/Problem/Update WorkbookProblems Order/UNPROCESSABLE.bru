@@ -1,0 +1,37 @@
+meta {
+  name: UNPROCESSABLE
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateWorkbookProblemsOrder($groupId: Int!, $workbookId: Int!, $orders: [Int!]!) {
+    updateWorkbookProblemsOrder(groupId: $groupId, workbookId: $workbookId, orders: $orders) {
+      order
+      workbookId
+      problemId
+      createTime
+      updateTime
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "workbookId": 1,
+    "orders": [8, 7, 6, 5, 4, 3, 2]
+  }
+}
+
+assert {
+  res.body.errors[0].message: eq the len of orders and the len of workbookProblem are not equal.
+  res.body.errors[0].extensions.code: eq UNPROCESSABLE
+}

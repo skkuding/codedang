@@ -15,7 +15,7 @@ export default function SignUp() {
   const { modalPage, backModal } = useSignUpModalStore((state) => state)
 
   return (
-    <div className="flex flex-col items-center justify-center ">
+    <div className="flex h-full flex-col items-center justify-center">
       {!(modalPage === 0) && (
         <button
           onClick={backModal}
@@ -24,17 +24,19 @@ export default function SignUp() {
           <IoMdArrowBack />
         </button>
       )}
+
       <Image
+        className="absolute left-8 top-10"
         src={CodedangLogo}
         alt="codedang"
         width={70}
-        className="absolute left-10 top-10"
       />
 
       {modalPage === 0 && <SignUpWelcome />}
       {modalPage === 1 && <SignUpEmailVerify />}
       {modalPage === 2 && <SignUpRegister />}
-      <div className="absolute bottom-6 mt-4 flex items-center justify-center">
+
+      <div className="absolute bottom-6 flex items-center justify-center">
         <span className="h-5 w-fit text-xs leading-5 text-gray-500">
           Already have account?
         </span>
@@ -43,7 +45,7 @@ export default function SignUp() {
           variant={'link'}
           className="h-5 w-fit text-xs text-gray-500"
         >
-          Sign In
+          Log in
         </Button>
       </div>
     </div>

@@ -1,0 +1,24 @@
+meta {
+  name: [404] Nonexistent contest
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/contest/999999/participation?groupId=2
+  body: none
+  auth: none
+}
+
+query {
+  groupId: 2
+}
+
+assert {
+  res.status: eq 404
+  res("message"): eq No Contest found
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}

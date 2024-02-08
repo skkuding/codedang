@@ -1,0 +1,20 @@
+meta {
+  name: [401] Unauthorized
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/user
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  jwtToken:
+}
+
+assert {
+  res.status: eq 401
+  res("message"): eq Unauthorized
+}
