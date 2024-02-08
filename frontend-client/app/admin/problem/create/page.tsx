@@ -49,8 +49,8 @@ export interface ProblemData {
   description: string
   inputDescription: string
   outputDescription: string
-  sample: Example[]
-  testcase: Example[]
+  samples: Example[]
+  testcases: Example[]
   timeLimit: number
   memoryLimit: number
   hint?: string
@@ -78,10 +78,10 @@ const schema = z.object({
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
-  sample: z
+  samples: z
     .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
     .min(1),
-  testcase: z
+  testcases: z
     .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
     .min(1),
   timeLimit: z.number().min(0),
@@ -115,15 +115,16 @@ export default function Page() {
     handleSubmit,
     control,
     register,
-    unregister,
     getValues,
     setValue,
     formState: { errors }
   } = useForm<ProblemData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      sample: [{ input: '', output: '' }],
-      testcase: [{ input: '', output: '' }]
+      samples: [{ input: '', output: '' }],
+      testcases: [{ input: '', output: '' }],
+      hint: '',
+      source: ''
     }
   })
 
@@ -132,15 +133,15 @@ export default function Page() {
     console.log(data)
   }
 
-  const addExample = (type: 'sample' | 'testcase') => {
+  const addExample = (type: 'samples' | 'testcases') => {
     const currentValues = getValues(type)
     setValue(type, [...currentValues, { input: '', output: '' }])
-    type === 'sample'
+    type === 'samples'
       ? setSamples(() => [...samples, { input: '', output: '' }])
       : setTestcases(() => [...testcases, { input: '', output: '' }])
   }
 
-  const removeExample = (type: 'sample' | 'testcase', index: number) => {
+  const removeExample = (type: 'samples' | 'testcases', index: number) => {
     const currentValues = getValues(type)
     if (currentValues.length === 1) {
       toast.warning(`At least one ${type} is required`)
@@ -148,7 +149,7 @@ export default function Page() {
     }
     const updatedValues = currentValues.filter((_, i) => i !== index)
     setValue(type, updatedValues)
-    type === 'sample' ? setSamples(updatedValues) : setTestcases(updatedValues)
+    type === 'samples' ? setSamples(updatedValues) : setTestcases(updatedValues)
   }
 
   return (
@@ -296,26 +297,26 @@ export default function Page() {
             <div className="flex items-center gap-2">
               <Label>Sample</Label>
               <Badge
-                onClick={() => addExample('sample')}
+                onClick={() => addExample('samples')}
                 className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-100 p-0 text-xs font-medium text-gray-500 hover:bg-gray-200"
               >
                 + add
               </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              {getValues('sample') &&
-                getValues('sample').map((_sample, index) => (
+              {getValues('samples') &&
+                getValues('samples').map((_sample, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
-                      onRemove={() => removeExample('sample', index)}
-                      inputName={`sample.${index}.input`}
-                      outputName={`sample.${index}.output`}
+                      onRemove={() => removeExample('samples', index)}
+                      inputName={`samples.${index}.input`}
+                      outputName={`samples.${index}.output`}
                       register={register}
                     />
-                    {errors.sample?.[index] && (
+                    {errors.samples?.[index] && (
                       <div className="flex items-center gap-1 text-xs text-red-500">
                         <PiWarningBold />
-                        required{errors.sample?.message}
+                        required
                       </div>
                     )}
                   </div>
@@ -327,24 +328,24 @@ export default function Page() {
             <div className="flex items-center gap-2">
               <Label>Testcase</Label>
               <Badge
-                onClick={() => addExample('testcase')}
+                onClick={() => addExample('testcases')}
                 className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-100 p-0 text-xs font-medium text-gray-500 hover:bg-gray-200"
               >
                 + add
               </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              {getValues('testcase') &&
-                getValues('testcase').map((_testcase, index) => (
+              {getValues('testcases') &&
+                getValues('testcases').map((_testcase, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
-                      onRemove={() => removeExample('testcase', index)}
-                      inputName={`testcase.${index}.input`}
-                      outputName={`testcase.${index}.output`}
+                      onRemove={() => removeExample('testcases', index)}
+                      inputName={`testcases.${index}.input`}
+                      outputName={`testcases.${index}.output`}
                       register={register}
                     />
-                    {errors.testcase?.[index] && (
+                    {errors.testcases?.[index] && (
                       <div className="flex items-center gap-1 text-xs text-red-500">
                         <PiWarningBold />
                         required
@@ -414,7 +415,7 @@ export default function Page() {
               <Switch
                 onCheckedChange={() => {
                   setShowHint(!showHint)
-                  unregister('hint')
+                  setValue('hint', '')
                 }}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
@@ -435,7 +436,7 @@ export default function Page() {
               <Switch
                 onCheckedChange={() => {
                   setShowSource(!showSource)
-                  unregister('source')
+                  setValue('source', '')
                 }}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
