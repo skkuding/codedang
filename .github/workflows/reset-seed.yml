@@ -1,11 +1,10 @@
-name: CD - Applying Updated Seed on DEV
+name: Reset Seed (Development)
 
-on:
-  workflow_dispatch:
+on: workflow_dispatch
 
 jobs:
-  reset-seed-command:
-    name: Applying Updated Seed
+  reset-seed:
+    name: Reset Seed
     runs-on: self-hosted
     steps:
       - name: Load DATABASE_URL From Existing .env.development
