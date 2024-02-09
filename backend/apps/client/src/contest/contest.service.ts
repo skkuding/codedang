@@ -217,11 +217,11 @@ export class ContestService {
     return upcomingContest
   }
 
-  async getContest(id: number, groupId = OPEN_SPACE_ID, userId: number) {
-    // check if user can register this contest
+  async getContest(id: number, groupId = OPEN_SPACE_ID, userId?: number) {
+    // check if the user can register this contest
+    // initial value is false
     let canRegister = false
     let contest
-    // if user is not logged in, canRegister is always true
     if (userId) {
       const hasRegistered = await this.prisma.contestRecord.findFirst({
         where: { userId, contestId: id }
