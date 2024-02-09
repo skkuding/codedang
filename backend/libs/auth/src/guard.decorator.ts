@@ -7,6 +7,9 @@ export const AUTH_NOT_NEEDED_KEY = 'auth-not-needed'
 export const AuthNotNeededIfOpenSpace = () =>
   SetMetadata('auth-not-needed', true)
 
+export const DO_NOT_CARE_AUTH = 'auth-not-care'
+export const DoNotCareAuthIfOpenSpace = () =>
+  SetMetadata(DO_NOT_CARE_AUTH, true)
 export const LEADER_NOT_NEEDED_KEY = 'leader-not-needed'
 export const UseRolesGuard = (role: Role = Role.Admin) => {
   return applyDecorators(
