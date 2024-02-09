@@ -11,7 +11,7 @@ export const columns: ColumnDef<Problem>[] = [
     accessorKey: 'title',
     cell: ({ row }) => {
       return (
-        <p className="text-left text-sm md:text-base">{`${row.original.id}. ${row.original.title}`}</p>
+        <p className="overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm md:text-base">{`${row.original.id}. ${row.original.title}`}</p>
       )
     }
   },
@@ -42,7 +42,7 @@ export const columns: ColumnDef<Problem>[] = [
   {
     header: () => <SortButton order="acrate">Solved</SortButton>,
     accessorKey: 'acceptedRate',
-    cell: ({ row }) => `${row.original.acceptedRate}%`
+    cell: ({ row }) => `${parseFloat(row.original.acceptedRate.toFixed(4))}%`
   },
   {
     header: 'Info',

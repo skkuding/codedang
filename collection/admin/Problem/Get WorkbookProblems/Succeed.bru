@@ -1,0 +1,44 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetWorkbookProblems($groupId: Int!, $workbookId: Int!) {
+    getWorkbookProblems(groupId: $groupId, workbookId: $workbookId) {
+      order
+      workbookId
+      problemId
+      createTime
+      updateTime
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "workbookId":  1
+  }
+}
+
+assert {
+  res.body.data.getWorkbookProblems: isDefined NOT_FOUND
+}
+
+docs {
+  ## Get WorkbookProblems
+  workbook problem들을 가져옵니다.
+  
+  ### Error Cases
+  #### NOT_FOUND
+  존재하는 groupId 또는 workbookId를 전달해야 합니다.
+}

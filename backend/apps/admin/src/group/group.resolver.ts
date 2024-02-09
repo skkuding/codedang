@@ -89,7 +89,9 @@ export class GroupResolver {
   }
 
   @Mutation(() => String)
-  async issueInvitation(@Args('groupId', GroupIDPipe) id: number) {
+  async issueInvitation(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
+  ) {
     try {
       return await this.groupService.issueInvitation(id)
     } catch (error) {
@@ -102,7 +104,9 @@ export class GroupResolver {
   }
 
   @Mutation(() => String)
-  async revokeInvitation(@Args('groupId', GroupIDPipe) id: number) {
+  async revokeInvitation(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
+  ) {
     try {
       return await this.groupService.revokeInvitation(id)
     } catch (error) {

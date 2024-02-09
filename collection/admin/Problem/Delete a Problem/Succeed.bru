@@ -6,6 +6,41 @@ meta {
 
 post {
   url: {{gqlUrl}}
-  body: none
+  body: graphql
   auth: none
+}
+
+body:graphql {
+  mutation DeleteProblem($groupId: Int!, $id: Int!) {
+    deleteProblem(groupId: $groupId, id: $id) {
+      id
+      createdById
+      groupId
+      title
+      description
+      inputDescription
+      outputDescription
+      hint
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "id": 5
+  }
+}
+
+assert {
+  res.body.data.deleteProblem: isDefined
+}
+
+docs {
+  ## Delete Problem
+  Problem을 삭제합니다.
+  
+  ### Error Cases
+  #### NOT_FOUND
+  존재하는 id, groupId를 사용해야 합니다.
 }
