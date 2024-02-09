@@ -1,0 +1,17 @@
+name: Reset Seed (Development)
+
+on: workflow_dispatch
+
+jobs:
+  reset-seed:
+    name: Reset Seed
+    runs-on: self-hosted
+    steps:
+      - name: Load DATABASE_URL From Existing .env.development
+        run: export DATABASE_URL=$(grep "^DATABASE_URL=" .env.development | cut -d '=' -f2)
+        working-directory: ~/actions-runner/_work/codedang/codedang
+
+      - name: Run Reset Seed Command
+        run: docker exec backend-client npx prisma migrate reset -f
+        env:
+          DATABASE_URL: $DATABASE_URL
