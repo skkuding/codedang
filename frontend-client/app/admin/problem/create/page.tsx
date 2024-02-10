@@ -17,6 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
+import { HiLockClosed, HiLockOpen } from 'react-icons/hi'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { PiWarningBold } from 'react-icons/pi'
 import { toast } from 'sonner'
@@ -502,42 +503,81 @@ export default function Page() {
             {languages &&
               (languages as TemplateLanguage[]).map(
                 (templateLanguage, index) => (
-                  <div key={index} className="flex flex-col gap-1">
-                    <div className="itesm-center flex gap-2">
-                      <Label required={false}>
-                        {templateLanguage.language} Template
-                      </Label>
-                      <Switch
-                        onCheckedChange={() => {
-                          setLanguages((prev) =>
-                            prev.map((prevLanguage) =>
-                              prevLanguage.language ===
-                              templateLanguage.language
-                                ? {
-                                    ...prevLanguage,
-                                    showTemplate: !prevLanguage.showTemplate
-                                  }
-                                : prevLanguage
+                  <div key={index} className="flex gap-4">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <Label required={false}>
+                          {templateLanguage.language} Template
+                        </Label>
+                        <Switch
+                          onCheckedChange={() => {
+                            setLanguages((prev) =>
+                              prev.map((prevLanguage) =>
+                                prevLanguage.language ===
+                                templateLanguage.language
+                                  ? {
+                                      ...prevLanguage,
+                                      showTemplate: !prevLanguage.showTemplate
+                                    }
+                                  : prevLanguage
+                              )
                             )
-                          )
-                          setValue(`template.${index}`, {
-                            language: templateLanguage.language,
-                            code: {
-                              id: index,
-                              text: '',
-                              locked: false
-                            }
-                          })
-                        }}
-                        className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
-                      />
+                            setValue(`template.${index}`, {
+                              language: templateLanguage.language,
+                              code: {
+                                id: index,
+                                text: '',
+                                locked: false
+                              }
+                            })
+                          }}
+                          className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
+                        />
+                      </div>
+                      {templateLanguage.showTemplate && (
+                        <Textarea
+                          placeholder={`Enter a ${templateLanguage.language} template...`}
+                          className="h-[180px] w-[480px]"
+                          {...register(`template.${index}.code.text`)}
+                        />
+                      )}
                     </div>
                     {templateLanguage.showTemplate && (
-                      <Textarea
-                        placeholder={`Enter a ${templateLanguage.language} template...`}
-                        className="h-[180px]"
-                        {...register(`template.${index}.code.text`)}
-                      />
+                      <div className="flex flex-col gap-3">
+                        <Label>Locked</Label>
+                        <div className="flex items-center gap-2">
+                          <Controller
+                            control={control}
+                            name={`template.${index}.code.locked`}
+                            render={({
+                              field: { onChange, onBlur, value }
+                            }) => (
+                              <div className="flex gap-4">
+                                <label className="flex gap-1">
+                                  <input
+                                    type="radio"
+                                    onBlur={onBlur} // notify when input is touched
+                                    onChange={() => onChange(true)} // send value to hook form
+                                    checked={value === true}
+                                    className="accent-black"
+                                  />
+                                  <HiLockClosed />
+                                </label>
+                                <label className="flex gap-1">
+                                  <input
+                                    type="radio"
+                                    onBlur={onBlur} // notify when input is touched
+                                    onChange={() => onChange(false)} // send value to hook form
+                                    checked={value === false}
+                                    className="accent-black"
+                                  />
+                                  <HiLockOpen />
+                                </label>
+                              </div>
+                            )}
+                          />
+                        </div>
+                      </div>
                     )}
                   </div>
                 )
