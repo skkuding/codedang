@@ -41,6 +41,22 @@ interface Example {
   output: string
 }
 
+interface Snippet {
+  id: number
+  text: string
+  locked: boolean
+}
+
+interface Template {
+  language: Language
+  code: Snippet
+}
+
+interface TemplateLanguage {
+  language: Language
+  showTemplate: boolean
+}
+
 export interface ProblemData {
   title: string
   difficulty: Level
@@ -55,6 +71,7 @@ export interface ProblemData {
   memoryLimit: number
   hint?: string
   source?: string
+  template?: Template[]
 }
 
 const GET_TAGS = gql`
@@ -87,7 +104,19 @@ const schema = z.object({
   timeLimit: z.number().min(0),
   memoryLimit: z.number().min(0),
   hint: z.string().optional(),
-  source: z.string().optional()
+  source: z.string().optional(),
+  template: z.array(
+    z
+      .object({
+        language: z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']),
+        code: z.object({
+          id: z.number(),
+          text: z.string(),
+          locked: z.boolean()
+        })
+      })
+      .optional()
+  )
 })
 
 export default function Page() {
@@ -98,6 +127,7 @@ export default function Page() {
     { input: '', output: '' }
   ])
   const [tags, setTags] = useState<Tag[]>([])
+  const [languages, setLanguages] = useState<TemplateLanguage[]>([])
 
   useEffect(() => {
     fetcherGql(GET_TAGS).then((data) => {
@@ -121,6 +151,7 @@ export default function Page() {
   } = useForm<ProblemData>({
     resolver: zodResolver(schema),
     defaultValues: {
+      difficulty: 'Level1',
       samples: [{ input: '', output: '' }],
       testcases: [{ input: '', output: '' }],
       hint: '',
@@ -207,7 +238,22 @@ export default function Page() {
                     <CheckboxSelect
                       title="Language"
                       options={languageOptions}
-                      onChange={field.onChange}
+                      onChange={(selectedLanguages) => {
+                        field.onChange(selectedLanguages)
+                        setLanguages(
+                          selectedLanguages.map((language) => ({
+                            language,
+                            showTemplate:
+                              languages.filter(
+                                (prev) => prev.language === language
+                              ).length > 0
+                                ? languages.filter(
+                                    (prev) => prev.language === language
+                                  )[0].showTemplate
+                                : false
+                          })) as TemplateLanguage[]
+                        )
+                      }}
                     />
                   )}
                   name="languages"
@@ -450,6 +496,52 @@ export default function Page() {
                 {...register('source')}
               />
             )}
+          </div>
+
+          <div className="flex flex-col gap-6">
+            {languages &&
+              (languages as TemplateLanguage[]).map(
+                (templateLanguage, index) => (
+                  <div key={index} className="flex flex-col gap-1">
+                    <div className="itesm-center flex gap-2">
+                      <Label required={false}>
+                        {templateLanguage.language} Template
+                      </Label>
+                      <Switch
+                        onCheckedChange={() => {
+                          setLanguages((prev) =>
+                            prev.map((prevLanguage) =>
+                              prevLanguage.language ===
+                              templateLanguage.language
+                                ? {
+                                    ...prevLanguage,
+                                    showTemplate: !prevLanguage.showTemplate
+                                  }
+                                : prevLanguage
+                            )
+                          )
+                          setValue(`template.${index}`, {
+                            language: templateLanguage.language,
+                            code: {
+                              id: index,
+                              text: '',
+                              locked: false
+                            }
+                          })
+                        }}
+                        className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
+                      />
+                    </div>
+                    {templateLanguage.showTemplate && (
+                      <Textarea
+                        placeholder={`Enter a ${templateLanguage.language} template...`}
+                        className="h-[180px]"
+                        {...register(`template.${index}.code.text`)}
+                      />
+                    )}
+                  </div>
+                )
+              )}
           </div>
 
           <Button
