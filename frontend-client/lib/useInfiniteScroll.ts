@@ -1,3 +1,4 @@
+import type { Problem } from '@/types/type'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
@@ -5,6 +6,7 @@ import { fetcher } from './utils'
 
 interface Item {
   id: number
+  problems?: Problem[]
 }
 
 /**
@@ -32,6 +34,14 @@ export const useInfiniteScroll = <T extends Item>(
     const query = url.searchParams
     if (!query.has('take')) query.append('take', String(itemsPerPage))
     pageParam && pageParam > 0 && query.set('cursor', pageParam.toString())
+    if (dataType === 'problem') {
+      const data: { problems: T[] } = await fetcher
+        .get(dataType, {
+          searchParams: query
+        })
+        .json()
+      return data.problems
+    }
     const data: T[] = await fetcher
       .get(dataType, {
         searchParams: query

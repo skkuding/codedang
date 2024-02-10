@@ -18,6 +18,7 @@ import {
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { useWindowScroll, useSessionStorage } from 'react-use'
 
 interface Item {
@@ -79,20 +80,26 @@ export default function DataTable<TData extends Item, TValue>({
     getCoreRowModel: getCoreRowModel()
   })
   const router = useRouter()
-  const [, setScrollPosition] = useSessionStorage(`${name}scrollPosition`, 0)
-  const [, setPreviousItmes] = useSessionStorage<TData[]>(
-    `${name}previousItems`,
-    []
+
+  const [scrollPosition, setScrollPosition] = useSessionStorage(
+    `${name}scrollPosition`,
+    0
   )
   const { y } = useWindowScroll()
   const setScrollDataInStorage = () => {
     if (y) {
       setScrollPosition(y)
-      if (data) {
-        setPreviousItmes(data)
-      }
     }
   }
+  useEffect(() => {
+    if (!scrollPosition) {
+      return
+    }
+    setTimeout(() => {
+      window.scrollTo({ top: scrollPosition })
+      setScrollPosition(0)
+    }, 100)
+  })
 
   return (
     <Table className="table-fixed">

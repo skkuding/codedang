@@ -49,7 +49,7 @@ export default function NoticeInfiniteTable() {
     isFetchingNextPage,
     ref,
     scrollCounter
-  } = useInfiniteScroll<Notice>('notice', url)
+  } = useInfiniteScroll<Notice>('notice', url) //infinite scroll
   const notices = [...fixedNotices, ...items]
 
   return (

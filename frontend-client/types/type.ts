@@ -38,6 +38,11 @@ export interface Problem {
   info?: string
 }
 
+export interface ProblemResponse {
+  problems: Problem[]
+  total: number
+}
+
 interface ProblemScore {
   problemId: number
   score: number
