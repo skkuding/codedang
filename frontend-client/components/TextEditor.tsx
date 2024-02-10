@@ -78,7 +78,7 @@ export default function TextEditor({
   if (!editor) return null
 
   return (
-    <div className="flex flex-col justify-stretch">
+    <div className="flex flex-col justify-stretch bg-white">
       <div className="flex gap-1 rounded-t-md border border-b-0 p-1">
         <Toggle
           size="sm"

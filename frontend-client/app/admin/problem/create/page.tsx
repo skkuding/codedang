@@ -186,7 +186,7 @@ export default function Page() {
 
   return (
     <ScrollArea className="w-full">
-      <main className="flex flex-col gap-6 p-8">
+      <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center gap-4">
           <FaAngleLeft className="h-12" />
           <span className="text-4xl font-bold">Create Problem</span>
@@ -312,7 +312,7 @@ export default function Page() {
                 <Textarea
                   id="inputDescription"
                   placeholder="Enter a description..."
-                  className={cn('h-[120px] w-[360px] resize-none')}
+                  className="h-[120px] w-[360px] resize-none bg-white"
                   {...register('inputDescription')}
                 />
                 {errors.inputDescription && (
@@ -327,7 +327,7 @@ export default function Page() {
                 <Textarea
                   id="outputDescription"
                   placeholder="Enter a description..."
-                  className={cn('h-[120px] w-[360px] resize-none')}
+                  className="h-[120px] w-[360px] resize-none bg-white"
                   {...register('outputDescription')}
                 />
                 {errors.outputDescription && (
@@ -471,7 +471,7 @@ export default function Page() {
               <Textarea
                 id="hint"
                 placeholder="Enter a hint"
-                className="h-[120px] w-[760px] resize-none"
+                className="h-[120px] w-[760px] resize-none bg-white"
                 {...register('hint')}
               />
             )}
@@ -586,10 +586,10 @@ export default function Page() {
 
           <Button
             type="submit"
-            className="mt-6 flex h-[36px] w-[100px] gap-2 bg-black hover:bg-black/80"
+            className="flex h-[36px] w-[100px] items-center gap-2 px-0 "
           >
-            <IoMdCheckmarkCircleOutline fontSize={18} />
-            Create
+            <IoMdCheckmarkCircleOutline fontSize={20} />
+            <div className="mb-[2px] text-base">Create</div>
           </Button>
         </form>
       </main>

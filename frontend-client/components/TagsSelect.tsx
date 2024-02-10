@@ -39,7 +39,11 @@ export default function TagsSelect({ options, onChange }: DataProps) {
   return (
     <Popover onOpenChange={() => onChange(selectedValues)}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size={'sm'} className="h-10 border">
+        <Button
+          variant="outline"
+          size={'sm'}
+          className="h-10 border hover:bg-gray-50"
+        >
           <PlusCircledIcon className="mr-2 h-4 w-4" />
           <p className="font-bold">Tags</p>
           {selectedValues.length > 0 && (
