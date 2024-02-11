@@ -94,6 +94,21 @@ const GET_TAGS = gql`
   }
 `
 
+const CREATE_PROBLEM = gql`
+  mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
+    createProblem(groupId: $groupId, input: $input) {
+      id
+      createdById
+      groupId
+      title
+      description
+      inputDescription
+      outputDescription
+      hint
+    }
+  }
+`
+
 const schema = z.object({
   title: z.string().min(1).max(25),
   visible: z.boolean(),
@@ -169,9 +184,18 @@ export default function Page() {
     }
   })
 
-  // TODO: Create Problem API 연결
+  // TODO: Create Problem 에 sample, visible 추가 시 변경
   const onSubmit = async (data: ProblemData) => {
-    console.log(data)
+    try {
+      const res = await fetcherGql(CREATE_PROBLEM, {
+        groupId: 1,
+        input: data
+      })
+      console.log(res)
+    } catch (error) {
+      console.error(error)
+      console.log(data)
+    }
   }
 
   const addExample = (type: 'samples' | 'testcases') => {
