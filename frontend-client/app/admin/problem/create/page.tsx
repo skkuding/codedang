@@ -7,6 +7,11 @@ import TextEditor from '@/components/TextEditor'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
@@ -16,9 +21,11 @@ import { gql } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { HiLockClosed, HiLockOpen } from 'react-icons/hi'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
+import { MdHelpOutline } from 'react-icons/md'
 import { PiWarningBold } from 'react-icons/pi'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -60,6 +67,7 @@ interface TemplateLanguage {
 
 export interface ProblemData {
   title: string
+  visible: boolean
   difficulty: Level
   languages: Language[]
   tagIds: number[]
@@ -88,6 +96,7 @@ const GET_TAGS = gql`
 
 const schema = z.object({
   title: z.string().min(1).max(25),
+  visible: z.boolean(),
   difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
@@ -196,23 +205,82 @@ export default function Page() {
           onSubmit={handleSubmit(onSubmit)}
           className="flex w-[760px] flex-col gap-6"
         >
-          <div className="flex flex-col gap-1">
-            <Label>Title</Label>
-            <Input
-              id="title"
-              type="text"
-              placeholder="Name your problem"
-              className={cn(inputStyle, 'w-[380px]')}
-              {...register('title')}
-            />
-            {errors.title && (
-              <div className="flex items-center gap-1 text-xs text-red-500">
-                <PiWarningBold />
-                {getValues('title').length === 0
-                  ? 'required'
-                  : errors.title.message}
+          <div className="flex gap-6">
+            <div className="flex flex-col gap-1">
+              <Label>Title</Label>
+              <Input
+                id="title"
+                type="text"
+                placeholder="Name your problem"
+                className={cn(inputStyle, 'w-[380px]')}
+                {...register('title')}
+              />
+              {errors.title && (
+                <div className="flex items-center gap-1 text-xs text-red-500">
+                  <PiWarningBold />
+                  {getValues('title').length === 0
+                    ? 'required'
+                    : errors.title.message}
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <Label>Visible</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button>
+                      <MdHelpOutline className="text-gray-400 hover:text-gray-700" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent side="top" className="mb-2 px-4 py-3">
+                    <ul className="text-sm font-normal leading-none">
+                      <li>For contest, &apos;hidden&apos; is recommended.</li>
+                      <li>You can edit these settings later.</li>
+                    </ul>
+                  </PopoverContent>
+                </Popover>
               </div>
-            )}
+
+              <div className="flex items-center gap-2">
+                <Controller
+                  control={control}
+                  name={`visible`}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <div className="flex gap-6">
+                      <label className="flex gap-2">
+                        <input
+                          type="radio"
+                          onBlur={onBlur}
+                          onChange={() => onChange(true)}
+                          checked={value === true}
+                          className="accent-black"
+                        />
+                        <FaEye
+                          className={
+                            value === true ? 'text-black' : 'text-gray-400'
+                          }
+                        />
+                      </label>
+                      <label className="flex gap-2">
+                        <input
+                          type="radio"
+                          onBlur={onBlur}
+                          onChange={() => onChange(false)}
+                          checked={value === false}
+                          className="accent-black"
+                        />
+                        <FaEyeSlash
+                          className={
+                            value === false ? 'text-black' : 'text-gray-400'
+                          }
+                        />
+                      </label>
+                    </div>
+                  )}
+                />
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-col gap-1">
@@ -561,7 +629,13 @@ export default function Page() {
                                     checked={value === true}
                                     className="accent-black"
                                   />
-                                  <HiLockClosed />
+                                  <HiLockClosed
+                                    className={
+                                      value === true
+                                        ? 'text-black'
+                                        : 'text-gray-400'
+                                    }
+                                  />
                                 </label>
                                 <label className="flex gap-1">
                                   <input
@@ -571,7 +645,13 @@ export default function Page() {
                                     checked={value === false}
                                     className="accent-black"
                                   />
-                                  <HiLockOpen />
+                                  <HiLockOpen
+                                    className={
+                                      value === false
+                                        ? 'text-black'
+                                        : 'text-gray-400'
+                                    }
+                                  />
                                 </label>
                               </div>
                             )}
