@@ -527,7 +527,7 @@ export default function Page() {
                               code: {
                                 id: index,
                                 text: '',
-                                locked: false
+                                locked: true
                               }
                             })
                           }}
@@ -556,8 +556,8 @@ export default function Page() {
                                 <label className="flex gap-1">
                                   <input
                                     type="radio"
-                                    onBlur={onBlur} // notify when input is touched
-                                    onChange={() => onChange(true)} // send value to hook form
+                                    onBlur={onBlur}
+                                    onChange={() => onChange(true)}
                                     checked={value === true}
                                     className="accent-black"
                                   />
@@ -566,8 +566,8 @@ export default function Page() {
                                 <label className="flex gap-1">
                                   <input
                                     type="radio"
-                                    onBlur={onBlur} // notify when input is touched
-                                    onChange={() => onChange(false)} // send value to hook form
+                                    onBlur={onBlur}
+                                    onChange={() => onChange(false)}
                                     checked={value === false}
                                     className="accent-black"
                                   />
