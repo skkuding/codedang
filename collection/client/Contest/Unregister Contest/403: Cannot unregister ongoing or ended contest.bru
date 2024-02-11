@@ -1,0 +1,26 @@
+meta {
+  name: 403: Cannot unregister ongoing or ended contest
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/contest/1/participation?groupId=1
+  body: none
+  auth: none
+}
+
+query {
+  groupId: 1
+}
+
+assert {
+  res.status: eq 403
+  res.body.message: eq Cannot unregister ongoing or ended contest
+  res.body.error: eq Forbidden
+  res.body.statusCode: eq 403
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
