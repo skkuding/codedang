@@ -111,6 +111,18 @@ export class ProblemRepository {
     })
   }
 
+  async getProblemTotalCount(groupId: number, search?: string) {
+    return await this.prisma.problem.count({
+      where: {
+        groupId,
+        title: {
+          // TODO: 검색 방식 변경 시 함께 변경 요함
+          contains: search
+        }
+      }
+    })
+  }
+
   async getProblemTags(problemId: number): Promise<Partial<Tag>[]> {
     return (
       await this.prisma.problemTag.findMany({
@@ -187,6 +199,14 @@ export class ProblemRepository {
     })
   }
 
+  async getContestProblemTotalCount(contestId: number) {
+    return await this.prisma.contestProblem.count({
+      where: {
+        contestId
+      }
+    })
+  }
+
   async getContestProblem(contestId: number, problemId: number) {
     return await this.prisma.contestProblem.findUniqueOrThrow({
       where: {
@@ -232,6 +252,14 @@ export class ProblemRepository {
         problem: {
           select: this.problemsSelectOption
         }
+      }
+    })
+  }
+
+  async getWorkbookProblemTotalCount(workbookId: number) {
+    return await this.prisma.workbookProblem.count({
+      where: {
+        workbookId
       }
     })
   }
