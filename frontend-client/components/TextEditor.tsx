@@ -20,14 +20,20 @@ import { Bold, Italic, List, ListOrdered, Link as LinkIcon } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { Button } from './ui/button'
 
-export default function TextEditor({ placeholder }: { placeholder: string }) {
+export default function TextEditor({
+  placeholder,
+  onChange
+}: {
+  placeholder: string
+  onChange: (richText: string) => void
+}) {
   const [url, setUrl] = useState('')
 
   const editor = useEditor({
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder: placeholder,
+        placeholder,
         emptyEditorClass:
           'before:absolute before:text-gray-300 before:float-left before:content-[attr(data-placeholder)] before:pointer-events-none'
       }),
@@ -38,6 +44,9 @@ export default function TextEditor({ placeholder }: { placeholder: string }) {
         class:
           'rounded-b-md border overflow-y-auto w-full h-[200px] border-input bg-backround px-3 ring-offset-2 disabled:cursur-not-allowed disabled:opacity-50'
       }
+    },
+    onUpdate({ editor }) {
+      onChange(editor.getHTML())
     }
   })
 
@@ -69,7 +78,7 @@ export default function TextEditor({ placeholder }: { placeholder: string }) {
   if (!editor) return null
 
   return (
-    <div className="flex flex-col justify-stretch">
+    <div className="flex flex-col justify-stretch bg-white">
       <div className="flex gap-1 rounded-t-md border border-b-0 p-1">
         <Toggle
           size="sm"
@@ -136,7 +145,7 @@ export default function TextEditor({ placeholder }: { placeholder: string }) {
           </DialogContent>
         </Dialog>
       </div>
-      <EditorContent className="prose" editor={editor} />
+      <EditorContent className="prose max-w-[1000px]" editor={editor} />
     </div>
   )
 }
