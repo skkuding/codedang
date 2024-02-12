@@ -103,7 +103,7 @@ export class ContestController {
         throw error.convert2HTTPException()
       }
       this.logger.error(error)
-      throw new InternalServerErrorException(error.message)
+      throw new InternalServerErrorException()
     }
   }
 
