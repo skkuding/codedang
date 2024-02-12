@@ -95,6 +95,21 @@ const GET_TAGS = gql`
   }
 `
 
+const GET_PROBLEM = gql`
+  query GetProblem($groupId: Int!, $id: Int!) {
+    getProblem(groupId: $groupId, id: $id) {
+      id
+      createdById
+      groupId
+      title
+      description
+      inputDescription
+      outputDescription
+      hint
+    }
+  }
+`
+
 const CREATE_PROBLEM = gql`
   mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
     createProblem(groupId: $groupId, input: $input) {
@@ -145,7 +160,8 @@ const schema = z.object({
   )
 })
 
-export default function Page() {
+export default function Page({ params }: { params: { id: string } }) {
+  const { id } = params
   const [showHint, setShowHint] = useState<boolean>(false)
   const [showSource, setShowSource] = useState<boolean>(false)
   const [samples, setSamples] = useState<Example[]>([{ input: '', output: '' }])
@@ -154,6 +170,7 @@ export default function Page() {
   ])
   const [tags, setTags] = useState<Tag[]>([])
   const [languages, setLanguages] = useState<TemplateLanguage[]>([])
+  const [problemData, setProblemData] = useState<ProblemData>()
 
   useEffect(() => {
     fetcherGql(GET_TAGS).then((data) => {
@@ -165,7 +182,24 @@ export default function Page() {
       )
       setTags(transformedData)
     })
-  }, [])
+    fetcherGql(GET_PROBLEM, {
+      groupId: 1,
+      id: Number(id)
+    }).then((data) => {
+      setProblemData(data.getProblem)
+      console.log(data.getProblem.description)
+    })
+  }, [id, problemData])
+
+  useEffect(() => {
+    if (problemData) {
+      setValue('title', problemData.title)
+      setValue('description', problemData.description)
+      setValue('inputDescription', problemData.inputDescription)
+      setValue('outputDescription', problemData.outputDescription)
+      setValue('hint', problemData.hint)
+    }
+  }, [problemData])
 
   const {
     handleSubmit,
@@ -225,7 +259,7 @@ export default function Page() {
           <Link href="/admin/problem">
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
-          <span className="text-4xl font-bold">Create Problem</span>
+          <span className="text-4xl font-bold">Edit Problem</span>
         </div>
 
         <form
