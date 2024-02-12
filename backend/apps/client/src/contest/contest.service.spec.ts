@@ -364,9 +364,7 @@ describe('ContestService', () => {
         sortedContestRecordsWithUserDetail
       )
 
-      await expect(
-        await service.getContest(groupId, contestId, 4)
-      ).to.deep.equal({
+      expect(await service.getContest(groupId, contestId, 4)).to.deep.equal({
         ...contestDetail,
         standings: sortedContestRecordsWithUserDetail.map((record, index) => ({
           ...record,
