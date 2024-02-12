@@ -34,7 +34,7 @@ export default function UserDropdownMenu({ session }: UserDropdownMenuProps) {
             signOut()
           }}
         >
-          <LogOut className="size-4" /> Sign Out
+          <LogOut className="size-4" /> Log Out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

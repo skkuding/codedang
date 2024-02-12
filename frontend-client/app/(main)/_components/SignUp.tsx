@@ -45,7 +45,7 @@ export default function SignUp() {
           variant={'link'}
           className="h-5 w-fit text-xs text-gray-500"
         >
-          Log in
+          Log In
         </Button>
       </div>
     </div>
