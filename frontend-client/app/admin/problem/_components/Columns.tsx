@@ -16,11 +16,7 @@ function HiddenCell() {
 
   return (
     <div className="flex space-x-2">
-      <Switch
-        id="airplane-mode"
-        checked={visible}
-        onCheckedChange={setVisible}
-      />
+      <Switch id="hidden-mode" checked={visible} onCheckedChange={setVisible} />
       <div className="flex items-center justify-center">
         {visible ? (
           <FiEye className="text-primary h-[14px] w-[14px]" />
@@ -66,7 +62,7 @@ export const columns: ColumnDef<Problem>[] = [
       <div className="flex-col">
         <div>{row.getValue('title')}</div>
         <div className="flex">
-          <div className="">
+          <div>
             {row.original.tags?.map((tag) => (
               <Badge
                 key={tag.id}
@@ -88,7 +84,7 @@ export const columns: ColumnDef<Problem>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Date" />
     ),
-    cell: ({ row }) => <div>{row.getValue('date')}</div>
+    cell: ({ row }) => row.getValue('date')
   },
   {
     accessorKey: 'difficulty',
@@ -106,7 +102,7 @@ export const columns: ColumnDef<Problem>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Submission" />
     ),
-    cell: ({ row }) => <div>{row.getValue('submissionCount')}</div>
+    cell: ({ row }) => row.getValue('submissionCount')
   },
   {
     accessorKey: 'acceptedRate',
