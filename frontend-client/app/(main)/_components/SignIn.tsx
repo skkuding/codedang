@@ -54,7 +54,7 @@ export default function SignIn() {
             {...register('password')}
           />
           <Button className="w-full" type="submit">
-            Log in
+            Log In
           </Button>
         </form>
         <div className="flex items-center justify-center gap-5">
