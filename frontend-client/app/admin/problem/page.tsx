@@ -4,6 +4,8 @@ import type { Problem } from '@/types/type'
 import * as React from 'react'
 import { columns } from './_components/Columns'
 
+export const dynamic = 'force-dynamic'
+
 // 우선 Codedang Client API에서 데이터 가져옴 -> 나중에 Codedang Admin에서 가져오도록 수정
 
 export default async function Page() {
