@@ -19,6 +19,7 @@ import { fetcherGql, cn } from '@/lib/utils'
 import type { Level, Language } from '@/types/type'
 import { gql } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
@@ -221,7 +222,9 @@ export default function Page() {
     <ScrollArea className="w-full">
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center gap-4">
-          <FaAngleLeft className="h-12" />
+          <Link href="/admin/problem">
+            <FaAngleLeft className="h-12 hover:text-gray-700/80" />
+          </Link>
           <span className="text-4xl font-bold">Create Problem</span>
         </div>
 
@@ -437,7 +440,7 @@ export default function Page() {
               <Label>Sample</Label>
               <Badge
                 onClick={() => addExample('samples')}
-                className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-100 p-0 text-xs font-medium text-gray-500 hover:bg-gray-200"
+                className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-200/60 p-0 text-xs font-medium text-gray-500 shadow-sm hover:bg-gray-200"
               >
                 + add
               </Badge>
@@ -468,7 +471,7 @@ export default function Page() {
               <Label>Testcase</Label>
               <Badge
                 onClick={() => addExample('testcases')}
-                className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-100 p-0 text-xs font-medium text-gray-500 hover:bg-gray-200"
+                className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-200/60 p-0 text-xs font-medium text-gray-500 shadow-sm hover:bg-gray-200"
               >
                 + add
               </Badge>
@@ -629,7 +632,7 @@ export default function Page() {
                       {templateLanguage.showTemplate && (
                         <Textarea
                           placeholder={`Enter a ${templateLanguage.language} template...`}
-                          className="h-[180px] w-[480px]"
+                          className="h-[180px] w-[480px] bg-white"
                           {...register(`template.${index}.code.text`)}
                         />
                       )}

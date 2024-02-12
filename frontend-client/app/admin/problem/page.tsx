@@ -1,6 +1,6 @@
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { fetcher } from '@/lib/utils'
-import { Problem } from '@/types/type'
+import type { Problem } from '@/types/type'
 import * as React from 'react'
 import { columns } from './_components/Columns'
 
