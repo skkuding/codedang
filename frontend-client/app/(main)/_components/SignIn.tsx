@@ -9,6 +9,7 @@ import useAuthModalStore from '@/stores/authModal'
 import { signIn } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { FaGithub } from 'react-icons/fa'
@@ -21,20 +22,30 @@ interface Inputs {
 }
 
 export default function SignIn() {
+  const [disableButton, setDisableButton] = useState(false)
   const { showSignUp } = useAuthModalStore((state) => state)
   const router = useRouter()
   const { register, handleSubmit } = useForm<Inputs>()
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    const res = await signIn('credentials', {
-      username: data.username,
-      password: data.password,
-      redirect: false
-    })
-    if (!res?.error) {
-      router.refresh()
-      toast.success('Successfully logged in')
-    } else {
-      toast.error('Failed to log in')
+    setDisableButton(true)
+    try {
+      const res = await signIn('credentials', {
+        username: data.username,
+        password: data.password,
+        redirect: false
+      })
+
+      if (!res?.error) {
+        router.refresh()
+        toast.success('Successfully logged in')
+      } else {
+        toast.error('Failed to log in')
+      }
+    } catch (error) {
+      console.error('Error during login:', error)
+      toast.error('An unexpected error occurred')
+    } finally {
+      setDisableButton(false)
     }
   }
   return (
@@ -53,7 +64,7 @@ export default function SignIn() {
             type="password"
             {...register('password')}
           />
-          <Button className="w-full" type="submit">
+          <Button className="w-full" type="submit" disabled={disableButton}>
             Log In
           </Button>
         </form>
