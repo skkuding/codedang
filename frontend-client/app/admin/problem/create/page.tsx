@@ -19,6 +19,7 @@ import { fetcherGql, cn } from '@/lib/utils'
 import type { Level, Language } from '@/types/type'
 import { gql } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
@@ -221,7 +222,9 @@ export default function Page() {
     <ScrollArea className="w-full">
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center gap-4">
-          <FaAngleLeft className="h-12" />
+          <Link href="/admin/problem">
+            <FaAngleLeft className="h-12 hover:text-gray-700/80" />
+          </Link>
           <span className="text-4xl font-bold">Create Problem</span>
         </div>
 
