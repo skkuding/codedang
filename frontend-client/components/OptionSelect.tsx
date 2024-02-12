@@ -9,26 +9,26 @@ import {
 import { useState } from 'react'
 
 interface OptionSelectProps {
-  levels: string[]
+  options: string[]
 }
 
-export default function OptionSelect({ levels }: OptionSelectProps) {
-  const [level, setLevel] = useState(levels[0])
+export default function OptionSelect({ options }: OptionSelectProps) {
+  const [option, setLevel] = useState(options[0])
 
   return (
-    <Select onValueChange={setLevel} value={level}>
+    <Select onValueChange={setLevel} value={option}>
       <SelectTrigger className="w-[115px] font-bold hover:bg-gray-100 focus:outline-none focus:ring-0 focus:ring-offset-0">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          {levels.map((level) => (
+          {options.map((option) => (
             <SelectItem
-              key={level}
-              value={level}
+              key={option}
+              value={option}
               className="cursor-pointer hover:bg-gray-100/80"
             >
-              {level}
+              {option}
             </SelectItem>
           ))}
         </SelectGroup>
