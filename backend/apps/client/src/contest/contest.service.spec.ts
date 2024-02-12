@@ -11,7 +11,8 @@ import * as dayjs from 'dayjs'
 import { stub } from 'sinon'
 import {
   ConflictFoundException,
-  EntityNotExistException
+  EntityNotExistException,
+  ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { type ContestSelectResult, ContestService } from './contest.service'
@@ -430,7 +431,7 @@ describe('ContestService', () => {
       mockPrismaService.contest.findUniqueOrThrow.resolves(upcomingContest)
       mockPrismaService.contestRecord.findFirstOrThrow.resolves(record)
       mockPrismaService.contestRecord.delete.resolves(record)
-      await expect(
+      expect(
         await service.deleteContestRecord(contestId, userId)
       ).to.deep.equal(record)
     })
@@ -442,9 +443,9 @@ describe('ContestService', () => {
           clientVersion: '5.8.1'
         })
       )
-      await expect(
-        service.deleteContestRecord(contestId, userId)
-      ).to.be.rejectedWith(EntityNotExistException)
+      expect(service.deleteContestRecord(contestId, userId)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
     it('should throw error when contest record does not exist', async () => {
       mockPrismaService.contestRecord.findFirstOrThrow.rejects(
@@ -453,16 +454,16 @@ describe('ContestService', () => {
           clientVersion: '5.8.1'
         })
       )
-      await expect(
-        service.deleteContestRecord(contestId, userId)
-      ).to.be.rejectedWith(EntityNotExistException)
+      expect(service.deleteContestRecord(contestId, userId)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
     it('should throw error when contest is ongoing', async () => {
       mockPrismaService.contest.findUniqueOrThrow.resolves(ongoingContest)
       mockPrismaService.contestRecord.findFirstOrThrow.resolves(record)
-      await expect(
-        service.deleteContestRecord(contestId, userId)
-      ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(service.deleteContestRecord(contestId, userId)).to.be.rejectedWith(
+        ForbiddenAccessException
+      )
     })
 
     it('should throw error when there is no record to delete', async () => {
@@ -474,9 +475,9 @@ describe('ContestService', () => {
           clientVersion: '5.8.1'
         })
       )
-      await expect(
-        service.deleteContestRecord(contestId, userId)
-      ).to.be.rejectedWith(EntityNotExistException)
+      expect(service.deleteContestRecord(contestId, userId)).to.be.rejectedWith(
+        EntityNotExistException
+      )
     })
   })
 })
