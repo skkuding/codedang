@@ -28,7 +28,7 @@ export default function HeaderAuthPanel({ session }: HeaderAuthPanelProps) {
               variant={'outline'}
               className="hidden border-none px-3 py-1 text-base font-semibold md:block"
             >
-              Log in
+              Log In
             </Button>
           </DialogTrigger>
           <DialogTrigger asChild>
