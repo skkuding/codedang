@@ -311,7 +311,7 @@ export class ContestService {
       throw new ConflictFoundException('Already participated this contest')
     }
     const now = new Date()
-    if (now < contest.startTime || now >= contest.endTime) {
+    if (now >= contest.endTime) {
       throw new ConflictFoundException('Cannot participate ended contest')
     }
 
@@ -331,5 +331,57 @@ export class ContestService {
         groupId
       }
     }))
+  }
+
+  async deleteContestRecord(
+    contestId: number,
+    userId: number,
+    groupId = OPEN_SPACE_ID
+  ) {
+    let contest
+    try {
+      contest = await this.prisma.contest.findUniqueOrThrow({
+        where: { id: contestId, groupId }
+      })
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('Contest')
+      }
+    }
+    try {
+      await this.prisma.contestRecord.findFirstOrThrow({
+        where: { userId, contestId }
+      })
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('ContestRecord')
+      }
+    }
+    const now = new Date()
+    if (now >= contest.startTime) {
+      throw new ForbiddenAccessException(
+        'Cannot unregister ongoing or ended contest'
+      )
+    }
+
+    try {
+      return await this.prisma.contestRecord.delete({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        where: { contestId_userId: { contestId, userId } }
+      })
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('ContestRecord')
+      }
+    }
   }
 }
