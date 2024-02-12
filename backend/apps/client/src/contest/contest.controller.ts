@@ -14,7 +14,7 @@ import { Prisma } from '@prisma/client'
 import {
   AuthNotNeededIfOpenSpace,
   AuthenticatedRequest,
-  DoNotCareAuthIfOpenSpace
+  UserNullWhenAuthFailedIfOpenSpace
 } from '@libs/auth'
 import {
   ConflictFoundException,
@@ -83,14 +83,14 @@ export class ContestController {
   }
 
   @Get(':id')
-  @DoNotCareAuthIfOpenSpace()
+  @UserNullWhenAuthFailedIfOpenSpace()
   async getContest(
     @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
-      return await this.contestService.getContest(id, groupId, req?.user?.id)
+      return await this.contestService.getContest(id, groupId, req.user?.id)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw error.convert2HTTPException()
