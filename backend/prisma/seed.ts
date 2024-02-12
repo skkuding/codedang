@@ -1607,6 +1607,21 @@ const createContestRecords = async () => {
     contestRecords.push(contestRecord)
     i++
   }
+  // User 1이 Future Contest에 참가한 record를 추가합니다.
+  // 그래야 upcoming contest에 참가한 User 1의 contest register를 un-register할 수 있습니다.
+  contestRecords.push(
+    await prisma.contestRecord.create({
+      data: {
+        //User1
+        userId: 4,
+        //Future Contest
+        contestId: 15,
+        acceptedProblemNum: 0,
+        score: 0,
+        totalPenalty: 0
+      }
+    })
+  )
 
   return contestRecords
 }

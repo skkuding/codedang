@@ -313,7 +313,7 @@ export default function Page() {
               <div className="flex flex-col gap-1">
                 <Controller
                   render={({ field }) => (
-                    <OptionSelect levels={levels} onChange={field.onChange} />
+                    <OptionSelect options={levels} onChange={field.onChange} />
                   )}
                   name="difficulty"
                   control={control}

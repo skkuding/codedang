@@ -1,0 +1,60 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/contest/15/participation?groupId=1
+  body: none
+  auth: none
+}
+
+query {
+  groupId: 1
+}
+
+assert {
+  res.status: eq 200
+  res.body.id: isNumber
+  res.body.contestId: isNumber
+  res.body.acceptedProblemNum: isNumber
+  res.body.totalPenalty: isNumber
+  res.body.createTime: isString
+  res.body.updateTime: isString
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  ## Unregister Upcoming Contest
+  
+  Upcoming Contest에 한하여, User가 해당 Contest를 Unregister합니다.  
+  
+  ### Path
+  Path URI로 `:id` 값이 옵니다.  
+  해당 id 값은 `contestId`입니다.  
+  
+  ### Query
+  |이름|타입|설명|
+  |--|--|--|
+  |groupId|Integer|Contest가 속한 GroupID입니다. (default: OPENSPACE_ID)|
+  
+  ### Error Case
+  
+  #### 404: No Contest found
+  
+  Path URI로 존재하지 않는 `contestId`를 주거나 `contestId`가 속하지 않은 `groupId`를 Query Parameter의 Argument로 줄 경우, No Contest found Error가 발생합니다.  
+  
+  #### 404: No ContestRecord found
+  
+  현재 `userId`와 `contestId`를 기반으로 ContestRecord Table에서 두 field를 갖고 있는 레코드를 검색합니다.  
+  그렇지만 이에 해당하는 레코드가 없는 경우 상기 에러를 반환합니다.  
+  
+  #### 403: Cannot unregister ongoing or ended contest
+  
+  Contest가 ongoing 혹은 ended 상태이면, unregister를 할 수 없습니다.  
+  
+}
