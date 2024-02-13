@@ -10,5 +10,3 @@ export enum ProblemOrder {
   submitASC = 'submit-asc',
   submitDESC = 'submit-desc'
 }
-
-export const ProblemOrderList: ProblemOrder[] = Object.values(ProblemOrder)
