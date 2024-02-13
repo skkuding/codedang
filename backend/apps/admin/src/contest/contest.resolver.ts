@@ -28,7 +28,7 @@ export class ContestResolver {
   private readonly logger = new Logger(ContestResolver.name)
   constructor(private readonly contestService: ContestService) {}
 
-  @Query(() => [Contest])
+  @Query(() => [ContestWithParticipants])
   async getContests(
     @Args(
       'take',
