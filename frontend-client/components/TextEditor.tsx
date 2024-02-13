@@ -22,10 +22,12 @@ import { Button } from './ui/button'
 
 export default function TextEditor({
   placeholder,
-  onChange
+  onChange,
+  defaultValue
 }: {
   placeholder: string
   onChange: (richText: string) => void
+  defaultValue?: string
 }) {
   const [url, setUrl] = useState('')
 
@@ -47,7 +49,8 @@ export default function TextEditor({
     },
     onUpdate({ editor }) {
       onChange(editor.getHTML())
-    }
+    },
+    content: defaultValue
   })
 
   const setLink = useCallback(

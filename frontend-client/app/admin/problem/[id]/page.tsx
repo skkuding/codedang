@@ -130,6 +130,7 @@ const GET_PROBLEM = gql`
           name
         }
       }
+      description
       inputDescription
       outputDescription
       problemTestcase {
@@ -243,6 +244,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [tags, setTags] = useState<Tag[]>([])
   const [languages, setLanguages] = useState<TemplateLanguage[]>([])
   const [problemData, setProblemData] = useState<GetProblem>()
+  const [textEditorValue, setTextEditorValue] = useState<string>('')
 
   useEffect(() => {
     fetcherGql(GET_TAGS).then((data) => {
@@ -259,7 +261,7 @@ export default function Page({ params }: { params: { id: string } }) {
       id: Number(id)
     }).then((data) => {
       setProblemData(data.getProblem)
-      console.log(data.getProblem.description)
+      setTextEditorValue(data.getProblem.description)
     })
   }, [id, problemData])
 
@@ -505,16 +507,19 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <div className="flex flex-col gap-1">
             <Label>Description</Label>
-            <Controller
-              render={({ field }) => (
-                <TextEditor
-                  placeholder="Enter a description..."
-                  onChange={field.onChange}
-                />
-              )}
-              name="description"
-              control={control}
-            />
+            {textEditorValue && (
+              <Controller
+                render={({ field }) => (
+                  <TextEditor
+                    placeholder="Enter a description..."
+                    onChange={field.onChange}
+                    defaultValue={textEditorValue}
+                  />
+                )}
+                name="description"
+                control={control}
+              />
+            )}
             {errors.description && (
               <div className="flex items-center gap-1 text-xs text-red-500">
                 <PiWarningBold />
