@@ -12,7 +12,11 @@ import {
   Delete
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
+import {
+  AuthNotNeededIfOpenSpace,
+  AuthenticatedRequest,
+  UserNullWhenAuthFailedIfOpenSpace
+} from '@libs/auth'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -86,20 +90,17 @@ export class ContestController {
   }
 
   @Get(':id')
-  @AuthNotNeededIfOpenSpace()
+  @UserNullWhenAuthFailedIfOpenSpace()
   async getContest(
+    @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
-      return await this.contestService.getContest(id, groupId)
+      return await this.contestService.getContest(id, groupId, req.user?.id)
     } catch (error) {
-      if (
-        (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.name === 'NotFoundError') ||
-        error instanceof EntityNotExistException
-      ) {
-        throw new NotFoundException(error.message)
+      if (error instanceof EntityNotExistException) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
