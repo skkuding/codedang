@@ -3,23 +3,16 @@ import {
   Injectable,
   type PipeTransform
 } from '@nestjs/common'
-import { ProblemOrder, ProblemOrderList } from '@libs/types'
+import { ProblemOrder } from '@client/problem/enum/problem-order.enum'
 
 @Injectable()
 export class ProblemOrderPipe implements PipeTransform {
   transform(value: unknown) {
-    const orderValue: ProblemOrder =
-      (value as ProblemOrder) ?? ProblemOrder.idASC
-
-    if (!this.isValidProblemOrder(orderValue)) {
-      throw new BadRequestException('Validation failed')
+    if (!value) {
+      return ProblemOrder.idASC
+    } else if (!Object.values(ProblemOrder).includes(value as ProblemOrder)) {
+      throw new BadRequestException('Problem-order validation failed')
     }
-
-    return orderValue
-  }
-
-  private isValidProblemOrder(value: ProblemOrder) {
-    console.log(ProblemOrderList, value)
-    return (ProblemOrderList as ProblemOrder[]).includes(value)
+    return value
   }
 }

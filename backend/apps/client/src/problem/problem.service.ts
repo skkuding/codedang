@@ -5,7 +5,6 @@ import {
   ForbiddenAccessException,
   EntityNotExistException
 } from '@libs/exception'
-import type { ProblemOrder } from '@libs/types'
 import { ContestService } from '@client/contest/contest.service'
 import { WorkbookService } from '@client/workbook/workbook.service'
 import { CodeDraftResponseDto } from './dto/code-draft.response.dto'
@@ -14,6 +13,7 @@ import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
+import type { ProblemOrder } from './enum/problem-order.enum'
 import { ProblemRepository } from './problem.repository'
 
 // import type { ProblemOrder } from './schema/problem-order.schema'

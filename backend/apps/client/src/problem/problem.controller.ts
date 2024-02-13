@@ -21,14 +21,12 @@ import {
   RequiredIntPipe,
   ProblemOrderPipe
 } from '@libs/pipe'
-import { ProblemOrder } from '@libs/types'
+import { ProblemOrder } from './enum/problem-order.enum'
 import {
   ContestProblemService,
   ProblemService,
   WorkbookProblemService
 } from './problem.service'
-
-// import { ProblemOrder } from './schema/problem-order.schema'
 
 @Controller('problem')
 @AuthNotNeededIfOpenSpace()
