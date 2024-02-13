@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   Logger,
-  NotFoundException,
   InternalServerErrorException,
   Query,
   BadRequestException
@@ -39,7 +38,7 @@ export class AnnouncementController {
       }
     } catch (error) {
       if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()

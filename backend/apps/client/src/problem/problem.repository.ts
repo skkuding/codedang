@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Injectable } from '@nestjs/common'
+import type { CodeDraftUpdateInput } from '@generated'
 import type { Problem, Tag, CodeDraft, Prisma } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
-import type { CodeDraftUpdateInput } from '@admin/@generated'
 import type { CreateTemplateDto } from './dto/create-code-draft.dto'
 import type { ProblemOrder } from './schema/problem-order.schema'
 
@@ -68,18 +68,18 @@ export class ProblemRepository {
 
     const orderByMapper: Record<
       ProblemOrder,
-      Prisma.ProblemOrderByWithRelationAndSearchRelevanceInput
+      Prisma.ProblemOrderByWithRelationAndSearchRelevanceInput[]
     > = {
-      'id-asc': { id: 'asc' },
-      'id-desc': { id: 'desc' },
-      'title-asc': { title: 'asc' },
-      'title-desc': { title: 'desc' },
-      'level-asc': { difficulty: 'asc' },
-      'level-desc': { difficulty: 'desc' },
-      'acrate-asc': { acceptedRate: 'asc' },
-      'acrate-desc': { acceptedRate: 'desc' },
-      'submit-asc': { submissionCount: 'asc' },
-      'submit-desc': { submissionCount: 'desc' }
+      'id-asc': [{ id: 'asc' }],
+      'id-desc': [{ id: 'desc' }],
+      'title-asc': [{ title: 'asc' }, { id: 'asc' }],
+      'title-desc': [{ title: 'desc' }, { id: 'asc' }],
+      'level-asc': [{ difficulty: 'asc' }, { id: 'asc' }],
+      'level-desc': [{ difficulty: 'desc' }, { id: 'asc' }],
+      'acrate-asc': [{ acceptedRate: 'asc' }, { id: 'asc' }],
+      'acrate-desc': [{ acceptedRate: 'desc' }, { id: 'asc' }],
+      'submit-asc': [{ submissionCount: 'asc' }, { id: 'asc' }],
+      'submit-desc': [{ submissionCount: 'desc' }, { id: 'asc' }]
     }
 
     const orderBy = orderByMapper[order ?? 'id-asc']
@@ -106,6 +106,18 @@ export class ProblemRepository {
           select: {
             tagId: true
           }
+        }
+      }
+    })
+  }
+
+  async getProblemTotalCount(groupId: number, search?: string) {
+    return await this.prisma.problem.count({
+      where: {
+        groupId,
+        title: {
+          // TODO: 검색 방식 변경 시 함께 변경 요함
+          contains: search
         }
       }
     })
@@ -187,6 +199,14 @@ export class ProblemRepository {
     })
   }
 
+  async getContestProblemTotalCount(contestId: number) {
+    return await this.prisma.contestProblem.count({
+      where: {
+        contestId
+      }
+    })
+  }
+
   async getContestProblem(contestId: number, problemId: number) {
     return await this.prisma.contestProblem.findUniqueOrThrow({
       where: {
@@ -232,6 +252,14 @@ export class ProblemRepository {
         problem: {
           select: this.problemsSelectOption
         }
+      }
+    })
+  }
+
+  async getWorkbookProblemTotalCount(workbookId: number) {
+    return await this.prisma.workbookProblem.count({
+      where: {
+        workbookId
       }
     })
   }

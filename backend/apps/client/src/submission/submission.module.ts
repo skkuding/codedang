@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
@@ -43,6 +44,7 @@ import { SubmissionService } from './submission.service'
       },
       inject: [ConfigService]
     }),
+    HttpModule,
     RolesModule
   ],
   controllers: [SubmissionController],

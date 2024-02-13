@@ -46,7 +46,7 @@ export default function GroupSelect() {
           variant="ghost"
           role="combobox"
           aria-expanded={open}
-          className="h-fit justify-between text-wrap py-2 text-left text-lg font-bold text-slate-800"
+          className="h-fit justify-between py-2 text-left text-lg font-bold text-slate-800"
         >
           {value
             ? groups.find((framework) => framework.id === value)?.label

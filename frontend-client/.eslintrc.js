@@ -21,7 +21,8 @@ module.exports = {
           {
             namedComponents: 'function-declaration'
           }
-        ]
+        ],
+        'func-style': ['off']
       }
     }
   ]

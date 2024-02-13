@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import type { Contest, Prisma } from '@prisma/client'
+import { type Contest, Prisma } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { ConflictFoundException } from '@libs/exception'
+import {
+  ConflictFoundException,
+  EntityNotExistException,
+  ForbiddenAccessException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
 const contestSelectOption = {
@@ -214,21 +218,43 @@ export class ContestService {
     return upcomingContest
   }
 
-  async getContest(id: number, groupId = OPEN_SPACE_ID) {
-    const contest = await this.prisma.contest.findUniqueOrThrow({
-      where: {
-        id,
-        groupId,
-        config: {
-          path: ['isVisible'],
-          equals: true
-        }
-      },
-      select: {
-        ...contestSelectOption,
-        description: true
+  async getContest(id: number, groupId = OPEN_SPACE_ID, userId?: number) {
+    // check if the user can register this contest
+    // initial value is false
+    let canRegister = false
+    let contest
+    if (userId) {
+      const hasRegistered = await this.prisma.contestRecord.findFirst({
+        where: { userId, contestId: id }
+      })
+      if (!hasRegistered) {
+        canRegister = true
       }
-    })
+    }
+    try {
+      contest = await this.prisma.contest.findUniqueOrThrow({
+        where: {
+          id,
+          groupId,
+          config: {
+            path: ['isVisible'],
+            equals: true
+          }
+        },
+        select: {
+          ...contestSelectOption,
+          description: true
+        }
+      })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('Contest')
+      }
+      throw error
+    }
     // get contest participants ranking using ContestRecord
     const sortedContestRecordsWithUserDetail =
       await this.prisma.contestRecord.findMany({
@@ -264,7 +290,8 @@ export class ContestService {
     // combine contest and sortedContestRecordsWithUserDetail
     return {
       ...contest,
-      standings: UsersWithStandingDetail
+      standings: UsersWithStandingDetail,
+      canRegister
     }
   }
 
@@ -285,7 +312,7 @@ export class ContestService {
       throw new ConflictFoundException('Already participated this contest')
     }
     const now = new Date()
-    if (now < contest.startTime || now >= contest.endTime) {
+    if (now >= contest.endTime) {
       throw new ConflictFoundException('Cannot participate ended contest')
     }
 
@@ -305,5 +332,57 @@ export class ContestService {
         groupId
       }
     }))
+  }
+
+  async deleteContestRecord(
+    contestId: number,
+    userId: number,
+    groupId = OPEN_SPACE_ID
+  ) {
+    let contest
+    try {
+      contest = await this.prisma.contest.findUniqueOrThrow({
+        where: { id: contestId, groupId }
+      })
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('Contest')
+      }
+    }
+    try {
+      await this.prisma.contestRecord.findFirstOrThrow({
+        where: { userId, contestId }
+      })
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('ContestRecord')
+      }
+    }
+    const now = new Date()
+    if (now >= contest.startTime) {
+      throw new ForbiddenAccessException(
+        'Cannot unregister ongoing or ended contest'
+      )
+    }
+
+    try {
+      return await this.prisma.contestRecord.delete({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        where: { contestId_userId: { contestId, userId } }
+      })
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('ContestRecord')
+      }
+    }
   }
 }

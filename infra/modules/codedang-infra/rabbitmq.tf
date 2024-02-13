@@ -9,13 +9,12 @@ resource "aws_subnet" "private_mq" {
 }
 
 resource "aws_mq_broker" "judge_queue" {
-  broker_name = "Codedang_JudgeQueue"
+  broker_name = "Codedang-JudgeQueue"
 
-  engine_type        = "RabbitMQ"
-  engine_version     = "3.10.20"
-  host_instance_type = "mq.t3.micro"
-  subnet_ids         = [aws_subnet.private_mq.id]
-  # security_groups     = [aws_security_group.mq.id]
+  engine_type         = "RabbitMQ"
+  engine_version      = "3.10.20"
+  host_instance_type  = "mq.t3.micro"
+  subnet_ids          = [aws_subnet.private_mq.id]
   publicly_accessible = true
 
   logs {

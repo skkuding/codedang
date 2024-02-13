@@ -1,9 +1,4 @@
-import {
-  ConflictException,
-  ForbiddenException,
-  InternalServerErrorException,
-  Logger
-} from '@nestjs/common'
+import { InternalServerErrorException, Logger } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
 import { Group } from '@generated'
 import { Role } from '@prisma/client'
@@ -34,7 +29,7 @@ export class GroupResolver {
       return await this.groupService.createGroup(input, req.user.id)
     } catch (error) {
       if (error instanceof DuplicateFoundException) {
-        throw new ConflictException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -46,7 +41,7 @@ export class GroupResolver {
   async getGroups(
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
-    @Args('take', { type: () => Int }) take: number
+    @Args('take', { type: () => Int, defaultValue: 10 }) take: number
   ) {
     return await this.groupService.getGroups(cursor, take)
   }
@@ -66,10 +61,11 @@ export class GroupResolver {
     try {
       return await this.groupService.updateGroup(id, input)
     } catch (error) {
-      if (error instanceof DuplicateFoundException) {
-        throw new ConflictException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+      if (
+        error instanceof DuplicateFoundException ||
+        error instanceof ForbiddenAccessException
+      ) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -85,7 +81,7 @@ export class GroupResolver {
       return await this.groupService.deleteGroup(id, req.user)
     } catch (error) {
       if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -93,12 +89,14 @@ export class GroupResolver {
   }
 
   @Mutation(() => String)
-  async issueInvitation(@Args('groupId', GroupIDPipe) id: number) {
+  async issueInvitation(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
+  ) {
     try {
       return await this.groupService.issueInvitation(id)
     } catch (error) {
       if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -106,7 +104,9 @@ export class GroupResolver {
   }
 
   @Mutation(() => String)
-  async revokeInvitation(@Args('groupId', GroupIDPipe) id: number) {
+  async revokeInvitation(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) id: number
+  ) {
     try {
       return await this.groupService.revokeInvitation(id)
     } catch (error) {

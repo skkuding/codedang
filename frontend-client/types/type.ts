@@ -1,5 +1,6 @@
 export type ContestStatus = 'ongoing' | 'upcoming' | 'finished'
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
+export type Language = 'C' | 'Cpp' | 'Golang' | 'Java' | 'Python2' | 'Python3'
 
 export interface Contest {
   id: number
@@ -52,6 +53,16 @@ export interface Standings {
   totalScore: number
 }
 
+export interface ContestProblem {
+  id: number
+  order: number
+  problemId: number
+  title: string
+  difficulty: Level
+  submissionCount: number
+  acceptedRate: number
+}
+
 export interface ProblemDetail {
   id: number
   title: string
@@ -67,4 +78,56 @@ export interface ProblemDetail {
     id: number
     name: string
   }[]
+  hint: string
+}
+
+export interface SubmissionItem {
+  id: number
+  user: {
+    username: string
+  }
+  createTime: string
+  language: string
+  result: string
+  codeSize: number
+}
+
+export interface Submission {
+  id: number
+  userId: number
+  problemId: number
+  contestId: number | null
+  workbookId: number | null
+  code: { id: number; text: string; lockded: boolean }[]
+  language: string
+  result: string
+  createTime: string
+  updateTime: string
+}
+
+export interface SubmissionDetail {
+  problemId: number
+  username: string
+  code: string
+  language: string
+  createTime: string
+  result: string
+  testcaseResult: {
+    id: number
+    submissionId: number
+    problemTestCaseId: number
+    result: string
+    cpuTime: string
+    memoryUsage: number
+    createTime: string
+    updateTime: string
+  }[]
+}
+
+export interface ContestClarification {
+  id: number
+  content: string
+  problemId: number
+  createTime: string
+  updateTime: string
 }

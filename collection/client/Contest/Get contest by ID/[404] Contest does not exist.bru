@@ -1,0 +1,22 @@
+meta {
+  name: [404] Contest does not exist
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/contest/999999
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 404
+  res("message"): eq Contest does not exist
+  res("error"): eq Not Found
+  res("statusCode"): eq 404
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
