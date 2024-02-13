@@ -145,7 +145,7 @@ export class UpdateProblemInput {
   @Field(() => String, { nullable: true })
   source?: string
 
-  @Field(() => UpdateSamples, { nullable: false })
+  @Field(() => UpdateSamples, { nullable: true })
   samples?: UpdateSamples
 
   // @Field(() => [String], { nullable: true })
