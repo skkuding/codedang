@@ -23,6 +23,9 @@ export class CreateProblemInput {
   @Field(() => String, { nullable: false })
   hint!: string
 
+  @Field(() => Boolean, { defaultValue: true })
+  isVisible!: boolean
+
   @Field(() => [Template], { nullable: false })
   template!: Array<Template>
 
