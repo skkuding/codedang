@@ -46,9 +46,6 @@ export class AnnouncementResolver {
     try {
       return await this.announcementService.findOne(id)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
@@ -62,6 +59,9 @@ export class AnnouncementResolver {
     try {
       return await this.announcementService.update(id, announcementInput)
     } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw error.convert2HTTPException()
+      }
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
@@ -69,6 +69,14 @@ export class AnnouncementResolver {
 
   @Mutation(() => Announcement)
   async removeAnnouncement(@Args('id', { type: () => Int }) id: number) {
-    return await this.announcementService.delete(id)
+    try {
+      return await this.announcementService.delete(id)
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
   }
 }
