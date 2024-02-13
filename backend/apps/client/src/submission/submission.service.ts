@@ -330,8 +330,9 @@ export class SubmissionService implements OnModuleInit {
         memoryUsage: result.memory
       }
     })
+    console.log(results)
 
-    await this.updateSubmissionResult(submissionId, resultStatus, results)
+    // await this.updateSubmissionResult(submissionId, resultStatus, results)
   }
 
   async updateSubmissionResult(
@@ -428,25 +429,30 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    return await this.prisma.submission.findMany({
-      ...paginator,
-      take,
-      where: {
-        problemId
-      },
-      select: {
-        id: true,
-        user: {
-          select: {
-            username: true
-          }
-        },
-        createTime: true,
-        language: true,
-        result: true,
-        codeSize: true
-      }
-    })
+    const submissions: Partial<Submission[]> = await this.prisma
+      .$queryRaw`SELECT * FROM submission WHERE problem_id = ${problemId} ORDER BY create_time DESC LIMIT ${take} OFFSET ${paginator}`
+    console.log(submissions)
+
+    return submissions
+    // return await this.prisma.submission.findMany({
+    //   ...paginator,
+    //   take,
+    //   where: {
+    //     problemId
+    //   },
+    //   select: {
+    //     id: true,
+    //     user: {
+    //       select: {
+    //         username: true
+    //       }
+    //     },
+    //     createTime: true,
+    //     language: true,
+    //     result: true,
+    //     codeSize: true
+    //   }
+    // })
   }
 
   async getSubmission(
