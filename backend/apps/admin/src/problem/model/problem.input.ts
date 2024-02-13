@@ -4,7 +4,7 @@ import { ValidatePromise } from 'class-validator'
 import { GraphQLUpload } from 'graphql-upload'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import { Template } from './template.input'
-import { Testcase } from './testcase.input'
+import { Testcase, Sample } from './testcase.input'
 
 @InputType()
 export class CreateProblemInput {
@@ -41,11 +41,14 @@ export class CreateProblemInput {
   @Field(() => String, { nullable: false })
   source!: string
 
-  @Field(() => [String], { nullable: false })
-  inputExamples!: Array<string>
+  // @Field(() => [String], { nullable: false })
+  // inputExamples!: Array<string>
 
-  @Field(() => [String], { nullable: false })
-  outputExamples!: Array<string>
+  // @Field(() => [String], { nullable: false })
+  // outputExamples!: Array<string>
+
+  @Field(() => [Sample], { nullable: false })
+  samples!: Array<Sample>
 
   @Field(() => [Testcase], { nullable: false })
   testcases!: Array<Testcase>
@@ -73,8 +76,9 @@ export interface UploadProblemInput {
   memoryLimit: number
   difficulty: keyof typeof Level
   source: string
-  inputExamples: Array<string>
-  outputExamples: Array<string>
+  samples: Array<Sample>
+  // inputExamples: Array<string>
+  // outputExamples: Array<string>
 }
 
 @InputType()
@@ -90,6 +94,14 @@ export class FilterProblemsInput {
 export class UpdateProblemTagInput {
   @Field(() => [Int], { nullable: false })
   create!: Array<number>
+
+  @Field(() => [Int], { nullable: false })
+  delete!: Array<number>
+}
+@InputType()
+export class UpdateSamples {
+  @Field(() => [Sample], { nullable: false })
+  create!: Array<Sample>
 
   @Field(() => [Int], { nullable: false })
   delete!: Array<number>
@@ -133,11 +145,14 @@ export class UpdateProblemInput {
   @Field(() => String, { nullable: true })
   source?: string
 
-  @Field(() => [String], { nullable: true })
-  inputExamples?: Array<string>
+  @Field(() => UpdateSamples, { nullable: false })
+  samples?: UpdateSamples
 
-  @Field(() => [String], { nullable: true })
-  outputExamples?: Array<string>
+  // @Field(() => [String], { nullable: true })
+  // inputExamples?: Array<string>
+
+  // @Field(() => [String], { nullable: true })
+  // outputExamples?: Array<string>
 
   @Field(() => [Testcase], { nullable: true })
   testcases?: Array<Testcase & { id: number }>

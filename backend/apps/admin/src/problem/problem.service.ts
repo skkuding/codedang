@@ -16,7 +16,6 @@ import type {
   CreateProblemInput,
   UploadFileInput,
   FilterProblemsInput,
-  UploadProblemInput,
   UpdateProblemInput,
   UpdateProblemTagInput
 } from './model/problem.input'
@@ -35,7 +34,7 @@ export class ProblemService {
     userId: number,
     groupId: number
   ) {
-    const { languages, template, tagIds, testcases, ...data } = input
+    const { languages, template, tagIds, samples, testcases, ...data } = input
     if (!languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
@@ -52,6 +51,9 @@ export class ProblemService {
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
+        samples: {
+          create: samples
+        },
         groupId,
         createdById: userId,
         languages,
@@ -115,7 +117,7 @@ export class ProblemService {
       )
 
     const header = {}
-    const problems: { index: number; data: UploadProblemInput }[] = []
+    const problems: { index: number; data: CreateProblemInput }[] = []
     const testcases: { [key: number]: Testcase[] } = {}
 
     const workbook = new Workbook()
@@ -200,8 +202,9 @@ export class ProblemService {
         memoryLimit: 512,
         difficulty: level,
         source: '',
-        inputExamples: [],
-        outputExamples: []
+        testcases: [],
+        tagIds: [],
+        samples: []
       }
       problems.push({ index: rowNumber, data: problemInput })
 
@@ -244,22 +247,7 @@ export class ProblemService {
     return await Promise.all(
       problems.map(async (problemInput) => {
         const { index, data } = problemInput
-        const problem = await this.prisma.problem.create({
-          data: {
-            ...data,
-            createdBy: {
-              connect: {
-                id: userId
-              }
-            },
-            group: {
-              connect: {
-                id: groupId
-              }
-            },
-            template: [JSON.stringify(data.template)]
-          }
-        })
+        const problem = await this.createProblem(data, userId, groupId)
         if (index in testcases) {
           await this.createTestcases(problem.id, testcases[index])
         }
@@ -314,7 +302,7 @@ export class ProblemService {
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
-    const { id, languages, template, tags, testcases, ...data } = input
+    const { id, languages, template, tags, testcases, samples, ...data } = input
     const problem = await this.getProblem(id, groupId)
 
     if (languages && !languages.length) {
@@ -341,6 +329,14 @@ export class ProblemService {
       where: { id },
       data: {
         ...data,
+        samples: {
+          create: samples?.create,
+          delete: samples?.delete.map((deleteId) => {
+            return {
+              id: deleteId
+            }
+          })
+        },
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
         problemTag

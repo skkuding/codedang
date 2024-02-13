@@ -29,8 +29,7 @@ export const problems: Problem[] = [
     exposeTime: new Date('2000-01-01'),
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    inputExamples: [],
-    outputExamples: [],
+    samples: [],
     template: []
   },
   {
