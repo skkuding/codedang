@@ -24,11 +24,17 @@ export class AnnouncementService {
     })
     if (announcement) throw new DuplicateFoundException('announcement')
 
-    await this.prisma.problem.findFirstOrThrow({
-      where: {
-        id: announcementInput.problemId
-      }
-    })
+    await this.prisma.problem
+      .findFirstOrThrow({
+        where: {
+          id: announcementInput.problemId
+        }
+      })
+      .catch((error) => {
+        if (error.name == 'NotFoundError') {
+          throw new EntityNotExistException('prolem')
+        }
+      })
 
     return await this.prisma.announcement.create({
       data: {
@@ -47,11 +53,17 @@ export class AnnouncementService {
   }
 
   async findOne(id: number) {
-    const announcement = await this.prisma.announcement.findFirstOrThrow({
-      where: {
-        id
-      }
-    })
+    const announcement = await this.prisma.announcement
+      .findFirstOrThrow({
+        where: {
+          id
+        }
+      })
+      .catch((error) => {
+        if (error.name == 'NotFoundError') {
+          throw new EntityNotExistException('announcement')
+        }
+      })
     return announcement
   }
 
