@@ -104,7 +104,7 @@ export interface GetProblem {
   memoryLimit: number
   hint: string
   source: string
-  template: Template[]
+  template: string[]
 }
 
 const GET_TAGS = gql`
@@ -246,6 +246,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const [problemData, setProblemData] = useState<GetProblem>()
   const [fetchedTags, setFetchedTags] = useState<number[]>([])
+  const [fetchedLangauges, setFetchedLanguages] = useState<Language[]>([])
   const [fetchedDifficulty, setFetchedDifficulty] = useState<Level>()
   const [fetchedDescription, setFetchedDescription] = useState<string>('')
 
@@ -266,12 +267,19 @@ export default function Page({ params }: { params: { id: string } }) {
     }).then((data) => {
       setProblemData(data.getProblem)
       setFetchedDifficulty(data.getProblem.difficulty)
+      setFetchedLanguages(data.getProblem.languages)
       setFetchedTags(
         data.getProblem.problemTag.map((problemTag: { tag: Tag }) =>
           Number(problemTag.tag.id)
         )
       )
       setFetchedDescription(data.getProblem.description)
+      setLanguages(
+        data.getProblem.languages.map((language: Language) => ({
+          language,
+          showTemplate: true
+        }))
+      )
     })
   }, [id, problemData])
 
@@ -282,11 +290,11 @@ export default function Page({ params }: { params: { id: string } }) {
       setValue('languages', problemData.languages)
       setValue(
         'tags.create',
-        problemData.problemTag.map((tag) => Number(tag.tag.id))
+        problemData.problemTag.map((problemTag) => Number(problemTag.tag.id))
       )
       setValue(
         'tags.delete',
-        problemData.problemTag.map((tag) => Number(tag.tag.id))
+        problemData.problemTag.map((problemTag) => Number(problemTag.tag.id))
       )
       setValue('description', problemData.description)
       setValue('inputDescription', problemData.inputDescription)
@@ -296,6 +304,20 @@ export default function Page({ params }: { params: { id: string } }) {
       setValue('memoryLimit', problemData.memoryLimit)
       setValue('hint', problemData.hint)
       setValue('source', problemData.source)
+      setValue(
+        'template',
+        problemData.template.map((template: string) => {
+          const parsedTemplate = JSON.parse(template)[0]
+          return {
+            language: parsedTemplate.language,
+            code: {
+              id: parsedTemplate.code[0].id,
+              text: parsedTemplate.code[0].text,
+              locked: parsedTemplate.code[0].locked
+            }
+          }
+        })
+      )
     }
   }, [problemData])
 
@@ -489,6 +511,7 @@ export default function Page({ params }: { params: { id: string } }) {
                           })) as TemplateLanguage[]
                         )
                       }}
+                      defaultValue={fetchedLangauges}
                     />
                   )}
                   name="languages"
@@ -774,6 +797,7 @@ export default function Page({ params }: { params: { id: string } }) {
                               }
                             })
                           }}
+                          checked={templateLanguage.showTemplate}
                           className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
                         />
                       </div>
