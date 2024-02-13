@@ -9,7 +9,7 @@ interface ContestProblemProps {
 
 export default async function ContestProblem({ params }: ContestProblemProps) {
   const { id } = params
-  const contestProblems: ContestProblem[] = await fetcher
+  const { problems }: { problems: ContestProblem[] } = await fetcher
     .get('problem', {
       searchParams: {
         take: 10,
@@ -17,13 +17,14 @@ export default async function ContestProblem({ params }: ContestProblemProps) {
       }
     })
     .json()
-  contestProblems.forEach((problem) => {
+
+  problems.forEach((problem) => {
     problem.id = problem.problemId
   })
 
   return (
     <DataTable
-      data={contestProblems}
+      data={problems}
       columns={columns}
       headerStyle={{
         title: 'text-left w-6/12',
