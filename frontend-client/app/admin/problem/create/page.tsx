@@ -48,6 +48,7 @@ interface Tag {
 interface Example {
   input: string
   output: string
+  scoreWeight?: number
 }
 
 interface Snippet {
@@ -66,7 +67,7 @@ interface TemplateLanguage {
   showTemplate: boolean
 }
 
-export interface ProblemData {
+export interface CreateProblemInput {
   title: string
   visible: boolean
   difficulty: Level
@@ -102,10 +103,35 @@ const CREATE_PROBLEM = gql`
       createdById
       groupId
       title
+      visible
+      difficulty
+      languages
+      tagIds
       description
       inputDescription
       outputDescription
+      samples {
+        input
+        output
+        scoreWeight
+      }
+      testcases {
+        input
+        output
+        scoreWeight
+      }
+      timeLimit
+      memoryLimit
       hint
+      source
+      template {
+        code {
+          id
+          text
+          locked
+        }
+        language
+      }
     }
   }
 `
@@ -122,27 +148,48 @@ const schema = z.object({
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
   samples: z
-    .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
+    .array(
+      z.object({
+        input: z.string().min(1),
+        output: z.string().min(1),
+        scoreWeight: z.number().optional()
+      })
+    )
     .min(1),
   testcases: z
-    .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
+    .array(
+      z.object({
+        input: z.string().min(1),
+        output: z.string().min(1),
+        scoreWeight: z.number().optional()
+      })
+    )
     .min(1),
   timeLimit: z.number().min(0),
   memoryLimit: z.number().min(0),
   hint: z.string().optional(),
   source: z.string().optional(),
-  template: z.array(
-    z
-      .object({
-        language: z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']),
-        code: z.object({
-          id: z.number(),
-          text: z.string(),
-          locked: z.boolean()
+  template: z
+    .array(
+      z
+        .object({
+          language: z.enum([
+            'C',
+            'Cpp',
+            'Golang',
+            'Java',
+            'Python2',
+            'Python3'
+          ]),
+          code: z.object({
+            id: z.number(),
+            text: z.string(),
+            locked: z.boolean()
+          })
         })
-      })
-      .optional()
-  )
+        .optional()
+    )
+    .optional()
 })
 
 export default function Page() {
@@ -174,19 +221,20 @@ export default function Page() {
     getValues,
     setValue,
     formState: { errors }
-  } = useForm<ProblemData>({
+  } = useForm<CreateProblemInput>({
     resolver: zodResolver(schema),
     defaultValues: {
       difficulty: 'Level1',
       samples: [{ input: '', output: '' }],
       testcases: [{ input: '', output: '' }],
       hint: '',
-      source: ''
+      source: '',
+      template: []
     }
   })
 
   // TODO: Create Problem 에 sample, visible 추가 시 변경
-  const onSubmit = async (data: ProblemData) => {
+  const onSubmit = async (data: CreateProblemInput) => {
     try {
       const res = await fetcherGql(CREATE_PROBLEM, {
         groupId: 1,
@@ -307,6 +355,12 @@ export default function Page() {
                   )}
                 />
               </div>
+              {errors.visible && (
+                <div className="flex items-center gap-1 text-xs text-red-500">
+                  <PiWarningBold />
+                  required
+                </div>
+              )}
             </div>
           </div>
 

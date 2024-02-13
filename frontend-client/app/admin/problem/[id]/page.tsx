@@ -48,6 +48,7 @@ interface Tag {
 interface Example {
   input: string
   output: string
+  scoreWeight?: number
 }
 
 interface Snippet {
@@ -66,12 +67,16 @@ interface TemplateLanguage {
   showTemplate: boolean
 }
 
-export interface ProblemData {
+export interface UpdateProblemInput {
+  id: number
   title: string
   visible: boolean
   difficulty: Level
   languages: Language[]
-  tagIds: number[]
+  tags: {
+    create: number[]
+    delete: number[]
+  }
   description: string
   inputDescription: string
   outputDescription: string
@@ -82,6 +87,24 @@ export interface ProblemData {
   hint?: string
   source?: string
   template?: Template[]
+}
+
+export interface GetProblem {
+  title: string
+  // visible: boolean
+  difficulty: Level
+  languages: Language[]
+  problemTag: { tag: Tag }[]
+  description: string
+  inputDescription: string
+  outputDescription: string
+  problemTestcase: Example[]
+  // problemSample: Example[]
+  timeLimit: number
+  memoryLimit: number
+  hint: string
+  source: string
+  template: Template[]
 }
 
 const GET_TAGS = gql`
@@ -98,29 +121,69 @@ const GET_TAGS = gql`
 const GET_PROBLEM = gql`
   query GetProblem($groupId: Int!, $id: Int!) {
     getProblem(groupId: $groupId, id: $id) {
-      id
-      createdById
-      groupId
       title
-      description
+      difficulty
+      languages
+      problemTag {
+        tag {
+          id
+          name
+        }
+      }
       inputDescription
       outputDescription
+      problemTestcase {
+        input
+        output
+      }
+      timeLimit
+      memoryLimit
       hint
+      source
+      template
     }
   }
 `
 
-const CREATE_PROBLEM = gql`
-  mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
-    createProblem(groupId: $groupId, input: $input) {
+const UPDATE_PROBLEM = gql`
+  mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
+    updateProblem(groupId: $groupId, input: $input) {
       id
       createdById
       groupId
       title
+      visible
+      difficulty
+      languages
+      tags {
+        create
+        delete
+      }
       description
       inputDescription
       outputDescription
+      samples {
+        input
+        output
+        scoreWeight
+      }
+      testcases {
+        input
+        output
+        scoreWeight
+      }
+      timeLimit
+      memoryLimit
       hint
+      source
+      template {
+        code {
+          id
+          locked
+          text
+        }
+        language
+      }
     }
   }
 `
@@ -132,7 +195,7 @@ const schema = z.object({
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
   ),
-  tagIds: z.array(z.number()).min(1),
+  tags: z.object({ create: z.array(z.number()), delete: z.array(z.number()) }),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
@@ -146,31 +209,40 @@ const schema = z.object({
   memoryLimit: z.number().min(0),
   hint: z.string().optional(),
   source: z.string().optional(),
-  template: z.array(
-    z
-      .object({
-        language: z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']),
-        code: z.object({
-          id: z.number(),
-          text: z.string(),
-          locked: z.boolean()
+  template: z
+    .array(
+      z
+        .object({
+          language: z.enum([
+            'C',
+            'Cpp',
+            'Golang',
+            'Java',
+            'Python2',
+            'Python3'
+          ]),
+          code: z.object({
+            id: z.number(),
+            text: z.string(),
+            locked: z.boolean()
+          })
         })
-      })
-      .optional()
-  )
+        .optional()
+    )
+    .optional()
 })
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
-  const [showHint, setShowHint] = useState<boolean>(false)
-  const [showSource, setShowSource] = useState<boolean>(false)
+  const [showHint, setShowHint] = useState<boolean>(true)
+  const [showSource, setShowSource] = useState<boolean>(true)
   const [samples, setSamples] = useState<Example[]>([{ input: '', output: '' }])
   const [testcases, setTestcases] = useState<Example[]>([
     { input: '', output: '' }
   ])
   const [tags, setTags] = useState<Tag[]>([])
   const [languages, setLanguages] = useState<TemplateLanguage[]>([])
-  const [problemData, setProblemData] = useState<ProblemData>()
+  const [problemData, setProblemData] = useState<GetProblem>()
 
   useEffect(() => {
     fetcherGql(GET_TAGS).then((data) => {
@@ -194,10 +266,24 @@ export default function Page({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (problemData) {
       setValue('title', problemData.title)
+      setValue('difficulty', problemData.difficulty)
+      setValue('languages', problemData.languages)
+      setValue(
+        'tags.create',
+        problemData.problemTag.map((tag) => Number(tag.tag.id))
+      )
+      setValue(
+        'tags.delete',
+        problemData.problemTag.map((tag) => Number(tag.tag.id))
+      )
       setValue('description', problemData.description)
       setValue('inputDescription', problemData.inputDescription)
       setValue('outputDescription', problemData.outputDescription)
+      setValue('testcases', problemData.problemTestcase)
+      setValue('timeLimit', problemData.timeLimit)
+      setValue('memoryLimit', problemData.memoryLimit)
       setValue('hint', problemData.hint)
+      setValue('source', problemData.source)
     }
   }, [problemData])
 
@@ -208,21 +294,18 @@ export default function Page({ params }: { params: { id: string } }) {
     getValues,
     setValue,
     formState: { errors }
-  } = useForm<ProblemData>({
+  } = useForm<UpdateProblemInput>({
     resolver: zodResolver(schema),
     defaultValues: {
-      difficulty: 'Level1',
       samples: [{ input: '', output: '' }],
-      testcases: [{ input: '', output: '' }],
-      hint: '',
-      source: ''
+      template: []
     }
   })
 
   // TODO: Create Problem 에 sample, visible 추가 시 변경
-  const onSubmit = async (data: ProblemData) => {
+  const onSubmit = async (data: UpdateProblemInput) => {
     try {
-      const res = await fetcherGql(CREATE_PROBLEM, {
+      const res = await fetcherGql(UPDATE_PROBLEM, {
         groupId: 1,
         input: data
       })
@@ -341,6 +424,12 @@ export default function Page({ params }: { params: { id: string } }) {
                   )}
                 />
               </div>
+              {errors.visible && (
+                <div className="flex items-center gap-1 text-xs text-red-500">
+                  <PiWarningBold />
+                  required
+                </div>
+              )}
             </div>
           </div>
 
@@ -401,10 +490,10 @@ export default function Page({ params }: { params: { id: string } }) {
                   render={({ field }) => (
                     <TagsSelect options={tags} onChange={field.onChange} />
                   )}
-                  name="tagIds"
+                  name="tags.create"
                   control={control}
                 />
-                {errors.tagIds && (
+                {errors.tags && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
                     <PiWarningBold />
                     required
@@ -593,6 +682,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   setShowHint(!showHint)
                   setValue('hint', '')
                 }}
+                checked={showHint}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
@@ -614,6 +704,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   setShowSource(!showSource)
                   setValue('source', '')
                 }}
+                checked={showSource}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
