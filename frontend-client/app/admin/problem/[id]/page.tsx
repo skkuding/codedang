@@ -249,6 +249,9 @@ export default function Page({ params }: { params: { id: string } }) {
   const [fetchedLangauges, setFetchedLanguages] = useState<Language[]>([])
   const [fetchedDifficulty, setFetchedDifficulty] = useState<Level>()
   const [fetchedDescription, setFetchedDescription] = useState<string>('')
+  const [fetchedTemplateLanguage, setFetchedTemplateLanguage] = useState<
+    Language[]
+  >([])
 
   useEffect(() => {
     fetcherGql(GET_TAGS).then((data) => {
@@ -274,10 +277,18 @@ export default function Page({ params }: { params: { id: string } }) {
         )
       )
       setFetchedDescription(data.getProblem.description)
+      setFetchedTemplateLanguage(
+        data.getProblem.template.map((template: string) => {
+          const parsedTemplate = JSON.parse(template)[0]
+          return parsedTemplate.language
+        })
+      )
       setLanguages(
         data.getProblem.languages.map((language: Language) => ({
           language,
-          showTemplate: true
+          showTemplate: fetchedTemplateLanguage.includes(language)
+            ? true
+            : false
         }))
       )
     })
@@ -285,6 +296,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     if (problemData) {
+      // TODO: add visible and samples
       setValue('title', problemData.title)
       setValue('difficulty', problemData.difficulty)
       setValue('languages', problemData.languages)
