@@ -118,6 +118,9 @@ export class UpdateProblemInput {
   @Field(() => String, { nullable: true })
   hint?: string
 
+  @Field(() => Boolean, { nullable: true })
+  isVisible?: boolean
+
   @Field(() => [Template], { nullable: true })
   template?: Array<Template>
 
