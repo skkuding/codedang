@@ -1,8 +1,16 @@
-import { type ExecutionContext, Injectable } from '@nestjs/common'
+import {
+  type ExecutionContext,
+  Injectable,
+  UnauthorizedException
+} from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { type GqlContextType, GqlExecutionContext } from '@nestjs/graphql'
 import { AuthGuard } from '@nestjs/passport'
-import { AUTH_NOT_NEEDED_KEY } from '../guard.decorator'
+import { OPEN_SPACE_ID } from '@libs/constants'
+import {
+  AUTH_NOT_NEEDED_KEY,
+  USER_NULL_WHEN_AUTH_FAILED
+} from '../guard.decorator'
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -30,5 +38,21 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       return GqlExecutionContext.create(context).getContext().req
     }
     return super.getRequest(context)
+  }
+
+  handleRequest(err, user, info, context: ExecutionContext) {
+    const request = this.getRequest(context)
+    const groupId = request.query.groupId ?? `${OPEN_SPACE_ID}`
+    const userNullWhenAuthFailed = this.reflector.getAllAndOverride<boolean>(
+      USER_NULL_WHEN_AUTH_FAILED,
+      [context.getHandler(), context.getClass()]
+    )
+    if (userNullWhenAuthFailed && info && groupId === `${OPEN_SPACE_ID}`) {
+      return null
+    }
+    if (err || !user) {
+      throw err || new UnauthorizedException()
+    }
+    return user
   }
 }
