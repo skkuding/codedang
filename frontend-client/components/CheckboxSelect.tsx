@@ -19,9 +19,14 @@ import { useState } from 'react'
 interface DataProps {
   title: string
   options: string[]
+  onChange: (selectedValues: string[]) => void
 }
 
-export default function LanguageSelect({ title, options }: DataProps) {
+export default function LanguageSelect({
+  title,
+  options,
+  onChange
+}: DataProps) {
   const [selectedValues, setSelectedValues] = useState([] as string[])
 
   const handleCheckboxChange = (option: string) => {
@@ -35,9 +40,13 @@ export default function LanguageSelect({ title, options }: DataProps) {
   }
 
   return (
-    <Popover>
+    <Popover onOpenChange={() => onChange(selectedValues)}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size={'sm'} className="h-10 border">
+        <Button
+          variant="outline"
+          size={'sm'}
+          className="h-10 border hover:bg-gray-50"
+        >
           <PlusCircledIcon className="mr-2 h-4 w-4" />
           <p className="font-bold">{title}</p>
           {selectedValues.length > 0 && (
