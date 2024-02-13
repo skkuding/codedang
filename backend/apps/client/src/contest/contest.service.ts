@@ -26,6 +26,10 @@ export type ContestSelectResult = Prisma.ContestGetPayload<{
   select: typeof contestSelectOption
 }>
 
+export type ContestResult = Omit<ContestSelectResult, '_count'> & {
+  participants: number
+}
+
 @Injectable()
 export class ContestService {
   constructor(private readonly prisma: PrismaService) {}
@@ -36,14 +40,14 @@ export class ContestService {
   ): Promise<
     T extends undefined | null
       ? {
-          ongoing: Partial<Contest>[]
-          upcoming: Partial<Contest>[]
+          ongoing: ContestResult[]
+          upcoming: ContestResult[]
         }
       : {
-          registeredOngoing: Partial<Contest>[]
-          registeredUpcoming: Partial<Contest>[]
-          ongoing: Partial<Contest>[]
-          upcoming: Partial<Contest>[]
+          registeredOngoing: ContestResult[]
+          registeredUpcoming: ContestResult[]
+          ongoing: ContestResult[]
+          upcoming: ContestResult[]
         }
   >
   async getContestsByGroupId(groupId: number, userId: number | null = null) {
@@ -66,7 +70,8 @@ export class ContestService {
         }
       })
 
-      const contestsWithParticipants = this.renameToParticipants(contests)
+      const contestsWithParticipants: ContestResult[] =
+        this.renameToParticipants(contests)
 
       return {
         ongoing: this.filterOngoing(contestsWithParticipants),
