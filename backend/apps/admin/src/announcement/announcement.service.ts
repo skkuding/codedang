@@ -24,12 +24,11 @@ export class AnnouncementService {
     })
     if (announcement) throw new DuplicateFoundException('announcement')
 
-    const problem = await this.prisma.problem.findFirst({
+    await this.prisma.problem.findFirstOrThrow({
       where: {
         id: announcementInput.problemId
       }
     })
-    if (!problem) throw new EntityNotExistException('problem')
 
     return await this.prisma.announcement.create({
       data: {
@@ -48,12 +47,11 @@ export class AnnouncementService {
   }
 
   async findOne(id: number) {
-    const announcement = await this.prisma.announcement.findFirst({
+    const announcement = await this.prisma.announcement.findFirstOrThrow({
       where: {
         id
       }
     })
-    if (!announcement) throw new EntityNotExistException('announcement')
     return announcement
   }
 
