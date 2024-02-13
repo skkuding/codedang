@@ -40,6 +40,26 @@ export class ContestService {
     })
   }
 
+  async getContest(contestId: number) {
+    const [contest, participants] = await this.prisma.$transaction([
+      this.prisma.contest.findFirstOrThrow({
+        where: {
+          id: contestId
+        }
+      }),
+      this.prisma.contestRecord.count({
+        where: {
+          contestId
+        }
+      })
+    ])
+
+    return {
+      ...contest,
+      participants
+    }
+  }
+
   async createContest(
     groupId: number,
     userId: number,

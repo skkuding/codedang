@@ -1,11 +1,13 @@
 import {
   InternalServerErrorException,
   Logger,
+  NotFoundException,
   ParseBoolPipe
 } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { ContestProblem } from '@generated'
 import { Contest } from '@generated'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
@@ -15,6 +17,7 @@ import {
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
+import { ContestWithParticipants } from './model/contest-with-participants.model'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
@@ -43,6 +46,23 @@ export class ContestResolver {
     cursor: number | null
   ) {
     return await this.contestService.getContests(take, groupId, cursor)
+  }
+
+  @Query(() => ContestWithParticipants)
+  async getContest(
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number
+  ) {
+    try {
+      return await this.contestService.getContest(contestId)
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code == 'P2025'
+      ) {
+        throw new NotFoundException(error.message)
+      }
+    }
   }
 
   @Mutation(() => Contest)
