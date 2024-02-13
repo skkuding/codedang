@@ -243,8 +243,11 @@ export default function Page({ params }: { params: { id: string } }) {
   ])
   const [tags, setTags] = useState<Tag[]>([])
   const [languages, setLanguages] = useState<TemplateLanguage[]>([])
+
   const [problemData, setProblemData] = useState<GetProblem>()
-  const [textEditorValue, setTextEditorValue] = useState<string>('')
+  const [fetchedTags, setFetchedTags] = useState<number[]>([])
+  const [fetchedDifficulty, setFetchedDifficulty] = useState<Level>()
+  const [fetchedDescription, setFetchedDescription] = useState<string>('')
 
   useEffect(() => {
     fetcherGql(GET_TAGS).then((data) => {
@@ -256,12 +259,19 @@ export default function Page({ params }: { params: { id: string } }) {
       )
       setTags(transformedData)
     })
+
     fetcherGql(GET_PROBLEM, {
       groupId: 1,
       id: Number(id)
     }).then((data) => {
       setProblemData(data.getProblem)
-      setTextEditorValue(data.getProblem.description)
+      setFetchedDifficulty(data.getProblem.difficulty)
+      setFetchedTags(
+        data.getProblem.problemTag.map((problemTag: { tag: Tag }) =>
+          Number(problemTag.tag.id)
+        )
+      )
+      setFetchedDescription(data.getProblem.description)
     })
   }, [id, problemData])
 
@@ -441,7 +451,11 @@ export default function Page({ params }: { params: { id: string } }) {
               <div className="flex flex-col gap-1">
                 <Controller
                   render={({ field }) => (
-                    <OptionSelect options={levels} onChange={field.onChange} />
+                    <OptionSelect
+                      options={levels}
+                      onChange={field.onChange}
+                      defaultValue={fetchedDifficulty}
+                    />
                   )}
                   name="difficulty"
                   control={control}
@@ -490,7 +504,11 @@ export default function Page({ params }: { params: { id: string } }) {
               <div className="flex flex-col gap-1">
                 <Controller
                   render={({ field }) => (
-                    <TagsSelect options={tags} onChange={field.onChange} />
+                    <TagsSelect
+                      options={tags}
+                      onChange={field.onChange}
+                      defaultValue={fetchedTags}
+                    />
                   )}
                   name="tags.create"
                   control={control}
@@ -507,13 +525,13 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <div className="flex flex-col gap-1">
             <Label>Description</Label>
-            {textEditorValue && (
+            {fetchedDescription && (
               <Controller
                 render={({ field }) => (
                   <TextEditor
                     placeholder="Enter a description..."
                     onChange={field.onChange}
-                    defaultValue={textEditorValue}
+                    defaultValue={fetchedDescription}
                   />
                 )}
                 name="description"
