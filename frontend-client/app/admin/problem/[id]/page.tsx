@@ -435,7 +435,7 @@ export default function Page({ params }: { params: { id: string } }) {
               <div className="flex items-center gap-2">
                 <Controller
                   control={control}
-                  name={`visible`}
+                  name="visible"
                   render={({ field: { onChange, onBlur, value } }) => (
                     <div className="flex gap-6">
                       <label className="flex gap-2">
