@@ -59,7 +59,7 @@ interface Snippet {
 
 interface Template {
   language: Language
-  code: Snippet
+  code: Snippet[]
 }
 
 interface TemplateLanguage {
@@ -181,11 +181,13 @@ const schema = z.object({
             'Python2',
             'Python3'
           ]),
-          code: z.object({
-            id: z.number(),
-            text: z.string(),
-            locked: z.boolean()
-          })
+          code: z.array(
+            z.object({
+              id: z.number(),
+              text: z.string(),
+              locked: z.boolean()
+            })
+          )
         })
         .optional()
     )
@@ -673,11 +675,13 @@ export default function Page() {
                             )
                             setValue(`template.${index}`, {
                               language: templateLanguage.language,
-                              code: {
-                                id: index,
-                                text: '',
-                                locked: true
-                              }
+                              code: [
+                                {
+                                  id: index,
+                                  text: '',
+                                  locked: true
+                                }
+                              ]
                             })
                           }}
                           className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
@@ -687,7 +691,7 @@ export default function Page() {
                         <Textarea
                           placeholder={`Enter a ${templateLanguage.language} template...`}
                           className="h-[180px] w-[480px] bg-white"
-                          {...register(`template.${index}.code.text`)}
+                          {...register(`template.${index}.code.0.text`)}
                         />
                       )}
                     </div>
@@ -697,7 +701,7 @@ export default function Page() {
                         <div className="flex items-center gap-2">
                           <Controller
                             control={control}
-                            name={`template.${index}.code.locked`}
+                            name={`template.${index}.code.0.locked`}
                             render={({
                               field: { onChange, onBlur, value }
                             }) => (

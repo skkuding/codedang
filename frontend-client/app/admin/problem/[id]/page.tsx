@@ -59,7 +59,7 @@ interface Snippet {
 
 interface Template {
   language: Language
-  code: Snippet
+  code: Snippet[]
 }
 
 interface TemplateLanguage {
@@ -222,11 +222,13 @@ const schema = z.object({
             'Python2',
             'Python3'
           ]),
-          code: z.object({
-            id: z.number(),
-            text: z.string(),
-            locked: z.boolean()
-          })
+          code: z.array(
+            z.object({
+              id: z.number(),
+              text: z.string(),
+              locked: z.boolean()
+            })
+          )
         })
         .optional()
     )
@@ -322,11 +324,13 @@ export default function Page({ params }: { params: { id: string } }) {
           const parsedTemplate = JSON.parse(template)[0]
           return {
             language: parsedTemplate.language,
-            code: {
-              id: parsedTemplate.code[0].id,
-              text: parsedTemplate.code[0].text,
-              locked: parsedTemplate.code[0].locked
-            }
+            code: [
+              {
+                id: parsedTemplate.code[0].id,
+                text: parsedTemplate.code[0].text,
+                locked: parsedTemplate.code[0].locked
+              }
+            ]
           }
         })
       )
@@ -802,11 +806,13 @@ export default function Page({ params }: { params: { id: string } }) {
                             )
                             setValue(`template.${index}`, {
                               language: templateLanguage.language,
-                              code: {
-                                id: index,
-                                text: '',
-                                locked: true
-                              }
+                              code: [
+                                {
+                                  id: index,
+                                  text: '',
+                                  locked: true
+                                }
+                              ]
                             })
                           }}
                           checked={templateLanguage.showTemplate}
@@ -817,7 +823,7 @@ export default function Page({ params }: { params: { id: string } }) {
                         <Textarea
                           placeholder={`Enter a ${templateLanguage.language} template...`}
                           className="h-[180px] w-[480px] bg-white"
-                          {...register(`template.${index}.code.text`)}
+                          {...register(`template.${index}.code.0.text`)}
                         />
                       )}
                     </div>
@@ -827,7 +833,7 @@ export default function Page({ params }: { params: { id: string } }) {
                         <div className="flex items-center gap-2">
                           <Controller
                             control={control}
-                            name={`template.${index}.code.locked`}
+                            name={`template.${index}.code.0.locked`}
                             render={({
                               field: { onChange, onBlur, value }
                             }) => (
@@ -880,7 +886,7 @@ export default function Page({ params }: { params: { id: string } }) {
             className="flex h-[36px] w-[100px] items-center gap-2 px-0 "
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
-            <div className="mb-[2px] text-base">Create</div>
+            <div className="mb-[2px] text-base">Submit</div>
           </Button>
         </form>
       </main>
