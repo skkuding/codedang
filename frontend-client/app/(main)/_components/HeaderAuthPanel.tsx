@@ -19,7 +19,7 @@ export default function HeaderAuthPanel({ session }: HeaderAuthPanelProps) {
   return (
     <div className="ml-2 flex items-center gap-2">
       {session ? (
-        <UserDropdownMenu username={session.user.username} />
+        <UserDropdownMenu session={session} />
       ) : (
         <Dialog>
           <DialogTrigger asChild>
@@ -28,7 +28,7 @@ export default function HeaderAuthPanel({ session }: HeaderAuthPanelProps) {
               variant={'outline'}
               className="hidden border-none px-3 py-1 text-base font-semibold md:block"
             >
-              Sign In
+              Log In
             </Button>
           </DialogTrigger>
           <DialogTrigger asChild>

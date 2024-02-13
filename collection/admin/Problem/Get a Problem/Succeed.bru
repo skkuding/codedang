@@ -1,0 +1,46 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetProblem($groupId: Int!, $id: Int!) {
+    getProblem(groupId: $groupId, id: $id) {
+      id
+      createdById
+      groupId
+      title
+      description
+      inputDescription
+      outputDescription
+      hint
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "id": 1
+  }
+}
+
+assert {
+  res.body.data.getProblem: isDefined
+}
+
+docs {
+  ## Get a Problem
+  Problem을 가져옵니다.
+  
+  ### Error Cases
+  #### NOT_FOUND
+  존재하지 않는 groupId 또는 id를 전달하는 경우 발생합니다.
+}

@@ -8,6 +8,9 @@
     "schedule:weekly",
     ":label(dependencies)"
   ],
+  "constraints": {
+    "go": "1.19.1" // for Gitpod
+  },
   "rangeStrategy": "bump",
   "reviewers": ["dotoleeoak"],
   "lockFileMaintenance": { "enabled": true },

@@ -1,0 +1,56 @@
+meta {
+  name: UNPROCESSABLE (1)
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
+    updateProblem(groupId: $groupId, input: $input) {
+      id
+      createdById
+      groupId
+      title
+      description
+      inputDescription
+      outputDescription
+      hint
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "input": {
+      "id": 4,
+      "title": "updatedProblem",
+      "description": "updated description",
+      "inputDescription": "updated input description",
+      "outputDescription": "updated output description",
+      "hint": "updated hint",
+      "template": {
+        "language": "Cpp",
+        "code": [
+          {
+            "id": 1,
+            "text": "int main() {}",
+            "locked": false
+          }
+        ]
+      },
+      "languages": []
+    }
+  }
+}
+
+assert {
+  res.body.errors[0].extensions.code: eq UNPROCESSABLE
+  res.body.errors[0].message: eq A problem should support at least one language
+}

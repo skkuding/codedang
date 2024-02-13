@@ -10,9 +10,10 @@ generator client {
 generator graphql {
   provider           = "prisma-nestjs-graphql"
   output             = "../apps/admin/src/@generated"
+  purgeOutput        = true
   noAtomicOperations = true
   // emitCompiled       = true
-  purgeOutput        = true
+  emitSingle         = true
   reExport           = Single
 }
 
