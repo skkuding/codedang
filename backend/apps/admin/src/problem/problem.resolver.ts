@@ -10,6 +10,7 @@ import {
 import { Args, Context, Query, Int, Mutation, Resolver } from '@nestjs/graphql'
 import { ContestProblem, Problem, Tag, WorkbookProblem } from '@generated'
 import { Prisma } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
@@ -306,5 +307,23 @@ export class ProblemResolver {
   @Query(() => [Tag])
   async getTags() {
     return await this.problemService.getTags()
+  }
+
+  @Mutation(() => Problem)
+  async updateVisibility(
+    @Args('problemId', { type: () => Int }, new RequiredIntPipe('problemId'))
+    problemId: number,
+    @Args('isVisible', { type: () => Boolean }) isVisible: boolean
+  ) {
+    try {
+      return await this.problemService.updateVisibility(problemId, isVisible)
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code == 'P2025'
+      ) {
+        throw new NotFoundException(error.message)
+      }
+    }
   }
 }

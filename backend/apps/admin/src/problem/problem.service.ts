@@ -582,4 +582,15 @@ export class ProblemService {
   async getTags(): Promise<Partial<Tag>[]> {
     return await this.prisma.tag.findMany()
   }
+
+  async updateVisibility(problemId: number, isVisible: boolean) {
+    return await this.prisma.problem.update({
+      where: {
+        id: problemId
+      },
+      data: {
+        isVisible
+      }
+    })
+  }
 }
