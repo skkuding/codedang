@@ -357,14 +357,14 @@ describe('ContestService', () => {
     it('should throw error when contest does not exist', async () => {
       mockPrismaService.contest.findUniqueOrThrow.rejects(
         new Prisma.PrismaClientKnownRequestError('contest', {
-          code: 'P2002',
-          clientVersion: '5.1.1'
+          code: 'P2025',
+          clientVersion: '5.8.1'
         })
       )
 
       await expect(
-        service.getContest(contestId + 999, groupId)
-      ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
+        service.getContest(contestId + 999, groupId, 4)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
 
     it('should return contest', async () => {
@@ -373,12 +373,13 @@ describe('ContestService', () => {
         sortedContestRecordsWithUserDetail
       )
 
-      expect(await service.getContest(groupId, contestId)).to.deep.equal({
+      expect(await service.getContest(groupId, contestId, 4)).to.deep.equal({
         ...contestDetail,
         standings: sortedContestRecordsWithUserDetail.map((record, index) => ({
           ...record,
           standing: index + 1
-        }))
+        })),
+        canRegister: true
       })
     })
   })
@@ -430,7 +431,7 @@ describe('ContestService', () => {
       mockPrismaService.contest.findUniqueOrThrow.resolves(upcomingContest)
       mockPrismaService.contestRecord.findFirstOrThrow.resolves(record)
       mockPrismaService.contestRecord.delete.resolves(record)
-      await expect(
+      expect(
         await service.deleteContestRecord(contestId, userId)
       ).to.deep.equal(record)
     })
