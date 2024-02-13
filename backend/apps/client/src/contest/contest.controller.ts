@@ -33,12 +33,6 @@ export class ContestController {
     try {
       return await this.contestService.getContestsByGroupId(groupId)
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name === 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      }
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
@@ -55,12 +49,6 @@ export class ContestController {
         req.user.id
       )
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name === 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      }
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
