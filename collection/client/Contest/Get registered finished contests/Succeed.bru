@@ -5,16 +5,16 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/finished
+  url: {{baseUrl}}/contest/registered-finished
   body: none
   auth: none
 }
 
 query {
-  ~take: 10
+  ~groupId: 2
   ~cursor: 1
-  ~groupId: 1
-  ~search: 소
+  ~take: 5
+  ~search: 밤
 }
 
 assert {
@@ -28,10 +28,14 @@ assert {
   res("finished")[0].participants: isNumber
 }
 
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
 docs {
-  ## Add Finished Contests
+  ## Get Registered Finished Contests
   
-  종료된 대회들을 가져옵니다.
+  사용자가 참가 신청을 한 종료된 대회들을 가져옵니다.
   
   ### Query
   
@@ -41,5 +45,4 @@ docs {
   |cursor|Integer|cursor 값 다음의 ID를 가진 대회들을 반환|
   |groupId |Integer|대회가 속한 Group ID (default: 1)|
   |search|String|title을 기준으로 검색할 키워드. 포함하지 않으면 검색을 수행하지 않음|
-  
 }
