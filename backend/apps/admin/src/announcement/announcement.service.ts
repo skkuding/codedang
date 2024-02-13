@@ -32,7 +32,7 @@ export class AnnouncementService {
       })
       .catch((error) => {
         if (error.name == 'NotFoundError') {
-          throw new EntityNotExistException('prolem')
+          throw new EntityNotExistException('problem')
         }
       })
 

@@ -29,13 +29,15 @@ const problem = {
 const db = {
   announcement: {
     findFirst: stub(),
+    findFirstOrThrow: stub(),
     findMany: stub().resolves([announcement]),
     update: stub(),
     delete: stub(),
     create: stub().resolves(announcement)
   },
   problem: {
-    findFirst: stub()
+    findFirst: stub(),
+    findFirstOrThrow: stub()
   }
 }
 
@@ -62,7 +64,7 @@ describe('AnnouncementService', () => {
   describe('create', () => {
     it('should return created announcement', async () => {
       db.announcement.findFirst.resolves(null)
-      db.problem.findFirst.resolves(problem)
+      db.problem.findFirstOrThrow.resolves(problem)
 
       const res = await service.create(announcementInput)
       expect(res).to.deep.equal(announcement)
@@ -78,7 +80,7 @@ describe('AnnouncementService', () => {
 
     it('should throw error when given problemId is invalid', async () => {
       db.announcement.findFirst.resolves(null)
-      db.problem.findFirst.resolves(null)
+      db.problem.findFirstOrThrow.rejects(PrismaErrorInstance)
 
       await expect(service.create(announcementInput)).to.be.rejectedWith(
         EntityNotExistException
@@ -96,7 +98,7 @@ describe('AnnouncementService', () => {
 
   describe('findOne', () => {
     it('should throw error when given id is invalid', async () => {
-      db.announcement.findFirst.resolves(null)
+      db.announcement.findFirstOrThrow.rejects(PrismaErrorInstance)
       await expect(service.findOne(id)).to.be.rejectedWith(
         EntityNotExistException
       )
