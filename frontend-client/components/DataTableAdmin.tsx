@@ -8,11 +8,13 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import {
+import type {
   ColumnDef,
   ColumnFiltersState,
   SortingState,
-  VisibilityState,
+  VisibilityState
+} from '@tanstack/react-table'
+import {
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
