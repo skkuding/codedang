@@ -1,5 +1,10 @@
-import { InternalServerErrorException, Logger } from '@nestjs/common'
+import {
+  InternalServerErrorException,
+  Logger,
+  NotFoundException
+} from '@nestjs/common'
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import {
   DuplicateFoundException,
   EntityNotExistException
@@ -24,6 +29,12 @@ export class AnnouncementResolver {
       if (error instanceof DuplicateFoundException) {
         throw error.convert2HTTPException()
       }
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      }
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
@@ -46,6 +57,12 @@ export class AnnouncementResolver {
     try {
       return await this.announcementService.findOne(id)
     } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      }
       this.logger.error(error)
       throw new InternalServerErrorException()
     }

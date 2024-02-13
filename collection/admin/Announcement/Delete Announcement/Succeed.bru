@@ -21,3 +21,17 @@ body:graphql {
     }
   }
 }
+
+docs {
+  ## Delete Announcment
+  Announement를 제거합니다.
+  
+  ### Args
+  | 이름 | 타입 | 설명|
+  |--|--|--|
+  |id|int|제거할 Annoucement id|
+  
+  ### Error Case
+  #### NOT_FOUND
+  존재하지 않는 id
+}

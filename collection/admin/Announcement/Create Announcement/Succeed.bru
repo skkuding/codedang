@@ -26,3 +26,20 @@ body:graphql {
   
   
 }
+
+docs {
+  ## Create Announcment
+  새로운 Announement를 생성합니다.
+  
+  ### Args
+  | 이름 | 타입 | 설명|
+  |--|--|--|
+  |problemId|int|Announment를 추가할 문제의 id|
+  |content|string|추가할 Announement의 내용|
+  
+  ### Error Case
+  #### CONFLICT
+  추가하려는 것과 problemId, content가 모두 일치하는 Announement가 이미 존재
+  #### NOT_FOUND
+  존재하지 않는 problemId
+}

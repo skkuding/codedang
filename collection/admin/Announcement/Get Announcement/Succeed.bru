@@ -22,3 +22,17 @@ body:graphql {
   }
   
 }
+
+docs {
+  ## Get Announcment
+  Announcement의 정보를 조회합니다.
+  
+  ### Args
+  | 이름 | 타입 | 설명|
+  |--|--|--|
+  |id|int|조회할 Announment의 id|
+  
+  ### Error Case
+  #### NOT_FOUND
+  존재하지 않는 id
+}
