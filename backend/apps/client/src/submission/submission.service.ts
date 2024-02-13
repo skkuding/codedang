@@ -1,4 +1,6 @@
+import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
 import {
   ResultStatus,
@@ -7,10 +9,12 @@ import {
   type Language,
   type Problem
 } from '@prisma/client'
+import type { AxiosRequestConfig } from 'axios'
 import { plainToInstance } from 'class-transformer'
 import { ValidationError, validateOrReject } from 'class-validator'
-import { OPEN_SPACE_ID, Status } from '@libs/constants'
 import {
+  OPEN_SPACE_ID,
+  Status,
   CONSUME_CHANNEL,
   EXCHANGE,
   ORIGIN_HANDLER_NAME,
@@ -40,9 +44,10 @@ export class SubmissionService implements OnModuleInit {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpConnection: AmqpConnection
+    private readonly amqpConnection: AmqpConnection,
+    private readonly configService: ConfigService,
+    private readonly httpService: HttpService
   ) {}
-
   onModuleInit() {
     this.amqpConnection.createSubscriber(
       async (msg: object) => {
@@ -197,6 +202,7 @@ export class SubmissionService implements OnModuleInit {
         result: ResultStatus.Judging,
         userId,
         problemId: problem.id,
+        codeSize: new TextEncoder().encode(code[0].text).length,
         ...data
       }
     })
@@ -236,6 +242,38 @@ export class SubmissionService implements OnModuleInit {
       .padStart(6, '0')
   }
 
+  async checkDelay() {
+    const baseUrl = this.configService.get(
+      'RABBITMQ_API_URL',
+      'http://127.0.0.1:15672/api'
+    )
+
+    const url =
+      baseUrl +
+      '/queues/' +
+      this.configService.get('RABBITMQ_DEFAULT_VHOST') +
+      '/' +
+      this.configService.get('JUDGE_SUBMISSION_QUEUE_NAME')
+
+    const config: AxiosRequestConfig = {
+      method: 'GET',
+      withCredentials: true,
+      auth: {
+        username: this.configService.get('RABBITMQ_DEFAULT_USER', ''),
+        password: this.configService.get('RABBITMQ_DEFAULT_PASS', '')
+      }
+    }
+    const res = await this.httpService.axiosRef(url, config)
+    const threshold = 0.9
+
+    if (res.status == 200) {
+      if (res.data.consumer_capacity > threshold) return { isDelay: false }
+      return { isDelay: true, cause: 'Judge server is not working.' }
+    } else {
+      return { isDelay: true, cause: 'RabbitMQ is not working.' }
+    }
+  }
+
   async publishJudgeRequestMessage(code: Snippet[], submission: Submission) {
     const problem = await this.prisma.problem.findUnique({
       where: { id: submission.problemId },
@@ -254,7 +292,7 @@ export class SubmissionService implements OnModuleInit {
     // TODO: problem 단위가 아닌 testcase 단위로 채점하도록 iris 수정
 
     this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
-      messageId: submission.id,
+      messageId: String(submission.id),
       persistent: true,
       type: PUBLISH_TYPE
     })
@@ -268,7 +306,7 @@ export class SubmissionService implements OnModuleInit {
   }
 
   async handleJudgerMessage(msg: JudgerResponse) {
-    const submissionId = msg.submissionId
+    const submissionId = parseInt(msg.submissionId)
     const resultStatus = Status(msg.resultCode)
 
     if (resultStatus === ResultStatus.ServerError) {
@@ -367,10 +405,19 @@ export class SubmissionService implements OnModuleInit {
   }
 
   // FIXME: Workbook 구분
-  async getSubmissions(
-    problemId: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Submission>[]> {
+  async getSubmissions({
+    problemId,
+    groupId = OPEN_SPACE_ID,
+    cursor = null,
+    take = 10
+  }: {
+    problemId: number
+    groupId?: number
+    cursor?: number | null
+    take?: number
+  }): Promise<Partial<Submission>[]> {
+    const paginator = this.prisma.getPaginator(cursor)
+
     await this.prisma.problem.findFirstOrThrow({
       where: {
         id: problemId,
@@ -382,6 +429,8 @@ export class SubmissionService implements OnModuleInit {
     })
 
     return await this.prisma.submission.findMany({
+      ...paginator,
+      take,
       where: {
         problemId
       },
@@ -394,7 +443,8 @@ export class SubmissionService implements OnModuleInit {
         },
         createTime: true,
         language: true,
-        result: true
+        result: true,
+        codeSize: true
       }
     })
   }
@@ -431,7 +481,8 @@ export class SubmissionService implements OnModuleInit {
         code: true,
         createTime: true,
         result: true,
-        submissionResult: true
+        submissionResult: true,
+        codeSize: true
       }
     })
     if (
@@ -478,12 +529,23 @@ export class SubmissionService implements OnModuleInit {
     )
   }
 
-  async getContestSubmissions(
-    problemId: number,
-    contestId: number,
-    userId: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Submission>[]> {
+  async getContestSubmissions({
+    problemId,
+    contestId,
+    userId,
+    groupId = OPEN_SPACE_ID,
+    cursor = null,
+    take = 10
+  }: {
+    problemId: number
+    contestId: number
+    userId: number
+    groupId?: number
+    cursor?: number | null
+    take?: number
+  }): Promise<Partial<Submission>[]> {
+    const paginator = this.prisma.getPaginator(cursor)
+
     await this.prisma.contestRecord.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -504,6 +566,8 @@ export class SubmissionService implements OnModuleInit {
     })
 
     return await this.prisma.submission.findMany({
+      ...paginator,
+      take,
       where: {
         problemId,
         contestId
@@ -517,7 +581,8 @@ export class SubmissionService implements OnModuleInit {
         },
         createTime: true,
         language: true,
-        result: true
+        result: true,
+        codeSize: true
       }
     })
   }
@@ -560,7 +625,8 @@ export class SubmissionService implements OnModuleInit {
       },
       select: {
         userId: true,
-        submissionResult: true
+        submissionResult: true,
+        codeSize: true
       }
     })
 

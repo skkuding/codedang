@@ -1,14 +1,12 @@
 import {
-  ConflictException,
   Controller,
+  DefaultValuePipe,
   Delete,
-  ForbiddenException,
   Get,
   InternalServerErrorException,
   Logger,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Post,
   Query,
   Req,
@@ -17,7 +15,7 @@ import {
 import { Prisma } from '@prisma/client'
 import {
   AuthenticatedRequest,
-  AuthNotNeeded,
+  AuthNotNeededIfOpenSpace,
   GroupMemberGuard
 } from '@libs/auth'
 import {
@@ -25,7 +23,7 @@ import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { GroupService } from './group.service'
 
 @Controller('group')
@@ -35,10 +33,11 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Get()
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   async getGroups(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', ParseIntPipe) take: number
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number
   ) {
     try {
       return await this.groupService.getGroups(cursor, take)
@@ -61,7 +60,7 @@ export class GroupController {
   @Get(':groupId')
   async getGroup(
     @Req() req: AuthenticatedRequest,
-    @Param('groupId', ParseIntPipe) groupId: number
+    @Param('groupId', GroupIDPipe) groupId: number
   ) {
     try {
       return await this.groupService.getGroup(groupId, req.user.id)
@@ -94,7 +93,7 @@ export class GroupController {
       ) {
         throw new NotFoundException('Invalid invitation')
       } else if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -104,7 +103,7 @@ export class GroupController {
   @Post(':groupId/join')
   async joinGroupById(
     @Req() req: AuthenticatedRequest,
-    @Param('groupId', ParseIntPipe) groupId: number,
+    @Param('groupId', GroupIDPipe) groupId: number,
     @Query('invitation') invitation?: string
   ) {
     try {
@@ -119,10 +118,11 @@ export class GroupController {
         error.name === 'NotFoundError'
       ) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
-      } else if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
+      } else if (
+        error instanceof ForbiddenAccessException ||
+        error instanceof ConflictFoundException
+      ) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -133,13 +133,13 @@ export class GroupController {
   @UseGuards(GroupMemberGuard)
   async leaveGroup(
     @Req() req: AuthenticatedRequest,
-    @Param('groupId', ParseIntPipe) groupId: number
+    @Param('groupId', GroupIDPipe) groupId: number
   ) {
     try {
       return await this.groupService.leaveGroup(req.user.id, groupId)
     } catch (error) {
       if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
+        throw error.convert2HTTPException()
       }
 
       this.logger.error(error)
@@ -149,7 +149,7 @@ export class GroupController {
 
   @Get(':groupId/leaders')
   @UseGuards(GroupMemberGuard)
-  async getGroupLeaders(@Param('groupId', ParseIntPipe) groupId: number) {
+  async getGroupLeaders(@Param('groupId', GroupIDPipe) groupId: number) {
     try {
       return await this.groupService.getGroupLeaders(groupId)
     } catch (error) {
@@ -160,7 +160,7 @@ export class GroupController {
 
   @Get(':groupId/members')
   @UseGuards(GroupMemberGuard)
-  async getGroupMembers(@Param('groupId', ParseIntPipe) groupId: number) {
+  async getGroupMembers(@Param('groupId', GroupIDPipe) groupId: number) {
     try {
       return await this.groupService.getGroupMembers(groupId)
     } catch (error) {

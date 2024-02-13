@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest/1
+  url: {{baseUrl}}/contest/1?groupId=1
   body: none
   auth: none
+}
+
+query {
+  groupId: 1
 }
 
 assert {
@@ -19,11 +23,38 @@ assert {
   res("group.id"): isNumber
   res("group.groupName"): isString
   res("description"): isString
-  res("_count.contestRecord"): isNumber 
+  res("_count.contestRecord"): isNumber
+  res("standings[0].user.id"): isNumber
+  res("standings[0].user.username"): isString
+  res("standings[0].score"): isNumber
+  res("standings[0].totalPenalty"): isNumber
+  res("standings[0].standing"): isNumber
+  res("canRegister"): isBoolean
+}
+
+script:pre-request {
+  await require("./login").loginUser2nd(req);
 }
 
 docs {
-  # Get Contest by ID
-  ---
-  - URL param으로 전달된 Contest ID를 통해 해당 contest 정보를 가져와 반환합니다.
+  ## Get Contest by ID
+  
+  하나의 대회 정보와 Contest 참여자 정보, 로그인한 유저가 해당 Contest에 참여가능한지 여부에 대한 정보를 가져옵니다. (로그인 하지 않은 유저는 Open Space의 Contest 정보만 볼 수 있고, `canRegister`는 항상 `false`)
+  ### Path
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |id|Integer|Contest(대회) ID|
+  
+  ### Query
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |groupId|Integer|대회가 속한 Group ID|
+  
+  ### Error Case
+  
+  #### [404] Contest does not exist
+  
+  존재하지 않는 ContestID를 Path로 주면 오류가 납니다.
 }

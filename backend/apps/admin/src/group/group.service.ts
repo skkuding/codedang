@@ -102,6 +102,18 @@ export class GroupService {
     }
   }
 
+  async getGroupById(id: number) {
+    const group = await this.prisma.group.findUnique({
+      where: {
+        id
+      }
+    })
+    if (group == null) {
+      throw new EntityNotExistException('Group')
+    }
+    return group
+  }
+
   async updateGroup(id: number, input: UpdateGroupInput) {
     if (id === OPEN_SPACE_ID) {
       throw new ForbiddenAccessException('Open space cannot be updated')

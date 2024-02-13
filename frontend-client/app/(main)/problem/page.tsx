@@ -1,49 +1,50 @@
-import { baseUrl } from '@/lib/vars'
+import SearchBar from '@/components/SearchBar'
+import { Skeleton } from '@/components/ui/skeleton'
+import type { Problem } from '@/types/type'
+import { Suspense } from 'react'
 import ProblemTable from './_components/ProblemTable'
-import SearchBar from './_components/SearchBar'
-import TagSwitch from './_components/TagSwitch'
 
-export default async function Page({
-  searchParams
-}: {
-  searchParams?: { search?: string; tag?: string; order?: string }
-}) {
+interface ProblemProps {
+  searchParams: { search: string; tag: string; order: string }
+}
+
+export default function Problem({ searchParams }: ProblemProps) {
   const search = searchParams?.search ?? ''
   const order = searchParams?.order ?? 'id-asc'
-  const searchRes = await fetch(
-    baseUrl +
-      '/problem?' +
-      new URLSearchParams({
-        take: '15',
-        search: search ?? '',
-        order: order ?? ''
-      })
-  ) /* take 값 조정 필요*/
-
-  const searchData = await searchRes.json()
-  const problems = searchData ?? []
 
   return (
     <>
-      <div className="flex text-gray-500">
-        <div className="flex flex-1 items-center gap-1 text-xl font-extrabold">
-          All
-          <p className="text-primary">{problems.length}</p>
-        </div>
-        <div className="flex items-center gap-1">
-          <TagSwitch />
-          <p className="font-bold"> Tags</p>
-          <div className="flex items-center py-4">
-            <SearchBar />
-          </div>
-        </div>
+      <div className="flex justify-end text-gray-500">
+        <SearchBar />
       </div>
-      <ProblemTable
-        data={problems}
-        isLoading={!problems}
-        isTagChecked={searchParams?.tag === 'tag'}
-      />
-      {/*<Paginator page={paginator.page} slot={paginator.slot} setUrl={setUrl} />*/}
+      <Suspense
+        fallback={
+          <>
+            <div className="mt-4 flex">
+              <span className="w-5/12">
+                <Skeleton className="h-6 w-20" />
+              </span>
+              <span className="w-2/12">
+                <Skeleton className="mx-auto h-6 w-20" />
+              </span>
+              <span className="w-2/12">
+                <Skeleton className="mx-auto h-6 w-20" />
+              </span>
+              <span className="w-2/12">
+                <Skeleton className="mx-auto h-6 w-20" />
+              </span>
+              <span className="w-1/12">
+                <Skeleton className="mx-auto h-6 w-12" />
+              </span>
+            </div>
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} className="my-2 flex h-12 w-full rounded-xl" />
+            ))}
+          </>
+        }
+      >
+        <ProblemTable search={search} order={order} />
+      </Suspense>
     </>
   )
 }

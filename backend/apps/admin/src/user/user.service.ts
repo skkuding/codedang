@@ -6,13 +6,14 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common'
+import type { UserGroup } from '@generated'
 import { Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { joinGroupCacheKey } from '@libs/cache'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { GroupJoinRequest } from '@libs/types'
-import type { UserGroup } from '@admin/@generated/user-group/user-group.model'
 
 @Injectable()
 export class UserService {
@@ -262,5 +263,18 @@ export class UserService {
     } else {
       return userId
     }
+  }
+
+  async getUser(userId: number) {
+    const user = this.prisma.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
+
+    if (user == null) {
+      throw new EntityNotExistException('User')
+    }
+    return user
   }
 }

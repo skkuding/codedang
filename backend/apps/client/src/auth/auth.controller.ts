@@ -12,7 +12,11 @@ import {
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { Request, Response } from 'express'
-import { AuthenticatedRequest, AuthNotNeeded, type JwtTokens } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  AuthNotNeededIfOpenSpace,
+  type JwtTokens
+} from '@libs/auth'
 import { REFRESH_TOKEN_COOKIE_OPTIONS } from '@libs/constants'
 import {
   InvalidJwtTokenException,
@@ -20,7 +24,7 @@ import {
 } from '@libs/exception'
 import { AuthService } from './auth.service'
 import { LoginUserDto } from './dto/login-user.dto'
-import type { GithubUser } from './interface/social-user.interface'
+import type { GithubUser, KakaoUser } from './interface/social-user.interface'
 
 @Controller('auth')
 export class AuthController {
@@ -37,7 +41,7 @@ export class AuthController {
     )
   }
 
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   @Post('login')
   async login(
     @Body() loginUserDto: LoginUserDto,
@@ -48,7 +52,7 @@ export class AuthController {
       this.setJwtResponse(res, jwtTokens)
     } catch (error) {
       if (error instanceof UnidentifiedException) {
-        throw new UnauthorizedException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException('Login failed')
@@ -69,7 +73,7 @@ export class AuthController {
     }
   }
 
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   @Get('reissue')
   async reIssueJwtTokens(
     @Req() req: Request,
@@ -83,14 +87,14 @@ export class AuthController {
       this.setJwtResponse(res, newJwtTokens)
     } catch (error) {
       if (error instanceof InvalidJwtTokenException) {
-        throw new UnauthorizedException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException('Failed to reissue tokens')
     }
   }
 
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   @Get('github')
   @UseGuards(AuthGuard('github'))
   async moveToGithubLogin() {
@@ -98,7 +102,7 @@ export class AuthController {
   }
 
   /** github login page에서 로그인에 성공한 후 이 endpoint로 redirection */
-  @AuthNotNeeded()
+  @AuthNotNeededIfOpenSpace()
   @Get('github-callback')
   @UseGuards(AuthGuard('github'))
   async githubLogin(
@@ -110,7 +114,35 @@ export class AuthController {
       return await this.authService.githubLogin(res, githubUser)
     } catch (error) {
       if (error instanceof UnidentifiedException) {
-        throw new UnauthorizedException(error.message)
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException('Login failed')
+    }
+  }
+
+  /** Kakao Login page로 이동 */
+  @AuthNotNeededIfOpenSpace()
+  @Get('kakao')
+  @UseGuards(AuthGuard('kakao'))
+  async moveToKakaoLogin() {
+    /* 자동으로 kakao login page로 redirection */
+  }
+
+  /** Kakao login page에서 로그인에 성공한 후 이 endpoint로 redirection */
+  @AuthNotNeededIfOpenSpace()
+  @Get('kakao-callback')
+  @UseGuards(AuthGuard('kakao'))
+  async kakaoLogin(
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: Request
+  ) {
+    try {
+      const kakaoUser = req.user as KakaoUser
+      return await this.authService.kakaoLogin(res, kakaoUser)
+    } catch (error) {
+      if (error instanceof UnidentifiedException) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException('Login failed')

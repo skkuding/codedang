@@ -25,7 +25,7 @@ jobs:
 
       - name: Setup Next.js build cache
         if: ${{ matrix.target == 'frontend-client' }}
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: frontend-client/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
@@ -64,8 +64,10 @@ jobs:
       - name: Check types (frontend)
         run: pnpm --filter frontend exec vue-tsc --noEmit
 
-      - name: Check types (frontend-client)
-        run: pnpm --filter frontend-client exec tsc --noEmit
+      # Typecheck is not performed for frontend-client intentionally.
+      # Check: https://github.com/vercel/next.js/issues/53959
+      # Unlike backend, we don't have spec file to check types.
+      # So typechecking performed in the build step is enough.
 
   lint:
     name: Lint
@@ -106,6 +108,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
+      TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
 
     services:
       postgres:

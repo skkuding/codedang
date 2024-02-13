@@ -3,432 +3,151 @@ import {
   Get,
   Post,
   Param,
-  UseGuards,
   Body,
   Req,
-  ParseIntPipe,
   NotFoundException,
   InternalServerErrorException,
-  ConflictException,
-  ForbiddenException,
-  Logger
+  Logger,
+  Query,
+  DefaultValuePipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { AuthenticatedRequest, GroupMemberGuard } from '@libs/auth'
+import { AuthenticatedRequest } from '@libs/auth'
 import {
   ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
+import {
+  CursorValidationPipe,
+  GroupIDPipe,
+  IDValidationPipe,
+  RequiredIntPipe
+} from '@libs/pipe'
 import { CreateSubmissionDto } from './dto/create-submission.dto'
 import { SubmissionService } from './submission.service'
 
-@Controller('problem/:problemId/submission')
-export class ProblemSubmissionController {
-  private readonly logger = new Logger(ProblemSubmissionController.name)
+@Controller('submission')
+export class SubmissionController {
+  private readonly logger = new Logger(SubmissionController.name)
 
   constructor(private readonly submissionService: SubmissionService) {}
 
   @Post()
   async createSubmission(
     @Req() req: AuthenticatedRequest,
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Body() submissionDto: CreateSubmissionDto
+    @Body() submissionDto: CreateSubmissionDto,
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Query('workbookId', IDValidationPipe) workbookId: number | null
   ) {
     try {
-      return await this.submissionService.submitToProblem(
-        submissionDto,
-        req.user.id,
-        problemId
-      )
+      if (!contestId && !workbookId) {
+        return await this.submissionService.submitToProblem(
+          submissionDto,
+          req.user.id,
+          problemId,
+          groupId
+        )
+      } else if (contestId) {
+        return await this.submissionService.submitToContest(
+          submissionDto,
+          req.user.id,
+          problemId,
+          contestId,
+          groupId
+        )
+      } else if (workbookId) {
+        return await this.submissionService.submitToWorkbook(
+          submissionDto,
+          req.user.id,
+          problemId,
+          workbookId,
+          groupId
+        )
+      }
     } catch (error) {
       if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
+        throw error.convert2HTTPException()
       }
       if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get()
-  async getSubmissions(@Param('problemId', ParseIntPipe) problemId: number) {
-    return await this.submissionService.getSubmissions(problemId)
-  }
-
-  @Get(':id')
-  async getSubmission(
-    @Req() req: AuthenticatedRequest,
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('id') id: number
-  ) {
-    try {
-      return await this.submissionService.getSubmission(
-        id,
-        problemId,
-        req.user.id
-      )
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-}
-
-@Controller('group/:groupId/problem/:problemId/submission')
-@UseGuards(GroupMemberGuard)
-export class GroupProblemSubmissionController {
-  private readonly logger = new Logger(GroupProblemSubmissionController.name)
-
-  constructor(private readonly submissionService: SubmissionService) {}
-
-  @Post()
-  async createSubmission(
-    @Req() req: AuthenticatedRequest,
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Body() submissionDto: CreateSubmissionDto
-  ) {
-    try {
-      return await this.submissionService.submitToProblem(
-        submissionDto,
-        req.user.id,
-        problemId,
-        groupId
-      )
-    } catch (error) {
-      if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get()
-  async getSubmissions(
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('problemId', ParseIntPipe) problemId: number
-  ) {
-    return await this.submissionService.getSubmissions(problemId, groupId)
-  }
-
-  @Get(':id')
-  async getSubmission(
-    @Req() req: AuthenticatedRequest,
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('id') id: number
-  ) {
-    try {
-      return await this.submissionService.getSubmission(
-        id,
-        problemId,
-        req.user.id,
-        groupId
-      )
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-}
-
-@Controller('contest/:contestId/problem/:problemId/submission')
-export class ContestSubmissionController {
-  private readonly logger = new Logger(ContestSubmissionController.name)
-
-  constructor(private readonly submissionService: SubmissionService) {}
-
-  @Post()
-  async createSubmission(
-    @Req() req: AuthenticatedRequest,
-    @Param('contestId', ParseIntPipe) contestId: number,
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Body() submissionDto: CreateSubmissionDto
-  ) {
-    try {
-      return await this.submissionService.submitToContest(
-        submissionDto,
-        req.user.id,
-        problemId,
-        contestId
-      )
-    } catch (error) {
-      if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
-      } else if (
-        error instanceof EntityNotExistException ||
         (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.name == 'NotFoundError')
+          error.name == 'NotFoundError') ||
+        error instanceof EntityNotExistException
       ) {
-        throw new NotFoundException(error)
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
+  }
+
+  @Get('delay-cause')
+  async checkDelay() {
+    return await this.submissionService.checkDelay()
   }
 
   @Get()
   async getSubmissions(
     @Req() req: AuthenticatedRequest,
-    @Param('contestId', ParseIntPipe) contestId: number,
-    @Param('problemId', ParseIntPipe) problemId: number
-  ) {
-    return await this.submissionService.getContestSubmissions(
-      problemId,
-      contestId,
-      req.user.id
-    )
-  }
-
-  @Get(':id')
-  async getSubmission(
-    @Req() req: AuthenticatedRequest,
-    @Param('contestId', ParseIntPipe) contestId: number,
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('id') id: number
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number,
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('contestId', IDValidationPipe) contestId: number | null
   ) {
     try {
-      return await this.submissionService.getContestSubmission(
-        id,
+      if (contestId) {
+        return await this.submissionService.getContestSubmissions({
+          cursor,
+          take,
+          problemId,
+          contestId,
+          userId: req.user.id,
+          groupId
+        })
+      }
+      return await this.submissionService.getSubmissions({
+        cursor,
+        take,
         problemId,
-        contestId,
-        req.user.id
-      )
+        groupId
+      })
     } catch (error) {
       if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-}
-
-@Controller('group/:groupId/contest/:contestId/problem/:problemId/submission')
-@UseGuards(GroupMemberGuard)
-export class GroupContestSubmissionController {
-  private readonly logger = new Logger(GroupContestSubmissionController.name)
-
-  constructor(private readonly submissionService: SubmissionService) {}
-
-  @Post()
-  async createSubmission(
-    @Req() req: AuthenticatedRequest,
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('contestId', ParseIntPipe) contestId: number,
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Body() submissionDto: CreateSubmissionDto
-  ) {
-    try {
-      return await this.submissionService.submitToContest(
-        submissionDto,
-        req.user.id,
-        problemId,
-        contestId,
-        groupId
-      )
-    } catch (error) {
-      if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
-      } else if (
-        error instanceof EntityNotExistException ||
         (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.name == 'NotFoundError')
-      ) {
-        throw new NotFoundException(error)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get()
-  async getSubmissions(
-    @Req() req: AuthenticatedRequest,
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('contestId', ParseIntPipe) contestId: number,
-    @Param('problemId', ParseIntPipe) problemId: number
-  ) {
-    return await this.submissionService.getContestSubmissions(
-      problemId,
-      contestId,
-      req.user.id,
-      groupId
-    )
-  }
-
-  @Get(':id')
-  async getSubmission(
-    @Req() req: AuthenticatedRequest,
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('contestId', ParseIntPipe) contestId: number,
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('id') id: number
-  ) {
-    try {
-      return await this.submissionService.getContestSubmission(
-        id,
-        problemId,
-        contestId,
-        req.user.id,
-        groupId
-      )
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
+          error.name == 'NotFoundError') ||
+        error instanceof EntityNotExistException
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
-  }
-}
-
-@Controller('workbook/:workbookId/problem/:problemId/submission')
-export class WorkbookSubmissionController {
-  private readonly logger = new Logger(WorkbookSubmissionController.name)
-
-  constructor(private readonly submissionService: SubmissionService) {}
-
-  @Post()
-  async createSubmission(
-    @Req() req: AuthenticatedRequest,
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Body() submissionDto: CreateSubmissionDto
-  ) {
-    try {
-      return await this.submissionService.submitToWorkbook(
-        submissionDto,
-        req.user.id,
-        problemId,
-        workbookId
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get()
-  async getSubmissions(@Param('problemId', ParseIntPipe) problemId: number) {
-    return await this.submissionService.getSubmissions(problemId)
   }
 
   @Get(':id')
   async getSubmission(
     @Req() req: AuthenticatedRequest,
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('id') id: number
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
-      return await this.submissionService.getSubmission(
-        id,
-        problemId,
-        req.user.id
-      )
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+      if (contestId) {
+        return await this.submissionService.getContestSubmission(
+          id,
+          problemId,
+          contestId,
+          req.user.id,
+          groupId
+        )
       }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-}
-
-@Controller('group/:groupId/workbook/:workbookId/problem/:problemId/submission')
-@UseGuards(GroupMemberGuard)
-export class GroupWorkbookSubmissionController {
-  private readonly logger = new Logger(GroupWorkbookSubmissionController.name)
-
-  constructor(private readonly submissionService: SubmissionService) {}
-
-  @Post()
-  async createSubmission(
-    @Req() req: AuthenticatedRequest,
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('workbookId', ParseIntPipe) workbookId: number,
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Body() submissionDto: CreateSubmissionDto
-  ) {
-    try {
-      return await this.submissionService.submitToWorkbook(
-        submissionDto,
-        req.user.id,
-        problemId,
-        workbookId,
-        groupId
-      )
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @Get()
-  async getSubmissions(
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('problemId', ParseIntPipe) problemId: number
-  ) {
-    return await this.submissionService.getSubmissions(problemId, groupId)
-  }
-
-  @Get(':id')
-  async getSubmission(
-    @Req() req: AuthenticatedRequest,
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Param('problemId', ParseIntPipe) problemId: number,
-    @Param('id') id: number
-  ) {
-    try {
       return await this.submissionService.getSubmission(
         id,
         problemId,
@@ -437,12 +156,13 @@ export class GroupWorkbookSubmissionController {
       )
     } catch (error) {
       if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
+        (error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.name == 'NotFoundError') ||
+        error instanceof EntityNotExistException
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()

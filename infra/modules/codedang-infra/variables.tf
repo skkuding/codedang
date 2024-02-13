@@ -1,8 +1,3 @@
-variable "s3_bucket" {
-  type    = string
-  default = "codedang"
-}
-
 variable "region" {
   type = string
   # default = "ap-northeast-2"
@@ -91,4 +86,16 @@ variable "github_client_secret" {
 variable "loki_url" {
   type    = string
   default = "https://grafana.codedang.com/lokiaws/loki/api/v1/push"
+}
+
+variable "kakao_client_id" {
+  type      = string
+  default   = "kakao_client_id"
+  sensitive = true
+}
+
+variable "kakao_client_secret" {
+  type      = string
+  default   = "kakao_client_secret"
+  sensitive = true
 }

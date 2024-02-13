@@ -1,13 +1,11 @@
 import {
-  BadRequestException,
   InternalServerErrorException,
   Logger,
-  NotFoundException,
-  ParseBoolPipe,
-  ParseIntPipe,
-  UnprocessableEntityException
+  ParseBoolPipe
 } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { ContestProblem } from '@generated'
+import { Contest } from '@generated'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
@@ -15,9 +13,7 @@ import {
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
-import { CursorValidationPipe } from '@libs/pipe'
-import { ContestProblem } from '@admin/@generated'
-import { Contest } from '@admin/@generated/contest/contest.model'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
@@ -31,8 +27,17 @@ export class ContestResolver {
 
   @Query(() => [Contest])
   async getContests(
-    @Args('take', ParseIntPipe) take: number,
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    @Args(
+      'take',
+      { type: () => Int, defaultValue: 10 },
+      new RequiredIntPipe('take')
+    )
+    take: number,
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null
@@ -43,7 +48,11 @@ export class ContestResolver {
   @Mutation(() => Contest)
   async createContest(
     @Args('input') input: CreateContestInput,
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
     @Context('req') req: AuthenticatedRequest
   ) {
@@ -54,10 +63,11 @@ export class ContestResolver {
         input
       )
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof EntityNotExistException
+      ) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -66,16 +76,17 @@ export class ContestResolver {
 
   @Mutation(() => Contest)
   async updateContest(
-    @Args('groupId', ParseIntPipe) groupId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('input') input: UpdateContestInput
   ) {
     try {
       return await this.contestService.updateContest(groupId, input)
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+      if (
+        error instanceof EntityNotExistException ||
+        error instanceof UnprocessableDataException
+      ) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -84,14 +95,15 @@ export class ContestResolver {
 
   @Mutation(() => Contest)
   async deleteContest(
-    @Args('groupId', ParseIntPipe) groupId: number,
-    @Args('contestId', ParseIntPipe) contestId: number
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number
   ) {
     try {
       return await this.contestService.deleteContest(groupId, contestId)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -106,8 +118,9 @@ export class ContestResolver {
 
   @Mutation(() => PublicizingRequest)
   async createPublicizingRequest(
-    @Args('groupId', ParseIntPipe) groupId: number,
-    @Args('contestId', ParseIntPipe) contestId: number
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number
   ) {
     try {
       return await this.contestService.createPublicizingRequest(
@@ -115,10 +128,11 @@ export class ContestResolver {
         contestId
       )
     } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
-      } else if (error instanceof ConflictFoundException) {
-        throw new BadRequestException(error.message)
+      if (
+        error instanceof EntityNotExistException ||
+        error instanceof ConflictFoundException
+      ) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -128,7 +142,8 @@ export class ContestResolver {
   @Mutation(() => PublicizingResponse)
   @UseRolesGuard()
   async handlePublicizingRequest(
-    @Args('contestId', ParseIntPipe) contestId: number,
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number,
     @Args('isAccepted', ParseBoolPipe) isAccepted: boolean
   ) {
     try {
@@ -138,7 +153,7 @@ export class ContestResolver {
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -147,8 +162,9 @@ export class ContestResolver {
 
   @Mutation(() => [ContestProblem])
   async importProblemsToContest(
-    @Args('groupId', ParseIntPipe) groupId: number,
-    @Args('contestId', ParseIntPipe) contestId: number,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number,
     @Args('problemIds', { type: () => [Int] }) problemIds: number[]
   ) {
     try {
@@ -159,7 +175,7 @@ export class ContestResolver {
       )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
-        throw new NotFoundException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
