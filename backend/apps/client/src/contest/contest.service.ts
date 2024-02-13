@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { type Contest, Prisma } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
@@ -263,9 +263,7 @@ export class ContestService {
     }))
   }
 
-  filterOngoing(
-    contests: Array<Partial<Contest> & Pick<Contest, 'startTime' | 'endTime'>>
-  ) {
+  filterOngoing(contests: ContestResult[]) {
     const now = new Date()
     const ongoingContest = contests
       .filter((contest) => contest.startTime <= now && contest.endTime > now)
@@ -273,9 +271,7 @@ export class ContestService {
     return ongoingContest
   }
 
-  filterUpcoming(
-    contests: Array<Partial<Contest> & Pick<Contest, 'startTime'>>
-  ) {
+  filterUpcoming(contests: ContestResult[]) {
     const now = new Date()
     const upcomingContest = contests
       .filter((contest) => contest.startTime > now)
