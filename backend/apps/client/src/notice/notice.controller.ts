@@ -3,7 +3,6 @@ import {
   Get,
   Query,
   Param,
-  ParseIntPipe,
   NotFoundException,
   InternalServerErrorException,
   Logger,
@@ -12,7 +11,7 @@ import {
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthNotNeededIfOpenSpace } from '@libs/auth'
-import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { NoticeService } from './notice.service'
 
 @Controller('notice')
@@ -26,7 +25,8 @@ export class NoticeController {
   async getNotices(
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number,
     @Query('fixed', new DefaultValuePipe(false), ParseBoolPipe) fixed: boolean,
     @Query('search') search?: string
   ) {
@@ -47,7 +47,7 @@ export class NoticeController {
   @Get(':id')
   async getNoticeByID(
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
       return await this.noticeService.getNoticeByID(id, groupId)

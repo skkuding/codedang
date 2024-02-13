@@ -5,7 +5,6 @@ import {
   Logger,
   NotFoundException,
   ParseArrayPipe,
-  ParseIntPipe,
   UnprocessableEntityException,
   UsePipes,
   ValidationPipe
@@ -20,7 +19,7 @@ import {
   ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
-import { CursorValidationPipe } from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestProblem, Problem, WorkbookProblem } from '@admin/@generated'
 import {
   CreateProblemInput,
@@ -39,7 +38,7 @@ export class ProblemResolver {
   @Mutation(() => Problem)
   async createProblem(
     @Context('req') req: AuthenticatedRequest,
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
     groupId: number,
     @Args('input') input: CreateProblemInput
   ) {
@@ -67,7 +66,7 @@ export class ProblemResolver {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async uploadProblems(
     @Context('req') req: AuthenticatedRequest,
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
     groupId: number,
     @Args('input') input: UploadFileInput
   ) {
@@ -88,7 +87,7 @@ export class ProblemResolver {
 
   @Query(() => [Problem])
   async getProblems(
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
     groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
@@ -100,9 +99,9 @@ export class ProblemResolver {
 
   @Query(() => Problem)
   async getProblem(
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
     groupId: number,
-    @Args('id', ParseIntPipe) id: number
+    @Args('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
       return await this.problemService.getProblem(id, groupId)
@@ -120,7 +119,7 @@ export class ProblemResolver {
 
   @Mutation(() => Problem)
   async updateProblem(
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
     groupId: number,
     @Args('input') input: UpdateProblemInput
   ) {
@@ -145,9 +144,9 @@ export class ProblemResolver {
 
   @Mutation(() => Problem)
   async deleteProblem(
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, ParseIntPipe)
+    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
     groupId: number,
-    @Args('id', ParseIntPipe) id: number
+    @Args('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
       return await this.problemService.deleteProblem(id, groupId)
@@ -168,10 +167,11 @@ export class ProblemResolver {
     @Args(
       'groupId',
       { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      ParseIntPipe
+      GroupIDPipe
     )
     groupId: number,
-    @Args('workbookId', { type: () => Int }, ParseIntPipe) workbookId: number
+    @Args('workbookId', { type: () => Int }, new RequiredIntPipe('workbookId'))
+    workbookId: number
   ) {
     try {
       return this.problemService.getWorkbookProblems(groupId, workbookId)
@@ -193,10 +193,11 @@ export class ProblemResolver {
     @Args(
       'groupId',
       { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      ParseIntPipe
+      GroupIDPipe
     )
     groupId: number,
-    @Args('workbookId', { type: () => Int }, ParseIntPipe) workbookId: number,
+    @Args('workbookId', { type: () => Int }, new RequiredIntPipe('workbookId'))
+    workbookId: number,
     // orders는 항상 workbookId에 해당하는 workbookProblems들이 모두 딸려 온다.
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
@@ -224,10 +225,11 @@ export class ProblemResolver {
     @Args(
       'groupId',
       { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      ParseIntPipe
+      GroupIDPipe
     )
     groupId: number,
-    @Args('contestId', { type: () => Int }, ParseIntPipe) contestId: number
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number
   ) {
     try {
       return this.problemService.getContestProblems(groupId, contestId)
@@ -249,10 +251,11 @@ export class ProblemResolver {
     @Args(
       'groupId',
       { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      ParseIntPipe
+      GroupIDPipe
     )
     groupId: number,
-    @Args('contestId', { type: () => Int }, ParseIntPipe) contestId: number,
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number,
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
     try {

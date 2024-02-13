@@ -183,10 +183,37 @@ const record: ContestRecord = {
   contestId,
   userId,
   acceptedProblemNum: 0,
+  score: 0,
   totalPenalty: 0,
   createTime: new Date(),
   updateTime: new Date()
 }
+const sortedContestRecordsWithUserDetail = [
+  {
+    user: {
+      id: 13,
+      username: 'user10'
+    },
+    score: 36,
+    totalPenalty: 720
+  },
+  {
+    user: {
+      id: 12,
+      username: 'user09'
+    },
+    score: 33,
+    totalPenalty: 660
+  },
+  {
+    user: {
+      id: 11,
+      username: 'user08'
+    },
+    score: 30,
+    totalPenalty: 600
+  }
+]
 
 const mockPrismaService = {
   contest: {
@@ -330,10 +357,17 @@ describe('ContestService', () => {
 
     it('should return contest', async () => {
       mockPrismaService.contest.findUniqueOrThrow.resolves(contestDetail)
-
-      expect(await service.getContest(groupId, contestId)).to.deep.equal(
-        contestDetail
+      mockPrismaService.contestRecord.findMany.resolves(
+        sortedContestRecordsWithUserDetail
       )
+
+      expect(await service.getContest(groupId, contestId)).to.deep.equal({
+        ...contestDetail,
+        standings: sortedContestRecordsWithUserDetail.map((record, index) => ({
+          ...record,
+          standing: index + 1
+        }))
+      })
     })
   })
 

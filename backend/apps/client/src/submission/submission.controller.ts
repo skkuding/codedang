@@ -11,7 +11,6 @@ import {
   ForbiddenException,
   Logger,
   Query,
-  ParseIntPipe,
   DefaultValuePipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
@@ -21,7 +20,12 @@ import {
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
-import { CursorValidationPipe, GroupIDPipe, IDValidationPipe } from '@libs/pipe'
+import {
+  CursorValidationPipe,
+  GroupIDPipe,
+  IDValidationPipe,
+  RequiredIntPipe
+} from '@libs/pipe'
 import { CreateSubmissionDto } from './dto/create-submission.dto'
 import { SubmissionService } from './submission.service'
 
@@ -35,7 +39,7 @@ export class SubmissionController {
   async createSubmission(
     @Req() req: AuthenticatedRequest,
     @Body() submissionDto: CreateSubmissionDto,
-    @Query('problemId', ParseIntPipe) problemId: number,
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IDValidationPipe) contestId: number | null,
     @Query('workbookId', IDValidationPipe) workbookId: number | null
@@ -85,8 +89,9 @@ export class SubmissionController {
   async getSubmissions(
     @Req() req: AuthenticatedRequest,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
-    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
-    @Query('problemId', ParseIntPipe) problemId: number,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number,
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IDValidationPipe) contestId: number | null
   ) {
@@ -125,10 +130,10 @@ export class SubmissionController {
   @Get(':id')
   async getSubmission(
     @Req() req: AuthenticatedRequest,
-    @Query('problemId', ParseIntPipe) problemId: number,
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('contestId', IDValidationPipe) contestId: number | null,
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
       if (contestId) {

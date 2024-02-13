@@ -214,10 +214,7 @@ export class ContestService {
     return upcomingContest
   }
 
-  async getContest(
-    id: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<Partial<Contest>> {
+  async getContest(id: number, groupId = OPEN_SPACE_ID) {
     const contest = await this.prisma.contest.findUniqueOrThrow({
       where: {
         id,
@@ -232,8 +229,43 @@ export class ContestService {
         description: true
       }
     })
+    // get contest participants ranking using ContestRecord
+    const sortedContestRecordsWithUserDetail =
+      await this.prisma.contestRecord.findMany({
+        where: {
+          contestId: id
+        },
+        select: {
+          user: {
+            select: {
+              id: true,
+              username: true
+            }
+          },
+          score: true,
+          totalPenalty: true
+        },
+        orderBy: [
+          {
+            score: 'desc'
+          },
+          {
+            totalPenalty: 'asc'
+          }
+        ]
+      })
 
-    return contest
+    const UsersWithStandingDetail = sortedContestRecordsWithUserDetail.map(
+      (contestRecord, index) => ({
+        ...contestRecord,
+        standing: index + 1
+      })
+    )
+    // combine contest and sortedContestRecordsWithUserDetail
+    return {
+      ...contest,
+      standings: UsersWithStandingDetail
+    }
   }
 
   async createContestRecord(
