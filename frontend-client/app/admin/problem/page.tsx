@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function Page() {
   // 현재 이부분에서 tags data를 가져오지 못함
-  const data: { problems: Problem[] } = await fetcher
+  const { problems }: { problems: Problem[] } = await fetcher
     .get('problem', {
       searchParams: {
         take: 10,
@@ -18,8 +18,6 @@ export default async function Page() {
       }
     })
     .json()
-
-  const problems: Problem[] = data.problems
 
   return (
     <div className="container mx-auto py-10">
