@@ -5,7 +5,7 @@ import Link from 'next/link'
 import ProblemCard from './ProblemCard'
 
 const getProblems = async () => {
-  const res: { problems: WorkbookProblem[] } = await fetcher
+  const { problems }: { problems: WorkbookProblem[] } = await fetcher
     .get('problem', {
       searchParams: {
         take: 3,
@@ -14,7 +14,7 @@ const getProblems = async () => {
     })
     .json()
 
-  return res.problems
+  return problems
 }
 
 export default async function ProblemCards() {
