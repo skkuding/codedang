@@ -10,6 +10,16 @@ get {
   auth: none
 }
 
+query {
+  ~groupId: 2
+  ~search: hello
+}
+
+assert {
+  res("registeredOngoing"): isDefined
+  res("registeredUpcoming"): isDefined
+}
+
 script:pre-request {
   await require("./login").loginUser(req);
 }

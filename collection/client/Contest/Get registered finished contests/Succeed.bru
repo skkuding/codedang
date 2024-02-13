@@ -19,13 +19,13 @@ query {
 
 assert {
   res.status: eq 200
-  res("finished")[0].id: isNumber
-  res("finished")[0].title: isString
-  res("finished")[0].startTime: isString
-  res("finished")[0].endTime: isString
-  res("finished")[0].group.id: isNumber
-  res("finished")[0].group.groupName: isString
-  res("finished")[0].participants: isNumber
+  res.body[0].id: isNumber
+  res.body[0].title: isString
+  res.body[0].startTime: isString
+  res.body[0].endTime: isString
+  res.body[0].group.id: isNumber
+  res.body[0].group.groupName: isString
+  res.body[0].participants: isNumber
 }
 
 script:pre-request {
