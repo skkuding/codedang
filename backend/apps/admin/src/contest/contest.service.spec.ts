@@ -70,8 +70,9 @@ const problem: Problem = {
   exposeTime: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  inputExamples: ['input'],
-  outputExamples: ['input'],
+  samples: [],
+  // inputExamples: ['input'],
+  // outputExamples: ['input'],
   submissionCount: 0,
   acceptedCount: 0,
   acceptedRate: 0
