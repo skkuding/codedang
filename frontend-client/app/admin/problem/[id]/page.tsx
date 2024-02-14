@@ -39,26 +39,10 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
+import type { TemplateLanguage } from '../utils'
+import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
 
-export const inputStyle =
-  'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
-
-export const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
-export const languageOptions = [
-  'C',
-  'Cpp',
-  'Golang',
-  'Java',
-  'Python2',
-  'Python3'
-]
-
-export interface TemplateLanguage {
-  language: Language
-  isVisible: boolean
-}
-
-export interface UpdateProblemInput {
+interface UpdateProblemInput {
   id: number
   title: string
   visible: boolean
@@ -80,7 +64,7 @@ export interface UpdateProblemInput {
   template?: Template[]
 }
 
-export interface GetProblem {
+interface GetProblem {
   title: string
   // visible: boolean
   difficulty: Level
@@ -97,15 +81,6 @@ export interface GetProblem {
   source: string
   template: string[]
 }
-
-export const GET_TAGS = gql`
-  query GetTags {
-    getTags {
-      id
-      name
-    }
-  }
-`
 
 const GET_PROBLEM = gql`
   query GetProblem($groupId: Int!, $id: Int!) {

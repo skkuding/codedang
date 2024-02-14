@@ -37,12 +37,12 @@ import { MdHelpOutline } from 'react-icons/md'
 import { PiWarningBold } from 'react-icons/pi'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import type { TemplateLanguage } from '../[id]/page'
-import { GET_TAGS, inputStyle, languageOptions, levels } from '../[id]/page'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
+import type { TemplateLanguage } from '../utils'
+import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
 
-export interface CreateProblemInput {
+interface CreateProblemInput {
   title: string
   visible: boolean
   difficulty: Level
