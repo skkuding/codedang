@@ -21,7 +21,7 @@ const schema = z.object({
     .max(6, { message: 'Code must be 6 characters long' })
 })
 
-const timeLimit = 3000
+const timeLimit = 300
 
 export default function SignUpEmailVerify() {
   const [timer, setTimer] = useState(timeLimit)
