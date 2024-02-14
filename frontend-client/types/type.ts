@@ -131,3 +131,30 @@ export interface ContestClarification {
   createTime: string
   updateTime: string
 }
+
+export interface Tag {
+  id: number
+  name: string
+}
+
+export interface Sample {
+  input: string
+  output: string
+}
+
+export interface Testcase {
+  input: string
+  output: string
+  scoreWeight?: number
+}
+
+export interface Snippet {
+  id: number
+  text: string
+  locked: boolean
+}
+
+export interface Template {
+  language: Language
+  code: Snippet[]
+}

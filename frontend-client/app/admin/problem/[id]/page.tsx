@@ -16,7 +16,14 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { fetcherGql, cn } from '@/lib/utils'
-import type { Level, Language } from '@/types/type'
+import type {
+  Level,
+  Language,
+  Testcase,
+  Sample,
+  Template,
+  Tag
+} from '@/types/type'
 import { gql } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
@@ -33,38 +40,22 @@ import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
 
-const inputStyle =
+export const inputStyle =
   'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
 
-// dummy data
-const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
-const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
+export const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
+export const languageOptions = [
+  'C',
+  'Cpp',
+  'Golang',
+  'Java',
+  'Python2',
+  'Python3'
+]
 
-interface Tag {
-  id: number
-  name: string
-}
-
-interface Example {
-  input: string
-  output: string
-  scoreWeight?: number
-}
-
-interface Snippet {
-  id: number
-  text: string
-  locked: boolean
-}
-
-interface Template {
+export interface TemplateLanguage {
   language: Language
-  code: Snippet[]
-}
-
-interface TemplateLanguage {
-  language: Language
-  showTemplate: boolean
+  isVisible: boolean
 }
 
 export interface UpdateProblemInput {
@@ -80,8 +71,8 @@ export interface UpdateProblemInput {
   description: string
   inputDescription: string
   outputDescription: string
-  samples: Example[]
-  testcases: Example[]
+  samples: Sample[]
+  testcases: Testcase[]
   timeLimit: number
   memoryLimit: number
   hint?: string
@@ -98,8 +89,8 @@ export interface GetProblem {
   description: string
   inputDescription: string
   outputDescription: string
-  problemTestcase: Example[]
-  // problemSample: Example[]
+  problemTestcase: Testcase[]
+  // problemSample: Sample[]
   timeLimit: number
   memoryLimit: number
   hint: string
@@ -107,13 +98,11 @@ export interface GetProblem {
   template: string[]
 }
 
-const GET_TAGS = gql`
+export const GET_TAGS = gql`
   query GetTags {
     getTags {
       id
       name
-      createTime
-      updateTime
     }
   }
 `
@@ -201,10 +190,21 @@ const schema = z.object({
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
   samples: z
-    .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
+    .array(
+      z.object({
+        input: z.string().min(1),
+        output: z.string().min(1)
+      })
+    )
     .min(1),
   testcases: z
-    .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
+    .array(
+      z.object({
+        input: z.string().min(1),
+        output: z.string().min(1),
+        scoreWeight: z.number().optional()
+      })
+    )
     .min(1),
   timeLimit: z.number().min(0),
   memoryLimit: z.number().min(0),
@@ -239,8 +239,8 @@ export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
   const [showHint, setShowHint] = useState<boolean>(true)
   const [showSource, setShowSource] = useState<boolean>(true)
-  const [samples, setSamples] = useState<Example[]>([{ input: '', output: '' }])
-  const [testcases, setTestcases] = useState<Example[]>([
+  const [samples, setSamples] = useState<Sample[]>([{ input: '', output: '' }])
+  const [testcases, setTestcases] = useState<Testcase[]>([
     { input: '', output: '' }
   ])
   const [tags, setTags] = useState<Tag[]>([])
@@ -288,9 +288,7 @@ export default function Page({ params }: { params: { id: string } }) {
       setLanguages(
         data.getProblem.languages.map((language: Language) => ({
           language,
-          showTemplate: fetchedTemplateLanguage.includes(language)
-            ? true
-            : false
+          isVisible: fetchedTemplateLanguage.includes(language) ? true : false
         }))
       )
     })
@@ -516,13 +514,13 @@ export default function Page({ params }: { params: { id: string } }) {
                         setLanguages(
                           selectedLanguages.map((language) => ({
                             language,
-                            showTemplate:
+                            isVisible:
                               languages.filter(
                                 (prev) => prev.language === language
                               ).length > 0
                                 ? languages.filter(
                                     (prev) => prev.language === language
-                                  )[0].showTemplate
+                                  )[0].isVisible
                                 : false
                           })) as TemplateLanguage[]
                         )
@@ -799,7 +797,7 @@ export default function Page({ params }: { params: { id: string } }) {
                                 templateLanguage.language
                                   ? {
                                       ...prevLanguage,
-                                      showTemplate: !prevLanguage.showTemplate
+                                      isVisible: !prevLanguage.isVisible
                                     }
                                   : prevLanguage
                               )
@@ -815,11 +813,11 @@ export default function Page({ params }: { params: { id: string } }) {
                               ]
                             })
                           }}
-                          checked={templateLanguage.showTemplate}
+                          checked={templateLanguage.isVisible}
                           className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
                         />
                       </div>
-                      {templateLanguage.showTemplate && (
+                      {templateLanguage.isVisible && (
                         <Textarea
                           placeholder={`Enter a ${templateLanguage.language} template...`}
                           className="h-[180px] w-[480px] bg-white"
@@ -827,7 +825,7 @@ export default function Page({ params }: { params: { id: string } }) {
                         />
                       )}
                     </div>
-                    {templateLanguage.showTemplate && (
+                    {templateLanguage.isVisible && (
                       <div className="flex flex-col gap-3">
                         <Label>Locked</Label>
                         <div className="flex items-center gap-2">
