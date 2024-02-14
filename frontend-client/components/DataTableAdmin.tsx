@@ -11,11 +11,13 @@ import {
 } from '@/components/ui/table'
 import { fetcherGql } from '@/lib/utils'
 import { gql } from '@apollo/client'
-import {
+import type {
   ColumnDef,
   ColumnFiltersState,
   SortingState,
-  VisibilityState,
+  VisibilityState
+} from '@tanstack/react-table'
+import {
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,

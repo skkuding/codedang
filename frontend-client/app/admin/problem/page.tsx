@@ -1,6 +1,6 @@
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { fetcher } from '@/lib/utils'
-import { Problem } from '@/types/type'
+import type { Problem } from '@/types/type'
 import * as React from 'react'
 import { columns } from './_components/Columns'
 
@@ -81,15 +81,13 @@ export default async function Page() {
   // }, [])
 
   // TODO:  Codedang Admin Get Problems API에 problemTags내용이 추가되면 Admin에서 가져오기 (현재는 problemTag 전부 null로 돼있음)
-  const data: { problems: Problem[] } = await fetcher
+  const { problems }: { problems: Problem[] } = await fetcher
     .get('problem', {
       searchParams: {
         take: 15
       }
     })
     .json()
-
-  const problems: Problem[] = data.problems
 
   return (
     <div className="container mx-auto py-10">
