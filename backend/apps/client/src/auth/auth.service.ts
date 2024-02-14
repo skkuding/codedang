@@ -58,7 +58,7 @@ export class AuthService {
     if (!(await this.isValidRefreshToken(refreshToken, userId))) {
       throw new InvalidJwtTokenException('Unidentified refresh token')
     }
-    return await this.createJwtTokens(userId, username)
+    return await this.createJwtTokens(userId, username, refreshToken)
   }
 
   async verifyJwtToken(token: string, options: JwtVerifyOptions = {}) {
@@ -74,16 +74,23 @@ export class AuthService {
   }
 
   async isValidRefreshToken(refreshToken: string, userId: number) {
-    const cachedRefreshToken = await this.cacheManager.get(
-      refreshTokenCacheKey(userId)
-    )
-    if (cachedRefreshToken !== refreshToken) {
+    const cachedRefreshTokens: string[] | undefined =
+      await this.cacheManager.get(refreshTokenCacheKey(userId))
+    if (!cachedRefreshTokens) {
+      return false
+    }
+    // if the refresh token is not in the cache, it is invalid
+    if (!(refreshToken in cachedRefreshTokens)) {
       return false
     }
     return true
   }
 
-  async createJwtTokens(userId: number, username: string) {
+  async createJwtTokens(
+    userId: number,
+    username: string,
+    oldRefreshToken?: string
+  ) {
     const payload: JwtPayload = { userId, username }
     const accessToken = await this.jwtService.signAsync(payload, {
       expiresIn: ACCESS_TOKEN_EXPIRE_TIME
@@ -92,9 +99,25 @@ export class AuthService {
       expiresIn: REFRESH_TOKEN_EXPIRE_TIME
     })
 
+    if (!oldRefreshToken) {
+      await this.cacheManager.set(
+        refreshTokenCacheKey(userId),
+        [refreshToken],
+        REFRESH_TOKEN_EXPIRE_TIME * 1000 // milliseconds
+      )
+      return { accessToken, refreshToken }
+    }
+
+    // TODO: delete old refresh token from cache
+    const existingRefreshTokens: string[] = (
+      (await this.cacheManager.get(refreshTokenCacheKey(userId))) as string[]
+    ).filter((token) => token !== oldRefreshToken)
+
     await this.cacheManager.set(
       refreshTokenCacheKey(userId),
-      refreshToken,
+      existingRefreshTokens
+        ? [...existingRefreshTokens, refreshToken]
+        : [refreshToken],
       REFRESH_TOKEN_EXPIRE_TIME * 1000 // milliseconds
     )
 
