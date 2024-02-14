@@ -58,7 +58,7 @@ export default function SignIn() {
           className="flex w-full flex-col gap-3"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <Input placeholder="ID" type="text" {...register('username')} />
+          <Input placeholder="User ID" type="text" {...register('username')} />
           <Input
             placeholder="Password"
             type="password"
