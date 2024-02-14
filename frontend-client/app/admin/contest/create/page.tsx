@@ -124,6 +124,12 @@ export default function Page() {
                 name="startTime"
                 control={control}
               />
+              {errors.startTime && (
+                <div className="flex items-center gap-1 text-xs text-red-500">
+                  <PiWarningBold />
+                  {errors.startTime.message}
+                </div>
+              )}
             </div>
             <div>
               <Label>End Time</Label>
@@ -134,6 +140,12 @@ export default function Page() {
                 name="endTime"
                 control={control}
               />
+              {errors.endTime && (
+                <div className="flex items-center gap-1 text-xs text-red-500">
+                  <PiWarningBold />
+                  {errors.endTime.message}
+                </div>
+              )}
             </div>
           </div>
 
