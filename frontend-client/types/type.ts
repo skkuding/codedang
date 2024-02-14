@@ -13,9 +13,11 @@ export interface Contest {
 
 export interface WorkbookProblem {
   order: number
-  problemId: number
+  id: number
   title: string
   difficulty: Level
+  submissionCount: number
+  acceptedRate: number
 }
 
 export interface Notice {
