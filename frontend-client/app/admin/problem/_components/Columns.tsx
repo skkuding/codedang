@@ -10,6 +10,11 @@ import { useState } from 'react'
 import { FiEyeOff } from 'react-icons/fi'
 import { FiEye } from 'react-icons/fi'
 
+interface Tag {
+  id: number
+  name: string
+}
+
 // No api for hidden (임시 hiddenCell 만듦)
 function HiddenCell() {
   const [visible, setVisible] = useState(false)
@@ -60,7 +65,7 @@ export const columns: ColumnDef<Problem>[] = [
     ),
     cell: ({ row }) => (
       <div className="flex-col">
-        <div>{row.getValue('title')}</div>
+        {row.getValue('title')}
         <div className="flex">
           <div>
             {row.original.tags?.map((tag) => (
@@ -79,10 +84,35 @@ export const columns: ColumnDef<Problem>[] = [
     enableSorting: false,
     enableHiding: false
   },
+  /**
+   * @description
+   * mad this column for filtering tags
+   * doesn't show in datatable
+   */
+  {
+    accessorKey: 'tags',
+    header: () => {},
+    cell: () => {},
+
+    filterFn: (row, id, value) => {
+      const tags = row.original.tags
+
+      if (!tags?.length) {
+        return false // 만약 태그가 없는 경우 false 반환
+      }
+
+      const tagValue = row.getValue(id)
+      const valueArray = value as number[] // value 배열로 타입 변환
+      const tagIdArray = (tagValue as Tag[]).map((tag) => tag.id) // tagValue의 id로 이루어진 배열 생성
+      const result = tagIdArray.every((tagId) => valueArray.includes(tagId)) // 모든 tagId가 valueArray에 포함되어 있는지 확인
+
+      return result
+    }
+  },
   {
     accessorKey: 'date',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Date" />
+      <DataTableColumnHeader column={column} title="Update" />
     ),
     cell: ({ row }) => row.getValue('date')
   },
@@ -118,7 +148,7 @@ export const columns: ColumnDef<Problem>[] = [
   {
     accessorKey: 'hidden',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Hidden" />
+      <DataTableColumnHeader column={column} title="Visible" />
     ),
     cell: HiddenCell
   }
