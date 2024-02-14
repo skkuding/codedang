@@ -8,8 +8,8 @@ import SideBar from './_components/SideBar'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-dvh bg-[#f2f5f9]">
-      <nav className="ml-20 flex w-60 flex-col bg-white p-2 pt-8 text-sm font-medium">
+    <div className="flex h-dvh bg-slate-100">
+      <nav className="flex w-60 flex-col bg-white p-2 pt-8 text-sm font-medium">
         {/* Todo: Group 기능 추가 시, Public Button 대신 GroupSelect 컴포넌트로 변경 */}
         {/* <GroupSelect /> */}
         <Button

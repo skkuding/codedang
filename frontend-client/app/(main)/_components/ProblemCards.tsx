@@ -25,8 +25,8 @@ export default async function ProblemCards() {
       {problems.map((problem) => {
         return (
           <Link
-            key={problem.problemId}
-            href={`/problem/${problem.problemId}` as Route}
+            key={problem.id}
+            href={`/problem/${problem.id}` as Route}
             className="inline-block w-full"
           >
             <ProblemCard problem={problem} />

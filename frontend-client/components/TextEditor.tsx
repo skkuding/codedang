@@ -1,5 +1,3 @@
-'use client'
-
 import {
   Dialog,
   DialogContent,
@@ -19,6 +17,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { Bold, Italic, List, ListOrdered, Link as LinkIcon } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { Button } from './ui/button'
+import { Skeleton } from './ui/skeleton'
 
 export default function TextEditor({
   placeholder,
@@ -75,7 +74,10 @@ export default function TextEditor({
     },
     [editor]
   )
-  if (!editor) return null
+
+  if (!editor) {
+    return <Skeleton className="h-[241px] max-w-5xl" />
+  }
 
   return (
     <div className="flex flex-col justify-stretch bg-white">
@@ -145,7 +147,7 @@ export default function TextEditor({
           </DialogContent>
         </Dialog>
       </div>
-      <EditorContent className="prose max-w-[1000px]" editor={editor} />
+      <EditorContent className="prose max-w-5xl" editor={editor} />
     </div>
   )
 }
