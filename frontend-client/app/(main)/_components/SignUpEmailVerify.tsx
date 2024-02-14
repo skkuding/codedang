@@ -6,6 +6,7 @@ import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { useInterval } from 'react-use'
 import { z } from 'zod'
 
 interface EmailVerifyInput {
@@ -43,15 +44,14 @@ export default function SignUpEmailVerify() {
   const [emailVerified, setEmailVerified] = useState<boolean>(false)
   const [emailAuthToken, setEmailAuthToken] = useState<string>('')
 
-  useEffect(() => {
-    let interval: string | number | NodeJS.Timeout | undefined
-    if (sentEmail && timer > 0) {
-      interval = setInterval(() => {
+  useInterval(
+    () => {
+      if (timer > 0) {
         setTimer((prevTimer) => prevTimer - 1)
-      }, 1000)
-    }
-    return () => clearInterval(interval)
-  }, [sentEmail, timer])
+      }
+    },
+    sentEmail ? 1000 : null
+  )
 
   useEffect(() => {
     if (timer === 0) {
@@ -199,7 +199,7 @@ export default function SignUpEmailVerify() {
         </Button>
       ) : (
         <Button
-          type="button"
+          type="submit"
           className="mb-8 mt-2 w-64"
           onClick={() => {
             setExpired(false)
