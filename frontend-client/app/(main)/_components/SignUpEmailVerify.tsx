@@ -120,6 +120,7 @@ export default function SignUpEmailVerify() {
           </div>
           <Input
             type="number"
+            className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             placeholder="Verification Code"
             {...register('verificationCode', {
               onChange: () => verifyCode()
