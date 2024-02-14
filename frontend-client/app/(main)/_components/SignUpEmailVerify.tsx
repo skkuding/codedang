@@ -107,6 +107,12 @@ export default function SignUpEmailVerify() {
           className="w-64"
           placeholder="Email Address"
           {...register('email')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              sendEmail()
+            }
+          }}
         />
       )}
       {errors.email && (
