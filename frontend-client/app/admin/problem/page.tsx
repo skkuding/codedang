@@ -13,8 +13,7 @@ export default async function Page() {
   const data: { problems: Problem[] } = await fetcher
     .get('problem', {
       searchParams: {
-        take: 10,
-        contestId: 1
+        take: 10
       }
     })
     .json()
