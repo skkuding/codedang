@@ -1,5 +1,6 @@
 'use client'
 
+import { gql } from '@generated'
 import CheckboxSelect from '@/components/CheckboxSelect'
 import OptionSelect from '@/components/OptionSelect'
 import TagsSelect from '@/components/TagsSelect'
@@ -15,9 +16,9 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { fetcherGql, cn } from '@/lib/utils'
+import { cn, client } from '@/lib/utils'
 import type { Level, Language } from '@/types/type'
-import { gql } from '@apollo/client'
+import type { CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -66,6 +67,7 @@ interface TemplateLanguage {
   showTemplate: boolean
 }
 
+// TODO: replace `ProblemData` with `CreateProblemInput` from `@generated/graphql`
 export interface ProblemData {
   title: string
   visible: boolean
@@ -84,7 +86,7 @@ export interface ProblemData {
   template?: Template[]
 }
 
-const GET_TAGS = gql`
+const GET_TAGS = gql(`
   query GetTags {
     getTags {
       id
@@ -93,9 +95,9 @@ const GET_TAGS = gql`
       updateTime
     }
   }
-`
+`)
 
-const CREATE_PROBLEM = gql`
+const CREATE_PROBLEM = gql(`
   mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
     createProblem(groupId: $groupId, input: $input) {
       id
@@ -108,7 +110,7 @@ const CREATE_PROBLEM = gql`
       hint
     }
   }
-`
+`)
 
 const schema = z.object({
   title: z.string().min(1).max(25),
@@ -156,15 +158,17 @@ export default function Page() {
   const [languages, setLanguages] = useState<TemplateLanguage[]>([])
 
   useEffect(() => {
-    fetcherGql(GET_TAGS).then((data) => {
-      const transformedData = data.getTags.map(
-        (tag: { id: string; name: string }) => ({
+    client
+      .query({
+        query: GET_TAGS
+      })
+      .then(({ data }) => {
+        const transformedData = data.getTags.map((tag) => ({
           ...tag,
-          id: Number(tag.id)
-        })
-      )
-      setTags(transformedData)
-    })
+          id: +tag.id
+        }))
+        setTags(transformedData)
+      })
   }, [])
 
   const {
@@ -188,9 +192,13 @@ export default function Page() {
   // TODO: Create Problem 에 sample, visible 추가 시 변경
   const onSubmit = async (data: ProblemData) => {
     try {
-      const res = await fetcherGql(CREATE_PROBLEM, {
-        groupId: 1,
-        input: data
+      const res = await client.query({
+        query: CREATE_PROBLEM,
+        variables: {
+          groupId: 1,
+          //TODO: replace `ProblemData` with `CreateProblemInput` from `@generated/graphql`
+          input: data as unknown as CreateProblemInput
+        }
       })
       console.log(res)
     } catch (error) {
