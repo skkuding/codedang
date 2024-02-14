@@ -50,8 +50,10 @@ const CREATE_CONTEST = gql`
 
 const schema = z.object({
   title: z.string().min(1),
-  rankVisible: z.boolean().optional(),
-  visible: z.boolean().optional(),
+  config: z.object({
+    rankVisible: z.boolean().optional(),
+    visible: z.boolean().optional()
+  }),
   description: z.string().min(1),
   startTime: z.date(),
   endTime: z.date()
