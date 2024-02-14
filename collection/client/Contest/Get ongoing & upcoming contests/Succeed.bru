@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/contest
+  url: {{baseUrl}}/contest/ongoing-upcoming
   body: none
   auth: none
 }
 
 query {
-  ~groupId: 2
+  ~groupId: 1
 }
 
 assert {
@@ -23,16 +23,19 @@ assert {
   res("ongoing")[0].group.id: isNumber
   res("ongoing")[0].group.groupName: isString
   res("ongoing")[0].participants: isNumber
+  res("ongoing"): isDefined 
+  res("upcoming"): isDefined 
 }
 
 docs {
-  # Get Ongoing & Upcoming Contests
+  ## Get Ongoing & Upcoming Contests
   
-  아직 종료되지 않은 대회들을 가져옵니다.
+  아직 종료되지 않은 대회들을 가져옵니다. 로그인은 필요하지 않으며, groupId에 해당하는 ongoing 대회와 upcoming 대회를 배열로 가져옵니다. pagination은 수행하지 않습니다.
   
-  ## Query
+  ### Query
   
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |groupId |Integer|대회가 속한 Group ID (default: 1)|
+  
 }

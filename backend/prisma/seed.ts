@@ -30,6 +30,7 @@ let publicGroup: Group
 let privateGroup: Group
 const problems: Problem[] = []
 const problemTestcases: ProblemTestcase[] = []
+const contests: Contest[] = []
 const endedContests: Contest[] = []
 const ongoingContests: Contest[] = []
 const upcomingContests: Contest[] = []
@@ -1179,6 +1180,7 @@ const createContests = async () => {
   const now = new Date()
   for (const obj of contestData) {
     const contest = await prisma.contest.create(obj)
+    contests.push(contest)
     if (now < obj.data.startTime) {
       upcomingContests.push(contest)
     } else if (obj.data.endTime < now) {
@@ -1607,21 +1609,23 @@ const createContestRecords = async () => {
     contestRecords.push(contestRecord)
     i++
   }
-  // User 1이 Future Contest에 참가한 record를 추가합니다.
-  // 그래야 upcoming contest에 참가한 User 1의 contest register를 un-register할 수 있습니다.
-  contestRecords.push(
-    await prisma.contestRecord.create({
-      data: {
-        //User1
-        userId: 4,
-        //Future Contest
-        contestId: 15,
-        acceptedProblemNum: 0,
-        score: 0,
-        totalPenalty: 0
-      }
-    })
-  )
+
+  // upcoming contest에 참가한 User 1의 contest register를 un-register하는 기능과,
+  // registered upcoming, ongoing, finished contest를 조회하는 기능을 확인하기 위함
+  const user01Id = 4
+  for (let contestId = 3; contestId <= contests.length; contestId += 2) {
+    contestRecords.push(
+      await prisma.contestRecord.create({
+        data: {
+          userId: user01Id,
+          contestId,
+          acceptedProblemNum: 0,
+          score: 0,
+          totalPenalty: 0
+        }
+      })
+    )
+  }
 
   return contestRecords
 }
