@@ -84,6 +84,11 @@ export const columns: ColumnDef<Problem>[] = [
     enableSorting: false,
     enableHiding: false
   },
+  /**
+   * @description
+   * mad this column for filtering tags
+   * doesn't show in datatable
+   */
   {
     accessorKey: 'tags',
     header: () => {},
