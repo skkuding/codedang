@@ -13,9 +13,7 @@ export class AnnouncementService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async createAnnouncement(
-    announcementInput: AnnouncementInput
-  ): Promise<AnnouncementInput> {
+  async createAnnouncement(announcementInput: AnnouncementInput) {
     const announcement = await this.prisma.announcement.findFirst({
       where: {
         problemId: announcementInput.problemId,
