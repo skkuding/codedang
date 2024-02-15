@@ -9,6 +9,7 @@ export class ProblemResponseDto {
   @Expose() inputDescription: string
   @Expose() outputDescription: string
   @Expose() hint: string
+  @Expose() engTitle: string
   @Expose() engDescription: string
   @Expose() engInputDescription: string
   @Expose() engOutputDescription: string
