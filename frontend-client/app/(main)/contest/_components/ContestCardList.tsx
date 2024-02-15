@@ -77,14 +77,14 @@ export default async function Contest({
           <CarouselNext />
         </div>
       </div>
-      <CarouselContent className="p-2">
+      <CarouselContent className="p-1">
         {contestChunks.map((contestChunk) => (
           <CarouselItem key={contestChunk[0].id} className="flex w-full gap-3">
             {contestChunk.map((contest) => (
               <Link
                 key={contest.id}
                 href={`/contest/${contest.id}` as Route}
-                className="block w-1/3 overflow-hidden"
+                className="block w-1/3 overflow-hidden p-2"
               >
                 <ContestCard contest={contest} />
               </Link>
