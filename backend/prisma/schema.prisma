@@ -179,7 +179,7 @@ model Problem {
   workbookProblem WorkbookProblem[]
   submission      Submission[]
   announcement    Announcement[]
-  CodeDraft       CodeDraft[]
+  codeDraft       CodeDraft[]
 
   @@map("problem")
 }
@@ -259,7 +259,7 @@ model Contest {
   contestProblem ContestProblem[]
   contestRecord  ContestRecord[]
   submission     Submission[]
-  // contestAnnouncement ContestAnnouncement[]
+  announcement   Announcement[]
 
   @@map("contest")
 }
@@ -282,8 +282,10 @@ model ContestProblem {
 model Announcement {
   id         Int      @id @default(autoincrement())
   content    String
-  problem    Problem  @relation(fields: [problemId], references: [id])
-  problemId  Int      @map("problem_id")
+  contest    Contest  @relation(fields: [contestId], references: [id])
+  contestId  Int      @map("contest_id")
+  problem    Problem? @relation(fields: [problemId], references: [id])
+  problemId  Int?     @map("problem_id")
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
