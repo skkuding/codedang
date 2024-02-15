@@ -118,7 +118,6 @@ export class ProblemService {
 
     const header = {}
     const problems: CreateProblemInput[] = []
-    // const testcases: { [key: number]: Testcase[] } = {}
 
     const workbook = new Workbook()
     const worksheet = (await workbook.xlsx.read(createReadStream()))

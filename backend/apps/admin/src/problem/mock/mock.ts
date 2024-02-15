@@ -42,8 +42,6 @@ export const problems: Problem[] = [
     updateTime: faker.date.past(),
     exposeTime: faker.date.anytime(),
     samples: []
-    // inputExamples: [],
-    // outputExamples: []
   },
   {
     id: 2,
@@ -67,8 +65,6 @@ export const problems: Problem[] = [
     updateTime: faker.date.past(),
     exposeTime: faker.date.anytime(),
     samples: []
-    // inputExamples: [],
-    // outputExamples: []
   }
 ]
 

@@ -71,8 +71,6 @@ const problem: Problem = {
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
   samples: [],
-  // inputExamples: ['input'],
-  // outputExamples: ['input'],
   submissionCount: 0,
   acceptedCount: 0,
   acceptedRate: 0
