@@ -12,20 +12,7 @@ permissions: # permissions to the job (for the OpenID Connection)
   contents: read
 
 jobs:
-  build-frontend:
-    name: Build frontend bundle
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-pnpm
-
-      - name: Build static bundle
-        run: pnpm --filter frontend build
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: frontend-bundle
-          path: ./frontend/dist
+  # TODO: trigger Amplify deployment
 
   build-client-api:
     name: Build client-api image
@@ -36,7 +23,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_ECR }}
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_ECR_PUSH }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -60,7 +47,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_ECR }}
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_ECR_PUSH }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -84,7 +71,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_ECR }}
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_ECR_PUSH }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -101,7 +88,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    needs: [build-frontend, build-client-api, build-admin-api, build-iris]
+    needs: [build-client-api, build-admin-api, build-iris]
     environment: production
     defaults:
       run:
@@ -112,29 +99,19 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_DEPLOY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.2
 
-      - name: Load frontend static bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-bundle
-          path: ./frontend/dist
-
       - name: Create Terraform variable file
         working-directory: ./infra/deploy
         run: |
-          echo "$TFVARS" >> terraform.tfvars
-          echo "$OAUTH_GITHUB" >> terraform.tfvars
-          echo "$OAUTH_KAKAO" >> terraform.tfvars
-        env:
-          TFVARS: ${{ secrets.TF_TFVARS }}
-          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
-          OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
+          echo "${{ secrets.TFVARS }}" >> terraform.tfvars
+          echo "${{ secrets.OAUTH_GITHUB }}" >> terraform.tfvars
+          echo "${{ secrets.OAUTH_KAKAO }}" >> terraform.tfvars
 
       - name: Terraform Init
         working-directory: ./infra/deploy

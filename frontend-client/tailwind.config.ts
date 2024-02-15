@@ -22,6 +22,9 @@ export default {
       }
     },
     extend: {
+      gridTemplateRows: {
+        editor: '3rem minmax(0, 1fr)'
+      },
       fontFamily: {
         sans: [
           'var(--font-manrope)',

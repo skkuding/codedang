@@ -1,0 +1,38 @@
+meta {
+  name: NOT_FOUND
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteProblem($groupId: Int!, $id: Int!) {
+    deleteProblem(groupId: $groupId, id: $id) {
+      id
+      createdById
+      groupId
+      title
+      description
+      inputDescription
+      outputDescription
+      hint
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 99999,
+    "id": 5
+  }
+}
+
+assert {
+  res.body.errors[0].extensions.code: eq NOT_FOUND
+  res.body.errors[0].message: eq No Problem found
+}

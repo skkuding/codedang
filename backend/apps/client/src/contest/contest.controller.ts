@@ -8,7 +8,6 @@ import {
   Get,
   Query,
   Logger,
-  ConflictException,
   DefaultValuePipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
@@ -119,7 +118,7 @@ export class ContestController {
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)

@@ -10,9 +10,10 @@ generator client {
 generator graphql {
   provider           = "prisma-nestjs-graphql"
   output             = "../apps/admin/src/@generated"
+  purgeOutput        = true
   noAtomicOperations = true
   // emitCompiled       = true
-  purgeOutput        = true
+  emitSingle         = true
   reExport           = Single
 }
 
@@ -38,6 +39,7 @@ enum Provider {
 model User {
   id         Int       @id @default(autoincrement())
   username   String    @unique
+  /// @HideField()
   password   String
   role       Role      @default(User)
   email      String    @unique
@@ -356,6 +358,7 @@ model Submission {
   ///   "locked": boolean
   /// }
   code       Json[]
+  codeSize   Int?         @map("code_size")
   language   Language
   result     ResultStatus
   createTime DateTime     @default(now()) @map("create_time")

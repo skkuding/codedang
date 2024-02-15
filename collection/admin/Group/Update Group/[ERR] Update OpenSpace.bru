@@ -1,0 +1,37 @@
+meta {
+  name: [ERR] Update OpenSpace
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    updateGroup(groupId: 1,
+    input: {
+      groupName: "Update OpenSpace"
+      description: "openspace"
+      config: {
+        allowJoinFromSearch: true
+        allowJoinWithURL: false
+        requireApprovalBeforeJoin: false
+        showOnList: true
+      }
+    }) {
+      id
+      groupName
+      description
+      config
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.errors: isDefined
+}

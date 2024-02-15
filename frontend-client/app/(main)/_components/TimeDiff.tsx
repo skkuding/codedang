@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function TimeDiff({ timeRef }: Props) {
-  const [now, setNow] = useState(timeRef)
+  const [now, setNow] = useState(new Date())
 
   useInterval(() => {
     setNow(new Date())
@@ -25,8 +25,8 @@ export default function TimeDiff({ timeRef }: Props) {
     .padStart(2, '0')
 
   return (
-    <>
-      {days}D {hours + diff.format(':mm:ss')}
-    </>
+    <span suppressHydrationWarning>
+      {days}d {hours + diff.format(':mm:ss')}
+    </span>
   )
 }

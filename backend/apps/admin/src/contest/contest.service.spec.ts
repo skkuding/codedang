@@ -1,5 +1,8 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
+import { ContestProblem, Group } from '@generated'
+import { Problem } from '@generated'
+import { Contest } from '@generated'
 import { faker } from '@faker-js/faker'
 import { Prisma } from '@prisma/client'
 import type { Cache } from 'cache-manager'
@@ -7,9 +10,6 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { ContestProblem, Group } from '@admin/@generated'
-import { Problem } from '@admin/@generated'
-import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
 import type {
   CreateContestInput,
