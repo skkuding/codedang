@@ -148,6 +148,7 @@ model Problem {
   inputDescription  String     @map("input_description")
   outputDescription String     @map("output_description")
   hint              String
+  isVisible         Boolean    @default(true) @map("is_visible")
   /// template code item structure
   /// {
   ///   "lanaguage": Language,
