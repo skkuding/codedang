@@ -14,6 +14,7 @@ export interface Contest {
   endTime: Date
   group: { id: string; groupName: string }
   status: ContestStatus
+  participants: number
 }
 
 export interface WorkbookProblem {
