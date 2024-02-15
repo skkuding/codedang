@@ -32,7 +32,12 @@ export const problems: Problem[] = [
     inputExamples: [],
     outputExamples: [],
     template: [],
-    isVisible: true
+    isVisible: true,
+    engTitle: null,
+    engDescription: null,
+    engHint: null,
+    engInputDescription: null,
+    engOutputDescription: null
   },
   {
     id: 2,
@@ -57,7 +62,12 @@ export const problems: Problem[] = [
     inputExamples: [],
     outputExamples: [],
     template: [],
-    isVisible: true
+    isVisible: true,
+    engTitle: null,
+    engDescription: null,
+    engHint: null,
+    engInputDescription: null,
+    engOutputDescription: null
   }
 ]
 

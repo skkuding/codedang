@@ -598,10 +598,15 @@ const createProblems = async () => {
     await prisma.problem.create({
       data: {
         title: '정수 더하기',
+        engTitle: 'Integer Addition',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/1-description.html'),
+          'utf-8'
+        ),
+        engDescription: await readFile(
+          join(fixturePath, 'problem/1-description-eng.html'),
           'utf-8'
         ),
         difficulty: Level.Level1,
@@ -609,8 +614,16 @@ const createProblems = async () => {
           join(fixturePath, 'problem/1-input.html'),
           'utf-8'
         ),
+        engInputDescription: await readFile(
+          join(fixturePath, 'problem/1-input-eng.html'),
+          'utf-8'
+        ),
         outputDescription: await readFile(
           join(fixturePath, 'problem/1-output.html'),
+          'utf-8'
+        ),
+        engOutputDescription: await readFile(
+          join(fixturePath, 'problem/1-output-eng.html'),
           'utf-8'
         ),
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
