@@ -228,6 +228,7 @@ export class ProblemService {
         title,
         description,
         inputDescription: '',
+        isVisible: true,
         outputDescription: '',
         hint: '',
         template,

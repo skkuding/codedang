@@ -119,8 +119,6 @@ export const importedProblems: Problem[] = [
     updateTime: faker.date.past(),
     exposeTime: faker.date.anytime(),
     samples: [],
-    inputExamples: [],
-    outputExamples: [],
     isVisible: true
   },
   {
