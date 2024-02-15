@@ -1,11 +1,13 @@
 import {
   InternalServerErrorException,
   Logger,
+  NotFoundException,
   ParseBoolPipe
 } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { ContestProblem } from '@generated'
 import { Contest } from '@generated'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
@@ -15,6 +17,7 @@ import {
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { ContestService } from './contest.service'
+import { ContestWithParticipants } from './model/contest-with-participants.model'
 import { CreateContestInput } from './model/contest.input'
 import { UpdateContestInput } from './model/contest.input'
 import { PublicizingRequest } from './model/publicizing-request.model'
@@ -25,7 +28,7 @@ export class ContestResolver {
   private readonly logger = new Logger(ContestResolver.name)
   constructor(private readonly contestService: ContestService) {}
 
-  @Query(() => [Contest])
+  @Query(() => [ContestWithParticipants])
   async getContests(
     @Args(
       'take',
@@ -43,6 +46,23 @@ export class ContestResolver {
     cursor: number | null
   ) {
     return await this.contestService.getContests(take, groupId, cursor)
+  }
+
+  @Query(() => ContestWithParticipants)
+  async getContest(
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number
+  ) {
+    try {
+      return await this.contestService.getContest(contestId)
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code == 'P2025'
+      ) {
+        throw new NotFoundException(error.message)
+      }
+    }
   }
 
   @Mutation(() => Contest)
@@ -96,7 +116,7 @@ export class ContestResolver {
   @Mutation(() => Contest)
   async deleteContest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    @Args('contestId', { type: () => Int })
     contestId: number
   ) {
     try {
@@ -119,7 +139,7 @@ export class ContestResolver {
   @Mutation(() => PublicizingRequest)
   async createPublicizingRequest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    @Args('contestId', { type: () => Int })
     contestId: number
   ) {
     try {
@@ -142,7 +162,7 @@ export class ContestResolver {
   @Mutation(() => PublicizingResponse)
   @UseRolesGuard()
   async handlePublicizingRequest(
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    @Args('contestId', { type: () => Int })
     contestId: number,
     @Args('isAccepted', ParseBoolPipe) isAccepted: boolean
   ) {
@@ -163,7 +183,7 @@ export class ContestResolver {
   @Mutation(() => [ContestProblem])
   async importProblemsToContest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    @Args('contestId', { type: () => Int })
     contestId: number,
     @Args('problemIds', { type: () => [Int] }) problemIds: number[]
   ) {
