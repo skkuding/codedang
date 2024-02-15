@@ -8,7 +8,7 @@ import type {
 } from '@generated'
 import { Level } from '@generated'
 import { expect } from 'chai'
-import { stub } from 'sinon'
+import { spy, stub } from 'sinon'
 import {
   EntityNotExistException,
   UnprocessableDataException
@@ -480,6 +480,8 @@ describe('ProblemService', () => {
     it('shoule return imported problems', async () => {
       const userId = 2
       const groupId = 2
+      const s3UploadCache = stub(storageService, 'uploadObject').resolves()
+      const createTestcasesSpy = spy(service, 'createTestcases')
       db.problem.create.resetHistory()
       db.problem.create.onCall(0).resolves(importedProblems[0])
       db.problem.create.onCall(1).resolves(importedProblems[1])
@@ -487,6 +489,8 @@ describe('ProblemService', () => {
 
       const res = await service.uploadProblems(fileUploadInput, userId, groupId)
 
+      expect(s3UploadCache.calledTwice).to.be.true
+      expect(createTestcasesSpy.calledTwice).to.be.true
       expect(res).to.deep.equal(importedProblems)
     })
   })

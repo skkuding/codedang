@@ -117,8 +117,8 @@ export class ProblemService {
       )
 
     const header = {}
-    const problems: { index: number; data: CreateProblemInput }[] = []
-    const testcases: { [key: number]: Testcase[] } = {}
+    const problems: CreateProblemInput[] = []
+    // const testcases: { [key: number]: Testcase[] } = {}
 
     const workbook = new Workbook()
     const worksheet = (await workbook.xlsx.read(createReadStream()))
@@ -190,23 +190,6 @@ export class ProblemService {
       }
 
       //TODO: specify timeLimit, memoryLimit(default: 2sec, 512mb)
-      const problemInput = {
-        title,
-        description,
-        inputDescription: '',
-        outputDescription: '',
-        hint: '',
-        template,
-        languages,
-        timeLimit: 2000,
-        memoryLimit: 512,
-        difficulty: level,
-        source: '',
-        testcases: [],
-        tagIds: [],
-        samples: []
-      }
-      problems.push({ index: rowNumber, data: problemInput })
 
       const testCnt = parseInt(row.getCell(header['TestCnt']).text)
       const inputText = row.getCell(header['Input']).text
@@ -241,16 +224,28 @@ export class ProblemService {
           scoreWeight: parseInt(scoreWeights[i])
         })
       }
-      testcases[rowNumber] = testcaseInput
+
+      problems.push({
+        title,
+        description,
+        inputDescription: '',
+        outputDescription: '',
+        hint: '',
+        template,
+        languages,
+        timeLimit: 2000,
+        memoryLimit: 512,
+        difficulty: level,
+        source: '',
+        testcases: testcaseInput,
+        tagIds: [],
+        samples: []
+      })
     })
 
     return await Promise.all(
-      problems.map(async (problemInput) => {
-        const { index, data } = problemInput
+      problems.map(async (data) => {
         const problem = await this.createProblem(data, userId, groupId)
-        if (index in testcases) {
-          await this.createTestcases(problem.id, testcases[index])
-        }
         return problem
       })
     )
