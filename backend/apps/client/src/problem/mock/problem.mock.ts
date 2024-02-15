@@ -31,7 +31,8 @@ export const problems: Problem[] = [
     updateTime: faker.date.past(),
     inputExamples: [],
     outputExamples: [],
-    template: []
+    template: [],
+    isVisible: true
   },
   {
     id: 2,
@@ -55,7 +56,8 @@ export const problems: Problem[] = [
     updateTime: faker.date.past(),
     inputExamples: [],
     outputExamples: [],
-    template: []
+    template: [],
+    isVisible: true
   }
 ]
 
