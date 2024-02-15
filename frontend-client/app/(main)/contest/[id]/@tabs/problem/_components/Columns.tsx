@@ -1,16 +1,24 @@
 'use client'
 
 import { Badge } from '@/components/ui/badge'
+import { convertToLetter } from '@/lib/utils'
 import type { ContestProblem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
 export const columns: ColumnDef<ContestProblem>[] = [
   {
+    header: '#',
+    accessorKey: 'order',
+    cell: ({ row }) => (
+      <div className="h-full">{convertToLetter(row.original.order)}</div>
+    )
+  },
+  {
     header: 'Title',
     accessorKey: 'title',
     cell: ({ row }) => {
       return (
-        <p className="text-left text-sm md:text-base">{`${row.original.order}. ${row.original.title}`}</p>
+        <p className="text-left text-sm md:text-base">{`${row.original.title}`}</p>
       )
     }
   },
@@ -41,6 +49,6 @@ export const columns: ColumnDef<ContestProblem>[] = [
   {
     header: () => 'Solved',
     accessorKey: 'acceptedRate',
-    cell: ({ row }) => `${row.original.acceptedRate}%`
+    cell: ({ row }) => `${row.original.acceptedRate.toFixed(2)}%`
   }
 ]

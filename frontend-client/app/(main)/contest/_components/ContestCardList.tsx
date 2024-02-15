@@ -39,7 +39,9 @@ export default async function Contest({
   for (let i = 0; i < data.length; i += 3)
     contestChunks.push(data.slice(i, i + 3))
 
-  return (
+  return data.length === 0 ? (
+    <></>
+  ) : (
     <Carousel>
       <div className="mb-5 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-700">{title}</h1>
