@@ -324,9 +324,7 @@ export class ContestService {
       userRecords[userId][problemId].push(data)
     })
 
-    contestRecords.forEach((contestRecord, index) => {
-      if (contestRecord.user === null) return
-
+    const standings = contestRecords.map((contestRecord, index) => {
       const userRecord = userRecords[contestRecord.user.id]
       const problemRecord: {
         problemId: number
@@ -367,7 +365,7 @@ export class ContestService {
       }
     })
 
-    return contestRecords
+    return standings
   }
 
   async isVisible(contestId: number, groupId: number): Promise<boolean> {
