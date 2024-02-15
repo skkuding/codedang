@@ -1,5 +1,5 @@
-import icon from '@/app/favicon.ico'
 import { fetcher } from '@/lib/utils'
+import codedangLogo from '@/public/codedang-editor.svg'
 import type { ProblemDetail } from '@/types/type'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -21,7 +21,7 @@ export default async function layout({
       <header className="flex justify-between bg-slate-900 px-4">
         <div className="flex items-center justify-center gap-6 font-bold text-slate-500">
           <Link href="/">
-            <Image src={icon} alt="코드당" width={33} />
+            <Image src={codedangLogo} alt="코드당" width={33} />
           </Link>
           <div className="flex items-center gap-1">
             <Link href="/problem">Problem</Link>
