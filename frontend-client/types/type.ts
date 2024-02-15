@@ -1,5 +1,6 @@
 export type ContestStatus = 'ongoing' | 'upcoming' | 'finished'
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
+export type Language = 'C' | 'Cpp' | 'Golang' | 'Java' | 'Python2' | 'Python3'
 
 export interface Contest {
   id: number
@@ -12,9 +13,11 @@ export interface Contest {
 
 export interface WorkbookProblem {
   order: number
-  problemId: number
+  id: number
   title: string
   difficulty: Level
+  submissionCount: number
+  acceptedRate: number
 }
 
 export interface Notice {

@@ -424,6 +424,7 @@ describe('ProblemService', () => {
       inputDescription: problems[0].inputDescription,
       outputDescription: problems[0].outputDescription,
       hint: problems[0].hint,
+      isVisible: false,
       template: problems[0].template,
       languages: problems[0].languages,
       timeLimit: problems[0].timeLimit,

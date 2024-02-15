@@ -26,7 +26,11 @@ export default function Page() {
           href={item.path}
           className={cn(
             'rounded px-4 py-2 transition',
-            pathname === item.path
+            (
+              item.path === '/admin'
+                ? pathname === item.path
+                : pathname.startsWith(item.path)
+            )
               ? 'bg-primary text-white hover:opacity-95'
               : 'text-slate-600 hover:bg-slate-100'
           )}
