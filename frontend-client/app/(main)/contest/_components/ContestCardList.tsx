@@ -63,7 +63,12 @@ export default async function Contest({
 }) {
   const data = (
     session ? await getRegisteredContests() : await getContests()
-  ).filter((contest) => contest.status.toLowerCase() === type.toLowerCase())
+  ).filter(
+    (contest) =>
+      contest.status.toLowerCase() === 'registered' + type.toLowerCase() ||
+      contest.status.toLowerCase() === type.toLowerCase()
+  )
+
   const contestChunks = []
   for (let i = 0; i < data.length; i += 3)
     contestChunks.push(data.slice(i, i + 3))
