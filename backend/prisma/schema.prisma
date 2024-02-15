@@ -169,8 +169,6 @@ model Problem {
   exposeTime        DateTime   @default(now()) @map("expose_time")
   createTime        DateTime   @default(now()) @map("create_time")
   updateTime        DateTime   @updatedAt @map("update_time")
-  // inputExamples     String[]   @map("input_examples")
-  // outputExamples    String[]   @map("output_examples")
 
   samples         ExampleIO[]
   problemTestcase ProblemTestcase[]
