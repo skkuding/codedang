@@ -80,7 +80,7 @@ export class AuthService {
       return false
     }
     // if the refresh token is not in the cache, it is invalid
-    if (!(refreshToken in cachedRefreshTokens)) {
+    if (cachedRefreshTokens.indexOf(refreshToken) === -1) {
       return false
     }
     return true
