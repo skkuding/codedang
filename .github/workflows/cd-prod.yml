@@ -36,7 +36,7 @@ jobs:
           file: ./backend/Dockerfile
           push: true
           build-args: 'target=client'
-          tags: ${{ steps.login-ecr.outputs.registry }}/codedang-admin-api:latest
+          tags: ${{ steps.login-ecr.outputs.registry }}/codedang-client-api:latest
 
   build-admin-api:
     name: Build admin-api image
