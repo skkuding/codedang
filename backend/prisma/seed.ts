@@ -30,6 +30,7 @@ let publicGroup: Group
 let privateGroup: Group
 const problems: Problem[] = []
 const problemTestcases: ProblemTestcase[] = []
+const contests: Contest[] = []
 const endedContests: Contest[] = []
 const ongoingContests: Contest[] = []
 const upcomingContests: Contest[] = []
@@ -1239,6 +1240,7 @@ const createContests = async () => {
   const now = new Date()
   for (const obj of contestData) {
     const contest = await prisma.contest.create(obj)
+    contests.push(contest)
     if (now < obj.data.startTime) {
       upcomingContests.push(contest)
     } else if (obj.data.endTime < now) {
@@ -1252,7 +1254,7 @@ const createContests = async () => {
   for (const problem of problems) {
     await prisma.contestProblem.create({
       data: {
-        order: problem.id,
+        order: problem.id - 1,
         contestId: ongoingContests[0].id,
         problemId: problem.id
       }
@@ -1291,14 +1293,14 @@ const createWorkbooks = async () => {
   for (const problem of problems) {
     await prisma.workbookProblem.create({
       data: {
-        order: problem.id,
+        order: problem.id - 1,
         workbookId: workbooks[0].id,
         problemId: problem.id
       }
     })
     await prisma.workbookProblem.create({
       data: {
-        order: problem.id,
+        order: problem.id - 1,
         workbookId: privateWorkbooks[0].id,
         problemId: problem.id
       }
@@ -1572,7 +1574,7 @@ const createAnnouncements = async () => {
       await prisma.announcement.create({
         data: {
           content: `Announcement_0_${i}`,
-          problemId: problems[i].id
+          contestId: ongoingContests[i].id
         }
       })
     )
@@ -1582,7 +1584,12 @@ const createAnnouncements = async () => {
     announcements.push(
       await prisma.announcement.create({
         data: {
-          content: `Announcement_1_${i}`,
+          content: `Announcement_1_${i}...
+아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.
+모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.
+법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.
+일반사면을 명하려면 국회의 동의를 얻어야 한다. 연소자의 근로는 특별한 보호를 받는다.`,
+          contestId: ongoingContests[i].id,
           problemId: problems[i].id
         }
       })
@@ -1666,6 +1673,23 @@ const createContestRecords = async () => {
     })
     contestRecords.push(contestRecord)
     i++
+  }
+
+  // upcoming contest에 참가한 User 1의 contest register를 un-register하는 기능과,
+  // registered upcoming, ongoing, finished contest를 조회하는 기능을 확인하기 위함
+  const user01Id = 4
+  for (let contestId = 3; contestId <= contests.length; contestId += 2) {
+    contestRecords.push(
+      await prisma.contestRecord.create({
+        data: {
+          userId: user01Id,
+          contestId,
+          acceptedProblemNum: 0,
+          score: 0,
+          totalPenalty: 0
+        }
+      })
+    )
   }
 
   return contestRecords

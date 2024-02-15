@@ -107,3 +107,12 @@ export const fetcherGql = async (
   })
   return data
 }
+
+export const convertToLetter = (n: number) => {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  const firstDigit = Math.floor(n / 26) - 1
+
+  return firstDigit >= 0
+    ? alphabet[firstDigit] + alphabet[n % 26]
+    : alphabet[n % 26]
+}

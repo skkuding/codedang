@@ -29,7 +29,8 @@ export const problems: Problem[] = [
     exposeTime: new Date('2000-01-01'),
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    template: []
+    template: [],
+    isVisible: true
   },
   {
     id: 2,
@@ -51,7 +52,8 @@ export const problems: Problem[] = [
     exposeTime: new Date('2000-01-01'),
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    template: []
+    template: [],
+    isVisible: true
   }
 ]
 

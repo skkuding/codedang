@@ -30,6 +30,7 @@ export const problems: Problem[] = [
     acceptedRate: 0.5,
     exposeTime: new Date(),
     createTime: faker.date.past(),
-    updateTime: faker.date.past()
+    updateTime: faker.date.past(),
+    isVisible: true
   }
 ]

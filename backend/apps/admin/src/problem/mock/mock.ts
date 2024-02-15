@@ -41,7 +41,8 @@ export const problems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     exposeTime: faker.date.anytime(),
-    samples: []
+    samples: [],
+    isVisible: true
   },
   {
     id: 2,
@@ -64,7 +65,8 @@ export const problems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     exposeTime: faker.date.anytime(),
-    samples: []
+    samples: [],
+    isVisible: true
   }
 ]
 
@@ -116,7 +118,10 @@ export const importedProblems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     exposeTime: faker.date.anytime(),
-    samples: []
+    samples: [],
+    inputExamples: [],
+    outputExamples: [],
+    isVisible: true
   },
   {
     id: 33,
@@ -155,6 +160,7 @@ export const importedProblems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     exposeTime: faker.date.anytime(),
-    samples: []
+    samples: [],
+    isVisible: true
   }
 ]

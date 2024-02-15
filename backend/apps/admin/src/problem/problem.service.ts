@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Language } from '@generated'
-import type { ContestProblem, WorkbookProblem } from '@generated'
+import type { ContestProblem, Tag, WorkbookProblem } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
 import { Workbook } from 'exceljs'
@@ -540,20 +540,18 @@ export class ProblemService {
       where: { id: contestId, groupId }
     })
 
-    const contestProblemsToBeUpdated =
-      await this.prisma.contestProblem.findMany({
-        where: { contestId }
-      })
+    const contestProblems = await this.prisma.contestProblem.findMany({
+      where: { contestId }
+    })
 
-    if (orders.length !== contestProblemsToBeUpdated.length) {
+    if (orders.length !== contestProblems.length) {
       throw new UnprocessableDataException(
-        'the len of orders and the len of contestProblem are not equal.'
+        'the length of orders and the length of contestProblem are not equal.'
       )
     }
-    //problemId 기준으로 오름차순 정렬
-    contestProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
-    const queries = contestProblemsToBeUpdated.map((record) => {
-      const newOrder = orders.indexOf(record.problemId) + 1
+
+    const queries = contestProblems.map((record) => {
+      const newOrder = orders.indexOf(record.problemId)
       return this.prisma.contestProblem.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -567,5 +565,9 @@ export class ProblemService {
     })
 
     return await this.prisma.$transaction(queries)
+  }
+
+  async getTags(): Promise<Partial<Tag>[]> {
+    return await this.prisma.tag.findMany()
   }
 }
