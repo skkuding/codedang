@@ -84,7 +84,7 @@ export default async function Contest({
               <Link
                 key={contest.id}
                 href={`/contest/${contest.id}` as Route}
-                className="block w-1/3"
+                className="block w-1/3 overflow-hidden"
               >
                 <ContestCard contest={contest} />
               </Link>
