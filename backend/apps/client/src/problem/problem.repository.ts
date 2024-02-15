@@ -187,6 +187,7 @@ export class ProblemRepository {
     return await this.prisma.contestProblem.findMany({
       ...paginator,
       take,
+      orderBy: { order: 'asc' },
       where: {
         contestId,
         problem: {

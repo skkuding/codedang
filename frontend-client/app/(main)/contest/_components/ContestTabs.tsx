@@ -35,13 +35,13 @@ export default function ContestTabs({ contestId }: { contestId: string }) {
         Problem
       </Link>
       <Link
-        href={`/contest/${id}/clarification` as Route}
+        href={`/contest/${id}/announcement` as Route}
         className={cn(
           'text-lg text-gray-400',
-          isCurrentTab('clarification') && 'text-primary'
+          isCurrentTab('announcement') && 'text-primary'
         )}
       >
-        Clarification
+        Announcement
       </Link>
       <Link
         href={`/contest/${id}/standings` as Route}
