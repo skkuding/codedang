@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default async function ProblemTable({ search, order }: Props) {
-  const problems: Problem[] = await fetcher
+  const { problems }: { problems: Problem[] } = await fetcher
     .get('problem', {
       searchParams: {
         take: 10,
