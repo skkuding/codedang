@@ -43,7 +43,12 @@ export const problems: Problem[] = [
     exposeTime: faker.date.anytime(),
     inputExamples: [],
     outputExamples: [],
-    isVisible: true
+    isVisible: true,
+    engTitle: null,
+    engDescription: null,
+    engHint: null,
+    engInputDescription: null,
+    engOutputDescription: null
   },
   {
     id: 2,
@@ -68,7 +73,12 @@ export const problems: Problem[] = [
     exposeTime: faker.date.anytime(),
     inputExamples: [],
     outputExamples: [],
-    isVisible: true
+    isVisible: true,
+    engTitle: null,
+    engDescription: null,
+    engHint: null,
+    engInputDescription: null,
+    engOutputDescription: null
   }
 ]
 
@@ -122,7 +132,12 @@ export const importedProblems: Problem[] = [
     exposeTime: faker.date.anytime(),
     inputExamples: [],
     outputExamples: [],
-    isVisible: true
+    isVisible: true,
+    engTitle: null,
+    engDescription: null,
+    engHint: null,
+    engInputDescription: null,
+    engOutputDescription: null
   },
   {
     id: 33,
@@ -163,6 +178,11 @@ export const importedProblems: Problem[] = [
     exposeTime: faker.date.anytime(),
     inputExamples: [],
     outputExamples: [],
-    isVisible: true
+    isVisible: true,
+    engTitle: null,
+    engDescription: null,
+    engHint: null,
+    engInputDescription: null,
+    engOutputDescription: null
   }
 ]
