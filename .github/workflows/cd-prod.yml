@@ -102,6 +102,9 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Trigger Amplify Frontend Build
+        run: curl -X curl -X POST -d {} "${{ secrets.AMPLIFY_WEBHOOK }}""
+
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.2
