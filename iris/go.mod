@@ -1,6 +1,6 @@
 module github.com/skkuding/codedang/iris
 
-go 1.22.0
+go 1.22
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.25.0
