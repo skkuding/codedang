@@ -33,11 +33,44 @@ export class ContestService {
   async getContests(take: number, groupId: number, cursor: number | null) {
     const paginator = this.prisma.getPaginator(cursor)
 
-    return await this.prisma.contest.findMany({
+    const contests = await this.prisma.contest.findMany({
       ...paginator,
       where: { groupId },
-      take
+      take,
+      include: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: { contestRecord: true }
+        }
+      }
     })
+
+    return contests.map((contest) => {
+      const { _count, ...data } = contest
+      return {
+        ...data,
+        participants: _count.contestRecord
+      }
+    })
+  }
+
+  async getContest(contestId: number) {
+    const { _count, ...data } = await this.prisma.contest.findFirstOrThrow({
+      where: {
+        id: contestId
+      },
+      include: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: {
+          select: { contestRecord: true }
+        }
+      }
+    })
+
+    return {
+      ...data,
+      participants: _count.contestRecord
+    }
   }
 
   async createContest(
