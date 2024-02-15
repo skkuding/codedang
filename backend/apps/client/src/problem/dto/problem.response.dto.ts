@@ -9,6 +9,10 @@ export class ProblemResponseDto {
   @Expose() inputDescription: string
   @Expose() outputDescription: string
   @Expose() hint: string
+  @Expose() engDescription: string
+  @Expose() engInputDescription: string
+  @Expose() engOutputDescription: string
+  @Expose() engHint: string
   @Expose() languages: Language[]
   @Expose() timeLimit: number
   @Expose() memoryLimit: number

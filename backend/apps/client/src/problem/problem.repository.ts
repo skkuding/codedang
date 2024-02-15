@@ -22,6 +22,7 @@ export class ProblemRepository {
   private readonly problemsSelectOption = {
     id: true,
     title: true,
+    engTitle: true,
     exposeTime: true,
     difficulty: true,
     acceptedRate: true,
@@ -34,6 +35,10 @@ export class ProblemRepository {
     inputDescription: true,
     outputDescription: true,
     hint: true,
+    engDescription: true,
+    engInputDescription: true,
+    engOutputDescription: true,
+    engHint: true,
     languages: true,
     timeLimit: true,
     memoryLimit: true,
