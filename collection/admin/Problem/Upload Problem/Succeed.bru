@@ -1,0 +1,30 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Apollo-Require-Preflight: true
+}
+
+body:multipart-form {
+  operations: { "query": "mutation($groupId: Int!, $input: UploadFileInput!) { uploadProblems(groupId: $groupId, input: $input){id createdById groupId title description template languages difficulty}}", "variables" : {"groupId": 2, "input": {"file": null}}}
+  map: { "nfile" : ["variables.input.file"]}
+  nfile: @file(\\wsl.localhost\Ubuntu\home\lhstar\SKKU\SKKUDING\codedang\backend\apps\admin\src\problem\mock\testdata.xlsx)
+}
+
+docs {
+  ## Upload Problem
+  Problem을 업로드합니다. 
+  
+  ### Error Cases
+  #### UNPROCESSABLE
+  파일의 확장자가 엑셀이 아니거나, 파일 내 특정 데이터가 형식에 맞지 않을 경우 줄 번호와 함께 에러를 반환합니다.
+}
