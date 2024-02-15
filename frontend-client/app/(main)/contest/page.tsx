@@ -1,4 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton'
+import { auth } from '@/lib/auth'
 import { Suspense } from 'react'
 import ContestCardList from './_components/ContestCardList'
 import FinishedContestTable from './_components/FinishedContestTable'
@@ -40,17 +41,23 @@ function FinishedContestTableFallback() {
   )
 }
 
-export default function Contest() {
+export default async function Contest() {
+  const session = await auth()
   return (
     <>
       <div className="mb-12 flex flex-col gap-12">
         <Suspense fallback={<ContestCardListFallback />}>
-          <ContestCardList title="Join the contest now!" type="Ongoing" />
+          <ContestCardList
+            title="Join the contest now!"
+            type="Ongoing"
+            session={session}
+          />
         </Suspense>
         <Suspense fallback={<ContestCardListFallback />}>
           <ContestCardList
             title="Check out upcoming contests"
             type="Upcoming"
+            session={session}
           />
         </Suspense>
       </div>

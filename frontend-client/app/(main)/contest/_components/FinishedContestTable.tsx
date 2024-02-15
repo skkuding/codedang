@@ -23,7 +23,8 @@ export default async function FinishedContestTable() {
           title: 'text-left w-2/5 md:w-3/6',
           startTime: 'w-1/5 md:w-1/6',
           endTime: 'w-1/5 md:w-1/6',
-          participants: 'w-1/5 md:w-1/6'
+          participants: 'w-1/5 md:w-1/6',
+          status: 'w-1/4 md:w-1/6'
         }}
         name="contest"
       />
