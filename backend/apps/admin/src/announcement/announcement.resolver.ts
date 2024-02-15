@@ -19,7 +19,9 @@ export class AnnouncementResolver {
     announcementInput: AnnouncementInput
   ) {
     try {
-      return await this.announcementService.create(announcementInput)
+      return await this.announcementService.createAnnouncement(
+        announcementInput
+      )
     } catch (error) {
       if (error instanceof DuplicateFoundException || EntityNotExistException) {
         throw error.convert2HTTPException()
@@ -34,7 +36,9 @@ export class AnnouncementResolver {
     @Args('problemId', { type: () => Int }) problemId: number
   ) {
     try {
-      return await this.announcementService.findAll(problemId)
+      return await this.announcementService.getAnnouncementsByProblemId(
+        problemId
+      )
     } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -44,7 +48,7 @@ export class AnnouncementResolver {
   @Query(() => Announcement, { name: 'getAnnouncement' })
   async getAnnouncement(@Args('id', { type: () => Int }) id: number) {
     try {
-      return await this.announcementService.findOne(id)
+      return await this.announcementService.getAnnouncement(id)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw error.convert2HTTPException()
@@ -60,7 +64,10 @@ export class AnnouncementResolver {
     @Args('announcementInput') announcementInput: AnnouncementInput
   ) {
     try {
-      return await this.announcementService.update(id, announcementInput)
+      return await this.announcementService.updateAnnouncement(
+        id,
+        announcementInput
+      )
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw error.convert2HTTPException()
@@ -73,7 +80,7 @@ export class AnnouncementResolver {
   @Mutation(() => Announcement)
   async removeAnnouncement(@Args('id', { type: () => Int }) id: number) {
     try {
-      return await this.announcementService.delete(id)
+      return await this.announcementService.removeAnnouncement(id)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw error.convert2HTTPException()

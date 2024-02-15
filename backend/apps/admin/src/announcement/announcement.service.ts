@@ -13,7 +13,7 @@ export class AnnouncementService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(
+  async createAnnouncement(
     announcementInput: AnnouncementInput
   ): Promise<AnnouncementInput> {
     const announcement = await this.prisma.announcement.findFirst({
@@ -44,7 +44,7 @@ export class AnnouncementService {
     })
   }
 
-  async findAll(problemId: number) {
+  async getAnnouncementsByProblemId(problemId: number) {
     return await this.prisma.announcement.findMany({
       where: {
         problemId
@@ -52,7 +52,7 @@ export class AnnouncementService {
     })
   }
 
-  async findOne(id: number) {
+  async getAnnouncement(id: number) {
     const announcement = await this.prisma.announcement
       .findFirstOrThrow({
         where: {
@@ -67,7 +67,7 @@ export class AnnouncementService {
     return announcement
   }
 
-  async update(id: number, announcementInput: AnnouncementInput) {
+  async updateAnnouncement(id: number, announcementInput: AnnouncementInput) {
     try {
       return await this.prisma.announcement.update({
         where: { id },
@@ -80,7 +80,7 @@ export class AnnouncementService {
     }
   }
 
-  async delete(id: number) {
+  async removeAnnouncement(id: number) {
     try {
       return await this.prisma.announcement.delete({
         where: { id }

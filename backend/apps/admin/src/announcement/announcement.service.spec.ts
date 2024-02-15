@@ -46,6 +46,8 @@ const PrismaErrorInstance = new PrismaClientKnownRequestError('error', {
   clientVersion: 'x.x.x'
 })
 
+PrismaErrorInstance.name = 'NotFoundError'
+
 describe('AnnouncementService', () => {
   let service: AnnouncementService
 
@@ -66,32 +68,32 @@ describe('AnnouncementService', () => {
       db.announcement.findFirst.resolves(null)
       db.problem.findFirstOrThrow.resolves(problem)
 
-      const res = await service.create(announcementInput)
+      const res = await service.createAnnouncement(announcementInput)
       expect(res).to.deep.equal(announcement)
     })
 
     it('should throw error when given announcement already exists', async () => {
       db.announcement.findFirst.resolves(announcement)
 
-      await expect(service.create(announcementInput)).to.be.rejectedWith(
-        DuplicateFoundException
-      )
+      await expect(
+        service.createAnnouncement(announcementInput)
+      ).to.be.rejectedWith(DuplicateFoundException)
     })
 
     it('should throw error when given problemId is invalid', async () => {
       db.announcement.findFirst.resolves(null)
       db.problem.findFirstOrThrow.rejects(PrismaErrorInstance)
 
-      await expect(service.create(announcementInput)).to.be.rejectedWith(
-        EntityNotExistException
-      )
+      await expect(
+        service.createAnnouncement(announcementInput)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 
   describe('findAll', () => {
     it('should return all announcements', async () => {
       db.announcement.findMany()
-      const res = await service.findAll(problemId)
+      const res = await service.getAnnouncementsByProblemId(problemId)
       expect(res).to.deep.equal([announcement])
     })
   })
@@ -99,13 +101,13 @@ describe('AnnouncementService', () => {
   describe('findOne', () => {
     it('should throw error when given id is invalid', async () => {
       db.announcement.findFirstOrThrow.rejects(PrismaErrorInstance)
-      await expect(service.findOne(id)).to.be.rejectedWith(
+      await expect(service.getAnnouncement(id)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
     it('should return an announcement', async () => {
-      db.announcement.findFirst.resolves(announcement)
-      const res = await service.findOne(id)
+      db.announcement.findFirstOrThrow.resolves(announcement)
+      const res = await service.getAnnouncement(id)
       expect(res).to.deep.equal(announcement)
     })
   })
@@ -113,26 +115,26 @@ describe('AnnouncementService', () => {
   describe('update', () => {
     it('should return updated announcement', async () => {
       db.announcement.update.resolves(announcement)
-      const res = await service.update(id, announcementInput)
+      const res = await service.updateAnnouncement(id, announcementInput)
       expect(res).to.deep.equal(announcement)
     })
     it('should throw error when given id is invalid', async () => {
       db.announcement.update.rejects(PrismaErrorInstance)
-      await expect(service.update(id, announcementInput)).to.be.rejectedWith(
-        EntityNotExistException
-      )
+      await expect(
+        service.updateAnnouncement(id, announcementInput)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 
   describe('delete', () => {
     it('should return deleted announcement', async () => {
       db.announcement.delete.resolves(announcement)
-      const res = await service.delete(id)
+      const res = await service.removeAnnouncement(id)
       expect(res).to.deep.equal(announcement)
     })
     it('should throw error when given id is invalid', async () => {
       db.announcement.delete.rejects(PrismaErrorInstance)
-      await expect(service.delete(id)).to.be.rejectedWith(
+      await expect(service.removeAnnouncement(id)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
