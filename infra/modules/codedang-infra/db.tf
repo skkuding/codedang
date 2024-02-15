@@ -59,7 +59,7 @@ resource "aws_subnet" "private_db3" {
 resource "aws_db_instance" "db-test" {
   db_name           = "codedang_db"
   engine            = "postgres"
-  engine_version    = "14.7"
+  engine_version    = "14.10"
   allocated_storage = 5
   instance_class    = "db.t4g.small"
 
