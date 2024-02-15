@@ -63,7 +63,7 @@ describe('AnnouncementService', () => {
     expect(service).to.be.ok
   })
 
-  describe('create', () => {
+  describe('createAnnouncement', () => {
     it('should return created announcement', async () => {
       db.announcement.findFirst.resolves(null)
       db.problem.findFirstOrThrow.resolves(problem)
@@ -90,7 +90,7 @@ describe('AnnouncementService', () => {
     })
   })
 
-  describe('findAll', () => {
+  describe('getAnnouncementsByProblemId', () => {
     it('should return all announcements', async () => {
       db.announcement.findMany()
       const res = await service.getAnnouncementsByProblemId(problemId)
@@ -98,7 +98,7 @@ describe('AnnouncementService', () => {
     })
   })
 
-  describe('findOne', () => {
+  describe('getAnnouncement', () => {
     it('should throw error when given id is invalid', async () => {
       db.announcement.findFirstOrThrow.rejects(PrismaErrorInstance)
       await expect(service.getAnnouncement(id)).to.be.rejectedWith(
@@ -112,7 +112,7 @@ describe('AnnouncementService', () => {
     })
   })
 
-  describe('update', () => {
+  describe('updateAnnouncement', () => {
     it('should return updated announcement', async () => {
       db.announcement.update.resolves(announcement)
       const res = await service.updateAnnouncement(id, announcementInput)
@@ -126,7 +126,7 @@ describe('AnnouncementService', () => {
     })
   })
 
-  describe('delete', () => {
+  describe('removeAnnouncement', () => {
     it('should return deleted announcement', async () => {
       db.announcement.delete.resolves(announcement)
       const res = await service.removeAnnouncement(id)
