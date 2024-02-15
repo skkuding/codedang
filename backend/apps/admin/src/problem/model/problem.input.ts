@@ -41,12 +41,6 @@ export class CreateProblemInput {
   @Field(() => String, { nullable: false })
   source!: string
 
-  // @Field(() => [String], { nullable: false })
-  // inputExamples!: Array<string>
-
-  // @Field(() => [String], { nullable: false })
-  // outputExamples!: Array<string>
-
   @Field(() => [Sample], { nullable: false })
   samples!: Array<Sample>
 
@@ -77,8 +71,6 @@ export interface UploadProblemInput {
   difficulty: keyof typeof Level
   source: string
   samples: Array<Sample>
-  // inputExamples: Array<string>
-  // outputExamples: Array<string>
 }
 
 @InputType()
@@ -147,12 +139,6 @@ export class UpdateProblemInput {
 
   @Field(() => UpdateSamples, { nullable: true })
   samples?: UpdateSamples
-
-  // @Field(() => [String], { nullable: true })
-  // inputExamples?: Array<string>
-
-  // @Field(() => [String], { nullable: true })
-  // outputExamples?: Array<string>
 
   @Field(() => [Testcase], { nullable: true })
   testcases?: Array<Testcase & { id: number }>
