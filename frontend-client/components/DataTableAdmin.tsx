@@ -154,7 +154,8 @@ export function DataTableAdmin<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => {
-                const href = `/admin/problem/${row.original.id}` as Route
+                const href =
+                  `/admin/problem/${(row.original as { id: number }).id}` as Route
                 return (
                   <TableRow
                     key={row.id}
