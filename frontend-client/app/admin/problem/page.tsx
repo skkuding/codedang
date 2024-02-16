@@ -1,27 +1,11 @@
 import { DataTableAdmin } from '@/components/DataTableAdmin'
+import { Button } from '@/components/ui/button'
 import { fetcher } from '@/lib/utils'
 import type { Problem } from '@/types/type'
+import { PlusCircleIcon } from 'lucide-react'
+import Link from 'next/link'
 import * as React from 'react'
 import { columns } from './_components/Columns'
-
-// const GET_PROBLEMS = gql`
-//   query GetProblems($groupId: Int!, $cursor: Int, $take: Int!, $input: FilterProblemsInput!) {
-//     getProblems(groupId: $groupId, cursor: $cursor, take: $take, input: $input) {
-//       id
-//       title
-//       difficulty
-//       submissionCount
-//       acceptedRate
-//       languages
-//       problemTag{
-//         tag{
-//           id
-//           name
-//         }
-//       }
-//     }
-//   }
-// `
 
 // interface DataTableProblem {
 //   id: string
@@ -90,7 +74,19 @@ export default async function Page() {
     .json()
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto space-y-5 py-10">
+      <div className="flex justify-between">
+        <div>
+          <div className="flex text-4xl font-bold">Problem List</div>
+          <p className="text-lg text-slate-500">Here&apos;s a list you made</p>
+        </div>
+        <Link href="/admin/problem/create">
+          <Button className="rounded-md bg-blue-500 px-3 py-[6px] text-white hover:bg-blue-700">
+            <PlusCircleIcon className="mr-2 h-4 w-4" />
+            Create
+          </Button>
+        </Link>
+      </div>
       <DataTableAdmin columns={columns} data={problems} />
     </div>
   )

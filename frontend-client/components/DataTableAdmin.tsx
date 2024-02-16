@@ -27,6 +27,8 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import { Route } from 'next'
+import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { DataTableFacetedFilter } from './DataTableFacetedFilter'
 import { DataTablePagination } from './DataTablePagination'
@@ -64,6 +66,8 @@ export function DataTableAdmin<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([])
   const [tags, setTags] = useState<Tag[]>([])
 
+  const router = useRouter()
+
   useEffect(() => {
     fetcherGql(GET_TAGS).then((data) => {
       const transformedData = data.getTags.map(
@@ -99,7 +103,6 @@ export function DataTableAdmin<TData, TValue>({
   })
   return (
     <div className="space-y-4">
-      {/* <DataTableToolbar table={table} /> */}
       <div className="flex gap-2">
         <Input
           placeholder="Search"
@@ -109,11 +112,14 @@ export function DataTableAdmin<TData, TValue>({
           }
           className="h-10 w-[150px] lg:w-[250px]"
         />
-        <CheckboxSelect
-          title="Language"
-          options={languageOptions}
-          onChange={() => {}}
-        />
+
+        {table.getColumn('languages') && (
+          <CheckboxSelect
+            title="Language"
+            options={languageOptions}
+            onChange={() => {}}
+          />
+        )}
 
         {table.getColumn('tags') && (
           <DataTableFacetedFilter
@@ -147,21 +153,26 @@ export function DataTableAdmin<TData, TValue>({
 
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="md:p-4">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              table.getRowModel().rows.map((row) => {
+                const href = `/admin/problem/${row.original.id}` as Route
+                return (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                    className="cursor-pointer hover:bg-gray-200"
+                    onClick={() => router.push(href)}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="md:p-4">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                )
+              })
             ) : (
               <TableRow>
                 <TableCell
