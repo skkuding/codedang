@@ -10,7 +10,9 @@ import TimeDiff from './TimeDiff'
 const variants = {
   ongoing: 'bg-gradient-to-br from-blue-500 to-blue-950',
   upcoming: 'bg-gradient-to-br from-emerald-600 to-emerald-900',
-  finished: 'bg-gray-500'
+  finished: 'bg-gray-500',
+  registeredOngoing: 'bg-gradient-to-br from-blue-500 to-blue-950',
+  registeredUpcoming: 'bg-gradient-to-br from-emerald-600 to-emerald-900'
 }
 
 interface Props {
@@ -36,7 +38,11 @@ export default function ContestCard({ contest }: Props) {
     >
       <CardHeader className="pb-0">
         <Badge type={contest.status}>
-          <p>{contest.status}</p>
+          <p>
+            {contest.status.startsWith('registered')
+              ? 'registered'
+              : contest.status}
+          </p>
         </Badge>
         <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-lg font-semibold">
           {contest.title}
