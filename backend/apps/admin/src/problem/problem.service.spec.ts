@@ -4,7 +4,10 @@ import type {
   Workbook,
   WorkbookProblem,
   Contest,
-  ContestProblem
+  ContestProblem,
+  ProblemTestcase,
+  ProblemTag,
+  Tag
 } from '@generated'
 import { Level } from '@generated'
 import { expect } from 'chai'
@@ -42,6 +45,12 @@ const db = {
     deleteMany: stub(),
     findMany: stub(),
     update: stub()
+  },
+  problemTag: {
+    findMany: stub()
+  },
+  tag: {
+    findUnique: stub()
   },
   workbook: {
     findFirstOrThrow: stub()
@@ -393,6 +402,33 @@ const exampleOrderUpdatedContestProblems: ContestProblem[] = [
     updateTime: new Date()
   }
 ]
+
+const exampleProblemTestcases: ProblemTestcase[] = [
+  {
+    id: 1,
+    problemId: 1,
+    input: '1',
+    output: '1',
+    scoreWeight: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  }
+]
+
+const exampleProblemTags: ProblemTag[] = [
+  {
+    id: 1,
+    problemId: 1,
+    tagId: 1
+  }
+]
+
+const exampleTag: Tag = {
+  id: 1,
+  name: 'brute force',
+  createTime: new Date(),
+  updateTime: new Date()
+}
 
 describe('ProblemService', () => {
   let service: ProblemService
@@ -834,6 +870,47 @@ describe('ProblemService', () => {
           [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
         )
       ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+
+  describe('getTag', () => {
+    afterEach(() => {
+      db.tag.findUnique.reset()
+    })
+
+    it('should return a tag object', async () => {
+      db.tag.findUnique.resolves(exampleTag)
+      expect(await service.getTag(1)).to.deep.equal(exampleTag)
+    })
+
+    it('should throw an EntityNotExist exception when tagId do not exist', async () => {
+      await expect(service.getTag(999)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
+  })
+
+  describe('getProblemTags', () => {
+    afterEach(() => {
+      db.problemTestcase.findMany.reset()
+    })
+
+    it('should return a problem tag array', async () => {
+      db.problemTag.findMany.resolves(exampleProblemTags)
+      expect(await service.getProblemTags(1)).to.deep.equal(exampleProblemTags)
+    })
+  })
+
+  describe('getProblemTestcases', () => {
+    afterEach(() => {
+      db.problemTestcase.findMany.reset()
+    })
+
+    it('should return a problem testcase array', async () => {
+      db.problemTestcase.findMany.resolves(exampleProblemTestcases)
+      expect(await service.getProblemTestcases(1)).to.deep.equal(
+        exampleProblemTestcases
+      )
     })
   })
 })
