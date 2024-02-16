@@ -6,6 +6,7 @@ import type { ProblemWhereInput } from '@generated'
 import { Workbook } from 'exceljs'
 import {
   DuplicateFoundException,
+  EntityNotExistException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
@@ -579,5 +580,33 @@ export class ProblemService {
 
   async getTags(): Promise<Partial<Tag>[]> {
     return await this.prisma.tag.findMany()
+  }
+
+  async getTag(tagId: number) {
+    const tag = await this.prisma.tag.findUnique({
+      where: {
+        id: tagId
+      }
+    })
+    if (tag == null) {
+      throw new EntityNotExistException('problem')
+    }
+    return tag
+  }
+
+  async getProblemTags(problemId: number) {
+    return await this.prisma.problemTag.findMany({
+      where: {
+        problemId
+      }
+    })
+  }
+
+  async getProblemTestcases(problemId: number) {
+    return await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId
+      }
+    })
   }
 }

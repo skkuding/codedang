@@ -7,8 +7,23 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
-import { Args, Context, Query, Int, Mutation, Resolver } from '@nestjs/graphql'
-import { ContestProblem, Problem, Tag, WorkbookProblem } from '@generated'
+import {
+  Args,
+  Context,
+  Query,
+  Int,
+  Mutation,
+  Resolver,
+  ResolveField,
+  Parent
+} from '@nestjs/graphql'
+import {
+  ContestProblem,
+  Problem,
+  ProblemTag,
+  ProblemTestcase,
+  WorkbookProblem
+} from '@generated'
 import { Prisma } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
@@ -303,8 +318,23 @@ export class ProblemResolver {
     }
   }
 
-  @Query(() => [Tag])
-  async getTags() {
-    return await this.problemService.getTags()
+  @ResolveField('problemTag', () => [ProblemTag])
+  async getProblemTags(@Parent() problem: Problem) {
+    try {
+      return await this.problemService.getProblemTags(problem.id)
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @ResolveField('problemTestcase', () => [ProblemTestcase])
+  async getProblemTestCases(@Parent() problem: Problem) {
+    try {
+      return await this.problemService.getProblemTestcases(problem.id)
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
   }
 }
