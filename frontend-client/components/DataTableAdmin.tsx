@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { client } from '@/lib/utils'
+import { useQuery } from '@apollo/client'
 import type {
   ColumnDef,
   ColumnFiltersState,
@@ -27,15 +27,10 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { DataTableFacetedFilter } from './DataTableFacetedFilter'
 import { DataTablePagination } from './DataTablePagination'
 import { Input } from './ui/input'
-
-interface Tag {
-  id: number
-  name: string
-}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -62,17 +57,13 @@ export function DataTableAdmin<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
-  const [tags, setTags] = useState<Tag[]>([])
 
-  useEffect(() => {
-    client.query({ query: GET_TAGS }).then(({ data }) => {
-      const transformedData = data.getTags.map(({ id, name }) => ({
-        id: +id,
-        name
-      }))
-      setTags(transformedData)
-    })
-  }, [])
+  const { data: tagsData } = useQuery(GET_TAGS)
+  const tags =
+    tagsData?.getTags.map(({ id, name }) => ({
+      id: +id,
+      name
+    })) ?? []
 
   const table = useReactTable({
     data,

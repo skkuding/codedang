@@ -16,12 +16,13 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { cn, client } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import type { Level, Language } from '@/types/type'
+import { useMutation, useQuery } from '@apollo/client'
 import type { CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -40,11 +41,6 @@ const inputStyle =
 // dummy data
 const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
 const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
-
-interface Tag {
-  id: number
-  name: string
-}
 
 interface Example {
   input: string
@@ -152,18 +148,14 @@ export default function Page() {
   const [testcases, setTestcases] = useState<Example[]>([
     { input: '', output: '' }
   ])
-  const [tags, setTags] = useState<Tag[]>([])
   const [languages, setLanguages] = useState<TemplateLanguage[]>([])
 
-  useEffect(() => {
-    client.query({ query: GET_TAGS }).then(({ data }) => {
-      const transformedData = data.getTags.map(({ id, name }) => ({
-        id: +id,
-        name
-      }))
-      setTags(transformedData)
-    })
-  }, [])
+  const { data: tagsData } = useQuery(GET_TAGS)
+  const tags =
+    tagsData?.getTags.map(({ id, name }) => ({
+      id: +id,
+      name
+    })) ?? []
 
   const {
     handleSubmit,
@@ -183,21 +175,18 @@ export default function Page() {
     }
   })
 
-  // TODO: Create Problem 에 sample, visible 추가 시 변경
+  // TODO: createProblem에 sample, visible 추가 시 변경
+  const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
   const onSubmit = async (data: ProblemData) => {
-    try {
-      const res = await client.query({
-        query: CREATE_PROBLEM,
-        variables: {
-          groupId: 1,
-          //TODO: replace `ProblemData` with `CreateProblemInput` from `@generated/graphql`
-          input: data as unknown as CreateProblemInput
-        }
-      })
-      console.log(res)
-    } catch (error) {
-      console.error(error)
-      console.log(data)
+    await createProblem({
+      variables: {
+        groupId: 1,
+        //TODO: replace `ProblemData` with `CreateProblemInput` from `@generated/graphql`
+        input: data as unknown as CreateProblemInput
+      }
+    })
+    if (error) {
+      toast.error('Failed to create problem')
     }
   }
 

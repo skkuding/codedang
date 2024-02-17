@@ -1,12 +1,9 @@
-import { ApolloClient, InMemoryCache, ApolloLink } from '@apollo/client'
-import { setContext } from '@apollo/client/link/context'
-import { createHttpLink } from '@apollo/client/link/http'
 import { type ClassValue, clsx } from 'clsx'
 import ky, { TimeoutError } from 'ky'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 import { auth } from './auth'
-import { adminBaseUrl, baseUrl } from './vars'
+import { baseUrl } from './vars'
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
@@ -54,30 +51,6 @@ export const fetcherWithAuth = fetcher.extend({
         }
       }
     ]
-  }
-})
-
-const httpLink = createHttpLink({
-  uri: adminBaseUrl
-})
-const authLink = setContext(async (_, { headers }) => {
-  const session = await auth()
-  return {
-    headers: {
-      ...headers,
-      authorization: session?.token.accessToken
-    }
-  }
-})
-const link = ApolloLink.from([authLink.concat(httpLink)])
-
-export const client = new ApolloClient({
-  cache: new InMemoryCache(),
-  link,
-  defaultContext: {
-    fetchOptions: {
-      next: { revalidate: 0 }
-    }
   }
 })
 
