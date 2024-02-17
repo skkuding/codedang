@@ -93,6 +93,8 @@ resource "aws_ecs_task_definition" "admin_api" {
   family                   = "Codedang-Admin-Api"
   requires_compatibilities = ["EC2"]
   network_mode             = "bridge"
+  cpu                      = 512
+  memory                   = 512
   container_definitions = templatefile("${path.module}/backend/admin-task-definition.tftpl", {
     task_name = "Codedang-Admin-Api",
     # aurora-posrgresql
@@ -111,6 +113,7 @@ resource "aws_ecs_task_definition" "admin_api" {
     testcase_bucket_name = aws_s3_bucket.testcase.id,
     testcase_access_key  = aws_iam_access_key.testcase.id,
     testcase_secret_key  = aws_iam_access_key.testcase.secret,
+    loki_url             = var.loki_url,
   })
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 }

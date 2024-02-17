@@ -38,6 +38,8 @@ resource "aws_ecs_task_definition" "iris" {
   family                   = "Codedang-Iris-Api"
   requires_compatibilities = ["EC2"]
   network_mode             = "bridge"
+  cpu                      = 512
+  memory                   = 512
   container_definitions = templatefile("${path.module}/iris/task-definition.tftpl", {
     ecr_uri              = data.aws_ecr_repository.iris.repository_url,
     testcase_bucket_name = aws_s3_bucket.testcase.id,
@@ -49,6 +51,7 @@ resource "aws_ecs_task_definition" "iris" {
     cloudwatch_region    = var.region,
     redis_host           = aws_elasticache_cluster.db_cache.cache_nodes.0.address,
     redis_port           = var.redis_port,
+    loki_url             = var.loki_url,
   })
   execution_role_arn = aws_iam_role.ecs_iris_task_execution_role.arn
   task_role_arn      = aws_iam_role.ecs_iris_task_role.arn

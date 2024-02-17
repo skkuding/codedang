@@ -1,9 +1,25 @@
 [
   {
+    "name": "log_router",
+    "image": "grafana/fluent-bit-plugin-loki:2.0.0-amd64",
+    "cpu": 0,
+    "memoryReservation": 50,
+    "portMappings": [],
+    "essential": true,
+    "environment": [],
+    "mountPoints": [],
+    "volumesFrom": [],
+    "user": "0",
+    "firelensConfiguration": {
+      "type": "fluentbit",
+      "options": {
+          "enable-ecs-log-metadata": "true"
+      }
+    }
+  },
+  {
     "name": "${task_name}",
     "image": "${ecr_uri}",
-    "cpu": 512,
-    "memory": 512,
     "essential": true,
     "portMappings": [
       {
@@ -45,12 +61,16 @@
       }
     ],
     "logConfiguration": {
-      "logDriver": "awslogs",
+      "logDriver": "awsfirelens",
       "options": {
-        "awslogs-group": "ecs/Codedang-Api-Admin",
-        "awslogs-region": "${cloudwatch_region}",
-        "awslogs-stream-prefix": "ecs"
-      }
+        "LabelKeys": "container_name,ecs_task_definition,source,ecs_cluster",
+        "Labels": "{job=\"firelens\"}",
+        "LineFormat": "key_value",
+        "Name": "loki",
+        "RemoveKeys": "container_id,ecs_task_arn",
+        "Url": "${loki_url}"
+      },
+      "secretOptions": []
     }
   }
 ]

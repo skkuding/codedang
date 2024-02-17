@@ -93,6 +93,8 @@ resource "aws_ecs_task_definition" "client_api" {
   family                   = "Codedang-Client-Api"
   requires_compatibilities = ["EC2"]
   network_mode             = "bridge"
+  cpu                      = 512
+  memory                   = 512
   container_definitions = templatefile("${path.module}/backend/client-task-definition.tftpl", {
     task_name = "Codedang-Client-Api",
     # aurora-posrgresql
@@ -115,6 +117,7 @@ resource "aws_ecs_task_definition" "client_api" {
     rabbitmq_api_url     = aws_mq_broker.judge_queue.instances.0.console_url,
     github_client_id     = var.github_client_id,
     github_client_secret = var.github_client_secret,
+    loki_url             = var.loki_url,
     kakao_client_id      = var.kakao_client_id,
     kakao_client_secret  = var.kakao_client_secret,
   })
