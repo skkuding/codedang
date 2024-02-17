@@ -2,8 +2,8 @@ import { DataTableColumnHeader } from '@/components/DataTableColumnHeader'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
-import { fetcherGql } from '@/lib/utils'
-import { gql } from '@apollo/client'
+// import { fetcherGql } from '@/lib/utils'
+// import { gql } from '@apollo/client'
 import type { ColumnDef } from '@tanstack/react-table'
 import { FiEyeOff } from 'react-icons/fi'
 import { FiEye } from 'react-icons/fi'
@@ -25,15 +25,15 @@ interface DataTableProblem {
   problemTag: { id: number; tag: Tag }[]
 }
 
-const EDIT_VISIBLE = gql`
-  mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
-    updateProblem(groupId: $groupId, input: $input) {
-      id
-      title
-      isVisible
-    }
-  }
-`
+// const EDIT_VISIBLE = gql`
+//   mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
+//     updateProblem(groupId: $groupId, input: $input) {
+//       id
+//       title
+//       isVisible
+//     }
+//   }
+// `
 
 export const columns: ColumnDef<DataTableProblem>[] = [
   {
@@ -182,30 +182,30 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     cell: ({ row }) => {
       const isVisible: boolean = row.getValue('isVisible')
 
-      const updateVisible = async (data: {
-        id: number
-        title: string
-        isVisible: boolean
-      }) => {
-        const res = await fetcherGql(EDIT_VISIBLE, {
-          groupId: 1,
-          input: data
-        })
-        console.log('res: ', res)
-      }
+      // const updateVisible = async (data: {
+      //   id: number
+      //   title: string
+      //   isVisible: boolean
+      // }) => {
+      //   const res = await fetcherGql(EDIT_VISIBLE, {
+      //     groupId: 1,
+      //     input: data
+      //   })
+      //   console.log('res: ', res)
+      // }
 
       return (
         <div className="flex space-x-2">
           <Switch
             id="hidden-mode"
             checked={isVisible}
-            onCheckedChange={() => {
-              updateVisible({
-                id: row.original.id,
-                title: row.original.title,
-                isVisible: !isVisible
-              })
-            }}
+            // onCheckedChange={() => {
+            //   updateVisible({
+            //     id: row.original.id,
+            //     title: row.original.title,
+            //     isVisible: !isVisible
+            //   })
+            // }}
           />
           <div className="flex items-center justify-center">
             {isVisible ? (
