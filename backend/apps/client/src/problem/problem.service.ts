@@ -16,8 +16,6 @@ import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
 import type { ProblemOrder } from './enum/problem-order.enum'
 import { ProblemRepository } from './problem.repository'
 
-// import type { ProblemOrder } from './schema/problem-order.schema'
-
 @Injectable()
 export class ProblemService {
   constructor(private readonly problemRepository: ProblemRepository) {}
