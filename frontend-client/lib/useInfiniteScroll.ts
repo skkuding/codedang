@@ -20,7 +20,7 @@ interface Item {
 export const useInfiniteScroll = <T extends Item>(
   dataType: string,
   url: URL, //url 목록
-  itemsPerPage = 10 //한번에 가져올 아이템의 개수
+  itemsPerPage = 3 //한번에 가져올 아이템의 개수
 ) => {
   const [items, setItems] = useState<T[]>([]) //T[] 형태로 return 해야 함
   //fetch datas with pageParams and url
@@ -32,6 +32,14 @@ export const useInfiniteScroll = <T extends Item>(
     const query = url.searchParams
     if (!query.has('take')) query.append('take', String(itemsPerPage))
     pageParam && pageParam > 0 && query.set('cursor', pageParam.toString())
+    if (dataType === 'problem') {
+      const data: { problems: T[] } = await fetcher
+        .get(dataType, {
+          searchParams: query
+        })
+        .json()
+      return data.problems
+    }
     const data: T[] = await fetcher
       .get(dataType, {
         searchParams: query
