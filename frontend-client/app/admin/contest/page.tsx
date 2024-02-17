@@ -1,8 +1,11 @@
 'use client'
 
 import { DataTableAdmin } from '@/components/DataTableAdmin'
+import { Button } from '@/components/ui/button'
 import { fetcherGql } from '@/lib/utils'
 import { gql } from '@apollo/client'
+import { PlusCircleIcon } from 'lucide-react'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { columns } from './_components/Columns'
 
@@ -42,7 +45,20 @@ export default function Page() {
   }, [])
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto space-y-5 py-10">
+      <div className="flex justify-between">
+        <div>
+          <p className="text-4xl font-bold">Contest List</p>
+          <p className="text-lg text-slate-500">Here&apos;s a list you made</p>
+        </div>
+        {/* TODO: 주소를 /admin/contest/create로 수정하기 */}
+        <Link href="/admin/problem/create">
+          <Button variant="default">
+            <PlusCircleIcon className="mr-2 h-4 w-4" />
+            Create
+          </Button>
+        </Link>
+      </div>
       <DataTableAdmin columns={columns} data={contests} />
     </div>
   )
