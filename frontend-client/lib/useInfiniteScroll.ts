@@ -6,7 +6,7 @@ import { fetcher, fetcherWithAuth } from './utils'
 
 interface Item {
   id: number
-  status: string
+  status?: string
 }
 
 /**
