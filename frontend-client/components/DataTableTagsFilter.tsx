@@ -27,17 +27,17 @@ interface Tag {
   name: string
 }
 
-interface DataTableFacetedFilterProps<TData, TValue> {
+interface DataTableTagsFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
   title?: string
   options: Tag[]
 }
 
-export function DataTableFacetedFilter<TData, TValue>({
+export function DataTableTagsFilter<TData, TValue>({
   column,
   title,
   options
-}: DataTableFacetedFilterProps<TData, TValue>) {
+}: DataTableTagsFilterProps<TData, TValue>) {
   const selectedValues = new Set(column?.getFilterValue() as number[])
   const [inputValue, setInputValue] = useState('')
 
