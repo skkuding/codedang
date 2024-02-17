@@ -1,4 +1,3 @@
-import SearchBar from '@/components/SearchBar'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Problem } from '@/types/type'
 import { Suspense } from 'react'
@@ -7,9 +6,6 @@ import ProblemInfiniteTable from './_components/ProblemInfiniteTable'
 export default function Problem() {
   return (
     <>
-      <div className="flex justify-end text-gray-500">
-        <SearchBar />
-      </div>
       <Suspense
         fallback={
           <>
