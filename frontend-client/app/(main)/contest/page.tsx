@@ -1,8 +1,10 @@
+import SearchBar from '@/components/SearchBar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { auth } from '@/lib/auth'
 import { Suspense } from 'react'
 import ContestCardList from './_components/ContestCardList'
-import FinishedContestTable from './_components/FinishedContestTable'
+import ContestInfiniteTable from './_components/ContestInfiniteTable'
+import SwitchButton from './_components/SwitchButton'
 
 function ContestCardListFallback() {
   return (
@@ -41,8 +43,15 @@ function FinishedContestTableFallback() {
   )
 }
 
-export default async function Contest() {
+interface ContestProps {
+  searchParams: { search: string; registered: string }
+}
+
+export default async function Contest({ searchParams }: ContestProps) {
   const session = await auth()
+  const search = searchParams.search ?? ''
+  const registered = session ? searchParams?.registered ?? '' : ''
+
   return (
     <>
       <div className="mb-12 flex flex-col gap-12">
@@ -62,7 +71,26 @@ export default async function Contest() {
         </Suspense>
       </div>
       <Suspense fallback={<FinishedContestTableFallback />}>
-        <FinishedContestTable />
+        {session?.user ? (
+          <>
+            <div className="flex w-full justify-between">
+              <SwitchButton />
+              <SearchBar />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex w-full justify-between">
+              <p className="text-xl font-bold md:text-2xl">Finished</p>
+              <SearchBar />
+            </div>
+          </>
+        )}
+        <ContestInfiniteTable
+          search={search}
+          registered={registered}
+          session={session}
+        />
       </Suspense>
     </>
   )

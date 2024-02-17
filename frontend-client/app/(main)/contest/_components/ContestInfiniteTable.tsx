@@ -6,50 +6,58 @@ import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 import { fetcherWithAuth } from '@/lib/utils'
 import { baseUrl } from '@/lib/vars'
 import type { Contest } from '@/types/type'
+import type { Session } from 'next-auth'
 import { useEffect, useState } from 'react'
 import ClipLoader from 'react-spinners/ClipLoader'
 import { columns } from './Columns'
 
-export default function ContestInfiniteTable({ search }: { search: string }) {
+interface ContestInfiniteTableProps {
+  search: string
+  registered: string
+  session: Session | null
+}
+
+export default function ContestInfiniteTable({
+  search,
+  registered,
+  session
+}: ContestInfiniteTableProps) {
   const url = new URL('/contest/registered-finished', baseUrl)
-  if (search) {
-    url.searchParams.set('search', search)
-  }
+  url.searchParams.set('search', search)
+  url.searchParams.set('registered', registered)
 
   const [ongoingUpcoming, setOngoingUpcoming] = useState<Contest[]>([])
-  const [isLoadingData, setIsLoadingData] = useState(true)
 
   useEffect(() => {
-    const fetchOngoingUpcomingContests = async () => {
-      try {
-        const data: {
-          registeredOngoing: Contest[]
-          registeredUpcoming: Contest[]
-        } = await fetcherWithAuth
-          .get('contest/registered-ongoing-upcoming', {
-            searchParams: {
-              search
-            }
+    if (registered) {
+      const fetchOngoingUpcomingContests = async () => {
+        try {
+          const data: {
+            registeredOngoing: Contest[]
+            registeredUpcoming: Contest[]
+          } = await fetcherWithAuth
+            .get('contest/registered-ongoing-upcoming', {
+              searchParams: {
+                search
+              }
+            })
+            .json()
+          data.registeredOngoing.forEach((contest) => {
+            contest.status = 'ongoing'
           })
-          .json()
-        data.registeredOngoing.forEach((contest) => {
-          contest.status = 'ongoing'
-        })
-        data.registeredUpcoming.forEach((contest) => {
-          contest.status = 'upcoming'
-        })
-        setOngoingUpcoming(
-          data.registeredOngoing.concat(data.registeredUpcoming)
-        )
-      } catch (error) {
-        console.error('Error fetching', error)
-      } finally {
-        setIsLoadingData(false)
-        console.log(ongoingUpcoming)
+          data.registeredUpcoming.forEach((contest) => {
+            contest.status = 'upcoming'
+          })
+          setOngoingUpcoming(
+            data.registeredOngoing.concat(data.registeredUpcoming)
+          )
+        } catch (error) {
+          console.error('Error fetching', error)
+        }
       }
+      fetchOngoingUpcomingContests()
     }
-    fetchOngoingUpcomingContests()
-  }, [search])
+  }, [search, registered])
 
   const {
     items,
@@ -57,15 +65,17 @@ export default function ContestInfiniteTable({ search }: { search: string }) {
     hasNextPage,
     isFetchingNextPage,
     ref,
+    isLoading,
     scrollCounter
-  } = useInfiniteScroll<Contest>('contest', url)
-  const contests = [...ongoingUpcoming, ...items]
+  } = useInfiniteScroll<Contest>('contest', url, 10, session)
+
+  const contests =
+    registered && session ? [...ongoingUpcoming, ...items] : items
 
   return (
     <>
-      <p className="text-xl font-bold md:text-2xl">Registered</p>
       <div className="flex flex-col items-center">
-        {isLoadingData ? (
+        {isLoading ? (
           <ClipLoader />
         ) : (
           <DataTable

@@ -1,4 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
+import type { Session } from 'next-auth'
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { fetcher, fetcherWithAuth } from './utils'
@@ -21,7 +22,8 @@ interface Item {
 export const useInfiniteScroll = <T extends Item>(
   dataType: string,
   url: URL, //url 목록
-  itemsPerPage = 3 //한번에 가져올 아이템의 개수
+  itemsPerPage = 3,
+  session?: Session | null
 ) => {
   const [items, setItems] = useState<T[]>([]) //T[] 형태로 return 해야 함
   //fetch datas with pageParams and url
@@ -31,8 +33,10 @@ export const useInfiniteScroll = <T extends Item>(
     pageParam?: number
   }): Promise<T[]> => {
     const query = url.searchParams
+
     if (!query.has('take')) query.append('take', String(itemsPerPage))
     pageParam && pageParam > 0 && query.set('cursor', pageParam.toString())
+
     if (dataType === 'problem') {
       const data: { problems: T[] } = await fetcher
         .get('problem', {
@@ -40,24 +44,33 @@ export const useInfiniteScroll = <T extends Item>(
         })
         .json()
       return data.problems
-    }
-    if (dataType === 'contest') {
-      const data: T[] = await fetcherWithAuth
-        .get('contest/registered-finished', {
+    } else if (dataType === 'contest') {
+      let data: T[]
+      if (query.get('registered') === 'true' && session) {
+        data = await fetcherWithAuth
+          .get('contest/registered-finished', {
+            searchParams: query
+          })
+          .json()
+      } else {
+        const response = await fetcher.get('contest/finished', {
           searchParams: query
         })
-        .json()
+        const responseData = await response.json()
+        data = responseData.finished
+      }
       data.forEach((contest) => {
         contest.status = 'finished'
       })
       return data
+    } else {
+      const data: T[] = await fetcher
+        .get(dataType, {
+          searchParams: query
+        })
+        .json()
+      return data
     }
-    const data: T[] = await fetcher
-      .get(dataType, {
-        searchParams: query
-      })
-      .json()
-    return data
   }
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
