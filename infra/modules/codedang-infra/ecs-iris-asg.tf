@@ -92,7 +92,7 @@ resource "aws_launch_template" "ec2_template_iris" {
     resource_type = "instance"
 
     tags = {
-      Name = "launch template for codedang-ecs-iris"
+      Name = "Codedang-ECS-Iris"
     }
   }
 }

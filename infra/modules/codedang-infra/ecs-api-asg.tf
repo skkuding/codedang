@@ -94,7 +94,7 @@ resource "aws_launch_template" "ec2_template_api" {
     resource_type = "instance"
 
     tags = {
-      Name = "Codedang-Api-Instance"
+      Name = "Codedang-ECS-API"
     }
   }
 }
