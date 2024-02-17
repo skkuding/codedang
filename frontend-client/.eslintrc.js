@@ -27,6 +27,7 @@ module.exports = {
           'error',
           {
             name: '@apollo/client',
+            importNames: ['gql'],
             message: 'Please use @generated instead.'
           },
           {
