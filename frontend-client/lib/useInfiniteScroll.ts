@@ -1,10 +1,11 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
-import { fetcher } from './utils'
+import { fetcher, fetcherWithAuth } from './utils'
 
 interface Item {
   id: number
+  status: string
 }
 
 /**
@@ -34,11 +35,22 @@ export const useInfiniteScroll = <T extends Item>(
     pageParam && pageParam > 0 && query.set('cursor', pageParam.toString())
     if (dataType === 'problem') {
       const data: { problems: T[] } = await fetcher
-        .get(dataType, {
+        .get('problem', {
           searchParams: query
         })
         .json()
       return data.problems
+    }
+    if (dataType === 'contest') {
+      const data: T[] = await fetcherWithAuth
+        .get('contest/registered-finished', {
+          searchParams: query
+        })
+        .json()
+      data.forEach((contest) => {
+        contest.status = 'finished'
+      })
+      return data
     }
     const data: T[] = await fetcher
       .get(dataType, {

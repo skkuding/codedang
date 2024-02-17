@@ -21,7 +21,7 @@ export const columns: ColumnDef<Contest>[] = [
     cell: ({ row }) => (
       <Badge type={row.original.status}>
         <p>
-          {row.original.status.startsWith('registered')
+          {row.original.status && row.original.status.startsWith('registered')
             ? 'registered'
             : row.original.status}
         </p>
