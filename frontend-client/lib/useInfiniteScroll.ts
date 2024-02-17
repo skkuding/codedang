@@ -22,7 +22,7 @@ interface Item {
 export const useInfiniteScroll = <T extends Item>(
   dataType: string,
   url: URL, //url 목록
-  itemsPerPage = 3,
+  itemsPerPage = 10,
   session?: Session | null
 ) => {
   const [items, setItems] = useState<T[]>([]) //T[] 형태로 return 해야 함
