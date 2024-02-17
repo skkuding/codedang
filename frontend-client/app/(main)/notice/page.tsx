@@ -2,7 +2,7 @@ import SearchBar from '@/components/SearchBar'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Notice } from '@/types/type'
 import { Suspense } from 'react'
-import NoticeTable from './_components/NoticeTable'
+import NoticeInfiniteTable from './_components/NoticeInfiniteTable'
 
 interface NoticeProps {
   searchParams: { search: string }
@@ -36,7 +36,7 @@ export default function Notice({ searchParams }: NoticeProps) {
           </>
         }
       >
-        <NoticeTable search={search} />
+        <NoticeInfiniteTable search={search} />
       </Suspense>
     </>
   )
