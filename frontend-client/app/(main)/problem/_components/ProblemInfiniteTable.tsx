@@ -23,6 +23,7 @@ export default function ProblemInfiniteTable() {
 
   const {
     items,
+    isLoading,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -32,18 +33,22 @@ export default function ProblemInfiniteTable() {
 
   return (
     <div className="flex flex-col items-center">
-      <DataTable
-        data={items}
-        columns={columns}
-        headerStyle={{
-          title: 'text-left w-5/12',
-          difficulty: 'w-2/12',
-          submissionCount: 'w-2/12',
-          acceptedRate: 'w-2/12',
-          info: 'w-1/12'
-        }}
-        name="problem"
-      />
+      {isLoading ? (
+        <ClipLoader />
+      ) : (
+        <DataTable
+          data={items}
+          columns={columns}
+          headerStyle={{
+            title: 'text-left w-5/12',
+            difficulty: 'w-2/12',
+            submissionCount: 'w-2/12',
+            acceptedRate: 'w-2/12',
+            info: 'w-1/12'
+          }}
+          name="problem"
+        />
+      )}
 
       {isFetchingNextPage && hasNextPage && <ClipLoader />}
       {!isFetchingNextPage && hasNextPage && scrollCounter.current >= 5 && (
