@@ -81,25 +81,28 @@ export default function DataTable<TData extends Item, TValue>({
   })
   const router = useRouter()
 
+  const { y } = useWindowScroll()
+
   const [scrollPosition, setScrollPosition] = useSessionStorage(
     `${name}scrollPosition`,
     0
   )
-  const { y } = useWindowScroll()
+
   const setScrollDataInStorage = () => {
     if (y) {
       setScrollPosition(y)
     }
   }
+
   useEffect(() => {
     if (!scrollPosition) {
       return
     }
     setTimeout(() => {
       window.scrollTo({ top: scrollPosition })
-      setScrollPosition(0)
     }, 100)
-  })
+    setScrollPosition(0)
+  }, [])
 
   return (
     <Table className="table-fixed">
