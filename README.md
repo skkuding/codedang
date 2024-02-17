@@ -18,7 +18,7 @@ Codedang은 스꾸딩(skkuding) 팀에서 만들고 관리하는 성균관대학
 
 문서 웹페이지를 참고해주세요. https://docs.codedang.com
 
-문서 미리보기는 `pnpm docs:dev` 명령어로 가능합니다.
+> 문서 저장소: [skkuding/docs](https://github.com/skkuding/docs)
 
 ## Contributing Guide 👏
 

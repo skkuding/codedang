@@ -72,9 +72,6 @@ dist/
 # pnpm store
 .pnpm-store
 
-# Vitepress
-docs/.vitepress/cache/
-
 # NestJS & GraphQL
 @generated/
 backend/schema.gql

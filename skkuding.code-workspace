@@ -13,10 +13,6 @@
       "name": "Frontend"
     },
     {
-      "path": "docs",
-      "name": "Documentation"
-    },
-    {
       "path": "frontend-client",
       "name": "Frontend Client"
     }

@@ -4,8 +4,6 @@
     "lint": "eslint . --ext .js,.ts,.vue,.tsx,.jsx",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "docs:dev": "vitepress dev docs --port 5555",
-    "docs:build": "vitepress build docs",
     "init:testcases": "ts-node scripts/init-testcase.ts",
     "knip": "knip"
   },
@@ -27,7 +25,6 @@
     "prettier-plugin-tailwindcss": "^0.5.11",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
-    "vitepress": "1.0.0-rc.42",
     "vue-eslint-parser": "^9.4.2"
   },
   "packageManager": "pnpm@8.15.2"
