@@ -56,7 +56,7 @@ export const useInfiniteScroll = <T extends Item>(
         const response = await fetcher.get('contest/finished', {
           searchParams: query
         })
-        const responseData = await response.json()
+        const responseData: { finished: T[] } = await response.json()
         data = responseData.finished
       }
       data.forEach((contest) => {
