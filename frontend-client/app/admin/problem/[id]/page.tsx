@@ -20,9 +20,9 @@ import type {
   Level,
   Language,
   Testcase,
+  Sample,
   Template,
-  Tag,
-  Sample
+  Tag
 } from '@/types/type'
 import { gql } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -42,12 +42,16 @@ import Label from '../_components/Lable'
 import type { TemplateLanguage } from '../utils'
 import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
 
-interface CreateProblemInput {
+interface UpdateProblemInput {
+  id: number
   title: string
   visible: boolean
   difficulty: Level
   languages: Language[]
-  tagIds: number[]
+  tags: {
+    create: number[]
+    delete: number[]
+  }
   description: string
   inputDescription: string
   outputDescription: string
@@ -60,9 +64,55 @@ interface CreateProblemInput {
   template?: Template[]
 }
 
-const CREATE_PROBLEM = gql`
-  mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
-    createProblem(groupId: $groupId, input: $input) {
+interface GetProblem {
+  title: string
+  // visible: boolean
+  difficulty: Level
+  languages: Language[]
+  problemTag: { tag: Tag }[]
+  description: string
+  inputDescription: string
+  outputDescription: string
+  problemTestcase: Testcase[]
+  // problemSample: Sample[]
+  timeLimit: number
+  memoryLimit: number
+  hint: string
+  source: string
+  template: string[]
+}
+
+const GET_PROBLEM = gql`
+  query GetProblem($groupId: Int!, $id: Int!) {
+    getProblem(groupId: $groupId, id: $id) {
+      title
+      difficulty
+      languages
+      problemTag {
+        tag {
+          id
+          name
+        }
+      }
+      description
+      inputDescription
+      outputDescription
+      problemTestcase {
+        input
+        output
+      }
+      timeLimit
+      memoryLimit
+      hint
+      source
+      template
+    }
+  }
+`
+
+const UPDATE_PROBLEM = gql`
+  mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
+    updateProblem(groupId: $groupId, input: $input) {
       id
       createdById
       groupId
@@ -70,7 +120,10 @@ const CREATE_PROBLEM = gql`
       visible
       difficulty
       languages
-      tagIds
+      tags {
+        create
+        delete
+      }
       description
       inputDescription
       outputDescription
@@ -91,8 +144,8 @@ const CREATE_PROBLEM = gql`
       template {
         code {
           id
-          text
           locked
+          text
         }
         language
       }
@@ -107,7 +160,7 @@ const schema = z.object({
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
   ),
-  tagIds: z.array(z.number()).min(1),
+  tags: z.object({ create: z.array(z.number()), delete: z.array(z.number()) }),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
@@ -157,15 +210,25 @@ const schema = z.object({
     .optional()
 })
 
-export default function Page() {
-  const [showHint, setShowHint] = useState<boolean>(false)
-  const [showSource, setShowSource] = useState<boolean>(false)
+export default function Page({ params }: { params: { id: string } }) {
+  const { id } = params
+  const [showHint, setShowHint] = useState<boolean>(true)
+  const [showSource, setShowSource] = useState<boolean>(true)
   const [samples, setSamples] = useState<Sample[]>([{ input: '', output: '' }])
   const [testcases, setTestcases] = useState<Testcase[]>([
     { input: '', output: '' }
   ])
   const [tags, setTags] = useState<Tag[]>([])
   const [languages, setLanguages] = useState<TemplateLanguage[]>([])
+
+  const [problemData, setProblemData] = useState<GetProblem>()
+  const [fetchedTags, setFetchedTags] = useState<number[]>([])
+  const [fetchedLangauges, setFetchedLanguages] = useState<Language[]>([])
+  const [fetchedDifficulty, setFetchedDifficulty] = useState<Level>()
+  const [fetchedDescription, setFetchedDescription] = useState<string>('')
+  const [fetchedTemplateLanguage, setFetchedTemplateLanguage] = useState<
+    Language[]
+  >([])
 
   useEffect(() => {
     fetcherGql(GET_TAGS).then((data) => {
@@ -177,7 +240,75 @@ export default function Page() {
       )
       setTags(transformedData)
     })
-  }, [])
+
+    fetcherGql(GET_PROBLEM, {
+      groupId: 1,
+      id: Number(id)
+    }).then((data) => {
+      setProblemData(data.getProblem)
+      setFetchedDifficulty(data.getProblem.difficulty)
+      setFetchedLanguages(data.getProblem.languages)
+      setFetchedTags(
+        data.getProblem.problemTag.map((problemTag: { tag: Tag }) =>
+          Number(problemTag.tag.id)
+        )
+      )
+      setFetchedDescription(data.getProblem.description)
+      setFetchedTemplateLanguage(
+        data.getProblem.template.map((template: string) => {
+          const parsedTemplate = JSON.parse(template)[0]
+          return parsedTemplate.language
+        })
+      )
+      setLanguages(
+        data.getProblem.languages.map((language: Language) => ({
+          language,
+          isVisible: fetchedTemplateLanguage.includes(language) ? true : false
+        }))
+      )
+    })
+  }, [id, problemData])
+
+  useEffect(() => {
+    if (problemData) {
+      // TODO: add visible and samples
+      setValue('title', problemData.title)
+      setValue('difficulty', problemData.difficulty)
+      setValue('languages', problemData.languages)
+      setValue(
+        'tags.create',
+        problemData.problemTag.map((problemTag) => Number(problemTag.tag.id))
+      )
+      setValue(
+        'tags.delete',
+        problemData.problemTag.map((problemTag) => Number(problemTag.tag.id))
+      )
+      setValue('description', problemData.description)
+      setValue('inputDescription', problemData.inputDescription)
+      setValue('outputDescription', problemData.outputDescription)
+      setValue('testcases', problemData.problemTestcase)
+      setValue('timeLimit', problemData.timeLimit)
+      setValue('memoryLimit', problemData.memoryLimit)
+      setValue('hint', problemData.hint)
+      setValue('source', problemData.source)
+      setValue(
+        'template',
+        problemData.template.map((template: string) => {
+          const parsedTemplate = JSON.parse(template)[0]
+          return {
+            language: parsedTemplate.language,
+            code: [
+              {
+                id: parsedTemplate.code[0].id,
+                text: parsedTemplate.code[0].text,
+                locked: parsedTemplate.code[0].locked
+              }
+            ]
+          }
+        })
+      )
+    }
+  }, [problemData])
 
   const {
     handleSubmit,
@@ -186,22 +317,18 @@ export default function Page() {
     getValues,
     setValue,
     formState: { errors }
-  } = useForm<CreateProblemInput>({
+  } = useForm<UpdateProblemInput>({
     resolver: zodResolver(schema),
     defaultValues: {
-      difficulty: 'Level1',
       samples: [{ input: '', output: '' }],
-      testcases: [{ input: '', output: '' }],
-      hint: '',
-      source: '',
       template: []
     }
   })
 
   // TODO: Create Problem 에 sample, visible 추가 시 변경
-  const onSubmit = async (data: CreateProblemInput) => {
+  const onSubmit = async (data: UpdateProblemInput) => {
     try {
-      const res = await fetcherGql(CREATE_PROBLEM, {
+      const res = await fetcherGql(UPDATE_PROBLEM, {
         groupId: 1,
         input: data
       })
@@ -238,7 +365,7 @@ export default function Page() {
           <Link href="/admin/problem">
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
-          <span className="text-4xl font-bold">Create Problem</span>
+          <span className="text-4xl font-bold">Edit Problem</span>
         </div>
 
         <form
@@ -335,7 +462,11 @@ export default function Page() {
               <div className="flex flex-col gap-1">
                 <Controller
                   render={({ field }) => (
-                    <OptionSelect options={levels} onChange={field.onChange} />
+                    <OptionSelect
+                      options={levels}
+                      onChange={field.onChange}
+                      defaultValue={fetchedDifficulty}
+                    />
                   )}
                   name="difficulty"
                   control={control}
@@ -369,6 +500,7 @@ export default function Page() {
                           })) as TemplateLanguage[]
                         )
                       }}
+                      defaultValue={fetchedLangauges}
                     />
                   )}
                   name="languages"
@@ -384,12 +516,16 @@ export default function Page() {
               <div className="flex flex-col gap-1">
                 <Controller
                   render={({ field }) => (
-                    <TagsSelect options={tags} onChange={field.onChange} />
+                    <TagsSelect
+                      options={tags}
+                      onChange={field.onChange}
+                      defaultValue={fetchedTags}
+                    />
                   )}
-                  name="tagIds"
+                  name="tags.create"
                   control={control}
                 />
-                {errors.tagIds && (
+                {errors.tags && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
                     <PiWarningBold />
                     required
@@ -401,16 +537,19 @@ export default function Page() {
 
           <div className="flex flex-col gap-1">
             <Label>Description</Label>
-            <Controller
-              render={({ field }) => (
-                <TextEditor
-                  placeholder="Enter a description..."
-                  onChange={field.onChange}
-                />
-              )}
-              name="description"
-              control={control}
-            />
+            {fetchedDescription && (
+              <Controller
+                render={({ field }) => (
+                  <TextEditor
+                    placeholder="Enter a description..."
+                    onChange={field.onChange}
+                    defaultValue={fetchedDescription}
+                  />
+                )}
+                name="description"
+                control={control}
+              />
+            )}
             {errors.description && (
               <div className="flex items-center gap-1 text-xs text-red-500">
                 <PiWarningBold />
@@ -578,6 +717,7 @@ export default function Page() {
                   setShowHint(!showHint)
                   setValue('hint', '')
                 }}
+                checked={showHint}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
@@ -599,6 +739,7 @@ export default function Page() {
                   setShowSource(!showSource)
                   setValue('source', '')
                 }}
+                checked={showSource}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
@@ -647,6 +788,7 @@ export default function Page() {
                               ]
                             })
                           }}
+                          checked={templateLanguage.isVisible}
                           className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
                         />
                       </div>
@@ -717,7 +859,7 @@ export default function Page() {
             className="flex h-[36px] w-[100px] items-center gap-2 px-0 "
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
-            <div className="mb-[2px] text-base">Create</div>
+            <div className="mb-[2px] text-base">Submit</div>
           </Button>
         </form>
       </main>

@@ -6,15 +6,26 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface OptionSelectProps {
   options: string[]
   onChange: (option: string) => void
+  defaultValue?: string
 }
 
-export default function OptionSelect({ options, onChange }: OptionSelectProps) {
+export default function OptionSelect({
+  options,
+  onChange,
+  defaultValue
+}: OptionSelectProps) {
   const [option, setOption] = useState(options[0])
+
+  useEffect(() => {
+    if (defaultValue) {
+      setOption(defaultValue)
+    }
+  }, [defaultValue])
 
   return (
     <Select
