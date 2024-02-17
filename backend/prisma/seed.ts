@@ -849,7 +849,33 @@ const createProblems = async () => {
           '3\n1 2 1\n2 3 1\n3 1 1',
           '5\n4 5 4\n1 3 4\n1 2 4\n3 2 3\n3 5 2\n1 4 3\n4 2 2\n1 5 4\n5 2 4\n3 4 2'
         ],
-        outputExamples: ['3', '35']
+        outputExamples: ['3', '35'],
+        isVisible: false
+      }
+    })
+  )
+
+  problems.push(
+    await prisma.problem.create({
+      data: {
+        title: '수정중인 문제',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        description: `<p>수정 작업 중</p>`,
+        difficulty: Level.Level3,
+        inputDescription: `<p>비공개</p>`,
+        outputDescription: `<p>비공개</p>`,
+        languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
+        hint: `<p>작성중</p>`,
+        timeLimit: 2000,
+        memoryLimit: 256,
+        source: '2024 육군훈련소 입소 코딩 테스트',
+        inputExamples: [
+          '3\n1 2 1\n2 3 1\n3 1 1',
+          '5\n4 5 4\n1 3 4\n1 2 4\n3 2 3\n3 5 2\n1 4 3\n4 2 2\n1 5 4\n5 2 4\n3 4 2'
+        ],
+        outputExamples: ['3', '35'],
+        isVisible: false
       }
     })
   )
