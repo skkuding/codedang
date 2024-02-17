@@ -29,6 +29,7 @@ const EDIT_VISIBLE = gql`
   mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
     updateProblem(groupId: $groupId, input: $input) {
       id
+      title
       isVisible
     }
   }
@@ -45,7 +46,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
-        className="translate-y-[2px]"
+        className="translate-y-[2px] bg-white"
       />
     ),
     cell: ({ row }) => (
@@ -53,7 +54,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
-        className="translate-y-[2px]"
+        className="translate-y-[2px] bg-white"
       />
     ),
     enableSorting: false,
@@ -183,19 +184,14 @@ export const columns: ColumnDef<DataTableProblem>[] = [
 
       const updateVisible = async (data: {
         id: number
+        title: string
         isVisible: boolean
       }) => {
-        // try {
-        await fetcherGql(EDIT_VISIBLE, {
+        const res = await fetcherGql(EDIT_VISIBLE, {
           groupId: 1,
-          input: {
-            id: data.id,
-            isVisible: data.isVisible
-          }
+          input: data
         })
-        // } catch (error) {
-        //   console.error('error', error)
-        // }
+        console.log('res: ', res)
       }
 
       return (
@@ -204,7 +200,11 @@ export const columns: ColumnDef<DataTableProblem>[] = [
             id="hidden-mode"
             checked={isVisible}
             onCheckedChange={() => {
-              updateVisible({ id: row.original.id, isVisible: !isVisible })
+              updateVisible({
+                id: row.original.id,
+                title: row.original.title,
+                isVisible: !isVisible
+              })
             }}
           />
           <div className="flex items-center justify-center">

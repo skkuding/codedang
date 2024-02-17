@@ -68,7 +68,7 @@ export default function Page() {
     fetcherGql(GET_PROBLEMS, {
       groupId: 1,
       cursor: 1,
-      take: 10,
+      take: 8,
       input: {
         difficulty: ['Level1', 'Level2', 'Level3', 'Level4', 'Level5'],
         languages: ['C', 'Cpp', 'Java', 'Python3']
@@ -107,11 +107,13 @@ export default function Page() {
     <div className="container mx-auto space-y-5 py-10">
       <div className="flex justify-between">
         <div>
-          <div className="flex text-4xl font-bold">Problem List</div>
-          <p className="text-lg text-slate-500">Here&apos;s a list you made</p>
+          <p className="text-4xl font-bold">Problem List</p>
+          <p className="flex text-lg text-slate-500">
+            Here&apos;s a list you made
+          </p>
         </div>
         <Link href="/admin/problem/create">
-          <Button className="rounded-md bg-blue-500 px-3 py-[6px] text-white hover:bg-blue-700">
+          <Button variant="default">
             <PlusCircleIcon className="mr-2 h-4 w-4" />
             Create
           </Button>
