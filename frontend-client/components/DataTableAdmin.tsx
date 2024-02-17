@@ -1,6 +1,5 @@
 'use client'
 
-import CheckboxSelect from '@/components/CheckboxSelect'
 import {
   Table,
   TableBody,
@@ -29,9 +28,11 @@ import {
 } from '@tanstack/react-table'
 import { Route } from 'next'
 import { useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import { DataTableFacetedFilter } from './DataTableFacetedFilter'
+import DataTableLangFilter from './DataTableLangFilter'
 import { DataTablePagination } from './DataTablePagination'
+import { DataTableTagsFilter } from './DataTableTagsFilter'
 import { Input } from './ui/input'
 
 interface Tag {
@@ -65,6 +66,8 @@ export function DataTableAdmin<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const [tags, setTags] = useState<Tag[]>([])
+  const pathname = usePathname()
+  const page = pathname.split('/').pop()
 
   const router = useRouter()
 
@@ -114,16 +117,16 @@ export function DataTableAdmin<TData, TValue>({
         />
 
         {table.getColumn('languages') && (
-          <CheckboxSelect
-            title="Language"
+          <DataTableLangFilter
+            column={table.getColumn('languages')}
+            title="Languages"
             options={languageOptions}
-            onChange={() => {}}
           />
         )}
 
-        {table.getColumn('tags') && (
-          <DataTableFacetedFilter
-            column={table.getColumn('tags')}
+        {table.getColumn('problemTag') && (
+          <DataTableTagsFilter
+            column={table.getColumn('problemTag')}
             title="Tags"
             options={tags}
           />
@@ -155,16 +158,23 @@ export function DataTableAdmin<TData, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => {
                 const href =
-                  `/admin/problem/${(row.original as { id: number }).id}` as Route
+                  `/admin/${page}/${(row.original as { id: number }).id}` as Route
                 return (
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
                     className="cursor-pointer hover:bg-gray-200"
-                    onClick={() => router.push(href)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="md:p-4">
+                      <TableCell
+                        key={cell.id}
+                        className="md:p-4"
+                        onClick={
+                          cell.column.id === 'title'
+                            ? () => router.push(href)
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
