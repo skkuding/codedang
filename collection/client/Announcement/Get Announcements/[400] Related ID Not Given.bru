@@ -19,19 +19,3 @@ query {
 assert {
   res.status: eq 400
 }
-
-docs {
-  # Get Announcements
-
-  대회 또는 문제에 대한 안내 사항을 가져옵니다.
-
-  ## Query
-
-  > problemId 또는 contestId 중 하나 값은 필수로 주어져야 합니다.
-
-  | 이름 | 타입 | 설명 |
-  |-----|-----|-----|
-  |problemId *|Integer|안내 사항이 속한 문제  ID|
-  |contestId *|Integer|안내 사항이 속한 대회 ID|
-  |groupId|Integer|안내 사항이 속한 Group ID (default: 1)|
-}

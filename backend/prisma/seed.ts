@@ -30,6 +30,7 @@ let publicGroup: Group
 let privateGroup: Group
 const problems: Problem[] = []
 const problemTestcases: ProblemTestcase[] = []
+const contests: Contest[] = []
 const endedContests: Contest[] = []
 const ongoingContests: Contest[] = []
 const upcomingContests: Contest[] = []
@@ -597,10 +598,15 @@ const createProblems = async () => {
     await prisma.problem.create({
       data: {
         title: '정수 더하기',
+        engTitle: 'Integer Addition',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/1-description.html'),
+          'utf-8'
+        ),
+        engDescription: await readFile(
+          join(fixturePath, 'problem/1-description-eng.html'),
           'utf-8'
         ),
         difficulty: Level.Level1,
@@ -608,8 +614,16 @@ const createProblems = async () => {
           join(fixturePath, 'problem/1-input.html'),
           'utf-8'
         ),
+        engInputDescription: await readFile(
+          join(fixturePath, 'problem/1-input-eng.html'),
+          'utf-8'
+        ),
         outputDescription: await readFile(
           join(fixturePath, 'problem/1-output.html'),
+          'utf-8'
+        ),
+        engOutputDescription: await readFile(
+          join(fixturePath, 'problem/1-output-eng.html'),
           'utf-8'
         ),
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
@@ -835,7 +849,33 @@ const createProblems = async () => {
           '3\n1 2 1\n2 3 1\n3 1 1',
           '5\n4 5 4\n1 3 4\n1 2 4\n3 2 3\n3 5 2\n1 4 3\n4 2 2\n1 5 4\n5 2 4\n3 4 2'
         ],
-        outputExamples: ['3', '35']
+        outputExamples: ['3', '35'],
+        isVisible: false
+      }
+    })
+  )
+
+  problems.push(
+    await prisma.problem.create({
+      data: {
+        title: '수정중인 문제',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        description: `<p>수정 작업 중</p>`,
+        difficulty: Level.Level3,
+        inputDescription: `<p>비공개</p>`,
+        outputDescription: `<p>비공개</p>`,
+        languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
+        hint: `<p>작성중</p>`,
+        timeLimit: 2000,
+        memoryLimit: 256,
+        source: '2024 육군훈련소 입소 코딩 테스트',
+        inputExamples: [
+          '3\n1 2 1\n2 3 1\n3 1 1',
+          '5\n4 5 4\n1 3 4\n1 2 4\n3 2 3\n3 5 2\n1 4 3\n4 2 2\n1 5 4\n5 2 4\n3 4 2'
+        ],
+        outputExamples: ['3', '35'],
+        isVisible: false
       }
     })
   )
@@ -1179,6 +1219,7 @@ const createContests = async () => {
   const now = new Date()
   for (const obj of contestData) {
     const contest = await prisma.contest.create(obj)
+    contests.push(contest)
     if (now < obj.data.startTime) {
       upcomingContests.push(contest)
     } else if (obj.data.endTime < now) {
@@ -1192,7 +1233,7 @@ const createContests = async () => {
   for (const problem of problems) {
     await prisma.contestProblem.create({
       data: {
-        order: problem.id,
+        order: problem.id - 1,
         contestId: ongoingContests[0].id,
         problemId: problem.id
       }
@@ -1231,14 +1272,14 @@ const createWorkbooks = async () => {
   for (const problem of problems) {
     await prisma.workbookProblem.create({
       data: {
-        order: problem.id,
+        order: problem.id - 1,
         workbookId: workbooks[0].id,
         problemId: problem.id
       }
     })
     await prisma.workbookProblem.create({
       data: {
-        order: problem.id,
+        order: problem.id - 1,
         workbookId: privateWorkbooks[0].id,
         problemId: problem.id
       }
@@ -1512,7 +1553,7 @@ const createAnnouncements = async () => {
       await prisma.announcement.create({
         data: {
           content: `Announcement_0_${i}`,
-          problemId: problems[i].id
+          contestId: ongoingContests[i].id
         }
       })
     )
@@ -1522,7 +1563,12 @@ const createAnnouncements = async () => {
     announcements.push(
       await prisma.announcement.create({
         data: {
-          content: `Announcement_1_${i}`,
+          content: `Announcement_1_${i}...
+아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.
+모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.
+법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.
+일반사면을 명하려면 국회의 동의를 얻어야 한다. 연소자의 근로는 특별한 보호를 받는다.`,
+          contestId: ongoingContests[i].id,
           problemId: problems[i].id
         }
       })
@@ -1607,21 +1653,23 @@ const createContestRecords = async () => {
     contestRecords.push(contestRecord)
     i++
   }
-  // User 1이 Future Contest에 참가한 record를 추가합니다.
-  // 그래야 upcoming contest에 참가한 User 1의 contest register를 un-register할 수 있습니다.
-  contestRecords.push(
-    await prisma.contestRecord.create({
-      data: {
-        //User1
-        userId: 4,
-        //Future Contest
-        contestId: 15,
-        acceptedProblemNum: 0,
-        score: 0,
-        totalPenalty: 0
-      }
-    })
-  )
+
+  // upcoming contest에 참가한 User 1의 contest register를 un-register하는 기능과,
+  // registered upcoming, ongoing, finished contest를 조회하는 기능을 확인하기 위함
+  const user01Id = 4
+  for (let contestId = 3; contestId <= contests.length; contestId += 2) {
+    contestRecords.push(
+      await prisma.contestRecord.create({
+        data: {
+          userId: user01Id,
+          contestId,
+          acceptedProblemNum: 0,
+          score: 0,
+          totalPenalty: 0
+        }
+      })
+    )
+  }
 
   return contestRecords
 }

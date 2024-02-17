@@ -6,41 +6,48 @@ import { PrismaService } from '@libs/prisma'
 export class AnnouncementService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getProblemAnnouncements(
-    problemId: number,
-    groupId: number
-  ): Promise<Announcement[]> {
-    const result = await this.prisma.announcement.findMany({
-      where: {
-        problem: {
-          id: problemId,
-          groupId
-        }
-      },
-      orderBy: { updateTime: 'desc' }
-    })
-
-    return result
-  }
-
   async getContestAnnouncements(
     contestId: number,
     groupId: number
   ): Promise<Announcement[]> {
-    const result = await this.prisma.announcement.findMany({
+    const { contestProblem, announcement } =
+      await this.prisma.contest.findUniqueOrThrow({
+        where: {
+          id: contestId,
+          groupId
+        },
+        select: {
+          contestProblem: true,
+          announcement: {
+            orderBy: { updateTime: 'desc' }
+          }
+        }
+      })
+
+    return announcement.map((announcement) => {
+      if (announcement.problemId !== null) {
+        announcement.problemId = contestProblem.find(
+          (problem) => announcement.problemId === problem.problemId
+        )!.order
+      }
+      return announcement
+    })
+  }
+
+  async getProblemAnnouncements(
+    contestId: number,
+    problemId: number,
+    groupId: number
+  ): Promise<Announcement[]> {
+    return await this.prisma.announcement.findMany({
       where: {
-        problem: {
-          contestProblem: {
-            some: {
-              contestId
-            }
-          },
+        problemId,
+        contest: {
+          id: contestId,
           groupId
         }
       },
       orderBy: { updateTime: 'desc' }
     })
-
-    return result
   }
 }

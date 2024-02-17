@@ -5,7 +5,7 @@ import Link from 'next/link'
 import ProblemCard from './ProblemCard'
 
 const getProblems = async () => {
-  const problems: WorkbookProblem[] = await fetcher
+  const { problems }: { problems: WorkbookProblem[] } = await fetcher
     .get('problem', {
       searchParams: {
         take: 3,
@@ -25,8 +25,8 @@ export default async function ProblemCards() {
       {problems.map((problem) => {
         return (
           <Link
-            key={problem.problemId}
-            href={`/problem/${problem.problemId}` as Route}
+            key={problem.id}
+            href={`/problem/${problem.id}` as Route}
             className="inline-block w-full"
           >
             <ProblemCard problem={problem} />

@@ -12,7 +12,11 @@ import {
   Delete
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
+import {
+  AuthNotNeededIfOpenSpace,
+  AuthenticatedRequest,
+  UserNullWhenAuthFailedIfOpenSpace
+} from '@libs/auth'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -32,33 +36,29 @@ export class ContestController {
 
   constructor(private readonly contestService: ContestService) {}
 
-  @Get()
+  @Get('ongoing-upcoming')
   @AuthNotNeededIfOpenSpace()
-  async getContests(
-    @Req() req: AuthenticatedRequest,
+  async getOngoingUpcomingContests(
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
     try {
-      return await this.contestService.getContestsByGroupId(
-        req.user?.id,
-        groupId
-      )
+      return await this.contestService.getContestsByGroupId(groupId)
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name === 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      }
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
   }
 
-  @Get('auth')
-  async authGetContests(@Req() req: AuthenticatedRequest) {
+  @Get('ongoing-upcoming-with-registered')
+  async getOngoingUpcomingContestsWithRegistered(
+    @Req() req: AuthenticatedRequest,
+    @Query('groupId', GroupIDPipe) groupId: number
+  ) {
     try {
-      return await this.contestService.getContestsByGroupId(req.user.id)
+      return await this.contestService.getContestsByGroupId(
+        groupId,
+        req.user.id
+      )
     } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -71,13 +71,56 @@ export class ContestController {
     @Query('groupId', GroupIDPipe) groupId: number,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
-    take: number
+    take: number,
+    @Query('search') search?: string
   ) {
     try {
       return await this.contestService.getFinishedContestsByGroupId(
         cursor,
         take,
-        groupId
+        groupId,
+        search
+      )
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('registered-finished')
+  async getRegisteredFinishedContests(
+    @Req() req: AuthenticatedRequest,
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number,
+    @Query('search') search?: string
+  ) {
+    try {
+      return await this.contestService.getRegisteredFinishedContests(
+        cursor,
+        take,
+        groupId,
+        req.user.id,
+        search
+      )
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('registered-ongoing-upcoming')
+  async getRegisteredOngoingUpcomingContests(
+    @Req() req: AuthenticatedRequest,
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('search') search?: string
+  ) {
+    try {
+      return await this.contestService.getRegisteredOngoingUpcomingContests(
+        groupId,
+        req.user.id,
+        search
       )
     } catch (error) {
       this.logger.error(error)
@@ -86,20 +129,17 @@ export class ContestController {
   }
 
   @Get(':id')
-  @AuthNotNeededIfOpenSpace()
+  @UserNullWhenAuthFailedIfOpenSpace()
   async getContest(
+    @Req() req: AuthenticatedRequest,
     @Query('groupId', GroupIDPipe) groupId: number,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
-      return await this.contestService.getContest(id, groupId)
+      return await this.contestService.getContest(id, groupId, req.user?.id)
     } catch (error) {
-      if (
-        (error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.name === 'NotFoundError') ||
-        error instanceof EntityNotExistException
-      ) {
-        throw new NotFoundException(error.message)
+      if (error instanceof EntityNotExistException) {
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
