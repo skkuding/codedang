@@ -91,8 +91,6 @@ const GET_TAGS = gql(`
     getTags {
       id
       name
-      createTime
-      updateTime
     }
   }
 `)
@@ -158,17 +156,13 @@ export default function Page() {
   const [languages, setLanguages] = useState<TemplateLanguage[]>([])
 
   useEffect(() => {
-    client
-      .query({
-        query: GET_TAGS
-      })
-      .then(({ data }) => {
-        const transformedData = data.getTags.map((tag) => ({
-          ...tag,
-          id: +tag.id
-        }))
-        setTags(transformedData)
-      })
+    client.query({ query: GET_TAGS }).then(({ data }) => {
+      const transformedData = data.getTags.map(({ id, name }) => ({
+        id: +id,
+        name
+      }))
+      setTags(transformedData)
+    })
   }, [])
 
   const {

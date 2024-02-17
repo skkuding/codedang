@@ -81,8 +81,8 @@ export default function TagsSelect({ options, onChange }: DataProps) {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-96 p-0" align="start">
-        <Command className="">
+      <PopoverContent className="p-0" align="start">
+        <Command>
           <CommandInput
             placeholder="search"
             value={inputValue}

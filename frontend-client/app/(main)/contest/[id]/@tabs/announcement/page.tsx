@@ -1,17 +1,17 @@
 import DataTable from '@/components/DataTable'
 import { fetcher } from '@/lib/utils'
-import type { ContestClarification } from '@/types/type'
+import type { ContestAnnouncement } from '@/types/type'
 import { columns } from './_components/Columns'
 
-interface ContestClarificationProps {
+interface ContestAnnouncementProps {
   params: { id: string }
 }
 
-export default async function ContestClarification({
+export default async function ContestAnnouncement({
   params
-}: ContestClarificationProps) {
+}: ContestAnnouncementProps) {
   const { id } = params
-  const contestClarifications: ContestClarification[] = await fetcher
+  const contestAnnouncements: ContestAnnouncement[] = await fetcher
     .get('announcement', {
       searchParams: {
         contestId: id
@@ -21,12 +21,12 @@ export default async function ContestClarification({
 
   return (
     <DataTable
-      data={contestClarifications}
+      data={contestAnnouncements}
       columns={columns}
       headerStyle={{
-        title: 'w-1/12',
-        content: 'w-8/12',
-        createTime: 'w-3/12'
+        problem: 'w-[12%]',
+        content: 'w-[70%]',
+        updateTime: 'w-[18%]'
       }}
       name=""
     />

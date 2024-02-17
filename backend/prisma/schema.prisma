@@ -138,16 +138,25 @@ model Notice {
 }
 
 model Problem {
-  id                Int        @id @default(autoincrement())
-  createdBy         User?      @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  createdById       Int?       @map("created_by_id")
-  group             Group      @relation(fields: [groupId], references: [id])
-  groupId           Int        @map("group_id")
+  id          Int   @id @default(autoincrement())
+  createdBy   User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?  @map("created_by_id")
+  group       Group @relation(fields: [groupId], references: [id])
+  groupId     Int   @map("group_id")
+
   title             String
   description       String
-  inputDescription  String     @map("input_description")
-  outputDescription String     @map("output_description")
+  inputDescription  String @map("input_description")
+  outputDescription String @map("output_description")
   hint              String
+
+  // 문제 정보의 영어 버전 제공은 선택사항임
+  engTitle             String? @map("eng_title")
+  engDescription       String? @map("eng_description")
+  engInputDescription  String? @map("eng_input_description")
+  engOutputDescription String? @map("eng_output_description")
+  engHint              String? @map("eng_hint")
+
   /// template code item structure
   /// {
   ///   "lanaguage": Language,
@@ -157,20 +166,21 @@ model Problem {
   ///             "locked": boolean
   ///           }[]
   /// }
-  template          Json[]
-  languages         Language[]
-  timeLimit         Int        @map("time_limit") // unit: MilliSeconds
-  memoryLimit       Int        @map("memory_limit") // unit: MegaBytes
-  difficulty        Level
-  source            String
-  submissionCount   Int        @default(0) @map("submission_count")
-  acceptedCount     Int        @default(0) @map("accepted_count")
-  acceptedRate      Float      @default(0) @map("accepted_rate")
-  exposeTime        DateTime   @default(now()) @map("expose_time")
-  createTime        DateTime   @default(now()) @map("create_time")
-  updateTime        DateTime   @updatedAt @map("update_time")
-  inputExamples     String[]   @map("input_examples")
-  outputExamples    String[]   @map("output_examples")
+  isVisible       Boolean    @default(true) @map("is_visible")
+  template        Json[]
+  languages       Language[]
+  timeLimit       Int        @map("time_limit") // unit: MilliSeconds
+  memoryLimit     Int        @map("memory_limit") // unit: MegaBytes
+  difficulty      Level
+  source          String
+  submissionCount Int        @default(0) @map("submission_count")
+  acceptedCount   Int        @default(0) @map("accepted_count")
+  acceptedRate    Float      @default(0) @map("accepted_rate")
+  exposeTime      DateTime   @default(now()) @map("expose_time")
+  createTime      DateTime   @default(now()) @map("create_time")
+  updateTime      DateTime   @updatedAt @map("update_time")
+  inputExamples   String[]   @map("input_examples")
+  outputExamples  String[]   @map("output_examples")
 
   problemTestcase ProblemTestcase[]
   problemTag      ProblemTag[]
@@ -178,7 +188,7 @@ model Problem {
   workbookProblem WorkbookProblem[]
   submission      Submission[]
   announcement    Announcement[]
-  CodeDraft       CodeDraft[]
+  codeDraft       CodeDraft[]
 
   @@map("problem")
 }
@@ -258,7 +268,7 @@ model Contest {
   contestProblem ContestProblem[]
   contestRecord  ContestRecord[]
   submission     Submission[]
-  // contestAnnouncement ContestAnnouncement[]
+  announcement   Announcement[]
 
   @@map("contest")
 }
@@ -281,8 +291,10 @@ model ContestProblem {
 model Announcement {
   id         Int      @id @default(autoincrement())
   content    String
-  problem    Problem  @relation(fields: [problemId], references: [id])
-  problemId  Int      @map("problem_id")
+  contest    Contest  @relation(fields: [contestId], references: [id])
+  contestId  Int      @map("contest_id")
+  problem    Problem? @relation(fields: [problemId], references: [id])
+  problemId  Int?     @map("problem_id")
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 

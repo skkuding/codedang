@@ -31,7 +31,13 @@ export const problems: Problem[] = [
     updateTime: faker.date.past(),
     inputExamples: [],
     outputExamples: [],
-    template: []
+    template: [],
+    isVisible: true,
+    engTitle: null,
+    engDescription: null,
+    engHint: null,
+    engInputDescription: null,
+    engOutputDescription: null
   },
   {
     id: 2,
@@ -55,7 +61,13 @@ export const problems: Problem[] = [
     updateTime: faker.date.past(),
     inputExamples: [],
     outputExamples: [],
-    template: []
+    template: [],
+    isVisible: true,
+    engTitle: null,
+    engDescription: null,
+    engHint: null,
+    engInputDescription: null,
+    engOutputDescription: null
   }
 ]
 
