@@ -108,7 +108,6 @@ export class AuthService {
       return { accessToken, refreshToken }
     }
 
-    // TODO: delete old refresh token from cache
     const existingRefreshTokens: string[] = (
       (await this.cacheManager.get(refreshTokenCacheKey(userId))) as string[]
     ).filter((token) => token !== oldRefreshToken)
