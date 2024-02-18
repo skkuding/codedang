@@ -1,4 +1,9 @@
-export type ContestStatus = 'ongoing' | 'upcoming' | 'finished'
+export type ContestStatus =
+  | 'ongoing'
+  | 'upcoming'
+  | 'finished'
+  | 'registeredOngoing'
+  | 'registeredUpcoming'
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
 export type Language = 'C' | 'Cpp' | 'Golang' | 'Java' | 'Python2' | 'Python3'
 
@@ -9,6 +14,7 @@ export interface Contest {
   endTime: Date
   group: { id: string; groupName: string }
   status: ContestStatus
+  participants: number
 }
 
 export interface WorkbookProblem {
@@ -126,10 +132,37 @@ export interface SubmissionDetail {
   }[]
 }
 
-export interface ContestClarification {
+export interface ContestAnnouncement {
   id: number
   content: string
   problemId: number
   createTime: string
   updateTime: string
+}
+
+export interface Tag {
+  id: number
+  name: string
+}
+
+export interface Sample {
+  input: string
+  output: string
+}
+
+export interface Testcase {
+  input: string
+  output: string
+  scoreWeight?: number
+}
+
+export interface Snippet {
+  id: number
+  text: string
+  locked: boolean
+}
+
+export interface Template {
+  language: Language
+  code: Snippet[]
 }

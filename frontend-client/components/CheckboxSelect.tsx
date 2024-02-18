@@ -14,20 +14,28 @@ import {
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { PlusCircledIcon } from '@radix-ui/react-icons'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface DataProps {
   title: string
   options: string[]
   onChange: (selectedValues: string[]) => void
+  defaultValue?: string[]
 }
 
 export default function LanguageSelect({
   title,
   options,
-  onChange
+  onChange,
+  defaultValue
 }: DataProps) {
   const [selectedValues, setSelectedValues] = useState([] as string[])
+
+  useEffect(() => {
+    if (defaultValue) {
+      setSelectedValues(defaultValue)
+    }
+  }, [defaultValue])
 
   const handleCheckboxChange = (option: string) => {
     setSelectedValues((prevSelectedValues) => {
@@ -53,7 +61,7 @@ export default function LanguageSelect({
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
               <div className="space-x-1">
-                {selectedValues.length == options.length ? (
+                {selectedValues.length === options.length ? (
                   <Badge
                     variant="secondary"
                     className="rounded-sm px-1 font-normal"

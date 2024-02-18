@@ -20,6 +20,9 @@ class Problem {
   title: string
 
   @Expose()
+  engTitle: string
+
+  @Expose()
   difficulty: Level
 
   @Expose()

@@ -16,7 +16,14 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { fetcherGql, cn } from '@/lib/utils'
-import type { Level, Language } from '@/types/type'
+import type {
+  Level,
+  Language,
+  Testcase,
+  Template,
+  Tag,
+  Sample
+} from '@/types/type'
 import { gql } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
@@ -30,43 +37,12 @@ import { MdHelpOutline } from 'react-icons/md'
 import { PiWarningBold } from 'react-icons/pi'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import ExampleTextarea from './_components/ExampleTextarea'
-import Label from './_components/Lable'
+import ExampleTextarea from '../_components/ExampleTextarea'
+import Label from '../_components/Lable'
+import type { TemplateLanguage } from '../utils'
+import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
 
-const inputStyle =
-  'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
-
-// dummy data
-const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
-const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
-
-interface Tag {
-  id: number
-  name: string
-}
-
-interface Example {
-  input: string
-  output: string
-}
-
-interface Snippet {
-  id: number
-  text: string
-  locked: boolean
-}
-
-interface Template {
-  language: Language
-  code: Snippet
-}
-
-interface TemplateLanguage {
-  language: Language
-  showTemplate: boolean
-}
-
-export interface ProblemData {
+interface CreateProblemInput {
   title: string
   visible: boolean
   difficulty: Level
@@ -75,25 +51,14 @@ export interface ProblemData {
   description: string
   inputDescription: string
   outputDescription: string
-  samples: Example[]
-  testcases: Example[]
+  samples: Sample[]
+  testcases: Testcase[]
   timeLimit: number
   memoryLimit: number
   hint?: string
   source?: string
   template?: Template[]
 }
-
-const GET_TAGS = gql`
-  query GetTags {
-    getTags {
-      id
-      name
-      createTime
-      updateTime
-    }
-  }
-`
 
 const CREATE_PROBLEM = gql`
   mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
@@ -102,10 +67,35 @@ const CREATE_PROBLEM = gql`
       createdById
       groupId
       title
+      visible
+      difficulty
+      languages
+      tagIds
       description
       inputDescription
       outputDescription
+      samples {
+        input
+        output
+        scoreWeight
+      }
+      testcases {
+        input
+        output
+        scoreWeight
+      }
+      timeLimit
+      memoryLimit
       hint
+      source
+      template {
+        code {
+          id
+          text
+          locked
+        }
+        language
+      }
     }
   }
 `
@@ -122,34 +112,56 @@ const schema = z.object({
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
   samples: z
-    .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
+    .array(
+      z.object({
+        input: z.string().min(1),
+        output: z.string().min(1)
+      })
+    )
     .min(1),
   testcases: z
-    .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
+    .array(
+      z.object({
+        input: z.string().min(1),
+        output: z.string().min(1),
+        scoreWeight: z.number().optional()
+      })
+    )
     .min(1),
   timeLimit: z.number().min(0),
   memoryLimit: z.number().min(0),
   hint: z.string().optional(),
   source: z.string().optional(),
-  template: z.array(
-    z
-      .object({
-        language: z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']),
-        code: z.object({
-          id: z.number(),
-          text: z.string(),
-          locked: z.boolean()
+  template: z
+    .array(
+      z
+        .object({
+          language: z.enum([
+            'C',
+            'Cpp',
+            'Golang',
+            'Java',
+            'Python2',
+            'Python3'
+          ]),
+          code: z.array(
+            z.object({
+              id: z.number(),
+              text: z.string(),
+              locked: z.boolean()
+            })
+          )
         })
-      })
-      .optional()
-  )
+        .optional()
+    )
+    .optional()
 })
 
 export default function Page() {
   const [showHint, setShowHint] = useState<boolean>(false)
   const [showSource, setShowSource] = useState<boolean>(false)
-  const [samples, setSamples] = useState<Example[]>([{ input: '', output: '' }])
-  const [testcases, setTestcases] = useState<Example[]>([
+  const [samples, setSamples] = useState<Sample[]>([{ input: '', output: '' }])
+  const [testcases, setTestcases] = useState<Testcase[]>([
     { input: '', output: '' }
   ])
   const [tags, setTags] = useState<Tag[]>([])
@@ -174,19 +186,20 @@ export default function Page() {
     getValues,
     setValue,
     formState: { errors }
-  } = useForm<ProblemData>({
+  } = useForm<CreateProblemInput>({
     resolver: zodResolver(schema),
     defaultValues: {
       difficulty: 'Level1',
       samples: [{ input: '', output: '' }],
       testcases: [{ input: '', output: '' }],
       hint: '',
-      source: ''
+      source: '',
+      template: []
     }
   })
 
   // TODO: Create Problem 에 sample, visible 추가 시 변경
-  const onSubmit = async (data: ProblemData) => {
+  const onSubmit = async (data: CreateProblemInput) => {
     try {
       const res = await fetcherGql(CREATE_PROBLEM, {
         groupId: 1,
@@ -272,7 +285,7 @@ export default function Page() {
               <div className="flex items-center gap-2">
                 <Controller
                   control={control}
-                  name={`visible`}
+                  name="visible"
                   render={({ field: { onChange, onBlur, value } }) => (
                     <div className="flex gap-6">
                       <label className="flex gap-2">
@@ -307,6 +320,12 @@ export default function Page() {
                   )}
                 />
               </div>
+              {errors.visible && (
+                <div className="flex items-center gap-1 text-xs text-red-500">
+                  <PiWarningBold />
+                  required
+                </div>
+              )}
             </div>
           </div>
 
@@ -339,13 +358,13 @@ export default function Page() {
                         setLanguages(
                           selectedLanguages.map((language) => ({
                             language,
-                            showTemplate:
+                            isVisible:
                               languages.filter(
                                 (prev) => prev.language === language
                               ).length > 0
                                 ? languages.filter(
                                     (prev) => prev.language === language
-                                  )[0].showTemplate
+                                  )[0].isVisible
                                 : false
                           })) as TemplateLanguage[]
                         )
@@ -612,38 +631,40 @@ export default function Page() {
                                 templateLanguage.language
                                   ? {
                                       ...prevLanguage,
-                                      showTemplate: !prevLanguage.showTemplate
+                                      isVisible: !prevLanguage.isVisible
                                     }
                                   : prevLanguage
                               )
                             )
                             setValue(`template.${index}`, {
                               language: templateLanguage.language,
-                              code: {
-                                id: index,
-                                text: '',
-                                locked: true
-                              }
+                              code: [
+                                {
+                                  id: index,
+                                  text: '',
+                                  locked: true
+                                }
+                              ]
                             })
                           }}
                           className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
                         />
                       </div>
-                      {templateLanguage.showTemplate && (
+                      {templateLanguage.isVisible && (
                         <Textarea
                           placeholder={`Enter a ${templateLanguage.language} template...`}
                           className="h-[180px] w-[480px] bg-white"
-                          {...register(`template.${index}.code.text`)}
+                          {...register(`template.${index}.code.0.text`)}
                         />
                       )}
                     </div>
-                    {templateLanguage.showTemplate && (
+                    {templateLanguage.isVisible && (
                       <div className="flex flex-col gap-3">
                         <Label>Locked</Label>
                         <div className="flex items-center gap-2">
                           <Controller
                             control={control}
-                            name={`template.${index}.code.locked`}
+                            name={`template.${index}.code.0.locked`}
                             render={({
                               field: { onChange, onBlur, value }
                             }) => (
