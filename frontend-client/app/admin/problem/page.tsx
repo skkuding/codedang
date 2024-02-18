@@ -1,96 +1,98 @@
+'use client'
+
+import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
-import { fetcher } from '@/lib/utils'
-import type { Problem } from '@/types/type'
+import { Button } from '@/components/ui/button'
+import { useQuery } from '@apollo/client'
+import { Language, Level } from '@generated/graphql'
+import { PlusCircleIcon } from 'lucide-react'
+import Link from 'next/link'
 import * as React from 'react'
 import { columns } from './_components/Columns'
 
-// const GET_PROBLEMS = gql`
-//   query GetProblems($groupId: Int!, $cursor: Int, $take: Int!, $input: FilterProblemsInput!) {
-//     getProblems(groupId: $groupId, cursor: $cursor, take: $take, input: $input) {
-//       id
-//       title
-//       difficulty
-//       submissionCount
-//       acceptedRate
-//       languages
-//       problemTag{
-//         tag{
-//           id
-//           name
-//         }
-//       }
-//     }
-//   }
-// `
+const GET_PROBLEMS = gql(`
+  query GetProblems(
+    $groupId: Int!
+    $cursor: Int
+    $take: Int!
+    $input: FilterProblemsInput!
+  ) {
+    getProblems(
+      groupId: $groupId
+      cursor: $cursor
+      take: $take
+      input: $input
+    ) {
+      id
+      title
+      updateTime
+      difficulty
+      submissionCount
+      acceptedRate
+      isVisible
+      languages
+      problemTag {
+        id
+        tag {
+          id
+          name
+        }
+      }
+    }
+  }
+`)
 
-// interface DataTableProblem {
-//   id: string
-//   title: string
-//   difficulty: string
-//   submissionCount: number
-//   acceptedRate: number
-//   languages: string[]
-//   problemTag: Tag[]
-// }
-
-// const GET_PROBLEMS = gql`
-//   query GetProblems($groupId: Int!, $cursor: Int, $take: Int!, $input: FilterProblemsInput!) {
-//     getProblems(groupId: $groupId, cursor: $cursor, take: $take, input: $input) {
-//       id
-//       title
-//       difficulty
-//       submissionCount
-//       acceptedRate
-//       languages
-//       problemTag{
-//         tag{
-//           id
-//           name
-//         }
-//       }
-//     }
-//   }
-// `
 export const dynamic = 'force-dynamic'
 
-export default async function Page() {
-  // const [problems, setProblems] = useState<Problem[]>([])
-  // useEffect(() => {
-  //   fetcherGql(GET_PROBLEMS, {
-  //     groupId: 1,
-  //     cursor: 1,
-  //     take: 10,
-  //     input: {
-  //       difficulty: ["Level1", "Level2", "Level3", "Level4", "Level5"],
-  //       languages: ["C", "Cpp", "Java", "Python3"],
-  //     }
-
-  //   }).then((data) => {
-  //     const transformedData = data.getProblems.map(
-  //       (problem: { id: string; title: string, difficulty: string, submissionCount: number, acceptedRate: number, languages: string[], problemTag: Tag[] }) => ({
-  //         ...problem,
-  //         id: Number(problem.id),
-  //         problemTag: problem.problemTag.map((tag: Tag) => ({
-  //           ...tag,
-  //           id: Number(tag.id)
-  //         }))
-  //       })
-  //     )
-  //     setProblems(transformedData)
-  //   })
-  // }, [])
-
-  // TODO:  Codedang Admin Get Problems API에 problemTags내용이 추가되면 Admin에서 가져오기 (현재는 problemTag 전부 null로 돼있음)
-  const { problems }: { problems: Problem[] } = await fetcher
-    .get('problem', {
-      searchParams: {
-        take: 15
+export default function Page() {
+  const { data } = useQuery(GET_PROBLEMS, {
+    variables: {
+      groupId: 1,
+      cursor: 1,
+      take: 8,
+      input: {
+        difficulty: [
+          Level.Level1,
+          Level.Level2,
+          Level.Level3,
+          Level.Level4,
+          Level.Level5
+        ],
+        languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
       }
-    })
-    .json()
+    }
+  })
+
+  const problems =
+    data?.getProblems.map((problem) => ({
+      ...problem,
+      id: Number(problem.id),
+      languages: problem.languages ?? [],
+      problemTag: problem.problemTag.map(({ id, tag }) => ({
+        id: +id,
+        tag: {
+          ...tag,
+          id: +tag.id
+        }
+      }))
+    })) ?? []
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto space-y-5 py-10">
+      <div className="flex justify-between">
+        <div>
+          <p className="text-4xl font-bold">Problem List</p>
+          <p className="flex text-lg text-slate-500">
+            Here&apos;s a list you made
+          </p>
+        </div>
+        <Link href="/admin/problem/create">
+          <Button variant="default">
+            <PlusCircleIcon className="mr-2 h-4 w-4" />
+            Create
+          </Button>
+        </Link>
+      </div>
       <DataTableAdmin columns={columns} data={problems} />
     </div>
   )

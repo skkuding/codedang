@@ -6,6 +6,7 @@ import type { ProblemWhereInput } from '@generated'
 import { Workbook } from 'exceljs'
 import {
   DuplicateFoundException,
+  EntityNotExistException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
@@ -16,7 +17,6 @@ import type {
   CreateProblemInput,
   UploadFileInput,
   FilterProblemsInput,
-  UploadProblemInput,
   UpdateProblemInput,
   UpdateProblemTagInput
 } from './model/problem.input'
@@ -35,7 +35,7 @@ export class ProblemService {
     userId: number,
     groupId: number
   ) {
-    const { languages, template, tagIds, testcases, ...data } = input
+    const { languages, template, tagIds, samples, testcases, ...data } = input
     if (!languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
@@ -52,6 +52,9 @@ export class ProblemService {
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
+        samples: {
+          create: samples
+        },
         groupId,
         createdById: userId,
         languages,
@@ -61,6 +64,9 @@ export class ProblemService {
             return { tagId }
           })
         }
+      },
+      include: {
+        samples: true
       }
     })
     await this.createTestcases(problem.id, testcases)
@@ -115,8 +121,7 @@ export class ProblemService {
       )
 
     const header = {}
-    const problems: { index: number; data: UploadProblemInput }[] = []
-    const testcases: { [key: number]: Testcase[] } = {}
+    const problems: CreateProblemInput[] = []
 
     const workbook = new Workbook()
     const worksheet = (await workbook.xlsx.read(createReadStream()))
@@ -188,22 +193,6 @@ export class ProblemService {
       }
 
       //TODO: specify timeLimit, memoryLimit(default: 2sec, 512mb)
-      const problemInput = {
-        title,
-        description,
-        inputDescription: '',
-        outputDescription: '',
-        hint: '',
-        template,
-        languages,
-        timeLimit: 2000,
-        memoryLimit: 512,
-        difficulty: level,
-        source: '',
-        inputExamples: [],
-        outputExamples: []
-      }
-      problems.push({ index: rowNumber, data: problemInput })
 
       const testCnt = parseInt(row.getCell(header['TestCnt']).text)
       const inputText = row.getCell(header['Input']).text
@@ -238,31 +227,29 @@ export class ProblemService {
           scoreWeight: parseInt(scoreWeights[i])
         })
       }
-      testcases[rowNumber] = testcaseInput
+
+      problems.push({
+        title,
+        description,
+        inputDescription: '',
+        isVisible: true,
+        outputDescription: '',
+        hint: '',
+        template,
+        languages,
+        timeLimit: 2000,
+        memoryLimit: 512,
+        difficulty: level,
+        source: '',
+        testcases: testcaseInput,
+        tagIds: [],
+        samples: []
+      })
     })
 
     return await Promise.all(
-      problems.map(async (problemInput) => {
-        const { index, data } = problemInput
-        const problem = await this.prisma.problem.create({
-          data: {
-            ...data,
-            createdBy: {
-              connect: {
-                id: userId
-              }
-            },
-            group: {
-              connect: {
-                id: groupId
-              }
-            },
-            template: [JSON.stringify(data.template)]
-          }
-        })
-        if (index in testcases) {
-          await this.createTestcases(problem.id, testcases[index])
-        }
+      problems.map(async (data) => {
+        const problem = await this.createProblem(data, userId, groupId)
         return problem
       })
     )
@@ -303,6 +290,7 @@ export class ProblemService {
         groupId
       },
       include: {
+        samples: true,
         problemTestcase: true,
         problemTag: {
           include: {
@@ -314,7 +302,7 @@ export class ProblemService {
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
-    const { id, languages, template, tags, testcases, ...data } = input
+    const { id, languages, template, tags, testcases, samples, ...data } = input
     const problem = await this.getProblem(id, groupId)
 
     if (languages && !languages.length) {
@@ -341,6 +329,14 @@ export class ProblemService {
       where: { id },
       data: {
         ...data,
+        samples: {
+          create: samples?.create,
+          delete: samples?.delete.map((deleteId) => {
+            return {
+              id: deleteId
+            }
+          })
+        },
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
         problemTag
@@ -579,5 +575,33 @@ export class ProblemService {
 
   async getTags(): Promise<Partial<Tag>[]> {
     return await this.prisma.tag.findMany()
+  }
+
+  async getTag(tagId: number) {
+    const tag = await this.prisma.tag.findUnique({
+      where: {
+        id: tagId
+      }
+    })
+    if (tag == null) {
+      throw new EntityNotExistException('problem')
+    }
+    return tag
+  }
+
+  async getProblemTags(problemId: number) {
+    return await this.prisma.problemTag.findMany({
+      where: {
+        problemId
+      }
+    })
+  }
+
+  async getProblemTestcases(problemId: number) {
+    return await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId
+      }
+    })
   }
 }

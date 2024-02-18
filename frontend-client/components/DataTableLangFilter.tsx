@@ -14,41 +14,23 @@ import {
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { PlusCircledIcon } from '@radix-ui/react-icons'
-import { useState, useEffect } from 'react'
+import { Column } from '@tanstack/react-table'
 
-interface DataProps<T> {
-  title: string
-  options: T[]
-  onChange: (selectedValues: T[]) => void
-  defaultValue?: T[]
+interface DataTableLangFilterProps<TData, TValue> {
+  column?: Column<TData, TValue>
+  title?: string
+  options: string[]
 }
 
-export default function LanguageSelect<T extends string>({
+export default function DataTableLangFilter<TData, TValue>({
+  column,
   title,
-  options,
-  onChange,
-  defaultValue
-}: DataProps<T>) {
-  const [selectedValues, setSelectedValues] = useState<T[]>([])
-
-  useEffect(() => {
-    if (defaultValue) {
-      setSelectedValues(defaultValue)
-    }
-  }, [defaultValue])
-
-  const handleCheckboxChange = (option: T) => {
-    setSelectedValues((prevSelectedValues) => {
-      if (prevSelectedValues.includes(option)) {
-        return prevSelectedValues.filter((value) => value !== option)
-      } else {
-        return [...prevSelectedValues, option]
-      }
-    })
-  }
+  options
+}: DataTableLangFilterProps<TData, TValue>) {
+  const selectedValues = new Set(column?.getFilterValue() as string[])
 
   return (
-    <Popover onOpenChange={() => onChange(selectedValues)}>
+    <Popover>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -57,11 +39,11 @@ export default function LanguageSelect<T extends string>({
         >
           <PlusCircledIcon className="mr-2 h-4 w-4" />
           <p className="font-bold">{title}</p>
-          {selectedValues.length > 0 && (
+          {selectedValues.size > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
               <div className="space-x-1">
-                {selectedValues.length === options.length ? (
+                {selectedValues.size === options.length ? (
                   <Badge
                     variant="secondary"
                     className="rounded-sm px-1 font-normal"
@@ -70,15 +52,17 @@ export default function LanguageSelect<T extends string>({
                   </Badge>
                 ) : (
                   <div className="flex space-x-1">
-                    {selectedValues.map((value) => (
-                      <Badge
-                        key={value}
-                        variant="secondary"
-                        className="rounded-sm px-1 font-normal"
-                      >
-                        {value}
-                      </Badge>
-                    ))}
+                    {options
+                      .filter((option) => selectedValues.has(option))
+                      .map((option) => (
+                        <Badge
+                          key={option}
+                          variant="secondary"
+                          className="rounded-sm px-1 font-normal"
+                        >
+                          {option}
+                        </Badge>
+                      ))}
                   </div>
                 )}
               </div>
@@ -94,9 +78,19 @@ export default function LanguageSelect<T extends string>({
             {options.map((option) => (
               <CommandItem key={option} value={option} className="gap-x-2">
                 <Checkbox
-                  checked={selectedValues.includes(option)}
-                  onCheckedChange={() => handleCheckboxChange(option)}
-                ></Checkbox>
+                  checked={selectedValues.has(option)}
+                  onCheckedChange={() => {
+                    if (selectedValues.has(option)) {
+                      selectedValues.delete(option)
+                    } else {
+                      selectedValues.add(option)
+                    }
+                    const filterValues = Array.from(selectedValues)
+                    column?.setFilterValue(
+                      filterValues.length ? filterValues : undefined
+                    )
+                  }}
+                />
                 {option}
               </CommandItem>
             ))}
