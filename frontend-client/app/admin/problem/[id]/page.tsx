@@ -115,8 +115,9 @@ const UPDATE_PROBLEM = gql(`
 `)
 
 const schema = z.object({
+  id: z.number(),
   title: z.string().min(1).max(25),
-  visible: z.boolean(),
+  isVisible: z.boolean(),
   difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
@@ -125,14 +126,14 @@ const schema = z.object({
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
-  samples: z
-    .array(
-      z.object({
-        input: z.string().min(1),
-        output: z.string().min(1)
-      })
-    )
-    .min(1),
+  samples: z.object({
+    create: z.array(
+      z
+        .object({ input: z.string().min(1), output: z.string().min(1) })
+        .optional()
+    ),
+    delete: z.array(z.number()).optional()
+  }),
   testcases: z
     .array(
       z.object({
@@ -176,6 +177,9 @@ export default function Page({ params }: { params: { id: string } }) {
   const [showHint, setShowHint] = useState(true)
   const [showSource, setShowSource] = useState(true)
   const [samples, setSamples] = useState<Sample[]>([{ input: '', output: '' }])
+  const [testcases, setTestcases] = useState<Testcase[]>([
+    { input: '', output: '' }
+  ])
   const [languages, setLanguages] = useState<TemplateLanguage[]>([])
 
   const { data: tagsData } = useQuery(GET_TAGS)
@@ -226,21 +230,29 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (problemData) {
     const data = problemData.getProblem
-
+    setValue('id', +id)
     setValue('title', data.title)
+    setValue('isVisible', data.isVisible)
     setValue('difficulty', data.difficulty)
     setValue('languages', data.languages ?? [])
-    setValue(
-      'tags.create',
-      data.problemTag.map((problemTag) => Number(problemTag.tag.id))
-    )
-    setValue(
-      'tags.delete',
-      data.problemTag.map((problemTag) => Number(problemTag.tag.id))
-    )
+    // setValue(
+    //   'tags.create',
+    //   data.problemTag.map((problemTag) => Number(problemTag.tag.id))
+    // )
+    // setValue(
+    //   'tags.delete',
+    //   data.problemTag.map((problemTag) => Number(problemTag.tag.id))
+    // )
+    setValue('tags.create', [])
+    setValue('tags.delete', [])
     setValue('description', data.description)
     setValue('inputDescription', data.inputDescription)
     setValue('outputDescription', data.outputDescription)
+    setValue('samples.create', data.samples || [])
+    setValue(
+      'samples.delete',
+      (data.samples && data.samples.map((_, index) => index)) || []
+    )
     setValue('testcases', data.problemTestcase)
     setValue('timeLimit', data.timeLimit)
     setValue('memoryLimit', data.memoryLimit)
@@ -271,6 +283,9 @@ export default function Page({ params }: { params: { id: string } }) {
         groupId: 1,
         input
       }
+    }).then((res) => {
+      console.log(res)
+      if (res.data?.updateProblem) toast.success('Problem updated')
     })
     if (error) {
       toast.error('Failed to update problem')
@@ -288,6 +303,7 @@ export default function Page({ params }: { params: { id: string } }) {
     const values = getValues('testcases') ?? []
     const newTestcase = { input: '', output: '' }
     setValue('testcases', [...values, newTestcase])
+    setTestcases((prev) => [...prev, newTestcase])
   }
 
   const removeSample = (index: number) => {
@@ -561,8 +577,8 @@ export default function Page({ params }: { params: { id: string } }) {
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       onRemove={() => removeSample(index)}
-                      inputName={`samples.${index}.input`}
-                      outputName={`samples.${index}.output`}
+                      inputName={`samples.create.${index}.input`}
+                      outputName={`samples.create.${index}.output`}
                       register={register}
                     />
                     {errors.samples && samples[index] && (
@@ -588,7 +604,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </div>
             <div className="flex flex-col gap-2">
               {getValues('testcases') &&
-                getValues('testcases')?.map((_, index) => (
+                testcases.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
