@@ -44,7 +44,7 @@ import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
 
 interface CreateProblemInput {
   title: string
-  visible: boolean
+  isVisible: boolean
   difficulty: Level
   languages: Language[]
   tagIds: number[]
@@ -67,7 +67,7 @@ const CREATE_PROBLEM = gql`
       createdById
       groupId
       title
-      visible
+      isVisible
       difficulty
       languages
       tagIds
@@ -102,7 +102,7 @@ const CREATE_PROBLEM = gql`
 
 const schema = z.object({
   title: z.string().min(1).max(25),
-  visible: z.boolean(),
+  isVisible: z.boolean(),
   difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
@@ -285,7 +285,7 @@ export default function Page() {
               <div className="flex items-center gap-2">
                 <Controller
                   control={control}
-                  name="visible"
+                  name="isVisible"
                   render={({ field: { onChange, onBlur, value } }) => (
                     <div className="flex gap-6">
                       <label className="flex gap-2">
@@ -320,7 +320,7 @@ export default function Page() {
                   )}
                 />
               </div>
-              {errors.visible && (
+              {errors.isVisible && (
                 <div className="flex items-center gap-1 text-xs text-red-500">
                   <PiWarningBold />
                   required

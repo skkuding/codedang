@@ -45,7 +45,7 @@ import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
 interface UpdateProblemInput {
   id: number
   title: string
-  visible: boolean
+  isVisible: boolean
   difficulty: Level
   languages: Language[]
   tags: {
@@ -66,7 +66,7 @@ interface UpdateProblemInput {
 
 interface GetProblem {
   title: string
-  // visible: boolean
+  isVisible: boolean
   difficulty: Level
   languages: Language[]
   problemTag: { tag: Tag }[]
@@ -86,6 +86,7 @@ const GET_PROBLEM = gql`
   query GetProblem($groupId: Int!, $id: Int!) {
     getProblem(groupId: $groupId, id: $id) {
       title
+      isVisible
       difficulty
       languages
       problemTag {
@@ -117,7 +118,7 @@ const UPDATE_PROBLEM = gql`
       createdById
       groupId
       title
-      visible
+      isVisible
       difficulty
       languages
       tags {
@@ -155,7 +156,7 @@ const UPDATE_PROBLEM = gql`
 
 const schema = z.object({
   title: z.string().min(1).max(25),
-  visible: z.boolean(),
+  isVisible: z.boolean(),
   difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
@@ -273,6 +274,7 @@ export default function Page({ params }: { params: { id: string } }) {
     if (problemData) {
       // TODO: add visible and samples
       setValue('title', problemData.title)
+      setValue('isVisible', problemData.isVisible)
       setValue('difficulty', problemData.difficulty)
       setValue('languages', problemData.languages)
       setValue(
@@ -412,7 +414,7 @@ export default function Page({ params }: { params: { id: string } }) {
               <div className="flex items-center gap-2">
                 <Controller
                   control={control}
-                  name="visible"
+                  name="isVisible"
                   render={({ field: { onChange, onBlur, value } }) => (
                     <div className="flex gap-6">
                       <label className="flex gap-2">
@@ -447,7 +449,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   )}
                 />
               </div>
-              {errors.visible && (
+              {errors.isVisible && (
                 <div className="flex items-center gap-1 text-xs text-red-500">
                   <PiWarningBold />
                   required
