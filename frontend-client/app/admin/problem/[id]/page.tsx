@@ -17,9 +17,9 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import type { Language, Testcase, Sample } from '@/types/type'
+import type { Language, Sample } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
-import { Level, type CreateProblemInput } from '@generated/graphql'
+import type { UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -34,30 +34,46 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
-import { GET_TAGS, languageMapper } from '../utils'
+import type { TemplateLanguage } from '../utils'
+import {
+  GET_TAGS,
+  inputStyle,
+  languageMapper,
+  languageOptions,
+  levels
+} from '../utils'
 
-const inputStyle =
-  'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
+const GET_PROBLEM = gql(`
+  query GetProblem($groupId: Int!, $id: Int!) {
+    getProblem(groupId: $groupId, id: $id) {
+      title
+      difficulty
+      languages
+      problemTag {
+        tag {
+          id
+          name
+        }
+      }
+      description
+      inputDescription
+      outputDescription
+      problemTestcase {
+        input
+        output
+      }
+      timeLimit
+      memoryLimit
+      hint
+      source
+      template
+    }
+  }
+`)
 
-// dummy data
-const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
-const languageOptions: Language[] = [
-  'C',
-  'Cpp',
-  'Golang',
-  'Java',
-  'Python2',
-  'Python3'
-]
-
-interface TemplateLanguage {
-  language: Language
-  showTemplate: boolean
-}
-
-const CREATE_PROBLEM = gql(`
-  mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
-    createProblem(groupId: $groupId, input: $input) {
+const UPDATE_PROBLEM = gql(`
+  mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
+    updateProblem(groupId: $groupId, input: $input) {
       id
       createdById
       groupId
@@ -99,7 +115,7 @@ const schema = z.object({
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
   ),
-  tagIds: z.array(z.number()).min(1),
+  tags: z.object({ create: z.array(z.number()), delete: z.array(z.number()) }),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
@@ -149,18 +165,41 @@ const schema = z.object({
     .optional()
 })
 
-export default function Page() {
-  const [showHint, setShowHint] = useState<boolean>(false)
-  const [showSource, setShowSource] = useState<boolean>(false)
+export default function Page({ params }: { params: { id: string } }) {
+  const { id } = params
+  const [showHint, setShowHint] = useState(true)
+  const [showSource, setShowSource] = useState(true)
   const [samples, setSamples] = useState<Sample[]>([{ input: '', output: '' }])
-  const [testcases, setTestcases] = useState<Testcase[]>([
-    { input: '', output: '' }
-  ])
   const [languages, setLanguages] = useState<TemplateLanguage[]>([])
 
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
     tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
+
+  const { data: problemData } = useQuery(GET_PROBLEM, {
+    variables: {
+      groupId: 1,
+      id: +id
+    }
+  })
+
+  const fetchedDescription = problemData?.getProblem.description
+  const fetchedDifficulty = problemData?.getProblem.difficulty
+  const fetchedLangauges = problemData?.getProblem.languages ?? []
+  const fetchedTags =
+    problemData?.getProblem.problemTag.map(({ tag }) => +tag.id) ?? []
+
+  const fetchedTemplateLanguage =
+    problemData?.getProblem.template?.map(
+      (template: string) => JSON.parse(template)[0].language
+    ) ?? []
+
+  setLanguages(
+    problemData?.getProblem.languages?.map((language: Language) => ({
+      language,
+      isVisible: fetchedTemplateLanguage.includes(language) ? true : false
+    })) ?? []
+  )
 
   const {
     handleSubmit,
@@ -169,49 +208,98 @@ export default function Page() {
     getValues,
     setValue,
     formState: { errors }
-  } = useForm<CreateProblemInput>({
+  } = useForm<UpdateProblemInput>({
     resolver: zodResolver(schema),
     defaultValues: {
-      difficulty: Level.Level1,
-      samples: [{ input: '', output: '' }],
-      testcases: [{ input: '', output: '' }],
-      hint: '',
-      source: '',
+      samples: {},
       template: []
     }
   })
 
-  // TODO: createProblem에 sample, visible 추가 시 변경
-  const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
-  const onSubmit = async (input: CreateProblemInput) => {
-    await createProblem({
+  if (problemData) {
+    const data = problemData.getProblem
+
+    setValue('title', data.title)
+    setValue('difficulty', data.difficulty)
+    setValue('languages', data.languages ?? [])
+    setValue(
+      'tags.create',
+      data.problemTag.map((problemTag) => Number(problemTag.tag.id))
+    )
+    setValue(
+      'tags.delete',
+      data.problemTag.map((problemTag) => Number(problemTag.tag.id))
+    )
+    setValue('description', data.description)
+    setValue('inputDescription', data.inputDescription)
+    setValue('outputDescription', data.outputDescription)
+    setValue('testcases', data.problemTestcase)
+    setValue('timeLimit', data.timeLimit)
+    setValue('memoryLimit', data.memoryLimit)
+    setValue('hint', data.hint)
+    setValue('source', data.source)
+    setValue(
+      'template',
+      data.template?.map((template: string) => {
+        const parsedTemplate = JSON.parse(template)[0]
+        return {
+          language: parsedTemplate.language,
+          code: [
+            {
+              id: parsedTemplate.code[0].id,
+              text: parsedTemplate.code[0].text,
+              locked: parsedTemplate.code[0].locked
+            }
+          ]
+        }
+      })
+    )
+  }
+
+  const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
+  const onSubmit = async (input: UpdateProblemInput) => {
+    await updateProblem({
       variables: {
         groupId: 1,
         input
       }
     })
     if (error) {
-      toast.error('Failed to create problem')
+      toast.error('Failed to update problem')
     }
   }
 
-  const addExample = (type: 'samples' | 'testcases') => {
-    const currentValues = getValues(type)
-    setValue(type, [...currentValues, { input: '', output: '' }])
-    type === 'samples'
-      ? setSamples(() => [...samples, { input: '', output: '' }])
-      : setTestcases(() => [...testcases, { input: '', output: '' }])
+  const addSample = () => {
+    const values = getValues('samples.create')
+    const newSample = { input: '', output: '' }
+    setValue('samples.create', [...values, newSample])
+    setSamples((prev) => [...prev, newSample])
   }
 
-  const removeExample = (type: 'samples' | 'testcases', index: number) => {
-    const currentValues = getValues(type)
-    if (currentValues.length === 1) {
-      toast.warning(`At least one ${type} is required`)
+  const addTestcase = () => {
+    const values = getValues('testcases') ?? []
+    const newTestcase = { input: '', output: '' }
+    setValue('testcases', [...values, newTestcase])
+  }
+
+  const removeSample = (index: number) => {
+    if (samples.length <= 1) {
+      toast.warning('At least one sample is required')
       return
     }
-    const updatedValues = currentValues.filter((_, i) => i !== index)
-    setValue(type, updatedValues)
-    type === 'samples' ? setSamples(updatedValues) : setTestcases(updatedValues)
+    const samplesToDelete = getValues('samples.delete')
+    setValue('samples.delete', [...samplesToDelete, index])
+    setSamples(samples.filter((_, i) => i !== index))
+  }
+
+  const removeTestcase = (index: number) => {
+    const values = getValues('testcases') ?? []
+    if (values.length <= 1) {
+      toast.warning('At least one testcase is required')
+      return
+    }
+    const updatedValues = values.filter((_, i) => i !== index)
+    setValue('testcases', updatedValues)
   }
 
   return (
@@ -221,7 +309,7 @@ export default function Page() {
           <Link href="/admin/problem">
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
-          <span className="text-4xl font-bold">Create Problem</span>
+          <span className="text-4xl font-bold">Edit Problem</span>
         </div>
 
         <form
@@ -241,7 +329,7 @@ export default function Page() {
               {errors.title && (
                 <div className="flex items-center gap-1 text-xs text-red-500">
                   <PiWarningBold />
-                  {getValues('title').length === 0
+                  {getValues('title')?.length === 0
                     ? 'required'
                     : errors.title.message}
                 </div>
@@ -318,7 +406,11 @@ export default function Page() {
               <div className="flex flex-col gap-1">
                 <Controller
                   render={({ field }) => (
-                    <OptionSelect options={levels} onChange={field.onChange} />
+                    <OptionSelect
+                      options={levels}
+                      onChange={field.onChange}
+                      defaultValue={fetchedDifficulty}
+                    />
                   )}
                   name="difficulty"
                   control={control}
@@ -341,17 +433,18 @@ export default function Page() {
                         setLanguages(
                           selectedLanguages.map((language) => ({
                             language,
-                            showTemplate:
+                            isVisible:
                               languages.filter(
                                 (prev) => prev.language === language
                               ).length > 0
                                 ? languages.filter(
                                     (prev) => prev.language === language
-                                  )[0].showTemplate
+                                  )[0].isVisible
                                 : false
-                          }))
+                          })) as TemplateLanguage[]
                         )
                       }}
+                      defaultValue={fetchedLangauges}
                     />
                   )}
                   name="languages"
@@ -367,12 +460,16 @@ export default function Page() {
               <div className="flex flex-col gap-1">
                 <Controller
                   render={({ field }) => (
-                    <TagsSelect options={tags} onChange={field.onChange} />
+                    <TagsSelect
+                      options={tags}
+                      onChange={field.onChange}
+                      defaultValue={fetchedTags}
+                    />
                   )}
-                  name="tagIds"
+                  name="tags.create"
                   control={control}
                 />
-                {errors.tagIds && (
+                {errors.tags && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
                     <PiWarningBold />
                     required
@@ -384,16 +481,19 @@ export default function Page() {
 
           <div className="flex flex-col gap-1">
             <Label>Description</Label>
-            <Controller
-              render={({ field }) => (
-                <TextEditor
-                  placeholder="Enter a description..."
-                  onChange={field.onChange}
-                />
-              )}
-              name="description"
-              control={control}
-            />
+            {fetchedDescription && (
+              <Controller
+                render={({ field }) => (
+                  <TextEditor
+                    placeholder="Enter a description..."
+                    onChange={field.onChange}
+                    defaultValue={fetchedDescription}
+                  />
+                )}
+                name="description"
+                control={control}
+              />
+            )}
             {errors.description && (
               <div className="flex items-center gap-1 text-xs text-red-500">
                 <PiWarningBold />
@@ -441,7 +541,7 @@ export default function Page() {
             <div className="flex items-center gap-2">
               <Label>Sample</Label>
               <Badge
-                onClick={() => addExample('samples')}
+                onClick={addSample}
                 className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-200/60 p-0 text-xs font-medium text-gray-500 shadow-sm hover:bg-gray-200"
               >
                 + add
@@ -449,15 +549,15 @@ export default function Page() {
             </div>
             <div className="flex flex-col gap-2">
               {getValues('samples') &&
-                getValues('samples').map((_sample, index) => (
+                samples.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
-                      onRemove={() => removeExample('samples', index)}
+                      onRemove={() => removeSample(index)}
                       inputName={`samples.${index}.input`}
                       outputName={`samples.${index}.output`}
                       register={register}
                     />
-                    {errors.samples?.[index] && (
+                    {errors.samples && samples[index] && (
                       <div className="flex items-center gap-1 text-xs text-red-500">
                         <PiWarningBold />
                         required
@@ -472,7 +572,7 @@ export default function Page() {
             <div className="flex items-center gap-2">
               <Label>Testcase</Label>
               <Badge
-                onClick={() => addExample('testcases')}
+                onClick={addTestcase}
                 className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-200/60 p-0 text-xs font-medium text-gray-500 shadow-sm hover:bg-gray-200"
               >
                 + add
@@ -480,11 +580,11 @@ export default function Page() {
             </div>
             <div className="flex flex-col gap-2">
               {getValues('testcases') &&
-                getValues('testcases').map((_testcase, index) => (
+                getValues('testcases')?.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
-                      onRemove={() => removeExample('testcases', index)}
+                      onRemove={() => removeTestcase(index)}
                       inputName={`testcases.${index}.input`}
                       outputName={`testcases.${index}.output`}
                       register={register}
@@ -561,6 +661,7 @@ export default function Page() {
                   setShowHint(!showHint)
                   setValue('hint', '')
                 }}
+                checked={showHint}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
@@ -582,6 +683,7 @@ export default function Page() {
                   setShowSource(!showSource)
                   setValue('source', '')
                 }}
+                checked={showSource}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
@@ -598,97 +700,103 @@ export default function Page() {
 
           <div className="flex flex-col gap-6">
             {languages &&
-              languages.map((templateLanguage, index) => (
-                <div key={index} className="flex gap-4">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <Label required={false}>
-                        {templateLanguage.language} Template
-                      </Label>
-                      <Switch
-                        onCheckedChange={() => {
-                          setLanguages((prev) =>
-                            prev.map((prevLanguage) =>
-                              prevLanguage.language ===
-                              templateLanguage.language
-                                ? {
-                                    ...prevLanguage,
-                                    isVisible: !prevLanguage.showTemplate
-                                  }
-                                : prevLanguage
-                            )
-                          )
-                          setValue(`template.${index}`, {
-                            language: languageMapper[templateLanguage.language],
-                            code: [
-                              {
-                                id: index,
-                                text: '',
-                                locked: true
-                              }
-                            ]
-                          })
-                        }}
-                        className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
-                      />
-                    </div>
-                    {templateLanguage.showTemplate && (
-                      <Textarea
-                        placeholder={`Enter a ${templateLanguage.language} template...`}
-                        className="h-[180px] w-[480px] bg-white"
-                        {...register(`template.${index}.code.0.text`)}
-                      />
-                    )}
-                  </div>
-                  {templateLanguage.showTemplate && (
-                    <div className="flex flex-col gap-3">
-                      <Label>Locked</Label>
+              (languages as TemplateLanguage[]).map(
+                (templateLanguage, index) => (
+                  <div key={index} className="flex gap-4">
+                    <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
-                        <Controller
-                          control={control}
-                          name={`template.${index}.code.0.locked`}
-                          render={({ field: { onChange, onBlur, value } }) => (
-                            <div className="flex gap-4">
-                              <label className="flex gap-1">
-                                <input
-                                  type="radio"
-                                  onBlur={onBlur}
-                                  onChange={() => onChange(true)}
-                                  checked={value === true}
-                                  className="accent-black"
-                                />
-                                <HiLockClosed
-                                  className={
-                                    value === true
-                                      ? 'text-black'
-                                      : 'text-gray-400'
-                                  }
-                                />
-                              </label>
-                              <label className="flex gap-1">
-                                <input
-                                  type="radio"
-                                  onBlur={onBlur}
-                                  onChange={() => onChange(false)}
-                                  checked={value === false}
-                                  className="accent-black"
-                                />
-                                <HiLockOpen
-                                  className={
-                                    value === false
-                                      ? 'text-black'
-                                      : 'text-gray-400'
-                                  }
-                                />
-                              </label>
-                            </div>
-                          )}
+                        <Label required={false}>
+                          {templateLanguage.language} Template
+                        </Label>
+                        <Switch
+                          onCheckedChange={() => {
+                            setLanguages((prev) =>
+                              prev.map((prevLanguage) =>
+                                prevLanguage.language ===
+                                templateLanguage.language
+                                  ? {
+                                      ...prevLanguage,
+                                      isVisible: !prevLanguage.isVisible
+                                    }
+                                  : prevLanguage
+                              )
+                            )
+                            setValue(`template.${index}`, {
+                              language:
+                                languageMapper[templateLanguage.language],
+                              code: [
+                                {
+                                  id: index,
+                                  text: '',
+                                  locked: true
+                                }
+                              ]
+                            })
+                          }}
+                          checked={templateLanguage.isVisible}
+                          className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
                         />
                       </div>
+                      {templateLanguage.isVisible && (
+                        <Textarea
+                          placeholder={`Enter a ${templateLanguage.language} template...`}
+                          className="h-[180px] w-[480px] bg-white"
+                          {...register(`template.${index}.code.0.text`)}
+                        />
+                      )}
                     </div>
-                  )}
-                </div>
-              ))}
+                    {templateLanguage.isVisible && (
+                      <div className="flex flex-col gap-3">
+                        <Label>Locked</Label>
+                        <div className="flex items-center gap-2">
+                          <Controller
+                            control={control}
+                            name={`template.${index}.code.0.locked`}
+                            render={({
+                              field: { onChange, onBlur, value }
+                            }) => (
+                              <div className="flex gap-4">
+                                <label className="flex gap-1">
+                                  <input
+                                    type="radio"
+                                    onBlur={onBlur}
+                                    onChange={() => onChange(true)}
+                                    checked={value === true}
+                                    className="accent-black"
+                                  />
+                                  <HiLockClosed
+                                    className={
+                                      value === true
+                                        ? 'text-black'
+                                        : 'text-gray-400'
+                                    }
+                                  />
+                                </label>
+                                <label className="flex gap-1">
+                                  <input
+                                    type="radio"
+                                    onBlur={onBlur}
+                                    onChange={() => onChange(false)}
+                                    checked={value === false}
+                                    className="accent-black"
+                                  />
+                                  <HiLockOpen
+                                    className={
+                                      value === false
+                                        ? 'text-black'
+                                        : 'text-gray-400'
+                                    }
+                                  />
+                                </label>
+                              </div>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              )}
           </div>
 
           <Button
@@ -696,7 +804,7 @@ export default function Page() {
             className="flex h-[36px] w-[100px] items-center gap-2 px-0 "
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
-            <div className="mb-[2px] text-base">Create</div>
+            <div className="mb-[2px] text-base">Submit</div>
           </Button>
         </form>
       </main>

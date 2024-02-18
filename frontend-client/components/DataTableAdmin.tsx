@@ -1,7 +1,6 @@
 'use client'
 
-import { gql } from '@generated'
-import CheckboxSelect from '@/components/CheckboxSelect'
+import { GET_TAGS } from '@/app/admin/problem/utils'
 import {
   Table,
   TableBody,
@@ -27,24 +26,19 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import React, { useState } from 'react'
-import { DataTableFacetedFilter } from './DataTableFacetedFilter'
+import type { Route } from 'next'
+import { useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
+import { useState } from 'react'
+import DataTableLangFilter from './DataTableLangFilter'
 import { DataTablePagination } from './DataTablePagination'
+import { DataTableTagsFilter } from './DataTableTagsFilter'
 import { Input } from './ui/input'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 }
-
-const GET_TAGS = gql(`
-  query GetTags {
-    getTags {
-      id
-      name
-    }
-  }
-`)
 
 // dummy data
 const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
@@ -57,13 +51,14 @@ export function DataTableAdmin<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
+  const pathname = usePathname()
+  const page = pathname.split('/').pop()
+
+  const router = useRouter()
 
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
-    tagsData?.getTags.map(({ id, name }) => ({
-      id: +id,
-      name
-    })) ?? []
+    tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
 
   const table = useReactTable({
     data,
@@ -88,7 +83,6 @@ export function DataTableAdmin<TData, TValue>({
   })
   return (
     <div className="space-y-4">
-      {/* <DataTableToolbar table={table} /> */}
       <div className="flex gap-2">
         <Input
           placeholder="Search"
@@ -98,15 +92,18 @@ export function DataTableAdmin<TData, TValue>({
           }
           className="h-10 w-[150px] lg:w-[250px]"
         />
-        <CheckboxSelect
-          title="Language"
-          options={languageOptions}
-          onChange={() => {}}
-        />
 
-        {table.getColumn('tags') && (
-          <DataTableFacetedFilter
-            column={table.getColumn('tags')}
+        {table.getColumn('languages') && (
+          <DataTableLangFilter
+            column={table.getColumn('languages')}
+            title="Languages"
+            options={languageOptions}
+          />
+        )}
+
+        {table.getColumn('problemTag') && (
+          <DataTableTagsFilter
+            column={table.getColumn('problemTag')}
             title="Tags"
             options={tags}
           />
@@ -115,7 +112,7 @@ export function DataTableAdmin<TData, TValue>({
 
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className="[&_tr]:border-b-gray-200">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -136,21 +133,34 @@ export function DataTableAdmin<TData, TValue>({
 
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="md:p-4">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              table.getRowModel().rows.map((row) => {
+                const href =
+                  `/admin/${page}/${(row.original as { id: number }).id}` as Route
+                return (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                    className="cursor-pointer hover:bg-gray-200"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        className="md:p-4"
+                        onClick={
+                          cell.column.id === 'title'
+                            ? () => router.push(href)
+                            : undefined
+                        }
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                )
+              })
             ) : (
               <TableRow>
                 <TableCell
