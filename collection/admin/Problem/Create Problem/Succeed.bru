@@ -23,6 +23,10 @@ body:graphql {
       hint
       isVisible
       template
+      samples {
+        input
+        output
+      }
       createTime
       updateTime
     }
@@ -54,7 +58,12 @@ body:graphql:vars {
       "memoryLimit": 0,
       "difficulty": "Level2",
       "source": "source",
-      "samples": [],
+      "samples": [
+        {
+          "input": "1 2",
+          "output": "3"
+        }
+      ],
       "testcases": [
         {
           "input": "input",

@@ -64,6 +64,9 @@ export class ProblemService {
             return { tagId }
           })
         }
+      },
+      include: {
+        samples: true
       }
     })
     await this.createTestcases(problem.id, testcases)
