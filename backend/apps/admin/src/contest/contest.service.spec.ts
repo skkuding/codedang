@@ -116,7 +116,12 @@ const problem: Problem = {
   samples: [],
   submissionCount: 0,
   acceptedCount: 0,
-  acceptedRate: 0
+  acceptedRate: 0,
+  engDescription: null,
+  engHint: null,
+  engInputDescription: null,
+  engOutputDescription: null,
+  engTitle: null
 }
 
 const contestProblem: ContestProblem = {
