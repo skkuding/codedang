@@ -60,6 +60,7 @@ const GET_PROBLEM = gql(`
       inputDescription
       outputDescription
       samples {
+        id
         input
         output
       }
@@ -97,7 +98,6 @@ const UPDATE_PROBLEM = gql(`
       inputDescription
       outputDescription
       samples {
-        id
         input
         output
       }
@@ -123,7 +123,9 @@ const schema = z.object({
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
   ),
-  tags: z.object({ create: z.array(z.number()), delete: z.array(z.number()) }),
+  tags: z
+    .object({ create: z.array(z.number()), delete: z.array(z.number()) })
+    .optional(),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
@@ -133,7 +135,7 @@ const schema = z.object({
         .object({ input: z.string().min(1), output: z.string().min(1) })
         .optional()
     ),
-    delete: z.array(z.number()).optional()
+    delete: z.array(z.number().optional())
   }),
   testcases: z
     .array(
@@ -247,6 +249,7 @@ export default function Page({ params }: { params: { id: string } }) {
     setValue('description', data.description)
     setValue('inputDescription', data.inputDescription)
     setValue('outputDescription', data.outputDescription)
+    setValue('samples.create', data.samples)
     setValue('testcases', data.problemTestcase)
     setValue('timeLimit', data.timeLimit)
     setValue('memoryLimit', data.memoryLimit)
@@ -272,21 +275,22 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
   const onSubmit = async (input: UpdateProblemInput) => {
-    // const tagIdsToDelete = input.tags.delete.filter((tagId: number) =>
-    //   input.tags.create.includes(tagId)
-    // )
-    // input.tags.delete = input.tags.delete.filter(
-    //   (tagId: number) => !tagIdsToDelete.includes(tagId)
-    // )
-    // input.tags.create = input.tags.create.filter(
-    //   (tagId: number) => !tagIdsToDelete.includes(tagId)
-    // )
+    const tagIdsToDelete = input.tags.delete.filter((tagId: number) =>
+      input.tags.create.includes(tagId)
+    )
+    input.tags.delete = input.tags.delete.filter(
+      (tagId: number) => !tagIdsToDelete.includes(tagId)
+    )
+    input.tags.create = input.tags.create.filter(
+      (tagId: number) => !tagIdsToDelete.includes(tagId)
+    )
     await updateProblem({
       variables: {
         groupId: 1,
         input
       }
     })
+    console.log(input)
     if (error) {
       toast.error('Failed to update problem')
       return
@@ -615,7 +619,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       outputName={`testcases.${index}.output`}
                       register={register}
                     />
-                    {errors.testcases?.[index] && (
+                    {errors.testcases && testcases[index] && (
                       <div className="flex items-center gap-1 text-xs text-red-500">
                         <PiWarningBold />
                         required
