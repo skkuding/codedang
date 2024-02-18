@@ -17,7 +17,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import type { Language, Sample } from '@/types/type'
+import type { Language, Sample, Testcase } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -97,6 +97,7 @@ const UPDATE_PROBLEM = gql(`
       inputDescription
       outputDescription
       samples {
+        id
         input
         output
       }
@@ -201,7 +202,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const fetchedTemplateLanguage =
     problemData?.getProblem.template?.map(
-      (template: string) => JSON.parse(template)[0].language
+      (template: string) => JSON.parse(template)[0]?.language
     ) ?? []
 
   useEffect(() => {
@@ -211,7 +212,7 @@ export default function Page({ params }: { params: { id: string } }) {
         isVisible: fetchedTemplateLanguage.includes(language) ? true : false
       })) ?? []
     )
-  }, [])
+  }, [problemData])
 
   const {
     handleSubmit,
@@ -223,7 +224,7 @@ export default function Page({ params }: { params: { id: string } }) {
   } = useForm<UpdateProblemInput>({
     resolver: zodResolver(schema),
     defaultValues: {
-      samples: {},
+      samples: { create: [], delete: [] },
       template: []
     }
   })
@@ -235,24 +236,17 @@ export default function Page({ params }: { params: { id: string } }) {
     setValue('isVisible', data.isVisible)
     setValue('difficulty', data.difficulty)
     setValue('languages', data.languages ?? [])
-    // setValue(
-    //   'tags.create',
-    //   data.problemTag.map((problemTag) => Number(problemTag.tag.id))
-    // )
-    // setValue(
-    //   'tags.delete',
-    //   data.problemTag.map((problemTag) => Number(problemTag.tag.id))
-    // )
-    setValue('tags.create', [])
-    setValue('tags.delete', [])
+    setValue(
+      'tags.create',
+      data.problemTag.map((problemTag) => Number(problemTag.tag.id))
+    )
+    setValue(
+      'tags.delete',
+      data.problemTag.map((problemTag) => Number(problemTag.tag.id))
+    )
     setValue('description', data.description)
     setValue('inputDescription', data.inputDescription)
     setValue('outputDescription', data.outputDescription)
-    setValue('samples.create', data.samples || [])
-    setValue(
-      'samples.delete',
-      (data.samples && data.samples.map((_, index) => index)) || []
-    )
     setValue('testcases', data.problemTestcase)
     setValue('timeLimit', data.timeLimit)
     setValue('memoryLimit', data.memoryLimit)
@@ -263,12 +257,12 @@ export default function Page({ params }: { params: { id: string } }) {
       data.template?.map((template: string) => {
         const parsedTemplate = JSON.parse(template)[0]
         return {
-          language: parsedTemplate.language,
+          language: parsedTemplate?.language,
           code: [
             {
-              id: parsedTemplate.code[0].id,
-              text: parsedTemplate.code[0].text,
-              locked: parsedTemplate.code[0].locked
+              id: parsedTemplate?.code[0].id,
+              text: parsedTemplate?.code[0].text,
+              locked: parsedTemplate?.code[0].locked
             }
           ]
         }
@@ -278,18 +272,26 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
   const onSubmit = async (input: UpdateProblemInput) => {
+    // const tagIdsToDelete = input.tags.delete.filter((tagId: number) =>
+    //   input.tags.create.includes(tagId)
+    // )
+    // input.tags.delete = input.tags.delete.filter(
+    //   (tagId: number) => !tagIdsToDelete.includes(tagId)
+    // )
+    // input.tags.create = input.tags.create.filter(
+    //   (tagId: number) => !tagIdsToDelete.includes(tagId)
+    // )
     await updateProblem({
       variables: {
         groupId: 1,
         input
       }
-    }).then((res) => {
-      console.log(res)
-      if (res.data?.updateProblem) toast.success('Problem updated')
     })
     if (error) {
       toast.error('Failed to update problem')
+      return
     }
+    toast.success('Problem updated successfully')
   }
 
   const addSample = () => {
@@ -303,7 +305,7 @@ export default function Page({ params }: { params: { id: string } }) {
     const values = getValues('testcases') ?? []
     const newTestcase = { input: '', output: '' }
     setValue('testcases', [...values, newTestcase])
-    setTestcases((prev) => [...prev, newTestcase])
+    setTestcases([...testcases, newTestcase])
   }
 
   const removeSample = (index: number) => {
@@ -355,7 +357,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   <PiWarningBold />
                   {getValues('title')?.length === 0
                     ? 'required'
-                    : errors.title.message}
+                    : errors.title.message?.toString()}
                 </div>
               )}
             </div>
@@ -604,7 +606,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </div>
             <div className="flex flex-col gap-2">
               {getValues('testcases') &&
-                testcases.map((_, index) => (
+                getValues('testcases').map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
@@ -646,7 +648,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     <PiWarningBold />
                     {Number.isNaN(getValues('timeLimit'))
                       ? 'required'
-                      : errors.timeLimit?.message}
+                      : errors.timeLimit?.message?.toString()}
                   </div>
                 )}
               </div>
@@ -670,7 +672,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     <PiWarningBold />
                     {Number.isNaN(getValues('memoryLimit'))
                       ? 'required'
-                      : errors.memoryLimit?.message}
+                      : errors.memoryLimit?.message?.toString()}
                   </div>
                 )}
               </div>

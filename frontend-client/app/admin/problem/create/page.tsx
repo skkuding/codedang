@@ -173,13 +173,12 @@ export default function Page() {
         groupId: 1,
         input
       }
-    }).then((res) => {
-      console.log(res)
-      if (res.data?.createProblem) toast.success('Problem created')
     })
     if (error) {
       toast.error('Failed to create problem')
+      return
     }
+    toast.success('Problem created successfully')
   }
 
   const addExample = (type: 'samples' | 'testcases') => {
