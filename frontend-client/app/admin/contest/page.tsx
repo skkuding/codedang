@@ -19,6 +19,7 @@ const GET_CONTESTS = gql`
       title
       startTime
       endTime
+      participants
     }
   }
 `
@@ -31,7 +32,6 @@ export interface Contest {
   participants: number
 }
 
-// TODO: participants 추가하기
 export default function Page() {
   const [contests, setContests] = useState<Contest[]>([])
   useEffect(() => {
