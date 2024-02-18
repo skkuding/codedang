@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 5525",
-    "build": "next build",
+    "build": "graphql-codegen && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "compile": "graphql-codegen"
   },
   "dependencies": {
     "@apollo/client": "^3.9.4",
@@ -64,6 +65,9 @@
     "zustand": "^4.5.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/client-preset": "^4.2.2",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@types/node": "^20.11.17",
     "@types/react": "^18.2.55",
     "@types/react-copy-to-clipboard": "^5.0.7",

@@ -4,6 +4,7 @@ node_modules/
 pnpm-lock.yaml
 .pnpm-store/
 @generated/
+__generated__/
 schema.gql
 collection/
 .next/

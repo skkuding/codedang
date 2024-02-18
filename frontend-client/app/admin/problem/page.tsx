@@ -1,33 +1,16 @@
 'use client'
 
+import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
-import { fetcherGql } from '@/lib/utils'
-import { gql } from '@apollo/client'
+import { useQuery } from '@apollo/client'
+import { Language, Level } from '@generated/graphql'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import * as React from 'react'
-import { useEffect, useState } from 'react'
 import { columns } from './_components/Columns'
 
-interface Tag {
-  id: number
-  name: string
-}
-
-interface DataTableProblem {
-  id: number
-  title: string
-  updateTime: string
-  difficulty: string
-  submissionCount: number
-  acceptedRate: number
-  isVisible: boolean
-  languages: string[]
-  problemTag: { id: number; tag: Tag }[]
-}
-
-const GET_PROBLEMS = gql`
+const GET_PROBLEMS = gql(`
   query GetProblems(
     $groupId: Int!
     $cursor: Int
@@ -57,51 +40,42 @@ const GET_PROBLEMS = gql`
       }
     }
   }
-`
+`)
 
 export const dynamic = 'force-dynamic'
 
 export default function Page() {
-  const [problems, setProblems] = useState<DataTableProblem[]>([])
-
-  useEffect(() => {
-    fetcherGql(GET_PROBLEMS, {
+  const { data } = useQuery(GET_PROBLEMS, {
+    variables: {
       groupId: 1,
       cursor: 1,
       take: 8,
       input: {
-        difficulty: ['Level1', 'Level2', 'Level3', 'Level4', 'Level5'],
-        languages: ['C', 'Cpp', 'Java', 'Python3']
+        difficulty: [
+          Level.Level1,
+          Level.Level2,
+          Level.Level3,
+          Level.Level4,
+          Level.Level5
+        ],
+        languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
       }
-    }).then((data) => {
-      const transformedData = data.getProblems.map(
-        (problem: {
-          id: string
-          title: string
-          updateTime: string
-          difficulty: string
-          submissionCount: number
-          acceptedRate: number
-          languages: string[]
-          problemTag: { id: string; tag: Tag }[]
-        }) => ({
-          ...problem,
-          id: Number(problem.id),
-          problemTag: problem.problemTag.map(
-            (tag: { id: string; tag: Tag }) => ({
-              ...tag,
-              id: Number(tag.id),
-              tag: {
-                ...tag.tag,
-                id: Number(tag.tag.id)
-              }
-            })
-          )
-        })
-      )
-      setProblems(transformedData)
-    })
-  }, [])
+    }
+  })
+
+  const problems =
+    data?.getProblems.map((problem) => ({
+      ...problem,
+      id: Number(problem.id),
+      languages: problem.languages ?? [],
+      problemTag: problem.problemTag.map(({ id, tag }) => ({
+        id: +id,
+        tag: {
+          ...tag,
+          id: +tag.id
+        }
+      }))
+    })) ?? []
 
   return (
     <div className="container mx-auto space-y-5 py-10">

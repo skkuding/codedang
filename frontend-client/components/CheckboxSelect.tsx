@@ -16,20 +16,20 @@ import { Separator } from '@/components/ui/separator'
 import { PlusCircledIcon } from '@radix-ui/react-icons'
 import { useState, useEffect } from 'react'
 
-interface DataProps {
+interface DataProps<T> {
   title: string
-  options: string[]
-  onChange: (selectedValues: string[]) => void
-  defaultValue?: string[]
+  options: T[]
+  onChange: (selectedValues: T[]) => void
+  defaultValue?: T[]
 }
 
-export default function LanguageSelect({
+export default function LanguageSelect<T extends string>({
   title,
   options,
   onChange,
   defaultValue
-}: DataProps) {
-  const [selectedValues, setSelectedValues] = useState([] as string[])
+}: DataProps<T>) {
+  const [selectedValues, setSelectedValues] = useState<T[]>([])
 
   useEffect(() => {
     if (defaultValue) {
@@ -37,7 +37,7 @@ export default function LanguageSelect({
     }
   }, [defaultValue])
 
-  const handleCheckboxChange = (option: string) => {
+  const handleCheckboxChange = (option: T) => {
     setSelectedValues((prevSelectedValues) => {
       if (prevSelectedValues.includes(option)) {
         return prevSelectedValues.filter((value) => value !== option)

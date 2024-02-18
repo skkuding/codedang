@@ -22,7 +22,23 @@ module.exports = {
             namedComponents: 'function-declaration'
           }
         ],
-        'func-style': ['off']
+        'func-style': ['off'],
+        'no-restricted-imports': [
+          'error',
+          {
+            name: '@apollo/client',
+            importNames: ['gql'],
+            message: 'Please use @generated instead.'
+          },
+          {
+            name: '@/__generated__',
+            message: 'Please use @generated instead.'
+          },
+          {
+            name: '@/__generated__/graphql',
+            message: 'Please use @generated/graphql instead.'
+          }
+        ]
       }
     }
   ]
