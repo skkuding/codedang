@@ -58,7 +58,7 @@ export class AuthService {
     if (!(await this.isValidRefreshToken(refreshToken, userId))) {
       throw new InvalidJwtTokenException('Unidentified refresh token')
     }
-    return await this.createJwtTokens(userId, username, refreshToken)
+    return await this.createJwtTokens(userId, username)
   }
 
   async verifyJwtToken(token: string, options: JwtVerifyOptions = {}) {
@@ -74,23 +74,16 @@ export class AuthService {
   }
 
   async isValidRefreshToken(refreshToken: string, userId: number) {
-    const cachedRefreshTokens: string[] | undefined =
-      await this.cacheManager.get(refreshTokenCacheKey(userId))
-    if (!cachedRefreshTokens) {
-      return false
-    }
-    // if the refresh token is not in the cache, it is invalid
-    if (cachedRefreshTokens.indexOf(refreshToken) === -1) {
+    const cachedRefreshToken = await this.cacheManager.get(
+      refreshTokenCacheKey(userId)
+    )
+    if (cachedRefreshToken !== refreshToken) {
       return false
     }
     return true
   }
 
-  async createJwtTokens(
-    userId: number,
-    username: string,
-    oldRefreshToken?: string
-  ) {
+  async createJwtTokens(userId: number, username: string) {
     const payload: JwtPayload = { userId, username }
     const accessToken = await this.jwtService.signAsync(payload, {
       expiresIn: ACCESS_TOKEN_EXPIRE_TIME
@@ -99,67 +92,17 @@ export class AuthService {
       expiresIn: REFRESH_TOKEN_EXPIRE_TIME
     })
 
-    // oldRefreshToken이 없으면, 새로운 Client에서 로그인하는 경우
-    if (!oldRefreshToken) {
-      const existingRefreshTokens: string[] | undefined =
-        await this.cacheManager.get(refreshTokenCacheKey(userId))
-
-      // 이 경우는 최초의 클라이언트에서 로그인하는 경우
-      if (!existingRefreshTokens) {
-        await this.cacheManager.set(
-          refreshTokenCacheKey(userId),
-          [refreshToken],
-          REFRESH_TOKEN_EXPIRE_TIME * 1000 // milliseconds
-        )
-        return { accessToken, refreshToken }
-      }
-
-      // in-memory cache를 긁었는데, refresh token이 있는 경우
-      // 기존의 클라이언트에서 로그인을 하였고, 새로운 클라이언트(예, 다른 브라우저)에서 로그인을 시도하는 경우
-      await this.cacheManager.set(
-        refreshTokenCacheKey(userId),
-        [...existingRefreshTokens, refreshToken],
-        REFRESH_TOKEN_EXPIRE_TIME * 1000 // milliseconds
-      )
-      return { accessToken, refreshToken }
-    }
-
-    // oldRefreshToken이 있으면, 기존 로그인 했던 Client에서 다시 reissue하는 경우
-    const existingRefreshTokens: string[] | undefined =
-      await this.cacheManager.get(refreshTokenCacheKey(userId))
-
-    // in-memory cache를 긁었는데, refresh token이 없는 경우
-    // access token이 만료돼서, refresh token을 이용해서 새로운 access token을 발급하는 경우인데
-    // refresh token이 cache에 없는 경우는 에러
-    if (!existingRefreshTokens) {
-      throw new InvalidJwtTokenException('there is no refresh token in cache')
-    }
-    // reissue하는 경우, 기존의 refresh token을 삭제하고 새로운 refresh token을 cache에 저장
     await this.cacheManager.set(
       refreshTokenCacheKey(userId),
-      [
-        ...existingRefreshTokens.filter((token) => token !== oldRefreshToken),
-        refreshToken
-      ],
+      refreshToken,
       REFRESH_TOKEN_EXPIRE_TIME * 1000 // milliseconds
     )
 
     return { accessToken, refreshToken }
   }
 
-  async deleteRefreshToken(userId: number, oldRefreshToken: string) {
-    const existingRefreshTokens: string[] | undefined =
-      await this.cacheManager.get(refreshTokenCacheKey(userId))
-    if (!existingRefreshTokens) {
-      throw new InvalidJwtTokenException('there is no refresh token in cache')
-    }
-
-    await this.cacheManager.set(
-      refreshTokenCacheKey(userId),
-      existingRefreshTokens.filter((token) => token !== oldRefreshToken),
-      // FIX ME: 기존의 refresh token을 삭제하는 작업인데, ttl이 새로 설정되어야 할까?
-      REFRESH_TOKEN_EXPIRE_TIME * 1000 // milliseconds
-    )
+  async deleteRefreshToken(userId: number) {
+    return await this.cacheManager.del(refreshTokenCacheKey(userId))
   }
 
   async githubLogin(res: Response, githubUser: GithubUser) {
