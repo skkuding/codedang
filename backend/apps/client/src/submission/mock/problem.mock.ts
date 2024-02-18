@@ -31,7 +31,6 @@ export const problems: Problem[] = [
     exposeTime: new Date(),
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    samples: [],
     isVisible: true,
     engTitle: null,
     engDescription: null,
