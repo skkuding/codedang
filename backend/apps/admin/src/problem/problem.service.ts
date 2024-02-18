@@ -290,6 +290,7 @@ export class ProblemService {
         groupId
       },
       include: {
+        samples: true,
         problemTestcase: true,
         problemTag: {
           include: {
