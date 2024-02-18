@@ -249,7 +249,7 @@ export default function Page({ params }: { params: { id: string } }) {
     setValue('description', data.description)
     setValue('inputDescription', data.inputDescription)
     setValue('outputDescription', data.outputDescription)
-    setValue('samples.create', data?.samples)
+    setValue('samples.create', data?.samples || [])
     setValue('testcases', data.problemTestcase)
     setValue('timeLimit', data.timeLimit)
     setValue('memoryLimit', data.memoryLimit)
