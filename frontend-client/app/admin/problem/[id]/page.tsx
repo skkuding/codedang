@@ -275,15 +275,15 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
   const onSubmit = async (input: UpdateProblemInput) => {
-    const tagIdsToDelete = input.tags.delete.filter((tagId: number) =>
-      input.tags.create.includes(tagId)
+    const tagsToDelete = getValues('tags.delete')
+    const tagsToCreate = getValues('tags.create')
+    input.tags!.create = tagsToCreate.filter(
+      (tag) => !tagsToDelete.includes(tag)
     )
-    input.tags.delete = input.tags.delete.filter(
-      (tagId: number) => !tagIdsToDelete.includes(tagId)
+    input.tags!.delete = tagsToDelete.filter(
+      (tag) => !tagsToCreate.includes(tag)
     )
-    input.tags.create = input.tags.create.filter(
-      (tagId: number) => !tagIdsToDelete.includes(tagId)
-    )
+
     await updateProblem({
       variables: {
         groupId: 1,
@@ -610,7 +610,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </div>
             <div className="flex flex-col gap-2">
               {getValues('testcases') &&
-                getValues('testcases').map((_, index) => (
+                getValues('testcases')!.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
