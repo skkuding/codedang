@@ -179,9 +179,8 @@ model Problem {
   exposeTime      DateTime   @default(now()) @map("expose_time")
   createTime      DateTime   @default(now()) @map("create_time")
   updateTime      DateTime   @updatedAt @map("update_time")
-  inputExamples   String[]   @map("input_examples")
-  outputExamples  String[]   @map("output_examples")
 
+  samples         ExampleIO[]
   problemTestcase ProblemTestcase[]
   problemTag      ProblemTag[]
   contestProblem  ContestProblem[]
@@ -223,6 +222,18 @@ model ProblemTestcase {
   submissionResult SubmissionResult[]
 
   @@map("problem_testcase")
+}
+
+model ExampleIO {
+  id         Int      @id @default(autoincrement())
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  problemId  Int      @map("problem_id")
+  input      String
+  output     String
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+
+  @@map("example_io")
 }
 
 model ProblemTag {

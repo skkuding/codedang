@@ -1,5 +1,6 @@
 'use client'
 
+import { gql } from '@generated'
 import CheckboxSelect from '@/components/CheckboxSelect'
 import OptionSelect from '@/components/OptionSelect'
 import TagsSelect from '@/components/TagsSelect'
@@ -15,16 +16,10 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { fetcherGql, cn } from '@/lib/utils'
-import type {
-  Level,
-  Language,
-  Testcase,
-  Sample,
-  Template,
-  Tag
-} from '@/types/type'
-import { gql } from '@apollo/client'
+import { cn } from '@/lib/utils'
+import type { Language, Sample } from '@/types/type'
+import { useMutation, useQuery } from '@apollo/client'
+import type { UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -40,49 +35,15 @@ import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
 import type { TemplateLanguage } from '../utils'
-import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
+import {
+  GET_TAGS,
+  inputStyle,
+  languageMapper,
+  languageOptions,
+  levels
+} from '../utils'
 
-interface UpdateProblemInput {
-  id: number
-  title: string
-  isVisible: boolean
-  difficulty: Level
-  languages: Language[]
-  tags: {
-    create: number[]
-    delete: number[]
-  }
-  description: string
-  inputDescription: string
-  outputDescription: string
-  samples: Sample[]
-  testcases: Testcase[]
-  timeLimit: number
-  memoryLimit: number
-  hint?: string
-  source?: string
-  template?: Template[]
-}
-
-interface GetProblem {
-  title: string
-  isVisible: boolean
-  difficulty: Level
-  languages: Language[]
-  problemTag: { tag: Tag }[]
-  description: string
-  inputDescription: string
-  outputDescription: string
-  problemTestcase: Testcase[]
-  // problemSample: Sample[]
-  timeLimit: number
-  memoryLimit: number
-  hint: string
-  source: string
-  template: string[]
-}
-
-const GET_PROBLEM = gql`
+const GET_PROBLEM = gql(`
   query GetProblem($groupId: Int!, $id: Int!) {
     getProblem(groupId: $groupId, id: $id) {
       title
@@ -98,9 +59,14 @@ const GET_PROBLEM = gql`
       description
       inputDescription
       outputDescription
+      samples {
+        input
+        output
+      }
       problemTestcase {
         input
         output
+        scoreWeight
       }
       timeLimit
       memoryLimit
@@ -109,9 +75,9 @@ const GET_PROBLEM = gql`
       template
     }
   }
-`
+`)
 
-const UPDATE_PROBLEM = gql`
+const UPDATE_PROBLEM = gql(`
   mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
     updateProblem(groupId: $groupId, input: $input) {
       id
@@ -121,9 +87,11 @@ const UPDATE_PROBLEM = gql`
       isVisible
       difficulty
       languages
-      tags {
-        create
-        delete
+      problemTag {
+        tag {
+          id
+          name
+        }
       }
       description
       inputDescription
@@ -131,9 +99,8 @@ const UPDATE_PROBLEM = gql`
       samples {
         input
         output
-        scoreWeight
       }
-      testcases {
+      problemTestcase {
         input
         output
         scoreWeight
@@ -142,21 +109,14 @@ const UPDATE_PROBLEM = gql`
       memoryLimit
       hint
       source
-      template {
-        code {
-          id
-          locked
-          text
-        }
-        language
-      }
+      template
     }
   }
-`
+`)
 
 const schema = z.object({
   title: z.string().min(1).max(25),
-  isVisible: z.boolean(),
+  visible: z.boolean(),
   difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
@@ -213,104 +173,41 @@ const schema = z.object({
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
-  const [showHint, setShowHint] = useState<boolean>(true)
-  const [showSource, setShowSource] = useState<boolean>(true)
+  const [showHint, setShowHint] = useState(true)
+  const [showSource, setShowSource] = useState(true)
   const [samples, setSamples] = useState<Sample[]>([{ input: '', output: '' }])
-  const [testcases, setTestcases] = useState<Testcase[]>([
-    { input: '', output: '' }
-  ])
-  const [tags, setTags] = useState<Tag[]>([])
   const [languages, setLanguages] = useState<TemplateLanguage[]>([])
 
-  const [problemData, setProblemData] = useState<GetProblem>()
-  const [fetchedTags, setFetchedTags] = useState<number[]>([])
-  const [fetchedLangauges, setFetchedLanguages] = useState<Language[]>([])
-  const [fetchedDifficulty, setFetchedDifficulty] = useState<Level>()
-  const [fetchedDescription, setFetchedDescription] = useState<string>('')
-  const [fetchedTemplateLanguage, setFetchedTemplateLanguage] = useState<
-    Language[]
-  >([])
+  const { data: tagsData } = useQuery(GET_TAGS)
+  const tags =
+    tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
 
-  useEffect(() => {
-    fetcherGql(GET_TAGS).then((data) => {
-      const transformedData = data.getTags.map(
-        (tag: { id: string; name: string }) => ({
-          ...tag,
-          id: Number(tag.id)
-        })
-      )
-      setTags(transformedData)
-    })
-
-    fetcherGql(GET_PROBLEM, {
+  const { data: problemData } = useQuery(GET_PROBLEM, {
+    variables: {
       groupId: 1,
-      id: Number(id)
-    }).then((data) => {
-      setProblemData(data.getProblem)
-      setFetchedDifficulty(data.getProblem.difficulty)
-      setFetchedLanguages(data.getProblem.languages)
-      setFetchedTags(
-        data.getProblem.problemTag.map((problemTag: { tag: Tag }) =>
-          Number(problemTag.tag.id)
-        )
-      )
-      setFetchedDescription(data.getProblem.description)
-      setFetchedTemplateLanguage(
-        data.getProblem.template.map((template: string) => {
-          const parsedTemplate = JSON.parse(template)[0]
-          return parsedTemplate.language
-        })
-      )
-      setLanguages(
-        data.getProblem.languages.map((language: Language) => ({
-          language,
-          isVisible: fetchedTemplateLanguage.includes(language) ? true : false
-        }))
-      )
-    })
-  }, [id, problemData])
+      id: +id
+    }
+  })
+
+  const fetchedDescription = problemData?.getProblem.description
+  const fetchedDifficulty = problemData?.getProblem.difficulty
+  const fetchedLangauges = problemData?.getProblem.languages ?? []
+  const fetchedTags =
+    problemData?.getProblem.problemTag.map(({ tag }) => +tag.id) ?? []
+
+  const fetchedTemplateLanguage =
+    problemData?.getProblem.template?.map(
+      (template: string) => JSON.parse(template)[0].language
+    ) ?? []
 
   useEffect(() => {
-    if (problemData) {
-      // TODO: add visible and samples
-      setValue('title', problemData.title)
-      setValue('isVisible', problemData.isVisible)
-      setValue('difficulty', problemData.difficulty)
-      setValue('languages', problemData.languages)
-      setValue(
-        'tags.create',
-        problemData.problemTag.map((problemTag) => Number(problemTag.tag.id))
-      )
-      setValue(
-        'tags.delete',
-        problemData.problemTag.map((problemTag) => Number(problemTag.tag.id))
-      )
-      setValue('description', problemData.description)
-      setValue('inputDescription', problemData.inputDescription)
-      setValue('outputDescription', problemData.outputDescription)
-      setValue('testcases', problemData.problemTestcase)
-      setValue('timeLimit', problemData.timeLimit)
-      setValue('memoryLimit', problemData.memoryLimit)
-      setValue('hint', problemData.hint)
-      setValue('source', problemData.source)
-      setValue(
-        'template',
-        problemData.template.map((template: string) => {
-          const parsedTemplate = JSON.parse(template)[0]
-          return {
-            language: parsedTemplate.language,
-            code: [
-              {
-                id: parsedTemplate.code[0].id,
-                text: parsedTemplate.code[0].text,
-                locked: parsedTemplate.code[0].locked
-              }
-            ]
-          }
-        })
-      )
-    }
-  }, [problemData])
+    setLanguages(
+      problemData?.getProblem.languages?.map((language: Language) => ({
+        language,
+        isVisible: fetchedTemplateLanguage.includes(language) ? true : false
+      })) ?? []
+    )
+  }, [])
 
   const {
     handleSubmit,
@@ -322,42 +219,95 @@ export default function Page({ params }: { params: { id: string } }) {
   } = useForm<UpdateProblemInput>({
     resolver: zodResolver(schema),
     defaultValues: {
-      samples: [{ input: '', output: '' }],
+      samples: {},
       template: []
     }
   })
 
-  // TODO: Create Problem 에 sample, visible 추가 시 변경
-  const onSubmit = async (data: UpdateProblemInput) => {
-    try {
-      const res = await fetcherGql(UPDATE_PROBLEM, {
-        groupId: 1,
-        input: data
+  if (problemData) {
+    const data = problemData.getProblem
+
+    setValue('title', data.title)
+    setValue('difficulty', data.difficulty)
+    setValue('languages', data.languages ?? [])
+    setValue(
+      'tags.create',
+      data.problemTag.map((problemTag) => Number(problemTag.tag.id))
+    )
+    setValue(
+      'tags.delete',
+      data.problemTag.map((problemTag) => Number(problemTag.tag.id))
+    )
+    setValue('description', data.description)
+    setValue('inputDescription', data.inputDescription)
+    setValue('outputDescription', data.outputDescription)
+    setValue('testcases', data.problemTestcase)
+    setValue('timeLimit', data.timeLimit)
+    setValue('memoryLimit', data.memoryLimit)
+    setValue('hint', data.hint)
+    setValue('source', data.source)
+    setValue(
+      'template',
+      data.template?.map((template: string) => {
+        const parsedTemplate = JSON.parse(template)[0]
+        return {
+          language: parsedTemplate.language,
+          code: [
+            {
+              id: parsedTemplate.code[0].id,
+              text: parsedTemplate.code[0].text,
+              locked: parsedTemplate.code[0].locked
+            }
+          ]
+        }
       })
-      console.log(res)
-    } catch (error) {
-      console.error(error)
-      console.log(data)
+    )
+  }
+
+  const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
+  const onSubmit = async (input: UpdateProblemInput) => {
+    await updateProblem({
+      variables: {
+        groupId: 1,
+        input
+      }
+    })
+    if (error) {
+      toast.error('Failed to update problem')
     }
   }
 
-  const addExample = (type: 'samples' | 'testcases') => {
-    const currentValues = getValues(type)
-    setValue(type, [...currentValues, { input: '', output: '' }])
-    type === 'samples'
-      ? setSamples(() => [...samples, { input: '', output: '' }])
-      : setTestcases(() => [...testcases, { input: '', output: '' }])
+  const addSample = () => {
+    const values = getValues('samples.create')
+    const newSample = { input: '', output: '' }
+    setValue('samples.create', [...values, newSample])
+    setSamples((prev) => [...prev, newSample])
   }
 
-  const removeExample = (type: 'samples' | 'testcases', index: number) => {
-    const currentValues = getValues(type)
-    if (currentValues.length === 1) {
-      toast.warning(`At least one ${type} is required`)
+  const addTestcase = () => {
+    const values = getValues('testcases') ?? []
+    const newTestcase = { input: '', output: '' }
+    setValue('testcases', [...values, newTestcase])
+  }
+
+  const removeSample = (index: number) => {
+    if (samples.length <= 1) {
+      toast.warning('At least one sample is required')
       return
     }
-    const updatedValues = currentValues.filter((_, i) => i !== index)
-    setValue(type, updatedValues)
-    type === 'samples' ? setSamples(updatedValues) : setTestcases(updatedValues)
+    const samplesToDelete = getValues('samples.delete')
+    setValue('samples.delete', [...samplesToDelete, index])
+    setSamples(samples.filter((_, i) => i !== index))
+  }
+
+  const removeTestcase = (index: number) => {
+    const values = getValues('testcases') ?? []
+    if (values.length <= 1) {
+      toast.warning('At least one testcase is required')
+      return
+    }
+    const updatedValues = values.filter((_, i) => i !== index)
+    setValue('testcases', updatedValues)
   }
 
   return (
@@ -387,7 +337,7 @@ export default function Page({ params }: { params: { id: string } }) {
               {errors.title && (
                 <div className="flex items-center gap-1 text-xs text-red-500">
                   <PiWarningBold />
-                  {getValues('title').length === 0
+                  {getValues('title')?.length === 0
                     ? 'required'
                     : errors.title.message}
                 </div>
@@ -599,7 +549,7 @@ export default function Page({ params }: { params: { id: string } }) {
             <div className="flex items-center gap-2">
               <Label>Sample</Label>
               <Badge
-                onClick={() => addExample('samples')}
+                onClick={addSample}
                 className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-200/60 p-0 text-xs font-medium text-gray-500 shadow-sm hover:bg-gray-200"
               >
                 + add
@@ -607,15 +557,15 @@ export default function Page({ params }: { params: { id: string } }) {
             </div>
             <div className="flex flex-col gap-2">
               {getValues('samples') &&
-                getValues('samples').map((_sample, index) => (
+                samples.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
-                      onRemove={() => removeExample('samples', index)}
+                      onRemove={() => removeSample(index)}
                       inputName={`samples.${index}.input`}
                       outputName={`samples.${index}.output`}
                       register={register}
                     />
-                    {errors.samples?.[index] && (
+                    {errors.samples && samples[index] && (
                       <div className="flex items-center gap-1 text-xs text-red-500">
                         <PiWarningBold />
                         required
@@ -630,7 +580,7 @@ export default function Page({ params }: { params: { id: string } }) {
             <div className="flex items-center gap-2">
               <Label>Testcase</Label>
               <Badge
-                onClick={() => addExample('testcases')}
+                onClick={addTestcase}
                 className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-200/60 p-0 text-xs font-medium text-gray-500 shadow-sm hover:bg-gray-200"
               >
                 + add
@@ -638,11 +588,11 @@ export default function Page({ params }: { params: { id: string } }) {
             </div>
             <div className="flex flex-col gap-2">
               {getValues('testcases') &&
-                getValues('testcases').map((_testcase, index) => (
+                getValues('testcases')?.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
-                      onRemove={() => removeExample('testcases', index)}
+                      onRemove={() => removeTestcase(index)}
                       inputName={`testcases.${index}.input`}
                       outputName={`testcases.${index}.output`}
                       register={register}
@@ -780,7 +730,8 @@ export default function Page({ params }: { params: { id: string } }) {
                               )
                             )
                             setValue(`template.${index}`, {
-                              language: templateLanguage.language,
+                              language:
+                                languageMapper[templateLanguage.language],
                               code: [
                                 {
                                   id: index,

@@ -1,5 +1,6 @@
 'use client'
 
+import { gql } from '@generated'
 import CheckboxSelect from '@/components/CheckboxSelect'
 import OptionSelect from '@/components/OptionSelect'
 import TagsSelect from '@/components/TagsSelect'
@@ -15,19 +16,13 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { fetcherGql, cn } from '@/lib/utils'
-import type {
-  Level,
-  Language,
-  Testcase,
-  Template,
-  Tag,
-  Sample
-} from '@/types/type'
-import { gql } from '@apollo/client'
+import { cn } from '@/lib/utils'
+import type { Language, Testcase, Sample } from '@/types/type'
+import { useMutation, useQuery } from '@apollo/client'
+import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -39,28 +34,28 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
-import type { TemplateLanguage } from '../utils'
-import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
+import { GET_TAGS, languageMapper } from '../utils'
 
-interface CreateProblemInput {
-  title: string
-  isVisible: boolean
-  difficulty: Level
-  languages: Language[]
-  tagIds: number[]
-  description: string
-  inputDescription: string
-  outputDescription: string
-  samples: Sample[]
-  testcases: Testcase[]
-  timeLimit: number
-  memoryLimit: number
-  hint?: string
-  source?: string
-  template?: Template[]
+const inputStyle =
+  'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
+
+// dummy data
+const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
+const languageOptions: Language[] = [
+  'C',
+  'Cpp',
+  'Golang',
+  'Java',
+  'Python2',
+  'Python3'
+]
+
+interface TemplateLanguage {
+  language: Language
+  showTemplate: boolean
 }
 
-const CREATE_PROBLEM = gql`
+const CREATE_PROBLEM = gql(`
   mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
     createProblem(groupId: $groupId, input: $input) {
       id
@@ -70,16 +65,20 @@ const CREATE_PROBLEM = gql`
       isVisible
       difficulty
       languages
-      tagIds
+      problemTag {
+        tag {
+          id
+          name
+        }
+      }
       description
       inputDescription
       outputDescription
       samples {
         input
         output
-        scoreWeight
       }
-      testcases {
+      problemTestcase {
         input
         output
         scoreWeight
@@ -88,21 +87,14 @@ const CREATE_PROBLEM = gql`
       memoryLimit
       hint
       source
-      template {
-        code {
-          id
-          text
-          locked
-        }
-        language
-      }
+      template
     }
   }
-`
+`)
 
 const schema = z.object({
   title: z.string().min(1).max(25),
-  isVisible: z.boolean(),
+  visible: z.boolean(),
   difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
@@ -164,20 +156,11 @@ export default function Page() {
   const [testcases, setTestcases] = useState<Testcase[]>([
     { input: '', output: '' }
   ])
-  const [tags, setTags] = useState<Tag[]>([])
   const [languages, setLanguages] = useState<TemplateLanguage[]>([])
 
-  useEffect(() => {
-    fetcherGql(GET_TAGS).then((data) => {
-      const transformedData = data.getTags.map(
-        (tag: { id: string; name: string }) => ({
-          ...tag,
-          id: Number(tag.id)
-        })
-      )
-      setTags(transformedData)
-    })
-  }, [])
+  const { data: tagsData } = useQuery(GET_TAGS)
+  const tags =
+    tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
 
   const {
     handleSubmit,
@@ -189,7 +172,7 @@ export default function Page() {
   } = useForm<CreateProblemInput>({
     resolver: zodResolver(schema),
     defaultValues: {
-      difficulty: 'Level1',
+      difficulty: Level.Level1,
       samples: [{ input: '', output: '' }],
       testcases: [{ input: '', output: '' }],
       hint: '',
@@ -198,17 +181,17 @@ export default function Page() {
     }
   })
 
-  // TODO: Create Problem 에 sample, visible 추가 시 변경
-  const onSubmit = async (data: CreateProblemInput) => {
-    try {
-      const res = await fetcherGql(CREATE_PROBLEM, {
+  // TODO: createProblem에 sample, visible 추가 시 변경
+  const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
+  const onSubmit = async (input: CreateProblemInput) => {
+    await createProblem({
+      variables: {
         groupId: 1,
-        input: data
-      })
-      console.log(res)
-    } catch (error) {
-      console.error(error)
-      console.log(data)
+        input
+      }
+    })
+    if (error) {
+      toast.error('Failed to create problem')
     }
   }
 
@@ -358,15 +341,15 @@ export default function Page() {
                         setLanguages(
                           selectedLanguages.map((language) => ({
                             language,
-                            isVisible:
+                            showTemplate:
                               languages.filter(
                                 (prev) => prev.language === language
                               ).length > 0
                                 ? languages.filter(
                                     (prev) => prev.language === language
-                                  )[0].isVisible
+                                  )[0].showTemplate
                                 : false
-                          })) as TemplateLanguage[]
+                          }))
                         )
                       }}
                     />
@@ -615,101 +598,97 @@ export default function Page() {
 
           <div className="flex flex-col gap-6">
             {languages &&
-              (languages as TemplateLanguage[]).map(
-                (templateLanguage, index) => (
-                  <div key={index} className="flex gap-4">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <Label required={false}>
-                          {templateLanguage.language} Template
-                        </Label>
-                        <Switch
-                          onCheckedChange={() => {
-                            setLanguages((prev) =>
-                              prev.map((prevLanguage) =>
-                                prevLanguage.language ===
-                                templateLanguage.language
-                                  ? {
-                                      ...prevLanguage,
-                                      isVisible: !prevLanguage.isVisible
-                                    }
-                                  : prevLanguage
-                              )
+              languages.map((templateLanguage, index) => (
+                <div key={index} className="flex gap-4">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <Label required={false}>
+                        {templateLanguage.language} Template
+                      </Label>
+                      <Switch
+                        onCheckedChange={() => {
+                          setLanguages((prev) =>
+                            prev.map((prevLanguage) =>
+                              prevLanguage.language ===
+                              templateLanguage.language
+                                ? {
+                                    ...prevLanguage,
+                                    isVisible: !prevLanguage.showTemplate
+                                  }
+                                : prevLanguage
                             )
-                            setValue(`template.${index}`, {
-                              language: templateLanguage.language,
-                              code: [
-                                {
-                                  id: index,
-                                  text: '',
-                                  locked: true
-                                }
-                              ]
-                            })
-                          }}
-                          className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
-                        />
-                      </div>
-                      {templateLanguage.isVisible && (
-                        <Textarea
-                          placeholder={`Enter a ${templateLanguage.language} template...`}
-                          className="h-[180px] w-[480px] bg-white"
-                          {...register(`template.${index}.code.0.text`)}
-                        />
-                      )}
+                          )
+                          setValue(`template.${index}`, {
+                            language: languageMapper[templateLanguage.language],
+                            code: [
+                              {
+                                id: index,
+                                text: '',
+                                locked: true
+                              }
+                            ]
+                          })
+                        }}
+                        className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
+                      />
                     </div>
-                    {templateLanguage.isVisible && (
-                      <div className="flex flex-col gap-3">
-                        <Label>Locked</Label>
-                        <div className="flex items-center gap-2">
-                          <Controller
-                            control={control}
-                            name={`template.${index}.code.0.locked`}
-                            render={({
-                              field: { onChange, onBlur, value }
-                            }) => (
-                              <div className="flex gap-4">
-                                <label className="flex gap-1">
-                                  <input
-                                    type="radio"
-                                    onBlur={onBlur}
-                                    onChange={() => onChange(true)}
-                                    checked={value === true}
-                                    className="accent-black"
-                                  />
-                                  <HiLockClosed
-                                    className={
-                                      value === true
-                                        ? 'text-black'
-                                        : 'text-gray-400'
-                                    }
-                                  />
-                                </label>
-                                <label className="flex gap-1">
-                                  <input
-                                    type="radio"
-                                    onBlur={onBlur}
-                                    onChange={() => onChange(false)}
-                                    checked={value === false}
-                                    className="accent-black"
-                                  />
-                                  <HiLockOpen
-                                    className={
-                                      value === false
-                                        ? 'text-black'
-                                        : 'text-gray-400'
-                                    }
-                                  />
-                                </label>
-                              </div>
-                            )}
-                          />
-                        </div>
-                      </div>
+                    {templateLanguage.showTemplate && (
+                      <Textarea
+                        placeholder={`Enter a ${templateLanguage.language} template...`}
+                        className="h-[180px] w-[480px] bg-white"
+                        {...register(`template.${index}.code.0.text`)}
+                      />
                     )}
                   </div>
-                )
-              )}
+                  {templateLanguage.showTemplate && (
+                    <div className="flex flex-col gap-3">
+                      <Label>Locked</Label>
+                      <div className="flex items-center gap-2">
+                        <Controller
+                          control={control}
+                          name={`template.${index}.code.0.locked`}
+                          render={({ field: { onChange, onBlur, value } }) => (
+                            <div className="flex gap-4">
+                              <label className="flex gap-1">
+                                <input
+                                  type="radio"
+                                  onBlur={onBlur}
+                                  onChange={() => onChange(true)}
+                                  checked={value === true}
+                                  className="accent-black"
+                                />
+                                <HiLockClosed
+                                  className={
+                                    value === true
+                                      ? 'text-black'
+                                      : 'text-gray-400'
+                                  }
+                                />
+                              </label>
+                              <label className="flex gap-1">
+                                <input
+                                  type="radio"
+                                  onBlur={onBlur}
+                                  onChange={() => onChange(false)}
+                                  checked={value === false}
+                                  className="accent-black"
+                                />
+                                <HiLockOpen
+                                  className={
+                                    value === false
+                                      ? 'text-black'
+                                      : 'text-gray-400'
+                                  }
+                                />
+                              </label>
+                            </div>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
           </div>
 
           <Button
