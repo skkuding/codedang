@@ -19,24 +19,24 @@ export default async function SubmissionDetail({
   params
 }: {
   params: {
-    id: string
+    problemId: string
     submissionId: string
   }
 }) {
-  const { submissionId, id } = params
+  const { submissionId, problemId } = params
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
     searchParams: {
-      problemId: id
+      problemId
     },
     cache: 'no-store'
   })
-  if (!res.ok) redirect(`/problem/${id}/submission`)
+  if (!res.ok) redirect(`/problem/${problemId}/submission`)
 
-  const data: SubmissionDetail = await res.json()
+  const submission: SubmissionDetail = await res.json()
   return (
     <div className="flex flex-col gap-5 overflow-auto p-6">
       <div className="flex items-center gap-3 ">
-        <Link href={`/problem/${id}/submission`}>
+        <Link href={`/problem/${problemId}/submission`}>
           <ArrowLeft className="size-5" />
         </Link>
         <h1 className="text-xl font-bold">Submission #{submissionId}</h1>
@@ -45,25 +45,27 @@ export default async function SubmissionDetail({
         <div className="flex items-center justify-around gap-5 bg-slate-700 p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
           <div>
             <h2>User</h2>
-            <p>{data.username}</p>
+            <p>{submission.username}</p>
           </div>
           <div>
             <h2>Result</h2>
             <p
               className={
-                data.result === 'Accepted' ? '!text-green-500' : '!text-red-500'
+                submission.result === 'Accepted'
+                  ? '!text-green-500'
+                  : '!text-red-500'
               }
             >
-              {data.result}
+              {submission.result}
             </p>
           </div>
           <div>
             <h2>Language</h2>
-            <p>{data.language}</p>
+            <p>{submission.language}</p>
           </div>
           <div>
             <h2>Submission Time</h2>
-            <p>{dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss')}</p>
+            <p>{dayjs(submission.createTime).format('YYYY-MM-DD HH:mm:ss')}</p>
           </div>
         </div>
         <ScrollBar orientation="horizontal" />
@@ -71,13 +73,13 @@ export default async function SubmissionDetail({
       <div>
         <h2 className="mb-3 text-lg font-bold">Source Code</h2>
         <Codeeditor
-          value={data.code}
-          language={data.language}
+          value={submission.code}
+          language={submission.language}
           editable={false}
           className="max-h-96 min-h-16 w-full"
         />
       </div>
-      {data.testcaseResult.length !== 0 && (
+      {submission.testcaseResult.length !== 0 && (
         <div>
           <h2 className="text-lg font-bold">Test case</h2>
           <Table className="[&_*]:text-center [&_*]:text-sm [&_*]:hover:bg-transparent [&_td]:p-2 [&_tr]:border-slate-600">
@@ -90,7 +92,7 @@ export default async function SubmissionDetail({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.testcaseResult.map((item) => (
+              {submission.testcaseResult.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.id}</TableCell>
                   <TableCell

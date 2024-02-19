@@ -8,7 +8,7 @@ import ContestTabs from '../_components/ContestTabs'
 
 interface ContestDetailProps {
   params: {
-    id: string
+    contestId: string
   }
 }
 
@@ -24,8 +24,8 @@ export default async function Layout({
   params: ContestDetailProps['params']
   tabs: React.ReactNode
 }) {
-  const { id } = params
-  const res = await fetcher.get(`contest/${id}`)
+  const { contestId } = params
+  const res = await fetcher.get(`contest/${contestId}`)
   if (res.ok) {
     const data: Contest = await res.json()
     const currentTime = new Date()
@@ -74,7 +74,7 @@ export default async function Layout({
             </div>
           )}
         </header>
-        <ContestTabs contestId={id} />
+        <ContestTabs contestId={contestId} />
         {tabs}
       </article>
     )

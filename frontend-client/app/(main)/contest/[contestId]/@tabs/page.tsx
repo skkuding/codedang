@@ -10,14 +10,14 @@ interface ContestTop {
 
 interface ContestTopProps {
   params: {
-    id: string
+    contestId: string
   }
 }
 
 export default async function ContestTop({ params }: ContestTopProps) {
   const session = await auth()
-  const { id } = params
-  const data: ContestTop = await fetcher.get(`contest/${id}`).json()
+  const { contestId } = params
+  const data: ContestTop = await fetcher.get(`contest/${contestId}`).json()
   const startTime = new Date(data.startTime)
   const currentTime = new Date()
 
@@ -29,7 +29,7 @@ export default async function ContestTop({ params }: ContestTopProps) {
       />
       {session && currentTime < startTime && (
         <div className="mt-10 flex justify-center">
-          <ParticipateButton id={id} />
+          <ParticipateButton id={contestId} />
         </div>
       )}
     </>

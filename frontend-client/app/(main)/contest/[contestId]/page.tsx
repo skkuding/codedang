@@ -4,14 +4,14 @@ import { sanitize } from 'isomorphic-dompurify'
 
 interface ContestDetailProps {
   params: {
-    id: string
+    contestId: string
   }
 }
 
 export default async function ContestDetail({ params }: ContestDetailProps) {
-  const { id } = params
+  const { contestId } = params
   const { title, startTime, endTime, description } = await fetch(
-    baseUrl + `/contest/${id}`
+    baseUrl + `/contest/${contestId}`
   ).then((res) => res.json())
   return (
     <article>

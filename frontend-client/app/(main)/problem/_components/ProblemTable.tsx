@@ -30,7 +30,7 @@ export default async function ProblemTable({ search, order }: Props) {
         acceptedRate: 'w-2/12',
         info: 'w-1/12'
       }}
-      name="problem"
+      linked
     />
   )
 }
