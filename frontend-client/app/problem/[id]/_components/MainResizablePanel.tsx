@@ -10,6 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useStorage } from '@/lib/hooks'
 import useEditorStore from '@/stores/editor'
 import type { ProblemDetail } from '@/types/type'
+import type { Language } from '@/types/type'
 import { Suspense, useEffect } from 'react'
 import Loading from '../loading'
 import EditorHeader from './EditorHeader'
@@ -39,6 +40,7 @@ export default function MainResizablePanel({
       setLanguage(data.languages[0])
     }
   }, [data.languages, value, setLanguage, language])
+
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -64,7 +66,7 @@ export default function MainResizablePanel({
           <EditorHeader data={data} />
           <Codeeditor
             value={code}
-            language={language as string}
+            language={language as Language}
             onChange={setCode}
             height="100%"
             className="h-full"
