@@ -75,7 +75,7 @@ export default async function SubmissionDetail({
         <Codeeditor
           value={submission.code}
           language={submission.language}
-          editable={false}
+          readOnly
           className="max-h-96 min-h-16 w-full"
         />
       </div>
