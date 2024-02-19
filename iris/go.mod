@@ -5,9 +5,9 @@ go 1.21
 require (
 	github.com/aws/aws-sdk-go-v2 v1.25.0
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.0
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.49.0
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.50.0
 	github.com/rabbitmq/amqp091-go v1.9.0
-	github.com/redis/go-redis/v9 v9.4.0
+	github.com/redis/go-redis/v9 v9.5.0
 	go.uber.org/zap v1.26.0
 )
 
