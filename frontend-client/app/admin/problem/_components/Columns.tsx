@@ -47,7 +47,7 @@ function VisibleCell({ isVisible, id }: { isVisible: boolean; id: number }) {
             variables: {
               groupId: 1,
               input: {
-                id: id,
+                id,
                 isVisible: !isVisible
               }
             }
