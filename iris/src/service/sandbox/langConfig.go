@@ -124,7 +124,7 @@ func NewLangConfig(file file.FileManager, javaPolicyPath string) *langConfig {
 	var pyConfig = config{
 		Language:              PYTHON,
 		SrcName:               "solution.py",
-		ExeName:               "__pycache__/solution.cpython-38.pyc", // TODO: 파이썬 버전 확인
+		ExeName:               "__pycache__/solution.cpython-*.pyc", // TODO: 파이썬 버전 확인
 		MaxCompileCpuTime:     3000,
 		MaxCompileRealTime:    10000,
 		MaxCompileMemory:      128 * 1024 * 1024,
