@@ -22,6 +22,7 @@ import { useMutation, useQuery } from '@apollo/client'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
@@ -147,6 +148,8 @@ export default function Page() {
   const tags =
     tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
 
+  const router = useRouter()
+
   const {
     handleSubmit,
     control,
@@ -178,6 +181,7 @@ export default function Page() {
       toast.error('Failed to create problem')
       return
     }
+    router.push('/admin/problem')
     toast.success('Problem created successfully')
   }
 

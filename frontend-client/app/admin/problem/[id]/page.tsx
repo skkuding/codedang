@@ -67,7 +67,6 @@ const GET_PROBLEM = gql(`
       problemTestcase {
         input
         output
-        scoreWeight
       }
       timeLimit
       memoryLimit
@@ -104,7 +103,6 @@ const UPDATE_PROBLEM = gql(`
       problemTestcase {
         input
         output
-        scoreWeight
       }
       timeLimit
       memoryLimit
