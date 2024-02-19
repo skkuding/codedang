@@ -16,11 +16,10 @@ export default async function Submission({
       }
     })
     .json()
-
   return (
     <>
       <DataTable
-        data={data}
+        data={data.toReversed()}
         columns={columns}
         headerStyle={{
           id: 'w-[8%]',
