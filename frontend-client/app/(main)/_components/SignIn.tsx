@@ -37,7 +37,7 @@ export default function SignIn() {
 
       if (!res?.error) {
         router.refresh()
-        toast.success('Successfully logged in')
+        toast.success('Login Successful')
       } else {
         toast.error('Failed to log in')
       }
