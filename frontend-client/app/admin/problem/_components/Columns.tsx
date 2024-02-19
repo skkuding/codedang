@@ -1,3 +1,4 @@
+// import { gql } from '@generated'
 import { DataTableColumnHeader } from '@/components/DataTableColumnHeader'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -16,7 +17,7 @@ interface Tag {
 interface DataTableProblem {
   id: number
   title: string
-  updateTime: string
+  createTime: string
   difficulty: string
   submissionCount: number
   acceptedRate: number
@@ -25,15 +26,13 @@ interface DataTableProblem {
   problemTag: { id: number; tag: Tag }[]
 }
 
-// const EDIT_VISIBLE = gql`
+// const EDIT_VISIBLE = gql(`
 //   mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
 //     updateProblem(groupId: $groupId, input: $input) {
-//       id
-//       title
 //       isVisible
 //     }
 //   }
-// `
+// `)
 
 export const columns: ColumnDef<DataTableProblem>[] = [
   {
@@ -136,12 +135,12 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     }
   },
   {
-    accessorKey: 'updateTime',
+    accessorKey: 'createTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Update" />
+      <DataTableColumnHeader column={column} title="Creation date" />
     ),
     cell: ({ row }) => {
-      const updateTime: string = row.getValue('updateTime')
+      const updateTime: string = row.getValue('createTime')
       return <div>{updateTime.substring(2, 10)}</div>
     }
   },

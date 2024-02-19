@@ -25,7 +25,7 @@ const GET_PROBLEMS = gql(`
     ) {
       id
       title
-      updateTime
+      createTime
       difficulty
       submissionCount
       acceptedRate
@@ -49,7 +49,7 @@ export default function Page() {
     variables: {
       groupId: 1,
       cursor: 1,
-      take: 8,
+      take: 20,
       input: {
         difficulty: [
           Level.Level1,
