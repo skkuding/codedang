@@ -554,9 +554,6 @@ describe('ProblemService', () => {
     const testcase = { ...testcaseInput, id: 1 }
 
     it('should return updated problem', async () => {
-      const readSpy = stub(storageService, 'readObject').resolves(
-        JSON.stringify([testcase])
-      )
       const uploadSpy = stub(storageService, 'uploadObject').resolves()
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.update.resolves({ ...problems[0], title: 'revised' })
@@ -574,14 +571,10 @@ describe('ProblemService', () => {
         groupId
       )
       expect(result).to.deep.equal({ ...problems[0], title: 'revised' })
-      expect(readSpy.calledOnce).to.be.true
       expect(uploadSpy.calledOnce).to.be.true
     })
 
-    it('should return updated problem', async () => {
-      const readSpy = stub(storageService, 'readObject').resolves(
-        JSON.stringify([testcase])
-      )
+    it('should throw error because languages is empty', async () => {
       const uploadSpy = stub(storageService, 'uploadObject').resolves()
       db.problem.findFirstOrThrow.resolves(problems[0])
 
@@ -594,14 +587,10 @@ describe('ProblemService', () => {
           groupId
         )
       ).to.be.rejectedWith(UnprocessableDataException)
-      expect(readSpy.called).to.be.false
       expect(uploadSpy.called).to.be.false
     })
 
-    it('should return updated problem', async () => {
-      const readSpy = stub(storageService, 'readObject').resolves(
-        JSON.stringify([testcase])
-      )
+    it('should throw error because of unsupported language', async () => {
       const uploadSpy = stub(storageService, 'uploadObject').resolves()
       db.problem.findFirstOrThrow.resolves(problems[0])
 
@@ -614,7 +603,6 @@ describe('ProblemService', () => {
           groupId
         )
       ).to.be.rejectedWith(UnprocessableDataException)
-      expect(readSpy.called).to.be.false
       expect(uploadSpy.called).to.be.false
     })
   })
