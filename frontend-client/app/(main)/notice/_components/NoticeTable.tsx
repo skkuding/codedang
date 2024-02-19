@@ -33,8 +33,6 @@ export default async function NoticeTable({ search }: Props) {
     fixedNoticesFetcher,
     noticesFetcher
   ])
-  console.log(fixedNotices, notices)
-
   const currentPageData = fixedNotices.concat(notices)
 
   return (
