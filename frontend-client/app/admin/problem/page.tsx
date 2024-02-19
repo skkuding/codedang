@@ -32,7 +32,7 @@ const GET_PROBLEMS = gql(`
       acceptedRate
       isVisible
       languages
-      problemTag {
+      tag {
         id
         tag {
           id
@@ -69,7 +69,7 @@ export default function Page() {
       ...problem,
       id: Number(problem.id),
       languages: problem.languages ?? [],
-      problemTag: problem.problemTag.map(({ id, tag }) => ({
+      problemTag: problem.tag.map(({ id, tag }) => ({
         id: +id,
         tag: {
           ...tag,

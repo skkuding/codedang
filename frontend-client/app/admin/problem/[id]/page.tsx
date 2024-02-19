@@ -50,7 +50,7 @@ const GET_PROBLEM = gql(`
       isVisible
       difficulty
       languages
-      problemTag {
+      tag {
         tag {
           id
           name
@@ -64,7 +64,8 @@ const GET_PROBLEM = gql(`
         input
         output
       }
-      problemTestcase {
+      testcase {
+        id
         input
         output
       }
@@ -198,7 +199,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const fetchedDifficulty = problemData?.getProblem.difficulty
   const fetchedLangauges = problemData?.getProblem.languages ?? []
   const fetchedTags =
-    problemData?.getProblem.problemTag.map(({ tag }) => +tag.id) ?? []
+    problemData?.getProblem.tag.map(({ tag }) => +tag.id) ?? []
 
   const fetchedTemplateLanguage =
     problemData?.getProblem.template?.map(
@@ -213,7 +214,7 @@ export default function Page({ params }: { params: { id: string } }) {
       })) ?? []
     )
     setSamples(problemData?.getProblem.samples ?? [])
-    setTestcases(problemData?.getProblem.problemTestcase ?? [])
+    setTestcases(problemData?.getProblem.testcase ?? [])
   }, [problemData])
 
   const {
@@ -240,17 +241,17 @@ export default function Page({ params }: { params: { id: string } }) {
     setValue('languages', data.languages ?? [])
     setValue(
       'tags.create',
-      data.problemTag.map((problemTag) => Number(problemTag.tag.id))
+      data.tag.map(({ tag }) => Number(tag.id))
     )
     setValue(
       'tags.delete',
-      data.problemTag.map((problemTag) => Number(problemTag.tag.id))
+      data.tag.map(({ tag }) => Number(tag.id))
     )
     setValue('description', data.description)
     setValue('inputDescription', data.inputDescription)
     setValue('outputDescription', data.outputDescription)
     setValue('samples.create', data?.samples || [])
-    setValue('testcases', data.problemTestcase)
+    setValue('testcases', data.testcase)
     setValue('timeLimit', data.timeLimit)
     setValue('memoryLimit', data.memoryLimit)
     setValue('hint', data.hint)
