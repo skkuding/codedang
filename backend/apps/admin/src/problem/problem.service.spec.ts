@@ -1,14 +1,5 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import type {
-  Workbook,
-  WorkbookProblem,
-  Contest,
-  ContestProblem,
-  ProblemTestcase,
-  ProblemTag,
-  Tag
-} from '@generated'
 import { Level } from '@generated'
 import { expect } from 'chai'
 import { spy, stub } from 'sinon'
@@ -20,9 +11,19 @@ import { PrismaService } from '@libs/prisma'
 import { S3Provider } from '@admin/storage/s3.provider'
 import { StorageService } from '@admin/storage/storage.service'
 import {
+  exampleContest,
+  exampleContestProblems,
+  exampleOrderUpdatedContestProblems,
+  exampleOrderUpdatedWorkbookProblems,
+  exampleProblemTags,
+  exampleProblemTestcases,
+  exampleTag,
+  exampleWorkbook,
+  exampleWorkbookProblems,
   fileUploadInput,
   groupId,
   importedProblems,
+  problemId,
   problems,
   template,
   testcaseInput
@@ -73,364 +74,6 @@ const db = {
   },
   $transaction: stub(),
   getPaginator: PrismaService.prototype.getPaginator
-}
-const exampleWorkbook: Workbook = {
-  id: 1,
-  title: 'example',
-  description: 'example',
-  groupId: 1,
-  createdById: 1,
-  isVisible: true,
-  createTime: new Date(),
-  updateTime: new Date()
-}
-const exampleWorkbookProblems: WorkbookProblem[] = [
-  {
-    order: 1,
-    workbookId: 1,
-    problemId: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 2,
-    workbookId: 1,
-    problemId: 2,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 3,
-    workbookId: 1,
-    problemId: 3,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 4,
-    workbookId: 1,
-    problemId: 4,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 5,
-    workbookId: 1,
-    problemId: 5,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 6,
-    workbookId: 1,
-    problemId: 6,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 7,
-    workbookId: 1,
-    problemId: 7,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 8,
-    workbookId: 1,
-    problemId: 8,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 9,
-    workbookId: 1,
-    problemId: 9,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 10,
-    workbookId: 1,
-    problemId: 10,
-    createTime: new Date(),
-    updateTime: new Date()
-  }
-]
-const exampleOrderUpdatedWorkbookProblems: WorkbookProblem[] = [
-  {
-    order: 1,
-    workbookId: 1,
-    problemId: 2,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 2,
-    workbookId: 1,
-    problemId: 3,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 3,
-    workbookId: 1,
-    problemId: 4,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 4,
-    workbookId: 1,
-    problemId: 5,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 5,
-    workbookId: 1,
-    problemId: 6,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 6,
-    workbookId: 1,
-    problemId: 7,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 7,
-    workbookId: 1,
-    problemId: 8,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 8,
-    workbookId: 1,
-    problemId: 9,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 9,
-    workbookId: 1,
-    problemId: 10,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 10,
-    workbookId: 1,
-    problemId: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  }
-]
-const exampleContest: Contest = {
-  id: 1,
-  title: 'example',
-  description: 'example',
-  groupId: 1,
-  createdById: 1,
-  config: { isVisible: true, isRankVisible: true },
-  startTime: new Date(),
-  endTime: new Date(),
-  createTime: new Date(),
-  updateTime: new Date()
-}
-const exampleContestProblems: ContestProblem[] = [
-  {
-    order: 1,
-    contestId: 1,
-    problemId: 1,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 2,
-    contestId: 1,
-    problemId: 2,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 3,
-    contestId: 1,
-    problemId: 3,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 4,
-    contestId: 1,
-    problemId: 4,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 5,
-    contestId: 1,
-    problemId: 5,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 6,
-    contestId: 1,
-    problemId: 6,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 7,
-    contestId: 1,
-    problemId: 7,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 8,
-    contestId: 1,
-    problemId: 8,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 9,
-    contestId: 1,
-    problemId: 9,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 10,
-    contestId: 1,
-    problemId: 10,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  }
-]
-
-const exampleOrderUpdatedContestProblems: ContestProblem[] = [
-  {
-    order: 1,
-    contestId: 1,
-    problemId: 2,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 2,
-    contestId: 1,
-    problemId: 3,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 3,
-    contestId: 1,
-    problemId: 4,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 4,
-    contestId: 1,
-    problemId: 5,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 5,
-    contestId: 1,
-    problemId: 6,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 6,
-    contestId: 1,
-    problemId: 7,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 7,
-    contestId: 1,
-    problemId: 8,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 8,
-    contestId: 1,
-    problemId: 9,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 9,
-    contestId: 1,
-    problemId: 10,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  },
-  {
-    order: 10,
-    contestId: 1,
-    problemId: 1,
-    score: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  }
-]
-
-const exampleProblemTestcases: ProblemTestcase[] = [
-  {
-    id: 1,
-    problemId: 1,
-    input: '1',
-    output: '1',
-    scoreWeight: 1,
-    createTime: new Date(),
-    updateTime: new Date()
-  }
-]
-
-const exampleProblemTags: ProblemTag[] = [
-  {
-    id: 1,
-    problemId: 1,
-    tagId: 1
-  }
-]
-
-const exampleTag: Tag = {
-  id: 1,
-  name: 'brute force',
-  createTime: new Date(),
-  updateTime: new Date()
 }
 
 describe('ProblemService', () => {
@@ -536,93 +179,95 @@ describe('ProblemService', () => {
   })
 
   describe('getProblems', () => {
-    // it('should return group problems', async () => {
-    //   db.problem.findMany.resolves(problems)
-    //   const result = await service.getProblems({}, groupId, 1, 5)
-    //   expect(result).to.deep.equal(problems)
-    // })
+    it('should return group problems', async () => {
+      db.problem.findMany.resolves(problems)
+      const result = await service.getProblems({}, groupId, 1, 5)
+      expect(result).to.deep.equal(problems)
+    })
   })
 
   describe('getProblem', () => {
-    //   it('should return a group problem', async () => {
-    //     db.problem.findFirstOrThrow.resolves(problems[0])
-    //     const result = await service.getProblem(problemId, groupId)
-    //     expect(result).to.deep.equal(problems[0])
-    //   })
+    it('should return a group problem', async () => {
+      db.problem.findFirstOrThrow.resolves(problems[0])
+      const result = await service.getProblem(problemId, groupId)
+      expect(result).to.deep.equal(problems[0])
+    })
   })
 
   describe('updateProblem', () => {
-    // const testcase = { ...testcaseInput, id: 1 }
-    // it('should return updated problem', async () => {
-    //   const readSpy = stub(storageService, 'readObject').resolves(
-    //     JSON.stringify([testcase])
-    //   )
-    //   const uploadSpy = stub(storageService, 'uploadObject').resolves()
-    //   db.problem.findFirstOrThrow.resolves(problems[0])
-    //   db.problem.update.resolves({ ...problems[0], title: 'revised' })
-    //   db.problemTestcase.deleteMany.resolves()
-    //   db.problemTestcase.findMany.resolves([])
-    //   db.problemTestcase.update.resolves()
-    //   db.problemTestcase.update.resolves(testcase)
-    //   const result = await service.updateProblem(
-    //     {
-    //       id: problemId,
-    //       title: 'revised',
-    //       testcases: [testcase]
-    //     },
-    //     groupId
-    //   )
-    //   expect(result).to.deep.equal({ ...problems[0], title: 'revised' })
-    //   expect(readSpy.calledOnce).to.be.true
-    //   expect(uploadSpy.calledOnce).to.be.true
-    // })
-    // it('should return updated problem', async () => {
-    //   const readSpy = stub(storageService, 'readObject').resolves(
-    //     JSON.stringify([testcase])
-    //   )
-    //   const uploadSpy = stub(storageService, 'uploadObject').resolves()
-    //   db.problem.findFirstOrThrow.resolves(problems[0])
-    //   await expect(
-    //     service.updateProblem(
-    //       {
-    //         id: problemId,
-    //         languages: []
-    //       },
-    //       groupId
-    //     )
-    //   ).to.be.rejectedWith(UnprocessableDataException)
-    //   expect(readSpy.called).to.be.false
-    //   expect(uploadSpy.called).to.be.false
-    // })
-    // it('should return updated problem', async () => {
-    //   const readSpy = stub(storageService, 'readObject').resolves(
-    //     JSON.stringify([testcase])
-    //   )
-    //   const uploadSpy = stub(storageService, 'uploadObject').resolves()
-    //   db.problem.findFirstOrThrow.resolves(problems[0])
-    //   await expect(
-    //     service.updateProblem(
-    //       {
-    //         id: problemId,
-    //         template: [{ ...template, language: 'Java' }]
-    //       },
-    //       groupId
-    //     )
-    //   ).to.be.rejectedWith(UnprocessableDataException)
-    //   expect(readSpy.called).to.be.false
-    //   expect(uploadSpy.called).to.be.false
-    // })
+    const testcase = { ...testcaseInput, id: 1 }
+    it('should return updated problem', async () => {
+      const readSpy = stub(storageService, 'readObject').resolves(
+        JSON.stringify([testcase])
+      )
+      const uploadSpy = stub(storageService, 'uploadObject').resolves()
+      db.problem.findFirstOrThrow.resolves(problems[0])
+      db.problem.update.resolves({ ...problems[0], title: 'revised' })
+      db.problemTestcase.deleteMany.resolves()
+      db.problemTestcase.findMany.resolves([])
+      db.problemTestcase.update.resolves()
+      db.problemTestcase.update.resolves(testcase)
+      const result = await service.updateProblem(
+        {
+          id: problemId,
+          title: 'revised',
+          testcases: [testcase]
+        },
+        groupId
+      )
+      expect(result).to.deep.equal({ ...problems[0], title: 'revised' })
+      expect(readSpy.calledOnce).to.be.true
+      expect(uploadSpy.calledOnce).to.be.true
+    })
+
+    it('should return updated problem', async () => {
+      const readSpy = stub(storageService, 'readObject').resolves(
+        JSON.stringify([testcase])
+      )
+      const uploadSpy = stub(storageService, 'uploadObject').resolves()
+      db.problem.findFirstOrThrow.resolves(problems[0])
+      await expect(
+        service.updateProblem(
+          {
+            id: problemId,
+            languages: []
+          },
+          groupId
+        )
+      ).to.be.rejectedWith(UnprocessableDataException)
+      expect(readSpy.called).to.be.false
+      expect(uploadSpy.called).to.be.false
+    })
+
+    it('should return updated problem', async () => {
+      const readSpy = stub(storageService, 'readObject').resolves(
+        JSON.stringify([testcase])
+      )
+      const uploadSpy = stub(storageService, 'uploadObject').resolves()
+      db.problem.findFirstOrThrow.resolves(problems[0])
+      await expect(
+        service.updateProblem(
+          {
+            id: problemId,
+            template: [{ ...template, language: 'Java' }]
+          },
+          groupId
+        )
+      ).to.be.rejectedWith(UnprocessableDataException)
+      expect(readSpy.called).to.be.false
+      expect(uploadSpy.called).to.be.false
+    })
   })
 
   describe('deleteProblem', () => {
-    // it('should return deleted problem', async () => {
-    //   const deleteSpy = stub(storageService, 'deleteObject').resolves()
-    //   db.problem.findFirstOrThrow.resolves(problems[0])
-    //   db.problem.delete.resolves(problems[0])
-    //   const result = await service.deleteProblem(problemId, groupId)
-    //   expect(result).to.deep.equal(problems[0])
-    //   expect(deleteSpy.calledOnce).to.be.true
-    // })
+    it('should return deleted problem', async () => {
+      const deleteSpy = stub(storageService, 'deleteObject').resolves()
+      db.problem.findFirstOrThrow.resolves(problems[0])
+      db.problem.delete.resolves(problems[0])
+      const result = await service.deleteProblem(problemId, groupId)
+      expect(result).to.deep.equal(problems[0])
+      expect(deleteSpy.calledOnce).to.be.true
+    })
   })
 
   describe('getWorkbookProblems', () => {
@@ -895,15 +540,19 @@ describe('ProblemService', () => {
   })
 
   describe('getProblemTestcases', () => {
-    afterEach(() => {
-      db.problemTestcase.findMany.reset()
-    })
-
     it('should return a problem testcase array', async () => {
-      db.problemTestcase.findMany.resolves(exampleProblemTestcases)
-      expect(await service.getProblemTestcases(1)).to.deep.equal(
-        exampleProblemTestcases
+      const readSpy = stub(storageService, 'readObject').resolves(
+        JSON.stringify(exampleProblemTestcases)
       )
+      expect(await service.getProblemTestcases(1)).to.deep.equal(
+        exampleProblemTestcases.map((tc) => {
+          return {
+            ...tc,
+            id: tc.id.split(':')[1]
+          }
+        })
+      )
+      expect(readSpy.calledOnce).to.be.true
     })
   })
 })

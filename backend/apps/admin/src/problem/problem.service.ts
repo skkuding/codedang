@@ -273,7 +273,7 @@ export class ProblemService {
       whereOptions.languages = { hasSome: input.languages }
     }
 
-    const problems = await this.prisma.problem.findMany({
+    return await this.prisma.problem.findMany({
       ...paginator,
       where: {
         ...whereOptions,
@@ -281,24 +281,10 @@ export class ProblemService {
       },
       take
     })
-
-    const problemsWithTestcases = problems.map(async (problem) => {
-      const rawTestcase = await this.storageService.readObject(
-        `${problem.id}.json`
-      )
-      const testcase = JSON.parse(rawTestcase)
-
-      return {
-        ...problem,
-        testcase
-      }
-    })
-
-    return problemsWithTestcases
   }
 
   async getProblem(id: number, groupId: number) {
-    const problem = await this.prisma.problem.findFirstOrThrow({
+    return await this.prisma.problem.findFirstOrThrow({
       where: {
         id,
         groupId
@@ -313,17 +299,6 @@ export class ProblemService {
         }
       }
     })
-
-    const rawTestcase = await this.storageService.readObject(
-      `${problem.id}.json`
-    )
-    const testcase = JSON.parse(rawTestcase)
-    const problemWithTestcase = {
-      ...problem,
-      testcase
-    }
-
-    return problemWithTestcase
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
@@ -627,6 +602,7 @@ export class ProblemService {
       await this.storageService.readObject(`${problemId}.json`)
     )
 
+    // TODO: Remove this code after refactoring iris code
     return testcases.map((tc) => {
       return {
         ...tc,
