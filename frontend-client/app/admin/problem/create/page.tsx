@@ -181,8 +181,9 @@ export default function Page() {
       toast.error('Failed to create problem')
       return
     }
-    router.push('/admin/problem')
     toast.success('Problem created successfully')
+    router.push('/admin/problem')
+    router.refresh()
   }
 
   const addExample = (type: 'samples' | 'testcases') => {
