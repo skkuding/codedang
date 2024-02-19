@@ -428,7 +428,7 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    return await this.prisma.submission.findMany({
+    const submissions = await this.prisma.submission.findMany({
       ...paginator,
       take,
       where: {
@@ -447,6 +447,8 @@ export class SubmissionService implements OnModuleInit {
         codeSize: true
       }
     })
+
+    return submissions.reverse()
   }
 
   async getSubmission(
@@ -565,7 +567,7 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    return await this.prisma.submission.findMany({
+    const submissions = await this.prisma.submission.findMany({
       ...paginator,
       take,
       where: {
@@ -585,6 +587,8 @@ export class SubmissionService implements OnModuleInit {
         codeSize: true
       }
     })
+
+    return submissions.reverse()
   }
 
   async getContestSubmission(
