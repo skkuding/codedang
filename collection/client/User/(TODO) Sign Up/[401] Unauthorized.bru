@@ -1,11 +1,11 @@
 meta {
-  name: 401- Unauthorized
+  name: [401] Unauthorized
   type: http
   seq: 3
 }
 
 post {
-  url: user/sign-up
+  url: {{baseUrl}}/user/sign-up
   body: json
   auth: none
 }

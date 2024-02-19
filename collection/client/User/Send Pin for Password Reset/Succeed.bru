@@ -1,0 +1,28 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/email-auth/send-email/password-reset
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "skkucodingplatform@gmail.com"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+docs {
+  # Send Pin for Password Reset
+  
+  - 비밀번호 재설정을 위해 해당 `email`로 pin을 전송합니다.
+  - 만약 `email`이 사용중이 아니라면, `401`을 반환합니다.
+}

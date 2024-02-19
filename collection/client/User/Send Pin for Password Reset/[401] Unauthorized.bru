@@ -1,11 +1,11 @@
 meta {
-  name: Succeed
+  name: [401] Unauthorized
   type: http
-  seq: 1
+  seq: 2
 }
 
 post {
-  url: email-auth/send-email/register-new
+  url: {{baseUrl}}/email-auth/send-email/password-reset
   body: json
   auth: none
 }

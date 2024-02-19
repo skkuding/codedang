@@ -1,11 +1,11 @@
 meta {
-  name: 401- Unauthorized
+  name: [422] Duplicate Email
   type: http
   seq: 2
 }
 
 post {
-  url: {{baseUrl}}/email-auth/send-email/password-reset
+  url: {{baseUrl}}/email-auth/send-email/register-new
   body: json
   auth: none
 }

@@ -1,11 +1,11 @@
 meta {
-  name: 422- Bad Username
+  name: [400] Bad Username
   type: http
   seq: 4
 }
 
 post {
-  url: user/sign-up
+  url: {{baseUrl}}/user/sign-up
   body: json
   auth: none
 }

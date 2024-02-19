@@ -1,0 +1,28 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/email-auth/send-email/register-new
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "skkucp@gmail.com"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+docs {
+  # Send Pin to New Email
+  
+  - 해당 `email`에 pin을 전송합니다.
+  - 만약 현재 사용중인 `email`이라면 `422`를 반환합니다.
+}
