@@ -61,7 +61,7 @@ export default function EditorMainResizablePanel({
               }
             >
               <TabsList className="bg-slate-900">
-                <Link href={`/problem/${problem.id}`}>
+                <Link href={`/problem/${problem.id}` as Route}>
                   <TabsTrigger
                     value="Description"
                     className="data-[state=active]:bg-slate-700 data-[state=active]:text-blue-400"
