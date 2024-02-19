@@ -3,6 +3,7 @@
 import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { useQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
