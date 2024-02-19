@@ -27,8 +27,8 @@ export default function Submission({
           id: 'w-[8%]',
           username: 'w-[15%]',
           result: 'w-[27%]',
-          language: 'w-[12%]',
-          createTime: 'w-[25%]',
+          language: 'w-[14%]',
+          createTime: 'w-[23%]',
           codeSize: 'w-[13%]'
         }}
         problemId={Number(problemId)}
