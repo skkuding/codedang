@@ -17,7 +17,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import type { Language, Sample, Testcase } from '@/types/type'
+import type { Sample, Testcase } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -26,7 +26,6 @@ import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { HiLockClosed, HiLockOpen } from 'react-icons/hi'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { MdHelpOutline } from 'react-icons/md'
 import { PiWarningBold } from 'react-icons/pi'
@@ -34,14 +33,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
-import type { TemplateLanguage } from '../utils'
-import {
-  GET_TAGS,
-  inputStyle,
-  languageMapper,
-  languageOptions,
-  levels
-} from '../utils'
+import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
 
 const GET_PROBLEM = gql(`
   query GetProblem($groupId: Int!, $id: Int!) {
@@ -181,7 +173,6 @@ export default function Page({ params }: { params: { id: string } }) {
   const [testcases, setTestcases] = useState<Testcase[]>([
     { input: '', output: '' }
   ])
-  const [languages, setLanguages] = useState<TemplateLanguage[]>([])
 
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
@@ -200,18 +191,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const fetchedTags =
     problemData?.getProblem.problemTag.map(({ tag }) => +tag.id) ?? []
 
-  const fetchedTemplateLanguage =
-    problemData?.getProblem.template?.map(
-      (template: string) => JSON.parse(template)[0]?.language
-    ) ?? []
-
   useEffect(() => {
-    setLanguages(
-      problemData?.getProblem.languages?.map((language: Language) => ({
-        language,
-        isVisible: fetchedTemplateLanguage.includes(language) ? true : false
-      })) ?? []
-    )
     setSamples(problemData?.getProblem.samples ?? [])
     setTestcases(problemData?.getProblem.problemTestcase ?? [])
   }, [problemData])
@@ -255,22 +235,7 @@ export default function Page({ params }: { params: { id: string } }) {
     setValue('memoryLimit', data.memoryLimit)
     setValue('hint', data.hint)
     setValue('source', data.source)
-    setValue(
-      'template',
-      data.template?.map((template: string) => {
-        const parsedTemplate = JSON.parse(template)[0]
-        return {
-          language: parsedTemplate?.language,
-          code: [
-            {
-              id: parsedTemplate?.code[0].id,
-              text: parsedTemplate?.code[0].text,
-              locked: parsedTemplate?.code[0].locked
-            }
-          ]
-        }
-      })
-    )
+    setValue('template', [])
   }
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
@@ -460,19 +425,6 @@ export default function Page({ params }: { params: { id: string } }) {
                       options={languageOptions}
                       onChange={(selectedLanguages) => {
                         field.onChange(selectedLanguages)
-                        setLanguages(
-                          selectedLanguages.map((language) => ({
-                            language,
-                            isVisible:
-                              languages.filter(
-                                (prev) => prev.language === language
-                              ).length > 0
-                                ? languages.filter(
-                                    (prev) => prev.language === language
-                                  )[0].isVisible
-                                : false
-                          })) as TemplateLanguage[]
-                        )
                       }}
                       defaultValue={fetchedLangauges}
                     />
@@ -726,107 +678,6 @@ export default function Page({ params }: { params: { id: string } }) {
                 {...register('source')}
               />
             )}
-          </div>
-
-          <div className="flex flex-col gap-6">
-            {languages &&
-              (languages as TemplateLanguage[]).map(
-                (templateLanguage, index) => (
-                  <div key={index} className="flex gap-4">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <Label required={false}>
-                          {templateLanguage.language} Template
-                        </Label>
-                        <Switch
-                          onCheckedChange={() => {
-                            setLanguages((prev) =>
-                              prev.map((prevLanguage) =>
-                                prevLanguage.language ===
-                                templateLanguage.language
-                                  ? {
-                                      ...prevLanguage,
-                                      isVisible: !prevLanguage.isVisible
-                                    }
-                                  : prevLanguage
-                              )
-                            )
-                            setValue(`template.${index}`, {
-                              language:
-                                languageMapper[templateLanguage.language],
-                              code: [
-                                {
-                                  id: index,
-                                  text: '',
-                                  locked: true
-                                }
-                              ]
-                            })
-                          }}
-                          checked={templateLanguage.isVisible}
-                          className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
-                        />
-                      </div>
-                      {templateLanguage.isVisible && (
-                        <Textarea
-                          placeholder={`Enter a ${templateLanguage.language} template...`}
-                          className="h-[180px] w-[480px] bg-white"
-                          {...register(`template.${index}.code.0.text`)}
-                        />
-                      )}
-                    </div>
-                    {templateLanguage.isVisible && (
-                      <div className="flex flex-col gap-3">
-                        <Label>Locked</Label>
-                        <div className="flex items-center gap-2">
-                          <Controller
-                            control={control}
-                            name={`template.${index}.code.0.locked`}
-                            render={({
-                              field: { onChange, onBlur, value }
-                            }) => (
-                              <div className="flex gap-4">
-                                <label className="flex gap-1">
-                                  <input
-                                    type="radio"
-                                    onBlur={onBlur}
-                                    onChange={() => onChange(true)}
-                                    checked={value === true}
-                                    className="accent-black"
-                                  />
-                                  <HiLockClosed
-                                    className={
-                                      value === true
-                                        ? 'text-black'
-                                        : 'text-gray-400'
-                                    }
-                                  />
-                                </label>
-                                <label className="flex gap-1">
-                                  <input
-                                    type="radio"
-                                    onBlur={onBlur}
-                                    onChange={() => onChange(false)}
-                                    checked={value === false}
-                                    className="accent-black"
-                                  />
-                                  <HiLockOpen
-                                    className={
-                                      value === false
-                                        ? 'text-black'
-                                        : 'text-gray-400'
-                                    }
-                                  />
-                                </label>
-                              </div>
-                            )}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              )}
           </div>
 
           <Button

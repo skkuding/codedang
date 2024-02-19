@@ -27,7 +27,6 @@ import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { HiLockClosed, HiLockOpen } from 'react-icons/hi'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { MdHelpOutline } from 'react-icons/md'
 import { PiWarningBold } from 'react-icons/pi'
@@ -35,14 +34,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
-import type { TemplateLanguage } from '../utils'
-import {
-  GET_TAGS,
-  inputStyle,
-  languageMapper,
-  languageOptions,
-  levels
-} from '../utils'
+import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
 
 const CREATE_PROBLEM = gql(`
   mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
@@ -142,7 +134,6 @@ export default function Page() {
   const [testcases, setTestcases] = useState<Testcase[]>([
     { input: '', output: '' }
   ])
-  const [languages, setLanguages] = useState<TemplateLanguage[]>([])
 
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
@@ -171,6 +162,7 @@ export default function Page() {
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
   const onSubmit = async (input: CreateProblemInput) => {
+    console.log(input)
     await createProblem({
       variables: {
         groupId: 1,
@@ -329,19 +321,6 @@ export default function Page() {
                       options={languageOptions}
                       onChange={(selectedLanguages) => {
                         field.onChange(selectedLanguages)
-                        setLanguages(
-                          selectedLanguages.map((language) => ({
-                            language,
-                            isVisible:
-                              languages.filter(
-                                (prev) => prev.language === language
-                              ).length > 0
-                                ? languages.filter(
-                                    (prev) => prev.language === language
-                                  )[0].isVisible
-                                : false
-                          }))
-                        )
                       }}
                     />
                   )}
@@ -585,101 +564,6 @@ export default function Page() {
                 {...register('source')}
               />
             )}
-          </div>
-
-          <div className="flex flex-col gap-6">
-            {languages &&
-              languages.map((templateLanguage, index) => (
-                <div key={index} className="flex gap-4">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <Label required={false}>
-                        {templateLanguage.language} Template
-                      </Label>
-                      <Switch
-                        onCheckedChange={() => {
-                          setLanguages((prev) =>
-                            prev.map((prevLanguage) =>
-                              prevLanguage.language ===
-                              templateLanguage.language
-                                ? {
-                                    ...prevLanguage,
-                                    isVisible: !prevLanguage.isVisible
-                                  }
-                                : prevLanguage
-                            )
-                          )
-                          setValue(`template.${index}`, {
-                            language: languageMapper[templateLanguage.language],
-                            code: [
-                              {
-                                id: index,
-                                text: '',
-                                locked: true
-                              }
-                            ]
-                          })
-                        }}
-                        className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
-                      />
-                    </div>
-                    {templateLanguage.isVisible && (
-                      <Textarea
-                        placeholder={`Enter a ${templateLanguage.language} template...`}
-                        className="h-[180px] w-[480px] bg-white"
-                        {...register(`template.${index}.code.0.text`)}
-                      />
-                    )}
-                  </div>
-                  {templateLanguage.isVisible && (
-                    <div className="flex flex-col gap-3">
-                      <Label>Locked</Label>
-                      <div className="flex items-center gap-2">
-                        <Controller
-                          control={control}
-                          name={`template.${index}.code.0.locked`}
-                          render={({ field: { onChange, onBlur, value } }) => (
-                            <div className="flex gap-4">
-                              <label className="flex gap-1">
-                                <input
-                                  type="radio"
-                                  onBlur={onBlur}
-                                  onChange={() => onChange(true)}
-                                  checked={value === true}
-                                  className="accent-black"
-                                />
-                                <HiLockClosed
-                                  className={
-                                    value === true
-                                      ? 'text-black'
-                                      : 'text-gray-400'
-                                  }
-                                />
-                              </label>
-                              <label className="flex gap-1">
-                                <input
-                                  type="radio"
-                                  onBlur={onBlur}
-                                  onChange={() => onChange(false)}
-                                  checked={value === false}
-                                  className="accent-black"
-                                />
-                                <HiLockOpen
-                                  className={
-                                    value === false
-                                      ? 'text-black'
-                                      : 'text-gray-400'
-                                  }
-                                />
-                              </label>
-                            </div>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
           </div>
 
           <Button
