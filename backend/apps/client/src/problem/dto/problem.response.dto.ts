@@ -1,4 +1,4 @@
-import { type Language, Level, type Tag, ExampleIO } from '@prisma/client'
+import { type Language, Level, type Tag, type ExampleIO } from '@prisma/client'
 import { Exclude, Expose } from 'class-transformer'
 
 @Exclude()
