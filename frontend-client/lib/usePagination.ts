@@ -1,4 +1,4 @@
-import { fetcher } from '@/lib/utils'
+import { fetcherWithAuth } from '@/lib/utils'
 import { useEffect, useState, useRef, useCallback } from 'react'
 
 interface Item {
@@ -18,16 +18,17 @@ interface Item {
  * For page navigation within slot, call `paginator.page.goto(${page})`.
  * For slot navigation, call `paginator.slot.goto(${slot}, setPath)`.
  *
- * @param url a state containing url to fetch
+ * @param url initial url to fetch
  * @param itemsPerPage number of items in a page
  * @param pagesPerSlot number of pages in a slot
  */
 export const usePagination = <T extends Item>(
-  url: URL,
+  url: string,
   itemsPerPage = 10,
   pagesPerSlot = 5
 ) => {
   const [items, setItems] = useState<T[]>()
+  const slotItems = useRef<T[]>([])
 
   const page = useRef(1) // TODO: 새로고침 후에 현재 페이지로 돌아갈 수 있도록 수정
   const slot = useRef(0)
@@ -41,9 +42,15 @@ export const usePagination = <T extends Item>(
       next: ''
     }
   })
-  const slotItems = useRef<T[]>([])
 
-  // handles in-slot navigation
+  // parse path and base query from given url
+  const take = itemsPerPage * pagesPerSlot + 1
+  const [path, baseQuery] = url.split('?')
+  const [query, setQuery] = useState(
+    new URLSearchParams(`${baseQuery}&take=${take}`)
+  )
+
+  // handle in-slot navigation
   const gotoPage = useCallback(
     (newPage: number) => {
       page.current = newPage
@@ -58,30 +65,33 @@ export const usePagination = <T extends Item>(
     window.scrollTo({ top: 0, behavior: 'smooth' })
   })
 
-  // handles across-slot navigation
-  const gotoSlot = (
-    direction: 'prev' | 'next',
-    setUrl: (newUrl: URL) => void
-  ) => {
+  // handle across-slot navigation
+  const gotoSlot = (direction: 'prev' | 'next') => {
     page.current =
       direction === 'prev'
         ? nav.current.page.first - 1
         : nav.current.page.first + nav.current.page.count
     slot.current = Math.floor((page.current - 1) / pagesPerSlot)
 
-    // triggers useEffect hook
-    setUrl(new URL(nav.current.slot[direction], url))
+    // trigger useEffect hook
+    setQuery(new URLSearchParams(nav.current.slot[direction]))
   }
 
   useEffect(() => {
-    const take = itemsPerPage * pagesPerSlot
     ;(async () => {
-      const query = url.searchParams
-      if (!query.has('take')) query.append('take', String(take + 1))
-      const data = (await fetcher(`${url.pathname}?${query}`)) as unknown as T[]
+      console.log(query.toString())
+      const data: T[] = await fetcherWithAuth
+        .get(path, {
+          searchParams: query
+        })
+        .json()
 
-      query.delete('take'), query.delete('cursor')
-      const baseQuery = query.toString() ? `${query}&` : '?'
+      const next = Number(query.get('take')) > 0
+      const full = data.length >= take
+      if (full) {
+        if (next) data.pop()
+        else data.shift()
+      }
       nav.current = {
         page: {
           first: slot.current * pagesPerSlot + 1,
@@ -89,19 +99,19 @@ export const usePagination = <T extends Item>(
         },
         slot: {
           prev:
-            slot.current > 0 && data.length > 0
-              ? `${baseQuery}cursor=${data.at(0)!.id}&take=${-take - 1}`
+            (next && slot.current > 0) || (!next && full)
+              ? `${baseQuery}&cursor=${data.at(0)!.id}&take=${-take}`
               : '',
           next:
-            data.length > take
-              ? `${baseQuery}cursor=${data.at(-2)!.id}&take=${take + 1}`
+            (next && full) || !next
+              ? `${baseQuery}&cursor=${data.at(-1)!.id}&take=${take}`
               : ''
         }
       }
       slotItems.current = data
       gotoPage(page.current)
     })()
-  }, [url, itemsPerPage, pagesPerSlot, gotoPage])
+  }, [query, path, baseQuery, itemsPerPage, pagesPerSlot, take, gotoPage])
 
   return {
     items,
