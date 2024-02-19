@@ -5,7 +5,7 @@ import { createReadStream } from 'fs'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import type { UploadFileInput } from '../model/problem.input'
 import type { Template } from '../model/template.input'
-import type { CreateTestcase } from '../model/testcase.input'
+import type { Testcase } from '../model/testcase.input'
 
 export const problemId = 1
 export const groupId = 1
@@ -80,7 +80,7 @@ export const problems: Problem[] = [
   }
 ]
 
-export const testcaseInput: CreateTestcase = {
+export const testcaseInput: Testcase = {
   input: "wake up, daddy's home",
   output: 'welcome home, sir',
   scoreWeight: 1

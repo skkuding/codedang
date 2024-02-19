@@ -21,7 +21,7 @@ import type {
   UpdateProblemTagInput
 } from './model/problem.input'
 import type { Template } from './model/template.input'
-import type { CreateTestcase } from './model/testcase.input'
+import type { Testcase } from './model/testcase.input'
 
 type TestCaseInFile = {
   id: string
@@ -80,7 +80,7 @@ export class ProblemService {
   }
 
   // TODO: 테스트케이스별로 파일 따로 업로드 -> 수정 시 updateTestcases, deleteProblem 로직 함께 정리
-  async createTestcases(problemId: number, testcases: Array<CreateTestcase>) {
+  async createTestcases(problemId: number, testcases: Array<Testcase>) {
     const filename = `${problemId}.json`
     const testcaseIds = await Promise.all(
       testcases.map(async (tc, index) => {
@@ -225,7 +225,7 @@ export class ProblemService {
         )
       }
 
-      const testcaseInput: CreateTestcase[] = []
+      const testcaseInput: Testcase[] = []
       for (let i = 0; i < testCnt; i++) {
         testcaseInput.push({
           input: inputs[i],
@@ -384,7 +384,7 @@ export class ProblemService {
     }
   }
 
-  async updateTestcases(problemId: number, testcases: Array<CreateTestcase>) {
+  async updateTestcases(problemId: number, testcases: Array<Testcase>) {
     await this.prisma.problemTestcase.deleteMany({
       where: {
         problemId

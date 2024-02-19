@@ -11,7 +11,7 @@ export class Sample {
 }
 
 @InputType()
-export class CreateTestcase extends PickType(ProblemTestcaseCreateInput, [
+export class Testcase extends PickType(ProblemTestcaseCreateInput, [
   'input',
   'output',
   'scoreWeight'
