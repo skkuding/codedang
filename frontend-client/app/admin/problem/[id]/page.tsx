@@ -212,6 +212,8 @@ export default function Page({ params }: { params: { id: string } }) {
         isVisible: fetchedTemplateLanguage.includes(language) ? true : false
       })) ?? []
     )
+    setSamples(problemData?.getProblem.samples ?? [])
+    setTestcases(problemData?.getProblem.problemTestcase ?? [])
   }, [problemData])
 
   const {
@@ -273,6 +275,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
   const onSubmit = async (input: UpdateProblemInput) => {
+    console.log(input)
     const tagsToDelete = getValues('tags.delete')
     const tagsToCreate = getValues('tags.create')
     input.tags!.create = tagsToCreate.filter(
@@ -288,7 +291,6 @@ export default function Page({ params }: { params: { id: string } }) {
         input
       }
     })
-    console.log(input)
     if (error) {
       toast.error('Failed to update problem')
       return
@@ -608,7 +610,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </div>
             <div className="flex flex-col gap-2">
               {getValues('testcases') &&
-                getValues('testcases')!.map((_, index) => (
+                testcases.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
