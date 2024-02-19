@@ -153,7 +153,6 @@ export interface Sample {
 export interface Testcase {
   input: string
   output: string
-  scoreWeight?: number
 }
 
 export interface Snippet {

@@ -59,7 +59,6 @@ const CREATE_PROBLEM = gql(`
       problemTestcase {
         input
         output
-        scoreWeight
       }
       timeLimit
       memoryLimit
@@ -93,8 +92,7 @@ const schema = z.object({
     .array(
       z.object({
         input: z.string().min(1),
-        output: z.string().min(1),
-        scoreWeight: z.number().optional()
+        output: z.string().min(1)
       })
     )
     .min(1),

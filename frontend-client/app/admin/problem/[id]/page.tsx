@@ -131,8 +131,7 @@ const schema = z.object({
     .array(
       z.object({
         input: z.string().min(1),
-        output: z.string().min(1),
-        scoreWeight: z.number().optional()
+        output: z.string().min(1)
       })
     )
     .min(1),
@@ -169,10 +168,16 @@ export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
   const [showHint, setShowHint] = useState(true)
   const [showSource, setShowSource] = useState(true)
-  const [samples, setSamples] = useState<Sample[]>([{ input: '', output: '' }])
-  const [testcases, setTestcases] = useState<Testcase[]>([
+  const [fetchedSamples, setFetchedSamples] = useState<Sample[]>([
     { input: '', output: '' }
   ])
+  const [fetchedTestcases, setFetchedTestcases] = useState<Testcase[]>([
+    { input: '', output: '' }
+  ])
+  const [fetchedDescription, setFetchedDescription] = useState<string>('')
+  const [fetchedDifficulty, setFetchedDifficulty] = useState<string>('')
+  const [fetchedLangauges, setFetchedLangauges] = useState<string[]>([])
+  const [fetchedTags, setFetchedTags] = useState<number[]>([])
 
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
@@ -185,15 +190,17 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   })
 
-  const fetchedDescription = problemData?.getProblem.description
-  const fetchedDifficulty = problemData?.getProblem.difficulty
-  const fetchedLangauges = problemData?.getProblem.languages ?? []
-  const fetchedTags =
-    problemData?.getProblem.problemTag.map(({ tag }) => +tag.id) ?? []
-
   useEffect(() => {
-    setSamples(problemData?.getProblem.samples ?? [])
-    setTestcases(problemData?.getProblem.problemTestcase ?? [])
+    if (problemData) {
+      setFetchedSamples(problemData?.getProblem.samples ?? [])
+      setFetchedTestcases(problemData?.getProblem.problemTestcase ?? [])
+      setFetchedDescription(problemData?.getProblem.description)
+      setFetchedDifficulty(problemData?.getProblem.difficulty)
+      setFetchedLangauges(problemData?.getProblem.languages ?? [])
+      setFetchedTags(
+        problemData?.getProblem.problemTag.map(({ tag }) => +tag.id) ?? []
+      )
+    }
   }, [problemData])
 
   const {
@@ -267,24 +274,24 @@ export default function Page({ params }: { params: { id: string } }) {
     const values = getValues('samples.create')
     const newSample = { input: '', output: '' }
     setValue('samples.create', [...values, newSample])
-    setSamples((prev) => [...prev, newSample])
+    setFetchedSamples((prev) => [...prev, newSample])
   }
 
   const addTestcase = () => {
     const values = getValues('testcases') ?? []
     const newTestcase = { input: '', output: '' }
     setValue('testcases', [...values, newTestcase])
-    setTestcases([...testcases, newTestcase])
+    setFetchedTestcases((prev) => [...prev, newTestcase])
   }
 
   const removeSample = (index: number) => {
-    if (samples.length <= 1) {
+    if (fetchedSamples.length <= 1) {
       toast.warning('At least one sample is required')
       return
     }
     const samplesToDelete = getValues('samples.delete')
     setValue('samples.delete', [...samplesToDelete, index])
-    setSamples(samples.filter((_, i) => i !== index))
+    setFetchedSamples(fetchedSamples.filter((_, i) => i !== index))
   }
 
   const removeTestcase = (index: number) => {
@@ -531,7 +538,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </div>
             <div className="flex flex-col gap-2">
               {getValues('samples') &&
-                samples.map((_, index) => (
+                fetchedSamples.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       onRemove={() => removeSample(index)}
@@ -539,7 +546,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       outputName={`samples.create.${index}.output`}
                       register={register}
                     />
-                    {errors.samples && samples[index] && (
+                    {errors.samples && fetchedSamples[index] && (
                       <div className="flex items-center gap-1 text-xs text-red-500">
                         <PiWarningBold />
                         required
@@ -562,7 +569,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </div>
             <div className="flex flex-col gap-2">
               {getValues('testcases') &&
-                testcases.map((_, index) => (
+                fetchedTestcases.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
@@ -571,7 +578,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       outputName={`testcases.${index}.output`}
                       register={register}
                     />
-                    {errors.testcases && testcases[index] && (
+                    {errors.testcases && fetchedTestcases[index] && (
                       <div className="flex items-center gap-1 text-xs text-red-500">
                         <PiWarningBold />
                         required
