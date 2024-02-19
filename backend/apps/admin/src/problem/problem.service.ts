@@ -224,7 +224,7 @@ export class ProblemService {
         testcaseInput.push({
           input: inputs[i],
           output: outputs[i],
-          scoreWeight: parseInt(scoreWeights[i])
+          scoreWeight: parseInt(scoreWeights[i]) || undefined
         })
       }
 
@@ -422,7 +422,10 @@ export class ProblemService {
               }
             })
 
-            const i = uploaded.findIndex((record) => record.id === tc.id)
+            const i = uploaded.findIndex((record) => {
+              console.log(record.id, tc.id)
+              return record.id === tc.id
+            })
             uploaded[i] = {
               id: tc.id,
               input: tc.input,
