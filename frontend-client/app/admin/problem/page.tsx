@@ -26,7 +26,7 @@ const GET_PROBLEMS = gql(`
     ) {
       id
       title
-      updateTime
+      createTime
       difficulty
       submissionCount
       acceptedRate
@@ -50,7 +50,7 @@ export default function Page() {
     variables: {
       groupId: 1,
       cursor: 1,
-      take: 10,
+      take: 20,
       input: {
         difficulty: [
           Level.Level1,
@@ -80,7 +80,7 @@ export default function Page() {
 
   return (
     <ScrollArea className="w-full">
-      <div className="px-20 py-16">
+      <div className="container mx-auto space-y-5 py-10">
         <div className="flex justify-between">
           <div>
             <p className="text-4xl font-bold">Problem List</p>
