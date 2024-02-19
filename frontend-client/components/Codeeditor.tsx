@@ -62,7 +62,7 @@ export default function Codeeditor({
   value,
   language,
   onChange,
-  editable: editable = true,
+  readOnly: readOnly = false,
   ...props
 }: CodeeditorProps) {
   return (
@@ -72,7 +72,7 @@ export default function Codeeditor({
         extensions={[loadLanguage(CodeMirrorLanguage[language])] as Extension[]}
         value={value}
         onChange={onChange}
-        editable={editable}
+        readOnly={readOnly}
         {...props}
       />
       <ScrollBar orientation="horizontal" />
