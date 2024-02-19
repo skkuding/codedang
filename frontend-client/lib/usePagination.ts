@@ -79,7 +79,6 @@ export const usePagination = <T extends Item>(
 
   useEffect(() => {
     ;(async () => {
-      console.log(query.toString())
       const data: T[] = await fetcherWithAuth
         .get(path, {
           searchParams: query
