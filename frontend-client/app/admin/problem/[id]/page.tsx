@@ -198,14 +198,14 @@ export default function Page({ params }: { params: { id: string } }) {
   const fetchedDifficulty = problemData?.getProblem.difficulty
   const fetchedLangauges = problemData?.getProblem.languages ?? []
   const fetchedTags =
-    problemData?.getProblem.problemTag.map(({ tag }) => +tag.id) ?? []
-
-  const fetchedTemplateLanguage =
-    problemData?.getProblem.template?.map(
-      (template: string) => JSON.parse(template)[0]?.language
-    ) ?? []
+    problemData?.getProblem.problemTag?.map(({ tag }) => +tag.id) ?? []
 
   useEffect(() => {
+    const fetchedTemplateLanguage =
+      problemData?.getProblem.template?.map(
+        (template: string) => JSON.parse(template)[0]?.language
+      ) ?? []
+
     setLanguages(
       problemData?.getProblem.languages?.map((language: Language) => ({
         language,
@@ -240,11 +240,11 @@ export default function Page({ params }: { params: { id: string } }) {
     setValue('languages', data.languages ?? [])
     setValue(
       'tags.create',
-      data.problemTag.map((problemTag) => Number(problemTag.tag.id))
+      data.problemTag?.map((problemTag) => Number(problemTag.tag.id)) ?? []
     )
     setValue(
       'tags.delete',
-      data.problemTag.map((problemTag) => Number(problemTag.tag.id))
+      data.problemTag?.map((problemTag) => Number(problemTag.tag.id)) ?? []
     )
     setValue('description', data.description)
     setValue('inputDescription', data.inputDescription)
