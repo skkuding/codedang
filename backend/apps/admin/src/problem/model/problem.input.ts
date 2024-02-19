@@ -4,7 +4,7 @@ import { ValidatePromise } from 'class-validator'
 import { GraphQLUpload } from 'graphql-upload'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import { Template } from './template.input'
-import { Sample, CreateTestcase, UpdateTestcase } from './testcase.input'
+import { Sample, CreateTestcase } from './testcase.input'
 
 @InputType()
 export class CreateProblemInput {
@@ -146,8 +146,8 @@ export class UpdateProblemInput {
   @Field(() => UpdateSamples, { nullable: true })
   samples?: UpdateSamples
 
-  @Field(() => [UpdateTestcase], { nullable: true })
-  testcases?: Array<UpdateTestcase>
+  @Field(() => [CreateTestcase], { nullable: true })
+  testcases?: Array<CreateTestcase>
 
   @Field(() => UpdateProblemTagInput, { nullable: true })
   tags?: UpdateProblemTagInput

@@ -16,9 +16,3 @@ export class CreateTestcase extends PickType(ProblemTestcaseCreateInput, [
   'output',
   'scoreWeight'
 ]) {}
-
-@InputType()
-export class UpdateTestcase extends CreateTestcase {
-  @Field()
-  id: number
-}

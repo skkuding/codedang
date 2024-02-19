@@ -21,7 +21,7 @@ import type {
   UpdateProblemTagInput
 } from './model/problem.input'
 import type { Template } from './model/template.input'
-import type { CreateTestcase, UpdateTestcase } from './model/testcase.input'
+import type { CreateTestcase } from './model/testcase.input'
 
 type TestCaseInFile = {
   id: string
@@ -384,84 +384,34 @@ export class ProblemService {
     }
   }
 
-  async updateTestcases(problemId: number, testcases: Array<UpdateTestcase>) {
-    const deletedIds: number[] = []
-    const createdOrUpdated: typeof testcases = []
+  async updateTestcases(problemId: number, testcases: Array<CreateTestcase>) {
+    await this.prisma.problemTestcase.deleteMany({
+      where: {
+        problemId
+      }
+    })
+
+    const filename = `${problemId}.json`
+    const toBeUploaded: Array<TestCaseInFile> = []
 
     for (const tc of testcases) {
-      if (!tc.input && !tc.output) {
-        deletedIds.push(tc.id)
-      }
-      createdOrUpdated.push(tc)
-    }
-    if (deletedIds) {
-      await this.prisma.problemTestcase.deleteMany({
-        where: {
-          id: { in: deletedIds }
+      const problemTestcase = await this.prisma.problemTestcase.create({
+        data: {
+          problemId,
+          input: filename,
+          output: filename,
+          scoreWeight: tc.scoreWeight
         }
       })
+      toBeUploaded.push({
+        id: `${problemId}:${problemTestcase.id}`,
+        input: tc.input,
+        output: tc.output
+      })
     }
-    if (createdOrUpdated) {
-      const filename = `${problemId}.json`
-      const uploaded: Array<TestCaseInFile> = JSON.parse(
-        await this.storageService.readObject(filename)
-      )
 
-      const updatedIds = (
-        await this.prisma.problemTestcase.findMany({
-          where: {
-            id: { in: createdOrUpdated.map((tc) => tc.id) }
-          }
-        })
-      ).map((tc) => tc.id)
-
-      await Promise.all(
-        createdOrUpdated
-          .filter((tc) => updatedIds.includes(tc.id))
-          .map(async (tc) => {
-            await this.prisma.problemTestcase.update({
-              where: {
-                id: tc.id
-              },
-              data: {
-                scoreWeight: tc.scoreWeight
-              }
-            })
-
-            const i = uploaded.findIndex(
-              (record) => record.id === `${problemId}:${tc.id}`
-            )
-            uploaded[i] = {
-              id: `${problemId}:${tc.id}`,
-              input: tc.input,
-              output: tc.output
-            }
-          })
-      )
-
-      await Promise.all(
-        createdOrUpdated
-          .filter((tc) => !updatedIds.includes(tc.id))
-          .map(async (tc) => {
-            const problemTestcase = await this.prisma.problemTestcase.create({
-              data: {
-                problemId,
-                input: filename,
-                output: filename,
-                scoreWeight: tc.scoreWeight
-              }
-            })
-            uploaded.push({
-              id: `${problemId}:${problemTestcase.id}`,
-              input: tc.input,
-              output: tc.output
-            })
-          })
-      )
-
-      const data = JSON.stringify(uploaded)
-      await this.storageService.uploadObject(filename, data, 'json')
-    }
+    const data = JSON.stringify(toBeUploaded)
+    await this.storageService.uploadObject(filename, data, 'json')
   }
 
   async deleteProblem(id: number, groupId: number) {
