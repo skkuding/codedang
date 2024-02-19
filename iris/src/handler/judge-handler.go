@@ -143,7 +143,11 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 	handleCtx, span := tracer.Start(
 		context.Background(),
 		"JUDGE Handler",
-		trace.WithAttributes(attribute.String("submissionId", id)),
+		trace.WithAttributes(attribute.Int("submissionId", func() int {
+			submissionId, _ := strconv.Atoi(id)
+			return submissionId
+		}()),
+		),
 	)
 	defer span.End()
 
