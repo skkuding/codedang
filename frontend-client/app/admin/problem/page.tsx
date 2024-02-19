@@ -50,7 +50,7 @@ export default function Page() {
     variables: {
       groupId: 1,
       cursor: 1,
-      take: 10,
+      take: 20,
       input: {
         difficulty: [
           Level.Level1,
