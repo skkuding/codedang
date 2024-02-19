@@ -5,6 +5,7 @@ import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
 import { useQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
+import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import * as React from 'react'
@@ -78,22 +79,24 @@ export default function Page() {
     })) ?? []
 
   return (
-    <div className="container mx-auto space-y-5 py-10">
-      <div className="flex justify-between">
-        <div>
-          <p className="text-4xl font-bold">Problem List</p>
-          <p className="flex text-lg text-slate-500">
-            Here&apos;s a list you made
-          </p>
+    <ScrollArea className="w-full">
+      <div className="container mx-auto space-y-5 py-10">
+        <div className="flex justify-between">
+          <div>
+            <p className="text-4xl font-bold">Problem List</p>
+            <p className="flex text-lg text-slate-500">
+              Here&apos;s a list you made
+            </p>
+          </div>
+          <Link href="/admin/problem/create">
+            <Button variant="default">
+              <PlusCircleIcon className="mr-2 h-4 w-4" />
+              Create
+            </Button>
+          </Link>
         </div>
-        <Link href="/admin/problem/create">
-          <Button variant="default">
-            <PlusCircleIcon className="mr-2 h-4 w-4" />
-            Create
-          </Button>
-        </Link>
+        <DataTableAdmin columns={columns} data={problems} />
       </div>
-      <DataTableAdmin columns={columns} data={problems} />
-    </div>
+    </ScrollArea>
   )
 }
