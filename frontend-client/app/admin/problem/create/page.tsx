@@ -17,11 +17,12 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import type { Language, Testcase, Sample } from '@/types/type'
+import type { Testcase, Sample } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
@@ -34,26 +35,14 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
-import { GET_TAGS, languageMapper } from '../utils'
-
-const inputStyle =
-  'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
-
-// dummy data
-const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
-const languageOptions: Language[] = [
-  'C',
-  'Cpp',
-  'Golang',
-  'Java',
-  'Python2',
-  'Python3'
-]
-
-interface TemplateLanguage {
-  language: Language
-  showTemplate: boolean
-}
+import type { TemplateLanguage } from '../utils'
+import {
+  GET_TAGS,
+  inputStyle,
+  languageMapper,
+  languageOptions,
+  levels
+} from '../utils'
 
 const CREATE_PROBLEM = gql(`
   mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
@@ -66,10 +55,7 @@ const CREATE_PROBLEM = gql(`
       difficulty
       languages
       problemTag {
-        tag {
-          id
-          name
-        }
+        tagId
       }
       description
       inputDescription
@@ -94,7 +80,7 @@ const CREATE_PROBLEM = gql(`
 
 const schema = z.object({
   title: z.string().min(1).max(25),
-  visible: z.boolean(),
+  isVisible: z.boolean(),
   difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
@@ -162,6 +148,8 @@ export default function Page() {
   const tags =
     tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
 
+  const router = useRouter()
+
   const {
     handleSubmit,
     control,
@@ -181,7 +169,6 @@ export default function Page() {
     }
   })
 
-  // TODO: createProblem에 sample, visible 추가 시 변경
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
   const onSubmit = async (input: CreateProblemInput) => {
     await createProblem({
@@ -192,7 +179,11 @@ export default function Page() {
     })
     if (error) {
       toast.error('Failed to create problem')
+      return
     }
+    toast.success('Problem created successfully')
+    router.push('/admin/problem')
+    router.refresh()
   }
 
   const addExample = (type: 'samples' | 'testcases') => {
@@ -341,13 +332,13 @@ export default function Page() {
                         setLanguages(
                           selectedLanguages.map((language) => ({
                             language,
-                            showTemplate:
+                            isVisible:
                               languages.filter(
                                 (prev) => prev.language === language
                               ).length > 0
                                 ? languages.filter(
                                     (prev) => prev.language === language
-                                  )[0].showTemplate
+                                  )[0].isVisible
                                 : false
                           }))
                         )
@@ -613,7 +604,7 @@ export default function Page() {
                               templateLanguage.language
                                 ? {
                                     ...prevLanguage,
-                                    isVisible: !prevLanguage.showTemplate
+                                    isVisible: !prevLanguage.isVisible
                                   }
                                 : prevLanguage
                             )
@@ -632,7 +623,7 @@ export default function Page() {
                         className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
                       />
                     </div>
-                    {templateLanguage.showTemplate && (
+                    {templateLanguage.isVisible && (
                       <Textarea
                         placeholder={`Enter a ${templateLanguage.language} template...`}
                         className="h-[180px] w-[480px] bg-white"
@@ -640,7 +631,7 @@ export default function Page() {
                       />
                     )}
                   </div>
-                  {templateLanguage.showTemplate && (
+                  {templateLanguage.isVisible && (
                     <div className="flex flex-col gap-3">
                       <Label>Locked</Label>
                       <div className="flex items-center gap-2">
