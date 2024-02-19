@@ -28,7 +28,8 @@ export class NoticeService {
         isVisible: true,
         isFixed: fixed,
         title: {
-          contains: search
+          contains: search,
+          mode: 'insensitive'
         }
       },
       take,
@@ -42,7 +43,8 @@ export class NoticeService {
             username: true
           }
         }
-      }
+      },
+      orderBy: { id: 'desc' }
     })
 
     return notices.map((notice) => {
