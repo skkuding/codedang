@@ -1,12 +1,5 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import type {
-  Workbook,
-  WorkbookProblem,
-  Contest,
-  ContestProblem
-} from '@generated'
-import { Level } from '@generated'
 import { expect } from 'chai'
 import { spy, stub } from 'sinon'
 import {
@@ -14,6 +7,13 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type {
+  Workbook,
+  WorkbookProblem,
+  Contest,
+  ContestProblem
+} from '@admin/@generated'
+import { Level } from '@admin/@generated'
 import { S3Provider } from '@admin/storage/s3.provider'
 import { StorageService } from '@admin/storage/storage.service'
 import {

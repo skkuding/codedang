@@ -13,10 +13,10 @@ import {
   ResolveField,
   Parent
 } from '@nestjs/graphql'
-import { Group, Notice, User } from '@generated'
 import { AuthenticatedRequest } from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, IDValidationPipe } from '@libs/pipe'
+import { Group, Notice, User } from '@admin/@generated'
 import { GroupService } from '@admin/group/group.service'
 import { UserService } from '@admin/user/user.service'
 import { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'

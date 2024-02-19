@@ -11,9 +11,11 @@ import { PrismaService } from '@libs/prisma'
 import { AnnouncementService } from './announcement.service'
 
 const problemId = faker.number.int()
+const contestId = faker.number.int()
 const id = faker.number.int()
 const announcementInput = {
   problemId,
+  contestId,
   content: faker.string.sample()
 }
 

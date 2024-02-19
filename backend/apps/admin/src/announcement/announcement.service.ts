@@ -16,40 +16,52 @@ export class AnnouncementService {
   async createAnnouncement(announcementInput: AnnouncementInput) {
     const announcement = await this.prisma.announcement.findFirst({
       where: {
-        problemId: announcementInput.problemId,
+        ...(announcementInput.problemId && {
+          problemId: announcementInput.problemId
+        }),
+        contestId: announcementInput.contestId,
         content: announcementInput.content
       }
     })
     if (announcement) throw new DuplicateFoundException('announcement')
 
-    await this.prisma.problem
+    await this.prisma.contestProblem
       .findFirstOrThrow({
         where: {
-          id: announcementInput.problemId
+          contestId: announcementInput.contestId,
+          ...(announcementInput.problemId && {
+            problemId: announcementInput.problemId
+          })
         }
       })
       .catch((error) => {
         if (error.name == 'NotFoundError') {
-          throw new EntityNotExistException('problem')
+          throw new EntityNotExistException('contestProblem')
         }
       })
 
     return await this.prisma.announcement.create({
       data: {
-        problemId: announcementInput.problemId,
+        ...(announcementInput.problemId && {
+          problemId: announcementInput.problemId
+        }),
+        contestId: announcementInput.contestId,
         content: announcementInput.content
       }
     })
   }
 
-  async getAnnouncementsByProblemId(problemId: number) {
+  //getAnnouncements
+  async getAnnouncementsByProblemId(contestId: number, problemId?: number) {
     return await this.prisma.announcement.findMany({
       where: {
-        problemId
+        ...(problemId && { problemId }),
+        contestId
       }
     })
   }
 
+  //getAnnouncementById
   async getAnnouncement(id: number) {
     const announcement = await this.prisma.announcement
       .findFirstOrThrow({
@@ -65,11 +77,11 @@ export class AnnouncementService {
     return announcement
   }
 
-  async updateAnnouncement(id: number, announcementInput: AnnouncementInput) {
+  async updateAnnouncement(id: number, content: string) {
     try {
       return await this.prisma.announcement.update({
         where: { id },
-        data: announcementInput
+        data: { content }
       })
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {

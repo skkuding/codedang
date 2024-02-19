@@ -1,8 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { Language } from '@generated'
-import type { ContestProblem, Tag, WorkbookProblem } from '@generated'
-import { Level } from '@generated'
-import type { ProblemWhereInput } from '@generated'
 import { Workbook } from 'exceljs'
 import {
   DuplicateFoundException,
@@ -10,6 +6,10 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { Language } from '@admin/@generated'
+import type { ContestProblem, Tag, WorkbookProblem } from '@admin/@generated'
+import { Level } from '@admin/@generated'
+import type { ProblemWhereInput } from '@admin/@generated'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
 import type {

@@ -6,7 +6,6 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common'
-import type { UserGroup } from '@generated'
 import { Role } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import { joinGroupCacheKey } from '@libs/cache'
@@ -14,6 +13,7 @@ import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import type { GroupJoinRequest } from '@libs/types'
+import type { UserGroup } from '@admin/@generated'
 
 @Injectable()
 export class UserService {

@@ -33,10 +33,12 @@ export class AnnouncementResolver {
 
   @Query(() => [Announcement], { name: 'getAnnouncementsByProblemId' })
   async getAnnouncementsByProblemId(
-    @Args('problemId', { type: () => Int }) problemId: number
+    @Args('contestId', { type: () => Int }) contestId: number,
+    @Args('problemId', { type: () => Int, nullable: true }) problemId?: number
   ) {
     try {
       return await this.announcementService.getAnnouncementsByProblemId(
+        contestId,
         problemId
       )
     } catch (error) {
@@ -61,13 +63,10 @@ export class AnnouncementResolver {
   @Mutation(() => Announcement)
   async updateAnnouncement(
     @Args('id', { type: () => Int }) id: number,
-    @Args('announcementInput') announcementInput: AnnouncementInput
+    @Args('content', { type: () => String }) content: string
   ) {
     try {
-      return await this.announcementService.updateAnnouncement(
-        id,
-        announcementInput
-      )
+      return await this.announcementService.updateAnnouncement(id, content)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw error.convert2HTTPException()

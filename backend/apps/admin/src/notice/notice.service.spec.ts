@@ -1,11 +1,11 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import type { Notice } from '@generated'
 import { faker } from '@faker-js/faker'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { Notice } from '@admin/@generated'
 import type { CreateNoticeInput, UpdateNoticeInput } from './model/notice.input'
 import { NoticeService } from './notice.service'
 

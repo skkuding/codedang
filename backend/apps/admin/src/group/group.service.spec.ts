@@ -1,7 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
-import type { Group } from '@generated'
-import type { User } from '@generated'
 import { faker } from '@faker-js/faker'
 import { Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
@@ -15,6 +13,8 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { Group } from '@admin/@generated'
+import type { User } from '@admin/@generated'
 import { GroupService } from './group.service'
 
 const userId = faker.number.int()
