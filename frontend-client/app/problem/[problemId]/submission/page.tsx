@@ -6,14 +6,13 @@ import DataTable from './_components/DataTable'
 export default async function Submission({
   params
 }: {
-  params: { id: number }
+  params: { problemId: string }
 }) {
-  const { id } = params
+  const { problemId } = params
   const data: SubmissionItem[] = await fetcherWithAuth
     .get('submission', {
       searchParams: {
-        problemId: id,
-        take: 20
+        problemId
       }
     })
     .json()
@@ -31,7 +30,7 @@ export default async function Submission({
           createTime: 'w-[25%]',
           codeSize: 'w-[13%]'
         }}
-        problemId={id}
+        problemId={Number(problemId)}
       />
     </>
   )

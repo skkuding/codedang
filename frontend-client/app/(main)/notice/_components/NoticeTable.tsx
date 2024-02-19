@@ -42,7 +42,7 @@ export default async function NoticeTable({ search }: Props) {
         createdBy: 'w-1/4 md:w-1/6',
         createTime: 'w-1/4 md:w-1/6'
       }}
-      name="notice"
+      linked
     />
   )
 }
