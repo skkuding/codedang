@@ -1,9 +1,9 @@
+import { gql } from '@generated'
 import { DataTableColumnHeader } from '@/components/DataTableColumnHeader'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
-// import { fetcherGql } from '@/lib/utils'
-// import { gql } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import type { ColumnDef } from '@tanstack/react-table'
 import { FiEyeOff } from 'react-icons/fi'
 import { FiEye } from 'react-icons/fi'
@@ -16,7 +16,7 @@ interface Tag {
 interface DataTableProblem {
   id: number
   title: string
-  updateTime: string
+  createTime: string
   difficulty: string
   submissionCount: number
   acceptedRate: number
@@ -25,15 +25,45 @@ interface DataTableProblem {
   problemTag: { id: number; tag: Tag }[]
 }
 
-// const EDIT_VISIBLE = gql`
-//   mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
-//     updateProblem(groupId: $groupId, input: $input) {
-//       id
-//       title
-//       isVisible
-//     }
-//   }
-// `
+const EDIT_VISIBLE = gql(`
+  mutation UpdateVisible($groupId: Int!, $input: UpdateProblemInput!) {
+    updateProblem(groupId: $groupId, input: $input) {
+      id
+      isVisible
+    }
+  }
+`)
+
+function VisibleCell({ isVisible, id }: { isVisible: boolean; id: number }) {
+  const [updateVisible] = useMutation(EDIT_VISIBLE)
+
+  return (
+    <div className="flex space-x-2">
+      <Switch
+        id="hidden-mode"
+        checked={isVisible}
+        onCheckedChange={() => {
+          updateVisible({
+            variables: {
+              groupId: 1,
+              input: {
+                id,
+                isVisible: !isVisible
+              }
+            }
+          })
+        }}
+      />
+      <div className="flex items-center justify-center">
+        {isVisible ? (
+          <FiEye className="text-primary h-[14px] w-[14px]" />
+        ) : (
+          <FiEyeOff className="h-[14px] w-[14px] text-gray-400" />
+        )}
+      </div>
+    </div>
+  )
+}
 
 export const columns: ColumnDef<DataTableProblem>[] = [
   {
@@ -136,12 +166,12 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     }
   },
   {
-    accessorKey: 'updateTime',
+    accessorKey: 'createTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Update" />
+      <DataTableColumnHeader column={column} title="Creation date" />
     ),
     cell: ({ row }) => {
-      const updateTime: string = row.getValue('updateTime')
+      const updateTime: string = row.getValue('createTime')
       return <div>{updateTime.substring(2, 10)}</div>
     }
   },
@@ -181,41 +211,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     ),
     cell: ({ row }) => {
       const isVisible: boolean = row.getValue('isVisible')
-
-      // const updateVisible = async (data: {
-      //   id: number
-      //   title: string
-      //   isVisible: boolean
-      // }) => {
-      //   const res = await fetcherGql(EDIT_VISIBLE, {
-      //     groupId: 1,
-      //     input: data
-      //   })
-      //   console.log('res: ', res)
-      // }
-
-      return (
-        <div className="flex space-x-2">
-          <Switch
-            id="hidden-mode"
-            checked={isVisible}
-            // onCheckedChange={() => {
-            //   updateVisible({
-            //     id: row.original.id,
-            //     title: row.original.title,
-            //     isVisible: !isVisible
-            //   })
-            // }}
-          />
-          <div className="flex items-center justify-center">
-            {isVisible ? (
-              <FiEye className="text-primary h-[14px] w-[14px]" />
-            ) : (
-              <FiEyeOff className="h-[14px] w-[14px] text-gray-400" />
-            )}
-          </div>
-        </div>
-      )
+      return <VisibleCell isVisible={isVisible} id={row.original.id} />
     }
   }
 ]

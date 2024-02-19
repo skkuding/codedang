@@ -554,9 +554,15 @@ export class ProblemService {
   }
 
   async getProblemTestcases(problemId: number) {
-    return await this.prisma.problemTestcase.findMany({
-      where: {
-        problemId
+    const testcases: Array<Testcase & { id: string }> = JSON.parse(
+      await this.storageService.readObject(`${problemId}.json`)
+    )
+
+    // TODO: Remove this code after refactoring iris code
+    return testcases.map((tc) => {
+      return {
+        ...tc,
+        id: tc.id.split(':')[1]
       }
     })
   }
