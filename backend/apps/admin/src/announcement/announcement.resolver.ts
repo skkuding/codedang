@@ -31,13 +31,13 @@ export class AnnouncementResolver {
     }
   }
 
-  @Query(() => [Announcement], { name: 'getAnnouncementsByProblemId' })
-  async getAnnouncementsByProblemId(
+  @Query(() => [Announcement], { name: 'getAnnouncements' })
+  async getAnnouncements(
     @Args('contestId', { type: () => Int }) contestId: number,
     @Args('problemId', { type: () => Int, nullable: true }) problemId?: number
   ) {
     try {
-      return await this.announcementService.getAnnouncementsByProblemId(
+      return await this.announcementService.getAnnouncements(
         contestId,
         problemId
       )
@@ -47,10 +47,10 @@ export class AnnouncementResolver {
     }
   }
 
-  @Query(() => Announcement, { name: 'getAnnouncement' })
-  async getAnnouncement(@Args('id', { type: () => Int }) id: number) {
+  @Query(() => Announcement, { name: 'getAnnouncementById' })
+  async getAnnouncementById(@Args('id', { type: () => Int }) id: number) {
     try {
-      return await this.announcementService.getAnnouncement(id)
+      return await this.announcementService.getAnnouncementById(id)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw error.convert2HTTPException()

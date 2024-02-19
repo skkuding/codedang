@@ -13,10 +13,12 @@ post {
 body:graphql {
   query {
     getAnnouncementsByProblemId(
+      contestId: 1
       problemId: 1
     ) {
     	id
       problemId
+      contestId
       content
     }
   }
@@ -31,5 +33,6 @@ docs {
   ### Args
   | 이름 | 타입 | 설명|
   |--|--|--|
-  |problemId|int|Announment를 조회할 문제의 id|
+  |contestId|int|Announment를 조회할 contest의 id|
+  |problemId|int|Announment를 조회할 문제의 id (optional)|
 }

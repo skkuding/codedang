@@ -51,8 +51,7 @@ export class AnnouncementService {
     })
   }
 
-  //getAnnouncements
-  async getAnnouncementsByProblemId(contestId: number, problemId?: number) {
+  async getAnnouncements(contestId: number, problemId?: number) {
     return await this.prisma.announcement.findMany({
       where: {
         ...(problemId && { problemId }),
@@ -61,8 +60,7 @@ export class AnnouncementService {
     })
   }
 
-  //getAnnouncementById
-  async getAnnouncement(id: number) {
+  async getAnnouncementById(id: number) {
     const announcement = await this.prisma.announcement
       .findFirstOrThrow({
         where: {
