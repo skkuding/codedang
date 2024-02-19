@@ -273,7 +273,7 @@ export class ProblemService {
       whereOptions.languages = { hasSome: input.languages }
     }
 
-    return await this.prisma.problem.findMany({
+    const problems = await this.prisma.problem.findMany({
       ...paginator,
       where: {
         ...whereOptions,
@@ -281,10 +281,24 @@ export class ProblemService {
       },
       take
     })
+
+    const problemsWithTestcases = problems.map(async (problem) => {
+      const rawTestcase = await this.storageService.readObject(
+        `${problem.id}.json`
+      )
+      const testcase = JSON.parse(rawTestcase)
+
+      return {
+        ...problem,
+        testcase
+      }
+    })
+
+    return problemsWithTestcases
   }
 
   async getProblem(id: number, groupId: number) {
-    return await this.prisma.problem.findFirstOrThrow({
+    const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id,
         groupId
@@ -299,6 +313,17 @@ export class ProblemService {
         }
       }
     })
+
+    const rawTestcase = await this.storageService.readObject(
+      `${problem.id}.json`
+    )
+    const testcase = JSON.parse(rawTestcase)
+    const problemWithTestcase = {
+      ...problem,
+      testcase
+    }
+
+    return problemWithTestcase
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
