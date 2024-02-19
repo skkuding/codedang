@@ -17,12 +17,12 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import type { Language, Sample } from '@/types/type'
+import type { Language, Sample, Testcase } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -47,6 +47,7 @@ const GET_PROBLEM = gql(`
   query GetProblem($groupId: Int!, $id: Int!) {
     getProblem(groupId: $groupId, id: $id) {
       title
+      isVisible
       difficulty
       languages
       problemTag {
@@ -58,6 +59,11 @@ const GET_PROBLEM = gql(`
       description
       inputDescription
       outputDescription
+      samples {
+        id
+        input
+        output
+      }
       problemTestcase {
         input
         output
@@ -97,7 +103,6 @@ const UPDATE_PROBLEM = gql(`
       problemTestcase {
         input
         output
-        scoreWeight
       }
       timeLimit
       memoryLimit
@@ -109,24 +114,27 @@ const UPDATE_PROBLEM = gql(`
 `)
 
 const schema = z.object({
+  id: z.number(),
   title: z.string().min(1).max(25),
-  visible: z.boolean(),
+  isVisible: z.boolean(),
   difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
   ),
-  tags: z.object({ create: z.array(z.number()), delete: z.array(z.number()) }),
+  tags: z
+    .object({ create: z.array(z.number()), delete: z.array(z.number()) })
+    .optional(),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
-  samples: z
-    .array(
-      z.object({
-        input: z.string().min(1),
-        output: z.string().min(1)
-      })
-    )
-    .min(1),
+  samples: z.object({
+    create: z.array(
+      z
+        .object({ input: z.string().min(1), output: z.string().min(1) })
+        .optional()
+    ),
+    delete: z.array(z.number().optional())
+  }),
   testcases: z
     .array(
       z.object({
@@ -170,6 +178,9 @@ export default function Page({ params }: { params: { id: string } }) {
   const [showHint, setShowHint] = useState(true)
   const [showSource, setShowSource] = useState(true)
   const [samples, setSamples] = useState<Sample[]>([{ input: '', output: '' }])
+  const [testcases, setTestcases] = useState<Testcase[]>([
+    { input: '', output: '' }
+  ])
   const [languages, setLanguages] = useState<TemplateLanguage[]>([])
 
   const { data: tagsData } = useQuery(GET_TAGS)
@@ -191,15 +202,19 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const fetchedTemplateLanguage =
     problemData?.getProblem.template?.map(
-      (template: string) => JSON.parse(template)[0].language
+      (template: string) => JSON.parse(template)[0]?.language
     ) ?? []
 
-  setLanguages(
-    problemData?.getProblem.languages?.map((language: Language) => ({
-      language,
-      isVisible: fetchedTemplateLanguage.includes(language) ? true : false
-    })) ?? []
-  )
+  useEffect(() => {
+    setLanguages(
+      problemData?.getProblem.languages?.map((language: Language) => ({
+        language,
+        isVisible: fetchedTemplateLanguage.includes(language) ? true : false
+      })) ?? []
+    )
+    setSamples(problemData?.getProblem.samples ?? [])
+    setTestcases(problemData?.getProblem.problemTestcase ?? [])
+  }, [problemData])
 
   const {
     handleSubmit,
@@ -211,15 +226,16 @@ export default function Page({ params }: { params: { id: string } }) {
   } = useForm<UpdateProblemInput>({
     resolver: zodResolver(schema),
     defaultValues: {
-      samples: {},
+      samples: { create: [], delete: [] },
       template: []
     }
   })
 
   if (problemData) {
     const data = problemData.getProblem
-
+    setValue('id', +id)
     setValue('title', data.title)
+    setValue('isVisible', data.isVisible)
     setValue('difficulty', data.difficulty)
     setValue('languages', data.languages ?? [])
     setValue(
@@ -233,6 +249,7 @@ export default function Page({ params }: { params: { id: string } }) {
     setValue('description', data.description)
     setValue('inputDescription', data.inputDescription)
     setValue('outputDescription', data.outputDescription)
+    setValue('samples.create', data?.samples || [])
     setValue('testcases', data.problemTestcase)
     setValue('timeLimit', data.timeLimit)
     setValue('memoryLimit', data.memoryLimit)
@@ -243,12 +260,12 @@ export default function Page({ params }: { params: { id: string } }) {
       data.template?.map((template: string) => {
         const parsedTemplate = JSON.parse(template)[0]
         return {
-          language: parsedTemplate.language,
+          language: parsedTemplate?.language,
           code: [
             {
-              id: parsedTemplate.code[0].id,
-              text: parsedTemplate.code[0].text,
-              locked: parsedTemplate.code[0].locked
+              id: parsedTemplate?.code[0].id,
+              text: parsedTemplate?.code[0].text,
+              locked: parsedTemplate?.code[0].locked
             }
           ]
         }
@@ -258,6 +275,16 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
   const onSubmit = async (input: UpdateProblemInput) => {
+    console.log(input)
+    const tagsToDelete = getValues('tags.delete')
+    const tagsToCreate = getValues('tags.create')
+    input.tags!.create = tagsToCreate.filter(
+      (tag) => !tagsToDelete.includes(tag)
+    )
+    input.tags!.delete = tagsToDelete.filter(
+      (tag) => !tagsToCreate.includes(tag)
+    )
+
     await updateProblem({
       variables: {
         groupId: 1,
@@ -266,7 +293,9 @@ export default function Page({ params }: { params: { id: string } }) {
     })
     if (error) {
       toast.error('Failed to update problem')
+      return
     }
+    toast.success('Problem updated successfully')
   }
 
   const addSample = () => {
@@ -280,6 +309,7 @@ export default function Page({ params }: { params: { id: string } }) {
     const values = getValues('testcases') ?? []
     const newTestcase = { input: '', output: '' }
     setValue('testcases', [...values, newTestcase])
+    setTestcases([...testcases, newTestcase])
   }
 
   const removeSample = (index: number) => {
@@ -331,7 +361,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   <PiWarningBold />
                   {getValues('title')?.length === 0
                     ? 'required'
-                    : errors.title.message}
+                    : errors.title.message?.toString()}
                 </div>
               )}
             </div>
@@ -553,8 +583,8 @@ export default function Page({ params }: { params: { id: string } }) {
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       onRemove={() => removeSample(index)}
-                      inputName={`samples.${index}.input`}
-                      outputName={`samples.${index}.output`}
+                      inputName={`samples.create.${index}.input`}
+                      outputName={`samples.create.${index}.output`}
                       register={register}
                     />
                     {errors.samples && samples[index] && (
@@ -580,7 +610,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </div>
             <div className="flex flex-col gap-2">
               {getValues('testcases') &&
-                getValues('testcases')?.map((_, index) => (
+                testcases.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
@@ -589,7 +619,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       outputName={`testcases.${index}.output`}
                       register={register}
                     />
-                    {errors.testcases?.[index] && (
+                    {errors.testcases && testcases[index] && (
                       <div className="flex items-center gap-1 text-xs text-red-500">
                         <PiWarningBold />
                         required
@@ -622,7 +652,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     <PiWarningBold />
                     {Number.isNaN(getValues('timeLimit'))
                       ? 'required'
-                      : errors.timeLimit?.message}
+                      : errors.timeLimit?.message?.toString()}
                   </div>
                 )}
               </div>
@@ -646,7 +676,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     <PiWarningBold />
                     {Number.isNaN(getValues('memoryLimit'))
                       ? 'required'
-                      : errors.memoryLimit?.message}
+                      : errors.memoryLimit?.message?.toString()}
                   </div>
                 )}
               </div>
