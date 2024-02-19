@@ -78,7 +78,7 @@ export interface ProblemDetail {
   outputDescription: string
   inputExamples: string[]
   outputExamples: string[]
-  languages: string[]
+  languages: Language[]
   timeLimit: number
   memoryLimit: number
   tags: {
