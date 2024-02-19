@@ -931,8 +931,8 @@ const createProblems = async () => {
       await prisma.problemTestcase.create({
         data: {
           problemId: problem.id,
-          input: 'input.in',
-          output: 'output.out'
+          input: `${problem.id}.json`,
+          output: `${problem.id}.json`
         }
       })
     )
