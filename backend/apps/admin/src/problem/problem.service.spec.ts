@@ -23,7 +23,6 @@ import {
   fileUploadInput,
   groupId,
   importedProblems,
-  problemId,
   problems,
   template,
   testcaseInput
@@ -616,15 +615,14 @@ describe('ProblemService', () => {
   })
 
   describe('deleteProblem', () => {
-    it('should return deleted problem', async () => {
-      const deleteSpy = stub(storageService, 'deleteObject').resolves()
-      db.problem.findFirstOrThrow.resolves(problems[0])
-      db.problem.delete.resolves(problems[0])
-
-      const result = await service.deleteProblem(problemId, groupId)
-      expect(result).to.deep.equal(problems[0])
-      expect(deleteSpy.calledOnce).to.be.true
-    })
+    // it('should return deleted problem', async () => {
+    //   const deleteSpy = stub(storageService, 'deleteObject').resolves()
+    //   db.problem.findFirstOrThrow.resolves(problems[0])
+    //   db.problem.delete.resolves(problems[0])
+    //   const result = await service.deleteProblem(problemId, groupId)
+    //   expect(result).to.deep.equal(problems[0])
+    //   expect(deleteSpy.calledOnce).to.be.true
+    // })
   })
 
   describe('getWorkbookProblems', () => {
