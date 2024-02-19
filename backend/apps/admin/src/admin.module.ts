@@ -2,7 +2,7 @@ import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_GUARD } from '@nestjs/core'
+import { APP_FILTER, APP_GUARD } from '@nestjs/core'
 import { GraphQLModule } from '@nestjs/graphql'
 import { LoggerModule } from 'nestjs-pino'
 import {
@@ -12,7 +12,11 @@ import {
   GroupLeaderGuard
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
-import { apolloErrorFormatter } from '@libs/exception'
+import {
+  BusinessExceptionFilter,
+  UnknownExceptionFilter,
+  apolloErrorFormatter
+} from '@libs/exception'
 import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { NoticeModule } from '@admin/notice/notice.module'
@@ -59,7 +63,9 @@ import { UserModule } from './user/user.module'
   providers: [
     AdminService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: GroupLeaderGuard }
+    { provide: APP_GUARD, useClass: GroupLeaderGuard },
+    { provide: APP_FILTER, useClass: UnknownExceptionFilter },
+    { provide: APP_FILTER, useClass: BusinessExceptionFilter }
   ]
 })
 export class AdminModule {}
