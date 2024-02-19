@@ -8,14 +8,17 @@ interface Props {
 }
 
 export default async function NoticeTable({ search }: Props) {
-  const fixedNoticesFetcher: Promise<Notice[]> = fetcher
-    .get('notice', {
-      searchParams: {
-        fixed: 'true',
-        take: '10'
-      }
-    })
-    .json()
+  const fixedNoticesFetcher: Promise<Notice[]> | Notice[] =
+    search !== ''
+      ? []
+      : fetcher
+          .get('notice', {
+            searchParams: {
+              fixed: 'true',
+              take: '10'
+            }
+          })
+          .json()
 
   const noticesFetcher: Promise<Notice[]> = fetcher
     .get('notice', {
@@ -30,6 +33,7 @@ export default async function NoticeTable({ search }: Props) {
     fixedNoticesFetcher,
     noticesFetcher
   ])
+  console.log(fixedNotices, notices)
 
   const currentPageData = fixedNotices.concat(notices)
 
