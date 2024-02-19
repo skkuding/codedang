@@ -21,7 +21,7 @@ import type {
   UpdateProblemTagInput
 } from './model/problem.input'
 import type { Template } from './model/template.input'
-import type { Testcase } from './model/testcase.input'
+import type { CreateTestcase, UpdateTestcase } from './model/testcase.input'
 
 @Injectable()
 export class ProblemService {
@@ -74,7 +74,7 @@ export class ProblemService {
   }
 
   // TODO: 테스트케이스별로 파일 따로 업로드 -> 수정 시 updateTestcases, deleteProblem 로직 함께 정리
-  async createTestcases(problemId: number, testcases: Array<Testcase>) {
+  async createTestcases(problemId: number, testcases: Array<CreateTestcase>) {
     const filename = `${problemId}.json`
     const testcaseIds = await Promise.all(
       testcases.map(async (tc, index) => {
@@ -219,7 +219,7 @@ export class ProblemService {
         )
       }
 
-      const testcaseInput: Testcase[] = []
+      const testcaseInput: CreateTestcase[] = []
       for (let i = 0; i < testCnt; i++) {
         testcaseInput.push({
           input: inputs[i],
@@ -378,10 +378,7 @@ export class ProblemService {
     }
   }
 
-  async updateTestcases(
-    problemId: number,
-    testcases: Array<Testcase & { id: number }>
-  ) {
+  async updateTestcases(problemId: number, testcases: Array<UpdateTestcase>) {
     const deletedIds: number[] = []
     const createdOrUpdated: typeof testcases = []
 
@@ -400,7 +397,7 @@ export class ProblemService {
     }
     if (createdOrUpdated) {
       const filename = `${problemId}.json`
-      const uploaded: Array<Testcase & { id: number }> = JSON.parse(
+      const uploaded: Array<Omit<UpdateTestcase, 'scoreWeight'>> = JSON.parse(
         await this.storageService.readObject(filename)
       )
 
@@ -411,9 +408,10 @@ export class ProblemService {
           }
         })
       ).map((tc) => tc.id)
+
       await Promise.all(
         createdOrUpdated
-          .filter((tc) => !updatedIds.includes(tc.id))
+          .filter((tc) => updatedIds.includes(tc.id))
           .map(async (tc) => {
             await this.prisma.problemTestcase.update({
               where: {
@@ -427,7 +425,7 @@ export class ProblemService {
             const i = uploaded.findIndex((record) => record.id === tc.id)
             uploaded[i] = {
               id: tc.id,
-              input: tc.output,
+              input: tc.input,
               output: tc.output
             }
           })
