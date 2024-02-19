@@ -33,7 +33,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
-import { ProblemWithTestcase } from './model/problem-with-testcase'
 import {
   CreateProblemInput,
   UploadFileInput,
@@ -101,6 +100,66 @@ export class ProblemResolver {
       if (error instanceof UnprocessableDataException) {
         throw error.convert2HTTPException()
       }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Query(() => [Problem])
+  async getProblems(
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
+    groupId: number,
+    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
+    cursor: number | null,
+    @Args('take', { type: () => Int, defaultValue: 10 }) take: number,
+    @Args('input') input: FilterProblemsInput
+  ) {
+    return await this.problemService.getProblems(input, groupId, cursor, take)
+  }
+
+  @Query(() => Problem)
+  async getProblem(
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
+    groupId: number,
+    @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
+  ) {
+    try {
+      return await this.problemService.getProblem(id, groupId)
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @ResolveField('tag', () => [ProblemTag])
+  async getProblemTags(@Parent() problem: Problem) {
+    try {
+      return await this.problemService.getProblemTags(problem.id)
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @ResolveField('testcase', () => [ProblemTestcase])
+  async getProblemTestCases(@Parent() problem: Problem) {
+    try {
+      return await this.problemService.getProblemTestcases(problem.id)
+    } catch (error) {
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
@@ -276,93 +335,6 @@ export class ProblemResolver {
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
-    }
-  }
-
-  @ResolveField('problemTag', () => [ProblemTag])
-  async getProblemTags(@Parent() problem: Problem) {
-    try {
-      return await this.problemService.getProblemTags(problem.id)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @ResolveField('problemTestcase', () => [ProblemTestcase])
-  async getProblemTestCases(@Parent() problem: Problem) {
-    try {
-      return await this.problemService.getProblemTestcases(problem.id)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-}
-
-@Resolver(() => ProblemWithTestcase)
-export class ProblemWithTestcaseResolver {
-  private readonly logger = new Logger(ProblemResolver.name)
-
-  constructor(private readonly problemService: ProblemService) {}
-
-  @Query(() => [ProblemWithTestcase])
-  async getProblems(
-    @Args(
-      'groupId',
-      { type: () => Int, defaultValue: OPEN_SPACE_ID },
-      GroupIDPipe
-    )
-    groupId: number,
-    @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
-    cursor: number | null,
-    @Args('take', { type: () => Int, defaultValue: 10 }) take: number,
-    @Args('input') input: FilterProblemsInput
-  ) {
-    return await this.problemService.getProblems(input, groupId, cursor, take)
-  }
-
-  @Query(() => ProblemWithTestcase)
-  async getProblem(
-    @Args(
-      'groupId',
-      { type: () => Int, defaultValue: OPEN_SPACE_ID },
-      GroupIDPipe
-    )
-    groupId: number,
-    @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
-  ) {
-    try {
-      return await this.problemService.getProblem(id, groupId)
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @ResolveField('problemTag', () => [ProblemTag])
-  async getProblemTags(@Parent() problem: ProblemWithTestcase) {
-    try {
-      return await this.problemService.getProblemTags(problem.id)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @ResolveField('problemTestcase', () => [ProblemTestcase])
-  async getProblemTestCases(@Parent() problem: ProblemWithTestcase) {
-    try {
-      return await this.problemService.getProblemTestcases(problem.id)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
     }
   }
 }
