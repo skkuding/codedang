@@ -30,7 +30,9 @@ export default async function SubmissionDetail({
     },
     cache: 'no-store'
   })
-  if (!res.ok) redirect(`/problem/${problemId}/submission`)
+  if (!res.ok) {
+    redirect(`/problem/${problemId}/submission`)
+  }
 
   const submission: SubmissionDetail = await res.json()
   return (
@@ -104,8 +106,8 @@ export default async function SubmissionDetail({
                   >
                     {item.result}
                   </TableCell>
-                  <TableCell>{item.cpuTime}</TableCell>
-                  <TableCell>{item.memoryUsage}</TableCell>
+                  <TableCell>{item.cpuTime} ms</TableCell>
+                  <TableCell>{item.memoryUsage} mb</TableCell>
                 </TableRow>
               ))}
             </TableBody>
