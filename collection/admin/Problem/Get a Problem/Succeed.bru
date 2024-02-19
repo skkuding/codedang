@@ -21,6 +21,18 @@ body:graphql {
       inputDescription
       outputDescription
       hint
+      testcase {
+        id
+        input
+        output
+      }
+      tag {
+        id
+        tag {
+          id
+          name
+        }
+      }
     }
   }
 }
@@ -39,7 +51,7 @@ assert {
 docs {
   ## Get a Problem
   Problem을 가져옵니다.
-  
+
   ### Error Cases
   #### NOT_FOUND
   존재하지 않는 groupId 또는 id를 전달하는 경우 발생합니다.
