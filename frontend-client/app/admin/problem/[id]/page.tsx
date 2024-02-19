@@ -201,12 +201,12 @@ export default function Page({ params }: { params: { id: string } }) {
   const fetchedTags =
     problemData?.getProblem.tag.map(({ tag }) => +tag.id) ?? []
 
-  const fetchedTemplateLanguage =
-    problemData?.getProblem.template?.map(
-      (template: string) => JSON.parse(template)[0]?.language
-    ) ?? []
-
   useEffect(() => {
+    const fetchedTemplateLanguage =
+      problemData?.getProblem.template?.map(
+        (template: string) => JSON.parse(template)[0]?.language
+      ) ?? []
+
     setLanguages(
       problemData?.getProblem.languages?.map((language: Language) => ({
         language,
