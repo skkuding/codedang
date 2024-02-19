@@ -23,6 +23,12 @@ import type {
 import type { Template } from './model/template.input'
 import type { CreateTestcase, UpdateTestcase } from './model/testcase.input'
 
+type TestCaseInFile = {
+  id: string
+  input: string
+  output: string
+}
+
 @Injectable()
 export class ProblemService {
   constructor(
@@ -397,7 +403,7 @@ export class ProblemService {
     }
     if (createdOrUpdated) {
       const filename = `${problemId}.json`
-      const uploaded: Array<Omit<UpdateTestcase, 'scoreWeight'>> = JSON.parse(
+      const uploaded: Array<TestCaseInFile> = JSON.parse(
         await this.storageService.readObject(filename)
       )
 
@@ -422,12 +428,11 @@ export class ProblemService {
               }
             })
 
-            const i = uploaded.findIndex((record) => {
-              console.log(record.id, tc.id)
-              return record.id === tc.id
-            })
+            const i = uploaded.findIndex(
+              (record) => record.id === `${problemId}:${tc.id}`
+            )
             uploaded[i] = {
-              id: tc.id,
+              id: `${problemId}:${tc.id}`,
               input: tc.input,
               output: tc.output
             }
@@ -447,7 +452,7 @@ export class ProblemService {
               }
             })
             uploaded.push({
-              id: problemTestcase.id,
+              id: `${problemId}:${problemTestcase.id}`,
               input: tc.input,
               output: tc.output
             })
