@@ -16,7 +16,6 @@ export default async function Submission({
       }
     })
     .json()
-
   return (
     <>
       <DataTable
