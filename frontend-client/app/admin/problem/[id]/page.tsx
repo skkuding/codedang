@@ -177,7 +177,7 @@ export default function Page({ params }: { params: { id: string } }) {
   ])
   const [fetchedDescription, setFetchedDescription] = useState<string>('')
   const [fetchedDifficulty, setFetchedDifficulty] = useState<string>('')
-  const [fetchedLangauges, setFetchedLangauges] = useState<string[]>([])
+  const [fetchedLanguages, setFetchedLanguages] = useState<string[]>([])
   const [fetchedTags, setFetchedTags] = useState<number[]>([])
 
   const { data: tagsData } = useQuery(GET_TAGS)
@@ -188,16 +188,50 @@ export default function Page({ params }: { params: { id: string } }) {
     variables: {
       groupId: 1,
       id: +id
+    },
+    onCompleted: (problemData) => {
+      const data = problemData.getProblem
+      setValue('id', +id)
+      setValue('title', data.title)
+      setValue('isVisible', data.isVisible)
+      setValue('difficulty', data.difficulty)
+      setValue('languages', data.languages ?? [])
+      setValue(
+        'tags.create',
+        data.tag.map(({ tag }) => Number(tag.id))
+      )
+      setValue(
+        'tags.delete',
+        data.tag.map(({ tag }) => Number(tag.id))
+      )
+      setValue('description', data.description)
+      setValue('inputDescription', data.inputDescription)
+      setValue('outputDescription', data.outputDescription)
+      setValue('samples.create', data?.samples || [])
+      setValue('samples.delete', data.samples?.map(({ id }) => +id) || [])
+      setValue('testcases', data.testcase)
+      setValue('timeLimit', data.timeLimit)
+      setValue('memoryLimit', data.memoryLimit)
+      setValue('hint', data.hint)
+      setValue('source', data.source)
+      setValue('template', [])
     }
   })
 
   useEffect(() => {
     if (problemData) {
-      setFetchedSamples(problemData?.getProblem.samples ?? [])
+      setFetchedSamples(
+        problemData?.getProblem.samples?.map((sample) => {
+          return {
+            input: sample.input,
+            output: sample.output
+          }
+        }) ?? []
+      )
       setFetchedTestcases(problemData?.getProblem.testcase ?? [])
       setFetchedDescription(problemData?.getProblem.description)
       setFetchedDifficulty(problemData?.getProblem.difficulty)
-      setFetchedLangauges(problemData?.getProblem.languages ?? [])
+      setFetchedLanguages(problemData?.getProblem.languages ?? [])
       setFetchedTags(
         problemData?.getProblem.tag?.map(({ tag }) => +tag.id) ?? []
       )
@@ -210,6 +244,7 @@ export default function Page({ params }: { params: { id: string } }) {
     register,
     getValues,
     setValue,
+    watch,
     formState: { errors }
   } = useForm<UpdateProblemInput>({
     resolver: zodResolver(schema),
@@ -219,37 +254,11 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   })
 
-  if (problemData) {
-    const data = problemData.getProblem
-    setValue('id', +id)
-    setValue('title', data.title)
-    setValue('isVisible', data.isVisible)
-    setValue('difficulty', data.difficulty)
-    setValue('languages', data.languages ?? [])
-    setValue(
-      'tags.create',
-      data.tag.map(({ tag }) => Number(tag.id))
-    )
-    setValue(
-      'tags.delete',
-      data.tag.map(({ tag }) => Number(tag.id))
-    )
-    setValue('description', data.description)
-    setValue('inputDescription', data.inputDescription)
-    setValue('outputDescription', data.outputDescription)
-    setValue('samples.create', data?.samples || [])
-    setValue('samples.delete', data.samples?.map(({ id }) => +id) || [])
-    setValue('testcases', data.testcase)
-    setValue('timeLimit', data.timeLimit)
-    setValue('memoryLimit', data.memoryLimit)
-    setValue('hint', data.hint)
-    setValue('source', data.source)
-    setValue('template', [])
-  }
+  const watchedSamples = watch('samples.create')
+  const watchedTestcases = watch('testcases')
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
   const onSubmit = async (input: UpdateProblemInput) => {
-    console.log(input)
     const tagsToDelete = getValues('tags.delete')
     const tagsToCreate = getValues('tags.create')
     input.tags!.create = tagsToCreate.filter(
@@ -258,17 +267,6 @@ export default function Page({ params }: { params: { id: string } }) {
     input.tags!.delete = tagsToDelete.filter(
       (tag) => !tagsToCreate.includes(tag)
     )
-    input.samples = {
-      create: fetchedSamples.map((sample) => ({
-        input: sample.input,
-        output: sample.output
-      })),
-      delete: getValues('samples.delete')
-    }
-    input.testcases = fetchedTestcases.map((testcase) => ({
-      input: testcase.input,
-      output: testcase.output
-    }))
 
     await updateProblem({
       variables: {
@@ -287,38 +285,39 @@ export default function Page({ params }: { params: { id: string } }) {
     const values = getValues('samples.create')
     const newSample = { input: '', output: '' }
     setValue('samples.create', [...values, newSample])
-    setFetchedSamples((prev) => [...prev, newSample])
+    setFetchedSamples([...fetchedSamples, newSample])
   }
 
   const addTestcase = () => {
     const values = getValues('testcases') ?? []
     const newTestcase = { input: '', output: '' }
     setValue('testcases', [...values, newTestcase])
-    setFetchedTestcases((prev) => [...prev, newTestcase])
+    setFetchedTestcases([...fetchedTestcases, newTestcase])
   }
 
   const removeSample = (index: number) => {
-    if (fetchedSamples.length <= 1) {
+    const currentValues = getValues('samples.create')
+    if (currentValues.length <= 1) {
       toast.warning('At least one sample is required')
       return
     }
-    const updatedValues = fetchedSamples.filter((_, i) => i !== index)
-    console.log(updatedValues)
+    const updatedValues = currentValues.filter((_, i) => i !== index)
     setFetchedSamples(updatedValues)
     setValue('samples', {
-      create: fetchedSamples,
+      create: updatedValues,
       delete: getValues('samples.delete')
     })
   }
 
   const removeTestcase = (index: number) => {
-    if (fetchedTestcases.length <= 1) {
+    const currentValues = getValues('testcases')
+    if (currentValues.length <= 1) {
       toast.warning('At least one testcase is required')
       return
     }
-    const updatedValues = fetchedTestcases.filter((_, i) => i !== index)
+    const updatedValues = currentValues.filter((_, i) => i !== index)
     setFetchedTestcases(updatedValues)
-    setValue('testcases', fetchedTestcases)
+    setValue('testcases', updatedValues)
   }
 
   return (
@@ -450,7 +449,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       onChange={(selectedLanguages) => {
                         field.onChange(selectedLanguages)
                       }}
-                      defaultValue={fetchedLangauges}
+                      defaultValue={fetchedLanguages}
                     />
                   )}
                   name="languages"
@@ -554,8 +553,8 @@ export default function Page({ params }: { params: { id: string } }) {
               </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              {fetchedSamples &&
-                fetchedSamples.map((_, index) => (
+              {watchedSamples &&
+                watchedSamples.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       onRemove={() => {
@@ -587,8 +586,8 @@ export default function Page({ params }: { params: { id: string } }) {
               </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              {fetchedTestcases &&
-                fetchedTestcases.map((_, index) => (
+              {watchedTestcases &&
+                watchedTestcases.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
