@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Accordion,
   AccordionContent,
@@ -8,8 +10,13 @@ import { Badge } from '@/components/ui/badge'
 import type { ProblemDetail } from '@/types/type'
 import { sanitize } from 'isomorphic-dompurify'
 import { Lightbulb, Tag } from 'lucide-react'
+import { Clipboard } from 'lucide-react'
+import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
+import { toast } from 'sonner'
 
 export function EditorDescription({ problem }: { problem: ProblemDetail }) {
+  const [, copyToClipboard] = useCopyToClipboard()
+
   return (
     <div className="flex h-full flex-col gap-8 p-6 text-lg">
       <div>
@@ -37,12 +44,57 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
           }}
         />
       </div>
-      <div className="flex items-center gap-3 text-base">
-        <h2>Time Limit:</h2>
-        <p className="text-slate-300">{problem.timeLimit} ms</p>
-        <h2>Memory Limit:</h2>
-        <p className="text-slate-300">{problem.memoryLimit} MB</p>
+      <div>
+        {problem.samples.map((sample, index) => (
+          <div key={sample.id} className="mb-2">
+            <h2 className="mb-2 font-bold">Sample {index + 1}</h2>
+
+            <div className="flex space-x-2 text-base">
+              <div className="w-full">
+                <div className="flex items-center justify-between">
+                  <h3 className="mb-1 font-semibold">Input</h3>
+                  <Clipboard
+                    className="size-[18px] cursor-pointer"
+                    onClick={() => {
+                      copyToClipboard(sample.input)
+                      toast.success('Successfully copied input to clipboard')
+                    }}
+                  />
+                </div>
+                <textarea
+                  readOnly
+                  className="h-28 w-full cursor-default resize-none overflow-y-auto rounded-md bg-slate-900 px-4 py-3 outline-none"
+                >
+                  {sample.input}
+                </textarea>
+              </div>
+
+              <div className="w-full">
+                <h3 className="mb-1 font-semibold">Output</h3>
+                <div className="h-28 w-full overflow-y-auto rounded-md bg-slate-900 p-2 px-4 py-3">
+                  {sample.output}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
+
+      <div className="items-center space-y-1 text-base">
+        <div className="flex gap-3">
+          <h2>Time Limit:</h2>
+          <p className="text-slate-300">{problem.timeLimit} ms</p>
+        </div>
+        <div className="flex gap-3">
+          <h2>Memory Limit:</h2>
+          <p className="text-slate-300">{problem.memoryLimit} MB</p>
+        </div>
+        <div className="flex gap-3">
+          <h2>Source:</h2>
+          <p className="text-slate-300">{problem.source}</p>
+        </div>
+      </div>
+
       <Accordion type="multiple">
         <AccordionItem value="item-1" className="border-b-slate-700">
           <AccordionTrigger className="hover:no-underline">
@@ -79,7 +131,7 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
           </AccordionItem>
         )}
       </Accordion>
-      {/* TODO: Add Compile Version Documentation 
+      {/* TODO: Add Compile Version Documentation
        <div className="mt-8 flex gap-3">
         <LucideFileText className="size-7" />
         <p className="text-xs">

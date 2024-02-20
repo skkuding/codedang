@@ -76,11 +76,15 @@ export interface ProblemDetail {
   description: string
   inputDescription: string
   outputDescription: string
-  inputExamples: string[]
-  outputExamples: string[]
+  samples: {
+    id: number
+    input: string
+    output: string
+  }[]
   languages: string[]
   timeLimit: number
   memoryLimit: number
+  source: string
   tags: {
     id: number
     name: string
