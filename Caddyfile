@@ -21,15 +21,12 @@
 	}
 }
 
-# Global options
-{
-	# Keep-Alive timeout of reverse proxy must be longer than of the backend
-	# Set timeout of Caddy to 60s and of the backend to 61s to avoid timeout error
-	# https://adamcrowder.net/posts/node-express-api-and-aws-alb-502/
-	servers {
-		timeouts {
-			idle 1m
-		}
+# Keep-Alive timeout of reverse proxy must be longer than of the backend
+# Set timeout of Caddy to 60s and of the backend to 61s to avoid timeout error
+# https://adamcrowder.net/posts/node-express-api-and-aws-alb-502/
+servers {
+	timeouts {
+		idle 1m
 	}
 }
 
