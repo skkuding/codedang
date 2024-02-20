@@ -14,11 +14,6 @@ const bootstrap = async () => {
   app.useGlobalInterceptors(new LoggerErrorInterceptor())
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
   app.use(cookieParser())
-  app.enableCors({
-    allowedHeaders: ['*'],
-    exposedHeaders: ['authorization', 'email-auth'],
-    credentials: true
-  })
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('SKKU coding platform')
