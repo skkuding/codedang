@@ -22,6 +22,7 @@ import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
@@ -184,6 +185,8 @@ export default function Page({ params }: { params: { id: string } }) {
   const tags =
     tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
 
+  const router = useRouter()
+
   const { data: problemData } = useQuery(GET_PROBLEM, {
     variables: {
       groupId: 1,
@@ -279,6 +282,8 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
     toast.success('Problem updated successfully')
+    router.push('/admin/problem')
+    router.refresh()
   }
 
   const addSample = () => {
@@ -311,12 +316,12 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const removeTestcase = (index: number) => {
     const currentValues = getValues('testcases')
-    if (currentValues.length <= 1) {
+    if ((currentValues?.length ?? 0) <= 1) {
       toast.warning('At least one testcase is required')
       return
     }
-    const updatedValues = currentValues.filter((_, i) => i !== index)
-    setFetchedTestcases(updatedValues)
+    const updatedValues = currentValues?.filter((_, i) => i !== index)
+    setFetchedTestcases(updatedValues!)
     setValue('testcases', updatedValues)
   }
 
