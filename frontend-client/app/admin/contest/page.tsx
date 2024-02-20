@@ -1,19 +1,17 @@
 'use client'
 
+import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
-import { fetcherGql } from '@/lib/utils'
-import { gql } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import { columns } from './_components/Columns'
 
 export const dynamic = 'force-dynamic'
 
-// TODO: gql @generated로 수정하고 useQuery 사용하기
-const GET_CONTESTS = gql`
-  query {
+const GET_CONTESTS = gql(`
+  query getContests {
     getContests {
       id
       title
@@ -22,27 +20,12 @@ const GET_CONTESTS = gql`
       participants
     }
   }
-`
-
-export interface Contest {
-  id: number
-  title: string
-  startTime: string
-  endTime: string
-  participants: number
-}
+`)
 
 export default function Page() {
-  const [contests, setContests] = useState<Contest[]>([])
-  useEffect(() => {
-    fetcherGql(GET_CONTESTS).then((data) => {
-      const transformedData = data.getContests.map((contest: Contest) => ({
-        ...contest,
-        id: +contest.id
-      }))
-      setContests(transformedData)
-    })
-  }, [])
+  const { data } = useQuery(GET_CONTESTS)
+
+  const contests = data?.getContests || []
 
   return (
     <div className="container mx-auto space-y-5 py-10">
