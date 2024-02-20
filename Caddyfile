@@ -24,7 +24,6 @@
 dev.codedang.com {
 	handle /api/* {
 		reverse_proxy 127.0.0.1:4000 {
-			header_down -Access-Control-Allow-Origin *
 			# Keep-Alive timeout of Caddy must be longer than of the backend
 			# To prevent error, let's just turn keepalive off (performance is not a big deal)
 			# https://stackoverflow.com/questions/66911457/my-nodejs-app-show-502-error-for-no-reason
@@ -50,7 +49,6 @@ dev.codedang.com {
 
 	handle /graphql {
 		reverse_proxy 127.0.0.1:3000 {
-			header_down -Access-Control-Allow-Origin *
 			transport http {
 				keepalive off
 			}
