@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
-import { Prisma, type User, type UserProfile } from '@prisma/client'
+import type { User, UserProfile } from '@prisma/client'
 import { expect } from 'chai'
 import type { Request } from 'express'
 import { Exception } from 'handlebars'
@@ -15,6 +15,7 @@ import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import {
   ConflictFoundException,
   DuplicateFoundException,
+  EntityNotExistException,
   InvalidJwtTokenException,
   UnidentifiedException,
   UnprocessableDataException
@@ -503,20 +504,15 @@ describe('UserService', () => {
 
   describe('getUserProfile', () => {
     it('get user profile', async () => {
-      db.user.findUniqueOrThrow.resolves(userProfile)
+      db.user.findUnique.resolves(userProfile)
       const ret = await service.getUserProfile(user.username)
       expect(ret).to.equal(userProfile)
     })
 
     it('should not get user profile', async () => {
-      db.user.findUniqueOrThrow.rejects(
-        new Prisma.PrismaClientKnownRequestError('user', {
-          code: 'P2002',
-          clientVersion: '5.1.1'
-        })
-      )
+      db.user.findUnique.resolves(null)
       await expect(service.getUserProfile(user.username)).to.be.rejectedWith(
-        Prisma.PrismaClientKnownRequestError
+        EntityNotExistException
       )
     })
   })
@@ -534,7 +530,7 @@ describe('UserService', () => {
     })
 
     it('update user email', async () => {
-      db.user.findUniqueOrThrow.resolves(user)
+      db.user.findUnique.resolves(user)
       db.user.update.resolves({ ...user, email: 'new@email.com' })
 
       const ret = await service.updateUserEmail(authRequestObject, {
@@ -570,22 +566,17 @@ describe('UserService', () => {
     })
 
     it('should not update not existing user email', async () => {
-      db.user.findUniqueOrThrow.rejects(
-        new Prisma.PrismaClientKnownRequestError('user', {
-          code: 'P2002',
-          clientVersion: '5.1.1'
-        })
-      )
+      db.user.findUnique.resolves(null)
 
       await expect(
         service.updateUserEmail(authRequestObject, { email: 'new@email.com' })
-      ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 
   describe('updateUserProfile', () => {
     it('update user profile', async () => {
-      db.user.findUniqueOrThrow.resolves(profile)
+      db.userProfile.findUnique.resolves(profile)
       const ret = await service.updateUserProfile(ID, {
         realName: 'new name'
       })
@@ -593,15 +584,10 @@ describe('UserService', () => {
     })
 
     it('should not update user profile', async () => {
-      db.userProfile.findUniqueOrThrow.rejects(
-        new Prisma.PrismaClientKnownRequestError('user', {
-          code: 'P2002',
-          clientVersion: '5.1.1'
-        })
-      )
+      db.userProfile.findUnique.resolves(null)
       await expect(
         service.updateUserProfile(ID, { realName: 'new name' })
-      ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 

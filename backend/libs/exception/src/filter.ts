@@ -3,7 +3,8 @@ import {
   type ArgumentsHost,
   type ExceptionFilter,
   Logger,
-  InternalServerErrorException
+  InternalServerErrorException,
+  HttpException
 } from '@nestjs/common'
 import { BusinessException } from '@libs/exception'
 
@@ -23,6 +24,25 @@ export class BusinessExceptionFilter implements ExceptionFilter {
       statusCode: status,
       error: newException.name,
       message: newException.message
+    })
+  }
+}
+
+@Catch(HttpException)
+export class HttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(HttpExceptionFilter.name)
+
+  catch(exception: HttpException, host: ArgumentsHost) {
+    this.logger.log(exception)
+
+    const status = exception.getStatus()
+    const ctx = host.switchToHttp()
+    const res = ctx.getResponse()
+
+    res.status(status).json({
+      statusCode: status,
+      error: exception.name,
+      message: exception.message
     })
   }
 }

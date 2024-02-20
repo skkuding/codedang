@@ -36,7 +36,7 @@ export class WorkbookService {
     workbookId: number,
     groupId = OPEN_SPACE_ID
   ): Promise<Partial<Workbook> & { problems: Partial<Problem>[] }> {
-    const workbook = await this.prisma.workbook.findFirst({
+    const workbook = await this.prisma.workbook.findUnique({
       where: { id: workbookId, groupId, isVisible: true },
       select: { id: true, title: true }
     })

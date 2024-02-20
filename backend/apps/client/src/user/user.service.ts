@@ -464,7 +464,7 @@ export class UserService {
         }
       }
     })
-    if (userWithProfile) {
+    if (!userWithProfile) {
       throw new EntityNotExistException('User')
     }
     this.logger.debug(userWithProfile, 'getUserProfile')
@@ -510,11 +510,14 @@ export class UserService {
     userId: number,
     updateUserProfileDto: UpdateUserProfileDto
   ): Promise<UserProfile> {
-    await this.prisma.userProfile.findUniqueOrThrow({
+    let userProfile = await this.prisma.userProfile.findUnique({
       where: { userId }
     })
+    if (!userProfile) {
+      throw new EntityNotExistException('user')
+    }
 
-    const userProfile = await this.prisma.userProfile.update({
+    userProfile = await this.prisma.userProfile.update({
       where: { userId },
       data: {
         realName: updateUserProfileDto.realName

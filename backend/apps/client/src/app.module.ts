@@ -8,6 +8,7 @@ import { JwtAuthModule, JwtAuthGuard } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
 import {
   BusinessExceptionFilter,
+  HttpExceptionFilter,
   UnknownExceptionFilter
 } from '@libs/exception'
 import { pinoLoggerModuleOption } from '@libs/logger'
@@ -55,6 +56,7 @@ import { WorkbookModule } from './workbook/workbook.module'
     AppService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_FILTER, useClass: UnknownExceptionFilter },
+    { provide: APP_FILTER, useClass: HttpExceptionFilter },
     { provide: APP_FILTER, useClass: BusinessExceptionFilter }
   ]
 })
