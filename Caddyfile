@@ -24,7 +24,12 @@
 dev.codedang.com {
 	handle /api/* {
 		reverse_proxy 127.0.0.1:4000 {
-			header_down -Access-Control-Allow-Origin *
+			# Keep-Alive timeout of Caddy must be longer than of the backend
+			# To prevent error, let's just turn keepalive off (performance is not a big deal)
+			# https://stackoverflow.com/questions/66911457/my-nodejs-app-show-502-error-for-no-reason
+			transport http {
+				keepalive off
+			}
 		}
 
 		# 캐시 설정
@@ -33,11 +38,9 @@ dev.codedang.com {
 			defer
 		}
 
-		# import <pattern> [<args...>]
-		# cors 허용할 도메인 설정
+		# cors 허용할 도메인
 		import cors http://localhost:5173 # frontend server (Vue)
 		import cors http://localhost:5525 # frontend server (Next.js)
-		import cors http://localhost:5555 # api docs server
 	}
 
 	handle /logs/* {
@@ -45,7 +48,15 @@ dev.codedang.com {
 	}
 
 	handle /graphql {
-		reverse_proxy 127.0.0.1:3000
+		reverse_proxy 127.0.0.1:3000 {
+			transport http {
+				keepalive off
+			}
+		}
+
+		# cors 허용할 도메인
+		import cors http://localhost:5173 # frontend server (Vue)
+		import cors http://localhost:5525 # frontend server (Next.js)
 	}
 
 	handle {
