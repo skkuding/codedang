@@ -1,5 +1,6 @@
 'use client'
 
+import { GET_TAGS } from '@/app/admin/problem/utils'
 import {
   Table,
   TableBody,
@@ -8,8 +9,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { fetcherGql } from '@/lib/utils'
-import { gql } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 import type {
   ColumnDef,
   ColumnFiltersState,
@@ -26,33 +26,19 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import { Route } from 'next'
+import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import { useState } from 'react'
 import DataTableLangFilter from './DataTableLangFilter'
 import { DataTablePagination } from './DataTablePagination'
 import { DataTableTagsFilter } from './DataTableTagsFilter'
 import { Input } from './ui/input'
 
-interface Tag {
-  id: number
-  name: string
-}
-
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 }
-
-const GET_TAGS = gql`
-  query GetTags {
-    getTags {
-      id
-      name
-    }
-  }
-`
 
 // dummy data
 const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
@@ -65,23 +51,14 @@ export function DataTableAdmin<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
-  const [tags, setTags] = useState<Tag[]>([])
   const pathname = usePathname()
   const page = pathname.split('/').pop()
 
   const router = useRouter()
 
-  useEffect(() => {
-    fetcherGql(GET_TAGS).then((data) => {
-      const transformedData = data.getTags.map(
-        (tag: { id: string; name: string }) => ({
-          ...tag,
-          id: Number(tag.id)
-        })
-      )
-      setTags(transformedData)
-    })
-  }, [])
+  const { data: tagsData } = useQuery(GET_TAGS)
+  const tags =
+    tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
 
   const table = useReactTable({
     data,

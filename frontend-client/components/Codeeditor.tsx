@@ -52,7 +52,7 @@ export default function Codeeditor({
   value,
   language,
   onChange,
-  editable: editable = true,
+  readOnly: readOnly = false,
   ...props
 }: CodeeditorProps) {
   language = language === 'Python3' ? 'python' : language?.toLowerCase()
@@ -63,7 +63,7 @@ export default function Codeeditor({
         extensions={[loadLanguage(language as LanguageName)] as Extension[]}
         value={value}
         onChange={onChange}
-        editable={editable}
+        readOnly={readOnly}
         {...props}
       />
       <ScrollBar orientation="horizontal" />

@@ -1,33 +1,17 @@
 'use client'
 
+import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
-import { fetcherGql } from '@/lib/utils'
-import { gql } from '@apollo/client'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { useQuery } from '@apollo/client'
+import { Language, Level } from '@generated/graphql'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import * as React from 'react'
-import { useEffect, useState } from 'react'
 import { columns } from './_components/Columns'
 
-interface Tag {
-  id: number
-  name: string
-}
-
-interface DataTableProblem {
-  id: number
-  title: string
-  updateTime: string
-  difficulty: string
-  submissionCount: number
-  acceptedRate: number
-  isVisible: boolean
-  languages: string[]
-  problemTag: { id: number; tag: Tag }[]
-}
-
-const GET_PROBLEMS = gql`
+const GET_PROBLEMS = gql(`
   query GetProblems(
     $groupId: Int!
     $cursor: Int
@@ -42,13 +26,13 @@ const GET_PROBLEMS = gql`
     ) {
       id
       title
-      updateTime
+      createTime
       difficulty
       submissionCount
       acceptedRate
       isVisible
       languages
-      problemTag {
+      tag {
         id
         tag {
           id
@@ -57,69 +41,62 @@ const GET_PROBLEMS = gql`
       }
     }
   }
-`
+`)
 
 export const dynamic = 'force-dynamic'
 
 export default function Page() {
-  const [problems, setProblems] = useState<DataTableProblem[]>([])
-
-  useEffect(() => {
-    fetcherGql(GET_PROBLEMS, {
+  const { data } = useQuery(GET_PROBLEMS, {
+    variables: {
       groupId: 1,
       cursor: 1,
-      take: 8,
+      take: 20,
       input: {
-        difficulty: ['Level1', 'Level2', 'Level3', 'Level4', 'Level5'],
-        languages: ['C', 'Cpp', 'Java', 'Python3']
+        difficulty: [
+          Level.Level1,
+          Level.Level2,
+          Level.Level3,
+          Level.Level4,
+          Level.Level5
+        ],
+        languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
       }
-    }).then((data) => {
-      const transformedData = data.getProblems.map(
-        (problem: {
-          id: string
-          title: string
-          updateTime: string
-          difficulty: string
-          submissionCount: number
-          acceptedRate: number
-          languages: string[]
-          problemTag: { id: string; tag: Tag }[]
-        }) => ({
-          ...problem,
-          id: Number(problem.id),
-          problemTag: problem.problemTag.map(
-            (tag: { id: string; tag: Tag }) => ({
-              ...tag,
-              id: Number(tag.id),
-              tag: {
-                ...tag.tag,
-                id: Number(tag.tag.id)
-              }
-            })
-          )
-        })
-      )
-      setProblems(transformedData)
-    })
-  }, [])
+    }
+  })
+
+  const problems =
+    data?.getProblems.map((problem) => ({
+      ...problem,
+      id: Number(problem.id),
+      languages: problem.languages ?? [],
+      problemTag: problem.tag.map(({ id, tag }) => ({
+        id: +id,
+        tag: {
+          ...tag,
+          id: +tag.id
+        }
+      }))
+    })) ?? []
 
   return (
-    <div className="container mx-auto space-y-5 py-10">
-      <div className="flex justify-between">
-        <div>
-          <p className="text-4xl font-bold">Problem List</p>
-          <p className="flex text-lg text-slate-500">
-            Here&apos;s a list you made
-          </p>
+    <ScrollArea className="w-full">
+      <div className="container mx-auto space-y-5 py-10">
+        <div className="flex justify-between">
+          <div>
+            <p className="text-4xl font-bold">Problem List</p>
+            <p className="flex text-lg text-slate-500">
+              Here&apos;s a list you made
+            </p>
+          </div>
+          <Link href="/admin/problem/create">
+            <Button variant="default">
+              <PlusCircleIcon className="mr-2 h-4 w-4" />
+              Create
+            </Button>
+          </Link>
         </div>
-        <Link href="/admin/problem/create">
-          <Button variant="default">
-            <PlusCircleIcon className="mr-2 h-4 w-4" />
-            Create
-          </Button>
-        </Link>
+        <DataTableAdmin columns={columns} data={problems} />
       </div>
-      <DataTableAdmin columns={columns} data={problems} />
-    </div>
+    </ScrollArea>
   )
 }

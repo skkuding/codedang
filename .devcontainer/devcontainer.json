@@ -15,6 +15,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "apollographql.vscode-apollo",
         "bradlc.vscode-tailwindcss",
         "bruno-api-client.bruno",
         "csstools.postcss",
