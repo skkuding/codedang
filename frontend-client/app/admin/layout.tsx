@@ -31,7 +31,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link>
         </nav>
         <Separator orientation="vertical" />
-        {children}
+
+        <div className="w-full overflow-y-auto">{children}</div>
       </div>
     </ClientApolloProvider>
   )
