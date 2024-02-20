@@ -63,7 +63,7 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
                 </div>
                 <textarea
                   readOnly
-                  className="pointer-events-none h-28 w-full resize-none overflow-y-auto rounded-md bg-slate-900 p-2"
+                  className="h-28 w-full cursor-default resize-none overflow-y-auto rounded-md bg-slate-900 p-2 outline-none"
                 >
                   {sample.input}
                 </textarea>
