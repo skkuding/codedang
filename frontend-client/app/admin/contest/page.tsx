@@ -25,7 +25,13 @@ const GET_CONTESTS = gql(`
 `)
 
 export default function Page() {
-  const { data, loading } = useQuery(GET_CONTESTS)
+  const { data, loading } = useQuery(GET_CONTESTS, {
+    variables: {
+      groupId: 1,
+      cursor: 1,
+      take: 100
+    }
+  })
 
   const contests = data?.getContests || []
 
