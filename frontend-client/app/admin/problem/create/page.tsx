@@ -76,7 +76,7 @@ const schema = z.object({
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
   ),
-  tagIds: z.array(z.number()).min(1),
+  tagIds: z.array(z.number()),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
@@ -150,6 +150,7 @@ export default function Page() {
     resolver: zodResolver(schema),
     defaultValues: {
       difficulty: Level.Level1,
+      tagIds: [],
       samples: [{ input: '', output: '' }],
       testcases: [{ input: '', output: '' }],
       hint: '',
