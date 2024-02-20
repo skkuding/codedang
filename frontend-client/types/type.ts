@@ -81,6 +81,7 @@ export interface ProblemDetail {
   languages: string[]
   timeLimit: number
   memoryLimit: number
+  source: string
   tags: {
     id: number
     name: string
