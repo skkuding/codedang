@@ -90,7 +90,8 @@ export const problems: Problem[] = [
 
 export const testcaseInput: Testcase = {
   input: "wake up, daddy's home",
-  output: 'welcome home, sir'
+  output: 'welcome home, sir',
+  scoreWeight: 1
 }
 
 const file: Promise<FileUploadDto> = new Promise((resolve) => {
