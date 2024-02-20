@@ -15,6 +15,7 @@ import { EMAIL_AUTH_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
   DuplicateFoundException,
+  EntityNotExistException,
   InvalidJwtTokenException,
   UnidentifiedException,
   UnprocessableDataException
@@ -448,7 +449,7 @@ export class UserService {
   }
 
   async getUserProfile(username: string) {
-    const userWithProfile = await this.prisma.user.findUniqueOrThrow({
+    const userWithProfile = await this.prisma.user.findUnique({
       where: { username },
       select: {
         username: true,
@@ -463,6 +464,9 @@ export class UserService {
         }
       }
     })
+    if (userWithProfile) {
+      throw new EntityNotExistException('User')
+    }
     this.logger.debug(userWithProfile, 'getUserProfile')
     return userWithProfile
   }
@@ -485,11 +489,14 @@ export class UserService {
 
     await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
-    await this.prisma.user.findUniqueOrThrow({
+    let user = await this.prisma.user.findUnique({
       where: { id: req.user.id }
     })
+    if (!user) {
+      throw new EntityNotExistException('User')
+    }
 
-    const user = await this.prisma.user.update({
+    user = await this.prisma.user.update({
       where: { id: req.user.id },
       data: {
         email: updateUserEmailDto.email
