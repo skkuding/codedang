@@ -198,7 +198,7 @@ export default function Page({ params }: { params: { id: string } }) {
       setFetchedDifficulty(problemData?.getProblem.difficulty)
       setFetchedLangauges(problemData?.getProblem.languages ?? [])
       setFetchedTags(
-        problemData?.getProblem.problemTag.map(({ tag }) => +tag.id) ?? []
+        problemData?.getProblem.problemTag?.map(({ tag }) => +tag.id) ?? []
       )
     }
   }, [problemData])
