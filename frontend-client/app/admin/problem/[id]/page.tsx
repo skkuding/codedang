@@ -238,6 +238,7 @@ export default function Page({ params }: { params: { id: string } }) {
     setValue('inputDescription', data.inputDescription)
     setValue('outputDescription', data.outputDescription)
     setValue('samples.create', data?.samples || [])
+    setValue('samples.delete', data.samples?.map(({ id }) => +id) || [])
     setValue('testcases', data.testcase)
     setValue('timeLimit', data.timeLimit)
     setValue('memoryLimit', data.memoryLimit)
@@ -257,6 +258,17 @@ export default function Page({ params }: { params: { id: string } }) {
     input.tags!.delete = tagsToDelete.filter(
       (tag) => !tagsToCreate.includes(tag)
     )
+    input.samples = {
+      create: fetchedSamples.map((sample) => ({
+        input: sample.input,
+        output: sample.output
+      })),
+      delete: getValues('samples.delete')
+    }
+    input.testcases = fetchedTestcases.map((testcase) => ({
+      input: testcase.input,
+      output: testcase.output
+    }))
 
     await updateProblem({
       variables: {
@@ -290,19 +302,23 @@ export default function Page({ params }: { params: { id: string } }) {
       toast.warning('At least one sample is required')
       return
     }
-    const samplesToDelete = getValues('samples.delete')
-    setValue('samples.delete', [...samplesToDelete, index])
-    setFetchedSamples(fetchedSamples.filter((_, i) => i !== index))
+    const updatedValues = fetchedSamples.filter((_, i) => i !== index)
+    console.log(updatedValues)
+    setFetchedSamples(updatedValues)
+    setValue('samples', {
+      create: fetchedSamples,
+      delete: getValues('samples.delete')
+    })
   }
 
   const removeTestcase = (index: number) => {
-    const values = getValues('testcases') ?? []
-    if (values.length <= 1) {
+    if (fetchedTestcases.length <= 1) {
       toast.warning('At least one testcase is required')
       return
     }
-    const updatedValues = values.filter((_, i) => i !== index)
-    setValue('testcases', updatedValues)
+    const updatedValues = fetchedTestcases.filter((_, i) => i !== index)
+    setFetchedTestcases(updatedValues)
+    setValue('testcases', fetchedTestcases)
   }
 
   return (
@@ -538,16 +554,18 @@ export default function Page({ params }: { params: { id: string } }) {
               </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              {getValues('samples') &&
+              {fetchedSamples &&
                 fetchedSamples.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
-                      onRemove={() => removeSample(index)}
+                      onRemove={() => {
+                        removeSample(index)
+                      }}
                       inputName={`samples.create.${index}.input`}
                       outputName={`samples.create.${index}.output`}
                       register={register}
                     />
-                    {errors.samples && fetchedSamples[index] && (
+                    {errors.samples?.create?.[index] && (
                       <div className="flex items-center gap-1 text-xs text-red-500">
                         <PiWarningBold />
                         required
@@ -569,7 +587,7 @@ export default function Page({ params }: { params: { id: string } }) {
               </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              {getValues('testcases') &&
+              {fetchedTestcases &&
                 fetchedTestcases.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
@@ -579,7 +597,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       outputName={`testcases.${index}.output`}
                       register={register}
                     />
-                    {errors.testcases && fetchedTestcases[index] && (
+                    {errors.testcases?.[index] && (
                       <div className="flex items-center gap-1 text-xs text-red-500">
                         <PiWarningBold />
                         required
