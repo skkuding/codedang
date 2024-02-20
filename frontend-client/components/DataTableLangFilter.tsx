@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { PlusCircledIcon } from '@radix-ui/react-icons'
-import { Column } from '@tanstack/react-table'
+import type { Column } from '@tanstack/react-table'
 
 interface DataTableLangFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
