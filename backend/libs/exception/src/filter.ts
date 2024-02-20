@@ -3,7 +3,6 @@ import {
   type ArgumentsHost,
   type ExceptionFilter,
   Logger,
-  InternalServerErrorException,
   HttpException
 } from '@nestjs/common'
 import { BusinessException } from '@libs/exception'
@@ -52,17 +51,16 @@ export class UnknownExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(UnknownExceptionFilter.name)
 
   catch(exception: unknown, host: ArgumentsHost) {
-    const newException = new InternalServerErrorException()
     this.logger.error(exception)
 
     const ctx = host.switchToHttp()
     const res = ctx.getResponse()
-    const status = newException.getStatus()
+    const status = 500
 
     res.status(status).json({
       statusCode: status,
-      error: newException.name,
-      message: newException.message
+      error: 'InternalServerErrorException',
+      message: 'Internal Server Error'
     })
   }
 }
