@@ -3,6 +3,7 @@
 import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useQuery } from '@apollo/client'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
@@ -23,7 +24,7 @@ const GET_CONTESTS = gql(`
 `)
 
 export default function Page() {
-  const { data } = useQuery(GET_CONTESTS)
+  const { data, loading } = useQuery(GET_CONTESTS)
 
   const contests = data?.getContests || []
 
@@ -42,7 +43,20 @@ export default function Page() {
           </Link>
         </Button>
       </div>
-      <DataTableAdmin columns={columns} data={contests} />
+      {loading ? (
+        <>
+          <div className="mb-16 flex gap-4">
+            <span className="w-2/12">
+              <Skeleton className="h-10 w-full" />
+            </span>
+          </div>
+          {[...Array(8)].map((_, i) => (
+            <Skeleton key={i} className="my-2 flex h-12 w-full rounded-xl" />
+          ))}
+        </>
+      ) : (
+        <DataTableAdmin columns={columns} data={contests} />
+      )}
     </div>
   )
 }
