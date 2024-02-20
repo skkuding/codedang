@@ -21,16 +21,21 @@
 	}
 }
 
+# Global options
+{
+	# Keep-Alive timeout of reverse proxy must be longer than of the backend
+	# Set timeout of Caddy to 60s and of the backend to 61s to avoid timeout error
+	# https://adamcrowder.net/posts/node-express-api-and-aws-alb-502/
+	servers {
+		timeouts {
+			idle 1m
+		}
+	}
+}
+
 dev.codedang.com {
 	handle /api/* {
-		reverse_proxy 127.0.0.1:4000 {
-			# Keep-Alive timeout of Caddy must be longer than of the backend
-			# To prevent error, let's just turn keepalive off (performance is not a big deal)
-			# https://stackoverflow.com/questions/66911457/my-nodejs-app-show-502-error-for-no-reason
-			transport http {
-				keepalive off
-			}
-		}
+		reverse_proxy 127.0.0.1:4000
 
 		# 캐시 설정
 		header {
@@ -48,11 +53,7 @@ dev.codedang.com {
 	}
 
 	handle /graphql {
-		reverse_proxy 127.0.0.1:3000 {
-			transport http {
-				keepalive off
-			}
-		}
+		reverse_proxy 127.0.0.1:3000
 
 		# cors 허용할 도메인
 		import cors http://localhost:5173 # frontend server (Vue)
