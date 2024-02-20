@@ -116,7 +116,7 @@ export interface SubmissionDetail {
   problemId: number
   username: string
   code: string
-  language: string
+  language: Language
   createTime: string
   result: string
   testcaseResult: {
