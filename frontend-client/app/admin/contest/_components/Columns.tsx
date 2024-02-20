@@ -5,27 +5,53 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
 import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
-import { useState } from 'react'
 import { FiEyeOff } from 'react-icons/fi'
 import { FiEye } from 'react-icons/fi'
 
-export interface Contest {
+interface Contest {
   id: number
   title: string
   startTime: string
   endTime: string
   participants: number
+  config: {
+    isVisible: boolean
+  }
 }
 
-// No api for hidden (임시 hiddenCell 만듦)
-function HiddenCell() {
-  const [visible, setVisible] = useState(false)
+// const EDIT_VISIBLE = gql(`
+//   mutation UpdateContestVisible($groupId: Int!, $input: UpdateContestInput!) {
+//     updateContest(groupId: $groupId, input: $input) {
+//       id
+//       config
+//     }
+//   }
+// `)
+
+function VisibleCell({ isVisible }: { isVisible: boolean; id: number }) {
+  // const [updateVisible] = useMutation(EDIT_VISIBLE)
 
   return (
     <div className="flex space-x-2">
-      <Switch id="hidden-mode" checked={visible} onCheckedChange={setVisible} />
+      <Switch
+        id="hidden-mode"
+        checked={isVisible}
+        onCheckedChange={() => {
+          // updateVisible({
+          //   variables: {
+          //     groupId: 1,
+          //     input: {
+          //       id,
+          //       config: {
+          //         isVisible: !isVisible
+          //       }
+          //     }
+          //   }
+          // })
+        }}
+      />
       <div className="flex items-center justify-center">
-        {visible ? (
+        {isVisible ? (
           <FiEye className="text-primary h-[14px] w-[14px]" />
         ) : (
           <FiEyeOff className="h-[14px] w-[14px] text-gray-400" />
@@ -103,6 +129,9 @@ export const columns: ColumnDef<Contest>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Visible" />
     ),
-    cell: HiddenCell
+    cell: ({ row }) => {
+      const isVisible: boolean = row.original.config.isVisible
+      return <VisibleCell isVisible={isVisible} id={+row.original.id} />
+    }
   }
 ]

@@ -20,6 +20,7 @@ const GET_CONTESTS = gql(`
       startTime
       endTime
       participants
+      config
     }
   }
 `)
