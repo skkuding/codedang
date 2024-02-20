@@ -47,7 +47,7 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
       <div>
         {problem.samples.map((sample, index) => (
           <div key={sample.id} className="mb-2">
-            <h2 className="font-bold">Sample {index + 1}</h2>
+            <h2 className="mb-2 font-bold">Sample {index + 1}</h2>
 
             <div className="flex space-x-2 text-base">
               <div className="w-full">
@@ -63,7 +63,7 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
                 </div>
                 <textarea
                   readOnly
-                  className="h-28 w-full cursor-default resize-none overflow-y-auto rounded-md bg-slate-900 p-2 outline-none"
+                  className="h-28 w-full cursor-default resize-none overflow-y-auto rounded-md bg-slate-900 px-4 py-3 outline-none"
                 >
                   {sample.input}
                 </textarea>
@@ -71,7 +71,7 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
 
               <div className="w-full">
                 <h3 className="mb-1 font-semibold">Output</h3>
-                <div className="pointer-events-none h-28 w-full resize-none overflow-y-auto rounded-md bg-slate-900 p-2">
+                <div className="h-28 w-full overflow-y-auto rounded-md bg-slate-900 p-2 px-4 py-3">
                   {sample.output}
                 </div>
               </div>
