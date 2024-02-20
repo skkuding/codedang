@@ -1,9 +1,9 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import CodedangLogo from '@/public/codedang.svg'
 import useAuthModalStore from '@/stores/authModal'
 import useSignUpModalStore from '@/stores/signUpModal'
+import CodedangLogo from '@root/public/codedang.svg'
 import Image from 'next/image'
 import { IoMdArrowBack } from 'react-icons/io'
 import SignUpEmailVerify from './SignUpEmailVerify'

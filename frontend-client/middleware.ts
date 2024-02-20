@@ -1,8 +1,8 @@
 import { ACCESS_TOKEN_EXPIRE_TIME } from '@/lib/vars'
+import { baseUrl } from '@/lib/vars'
 import { encode, getToken } from 'next-auth/jwt'
 import { parseCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 import { NextResponse, type NextRequest } from 'next/server'
-import { baseUrl } from './lib/vars'
 
 const getAuthToken = (res: Response) => {
   const Authorization = res.headers.get('authorization') as string

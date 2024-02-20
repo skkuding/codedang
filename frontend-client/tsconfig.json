@@ -19,12 +19,13 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"],
+      "@/*": ["./src/*"],
+      "@root/*": ["./*"],
       "@generated": ["./__generated__"],
       "@generated/*": ["./__generated__/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"],
-  "typeRoots": ["./types"]
+  "typeRoots": ["@/types"]
 }

@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth'
-import CodedangLogo from '@/public/codedang.svg'
+import CodedangLogo from '@root/public/codedang.svg'
 import Image from 'next/image'
 import Link from 'next/link'
 import HeaderAuthPanel from './HeaderAuthPanel'

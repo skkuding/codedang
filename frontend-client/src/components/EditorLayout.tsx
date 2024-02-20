@@ -1,7 +1,7 @@
 import EditorResizablePanel from '@/components/EditorResizablePanel'
 import { fetcher } from '@/lib/utils'
-import codedangLogo from '@/public/codedang-editor.svg'
 import type { Contest, ContestProblem, ProblemDetail } from '@/types/type'
+import codedangLogo from '@root/public/codedang-editor.svg'
 import type { Route } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'

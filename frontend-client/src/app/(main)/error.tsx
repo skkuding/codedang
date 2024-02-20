@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import ErrorImg from '@/public/error.webp'
+import ErrorImg from '@root/public/error.webp'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
