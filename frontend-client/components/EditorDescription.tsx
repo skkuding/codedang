@@ -11,16 +11,11 @@ import type { ProblemDetail } from '@/types/type'
 import { sanitize } from 'isomorphic-dompurify'
 import { Lightbulb, Tag } from 'lucide-react'
 import { Clipboard } from 'lucide-react'
-// import { useState } from 'react'
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
 import { toast } from 'sonner'
 
 export function EditorDescription({ problem }: { problem: ProblemDetail }) {
   const [, copyToClipboard] = useCopyToClipboard()
-
-  // const handleTextareaChange = (event) => {
-  //   setText(event.target.value) // 입력된 내용으로 text 상태 업데이트
-  // }
 
   return (
     <div className="flex h-full flex-col gap-8 p-6 text-lg">
@@ -50,34 +45,56 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
         />
       </div>
       <div>
-        <div className="flex items-center justify-between">
-          <h2 className="mb-3 font-bold">Sample Input</h2>
-          <Clipboard
-            className="size-5 cursor-pointer"
-            onClick={() => {
-              copyToClipboard('input example')
-              toast.success('Successfully copied to clipboard')
-            }}
-          />
+        {problem.samples.map((sample, index) => (
+          <div key={sample.id} className="mb-2">
+            <h2 className="font-bold">Sample {index + 1}</h2>
+
+            <div className="flex space-x-2 text-base">
+              <div className="w-full">
+                <div className="flex items-center justify-between">
+                  <h3 className="mb-1 font-semibold">Input</h3>
+                  <Clipboard
+                    className="size-[18px] cursor-pointer"
+                    onClick={() => {
+                      copyToClipboard(sample.input)
+                      toast.success('Successfully copied input to clipboard')
+                    }}
+                  />
+                </div>
+                <textarea
+                  readOnly
+                  className="pointer-events-none h-28 w-full resize-none overflow-y-auto rounded-md bg-slate-900 p-2"
+                >
+                  {sample.input}
+                </textarea>
+              </div>
+
+              <div className="w-full">
+                <h3 className="mb-1 font-semibold">Output</h3>
+                <div className="pointer-events-none h-28 w-full resize-none overflow-y-auto rounded-md bg-slate-900 p-2">
+                  {sample.output}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="items-center space-y-1 text-base">
+        <div className="flex gap-3">
+          <h2>Time Limit:</h2>
+          <p className="text-slate-300">{problem.timeLimit} ms</p>
         </div>
-        <div className="h-28 w-full resize-none overflow-y-auto rounded-md bg-slate-900 p-2">
-          input example
+        <div className="flex gap-3">
+          <h2>Memory Limit:</h2>
+          <p className="text-slate-300">{problem.memoryLimit} MB</p>
+        </div>
+        <div className="flex gap-3">
+          <h2>Source:</h2>
+          <p className="text-slate-300">{problem.source}</p>
         </div>
       </div>
-      <div>
-        <h2 className="mb-3 font-bold">Sample Output</h2>
-        <div className="h-28 w-full resize-none overflow-y-auto rounded-md bg-slate-900 p-2">
-          output example
-        </div>
-      </div>
-      <div className="flex items-center gap-3 text-base">
-        <h2>Time Limit:</h2>
-        <p className="text-slate-300">{problem.timeLimit} ms</p>
-        <h2>Memory Limit:</h2>
-        <p className="text-slate-300">{problem.memoryLimit} MB</p>
-        <h2>Source:</h2>
-        <p className="text-slate-300">{problem.source}</p>
-      </div>
+
       <Accordion type="multiple">
         <AccordionItem value="item-1" className="border-b-slate-700">
           <AccordionTrigger className="hover:no-underline">
