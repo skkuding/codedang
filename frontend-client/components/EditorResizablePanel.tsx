@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useStorage } from '@/lib/hooks'
 import useEditorStore from '@/stores/editor'
-import type { ProblemDetail } from '@/types/type'
+import type { Language, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -28,7 +28,10 @@ export default function EditorMainResizablePanel({
   children
 }: ProblemEditorProps) {
   // get programming language from localStorage for default value
-  const { value } = useStorage('programming_lang', problem.languages[0])
+  const { value } = useStorage<Language>(
+    'programming_lang',
+    problem.languages[0]
+  )
   const { code, setCode, setLanguage, language } = useEditorStore()
   const pathname = usePathname()
 
@@ -61,7 +64,7 @@ export default function EditorMainResizablePanel({
               }
             >
               <TabsList className="bg-slate-900">
-                <Link href={`/problem/${problem.id}`}>
+                <Link href={`/problem/${problem.id}` as Route}>
                   <TabsTrigger
                     value="Description"
                     className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
@@ -93,7 +96,7 @@ export default function EditorMainResizablePanel({
           <EditorHeader problem={problem} />
           <Codeeditor
             value={code}
-            language={language as string}
+            language={language as Language}
             onChange={setCode}
             height="100%"
             className="h-full"

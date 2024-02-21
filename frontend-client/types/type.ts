@@ -76,11 +76,15 @@ export interface ProblemDetail {
   description: string
   inputDescription: string
   outputDescription: string
-  inputExamples: string[]
-  outputExamples: string[]
-  languages: string[]
+  samples: {
+    id: number
+    input: string
+    output: string
+  }[]
+  languages: Language[]
   timeLimit: number
   memoryLimit: number
+  source: string
   tags: {
     id: number
     name: string
@@ -116,7 +120,7 @@ export interface SubmissionDetail {
   problemId: number
   username: string
   code: string
-  language: string
+  language: Language
   createTime: string
   result: string
   testcaseResult: {
@@ -152,7 +156,6 @@ export interface Sample {
 export interface Testcase {
   input: string
   output: string
-  scoreWeight?: number
 }
 
 export interface Snippet {
