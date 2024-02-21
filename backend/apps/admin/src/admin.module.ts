@@ -1,9 +1,10 @@
 import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo'
 import { CacheModule } from '@nestjs/cache-manager'
-import { Module } from '@nestjs/common'
+import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_FILTER, APP_GUARD } from '@nestjs/core'
+import { APP_GUARD, APP_FILTER, HttpAdapterHost } from '@nestjs/core'
 import { GraphQLModule } from '@nestjs/graphql'
+import type { Server } from 'http'
 import { LoggerModule } from 'nestjs-pino'
 import {
   JwtAuthModule,
@@ -68,4 +69,15 @@ import { UserModule } from './user/user.module'
     { provide: APP_FILTER, useClass: BusinessExceptionFilter }
   ]
 })
-export class AdminModule {}
+export class AdminModule implements OnApplicationBootstrap {
+  constructor(private readonly refHost: HttpAdapterHost) {}
+
+  onApplicationBootstrap() {
+    // Keep-Alive timeout of reverse proxy must be longer than of the backend
+    // Set timeout of Caddy to 60s and of the backend to 61s to avoid timeout error
+    // https://adamcrowder.net/posts/node-express-api-and-aws-alb-502/
+    const server: Server = this.refHost.httpAdapter.getHttpServer()
+    server.keepAliveTimeout = 61 * 1000
+    server.headersTimeout = 62 * 1000
+  }
+}
