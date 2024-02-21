@@ -9,15 +9,15 @@ interface Props {
 }
 
 export default async function ProblemTable({ search, order }: Props) {
-  const { problems }: { problems: Problem[] } = await fetcher
-    .get('problem', {
-      searchParams: {
-        take: 10,
-        search,
-        order
-      }
-    })
-    .json()
+  const data = await fetcher.get('problem', {
+    searchParams: {
+      take: 10,
+      search,
+      order
+    }
+  })
+  console.log(data)
+  const { problems }: { problems: Problem[] } = await data.json()
 
   return (
     <DataTable
