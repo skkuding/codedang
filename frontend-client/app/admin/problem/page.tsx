@@ -49,7 +49,6 @@ export default function Page() {
   const { data } = useQuery(GET_PROBLEMS, {
     variables: {
       groupId: 1,
-      cursor: 1,
       take: 20,
       input: {
         difficulty: [
