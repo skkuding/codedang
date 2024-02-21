@@ -13,13 +13,14 @@ export class ServiceExceptionFilter extends BaseExceptionFilter {
   private readonly logger = new Logger(ServiceExceptionFilter.name)
 
   catch(exception: Error, host: ArgumentsHost) {
-    this.logger.error(exception)
-
     if (exception instanceof BusinessException) {
+      this.logger.error(exception, 'Business Exception')
       super.catch(exception.convert2HTTPException(), host)
     } else if (exception instanceof HttpException) {
+      this.logger.error(exception, 'Http Exception')
       super.catch(exception, host)
     } else {
+      this.logger.error(exception, 'Internal Exception')
       super.catch(new InternalServerErrorException(), host)
     }
   }
