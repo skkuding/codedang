@@ -79,6 +79,7 @@ export const usePagination = <T extends Item>(
 
   useEffect(() => {
     ;(async () => {
+      // TODO: fetcher <-> fetcherWithAuth 중 선택할 수 있도록 수정
       const data: T[] = await fetcherWithAuth
         .get(path, {
           searchParams: query
