@@ -9,8 +9,10 @@ interface Props {
 }
 
 export default async function ProblemTable({ search, order }: Props) {
-  const { problems }: { problems: Problem[] } = await fetcher
-    .get('problem', {
+  const res:
+    | { problems: Problem[] }
+    | { message: string; error: string; statusCode: number } = await fetcher
+    .get('problem/2342', {
       searchParams: {
         take: 10,
         search,
@@ -19,9 +21,12 @@ export default async function ProblemTable({ search, order }: Props) {
     })
     .json()
 
+  if (!('problems' in res)) {
+    throw new Error(`${res.statusCode} ${res.error}: ${res.message}`)
+  }
   return (
     <DataTable
-      data={problems}
+      data={res.problems}
       columns={columns}
       headerStyle={{
         title: 'text-left w-5/12',
