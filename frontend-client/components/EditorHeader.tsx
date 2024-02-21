@@ -20,11 +20,13 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
+import useAuthModalStore from '@/stores/authModal'
 import useEditorStore from '@/stores/editor'
 import type { Language, ProblemDetail, Submission } from '@/types/type'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { TbReload } from 'react-icons/tb'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
@@ -59,6 +61,17 @@ export default function Editor({ problem }: ProblemEditorProps) {
     },
     loading && submissionId ? 500 : null
   )
+
+  const { showSignIn } = useAuthModalStore((state) => state)
+  useEffect(() => {
+    ;(async () => {
+      const session = await auth()
+      if (!session) {
+        toast.info('Log in to use submission & auto save feature')
+      }
+    })()
+  }, [])
+
   return (
     <div className="flex shrink-0 items-center justify-end border-b border-b-slate-700 bg-slate-800 px-5">
       <div className="flex items-center gap-3">
@@ -91,7 +104,7 @@ export default function Editor({ problem }: ProblemEditorProps) {
           disabled={loading}
           onClick={async () => {
             if (code === '') {
-              toast.error('Please write your code.')
+              toast.error('Please write code before submission')
               return
             }
             setLoading(true)
@@ -119,9 +132,10 @@ export default function Editor({ problem }: ProblemEditorProps) {
               setSubmissionId(submission.id)
             } else {
               setLoading(false)
-              if (res.status === 401)
-                toast.error('If you want to submit, please login.')
-              else toast.error('Please try again later.')
+              if (res.status === 401) {
+                showSignIn()
+                toast.error('Log in first to submit your code')
+              } else toast.error('Please try again later.')
             }
           }}
         >
