@@ -16,7 +16,7 @@ export default function GlobalError({ error }: Props) {
   return (
     <html>
       <body>
-        <Error />
+        <Error statusCode={500} />
       </body>
     </html>
   )
