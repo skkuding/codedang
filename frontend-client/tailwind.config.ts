@@ -33,7 +33,10 @@ export default {
         ]
       },
       colors: {
-        primary: '#3581FA',
+        primary: {
+          DEFAULT: '#3581FA',
+          light: '#5FA4F5'
+        },
         secondary: '#30D7AE',
         level: {
           1: colors.violet[400],
