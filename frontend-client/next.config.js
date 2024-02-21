@@ -24,7 +24,7 @@ module.exports = withSentryConfig(
     // Suppresses source map uploading logs during build
     silent: true,
     org: 'skkuding',
-    project: 'codedang-dev',
+    project: process.env.SENTRY_PROJECT_NAME,
     url: 'https://sentry.codedang.com'
   },
   {
