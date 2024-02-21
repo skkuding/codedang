@@ -71,7 +71,7 @@ export default function Home() {
       <div className="flex w-full flex-col gap-3">
         <div className="flex w-full items-center justify-between text-gray-700">
           <p className="text-xl font-bold">Professor’s Recommendation</p>
-          <Link href={'/workbook/1' as Route}>
+          <Link href={'/problem' as Route}>
             <Button variant="outline" className="h-8">
               More
             </Button>

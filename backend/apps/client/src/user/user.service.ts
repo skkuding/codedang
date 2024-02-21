@@ -54,6 +54,20 @@ export class UserService {
     private readonly jwtAuthService: JwtAuthService
   ) {}
 
+  async getUsernameByEmail({ email }: UserEmailDto) {
+    const username = await this.prisma.user.findUniqueOrThrow({
+      where: {
+        email
+      },
+      select: {
+        username: true
+      }
+    })
+
+    this.logger.debug(username, 'getUsernameByEmail')
+    return username
+  }
+
   async updateLastLogin(username: string) {
     const user = await this.prisma.user.update({
       where: { username },

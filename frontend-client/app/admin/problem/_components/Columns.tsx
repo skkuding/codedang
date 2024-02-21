@@ -22,7 +22,7 @@ interface DataTableProblem {
   acceptedRate: number
   isVisible: boolean
   languages: string[]
-  problemTag: { id: number; tag: Tag }[]
+  tag: { id: number; tag: Tag }[]
 }
 
 const EDIT_VISIBLE = gql(`
@@ -101,7 +101,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
           {row.getValue('title')}
           <div className="flex">
             <div>
-              {row.original.problemTag?.map((tag) => (
+              {row.original.tag?.map((tag) => (
                 <Badge
                   key={tag.id}
                   variant="secondary"
@@ -147,11 +147,11 @@ export const columns: ColumnDef<DataTableProblem>[] = [
    * doesn't show in datatable
    */
   {
-    accessorKey: 'problemTag',
+    accessorKey: 'tag',
     header: () => {},
     cell: () => {},
     filterFn: (row, id, value) => {
-      const tags = row.original.problemTag
+      const tags = row.original.tag
       if (!tags?.length) {
         return false
       }

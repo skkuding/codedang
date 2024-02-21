@@ -87,6 +87,23 @@ export class UserController {
   async checkDuplicatedUsername(@Query() usernameDto: UsernameDto) {
     return await this.userService.checkDuplicatedUsername(usernameDto)
   }
+
+  @Get('email')
+  @AuthNotNeededIfOpenSpace()
+  async getUsernameByEmail(@Query() userEmailDto: UserEmailDto) {
+    try {
+      return await this.userService.getUsernameByEmail(userEmailDto)
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
 }
 
 @Controller('email-auth')
