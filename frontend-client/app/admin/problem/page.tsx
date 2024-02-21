@@ -3,7 +3,7 @@
 import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { useQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import { PlusCircleIcon } from 'lucide-react'
@@ -78,7 +78,7 @@ export default function Page() {
     })) ?? []
 
   return (
-    <ScrollArea className="w-full">
+    <ScrollArea className="shrink-0">
       <div className="container mx-auto space-y-5 py-10">
         <div className="flex justify-between">
           <div>
@@ -96,6 +96,7 @@ export default function Page() {
         </div>
         <DataTableAdmin columns={columns} data={problems} />
       </div>
+      <ScrollBar orientation="horizontal" />
     </ScrollArea>
   )
 }
