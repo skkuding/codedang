@@ -91,18 +91,7 @@ export class UserController {
   @Get('email')
   @AuthNotNeededIfOpenSpace()
   async getUsernameByEmail(@Query() userEmailDto: UserEmailDto) {
-    try {
-      return await this.userService.getUsernameByEmail(userEmailDto)
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.name == 'NotFoundError'
-      ) {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.userService.getUsernameByEmail(userEmailDto)
   }
 }
 

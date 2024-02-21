@@ -12,7 +12,7 @@ import { BusinessException } from './business.exception'
 export class ServiceExceptionFilter extends BaseExceptionFilter {
   private readonly logger = new Logger(ServiceExceptionFilter.name)
 
-  catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: Error, host: ArgumentsHost) {
     this.logger.error(exception)
 
     if (exception instanceof BusinessException) {

@@ -55,7 +55,7 @@ export class UserService {
   ) {}
 
   async getUsernameByEmail({ email }: UserEmailDto) {
-    const username = await this.prisma.user.findUniqueOrThrow({
+    const username = await this.prisma.user.findUnique({
       where: {
         email
       },
@@ -63,6 +63,9 @@ export class UserService {
         username: true
       }
     })
+    if (!username) {
+      throw new EntityNotExistException('User')
+    }
 
     this.logger.debug(username, 'getUsernameByEmail')
     return username
