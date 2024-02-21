@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select'
 import { fetcherWithAuth } from '@/lib/utils'
 import useEditorStore from '@/stores/editor'
-import type { ProblemDetail, Submission } from '@/types/type'
+import type { Language, ProblemDetail, Submission } from '@/types/type'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { TbReload } from 'react-icons/tb'
@@ -128,7 +128,7 @@ export default function Editor({ problem }: ProblemEditorProps) {
           {loading ? 'Judging' : 'Submit'}
         </Button>
         <Select
-          onValueChange={(language) => {
+          onValueChange={(language: Language) => {
             setLanguage(language)
           }}
           value={language}

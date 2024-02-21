@@ -1,5 +1,6 @@
 'use client'
 
+import type { Language } from '@/types/type'
 import { tags as t } from '@lezer/highlight'
 import type { LanguageName } from '@uiw/codemirror-extensions-langs'
 import { loadLanguage } from '@uiw/codemirror-extensions-langs'
@@ -45,7 +46,16 @@ const editorTheme = createTheme({
 })
 
 interface CodeeditorProps extends ReactCodeMirrorProps {
-  language: string
+  language: Language
+}
+
+const CodeMirrorLanguage: Record<Language, LanguageName> = {
+  C: 'c',
+  Cpp: 'cpp',
+  Golang: 'go',
+  Java: 'java',
+  Python2: 'python',
+  Python3: 'python'
 }
 
 export default function Codeeditor({
@@ -55,12 +65,11 @@ export default function Codeeditor({
   readOnly: readOnly = false,
   ...props
 }: CodeeditorProps) {
-  language = language === 'Python3' ? 'python' : language?.toLowerCase()
   return (
     <ScrollArea className="rounded-md [&>div>div]:h-full">
       <ReactCodeMirror
         theme={editorTheme}
-        extensions={[loadLanguage(language as LanguageName)] as Extension[]}
+        extensions={[loadLanguage(CodeMirrorLanguage[language])] as Extension[]}
         value={value}
         onChange={onChange}
         readOnly={readOnly}

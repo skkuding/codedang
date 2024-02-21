@@ -81,7 +81,7 @@ export interface ProblemDetail {
     input: string
     output: string
   }[]
-  languages: string[]
+  languages: Language[]
   timeLimit: number
   memoryLimit: number
   source: string
@@ -120,7 +120,7 @@ export interface SubmissionDetail {
   problemId: number
   username: string
   code: string
-  language: string
+  language: Language
   createTime: string
   result: string
   testcaseResult: {
