@@ -6,7 +6,6 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useState, useEffect } from 'react'
 
 interface OptionSelectProps {
   options: string[]
@@ -19,20 +18,8 @@ export default function OptionSelect({
   onChange,
   defaultValue
 }: OptionSelectProps) {
-  const [option, setOption] = useState(options[0])
-
-  useEffect(() => {
-    if (defaultValue) {
-      setOption(defaultValue)
-    }
-  }, [defaultValue])
-
   return (
-    <Select
-      onValueChange={setOption}
-      value={option}
-      onOpenChange={() => onChange(option)}
-    >
+    <Select defaultValue={defaultValue}>
       <SelectTrigger className="w-[115px] bg-white font-bold hover:bg-gray-50 focus:outline-none focus:ring-0 focus:ring-offset-0">
         <SelectValue />
       </SelectTrigger>
@@ -43,6 +30,7 @@ export default function OptionSelect({
               key={option}
               value={option}
               className="cursor-pointer hover:bg-gray-100/80"
+              onClick={() => onChange(option)}
             >
               {option}
             </SelectItem>

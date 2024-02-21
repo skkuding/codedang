@@ -17,13 +17,11 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import type { Testcase, Sample } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -126,16 +124,9 @@ const schema = z.object({
 })
 
 export default function Page() {
-  const [showHint, setShowHint] = useState<boolean>(false)
-  const [showSource, setShowSource] = useState<boolean>(false)
-  const [samples, setSamples] = useState<Sample[]>([{ input: '', output: '' }])
-  const [testcases, setTestcases] = useState<Testcase[]>([
-    { input: '', output: '' }
-  ])
-
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
-    tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
+    tagsData?.getTags.map(({ id, name }) => ({ id: Number(id), name })) ?? []
 
   const router = useRouter()
 
@@ -155,13 +146,13 @@ export default function Page() {
       testcases: [{ input: '', output: '' }],
       hint: '',
       source: '',
-      template: []
+      template: [],
+      isVisible: true
     }
   })
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
   const onSubmit = async (input: CreateProblemInput) => {
-    console.log(input)
     await createProblem({
       variables: {
         groupId: 1,
@@ -178,22 +169,19 @@ export default function Page() {
   }
 
   const addExample = (type: 'samples' | 'testcases') => {
-    const currentValues = getValues(type)
-    setValue(type, [...currentValues, { input: '', output: '' }])
-    type === 'samples'
-      ? setSamples(() => [...samples, { input: '', output: '' }])
-      : setTestcases(() => [...testcases, { input: '', output: '' }])
+    setValue(type, [...getValues(type), { input: '', output: '' }])
   }
 
   const removeExample = (type: 'samples' | 'testcases', index: number) => {
     const currentValues = getValues(type)
     if (currentValues.length === 1) {
-      toast.warning(`At least one ${type} is required`)
+      toast.warning(
+        `At least one ${type === 'samples' ? 'sample' : 'testcase'} is required`
+      )
       return
     }
     const updatedValues = currentValues.filter((_, i) => i !== index)
     setValue(type, updatedValues)
-    type === 'samples' ? setSamples(updatedValues) : setTestcases(updatedValues)
   }
 
   return (
@@ -251,14 +239,13 @@ export default function Page() {
                 <Controller
                   control={control}
                   name="isVisible"
-                  render={({ field: { onChange, onBlur, value } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <div className="flex gap-6">
                       <label className="flex gap-2">
                         <input
                           type="radio"
-                          onBlur={onBlur}
                           onChange={() => onChange(true)}
-                          checked={value === true}
+                          checked={value}
                           className="accent-black"
                         />
                         <FaEye
@@ -270,7 +257,6 @@ export default function Page() {
                       <label className="flex gap-2">
                         <input
                           type="radio"
-                          onBlur={onBlur}
                           onChange={() => onChange(false)}
                           checked={value === false}
                           className="accent-black"
@@ -300,7 +286,11 @@ export default function Page() {
               <div className="flex flex-col gap-1">
                 <Controller
                   render={({ field }) => (
-                    <OptionSelect options={levels} onChange={field.onChange} />
+                    <OptionSelect
+                      options={levels}
+                      defaultValue={getValues('difficulty')}
+                      onChange={field.onChange}
+                    />
                   )}
                   name="difficulty"
                   control={control}
@@ -527,13 +517,12 @@ export default function Page() {
               <Label required={false}>Hint</Label>
               <Switch
                 onCheckedChange={() => {
-                  setShowHint(!showHint)
                   setValue('hint', '')
                 }}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
-            {showHint && (
+            {getValues('hint') && (
               <Textarea
                 id="hint"
                 placeholder="Enter a hint"
@@ -548,13 +537,12 @@ export default function Page() {
               <Label required={false}>Source</Label>
               <Switch
                 onCheckedChange={() => {
-                  setShowSource(!showSource)
                   setValue('source', '')
                 }}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
-            {showSource && (
+            {getValues('source') && (
               <Input
                 id="source"
                 type="text"
