@@ -17,7 +17,6 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import type { Sample, Testcase } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -166,34 +165,32 @@ const schema = z.object({
     .optional()
 })
 
-interface FetchedData {
-  samples: Sample[]
-  testcases: Testcase[]
-  description: string
-  difficulty: string
-  languages: string[]
-  tags: number[]
-}
-
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
   const [showHint, setShowHint] = useState(true)
   const [showSource, setShowSource] = useState(true)
-
-  const [fetchedData, setFetchedData] = useState<FetchedData>({
-    samples: [{ input: '', output: '' }],
-    testcases: [{ input: '', output: '' }],
-    description: '',
-    difficulty: '',
-    languages: [],
-    tags: []
-  })
 
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
     tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
 
   const router = useRouter()
+
+  const {
+    handleSubmit,
+    control,
+    register,
+    getValues,
+    setValue,
+    watch,
+    formState: { errors }
+  } = useForm<UpdateProblemInput>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      samples: { create: [], delete: [] },
+      template: []
+    }
+  })
 
   useQuery(GET_PROBLEM, {
     variables: {
@@ -226,37 +223,6 @@ export default function Page({ params }: { params: { id: string } }) {
       setValue('hint', data.hint)
       setValue('source', data.source)
       setValue('template', [])
-
-      setFetchedData({
-        description: problemData?.getProblem.description,
-        difficulty: problemData?.getProblem.difficulty,
-        languages: problemData?.getProblem.languages ?? [],
-        tags: problemData?.getProblem.tag?.map(({ tag }) => +tag.id) ?? [],
-        samples:
-          problemData?.getProblem.samples?.map((sample) => {
-            return {
-              input: sample.input,
-              output: sample.output
-            }
-          }) ?? [],
-        testcases: problemData?.getProblem.testcase ?? []
-      })
-    }
-  })
-
-  const {
-    handleSubmit,
-    control,
-    register,
-    getValues,
-    setValue,
-    watch,
-    formState: { errors }
-  } = useForm<UpdateProblemInput>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      samples: { create: [], delete: [] },
-      template: []
     }
   })
 
@@ -293,20 +259,12 @@ export default function Page({ params }: { params: { id: string } }) {
     const values = getValues('samples.create')
     const newSample = { input: '', output: '' }
     setValue('samples.create', [...values, newSample])
-    setFetchedData({
-      ...fetchedData,
-      samples: [...fetchedData.samples, newSample]
-    })
   }
 
   const addTestcase = () => {
     const values = getValues('testcases') ?? []
     const newTestcase = { input: '', output: '' }
     setValue('testcases', [...values, newTestcase])
-    setFetchedData({
-      ...fetchedData,
-      testcases: [...fetchedData.testcases, newTestcase]
-    })
   }
 
   const removeSample = (index: number) => {
@@ -316,10 +274,6 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
     const updatedValues = currentValues.filter((_, i) => i !== index)
-    setFetchedData({
-      ...fetchedData,
-      samples: updatedValues
-    })
     setValue('samples', {
       create: updatedValues,
       delete: getValues('samples.delete')
@@ -333,13 +287,8 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
     const updatedValues = currentValues?.filter((_, i) => i !== index)
-    setFetchedData({
-      ...fetchedData,
-      testcases: updatedValues!
-    })
     setValue('testcases', updatedValues)
   }
-
   return (
     <ScrollArea className="w-full">
       <main className="flex flex-col gap-6 px-20 py-16">
@@ -446,8 +395,8 @@ export default function Page({ params }: { params: { id: string } }) {
                   render={({ field }) => (
                     <OptionSelect
                       options={levels}
+                      value={field.value as string}
                       onChange={field.onChange}
-                      defaultValue={fetchedData.difficulty}
                     />
                   )}
                   name="difficulty"
@@ -469,7 +418,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       onChange={(selectedLanguages) => {
                         field.onChange(selectedLanguages)
                       }}
-                      defaultValue={fetchedData.languages}
+                      defaultValue={field.value as string[]}
                     />
                   )}
                   name="languages"
@@ -488,7 +437,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     <TagsSelect
                       options={tags}
                       onChange={field.onChange}
-                      defaultValue={fetchedData.tags}
+                      defaultValue={field.value}
                     />
                   )}
                   name="tags.create"
@@ -506,13 +455,13 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <div className="flex flex-col gap-1">
             <Label>Description</Label>
-            {fetchedData.description && (
+            {getValues('description') && (
               <Controller
                 render={({ field }) => (
                   <TextEditor
                     placeholder="Enter a description..."
                     onChange={field.onChange}
-                    defaultValue={fetchedData.description}
+                    defaultValue={field.value as string}
                   />
                 )}
                 name="description"

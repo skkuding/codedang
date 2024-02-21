@@ -10,16 +10,16 @@ import {
 interface OptionSelectProps {
   options: string[]
   onChange: (option: string) => void
-  defaultValue?: string
+  value: string
 }
 
 export default function OptionSelect({
   options,
   onChange,
-  defaultValue
+  value
 }: OptionSelectProps) {
   return (
-    <Select defaultValue={defaultValue}>
+    <Select value={value} onValueChange={(value) => onChange(value)}>
       <SelectTrigger className="w-[115px] bg-white font-bold hover:bg-gray-50 focus:outline-none focus:ring-0 focus:ring-offset-0">
         <SelectValue />
       </SelectTrigger>
@@ -30,7 +30,6 @@ export default function OptionSelect({
               key={option}
               value={option}
               className="cursor-pointer hover:bg-gray-100/80"
-              onClick={() => onChange(option)}
             >
               {option}
             </SelectItem>

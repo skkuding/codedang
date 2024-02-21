@@ -288,7 +288,7 @@ export default function Page() {
                   render={({ field }) => (
                     <OptionSelect
                       options={levels}
-                      defaultValue={getValues('difficulty')}
+                      value={field.value}
                       onChange={field.onChange}
                     />
                   )}
