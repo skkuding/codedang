@@ -146,9 +146,9 @@ export function DataTableAdmin<TData, TValue>({
             />
           )}
 
-          {table.getColumn('problemTag') && (
+          {table.getColumn('tag') && (
             <DataTableTagsFilter
-              column={table.getColumn('problemTag')}
+              column={table.getColumn('tag')}
               title="Tags"
               options={tags}
             />
