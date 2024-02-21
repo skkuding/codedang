@@ -25,7 +25,7 @@ module.exports = withSentryConfig(
     silent: true,
     org: 'skkuding',
     project: 'codedang-fe-dev',
-    url: 'https://sentry.codedang.com/'
+    url: 'https://sentry.codedang.com'
   },
   {
     // For all available options, see:
