@@ -50,7 +50,7 @@ export default function Page() {
   const { data, loading } = useQuery(GET_PROBLEMS, {
     variables: {
       groupId: 1,
-      take: 20,
+      take: 100,
       input: {
         difficulty: [
           Level.Level1,
