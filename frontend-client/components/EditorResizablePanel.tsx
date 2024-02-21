@@ -28,7 +28,10 @@ export default function EditorMainResizablePanel({
   children
 }: ProblemEditorProps) {
   // get programming language from localStorage for default value
-  const { value } = useStorage('programming_lang', problem.languages[0])
+  const { value } = useStorage<Language>(
+    'programming_lang',
+    problem.languages[0]
+  )
   const { code, setCode, setLanguage, language } = useEditorStore()
   const pathname = usePathname()
 

@@ -81,7 +81,7 @@ export interface ProblemDetail {
     input: string
     output: string
   }[]
-  languages: string[]
+  languages: Language[]
   timeLimit: number
   memoryLimit: number
   source: string
