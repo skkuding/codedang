@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
-import type { User, UserProfile } from '@prisma/client'
+import { Prisma, type User, type UserProfile } from '@prisma/client'
 import { expect } from 'chai'
 import type { Request } from 'express'
 import { Exception } from 'handlebars'
@@ -134,6 +134,25 @@ describe('UserService', () => {
 
   it('should be defined', () => {
     expect(service).to.be.ok
+  })
+
+  describe('getUsernameByEmail', () => {
+    const { email, username } = user
+    it('return username', async () => {
+      db.user.findUnique.resolves({ username })
+
+      expect(await service.getUsernameByEmail({ email })).to.be.deep.equal({
+        username
+      })
+    })
+
+    it('should not return username', async () => {
+      db.user.findUnique.resolves(null)
+
+      await expect(service.getUsernameByEmail({ email })).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
   })
 
   describe('sendPinForRegisterNewEmail', () => {
@@ -566,7 +585,12 @@ describe('UserService', () => {
     })
 
     it('should not update not existing user email', async () => {
-      db.user.findUnique.resolves(null)
+      db.user.update.rejects(
+        new Prisma.PrismaClientKnownRequestError('email', {
+          code: 'P2025',
+          clientVersion: '5.1.1'
+        })
+      )
 
       await expect(
         service.updateUserEmail(authRequestObject, { email: 'new@email.com' })
@@ -584,7 +608,12 @@ describe('UserService', () => {
     })
 
     it('should not update user profile', async () => {
-      db.userProfile.findUnique.resolves(null)
+      db.userProfile.update.rejects(
+        new Prisma.PrismaClientKnownRequestError('email', {
+          code: 'P2025',
+          clientVersion: '5.1.1'
+        })
+      )
       await expect(
         service.updateUserProfile(ID, { realName: 'new name' })
       ).to.be.rejectedWith(EntityNotExistException)

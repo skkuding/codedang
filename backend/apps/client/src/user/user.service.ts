@@ -554,7 +554,7 @@ export class UserService {
     } catch (error) {
       if (
         error instanceof PrismaClientKnownRequestError &&
-        error.code == 'P2505'
+        error.code == 'P2025'
       )
         throw new EntityNotExistException('UserProfile')
       throw error
