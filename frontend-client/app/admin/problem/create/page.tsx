@@ -13,7 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/ui/popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
@@ -206,7 +206,7 @@ export default function Page() {
   }
 
   return (
-    <ScrollArea className="w-full">
+    <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center gap-4">
           <Link href="/admin/problem">
@@ -691,6 +691,7 @@ export default function Page() {
           </Button>
         </form>
       </main>
+      <ScrollBar orientation="horizontal" />
     </ScrollArea>
   )
 }
