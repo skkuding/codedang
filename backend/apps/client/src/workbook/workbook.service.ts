@@ -41,7 +41,7 @@ export class WorkbookService {
       select: { id: true, title: true }
     })
     if (!workbook) {
-      throw new EntityNotExistException('Nonexisistent workbook')
+      throw new EntityNotExistException('Workbook')
     }
 
     const rawProblems = await this.prisma.workbookProblem.findMany({
