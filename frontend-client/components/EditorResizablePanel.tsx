@@ -67,7 +67,7 @@ export default function EditorMainResizablePanel({
                 <Link href={`/problem/${problem.id}` as Route}>
                   <TabsTrigger
                     value="Description"
-                    className="data-[state=active]:bg-slate-700 data-[state=active]:text-blue-400"
+                    className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
                   >
                     Description
                   </TabsTrigger>
@@ -75,7 +75,7 @@ export default function EditorMainResizablePanel({
                 <Link href={`/problem/${problem.id}/submission` as Route}>
                   <TabsTrigger
                     value="Submission"
-                    className="data-[state=active]:bg-slate-700 data-[state=active]:text-blue-400"
+                    className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
                   >
                     Submission
                   </TabsTrigger>
