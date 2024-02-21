@@ -200,7 +200,7 @@ export const columns: ColumnDef<DataTableProblem>[] = [
     ),
     cell: ({ row }) => {
       const acceptedRate: number = row.getValue('acceptedRate')
-      const acceptedRateFloat = acceptedRate.toFixed(2)
+      const acceptedRateFloat = (acceptedRate * 100).toFixed(2)
       return <div>{acceptedRateFloat}%</div>
     }
   },

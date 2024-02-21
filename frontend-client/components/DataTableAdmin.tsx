@@ -1,6 +1,8 @@
 'use client'
 
+import { gql } from '@generated'
 import { GET_TAGS } from '@/app/admin/problem/utils'
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -9,7 +11,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { useQuery } from '@apollo/client'
+import { useQuery, useMutation } from '@apollo/client'
 import type {
   ColumnDef,
   ColumnFiltersState,
@@ -30,6 +32,8 @@ import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import { PiTrashLight } from 'react-icons/pi'
+import { toast } from 'sonner'
 import DataTableLangFilter from './DataTableLangFilter'
 import { DataTablePagination } from './DataTablePagination'
 import { DataTableTagsFilter } from './DataTableTagsFilter'
@@ -81,33 +85,78 @@ export function DataTableAdmin<TData, TValue>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues()
   })
+
+  const DELETE_PROBLEM = gql(`
+  mutation DeleteProblem($groupId: Int!, $id: Int!) {
+    deleteProblem(groupId: $groupId, id: $id) {
+      id
+    }
+  }
+`)
+
+  const [deleteProblem] = useMutation(DELETE_PROBLEM)
+
+  // TODO: contest랑 notice도 같은 방식으로 추가
+  const handleDeleteRows = async () => {
+    const selectedRows = table.getSelectedRowModel().rows as {
+      original: { id: number }
+    }[]
+
+    const deletePromise = selectedRows.map((row) => {
+      if (page === 'problem') {
+        return deleteProblem({
+          variables: {
+            groupId: 1,
+            id: row.original.id
+          }
+        })
+      } else {
+        console.log('delete', row.original.id)
+        return Promise.resolve()
+      }
+    })
+    await Promise.all(deletePromise)
+      .then(() => {
+        setRowSelection({})
+        router.refresh()
+      })
+      .catch(() => {
+        toast.error(`Failed to delete ${page}`)
+      })
+  }
+
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
-        <Input
-          placeholder="Search"
-          value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
-          onChange={(event) =>
-            table.getColumn('title')?.setFilterValue(event.target.value)
-          }
-          className="h-10 w-[150px] lg:w-[250px]"
-        />
-
-        {table.getColumn('languages') && (
-          <DataTableLangFilter
-            column={table.getColumn('languages')}
-            title="Languages"
-            options={languageOptions}
+      <div className="flex justify-between">
+        <div className="flex gap-2">
+          <Input
+            placeholder="Search"
+            value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
+            onChange={(event) =>
+              table.getColumn('title')?.setFilterValue(event.target.value)
+            }
+            className="h-10 w-[150px] lg:w-[250px]"
           />
-        )}
 
-        {table.getColumn('tag') && (
-          <DataTableTagsFilter
-            column={table.getColumn('tag')}
-            title="Tags"
-            options={tags}
-          />
-        )}
+          {table.getColumn('languages') && (
+            <DataTableLangFilter
+              column={table.getColumn('languages')}
+              title="Languages"
+              options={languageOptions}
+            />
+          )}
+
+          {table.getColumn('tag') && (
+            <DataTableTagsFilter
+              column={table.getColumn('tag')}
+              title="Tags"
+              options={tags}
+            />
+          )}
+        </div>
+        <Button onClick={() => handleDeleteRows()} variant="outline">
+          <PiTrashLight fontSize={18} />
+        </Button>
       </div>
 
       <div className="rounded-md border">

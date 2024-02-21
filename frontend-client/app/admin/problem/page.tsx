@@ -3,7 +3,7 @@
 import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
@@ -50,8 +50,7 @@ export default function Page() {
   const { data, loading } = useQuery(GET_PROBLEMS, {
     variables: {
       groupId: 1,
-      cursor: 1,
-      take: 100,
+      take: 20,
       input: {
         difficulty: [
           Level.Level1,
@@ -80,7 +79,7 @@ export default function Page() {
     })) ?? []
 
   return (
-    <ScrollArea className="w-full">
+    <ScrollArea className="shrink-0">
       <div className="container mx-auto space-y-5 py-10">
         <div className="flex justify-between">
           <div>
@@ -117,6 +116,7 @@ export default function Page() {
           <DataTableAdmin columns={columns} data={problems} />
         )}
       </div>
+      <ScrollBar orientation="horizontal" />
     </ScrollArea>
   )
 }
