@@ -1,6 +1,6 @@
 'use client'
 
-import * as Sentry from '@sentry/nextjs'
+import { startSpan } from '@sentry/nextjs'
 import Head from 'next/head'
 
 export default function Page() {
@@ -49,16 +49,13 @@ export default function Page() {
             margin: '18px'
           }}
           onClick={() => {
-            Sentry.startSpan(
+            startSpan(
               {
                 name: 'Example Frontend Span',
                 op: 'test'
               },
               async () => {
-                const res = await fetch('/api/sentry-example-api')
-                if (!res.ok) {
-                  throw new Error('Sentry Example Frontend Error')
-                }
+                throw new Error('Sentry Example Frontend Error')
               }
             )
           }}
