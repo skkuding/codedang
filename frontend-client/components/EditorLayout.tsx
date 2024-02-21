@@ -46,7 +46,9 @@ export default async function EditorLayout({
           </Link>
           <div className="flex items-center gap-1">
             {contest ? (
-              <Link href={`/contest/${contestId}`}>{contest.title}</Link>
+              <Link href={`/contest/${contestId}` as Route}>
+                {contest.title}
+              </Link>
             ) : (
               <Link href="/problem">Problem</Link>
             )}
