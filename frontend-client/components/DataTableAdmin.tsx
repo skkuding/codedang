@@ -94,32 +94,35 @@ export function DataTableAdmin<TData, TValue>({
   }
 `)
 
-  const [deleteProblem, { error }] = useMutation(DELETE_PROBLEM)
+  const [deleteProblem] = useMutation(DELETE_PROBLEM)
 
   // TODO: contest랑 notice도 같은 방식으로 추가
   const handleDeleteRows = async () => {
     const selectedRows = table.getSelectedRowModel().rows as {
       original: { id: number }
     }[]
-    const rowIds = selectedRows.map((row) => row.original.id)
-    setRowSelection({})
-    for (const id of rowIds) {
+
+    const deletePromise = selectedRows.map((row) => {
       if (page === 'problem') {
-        await deleteProblem({
+        return deleteProblem({
           variables: {
             groupId: 1,
-            id
+            id: row.original.id
           }
         })
       } else {
-        console.log('delete', id)
+        console.log('delete', row.original.id)
+        return Promise.resolve()
       }
-    }
-    if (error) {
-      toast.error(`Failed to delete ${page}`)
-      return
-    }
-    router.refresh()
+    })
+    await Promise.all(deletePromise)
+      .then(() => {
+        setRowSelection({})
+        router.refresh()
+      })
+      .catch(() => {
+        toast.error(`Failed to delete ${page}`)
+      })
   }
 
   return (
