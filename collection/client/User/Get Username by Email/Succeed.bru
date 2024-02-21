@@ -1,0 +1,25 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/user/email?email=user02@example.com
+  body: none
+  auth: none
+}
+
+query {
+  email: user02@example.com
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  # Get Username by Email Address
+  
+  전달된 이메일 주소에 해당하는 사용자의 이름을 불러옵니다.
+}
