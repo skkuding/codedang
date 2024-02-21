@@ -274,10 +274,7 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
     const updatedValues = currentValues.filter((_, i) => i !== index)
-    setValue('samples', {
-      create: updatedValues,
-      delete: getValues('samples.delete')
-    })
+    setValue('samples.create', updatedValues)
   }
 
   const removeTestcase = (index: number) => {
