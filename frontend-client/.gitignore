@@ -37,3 +37,6 @@ next-env.d.ts
 
 # GraphQL Codegen
 __generated__/
+
+# Sentry Config File
+.sentryclirc
