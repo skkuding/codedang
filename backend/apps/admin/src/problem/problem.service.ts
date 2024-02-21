@@ -23,6 +23,12 @@ import type {
 import type { Template } from './model/template.input'
 import type { Testcase } from './model/testcase.input'
 
+type TestCaseInFile = {
+  id: string
+  input: string
+  output: string
+}
+
 @Injectable()
 export class ProblemService {
   constructor(
@@ -224,7 +230,7 @@ export class ProblemService {
         testcaseInput.push({
           input: inputs[i],
           output: outputs[i],
-          scoreWeight: parseInt(scoreWeights[i])
+          scoreWeight: parseInt(scoreWeights[i]) || undefined
         })
       }
 
@@ -378,84 +384,34 @@ export class ProblemService {
     }
   }
 
-  async updateTestcases(
-    problemId: number,
-    testcases: Array<Testcase & { id: number }>
-  ) {
-    const deletedIds: number[] = []
-    const createdOrUpdated: typeof testcases = []
+  async updateTestcases(problemId: number, testcases: Array<Testcase>) {
+    await this.prisma.problemTestcase.deleteMany({
+      where: {
+        problemId
+      }
+    })
+
+    const filename = `${problemId}.json`
+    const toBeUploaded: Array<TestCaseInFile> = []
 
     for (const tc of testcases) {
-      if (!tc.input && !tc.output) {
-        deletedIds.push(tc.id)
-      }
-      createdOrUpdated.push(tc)
-    }
-    if (deletedIds) {
-      await this.prisma.problemTestcase.deleteMany({
-        where: {
-          id: { in: deletedIds }
+      const problemTestcase = await this.prisma.problemTestcase.create({
+        data: {
+          problemId,
+          input: filename,
+          output: filename,
+          scoreWeight: tc.scoreWeight
         }
       })
+      toBeUploaded.push({
+        id: `${problemId}:${problemTestcase.id}`,
+        input: tc.input,
+        output: tc.output
+      })
     }
-    if (createdOrUpdated) {
-      const filename = `${problemId}.json`
-      const uploaded: Array<Testcase & { id: number }> = JSON.parse(
-        await this.storageService.readObject(filename)
-      )
 
-      const updatedIds = (
-        await this.prisma.problemTestcase.findMany({
-          where: {
-            id: { in: createdOrUpdated.map((tc) => tc.id) }
-          }
-        })
-      ).map((tc) => tc.id)
-      await Promise.all(
-        createdOrUpdated
-          .filter((tc) => !updatedIds.includes(tc.id))
-          .map(async (tc) => {
-            await this.prisma.problemTestcase.update({
-              where: {
-                id: tc.id
-              },
-              data: {
-                scoreWeight: tc.scoreWeight
-              }
-            })
-
-            const i = uploaded.findIndex((record) => record.id === tc.id)
-            uploaded[i] = {
-              id: tc.id,
-              input: tc.output,
-              output: tc.output
-            }
-          })
-      )
-
-      await Promise.all(
-        createdOrUpdated
-          .filter((tc) => !updatedIds.includes(tc.id))
-          .map(async (tc) => {
-            const problemTestcase = await this.prisma.problemTestcase.create({
-              data: {
-                problemId,
-                input: filename,
-                output: filename,
-                scoreWeight: tc.scoreWeight
-              }
-            })
-            uploaded.push({
-              id: problemTestcase.id,
-              input: tc.input,
-              output: tc.output
-            })
-          })
-      )
-
-      const data = JSON.stringify(uploaded)
-      await this.storageService.uploadObject(filename, data, 'json')
-    }
+    const data = JSON.stringify(toBeUploaded)
+    await this.storageService.uploadObject(filename, data, 'json')
   }
 
   async deleteProblem(id: number, groupId: number) {
@@ -598,9 +554,15 @@ export class ProblemService {
   }
 
   async getProblemTestcases(problemId: number) {
-    return await this.prisma.problemTestcase.findMany({
-      where: {
-        problemId
+    const testcases: Array<Testcase & { id: string }> = JSON.parse(
+      await this.storageService.readObject(`${problemId}.json`)
+    )
+
+    // TODO: Remove this code after refactoring iris code
+    return testcases.map((tc) => {
+      return {
+        ...tc,
+        id: tc.id.split(':')[1]
       }
     })
   }

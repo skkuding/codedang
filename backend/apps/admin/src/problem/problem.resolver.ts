@@ -145,6 +145,26 @@ export class ProblemResolver {
     }
   }
 
+  @ResolveField('tag', () => [ProblemTag])
+  async getProblemTags(@Parent() problem: Problem) {
+    try {
+      return await this.problemService.getProblemTags(problem.id)
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @ResolveField('testcase', () => [ProblemTestcase])
+  async getProblemTestCases(@Parent() problem: Problem) {
+    try {
+      return await this.problemService.getProblemTestcases(problem.id)
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
   @Mutation(() => Problem)
   async updateProblem(
     @Args(
@@ -315,26 +335,6 @@ export class ProblemResolver {
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
-    }
-  }
-
-  @ResolveField('problemTag', () => [ProblemTag])
-  async getProblemTags(@Parent() problem: Problem) {
-    try {
-      return await this.problemService.getProblemTags(problem.id)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
-  }
-
-  @ResolveField('problemTestcase', () => [ProblemTestcase])
-  async getProblemTestCases(@Parent() problem: Problem) {
-    try {
-      return await this.problemService.getProblemTestcases(problem.id)
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
     }
   }
 }
