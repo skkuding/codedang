@@ -23,7 +23,7 @@ import type { UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -166,20 +166,28 @@ const schema = z.object({
     .optional()
 })
 
+interface FetchedData {
+  samples: Sample[]
+  testcases: Testcase[]
+  description: string
+  difficulty: string
+  languages: string[]
+  tags: number[]
+}
+
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
   const [showHint, setShowHint] = useState(true)
   const [showSource, setShowSource] = useState(true)
-  const [fetchedSamples, setFetchedSamples] = useState<Sample[]>([
-    { input: '', output: '' }
-  ])
-  const [fetchedTestcases, setFetchedTestcases] = useState<Testcase[]>([
-    { input: '', output: '' }
-  ])
-  const [fetchedDescription, setFetchedDescription] = useState<string>('')
-  const [fetchedDifficulty, setFetchedDifficulty] = useState<string>('')
-  const [fetchedLanguages, setFetchedLanguages] = useState<string[]>([])
-  const [fetchedTags, setFetchedTags] = useState<number[]>([])
+
+  const [fetchedData, setFetchedData] = useState<FetchedData>({
+    samples: [{ input: '', output: '' }],
+    testcases: [{ input: '', output: '' }],
+    description: '',
+    difficulty: '',
+    languages: [],
+    tags: []
+  })
 
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
@@ -187,7 +195,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const router = useRouter()
 
-  const { data: problemData } = useQuery(GET_PROBLEM, {
+  useQuery(GET_PROBLEM, {
     variables: {
       groupId: 1,
       id: +id
@@ -218,28 +226,23 @@ export default function Page({ params }: { params: { id: string } }) {
       setValue('hint', data.hint)
       setValue('source', data.source)
       setValue('template', [])
+
+      setFetchedData({
+        description: problemData?.getProblem.description,
+        difficulty: problemData?.getProblem.difficulty,
+        languages: problemData?.getProblem.languages ?? [],
+        tags: problemData?.getProblem.tag?.map(({ tag }) => +tag.id) ?? [],
+        samples:
+          problemData?.getProblem.samples?.map((sample) => {
+            return {
+              input: sample.input,
+              output: sample.output
+            }
+          }) ?? [],
+        testcases: problemData?.getProblem.testcase ?? []
+      })
     }
   })
-
-  useEffect(() => {
-    if (problemData) {
-      setFetchedSamples(
-        problemData?.getProblem.samples?.map((sample) => {
-          return {
-            input: sample.input,
-            output: sample.output
-          }
-        }) ?? []
-      )
-      setFetchedTestcases(problemData?.getProblem.testcase ?? [])
-      setFetchedDescription(problemData?.getProblem.description)
-      setFetchedDifficulty(problemData?.getProblem.difficulty)
-      setFetchedLanguages(problemData?.getProblem.languages ?? [])
-      setFetchedTags(
-        problemData?.getProblem.tag?.map(({ tag }) => +tag.id) ?? []
-      )
-    }
-  }, [problemData])
 
   const {
     handleSubmit,
@@ -290,14 +293,20 @@ export default function Page({ params }: { params: { id: string } }) {
     const values = getValues('samples.create')
     const newSample = { input: '', output: '' }
     setValue('samples.create', [...values, newSample])
-    setFetchedSamples([...fetchedSamples, newSample])
+    setFetchedData({
+      ...fetchedData,
+      samples: [...fetchedData.samples, newSample]
+    })
   }
 
   const addTestcase = () => {
     const values = getValues('testcases') ?? []
     const newTestcase = { input: '', output: '' }
     setValue('testcases', [...values, newTestcase])
-    setFetchedTestcases([...fetchedTestcases, newTestcase])
+    setFetchedData({
+      ...fetchedData,
+      testcases: [...fetchedData.testcases, newTestcase]
+    })
   }
 
   const removeSample = (index: number) => {
@@ -307,7 +316,10 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
     const updatedValues = currentValues.filter((_, i) => i !== index)
-    setFetchedSamples(updatedValues)
+    setFetchedData({
+      ...fetchedData,
+      samples: updatedValues
+    })
     setValue('samples', {
       create: updatedValues,
       delete: getValues('samples.delete')
@@ -321,7 +333,10 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
     const updatedValues = currentValues?.filter((_, i) => i !== index)
-    setFetchedTestcases(updatedValues!)
+    setFetchedData({
+      ...fetchedData,
+      testcases: updatedValues!
+    })
     setValue('testcases', updatedValues)
   }
 
@@ -432,7 +447,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     <OptionSelect
                       options={levels}
                       onChange={field.onChange}
-                      defaultValue={fetchedDifficulty}
+                      defaultValue={fetchedData.difficulty}
                     />
                   )}
                   name="difficulty"
@@ -454,7 +469,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       onChange={(selectedLanguages) => {
                         field.onChange(selectedLanguages)
                       }}
-                      defaultValue={fetchedLanguages}
+                      defaultValue={fetchedData.languages}
                     />
                   )}
                   name="languages"
@@ -473,7 +488,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     <TagsSelect
                       options={tags}
                       onChange={field.onChange}
-                      defaultValue={fetchedTags}
+                      defaultValue={fetchedData.tags}
                     />
                   )}
                   name="tags.create"
@@ -491,13 +506,13 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <div className="flex flex-col gap-1">
             <Label>Description</Label>
-            {fetchedDescription && (
+            {fetchedData.description && (
               <Controller
                 render={({ field }) => (
                   <TextEditor
                     placeholder="Enter a description..."
                     onChange={field.onChange}
-                    defaultValue={fetchedDescription}
+                    defaultValue={fetchedData.description}
                   />
                 )}
                 name="description"
