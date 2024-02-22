@@ -12,11 +12,12 @@ post {
 
 body:graphql {
   query {
-    getAnnouncement(
+    getAnnouncementById(
       id: -99999
     ) {
     	id
       problemId
+      contestId
       content
     }
   }

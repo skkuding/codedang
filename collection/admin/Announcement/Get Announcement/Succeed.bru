@@ -12,7 +12,7 @@ post {
 
 body:graphql {
   query {
-    getAnnouncement(
+    getAnnouncementById(
       id: 1
     ) {
     	id
@@ -25,13 +25,13 @@ body:graphql {
 }
 
 docs {
-  ## Get Announcment
+  ## Get Announcement
   Announcement의 정보를 조회합니다.
   
   ### Args
   | 이름 | 타입 | 설명|
   |--|--|--|
-  |id|int|조회할 Announment의 id|
+  |id|int|조회할 Announcement의 id|
   
   ### Error Case
   #### NOT_FOUND

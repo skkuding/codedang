@@ -12,7 +12,7 @@ post {
 
 body:graphql {
   query {
-    getAnnouncementsByProblemId(
+    getAnnouncements(
       contestId: 1
       problemId: 1
     ) {
@@ -27,12 +27,12 @@ body:graphql {
 }
 
 docs {
-  ## Get Announcments
+  ## Get Announcements
   해당 문제에 등록된 모든 Announcement를 조회합니다.
   
   ### Args
   | 이름 | 타입 | 설명|
   |--|--|--|
-  |contestId|int|Announment를 조회할 contest의 id|
-  |problemId|int|Announment를 조회할 문제의 id (optional)|
+  |contestId|int|Announcement를 조회할 contest의 id|
+  |problemId|int(optional)|Announcement를 조회할 문제의 id|
 }

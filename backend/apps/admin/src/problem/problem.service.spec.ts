@@ -8,13 +8,6 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type {
-  Workbook,
-  WorkbookProblem,
-  Contest,
-  ContestProblem
-} from '@admin/@generated'
-import { Level } from '@admin/@generated'
 import { S3Provider } from '@admin/storage/s3.provider'
 import { StorageService } from '@admin/storage/storage.service'
 import {
