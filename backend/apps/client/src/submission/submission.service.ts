@@ -445,10 +445,11 @@ export class SubmissionService implements OnModuleInit {
         language: true,
         result: true,
         codeSize: true
-      }
+      },
+      orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
 
-    return submissions.reverse()
+    return submissions
   }
 
   async getSubmission(
@@ -585,10 +586,11 @@ export class SubmissionService implements OnModuleInit {
         language: true,
         result: true,
         codeSize: true
-      }
+      },
+      orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
 
-    return submissions.reverse()
+    return submissions
   }
 
   async getContestSubmission(
