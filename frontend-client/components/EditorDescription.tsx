@@ -8,17 +8,26 @@ import {
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import type { ProblemDetail } from '@/types/type'
+import { motion } from 'framer-motion'
 import { sanitize } from 'isomorphic-dompurify'
-import { Lightbulb, Tag } from 'lucide-react'
+import { CheckCircle, Lightbulb, Tag } from 'lucide-react'
 import { Clipboard } from 'lucide-react'
+import { useState } from 'react'
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
-import { toast } from 'sonner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from './ui/tooltip'
 
 export function EditorDescription({ problem }: { problem: ProblemDetail }) {
   const [, copyToClipboard] = useCopyToClipboard()
+  const [isInputCopied, inputCopied] = useState(false)
+  const [isOutputCopied, outputCopied] = useState(false)
 
   return (
-    <div className="flex h-full flex-col gap-8 p-6 text-lg">
+    <div className="dark flex h-full flex-col gap-8 p-6 text-lg">
       <div>
         <h1 className="mb-3 text-xl font-bold">{`#${problem.id}. ${problem.title}`}</h1>
         <div
@@ -45,35 +54,91 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
         />
       </div>
       <div>
-        {problem.samples.map((sample, index) => (
-          <div key={sample.id} className="mb-2">
+        {problem.samples.map(({ id, input, output }, index) => (
+          <div key={id} className="mb-2">
             <h2 className="mb-2 font-bold">Sample {index + 1}</h2>
 
             <div className="flex space-x-2 text-base">
-              <div className="w-full">
-                <div className="flex items-center justify-between">
-                  <h3 className="mb-1 font-semibold">Input</h3>
-                  <Clipboard
-                    className="size-[18px] cursor-pointer"
-                    onClick={() => {
-                      copyToClipboard(sample.input)
-                      toast.success('Successfully copied input to clipboard')
-                    }}
-                  />
+              <div className="w-full rounded-md bg-slate-900">
+                <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2">
+                  <h3 className="select-none text-xs font-semibold">Input</h3>
+                  <TooltipProvider delayDuration={300}>
+                    <Tooltip>
+                      <motion.div
+                        key={isInputCopied ? 'check' : 'clipboard'}
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -10, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {isInputCopied ? (
+                          <CheckCircle size={16} className="text-green-500" />
+                        ) : (
+                          <TooltipTrigger asChild>
+                            <Clipboard
+                              size={16}
+                              className="cursor-pointer transition-opacity hover:opacity-60"
+                              onClick={() => {
+                                copyToClipboard(input + '\n') // add newline to the end for easy testing
+                                inputCopied(true)
+                                setTimeout(() => {
+                                  inputCopied(false)
+                                }, 2000)
+                              }}
+                            />
+                          </TooltipTrigger>
+                        )}
+                      </motion.div>
+                      <TooltipContent>
+                        <p>Copy</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-                <textarea
-                  readOnly
-                  className="h-28 w-full cursor-default resize-none overflow-y-auto rounded-md bg-slate-900 px-4 py-3 outline-none"
-                >
-                  {sample.input}
-                </textarea>
+                <pre className="h-24 w-full overflow-auto px-4 py-2 font-mono text-sm">
+                  {input}
+                </pre>
               </div>
 
-              <div className="w-full">
-                <h3 className="mb-1 font-semibold">Output</h3>
-                <div className="h-28 w-full overflow-y-auto rounded-md bg-slate-900 p-2 px-4 py-3">
-                  {sample.output}
+              <div className="w-full rounded-md bg-slate-900">
+                <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2">
+                  <h3 className="select-none text-xs font-semibold">Output</h3>
+                  <TooltipProvider delayDuration={300}>
+                    <Tooltip>
+                      <motion.div
+                        key={isOutputCopied ? 'check' : 'clipboard'}
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -10, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {isOutputCopied ? (
+                          <CheckCircle size={16} className="text-green-500" />
+                        ) : (
+                          <TooltipTrigger asChild>
+                            <Clipboard
+                              size={16}
+                              className="cursor-pointer transition-opacity hover:opacity-60"
+                              onClick={() => {
+                                copyToClipboard(output + '\n') // add newline to the end for easy testing
+                                outputCopied(true)
+                                setTimeout(() => {
+                                  outputCopied(false)
+                                }, 2000)
+                              }}
+                            />
+                          </TooltipTrigger>
+                        )}
+                      </motion.div>
+                      <TooltipContent>
+                        <p>Copy</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
+                <pre className="h-24 w-full overflow-auto px-4 py-2 font-mono text-sm">
+                  {output}
+                </pre>
               </div>
             </div>
           </div>

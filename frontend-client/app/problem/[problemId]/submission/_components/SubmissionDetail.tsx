@@ -1,4 +1,4 @@
-import Codeeditor from '@/components/Codeeditor'
+import Codeeditor from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import {
   Table,
