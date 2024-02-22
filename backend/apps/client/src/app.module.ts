@@ -7,7 +7,7 @@ import type { Server } from 'http'
 import { LoggerModule } from 'nestjs-pino'
 import { JwtAuthModule, JwtAuthGuard } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
-import { ServiceExceptionFilter } from '@libs/exception'
+import { GlobalExceptionFilter } from '@libs/exception'
 import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { AnnouncementModule } from './announcement/announcement.module'
@@ -52,7 +52,7 @@ import { WorkbookModule } from './workbook/workbook.module'
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_FILTER, useClass: ServiceExceptionFilter }
+    { provide: APP_FILTER, useClass: GlobalExceptionFilter }
   ]
 })
 export class AppModule implements OnApplicationBootstrap {

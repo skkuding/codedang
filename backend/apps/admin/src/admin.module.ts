@@ -13,7 +13,7 @@ import {
   GroupLeaderGuard
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
-import { ServiceExceptionFilter } from '@libs/exception'
+import { GlobalExceptionFilter } from '@libs/exception'
 import { apolloErrorFormatter } from '@libs/exception'
 import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
@@ -62,7 +62,7 @@ import { UserModule } from './user/user.module'
     AdminService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: GroupLeaderGuard },
-    { provide: APP_FILTER, useClass: ServiceExceptionFilter }
+    { provide: APP_FILTER, useClass: GlobalExceptionFilter }
   ]
 })
 export class AdminModule implements OnApplicationBootstrap {
