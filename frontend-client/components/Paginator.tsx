@@ -16,20 +16,19 @@ interface Props {
   slot: {
     prev: string
     next: string
-    goto: (direction: 'prev' | 'next', setUrl: (url: URL) => void) => void
+    goto: (direction: 'prev' | 'next') => void
   }
-  setUrl: (url: URL) => void
 }
 
-export default function Paginator({ page, slot, setUrl }: Props) {
+export default function Paginator({ page, slot }: Props) {
   return (
-    <Pagination>
+    <Pagination className="py-2">
       <PaginationContent>
         <PaginationPrevious
           onClick={() => {
-            slot.goto('prev', setUrl)
+            slot.goto('prev')
           }}
-          className={slot.prev ? '' : 'cursor-not-allowed opacity-30'}
+          isActive={!!slot.prev}
         />
         <div className="flex items-center gap-1">
           {Array.from({ length: page.count }).map((_, i) => {
@@ -49,9 +48,9 @@ export default function Paginator({ page, slot, setUrl }: Props) {
         </div>
         <PaginationNext
           onClick={() => {
-            slot.goto('next', setUrl)
+            slot.goto('next')
           }}
-          className={slot.next ? '' : 'cursor-not-allowed opacity-30'}
+          isActive={!!slot.next}
         />
       </PaginationContent>
     </Pagination>

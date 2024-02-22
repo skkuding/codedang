@@ -1,17 +1,18 @@
+import type { Language } from '@/types/type'
 import { create } from 'zustand'
 
 interface EditorStore {
   code: string
-  language: string
-  setLanguage: (language: string) => void
+  language: Language
+  setLanguage: (language: Language) => void
   setCode: (code: string) => void
   clearCode: () => void
 }
 
 const useEditorStore = create<EditorStore>((set) => ({
   code: '',
-  language: '',
-  setLanguage: (language: string) => {
+  language: 'C',
+  setLanguage: (language) => {
     localStorage.setItem('programming_lang', language)
     set({ language })
   },

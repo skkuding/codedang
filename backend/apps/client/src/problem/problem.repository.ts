@@ -19,7 +19,7 @@ import type { ProblemOrder } from './enum/problem-order.enum'
 export class ProblemRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private readonly problemsSelectOption = {
+  private readonly problemsSelectOption: Prisma.ProblemSelect = {
     id: true,
     title: true,
     engTitle: true,
@@ -29,7 +29,7 @@ export class ProblemRepository {
     submissionCount: true
   }
 
-  private readonly problemSelectOption = {
+  private readonly problemSelectOption: Prisma.ProblemSelect = {
     ...this.problemsSelectOption,
     description: true,
     inputDescription: true,
@@ -44,8 +44,13 @@ export class ProblemRepository {
     memoryLimit: true,
     source: true,
     acceptedCount: true,
-    inputExamples: true,
-    outputExamples: true
+    samples: {
+      select: {
+        id: true,
+        input: true,
+        output: true
+      }
+    }
   }
 
   private readonly codeDraftSelectOption = {
