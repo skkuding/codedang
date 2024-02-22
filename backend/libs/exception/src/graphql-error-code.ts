@@ -23,7 +23,7 @@ enum GraphQLErrorCode {
 export const GqlErrorCodeMapTable: Partial<Record<HttpStatus, string>> = {
   [HttpStatus.BAD_REQUEST]: GraphQLErrorCode.badRequest,
   [HttpStatus.UNAUTHORIZED]: GraphQLErrorCode.unauthenticated,
-  [HttpStatus.FORBIDDEN]: GraphQLErrorCode.unauthenticated,
+  [HttpStatus.FORBIDDEN]: GraphQLErrorCode.forbidden,
   [HttpStatus.NOT_FOUND]: GraphQLErrorCode.notFound,
   [HttpStatus.CONFLICT]: GraphQLErrorCode.conflict,
   [HttpStatus.UNPROCESSABLE_ENTITY]: GraphQLErrorCode.unprocessable
