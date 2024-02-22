@@ -1,7 +1,15 @@
+import { Language, Level } from '@generated'
+import type {
+  Problem,
+  Workbook,
+  WorkbookProblem,
+  Contest,
+  ContestProblem,
+  ProblemTag,
+  Tag
+} from '@generated'
 import { faker } from '@faker-js/faker'
 import { createReadStream } from 'fs'
-import { Language, Level } from '@admin/@generated'
-import type { Problem } from '@admin/@generated'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import type { UploadFileInput } from '../model/problem.input'
 import type { Template } from '../model/template.input'

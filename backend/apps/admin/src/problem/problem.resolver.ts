@@ -34,12 +34,6 @@ import {
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import {
-  ContestProblem,
-  Problem,
-  Tag,
-  WorkbookProblem
-} from '@admin/@generated'
-import {
   CreateProblemInput,
   UploadFileInput,
   FilterProblemsInput,

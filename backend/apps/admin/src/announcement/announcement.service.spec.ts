@@ -24,7 +24,7 @@ const announcement = {
   id
 }
 
-const problem = {
+const contestProblem = {
   problemId
 }
 
@@ -37,7 +37,7 @@ const db = {
     delete: stub(),
     create: stub().resolves(announcement)
   },
-  problem: {
+  contestProblem: {
     findFirst: stub(),
     findFirstOrThrow: stub()
   }
@@ -68,7 +68,7 @@ describe('AnnouncementService', () => {
   describe('createAnnouncement', () => {
     it('should return created announcement', async () => {
       db.announcement.findFirst.resolves(null)
-      db.problem.findFirstOrThrow.resolves(problem)
+      db.contestProblem.findFirstOrThrow.resolves(contestProblem)
 
       const res = await service.createAnnouncement(announcementInput)
       expect(res).to.deep.equal(announcement)
@@ -84,7 +84,7 @@ describe('AnnouncementService', () => {
 
     it('should throw error when given problemId is invalid', async () => {
       db.announcement.findFirst.resolves(null)
-      db.problem.findFirstOrThrow.rejects(PrismaErrorInstance)
+      db.contestProblem.findFirstOrThrow.rejects(PrismaErrorInstance)
 
       await expect(
         service.createAnnouncement(announcementInput)
@@ -92,24 +92,24 @@ describe('AnnouncementService', () => {
     })
   })
 
-  describe('getAnnouncementsByProblemId', () => {
+  describe('getAnnouncements', () => {
     it('should return all announcements', async () => {
       db.announcement.findMany()
-      const res = await service.getAnnouncementsByProblemId(problemId)
+      const res = await service.getAnnouncements(problemId)
       expect(res).to.deep.equal([announcement])
     })
   })
 
-  describe('getAnnouncement', () => {
+  describe('getAnnouncementById', () => {
     it('should throw error when given id is invalid', async () => {
       db.announcement.findFirstOrThrow.rejects(PrismaErrorInstance)
-      await expect(service.getAnnouncement(id)).to.be.rejectedWith(
+      await expect(service.getAnnouncementById(id)).to.be.rejectedWith(
         EntityNotExistException
       )
     })
     it('should return an announcement', async () => {
       db.announcement.findFirstOrThrow.resolves(announcement)
-      const res = await service.getAnnouncement(id)
+      const res = await service.getAnnouncementById(id)
       expect(res).to.deep.equal(announcement)
     })
   })
@@ -117,13 +117,16 @@ describe('AnnouncementService', () => {
   describe('updateAnnouncement', () => {
     it('should return updated announcement', async () => {
       db.announcement.update.resolves(announcement)
-      const res = await service.updateAnnouncement(id, announcementInput)
+      const res = await service.updateAnnouncement(
+        id,
+        announcementInput.content
+      )
       expect(res).to.deep.equal(announcement)
     })
     it('should throw error when given id is invalid', async () => {
       db.announcement.update.rejects(PrismaErrorInstance)
       await expect(
-        service.updateAnnouncement(id, announcementInput)
+        service.updateAnnouncement(id, announcementInput.content)
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })
