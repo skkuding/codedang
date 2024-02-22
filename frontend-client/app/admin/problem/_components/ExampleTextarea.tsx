@@ -21,7 +21,7 @@ export default function ExampleTextarea({
   return (
     <div
       className={cn(
-        'relative flex h-[120px] w-full rounded-md border border-gray-200 bg-gray-50 py-3 shadow-sm',
+        'relative flex h-[120px] w-full rounded-md border border-gray-200 bg-gray-50 py-3 font-mono shadow-sm',
         className
       )}
     >

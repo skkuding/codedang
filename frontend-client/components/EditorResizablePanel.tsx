@@ -1,6 +1,6 @@
 'use client'
 
-import Codeeditor from '@/components/Codeeditor'
+import CodeEditor from '@/components/CodeEditor'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -94,7 +94,7 @@ export default function EditorMainResizablePanel({
       <ResizablePanel defaultSize={65} className="bg-slate-900">
         <div className="grid-rows-editor grid h-full">
           <EditorHeader problem={problem} />
-          <Codeeditor
+          <CodeEditor
             value={code}
             language={language as Language}
             onChange={setCode}
