@@ -9,7 +9,7 @@ import { BaseExceptionFilter } from '@nestjs/core'
 import { BusinessException } from './business.exception'
 
 @Catch()
-export class ServiceExceptionFilter extends BaseExceptionFilter {
+export class GlobalExceptionFilter extends BaseExceptionFilter {
   private readonly logger = new Logger(ServiceExceptionFilter.name)
 
   catch(exception: Error, host: ArgumentsHost) {
