@@ -2,11 +2,12 @@ import { MailerModule } from '@nestjs-modules/mailer'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_GUARD, HttpAdapterHost } from '@nestjs/core'
+import { APP_GUARD, APP_FILTER, HttpAdapterHost } from '@nestjs/core'
 import type { Server } from 'http'
 import { LoggerModule } from 'nestjs-pino'
 import { JwtAuthModule, JwtAuthGuard } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
+import { ClientExceptionFilter } from '@libs/exception'
 import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { AnnouncementModule } from './announcement/announcement.module'
@@ -48,7 +49,11 @@ import { WorkbookModule } from './workbook/workbook.module'
     LoggerModule.forRoot(pinoLoggerModuleOption)
   ],
   controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }]
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_FILTER, useClass: ClientExceptionFilter }
+  ]
 })
 export class AppModule implements OnApplicationBootstrap {
   constructor(private readonly refHost: HttpAdapterHost) {}
