@@ -64,8 +64,10 @@ export class AuthController {
     @Req() req: AuthenticatedRequest,
     @Res({ passthrough: true }) res: Response
   ) {
+    const refreshToken = req.cookies['refresh_token']
+    if (!refreshToken) throw new UnauthorizedException('Invalid Token')
     try {
-      await this.authService.deleteRefreshToken(req.user.id)
+      await this.authService.deleteRefreshToken(req.user.id, refreshToken)
       res.clearCookie('refresh_token', REFRESH_TOKEN_COOKIE_OPTIONS)
     } catch (error) {
       this.logger.error(error)
