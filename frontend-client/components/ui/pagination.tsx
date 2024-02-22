@@ -47,10 +47,10 @@ const PaginationButton = ({
     <button
       aria-current={isActive ? 'page' : undefined}
       className={cn(
-        buttonVariants({
-          variant: isActive ? 'outline' : 'ghost',
-          size
-        }),
+        buttonVariants({ variant: 'ghost', size }),
+        isActive
+          ? 'text-primary-light bg-slate-700 hover:bg-slate-500'
+          : 'text-slate-300 hover:bg-slate-700 hover:text-slate-400',
         className
       )}
       {...props}
@@ -88,12 +88,16 @@ PaginationLink.displayName = 'PaginationLink'
 
 const PaginationPrevious = ({
   className,
+  isActive,
   ...props
 }: React.ComponentProps<typeof PaginationButton>) => (
   <PaginationButton
     aria-label="Go to previous page"
     size="default"
-    className={className}
+    className={cn(
+      isActive ? 'hover:text-primary-light' : 'cursor-not-allowed opacity-30',
+      className
+    )}
     {...props}
   >
     <ChevronLeft className="h-4 w-4" />
@@ -103,12 +107,16 @@ PaginationPrevious.displayName = 'PaginationPrevious'
 
 const PaginationNext = ({
   className,
+  isActive,
   ...props
 }: React.ComponentProps<typeof PaginationButton>) => (
   <PaginationButton
     aria-label="Go to next page"
     size="default"
-    className={className}
+    className={cn(
+      isActive ? 'hover:text-primary-light' : 'cursor-not-allowed opacity-30',
+      className
+    )}
     {...props}
   >
     <ChevronRight className="h-4 w-4" />

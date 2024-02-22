@@ -25,11 +25,6 @@ export const languageMapper: Record<Language, TLanguage> = {
   Python3: TLanguage.Python3
 }
 
-export interface TemplateLanguage {
-  language: Language
-  isVisible: boolean
-}
-
 export const GET_TAGS = gql(`
   query GetTags {
     getTags {
