@@ -1,5 +1,6 @@
 'use client'
 
+import { gql } from '@generated'
 import CheckboxSelect from '@/components/CheckboxSelect'
 import OptionSelect from '@/components/OptionSelect'
 import TagsSelect from '@/components/TagsSelect'
@@ -12,160 +13,122 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/ui/popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { fetcherGql, cn } from '@/lib/utils'
-import type { Level, Language } from '@/types/type'
-import { gql } from '@apollo/client'
+import { cn } from '@/lib/utils'
+import { useMutation, useQuery } from '@apollo/client'
+import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { HiLockClosed, HiLockOpen } from 'react-icons/hi'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { MdHelpOutline } from 'react-icons/md'
 import { PiWarningBold } from 'react-icons/pi'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import ExampleTextarea from './_components/ExampleTextarea'
-import Label from './_components/Lable'
+import ExampleTextarea from '../_components/ExampleTextarea'
+import Label from '../_components/Lable'
+import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
 
-const inputStyle =
-  'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
-
-// dummy data
-const levels = ['Level1', 'Level2', 'Level3', 'Level4', 'Level5']
-const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
-
-interface Tag {
-  id: number
-  name: string
-}
-
-interface Example {
-  input: string
-  output: string
-}
-
-interface Snippet {
-  id: number
-  text: string
-  locked: boolean
-}
-
-interface Template {
-  language: Language
-  code: Snippet
-}
-
-interface TemplateLanguage {
-  language: Language
-  showTemplate: boolean
-}
-
-export interface ProblemData {
-  title: string
-  visible: boolean
-  difficulty: Level
-  languages: Language[]
-  tagIds: number[]
-  description: string
-  inputDescription: string
-  outputDescription: string
-  samples: Example[]
-  testcases: Example[]
-  timeLimit: number
-  memoryLimit: number
-  hint?: string
-  source?: string
-  template?: Template[]
-}
-
-const GET_TAGS = gql`
-  query GetTags {
-    getTags {
-      id
-      name
-      createTime
-      updateTime
-    }
-  }
-`
-
-const CREATE_PROBLEM = gql`
+const CREATE_PROBLEM = gql(`
   mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
     createProblem(groupId: $groupId, input: $input) {
       id
       createdById
       groupId
       title
+      isVisible
+      difficulty
+      languages
+      problemTag {
+        tagId
+      }
       description
       inputDescription
       outputDescription
+      samples {
+        input
+        output
+      }
+      problemTestcase {
+        input
+        output
+      }
+      timeLimit
+      memoryLimit
       hint
+      source
+      template
     }
   }
-`
+`)
 
 const schema = z.object({
   title: z.string().min(1).max(25),
-  visible: z.boolean(),
+  isVisible: z.boolean(),
   difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
   ),
-  tagIds: z.array(z.number()).min(1),
+  tagIds: z.array(z.number()),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
   samples: z
-    .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
+    .array(
+      z.object({
+        input: z.string().min(1),
+        output: z.string().min(1)
+      })
+    )
     .min(1),
   testcases: z
-    .array(z.object({ input: z.string().min(1), output: z.string().min(1) }))
+    .array(
+      z.object({
+        input: z.string().min(1),
+        output: z.string().min(1)
+      })
+    )
     .min(1),
   timeLimit: z.number().min(0),
   memoryLimit: z.number().min(0),
   hint: z.string().optional(),
   source: z.string().optional(),
-  template: z.array(
-    z
-      .object({
-        language: z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']),
-        code: z.object({
-          id: z.number(),
-          text: z.string(),
-          locked: z.boolean()
+  template: z
+    .array(
+      z
+        .object({
+          language: z.enum([
+            'C',
+            'Cpp',
+            'Golang',
+            'Java',
+            'Python2',
+            'Python3'
+          ]),
+          code: z.array(
+            z.object({
+              id: z.number(),
+              text: z.string(),
+              locked: z.boolean()
+            })
+          )
         })
-      })
-      .optional()
-  )
+        .optional()
+    )
+    .optional()
 })
 
 export default function Page() {
-  const [showHint, setShowHint] = useState<boolean>(false)
-  const [showSource, setShowSource] = useState<boolean>(false)
-  const [samples, setSamples] = useState<Example[]>([{ input: '', output: '' }])
-  const [testcases, setTestcases] = useState<Example[]>([
-    { input: '', output: '' }
-  ])
-  const [tags, setTags] = useState<Tag[]>([])
-  const [languages, setLanguages] = useState<TemplateLanguage[]>([])
+  const { data: tagsData } = useQuery(GET_TAGS)
+  const tags =
+    tagsData?.getTags.map(({ id, name }) => ({ id: Number(id), name })) ?? []
 
-  useEffect(() => {
-    fetcherGql(GET_TAGS).then((data) => {
-      const transformedData = data.getTags.map(
-        (tag: { id: string; name: string }) => ({
-          ...tag,
-          id: Number(tag.id)
-        })
-      )
-      setTags(transformedData)
-    })
-  }, [])
+  const router = useRouter()
 
   const {
     handleSubmit,
@@ -174,52 +137,55 @@ export default function Page() {
     getValues,
     setValue,
     formState: { errors }
-  } = useForm<ProblemData>({
+  } = useForm<CreateProblemInput>({
     resolver: zodResolver(schema),
     defaultValues: {
-      difficulty: 'Level1',
+      difficulty: Level.Level1,
+      tagIds: [],
       samples: [{ input: '', output: '' }],
       testcases: [{ input: '', output: '' }],
       hint: '',
-      source: ''
+      source: '',
+      template: [],
+      isVisible: true
     }
   })
 
-  // TODO: Create Problem 에 sample, visible 추가 시 변경
-  const onSubmit = async (data: ProblemData) => {
-    try {
-      const res = await fetcherGql(CREATE_PROBLEM, {
+  const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
+  const onSubmit = async (input: CreateProblemInput) => {
+    await createProblem({
+      variables: {
         groupId: 1,
-        input: data
-      })
-      console.log(res)
-    } catch (error) {
-      console.error(error)
-      console.log(data)
+        input
+      }
+    })
+    if (error) {
+      toast.error('Failed to create problem')
+      return
     }
+    toast.success('Problem created successfully')
+    router.push('/admin/problem')
+    router.refresh()
   }
 
   const addExample = (type: 'samples' | 'testcases') => {
-    const currentValues = getValues(type)
-    setValue(type, [...currentValues, { input: '', output: '' }])
-    type === 'samples'
-      ? setSamples(() => [...samples, { input: '', output: '' }])
-      : setTestcases(() => [...testcases, { input: '', output: '' }])
+    setValue(type, [...getValues(type), { input: '', output: '' }])
   }
 
   const removeExample = (type: 'samples' | 'testcases', index: number) => {
     const currentValues = getValues(type)
     if (currentValues.length === 1) {
-      toast.warning(`At least one ${type} is required`)
+      toast.warning(
+        `At least one ${type === 'samples' ? 'sample' : 'testcase'} is required`
+      )
       return
     }
     const updatedValues = currentValues.filter((_, i) => i !== index)
     setValue(type, updatedValues)
-    type === 'samples' ? setSamples(updatedValues) : setTestcases(updatedValues)
   }
 
   return (
-    <ScrollArea className="w-full">
+    <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center gap-4">
           <Link href="/admin/problem">
@@ -272,15 +238,14 @@ export default function Page() {
               <div className="flex items-center gap-2">
                 <Controller
                   control={control}
-                  name={`visible`}
-                  render={({ field: { onChange, onBlur, value } }) => (
+                  name="isVisible"
+                  render={({ field: { onChange, value } }) => (
                     <div className="flex gap-6">
                       <label className="flex gap-2">
                         <input
                           type="radio"
-                          onBlur={onBlur}
                           onChange={() => onChange(true)}
-                          checked={value === true}
+                          checked={value}
                           className="accent-black"
                         />
                         <FaEye
@@ -292,7 +257,6 @@ export default function Page() {
                       <label className="flex gap-2">
                         <input
                           type="radio"
-                          onBlur={onBlur}
                           onChange={() => onChange(false)}
                           checked={value === false}
                           className="accent-black"
@@ -307,6 +271,12 @@ export default function Page() {
                   )}
                 />
               </div>
+              {errors.isVisible && (
+                <div className="flex items-center gap-1 text-xs text-red-500">
+                  <PiWarningBold />
+                  required
+                </div>
+              )}
             </div>
           </div>
 
@@ -316,7 +286,11 @@ export default function Page() {
               <div className="flex flex-col gap-1">
                 <Controller
                   render={({ field }) => (
-                    <OptionSelect options={levels} onChange={field.onChange} />
+                    <OptionSelect
+                      options={levels}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
                   )}
                   name="difficulty"
                   control={control}
@@ -336,19 +310,6 @@ export default function Page() {
                       options={languageOptions}
                       onChange={(selectedLanguages) => {
                         field.onChange(selectedLanguages)
-                        setLanguages(
-                          selectedLanguages.map((language) => ({
-                            language,
-                            showTemplate:
-                              languages.filter(
-                                (prev) => prev.language === language
-                              ).length > 0
-                                ? languages.filter(
-                                    (prev) => prev.language === language
-                                  )[0].showTemplate
-                                : false
-                          })) as TemplateLanguage[]
-                        )
                       }}
                     />
                   )}
@@ -556,13 +517,12 @@ export default function Page() {
               <Label required={false}>Hint</Label>
               <Switch
                 onCheckedChange={() => {
-                  setShowHint(!showHint)
                   setValue('hint', '')
                 }}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
-            {showHint && (
+            {getValues('hint') && (
               <Textarea
                 id="hint"
                 placeholder="Enter a hint"
@@ -577,13 +537,12 @@ export default function Page() {
               <Label required={false}>Source</Label>
               <Switch
                 onCheckedChange={() => {
-                  setShowSource(!showSource)
                   setValue('source', '')
                 }}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
-            {showSource && (
+            {getValues('source') && (
               <Input
                 id="source"
                 type="text"
@@ -592,103 +551,6 @@ export default function Page() {
                 {...register('source')}
               />
             )}
-          </div>
-
-          <div className="flex flex-col gap-6">
-            {languages &&
-              (languages as TemplateLanguage[]).map(
-                (templateLanguage, index) => (
-                  <div key={index} className="flex gap-4">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <Label required={false}>
-                          {templateLanguage.language} Template
-                        </Label>
-                        <Switch
-                          onCheckedChange={() => {
-                            setLanguages((prev) =>
-                              prev.map((prevLanguage) =>
-                                prevLanguage.language ===
-                                templateLanguage.language
-                                  ? {
-                                      ...prevLanguage,
-                                      showTemplate: !prevLanguage.showTemplate
-                                    }
-                                  : prevLanguage
-                              )
-                            )
-                            setValue(`template.${index}`, {
-                              language: templateLanguage.language,
-                              code: {
-                                id: index,
-                                text: '',
-                                locked: true
-                              }
-                            })
-                          }}
-                          className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
-                        />
-                      </div>
-                      {templateLanguage.showTemplate && (
-                        <Textarea
-                          placeholder={`Enter a ${templateLanguage.language} template...`}
-                          className="h-[180px] w-[480px] bg-white"
-                          {...register(`template.${index}.code.text`)}
-                        />
-                      )}
-                    </div>
-                    {templateLanguage.showTemplate && (
-                      <div className="flex flex-col gap-3">
-                        <Label>Locked</Label>
-                        <div className="flex items-center gap-2">
-                          <Controller
-                            control={control}
-                            name={`template.${index}.code.locked`}
-                            render={({
-                              field: { onChange, onBlur, value }
-                            }) => (
-                              <div className="flex gap-4">
-                                <label className="flex gap-1">
-                                  <input
-                                    type="radio"
-                                    onBlur={onBlur}
-                                    onChange={() => onChange(true)}
-                                    checked={value === true}
-                                    className="accent-black"
-                                  />
-                                  <HiLockClosed
-                                    className={
-                                      value === true
-                                        ? 'text-black'
-                                        : 'text-gray-400'
-                                    }
-                                  />
-                                </label>
-                                <label className="flex gap-1">
-                                  <input
-                                    type="radio"
-                                    onBlur={onBlur}
-                                    onChange={() => onChange(false)}
-                                    checked={value === false}
-                                    className="accent-black"
-                                  />
-                                  <HiLockOpen
-                                    className={
-                                      value === false
-                                        ? 'text-black'
-                                        : 'text-gray-400'
-                                    }
-                                  />
-                                </label>
-                              </div>
-                            )}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              )}
           </div>
 
           <Button
@@ -700,6 +562,7 @@ export default function Page() {
           </Button>
         </form>
       </main>
+      <ScrollBar orientation="horizontal" />
     </ScrollArea>
   )
 }

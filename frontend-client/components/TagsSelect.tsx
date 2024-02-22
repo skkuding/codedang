@@ -1,3 +1,5 @@
+'use client'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Command, CommandInput } from '@/components/ui/command'
@@ -9,7 +11,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { PlusCircledIcon } from '@radix-ui/react-icons'
 import { CommandList } from 'cmdk'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IoClose } from 'react-icons/io5'
 
 interface Tag {
@@ -20,11 +22,22 @@ interface Tag {
 interface DataProps {
   options: Tag[]
   onChange: (selectedValues: number[]) => void
+  defaultValue?: number[]
 }
 
-export default function TagsSelect({ options, onChange }: DataProps) {
+export default function TagsSelect({
+  options,
+  onChange,
+  defaultValue
+}: DataProps) {
   const [selectedValues, setSelectedValues] = useState<number[]>([])
   const [inputValue, setInputValue] = useState('')
+
+  useEffect(() => {
+    if (defaultValue) {
+      setSelectedValues(defaultValue)
+    }
+  }, [defaultValue])
 
   const handleCheckboxChange = (value: number) => {
     setSelectedValues((prevSelectedValues) => {

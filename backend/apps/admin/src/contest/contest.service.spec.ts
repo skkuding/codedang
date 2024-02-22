@@ -113,11 +113,15 @@ const problem: Problem = {
   exposeTime: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  inputExamples: ['input'],
-  outputExamples: ['input'],
+  samples: [],
   submissionCount: 0,
   acceptedCount: 0,
-  acceptedRate: 0
+  acceptedRate: 0,
+  engDescription: null,
+  engHint: null,
+  engInputDescription: null,
+  engOutputDescription: null,
+  engTitle: null
 }
 
 const contestProblem: ContestProblem = {

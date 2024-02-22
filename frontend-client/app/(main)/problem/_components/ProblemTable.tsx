@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default async function ProblemTable({ search, order }: Props) {
-  const { problems }: { problems: Problem[] } = await fetcher
+  const res: { problems: Problem[] } | object = await fetcher
     .get('problem', {
       searchParams: {
         take: 10,
@@ -19,9 +19,13 @@ export default async function ProblemTable({ search, order }: Props) {
     })
     .json()
 
+  if (!('problems' in res)) {
+    console.dir(res)
+    throw new Error('Error occurred while fetching problems.')
+  }
   return (
     <DataTable
-      data={problems}
+      data={res.problems}
       columns={columns}
       headerStyle={{
         title: 'text-left w-5/12',
@@ -30,7 +34,7 @@ export default async function ProblemTable({ search, order }: Props) {
         acceptedRate: 'w-2/12',
         info: 'w-1/12'
       }}
-      name="problem"
+      linked
     />
   )
 }

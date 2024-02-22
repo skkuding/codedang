@@ -6,22 +6,20 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useState } from 'react'
 
 interface OptionSelectProps {
   options: string[]
   onChange: (option: string) => void
+  value: string
 }
 
-export default function OptionSelect({ options, onChange }: OptionSelectProps) {
-  const [option, setOption] = useState(options[0])
-
+export default function OptionSelect({
+  options,
+  onChange,
+  value
+}: OptionSelectProps) {
   return (
-    <Select
-      onValueChange={setOption}
-      value={option}
-      onOpenChange={() => onChange(option)}
-    >
+    <Select value={value} onValueChange={(value) => onChange(value)}>
       <SelectTrigger className="w-[115px] bg-white font-bold hover:bg-gray-50 focus:outline-none focus:ring-0 focus:ring-offset-0">
         <SelectValue />
       </SelectTrigger>

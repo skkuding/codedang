@@ -41,9 +41,13 @@ export const problems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     exposeTime: faker.date.anytime(),
-    inputExamples: [],
-    outputExamples: [],
-    isVisible: true
+    samples: [],
+    isVisible: true,
+    engTitle: null,
+    engDescription: null,
+    engHint: null,
+    engInputDescription: null,
+    engOutputDescription: null
   },
   {
     id: 2,
@@ -66,15 +70,20 @@ export const problems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     exposeTime: faker.date.anytime(),
-    inputExamples: [],
-    outputExamples: [],
-    isVisible: true
+    samples: [],
+    isVisible: true,
+    engTitle: null,
+    engDescription: null,
+    engHint: null,
+    engInputDescription: null,
+    engOutputDescription: null
   }
 ]
 
 export const testcaseInput: Testcase = {
   input: "wake up, daddy's home",
-  output: 'welcome home, sir'
+  output: 'welcome home, sir',
+  scoreWeight: 1
 }
 
 const file: Promise<FileUploadDto> = new Promise((resolve) => {
@@ -120,9 +129,13 @@ export const importedProblems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     exposeTime: faker.date.anytime(),
-    inputExamples: [],
-    outputExamples: [],
-    isVisible: true
+    samples: [],
+    isVisible: true,
+    engTitle: null,
+    engDescription: null,
+    engHint: null,
+    engInputDescription: null,
+    engOutputDescription: null
   },
   {
     id: 33,
@@ -161,8 +174,370 @@ export const importedProblems: Problem[] = [
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     exposeTime: faker.date.anytime(),
-    inputExamples: [],
-    outputExamples: [],
-    isVisible: true
+    samples: [],
+    isVisible: true,
+    engTitle: null,
+    engDescription: null,
+    engHint: null,
+    engInputDescription: null,
+    engOutputDescription: null
   }
 ]
+
+export const exampleWorkbook: Workbook = {
+  id: 1,
+  title: 'example',
+  description: 'example',
+  groupId: 1,
+  createdById: 1,
+  isVisible: true,
+  createTime: new Date(),
+  updateTime: new Date()
+}
+
+export const exampleWorkbookProblems: WorkbookProblem[] = [
+  {
+    order: 1,
+    workbookId: 1,
+    problemId: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 2,
+    workbookId: 1,
+    problemId: 2,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 3,
+    workbookId: 1,
+    problemId: 3,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 4,
+    workbookId: 1,
+    problemId: 4,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 5,
+    workbookId: 1,
+    problemId: 5,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 6,
+    workbookId: 1,
+    problemId: 6,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 7,
+    workbookId: 1,
+    problemId: 7,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 8,
+    workbookId: 1,
+    problemId: 8,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 9,
+    workbookId: 1,
+    problemId: 9,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 10,
+    workbookId: 1,
+    problemId: 10,
+    createTime: new Date(),
+    updateTime: new Date()
+  }
+]
+
+export const exampleOrderUpdatedWorkbookProblems: WorkbookProblem[] = [
+  {
+    order: 1,
+    workbookId: 1,
+    problemId: 2,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 2,
+    workbookId: 1,
+    problemId: 3,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 3,
+    workbookId: 1,
+    problemId: 4,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 4,
+    workbookId: 1,
+    problemId: 5,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 5,
+    workbookId: 1,
+    problemId: 6,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 6,
+    workbookId: 1,
+    problemId: 7,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 7,
+    workbookId: 1,
+    problemId: 8,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 8,
+    workbookId: 1,
+    problemId: 9,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 9,
+    workbookId: 1,
+    problemId: 10,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 10,
+    workbookId: 1,
+    problemId: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  }
+]
+
+export const exampleContest: Contest = {
+  id: 1,
+  title: 'example',
+  description: 'example',
+  groupId: 1,
+  createdById: 1,
+  config: { isVisible: true, isRankVisible: true },
+  startTime: new Date(),
+  endTime: new Date(),
+  createTime: new Date(),
+  updateTime: new Date()
+}
+export const exampleContestProblems: ContestProblem[] = [
+  {
+    order: 1,
+    contestId: 1,
+    problemId: 1,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 2,
+    contestId: 1,
+    problemId: 2,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 3,
+    contestId: 1,
+    problemId: 3,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 4,
+    contestId: 1,
+    problemId: 4,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 5,
+    contestId: 1,
+    problemId: 5,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 6,
+    contestId: 1,
+    problemId: 6,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 7,
+    contestId: 1,
+    problemId: 7,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 8,
+    contestId: 1,
+    problemId: 8,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 9,
+    contestId: 1,
+    problemId: 9,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 10,
+    contestId: 1,
+    problemId: 10,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  }
+]
+
+export const exampleOrderUpdatedContestProblems: ContestProblem[] = [
+  {
+    order: 1,
+    contestId: 1,
+    problemId: 2,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 2,
+    contestId: 1,
+    problemId: 3,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 3,
+    contestId: 1,
+    problemId: 4,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 4,
+    contestId: 1,
+    problemId: 5,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 5,
+    contestId: 1,
+    problemId: 6,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 6,
+    contestId: 1,
+    problemId: 7,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 7,
+    contestId: 1,
+    problemId: 8,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 8,
+    contestId: 1,
+    problemId: 9,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 9,
+    contestId: 1,
+    problemId: 10,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  },
+  {
+    order: 10,
+    contestId: 1,
+    problemId: 1,
+    score: 1,
+    createTime: new Date(),
+    updateTime: new Date()
+  }
+]
+
+export const exampleProblemTestcases = [
+  {
+    id: '1:1',
+    input: '1',
+    output: '1'
+  }
+]
+
+export const exampleProblemTags: ProblemTag[] = [
+  {
+    id: 1,
+    problemId: 1,
+    tagId: 1
+  }
+]
+
+export const exampleTag: Tag = {
+  id: 1,
+  name: 'brute force',
+  createTime: new Date(),
+  updateTime: new Date()
+}

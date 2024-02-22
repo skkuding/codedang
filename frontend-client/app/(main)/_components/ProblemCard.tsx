@@ -21,7 +21,7 @@ export default function ProblemCard({ problem }: Props) {
 
       <CardContent className="flex items-center gap-1 text-xs text-gray-500">
         <MdOutlineSubdirectoryArrowRight />
-        Solved Rate {/*TODO: 백엔드 API 변경되면 AC Rate 값 추가*/}%
+        Solved Rate {(problem.acceptedRate * 100).toFixed(2)}%
       </CardContent>
     </Card>
   )

@@ -13,6 +13,10 @@ data "aws_cloudfront_origin_request_policy" "allow_all" {
   name = "Managed-AllViewer"
 }
 
+data "aws_cloudfront_origin_request_policy" "exclude_host_header" {
+  name = "Managed-AllViewerExceptHostHeader"
+}
+
 resource "aws_cloudfront_distribution" "main" {
   origin {
     domain_name = "amplify.codedang.com"
@@ -57,18 +61,12 @@ resource "aws_cloudfront_distribution" "main" {
   aliases = ["codedang.com"]
 
   default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
-    cached_methods         = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id       = "frontend" # TODO: do not hard-code origin_id
-    viewer_protocol_policy = "redirect-to-https"
-
-    forwarded_values {
-      query_string = true
-
-      cookies {
-        forward = "none"
-      }
-    }
+    allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    cached_methods           = ["GET", "HEAD", "OPTIONS"]
+    target_origin_id         = "frontend" # TODO: do not hard-code origin_id
+    viewer_protocol_policy   = "redirect-to-https"
+    cache_policy_id          = data.aws_cloudfront_cache_policy.disable.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.exclude_host_header.id
   }
 
   ordered_cache_behavior {

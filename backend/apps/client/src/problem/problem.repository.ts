@@ -4,7 +4,7 @@ import type { Problem, Tag, CodeDraft, Prisma } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
 import type { CodeDraftUpdateInput } from '@admin/@generated'
 import type { CreateTemplateDto } from './dto/create-code-draft.dto'
-import type { ProblemOrder } from './schema/problem-order.schema'
+import type { ProblemOrder } from './enum/problem-order.enum'
 
 /**
  * repository에서는 partial entity를 반환합니다.
@@ -19,28 +19,38 @@ import type { ProblemOrder } from './schema/problem-order.schema'
 export class ProblemRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private readonly problemsSelectOption = {
+  private readonly problemsSelectOption: Prisma.ProblemSelect = {
     id: true,
     title: true,
+    engTitle: true,
     exposeTime: true,
     difficulty: true,
     acceptedRate: true,
     submissionCount: true
   }
 
-  private readonly problemSelectOption = {
+  private readonly problemSelectOption: Prisma.ProblemSelect = {
     ...this.problemsSelectOption,
     description: true,
     inputDescription: true,
     outputDescription: true,
     hint: true,
+    engDescription: true,
+    engInputDescription: true,
+    engOutputDescription: true,
+    engHint: true,
     languages: true,
     timeLimit: true,
     memoryLimit: true,
     source: true,
     acceptedCount: true,
-    inputExamples: true,
-    outputExamples: true
+    samples: {
+      select: {
+        id: true,
+        input: true,
+        output: true
+      }
+    }
   }
 
   private readonly codeDraftSelectOption = {

@@ -1,3 +1,5 @@
+'use client'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -14,22 +16,30 @@ import {
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { PlusCircledIcon } from '@radix-ui/react-icons'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-interface DataProps {
+interface DataProps<T> {
   title: string
-  options: string[]
-  onChange: (selectedValues: string[]) => void
+  options: T[]
+  onChange: (selectedValues: T[]) => void
+  defaultValue?: T[]
 }
 
-export default function LanguageSelect({
+export default function LanguageSelect<T extends string>({
   title,
   options,
-  onChange
-}: DataProps) {
-  const [selectedValues, setSelectedValues] = useState([] as string[])
+  onChange,
+  defaultValue
+}: DataProps<T>) {
+  const [selectedValues, setSelectedValues] = useState<T[]>([])
 
-  const handleCheckboxChange = (option: string) => {
+  useEffect(() => {
+    if (defaultValue) {
+      setSelectedValues(defaultValue)
+    }
+  }, [defaultValue])
+
+  const handleCheckboxChange = (option: T) => {
     setSelectedValues((prevSelectedValues) => {
       if (prevSelectedValues.includes(option)) {
         return prevSelectedValues.filter((value) => value !== option)
@@ -53,7 +63,7 @@ export default function LanguageSelect({
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
               <div className="space-x-1">
-                {selectedValues.length == options.length ? (
+                {selectedValues.length === options.length ? (
                   <Badge
                     variant="secondary"
                     className="rounded-sm px-1 font-normal"

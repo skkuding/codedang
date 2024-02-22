@@ -14,6 +14,7 @@ import {
   Query
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { Request, type Response } from 'express'
 import { AuthenticatedRequest, AuthNotNeededIfOpenSpace } from '@libs/auth'
 import {
@@ -193,6 +194,23 @@ export class UserController {
     } catch (error) {
       if (error instanceof DuplicateFoundException) {
         throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Get('email')
+  @AuthNotNeededIfOpenSpace()
+  async getUsernameByEmail(@Query() userEmailDto: UserEmailDto) {
+    try {
+      return await this.userService.getUsernameByEmail(userEmailDto)
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()

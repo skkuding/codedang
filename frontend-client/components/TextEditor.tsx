@@ -17,14 +17,15 @@ import StarterKit from '@tiptap/starter-kit'
 import { Bold, Italic, List, ListOrdered, Link as LinkIcon } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { Button } from './ui/button'
-import { Skeleton } from './ui/skeleton'
 
 export default function TextEditor({
   placeholder,
-  onChange
+  onChange,
+  defaultValue
 }: {
   placeholder: string
   onChange: (richText: string) => void
+  defaultValue?: string
 }) {
   const [url, setUrl] = useState('')
 
@@ -46,7 +47,8 @@ export default function TextEditor({
     },
     onUpdate({ editor }) {
       onChange(editor.getHTML())
-    }
+    },
+    content: defaultValue
   })
 
   const setLink = useCallback(
@@ -75,41 +77,37 @@ export default function TextEditor({
     [editor]
   )
 
-  if (!editor) {
-    return <Skeleton className="h-[241px] max-w-5xl" />
-  }
-
   return (
     <div className="flex flex-col justify-stretch bg-white">
       <div className="flex gap-1 rounded-t-md border border-b-0 p-1">
         <Toggle
           size="sm"
-          pressed={editor.isActive('bold')}
-          onPressedChange={() => editor.chain().focus().toggleBold().run()}
+          pressed={editor?.isActive('bold')}
+          onPressedChange={() => editor?.chain().focus().toggleBold().run()}
         >
           <Bold className="h-[14px] w-[14px]" />
         </Toggle>
         <Toggle
           size="sm"
-          pressed={editor.isActive('italic')}
-          onPressedChange={() => editor.chain().focus().toggleItalic().run()}
+          pressed={editor?.isActive('italic')}
+          onPressedChange={() => editor?.chain().focus().toggleItalic().run()}
         >
           <Italic className="h-[14px] w-[14px]" />
         </Toggle>
         <Toggle
           size="sm"
-          pressed={editor.isActive('bulletList')}
+          pressed={editor?.isActive('bulletList')}
           onPressedChange={() =>
-            editor.chain().focus().toggleBulletList().run()
+            editor?.chain().focus().toggleBulletList().run()
           }
         >
           <List className="h-[14px] w-[14px]" />
         </Toggle>
         <Toggle
           size="sm"
-          pressed={editor.isActive('orderedList')}
+          pressed={editor?.isActive('orderedList')}
           onPressedChange={() =>
-            editor.chain().focus().toggleOrderedList().run()
+            editor?.chain().focus().toggleOrderedList().run()
           }
         >
           <ListOrdered className="h-[14px] w-[14px]" />
@@ -117,7 +115,7 @@ export default function TextEditor({
 
         <Dialog>
           <DialogTrigger asChild>
-            <Toggle size="sm" pressed={editor.isActive('link')}>
+            <Toggle size="sm" pressed={editor?.isActive('link')}>
               <LinkIcon className="h-[14px] w-[14px]" />
             </Toggle>
           </DialogTrigger>

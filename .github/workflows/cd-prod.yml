@@ -36,7 +36,7 @@ jobs:
           file: ./backend/Dockerfile
           push: true
           build-args: 'target=client'
-          tags: ${{ steps.login-ecr.outputs.registry }}/codedang-admin-api:latest
+          tags: ${{ steps.login-ecr.outputs.registry }}/codedang-client-api:latest
 
   build-admin-api:
     name: Build admin-api image
@@ -102,6 +102,9 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Trigger Amplify Frontend Build
+        run: curl -X POST -d {} "${{ secrets.AMPLIFY_WEBHOOK }}" -H "Content-Type:application/json"
+
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.2
@@ -109,9 +112,9 @@ jobs:
       - name: Create Terraform variable file
         working-directory: ./infra/deploy
         run: |
-          echo $TFVARS >> terraform.tfvars
-          echo $OAUTH_GITHUB >> terraform.tfvars
-          echo $OAUTH_KAKAO >> terraform.tfvars
+          echo "$TFVARS" >> terraform.tfvars
+          echo "$OAUTH_GITHUB" >> terraform.tfvars
+          echo "$OAUTH_KAKAO" >> terraform.tfvars
         env:
           TFVARS: ${{ secrets.TFVARS }}
           OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
