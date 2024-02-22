@@ -75,9 +75,9 @@ export class AuthService {
 
   async isValidRefreshToken(refreshToken: string, userId: number) {
     const cachedRefreshToken = await this.cacheManager.get(
-      refreshTokenCacheKey(userId)
+      refreshTokenCacheKey(userId, refreshToken)
     )
-    if (cachedRefreshToken !== refreshToken) {
+    if (cachedRefreshToken !== 1) {
       return false
     }
     return true
@@ -92,17 +92,20 @@ export class AuthService {
       expiresIn: REFRESH_TOKEN_EXPIRE_TIME
     })
 
+    // userId: refreshToken을 key로 cache에 저장
     await this.cacheManager.set(
-      refreshTokenCacheKey(userId),
-      refreshToken,
+      refreshTokenCacheKey(userId, refreshToken),
+      1,
       REFRESH_TOKEN_EXPIRE_TIME * 1000 // milliseconds
     )
 
     return { accessToken, refreshToken }
   }
 
-  async deleteRefreshToken(userId: number) {
-    return await this.cacheManager.del(refreshTokenCacheKey(userId))
+  async deleteRefreshToken(userId: number, refreshToken: string) {
+    return await this.cacheManager.del(
+      refreshTokenCacheKey(userId, refreshToken)
+    )
   }
 
   async githubLogin(res: Response, githubUser: GithubUser) {
