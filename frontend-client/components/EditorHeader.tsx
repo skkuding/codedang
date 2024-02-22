@@ -64,12 +64,11 @@ export default function Editor({ problem }: ProblemEditorProps) {
 
   const { showSignIn } = useAuthModalStore((state) => state)
   useEffect(() => {
-    ;(async () => {
-      const session = await auth()
+    auth().then((session) => {
       if (!session) {
         toast.info('Log in to use submission & auto save feature')
       }
-    })()
+    })
   }, [])
 
   return (
