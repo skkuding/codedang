@@ -97,14 +97,7 @@ export class ContestService {
       data: {
         createdById: userId,
         groupId,
-        title: contest.title,
-        description: contest.description,
-        startTime: contest.startTime,
-        endTime: contest.endTime,
-        config: {
-          isVisible: contest.config.isVisible,
-          isRankVisible: contest.config.isRankVisible
-        }
+        ...contest
       }
     })
 
@@ -124,7 +117,8 @@ export class ContestService {
     if (!contestFound) {
       throw new EntityNotExistException('contest')
     }
-
+    contest.startTime = contest.startTime || contestFound.startTime
+    contest.endTime = contest.endTime || contestFound.endTime
     if (contest.startTime >= contest.endTime) {
       throw new UnprocessableDataException(
         'The start time must be earlier than the end time'
@@ -137,13 +131,7 @@ export class ContestService {
       },
       data: {
         title: contest.title,
-        description: contest.description,
-        startTime: contest.startTime,
-        endTime: contest.endTime,
-        config: {
-          isVisible: contest.config.isVisible,
-          isRankVisible: contest.config.isRankVisible
-        }
+        ...contest
       }
     })
   }
