@@ -65,7 +65,9 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response
   ) {
     const refreshToken = req.cookies['refresh_token']
-    if (!refreshToken) throw new UnauthorizedException('Invalid Token')
+    // FIX ME: refreshToken이 없을 때 에러를 던지는 것이 맞는지 확인
+    // 일단은 refreshToken이 없을 때는 무시하도록 함
+    if (!refreshToken) return
     try {
       await this.authService.deleteRefreshToken(req.user.id, refreshToken)
       res.clearCookie('refresh_token', REFRESH_TOKEN_COOKIE_OPTIONS)
