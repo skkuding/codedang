@@ -11,6 +11,7 @@ import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import * as React from 'react'
 import { columns } from './_components/Columns'
+import UploadDialog from './_components/UploadDialog'
 
 const GET_PROBLEMS = gql(`
   query GetProblems(
@@ -47,7 +48,7 @@ const GET_PROBLEMS = gql(`
 export const dynamic = 'force-dynamic'
 
 export default function Page() {
-  const { data, loading } = useQuery(GET_PROBLEMS, {
+  const { data, loading, refetch } = useQuery(GET_PROBLEMS, {
     variables: {
       groupId: 1,
       take: 100,
@@ -88,12 +89,15 @@ export default function Page() {
               Here&apos;s a list you made
             </p>
           </div>
-          <Link href="/admin/problem/create">
-            <Button variant="default">
-              <PlusCircleIcon className="mr-2 h-4 w-4" />
-              Create
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <UploadDialog refetch={refetch} />
+            <Link href="/admin/problem/create">
+              <Button variant="default">
+                <PlusCircleIcon className="mr-2 h-4 w-4" />
+                Create
+              </Button>
+            </Link>
+          </div>
         </div>
         {loading ? (
           <>
