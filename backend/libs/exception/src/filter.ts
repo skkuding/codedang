@@ -10,17 +10,17 @@ import { BusinessException } from './business.exception'
 
 @Catch()
 export class GlobalExceptionFilter extends BaseExceptionFilter {
-  private readonly logger = new Logger(ServiceExceptionFilter.name)
+  private readonly logger = new Logger(GlobalExceptionFilter.name)
 
   catch(exception: Error, host: ArgumentsHost) {
     if (exception instanceof BusinessException) {
-      this.logger.error(exception, 'Business Exception')
+      this.logger.log(exception)
       super.catch(exception.convert2HTTPException(), host)
     } else if (exception instanceof HttpException) {
-      this.logger.error(exception, 'Http Exception')
+      this.logger.log(exception)
       super.catch(exception, host)
     } else {
-      this.logger.error(exception, 'Internal Exception')
+      this.logger.error(exception)
       super.catch(new InternalServerErrorException(), host)
     }
   }
