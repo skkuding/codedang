@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Inject, Injectable } from '@nestjs/common'
 import { Language } from '@generated'
 import type { ContestProblem, Tag, WorkbookProblem } from '@generated'
 import { Level } from '@generated'
@@ -33,7 +34,8 @@ type TestCaseInFile = {
 export class ProblemService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly storageService: StorageService
+    private readonly storageService: StorageService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   async createProblem(
@@ -412,6 +414,8 @@ export class ProblemService {
 
     const data = JSON.stringify(toBeUploaded)
     await this.storageService.uploadObject(filename, data, 'json')
+
+    this.cacheManager.delete(`${problemId}`)
   }
 
   async deleteProblem(id: number, groupId: number) {
