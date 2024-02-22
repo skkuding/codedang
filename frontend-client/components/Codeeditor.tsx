@@ -13,6 +13,7 @@ const editorTheme = createTheme({
   settings: {
     background: '#0f172a',
     foreground: '#9cdcfe',
+    fontFamily: 'var(--font-ibm-plex-mono), monospace',
     caret: '#c6c6c6',
     selection: '#6199ff2f',
     selectionMatch: '#72a1ff59',
@@ -45,7 +46,7 @@ const editorTheme = createTheme({
   theme: 'dark'
 })
 
-interface CodeeditorProps extends ReactCodeMirrorProps {
+interface Props extends ReactCodeMirrorProps {
   language: Language
 }
 
@@ -58,13 +59,13 @@ const CodeMirrorLanguage: Record<Language, LanguageName> = {
   Python3: 'python'
 }
 
-export default function Codeeditor({
+export default function CodeEditor({
   value,
   language,
   onChange,
   readOnly: readOnly = false,
   ...props
-}: CodeeditorProps) {
+}: Props) {
   return (
     <ScrollArea className="rounded-md [&>div>div]:h-full">
       <ReactCodeMirror

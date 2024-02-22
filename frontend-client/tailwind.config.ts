@@ -30,7 +30,8 @@ export default {
           'var(--font-manrope)',
           'var(--font-noto)',
           ...defaultTheme.fontFamily.sans
-        ]
+        ],
+        mono: ['var(--font-ibm-plex-mono)', ...defaultTheme.fontFamily.mono]
       },
       colors: {
         primary: {

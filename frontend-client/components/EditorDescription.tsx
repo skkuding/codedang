@@ -45,8 +45,8 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
         />
       </div>
       <div>
-        {problem.samples.map((sample, index) => (
-          <div key={sample.id} className="mb-2">
+        {problem.samples.map(({ id, input, output }, index) => (
+          <div key={id} className="mb-2">
             <h2 className="mb-2 font-bold">Sample {index + 1}</h2>
 
             <div className="flex space-x-2 text-base">
@@ -56,23 +56,20 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
                   <Clipboard
                     className="size-[18px] cursor-pointer"
                     onClick={() => {
-                      copyToClipboard(sample.input)
+                      copyToClipboard(input + '\n') // add newline to the end for easy testing
                       toast.success('Successfully copied input to clipboard')
                     }}
                   />
                 </div>
-                <textarea
-                  readOnly
-                  className="h-28 w-full cursor-default resize-none overflow-y-auto rounded-md bg-slate-900 px-4 py-3 outline-none"
-                >
-                  {sample.input}
-                </textarea>
+                <pre className="h-28 w-full cursor-default resize-none overflow-y-auto rounded-md bg-slate-900 px-4 py-3 font-mono outline-none">
+                  {input}
+                </pre>
               </div>
 
               <div className="w-full">
                 <h3 className="mb-1 font-semibold">Output</h3>
                 <div className="h-28 w-full overflow-y-auto rounded-md bg-slate-900 p-2 px-4 py-3">
-                  {sample.output}
+                  {output}
                 </div>
               </div>
             </div>
