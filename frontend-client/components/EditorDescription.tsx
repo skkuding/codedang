@@ -68,9 +68,9 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
 
               <div className="w-full">
                 <h3 className="mb-1 font-semibold">Output</h3>
-                <div className="h-28 w-full overflow-y-auto rounded-md bg-slate-900 p-2 px-4 py-3">
+                <pre className="h-28 w-full overflow-y-auto rounded-md bg-slate-900 p-2 px-4 py-3">
                   {output}
-                </div>
+                </pre>
               </div>
             </div>
           </div>
