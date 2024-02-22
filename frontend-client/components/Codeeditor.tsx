@@ -6,14 +6,14 @@ import type { LanguageName } from '@uiw/codemirror-extensions-langs'
 import { loadLanguage } from '@uiw/codemirror-extensions-langs'
 import { createTheme } from '@uiw/codemirror-themes'
 import type { Extension, ReactCodeMirrorProps } from '@uiw/react-codemirror'
-import ReactCodeMirror from '@uiw/react-codemirror'
+import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { ScrollArea, ScrollBar } from './ui/scroll-area'
 
 const editorTheme = createTheme({
   settings: {
     background: '#0f172a',
     foreground: '#9cdcfe',
-    fontFamily: 'var(--font-ibm-plex-mono), monospace',
+    fontFamily: 'var(--font-mono), monospace',
     caret: '#c6c6c6',
     selection: '#6199ff2f',
     selectionMatch: '#72a1ff59',
@@ -46,6 +46,12 @@ const editorTheme = createTheme({
   theme: 'dark'
 })
 
+const fontSize = EditorView.baseTheme({
+  '&': {
+    fontSize: '17px'
+  }
+})
+
 interface Props extends ReactCodeMirrorProps {
   language: Language
 }
@@ -70,7 +76,10 @@ export default function CodeEditor({
     <ScrollArea className="rounded-md [&>div>div]:h-full">
       <ReactCodeMirror
         theme={editorTheme}
-        extensions={[loadLanguage(CodeMirrorLanguage[language])] as Extension[]}
+        extensions={[
+          fontSize,
+          loadLanguage(CodeMirrorLanguage[language]) as Extension
+        ]}
         value={value}
         onChange={onChange}
         readOnly={readOnly}

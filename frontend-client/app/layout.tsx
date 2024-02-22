@@ -2,7 +2,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
 import { metaBaseUrl } from '@/lib/vars'
 import type { Metadata, Viewport } from 'next'
-import { Manrope, Noto_Sans_KR, IBM_Plex_Mono } from 'next/font/google'
+import { Manrope, Noto_Sans_KR, Ubuntu_Mono } from 'next/font/google'
 import './globals.css'
 
 const noto = Noto_Sans_KR({
@@ -17,10 +17,10 @@ const manrope = Manrope({
   variable: '--font-manrope'
 })
 
-const mono = IBM_Plex_Mono({
+const mono = Ubuntu_Mono({
   subsets: ['latin'],
   weight: ['400'],
-  variable: '--font-ibm-plex-mono'
+  variable: '--font-mono'
 })
 
 export const metadata: Metadata = {

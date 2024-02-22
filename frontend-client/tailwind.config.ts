@@ -31,7 +31,7 @@ export default {
           'var(--font-noto)',
           ...defaultTheme.fontFamily.sans
         ],
-        mono: ['var(--font-ibm-plex-mono)', ...defaultTheme.fontFamily.mono]
+        mono: ['var(--font-mono)', ...defaultTheme.fontFamily.mono]
       },
       colors: {
         primary: {
