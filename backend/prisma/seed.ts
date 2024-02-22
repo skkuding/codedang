@@ -30,6 +30,7 @@ let publicGroup: Group
 let privateGroup: Group
 const problems: Problem[] = []
 const problemTestcases: ProblemTestcase[] = []
+const contests: Contest[] = []
 const endedContests: Contest[] = []
 const ongoingContests: Contest[] = []
 const upcomingContests: Contest[] = []
@@ -597,10 +598,15 @@ const createProblems = async () => {
     await prisma.problem.create({
       data: {
         title: '정수 더하기',
+        engTitle: 'Integer Addition',
         createdById: superAdminUser.id,
         groupId: publicGroup.id,
         description: await readFile(
           join(fixturePath, 'problem/1-description.html'),
+          'utf-8'
+        ),
+        engDescription: await readFile(
+          join(fixturePath, 'problem/1-description-eng.html'),
           'utf-8'
         ),
         difficulty: Level.Level1,
@@ -608,8 +614,16 @@ const createProblems = async () => {
           join(fixturePath, 'problem/1-input.html'),
           'utf-8'
         ),
+        engInputDescription: await readFile(
+          join(fixturePath, 'problem/1-input-eng.html'),
+          'utf-8'
+        ),
         outputDescription: await readFile(
           join(fixturePath, 'problem/1-output.html'),
+          'utf-8'
+        ),
+        engOutputDescription: await readFile(
+          join(fixturePath, 'problem/1-output-eng.html'),
           'utf-8'
         ),
         languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
@@ -617,8 +631,18 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 512,
         source: '',
-        inputExamples: ['1 2', '11 12'],
-        outputExamples: ['3', '23']
+        samples: {
+          create: [
+            {
+              input: '1 2',
+              output: '3'
+            },
+            {
+              input: '11 12',
+              output: '23'
+            }
+          ]
+        }
       }
     })
   )
@@ -647,8 +671,9 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 512,
         source: 'Canadian Computing Competition(CCC) 2012 Junior 2번',
-        inputExamples: ['1\n10\n12\n13'],
-        outputExamples: ['Uphill']
+        samples: {
+          create: [{ input: '1\n10\n12\n13', output: 'Uphill' }]
+        }
       }
     })
   )
@@ -677,8 +702,13 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'Canadian Computing Competition(CCC) 2013 Junior 2번',
-        inputExamples: ['SHINS', 'NO', 'SHOW'],
-        outputExamples: ['YES', 'YES', 'NO']
+        samples: {
+          create: [
+            { input: 'SHINS', output: 'YES' },
+            { input: 'NO', output: 'YES' },
+            { input: 'SHOW', output: 'NO' }
+          ]
+        }
       }
     })
   )
@@ -707,8 +737,9 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'USACO 2012 US Open Bronze 1번',
-        inputExamples: ['9\n2\n7\n3\n7\n7\n3\n7\n5\n7\n'],
-        outputExamples: ['4']
+        samples: {
+          create: [{ input: '9\n2\n7\n3\n7\n7\n3\n7\n5\n7\n', output: '4' }]
+        }
       }
     })
   )
@@ -737,8 +768,14 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'ICPC Regionals NCPC 2009 B번',
-        inputExamples: ['5 3\n100\n-75\n-25\n-42\n42\n0 1\n1 2\n3 4'],
-        outputExamples: ['POSSIBLE']
+        samples: {
+          create: [
+            {
+              input: '5 3\n100\n-75\n-25\n-42\n42\n0 1\n1 2\n3 4',
+              output: 'POSSIBLE'
+            }
+          ]
+        }
       }
     })
   )
@@ -767,8 +804,7 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'USACO November 2011 Silver 3번',
-        inputExamples: ['3 6', '3', '3', '1'],
-        outputExamples: ['5']
+        samples: { create: [{ input: '3 6', output: '5' }] }
       }
     })
   )
@@ -797,12 +833,19 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 512,
         source: 'COCI 2019/2020 Contest #3 2번',
-        inputExamples: [
-          'aaaaa\n2\n1 2\n4 5\n2 4 1 5 3',
-          'abbabaab\n3\n1 3\n4 7\n3 5\n6 3 5 1 4 2 7 8',
-          'abcd\n1\n1 4\n1 2 3 4'
-        ],
-        outputExamples: ['2', '5', '0']
+        samples: {
+          create: [
+            { input: 'aaaaa\n2\n1 2\n4 5\n2 4 1 5 3', output: '2' },
+            {
+              input: 'abbabaab\n3\n1 3\n4 7\n3 5\n6 3 5 1 4 2 7 8',
+              output: '5'
+            },
+            {
+              input: 'abcd\n1\n1 4\n1 2 3 4',
+              output: '0'
+            }
+          ]
+        }
       }
     })
   )
@@ -831,11 +874,53 @@ const createProblems = async () => {
         timeLimit: 2000,
         memoryLimit: 256,
         source: 'ICPC Regionals SEERC 2019 J번',
-        inputExamples: [
-          '3\n1 2 1\n2 3 1\n3 1 1',
-          '5\n4 5 4\n1 3 4\n1 2 4\n3 2 3\n3 5 2\n1 4 3\n4 2 2\n1 5 4\n5 2 4\n3 4 2'
-        ],
-        outputExamples: ['3', '35']
+        samples: {
+          create: [
+            {
+              input: '3\n1 2 1\n2 3 1\n3 1 1',
+              output: '3'
+            },
+            {
+              input:
+                '5\n4 5 4\n1 3 4\n1 2 4\n3 2 3\n3 5 2\n1 4 3\n4 2 2\n1 5 4\n5 2 4\n3 4 2',
+              output: '35'
+            }
+          ]
+        },
+        isVisible: false
+      }
+    })
+  )
+
+  problems.push(
+    await prisma.problem.create({
+      data: {
+        title: '수정중인 문제',
+        createdById: superAdminUser.id,
+        groupId: publicGroup.id,
+        description: `<p>수정 작업 중</p>`,
+        difficulty: Level.Level3,
+        inputDescription: `<p>비공개</p>`,
+        outputDescription: `<p>비공개</p>`,
+        languages: [Language.C, Language.Cpp, Language.Java, Language.Python3],
+        hint: `<p>작성중</p>`,
+        timeLimit: 2000,
+        memoryLimit: 256,
+        source: '2024 육군훈련소 입소 코딩 테스트',
+        samples: {
+          create: [
+            {
+              input: '3\n1 2 1\n2 3 1\n3 1 1',
+              output: '3'
+            },
+            {
+              input:
+                '5\n4 5 4\n1 3 4\n1 2 4\n3 2 3\n3 5 2\n1 4 3\n4 2 2\n1 5 4\n5 2 4\n3 4 2',
+              output: '35'
+            }
+          ]
+        },
+        isVisible: false
       }
     })
   )
@@ -846,8 +931,8 @@ const createProblems = async () => {
       await prisma.problemTestcase.create({
         data: {
           problemId: problem.id,
-          input: 'input.in',
-          output: 'output.out'
+          input: `${problem.id}.json`,
+          output: `${problem.id}.json`
         }
       })
     )
@@ -1179,6 +1264,7 @@ const createContests = async () => {
   const now = new Date()
   for (const obj of contestData) {
     const contest = await prisma.contest.create(obj)
+    contests.push(contest)
     if (now < obj.data.startTime) {
       upcomingContests.push(contest)
     } else if (obj.data.endTime < now) {
@@ -1192,7 +1278,7 @@ const createContests = async () => {
   for (const problem of problems) {
     await prisma.contestProblem.create({
       data: {
-        order: problem.id,
+        order: problem.id - 1,
         contestId: ongoingContests[0].id,
         problemId: problem.id
       }
@@ -1231,14 +1317,14 @@ const createWorkbooks = async () => {
   for (const problem of problems) {
     await prisma.workbookProblem.create({
       data: {
-        order: problem.id,
+        order: problem.id - 1,
         workbookId: workbooks[0].id,
         problemId: problem.id
       }
     })
     await prisma.workbookProblem.create({
       data: {
-        order: problem.id,
+        order: problem.id - 1,
         workbookId: privateWorkbooks[0].id,
         problemId: problem.id
       }
@@ -1512,7 +1598,7 @@ const createAnnouncements = async () => {
       await prisma.announcement.create({
         data: {
           content: `Announcement_0_${i}`,
-          problemId: problems[i].id
+          contestId: ongoingContests[i].id
         }
       })
     )
@@ -1522,7 +1608,12 @@ const createAnnouncements = async () => {
     announcements.push(
       await prisma.announcement.create({
         data: {
-          content: `Announcement_1_${i}`,
+          content: `Announcement_1_${i}...
+아래 내용은 한글 Lorem Ipsum으로 생성된 내용입니다! 별 의미 없어요.
+모든 국민은 신속한 재판을 받을 권리를 가진다. 형사피고인은 상당한 이유가 없는 한 지체없이 공개재판을 받을 권리를 가진다.
+법관은 탄핵 또는 금고 이상의 형의 선고에 의하지 아니하고는 파면되지 아니하며, 징계처분에 의하지 아니하고는 정직·감봉 기타 불리한 처분을 받지 아니한다.
+일반사면을 명하려면 국회의 동의를 얻어야 한다. 연소자의 근로는 특별한 보호를 받는다.`,
+          contestId: ongoingContests[i].id,
           problemId: problems[i].id
         }
       })
@@ -1606,6 +1697,23 @@ const createContestRecords = async () => {
     })
     contestRecords.push(contestRecord)
     i++
+  }
+
+  // upcoming contest에 참가한 User 1의 contest register를 un-register하는 기능과,
+  // registered upcoming, ongoing, finished contest를 조회하는 기능을 확인하기 위함
+  const user01Id = 4
+  for (let contestId = 3; contestId <= contests.length; contestId += 2) {
+    contestRecords.push(
+      await prisma.contestRecord.create({
+        data: {
+          userId: user01Id,
+          contestId,
+          acceptedProblemNum: 0,
+          score: 0,
+          totalPenalty: 0
+        }
+      })
+    )
   }
 
   return contestRecords

@@ -21,11 +21,21 @@
 	}
 }
 
+# Global options
+{
+	# Keep-Alive timeout of reverse proxy must be longer than of the backend
+	# Set timeout of Caddy to 60s and of the backend to 61s to avoid timeout error
+	# https://adamcrowder.net/posts/node-express-api-and-aws-alb-502/
+	servers {
+		timeouts {
+			idle 1m
+		}
+	}
+}
+
 dev.codedang.com {
 	handle /api/* {
-		reverse_proxy 127.0.0.1:4000 {
-			header_down -Access-Control-Allow-Origin *
-		}
+		reverse_proxy 127.0.0.1:4000
 
 		# 캐시 설정
 		header {
@@ -33,11 +43,9 @@ dev.codedang.com {
 			defer
 		}
 
-		# import <pattern> [<args...>]
-		# cors 허용할 도메인 설정
+		# cors 허용할 도메인
 		import cors http://localhost:5173 # frontend server (Vue)
 		import cors http://localhost:5525 # frontend server (Next.js)
-		import cors http://localhost:5555 # api docs server
 	}
 
 	handle /logs/* {
@@ -46,6 +54,10 @@ dev.codedang.com {
 
 	handle /graphql {
 		reverse_proxy 127.0.0.1:3000
+
+		# cors 허용할 도메인
+		import cors http://localhost:5173 # frontend server (Vue)
+		import cors http://localhost:5525 # frontend server (Next.js)
 	}
 
 	handle {

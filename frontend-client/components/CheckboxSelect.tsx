@@ -1,3 +1,5 @@
+'use client'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -14,17 +16,30 @@ import {
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { PlusCircledIcon } from '@radix-ui/react-icons'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-interface DataProps {
+interface DataProps<T> {
   title: string
-  options: string[]
+  options: T[]
+  onChange: (selectedValues: T[]) => void
+  defaultValue?: T[]
 }
 
-export default function LanguageSelect({ title, options }: DataProps) {
-  const [selectedValues, setSelectedValues] = useState([] as string[])
+export default function LanguageSelect<T extends string>({
+  title,
+  options,
+  onChange,
+  defaultValue
+}: DataProps<T>) {
+  const [selectedValues, setSelectedValues] = useState<T[]>([])
 
-  const handleCheckboxChange = (option: string) => {
+  useEffect(() => {
+    if (defaultValue) {
+      setSelectedValues(defaultValue)
+    }
+  }, [defaultValue])
+
+  const handleCheckboxChange = (option: T) => {
     setSelectedValues((prevSelectedValues) => {
       if (prevSelectedValues.includes(option)) {
         return prevSelectedValues.filter((value) => value !== option)
@@ -35,16 +50,20 @@ export default function LanguageSelect({ title, options }: DataProps) {
   }
 
   return (
-    <Popover>
+    <Popover onOpenChange={() => onChange(selectedValues)}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size={'sm'} className="h-10 border">
+        <Button
+          variant="outline"
+          size={'sm'}
+          className="h-10 border hover:bg-gray-50"
+        >
           <PlusCircledIcon className="mr-2 h-4 w-4" />
           <p className="font-bold">{title}</p>
           {selectedValues.length > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
               <div className="space-x-1">
-                {selectedValues.length == options.length ? (
+                {selectedValues.length === options.length ? (
                   <Badge
                     variant="secondary"
                     className="rounded-sm px-1 font-normal"

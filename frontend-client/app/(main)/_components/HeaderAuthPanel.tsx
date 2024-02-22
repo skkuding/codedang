@@ -28,7 +28,7 @@ export default function HeaderAuthPanel({ session }: HeaderAuthPanelProps) {
               variant={'outline'}
               className="hidden border-none px-3 py-1 text-base font-semibold md:block"
             >
-              Log in
+              Log In
             </Button>
           </DialogTrigger>
           <DialogTrigger asChild>
@@ -43,7 +43,12 @@ export default function HeaderAuthPanel({ session }: HeaderAuthPanelProps) {
               Sign Up
             </Button>
           </DialogTrigger>
-          <DialogContent className="min-h-[30rem] max-w-[20.5rem]">
+          <DialogContent
+            className="min-h-[30rem] max-w-[20.5rem]"
+            onInteractOutside={(e) => {
+              e.preventDefault()
+            }}
+          >
             <AuthModal />
           </DialogContent>
         </Dialog>

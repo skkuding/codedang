@@ -9,10 +9,16 @@
     ":label(dependencies)"
   ],
   "constraints": {
-    "go": "1.19.1" // for Gitpod
+    "go": "1.19.1"
   },
   "rangeStrategy": "bump",
   "reviewers": ["dotoleeoak"],
   "lockFileMaintenance": { "enabled": true },
-  "ignoreDeps": ["reflect-metadata"]
+  "ignoreDeps": ["reflect-metadata"],
+  "packageRules": [
+    {
+      "matchDatasources": ["golang-version"],
+      "enabled": false
+    }
+  ]
 }

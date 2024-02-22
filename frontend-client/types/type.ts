@@ -1,5 +1,11 @@
-export type ContestStatus = 'ongoing' | 'upcoming' | 'finished'
+export type ContestStatus =
+  | 'ongoing'
+  | 'upcoming'
+  | 'finished'
+  | 'registeredOngoing'
+  | 'registeredUpcoming'
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
+export type Language = 'C' | 'Cpp' | 'Golang' | 'Java' | 'Python2' | 'Python3'
 
 export interface Contest {
   id: number
@@ -8,13 +14,16 @@ export interface Contest {
   endTime: Date
   group: { id: string; groupName: string }
   status: ContestStatus
+  participants: number
 }
 
 export interface WorkbookProblem {
   order: number
-  problemId: number
+  id: number
   title: string
   difficulty: Level
+  submissionCount: number
+  acceptedRate: number
 }
 
 export interface Notice {
@@ -55,7 +64,6 @@ export interface Standings {
 export interface ContestProblem {
   id: number
   order: number
-  problemId: number
   title: string
   difficulty: Level
   submissionCount: number
@@ -68,11 +76,15 @@ export interface ProblemDetail {
   description: string
   inputDescription: string
   outputDescription: string
-  inputExamples: string[]
-  outputExamples: string[]
-  languages: string[]
+  samples: {
+    id: number
+    input: string
+    output: string
+  }[]
+  languages: Language[]
   timeLimit: number
   memoryLimit: number
+  source: string
   tags: {
     id: number
     name: string
@@ -108,7 +120,7 @@ export interface SubmissionDetail {
   problemId: number
   username: string
   code: string
-  language: string
+  language: Language
   createTime: string
   result: string
   testcaseResult: {
@@ -123,10 +135,36 @@ export interface SubmissionDetail {
   }[]
 }
 
-export interface ContestClarification {
+export interface ContestAnnouncement {
   id: number
   content: string
   problemId: number
   createTime: string
   updateTime: string
+}
+
+export interface Tag {
+  id: number
+  name: string
+}
+
+export interface Sample {
+  input: string
+  output: string
+}
+
+export interface Testcase {
+  input: string
+  output: string
+}
+
+export interface Snippet {
+  id: number
+  text: string
+  locked: boolean
+}
+
+export interface Template {
+  language: Language
+  code: Snippet[]
 }

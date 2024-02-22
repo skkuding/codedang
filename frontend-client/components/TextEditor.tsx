@@ -1,5 +1,3 @@
-'use client'
-
 import {
   Dialog,
   DialogContent,
@@ -20,14 +18,22 @@ import { Bold, Italic, List, ListOrdered, Link as LinkIcon } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { Button } from './ui/button'
 
-export default function TextEditor({ placeholder }: { placeholder: string }) {
+export default function TextEditor({
+  placeholder,
+  onChange,
+  defaultValue
+}: {
+  placeholder: string
+  onChange: (richText: string) => void
+  defaultValue?: string
+}) {
   const [url, setUrl] = useState('')
 
   const editor = useEditor({
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder: placeholder,
+        placeholder,
         emptyEditorClass:
           'before:absolute before:text-gray-300 before:float-left before:content-[attr(data-placeholder)] before:pointer-events-none'
       }),
@@ -38,7 +44,11 @@ export default function TextEditor({ placeholder }: { placeholder: string }) {
         class:
           'rounded-b-md border overflow-y-auto w-full h-[200px] border-input bg-backround px-3 ring-offset-2 disabled:cursur-not-allowed disabled:opacity-50'
       }
-    }
+    },
+    onUpdate({ editor }) {
+      onChange(editor.getHTML())
+    },
+    content: defaultValue
   })
 
   const setLink = useCallback(
@@ -66,39 +76,38 @@ export default function TextEditor({ placeholder }: { placeholder: string }) {
     },
     [editor]
   )
-  if (!editor) return null
 
   return (
-    <div className="flex flex-col justify-stretch">
+    <div className="flex flex-col justify-stretch bg-white">
       <div className="flex gap-1 rounded-t-md border border-b-0 p-1">
         <Toggle
           size="sm"
-          pressed={editor.isActive('bold')}
-          onPressedChange={() => editor.chain().focus().toggleBold().run()}
+          pressed={editor?.isActive('bold')}
+          onPressedChange={() => editor?.chain().focus().toggleBold().run()}
         >
           <Bold className="h-[14px] w-[14px]" />
         </Toggle>
         <Toggle
           size="sm"
-          pressed={editor.isActive('italic')}
-          onPressedChange={() => editor.chain().focus().toggleItalic().run()}
+          pressed={editor?.isActive('italic')}
+          onPressedChange={() => editor?.chain().focus().toggleItalic().run()}
         >
           <Italic className="h-[14px] w-[14px]" />
         </Toggle>
         <Toggle
           size="sm"
-          pressed={editor.isActive('bulletList')}
+          pressed={editor?.isActive('bulletList')}
           onPressedChange={() =>
-            editor.chain().focus().toggleBulletList().run()
+            editor?.chain().focus().toggleBulletList().run()
           }
         >
           <List className="h-[14px] w-[14px]" />
         </Toggle>
         <Toggle
           size="sm"
-          pressed={editor.isActive('orderedList')}
+          pressed={editor?.isActive('orderedList')}
           onPressedChange={() =>
-            editor.chain().focus().toggleOrderedList().run()
+            editor?.chain().focus().toggleOrderedList().run()
           }
         >
           <ListOrdered className="h-[14px] w-[14px]" />
@@ -106,7 +115,7 @@ export default function TextEditor({ placeholder }: { placeholder: string }) {
 
         <Dialog>
           <DialogTrigger asChild>
-            <Toggle size="sm" pressed={editor.isActive('link')}>
+            <Toggle size="sm" pressed={editor?.isActive('link')}>
               <LinkIcon className="h-[14px] w-[14px]" />
             </Toggle>
           </DialogTrigger>
@@ -136,7 +145,7 @@ export default function TextEditor({ placeholder }: { placeholder: string }) {
           </DialogContent>
         </Dialog>
       </div>
-      <EditorContent className="prose" editor={editor} />
+      <EditorContent className="prose max-w-5xl" editor={editor} />
     </div>
   )
 }

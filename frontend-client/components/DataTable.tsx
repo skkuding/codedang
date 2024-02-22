@@ -17,7 +17,7 @@ import {
 } from '@tanstack/react-table'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 interface Item {
   id: number
@@ -29,7 +29,7 @@ interface DataTableProps<TData, TValue> {
   headerStyle: {
     [key: string]: string
   }
-  name: string
+  linked?: boolean
 }
 
 /**
@@ -70,7 +70,7 @@ export default function DataTable<TData extends Item, TValue>({
   columns,
   data,
   headerStyle,
-  name
+  linked = false
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -78,6 +78,7 @@ export default function DataTable<TData extends Item, TValue>({
     getCoreRowModel: getCoreRowModel()
   })
   const router = useRouter()
+  const currentPath = usePathname()
 
   return (
     <Table className="table-fixed">
@@ -108,15 +109,14 @@ export default function DataTable<TData extends Item, TValue>({
       <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
-            const href = `/${name}/${row.original.id}` as Route
-            const handleClick =
-              name === ''
-                ? (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-                    e.currentTarget.classList.toggle('expanded')
-                  }
-                : () => {
-                    router.push(href)
-                  }
+            const href = `${currentPath}/${row.original.id}` as Route
+            const handleClick = linked
+              ? () => {
+                  router.push(href)
+                }
+              : (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                  e.currentTarget.classList.toggle('expanded')
+                }
             return (
               <TableRow
                 key={row.id}

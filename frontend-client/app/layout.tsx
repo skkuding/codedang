@@ -40,7 +40,12 @@ export default function RootLayout({
     <html lang="en" className={cn(noto.variable, manrope.variable)}>
       <body>
         {children}
-        <Toaster richColors position="top-center" />
+        <Toaster
+          richColors
+          position="top-center"
+          closeButton={true}
+          duration={2000}
+        />
       </body>
     </html>
   )

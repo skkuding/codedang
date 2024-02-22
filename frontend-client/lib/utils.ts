@@ -1,13 +1,9 @@
-import type { DocumentNode } from '@apollo/client'
-import { ApolloClient, InMemoryCache, ApolloLink } from '@apollo/client'
-import { setContext } from '@apollo/client/link/context'
-import { createHttpLink } from '@apollo/client/link/http'
 import { type ClassValue, clsx } from 'clsx'
 import ky, { TimeoutError } from 'ky'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 import { auth } from './auth'
-import { adminBaseUrl, baseUrl } from './vars'
+import { baseUrl } from './vars'
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
@@ -58,52 +54,11 @@ export const fetcherWithAuth = fetcher.extend({
   }
 })
 
-const httpLink = createHttpLink({
-  uri: adminBaseUrl
-})
-const authLink = setContext(async (_, { headers }) => {
-  const session = await auth()
-  return {
-    headers: {
-      ...headers,
-      authorization: session?.token.accessToken
-    }
-  }
-})
-const link = ApolloLink.from([authLink.concat(httpLink)])
+export const convertToLetter = (n: number) => {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  const firstDigit = Math.floor(n / 26) - 1
 
-const client = new ApolloClient({
-  cache: new InMemoryCache(),
-  link
-})
-
-/**
- * @description
- * Fetch data from GraphQL server.
- *
- * @param query - GraphQL query using gql from @apollo/client
- * @param variables - GraphQL query variables
- *
- * @example
- * const problems = await fetcherGql(GET_PROBLEM, {
- *  groupId: 1,
- *  contestId: 1
- * }).then((data) => data.getContestProblems as ContestProblem[])
- */
-
-export const fetcherGql = async (
-  query: DocumentNode,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  variables?: Record<string, any>
-) => {
-  const { data } = await client.query({
-    query,
-    variables,
-    context: {
-      fetchOptions: {
-        next: { revalidate: 0 }
-      }
-    }
-  })
-  return data
+  return firstDigit >= 0
+    ? alphabet[firstDigit] + alphabet[n % 26]
+    : alphabet[n % 26]
 }

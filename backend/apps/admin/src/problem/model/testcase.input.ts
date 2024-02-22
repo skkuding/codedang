@@ -1,13 +1,18 @@
-import { Field, InputType, Int } from '@nestjs/graphql'
+import { Field, InputType, PickType } from '@nestjs/graphql'
+import { ProblemTestcaseCreateInput } from '@admin/@generated'
 
 @InputType()
-export class Testcase {
+export class Sample {
   @Field(() => String, { nullable: false })
   input!: string
 
   @Field(() => String, { nullable: false })
   output!: string
-
-  @Field(() => Int, { nullable: true })
-  scoreWeight?: number
 }
+
+@InputType()
+export class Testcase extends PickType(ProblemTestcaseCreateInput, [
+  'input',
+  'output',
+  'scoreWeight'
+]) {}
