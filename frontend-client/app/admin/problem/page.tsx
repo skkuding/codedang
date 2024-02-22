@@ -48,7 +48,7 @@ const GET_PROBLEMS = gql(`
 export const dynamic = 'force-dynamic'
 
 export default function Page() {
-  const { data, loading } = useQuery(GET_PROBLEMS, {
+  const { data, loading, refetch } = useQuery(GET_PROBLEMS, {
     variables: {
       groupId: 1,
       take: 100,
@@ -90,7 +90,7 @@ export default function Page() {
             </p>
           </div>
           <div className="flex gap-2">
-            <UploadDialog />
+            <UploadDialog refetch={refetch} />
             <Link href="/admin/problem/create">
               <Button variant="default">
                 <PlusCircleIcon className="mr-2 h-4 w-4" />

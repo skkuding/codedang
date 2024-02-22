@@ -6,18 +6,21 @@ import {
   ApolloClient,
   ApolloLink,
   ApolloProvider,
-  InMemoryCache,
-  createHttpLink
+  InMemoryCache
 } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
+import createUploadLink from 'apollo-upload-client/createUploadLink.mjs'
 
 interface Props {
   children: React.ReactNode
 }
 
 export default function ClientApolloProvider({ children }: Props) {
-  const httpLink = createHttpLink({
-    uri: adminBaseUrl
+  const httpLink = createUploadLink({
+    uri: adminBaseUrl,
+    headers: {
+      'Apollo-Require-Preflight': 'true'
+    }
   })
   const authLink = setContext(async (_, { headers }) => {
     const session = await auth()

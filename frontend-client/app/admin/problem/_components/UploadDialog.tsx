@@ -1,6 +1,11 @@
 import { gql } from '@generated'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTrigger
+} from '@/components/ui/dialog'
 import { useMutation } from '@apollo/client'
 import { UploadIcon, UploadCloudIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -8,6 +13,10 @@ import { createPortal } from 'react-dom'
 import { RiFileExcel2Fill } from 'react-icons/ri'
 import { useDrop } from 'react-use'
 import { toast } from 'sonner'
+
+interface Props {
+  refetch: () => Promise<unknown>
+}
 
 const UPLOAD_PROBLEMS = gql(`
   mutation uploadProblems ($groupId: Int!, $input: UploadFileInput!) {
@@ -17,7 +26,7 @@ const UPLOAD_PROBLEMS = gql(`
   }
 `)
 
-export default function UploadDialog() {
+export default function UploadDialog({ refetch }: Props) {
   const [file, setFile] = useState<File | null>(null)
   const fileRef = useRef<HTMLInputElement | null>(null)
 
@@ -50,22 +59,25 @@ export default function UploadDialog() {
     if (fileRef.current) fileRef.current.value = ''
   }
 
-  const [uploadProblems, { error }] = useMutation(UPLOAD_PROBLEMS)
+  const [uploadProblems, { loading }] = useMutation(UPLOAD_PROBLEMS)
   const uploadFile = async () => {
-    await uploadProblems({
-      variables: {
-        groupId: 1,
-        input: {
-          file
+    try {
+      await uploadProblems({
+        variables: {
+          groupId: 1,
+          input: {
+            file
+          }
         }
-      }
-    })
-    // resetFile()
-    if (error) {
+      })
+    } catch (error) {
       toast.error('Failed to upload file')
-    } else {
-      toast.success('File uploaded successfully')
+      return
     }
+    toast.success('File uploaded successfully')
+    document.getElementById('closeDialog')?.click()
+    resetFile()
+    await refetch()
   }
 
   return (
@@ -92,20 +104,36 @@ export default function UploadDialog() {
           accept=".xlsx"
           onChange={setFileFromInput}
         />
+        <DialogClose />
         {file ? (
-          <section className="flex h-full w-full flex-col items-center justify-center gap-4">
+          <section className="relative flex h-full w-full flex-col items-center justify-center gap-4">
             <div className="flex min-w-60 items-center justify-center gap-2 border-4 border-dotted p-8 text-sm">
               <RiFileExcel2Fill size={20} className="text-[#1D6F42]" />
               {file.name}
             </div>
             <div className="flex gap-4">
-              <Button variant="ghost" size="sm" onClick={resetFile}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={resetFile}
+                disabled={loading}
+              >
                 Reset
               </Button>
-              <Button variant="default" size="sm" onClick={uploadFile}>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={uploadFile}
+                disabled={loading}
+              >
                 Upload
               </Button>
             </div>
+            {loading && (
+              <div className="absolute left-0 top-0 h-full w-full bg-white/20">
+                <div className="" /> {/* spinner */}
+              </div>
+            )}
           </section>
         ) : (
           <section className="flex h-full w-full flex-col items-center justify-center rounded-lg bg-slate-100">
