@@ -23,8 +23,7 @@ import {
 
 export function EditorDescription({ problem }: { problem: ProblemDetail }) {
   const [, copyToClipboard] = useCopyToClipboard()
-  const [isInputCopied, inputCopied] = useState(false)
-  const [isOutputCopied, outputCopied] = useState(false)
+  const [isCopied, copied] = useState<Record<string, boolean>>({})
 
   return (
     <div className="dark flex h-full flex-col gap-8 p-6 text-lg">
@@ -65,13 +64,13 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
                   <TooltipProvider delayDuration={300}>
                     <Tooltip>
                       <motion.div
-                        key={isInputCopied ? 'check' : 'clipboard'}
+                        key={isCopied[`input-${id}`] ? 'check' : 'clipboard'}
                         initial={{ y: 10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: -10, opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        {isInputCopied ? (
+                        {isCopied[`input-${id}`] ? (
                           <CheckCircle size={16} className="text-green-500" />
                         ) : (
                           <TooltipTrigger asChild>
@@ -79,10 +78,16 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
                               size={16}
                               className="cursor-pointer transition-opacity hover:opacity-60"
                               onClick={() => {
-                                copyToClipboard(input + '\n') // add newline to the end for easy testing
-                                inputCopied(true)
+                                copyToClipboard(input + '\n\n') // add newline to the end for easy testing
+                                copied((prev) => ({
+                                  ...prev,
+                                  [`input-${id}`]: true
+                                }))
                                 setTimeout(() => {
-                                  inputCopied(false)
+                                  copied((prev) => ({
+                                    ...prev,
+                                    [`input-${id}`]: false
+                                  }))
                                 }, 2000)
                               }}
                             />
@@ -106,13 +111,13 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
                   <TooltipProvider delayDuration={300}>
                     <Tooltip>
                       <motion.div
-                        key={isOutputCopied ? 'check' : 'clipboard'}
+                        key={isCopied[`output-${id}`] ? 'check' : 'clipboard'}
                         initial={{ y: 10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: -10, opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        {isOutputCopied ? (
+                        {isCopied[`output-${id}`] ? (
                           <CheckCircle size={16} className="text-green-500" />
                         ) : (
                           <TooltipTrigger asChild>
@@ -120,10 +125,16 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
                               size={16}
                               className="cursor-pointer transition-opacity hover:opacity-60"
                               onClick={() => {
-                                copyToClipboard(output + '\n') // add newline to the end for easy testing
-                                outputCopied(true)
+                                copyToClipboard(output)
+                                copied((prev) => ({
+                                  ...prev,
+                                  [`output-${id}`]: true
+                                }))
                                 setTimeout(() => {
-                                  outputCopied(false)
+                                  copied((prev) => ({
+                                    ...prev,
+                                    [`output-${id}`]: false
+                                  }))
                                 }, 2000)
                               }}
                             />
