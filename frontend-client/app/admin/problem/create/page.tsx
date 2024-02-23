@@ -22,6 +22,7 @@ import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -127,6 +128,8 @@ export default function Page() {
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
     tagsData?.getTags.map(({ id, name }) => ({ id: Number(id), name })) ?? []
+  const [showHint, setShowHint] = useState(false)
+  const [showSource, setShowSource] = useState(false)
 
   const router = useRouter()
 
@@ -135,6 +138,7 @@ export default function Page() {
     control,
     register,
     getValues,
+    watch,
     setValue,
     formState: { errors }
   } = useForm<CreateProblemInput>({
@@ -150,6 +154,9 @@ export default function Page() {
       isVisible: true
     }
   })
+
+  const watchedSamples = watch('samples')
+  const watchedTestcases = watch('testcases')
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
   const onSubmit = async (input: CreateProblemInput) => {
@@ -407,8 +414,8 @@ export default function Page() {
               </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              {getValues('samples') &&
-                getValues('samples').map((_sample, index) => (
+              {watchedSamples &&
+                watchedSamples.map((_sample, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       onRemove={() => removeExample('samples', index)}
@@ -438,8 +445,8 @@ export default function Page() {
               </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              {getValues('testcases') &&
-                getValues('testcases').map((_testcase, index) => (
+              {watchedTestcases &&
+                watchedTestcases.map((_testcase, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
@@ -517,12 +524,14 @@ export default function Page() {
               <Label required={false}>Hint</Label>
               <Switch
                 onCheckedChange={() => {
+                  setShowHint(!showHint)
                   setValue('hint', '')
                 }}
+                checked={showHint}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
-            {getValues('hint') && (
+            {showHint && (
               <Textarea
                 id="hint"
                 placeholder="Enter a hint"
@@ -537,12 +546,14 @@ export default function Page() {
               <Label required={false}>Source</Label>
               <Switch
                 onCheckedChange={() => {
+                  setShowSource(!showSource)
                   setValue('source', '')
                 }}
+                checked={showSource}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
-            {getValues('source') && (
+            {showSource && (
               <Input
                 id="source"
                 type="text"
