@@ -23,9 +23,9 @@ import {
 import { fetcherWithAuth } from '@/lib/utils'
 import useEditorStore from '@/stores/editor'
 import type { Language, ProblemDetail, Submission } from '@/types/type'
+import { Trash2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { TbReload } from 'react-icons/tb'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 
@@ -68,7 +68,7 @@ export default function Editor({ problem }: ProblemEditorProps) {
               size="icon"
               className="size-7 shrink-0 rounded-md bg-slate-600 hover:bg-slate-700"
             >
-              <TbReload className="size-4" />
+              <Trash2Icon className="size-4" />
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="border border-slate-700 bg-slate-900">
