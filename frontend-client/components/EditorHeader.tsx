@@ -28,7 +28,6 @@ import type { Language, ProblemDetail, Submission } from '@/types/type'
 import { Trash2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { TbReload } from 'react-icons/tb'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 
