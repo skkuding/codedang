@@ -6,17 +6,24 @@ import codedangLogo from '@/public/codedang-editor.svg'
 import type { ProblemDetail } from '@/types/type'
 import Image from 'next/image'
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 import { IoIosArrowForward } from 'react-icons/io'
 
-export default async function layout({
-  params,
-  children
-}: {
+interface Props {
   params: { problemId: string }
-  children: React.ReactNode
-}) {
-  const { problemId } = params
-  const problem: ProblemDetail = await fetcher(`problem/${problemId}`).json()
+  children: ReactNode
+}
+
+export default async function Layout({
+  params: { problemId },
+  children
+}: Props) {
+  const res = await fetcher(`problem/${problemId}`)
+  if (res.status == 404) {
+    throw new Error('Problem not found')
+  }
+
+  const problem: ProblemDetail = await res.json()
 
   const session = await auth()
 
