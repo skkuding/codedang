@@ -38,6 +38,7 @@ export default function Editor({ problem }: ProblemEditorProps) {
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const router = useRouter()
+
   useInterval(
     async () => {
       const res = await fetcherWithAuth(`submission/${submissionId}`, {
@@ -59,6 +60,43 @@ export default function Editor({ problem }: ProblemEditorProps) {
     },
     loading && submissionId ? 500 : null
   )
+
+  const submit = async () => {
+    if (code === '') {
+      toast.error('Please write your code.')
+      return
+    }
+    setSubmissionId(null)
+    setLoading(true)
+    const res = await fetcherWithAuth.post('submission', {
+      json: {
+        language,
+        code: [
+          {
+            id: 1,
+            text: code,
+            locked: false
+          }
+        ]
+      },
+      searchParams: {
+        problemId: problem.id
+      },
+      next: {
+        revalidate: 0
+      }
+    })
+    if (res.ok) {
+      const submission: Submission = await res.json()
+      setSubmissionId(submission.id)
+    } else {
+      setLoading(false)
+      if (res.status === 401)
+        toast.error('If you want to submit, please login.')
+      else toast.error('Please try again later.')
+    }
+  }
+
   return (
     <div className="flex shrink-0 items-center justify-end border-b border-b-slate-700 bg-slate-800 px-5">
       <div className="flex items-center gap-3">
@@ -71,7 +109,7 @@ export default function Editor({ problem }: ProblemEditorProps) {
               <Trash2Icon className="size-4" />
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="border border-slate-700 bg-slate-900">
+          <AlertDialogContent className="border border-slate-800 bg-slate-900">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-slate-50">
                 Clear code
@@ -89,41 +127,7 @@ export default function Editor({ problem }: ProblemEditorProps) {
         <Button
           className="h-7 shrink-0 rounded-md px-2"
           disabled={loading}
-          onClick={async () => {
-            if (code === '') {
-              toast.error('Please write your code.')
-              return
-            }
-            setLoading(true)
-            setSubmissionId(null)
-            const res = await fetcherWithAuth.post('submission', {
-              json: {
-                language,
-                code: [
-                  {
-                    id: 1,
-                    text: code,
-                    locked: false
-                  }
-                ]
-              },
-              searchParams: {
-                problemId: problem.id
-              },
-              next: {
-                revalidate: 0
-              }
-            })
-            if (res.ok) {
-              const submission: Submission = await res.json()
-              setSubmissionId(submission.id)
-            } else {
-              setLoading(false)
-              if (res.status === 401)
-                toast.error('If you want to submit, please login.')
-              else toast.error('Please try again later.')
-            }
-          }}
+          onClick={submit}
         >
           {loading ? 'Judging' : 'Submit'}
         </Button>
