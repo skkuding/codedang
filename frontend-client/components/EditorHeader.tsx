@@ -25,6 +25,7 @@ import { fetcherWithAuth } from '@/lib/utils'
 import useAuthModalStore from '@/stores/authModal'
 import useEditorStore from '@/stores/editor'
 import type { Language, ProblemDetail, Submission } from '@/types/type'
+import { Trash2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { TbReload } from 'react-icons/tb'
@@ -40,6 +41,7 @@ export default function Editor({ problem }: ProblemEditorProps) {
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const router = useRouter()
+
   useInterval(
     async () => {
       const res = await fetcherWithAuth(`submission/${submissionId}`, {
@@ -71,6 +73,43 @@ export default function Editor({ problem }: ProblemEditorProps) {
     })
   }, [])
 
+  const submit = async () => {
+    if (code === '') {
+      toast.error('Please write code before submission')
+      return
+    }
+    setSubmissionId(null)
+    setLoading(true)
+    const res = await fetcherWithAuth.post('submission', {
+      json: {
+        language,
+        code: [
+          {
+            id: 1,
+            text: code,
+            locked: false
+          }
+        ]
+      },
+      searchParams: {
+        problemId: problem.id
+      },
+      next: {
+        revalidate: 0
+      }
+    })
+    if (res.ok) {
+      const submission: Submission = await res.json()
+      setSubmissionId(submission.id)
+    } else {
+      setLoading(false)
+      if (res.status === 401) {
+        showSignIn()
+        toast.error('Log in first to submit your code')
+      } else toast.error('Please try again later.')
+    }
+  }
+
   return (
     <div className="flex shrink-0 items-center justify-end border-b border-b-slate-700 bg-slate-800 px-5">
       <div className="flex items-center gap-3">
@@ -80,10 +119,10 @@ export default function Editor({ problem }: ProblemEditorProps) {
               size="icon"
               className="size-7 shrink-0 rounded-md bg-slate-600 hover:bg-slate-700"
             >
-              <TbReload className="size-4" />
+              <Trash2Icon className="size-4" />
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="border border-slate-700 bg-slate-900">
+          <AlertDialogContent className="border border-slate-800 bg-slate-900">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-slate-50">
                 Clear code
@@ -101,42 +140,7 @@ export default function Editor({ problem }: ProblemEditorProps) {
         <Button
           className="h-7 shrink-0 rounded-md px-2"
           disabled={loading}
-          onClick={async () => {
-            if (code === '') {
-              toast.error('Please write code before submission')
-              return
-            }
-            setLoading(true)
-            setSubmissionId(null)
-            const res = await fetcherWithAuth.post('submission', {
-              json: {
-                language,
-                code: [
-                  {
-                    id: 1,
-                    text: code,
-                    locked: false
-                  }
-                ]
-              },
-              searchParams: {
-                problemId: problem.id
-              },
-              next: {
-                revalidate: 0
-              }
-            })
-            if (res.ok) {
-              const submission: Submission = await res.json()
-              setSubmissionId(submission.id)
-            } else {
-              setLoading(false)
-              if (res.status === 401) {
-                showSignIn()
-                toast.error('Log in first to submit your code')
-              } else toast.error('Please try again later.')
-            }
-          }}
+          onClick={submit}
         >
           {loading ? 'Judging' : 'Submit'}
         </Button>

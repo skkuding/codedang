@@ -103,7 +103,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Trigger Amplify Frontend Build
-        run: curl -X POST -d {} "${{ secrets.AMPLIFY_WEBHOOK }}"
+        run: curl -X POST -d {} "${{ secrets.AMPLIFY_WEBHOOK }}" -H "Content-Type:application/json"
 
       - uses: hashicorp/setup-terraform@v3
         with:

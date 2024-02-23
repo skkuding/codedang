@@ -7,7 +7,7 @@ import {
   ForbiddenException
 } from '@nestjs/common/exceptions'
 
-abstract class BusinessException extends Error {
+export abstract class BusinessException extends Error {
   name: string
 
   constructor(message: string) {

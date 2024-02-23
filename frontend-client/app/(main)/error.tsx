@@ -2,8 +2,10 @@
 
 import { Button } from '@/components/ui/button'
 import ErrorImg from '@/public/error.webp'
+import { captureException } from '@sentry/nextjs'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 interface Props {
   error: Error & { digest?: string }
@@ -12,6 +14,10 @@ interface Props {
 
 export default function Error({ error }: Props) {
   const router = useRouter()
+
+  useEffect(() => {
+    captureException(error)
+  }, [error])
 
   return (
     <div className="flex h-full w-full flex-1 flex-col items-center justify-center gap-3 py-12">
