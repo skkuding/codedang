@@ -20,12 +20,14 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
+import useAuthModalStore from '@/stores/authModal'
 import useEditorStore from '@/stores/editor'
 import type { Language, ProblemDetail, Submission } from '@/types/type'
 import { Trash2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
 
@@ -61,9 +63,18 @@ export default function Editor({ problem }: ProblemEditorProps) {
     loading && submissionId ? 500 : null
   )
 
+  const { showSignIn } = useAuthModalStore((state) => state)
+  useEffect(() => {
+    auth().then((session) => {
+      if (!session) {
+        toast.info('Log in to use submission & auto save feature')
+      }
+    })
+  }, [])
+
   const submit = async () => {
     if (code === '') {
-      toast.error('Please write your code.')
+      toast.error('Please write code before submission')
       return
     }
     setSubmissionId(null)
@@ -91,9 +102,10 @@ export default function Editor({ problem }: ProblemEditorProps) {
       setSubmissionId(submission.id)
     } else {
       setLoading(false)
-      if (res.status === 401)
-        toast.error('If you want to submit, please login.')
-      else toast.error('Please try again later.')
+      if (res.status === 401) {
+        showSignIn()
+        toast.error('Log in first to submit your code')
+      } else toast.error('Please try again later.')
     }
   }
 

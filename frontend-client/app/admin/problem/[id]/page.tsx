@@ -250,7 +250,7 @@ export default function Page({ params }: { params: { id: string } }) {
       toast.error('Failed to update problem')
       return
     }
-    toast.success('Problem updated successfully')
+    toast.success('Succesfully updated problem')
     router.push('/admin/problem')
     router.refresh()
   }
