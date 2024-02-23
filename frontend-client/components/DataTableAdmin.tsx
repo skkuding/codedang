@@ -179,7 +179,7 @@ export function DataTableAdmin<TData, TValue>({
                 <AlertDialogTitle>Delete</AlertDialogTitle>
                 <AlertDialogDescription>
                   Are you sure you want to permanently delete {selectedRowCount}{' '}
-                  problem(s)?
+                  {page}(s)?
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
