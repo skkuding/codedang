@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 5525",
-    "build": "graphql-codegen && next build",
+    "build": "pnpm run compile && next build",
     "start": "next start",
     "lint": "next lint",
     "compile": "graphql-codegen --require dotenv/config"
