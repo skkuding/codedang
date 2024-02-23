@@ -429,30 +429,28 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    const submissions: Partial<Submission[]> = await this.prisma
-      .$queryRaw`SELECT * FROM submission WHERE problem_id = ${problemId} ORDER BY create_time DESC LIMIT ${take} OFFSET ${paginator}`
-    console.log(submissions)
+    const submissions = await this.prisma.submission.findMany({
+      ...paginator,
+      take,
+      where: {
+        problemId
+      },
+      select: {
+        id: true,
+        user: {
+          select: {
+            username: true
+          }
+        },
+        createTime: true,
+        language: true,
+        result: true,
+        codeSize: true
+      },
+      orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
+    })
 
     return submissions
-    // return await this.prisma.submission.findMany({
-    //   ...paginator,
-    //   take,
-    //   where: {
-    //     problemId
-    //   },
-    //   select: {
-    //     id: true,
-    //     user: {
-    //       select: {
-    //         username: true
-    //       }
-    //     },
-    //     createTime: true,
-    //     language: true,
-    //     result: true,
-    //     codeSize: true
-    //   }
-    // })
   }
 
   async getSubmission(
@@ -571,7 +569,7 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    return await this.prisma.submission.findMany({
+    const submissions = await this.prisma.submission.findMany({
       ...paginator,
       take,
       where: {
@@ -589,8 +587,11 @@ export class SubmissionService implements OnModuleInit {
         language: true,
         result: true,
         codeSize: true
-      }
+      },
+      orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
+
+    return submissions
   }
 
   async getContestSubmission(
