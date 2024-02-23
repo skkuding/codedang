@@ -54,7 +54,7 @@ dev.codedang.com {
 		}
 	}
 
-	handle /logs/* {
+	handle /logs* {
 		reverse_proxy 127.0.0.1:9999
 	}
 
