@@ -23,7 +23,7 @@ interface Inputs {
 
 export default function SignIn() {
   const [disableButton, setDisableButton] = useState(false)
-  const { showSignUp } = useAuthModalStore((state) => state)
+  const { showSignUp, showRecoverAccount } = useAuthModalStore((state) => state)
   const router = useRouter()
   const { register, handleSubmit } = useForm<Inputs>()
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
@@ -96,6 +96,7 @@ export default function SignIn() {
           Sign Up
         </Button>
         <Button
+          onClick={() => showRecoverAccount()}
           variant={'link'}
           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >
