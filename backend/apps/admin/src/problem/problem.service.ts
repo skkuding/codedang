@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Cache } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { Language } from '@generated'
 import type { ContestProblem, Tag, WorkbookProblem } from '@generated'
@@ -387,11 +388,14 @@ export class ProblemService {
   }
 
   async updateTestcases(problemId: number, testcases: Array<Testcase>) {
-    await this.prisma.problemTestcase.deleteMany({
-      where: {
-        problemId
-      }
-    })
+    await Promise.all([
+      this.prisma.problemTestcase.deleteMany({
+        where: {
+          problemId
+        }
+      }),
+      this.cacheManager.del(`${problemId}`)
+    ])
 
     const filename = `${problemId}.json`
     const toBeUploaded: Array<TestCaseInFile> = []
@@ -414,8 +418,6 @@ export class ProblemService {
 
     const data = JSON.stringify(toBeUploaded)
     await this.storageService.uploadObject(filename, data, 'json')
-
-    this.cacheManager.delete(`${problemId}`)
   }
 
   async deleteProblem(id: number, groupId: number) {
