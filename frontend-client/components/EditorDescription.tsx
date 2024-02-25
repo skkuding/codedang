@@ -21,9 +21,29 @@ import {
   TooltipTrigger
 } from './ui/tooltip'
 
-export function EditorDescription({ problem }: { problem: ProblemDetail }) {
+const useCopy = () => {
   const [, copyToClipboard] = useCopyToClipboard()
-  const [isCopied, copied] = useState<Record<string, boolean>>({})
+
+  // copiedID is used to show the checkmark icon when the user copies the input/output
+  const [copiedID, setCopiedID] = useState('')
+  const [timeoutID, setTimeoutID] = useState<NodeJS.Timeout | null>(null)
+
+  const copy = (value: string, id: string) => {
+    copyToClipboard(value)
+    setCopiedID(id)
+
+    // Clear the timeout if it's already set
+    // This will prevent the previous setTimeout from executing
+    timeoutID && clearTimeout(timeoutID)
+    const timeout = setTimeout(() => setCopiedID(''), 2000)
+    setTimeoutID(timeout)
+  }
+
+  return { copiedID, copy }
+}
+
+export function EditorDescription({ problem }: { problem: ProblemDetail }) {
+  const { copiedID, copy } = useCopy()
 
   return (
     <div className="dark flex h-full flex-col gap-8 p-6 text-lg">
@@ -64,13 +84,13 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
                   <TooltipProvider delayDuration={300}>
                     <Tooltip>
                       <motion.div
-                        key={isCopied[`input-${id}`] ? 'check' : 'clipboard'}
+                        key={copiedID == `input-${id}` ? 'check' : 'clipboard'}
                         initial={{ y: 10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: -10, opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        {isCopied[`input-${id}`] ? (
+                        {copiedID == `input-${id}` ? (
                           <CheckCircle size={16} className="text-green-500" />
                         ) : (
                           <TooltipTrigger asChild>
@@ -78,17 +98,7 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
                               size={16}
                               className="cursor-pointer transition-opacity hover:opacity-60"
                               onClick={() => {
-                                copyToClipboard(input + '\n\n') // add newline to the end for easy testing
-                                copied((prev) => ({
-                                  ...prev,
-                                  [`input-${id}`]: true
-                                }))
-                                setTimeout(() => {
-                                  copied((prev) => ({
-                                    ...prev,
-                                    [`input-${id}`]: false
-                                  }))
-                                }, 2000)
+                                copy(input + '\n\n', `input-${id}`) // add newline to the end for easy testing
                               }}
                             />
                           </TooltipTrigger>
@@ -111,13 +121,13 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
                   <TooltipProvider delayDuration={300}>
                     <Tooltip>
                       <motion.div
-                        key={isCopied[`output-${id}`] ? 'check' : 'clipboard'}
+                        key={copiedID == `output-${id}` ? 'check' : 'clipboard'}
                         initial={{ y: 10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: -10, opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        {isCopied[`output-${id}`] ? (
+                        {copiedID == `output-${id}` ? (
                           <CheckCircle size={16} className="text-green-500" />
                         ) : (
                           <TooltipTrigger asChild>
@@ -125,17 +135,7 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
                               size={16}
                               className="cursor-pointer transition-opacity hover:opacity-60"
                               onClick={() => {
-                                copyToClipboard(output)
-                                copied((prev) => ({
-                                  ...prev,
-                                  [`output-${id}`]: true
-                                }))
-                                setTimeout(() => {
-                                  copied((prev) => ({
-                                    ...prev,
-                                    [`output-${id}`]: false
-                                  }))
-                                }, 2000)
+                                copy(output + '\n\n', `output-${id}`) // add newline to the end for easy testing
                               }}
                             />
                           </TooltipTrigger>
