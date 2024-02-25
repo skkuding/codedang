@@ -25,6 +25,7 @@ import { fetcherWithAuth } from '@/lib/utils'
 import useAuthModalStore from '@/stores/authModal'
 import useEditorStore from '@/stores/editor'
 import type { Language, ProblemDetail, Submission } from '@/types/type'
+import JSConfetti from 'js-confetti'
 import { Trash2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -40,6 +41,7 @@ export default function Editor({ problem }: ProblemEditorProps) {
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const router = useRouter()
+  const confetti = new JSConfetti()
 
   useInterval(
     async () => {
@@ -54,6 +56,12 @@ export default function Editor({ problem }: ProblemEditorProps) {
           setLoading(false)
           router.push(`/problem/${problem.id}/submission/${submissionId}`)
           router.refresh()
+          if (submission.result === 'Accepted') {
+            toast.success('Accepted')
+            confetti.addConfetti()
+          } else {
+            toast.error(submission.result)
+          }
         }
       } else {
         setLoading(false)
