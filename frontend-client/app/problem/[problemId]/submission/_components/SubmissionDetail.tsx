@@ -98,7 +98,9 @@ export default async function SubmissionDetail({
                     {item.result}
                   </TableCell>
                   <TableCell>{item.cpuTime} ms</TableCell>
-                  <TableCell>{item.memoryUsage} mb</TableCell>
+                  <TableCell>
+                    {(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
