@@ -89,7 +89,7 @@ export default function SignUpRegister() {
       }).then((res) => {
         if (res.status === 201) {
           document.getElementById('closeDialog')?.click()
-          toast.success('Sign up succeed!')
+          toast.success('Sign up succeeded!')
         }
       })
     } catch {

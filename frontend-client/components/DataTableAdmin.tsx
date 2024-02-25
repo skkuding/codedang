@@ -2,6 +2,17 @@
 
 import { gql } from '@generated'
 import { GET_TAGS } from '@/app/admin/problem/utils'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -86,6 +97,8 @@ export function DataTableAdmin<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues()
   })
 
+  const selectedRowCount = Object.values(rowSelection).filter(Boolean).length
+
   const DELETE_PROBLEM = gql(`
   mutation DeleteProblem($groupId: Int!, $id: Int!) {
     deleteProblem(groupId: $groupId, id: $id) {
@@ -154,9 +167,34 @@ export function DataTableAdmin<TData, TValue>({
             />
           )}
         </div>
-        <Button onClick={() => handleDeleteRows()} variant="outline">
-          <PiTrashLight fontSize={18} />
-        </Button>
+        {selectedRowCount !== 0 ? (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline">
+                <PiTrashLight fontSize={18} />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to permanently delete {selectedRowCount}{' '}
+                  {page}(s)?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction asChild>
+                  <Button onClick={() => handleDeleteRows()}>Continue</Button>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        ) : (
+          <Button variant="outline">
+            <PiTrashLight fontSize={18} />
+          </Button>
+        )}
       </div>
 
       <div className="rounded-md border">

@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 5525",
-    "build": "graphql-codegen && next build",
+    "build": "pnpm run compile && next build",
     "start": "next start",
     "lint": "next lint",
-    "compile": "graphql-codegen"
+    "compile": "graphql-codegen --require dotenv/config"
   },
   "dependencies": {
     "@apollo/client": "^3.9.5",
@@ -33,6 +33,7 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.1.5",
     "@radix-ui/react-toggle": "^1.0.3",
+    "@radix-ui/react-tooltip": "^1.0.7",
     "@sentry/nextjs": "^7.102.0",
     "@tailwindcss/typography": "^0.5.10",
     "@tanstack/react-table": "^8.12.0",
@@ -44,9 +45,12 @@
     "@uiw/codemirror-extensions-langs": "^4.21.22",
     "@uiw/codemirror-themes": "^4.21.22",
     "@uiw/react-codemirror": "^4.21.22",
+    "apollo-upload-client": "^18.0.1",
     "cmdk": "^0.2.1",
     "dayjs": "^1.11.10",
+    "dotenv": "^16.4.5",
     "embla-carousel-react": "8.0.0-rc22",
+    "framer-motion": "^11.0.5",
     "graphql": "^16.8.1",
     "isomorphic-dompurify": "^2.3.0",
     "ky": "^1.2.0",
@@ -68,6 +72,7 @@
     "@graphql-codegen/cli": "^5.0.2",
     "@graphql-codegen/client-preset": "^4.2.2",
     "@graphql-typed-document-node/core": "^3.2.0",
+    "@types/apollo-upload-client": "^18.0.0",
     "@types/node": "^20.11.19",
     "@types/react": "^18.2.56",
     "@types/react-copy-to-clipboard": "^5.0.7",
