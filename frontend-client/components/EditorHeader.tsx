@@ -55,7 +55,6 @@ export default function Editor({ problem }: ProblemEditorProps) {
         if (submission.result !== 'Judging') {
           setLoading(false)
           router.push(`/problem/${problem.id}/submission/${submissionId}`)
-          router.refresh()
           if (submission.result === 'Accepted') {
             toast.success('Accepted')
             confetti?.addConfetti()
