@@ -35,40 +35,6 @@ const config: KnipConfig = {
       }
     },
     frontend: {
-      entry: [
-        'src/main.ts',
-        'src/common/layouts/*.vue',
-        'src/user/home/pages/**/*.vue',
-        'src/user/notice/pages/**/*.vue',
-        'src/user/problem/pages/**/*.vue',
-        'src/user/contest/pages/**/*.vue',
-        'src/user/group/pages/**/*.vue',
-        'src/user/workbook/pages/**/*.vue',
-        'src/admin/pages/**/*.vue',
-        'histoire.config.ts',
-        'src/histoire.setup.ts'
-      ],
-      project: ['**/*.{vue,ts}'],
-      ignore: ['**/*.story.vue'],
-      ignoreDependencies: [
-        'virtual:generated-layouts',
-        'virtual:generated-pages',
-        '@iconify-json/ant-design',
-        '@iconify-json/bi',
-        '@iconify-json/fa',
-        '@iconify-json/fa6-brands',
-        '@iconify-json/fa6-regular',
-        '@iconify-json/fa6-solid',
-        '@iconify-json/fluent',
-        '@iconify-json/iconoir',
-        '@iconify-json/material-symbols',
-        '@iconify-json/ri'
-      ], // TODO: handle icon packages
-      paths: {
-        '@/*': ['src/*']
-      }
-    },
-    'frontend-client': {
       ignoreDependencies: [
         'eslint-config-next', // used by ESLint
         'sharp' // used by next/image

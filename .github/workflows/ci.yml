@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [frontend, frontend-client, backend, backend-admin]
+        target: [frontend, backend, backend-admin]
 
     steps:
       - uses: actions/checkout@v4
@@ -24,20 +24,20 @@ jobs:
         run: pnpm --filter backend exec prisma generate
 
       - name: Setup Next.js build cache
-        if: ${{ matrix.target == 'frontend-client' }}
+        if: ${{ matrix.target == 'frontend' }}
         uses: actions/cache@v4
         with:
-          path: frontend-client/.next/cache
+          path: frontend/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
 
       - name: Load Next.js environment
-        if: ${{ matrix.target == 'frontend-client' }}
+        if: ${{ matrix.target == 'frontend' }}
         run: |
-          echo "NEXT_PUBLIC_BASEURL=https://dev-aws.codedang.com/api" >> frontend-client/.env
-          echo "NEXT_PUBLIC_GQL_BASEURL=https://dev-aws.codedang.com/graphql" >> frontend-client/.env
-          echo "NEXT_URL=https://dev.codedang.com" >> frontend-client/.env
+          echo "NEXT_PUBLIC_BASEURL=https://dev-aws.codedang.com/api" >> frontend/.env
+          echo "NEXT_PUBLIC_GQL_BASEURL=https://dev-aws.codedang.com/graphql" >> frontend/.env
+          echo "NEXT_URL=https://dev.codedang.com" >> frontend/.env
 
       # If target is backend-admin, run `pnpm --filter backend build admin`
       # For other targets, run `pnpm --filter <target> build`
@@ -62,10 +62,7 @@ jobs:
       - name: Check types (backend)
         run: pnpm --filter backend exec tsc --noEmit
 
-      - name: Check types (frontend)
-        run: pnpm --filter frontend exec vue-tsc --noEmit
-
-      # Typecheck is not performed for frontend-client intentionally.
+      # Typecheck is not performed for frontend intentionally.
       # Check: https://github.com/vercel/next.js/issues/53959
       # Unlike backend, we don't have spec file to check types.
       # So typechecking performed in the build step is enough.

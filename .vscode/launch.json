@@ -32,13 +32,6 @@
       "console": "integratedTerminal"
     },
     {
-      "type": "chrome",
-      "request": "launch",
-      "name": "Frontend (Vue.js)",
-      "url": "http://localhost:5173",
-      "webRoot": "${workspaceFolder}/frontend/src"
-    },
-    {
       "type": "go",
       "request": "launch",
       "name": "Iris 🐶",

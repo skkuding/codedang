@@ -11,10 +11,6 @@
     {
       "path": "frontend",
       "name": "Frontend"
-    },
-    {
-      "path": "frontend-client",
-      "name": "Frontend Client"
     }
   ]
 }

@@ -36,7 +36,6 @@
 }
 
 dev.codedang.com {
-	import cors http://localhost:5173 # frontend server (Vue)
 	import cors http://localhost:5525 # frontend server (Next.js)
 	# Use wildcard matcher to allow all subdomains
 	# https://caddyserver.com/docs/caddyfile/matchers#header
