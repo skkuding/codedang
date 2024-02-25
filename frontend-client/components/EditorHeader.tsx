@@ -41,7 +41,7 @@ export default function Editor({ problem }: ProblemEditorProps) {
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const router = useRouter()
-  const confetti = new JSConfetti()
+  const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
 
   useInterval(
     async () => {
@@ -58,7 +58,7 @@ export default function Editor({ problem }: ProblemEditorProps) {
           router.refresh()
           if (submission.result === 'Accepted') {
             toast.success('Accepted')
-            confetti.addConfetti()
+            confetti?.addConfetti()
           } else {
             toast.error(submission.result)
           }
