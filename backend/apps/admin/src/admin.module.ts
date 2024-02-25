@@ -15,7 +15,7 @@ import {
 import { CacheConfigService } from '@libs/cache'
 import { AdminExceptionFilter } from '@libs/exception'
 import { apolloErrorFormatter } from '@libs/exception'
-import { pinoLoggerModuleOption } from '@libs/logger'
+import { LoggingPlugin, pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { NoticeModule } from '@admin/notice/notice.module'
 import { AdminController } from './admin.controller'
@@ -62,7 +62,8 @@ import { UserModule } from './user/user.module'
     AdminService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: GroupLeaderGuard },
-    { provide: APP_FILTER, useClass: AdminExceptionFilter }
+    { provide: APP_FILTER, useClass: AdminExceptionFilter },
+    LoggingPlugin
   ]
 })
 export class AdminModule implements OnApplicationBootstrap {
