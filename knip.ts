@@ -51,15 +51,6 @@ const config: KnipConfig = {
   ignoreExportsUsedInFile: {
     interface: true,
     type: true
-  },
-  compilers: {
-    vue: (text) => {
-      const vueCompiler = /<script\b[^>]*>([\s\S]*?)<\/script>/gm
-      const scripts: string[] = []
-      let match
-      while ((match = vueCompiler.exec(text))) scripts.push(match[1])
-      return scripts.join(';')
-    }
   }
 }
 
