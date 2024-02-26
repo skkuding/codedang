@@ -44,7 +44,15 @@ export class TagResolver {
     tagNames: string[]
   ) {
     try {
-      return await this.problemService.createTags(tagNames)
+      // 각 태그 이름을 원하는 형식으로 변환
+      const formattedTagNames = tagNames.map(
+        (tagName) =>
+          tagName
+            .replace(/\s+/g, '-') // 띄어쓰기를 '-'로 대체
+            .toLowerCase() // 모든 영문자를 소문자로 변환
+      )
+
+      return await this.problemService.createTags(formattedTagNames)
     } catch (error) {
       if (error instanceof DuplicateFoundException) {
         throw error.convert2HTTPException()
