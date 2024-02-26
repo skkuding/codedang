@@ -22,7 +22,7 @@ pnpm install
 pnpm run init:testcases
 
 # 데이터베이스 마이그레이션
-pnpm --filter backend exec prisma migrate reset -f
+pnpm --filter apps/backend exec prisma migrate reset -f
 
 # RabbitMQ Admin 설치
 curl https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/main/deps/rabbitmq_management/bin/rabbitmqadmin -o /usr/local/bin/rabbitmqadmin

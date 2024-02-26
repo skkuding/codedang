@@ -21,6 +21,17 @@
 	# Handler: Set CORS headers
 	@cors{args[0]} header Origin {args[0]}
 	header @cors{args[0]} Access-Control-Allow-Origin "{header.Origin}"
+
+	# handle @cors{args[0]} {
+	# 	header Access-Control-Allow-Origin "{header.Origin}"
+	# }
+
+	# handle @cors{args[0]} {
+	# 	header Access-Control-Allow-Credentials true
+	# 	header Access-Control-Allow-Origin "{header.Origin}"
+	# 	header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+	# 	header Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth, Apollo-Require-Preflight"
+	# }
 }
 
 # Global options

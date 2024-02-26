@@ -63,7 +63,7 @@ importers:
         specifier: ^9.4.2
         version: 9.4.2(eslint@8.56.0)
 
-  backend:
+  apps/backend:
     dependencies:
       '@apollo/server':
         specifier: ^4.10.0
@@ -283,7 +283,7 @@ importers:
         specifier: ^5.3.3
         version: 5.3.3
 
-  frontend:
+  apps/frontend:
     dependencies:
       '@apollo/client':
         specifier: ^3.9.5
@@ -3813,7 +3813,7 @@ packages:
       nopt: 5.0.0
       npmlog: 5.0.1
       rimraf: 3.0.2
-      semver: 7.5.4
+      semver: 7.6.0
       tar: 6.2.0
     transitivePeerDependencies:
       - encoding
@@ -8787,6 +8787,7 @@ packages:
       readdirp: 3.6.0
     optionalDependencies:
       fsevents: 2.3.3
+    dev: true
 
   /chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
@@ -10734,7 +10735,7 @@ packages:
       minimatch: 3.1.2
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
-      semver: 7.5.4
+      semver: 7.6.0
       tapable: 2.2.1
       typescript: 5.3.3
       webpack: 5.90.1
@@ -12112,7 +12113,7 @@ packages:
       lodash.isstring: 4.0.1
       lodash.once: 4.1.1
       ms: 2.1.3
-      semver: 7.5.4
+      semver: 7.6.0
     dev: false
 
   /jstransformer@1.0.0:
@@ -13019,7 +13020,7 @@ packages:
     hasBin: true
     dependencies:
       '@babel/runtime': 7.23.9
-      chokidar: 3.5.3
+      chokidar: 3.6.0
       glob: 7.2.3
       html-minifier: 4.0.0
       js-beautify: 1.14.11
@@ -15639,6 +15640,7 @@ packages:
     hasBin: true
     dependencies:
       lru-cache: 6.0.0
+    dev: true
 
   /semver@7.6.0:
     resolution: {integrity: sha512-EnwXhrlwXMk9gKu5/flx5sv/an57AkRplG3hTK68W7FRDN+k+OWBj65M7719OkA82XLBxrcX0KSHj+X5COhOVg==}
@@ -16315,7 +16317,7 @@ packages:
     dependencies:
       '@alloc/quick-lru': 5.2.0
       arg: 5.0.2
-      chokidar: 3.5.3
+      chokidar: 3.6.0
       didyoumean: 1.2.2
       dlv: 1.1.3
       fast-glob: 3.3.2
@@ -16585,7 +16587,7 @@ packages:
       chalk: 4.1.2
       enhanced-resolve: 5.15.0
       micromatch: 4.0.5
-      semver: 7.5.4
+      semver: 7.6.0
       source-map: 0.7.4
       typescript: 5.3.3
       webpack: 5.90.1

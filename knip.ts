@@ -6,7 +6,7 @@ const config: KnipConfig = {
     '.': {
       entry: ['scripts/*.ts']
     },
-    backend: {
+    'apps/backend': {
       entry: [
         'apps/{admin,client}/**/{main.ts,app.module.ts}',
         'prisma/seed.ts'
@@ -34,7 +34,7 @@ const config: KnipConfig = {
         entry: ['{apps,libs}/**/*.spec.ts']
       }
     },
-    frontend: {
+    'apps/frontend': {
       ignoreDependencies: [
         'eslint-config-next', // used by ESLint
         'sharp' // used by next/image
