@@ -1,7 +1,7 @@
 meta {
-  name: 422- Bad Password
+  name: [400] Bad Username
   type: http
-  seq: 2
+  seq: 4
 }
 
 post {
@@ -10,14 +10,10 @@ post {
   auth: none
 }
 
-headers {
-  email-auth: {{email_token}}
-}
-
 body:json {
   {
-    "username": "test",
-    "password": "badpassword",
+    "username": "bad username",
+    "password": "it'smehi",
     "email": "skkucp@gmail.com",
     "realName": "MyeongRyunLee"
   }

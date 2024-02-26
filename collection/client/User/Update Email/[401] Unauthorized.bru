@@ -1,11 +1,11 @@
 meta {
-  name: 404- Not Found
+  name: [401] Unauthorized
   type: http
-  seq: 4
+  seq: 2
 }
 
 patch {
-  url: user/email
+  url: {{baseUrl}}/user/email
   body: json
   auth: none
 }
@@ -18,4 +18,8 @@ body:json {
   {
     "email": "sori2511@gmail.com"
   }
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
 }

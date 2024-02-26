@@ -1,0 +1,34 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/user/profile
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "realName": "Yuljeon Kim"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.id: eq 2
+  res.body.realName: eq Yuljeon Kim
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Update Profile
+  
+  - 로그인한 유저의 Profile상의 realName을 변경합니다.
+  - userProfile을 찾지 못했을 경우에는 `404`를 반환합니다.
+}

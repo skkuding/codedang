@@ -95,6 +95,14 @@ const createUsers = async () => {
       realName: 'Yuljeon Kim'
     }
   })
+
+  // create user01 profile
+  await prisma.userProfile.create({
+    data: {
+      userId: users[0].id,
+      realName: 'Myeongryun Lee'
+    }
+  })
 }
 
 const createGroups = async () => {

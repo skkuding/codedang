@@ -50,7 +50,7 @@ export class UserController {
       return await this.userService.updatePassword(newPasswordDto, req)
     } catch (error) {
       if (
-        error instanceof UnidentifiedException ||
+        error instanceof InvalidJwtTokenException ||
         error instanceof UnprocessableDataException
       ) {
         throw error.convert2HTTPException()
