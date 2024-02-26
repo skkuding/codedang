@@ -1,12 +1,11 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { fetcher } from '@/lib/utils'
+import { cn, fetcher } from '@/lib/utils'
 import useAuthModalStore from '@/stores/authModal'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { GrReturn } from 'react-icons/gr'
 import { z } from 'zod'
 
 interface FindUserIdInput {
@@ -19,21 +18,21 @@ const schema = z.object({
 export default function FindUserId() {
   const [userId, setUserId] = useState<string>('')
   const [emailError, setEmailError] = useState<string>('')
-  const { nextModal } = useRecoverAccountModalStore((state) => state)
+  const [sentEmail, setSentEmail] = useState<boolean>(false)
+  const { nextModal, setFormData } = useRecoverAccountModalStore(
+    (state) => state
+  )
   const { showSignIn } = useAuthModalStore((state) => state)
 
   const {
     handleSubmit,
     register,
     trigger,
+    getValues,
     formState: { errors }
   } = useForm<FindUserIdInput>({
     resolver: zodResolver(schema)
   })
-
-  useEffect(() => {
-    trigger('email')
-  }, [trigger])
 
   const onSubmit = async (data: FindUserIdInput) => {
     const { email } = data
@@ -52,29 +51,58 @@ export default function FindUserId() {
     }
   }
 
+  const sendEmail = async () => {
+    const { email } = getValues()
+    setFormData({
+      email,
+      verificationCode: '',
+      headers: {
+        'email-auth': ''
+      }
+    })
+    await trigger('email')
+    if (!errors.email && !sentEmail) {
+      await fetcher
+        .post('email-auth/send-email/password-reset', {
+          json: { email }
+        })
+        .then((res) => {
+          if (res.status === 401) {
+            setEmailError(
+              'Email authentication pin is sent to your email address'
+            )
+          } else if (res.status === 201) {
+            setSentEmail(true)
+            setEmailError('')
+          }
+        })
+        .catch(() => {
+          setEmailError('Something went wrong!')
+        })
+    }
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
-      <div>
-        <p className="mb-4 text-left text-xl font-bold text-blue-500">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex w-full flex-col gap-8 px-2"
+    >
+      <div className="flex flex-col gap-1">
+        <p className="text-primary mb-4 text-left text-xl font-bold">
           Find User ID
         </p>
-        <div className="flex gap-2">
-          <Input
-            id="email"
-            type="email"
-            placeholder="Email Address"
-            {...register('email', {
-              onChange: () => trigger('email')
-            })}
-          />
-          <Button
-            type="submit"
-            className="flex aspect-square w-12 items-center justify-center rounded-md p-0"
-            disabled={!!errors.email}
-          >
-            <GrReturn size="24" />
-          </Button>
-        </div>
+        <Input
+          id="email"
+          type="email"
+          placeholder="Email Address"
+          {...register('email', {
+            onChange: () => trigger('email')
+          })}
+          disabled={!!userId}
+        />
+        {errors.email && (
+          <p className="text-xs text-red-500">{errors.email?.message}</p>
+        )}
         <p className="text-xs text-red-500">{emailError}</p>
         {userId ? (
           <p className="text-center text-sm text-gray-500">
@@ -89,11 +117,26 @@ export default function FindUserId() {
 
       <div className="flex flex-col gap-4">
         {userId ? (
-          <Button onClick={() => showSignIn()}>Log in</Button>
+          <Button onClick={() => showSignIn()} type="button">
+            Log in
+          </Button>
         ) : (
           <Button type="submit">Find User ID</Button>
         )}
-        <Button className="w-64" onClick={() => nextModal()} disabled={!userId}>
+        <Button
+          type="button"
+          onClick={() => {
+            sendEmail()
+              .then(() => {
+                nextModal()
+              })
+              .catch(() => {
+                console.log('error')
+              })
+          }}
+          className={cn(!userId && 'bg-gray-400')}
+          disabled={!userId}
+        >
           Reset Password
         </Button>
       </div>
