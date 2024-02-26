@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.9.5",
-    "@codemirror/state": "^6.4.0",
-    "@codemirror/view": "^6.23.1",
+    "@codemirror/state": "^6.4.1",
+    "@codemirror/view": "^6.24.1",
     "@headlessui/react": "^1.7.18",
     "@hookform/resolvers": "^3.3.4",
     "@lezer/highlight": "^1.2.0",
