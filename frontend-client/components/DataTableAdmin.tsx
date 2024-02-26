@@ -75,6 +75,7 @@ export function DataTableAdmin<TData, TValue>({
       sorting,
       rowSelection
     },
+    autoResetPageIndex: false,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
