@@ -56,98 +56,128 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
       </div>
       <div>
         <h2 className="mb-3 font-bold">Input</h2>
-        <pre className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
-          {problem.inputDescription}
-        </pre>
+        <div
+          className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
+          dangerouslySetInnerHTML={{
+            __html: sanitize(problem.inputDescription)
+          }}
+        />
       </div>
       <div>
         <h2 className="mb-3 font-bold">Output</h2>
-        <pre className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
-          {problem.outputDescription}
-        </pre>
+        <div
+          className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
+          dangerouslySetInnerHTML={{
+            __html: sanitize(problem.inputDescription)
+          }}
+        />
       </div>
       <div>
-        {problem.samples.map(({ id, input, output }, index) => (
-          <div key={id} className="mb-2">
-            <h2 className="mb-2 font-bold">Sample {index + 1}</h2>
+        {problem.samples.map(({ id, input, output }, index) => {
+          const commonStyle =
+            'color: rgb(53, 129, 250); min-width: 0.5em; display: inline-block;'
+          input = input
+            .replaceAll(/ /g, `<span style="${commonStyle}">␣</span>`)
+            .replaceAll(/\n/g, `<span style="${commonStyle}">↵</span>\n`)
+            .replaceAll(/\t/g, `<span style="${commonStyle}">↹</span>`)
+          output = output
+            .replaceAll(/ /g, `<span style="${commonStyle}">␣</span>`)
+            .replaceAll(/\n/g, `<span style="${commonStyle}">↵</span>\n`)
+            .replaceAll(/\t/g, `<span style="${commonStyle}">↹</span>`)
+          return (
+            <div key={id} className="mb-2">
+              <h2 className="mb-2 font-bold">Sample {index + 1}</h2>
 
-            <div className="flex space-x-2 text-base">
-              <div className="w-full rounded-md bg-slate-900">
-                <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2">
-                  <h3 className="select-none text-xs font-semibold">Input</h3>
-                  <TooltipProvider delayDuration={300}>
-                    <Tooltip>
-                      <motion.div
-                        key={copiedID == `input-${id}` ? 'check' : 'clipboard'}
-                        initial={{ y: 10, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -10, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        {copiedID == `input-${id}` ? (
-                          <CheckCircle size={16} className="text-green-500" />
-                        ) : (
-                          <TooltipTrigger asChild>
-                            <Clipboard
-                              size={16}
-                              className="cursor-pointer transition-opacity hover:opacity-60"
-                              onClick={() => {
-                                copy(input + '\n\n', `input-${id}`) // add newline to the end for easy testing
-                              }}
-                            />
-                          </TooltipTrigger>
-                        )}
-                      </motion.div>
-                      <TooltipContent>
-                        <p>Copy</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+              <div className="flex space-x-2 text-base">
+                <div className="w-full rounded-md bg-slate-900">
+                  <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2">
+                    <h3 className="select-none text-xs font-semibold">Input</h3>
+                    <TooltipProvider delayDuration={300}>
+                      <Tooltip>
+                        <motion.div
+                          key={
+                            copiedID == `input-${id}` ? 'check' : 'clipboard'
+                          }
+                          initial={{ y: 10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: -10, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {copiedID == `input-${id}` ? (
+                            <CheckCircle size={16} className="text-green-500" />
+                          ) : (
+                            <TooltipTrigger asChild>
+                              <Clipboard
+                                size={16}
+                                className="cursor-pointer transition-opacity hover:opacity-60"
+                                onClick={() => {
+                                  copy(input + '\n\n', `input-${id}`) // add newline to the end for easy testing
+                                }}
+                              />
+                            </TooltipTrigger>
+                          )}
+                        </motion.div>
+                        <TooltipContent>
+                          <p>Copy</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <pre
+                    className="h-24 w-full overflow-auto px-4 py-2 font-mono text-sm"
+                    dangerouslySetInnerHTML={{
+                      __html: sanitize(input)
+                    }}
+                  />
                 </div>
-                <pre className="h-24 w-full overflow-auto px-4 py-2 font-mono text-sm">
-                  {input}
-                </pre>
-              </div>
 
-              <div className="w-full rounded-md bg-slate-900">
-                <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2">
-                  <h3 className="select-none text-xs font-semibold">Output</h3>
-                  <TooltipProvider delayDuration={300}>
-                    <Tooltip>
-                      <motion.div
-                        key={copiedID == `output-${id}` ? 'check' : 'clipboard'}
-                        initial={{ y: 10, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -10, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        {copiedID == `output-${id}` ? (
-                          <CheckCircle size={16} className="text-green-500" />
-                        ) : (
-                          <TooltipTrigger asChild>
-                            <Clipboard
-                              size={16}
-                              className="cursor-pointer transition-opacity hover:opacity-60"
-                              onClick={() => {
-                                copy(output + '\n\n', `output-${id}`) // add newline to the end for easy testing
-                              }}
-                            />
-                          </TooltipTrigger>
-                        )}
-                      </motion.div>
-                      <TooltipContent>
-                        <p>Copy</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                <div className="w-full rounded-md bg-slate-900">
+                  <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2">
+                    <h3 className="select-none text-xs font-semibold">
+                      Output
+                    </h3>
+                    <TooltipProvider delayDuration={300}>
+                      <Tooltip>
+                        <motion.div
+                          key={
+                            copiedID == `output-${id}` ? 'check' : 'clipboard'
+                          }
+                          initial={{ y: 10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: -10, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {copiedID == `output-${id}` ? (
+                            <CheckCircle size={16} className="text-green-500" />
+                          ) : (
+                            <TooltipTrigger asChild>
+                              <Clipboard
+                                size={16}
+                                className="cursor-pointer transition-opacity hover:opacity-60"
+                                onClick={() => {
+                                  copy(output + '\n\n', `output-${id}`) // add newline to the end for easy testing
+                                }}
+                              />
+                            </TooltipTrigger>
+                          )}
+                        </motion.div>
+                        <TooltipContent>
+                          <p>Copy</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <pre
+                    className="h-24 w-full overflow-auto px-4 py-2 font-mono text-sm"
+                    dangerouslySetInnerHTML={{
+                      __html: sanitize(output)
+                    }}
+                  />
                 </div>
-                <pre className="h-24 w-full overflow-auto px-4 py-2 font-mono text-sm">
-                  {output}
-                </pre>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <div className="items-center space-y-1 text-base">
@@ -193,9 +223,10 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              <pre className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
-                {problem.hint}
-              </pre>
+              <pre
+                dangerouslySetInnerHTML={{ __html: sanitize(problem.hint) }}
+                className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
+              />
             </AccordionContent>
           </AccordionItem>
         )}
