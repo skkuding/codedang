@@ -124,7 +124,6 @@ export function DataTableAdmin<TData, TValue>({
           }
         })
       } else {
-        console.log('delete', row.original.id)
         return Promise.resolve()
       }
     })
