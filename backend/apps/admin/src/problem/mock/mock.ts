@@ -545,7 +545,7 @@ export const exampleProblemTags: ProblemTag[] = [
 
 export const exampleTag: Tag = {
   id: 1,
-  name: 'brute force',
+  name: 'brute-force',
   createTime: new Date(),
   updateTime: new Date()
 }
