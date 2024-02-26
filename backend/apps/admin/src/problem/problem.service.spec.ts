@@ -58,7 +58,10 @@ const db = {
   tag: {
     findUnique: stub(),
     findMany: stub(),
-    create: stub()
+    create: stub(),
+    findFirst: stub(),
+    update: stub(),
+    delete: stub()
   },
   workbook: {
     findFirstOrThrow: stub()
@@ -530,6 +533,66 @@ describe('ProblemService', () => {
     })
   })
 
+  describe('updateTag', () => {
+    beforeEach(() => {
+      db.tag.findFirst.reset()
+      db.tag.update.reset()
+    })
+    afterEach(() => {
+      db.tag.findFirst.reset()
+      db.tag.update.reset()
+    })
+
+    it('should return updated tag', async () => {
+      db.tag.findFirst.onCall(0).resolves(exampleTag)
+      db.tag.findFirst.onCall(1).resolves(null)
+      db.tag.update.resolves({ ...exampleTag, name: 'new' })
+      const result = await service.updateTag('brute-force', 'new')
+      expect(result).to.deep.equal({ ...exampleTag, name: 'new' })
+    })
+
+    it('should handle a entity not exist exception', async () => {
+      db.tag.findFirst.onCall(0).resolves(null)
+      await expect(
+        service.updateTag('something does not exist', 'new')
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should handle a duplicate found exception', async () => {
+      db.tag.findFirst.onCall(0).resolves(exampleTag)
+      db.tag.findFirst
+        .onCall(1)
+        .resolves({ ...exampleTag, name: 'something duplicate' })
+      await expect(
+        service.updateTag('brute-force', 'something duplicate')
+      ).to.be.rejectedWith(DuplicateFoundException)
+    })
+  })
+
+  describe('deleteTag', () => {
+    beforeEach(() => {
+      db.tag.findFirst.reset()
+      db.tag.delete.reset()
+    })
+    afterEach(() => {
+      db.tag.findFirst.reset()
+      db.tag.delete.reset()
+    })
+
+    it('should return deleted tag', async () => {
+      db.tag.findFirst.resolves(exampleTag)
+      db.tag.delete.resolves(exampleTag)
+      const result = await service.deleteTag('brute-force')
+      expect(result).to.deep.equal(exampleTag)
+    })
+
+    it('should handle a entity not exist exception', async () => {
+      db.tag.findFirst.resolves(null)
+      await expect(
+        service.deleteTag('something does not exist')
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
   describe('getTag', () => {
     afterEach(() => {
       db.tag.findUnique.reset()
