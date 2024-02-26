@@ -5,6 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef } from '@tanstack/react-table'
+import { useState } from 'react'
 import { FiEyeOff } from 'react-icons/fi'
 import { FiEye } from 'react-icons/fi'
 
@@ -36,26 +37,28 @@ const EDIT_VISIBLE = gql(`
 
 function VisibleCell({ isVisible, id }: { isVisible: boolean; id: number }) {
   const [updateVisible] = useMutation(EDIT_VISIBLE)
+  const [isVisibleState, setIsVisibleState] = useState(isVisible)
 
   return (
     <div className="flex space-x-2">
       <Switch
         id="hidden-mode"
-        checked={isVisible}
+        checked={isVisibleState}
         onCheckedChange={() => {
+          setIsVisibleState(!isVisibleState)
           updateVisible({
             variables: {
               groupId: 1,
               input: {
                 id,
-                isVisible: !isVisible
+                isVisible: !isVisibleState
               }
             }
           })
         }}
       />
       <div className="flex items-center justify-center">
-        {isVisible ? (
+        {isVisibleState ? (
           <FiEye className="text-primary h-[14px] w-[14px]" />
         ) : (
           <FiEyeOff className="h-[14px] w-[14px] text-gray-400" />
@@ -210,8 +213,9 @@ export const columns: ColumnDef<DataTableProblem>[] = [
       <DataTableColumnHeader column={column} title="Visible" />
     ),
     cell: ({ row }) => {
-      const isVisible: boolean = row.getValue('isVisible')
-      return <VisibleCell isVisible={isVisible} id={row.original.id} />
+      return (
+        <VisibleCell isVisible={row.original.isVisible} id={row.original.id} />
+      )
     }
   }
 ]
