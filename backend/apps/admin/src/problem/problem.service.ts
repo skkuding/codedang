@@ -535,12 +535,12 @@ export class ProblemService {
     return await this.prisma.$transaction(queries)
   }
 
-  async createTags(tagNames: string[]): Promise<Partial<Tag>[]> {
+  async createTags(formattedTagNames: string[]): Promise<Partial<Tag>[]> {
     // check if tagNames are already exist
     const existingTags = await this.prisma.tag.findMany({
       where: {
         name: {
-          in: tagNames
+          in: formattedTagNames
         }
       }
     })
@@ -548,7 +548,7 @@ export class ProblemService {
       throw new DuplicateFoundException('tag')
     }
 
-    const toBeExecutedQueries = tagNames.map((name) => {
+    const toBeExecutedQueries = formattedTagNames.map((name) => {
       return this.prisma.tag.create({
         data: {
           name
