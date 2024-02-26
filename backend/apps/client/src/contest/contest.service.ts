@@ -251,7 +251,7 @@ export class ContestService {
       select: contestSelectOption,
       orderBy: [{ endTime: 'desc' }, { id: 'desc' }]
     })
-    return { finished: this.renameToParticipants(finished) }
+    return this.renameToParticipants(finished)
   }
 
   // TODO: participants 대신 _count.contestRecord 그대로 사용하는 것 고려해보기
