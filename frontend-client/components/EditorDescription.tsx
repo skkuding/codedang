@@ -74,16 +74,16 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
       </div>
       <div>
         {problem.samples.map(({ id, input, output }, index) => {
-          const commonStyle =
+          const whitespaceStyle =
             'color: rgb(53, 129, 250); min-width: 0.5em; display: inline-block;'
-          input = input
-            .replaceAll(/ /g, `<span style="${commonStyle}">␣</span>`)
-            .replaceAll(/\n/g, `<span style="${commonStyle}">↵</span>\n`)
-            .replaceAll(/\t/g, `<span style="${commonStyle}">↹</span>`)
-          output = output
-            .replaceAll(/ /g, `<span style="${commonStyle}">␣</span>`)
-            .replaceAll(/\n/g, `<span style="${commonStyle}">↵</span>\n`)
-            .replaceAll(/\t/g, `<span style="${commonStyle}">↹</span>`)
+          const changedInput = input
+            .replaceAll(/ /g, `<span style="${whitespaceStyle}">␣</span>`)
+            .replaceAll(/\n/g, `<span style="${whitespaceStyle}">↵</span>\n`)
+            .replaceAll(/\t/g, `<span style="${whitespaceStyle}">↹</span>`)
+          const changedOutput = output
+            .replaceAll(/ /g, `<span style="${whitespaceStyle}">␣</span>`)
+            .replaceAll(/\n/g, `<span style="${whitespaceStyle}">↵</span>\n`)
+            .replaceAll(/\t/g, `<span style="${whitespaceStyle}">↹</span>`)
           return (
             <div key={id} className="mb-2">
               <h2 className="mb-2 font-bold">Sample {index + 1}</h2>
@@ -124,9 +124,9 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
                     </TooltipProvider>
                   </div>
                   <pre
-                    className="h-24 w-full overflow-auto px-4 py-2 font-mono text-sm"
+                    className="h-24 w-full select-none overflow-auto px-4 py-2 font-mono text-sm"
                     dangerouslySetInnerHTML={{
-                      __html: sanitize(input)
+                      __html: sanitize(changedInput)
                     }}
                   />
                 </div>
@@ -168,9 +168,9 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
                     </TooltipProvider>
                   </div>
                   <pre
-                    className="h-24 w-full overflow-auto px-4 py-2 font-mono text-sm"
+                    className="h-24 w-full select-none overflow-auto px-4 py-2 font-mono text-sm"
                     dangerouslySetInnerHTML={{
-                      __html: sanitize(output)
+                      __html: sanitize(changedOutput)
                     }}
                   />
                 </div>
