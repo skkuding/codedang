@@ -2,6 +2,8 @@ import { EditorDescription } from '@/components/EditorDescription'
 import { fetcher } from '@/lib/utils'
 import type { ProblemDetail } from '@/types/type'
 
+export const revalidate = 1
+
 export default async function DescriptionPage({
   params
 }: {
