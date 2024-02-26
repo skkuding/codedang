@@ -15,7 +15,3 @@ body:json {
     "email": "skkucodingplatform@gmail.com"
   }
 }
-
-script:pre-request {
-  await require("./login").loginUser(req);
-}
