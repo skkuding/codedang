@@ -51,21 +51,17 @@ export class ProblemService {
       }
     })
 
-    const total = await this.problemRepository.getProblemTotalCount(
-      options.groupId,
-      options.search
-    )
-
-    return plainToInstance(ProblemsResponseDto, {
-      problems: await Promise.all(problems),
-      total
-    })
+    return plainToInstance(ProblemsResponseDto, await Promise.all(problems))
   }
 
   async getProblem(problemId: number, groupId = OPEN_SPACE_ID) {
     const data = await this.problemRepository.getProblem(problemId, groupId)
     const tags = await this.problemRepository.getProblemTags(problemId)
     return plainToInstance(ProblemResponseDto, { ...data, tags })
+  }
+
+  async getProblemCount(groupId: number, search?: string) {
+    return this.problemRepository.getProblemTotalCount(groupId, search)
   }
 }
 
@@ -95,13 +91,7 @@ export class ContestProblemService {
       throw new ForbiddenAccessException('Contest is not started yet.')
     }
 
-    const total =
-      await this.problemRepository.getContestProblemTotalCount(contestId)
-
-    return plainToInstance(RelatedProblemsResponseDto, {
-      problems: data,
-      total
-    })
+    return plainToInstance(RelatedProblemsResponseDto, data)
   }
 
   async getContestProblem(
@@ -145,13 +135,7 @@ export class WorkbookProblemService {
       take
     )
 
-    const total =
-      await this.problemRepository.getWorkbookProblemTotalCount(workbookId)
-
-    return plainToInstance(RelatedProblemsResponseDto, {
-      problems: data,
-      total
-    })
+    return plainToInstance(RelatedProblemsResponseDto, data)
   }
 
   async getWorkbookProblem(
