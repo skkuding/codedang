@@ -1351,7 +1351,9 @@ int main(void) {
           }
         ],
         language: Language.C,
-        result: ResultStatus.Judging
+        result: ResultStatus.Judging,
+        maxCpuTime: 12345,
+        maxMemoryUsage: 12345
       }
     })
   )
@@ -1389,7 +1391,9 @@ int main(void) {
           }
         ],
         language: Language.Cpp,
-        result: ResultStatus.Judging
+        result: ResultStatus.Judging,
+        maxCpuTime: 12345,
+        maxMemoryUsage: 12345
       }
     })
   )
@@ -1427,7 +1431,9 @@ int main(void) {
           }
         ],
         language: Language.Java,
-        result: ResultStatus.Judging
+        result: ResultStatus.Judging,
+        maxCpuTime: 12345,
+        maxMemoryUsage: 12345
       }
     })
   )
@@ -1461,7 +1467,9 @@ int main(void) {
           }
         ],
         language: Language.Python3,
-        result: ResultStatus.Judging
+        result: ResultStatus.Judging,
+        maxCpuTime: 12345,
+        maxMemoryUsage: 12345
       }
     })
   )
@@ -1499,7 +1507,9 @@ int main(void) {
           }
         ],
         language: Language.C,
-        result: ResultStatus.Judging
+        result: ResultStatus.Judging,
+        maxCpuTime: 12345,
+        maxMemoryUsage: 12345
       }
     })
   )
@@ -1537,7 +1547,9 @@ int main(void) {
           }
         ],
         language: Language.Cpp,
-        result: ResultStatus.Judging
+        result: ResultStatus.Judging,
+        maxCpuTime: 12345,
+        maxMemoryUsage: 12345
       }
     })
   )
@@ -1571,7 +1583,9 @@ int main(void) {
           }
         ],
         language: Language.Python3,
-        result: ResultStatus.Judging
+        result: ResultStatus.Judging,
+        maxCpuTime: 12345,
+        maxMemoryUsage: 12345
       }
     })
   )
