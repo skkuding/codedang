@@ -1,0 +1,5 @@
+tr:not(.expanded) div.expandable {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

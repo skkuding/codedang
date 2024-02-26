@@ -1,0 +1,281 @@
+'use client'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
+import { baseUrl } from '@/lib/vars'
+import useSignUpModalStore from '@/stores/signUpModal'
+import { zodResolver } from '@hookform/resolvers/zod'
+import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { FaCheck, FaEye, FaEyeSlash } from 'react-icons/fa'
+import { toast } from 'sonner'
+import { z } from 'zod'
+
+interface SignUpFormInput {
+  username: string
+  email: string
+  verificationCode: string
+  realName: string
+  password: string
+  passwordAgain: string
+}
+
+const schema = z
+  .object({
+    username: z
+      .string()
+      .min(3)
+      .max(10)
+      .refine((data) => /^[a-z0-9]+$/.test(data)),
+    realName: z
+      .string()
+      .min(1)
+      .max(20)
+      .refine((data) => /^[a-zA-Z\s]+$/.test(data)),
+    password: z
+      .string()
+      .min(8)
+      .refine((data) => {
+        const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
+        return !invalidPassword.test(data)
+      }),
+    passwordAgain: z.string().min(8)
+  })
+  .refine(
+    (data: { password: string; passwordAgain: string }) =>
+      data.password === data.passwordAgain,
+    {
+      path: ['passwordAgain']
+    }
+  )
+
+export default function SignUpRegister() {
+  const formData = useSignUpModalStore((state) => state.formData)
+  const [passwordShow, setPasswordShow] = useState<boolean>(false)
+  const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
+  const [inputFocus, setInputFocus] = useState<number>(0)
+  const [disableUsername, setDisableUsername] = useState<boolean>(false)
+  const [usernameVerify, setUsernameVerify] = useState<boolean>(false)
+
+  const {
+    handleSubmit,
+    register,
+    getValues,
+    trigger,
+    formState: { errors, isValid }
+  } = useForm<SignUpFormInput>({
+    resolver: zodResolver(schema)
+  })
+
+  const onSubmit = async (data: {
+    password: string
+    passwordAgain: string
+    realName: string
+    username: string
+  }) => {
+    try {
+      await fetch(baseUrl + '/user/sign-up', {
+        method: 'POST',
+        headers: {
+          ...formData.headers,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...data,
+          email: formData.email,
+          verificationCode: formData.verificationCode
+        })
+      }).then((res) => {
+        if (res.status === 201) {
+          document.getElementById('closeDialog')?.click()
+          toast.success('Sign up succeeded!')
+        }
+      })
+    } catch {
+      toast.error('Sign up failed!')
+    }
+  }
+  const validation = async (field: string) => {
+    await trigger(field as keyof SignUpFormInput)
+  }
+
+  const checkUserName = async () => {
+    const { username } = getValues()
+    await trigger('username')
+    if (!errors.username) {
+      try {
+        await fetch(baseUrl + `/user/username-check?username=${username}`, {
+          method: 'GET'
+        }).then((res) => {
+          setUsernameVerify(true)
+          if (res.status === 200) {
+            setDisableUsername(true)
+          } else {
+            setDisableUsername(false)
+          }
+        })
+      } catch (err) {
+        console.log(err)
+      }
+    }
+  }
+
+  return (
+    <div className="mb-5 mt-12 flex w-full flex-col px-2 py-4">
+      <form
+        className="flex w-full flex-col gap-4"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <p className="text-left text-xl font-bold text-blue-500">Sign Up</p>
+        <div className="flex flex-col gap-1">
+          <Input
+            placeholder="Your name"
+            {...register('realName', {
+              onChange: () => validation('realName')
+            })}
+            onFocus={() => {
+              setInputFocus(1)
+            }}
+          />
+          {inputFocus === 1 && (
+            <div className="text-xs text-gray-500">
+              <ul className="list-disc pl-4">
+                <li>Your name must be less than 20 characters</li>
+                <li>Your name can only contain alphabet letters</li>
+              </ul>
+            </div>
+          )}
+          {errors.realName && (
+            <p className="text-xs text-red-500">Unavailable</p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <div className="flex gap-2">
+            <Input
+              placeholder="User ID"
+              disabled={disableUsername}
+              {...register('username', {
+                onChange: () => validation('username')
+              })}
+              onFocus={() => {
+                setInputFocus(2)
+              }}
+            />
+            <Button
+              onClick={() => checkUserName()}
+              type="button"
+              className={cn(
+                disableUsername && 'bg-gray-400',
+                'flex aspect-square w-12 items-center justify-center rounded-md'
+              )}
+              disabled={disableUsername}
+            >
+              <FaCheck className="text-white" size="20" />
+            </Button>
+          </div>
+          {inputFocus === 2 && (
+            <div className="text-xs text-gray-500">
+              <ul className="list-disc pl-4">
+                <li>User ID used for log in</li>
+                <li>
+                  Your ID must be 3-10 characters of small
+                  <br />
+                  alphabet letters, numbers
+                </li>
+              </ul>
+            </div>
+          )}
+          {errors.username ? (
+            <p className="text-xs text-red-500">Unavailable</p>
+          ) : (
+            usernameVerify &&
+            (disableUsername ? (
+              <p className="text-xs text-blue-500">Available</p>
+            ) : (
+              <p className="text-xs text-red-500">Unavailable</p>
+            ))
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between gap-2">
+            <Input
+              placeholder="Password"
+              {...register('password', {
+                onChange: () => validation('password')
+              })}
+              type={passwordShow ? 'text' : 'password'}
+              onFocus={() => {
+                setInputFocus(3)
+              }}
+            />
+            <span
+              className="flex items-center"
+              onClick={() => setPasswordShow(!passwordShow)}
+            >
+              {passwordShow ? (
+                <FaEye className="text-gray-400" />
+              ) : (
+                <FaEyeSlash className="text-gray-400" />
+              )}
+            </span>
+          </div>
+          {inputFocus === 3 && (
+            <div
+              className={cn(
+                errors.password ? 'text-red-500' : 'text-gray-500',
+                'text-xs'
+              )}
+            >
+              <ul className="pl-4">
+                <li className="list-disc">
+                  Your password must be at least 8 characters
+                </li>
+                <li>and include two of the followings:</li>
+                <li>Capital letters, Small letters, or Numbers</li>
+              </ul>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between gap-2">
+            <Input
+              {...register('passwordAgain', {
+                onChange: () => validation('passwordAgain')
+              })}
+              placeholder="Re-enter password"
+              type={passwordAgainShow ? 'text' : 'password'}
+              onFocus={() => {
+                setInputFocus(4)
+              }}
+            />
+            <span
+              className="flex items-center"
+              onClick={() => setPasswordAgainShow(!passwordAgainShow)}
+            >
+              {passwordAgainShow ? (
+                <FaEye className="text-gray-400" />
+              ) : (
+                <FaEyeSlash className="text-gray-400" />
+              )}
+            </span>
+          </div>
+          {errors.passwordAgain && (
+            <p className="text-xs text-red-500">Incorrect</p>
+          )}
+        </div>
+
+        <Button
+          disabled={!isValid || !disableUsername}
+          className={cn(isValid && disableUsername ? '' : 'bg-gray-400')}
+          type="submit"
+        >
+          Register
+        </Button>
+      </form>
+    </div>
+  )
+}
