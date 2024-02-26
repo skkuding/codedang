@@ -535,12 +535,12 @@ export class ProblemService {
     return await this.prisma.$transaction(queries)
   }
 
-  async createTags(formattedTagNames: string[]): Promise<Partial<Tag>[]> {
+  async createTags(tagNames: string[]): Promise<Partial<Tag>[]> {
     // check if tagNames are already exist
     const existingTags = await this.prisma.tag.findMany({
       where: {
         name: {
-          in: formattedTagNames
+          in: tagNames
         }
       }
     })
@@ -548,7 +548,7 @@ export class ProblemService {
       throw new DuplicateFoundException('tag')
     }
 
-    const toBeExecutedQueries = formattedTagNames.map((name) => {
+    const toBeExecutedQueries = tagNames.map((name) => {
       return this.prisma.tag.create({
         data: {
           name
@@ -558,6 +558,53 @@ export class ProblemService {
     return await this.prisma.$transaction(toBeExecutedQueries)
   }
 
+  async updateTag(
+    oldTagName: string,
+    newTagName: string
+  ): Promise<Partial<Tag>> {
+    const tag = await this.prisma.tag.findFirst({
+      where: {
+        name: oldTagName
+      }
+    })
+    if (!tag) {
+      throw new EntityNotExistException('tag')
+    }
+    const existingTag = await this.prisma.tag.findFirst({
+      where: {
+        name: newTagName
+      }
+    })
+
+    if (existingTag) {
+      throw new DuplicateFoundException('tag')
+    }
+
+    return await this.prisma.tag.update({
+      where: {
+        id: tag.id
+      },
+      data: {
+        name: newTagName
+      }
+    })
+  }
+
+  async deleteTag(tagName: string): Promise<Partial<Tag>> {
+    const tag = await this.prisma.tag.findFirst({
+      where: {
+        name: tagName
+      }
+    })
+    if (!tag) {
+      throw new EntityNotExistException('tag')
+    }
+    return await this.prisma.tag.delete({
+      where: {
+        id: tag.id
+      }
+    })
+  }
   async getTags(): Promise<Partial<Tag>[]> {
     return await this.prisma.tag.findMany()
   }
