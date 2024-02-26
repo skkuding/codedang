@@ -8,6 +8,7 @@ import startMetricsExporter from './metric'
 import tracer from './tracer'
 
 tracer.init()
+tracer.init()
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true

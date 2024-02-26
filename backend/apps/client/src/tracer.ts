@@ -1,20 +1,22 @@
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
+import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express'
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { Resource } from '@opentelemetry/resources'
 import { NodeSDK } from '@opentelemetry/sdk-node'
 import {
   BasicTracerProvider,
   SimpleSpanProcessor,
-  ConsoleSpanExporter
+  BatchSpanProcessor
 } from '@opentelemetry/sdk-trace-node'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
+import { PrismaInstrumentation } from '@prisma/instrumentation'
 
 class Tracer {
   private sdk: NodeSDK | null = null
 
   // url is optional and can be omitted - default is http://localhost:4318/v1/traces
   private exporter = new OTLPTraceExporter({
-    url: 'http://localhost:4318/v1/traces'
+    url: 'http://localhost:44318/v1/traces'
   })
 
   private provider = new BasicTracerProvider({
@@ -25,24 +27,20 @@ class Tracer {
 
   public init() {
     try {
-      // export spans to console (useful for debugging)
-      this.provider.addSpanProcessor(
-        new SimpleSpanProcessor(new ConsoleSpanExporter())
-      )
-
       // export spans to opentelemetry collector
-      this.provider.addSpanProcessor(new SimpleSpanProcessor(this.exporter))
+      if (process.env.NODE_ENV == 'production') {
+        this.provider.addSpanProcessor(new BatchSpanProcessor(this.exporter))
+      } else {
+        this.provider.addSpanProcessor(new SimpleSpanProcessor(this.exporter))
+      }
       this.provider.register()
 
       this.sdk = new NodeSDK({
         traceExporter: this.exporter,
         instrumentations: [
-          getNodeAutoInstrumentations({
-            // Lets disable fs for now, otherwise we cannot see the traces we want,
-            // You can disable or enable instrumentation as needed
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            '@opentelemetry/instrumentation-fs': { enabled: false }
-          })
+          new HttpInstrumentation(),
+          new ExpressInstrumentation(),
+          new PrismaInstrumentation()
         ]
       })
 

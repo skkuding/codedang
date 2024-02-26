@@ -9,6 +9,7 @@ import (
 	"github.com/skkuding/codedang/iris/src/handler"
 	"github.com/skkuding/codedang/iris/src/loader/cache"
 	"github.com/skkuding/codedang/iris/src/loader/s3"
+	"github.com/skkuding/codedang/iris/src/observability"
 	"github.com/skkuding/codedang/iris/src/router"
 	"github.com/skkuding/codedang/iris/src/service/file"
 	"github.com/skkuding/codedang/iris/src/service/logger"
@@ -30,7 +31,11 @@ func main() {
 	logProvider := logger.NewLogger(logger.Console, env == Production)
 
 	ctx := context.Background()
+
 	cache := cache.NewCache(ctx)
+
+	shutdown := observability.InitTracer(ctx)
+	defer shutdown()
 
 	bucketName := os.Getenv("TESTCASE_BUCKET_NAME")
 	if bucketName == "" {
@@ -59,6 +64,10 @@ func main() {
 	routeProvider := router.NewRouter(judgeHandler, logProvider)
 
 	logProvider.Log(logger.INFO, "Server Started")
+
+	// tracer := otel.Tracer("Main Tracer")
+	// _, span := tracer.Start(ctx, "Main Started")
+	// span.End()
 
 	// amqps://skku:1234@broker-id.mq.us-west-2.amazonaws.com:5671
 	var uri string
