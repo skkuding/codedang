@@ -3,7 +3,6 @@ import { CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
-import { OpenTelemetryModule } from 'nestjs-otel'
 import { LoggerModule } from 'nestjs-pino'
 import { JwtAuthModule, JwtAuthGuard } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
@@ -45,8 +44,7 @@ import { WorkbookModule } from './workbook/workbook.module'
     WorkbookModule,
     EmailModule,
     AnnouncementModule,
-    LoggerModule.forRoot(pinoLoggerModuleOption),
-    OpenTelemetryModule.forRoot()
+    LoggerModule.forRoot(pinoLoggerModuleOption)
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }]
