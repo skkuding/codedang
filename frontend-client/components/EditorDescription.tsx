@@ -36,21 +36,15 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
       </div>
       <div>
         <h2 className="mb-3 font-bold">Input</h2>
-        <div
-          className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
-          dangerouslySetInnerHTML={{
-            __html: sanitize(problem.inputDescription)
-          }}
-        />
+        <pre className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
+          {problem.inputDescription}
+        </pre>
       </div>
       <div>
         <h2 className="mb-3 font-bold">Output</h2>
-        <div
-          className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
-          dangerouslySetInnerHTML={{
-            __html: sanitize(problem.outputDescription)
-          }}
-        />
+        <pre className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
+          {problem.outputDescription}
+        </pre>
       </div>
       <div>
         {problem.samples.map(({ id, input, output }, index) => (
@@ -199,10 +193,9 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              <div
-                dangerouslySetInnerHTML={{ __html: sanitize(problem.hint) }}
-                className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
-              />
+              <pre className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
+                {problem.hint}
+              </pre>
             </AccordionContent>
           </AccordionItem>
         )}
