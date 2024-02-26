@@ -11,6 +11,7 @@ import {
 import { fetcherWithAuth } from '@/lib/utils'
 import type { SubmissionDetail } from '@/types/type'
 import dayjs from 'dayjs'
+import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
 
 interface Props {
@@ -23,16 +24,30 @@ export default async function SubmissionDetail({
   submissionId
 }: Props) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
-    searchParams: {
-      problemId
-    },
-    cache: 'no-store'
+    searchParams: { problemId },
+    next: {
+      tags: [`submission/${submissionId}`]
+    }
   })
+
+  if (res.status == 403) {
+    return (
+      <div className="flex h-[300px] flex-col items-center justify-center gap-20">
+        <IoIosLock size={100} />
+        <p>
+          Unable to check others&apos; until your correct submission is accepted
+        </p>
+      </div>
+    )
+  }
+
   const submission: SubmissionDetail = await res.json()
 
-  await new Promise((resolve) => setTimeout(resolve, 10000))
+  if (submission.result == 'Judging') {
+    revalidateTag(`submission/${submissionId}`)
+  }
 
-  return res.ok ? (
+  return (
     <>
       <ScrollArea className="shrink-0 rounded-md">
         <div className="flex items-center justify-around gap-5 bg-slate-700 p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
@@ -98,7 +113,9 @@ export default async function SubmissionDetail({
                     {item.result}
                   </TableCell>
                   <TableCell>{item.cpuTime} ms</TableCell>
-                  <TableCell>{item.memoryUsage} mb</TableCell>
+                  <TableCell>
+                    {(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -106,12 +123,5 @@ export default async function SubmissionDetail({
         </div>
       )}
     </>
-  ) : (
-    <div className="flex h-[300px] flex-col items-center justify-center gap-20">
-      <IoIosLock size={100} />
-      <p>
-        Unable to check others&apos; until your correct submission is accepted
-      </p>
-    </div>
   )
 }

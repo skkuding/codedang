@@ -480,7 +480,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 <Textarea
                   id="inputDescription"
                   placeholder="Enter a description..."
-                  className="h-[120px] w-[360px] resize-none bg-white"
+                  className="min-h-[120px] w-[360px] bg-white"
                   {...register('inputDescription')}
                 />
                 {errors.inputDescription && (
@@ -495,7 +495,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 <Textarea
                   id="outputDescription"
                   placeholder="Enter a description..."
-                  className="h-[120px] w-[360px] resize-none bg-white"
+                  className="min-h-[120px] w-[360px] bg-white"
                   {...register('outputDescription')}
                 />
                 {errors.outputDescription && (
@@ -642,7 +642,7 @@ export default function Page({ params }: { params: { id: string } }) {
               <Textarea
                 id="hint"
                 placeholder="Enter a hint"
-                className="h-[120px] w-[760px] resize-none bg-white"
+                className="min-h-[120px] w-[760px] bg-white"
                 {...register('hint')}
               />
             )}

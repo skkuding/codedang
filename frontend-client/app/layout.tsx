@@ -5,6 +5,9 @@ import type { Metadata, Viewport } from 'next'
 import { Manrope, Noto_Sans_KR, Ubuntu_Mono } from 'next/font/google'
 import './globals.css'
 
+// TODO: 추후에 페이지 별로 revalidate 시간 논의 및 조정 필요
+export const revalidate = 5
+
 const noto = Noto_Sans_KR({
   subsets: ['latin'],
   weight: ['400', '600'],
