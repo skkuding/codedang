@@ -21,7 +21,7 @@ jobs:
 
       - name: Generate Prisma Client
         if: ${{ matrix.target == 'backend' || matrix.target == 'backend-admin' }}
-        run: pnpm --filter apps/backend exec prisma generate
+        run: pnpm --filter="@codedang/backend" exec prisma generate
 
       - name: Setup Next.js build cache
         if: ${{ matrix.target == 'frontend' }}
@@ -41,10 +41,10 @@ jobs:
 
       - name: Build (backend admin)
         if: ${{ matrix.target == 'backend-admin' }}
-        run: pnpm --filter apps/backend build admin
+        run: pnpm --filter="@codedang/backend" build admin
       - name: Build
         if: ${{ matrix.target != 'backend-admin' }}
-        run: pnpm --filter ${{ matrix.target }} build
+        run: pnpm --filter="apps/${{ matrix.target }}" build
 
   typecheck:
     name: Typecheck
@@ -55,10 +55,10 @@ jobs:
       - uses: ./.github/actions/setup-pnpm
 
       - name: Generate Prisma Client
-        run: pnpm --filter apps/backend exec prisma generate
+        run: pnpm --filter="@codedang/backend" exec prisma generate
 
       - name: Check types (backend) # For spec files
-        run: pnpm --filter apps/backend exec tsc --noEmit
+        run: pnpm --filter="@codedang/backend" exec tsc --noEmit
 
       # Typecheck is not performed for frontend intentionally.
       # Check: https://github.com/vercel/next.js/issues/53959
@@ -122,7 +122,7 @@ jobs:
 
       - name: Check Prisma Migration
         run: |
-          pnpm --filter apps/backend exec prisma migrate diff \
+          pnpm --filter="@codedang/backend" exec prisma migrate diff \
             --from-migrations ./prisma/migrations \
             --to-schema-datamodel ./prisma/schema.prisma \
             --shadow-database-url ${{ env.DATABASE_URL }} \
@@ -131,7 +131,7 @@ jobs:
           "Please run 'pnpm prisma migrate dev' locally and commit the changes." && exit 1)
 
       - name: Migrate Prisma
-        run: pnpm --filter apps/backend exec prisma migrate reset --force
+        run: pnpm --filter="@codedang/backend" exec prisma migrate reset --force
 
       - name: Test
         run: pnpm -r test

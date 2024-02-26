@@ -11,7 +11,7 @@ COPY . /build
 WORKDIR /build
 
 RUN corepack enable
-RUN pnpm --filter=apps/backend deploy out
+RUN pnpm --filter="@codedang/backend" deploy out
 
 WORKDIR /build/out
 RUN npx prisma generate
