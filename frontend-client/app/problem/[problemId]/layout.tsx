@@ -8,6 +8,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { IoIosArrowForward } from 'react-icons/io'
 
+// TODO: problem 외에도 전체적인 revalidate 시간 논의 및 조정 필요
 export const revalidate = 1
 
 export default async function layout({
