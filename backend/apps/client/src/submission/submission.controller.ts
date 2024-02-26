@@ -22,9 +22,11 @@ import {
   CursorValidationPipe,
   GroupIDPipe,
   IDValidationPipe,
-  RequiredIntPipe
+  RequiredIntPipe,
+  SubmissionOrderPipe
 } from '@libs/pipe'
 import { CreateSubmissionDto } from './dto/create-submission.dto'
+import { SubmissionOrder } from './enum/submission-order.enum'
 import { SubmissionService } from './submission.service'
 
 @Controller('submission')
@@ -96,7 +98,8 @@ export class SubmissionController {
     take: number,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('contestId', IDValidationPipe) contestId: number | null
+    @Query('contestId', IDValidationPipe) contestId: number | null,
+    @Query('order', SubmissionOrderPipe) order: SubmissionOrder
   ) {
     try {
       if (contestId) {
@@ -106,14 +109,16 @@ export class SubmissionController {
           problemId,
           contestId,
           userId: req.user.id,
-          groupId
+          groupId,
+          order
         })
       }
       return await this.submissionService.getSubmissions({
         cursor,
         take,
         problemId,
-        groupId
+        groupId,
+        order
       })
     } catch (error) {
       if (

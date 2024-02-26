@@ -362,29 +362,31 @@ model WorkbookProblem {
 }
 
 model Submission {
-  id         Int          @id @default(autoincrement())
-  user       User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId     Int?         @map("user_id")
-  problem    Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  id             Int          @id @default(autoincrement())
+  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId         Int?         @map("user_id")
+  problem        Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
   // Todo :
   // Regardless problem deletion, Keeping submission is positive for ranking or something ....
-  problemId  Int          @map("problem_id")
-  contest    Contest?     @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId  Int?         @map("contest_id")
-  workbook   Workbook?    @relation(fields: [workbookId], references: [id])
-  workbookId Int?         @map("workbook_id")
+  problemId      Int          @map("problem_id")
+  contest        Contest?     @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId      Int?         @map("contest_id")
+  workbook       Workbook?    @relation(fields: [workbookId], references: [id])
+  workbookId     Int?         @map("workbook_id")
   /// code item structure
   /// {
   ///   "id": number,
   ///   "text": string,
   ///   "locked": boolean
   /// }
-  code       Json[]
-  codeSize   Int?         @map("code_size")
-  language   Language
-  result     ResultStatus
-  createTime DateTime     @default(now()) @map("create_time")
-  updateTime DateTime     @updatedAt @map("update_time")
+  code           Json[]
+  codeSize       Int?         @map("code_size")
+  language       Language
+  result         ResultStatus
+  maxCpuTime     BigInt?      @map("max_cpu_time")
+  maxMemoryUsage Int?         @map("max_memory_usage")
+  createTime     DateTime     @default(now()) @map("create_time")
+  updateTime     DateTime     @updatedAt @map("update_time")
 
   submissionResult SubmissionResult[]
 

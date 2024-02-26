@@ -37,6 +37,10 @@ import {
 } from './dto/create-submission.dto'
 import { JudgeRequest } from './dto/judge-request.class'
 import { JudgerResponse } from './dto/judger-response.dto'
+import {
+  SubmissionOrder,
+  SubmissionOrderMap
+} from './enum/submission-order.enum'
 
 @Injectable()
 export class SubmissionService implements OnModuleInit {
@@ -362,6 +366,13 @@ export class SubmissionService implements OnModuleInit {
       )
     )
 
+    const maxCpuTime = results.reduce((acc, cur) => {
+      return acc > cur.cpuTime ? acc : cur.cpuTime
+    }, BigInt(0))
+    const maxMemoryUsage = results.reduce((acc, cur) => {
+      return acc > cur.memoryUsage ? acc : cur.memoryUsage
+    }, 0)
+
     // FIXME: 현재 코드는 message 하나에 특정 problem에 대한 모든 테스트케이스의 채점 결과가 전송된다고 가정하고, 이를 받아서 submission의 overall result를 업데이트합니다.
     //        테스트케이스별로 DB 업데이트가 이루어진다면 아래 코드를 수정해야 합니다.
     const submission = await this.prisma.submission.update({
@@ -369,7 +380,9 @@ export class SubmissionService implements OnModuleInit {
         id
       },
       data: {
-        result: resultStatus
+        result: resultStatus,
+        maxCpuTime,
+        maxMemoryUsage
       }
     })
 
@@ -410,10 +423,12 @@ export class SubmissionService implements OnModuleInit {
     problemId,
     groupId = OPEN_SPACE_ID,
     cursor = null,
-    take = 10
+    take = 10,
+    order = SubmissionOrder.createTimeDESC
   }: {
     problemId: number
     groupId?: number
+    order?: SubmissionOrder
     cursor?: number | null
     take?: number
   }): Promise<Partial<Submission>[]> {
@@ -428,6 +443,7 @@ export class SubmissionService implements OnModuleInit {
         }
       }
     })
+    order
 
     const submissions = await this.prisma.submission.findMany({
       ...paginator,
@@ -447,7 +463,7 @@ export class SubmissionService implements OnModuleInit {
         result: true,
         codeSize: true
       },
-      orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
+      orderBy: SubmissionOrderMap[order]
     })
 
     return submissions
@@ -538,6 +554,7 @@ export class SubmissionService implements OnModuleInit {
     contestId,
     userId,
     groupId = OPEN_SPACE_ID,
+    order = SubmissionOrder.createTimeDESC,
     cursor = null,
     take = 10
   }: {
@@ -547,6 +564,7 @@ export class SubmissionService implements OnModuleInit {
     groupId?: number
     cursor?: number | null
     take?: number
+    order?: SubmissionOrder
   }): Promise<Partial<Submission>[]> {
     const paginator = this.prisma.getPaginator(cursor)
 
@@ -588,7 +606,7 @@ export class SubmissionService implements OnModuleInit {
         result: true,
         codeSize: true
       },
-      orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
+      orderBy: SubmissionOrderMap[order]
     })
 
     return submissions
