@@ -939,13 +939,13 @@ const createProblems = async () => {
   }
 
   const tagNames = [
-    'If Statement',
-    'Iteration',
-    'Brute Force',
-    'DFS',
-    'Dynamic Programming',
-    'Binary Search',
-    'Graph'
+    'if-statement',
+    'iteration',
+    'brute-force',
+    'dfs',
+    'dynamic-programming',
+    'binary-search',
+    'graph'
   ]
 
   const tags: Tag[] = []
