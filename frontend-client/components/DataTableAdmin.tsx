@@ -23,12 +23,7 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { useQuery, useMutation } from '@apollo/client'
-import type {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState
-} from '@tanstack/react-table'
+import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import {
   flexRender,
   getCoreRowModel,
@@ -63,8 +58,6 @@ export function DataTableAdmin<TData, TValue>({
   data
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const pathname = usePathname()
   const page = pathname.split('/').pop()
@@ -80,15 +73,11 @@ export function DataTableAdmin<TData, TValue>({
     columns,
     state: {
       sorting,
-      columnVisibility,
-      rowSelection,
-      columnFilters
+      rowSelection
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

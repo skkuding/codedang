@@ -36,7 +36,9 @@ const EDIT_VISIBLE = gql(`
 `)
 
 function VisibleCell({ isVisible, id }: { isVisible: boolean; id: number }) {
-  const [updateVisible] = useMutation(EDIT_VISIBLE)
+  const [updateVisible] = useMutation(EDIT_VISIBLE, {
+    fetchPolicy: 'no-cache'
+  })
   const [isVisibleState, setIsVisibleState] = useState(isVisible)
 
   return (
