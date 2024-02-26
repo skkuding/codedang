@@ -5,6 +5,7 @@ import { Level } from '@generated'
 import { expect } from 'chai'
 import { spy, stub } from 'sinon'
 import {
+  DuplicateFoundException,
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -55,7 +56,9 @@ const db = {
     findMany: stub()
   },
   tag: {
-    findUnique: stub()
+    findUnique: stub(),
+    findMany: stub(),
+    create: stub()
   },
   workbook: {
     findFirstOrThrow: stub()
@@ -498,6 +501,32 @@ describe('ProblemService', () => {
           [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
         )
       ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+
+  describe('createTags', () => {
+    it('should return created tags', async () => {
+      beforeEach(() => {
+        db.tag.findMany.resetBehavior()
+        db.tag.create.resetBehavior()
+        db.$transaction.resetBehavior()
+      })
+      db.tag.findMany.resolves([])
+      db.tag.create.resolves(exampleTag)
+      db.$transaction.resolves([exampleTag])
+      const result = await service.createTags(['brute-force'])
+      expect(result).to.deep.equal([exampleTag])
+    })
+    it('should handle a duplicate exception', async () => {
+      beforeEach(() => {
+        db.tag.findMany.resetBehavior()
+        db.tag.create.resetBehavior()
+        db.$transaction.resetBehavior()
+      })
+      db.tag.findMany.resolves([exampleTag])
+      await expect(
+        service.createTags(['something-duplicate'])
+      ).to.be.rejectedWith(DuplicateFoundException)
     })
   })
 
