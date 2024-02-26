@@ -1,0 +1,39 @@
+meta {
+  name: Error: No Workbook found
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+    mutation {
+    deleteWorkbook(groupId: 1, workbookId: 999) {
+      id
+      createdById
+      groupId
+      title
+      description
+      isVisible
+      createTime
+      updateTime
+    }
+  }
+
+}
+
+assert {
+  res.body.errors[0].message: contains "Record to delete does not exist"
+}
+
+docs {
+  # Delete Workbook
+  - `groupId`: Group ID
+  - `workbookId`: Workbook ID
+  - 삭제 후, 삭제된 `Workbook`을 반환합니다.
+  - `workbookId`에 해당하는 `Workbook`이 없을 경우, `No Workbook found` 에러를 반환합니다.
+}

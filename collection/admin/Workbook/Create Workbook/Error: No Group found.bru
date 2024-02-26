@@ -1,0 +1,46 @@
+meta {
+  name: Error: No Group found
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createWorkbook(groupId: 99, input: {
+      title: "테스트 title입니다."
+      description: "테스트 description입니다."
+    }) {
+      id
+      createdById
+      groupId
+      title
+      description
+      isVisible
+      createTime
+      updateTime
+    }
+  }
+
+}
+
+assert {
+  res.body.errors[0].message: eq "No Group found"
+}
+
+docs {
+    # Create Workbook
+  - `groupId`: Group ID
+  - `input`: `CreateWorkbookInput`
+  - `CreateWorkbookInput`:
+    - `title`: `String`
+    - `description`: `String`
+    - `isVisible`: `Boolean`
+  - `Workbook` 생성 후 `Workbook`을 반환합니다.
+  - `groupId`에 해당하는 `Group`이 존재하지 않을 경우 `No Group found` 에러를 반환합니다.
+}

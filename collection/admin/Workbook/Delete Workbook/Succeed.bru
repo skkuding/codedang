@@ -1,0 +1,45 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    deleteWorkbook(groupId: 1, workbookId: 7) {
+      id
+      createdById
+      groupId
+      title
+      description
+      isVisible
+      createTime
+      updateTime
+    }
+  }
+}
+
+assert {
+  res.body.data.deleteWorkbook.id: isNumber
+  res.body.data.deleteWorkbook.createdById: isNumber
+  res.body.data.deleteWorkbook.groupId: isNumber
+  res.body.data.deleteWorkbook.title: isString
+  res.body.data.deleteWorkbook.description: isString
+  res.body.data.deleteWorkbook.isVisible: isBoolean
+  res.body.data.deleteWorkbook.createTime: isString
+  res.body.data.deleteWorkbook.updateTime: isString
+}
+
+docs {
+  # Delete Workbook
+  - `groupId`: Group ID
+  - `workbookId`: Workbook ID
+  - 삭제 후, 삭제된 `Workbook`을 반환합니다.
+  
+}
