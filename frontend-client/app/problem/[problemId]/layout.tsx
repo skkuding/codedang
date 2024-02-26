@@ -8,6 +8,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { IoIosArrowForward } from 'react-icons/io'
 
+export const revalidate = 1
+
 export default async function layout({
   params,
   children
