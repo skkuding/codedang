@@ -5,7 +5,7 @@ import { Exclude, Expose, Transform, Type } from 'class-transformer'
 export class RelatedProblemsResponseDto {
   @Expose()
   @Type(() => Problem)
-  problems: Problem[]
+  data: Problem[]
 
   @Expose()
   total: number

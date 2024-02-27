@@ -57,7 +57,7 @@ export class ProblemService {
     )
 
     return plainToInstance(ProblemsResponseDto, {
-      problems: await Promise.all(problems),
+      data: await Promise.all(problems),
       total
     })
   }
@@ -99,7 +99,7 @@ export class ContestProblemService {
       await this.problemRepository.getContestProblemTotalCount(contestId)
 
     return plainToInstance(RelatedProblemsResponseDto, {
-      problems: data,
+      data,
       total
     })
   }
@@ -149,7 +149,7 @@ export class WorkbookProblemService {
       await this.problemRepository.getWorkbookProblemTotalCount(workbookId)
 
     return plainToInstance(RelatedProblemsResponseDto, {
-      problems: data,
+      data,
       total
     })
   }
