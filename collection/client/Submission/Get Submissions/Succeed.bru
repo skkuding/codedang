@@ -5,17 +5,23 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/submission?problemId=1
+  url: {{baseUrl}}/submission?problemId=1&contestId=1
   body: none
   auth: none
 }
 
 query {
   problemId: 1
-  ~contestId: 1
+  contestId: 1
   ~groupId: 1
   ~take: 10
   ~cursor: 5
+}
+
+assert {
+  res.status: eq 200
+  res.body.data: isDefined
+  res.body.total: isNumber
 }
 
 script:pre-request {

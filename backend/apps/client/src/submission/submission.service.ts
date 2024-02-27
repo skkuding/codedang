@@ -415,7 +415,7 @@ export class SubmissionService implements OnModuleInit {
     groupId?: number
     cursor?: number | null
     take?: number
-  }): Promise<Partial<Submission>[]> {
+  }) {
     const paginator = this.prisma.getPaginator(cursor)
 
     await this.prisma.problem.findFirstOrThrow({
@@ -449,7 +449,9 @@ export class SubmissionService implements OnModuleInit {
       orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
 
-    return submissions
+    const total = await this.prisma.submission.count({ where: { problemId } })
+
+    return { data: submissions, total }
   }
 
   async getSubmission(
@@ -546,7 +548,7 @@ export class SubmissionService implements OnModuleInit {
     groupId?: number
     cursor?: number | null
     take?: number
-  }): Promise<Partial<Submission>[]> {
+  }) {
     const paginator = this.prisma.getPaginator(cursor)
 
     await this.prisma.contestRecord.findUniqueOrThrow({
@@ -590,7 +592,11 @@ export class SubmissionService implements OnModuleInit {
       orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
 
-    return submissions
+    const total = await this.prisma.submission.count({
+      where: { problemId, contestId }
+    })
+
+    return { data: submissions, total }
   }
 
   async getContestSubmission(

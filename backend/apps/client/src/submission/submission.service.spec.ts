@@ -26,7 +26,8 @@ const db = {
     findMany: stub(),
     findFirstOrThrow: stub(),
     create: stub(),
-    update: stub()
+    update: stub(),
+    count: stub().resolves(1)
   },
   submissionResult: {
     create: stub()
@@ -307,7 +308,7 @@ describe('SubmissionService', () => {
 
       expect(
         await service.getSubmissions({ problemId: problems[0].id })
-      ).to.be.deep.equal(submissions)
+      ).to.be.deep.equal({ data: submissions, total: 1 })
     })
 
     it('should throw not found error', async () => {
