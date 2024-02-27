@@ -2,16 +2,14 @@ package main
 
 import (
 	"context"
-	"log"
 	"os"
-	"runtime"
-	"time"
 
 	"github.com/skkuding/codedang/iris/src/connector"
 	"github.com/skkuding/codedang/iris/src/connector/rabbitmq"
 	"github.com/skkuding/codedang/iris/src/handler"
 	"github.com/skkuding/codedang/iris/src/loader/cache"
 	"github.com/skkuding/codedang/iris/src/loader/s3"
+	"github.com/skkuding/codedang/iris/src/observability"
 	"github.com/skkuding/codedang/iris/src/router"
 	"github.com/skkuding/codedang/iris/src/service/file"
 	"github.com/skkuding/codedang/iris/src/service/logger"
@@ -19,11 +17,6 @@ import (
 	"github.com/skkuding/codedang/iris/src/service/testcase"
 	"github.com/skkuding/codedang/iris/src/utils"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
-	otelMetric "go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/sdk/metric"
-	"go.opentelemetry.io/otel/sdk/resource"
-	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 )
 
 type Env string
@@ -33,72 +26,10 @@ const (
 	Development Env = "development"
 )
 
-func newResource() (*resource.Resource, error) {
-	return resource.Merge(resource.Default(),
-		resource.NewWithAttributes(semconv.SchemaURL,
-			semconv.ServiceName("my-service"),
-			semconv.ServiceVersion("0.1.0"),
-		))
-}
-
-func newMeterProvider(res *resource.Resource) (*metric.MeterProvider, error) {
-	otlpExporter, err := otlpmetrichttp.New(context.Background(), otlpmetrichttp.WithEndpointURL("http://localhost:4318/v1/metrics"))
-	if err != nil {
-		return nil, err
-	}
-
-	meterProvider := metric.NewMeterProvider(
-		metric.WithResource(res),
-		metric.WithReader(metric.NewPeriodicReader(otlpExporter,
-			// Default is 1m. Set to 3s for demonstrative purposes.
-			metric.WithInterval(3*time.Second))),
-	)
-	return meterProvider, nil
-}
 func main() {
-	// Create resource.
-	res, err := newResource()
-	if err != nil {
-		panic(err)
-	}
+	observability.SetGlobalMeterProvider()
+	observability.GetMemoryMeter(otel.Meter("memory-metrics"))
 
-	// Create a meter provider.
-	// You can pass this instance directly to your instrumented code if it
-	// accepts a MeterProvider instance.
-	meterProvider, err := newMeterProvider(res)
-	if err != nil {
-		panic(err)
-	}
-
-	// Handle shutdown properly so nothing leaks.
-	defer func() {
-		if err := meterProvider.Shutdown(context.Background()); err != nil {
-			log.Println(err)
-		}
-	}()
-
-	// Register as global meter provider so that it can be used via otel.Meter
-	// and accessed using otel.GetMeterProvider.
-	// Most instrumentation libraries use the global meter provider as default.
-	// If the global meter provider is not set then a no-op implementation
-	// is used, which fails to generate data.
-	otel.SetMeterProvider(meterProvider)
-	memMeter := otel.Meter("memory-metrics")
-	if _, err := memMeter.Int64ObservableGauge(
-		"memory.heap",
-		otelMetric.WithDescription(
-			"Memory usage of the allocated heap objects.",
-		),
-		otelMetric.WithUnit("By"),
-		otelMetric.WithInt64Callback(func(_ context.Context, o otelMetric.Int64Observer) error {
-			var m runtime.MemStats
-			runtime.ReadMemStats(&m)
-			o.Observe(int64(m.HeapAlloc))
-			return nil
-		}),
-	); err != nil {
-		panic(err)
-	}
 	// profile()
 	env := Env(utils.Getenv("APP_ENV", "development"))
 	logProvider := logger.NewLogger(logger.Console, env == Production)

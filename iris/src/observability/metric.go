@@ -2,7 +2,6 @@ package observability
 
 import (
 	"context"
-	"log"
 	"runtime"
 	"time"
 
@@ -30,13 +29,6 @@ func SetGlobalMeterProvider() {
 	if err != nil {
 		panic(err)
 	}
-
-	// Handle shutdown properly so nothing leaks.
-	defer func() {
-		if err := meterProvider.Shutdown(context.Background()); err != nil {
-			log.Println(err)
-		}
-	}()
 
 	// Register as global meter provider so that it can be used via otel.Meter
 	// and accessed using otel.GetMeterProvider.
@@ -71,8 +63,8 @@ func newMeterProvider(res *resource.Resource, second time.Duration) (*sdkmetric.
 }
 
 // TODO - Int64ObservableGauge를 Meter로 추상화할 수 있었으면 합니다.
-func GetMemoryMeter(meter metric.Meter) (metric.Int64ObservableGauge, error) {
-	memoryMeter, err := meter.Int64ObservableGauge(
+func GetMemoryMeter(meter metric.Meter) {
+	if _, err := meter.Int64ObservableGauge(
 		"memory.heap",
 		metric.WithDescription(
 			"Memory usage of the allocated heap objects.",
@@ -84,9 +76,7 @@ func GetMemoryMeter(meter metric.Meter) (metric.Int64ObservableGauge, error) {
 			o.Observe(int64(m.HeapAlloc))
 			return nil
 		}),
-	)
-	if err != nil {
+	); err != nil {
 		panic(err)
 	}
-	return memoryMeter, err
 }
