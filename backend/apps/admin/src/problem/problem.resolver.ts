@@ -33,6 +33,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import { ImageUrl } from './model/image-url.output'
 import {
   CreateProblemInput,
   UploadFileInput,
@@ -96,6 +97,19 @@ export class ProblemResolver {
         req.user.id,
         groupId
       )
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Mutation(() => ImageUrl)
+  async uploadImage(@Args('input') input: UploadFileInput) {
+    try {
+      return await this.problemService.uploadImage(input)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw error.convert2HTTPException()

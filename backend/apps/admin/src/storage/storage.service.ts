@@ -6,6 +6,7 @@ import {
   PutObjectCommand,
   S3Client
 } from '@aws-sdk/client-s3'
+import type { ReadStream } from 'fs'
 import { type ContentType, ContentTypes } from './content.type'
 
 @Injectable()
@@ -22,6 +23,23 @@ export class StorageService {
         Key: filename,
         Body: content,
         ContentType: ContentTypes[type]
+      })
+    )
+  }
+
+  async uploadImage(
+    filename: string,
+    fileSize: number,
+    content: ReadStream,
+    type: string
+  ) {
+    await this.client.send(
+      new PutObjectCommand({
+        Bucket: this.config.get('IMAGE_BUCKET_NAME'),
+        Key: filename,
+        Body: content,
+        ContentType: type,
+        ContentLength: fileSize
       })
     )
   }

@@ -1,11 +1,15 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { Language } from '@generated'
 import type { ContestProblem, Tag, WorkbookProblem } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
+import { randomUUID } from 'crypto'
 import { Workbook } from 'exceljs'
+import type { ReadStream } from 'fs'
+import { MAX_IMAGE_SIZE } from '@libs/constants'
 import {
   DuplicateFoundException,
   EntityNotExistException,
@@ -36,6 +40,7 @@ export class ProblemService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly storageService: StorageService,
+    private readonly config: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -128,25 +133,20 @@ export class ProblemService {
       throw new UnprocessableDataException(
         'Extensions except Excel(.xlsx, .xls) are not supported.'
       )
-
     const header = {}
     const problems: CreateProblemInput[] = []
-
     const workbook = new Workbook()
     const worksheet = (await workbook.xlsx.read(createReadStream()))
       .worksheets[0]
-
     worksheet.getRow(1).eachCell((cell, idx) => {
       if (!ImportedProblemHeader.includes(cell.text))
         throw new UnprocessableFileDataException(
-          `Field ${cell.text} is not supported`,
-          filename,
-          1
+          `Field ${cell.text} is not supported: ${1}`,
+          filename
         )
       header[cell.text] = idx
     })
     worksheet.spliceRows(1, 1)
-
     const unsupportedFields = [
       header['InputFileName'],
       header['InputFilePath'],
@@ -157,9 +157,8 @@ export class ProblemService {
       for (const colNumber of unsupportedFields) {
         if (row.getCell(colNumber).text !== '')
           throw new UnprocessableFileDataException(
-            'Using inputFile, outputFile is not supported',
-            filename,
-            rowNumber + 1
+            `Using inputFile, outputFile is not supported: ${rowNumber + 1}`,
+            filename
           )
       }
       const title = row.getCell(header['문제제목']).text
@@ -169,17 +168,13 @@ export class ProblemService {
       const languages: Language[] = []
       const level: Level = Level['Level' + levelText]
       const template: Template[] = []
-
       for (let text of languagesText) {
         if (text === 'Python') {
           text = 'Python3'
         }
-
         if (!(text in Language)) continue
-
         const language = text as keyof typeof Language
         const code = row.getCell(header[`${language}SampleCode`]).text
-
         template.push({
           language,
           code: [
@@ -192,42 +187,33 @@ export class ProblemService {
         })
         languages.push(Language[language])
       }
-
       if (!languages.length) {
         throw new UnprocessableFileDataException(
-          'A problem should support at least one language',
-          filename,
-          rowNumber + 1
+          `A problem should support at least one language: ${rowNumber + 1}`,
+          filename
         )
       }
-
       //TODO: specify timeLimit, memoryLimit(default: 2sec, 512mb)
-
       const testCnt = parseInt(row.getCell(header['TestCnt']).text)
       const inputText = row.getCell(header['Input']).text
       const outputs = row.getCell(header['Output']).text.split('::')
       const scoreWeights = row.getCell(header['Score']).text.split('::')
-
       if (testCnt === 0) return
-
       let inputs: string[] = []
       if (inputText === '' && testCnt !== 0) {
         for (let i = 0; i < testCnt; i++) inputs.push('')
       } else {
         inputs = inputText.split('::')
       }
-
       if (
         (inputs.length !== testCnt || outputs.length !== testCnt) &&
         inputText != ''
       ) {
         throw new UnprocessableFileDataException(
-          'TestCnt must match the length of Input and Output. Or Testcases should not include ::.',
-          filename,
-          rowNumber + 1
+          `TestCnt must match the length of Input and Output. Or Testcases should not include ::. :${rowNumber + 1}`,
+          filename
         )
       }
-
       const testcaseInput: Testcase[] = []
       for (let i = 0; i < testCnt; i++) {
         testcaseInput.push({
@@ -236,7 +222,6 @@ export class ProblemService {
           scoreWeight: parseInt(scoreWeights[i]) || undefined
         })
       }
-
       problems.push({
         title,
         description,
@@ -255,13 +240,65 @@ export class ProblemService {
         samples: []
       })
     })
-
     return await Promise.all(
       problems.map(async (data) => {
         const problem = await this.createProblem(data, userId, groupId)
         return problem
       })
     )
+  }
+
+  async uploadImage(input: UploadFileInput) {
+    const { filename, mimetype, createReadStream } = await input.file
+    const newFilename = randomUUID() + filename
+
+    if (!mimetype.includes('image/')) {
+      throw new UnprocessableDataException('Only image files can be accepted')
+    }
+
+    const fileSize = await this.getFileSize(createReadStream())
+    if (fileSize > MAX_IMAGE_SIZE) {
+      throw new UnprocessableDataException('Image size limitation exceeded')
+    }
+
+    try {
+      await this.storageService.uploadImage(
+        newFilename,
+        fileSize,
+        createReadStream(),
+        mimetype
+      )
+    } catch (error) {
+      throw new UnprocessableFileDataException(
+        'Error occurred during image upload.',
+        newFilename
+      )
+    }
+
+    return {
+      imageUrl: this.config.get('IMAGE_BUCKET_BASE_URL') + newFilename
+    }
+  }
+
+  async getFileSize(readStream: ReadStream): Promise<number> {
+    return new Promise((resolve) => {
+      const chunks: Buffer[] = []
+
+      readStream.on('data', (chunk: Buffer) => {
+        chunks.push(chunk)
+      })
+
+      readStream.on('end', () => {
+        const fileSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
+        resolve(fileSize)
+      })
+
+      readStream.on('error', () => {
+        throw new UnprocessableDataException(
+          'Error occurred during calculating image size.'
+        )
+      })
+    })
   }
 
   async getProblems(
