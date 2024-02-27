@@ -89,14 +89,6 @@ export class ProblemController {
     }
   }
 
-  @Get('count')
-  async getProblemCount(
-    @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('search') search?: string
-  ) {
-    return this.problemService.getProblemCount(groupId, search)
-  }
-
   @Get(':problemId')
   async getProblem(
     @Query('groupId', GroupIDPipe) groupId: number,
@@ -132,5 +124,13 @@ export class ProblemController {
       this.logger.error(error)
       throw new InternalServerErrorException()
     }
+  }
+
+  @Get('count')
+  async getProblemCount(
+    @Query('groupId', GroupIDPipe) groupId: number,
+    @Query('search') search?: string
+  ) {
+    return this.problemService.getProblemCount(groupId, search)
   }
 }
