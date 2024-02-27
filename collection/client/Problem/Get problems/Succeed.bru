@@ -22,12 +22,13 @@ query {
 
 assert {
   res.status: eq 200
-  res.body[0].id: isNumber
-  res.body[0].title: isString
-  res.body[0].difficulty: isString
-  res.body[0].submissionCount: isNumber
-  res.body[0].acceptedRate: isNumber
-  res.body[0].tags: isDefined
+  res.body.problems[0].id: isNumber
+  res.body.problems[0].title: isString
+  res.body.problems[0].difficulty: isString
+  res.body.problems[0].submissionCount: isNumber
+  res.body.problems[0].acceptedRate: isNumber
+  res.body.problems[0].tags: isDefined
+  res.body.total: isNumber 
 }
 
 docs {
