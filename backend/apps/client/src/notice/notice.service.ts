@@ -47,12 +47,24 @@ export class NoticeService {
       orderBy: { id: 'desc' }
     })
 
-    return notices.map((notice) => {
+    const data = notices.map((notice) => {
       return {
         ...notice,
         createdBy: notice.createdBy?.username
       }
     })
+
+    const total = search
+      ? await this.prisma.notice.count({
+          where: {
+            title: {
+              contains: search
+            }
+          }
+        })
+      : await this.prisma.notice.count()
+
+    return { data, total }
   }
 
   async getNoticeByID(id: number, groupId = OPEN_SPACE_ID) {
