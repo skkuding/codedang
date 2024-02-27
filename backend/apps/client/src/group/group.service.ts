@@ -156,7 +156,9 @@ export class GroupService {
       }
     })
 
-    return groups
+    const total = await this.prisma.group.count()
+
+    return { data: groups, total }
   }
 
   async getJoinedGroups(userId: number) {
