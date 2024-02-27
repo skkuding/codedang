@@ -125,12 +125,4 @@ export class ProblemController {
       throw new InternalServerErrorException()
     }
   }
-
-  @Get('count')
-  async getProblemCount(
-    @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('search') search?: string
-  ) {
-    return this.problemService.getProblemCount(groupId, search)
-  }
 }

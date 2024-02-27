@@ -1,8 +1,18 @@
 import { Level } from '@prisma/client'
-import { Exclude, Expose, Transform } from 'class-transformer'
+import { Exclude, Expose, Transform, Type } from 'class-transformer'
 
 @Exclude()
 export class RelatedProblemsResponseDto {
+  @Expose()
+  @Type(() => Problem)
+  problems: Problem[]
+
+  @Expose()
+  total: number
+}
+
+@Exclude()
+class Problem {
   @Expose()
   order: number
 

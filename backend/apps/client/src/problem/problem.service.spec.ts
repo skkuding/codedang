@@ -158,20 +158,23 @@ describe('ProblemService', () => {
 
       // then
       expect(result).to.deep.equal(
-        plainToInstance(ProblemsResponseDto, [
-          {
-            ...mockProblems[0],
-            submissionCount: 10,
-            acceptedRate: 0.5,
-            tags: [mockProblemTag.tag]
-          },
-          {
-            ...mockProblems[1],
-            submissionCount: 10,
-            acceptedRate: 0.5,
-            tags: [mockProblemTag.tag]
-          }
-        ])
+        plainToInstance(ProblemsResponseDto, {
+          problems: [
+            {
+              ...mockProblems[0],
+              submissionCount: 10,
+              acceptedRate: 0.5,
+              tags: [mockProblemTag.tag]
+            },
+            {
+              ...mockProblems[1],
+              submissionCount: 10,
+              acceptedRate: 0.5,
+              tags: [mockProblemTag.tag]
+            }
+          ],
+          total: 2
+        })
       )
     })
   })
@@ -262,7 +265,10 @@ describe('ContestProblemService', () => {
 
       // then
       expect(result).to.deep.equal(
-        plainToInstance(RelatedProblemsResponseDto, mockContestProblems)
+        plainToInstance(RelatedProblemsResponseDto, {
+          problems: mockContestProblems,
+          total: 2
+        })
       )
     })
 
@@ -276,7 +282,10 @@ describe('ContestProblemService', () => {
 
       // then
       expect(result).to.deep.equal(
-        plainToInstance(RelatedProblemsResponseDto, mockContestProblems)
+        plainToInstance(RelatedProblemsResponseDto, {
+          problems: mockContestProblems,
+          total: 2
+        })
       )
     })
 
@@ -421,7 +430,10 @@ describe('WorkbookProblemService', () => {
 
       // then
       expect(result).to.deep.equal(
-        plainToInstance(RelatedProblemsResponseDto, mockWorkbookProblems)
+        plainToInstance(RelatedProblemsResponseDto, {
+          problems: mockWorkbookProblems,
+          total: 2
+        })
       )
     })
 
@@ -440,7 +452,10 @@ describe('WorkbookProblemService', () => {
 
       // then
       expect(result).to.deep.equal(
-        plainToInstance(RelatedProblemsResponseDto, mockWorkbookProblems)
+        plainToInstance(RelatedProblemsResponseDto, {
+          problems: mockWorkbookProblems,
+          total: 2
+        })
       )
     })
 
