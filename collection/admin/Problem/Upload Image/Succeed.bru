@@ -1,0 +1,33 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Apollo-Require-Preflight: true
+}
+
+body:multipart-form {
+  operations: { "query": "mutation($input: UploadFileInput!){uploadImage(input: $input){ imageUrl }}","variables": {"input": {"file": null}}}
+  map: { "nfile" : ["variables.input.file"]}
+  nfile: @file(/Users/kimjaehyeon/Desktop/IMG_5722.jpeg)
+}
+
+docs {
+  ## Upload Image
+  이미지를 업로드하고, 업로드된 이미지의 URL 주소를 반환합니다.
+  
+  ### Error Cases
+  #### UNPROCESSABLE (1)
+  이미지 파일만 업로드가 가능합니다. (mimetype이 image/*)
+  
+  #### UNPROCESSABLE (2)
+  5MB 이하의 이미지 파일만 업로드가 가능합니다.
+}
