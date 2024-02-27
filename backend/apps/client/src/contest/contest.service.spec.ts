@@ -270,7 +270,9 @@ describe('ContestService', () => {
         10,
         groupId
       )
-      const contestIds = contests.map((c) => c.id).sort((a, b) => a - b)
+      const contestIds = contests.finished
+        .map((c) => c.id)
+        .sort((a, b) => a - b)
       const finishedContestIds = [6, 7, 8, 9, 10, 11, 12, 13]
       expect(contestIds).to.deep.equal(finishedContestIds)
     })
