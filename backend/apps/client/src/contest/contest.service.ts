@@ -220,7 +220,42 @@ export class ContestService {
       orderBy: [{ endTime: 'desc' }, { id: 'desc' }]
     })
 
-    return this.renameToParticipants(contests)
+    const total = search
+      ? await this.prisma.contest.count({
+          where: {
+            groupId,
+            endTime: {
+              lte: now
+            },
+            id: {
+              in: registeredContestIds
+            },
+            title: {
+              contains: search
+            },
+            config: {
+              path: ['isVisible'],
+              equals: true
+            }
+          }
+        })
+      : await this.prisma.contest.count({
+          where: {
+            groupId,
+            endTime: {
+              lte: now
+            },
+            id: {
+              in: registeredContestIds
+            },
+            config: {
+              path: ['isVisible'],
+              equals: true
+            }
+          }
+        })
+
+    return { data: this.renameToParticipants(contests), total }
   }
 
   async getFinishedContestsByGroupId(
@@ -251,7 +286,37 @@ export class ContestService {
       select: contestSelectOption,
       orderBy: [{ endTime: 'desc' }, { id: 'desc' }]
     })
-    return { finished: this.renameToParticipants(finished) }
+
+    const total = search
+      ? await this.prisma.contest.count({
+          where: {
+            endTime: {
+              lte: now
+            },
+            groupId,
+            config: {
+              path: ['isVisible'],
+              equals: true
+            },
+            title: {
+              contains: search
+            }
+          }
+        })
+      : await this.prisma.contest.count({
+          where: {
+            endTime: {
+              lte: now
+            },
+            groupId,
+            config: {
+              path: ['isVisible'],
+              equals: true
+            }
+          }
+        })
+
+    return { data: this.renameToParticipants(finished), total }
   }
 
   // TODO: participants 대신 _count.contestRecord 그대로 사용하는 것 고려해보기

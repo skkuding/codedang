@@ -218,7 +218,7 @@ describe('ContestService', () => {
         groupId,
         user01Id
       )
-      expect(contests).to.have.lengthOf(takeNum)
+      expect(contests.data).to.have.lengthOf(takeNum)
     })
 
     it('should return a contest array which starts with id 9', async () => {
@@ -230,7 +230,7 @@ describe('ContestService', () => {
         groupId,
         user01Id
       )
-      expect(contests[0].id).to.equals(9)
+      expect(contests.data[0].id).to.equals(9)
     })
 
     it('a contest should contain following fields', async () => {
@@ -240,12 +240,12 @@ describe('ContestService', () => {
         groupId,
         user01Id
       )
-      expect(contests[0]).to.have.property('title')
-      expect(contests[0]).to.have.property('startTime')
-      expect(contests[0]).to.have.property('endTime')
-      expect(contests[0]).to.have.property('participants')
-      expect(contests[0].group).to.have.property('id')
-      expect(contests[0].group).to.have.property('groupName')
+      expect(contests.data[0]).to.have.property('title')
+      expect(contests.data[0]).to.have.property('startTime')
+      expect(contests.data[0]).to.have.property('endTime')
+      expect(contests.data[0]).to.have.property('participants')
+      expect(contests.data[0].group).to.have.property('id')
+      expect(contests.data[0].group).to.have.property('groupName')
     })
 
     it("shold return contests whose title contains '낮'", async () => {
@@ -257,7 +257,7 @@ describe('ContestService', () => {
         user01Id,
         keyword
       )
-      expect(contests.map((contest) => contest.title)).to.deep.equals([
+      expect(contests.data.map((contest) => contest.title)).to.deep.equals([
         '소프트의 낮'
       ])
     })
@@ -270,9 +270,7 @@ describe('ContestService', () => {
         10,
         groupId
       )
-      const contestIds = contests.finished
-        .map((c) => c.id)
-        .sort((a, b) => a - b)
+      const contestIds = contests.data.map((c) => c.id).sort((a, b) => a - b)
       const finishedContestIds = [6, 7, 8, 9, 10, 11, 12, 13]
       expect(contestIds).to.deep.equal(finishedContestIds)
     })
