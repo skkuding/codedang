@@ -20,6 +20,11 @@ body:multipart-form {
   nfile: @file(/Users/kimjaehyeon/Desktop/IMG_5722.jpeg)
 }
 
+assert {
+  res.status: eq 200
+  res.body.data.uploadImage.imageUrl: isString 
+}
+
 docs {
   ## Upload Image
   이미지를 업로드하고, 업로드된 이미지의 URL 주소를 반환합니다.
