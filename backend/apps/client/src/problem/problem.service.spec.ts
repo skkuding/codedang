@@ -28,8 +28,7 @@ import {
   mockUser,
   mockTemplate,
   tag,
-  mockCodeDraft,
-  userId
+  mockCodeDraft
 } from './mock/problem.mock'
 import { ProblemRepository } from './problem.repository'
 import {
@@ -84,6 +83,7 @@ const db = {
 const ARBITRARY_VAL = 1
 const problemId = ARBITRARY_VAL
 const groupId = ARBITRARY_VAL
+const userId = ARBITRARY_VAL
 const contestId = ARBITRARY_VAL
 const workbookId = ARBITRARY_VAL
 const mockProblem = Object.assign({}, problems[0])
