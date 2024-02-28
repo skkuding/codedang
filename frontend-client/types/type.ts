@@ -5,7 +5,7 @@ export type ContestStatus =
   | 'registeredOngoing'
   | 'registeredUpcoming'
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
-export type Language = 'C' | 'Cpp' | 'Golang' | 'Java' | 'Python2' | 'Python3'
+export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
 
 export interface Contest {
   id: number

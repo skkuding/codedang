@@ -16,6 +16,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { languages, levels } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
 import { Level, type CreateProblemInput } from '@generated/graphql'
@@ -33,7 +34,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Label'
-import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
+import { GET_TAGS, inputStyle } from '../utils'
 
 const CREATE_PROBLEM = gql(`
   mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
@@ -71,10 +72,8 @@ const CREATE_PROBLEM = gql(`
 const schema = z.object({
   title: z.string().min(1).max(25),
   isVisible: z.boolean(),
-  difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
-  languages: z.array(
-    z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
-  ),
+  difficulty: z.enum(levels),
+  languages: z.array(z.enum(languages)),
   tagIds: z.array(z.number()),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
@@ -314,7 +313,7 @@ export default function Page() {
                   render={({ field }) => (
                     <CheckboxSelect
                       title="Language"
-                      options={languageOptions}
+                      options={languages}
                       onChange={(selectedLanguages) => {
                         field.onChange(selectedLanguages)
                       }}
@@ -370,13 +369,17 @@ export default function Page() {
 
           <div className="flex flex-col gap-1">
             <div className="flex justify-between">
-              <div className="flex flex-col gap-1">
+              <div className="flex w-[360px] flex-col gap-1">
                 <Label>Input Description</Label>
-                <Textarea
-                  id="inputDescription"
-                  placeholder="Enter a description..."
-                  className="min-h-[120px] w-[360px] bg-white"
-                  {...register('inputDescription')}
+                <Controller
+                  render={({ field }) => (
+                    <TextEditor
+                      placeholder="Enter a description..."
+                      onChange={field.onChange}
+                    />
+                  )}
+                  name="inputDescription"
+                  control={control}
                 />
                 {errors.inputDescription && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
@@ -385,13 +388,17 @@ export default function Page() {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex w-[360px] flex-col gap-1">
                 <Label>Output Description</Label>
-                <Textarea
-                  id="outputDescription"
-                  placeholder="Enter a description..."
-                  className="min-h-[120px] w-[360px] bg-white"
-                  {...register('outputDescription')}
+                <Controller
+                  render={({ field }) => (
+                    <TextEditor
+                      placeholder="Enter a description..."
+                      onChange={field.onChange}
+                    />
+                  )}
+                  name="outputDescription"
+                  control={control}
                 />
                 {errors.outputDescription && (
                   <div className="flex items-center gap-1 text-xs text-red-500">

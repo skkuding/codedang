@@ -13,6 +13,7 @@
 			Access-Control-Allow-Origin "{header.Origin}"
 			Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
 			Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth, Apollo-Require-Preflight"
+			Access-Control-Expose-Headers "Email-Auth"
 		}
 		respond "" 204
 	}
@@ -28,6 +29,7 @@
 			Access-Control-Allow-Origin "{header.Origin}"
 			Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
 			Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth, Apollo-Require-Preflight"
+			Access-Control-Expose-Headers "Email-Auth"
 		}
 	}
 }
