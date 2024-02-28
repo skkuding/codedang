@@ -9,7 +9,6 @@ import { useQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
-import * as React from 'react'
 import { columns } from './_components/Columns'
 import UploadDialog from './_components/UploadDialog'
 
@@ -44,8 +43,6 @@ const GET_PROBLEMS = gql(`
     }
   }
 `)
-
-export const dynamic = 'force-dynamic'
 
 export default function Page() {
   const { data, loading, refetch } = useQuery(GET_PROBLEMS, {

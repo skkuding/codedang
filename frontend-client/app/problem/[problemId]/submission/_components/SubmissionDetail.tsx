@@ -11,6 +11,7 @@ import {
 import { fetcherWithAuth } from '@/lib/utils'
 import type { SubmissionDetail } from '@/types/type'
 import dayjs from 'dayjs'
+import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
 import dataIfError from './dataIfError'
 
@@ -24,14 +25,27 @@ export default async function SubmissionDetail({
   submissionId
 }: Props) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
-    searchParams: {
-      problemId
-    },
-    cache: 'no-store'
+    searchParams: { problemId },
+    next: {
+      tags: [`submission/${submissionId}`]
+    }
   })
-  const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
 
-  //await new Promise((resolve) => setTimeout(resolve, 10000))
+  const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
+  if (res.status == 403) {
+    return (
+      <div className="flex h-[300px] flex-col items-center justify-center gap-20">
+        <IoIosLock size={100} />
+        <p>
+          Unable to check others&apos; until your correct submission is accepted
+        </p>
+      </div>
+    )
+  }
+
+  if (submission.result == 'Judging') {
+    revalidateTag(`submission/${submissionId}`)
+  }
 
   return (
     <>
@@ -99,7 +113,9 @@ export default async function SubmissionDetail({
                     {item.result}
                   </TableCell>
                   <TableCell>{item.cpuTime} ms</TableCell>
-                  <TableCell>{item.memoryUsage} mb</TableCell>
+                  <TableCell>
+                    {(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

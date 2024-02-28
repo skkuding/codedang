@@ -16,6 +16,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { languages, levels } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
 import { Level, type CreateProblemInput } from '@generated/graphql'
@@ -33,7 +34,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
-import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
+import { GET_TAGS, inputStyle } from '../utils'
 
 const CREATE_PROBLEM = gql(`
   mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
@@ -71,10 +72,8 @@ const CREATE_PROBLEM = gql(`
 const schema = z.object({
   title: z.string().min(1).max(25),
   isVisible: z.boolean(),
-  difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
-  languages: z.array(
-    z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
-  ),
+  difficulty: z.enum(levels),
+  languages: z.array(z.enum(languages)),
   tagIds: z.array(z.number()),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
@@ -314,7 +313,7 @@ export default function Page() {
                   render={({ field }) => (
                     <CheckboxSelect
                       title="Language"
-                      options={languageOptions}
+                      options={languages}
                       onChange={(selectedLanguages) => {
                         field.onChange(selectedLanguages)
                       }}
@@ -375,7 +374,7 @@ export default function Page() {
                 <Textarea
                   id="inputDescription"
                   placeholder="Enter a description..."
-                  className="h-[120px] w-[360px] resize-none bg-white"
+                  className="min-h-[120px] w-[360px] bg-white"
                   {...register('inputDescription')}
                 />
                 {errors.inputDescription && (
@@ -390,7 +389,7 @@ export default function Page() {
                 <Textarea
                   id="outputDescription"
                   placeholder="Enter a description..."
-                  className="h-[120px] w-[360px] resize-none bg-white"
+                  className="min-h-[120px] w-[360px] bg-white"
                   {...register('outputDescription')}
                 />
                 {errors.outputDescription && (
@@ -535,7 +534,7 @@ export default function Page() {
               <Textarea
                 id="hint"
                 placeholder="Enter a hint"
-                className="h-[120px] w-[760px] resize-none bg-white"
+                className="min-h-[120px] w-[760px] bg-white"
                 {...register('hint')}
               />
             )}
