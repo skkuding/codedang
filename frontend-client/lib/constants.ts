@@ -1,5 +1,3 @@
-import type { Language, Level } from '@/types/type'
-
 /**
  * The base URL for the client API.
  * @constant
@@ -34,16 +32,16 @@ export const metaBaseUrl = process.env.VERCEL_URL || process.env.NEXT_URL
  * The languages that are supported by the grading system.
  * @constant
  */
-export const languages: Language[] = ['C', 'Cpp', 'Java', 'Python3']
+export const languages = ['C', 'Cpp', 'Java', 'Python3'] as const
 
 /**
  * The levels of difficulty for problems.
  * @constant
  */
-export const levels: Level[] = [
+export const levels = [
   'Level1',
   'Level2',
   'Level3',
   'Level4',
   'Level5'
-]
+] as const

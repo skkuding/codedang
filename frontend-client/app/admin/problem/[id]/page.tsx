@@ -16,7 +16,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { languages } from '@/lib/constants'
+import { languages, levels } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateProblemInput } from '@generated/graphql'
@@ -34,7 +34,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
-import { GET_TAGS, inputStyle, levels } from '../utils'
+import { GET_TAGS, inputStyle } from '../utils'
 
 const GET_PROBLEM = gql(`
   query GetProblem($groupId: Int!, $id: Int!) {
@@ -111,10 +111,8 @@ const schema = z.object({
   id: z.number(),
   title: z.string().min(1).max(25),
   isVisible: z.boolean(),
-  difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
-  languages: z.array(
-    z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
-  ),
+  difficulty: z.enum(levels),
+  languages: z.array(z.enum(languages)),
   tags: z
     .object({ create: z.array(z.number()), delete: z.array(z.number()) })
     .optional(),
