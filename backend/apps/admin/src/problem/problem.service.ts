@@ -276,7 +276,8 @@ export class ProblemService {
     }
 
     return {
-      imageUrl: this.config.get('IMAGE_BUCKET_BASE_URL') + newFilename
+      src: this.config.get('IMAGE_BUCKET_BASE_URL') + newFilename,
+      alt: newFilename
     }
   }
 

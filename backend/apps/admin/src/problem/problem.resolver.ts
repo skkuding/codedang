@@ -33,7 +33,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
-import { ImageUrl } from './model/image-url.output'
+import { Image } from './model/image.output'
 import {
   CreateProblemInput,
   UploadFileInput,
@@ -106,7 +106,7 @@ export class ProblemResolver {
     }
   }
 
-  @Mutation(() => ImageUrl)
+  @Mutation(() => Image)
   async uploadImage(@Args('input') input: UploadFileInput) {
     try {
       return await this.problemService.uploadImage(input)

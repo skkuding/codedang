@@ -15,14 +15,16 @@ headers {
 }
 
 body:multipart-form {
-  operations: { "query": "mutation($input: UploadFileInput!){uploadImage(input: $input){ imageUrl }}","variables": {"input": {"file": null}}}
+  operations: { "query": "mutation($input: UploadFileInput!){uploadImage(input: $input){ src alt }}","variables": {"input": {"file": null}}}
   map: { "nfile" : ["variables.input.file"]}
   nfile: @file(/Users/kimjaehyeon/Desktop/IMG_5722.jpeg)
 }
 
 assert {
   res.status: eq 200
-  res.body.data.uploadImage.imageUrl: isString 
+  res.body.data.uploadImage: isDefined 
+  res.body.data.uploadImage.src: isString 
+  res.body.data.uploadImage.alt: isString 
 }
 
 docs {
