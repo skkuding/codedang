@@ -11,10 +11,18 @@ export const columns: ColumnDef<SubmissionItem>[] = [
     cell: ({ row }) => <p className="text-sm">{row.original.id}</p>
   },
   {
-    id: 'username',
+    id: 'user',
     header: () => 'User ID',
-    accessorKey: 'username',
-    cell: ({ row }) => row.original.user.username
+    accessorKey: 'user',
+    cell: ({ row }) => row.original.user.username,
+    // submission userID Search Filter
+    filterFn: (row, id, value) => {
+      // console.log(users)
+      // console.log(id)
+      // console.log(value)
+      const users = row.original.user
+      return users.username.includes(value)
+    }
   },
   {
     header: () => 'Result',

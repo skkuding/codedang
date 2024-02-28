@@ -86,9 +86,9 @@ export default function DataTable<TData extends Item, TValue>({
     <div>
       <Input
         placeholder="Search"
-        value={(table.getColumn('username')?.getFilterValue() as string) ?? ''}
+        value={(table.getColumn('user')?.getFilterValue() as string) ?? ''}
         onChange={(event) => {
-          table.getColumn('username')?.setFilterValue(event.target.value)
+          table.getColumn('user')?.setFilterValue(event.target.value)
         }}
         className="h-10 w-[150px] lg:w-[250px]"
       />
