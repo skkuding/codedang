@@ -1,8 +1,4 @@
-import {
-  InternalServerErrorException,
-  Logger,
-  ParseArrayPipe
-} from '@nestjs/common'
+import { InternalServerErrorException, Logger } from '@nestjs/common'
 import {
   Query,
   Resolver,
@@ -42,20 +38,12 @@ export class TagResolver {
   constructor(private readonly problemService: ProblemService) {}
 
   @Mutation(() => [Tag])
-  async createTags(
-    @Args('tagNames', { type: () => [String] }, ParseArrayPipe)
-    tagNames: string[]
+  async createTag(
+    @Args('tagName', { type: () => String })
+    tagName: string
   ) {
     try {
-      // 각 태그 이름을 원하는 형식으로 변환
-      const formattedTagNames = tagNames.map(
-        (tagName) =>
-          tagName
-            .replace(/\s+/g, '-') // 띄어쓰기를 '-'로 대체
-            .toLowerCase() // 모든 영문자를 소문자로 변환
-      )
-
-      return await this.problemService.createTags(formattedTagNames)
+      return await this.problemService.createTag(tagName)
     } catch (error) {
       if (error instanceof DuplicateFoundException) {
         throw error.convert2HTTPException()
@@ -73,18 +61,7 @@ export class TagResolver {
     newTagName: string
   ) {
     try {
-      // 각 태그 이름을 원하는 형식으로 변환
-      const formattedOldTagName = oldTagName
-        .replace(/\s+/g, '-') // 띄어쓰기를 '-'로 대체
-        .toLowerCase() // 모든 영문자를 소문자로 변환
-      const formattedNewTagName = newTagName
-        .replace(/\s+/g, '-') // 띄어쓰기를 '-'로 대체
-        .toLowerCase() // 모든 영문자를 소문자로 변환
-
-      return await this.problemService.updateTag(
-        formattedOldTagName,
-        formattedNewTagName
-      )
+      return await this.problemService.updateTag(oldTagName, newTagName)
     } catch (error) {
       if (
         error instanceof EntityNotExistException ||
@@ -100,10 +77,7 @@ export class TagResolver {
   @Mutation(() => Tag)
   async deleteTag(@Args('tagName', { type: () => String }) tagName: string) {
     try {
-      const formattedTagName = tagName
-        .replace(/\s+/g, '-') // 띄어쓰기를 '-'로 대체
-        .toLowerCase() // 모든 영문자를 소문자로 변환
-      return await this.problemService.deleteTag(formattedTagName)
+      return await this.problemService.deleteTag(tagName)
     } catch (error) {
       if (error instanceof EntityNotExistException) {
         throw error.convert2HTTPException()
