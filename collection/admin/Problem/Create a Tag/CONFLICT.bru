@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation CreateTags($tagNames: [String!]!) {
-    createTags(tagNames: $tagNames) {
+  mutation CreateTag($tagName: String!) {
+    createTag(tagName: $tagName) {
       id
       name
       createTime
@@ -23,7 +23,7 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "tagNames": ["If Statement"]
+    "tagName": "If Statement"
   }
 }
 
