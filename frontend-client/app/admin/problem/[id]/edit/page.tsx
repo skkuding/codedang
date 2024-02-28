@@ -18,7 +18,7 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
-import { Level, type CreateProblemInput } from '@generated/graphql'
+import type { UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -31,13 +31,48 @@ import { MdHelpOutline } from 'react-icons/md'
 import { PiWarningBold } from 'react-icons/pi'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import ExampleTextarea from '../_components/ExampleTextarea'
-import Label from '../_components/Label'
-import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
+import ExampleTextarea from '../../_components/ExampleTextarea'
+import Label from '../../_components/Label'
+import { GET_TAGS, inputStyle, languageOptions, levels } from '../../utils'
 
-const CREATE_PROBLEM = gql(`
-  mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
-    createProblem(groupId: $groupId, input: $input) {
+const GET_PROBLEM = gql(`
+  query GetProblem($groupId: Int!, $id: Int!) {
+    getProblem(groupId: $groupId, id: $id) {
+      title
+      isVisible
+      difficulty
+      languages
+      tag {
+        tag {
+          id
+          name
+        }
+      }
+      description
+      inputDescription
+      outputDescription
+      samples {
+        id
+        input
+        output
+      }
+      testcase {
+        id
+        input
+        output
+      }
+      timeLimit
+      memoryLimit
+      hint
+      source
+      template
+    }
+  }
+`)
+
+const UPDATE_PROBLEM = gql(`
+  mutation UpdateProblem($groupId: Int!, $input: UpdateProblemInput!) {
+    updateProblem(groupId: $groupId, input: $input) {
       id
       createdById
       groupId
@@ -46,7 +81,10 @@ const CREATE_PROBLEM = gql(`
       difficulty
       languages
       problemTag {
-        tagId
+        tag {
+          id
+          name
+        }
       }
       description
       inputDescription
@@ -69,24 +107,27 @@ const CREATE_PROBLEM = gql(`
 `)
 
 const schema = z.object({
+  id: z.number(),
   title: z.string().min(1).max(25),
   isVisible: z.boolean(),
   difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
   languages: z.array(
     z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
   ),
-  tagIds: z.array(z.number()),
+  tags: z
+    .object({ create: z.array(z.number()), delete: z.array(z.number()) })
+    .optional(),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
-  samples: z
-    .array(
-      z.object({
-        input: z.string().min(1),
-        output: z.string().min(1)
-      })
-    )
-    .min(1),
+  samples: z.object({
+    create: z.array(
+      z
+        .object({ input: z.string().min(1), output: z.string().min(1) })
+        .optional()
+    ),
+    delete: z.array(z.number().optional())
+  }),
   testcases: z
     .array(
       z.object({
@@ -124,12 +165,14 @@ const schema = z.object({
     .optional()
 })
 
-export default function Page() {
+export default function Page({ params }: { params: { id: string } }) {
+  const { id } = params
+  const [showHint, setShowHint] = useState(true)
+  const [showSource, setShowSource] = useState(true)
+
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
-    tagsData?.getTags.map(({ id, name }) => ({ id: Number(id), name })) ?? []
-  const [showHint, setShowHint] = useState(false)
-  const [showSource, setShowSource] = useState(false)
+    tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
 
   const router = useRouter()
 
@@ -138,67 +181,119 @@ export default function Page() {
     control,
     register,
     getValues,
-    watch,
     setValue,
+    watch,
     formState: { errors }
-  } = useForm<CreateProblemInput>({
+  } = useForm<UpdateProblemInput>({
     resolver: zodResolver(schema),
     defaultValues: {
-      difficulty: Level.Level1,
-      tagIds: [],
-      samples: [{ input: '', output: '' }],
-      testcases: [{ input: '', output: '' }],
-      hint: '',
-      source: '',
-      template: [],
-      isVisible: true
+      samples: { create: [], delete: [] },
+      template: []
     }
   })
 
-  const watchedSamples = watch('samples')
+  useQuery(GET_PROBLEM, {
+    variables: {
+      groupId: 1,
+      id: +id
+    },
+    onCompleted: (problemData) => {
+      const data = problemData.getProblem
+      setValue('id', +id)
+      setValue('title', data.title)
+      setValue('isVisible', data.isVisible)
+      setValue('difficulty', data.difficulty)
+      setValue('languages', data.languages ?? [])
+      setValue(
+        'tags.create',
+        data.tag.map(({ tag }) => Number(tag.id))
+      )
+      setValue(
+        'tags.delete',
+        data.tag.map(({ tag }) => Number(tag.id))
+      )
+      setValue('description', data.description)
+      setValue('inputDescription', data.inputDescription)
+      setValue('outputDescription', data.outputDescription)
+      setValue('samples.create', data?.samples || [])
+      setValue('samples.delete', data.samples?.map(({ id }) => +id) || [])
+      setValue('testcases', data.testcase)
+      setValue('timeLimit', data.timeLimit)
+      setValue('memoryLimit', data.memoryLimit)
+      setValue('hint', data.hint)
+      setValue('source', data.source)
+      setValue('template', [])
+    }
+  })
+
+  const watchedSamples = watch('samples.create')
   const watchedTestcases = watch('testcases')
 
-  const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
-  const onSubmit = async (input: CreateProblemInput) => {
-    await createProblem({
+  const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
+  const onSubmit = async (input: UpdateProblemInput) => {
+    const tagsToDelete = getValues('tags.delete')
+    const tagsToCreate = getValues('tags.create')
+    input.tags!.create = tagsToCreate.filter(
+      (tag) => !tagsToDelete.includes(tag)
+    )
+    input.tags!.delete = tagsToDelete.filter(
+      (tag) => !tagsToCreate.includes(tag)
+    )
+
+    await updateProblem({
       variables: {
         groupId: 1,
         input
       }
     })
     if (error) {
-      toast.error('Failed to create problem')
+      toast.error('Failed to update problem')
       return
     }
-    toast.success('Problem created successfully')
+    toast.success('Succesfully updated problem')
     router.push('/admin/problem')
     router.refresh()
   }
 
-  const addExample = (type: 'samples' | 'testcases') => {
-    setValue(type, [...getValues(type), { input: '', output: '' }])
+  const addSample = () => {
+    const values = getValues('samples.create')
+    const newSample = { input: '', output: '' }
+    setValue('samples.create', [...values, newSample])
   }
 
-  const removeExample = (type: 'samples' | 'testcases', index: number) => {
-    const currentValues = getValues(type)
-    if (currentValues.length === 1) {
-      toast.warning(
-        `At least one ${type === 'samples' ? 'sample' : 'testcase'} is required`
-      )
+  const addTestcase = () => {
+    const values = getValues('testcases') ?? []
+    const newTestcase = { input: '', output: '' }
+    setValue('testcases', [...values, newTestcase])
+  }
+
+  const removeSample = (index: number) => {
+    const currentValues = getValues('samples.create')
+    if (currentValues.length <= 1) {
+      toast.warning('At least one sample is required')
       return
     }
     const updatedValues = currentValues.filter((_, i) => i !== index)
-    setValue(type, updatedValues)
+    setValue('samples.create', updatedValues)
   }
 
+  const removeTestcase = (index: number) => {
+    const currentValues = getValues('testcases')
+    if ((currentValues?.length ?? 0) <= 1) {
+      toast.warning('At least one testcase is required')
+      return
+    }
+    const updatedValues = currentValues?.filter((_, i) => i !== index)
+    setValue('testcases', updatedValues)
+  }
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center gap-4">
-          <Link href="/admin/problem">
+          <Link href={`/admin/problem/${id}`}>
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
-          <span className="text-4xl font-bold">Create Problem</span>
+          <span className="text-4xl font-bold">Edit Problem</span>
         </div>
 
         <form
@@ -218,9 +313,9 @@ export default function Page() {
               {errors.title && (
                 <div className="flex items-center gap-1 text-xs text-red-500">
                   <PiWarningBold />
-                  {getValues('title').length === 0
+                  {getValues('title')?.length === 0
                     ? 'required'
-                    : errors.title.message}
+                    : errors.title.message?.toString()}
                 </div>
               )}
             </div>
@@ -246,13 +341,14 @@ export default function Page() {
                 <Controller
                   control={control}
                   name="isVisible"
-                  render={({ field: { onChange, value } }) => (
+                  render={({ field: { onChange, onBlur, value } }) => (
                     <div className="flex gap-6">
                       <label className="flex gap-2">
                         <input
                           type="radio"
+                          onBlur={onBlur}
                           onChange={() => onChange(true)}
-                          checked={value}
+                          checked={value === true}
                           className="accent-black"
                         />
                         <FaEye
@@ -264,6 +360,7 @@ export default function Page() {
                       <label className="flex gap-2">
                         <input
                           type="radio"
+                          onBlur={onBlur}
                           onChange={() => onChange(false)}
                           checked={value === false}
                           className="accent-black"
@@ -295,7 +392,7 @@ export default function Page() {
                   render={({ field }) => (
                     <OptionSelect
                       options={levels}
-                      value={field.value}
+                      value={field.value as string}
                       onChange={field.onChange}
                     />
                   )}
@@ -318,6 +415,7 @@ export default function Page() {
                       onChange={(selectedLanguages) => {
                         field.onChange(selectedLanguages)
                       }}
+                      defaultValue={field.value as string[]}
                     />
                   )}
                   name="languages"
@@ -333,12 +431,16 @@ export default function Page() {
               <div className="flex flex-col gap-1">
                 <Controller
                   render={({ field }) => (
-                    <TagsSelect options={tags} onChange={field.onChange} />
+                    <TagsSelect
+                      options={tags}
+                      onChange={field.onChange}
+                      defaultValue={field.value}
+                    />
                   )}
-                  name="tagIds"
+                  name="tags.create"
                   control={control}
                 />
-                {errors.tagIds && (
+                {errors.tags && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
                     <PiWarningBold />
                     required
@@ -350,16 +452,19 @@ export default function Page() {
 
           <div className="flex flex-col gap-1">
             <Label>Description</Label>
-            <Controller
-              render={({ field }) => (
-                <TextEditor
-                  placeholder="Enter a description..."
-                  onChange={field.onChange}
-                />
-              )}
-              name="description"
-              control={control}
-            />
+            {getValues('description') && (
+              <Controller
+                render={({ field }) => (
+                  <TextEditor
+                    placeholder="Enter a description..."
+                    onChange={field.onChange}
+                    defaultValue={field.value as string}
+                  />
+                )}
+                name="description"
+                control={control}
+              />
+            )}
             {errors.description && (
               <div className="flex items-center gap-1 text-xs text-red-500">
                 <PiWarningBold />
@@ -407,7 +512,7 @@ export default function Page() {
             <div className="flex items-center gap-2">
               <Label>Sample</Label>
               <Badge
-                onClick={() => addExample('samples')}
+                onClick={addSample}
                 className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-200/60 p-0 text-xs font-medium text-gray-500 shadow-sm hover:bg-gray-200"
               >
                 + add
@@ -415,15 +520,17 @@ export default function Page() {
             </div>
             <div className="flex flex-col gap-2">
               {watchedSamples &&
-                watchedSamples.map((_sample, index) => (
+                watchedSamples.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
-                      onRemove={() => removeExample('samples', index)}
-                      inputName={`samples.${index}.input`}
-                      outputName={`samples.${index}.output`}
+                      onRemove={() => {
+                        removeSample(index)
+                      }}
+                      inputName={`samples.create.${index}.input`}
+                      outputName={`samples.create.${index}.output`}
                       register={register}
                     />
-                    {errors.samples?.[index] && (
+                    {errors.samples?.create?.[index] && (
                       <div className="flex items-center gap-1 text-xs text-red-500">
                         <PiWarningBold />
                         required
@@ -438,7 +545,7 @@ export default function Page() {
             <div className="flex items-center gap-2">
               <Label>Testcase</Label>
               <Badge
-                onClick={() => addExample('testcases')}
+                onClick={addTestcase}
                 className="h-[18px] w-[45px] cursor-pointer items-center justify-center bg-gray-200/60 p-0 text-xs font-medium text-gray-500 shadow-sm hover:bg-gray-200"
               >
                 + add
@@ -446,11 +553,11 @@ export default function Page() {
             </div>
             <div className="flex flex-col gap-2">
               {watchedTestcases &&
-                watchedTestcases.map((_testcase, index) => (
+                watchedTestcases.map((_, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
-                      onRemove={() => removeExample('testcases', index)}
+                      onRemove={() => removeTestcase(index)}
                       inputName={`testcases.${index}.input`}
                       outputName={`testcases.${index}.output`}
                       register={register}
@@ -488,7 +595,7 @@ export default function Page() {
                     <PiWarningBold />
                     {Number.isNaN(getValues('timeLimit'))
                       ? 'required'
-                      : errors.timeLimit?.message}
+                      : errors.timeLimit?.message?.toString()}
                   </div>
                 )}
               </div>
@@ -512,7 +619,7 @@ export default function Page() {
                     <PiWarningBold />
                     {Number.isNaN(getValues('memoryLimit'))
                       ? 'required'
-                      : errors.memoryLimit?.message}
+                      : errors.memoryLimit?.message?.toString()}
                   </div>
                 )}
               </div>
@@ -569,7 +676,7 @@ export default function Page() {
             className="flex h-[36px] w-[100px] items-center gap-2 px-0 "
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
-            <div className="mb-[2px] text-base">Create</div>
+            <div className="mb-[2px] text-base">Submit</div>
           </Button>
         </form>
       </main>
