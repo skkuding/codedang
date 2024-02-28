@@ -1,12 +1,17 @@
 'use client'
 
 import { gql } from '@generated'
+import Paginator from '@/components/Paginator'
 import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { usePagination } from '@/lib/usePagination'
+import type { SubmissionItem } from '@/types/type'
 import { useQuery } from '@apollo/client'
 import { sanitize } from 'isomorphic-dompurify'
 import Link from 'next/link'
 import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
+import { columns } from './_components/Columns'
+import DataTable from './_components/DataTable'
 
 const GET_PROBLEM = gql(`
   query GetProblemDetail($groupId: Int!, $id: Int!) {
@@ -27,6 +32,11 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   }).data?.getProblem
 
+  const { items, paginator } = usePagination<SubmissionItem>(
+    `submission?problemId=${id}`,
+    20
+  )
+
   return (
     <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
@@ -45,11 +55,26 @@ export default function Page({ params }: { params: { id: string } }) {
           </Link>
         </div>
         <div
-          className="prose w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
+          className="prose mb-12 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
           dangerouslySetInnerHTML={{
             __html: sanitize(problemData?.description ?? '')
           }}
         />
+        <p className="text-xl font-bold">Submission</p>
+        <DataTable
+          data={items ?? []}
+          columns={columns}
+          headerStyle={{
+            id: 'w-[8%]',
+            username: 'w-[15%]',
+            result: 'w-[27%]',
+            language: 'w-[14%]',
+            createTime: 'w-[23%]',
+            codeSize: 'w-[13%]'
+          }}
+          problemId={Number(id)}
+        />
+        <Paginator page={paginator.page} slot={paginator.slot} />
       </main>
       <ScrollBar orientation="horizontal" />
     </ScrollArea>
