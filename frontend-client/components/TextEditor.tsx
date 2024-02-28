@@ -166,7 +166,13 @@ export default function TextEditor({
 
         <Dialog>
           <DialogTrigger asChild>
-            <Toggle size="sm" pressed={editor?.isActive('katex')}>
+            <Toggle
+              size="sm"
+              pressed={editor?.isActive('katex')}
+              onPressedChange={() => {
+                setEquation('')
+              }}
+            >
               <Pi className="h-[14px] w-[14px]" />
             </Toggle>
           </DialogTrigger>
@@ -176,9 +182,6 @@ export default function TextEditor({
             </DialogHeader>
             <DialogDescription>
               <Input placeholder="Enter Equation" onChange={handleEquation} />
-              <DialogTitle className="mt-3 text-black">
-                Visualization
-              </DialogTitle>
               <Tex block className="text-black">
                 {equation}
               </Tex>
@@ -194,7 +197,6 @@ export default function TextEditor({
                         `<math-component content="${equation}"></math-component>`
                       )
                       .run()
-                    setEquation('')
                   }}
                 >
                   Insert
