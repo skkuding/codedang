@@ -1,4 +1,4 @@
-import { baseUrl } from '@/lib/vars'
+import { baseUrl } from '@/lib/constants'
 import dayjs from 'dayjs'
 import { sanitize } from 'isomorphic-dompurify'
 
