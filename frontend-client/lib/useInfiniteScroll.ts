@@ -39,7 +39,7 @@ interface UseInfiniteScrollProps {
 export const useInfiniteScroll = <T extends Item>({
   pathname,
   query,
-  itemsPerPage = 5,
+  itemsPerPage = 10,
   withAuth = false
 }: UseInfiniteScrollProps) => {
   const [items, setItems] = useState<T[]>([]) //return 되는 data들의 목록
@@ -98,25 +98,24 @@ export const useInfiniteScroll = <T extends Item>({
   const [isLoadButton, setIsLoadButton] = useState(false)
   //5번 이상 바닥에 닿으면 자동 페칭을 멈추고, loadmore 버튼을 보이게 합니다.
   useEffect(() => {
-    if (inView && !isFetchingNextPage && hasNextPage) {
-      if (scrollCounter.current < 5) {
-        setIsLoadButton(false)
-        fetchNextPage()
-        scrollCounter.current += 1
-      } else {
-        setIsLoadButton(true)
+    if (inView && !isFetchingNextPage) {
+      if (hasNextPage) {
+        if (scrollCounter.current < 5) {
+          setIsLoadButton(false)
+          fetchNextPage()
+          scrollCounter.current += 1
+        } else {
+          setIsLoadButton(true)
+        }
       }
-    }
-  }, [inView, isFetchingNextPage, hasNextPage, fetchNextPage, pathname, query])
+    } else setIsLoadButton(false)
+  }, [inView, isFetchingNextPage, hasNextPage, fetchNextPage, data])
 
   return {
     items,
     total,
     fetchNextPage,
-    isFetchingNextPage,
-    hasNextPage,
     ref,
-    scrollCounter,
     isLoadButton,
     isLoading
   }
