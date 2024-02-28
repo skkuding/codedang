@@ -16,7 +16,7 @@ export default async function Page({
 
   return (
     <div className="flex flex-col gap-5 overflow-auto p-6">
-      <div className="flex items-center gap-3 ">
+      <div className="z-20 flex items-center gap-3">
         <Link href={`/problem/${problemId}/submission`}>
           <ArrowLeft className="size-5" />
         </Link>
