@@ -37,7 +37,7 @@ export class TagResolver {
 
   constructor(private readonly problemService: ProblemService) {}
 
-  @Mutation(() => [Tag])
+  @Mutation(() => Tag)
   async createTag(
     @Args('tagName', { type: () => String })
     tagName: string
