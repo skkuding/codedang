@@ -16,6 +16,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { languages } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
 import { Level, type CreateProblemInput } from '@generated/graphql'
@@ -33,7 +34,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
-import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
+import { GET_TAGS, inputStyle, levels } from '../utils'
 
 const CREATE_PROBLEM = gql(`
   mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
@@ -314,7 +315,7 @@ export default function Page() {
                   render={({ field }) => (
                     <CheckboxSelect
                       title="Language"
-                      options={languageOptions}
+                      options={languages}
                       onChange={(selectedLanguages) => {
                         field.onChange(selectedLanguages)
                       }}

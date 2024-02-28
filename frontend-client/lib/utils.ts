@@ -3,7 +3,7 @@ import ky, { TimeoutError } from 'ky'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 import { auth } from './auth'
-import { baseUrl } from './vars'
+import { baseUrl } from './constants'
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))

@@ -1,6 +1,6 @@
 import { Toaster } from '@/components/ui/sonner'
+import { metaBaseUrl } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { metaBaseUrl } from '@/lib/vars'
 import type { Metadata, Viewport } from 'next'
 import { Manrope, Noto_Sans_KR, Ubuntu_Mono } from 'next/font/google'
 import './globals.css'
