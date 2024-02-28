@@ -11,6 +11,7 @@ export const columns: ColumnDef<SubmissionItem>[] = [
     cell: ({ row }) => <p className="text-sm">{row.original.id}</p>
   },
   {
+    id: 'username',
     header: () => 'User ID',
     accessorKey: 'username',
     cell: ({ row }) => row.original.user.username

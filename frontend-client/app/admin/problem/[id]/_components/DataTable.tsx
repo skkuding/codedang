@@ -1,5 +1,6 @@
 'use client'
 
+import { Input } from '@/components/ui/input'
 import {
   Table,
   TableBody,
@@ -13,6 +14,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   useReactTable
 } from '@tanstack/react-table'
 import type { Route } from 'next'
@@ -75,82 +77,93 @@ export default function DataTable<TData extends Item, TValue>({
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel()
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel()
   })
   const router = useRouter()
 
   return (
-    <Table className="table-fixed">
-      <TableHeader>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow className="hover:bg-gray-200/40" key={headerGroup.id}>
-            {headerGroup.headers.map((header) => {
-              return (
-                <TableHead
-                  key={header.id}
-                  className={cn(
-                    'border-b border-gray-400 text-center text-xs font-semibold',
-                    headerStyle[header.id]
-                  )}
-                  style={{ padding: 0 }}
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              )
-            })}
-          </TableRow>
-        ))}
-      </TableHeader>
-      <TableBody>
-        {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => {
-            const href =
-              `/problem/${problemId}/submission/${row.original.id}` as Route
-            return (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-                className="cursor-pointer border-t border-gray-400 hover:bg-gray-200/40 hover:font-semibold"
-                onClick={() => {
-                  router.push(href)
-                }}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    style={{
-                      paddingTop: 10,
-                      paddingBottom: 10,
-                      paddingLeft: 2,
-                      paddingRight: 2
-                    }}
+    <div>
+      <Input
+        placeholder="Search"
+        value={(table.getColumn('username')?.getFilterValue() as string) ?? ''}
+        onChange={(event) => {
+          table.getColumn('username')?.setFilterValue(event.target.value)
+        }}
+        className="h-10 w-[150px] lg:w-[250px]"
+      />
+      <Table className="table-fixed">
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow className="hover:bg-gray-200/40" key={headerGroup.id}>
+              {headerGroup.headers.map((header) => {
+                return (
+                  <TableHead
+                    key={header.id}
+                    className={cn(
+                      'border-b border-gray-400 text-center text-xs font-semibold',
+                      headerStyle[header.id]
+                    )}
+                    style={{ padding: 0 }}
                   >
-                    <div className="text-center text-xs">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </div>
-                    {/* for prefetch */}
-                    <Link href={href} />
-                  </TableCell>
-                ))}
-              </TableRow>
-            )
-          })
-        ) : (
-          <TableRow className="hover:bg-gray-200/40">
-            <TableCell colSpan={columns.length} className="h-24 text-center">
-              No results.
-            </TableCell>
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                )
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => {
+              const href =
+                `/problem/${problemId}/submission/${row.original.id}` as Route
+              return (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className="cursor-pointer border-t border-gray-400 hover:bg-gray-200/40 hover:font-semibold"
+                  onClick={() => {
+                    router.push(href)
+                  }}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      style={{
+                        paddingTop: 10,
+                        paddingBottom: 10,
+                        paddingLeft: 2,
+                        paddingRight: 2
+                      }}
+                    >
+                      <div className="text-center text-xs">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </div>
+                      {/* for prefetch */}
+                      <Link href={href} />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              )
+            })
+          ) : (
+            <TableRow className="hover:bg-gray-200/40">
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   )
 }
