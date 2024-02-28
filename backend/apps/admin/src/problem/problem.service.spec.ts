@@ -507,29 +507,27 @@ describe('ProblemService', () => {
     })
   })
 
-  describe('createTags', () => {
-    it('should return created tags', async () => {
+  describe('createTag', () => {
+    it('should return a created tag', async () => {
       beforeEach(() => {
-        db.tag.findMany.resetBehavior()
+        db.tag.findFirst.resetBehavior()
         db.tag.create.resetBehavior()
-        db.$transaction.resetBehavior()
       })
-      db.tag.findMany.resolves([])
+      db.tag.findFirst.resolves(null)
       db.tag.create.resolves(exampleTag)
-      db.$transaction.resolves([exampleTag])
-      const result = await service.createTags(['brute-force'])
-      expect(result).to.deep.equal([exampleTag])
+      const result = await service.createTag('Brute Force')
+      expect(result).to.deep.equal(exampleTag)
     })
+
     it('should handle a duplicate exception', async () => {
       beforeEach(() => {
-        db.tag.findMany.resetBehavior()
+        db.tag.findFirst.resetBehavior()
         db.tag.create.resetBehavior()
-        db.$transaction.resetBehavior()
       })
-      db.tag.findMany.resolves([exampleTag])
-      await expect(
-        service.createTags(['something-duplicate'])
-      ).to.be.rejectedWith(DuplicateFoundException)
+      db.tag.findFirst.resolves(exampleTag)
+      await expect(service.createTag('something duplicate')).to.be.rejectedWith(
+        DuplicateFoundException
+      )
     })
   })
 
@@ -547,7 +545,7 @@ describe('ProblemService', () => {
       db.tag.findFirst.onCall(0).resolves(exampleTag)
       db.tag.findFirst.onCall(1).resolves(null)
       db.tag.update.resolves({ ...exampleTag, name: 'new' })
-      const result = await service.updateTag('brute-force', 'new')
+      const result = await service.updateTag('Brute Force', 'new')
       expect(result).to.deep.equal({ ...exampleTag, name: 'new' })
     })
 
@@ -582,7 +580,7 @@ describe('ProblemService', () => {
     it('should return deleted tag', async () => {
       db.tag.findFirst.resolves(exampleTag)
       db.tag.delete.resolves(exampleTag)
-      const result = await service.deleteTag('brute-force')
+      const result = await service.deleteTag('Brute Force')
       expect(result).to.deep.equal(exampleTag)
     })
 
