@@ -1,11 +1,12 @@
 'use client'
 
 import type { Language } from '@/types/type'
+import { cpp } from '@codemirror/lang-cpp'
+import { java } from '@codemirror/lang-java'
+import { python } from '@codemirror/lang-python'
 import { tags as t } from '@lezer/highlight'
-import type { LanguageName } from '@uiw/codemirror-extensions-langs'
-import { loadLanguage } from '@uiw/codemirror-extensions-langs'
 import { createTheme } from '@uiw/codemirror-themes'
-import type { Extension, ReactCodeMirrorProps } from '@uiw/react-codemirror'
+import type { ReactCodeMirrorProps } from '@uiw/react-codemirror'
 import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { ScrollArea, ScrollBar } from './ui/scroll-area'
 
@@ -56,13 +57,6 @@ interface Props extends ReactCodeMirrorProps {
   language: Language
 }
 
-const CodeMirrorLanguage: Record<Language, LanguageName> = {
-  C: 'c',
-  Cpp: 'cpp',
-  Java: 'java',
-  Python3: 'python'
-}
-
 export default function CodeEditor({
   value,
   language,
@@ -76,7 +70,11 @@ export default function CodeEditor({
         theme={editorTheme}
         extensions={[
           fontSize,
-          loadLanguage(CodeMirrorLanguage[language]) as Extension
+          language === 'Java'
+            ? java()
+            : language === 'Python3'
+              ? python()
+              : cpp()
         ]}
         value={value}
         onChange={onChange}
