@@ -12,7 +12,7 @@ export default function MathBlockPreview(props: NodeViewWrapperProps) {
   })
 
   return (
-    <NodeViewWrapper className="math-block-preview whitespace-nowrap" as="span">
+    <NodeViewWrapper className="math-block-preview" as="span">
       <span
         dangerouslySetInnerHTML={{ __html: preview }}
         contentEditable={false}
