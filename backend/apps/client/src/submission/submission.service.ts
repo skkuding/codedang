@@ -568,7 +568,7 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    const submissions = await this.prisma.submission.findMany({
+    return await this.prisma.submission.findMany({
       ...paginator,
       take,
       where: {
@@ -589,8 +589,6 @@ export class SubmissionService implements OnModuleInit {
       },
       orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
-
-    return submissions
   }
 
   async getContestSubmission(

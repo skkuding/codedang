@@ -1,4 +1,4 @@
-import Codeeditor from '@/components/CodeEditor'
+import CodeEditor from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import {
   Table,
@@ -13,6 +13,7 @@ import type { SubmissionDetail } from '@/types/type'
 import dayjs from 'dayjs'
 import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
+import dataIfError from './dataIfError'
 
 interface Props {
   problemId: number
@@ -30,6 +31,7 @@ export default async function SubmissionDetail({
     }
   })
 
+  const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
   if (res.status == 403) {
     return (
       <div className="flex h-[300px] flex-col items-center justify-center gap-20">
@@ -40,8 +42,6 @@ export default async function SubmissionDetail({
       </div>
     )
   }
-
-  const submission: SubmissionDetail = await res.json()
 
   if (submission.result == 'Judging') {
     revalidateTag(`submission/${submissionId}`)
@@ -80,7 +80,7 @@ export default async function SubmissionDetail({
       </ScrollArea>
       <div>
         <h2 className="mb-3 text-lg font-bold">Source Code</h2>
-        <Codeeditor
+        <CodeEditor
           value={submission.code}
           language={submission.language}
           readOnly
@@ -120,6 +120,18 @@ export default async function SubmissionDetail({
               ))}
             </TableBody>
           </Table>
+        </div>
+      )}
+      {res.ok ? (
+        <></>
+      ) : (
+        <div className="absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1 backdrop-blur">
+          <IoIosLock size={100} />
+          <p className="mt-4 text-xl font-semibold">Access Denied</p>
+          <p className="w-10/12 text-center">
+            {`If you want to check other users' code,
+                please submit a correct answer of your own.`}
+          </p>
         </div>
       )}
     </>

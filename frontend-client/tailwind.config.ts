@@ -26,11 +26,7 @@ export default {
         editor: '3rem minmax(0, 1fr)'
       },
       fontFamily: {
-        sans: [
-          'var(--font-manrope)',
-          'var(--font-noto)',
-          ...defaultTheme.fontFamily.sans
-        ],
+        sans: ['--font-pretendard', ...defaultTheme.fontFamily.sans],
         mono: ['var(--font-mono)', ...defaultTheme.fontFamily.mono]
       },
       colors: {

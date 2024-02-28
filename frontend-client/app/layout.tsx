@@ -1,23 +1,19 @@
 import { Toaster } from '@/components/ui/sonner'
+import { metaBaseUrl } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { metaBaseUrl } from '@/lib/vars'
 import type { Metadata, Viewport } from 'next'
-import { Manrope, Noto_Sans_KR, Ubuntu_Mono } from 'next/font/google'
+import { Ubuntu_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 
 // TODO: 추후에 페이지 별로 revalidate 시간 논의 및 조정 필요
 export const revalidate = 5
 
-const noto = Noto_Sans_KR({
-  subsets: ['latin'],
-  weight: ['400', '600'],
-  variable: '--font-noto'
-})
-
-const manrope = Manrope({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-manrope'
+const pretendard = localFont({
+  src: './PretendardVariable.woff2',
+  display: 'swap',
+  weight: '45 920',
+  variable: '--font-pretendard'
 })
 
 const mono = Ubuntu_Mono({
@@ -46,10 +42,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html
-      lang="en"
-      className={cn(noto.variable, manrope.variable, mono.variable)}
-    >
+    <html lang="en" className={cn(pretendard.variable, mono.variable)}>
       <body>
         {children}
         <Toaster

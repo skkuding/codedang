@@ -1,7 +1,7 @@
 'use client'
 
 import { auth } from '@/lib/auth'
-import { adminBaseUrl } from '@/lib/vars'
+import { adminBaseUrl } from '@/lib/constants'
 import {
   ApolloClient,
   ApolloLink,
