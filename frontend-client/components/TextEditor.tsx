@@ -9,13 +9,24 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Toggle } from '@/components/ui/toggle'
+import Tex from '@matejmazur/react-katex'
 import { DialogClose } from '@radix-ui/react-dialog'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
+import type { Extension } from '@tiptap/react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import { Bold, Italic, List, ListOrdered, Link as LinkIcon } from 'lucide-react'
+import 'katex/dist/katex.min.css'
+import {
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Link as LinkIcon,
+  Pi
+} from 'lucide-react'
 import { useCallback, useState } from 'react'
+import MathExtension from './MathExtension'
 import { Button } from './ui/button'
 
 export default function TextEditor({
@@ -28,10 +39,18 @@ export default function TextEditor({
   defaultValue?: string
 }) {
   const [url, setUrl] = useState('')
+  const [equation, setEquation] = useState('')
+  const handleEquation = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setEquation(event.target.value)
+    },
+    [setEquation]
+  )
 
   const editor = useEditor({
     extensions: [
       StarterKit,
+      MathExtension as Extension,
       Placeholder.configure({
         placeholder,
         emptyEditorClass:
@@ -42,7 +61,7 @@ export default function TextEditor({
     editorProps: {
       attributes: {
         class:
-          'rounded-b-md border overflow-y-auto w-full min-h-[200px] border-input bg-backround px-3 ring-offset-2 disabled:cursur-not-allowed disabled:opacity-50 resize-y'
+          'rounded-b-md border overflow-y-auto w-full h-[200px] border-input bg-backround px-3 ring-offset-2 disabled:cursur-not-allowed disabled:opacity-50'
       }
     },
     onUpdate({ editor }) {
@@ -136,6 +155,46 @@ export default function TextEditor({
                 <Button
                   onClick={() => {
                     setLink(url)
+                  }}
+                >
+                  Insert
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <Toggle size="sm" pressed={editor?.isActive('katex')}>
+              <Pi className="h-[14px] w-[14px]" />
+            </Toggle>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Insert Equation</DialogTitle>
+            </DialogHeader>
+            <DialogDescription>
+              <Input placeholder="Enter Equation" onChange={handleEquation} />
+              <DialogTitle className="mt-3 text-black">
+                Visualization
+              </DialogTitle>
+              <Tex block className="text-black">
+                {equation}
+              </Tex>
+            </DialogDescription>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button
+                  onClick={() => {
+                    editor
+                      ?.chain()
+                      .focus()
+                      .insertContent(
+                        `<math-component content="${equation}"></math-component>`
+                      )
+                      .run()
+                    setEquation('')
                   }}
                 >
                   Insert
