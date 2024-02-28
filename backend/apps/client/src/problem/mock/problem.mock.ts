@@ -186,3 +186,5 @@ export const mockTemplate: CreateTemplateDto = {
     }
   ]
 }
+
+export const userId = 1

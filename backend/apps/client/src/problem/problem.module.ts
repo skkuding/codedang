@@ -4,7 +4,10 @@ import { GroupMemberGuard, RolesModule } from '@libs/auth'
 import { ContestModule } from '@client/contest/contest.module'
 import { WorkbookModule } from '@client/workbook/workbook.module'
 import { CodeDraftController } from './code-draft.controller'
-import { ProblemController } from './problem.controller'
+import {
+  ContestProblemController,
+  ProblemController
+} from './problem.controller'
 import { ProblemRepository } from './problem.repository'
 import {
   ContestProblemService,
@@ -15,7 +18,11 @@ import {
 
 @Module({
   imports: [RolesModule, ContestModule, WorkbookModule],
-  controllers: [ProblemController, CodeDraftController],
+  controllers: [
+    ProblemController,
+    ContestProblemController,
+    CodeDraftController
+  ],
   providers: [
     ProblemService,
     ContestProblemService,

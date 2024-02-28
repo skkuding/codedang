@@ -208,11 +208,6 @@ export class ProblemRepository {
         order: true,
         problem: {
           select: this.problemsSelectOption
-        },
-        contest: {
-          select: {
-            startTime: true
-          }
         }
       }
     })
@@ -245,11 +240,6 @@ export class ProblemRepository {
         order: true,
         problem: {
           select: this.problemSelectOption
-        },
-        contest: {
-          select: {
-            startTime: true
-          }
         }
       }
     })
