@@ -1,4 +1,4 @@
-import Codeeditor from '@/components/CodeEditor'
+import CodeEditor from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import {
   Table,
@@ -65,7 +65,7 @@ export default async function SubmissionDetail({
       </ScrollArea>
       <div>
         <h2 className="mb-3 text-lg font-bold">Source Code</h2>
-        <Codeeditor
+        <CodeEditor
           value={submission.code}
           language={submission.language}
           readOnly
