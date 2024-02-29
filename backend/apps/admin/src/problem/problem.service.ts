@@ -276,8 +276,12 @@ export class ProblemService {
     }
 
     return {
-      src: this.config.get('IMAGE_BUCKET_BASE_URL') + newFilename,
-      alt: newFilename
+      imageUrl:
+        this.config.get('STORAGE_BUCKET_ENDPOINT_URL') +
+        '/' +
+        this.config.get('MEDIA_BUCKET_NAME') +
+        '/' +
+        newFilename
     }
   }
 

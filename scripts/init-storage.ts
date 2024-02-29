@@ -2,11 +2,8 @@ import {
   S3Client,
   ListBucketsCommand,
   CreateBucketCommand,
-  PutBucketPolicyCommand,
-  PutObjectCommand
+  PutBucketPolicyCommand
 } from '@aws-sdk/client-s3'
-import { readdir, readFile } from 'fs/promises'
-import { resolve, basename } from 'path'
 
 const main = async () => {
   const client = new S3Client({
@@ -15,13 +12,13 @@ const main = async () => {
     endpoint: process.env.STORAGE_BUCKET_ENDPOINT_URL,
     forcePathStyle: true, // required for minio
     credentials: {
-      accessKeyId: process.env.TESTCASE_ACCESS_KEY || '',
-      secretAccessKey: process.env.TESTCASE_SECRET_KEY || ''
+      accessKeyId: process.env.MEDIA_ACCESS_KEY || '',
+      secretAccessKey: process.env.MEDIA_SECRET_KEY || ''
     }
   })
 
-  const bucketName = process.env.TESTCASE_BUCKET_NAME
-  if (!bucketName) throw new Error('TESTCASE_BUCKET_NAME is not defined')
+  const bucketName = process.env.MEDIA_BUCKET_NAME
+  if (!bucketName) throw new Error('MEDIA_BUCKET_NAME is not defined')
 
   // Check if target bucket exists
   const bucketList = await client.send(new ListBucketsCommand({}))
@@ -52,24 +49,6 @@ const main = async () => {
       })
     )
     console.log('Created bucket', bucketName)
-  }
-
-  // upload example testcase files
-  const dir = resolve(basename(__dirname), '../iris/tests/data/testcase')
-  const files = await readdir(dir)
-  for (const file of files) {
-    const data = await readFile(resolve(dir, file), {
-      encoding: 'utf-8'
-    })
-    await client.send(
-      new PutObjectCommand({
-        Bucket: bucketName,
-        Key: file,
-        Body: data,
-        ContentType: 'application/json'
-      })
-    )
-    console.log('Uploaded', file)
   }
 }
 

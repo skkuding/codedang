@@ -5,6 +5,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "init:testcases": "ts-node scripts/init-testcase.ts",
+    "init:storage": "ts-node scripts/init-storage.ts",
     "knip": "knip"
   },
   "devDependencies": {

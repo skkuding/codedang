@@ -13,7 +13,8 @@ import { type ContentType, ContentTypes } from './content.type'
 export class StorageService {
   constructor(
     private readonly config: ConfigService,
-    @Inject('S3_CLIENT') private readonly client: S3Client
+    @Inject('S3_CLIENT') private readonly client: S3Client,
+    @Inject('S3_CLIENT_MEDIA') private readonly mediaClient: S3Client
   ) {}
 
   async uploadObject(filename: string, content: string, type: ContentType) {
@@ -35,7 +36,7 @@ export class StorageService {
   ) {
     await this.client.send(
       new PutObjectCommand({
-        Bucket: this.config.get('IMAGE_BUCKET_NAME'),
+        Bucket: this.config.get('MEDIA_BUCKET_NAME'),
         Key: filename,
         Body: content,
         ContentType: type,
