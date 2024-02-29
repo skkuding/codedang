@@ -22,6 +22,10 @@ body:graphql {
   }
 }
 
+assert {
+  res.body.data.removeAnnouncement: isDefined
+}
+
 docs {
   ## Delete Announcement
   Announcement를 제거합니다.

@@ -28,6 +28,10 @@ body:graphql {
   
 }
 
+assert {
+  res.body.data.createAnnouncement: isDefined 
+}
+
 docs {
   ## Create Announcement
   새로운 Announcement를 생성합니다.

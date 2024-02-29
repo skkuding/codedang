@@ -24,6 +24,10 @@ body:graphql {
   
 }
 
+assert {
+  res.body.data.getAnnouncementById: isDefined
+}
+
 docs {
   ## Get Announcement
   Announcement의 정보를 조회합니다.

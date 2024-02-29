@@ -25,6 +25,10 @@ body:graphql {
   
 }
 
+assert {
+  res.body.data.updateAnnouncement: isDefined 
+}
+
 docs {
   ## Update Announcment
   Announcement의 내용을 업데이트합니다.

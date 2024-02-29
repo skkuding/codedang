@@ -26,6 +26,10 @@ body:graphql {
   
 }
 
+assert {
+  res.body.data.getAnnouncements: isDefined 
+}
+
 docs {
   ## Get Announcements
   해당 문제에 등록된 모든 Announcement를 조회합니다.

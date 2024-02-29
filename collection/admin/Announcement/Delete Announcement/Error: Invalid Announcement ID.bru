@@ -21,3 +21,7 @@ body:graphql {
     }
   }
 }
+
+assert {
+  res.body.errors: isDefined 
+}
