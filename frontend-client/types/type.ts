@@ -121,7 +121,7 @@ export interface SubmissionDetail {
   username: string
   code: string
   language: Language
-  createTime: string
+  createTime: Date
   result: string
   testcaseResult: {
     id: number
@@ -130,8 +130,8 @@ export interface SubmissionDetail {
     result: string
     cpuTime: string
     memoryUsage: number
-    createTime: string
-    updateTime: string
+    createTime: Date
+    updateTime: Date
   }[]
 }
 

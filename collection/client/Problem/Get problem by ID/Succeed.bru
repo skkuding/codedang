@@ -12,7 +12,6 @@ get {
 
 query {
   ~groupId: 1
-  ~contestId: 1
   ~workbookId: 1
 }
 
@@ -29,7 +28,7 @@ assert {
   res("memoryLimit"): isNumber
   res("difficulty"): isString
   res("source"): isString
-  res("tags"): isDefined 
+  res("tags"): isDefined
 }
 
 docs {
@@ -40,12 +39,10 @@ docs {
   ## Query
   
   
-  > contestId 또는 workbookId 중 하나 값은 필수로 주어져야 합니다.
-  > 두 값이 모두 주어진 경우, contestId 우선 적용되어 대회의 문제가 반환됩니다.
+  > workbookId가 주어진 경우, 워크북의 문제가 반환됩니다.
   
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |groupId   |Integer|문제가 속한 Group ID|
-  |contestId |Integer|문제가 속한 대회 ID|
   |workbookId|Integer|문제가 속한 문제집 ID|
 }

@@ -8,7 +8,8 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    typedRoutes: true
+    typedRoutes: true,
+    turbo: true
   },
   output: 'standalone',
   env: {

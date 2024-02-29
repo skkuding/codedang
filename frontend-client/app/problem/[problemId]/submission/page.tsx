@@ -1,7 +1,7 @@
 'use client'
 
 import Paginator from '@/components/Paginator'
-import { usePagination } from '@/lib/usePagination'
+import { usePagination } from '@/lib/pagination'
 import type { SubmissionItem } from '@/types/type'
 import { columns } from './_components/Columns'
 import DataTable from './_components/DataTable'
