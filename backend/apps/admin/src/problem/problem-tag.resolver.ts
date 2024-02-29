@@ -42,16 +42,6 @@ export class TagResolver {
   }
 
   @Mutation(() => Tag)
-  async updateTag(
-    @Args('oldTagName', { type: () => String })
-    oldTagName: string,
-    @Args('newTagName', { type: () => String })
-    newTagName: string
-  ) {
-    return await this.problemService.updateTag(oldTagName, newTagName)
-  }
-
-  @Mutation(() => Tag)
   async deleteTag(@Args('tagName', { type: () => String }) tagName: string) {
     return await this.problemService.deleteTag(tagName)
   }
