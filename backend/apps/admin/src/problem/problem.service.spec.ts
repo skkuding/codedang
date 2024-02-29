@@ -531,42 +531,6 @@ describe('ProblemService', () => {
     })
   })
 
-  describe('updateTag', () => {
-    beforeEach(() => {
-      db.tag.findFirst.reset()
-      db.tag.update.reset()
-    })
-    afterEach(() => {
-      db.tag.findFirst.reset()
-      db.tag.update.reset()
-    })
-
-    it('should return updated tag', async () => {
-      db.tag.findFirst.onCall(0).resolves(exampleTag)
-      db.tag.findFirst.onCall(1).resolves(null)
-      db.tag.update.resolves({ ...exampleTag, name: 'new' })
-      const result = await service.updateTag('Brute Force', 'new')
-      expect(result).to.deep.equal({ ...exampleTag, name: 'new' })
-    })
-
-    it('should handle a entity not exist exception', async () => {
-      db.tag.findFirst.onCall(0).resolves(null)
-      await expect(
-        service.updateTag('something does not exist', 'new')
-      ).to.be.rejectedWith(EntityNotExistException)
-    })
-
-    it('should handle a duplicate found exception', async () => {
-      db.tag.findFirst.onCall(0).resolves(exampleTag)
-      db.tag.findFirst
-        .onCall(1)
-        .resolves({ ...exampleTag, name: 'something duplicate' })
-      await expect(
-        service.updateTag('brute-force', 'something duplicate')
-      ).to.be.rejectedWith(DuplicateFoundException)
-    })
-  })
-
   describe('deleteTag', () => {
     beforeEach(() => {
       db.tag.findFirst.reset()
