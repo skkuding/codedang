@@ -22,6 +22,13 @@ const loginAdmin = async (req) => {
   })
 }
 
+const loginManager = async (req) => {
+  await login(req, {
+    username: 'manager',
+    password: 'Managermanager'
+  })
+}
+
 const loginUser = async (req) => {
   await login(req, {
     username: 'user01',
@@ -38,6 +45,7 @@ const loginUser2nd = async (req) => {
 
 module.exports = {
   loginAdmin,
+  loginManager,
   loginUser,
   loginUser2nd
 }

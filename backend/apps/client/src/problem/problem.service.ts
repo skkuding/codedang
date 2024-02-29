@@ -78,23 +78,32 @@ export class ContestProblemService {
 
   async getContestProblems(
     contestId: number,
+    userId: number,
     cursor: number | null,
     take: number,
     groupId = OPEN_SPACE_ID
   ) {
-    if (!(await this.contestService.isVisible(contestId, groupId))) {
-      throw new EntityNotExistException('Contest')
+    const contest = await this.contestService.getContest(
+      contestId,
+      groupId,
+      userId
+    )
+    const now = new Date()
+    if (!contest.canRegister && contest.startTime > now) {
+      throw new ForbiddenAccessException(
+        'Cannot access to problems before the contest starts.'
+      )
+    } else if (contest.canRegister && contest.endTime > now) {
+      throw new ForbiddenAccessException(
+        'Register to access the problems of this contest.'
+      )
     }
+
     const data = await this.problemRepository.getContestProblems(
       contestId,
       cursor,
       take
     )
-
-    if (data.length > 0 && data[0].contest.startTime > new Date()) {
-      throw new ForbiddenAccessException('Contest is not started yet.')
-    }
-
     const total =
       await this.problemRepository.getContestProblemTotalCount(contestId)
 
@@ -107,18 +116,27 @@ export class ContestProblemService {
   async getContestProblem(
     contestId: number,
     problemId: number,
+    userId: number,
     groupId = OPEN_SPACE_ID
   ) {
-    if (!(await this.contestService.isVisible(contestId, groupId))) {
-      throw new EntityNotExistException('Contest')
+    const contest = await this.contestService.getContest(
+      contestId,
+      groupId,
+      userId
+    )
+    const now = new Date()
+    if (!contest.canRegister && contest.startTime > now) {
+      throw new ForbiddenAccessException(
+        'Cannot access to problems before the contest starts.'
+      )
+    } else if (contest.canRegister && contest.endTime > now) {
+      throw new ForbiddenAccessException('Register to access this problem.')
     }
+
     const data = await this.problemRepository.getContestProblem(
       contestId,
       problemId
     )
-    if (data.contest.startTime > new Date()) {
-      throw new ForbiddenAccessException('Contest is not started yet.')
-    }
     return plainToInstance(RelatedProblemResponseDto, data)
   }
 }

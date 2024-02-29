@@ -59,9 +59,7 @@ interface Props extends ReactCodeMirrorProps {
 const CodeMirrorLanguage: Record<Language, LanguageName> = {
   C: 'c',
   Cpp: 'cpp',
-  Golang: 'go',
   Java: 'java',
-  Python2: 'python',
   Python3: 'python'
 }
 
