@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { cn, fetcher } from '@/lib/utils'
+import { baseUrl } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
@@ -8,12 +9,10 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 interface EmailVerifyInput {
-  email: string
   verificationCode: string
 }
 
 const schema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
   verificationCode: z
     .string()
     .min(6, { message: 'Code must be 6 characters long' })
@@ -21,6 +20,9 @@ const schema = z.object({
 })
 
 export default function ResetPasswordEmailVerify() {
+  const { nextModal, formData, setFormData } = useRecoverAccountModalStore(
+    (state) => state
+  )
   const {
     handleSubmit,
     register,
@@ -36,6 +38,7 @@ export default function ResetPasswordEmailVerify() {
 
   const onSubmit = (data: EmailVerifyInput) => {
     setFormData({
+      email: formData.email,
       ...data,
       headers: {
         'email-auth': emailAuthToken
@@ -48,11 +51,14 @@ export default function ResetPasswordEmailVerify() {
     await trigger('verificationCode')
     if (!errors.verificationCode) {
       try {
-        const response = await fetcher.post('email-auth/verify-pin', {
-          json: {
+        const response = await fetch(baseUrl + '/email-auth/verify-pin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
             pin: verificationCode,
             email: formData.email
-          }
+          })
         })
         if (response.status === 201) {
           setEmailVerified(true)
@@ -67,9 +73,6 @@ export default function ResetPasswordEmailVerify() {
     }
   }
 
-  const { nextModal, formData, setFormData } = useRecoverAccountModalStore(
-    (state) => state
-  )
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}

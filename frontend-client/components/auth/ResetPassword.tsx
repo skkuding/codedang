@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { cn, fetcher } from '@/lib/utils'
+import { baseUrl } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
@@ -49,11 +50,16 @@ export default function ResetPassword() {
 
   const onSubmit = async (data: ResetPasswordInput) => {
     try {
-      const response = await fetcher.patch('user/password-reset', {
-        headers: formData.headers,
-        json: {
+      const response = await fetch(baseUrl + '/user/password-reset', {
+        method: 'PATCH',
+        headers: {
+          ...formData.headers,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
           newPassword: data.password
-        }
+        }),
+        credentials: 'include'
       })
       if (response.ok) {
         document.getElementById('closeDialog')?.click()
