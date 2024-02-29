@@ -550,38 +550,6 @@ export class ProblemService {
     })
   }
 
-  async updateTag(
-    oldTagName: string,
-    newTagName: string
-  ): Promise<Partial<Tag>> {
-    const tag = await this.prisma.tag.findFirst({
-      where: {
-        name: oldTagName
-      }
-    })
-    if (!tag) {
-      throw new EntityNotExistException('tag')
-    }
-    const existingTag = await this.prisma.tag.findFirst({
-      where: {
-        name: newTagName
-      }
-    })
-
-    if (existingTag) {
-      throw new DuplicateFoundException('tag')
-    }
-
-    return await this.prisma.tag.update({
-      where: {
-        id: tag.id
-      },
-      data: {
-        name: newTagName
-      }
-    })
-  }
-
   async deleteTag(tagName: string): Promise<Partial<Tag>> {
     const tag = await this.prisma.tag.findFirst({
       where: {
