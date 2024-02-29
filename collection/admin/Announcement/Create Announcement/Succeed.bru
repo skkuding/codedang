@@ -14,9 +14,9 @@ body:graphql {
   mutation {
     createAnnouncement(
       createAnnouncementInput: {
-        problemId: 1
-        contestId: 1
-        content: "this is new announcement"
+        problemId: $problemId
+        contestId: $contestId
+        content: $content
       }
     ) {
       id
@@ -28,8 +28,16 @@ body:graphql {
   
 }
 
+body:graphql:vars {
+  {
+    "problemId": 1,
+    "contestId": 1,
+    "content": "this is new announcement"
+  }
+}
+
 assert {
-  res.body.data.createAnnouncement: isDefined 
+  res.body.data.createAnnouncement: isDefined
 }
 
 docs {

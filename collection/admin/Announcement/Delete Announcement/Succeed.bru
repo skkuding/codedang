@@ -13,12 +13,18 @@ post {
 body:graphql {
   mutation {
     removeAnnouncement(
-      id: 1
+      id: $id
     ) {
       id
       problemId
       content
     }
+  }
+}
+
+body:graphql:vars {
+  {
+    "id": 1
   }
 }
 

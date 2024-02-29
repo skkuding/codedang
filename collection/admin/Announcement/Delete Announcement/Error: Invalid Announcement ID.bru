@@ -13,7 +13,7 @@ post {
 body:graphql {
   mutation {
     removeAnnouncement(
-      id: -9999999
+      id: $id
     ) {
       id
       problemId
@@ -22,6 +22,12 @@ body:graphql {
   }
 }
 
+body:graphql:vars {
+  {
+    "id": -999999
+  }
+}
+
 assert {
-  res.body.errors: isDefined 
+  res.body.errors: isDefined
 }

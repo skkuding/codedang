@@ -13,7 +13,7 @@ post {
 body:graphql {
   query {
     getAnnouncementById(
-      id: 1
+      id: $id
     ) {
     	id
       problemId
@@ -22,6 +22,12 @@ body:graphql {
     }
   }
   
+}
+
+body:graphql:vars {
+  {
+    "id": 1
+  }
 }
 
 assert {

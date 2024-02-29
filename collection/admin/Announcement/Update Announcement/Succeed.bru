@@ -13,8 +13,8 @@ post {
 body:graphql {
   mutation {
     updateAnnouncement(
-      id: 1
-      content: "updated announcement"
+      id: $id
+      content: $content
     ) {
       id
       problemId
@@ -25,8 +25,15 @@ body:graphql {
   
 }
 
+body:graphql:vars {
+  {
+    "id": 1,
+    "content": "updated announcement"
+  }
+}
+
 assert {
-  res.body.data.updateAnnouncement: isDefined 
+  res.body.data.updateAnnouncement: isDefined
 }
 
 docs {

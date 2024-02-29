@@ -13,8 +13,8 @@ post {
 body:graphql {
   query {
     getAnnouncements(
-      contestId: 1
-      problemId: 1
+      contestId: $contestId
+      problemId: $problemId
     ) {
     	id
       problemId
@@ -26,8 +26,15 @@ body:graphql {
   
 }
 
+body:graphql:vars {
+  {
+    "problemId": 1,
+    "contestId": 1
+  }
+}
+
 assert {
-  res.body.data.getAnnouncements: isDefined 
+  res.body.data.getAnnouncements: isDefined
 }
 
 docs {
