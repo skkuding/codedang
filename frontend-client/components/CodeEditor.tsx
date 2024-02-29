@@ -53,6 +53,12 @@ const fontSize = EditorView.baseTheme({
   }
 })
 
+const language_parser = {
+  cpp: cpp(),
+  java: java(),
+  python: python()
+}
+
 interface Props extends ReactCodeMirrorProps {
   language: Language
 }
@@ -71,10 +77,10 @@ export default function CodeEditor({
         extensions={[
           fontSize,
           language === 'Java'
-            ? java()
+            ? language_parser.java
             : language === 'Python3'
-              ? python()
-              : cpp()
+              ? language_parser.python
+              : language_parser.cpp
         ]}
         value={value}
         onChange={onChange}
