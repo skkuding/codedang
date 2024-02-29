@@ -4,6 +4,7 @@ import type { Language } from '@/types/type'
 import { cpp } from '@codemirror/lang-cpp'
 import { java } from '@codemirror/lang-java'
 import { python } from '@codemirror/lang-python'
+import type { LanguageSupport } from '@codemirror/language'
 import { tags as t } from '@lezer/highlight'
 import { createTheme } from '@uiw/codemirror-themes'
 import type { ReactCodeMirrorProps } from '@uiw/react-codemirror'
@@ -53,10 +54,11 @@ const fontSize = EditorView.baseTheme({
   }
 })
 
-const language_parser = {
-  cpp: cpp(),
-  java: java(),
-  python: python()
+const languageParser: Record<Language, () => LanguageSupport> = {
+  Cpp: cpp,
+  C: cpp,
+  Java: java,
+  Python3: python
 }
 
 interface Props extends ReactCodeMirrorProps {
@@ -74,14 +76,7 @@ export default function CodeEditor({
     <ScrollArea className="rounded-md [&>div>div]:h-full">
       <ReactCodeMirror
         theme={editorTheme}
-        extensions={[
-          fontSize,
-          language === 'Java'
-            ? language_parser.java
-            : language === 'Python3'
-              ? language_parser.python
-              : language_parser.cpp
-        ]}
+        extensions={[fontSize, languageParser[language]()]}
         value={value}
         onChange={onChange}
         readOnly={readOnly}
