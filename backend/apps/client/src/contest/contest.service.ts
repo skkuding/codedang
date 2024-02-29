@@ -301,6 +301,7 @@ export class ContestService {
       }
       throw error
     }
+    /* HACK: standings 업데이트 로직 수정 후 삭제
     // get contest participants ranking using ContestRecord
     const sortedContestRecordsWithUserDetail =
       await this.prisma.contestRecord.findMany({
@@ -333,10 +334,10 @@ export class ContestService {
         standing: index + 1
       })
     )
+    */
     // combine contest and sortedContestRecordsWithUserDetail
     return {
       ...contest,
-      standings: UsersWithStandingDetail,
       canRegister
     }
   }

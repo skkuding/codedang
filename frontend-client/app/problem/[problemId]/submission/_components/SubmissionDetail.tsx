@@ -1,4 +1,4 @@
-import Codeeditor from '@/components/Codeeditor'
+import CodeEditor from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import {
   Table,
@@ -11,7 +11,9 @@ import {
 import { fetcherWithAuth } from '@/lib/utils'
 import type { SubmissionDetail } from '@/types/type'
 import dayjs from 'dayjs'
+import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
+import dataIfError from './dataIfError'
 
 interface Props {
   problemId: number
@@ -23,16 +25,29 @@ export default async function SubmissionDetail({
   submissionId
 }: Props) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
-    searchParams: {
-      problemId
-    },
-    cache: 'no-store'
+    searchParams: { problemId },
+    next: {
+      tags: [`submission/${submissionId}`]
+    }
   })
-  const submission: SubmissionDetail = await res.json()
 
-  await new Promise((resolve) => setTimeout(resolve, 10000))
+  const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
+  if (res.status == 403) {
+    return (
+      <div className="flex h-[300px] flex-col items-center justify-center gap-20">
+        <IoIosLock size={100} />
+        <p>
+          Unable to check others&apos; until your correct submission is accepted
+        </p>
+      </div>
+    )
+  }
 
-  return res.ok ? (
+  if (submission.result == 'Judging') {
+    revalidateTag(`submission/${submissionId}`)
+  }
+
+  return (
     <>
       <ScrollArea className="shrink-0 rounded-md">
         <div className="flex items-center justify-around gap-5 bg-slate-700 p-5 text-sm [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-1 [&_*]:whitespace-nowrap [&_p]:text-slate-400">
@@ -65,7 +80,7 @@ export default async function SubmissionDetail({
       </ScrollArea>
       <div>
         <h2 className="mb-3 text-lg font-bold">Source Code</h2>
-        <Codeeditor
+        <CodeEditor
           value={submission.code}
           language={submission.language}
           readOnly
@@ -98,20 +113,27 @@ export default async function SubmissionDetail({
                     {item.result}
                   </TableCell>
                   <TableCell>{item.cpuTime} ms</TableCell>
-                  <TableCell>{item.memoryUsage} mb</TableCell>
+                  <TableCell>
+                    {(item.memoryUsage / (1024 * 1024)).toFixed(2)} MB
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
       )}
+      {res.ok ? (
+        <></>
+      ) : (
+        <div className="absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1 backdrop-blur">
+          <IoIosLock size={100} />
+          <p className="mt-4 text-xl font-semibold">Access Denied</p>
+          <p className="w-10/12 text-center">
+            {`If you want to check other users' code,
+                please submit a correct answer of your own.`}
+          </p>
+        </div>
+      )}
     </>
-  ) : (
-    <div className="flex h-[300px] flex-col items-center justify-center gap-20">
-      <IoIosLock size={100} />
-      <p>
-        Unable to check others&apos; until your correct submission is accepted
-      </p>
-    </div>
   )
 }

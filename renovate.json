@@ -14,7 +14,7 @@
   "rangeStrategy": "bump",
   "reviewers": ["dotoleeoak"],
   "lockFileMaintenance": { "enabled": true },
-  "ignoreDeps": ["reflect-metadata"],
+  "ignoreDeps": ["reflect-metadata", "@nestjs-modules/mailer"],
   "packageRules": [
     {
       "matchDatasources": ["golang-version"],
