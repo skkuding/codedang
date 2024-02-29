@@ -8,10 +8,6 @@ import {
   Args
 } from '@nestjs/graphql'
 import { ProblemTag, Tag } from '@generated'
-import {
-  DuplicateFoundException,
-  EntityNotExistException
-} from '@libs/exception'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => ProblemTag)
@@ -42,15 +38,7 @@ export class TagResolver {
     @Args('tagName', { type: () => String })
     tagName: string
   ) {
-    try {
-      return await this.problemService.createTag(tagName)
-    } catch (error) {
-      if (error instanceof DuplicateFoundException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.problemService.createTag(tagName)
   }
 
   @Mutation(() => Tag)
@@ -60,40 +48,16 @@ export class TagResolver {
     @Args('newTagName', { type: () => String })
     newTagName: string
   ) {
-    try {
-      return await this.problemService.updateTag(oldTagName, newTagName)
-    } catch (error) {
-      if (
-        error instanceof EntityNotExistException ||
-        error instanceof DuplicateFoundException
-      ) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.problemService.updateTag(oldTagName, newTagName)
   }
 
   @Mutation(() => Tag)
   async deleteTag(@Args('tagName', { type: () => String }) tagName: string) {
-    try {
-      return await this.problemService.deleteTag(tagName)
-    } catch (error) {
-      if (error instanceof EntityNotExistException) {
-        throw error.convert2HTTPException()
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.problemService.deleteTag(tagName)
   }
 
   @Query(() => [Tag])
   async getTags() {
-    try {
-      return await this.problemService.getTags()
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.problemService.getTags()
   }
 }
