@@ -30,10 +30,8 @@ const contest = {
   description: 'description',
   startTime: now.add(-1, 'day').toDate(),
   endTime: now.add(1, 'day').toDate(),
-  config: {
-    isVisible: true,
-    isRankVisible: true
-  },
+  isVisible: true,
+  isRankVisible: true,
   createTime: now.add(-1, 'day').toDate(),
   updateTime: now.add(-1, 'day').toDate(),
   group: {
