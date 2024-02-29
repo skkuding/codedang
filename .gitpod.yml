@@ -23,7 +23,7 @@ ports:
   - port: 15672 # RabbitMQ Dashboard
     onOpen: ignore
 
-  - port: 30000 # Testcase Server
+  - port: 30000 # Storage Server
     onOpen: ignore
 
 tasks:

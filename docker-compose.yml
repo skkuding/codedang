@@ -19,8 +19,8 @@ services:
       DEVCONTAINER: 1
     network_mode: host
 
-  testcase:
-    container_name: codedang-testcase
+  storage:
+    container_name: codedang-storage
     image: minio/minio
     ports:
       - 9000:9000
@@ -30,7 +30,7 @@ services:
       MINIO_ROOT_USER: skku
       MINIO_ROOT_PASSWORD: skku1234
     volumes:
-      - codedang-testcase:/data
+      - codedang-storage:/data
 
   database:
     container_name: codedang-database
@@ -157,7 +157,7 @@ services:
     depends_on:
       - rabbitmq
       - database
-      - testcase
+      - storage
     volumes:
       - $PWD/scripts:/etc/scripts
       # - $PWD/dist:/etc/dist:z
@@ -165,7 +165,7 @@ services:
     command: ['/bin/bash', '/etc/scripts/deploy.sh']
 
 volumes:
-  codedang-testcase:
+  codedang-storage:
   codedang-database:
   codedang-test-database:
   codedang-rabbitmq:
