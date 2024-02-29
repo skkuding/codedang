@@ -16,12 +16,14 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { languages, levels } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -32,7 +34,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
-import { GET_TAGS, inputStyle, languageOptions, levels } from '../utils'
+import { GET_TAGS, inputStyle } from '../utils'
 
 const CREATE_PROBLEM = gql(`
   mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
@@ -70,10 +72,8 @@ const CREATE_PROBLEM = gql(`
 const schema = z.object({
   title: z.string().min(1).max(25),
   isVisible: z.boolean(),
-  difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
-  languages: z.array(
-    z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
-  ),
+  difficulty: z.enum(levels),
+  languages: z.array(z.enum(languages)),
   tagIds: z.array(z.number()),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
@@ -127,6 +127,8 @@ export default function Page() {
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
     tagsData?.getTags.map(({ id, name }) => ({ id: Number(id), name })) ?? []
+  const [showHint, setShowHint] = useState(false)
+  const [showSource, setShowSource] = useState(false)
 
   const router = useRouter()
 
@@ -135,6 +137,7 @@ export default function Page() {
     control,
     register,
     getValues,
+    watch,
     setValue,
     formState: { errors }
   } = useForm<CreateProblemInput>({
@@ -150,6 +153,9 @@ export default function Page() {
       isVisible: true
     }
   })
+
+  const watchedSamples = watch('samples')
+  const watchedTestcases = watch('testcases')
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
   const onSubmit = async (input: CreateProblemInput) => {
@@ -307,7 +313,7 @@ export default function Page() {
                   render={({ field }) => (
                     <CheckboxSelect
                       title="Language"
-                      options={languageOptions}
+                      options={languages}
                       onChange={(selectedLanguages) => {
                         field.onChange(selectedLanguages)
                       }}
@@ -363,13 +369,17 @@ export default function Page() {
 
           <div className="flex flex-col gap-1">
             <div className="flex justify-between">
-              <div className="flex flex-col gap-1">
+              <div className="flex w-[360px] flex-col gap-1">
                 <Label>Input Description</Label>
-                <Textarea
-                  id="inputDescription"
-                  placeholder="Enter a description..."
-                  className="h-[120px] w-[360px] resize-none bg-white"
-                  {...register('inputDescription')}
+                <Controller
+                  render={({ field }) => (
+                    <TextEditor
+                      placeholder="Enter a description..."
+                      onChange={field.onChange}
+                    />
+                  )}
+                  name="inputDescription"
+                  control={control}
                 />
                 {errors.inputDescription && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
@@ -378,13 +388,17 @@ export default function Page() {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex w-[360px] flex-col gap-1">
                 <Label>Output Description</Label>
-                <Textarea
-                  id="outputDescription"
-                  placeholder="Enter a description..."
-                  className="h-[120px] w-[360px] resize-none bg-white"
-                  {...register('outputDescription')}
+                <Controller
+                  render={({ field }) => (
+                    <TextEditor
+                      placeholder="Enter a description..."
+                      onChange={field.onChange}
+                    />
+                  )}
+                  name="outputDescription"
+                  control={control}
                 />
                 {errors.outputDescription && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
@@ -407,8 +421,8 @@ export default function Page() {
               </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              {getValues('samples') &&
-                getValues('samples').map((_sample, index) => (
+              {watchedSamples &&
+                watchedSamples.map((_sample, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       onRemove={() => removeExample('samples', index)}
@@ -438,8 +452,8 @@ export default function Page() {
               </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              {getValues('testcases') &&
-                getValues('testcases').map((_testcase, index) => (
+              {watchedTestcases &&
+                watchedTestcases.map((_testcase, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
@@ -517,16 +531,18 @@ export default function Page() {
               <Label required={false}>Hint</Label>
               <Switch
                 onCheckedChange={() => {
+                  setShowHint(!showHint)
                   setValue('hint', '')
                 }}
+                checked={showHint}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
-            {getValues('hint') && (
+            {showHint && (
               <Textarea
                 id="hint"
                 placeholder="Enter a hint"
-                className="h-[120px] w-[760px] resize-none bg-white"
+                className="min-h-[120px] w-[760px] bg-white"
                 {...register('hint')}
               />
             )}
@@ -537,12 +553,14 @@ export default function Page() {
               <Label required={false}>Source</Label>
               <Switch
                 onCheckedChange={() => {
+                  setShowSource(!showSource)
                   setValue('source', '')
                 }}
+                checked={showSource}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
-            {getValues('source') && (
+            {showSource && (
               <Input
                 id="source"
                 type="text"

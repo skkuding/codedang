@@ -3,6 +3,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import type { User, UserProfile } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
@@ -15,6 +16,7 @@ import { EMAIL_AUTH_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
   DuplicateFoundException,
+  EntityNotExistException,
   InvalidJwtTokenException,
   UnidentifiedException,
   UnprocessableDataException
@@ -53,7 +55,7 @@ export class UserService {
   ) {}
 
   async getUsernameByEmail({ email }: UserEmailDto) {
-    const username = await this.prisma.user.findUniqueOrThrow({
+    const username = await this.prisma.user.findUnique({
       where: {
         email
       },
@@ -61,6 +63,9 @@ export class UserService {
         username: true
       }
     })
+    if (!username) {
+      throw new EntityNotExistException('User')
+    }
 
     this.logger.debug(username, 'getUsernameByEmail')
     return username
@@ -175,17 +180,26 @@ export class UserService {
     email: string,
     newPassword: string
   ): Promise<User> {
-    const user = await this.prisma.user.update({
-      where: {
-        email
-      },
-      data: {
-        password: await hash(newPassword)
-      }
-    })
-    this.logger.debug(user, 'updateUserPasswordInPrisma')
+    try {
+      const user = await this.prisma.user.update({
+        where: {
+          email
+        },
+        data: {
+          password: await hash(newPassword)
+        }
+      })
+      this.logger.debug(user, 'updateUserPasswordInPrisma')
 
-    return user
+      return user
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code == 'P2025'
+      )
+        throw new EntityNotExistException('User')
+      throw error
+    }
   }
 
   async verifyPinAndIssueJwt({
@@ -457,12 +471,15 @@ export class UserService {
     const user = await this.prisma.user.findUnique({
       where: { username }
     })
+    if (!user) {
+      throw new EntityNotExistException('User')
+    }
     this.logger.debug(user, 'getUserCredential')
     return user
   }
 
   async getUserProfile(username: string) {
-    const userWithProfile = await this.prisma.user.findUniqueOrThrow({
+    const userWithProfile = await this.prisma.user.findUnique({
       where: { username },
       select: {
         username: true,
@@ -477,6 +494,9 @@ export class UserService {
         }
       }
     })
+    if (!userWithProfile) {
+      throw new EntityNotExistException('User')
+    }
     this.logger.debug(userWithProfile, 'getUserProfile')
     return userWithProfile
   }
@@ -499,36 +519,46 @@ export class UserService {
 
     await this.deletePinFromCache(emailAuthenticationPinCacheKey(email))
 
-    await this.prisma.user.findUniqueOrThrow({
-      where: { id: req.user.id }
-    })
-
-    const user = await this.prisma.user.update({
-      where: { id: req.user.id },
-      data: {
-        email: updateUserEmailDto.email
-      }
-    })
-    this.logger.debug(user, 'updateUserEmail')
-    return user
+    try {
+      const user = await this.prisma.user.update({
+        where: { id: req.user.id },
+        data: {
+          email: updateUserEmailDto.email
+        }
+      })
+      this.logger.debug(user, 'updateUserEmail')
+      return user
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code == 'P2025'
+      )
+        throw new EntityNotExistException('user')
+      throw error
+    }
   }
 
   async updateUserProfile(
     userId: number,
     updateUserProfileDto: UpdateUserProfileDto
   ): Promise<UserProfile> {
-    await this.prisma.userProfile.findUniqueOrThrow({
-      where: { userId }
-    })
-
-    const userProfile = await this.prisma.userProfile.update({
-      where: { userId },
-      data: {
-        realName: updateUserProfileDto.realName
-      }
-    })
-    this.logger.debug(userProfile, 'updateUserProfile')
-    return userProfile
+    try {
+      const userProfile = await this.prisma.userProfile.update({
+        where: { userId },
+        data: {
+          realName: updateUserProfileDto.realName
+        }
+      })
+      this.logger.debug(userProfile, 'updateUserProfile')
+      return userProfile
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code == 'P2025'
+      )
+        throw new EntityNotExistException('UserProfile')
+      throw error
+    }
   }
 
   async checkDuplicatedUsername(usernameDto: UsernameDto) {

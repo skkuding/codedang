@@ -2,6 +2,17 @@
 
 import { gql } from '@generated'
 import { GET_TAGS } from '@/app/admin/problem/utils'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -12,12 +23,7 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { useQuery, useMutation } from '@apollo/client'
-import type {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState
-} from '@tanstack/react-table'
+import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import {
   flexRender,
   getCoreRowModel,
@@ -52,8 +58,6 @@ export function DataTableAdmin<TData, TValue>({
   data
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const pathname = usePathname()
   const page = pathname.split('/').pop()
@@ -69,15 +73,12 @@ export function DataTableAdmin<TData, TValue>({
     columns,
     state: {
       sorting,
-      columnVisibility,
-      rowSelection,
-      columnFilters
+      rowSelection
     },
+    autoResetPageIndex: false,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -85,6 +86,8 @@ export function DataTableAdmin<TData, TValue>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues()
   })
+
+  const selectedRowCount = Object.values(rowSelection).filter(Boolean).length
 
   const DELETE_PROBLEM = gql(`
   mutation DeleteProblem($groupId: Int!, $id: Int!) {
@@ -111,7 +114,6 @@ export function DataTableAdmin<TData, TValue>({
           }
         })
       } else {
-        console.log('delete', row.original.id)
         return Promise.resolve()
       }
     })
@@ -154,9 +156,34 @@ export function DataTableAdmin<TData, TValue>({
             />
           )}
         </div>
-        <Button onClick={() => handleDeleteRows()} variant="outline">
-          <PiTrashLight fontSize={18} />
-        </Button>
+        {selectedRowCount !== 0 ? (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline">
+                <PiTrashLight fontSize={18} />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to permanently delete {selectedRowCount}{' '}
+                  {page}(s)?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction asChild>
+                  <Button onClick={() => handleDeleteRows()}>Continue</Button>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        ) : (
+          <Button variant="outline">
+            <PiTrashLight fontSize={18} />
+          </Button>
+        )}
       </div>
 
       <div className="rounded-md border">

@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/select'
 
 interface OptionSelectProps {
-  options: string[]
+  options: string[] | readonly string[]
   onChange: (option: string) => void
   value: string
 }

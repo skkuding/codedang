@@ -56,6 +56,12 @@ export const pinoLoggerModuleOption: Params = {
       const id = randomUUID()
       res.setHeader('X-Request-Id', id)
       return id
+    },
+    serializers: {
+      req(req) {
+        req.body = req.raw?.body
+        return req
+      }
     }
   }
 }

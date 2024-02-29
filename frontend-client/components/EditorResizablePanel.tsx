@@ -1,6 +1,6 @@
 'use client'
 
-import Codeeditor from '@/components/Codeeditor'
+import CodeEditor from '@/components/CodeEditor'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useStorage } from '@/lib/hooks'
+import { useStorage } from '@/lib/storage'
 import useEditorStore from '@/stores/editor'
 import type { Language, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
@@ -94,7 +94,7 @@ export default function EditorMainResizablePanel({
       <ResizablePanel defaultSize={65} className="bg-slate-900">
         <div className="grid-rows-editor grid h-full">
           <EditorHeader problem={problem} />
-          <Codeeditor
+          <CodeEditor
             value={code}
             language={language as Language}
             onChange={setCode}

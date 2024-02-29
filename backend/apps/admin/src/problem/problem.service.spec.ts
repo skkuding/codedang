@@ -1,3 +1,4 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Level } from '@generated'
@@ -87,7 +88,8 @@ describe('ProblemService', () => {
         { provide: PrismaService, useValue: db },
         StorageService,
         ConfigService,
-        S3Provider
+        S3Provider,
+        { provide: CACHE_MANAGER, useValue: { del: () => null } }
       ]
     }).compile()
 
