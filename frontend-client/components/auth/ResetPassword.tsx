@@ -5,71 +5,65 @@ import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
-interface EmailVerifyInput {
-  email: string
-  verificationCode: string
+interface ResetPasswordInput {
+  password: string
+  passwordAgain: string
 }
 
-const schema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
-  verificationCode: z
-    .string()
-    .min(6, { message: 'Code must be 6 characters long' })
-    .max(6, { message: 'Code must be 6 characters long' })
-})
+const schema = z
+  .object({
+    password: z
+      .string()
+      .min(8)
+      .refine((data) => {
+        const invalidPassword = /^([a-z]*|[A-Z]*|[0-9]*|[^a-zA-Z0-9]*)$/
+        return !invalidPassword.test(data)
+      }),
+    passwordAgain: z.string().min(8)
+  })
+  .refine(
+    (data: { password: string; passwordAgain: string }) =>
+      data.password === data.passwordAgain,
+    {
+      path: ['passwordAgain']
+    }
+  )
 
 export default function ResetPassword() {
   const {
     handleSubmit,
     register,
-    getValues,
     trigger,
-    formState: { errors }
-  } = useForm<EmailVerifyInput>({
+    formState: { errors, isValid }
+  } = useForm<ResetPasswordInput>({
     resolver: zodResolver(schema)
   })
-  const [emailVerified, setEmailVerified] = useState<boolean>(false)
-  const [emailAuthToken, setEmailAuthToken] = useState<string>('')
-  const [codeError, setCodeError] = useState<string>('')
+  const [passwordShow, setPasswordShow] = useState<boolean>(false)
+  const [passwordAgainShow, setPasswordAgainShow] = useState<boolean>(false)
+  const [inputFocus, setInputFocus] = useState<number>(0)
+  const { formData } = useRecoverAccountModalStore((state) => state)
 
-  const onSubmit = (data: EmailVerifyInput) => {
-    setFormData({
-      ...data,
-      headers: {
-        'email-auth': emailAuthToken
-      }
-    })
-    nextModal()
-  }
-  const verifyCode = async () => {
-    const { verificationCode } = getValues()
-    await trigger('verificationCode')
-    if (!errors.verificationCode) {
-      try {
-        const response = await fetcher.post('email-auth/verify-pin', {
-          json: {
-            pin: verificationCode,
-            email: formData.email
-          }
-        })
-        if (response.status === 201) {
-          setEmailVerified(true)
-          setCodeError('')
-          setEmailAuthToken(response.headers.get('email-auth') || '')
-        } else {
-          setCodeError('Verification code is not valid!')
+  const onSubmit = async (data: ResetPasswordInput) => {
+    try {
+      const response = await fetcher.patch('user/password-reset', {
+        headers: formData.headers,
+        json: {
+          newPassword: data.password
         }
-      } catch {
-        setCodeError('Email verification failed!')
+      })
+      if (response.ok) {
+        document.getElementById('closeDialog')?.click()
+        toast.success('Password reset successfully')
       }
+    } catch {
+      toast.error('Password reset failed')
     }
   }
 
-  const { nextModal, formData, setFormData } = useRecoverAccountModalStore(
-    (state) => state
-  )
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -78,31 +72,83 @@ export default function ResetPassword() {
       <p className="text-primary mb-4 text-left text-xl font-bold">
         Reset Password
       </p>
-      <div className="text-sm font-semibold text-gray-500">
-        {formData.email}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between gap-2">
+            <Input
+              placeholder="Password"
+              {...register('password', {
+                onChange: () => trigger('password')
+              })}
+              type={passwordShow ? 'text' : 'password'}
+              onFocus={() => {
+                setInputFocus(0)
+              }}
+            />
+            <span
+              className="flex items-center"
+              onClick={() => setPasswordShow(!passwordShow)}
+            >
+              {passwordShow ? (
+                <FaEye className="text-gray-400" />
+              ) : (
+                <FaEyeSlash className="text-gray-400" />
+              )}
+            </span>
+          </div>
+          {inputFocus === 0 && (
+            <div
+              className={cn(
+                errors.password ? 'text-red-500' : 'text-gray-500',
+                'text-xs'
+              )}
+            >
+              <ul className="pl-4">
+                <li className="list-disc">
+                  Your password must be at least 8 characters
+                </li>
+                <li>and include two of the followings:</li>
+                <li>Capital letters, Small letters, or Numbers</li>
+              </ul>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between gap-2">
+            <Input
+              {...register('passwordAgain', {
+                onChange: () => trigger('passwordAgain')
+              })}
+              placeholder="Re-enter password"
+              type={passwordAgainShow ? 'text' : 'password'}
+              onFocus={() => {
+                setInputFocus(1)
+              }}
+            />
+            <span
+              className="flex items-center"
+              onClick={() => setPasswordAgainShow(!passwordAgainShow)}
+            >
+              {passwordAgainShow ? (
+                <FaEye className="text-gray-400" />
+              ) : (
+                <FaEyeSlash className="text-gray-400" />
+              )}
+            </span>
+          </div>
+          {errors.passwordAgain && (
+            <p className="text-xs text-red-500">Incorrect</p>
+          )}
+        </div>
+        <Button
+          disabled={!isValid}
+          className={cn(!isValid && 'bg-gray-400')}
+          type="submit"
+        >
+          Save
+        </Button>
       </div>
-      <Input
-        type="number"
-        className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-        placeholder="Verification Code"
-        {...register('verificationCode', {
-          onChange: () => verifyCode()
-        })}
-      />
-      <p className="text-xs text-red-500">
-        {errors.verificationCode ? errors.verificationCode?.message : codeError}
-      </p>
-      {!errors.verificationCode && codeError === '' && !emailVerified && (
-        <p className="text-primary text-xs">We&apos;ve sent an email!</p>
-      )}
-      <Button
-        type="submit"
-        className={cn('mb-8 mt-2 w-full', !emailVerified && 'bg-gray-400')}
-        onClick={() => nextModal()}
-        disabled={!emailVerified}
-      >
-        Next
-      </Button>
     </form>
   )
 }

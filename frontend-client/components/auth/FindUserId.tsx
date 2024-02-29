@@ -22,7 +22,7 @@ export default function FindUserId() {
   const { nextModal, setFormData } = useRecoverAccountModalStore(
     (state) => state
   )
-  const { showSignIn } = useAuthModalStore((state) => state)
+  const { showSignIn, showSignUp } = useAuthModalStore((state) => state)
 
   const {
     handleSubmit,
@@ -83,63 +83,74 @@ export default function FindUserId() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex w-full flex-col gap-8 px-2"
-    >
-      <div className="flex flex-col gap-1">
-        <p className="text-primary mb-4 text-left text-xl font-bold">
-          Find User ID
-        </p>
-        <Input
-          id="email"
-          type="email"
-          placeholder="Email Address"
-          {...register('email', {
-            onChange: () => trigger('email')
-          })}
-          disabled={!!userId}
-        />
-        {errors.email && (
-          <p className="text-xs text-red-500">{errors.email?.message}</p>
-        )}
-        <p className="text-xs text-red-500">{emailError}</p>
-        {userId ? (
-          <p className="text-center text-sm text-gray-500">
-            your User ID is <span className="text-primary">{userId}</span>
+    <>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex w-full flex-col gap-8 px-2"
+      >
+        <div className="flex flex-col gap-1">
+          <p className="text-primary mb-4 text-left text-xl font-bold">
+            Find User ID
           </p>
-        ) : (
-          <p className="text-center text-sm text-gray-300">
-            your User ID is ___________
-          </p>
-        )}
-      </div>
+          <Input
+            id="email"
+            type="email"
+            placeholder="Email Address"
+            {...register('email', {
+              onChange: () => trigger('email')
+            })}
+            disabled={!!userId}
+          />
+          {errors.email && (
+            <p className="text-xs text-red-500">{errors.email?.message}</p>
+          )}
+          <p className="text-xs text-red-500">{emailError}</p>
+          {userId ? (
+            <p className="text-center text-sm text-gray-500">
+              your User ID is <span className="text-primary">{userId}</span>
+            </p>
+          ) : (
+            <p className="text-center text-sm text-gray-300">
+              your User ID is ___________
+            </p>
+          )}
+        </div>
 
-      <div className="flex flex-col gap-4">
-        {userId ? (
-          <Button onClick={() => showSignIn()} type="button">
-            Log in
+        <div className="flex flex-col gap-4">
+          {userId ? (
+            <Button onClick={() => showSignIn()} type="button">
+              Log in
+            </Button>
+          ) : (
+            <Button type="submit">Find User ID</Button>
+          )}
+          <Button
+            type="button"
+            onClick={() => {
+              sendEmail()
+                .then(() => {
+                  nextModal()
+                })
+                .catch(() => {
+                  console.log('error')
+                })
+            }}
+            className={cn(!userId && 'bg-gray-400')}
+            disabled={!userId}
+          >
+            Reset Password
           </Button>
-        ) : (
-          <Button type="submit">Find User ID</Button>
-        )}
+        </div>
+      </form>
+      <div className="absolute bottom-6 flex items-center justify-center">
         <Button
-          type="button"
-          onClick={() => {
-            sendEmail()
-              .then(() => {
-                nextModal()
-              })
-              .catch(() => {
-                console.log('error')
-              })
-          }}
-          className={cn(!userId && 'bg-gray-400')}
-          disabled={!userId}
+          onClick={() => showSignUp()}
+          variant={'link'}
+          className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >
-          Reset Password
+          Register now
         </Button>
       </div>
-    </form>
+    </>
   )
 }

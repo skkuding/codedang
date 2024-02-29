@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import CodedangLogo from '@/public/codedang.svg'
 import useAuthModalStore from '@/stores/authModal'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
@@ -8,9 +7,10 @@ import Image from 'next/image'
 import { IoMdArrowBack } from 'react-icons/io'
 import FindUserId from './FindUserId'
 import ResetPassword from './ResetPassword'
+import ResetPasswordEmailVerify from './ResetPasswordEmailVerify'
 
 export default function RecoverAccount() {
-  const { showSignUp, showSignIn } = useAuthModalStore((state) => state)
+  const { showSignIn } = useAuthModalStore((state) => state)
   const { modalPage, backModal } = useRecoverAccountModalStore((state) => state)
 
   return (
@@ -30,17 +30,8 @@ export default function RecoverAccount() {
       />
 
       {modalPage === 0 && <FindUserId />}
-      {modalPage === 1 && <ResetPassword />}
-
-      <div className="absolute bottom-6 flex items-center justify-center">
-        <Button
-          onClick={() => showSignUp()}
-          variant={'link'}
-          className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
-        >
-          Register now
-        </Button>
-      </div>
+      {modalPage === 1 && <ResetPasswordEmailVerify />}
+      {modalPage === 2 && <ResetPassword />}
     </div>
   )
 }
