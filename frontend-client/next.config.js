@@ -1,10 +1,15 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { withSentryConfig } = require('@sentry/nextjs')
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true'
+})
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    typedRoutes: true
+    typedRoutes: true,
+    turbo: true
   },
   output: 'standalone',
   env: {
@@ -16,7 +21,7 @@ const nextConfig = {
 
 // Injected content via Sentry wizard below
 module.exports = withSentryConfig(
-  nextConfig,
+  withBundleAnalyzer(nextConfig),
   {
     // For all available options, see:
     // https://github.com/getsentry/sentry-webpack-plugin#options
