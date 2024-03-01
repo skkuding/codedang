@@ -36,7 +36,7 @@ import { Button } from './ui/button'
 function MathPreview(props: NodeViewWrapperProps) {
   const [content, setContent] = useState(props.node.attrs.content)
   const [isOpen, setIsOpen] = useState(true)
-  const handleContentChange = (event) => {
+  const handleContentChange = (event: { target: { value: unknown } }) => {
     setContent(event.target.value)
   }
   const preview = katex.renderToString(content, {
