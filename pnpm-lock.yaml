@@ -573,7 +573,7 @@ importers:
         version: 8.12.0(react-dom@18.2.0)(react@18.2.0)
       '@tiptap/core':
         specifier: ^2.2.4
-        version: 2.2.4(@tiptap/pm@2.2.3)
+        version: 2.2.4(@tiptap/pm@2.2.4)
       '@tiptap/extension-link':
         specifier: ^2.2.4
         version: 2.2.4(@tiptap/core@2.2.4)(@tiptap/pm@2.2.4)
