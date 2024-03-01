@@ -101,7 +101,6 @@ export default function ResetPasswordEmailVerify() {
       <Button
         type="submit"
         className={cn('mb-8 mt-2 w-full', !emailVerified && 'bg-gray-400')}
-        onClick={() => nextModal()}
         disabled={!emailVerified}
       >
         Next
