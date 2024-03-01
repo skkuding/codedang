@@ -68,7 +68,7 @@ export function EditorDescription({ problem }: { problem: ProblemDetail }) {
         <div
           className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
           dangerouslySetInnerHTML={{
-            __html: sanitize(problem.inputDescription)
+            __html: sanitize(problem.outputDescription)
           }}
         />
       </div>
