@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { baseUrl } from '@/lib/constants'
-import { cn } from '@/lib/utils'
+import { cn, fetcher } from '@/lib/utils'
 import useRecoverAccountModalStore from '@/stores/recoverAccountModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
@@ -51,14 +50,12 @@ export default function ResetPasswordEmailVerify() {
     await trigger('verificationCode')
     if (!errors.verificationCode) {
       try {
-        const response = await fetch(baseUrl + '/email-auth/verify-pin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
+        const response = await fetcher.post('email-auth/verify-pin', {
+          json: {
             pin: verificationCode,
             email: formData.email
-          })
+          },
+          credentials: 'include'
         })
         if (response.status === 201) {
           setEmailVerified(true)
