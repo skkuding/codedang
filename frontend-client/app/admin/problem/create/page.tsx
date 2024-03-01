@@ -369,13 +369,17 @@ export default function Page() {
 
           <div className="flex flex-col gap-1">
             <div className="flex justify-between">
-              <div className="flex flex-col gap-1">
+              <div className="flex w-[360px] flex-col gap-1">
                 <Label>Input Description</Label>
-                <Textarea
-                  id="inputDescription"
-                  placeholder="Enter a description..."
-                  className="min-h-[120px] w-[360px] bg-white"
-                  {...register('inputDescription')}
+                <Controller
+                  render={({ field }) => (
+                    <TextEditor
+                      placeholder="Enter a description..."
+                      onChange={field.onChange}
+                    />
+                  )}
+                  name="inputDescription"
+                  control={control}
                 />
                 {errors.inputDescription && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
@@ -384,13 +388,17 @@ export default function Page() {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex w-[360px] flex-col gap-1">
                 <Label>Output Description</Label>
-                <Textarea
-                  id="outputDescription"
-                  placeholder="Enter a description..."
-                  className="min-h-[120px] w-[360px] bg-white"
-                  {...register('outputDescription')}
+                <Controller
+                  render={({ field }) => (
+                    <TextEditor
+                      placeholder="Enter a description..."
+                      onChange={field.onChange}
+                    />
+                  )}
+                  name="outputDescription"
+                  control={control}
                 />
                 {errors.outputDescription && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
