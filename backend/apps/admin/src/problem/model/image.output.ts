@@ -4,7 +4,4 @@ import { Field, ObjectType } from '@nestjs/graphql'
 export class Image {
   @Field(() => String)
   src: string
-
-  @Field(() => String)
-  alt: string
 }

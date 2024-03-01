@@ -276,7 +276,7 @@ export class ProblemService {
     }
 
     return {
-      imageUrl:
+      src:
         this.config.get('STORAGE_BUCKET_ENDPOINT_URL') +
         '/' +
         this.config.get('MEDIA_BUCKET_NAME') +
