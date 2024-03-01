@@ -11,11 +11,16 @@ import { Input } from '@/components/ui/input'
 import { Toggle } from '@/components/ui/toggle'
 import Tex from '@matejmazur/react-katex'
 import { DialogClose } from '@radix-ui/react-dialog'
+import { mergeAttributes, Node } from '@tiptap/core'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import type { Extension } from '@tiptap/react'
 import { useEditor, EditorContent } from '@tiptap/react'
+import { ReactNodeViewRenderer } from '@tiptap/react'
+import type { NodeViewWrapperProps } from '@tiptap/react'
+import { NodeViewWrapper } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import {
   Bold,
@@ -26,8 +31,96 @@ import {
   Pi
 } from 'lucide-react'
 import { useCallback, useState } from 'react'
-import MathExtension from './MathExtension'
 import { Button } from './ui/button'
+
+function MathPreview(props: NodeViewWrapperProps) {
+  const [content, setContent] = useState(props.node.attrs.content)
+  const [isOpen, setIsOpen] = useState(true)
+  const handleContentChange = (event) => {
+    setContent(event.target.value)
+  }
+  const preview = katex.renderToString(content, {
+    throwOnError: false,
+    strict: false,
+    globalGroup: true
+  })
+
+  return (
+    <NodeViewWrapper className="math-block-preview cursor-pointer" as="span">
+      {isOpen && (
+        <Dialog aria-label="Edit Math Equation">
+          <DialogTrigger asChild>
+            <span
+              dangerouslySetInnerHTML={{ __html: preview }}
+              contentEditable={false}
+              onClick={() => {
+                setIsOpen(true)
+              }}
+            />
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Equation</DialogTitle>
+            </DialogHeader>
+            <DialogDescription>
+              <Input
+                value={content}
+                placeholder="Enter Equation"
+                onChange={handleContentChange}
+              />
+              <Tex block className="text-black">
+                {content}
+              </Tex>
+            </DialogDescription>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button>Insert</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </NodeViewWrapper>
+  )
+}
+
+export const MathExtension = Node.create({
+  name: 'mathComponent',
+  group: 'inline math',
+  content: 'text*',
+  inline: true,
+  defining: true,
+  draggable: true,
+  selectable: true,
+  addAttributes() {
+    return {
+      content: {
+        default: '',
+        renderHTML: (attributes) => {
+          return {
+            content: attributes.content
+          }
+        }
+      }
+    }
+  },
+  parseHTML() {
+    return [
+      {
+        tag: 'math-component'
+      }
+    ]
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['math-component', mergeAttributes(HTMLAttributes, { math: '' }), 0]
+  },
+  addNodeView() {
+    return ReactNodeViewRenderer(MathPreview) // Update the type to NodeViewRenderer
+  },
+  addKeyboardShortcuts() {
+    return {}
+  }
+})
 
 export default function TextEditor({
   placeholder,
