@@ -146,7 +146,9 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    return await this.createSubmission(submissionDto, problem, userId)
+    return await this.createSubmission(submissionDto, problem, userId, {
+      contestId
+    })
   }
 
   async submitToWorkbook(
@@ -172,14 +174,19 @@ export class SubmissionService implements OnModuleInit {
       throw new EntityNotExistException('problem')
     }
 
-    return await this.createSubmission(submissionDto, problem, userId)
+    return await this.createSubmission(submissionDto, problem, userId, {
+      workbookId
+    })
   }
 
   async createSubmission(
     submissionDto: CreateSubmissionDto,
     problem: Problem,
-    userId: number
+    userId: number,
+    idOptions?: { contestId?: number; workbookId?: number }
   ) {
+    let submission: Submission
+
     if (!problem.languages.includes(submissionDto.language)) {
       throw new ConflictFoundException(
         `This problem does not support language ${submissionDto.language}`
@@ -196,16 +203,29 @@ export class SubmissionService implements OnModuleInit {
       throw new ConflictFoundException('Modifying template is not allowed')
     }
 
-    const submission = await this.prisma.submission.create({
-      data: {
-        code: code.map((snippet) => ({ ...snippet })), // convert to plain object
-        result: ResultStatus.Judging,
-        userId,
-        problemId: problem.id,
-        codeSize: new TextEncoder().encode(code[0].text).length,
-        ...data
-      }
-    })
+    const submissionData = {
+      code: code.map((snippet) => ({ ...snippet })), // convert to plain object
+      result: ResultStatus.Judging,
+      userId,
+      problemId: problem.id,
+      codeSize: new TextEncoder().encode(code[0].text).length,
+      ...data
+    }
+
+    if (idOptions && idOptions.contestId) {
+      submission = await this.prisma.submission.create({
+        data: { ...submissionData, contestId: idOptions.contestId }
+      })
+    } else if (idOptions && idOptions.workbookId) {
+      submission = await this.prisma.submission.create({
+        data: { ...submissionData, workbookId: idOptions.workbookId }
+      })
+    } else {
+      submission = await this.prisma.submission.create({
+        data: submissionData
+      })
+    }
+
     await this.publishJudgeRequestMessage(code, submission)
 
     return submission
