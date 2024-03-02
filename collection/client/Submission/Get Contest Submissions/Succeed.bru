@@ -5,14 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/submission?problemId=1&contestId=1
+  url: {{baseUrl}}/contest/1/submission?problemId=1
   body: none
   auth: none
 }
 
 query {
   problemId: 1
-  contestId: 1
   ~groupId: 1
   ~take: 10
   ~cursor: 5
@@ -20,18 +19,19 @@ query {
 
 assert {
   res.status: eq 200
-  res.body.data: isDefined
-  res.body.total: isNumber
+  res.body[0]: isJson
 }
 
 script:pre-request {
-  require("./login").loginUser(req);
+  await require("./login").loginUser(req);
 }
 
 docs {
-  # Get Submissions
+  # Get Contest Submissions
   
-  문제의 제출 내역을 가져옵니다.
+  > 로그인이 필요한 API입니다.
+  
+  대회 문제의 제출 내역을 가져옵니다.
   
   ## Query
   
@@ -43,4 +43,5 @@ docs {
   |groupId|Integer|문제가 속한 Group ID (default: 1)|
   |take|Integer|가져올 제출 내역 개수 (default: 10)|
   |cursor|Integer|cursor 값 다음의 ID를 가진 제출 내역들을 반환|
+  
 }

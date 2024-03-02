@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useStorage } from '@/lib/hooks'
+import { useStorage } from '@/lib/storage'
 import useEditorStore from '@/stores/editor'
 import type { Language, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'

@@ -570,7 +570,7 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    const submissions = await this.prisma.submission.findMany({
+    const submissions =  await this.prisma.submission.findMany({
       ...paginator,
       take,
       where: {

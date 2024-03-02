@@ -8,10 +8,13 @@
 	}
 
 	handle @cors-preflight{args[0]} {
-		header Access-Control-Allow-Credentials true
-		header Access-Control-Allow-Origin "{header.Origin}"
-		header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
-		header Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth, Apollo-Require-Preflight"
+		header {
+			Access-Control-Allow-Credentials true
+			Access-Control-Allow-Origin "{header.Origin}"
+			Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+			Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth, Apollo-Require-Preflight"
+			Access-Control-Expose-Headers "Email-Auth"
+		}
 		respond "" 204
 	}
 
@@ -20,7 +23,15 @@
 	# Matcher: If Origin header equals to the argument
 	# Handler: Set CORS headers
 	@cors{args[0]} header Origin {args[0]}
-	header @cors{args[0]} Access-Control-Allow-Origin "{header.Origin}"
+	handle @cors{args[0]} {
+		header {
+			Access-Control-Allow-Credentials true
+			Access-Control-Allow-Origin "{header.Origin}"
+			Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+			Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth, Apollo-Require-Preflight"
+			Access-Control-Expose-Headers "Email-Auth"
+		}
+	}
 }
 
 # Global options
@@ -36,16 +47,18 @@
 }
 
 dev.codedang.com {
-	import cors http://localhost:5173 # frontend server (Vue)
-	import cors http://localhost:5525 # frontend server (Next.js)
-	# Use wildcard matcher to allow all subdomains
-	# https://caddyserver.com/docs/caddyfile/matchers#header
-	import cors *.codedang.com
-	import cors *.gitpod.io
-	import cors *.vercel.app
-
 	handle /api/* {
 		reverse_proxy 127.0.0.1:4000
+
+		# CORS rules
+		# frontend server (Next.js)
+		import cors http://localhost:5525
+
+		# Use wildcard matcher to allow all subdomains
+		# https://caddyserver.com/docs/caddyfile/matchers#header
+		import cors *.codedang.com
+		import cors *.gitpod.io
+		import cors *.vercel.app
 
 		# 캐시 설정
 		header {
@@ -60,6 +73,11 @@ dev.codedang.com {
 
 	handle /graphql {
 		reverse_proxy 127.0.0.1:3000
+
+		import cors http://localhost:5525
+		import cors *.codedang.com
+		import cors *.gitpod.io
+		import cors *.vercel.app
 	}
 
 	handle {

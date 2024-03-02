@@ -1,6 +1,7 @@
 import DataTable from '@/components/DataTable'
-import { fetcher } from '@/lib/utils'
+import { fetcherWithAuth } from '@/lib/utils'
 import type { ContestProblem } from '@/types/type'
+import { IoIosLock } from 'react-icons/io'
 import { columns } from './_components/Columns'
 
 interface ContestProblemProps {
@@ -9,15 +10,31 @@ interface ContestProblemProps {
 
 export default async function ContestProblem({ params }: ContestProblemProps) {
   const { contestId } = params
-  const { problems }: { problems: ContestProblem[] } = await fetcher
-    .get('problem', {
-      searchParams: {
-        take: 10,
-        contestId
-      }
-    })
-    .json()
+  const res = await fetcherWithAuth.get(`contest/${contestId}/problem`, {
+    searchParams: {
+      take: 10
+    }
+  })
 
+  if (!res.ok) {
+    const { statusCode, message }: { statusCode: number; message: string } =
+      await res.json()
+    return (
+      <div className="flex h-44 items-center justify-center gap-4">
+        <IoIosLock size={80} />
+        <div className="flex flex-col items-center gap-1">
+          <p className="text-xl font-semibold">Access Denied</p>
+          <p className="text-gray-500">
+            {statusCode === 401
+              ? 'Log in first to check the problems.'
+              : message}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  const { problems }: { problems: ContestProblem[] } = await res.json()
   return (
     <DataTable
       data={problems}
