@@ -1,14 +1,21 @@
 import { EditorDescription } from '@/components/EditorDescription'
-import { fetcher } from '@/lib/utils'
-import type { ProblemDetail } from '@/types/type'
+import { fetcher, fetcherWithAuth } from '@/lib/utils'
+import type { ContestProblem, ProblemDetail } from '@/types/type'
 
 export default async function DescriptionPage({
   params
 }: {
-  params: { problemId: number }
+  params: { problemId: number; contestId: number }
 }) {
   const { problemId } = params
   const problem: ProblemDetail = await fetcher(`problem/${problemId}`).json()
-
-  return <EditorDescription problem={problem} />
+  const contestProblems: { problems: ContestProblem[] } = await fetcherWithAuth(
+    `contest/${params.contestId}/problem`
+  ).json()
+  return (
+    <EditorDescription
+      problem={problem}
+      contestProblems={contestProblems.problems}
+    />
+  )
 }
