@@ -4,7 +4,7 @@ export default async function layout({
   params,
   children
 }: {
-  params: { problemId: string; contestId: string }
+  params: { problemId: number; contestId: number }
   children: React.ReactNode
 }) {
   const { problemId, contestId } = params
