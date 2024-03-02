@@ -42,8 +42,6 @@ export const useInfiniteScroll = <T extends Item>({
   itemsPerPage = 5,
   withAuth = false
 }: UseInfiniteScrollProps) => {
-  const [items, setItems] = useState<T[]>([]) //return 되는 data들의 목록
-  const [total, setTotal] = useState(0)
   //fetch datas with pageParams and url
   const getInfiniteData = async ({
     pageParam
@@ -70,6 +68,7 @@ export const useInfiniteScroll = <T extends Item>({
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useSuspenseInfiniteQuery({
       queryKey: [pathname, query.toString()],
+      staleTime: 0,
       queryFn: getInfiniteData,
       initialPageParam: 0,
       getNextPageParam: (lastPage: DataSet<T>) => {
@@ -79,18 +78,6 @@ export const useInfiniteScroll = <T extends Item>({
           : lastPage.problems.at(-1)?.id //cursor를 getData의 params로 넘겨줍니다.
       }
     })
-
-  //T[] 타입에 맞게 데이터 가공
-  useEffect(() => {
-    if (data && data.pages && data.pages.length > 0) {
-      const allItems: T[] = []
-      data.pages.forEach((page) => {
-        allItems.push(...page.problems) //TODO: fix problem to data
-      })
-      setItems(allItems)
-      setTotal(data.pages.at(0)?.total ?? 0)
-    }
-  }, [data])
 
   //To detect the bottom div
   const scrollCounter = useRef(0) // 바닥에 닿은 횟수를 세는 카운터
@@ -112,8 +99,9 @@ export const useInfiniteScroll = <T extends Item>({
   }, [inView, isFetchingNextPage, hasNextPage, fetchNextPage, data])
 
   return {
-    items,
-    total,
+    data,
+    items: data.pages.flat().flatMap((page) => page.problems),
+    total: data.pages.at(0)?.total,
     fetchNextPage,
     ref,
     isLoadButton,
