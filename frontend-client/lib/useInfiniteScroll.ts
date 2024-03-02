@@ -65,7 +65,7 @@ export const useInfiniteScroll = <T extends Item>({
     return dataSet
   }
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } =
     useSuspenseInfiniteQuery({
       queryKey: [pathname, query.toString()],
       staleTime: 0,
@@ -99,12 +99,12 @@ export const useInfiniteScroll = <T extends Item>({
   }, [inView, isFetchingNextPage, hasNextPage, fetchNextPage, data])
 
   return {
-    data,
     items: data.pages.flat().flatMap((page) => page.problems),
     total: data.pages.at(0)?.total,
     fetchNextPage,
     ref,
     isLoadButton,
-    isLoading
+    isFetchingNextPage,
+    isPending
   }
 }
