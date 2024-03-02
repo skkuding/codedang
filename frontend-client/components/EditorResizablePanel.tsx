@@ -21,10 +21,12 @@ import EditorHeader from './EditorHeader'
 interface ProblemEditorProps {
   problem: ProblemDetail
   children: React.ReactNode
+  contestId?: number
 }
 
 export default function EditorMainResizablePanel({
   problem,
+  contestId,
   children
 }: ProblemEditorProps) {
   // get programming language from localStorage for default value
@@ -34,6 +36,7 @@ export default function EditorMainResizablePanel({
   )
   const { code, setCode, setLanguage, language } = useEditorStore()
   const pathname = usePathname()
+  const base = contestId ? `/contest/${contestId}` : ''
 
   useEffect(() => {
     if (!language) {
@@ -58,13 +61,13 @@ export default function EditorMainResizablePanel({
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-slate-800 px-6">
             <Tabs
               value={
-                pathname.startsWith(`/problem/${problem.id}/submission`)
+                pathname.startsWith(`${base}/problem/${problem.id}/submission`)
                   ? 'Submission'
                   : 'Description'
               }
             >
               <TabsList className="bg-slate-900">
-                <Link href={`/problem/${problem.id}` as Route}>
+                <Link href={`${base}/problem/${problem.id}` as Route}>
                   <TabsTrigger
                     value="Description"
                     className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
@@ -72,7 +75,9 @@ export default function EditorMainResizablePanel({
                     Description
                   </TabsTrigger>
                 </Link>
-                <Link href={`/problem/${problem.id}/submission` as Route}>
+                <Link
+                  href={`${base}/problem/${problem.id}/submission` as Route}
+                >
                   <TabsTrigger
                     value="Submission"
                     className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
