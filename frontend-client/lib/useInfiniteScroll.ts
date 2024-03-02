@@ -39,7 +39,7 @@ interface UseInfiniteScrollProps {
 export const useInfiniteScroll = <T extends Item>({
   pathname,
   query,
-  itemsPerPage = 5,
+  itemsPerPage = 10,
   withAuth = false
 }: UseInfiniteScrollProps) => {
   //fetch datas with pageParams and url
@@ -65,7 +65,7 @@ export const useInfiniteScroll = <T extends Item>({
     return dataSet
   }
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery({
       queryKey: [pathname, query.toString()],
       staleTime: 0,
@@ -104,7 +104,6 @@ export const useInfiniteScroll = <T extends Item>({
     fetchNextPage,
     ref,
     isLoadButton,
-    isFetchingNextPage,
-    isPending
+    isFetchingNextPage
   }
 }
