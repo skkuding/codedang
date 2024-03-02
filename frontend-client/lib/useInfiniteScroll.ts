@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useSuspenseInfiniteQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import type { URLSearchParams } from 'url'
@@ -39,7 +39,7 @@ interface UseInfiniteScrollProps {
 export const useInfiniteScroll = <T extends Item>({
   pathname,
   query,
-  itemsPerPage = 10,
+  itemsPerPage = 5,
   withAuth = false
 }: UseInfiniteScrollProps) => {
   const [items, setItems] = useState<T[]>([]) //return 되는 data들의 목록
@@ -68,12 +68,12 @@ export const useInfiniteScroll = <T extends Item>({
   }
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteQuery({
+    useSuspenseInfiniteQuery({
       queryKey: [pathname, query.toString()],
       queryFn: getInfiniteData,
       initialPageParam: 0,
       getNextPageParam: (lastPage: DataSet<T>) => {
-        return lastPage?.problems.length === 0 ||
+        return lastPage?.problems.length === 0 || //TODO: fix problem to data
           lastPage?.problems.length < itemsPerPage
           ? undefined //페이지에 있는 아이템 수가 0이거나 itemsPerPage보다 작으면 undefined를 반환합니다.
           : lastPage.problems.at(-1)?.id //cursor를 getData의 params로 넘겨줍니다.
@@ -85,7 +85,7 @@ export const useInfiniteScroll = <T extends Item>({
     if (data && data.pages && data.pages.length > 0) {
       const allItems: T[] = []
       data.pages.forEach((page) => {
-        allItems.push(...page.problems)
+        allItems.push(...page.problems) //TODO: fix problem to data
       })
       setItems(allItems)
       setTotal(data.pages.at(0)?.total ?? 0)
