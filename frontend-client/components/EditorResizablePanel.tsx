@@ -98,7 +98,7 @@ export default function EditorMainResizablePanel({
 
       <ResizablePanel defaultSize={65} className="bg-slate-900">
         <div className="grid-rows-editor grid h-full">
-          <EditorHeader problem={problem} />
+          <EditorHeader problem={problem} contestId={contestId} />
           <CodeEditor
             value={code}
             language={language as Language}
