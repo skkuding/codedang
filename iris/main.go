@@ -29,6 +29,7 @@ const (
 
 func main() {
 	observability.SetGlobalMeterProvider()
+	// Aynchronous Instruments로써, go routine 불필요
 	observability.GetMemoryMeter(otel.Meter("memory-metrics"))
 	observability.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
 
