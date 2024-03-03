@@ -19,7 +19,7 @@ import Loading from '../app/problem/[problemId]/loading'
 import EditorHeader from './EditorHeader'
 
 interface ProblemEditorProps {
-  contestId?: string
+  contestId?: string | null
   problem: ProblemDetail
   children: React.ReactNode
 }

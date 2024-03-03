@@ -34,7 +34,7 @@ import { toast } from 'sonner'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
-  contestId?: string
+  contestId?: string | null
 }
 
 export default function Editor({ problem, contestId }: ProblemEditorProps) {

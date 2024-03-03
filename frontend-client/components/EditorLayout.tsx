@@ -15,7 +15,7 @@ import {
 } from './ui/dropdown-menu'
 
 interface EditorLayoutProps {
-  contestId?: string
+  contestId?: string | null
   problemId: string
   children: React.ReactNode
 }
