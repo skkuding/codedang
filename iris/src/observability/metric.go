@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/shirou/gopsutil/cpu"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/metric"
@@ -74,6 +75,28 @@ func GetMemoryMeter(meter metric.Meter) {
 			var m runtime.MemStats
 			runtime.ReadMemStats(&m)
 			o.Observe(int64(m.HeapAlloc))
+			return nil
+		}),
+	); err != nil {
+		panic(err)
+	}
+}
+
+func GetCPUMeter(meter metric.Meter, duration time.Duration) {
+	// 일단 전체 CPU Usage를 추적합니다.
+	// 추후에, CPU별로 Usage 추적이 필요할 경우 true로 설정합니다.
+
+	//Cpu시간을 cpu.comman함수로 ctx를 중지시키고, Duration 차이에 해당하는 CPU time의 차를 계산합니다.
+	// busy := t.User + t.System + t.Nice + t.Iowait + t.Irq + t.Softirq + t.Steal 시간의 전체를 CPU usage 계산에 사용합니다.
+	if _, err := meter.Float64ObservableGauge(
+		"cpu.usage",
+		metric.WithDescription(
+			"All CPU",
+		),
+		metric.WithUnit("%"),
+		metric.WithFloat64Callback(func(_ context.Context, o metric.Float64Observer) error {
+			cpuPercent, _ := cpu.Percent(duration, false)
+			o.Observe(float64(cpuPercent[0]))
 			return nil
 		}),
 	); err != nil {

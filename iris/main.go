@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/skkuding/codedang/iris/src/connector"
 	"github.com/skkuding/codedang/iris/src/connector/rabbitmq"
@@ -29,6 +30,7 @@ const (
 func main() {
 	observability.SetGlobalMeterProvider()
 	observability.GetMemoryMeter(otel.Meter("memory-metrics"))
+	observability.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
 
 	// profile()
 	env := Env(utils.Getenv("APP_ENV", "development"))
