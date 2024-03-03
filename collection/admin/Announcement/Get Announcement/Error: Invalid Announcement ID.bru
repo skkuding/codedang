@@ -1,0 +1,35 @@
+meta {
+  name: Error: Invalid Announcement ID
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getAnnouncementById(
+      id: $id
+    ) {
+    	id
+      problemId
+      contestId
+      content
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "id": -999999
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+}

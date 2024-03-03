@@ -1,0 +1,59 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createAnnouncement(
+      createAnnouncementInput: {
+        problemId: $problemId
+        contestId: $contestId
+        content: $content
+      }
+    ) {
+      id
+      problemId
+      content
+    }
+  }
+  
+  
+}
+
+body:graphql:vars {
+  {
+    "problemId": 1,
+    "contestId": 1,
+    "content": "this is new announcement"
+  }
+}
+
+assert {
+  res.body.data.createAnnouncement: isDefined
+}
+
+docs {
+  ## Create Announcement
+  새로운 Announcement를 생성합니다.
+  
+  ### Args
+  | 이름 | 타입 | 설명|
+  |--|--|--|
+  |problemId|int(optional)|Announcement를 추가할 문제의 id|
+  |contestId|int|Announcement를 추가할 contest의 id|
+  |content|string|추가할 Announcement의 내용|
+  
+  ### Error Case
+  #### CONFLICT
+  추가하려는 것과 problemId, content가 모두 일치하는 Announcement가 이미 존재
+  #### NOT_FOUND
+  존재하지 않는 problemId
+}

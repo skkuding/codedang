@@ -1,0 +1,49 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getAnnouncementById(
+      id: $id
+    ) {
+    	id
+      problemId
+      contestId
+      content
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "id": 1
+  }
+}
+
+assert {
+  res.body.data.getAnnouncementById: isDefined
+}
+
+docs {
+  ## Get Announcement
+  Announcement의 정보를 조회합니다.
+  
+  ### Args
+  | 이름 | 타입 | 설명|
+  |--|--|--|
+  |id|int|조회할 Announcement의 id|
+  
+  ### Error Case
+  #### NOT_FOUND
+  존재하지 않는 id
+}

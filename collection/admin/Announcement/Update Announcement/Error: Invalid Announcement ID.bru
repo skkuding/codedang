@@ -1,0 +1,36 @@
+meta {
+  name: Error: Invalid Announcement ID
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    updateAnnouncement(
+      id: $id
+      content: $content
+    ) {
+      id
+      problemId
+      content
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "id": -99999,
+    "content": "updated announcement"
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+}

@@ -6,10 +6,10 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
-import { UserGroup } from '@generated'
-import { User } from '@generated'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
+import { UserGroup } from '@admin/@generated'
+import { User } from '@admin/@generated'
 import { GroupMember } from './model/groupMember.model'
 import { UserService } from './user.service'
 

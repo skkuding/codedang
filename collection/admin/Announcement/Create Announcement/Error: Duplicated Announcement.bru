@@ -1,0 +1,38 @@
+meta {
+  name: Error: Duplicated Announcement
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createAnnouncement(
+      createAnnouncementInput: {
+        problemId: $problemId
+        content: $content
+      }
+    ) {
+      id
+      problemId
+      content
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "problemId": 1,
+    "contestId": 1,
+    "content": "this is new announcement"
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+}
