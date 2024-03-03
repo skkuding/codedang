@@ -31,6 +31,13 @@ func SandboxResultCodeToJudgeResultCode(code sandbox.ResultCode) JudgeResultCode
 	return ACCEPTED
 }
 
+func ParseError(j JudgeResult) error {
+	if j.ResultCode != ACCEPTED {
+		return resultCodeToError(j.ResultCode)
+	}
+	return nil
+}
+
 func ParseFirstError(j []JudgeResult) error {
 	for _, res := range j {
 		if res.ResultCode != ACCEPTED {

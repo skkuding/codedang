@@ -83,6 +83,7 @@ func (p *producer) confirmHandler(confirms chan amqp.Confirmation) {
 			// log.Printf("waiting for confirmation of %d", publishSeqNo)
 			m[publishSeqNo] = false
 		case confirmed := <-confirms:
+			p.logger.Log(logger.DEBUG, fmt.Sprintf("tag : %d", confirmed.DeliveryTag))
 			if confirmed.DeliveryTag > 0 {
 				if confirmed.Ack {
 					p.logger.Log(logger.DEBUG, fmt.Sprintf("confirmed delivery with delivery tag: %d", confirmed.DeliveryTag))

@@ -46,52 +46,16 @@ export const submissionResults: SubmissionResult[] = [
 
 export const judgerResponse: JudgerResponse = {
   resultCode: 6,
-  submissionId: '1',
+  submissionId: 1,
   error: '',
-  data: {
-    acceptedNum: 2,
-    totalTestcase: 4,
-    judgeResult: [
-      {
-        testcaseId: '1:1',
-        resultCode: 0,
-        cpuTime: 12345,
-        realTime: 20000,
-        memory: 12345,
-        signal: 0,
-        exitCode: 0,
-        errorCode: 0
-      },
-      {
-        testcaseId: '1:2',
-        resultCode: 0,
-        cpuTime: 12345,
-        realTime: 20000,
-        memory: 12345,
-        signal: 0,
-        exitCode: 0,
-        errorCode: 0
-      },
-      {
-        testcaseId: '1:3',
-        resultCode: 1,
-        cpuTime: 12345,
-        realTime: 20000,
-        memory: 12345,
-        signal: 0,
-        exitCode: 0,
-        errorCode: 0
-      },
-      {
-        testcaseId: '1:4',
-        resultCode: 6,
-        cpuTime: 12345,
-        realTime: 20000,
-        memory: 12345,
-        signal: 0,
-        exitCode: 0,
-        errorCode: 0
-      }
-    ]
+  judgeResult: {
+    testcaseId: '1:1',
+    resultCode: 0,
+    cpuTime: 12345,
+    realTime: 20000,
+    memory: 12345,
+    signal: 0,
+    exitCode: 0,
+    errorCode: 0
   }
 }

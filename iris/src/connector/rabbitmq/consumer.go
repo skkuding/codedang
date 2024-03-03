@@ -87,6 +87,8 @@ func (c *consumer) Subscribe() (<-chan amqp.Delivery, error) {
 }
 
 func (c *consumer) CleanUp() error {
+
+	c.logger.Log(logger.DEBUG, "consumer clean up")
 	// Close channel
 	if err := c.channel.Cancel(c.tag, true); err != nil {
 		return fmt.Errorf("Consumer cancel failed: %w", err)

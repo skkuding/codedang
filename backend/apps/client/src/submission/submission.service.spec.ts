@@ -29,7 +29,8 @@ const db = {
     update: stub()
   },
   submissionResult: {
-    create: stub()
+    create: stub(),
+    createMany: stub()
   },
   problem: {
     findFirstOrThrow: stub(),
@@ -255,24 +256,21 @@ describe('SubmissionService', () => {
       const target: JudgerResponse = {
         resultCode: 7,
         error: 'succeed',
-        submissionId: '1',
-        data: {
-          acceptedNum: 1,
-          totalTestcase: 1,
-          judgeResult: [
-            {
-              testcaseId: '1',
-              resultCode: 1,
-              cpuTime: 1,
-              realTime: 1,
-              memory: 1,
-              signal: 1,
-              exitCode: 1,
-              errorCode: 1
-            }
-          ]
+        submissionId: 1,
+        judgeResult: {
+          testcaseId: '1',
+          resultCode: 1,
+          cpuTime: 1,
+          realTime: 1,
+          memory: 1,
+          signal: 1,
+          exitCode: 1,
+          errorCode: 1
         }
       }
+
+      db.submission.findFirstOrThrow.resolves(submissions[0])
+      db.problem.findFirstOrThrow.resolves(problems[0])
 
       await expect(service.handleJudgerMessage(target)).to.be.rejectedWith(
         UnprocessableDataException
@@ -284,6 +282,7 @@ describe('SubmissionService', () => {
     it('should call update submission result', async () => {
       db.submission.update.reset()
       db.submission.update.resolves(submissions[0])
+      db.submission.findFirstOrThrow.resolves(submissions[0])
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.update.reset()
       submissionResults.forEach((result, index) => {
@@ -293,7 +292,9 @@ describe('SubmissionService', () => {
       await service.updateSubmissionResult(
         submissions[0].id,
         ResultStatus.CompileError,
-        submissionResults
+        {
+          result: ResultStatus.CompileError
+        }
       )
       expect(db.submission.update.calledOnce).to.be.true
       expect(db.problem.update.calledOnce).to.be.true
@@ -326,7 +327,7 @@ describe('SubmissionService', () => {
       const testcaseResult = submissionResults.map((result) => {
         return {
           ...result,
-          cpuTime: result.cpuTime.toString()
+          cpuTime: result.cpuTime ? result.cpuTime.toString() : null
         }
       })
 
@@ -463,22 +464,16 @@ describe('SubmissionService', () => {
       const target: JudgerResponse = {
         resultCode: 5,
         error: 'succeed',
-        submissionId: '1',
-        data: {
-          acceptedNum: 1,
-          totalTestcase: 1,
-          judgeResult: [
-            {
-              testcaseId: '1',
-              resultCode: 1,
-              cpuTime: 1,
-              realTime: 1,
-              memory: 1,
-              signal: 1,
-              exitCode: 1,
-              errorCode: 1
-            }
-          ]
+        submissionId: 1,
+        judgeResult: {
+          testcaseId: '1',
+          resultCode: 1,
+          cpuTime: 1,
+          realTime: 1,
+          memory: 1,
+          signal: 1,
+          exitCode: 1,
+          errorCode: 1
         }
       }
 
@@ -491,28 +486,22 @@ describe('SubmissionService', () => {
   it('should handle message without error', async () => {
     const target = {
       resultCode: 0,
-      submissionId: '1',
+      submissionId: 1,
       error: '',
-      data: {
-        acceptedNum: 1,
-        totalTestcase: 1,
-        judgeResult: [
-          {
-            testcaseId: '18:30',
-            resultCode: 0,
-            cpuTime: 0,
-            realTime: 0,
-            memory: 1044480,
-            signal: 0,
-            exitCode: 0,
-            errorCode: 0
-          }
-        ]
+      judgeResult: {
+        testcaseId: '18:30',
+        resultCode: 0,
+        cpuTime: 0,
+        realTime: 0,
+        memory: 1044480,
+        signal: 0,
+        exitCode: 0,
+        errorCode: 0
       }
     }
 
     const result = await service.validateJudgerResponse(target)
-
+    console.log(result)
     expect(result).to.be.deep.equal(target)
   })
 

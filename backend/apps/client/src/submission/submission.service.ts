@@ -30,6 +30,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { SubmissionResultCreateManyInput } from '@admin/@generated'
 import {
   type CreateSubmissionDto,
   Snippet,
@@ -326,30 +327,32 @@ export class SubmissionService implements OnModuleInit {
   }
 
   async handleJudgerMessage(msg: JudgerResponse) {
-    const submissionId = parseInt(msg.submissionId)
+    const submissionId = msg.submissionId
     const resultStatus = Status(msg.resultCode)
 
     if (resultStatus === ResultStatus.ServerError) {
-      await this.updateSubmissionResult(submissionId, resultStatus, [])
+      await this.updateSubmissionResult(submissionId, resultStatus, {
+        result: ResultStatus.ServerError
+      })
       throw new UnprocessableDataException(
-        `${msg.submissionId} ${msg.error} ${msg.data}`
+        `${msg.submissionId} ${msg.error} ${msg.judgeResult}`
       )
     }
 
     // TODO: 컴파일 메시지 데이터베이스에 저장하기
     if (resultStatus === ResultStatus.CompileError) {
-      await this.updateSubmissionResult(submissionId, resultStatus, [])
+      await this.updateSubmissionResult(submissionId, resultStatus, {
+        result: ResultStatus.CompileError
+      })
       return
     }
 
-    const results = msg.data.judgeResult.map((result) => {
-      return {
-        problemTestcaseId: parseInt(result.testcaseId.split(':')[1], 10),
-        result: Status(result.resultCode),
-        cpuTime: BigInt(result.cpuTime),
-        memoryUsage: result.memory
-      }
-    })
+    const results = {
+      problemTestcaseId: parseInt(msg.judgeResult.testcaseId.split(':')[1], 10),
+      result: Status(msg.judgeResult.resultCode),
+      cpuTime: BigInt(msg.judgeResult.cpuTime),
+      memoryUsage: msg.judgeResult.memory
+    }
 
     await this.updateSubmissionResult(submissionId, resultStatus, results)
   }
@@ -357,29 +360,47 @@ export class SubmissionService implements OnModuleInit {
   async updateSubmissionResult(
     id: number,
     resultStatus: ResultStatus,
-    results: Array<
-      Partial<SubmissionResult> &
-        Pick<SubmissionResult, 'result' | 'cpuTime' | 'memoryUsage'>
-    >
+    result: Partial<SubmissionResult> & Pick<SubmissionResult, 'result'>
   ) {
-    await Promise.all(
-      results.map(
-        async (result) =>
-          await this.prisma.submissionResult.create({
-            data: {
-              submission: {
-                connect: { id }
-              },
-              problemTestcase: {
-                connect: { id: result.problemTestcaseId }
-              },
-              result: result.result,
-              cpuTime: result.cpuTime,
-              memoryUsage: result.memoryUsage
+    if (result.problemTestcaseId)
+      await this.prisma.submissionResult.create({
+        data: {
+          submissionId: id,
+          problemTestcaseId: result.problemTestcaseId,
+          result: result.result,
+          cpuTime: result.cpuTime,
+          memoryUsage: result.memoryUsage
+        }
+      })
+    else {
+      const testcases = (
+        await this.prisma.submission.findFirstOrThrow({
+          where: {
+            id
+          },
+          include: {
+            problem: {
+              include: {
+                problemTestcase: {
+                  select: {
+                    id: true
+                  }
+                }
+              }
             }
-          })
-      )
-    )
+          }
+        })
+      ).problem.problemTestcase
+      await this.prisma.submissionResult.createMany({
+        data: testcases.map((tc): SubmissionResultCreateManyInput => {
+          return {
+            submissionId: id,
+            problemTestcaseId: tc.id,
+            result: result.result
+          }
+        })
+      })
+    }
 
     // FIXME: 현재 코드는 message 하나에 특정 problem에 대한 모든 테스트케이스의 채점 결과가 전송된다고 가정하고, 이를 받아서 submission의 overall result를 업데이트합니다.
     //        테스트케이스별로 DB 업데이트가 이루어진다면 아래 코드를 수정해야 합니다.
@@ -516,7 +537,7 @@ export class SubmissionService implements OnModuleInit {
       const results = submission.submissionResult.map((result) => {
         return {
           ...result,
-          cpuTime: result.cpuTime.toString()
+          cpuTime: result.cpuTime ? result.cpuTime.toString() : null
         }
       })
 
