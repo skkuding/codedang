@@ -1,5 +1,8 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
+import { ContestProblem, Group } from '@generated'
+import { Problem } from '@generated'
+import { Contest } from '@generated'
 import { faker } from '@faker-js/faker'
 import { Prisma } from '@prisma/client'
 import type { Cache } from 'cache-manager'
@@ -7,10 +10,8 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { ContestProblem, Group } from '@admin/@generated'
-import { Problem } from '@admin/@generated'
-import { Contest } from '@admin/@generated/contest/contest.model'
 import { ContestService } from './contest.service'
+import type { ContestWithParticipants } from './model/contest-with-participants.model'
 import type {
   CreateContestInput,
   UpdateContestInput
@@ -21,6 +22,10 @@ const contestId = 1
 const userId = 1
 const groupId = 1
 const problemId = 2
+const startTime = faker.date.past()
+const endTime = faker.date.future()
+const createTime = faker.date.past()
+const updateTime = faker.date.past()
 
 const contest: Contest = {
   id: contestId,
@@ -28,14 +33,51 @@ const contest: Contest = {
   groupId,
   title: 'title',
   description: 'description',
-  startTime: faker.date.past(),
-  endTime: faker.date.future(),
+  startTime,
+  endTime,
   config: {
     isVisible: true,
     isRankVisible: true
   },
-  createTime: faker.date.past(),
-  updateTime: faker.date.past()
+  createTime,
+  updateTime
+}
+
+const contestWithCount = {
+  id: contestId,
+  createdById: userId,
+  groupId,
+  title: 'title',
+  description: 'description',
+  startTime,
+  endTime,
+  config: {
+    isVisible: true,
+    isRankVisible: true
+  },
+  createTime,
+  updateTime,
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  _count: {
+    contestRecord: 10
+  }
+}
+
+const contestWithParticipants: ContestWithParticipants = {
+  id: contestId,
+  createdById: userId,
+  groupId,
+  title: 'title',
+  description: 'description',
+  startTime,
+  endTime,
+  config: {
+    isVisible: true,
+    isRankVisible: true
+  },
+  createTime,
+  updateTime,
+  participants: 10
 }
 
 const group: Group = {
@@ -61,6 +103,7 @@ const problem: Problem = {
   inputDescription: 'inputdescription',
   outputDescription: 'outputdescription',
   hint: 'hint',
+  isVisible: true,
   template: [],
   languages: ['C'],
   timeLimit: 10000,
@@ -70,11 +113,15 @@ const problem: Problem = {
   exposeTime: faker.date.past(),
   createTime: faker.date.past(),
   updateTime: faker.date.past(),
-  inputExamples: ['input'],
-  outputExamples: ['input'],
+  samples: [],
   submissionCount: 0,
   acceptedCount: 0,
-  acceptedRate: 0
+  acceptedRate: 0,
+  engDescription: null,
+  engHint: null,
+  engInputDescription: null,
+  engOutputDescription: null,
+  engTitle: null
 }
 
 const contestProblem: ContestProblem = {
@@ -175,10 +222,10 @@ describe('ContestService', () => {
 
   describe('getContests', () => {
     it('should return an array of contests', async () => {
-      db.contest.findMany.resolves([contest])
+      db.contest.findMany.resolves([contestWithCount])
 
       const res = await service.getContests(5, 2, 0)
-      expect(res).to.deep.equal([contest])
+      expect(res).to.deep.equal([contestWithParticipants])
     })
   })
 

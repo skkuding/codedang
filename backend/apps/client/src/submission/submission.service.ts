@@ -1,4 +1,6 @@
+import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
 import {
   ResultStatus,
@@ -7,6 +9,7 @@ import {
   type Language,
   type Problem
 } from '@prisma/client'
+import type { AxiosRequestConfig } from 'axios'
 import { plainToInstance } from 'class-transformer'
 import { ValidationError, validateOrReject } from 'class-validator'
 import {
@@ -41,9 +44,10 @@ export class SubmissionService implements OnModuleInit {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpConnection: AmqpConnection
+    private readonly amqpConnection: AmqpConnection,
+    private readonly configService: ConfigService,
+    private readonly httpService: HttpService
   ) {}
-
   onModuleInit() {
     this.amqpConnection.createSubscriber(
       async (msg: object) => {
@@ -154,10 +158,7 @@ export class SubmissionService implements OnModuleInit {
     ) {
       throw new ConflictFoundException('You already got AC for this problem')
     }
-    return await this.createSubmission({
-      submissionDto,
-      problem,
-      userId,
+    return await this.createSubmission(submissionDto, problem, {
       contestId
     })
   }
@@ -185,27 +186,19 @@ export class SubmissionService implements OnModuleInit {
       throw new EntityNotExistException('problem')
     }
 
-    return await this.createSubmission({
-      submissionDto,
-      problem,
-      userId,
+    return await this.createSubmission(submissionDto, problem, userId, {
       workbookId
     })
   }
 
-  async createSubmission({
-    submissionDto,
-    problem,
-    userId,
-    contestId,
-    workbookId
-  }: {
-    submissionDto: CreateSubmissionDto
-    problem: Problem
-    userId: number
-    contestId?: number
-    workbookId?: number
-  }) {
+  async createSubmission(
+    submissionDto: CreateSubmissionDto,
+    problem: Problem,
+    userId: number,
+    idOptions?: { contestId?: number; workbookId?: number }
+  ) {
+    let submission: Submission
+
     if (!problem.languages.includes(submissionDto.language)) {
       throw new ConflictFoundException(
         `This problem does not support language ${submissionDto.language}`
@@ -222,17 +215,29 @@ export class SubmissionService implements OnModuleInit {
       throw new ConflictFoundException('Modifying template is not allowed')
     }
 
-    const submission = await this.prisma.submission.create({
-      data: {
-        code: code.map((snippet) => ({ ...snippet })), // convert to plain object
-        result: ResultStatus.Judging,
-        userId,
-        problemId: problem.id,
-        contestId,
-        workbookId,
-        ...data
-      }
-    })
+    const submissionData = {
+      code: code.map((snippet) => ({ ...snippet })), // convert to plain object
+      result: ResultStatus.Judging,
+      userId,
+      problemId: problem.id,
+      codeSize: new TextEncoder().encode(code[0].text).length,
+      ...data
+    }
+
+    if (idOptions && idOptions.contestId) {
+      submission = await this.prisma.submission.create({
+        data: { ...submissionData, contestId: idOptions.contestId }
+      })
+    } else if (idOptions && idOptions.workbookId) {
+      submission = await this.prisma.submission.create({
+        data: { ...submissionData, workbookId: idOptions.workbookId }
+      })
+    } else {
+      submission = await this.prisma.submission.create({
+        data: submissionData
+      })
+    }
+
     await this.publishJudgeRequestMessage(code, submission)
 
     return submission
@@ -267,6 +272,38 @@ export class SubmissionService implements OnModuleInit {
     return Math.floor(Math.random() * 16777215)
       .toString(16)
       .padStart(6, '0')
+  }
+
+  async checkDelay() {
+    const baseUrl = this.configService.get(
+      'RABBITMQ_API_URL',
+      'http://127.0.0.1:15672/api'
+    )
+
+    const url =
+      baseUrl +
+      '/queues/' +
+      this.configService.get('RABBITMQ_DEFAULT_VHOST') +
+      '/' +
+      this.configService.get('JUDGE_SUBMISSION_QUEUE_NAME')
+
+    const config: AxiosRequestConfig = {
+      method: 'GET',
+      withCredentials: true,
+      auth: {
+        username: this.configService.get('RABBITMQ_DEFAULT_USER', ''),
+        password: this.configService.get('RABBITMQ_DEFAULT_PASS', '')
+      }
+    }
+    const res = await this.httpService.axiosRef(url, config)
+    const threshold = 0.9
+
+    if (res.status == 200) {
+      if (res.data.consumer_capacity > threshold) return { isDelay: false }
+      return { isDelay: true, cause: 'Judge server is not working.' }
+    } else {
+      return { isDelay: true, cause: 'RabbitMQ is not working.' }
+    }
   }
 
   async publishJudgeRequestMessage(code: Snippet[], submission: Submission) {
@@ -496,7 +533,7 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    return await this.prisma.submission.findMany({
+    const submissions = await this.prisma.submission.findMany({
       ...paginator,
       take,
       where: {
@@ -511,9 +548,13 @@ export class SubmissionService implements OnModuleInit {
         },
         createTime: true,
         language: true,
-        result: true
-      }
+        result: true,
+        codeSize: true
+      },
+      orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
+
+    return submissions
   }
 
   async getSubmission(
@@ -548,7 +589,8 @@ export class SubmissionService implements OnModuleInit {
         code: true,
         createTime: true,
         result: true,
-        submissionResult: true
+        submissionResult: true,
+        codeSize: true
       }
     })
     if (
@@ -647,8 +689,10 @@ export class SubmissionService implements OnModuleInit {
         },
         createTime: true,
         language: true,
-        result: true
-      }
+        result: true,
+        codeSize: true
+      },
+      orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
   }
 
@@ -690,7 +734,8 @@ export class SubmissionService implements OnModuleInit {
       },
       select: {
         userId: true,
-        submissionResult: true
+        submissionResult: true,
+        codeSize: true
       }
     })
     this.logger.debug('pass')

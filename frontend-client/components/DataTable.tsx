@@ -9,7 +9,6 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import type { Contest, Notice, Problem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -18,7 +17,11 @@ import {
 } from '@tanstack/react-table'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+
+interface Item {
+  id: number
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -26,7 +29,7 @@ interface DataTableProps<TData, TValue> {
   headerStyle: {
     [key: string]: string
   }
-  name: string
+  linked?: boolean
 }
 
 /**
@@ -38,6 +41,8 @@ interface DataTableProps<TData, TValue> {
  * tailwindcss class name for each header
  * @param name
  * name of the table, used for routing
+ * @param linked
+ * if true, each row is linked to the detail page
  * @example
  * ```tsx
  * // page.tsx
@@ -47,6 +52,7 @@ interface DataTableProps<TData, TValue> {
  *  createTime: 'w-1/4 md:w-1/6'
  *  }}
  *  name="notice"
+ * linked # for routing
  * />
  * ```
  * ```tsx
@@ -63,16 +69,19 @@ interface DataTableProps<TData, TValue> {
  * ```
  */
 
-export default function DataTable<
-  TData extends Notice | Contest | Problem,
-  TValue
->({ columns, data, headerStyle, name }: DataTableProps<TData, TValue>) {
+export default function DataTable<TData extends Item, TValue>({
+  columns,
+  data,
+  headerStyle,
+  linked = false
+}: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel()
   })
   const router = useRouter()
+  const currentPath = usePathname()
 
   return (
     <Table className="table-fixed">
@@ -103,18 +112,23 @@ export default function DataTable<
       <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
-            const href = `/${name}/${row.original.id}` as Route
+            const href = `${currentPath}/${row.original.id}` as Route
+            const handleClick = linked
+              ? () => {
+                  router.push(href)
+                }
+              : (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                  e.currentTarget.classList.toggle('expanded')
+                }
             return (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
                 className="cursor-pointer"
-                onClick={() => {
-                  router.push(href)
-                }}
+                onClick={handleClick}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell key={cell.id} className="align-top">
                     <div className="text-center text-xs md:text-sm">
                       {flexRender(
                         cell.column.columnDef.cell,

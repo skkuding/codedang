@@ -8,7 +8,17 @@
     "schedule:weekly",
     ":label(dependencies)"
   ],
+  "constraints": {
+    "go": "1.19.1"
+  },
   "rangeStrategy": "bump",
   "reviewers": ["dotoleeoak"],
-  "lockFileMaintenance": { "enabled": true }
+  "lockFileMaintenance": { "enabled": true },
+  "ignoreDeps": ["reflect-metadata", "@nestjs-modules/mailer"],
+  "packageRules": [
+    {
+      "matchDatasources": ["golang-version"],
+      "enabled": false
+    }
+  ]
 }

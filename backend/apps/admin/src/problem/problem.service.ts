@@ -1,33 +1,42 @@
-import { Injectable } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Cache } from '@nestjs/cache-manager'
+import { Inject, Injectable } from '@nestjs/common'
 import { Language } from '@generated'
+import type { ContestProblem, Tag, WorkbookProblem } from '@generated'
+import { Level } from '@generated'
+import type { ProblemWhereInput } from '@generated'
 import { Workbook } from 'exceljs'
 import {
   DuplicateFoundException,
+  EntityNotExistException,
   UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import type { ContestProblem, WorkbookProblem } from '@admin/@generated'
-import { Level } from '@admin/@generated/prisma/level.enum'
-import type { ProblemWhereInput } from '@admin/@generated/problem/problem-where.input'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
 import type {
   CreateProblemInput,
   UploadFileInput,
   FilterProblemsInput,
-  UploadProblemInput,
   UpdateProblemInput,
   UpdateProblemTagInput
 } from './model/problem.input'
 import type { Template } from './model/template.input'
 import type { Testcase } from './model/testcase.input'
 
+type TestCaseInFile = {
+  id: string
+  input: string
+  output: string
+}
+
 @Injectable()
 export class ProblemService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly storageService: StorageService
+    private readonly storageService: StorageService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   async createProblem(
@@ -35,7 +44,7 @@ export class ProblemService {
     userId: number,
     groupId: number
   ) {
-    const { languages, template, tagIds, testcases, ...data } = input
+    const { languages, template, tagIds, samples, testcases, ...data } = input
     if (!languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
@@ -52,6 +61,9 @@ export class ProblemService {
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
+        samples: {
+          create: samples
+        },
         groupId,
         createdById: userId,
         languages,
@@ -61,6 +73,9 @@ export class ProblemService {
             return { tagId }
           })
         }
+      },
+      include: {
+        samples: true
       }
     })
     await this.createTestcases(problem.id, testcases)
@@ -115,8 +130,7 @@ export class ProblemService {
       )
 
     const header = {}
-    const problems: { index: number; data: UploadProblemInput }[] = []
-    const testcases: { [key: number]: Testcase[] } = {}
+    const problems: CreateProblemInput[] = []
 
     const workbook = new Workbook()
     const worksheet = (await workbook.xlsx.read(createReadStream()))
@@ -188,22 +202,6 @@ export class ProblemService {
       }
 
       //TODO: specify timeLimit, memoryLimit(default: 2sec, 512mb)
-      const problemInput = {
-        title,
-        description,
-        inputDescription: '',
-        outputDescription: '',
-        hint: '',
-        template,
-        languages,
-        timeLimit: 2000,
-        memoryLimit: 512,
-        difficulty: level,
-        source: '',
-        inputExamples: [],
-        outputExamples: []
-      }
-      problems.push({ index: rowNumber, data: problemInput })
 
       const testCnt = parseInt(row.getCell(header['TestCnt']).text)
       const inputText = row.getCell(header['Input']).text
@@ -235,34 +233,32 @@ export class ProblemService {
         testcaseInput.push({
           input: inputs[i],
           output: outputs[i],
-          scoreWeight: parseInt(scoreWeights[i])
+          scoreWeight: parseInt(scoreWeights[i]) || undefined
         })
       }
-      testcases[rowNumber] = testcaseInput
+
+      problems.push({
+        title,
+        description,
+        inputDescription: '',
+        isVisible: true,
+        outputDescription: '',
+        hint: '',
+        template,
+        languages,
+        timeLimit: 2000,
+        memoryLimit: 512,
+        difficulty: level,
+        source: '',
+        testcases: testcaseInput,
+        tagIds: [],
+        samples: []
+      })
     })
 
     return await Promise.all(
-      problems.map(async (problemInput) => {
-        const { index, data } = problemInput
-        const problem = await this.prisma.problem.create({
-          data: {
-            ...data,
-            createdBy: {
-              connect: {
-                id: userId
-              }
-            },
-            group: {
-              connect: {
-                id: groupId
-              }
-            },
-            template: [JSON.stringify(data.template)]
-          }
-        })
-        if (index in testcases) {
-          await this.createTestcases(problem.id, testcases[index])
-        }
+      problems.map(async (data) => {
+        const problem = await this.createProblem(data, userId, groupId)
         return problem
       })
     )
@@ -303,6 +299,7 @@ export class ProblemService {
         groupId
       },
       include: {
+        samples: true,
         problemTestcase: true,
         problemTag: {
           include: {
@@ -314,7 +311,7 @@ export class ProblemService {
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
-    const { id, languages, template, tags, testcases, ...data } = input
+    const { id, languages, template, tags, testcases, samples, ...data } = input
     const problem = await this.getProblem(id, groupId)
 
     if (languages && !languages.length) {
@@ -341,6 +338,14 @@ export class ProblemService {
       where: { id },
       data: {
         ...data,
+        samples: {
+          create: samples?.create,
+          delete: samples?.delete.map((deleteId) => {
+            return {
+              id: deleteId
+            }
+          })
+        },
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
         problemTag
@@ -382,84 +387,37 @@ export class ProblemService {
     }
   }
 
-  async updateTestcases(
-    problemId: number,
-    testcases: Array<Testcase & { id: number }>
-  ) {
-    const deletedIds: number[] = []
-    const createdOrUpdated: typeof testcases = []
+  async updateTestcases(problemId: number, testcases: Array<Testcase>) {
+    await Promise.all([
+      this.prisma.problemTestcase.deleteMany({
+        where: {
+          problemId
+        }
+      }),
+      this.cacheManager.del(`${problemId}`)
+    ])
+
+    const filename = `${problemId}.json`
+    const toBeUploaded: Array<TestCaseInFile> = []
 
     for (const tc of testcases) {
-      if (!tc.input && !tc.output) {
-        deletedIds.push(tc.id)
-      }
-      createdOrUpdated.push(tc)
-    }
-    if (deletedIds) {
-      await this.prisma.problemTestcase.deleteMany({
-        where: {
-          id: { in: deletedIds }
+      const problemTestcase = await this.prisma.problemTestcase.create({
+        data: {
+          problemId,
+          input: filename,
+          output: filename,
+          scoreWeight: tc.scoreWeight
         }
       })
+      toBeUploaded.push({
+        id: `${problemId}:${problemTestcase.id}`,
+        input: tc.input,
+        output: tc.output
+      })
     }
-    if (createdOrUpdated) {
-      const filename = `${problemId}.json`
-      const uploaded: Array<Testcase & { id: number }> = JSON.parse(
-        await this.storageService.readObject(filename)
-      )
 
-      const updatedIds = (
-        await this.prisma.problemTestcase.findMany({
-          where: {
-            id: { in: createdOrUpdated.map((tc) => tc.id) }
-          }
-        })
-      ).map((tc) => tc.id)
-      await Promise.all(
-        createdOrUpdated
-          .filter((tc) => !updatedIds.includes(tc.id))
-          .map(async (tc) => {
-            await this.prisma.problemTestcase.update({
-              where: {
-                id: tc.id
-              },
-              data: {
-                scoreWeight: tc.scoreWeight
-              }
-            })
-
-            const i = uploaded.findIndex((record) => record.id === tc.id)
-            uploaded[i] = {
-              id: tc.id,
-              input: tc.output,
-              output: tc.output
-            }
-          })
-      )
-
-      await Promise.all(
-        createdOrUpdated
-          .filter((tc) => !updatedIds.includes(tc.id))
-          .map(async (tc) => {
-            const problemTestcase = await this.prisma.problemTestcase.create({
-              data: {
-                problemId,
-                input: filename,
-                output: filename,
-                scoreWeight: tc.scoreWeight
-              }
-            })
-            uploaded.push({
-              id: problemTestcase.id,
-              input: tc.input,
-              output: tc.output
-            })
-          })
-      )
-
-      const data = JSON.stringify(uploaded)
-      await this.storageService.uploadObject(filename, data, 'json')
-    }
+    const data = JSON.stringify(toBeUploaded)
+    await this.storageService.uploadObject(filename, data, 'json')
   }
 
   async deleteProblem(id: number, groupId: number) {
@@ -550,20 +508,18 @@ export class ProblemService {
       where: { id: contestId, groupId }
     })
 
-    const contestProblemsToBeUpdated =
-      await this.prisma.contestProblem.findMany({
-        where: { contestId }
-      })
+    const contestProblems = await this.prisma.contestProblem.findMany({
+      where: { contestId }
+    })
 
-    if (orders.length !== contestProblemsToBeUpdated.length) {
+    if (orders.length !== contestProblems.length) {
       throw new UnprocessableDataException(
-        'the len of orders and the len of contestProblem are not equal.'
+        'the length of orders and the length of contestProblem are not equal.'
       )
     }
-    //problemId 기준으로 오름차순 정렬
-    contestProblemsToBeUpdated.sort((a, b) => a.problemId - b.problemId)
-    const queries = contestProblemsToBeUpdated.map((record) => {
-      const newOrder = orders.indexOf(record.problemId) + 1
+
+    const queries = contestProblems.map((record) => {
+      const newOrder = orders.indexOf(record.problemId)
       return this.prisma.contestProblem.update({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -577,5 +533,43 @@ export class ProblemService {
     })
 
     return await this.prisma.$transaction(queries)
+  }
+
+  async getTags(): Promise<Partial<Tag>[]> {
+    return await this.prisma.tag.findMany()
+  }
+
+  async getTag(tagId: number) {
+    const tag = await this.prisma.tag.findUnique({
+      where: {
+        id: tagId
+      }
+    })
+    if (tag == null) {
+      throw new EntityNotExistException('problem')
+    }
+    return tag
+  }
+
+  async getProblemTags(problemId: number) {
+    return await this.prisma.problemTag.findMany({
+      where: {
+        problemId
+      }
+    })
+  }
+
+  async getProblemTestcases(problemId: number) {
+    const testcases: Array<Testcase & { id: string }> = JSON.parse(
+      await this.storageService.readObject(`${problemId}.json`)
+    )
+
+    // TODO: Remove this code after refactoring iris code
+    return testcases.map((tc) => {
+      return {
+        ...tc,
+        id: tc.id.split(':')[1]
+      }
+    })
   }
 }

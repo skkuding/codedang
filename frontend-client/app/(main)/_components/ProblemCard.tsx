@@ -14,14 +14,14 @@ export default function ProblemCard({ problem }: Props) {
         <Badge
           type={problem.difficulty}
         >{`Level ${problem.difficulty[5]}`}</Badge>
-        <CardTitle className="overflow-hidden text-ellipsis text-nowrap text-lg font-semibold">
-          {`#${problem.problemId} ${problem.title}`}
+        <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap text-lg font-semibold">
+          {`#${problem.id} ${problem.title}`}
         </CardTitle>
       </CardHeader>
 
       <CardContent className="flex items-center gap-1 text-xs text-gray-500">
         <MdOutlineSubdirectoryArrowRight />
-        Solved Rate {/*TODO: 백엔드 API 변경되면 AC Rate 값 추가*/}%
+        Solved Rate {(problem.acceptedRate * 100).toFixed(2)}%
       </CardContent>
     </Card>
   )

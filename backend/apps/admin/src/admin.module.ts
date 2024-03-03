@@ -1,9 +1,10 @@
 import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo'
 import { CacheModule } from '@nestjs/cache-manager'
-import { Module } from '@nestjs/common'
+import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_GUARD } from '@nestjs/core'
+import { APP_GUARD, APP_FILTER, HttpAdapterHost } from '@nestjs/core'
 import { GraphQLModule } from '@nestjs/graphql'
+import type { Server } from 'http'
 import { LoggerModule } from 'nestjs-pino'
 import {
   JwtAuthModule,
@@ -12,8 +13,11 @@ import {
   GroupLeaderGuard
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
-import { pinoLoggerModuleOption } from '@libs/logger'
+import { AdminExceptionFilter } from '@libs/exception'
+import { apolloErrorFormatter } from '@libs/exception'
+import { LoggingPlugin, pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
+import { NoticeModule } from '@admin/notice/notice.module'
 import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { AnnouncementModule } from './announcement/announcement.module'
@@ -34,7 +38,8 @@ import { UserModule } from './user/user.module'
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
       sortSchema: true,
-      introspection: true
+      introspection: true,
+      formatError: apolloErrorFormatter
     }),
     CacheModule.registerAsync({
       isGlobal: true,
@@ -49,13 +54,27 @@ import { UserModule } from './user/user.module'
     GroupModule,
     UserModule,
     AnnouncementModule,
+    NoticeModule,
     LoggerModule.forRoot(pinoLoggerModuleOption)
   ],
   controllers: [AdminController],
   providers: [
     AdminService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: GroupLeaderGuard }
+    { provide: APP_GUARD, useClass: GroupLeaderGuard },
+    { provide: APP_FILTER, useClass: AdminExceptionFilter },
+    LoggingPlugin
   ]
 })
-export class AdminModule {}
+export class AdminModule implements OnApplicationBootstrap {
+  constructor(private readonly refHost: HttpAdapterHost) {}
+
+  onApplicationBootstrap() {
+    // Keep-Alive timeout of reverse proxy must be longer than of the backend
+    // Set timeout of Caddy to 60s and of the backend to 61s to avoid timeout error
+    // https://adamcrowder.net/posts/node-express-api-and-aws-alb-502/
+    const server: Server = this.refHost.httpAdapter.getHttpServer()
+    server.keepAliveTimeout = 61 * 1000
+    server.headersTimeout = 62 * 1000
+  }
+}

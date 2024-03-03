@@ -1,6 +1,4 @@
 import {
-  ConflictException,
-  ForbiddenException,
   InternalServerErrorException,
   Logger,
   NotFoundException,
@@ -9,18 +7,32 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
-import { Args, Context, Query, Int, Mutation, Resolver } from '@nestjs/graphql'
+import {
+  Args,
+  Context,
+  Query,
+  Int,
+  Mutation,
+  Resolver,
+  ResolveField,
+  Parent
+} from '@nestjs/graphql'
+import {
+  ContestProblem,
+  Problem,
+  ProblemTag,
+  ProblemTestcase,
+  WorkbookProblem
+} from '@generated'
 import { Prisma } from '@prisma/client'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
-  EntityNotExistException,
   ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
-import { ContestProblem, Problem, WorkbookProblem } from '@admin/@generated'
 import {
   CreateProblemInput,
   UploadFileInput,
@@ -38,7 +50,11 @@ export class ProblemResolver {
   @Mutation(() => Problem)
   async createProblem(
     @Context('req') req: AuthenticatedRequest,
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
     @Args('input') input: CreateProblemInput
   ) {
@@ -50,7 +66,7 @@ export class ProblemResolver {
       )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+        throw error.convert2HTTPException()
       } else if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2003'
@@ -66,7 +82,11 @@ export class ProblemResolver {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async uploadProblems(
     @Context('req') req: AuthenticatedRequest,
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
     @Args('input') input: UploadFileInput
   ) {
@@ -78,7 +98,7 @@ export class ProblemResolver {
       )
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -87,11 +107,15 @@ export class ProblemResolver {
 
   @Query(() => [Problem])
   async getProblems(
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
-    @Args('take', { type: () => Int }) take: number,
+    @Args('take', { type: () => Int, defaultValue: 10 }) take: number,
     @Args('input') input: FilterProblemsInput
   ) {
     return await this.problemService.getProblems(input, groupId, cursor, take)
@@ -99,9 +123,13 @@ export class ProblemResolver {
 
   @Query(() => Problem)
   async getProblem(
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
-    @Args('id', new RequiredIntPipe('id')) id: number
+    @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     try {
       return await this.problemService.getProblem(id, groupId)
@@ -117,25 +145,50 @@ export class ProblemResolver {
     }
   }
 
+  @ResolveField('tag', () => [ProblemTag])
+  async getProblemTags(@Parent() problem: Problem) {
+    try {
+      return await this.problemService.getProblemTags(problem.id)
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @ResolveField('testcase', () => [ProblemTestcase])
+  async getProblemTestCases(@Parent() problem: Problem) {
+    try {
+      return await this.problemService.getProblemTestcases(problem.id)
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
   @Mutation(() => Problem)
   async updateProblem(
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
     @Args('input') input: UpdateProblemInput
   ) {
     try {
       return await this.problemService.updateProblem(input, groupId)
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof ConflictFoundException
+      ) {
+        throw error.convert2HTTPException()
       } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.name == 'NotFoundError') {
           throw new NotFoundException(error.message)
         } else if (error.code === 'P2003') {
           throw new UnprocessableEntityException(error.message)
         }
-      } else if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -144,9 +197,13 @@ export class ProblemResolver {
 
   @Mutation(() => Problem)
   async deleteProblem(
-    @Args('groupId', { defaultValue: OPEN_SPACE_ID }, GroupIDPipe)
+    @Args(
+      'groupId',
+      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      GroupIDPipe
+    )
     groupId: number,
-    @Args('id', new RequiredIntPipe('id')) id: number
+    @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     try {
       return await this.problemService.deleteProblem(id, groupId)
@@ -174,14 +231,15 @@ export class ProblemResolver {
     workbookId: number
   ) {
     try {
-      return this.problemService.getWorkbookProblems(groupId, workbookId)
+      return await this.problemService.getWorkbookProblems(groupId, workbookId)
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof ForbiddenAccessException
+      ) {
+        throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
-        throw new EntityNotExistException(error.message)
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
@@ -202,18 +260,19 @@ export class ProblemResolver {
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
     try {
-      return this.problemService.updateWorkbookProblemsOrder(
+      return await this.problemService.updateWorkbookProblemsOrder(
         groupId,
         workbookId,
         orders
       )
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof ForbiddenAccessException
+      ) {
+        throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
-        throw new EntityNotExistException(error.message)
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
@@ -232,14 +291,15 @@ export class ProblemResolver {
     contestId: number
   ) {
     try {
-      return this.problemService.getContestProblems(groupId, contestId)
+      return await this.problemService.getContestProblems(groupId, contestId)
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof ForbiddenAccessException
+      ) {
+        throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
-        throw new EntityNotExistException(error.message)
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)
@@ -259,18 +319,19 @@ export class ProblemResolver {
     @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
   ) {
     try {
-      return this.problemService.updateContestProblemsOrder(
+      return await this.problemService.updateContestProblemsOrder(
         groupId,
         contestId,
         orders
       )
     } catch (error) {
-      if (error instanceof UnprocessableDataException) {
-        throw new UnprocessableEntityException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof ForbiddenAccessException
+      ) {
+        throw error.convert2HTTPException()
       } else if (error.code == 'P2025') {
-        throw new EntityNotExistException(error.message)
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException(error.message)

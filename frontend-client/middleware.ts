@@ -1,8 +1,8 @@
-import { ACCESS_TOKEN_EXPIRE_TIME } from '@/lib/vars'
+import { ACCESS_TOKEN_EXPIRE_TIME } from '@/lib/constants'
 import { encode, getToken } from 'next-auth/jwt'
 import { parseCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 import { NextResponse, type NextRequest } from 'next/server'
-import { baseUrl } from './lib/vars'
+import { baseUrl } from './lib/constants'
 
 const getAuthToken = (res: Response) => {
   const Authorization = res.headers.get('authorization') as string
@@ -22,23 +22,29 @@ const sessionCookieName = process.env.NEXTAUTH_URL?.startsWith('https://')
   : 'next-auth.session-token'
 
 export const middleware = async (req: NextRequest) => {
-  let res = NextResponse.next()
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  if (
+    req.nextUrl.pathname.startsWith('/admin') &&
+    (!token || token.role === 'User')
+  )
+    return NextResponse.redirect(new URL('/', req.url))
+
   if (token && token.accessTokenExpires <= Date.now()) {
     // If access token is expired, reissue access token.
     const reissueRes = await fetch(baseUrl + '/auth/reissue', {
       headers: {
         cookie: `refresh_token=${token.refreshToken}`
-      }
+      },
+      cache: 'no-store'
     })
-    const {
-      accessToken,
-      refreshToken,
-      accessTokenExpires,
-      refreshTokenExpires
-    } = getAuthToken(reissueRes)
     if (reissueRes.ok) {
       // If reissue is successful, update session token.
+      const {
+        accessToken,
+        refreshToken,
+        accessTokenExpires,
+        refreshTokenExpires
+      } = getAuthToken(reissueRes)
       const newToken = await encode({
         secret: process.env.NEXTAUTH_SECRET as string,
         token: {
@@ -51,7 +57,7 @@ export const middleware = async (req: NextRequest) => {
         maxAge: 24 * 60 * 60 // 24 hours
       })
       req.cookies.set(sessionCookieName, newToken)
-      res = NextResponse.next({
+      const res = NextResponse.next({
         request: {
           headers: req.headers
         }
@@ -63,21 +69,22 @@ export const middleware = async (req: NextRequest) => {
         httpOnly: true,
         sameSite: 'lax'
       })
-    } else if (token.refreshTokenExpires <= Date.now()) {
-      // If reissue is failed and refresh token is expired, delete session token.
+      return res
+    } else if (reissueRes.status == 401) {
+      // If reissue is failed, delete session token.
       req.cookies.delete(sessionCookieName)
-      res = NextResponse.next({
+      const res = NextResponse.next({
         request: {
           headers: req.headers
         }
       })
       res.cookies.delete(sessionCookieName)
+      return res
     }
   }
-  if (
-    req.nextUrl.pathname.startsWith('/admin') &&
-    (!token || token.role !== 'Admin')
-  )
-    return NextResponse.redirect(new URL('/', req.url), res)
-  return res
+  return NextResponse.next({
+    request: {
+      headers: req.headers
+    }
+  })
 }

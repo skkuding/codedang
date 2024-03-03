@@ -32,24 +32,23 @@ script:pre-request {
 
 docs {
   ## Get Submissions
-  
+
   문제의 제출 내역을 가져옵니다.
-  
+
   ### Query
-  
+
   > 필수 query는 * 표시하였습니다.
-  
+
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |problemId *|Integer|문제 ID|
-  |contestId|Integer|문제가 속한 대회 ID|
   |groupId|Integer|문제가 속한 Group ID (default: 1)|
   |take|Integer|가져올 제출 내역 개수 (default: 10)|
   |cursor|Integer|cursor 값 다음의 ID를 가진 제출 내역들을 반환 (cursor 값이 없을 시, 가장 작은 ID부터 반환)|
-  
+
   ### Error Case
-  
+
   #### 404: Nonexistent Problem
-  
+
   존재하지 않는 `problemId`에 대해 제출 내역 요청을 합니다.
 }

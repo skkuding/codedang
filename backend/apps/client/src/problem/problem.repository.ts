@@ -4,7 +4,7 @@ import type { Problem, Tag, CodeDraft, Prisma } from '@prisma/client'
 import { PrismaService } from '@libs/prisma'
 import type { CodeDraftUpdateInput } from '@admin/@generated'
 import type { CreateTemplateDto } from './dto/create-code-draft.dto'
-import type { ProblemOrder } from './schema/problem-order.schema'
+import type { ProblemOrder } from './enum/problem-order.enum'
 
 /**
  * repository에서는 partial entity를 반환합니다.
@@ -19,28 +19,38 @@ import type { ProblemOrder } from './schema/problem-order.schema'
 export class ProblemRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private readonly problemsSelectOption = {
+  private readonly problemsSelectOption: Prisma.ProblemSelect = {
     id: true,
     title: true,
+    engTitle: true,
     exposeTime: true,
     difficulty: true,
     acceptedRate: true,
     submissionCount: true
   }
 
-  private readonly problemSelectOption = {
+  private readonly problemSelectOption: Prisma.ProblemSelect = {
     ...this.problemsSelectOption,
     description: true,
     inputDescription: true,
     outputDescription: true,
     hint: true,
+    engDescription: true,
+    engInputDescription: true,
+    engOutputDescription: true,
+    engHint: true,
     languages: true,
     timeLimit: true,
     memoryLimit: true,
     source: true,
     acceptedCount: true,
-    inputExamples: true,
-    outputExamples: true
+    samples: {
+      select: {
+        id: true,
+        input: true,
+        output: true
+      }
+    }
   }
 
   private readonly codeDraftSelectOption = {
@@ -68,18 +78,18 @@ export class ProblemRepository {
 
     const orderByMapper: Record<
       ProblemOrder,
-      Prisma.ProblemOrderByWithRelationAndSearchRelevanceInput
+      Prisma.ProblemOrderByWithRelationAndSearchRelevanceInput[]
     > = {
-      'id-asc': { id: 'asc' },
-      'id-desc': { id: 'desc' },
-      'title-asc': { title: 'asc' },
-      'title-desc': { title: 'desc' },
-      'level-asc': { difficulty: 'asc' },
-      'level-desc': { difficulty: 'desc' },
-      'acrate-asc': { acceptedRate: 'asc' },
-      'acrate-desc': { acceptedRate: 'desc' },
-      'submit-asc': { submissionCount: 'asc' },
-      'submit-desc': { submissionCount: 'desc' }
+      'id-asc': [{ id: 'asc' }],
+      'id-desc': [{ id: 'desc' }],
+      'title-asc': [{ title: 'asc' }, { id: 'asc' }],
+      'title-desc': [{ title: 'desc' }, { id: 'asc' }],
+      'level-asc': [{ difficulty: 'asc' }, { id: 'asc' }],
+      'level-desc': [{ difficulty: 'desc' }, { id: 'asc' }],
+      'acrate-asc': [{ acceptedRate: 'asc' }, { id: 'asc' }],
+      'acrate-desc': [{ acceptedRate: 'desc' }, { id: 'asc' }],
+      'submit-asc': [{ submissionCount: 'asc' }, { id: 'asc' }],
+      'submit-desc': [{ submissionCount: 'desc' }, { id: 'asc' }]
     }
 
     const orderBy = orderByMapper[order ?? 'id-asc']
@@ -98,7 +108,8 @@ export class ProblemRepository {
           // 추후에 검색 성능을 개선할 수 있는 방법을 찾아보자
           // 아니면 텍스트가 많은 field에서는 full-text search를 사용하고, 텍스트가 적은 field에서는 contains를 사용하는 방법도 고려해보자.
           contains: search
-        }
+        },
+        isVisible: true
       },
       select: {
         ...this.problemsSelectOption,
@@ -107,6 +118,19 @@ export class ProblemRepository {
             tagId: true
           }
         }
+      }
+    })
+  }
+
+  async getProblemTotalCount(groupId: number, search?: string) {
+    return await this.prisma.problem.count({
+      where: {
+        groupId,
+        title: {
+          // TODO: 검색 방식 변경 시 함께 변경 요함
+          contains: search
+        },
+        isVisible: true
       }
     })
   }
@@ -136,7 +160,8 @@ export class ProblemRepository {
     return await this.prisma.problem.findUniqueOrThrow({
       where: {
         id: problemId,
-        groupId
+        groupId,
+        isVisible: true
       },
       select: this.problemSelectOption
     })
@@ -172,16 +197,28 @@ export class ProblemRepository {
     return await this.prisma.contestProblem.findMany({
       ...paginator,
       take,
-      where: { contestId },
+      orderBy: { order: 'asc' },
+      where: {
+        contestId,
+        problem: {
+          isVisible: true
+        }
+      },
       select: {
         order: true,
         problem: {
           select: this.problemsSelectOption
-        },
-        contest: {
-          select: {
-            startTime: true
-          }
+        }
+      }
+    })
+  }
+
+  async getContestProblemTotalCount(contestId: number) {
+    return await this.prisma.contestProblem.count({
+      where: {
+        contestId,
+        problem: {
+          isVisible: true
         }
       }
     })
@@ -194,17 +231,15 @@ export class ProblemRepository {
         contestId_problemId: {
           contestId,
           problemId
+        },
+        problem: {
+          isVisible: true
         }
       },
       select: {
         order: true,
         problem: {
           select: this.problemSelectOption
-        },
-        contest: {
-          select: {
-            startTime: true
-          }
         }
       }
     })
@@ -226,11 +261,27 @@ export class ProblemRepository {
     return await this.prisma.workbookProblem.findMany({
       ...paginator,
       take,
-      where: { workbookId },
+      where: {
+        workbookId,
+        problem: {
+          isVisible: true
+        }
+      },
       select: {
         order: true,
         problem: {
           select: this.problemsSelectOption
+        }
+      }
+    })
+  }
+
+  async getWorkbookProblemTotalCount(workbookId: number) {
+    return await this.prisma.workbookProblem.count({
+      where: {
+        workbookId,
+        problem: {
+          isVisible: true
         }
       }
     })
@@ -243,6 +294,9 @@ export class ProblemRepository {
         workbookId_problemId: {
           workbookId,
           problemId
+        },
+        problem: {
+          isVisible: true
         }
       },
       select: {

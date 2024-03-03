@@ -7,14 +7,12 @@ import {
   Req,
   NotFoundException,
   InternalServerErrorException,
-  ConflictException,
-  ForbiddenException,
   Logger,
   Query,
   DefaultValuePipe
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { AuthenticatedRequest } from '@libs/auth'
+import { AuthNotNeededIfOpenSpace, AuthenticatedRequest } from '@libs/auth'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -71,7 +69,7 @@ export class SubmissionController {
       }
     } catch (error) {
       if (error instanceof ConflictFoundException) {
-        throw new ConflictException(error.message)
+        throw error.convert2HTTPException()
       }
       if (
         (error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -85,27 +83,21 @@ export class SubmissionController {
     }
   }
 
+  @Get('delay-cause')
+  async checkDelay() {
+    return await this.submissionService.checkDelay()
+  }
+
   @Get()
+  @AuthNotNeededIfOpenSpace()
   async getSubmissions(
-    @Req() req: AuthenticatedRequest,
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
-    @Query('groupId', GroupIDPipe) groupId: number,
-    @Query('contestId', IDValidationPipe) contestId: number | null
+    @Query('groupId', GroupIDPipe) groupId: number
   ) {
     try {
-      if (contestId) {
-        return await this.submissionService.getContestSubmissions({
-          cursor,
-          take,
-          problemId,
-          contestId,
-          userId: req.user.id,
-          groupId
-        })
-      }
       return await this.submissionService.getSubmissions({
         cursor,
         take,
@@ -119,8 +111,6 @@ export class SubmissionController {
         error instanceof EntityNotExistException
       ) {
         throw new NotFoundException(error.message)
-      } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
@@ -159,7 +149,45 @@ export class SubmissionController {
       ) {
         throw new NotFoundException(error.message)
       } else if (error instanceof ForbiddenAccessException) {
-        throw new ForbiddenException(error.message)
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+}
+
+@Controller('contest/:contestId/submission')
+export class ContestSubmissionController {
+  private readonly logger = new Logger(ContestSubmissionController.name)
+
+  constructor(private readonly submissionService: SubmissionService) {}
+
+  @Get()
+  async getSubmissions(
+    @Req() req: AuthenticatedRequest,
+    @Param('contestId', IDValidationPipe) contestId: number,
+    @Query('cursor', CursorValidationPipe) cursor: number | null,
+    @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
+    take: number,
+    @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
+    @Query('groupId', GroupIDPipe) groupId: number
+  ) {
+    try {
+      return await this.submissionService.getContestSubmissions({
+        cursor,
+        take,
+        problemId,
+        contestId,
+        userId: req.user.id,
+        groupId
+      })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.name == 'NotFoundError'
+      ) {
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()

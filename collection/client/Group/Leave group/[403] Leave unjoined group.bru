@@ -1,0 +1,31 @@
+meta {
+  name: [403] Leave unjoined group
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{baseUrl}}/group/3/leave
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 403
+  res("message"): eq Forbidden resource
+}
+
+script:pre-request {
+  const axios = require("axios");
+
+  await require("./login").loginUser(req);
+
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const authorization = bru.getVar("jwtToken");
+  try {
+    await axios.delete(
+      baseUrl + "/group/4/leave",
+      { headers: { authorization } }
+    )
+  } catch (error) {}
+}

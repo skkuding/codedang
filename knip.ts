@@ -4,11 +4,7 @@ import type { KnipConfig } from 'knip'
 const config: KnipConfig = {
   workspaces: {
     '.': {
-      entry: [
-        'scripts/*.ts',
-        'docs/.vitepress/config.mts',
-        'docs/.vitepress/theme/index.ts'
-      ]
+      entry: ['scripts/*.ts']
     },
     backend: {
       entry: [

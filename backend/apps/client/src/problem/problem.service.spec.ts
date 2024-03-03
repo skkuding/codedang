@@ -1,10 +1,10 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Test, type TestingModule } from '@nestjs/testing'
+import { faker } from '@faker-js/faker'
 import { Prisma, ResultStatus } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
-import * as dayjs from 'dayjs'
 import { stub } from 'sinon'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
@@ -42,23 +42,29 @@ const db = {
   problem: {
     findMany: stub(),
     findFirst: stub(),
-    findUniqueOrThrow: stub()
+    findUniqueOrThrow: stub(),
+    count: stub().resolves(2)
   },
   contestProblem: {
     findMany: stub(),
     findUnique: stub(),
-    findUniqueOrThrow: stub()
+    findUniqueOrThrow: stub(),
+    count: stub().resolves(2)
   },
   workbookProblem: {
     findMany: stub(),
     findUnique: stub(),
-    findUniqueOrThrow: stub()
+    findUniqueOrThrow: stub(),
+    count: stub().resolves(2)
   },
   tag: {
     findMany: stub()
   },
   problemTag: {
     findMany: stub()
+  },
+  contest: {
+    findUniqueOrThrow: stub()
   },
   user: {
     findUniqueOrThrow: stub()
@@ -77,6 +83,7 @@ const db = {
 const ARBITRARY_VAL = 1
 const problemId = ARBITRARY_VAL
 const groupId = ARBITRARY_VAL
+const userId = ARBITRARY_VAL
 const contestId = ARBITRARY_VAL
 const workbookId = ARBITRARY_VAL
 const mockProblem = Object.assign({}, problems[0])
@@ -155,20 +162,23 @@ describe('ProblemService', () => {
 
       // then
       expect(result).to.deep.equal(
-        plainToInstance(ProblemsResponseDto, [
-          {
-            ...mockProblems[0],
-            submissionCount: 10,
-            acceptedRate: 0.5,
-            tags: [mockProblemTag.tag]
-          },
-          {
-            ...mockProblems[1],
-            submissionCount: 10,
-            acceptedRate: 0.5,
-            tags: [mockProblemTag.tag]
-          }
-        ])
+        plainToInstance(ProblemsResponseDto, {
+          problems: [
+            {
+              ...mockProblems[0],
+              submissionCount: 10,
+              acceptedRate: 0.5,
+              tags: [mockProblemTag.tag]
+            },
+            {
+              ...mockProblems[1],
+              submissionCount: 10,
+              acceptedRate: 0.5,
+              tags: [mockProblemTag.tag]
+            }
+          ],
+          total: 2
+        })
       )
     })
   })
@@ -251,54 +261,90 @@ describe('ContestProblemService', () => {
   describe('getContestProblems', () => {
     it('should return public contest problems', async () => {
       // given
-      stub(contestService, 'isVisible').resolves(true)
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        canRegister: false
+      })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
       // when
-      const result = await service.getContestProblems(contestId, 1, 1)
+      const result = await service.getContestProblems(contestId, userId, 1, 1)
 
       // then
       expect(result).to.deep.equal(
-        plainToInstance(RelatedProblemsResponseDto, mockContestProblems)
+        plainToInstance(RelatedProblemsResponseDto, {
+          problems: mockContestProblems,
+          total: 2
+        })
       )
     })
 
     it('should return group contest problems', async () => {
       // given
-      stub(contestService, 'isVisible').resolves(true)
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        canRegister: false
+      })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
       // when
-      const result = await service.getContestProblems(contestId, 1, 1, groupId)
+      const result = await service.getContestProblems(
+        contestId,
+        userId,
+        1,
+        1,
+        groupId
+      )
 
       // then
       expect(result).to.deep.equal(
-        plainToInstance(RelatedProblemsResponseDto, mockContestProblems)
+        plainToInstance(RelatedProblemsResponseDto, {
+          problems: mockContestProblems,
+          total: 2
+        })
       )
     })
 
     it('should throw error when the contest is not visible', async () => {
       // given
-      stub(contestService, 'isVisible').resolves(false)
-      db.contestProblem.findMany.resolves(mockContestProblems)
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.rejects(new EntityNotExistException('Contest'))
 
       // then
       await expect(
-        service.getContestProblems(contestId, 1, 1)
+        service.getContestProblems(contestId, userId, 1, 1)
       ).to.be.rejectedWith(EntityNotExistException)
     })
 
-    it('should throw error when the contest is not started yet', async () => {
-      stub(contestService, 'isVisible').resolves(true)
-      const notStartedContestProblems = mockContestProblems.map((x) => ({
-        ...x,
-        contest: {
-          startTime: dayjs().add(1, 'day')
-        }
-      }))
-      db.contestProblem.findMany.resolves(notStartedContestProblems)
+    it('should throw error when the user is registered but contest is not started', async () => {
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.future(),
+        endTime: faker.date.future(),
+        canRegister: false
+      })
+      db.contestProblem.findMany.resolves(mockContestProblems)
+
       await expect(
-        service.getContestProblems(contestId, 1, 1)
+        service.getContestProblems(contestId, userId, 1, 1)
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+
+    it('should throw error when the user is not registered and contest is not ended', async () => {
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        canRegister: true
+      })
+      db.contestProblem.findMany.resolves(mockContestProblems)
+
+      await expect(
+        service.getContestProblems(contestId, 0, 1, 1)
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
@@ -306,11 +352,20 @@ describe('ContestProblemService', () => {
   describe('getContestProblem', () => {
     it('should return the public contest problem', async () => {
       // given
-      stub(contestService, 'isVisible').resolves(true)
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        canRegister: false
+      })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
 
       // when
-      const result = await service.getContestProblem(contestId, problemId)
+      const result = await service.getContestProblem(
+        contestId,
+        problemId,
+        userId
+      )
 
       // then
       expect(result).to.be.deep.equal(
@@ -320,7 +375,12 @@ describe('ContestProblemService', () => {
 
     it('should return the group contest problem', async () => {
       // given
-      stub(contestService, 'isVisible').resolves(true)
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        canRegister: false
+      })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
 
       // when
@@ -338,28 +398,40 @@ describe('ContestProblemService', () => {
 
     it('should throw error when the contest is not visible', async () => {
       // given
-      stub(contestService, 'isVisible').resolves(false)
-      db.contestProblem.findUnique.resolves(mockContestProblem)
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.rejects(new EntityNotExistException('Contest'))
 
       // then
       await expect(
-        service.getContestProblem(contestId, problemId)
+        service.getContestProblem(contestId, problemId, userId)
       ).to.be.rejectedWith(EntityNotExistException)
     })
-  })
 
-  it('should throw error when the contest is not started yet', async () => {
-    stub(contestService, 'isVisible').resolves(true)
-    const notStartedContestProblem = {
-      ...mockContestProblem,
-      contest: {
-        startTime: dayjs().add(1, 'day')
-      }
-    }
-    db.contestProblem.findUniqueOrThrow.resolves(notStartedContestProblem)
-    await expect(
-      service.getContestProblem(contestId, problemId)
-    ).to.be.rejectedWith(ForbiddenAccessException)
+    it('should throw error when the user is registered but contest is not started', async () => {
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.future(),
+        endTime: faker.date.future(),
+        canRegister: false
+      })
+      db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
+      await expect(
+        service.getContestProblem(contestId, problemId, userId)
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+
+    it('should throw error when the user is not registered and contest is not ended', async () => {
+      const getContestSpy = stub(contestService, 'getContest')
+      getContestSpy.resolves({
+        startTime: faker.date.past(),
+        endTime: faker.date.future(),
+        canRegister: true
+      })
+      db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
+      await expect(
+        service.getContestProblem(contestId, problemId, userId)
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
   })
 })
 
@@ -418,7 +490,10 @@ describe('WorkbookProblemService', () => {
 
       // then
       expect(result).to.deep.equal(
-        plainToInstance(RelatedProblemsResponseDto, mockWorkbookProblems)
+        plainToInstance(RelatedProblemsResponseDto, {
+          problems: mockWorkbookProblems,
+          total: 2
+        })
       )
     })
 
@@ -437,7 +512,10 @@ describe('WorkbookProblemService', () => {
 
       // then
       expect(result).to.deep.equal(
-        plainToInstance(RelatedProblemsResponseDto, mockWorkbookProblems)
+        plainToInstance(RelatedProblemsResponseDto, {
+          problems: mockWorkbookProblems,
+          total: 2
+        })
       )
     })
 

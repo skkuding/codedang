@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import type { Contest, Prisma } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { OPEN_SPACE_ID } from '@libs/constants'
-import { ConflictFoundException } from '@libs/exception'
+import {
+  ConflictFoundException,
+  EntityNotExistException,
+  ForbiddenAccessException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
 const contestSelectOption = {
@@ -22,31 +26,31 @@ export type ContestSelectResult = Prisma.ContestGetPayload<{
   select: typeof contestSelectOption
 }>
 
+export type ContestResult = Omit<ContestSelectResult, '_count'> & {
+  participants: number
+}
+
 @Injectable()
 export class ContestService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getContestsByGroupId<T extends number>(
-    userId?: T,
-    groupId?: number
+  async getContestsByGroupId<T extends number | undefined | null>(
+    groupId: number,
+    userId?: T
   ): Promise<
-    T extends undefined
+    T extends undefined | null
       ? {
-          ongoing: Partial<Contest>[]
-          upcoming: Partial<Contest>[]
+          ongoing: ContestResult[]
+          upcoming: ContestResult[]
         }
       : {
-          registeredOngoing: Partial<Contest>[]
-          registeredUpcoming: Partial<Contest>[]
-          ongoing: Partial<Contest>[]
-          upcoming: Partial<Contest>[]
+          registeredOngoing: ContestResult[]
+          registeredUpcoming: ContestResult[]
+          ongoing: ContestResult[]
+          upcoming: ContestResult[]
         }
   >
-
-  async getContestsByGroupId(
-    userId: number | null = null,
-    groupId = OPEN_SPACE_ID
-  ) {
+  async getContestsByGroupId(groupId: number, userId: number | null = null) {
     const now = new Date()
     if (userId == null) {
       const contests = await this.prisma.contest.findMany({
@@ -66,7 +70,8 @@ export class ContestService {
         }
       })
 
-      const contestsWithParticipants = this.renameToParticipants(contests)
+      const contestsWithParticipants: ContestResult[] =
+        this.renameToParticipants(contests)
 
       return {
         ongoing: this.filterOngoing(contestsWithParticipants),
@@ -74,18 +79,7 @@ export class ContestService {
       }
     }
 
-    const registeredContestRecords = await this.prisma.contestRecord.findMany({
-      where: {
-        userId
-      },
-      select: {
-        contestId: true
-      }
-    })
-
-    const registeredContestIds = registeredContestRecords.map(
-      (obj) => obj.contestId
-    )
+    const registeredContestIds = await this.getRegisteredContestIds(userId)
 
     let registeredContests: ContestSelectResult[] = []
     let restContests: ContestSelectResult[] = []
@@ -111,15 +105,15 @@ export class ContestService {
     restContests = await this.prisma.contest.findMany({
       where: {
         groupId,
-        endTime: {
-          gt: now
-        },
         config: {
           path: ['isVisible'],
           equals: true
         },
         id: {
           notIn: registeredContestIds
+        },
+        endTime: {
+          gt: now
         }
       },
       select: contestSelectOption,
@@ -142,10 +136,98 @@ export class ContestService {
     }
   }
 
+  async getRegisteredOngoingUpcomingContests(
+    groupId: number,
+    userId: number,
+    search?: string
+  ) {
+    const now = new Date()
+    const registeredContestIds = await this.getRegisteredContestIds(userId)
+
+    const ongoingAndUpcomings = await this.prisma.contest.findMany({
+      where: {
+        groupId,
+        id: {
+          in: registeredContestIds
+        },
+        endTime: {
+          gt: now
+        },
+        title: {
+          contains: search
+        }
+      },
+      select: contestSelectOption
+    })
+
+    const ongoingAndUpcomingsWithParticipants =
+      this.renameToParticipants(ongoingAndUpcomings)
+
+    return {
+      registeredOngoing: this.filterOngoing(
+        ongoingAndUpcomingsWithParticipants
+      ),
+      registeredUpcoming: this.filterUpcoming(
+        ongoingAndUpcomingsWithParticipants
+      )
+    }
+  }
+
+  async getRegisteredContestIds(userId: number) {
+    const registeredContestRecords = await this.prisma.contestRecord.findMany({
+      where: {
+        userId
+      },
+      select: {
+        contestId: true
+      }
+    })
+
+    return registeredContestRecords.map((obj) => obj.contestId)
+  }
+
+  async getRegisteredFinishedContests(
+    cursor: number | null,
+    take: number,
+    groupId: number,
+    userId: number,
+    search?: string
+  ) {
+    const now = new Date()
+    const paginator = this.prisma.getPaginator(cursor)
+
+    const registeredContestIds = await this.getRegisteredContestIds(userId)
+    const contests = await this.prisma.contest.findMany({
+      ...paginator,
+      take,
+      where: {
+        groupId,
+        endTime: {
+          lte: now
+        },
+        id: {
+          in: registeredContestIds
+        },
+        title: {
+          contains: search
+        },
+        config: {
+          path: ['isVisible'],
+          equals: true
+        }
+      },
+      select: contestSelectOption,
+      orderBy: [{ endTime: 'desc' }, { id: 'desc' }]
+    })
+
+    return this.renameToParticipants(contests)
+  }
+
   async getFinishedContestsByGroupId(
     cursor: number | null,
     take: number,
-    groupId = OPEN_SPACE_ID
+    groupId: number,
+    search?: string
   ) {
     const paginator = this.prisma.getPaginator(cursor)
     const now = new Date()
@@ -161,12 +243,13 @@ export class ContestService {
         config: {
           path: ['isVisible'],
           equals: true
+        },
+        title: {
+          contains: search
         }
       },
       select: contestSelectOption,
-      orderBy: {
-        endTime: 'desc'
-      }
+      orderBy: [{ endTime: 'desc' }, { id: 'desc' }]
     })
     return { finished: this.renameToParticipants(finished) }
   }
@@ -180,55 +263,60 @@ export class ContestService {
     }))
   }
 
-  startTimeCompare(
-    a: Partial<Contest> & Pick<Contest, 'startTime'>,
-    b: Partial<Contest> & Pick<Contest, 'startTime'>
-  ) {
-    if (a.startTime < b.startTime) {
-      return -1
-    }
-    if (a.startTime > b.startTime) {
-      return 1
-    }
-    return 0
-  }
-
-  filterOngoing(
-    contests: Array<Partial<Contest> & Pick<Contest, 'startTime' | 'endTime'>>
-  ) {
+  filterOngoing(contests: ContestResult[]) {
     const now = new Date()
-    const ongoingContest = contests.filter(
-      (contest) => contest.startTime <= now && contest.endTime > now
-    )
+    const ongoingContest = contests
+      .filter((contest) => contest.startTime <= now && contest.endTime > now)
+      .sort((a, b) => a.endTime.getTime() - b.endTime.getTime())
     return ongoingContest
   }
 
-  filterUpcoming(
-    contests: Array<Partial<Contest> & Pick<Contest, 'startTime'>>
-  ) {
+  filterUpcoming(contests: ContestResult[]) {
     const now = new Date()
-    const upcomingContest = contests.filter(
-      (contest) => contest.startTime > now
-    )
-    upcomingContest.sort(this.startTimeCompare)
+    const upcomingContest = contests
+      .filter((contest) => contest.startTime > now)
+      .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
     return upcomingContest
   }
 
-  async getContest(id: number, groupId = OPEN_SPACE_ID) {
-    const contest = await this.prisma.contest.findUniqueOrThrow({
-      where: {
-        id,
-        groupId,
-        config: {
-          path: ['isVisible'],
-          equals: true
-        }
-      },
-      select: {
-        ...contestSelectOption,
-        description: true
+  async getContest(id: number, groupId = OPEN_SPACE_ID, userId?: number) {
+    // check if the user can register this contest
+    // initial value is false
+    let canRegister = false
+    let contest
+    if (userId) {
+      const hasRegistered = await this.prisma.contestRecord.findFirst({
+        where: { userId, contestId: id }
+      })
+      if (!hasRegistered) {
+        canRegister = true
       }
-    })
+    }
+    try {
+      contest = await this.prisma.contest.findUniqueOrThrow({
+        where: {
+          id,
+          groupId,
+          config: {
+            path: ['isVisible'],
+            equals: true
+          }
+        },
+        select: {
+          ...contestSelectOption,
+          description: true
+        }
+      })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('Contest')
+      }
+      throw error
+    }
+    /* HACK: standings 업데이트 로직 수정 후 삭제
     // get contest participants ranking using ContestRecord
     const sortedContestRecordsWithUserDetail =
       await this.prisma.contestRecord.findMany({
@@ -261,10 +349,11 @@ export class ContestService {
         standing: index + 1
       })
     )
+    */
     // combine contest and sortedContestRecordsWithUserDetail
     return {
       ...contest,
-      standings: UsersWithStandingDetail
+      canRegister
     }
   }
 
@@ -285,7 +374,7 @@ export class ContestService {
       throw new ConflictFoundException('Already participated this contest')
     }
     const now = new Date()
-    if (now < contest.startTime || now >= contest.endTime) {
+    if (now >= contest.endTime) {
       throw new ConflictFoundException('Cannot participate ended contest')
     }
 
@@ -305,5 +394,57 @@ export class ContestService {
         groupId
       }
     }))
+  }
+
+  async deleteContestRecord(
+    contestId: number,
+    userId: number,
+    groupId = OPEN_SPACE_ID
+  ) {
+    let contest
+    try {
+      contest = await this.prisma.contest.findUniqueOrThrow({
+        where: { id: contestId, groupId }
+      })
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('Contest')
+      }
+    }
+    try {
+      await this.prisma.contestRecord.findFirstOrThrow({
+        where: { userId, contestId }
+      })
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('ContestRecord')
+      }
+    }
+    const now = new Date()
+    if (now >= contest.startTime) {
+      throw new ForbiddenAccessException(
+        'Cannot unregister ongoing or ended contest'
+      )
+    }
+
+    try {
+      return await this.prisma.contestRecord.delete({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        where: { contestId_userId: { contestId, userId } }
+      })
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('ContestRecord')
+      }
+    }
   }
 }

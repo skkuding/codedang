@@ -13,8 +13,8 @@ import { ProblemResponseDto } from './dto/problem.response.dto'
 import { ProblemsResponseDto } from './dto/problems.response.dto'
 import { RelatedProblemResponseDto } from './dto/related-problem.response.dto'
 import { RelatedProblemsResponseDto } from './dto/related-problems.response.dto'
+import type { ProblemOrder } from './enum/problem-order.enum'
 import { ProblemRepository } from './problem.repository'
-import type { ProblemOrder } from './schema/problem-order.schema'
 
 @Injectable()
 export class ProblemService {
@@ -51,7 +51,15 @@ export class ProblemService {
       }
     })
 
-    return plainToInstance(ProblemsResponseDto, await Promise.all(problems))
+    const total = await this.problemRepository.getProblemTotalCount(
+      options.groupId,
+      options.search
+    )
+
+    return plainToInstance(ProblemsResponseDto, {
+      problems: await Promise.all(problems),
+      total
+    })
   }
 
   async getProblem(problemId: number, groupId = OPEN_SPACE_ID) {
@@ -70,39 +78,65 @@ export class ContestProblemService {
 
   async getContestProblems(
     contestId: number,
+    userId: number,
     cursor: number | null,
     take: number,
     groupId = OPEN_SPACE_ID
   ) {
-    if (!(await this.contestService.isVisible(contestId, groupId))) {
-      throw new EntityNotExistException('Contest')
+    const contest = await this.contestService.getContest(
+      contestId,
+      groupId,
+      userId
+    )
+    const now = new Date()
+    if (!contest.canRegister && contest.startTime > now) {
+      throw new ForbiddenAccessException(
+        'Cannot access to problems before the contest starts.'
+      )
+    } else if (contest.canRegister && contest.endTime > now) {
+      throw new ForbiddenAccessException(
+        'Register to access the problems of this contest.'
+      )
     }
+
     const data = await this.problemRepository.getContestProblems(
       contestId,
       cursor,
       take
     )
-    if (data.length > 0 && data[0].contest.startTime > new Date()) {
-      throw new ForbiddenAccessException('Contest is not started yet.')
-    }
-    return plainToInstance(RelatedProblemsResponseDto, data)
+    const total =
+      await this.problemRepository.getContestProblemTotalCount(contestId)
+
+    return plainToInstance(RelatedProblemsResponseDto, {
+      problems: data,
+      total
+    })
   }
 
   async getContestProblem(
     contestId: number,
     problemId: number,
+    userId: number,
     groupId = OPEN_SPACE_ID
   ) {
-    if (!(await this.contestService.isVisible(contestId, groupId))) {
-      throw new EntityNotExistException('Contest')
+    const contest = await this.contestService.getContest(
+      contestId,
+      groupId,
+      userId
+    )
+    const now = new Date()
+    if (!contest.canRegister && contest.startTime > now) {
+      throw new ForbiddenAccessException(
+        'Cannot access to problems before the contest starts.'
+      )
+    } else if (contest.canRegister && contest.endTime > now) {
+      throw new ForbiddenAccessException('Register to access this problem.')
     }
+
     const data = await this.problemRepository.getContestProblem(
       contestId,
       problemId
     )
-    if (data.contest.startTime > new Date()) {
-      throw new ForbiddenAccessException('Contest is not started yet.')
-    }
     return plainToInstance(RelatedProblemResponseDto, data)
   }
 }
@@ -128,7 +162,14 @@ export class WorkbookProblemService {
       cursor,
       take
     )
-    return plainToInstance(RelatedProblemsResponseDto, data)
+
+    const total =
+      await this.problemRepository.getWorkbookProblemTotalCount(workbookId)
+
+    return plainToInstance(RelatedProblemsResponseDto, {
+      problems: data,
+      total
+    })
   }
 
   async getWorkbookProblem(

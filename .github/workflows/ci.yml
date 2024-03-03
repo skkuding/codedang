@@ -35,7 +35,8 @@ jobs:
       - name: Load Next.js environment
         if: ${{ matrix.target == 'frontend-client' }}
         run: |
-          echo "NEXT_PUBLIC_BASEURL=https://dev.codedang.com/api" >> frontend-client/.env
+          echo "NEXT_PUBLIC_BASEURL=https://dev-aws.codedang.com/api" >> frontend-client/.env
+          echo "NEXT_PUBLIC_GQL_BASEURL=https://dev-aws.codedang.com/graphql" >> frontend-client/.env
           echo "NEXT_URL=https://dev.codedang.com" >> frontend-client/.env
 
       # If target is backend-admin, run `pnpm --filter backend build admin`
@@ -64,8 +65,10 @@ jobs:
       - name: Check types (frontend)
         run: pnpm --filter frontend exec vue-tsc --noEmit
 
-      - name: Check types (frontend-client)
-        run: pnpm --filter frontend-client exec tsc --noEmit
+      # Typecheck is not performed for frontend-client intentionally.
+      # Check: https://github.com/vercel/next.js/issues/53959
+      # Unlike backend, we don't have spec file to check types.
+      # So typechecking performed in the build step is enough.
 
   lint:
     name: Lint
@@ -106,6 +109,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
+      TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
 
     services:
       postgres:

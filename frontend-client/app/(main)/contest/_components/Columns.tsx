@@ -1,15 +1,31 @@
 'use client'
 
+import Badge from '@/app/(main)/_components/Badge'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 
 export const columns: ColumnDef<Contest>[] = [
   {
-    header: 'Name',
+    header: 'Title',
     accessorKey: 'title',
     cell: ({ row }) => (
-      <p className="text-left text-sm md:text-base">{row.original.title}</p>
+      <p className="overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm md:text-base">
+        {row.original.title}
+      </p>
+    )
+  },
+  {
+    header: 'Status',
+    accessorKey: 'status',
+    cell: ({ row }) => (
+      <Badge type={row.original.status}>
+        <p>
+          {row.original.status.startsWith('registered')
+            ? 'registered'
+            : row.original.status}
+        </p>
+      </Badge>
     )
   },
   {
@@ -25,6 +41,6 @@ export const columns: ColumnDef<Contest>[] = [
   {
     header: 'Participants',
     accessorKey: 'participants',
-    cell: ({ row }) => row.original.id
+    cell: ({ row }) => row.original.participants
   }
 ]

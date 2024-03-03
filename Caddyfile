@@ -1,56 +1,89 @@
 (cors) {
-	@cors_preflight{args[0]} {
-		# cors_preflight{args[0]} matcher 생성
-		header Origin {args[0]} # header와 method를 조건으로 설정
+	# 1. Preflight request
+	# Matcher: If Origin header equals to the argument and method is OPTIONS
+	# Handler: Set CORS headers and respond with 204
+	@cors-preflight{args[0]} {
+		header Origin {args[0]}
 		method OPTIONS
 	}
-	@cors{args[0]} header Origin {args[0]} # cors{args[0]} matcher 생성
 
-	handle @cors_preflight{args[0]} {
-		# cors_preflight{args[0]}를 처리할 handler
-		header Access-Control-Allow-Credentials true
-		header Access-Control-Allow-Origin "{args[0]}"
-		header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
-		header Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth"
+	handle @cors-preflight{args[0]} {
+		header {
+			Access-Control-Allow-Credentials true
+			Access-Control-Allow-Origin "{header.Origin}"
+			Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+			Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth, Apollo-Require-Preflight"
+			Access-Control-Expose-Headers "Email-Auth"
+		}
 		respond "" 204
 	}
 
+
+	# 2. Actual request
+	# Matcher: If Origin header equals to the argument
+	# Handler: Set CORS headers
+	@cors{args[0]} header Origin {args[0]}
 	handle @cors{args[0]} {
-		# cors{args[0]}를 처리할 handler
-		header Access-Control-Allow-Origin "{args[0]}"
+		header {
+			Access-Control-Allow-Credentials true
+			Access-Control-Allow-Origin "{header.Origin}"
+			Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+			Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth, Apollo-Require-Preflight"
+			Access-Control-Expose-Headers "Email-Auth"
+		}
+	}
+}
+
+# Global options
+{
+	# Keep-Alive timeout of reverse proxy must be longer than of the backend
+	# Set timeout of Caddy to 60s and of the backend to 61s to avoid timeout error
+	# https://adamcrowder.net/posts/node-express-api-and-aws-alb-502/
+	servers {
+		timeouts {
+			idle 1m
+		}
 	}
 }
 
 dev.codedang.com {
 	handle /api/* {
-		reverse_proxy 127.0.0.1:4000 {
-			header_down -Access-Control-Allow-Origin *
-		}
+		reverse_proxy 127.0.0.1:4000
+
+		# CORS rules
+		# frontend server (Next.js)
+		import cors http://localhost:5525
+
+		# Use wildcard matcher to allow all subdomains
+		# https://caddyserver.com/docs/caddyfile/matchers#header
+		import cors *.codedang.com
+		import cors *.gitpod.io
+		import cors *.vercel.app
 
 		# 캐시 설정
 		header {
 			Set-Cookie (.*) "$1; SameSite=None; Secure"
 			defer
 		}
-
-		# import <pattenr> [<args...>]
-		# cors 허용할 도메인 설정
-		import cors http://localhost:5173 # frontend server (Vue)
-		import cors http://localhost:5525 # frontend server (Next.js)
-		import cors http://localhost:5555 # api docs server
 	}
 
-	handle /logs/* {
+	handle /logs* {
 		reverse_proxy 127.0.0.1:9999
 	}
 
 	handle /graphql {
 		reverse_proxy 127.0.0.1:3000
+
+		import cors http://localhost:5525
+		import cors *.codedang.com
+		import cors *.gitpod.io
+		import cors *.vercel.app
 	}
 
 	handle {
-		root * /var/www/html
-		try_files {path} /index.html
-		file_server
+		reverse_proxy https://codedang.vercel.app {
+			# Must override host to avoid Vercel error
+			header_up Host codedang.vercel.app
+		}
 	}
 }

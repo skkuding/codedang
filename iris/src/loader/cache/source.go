@@ -18,9 +18,10 @@ func NewCache(ctx context.Context) *cache {
 	host := os.Getenv("REDIS_HOST")
 	port := os.Getenv("REDIS_PORT")
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     host + ":" + port,
-		Password: "",
-		DB:       0,
+		Addr:             host + ":" + port,
+		Password:         "",
+		DB:               0,
+		DisableIndentity: true,
 	})
 	return &cache{ctx, *rdb}
 }

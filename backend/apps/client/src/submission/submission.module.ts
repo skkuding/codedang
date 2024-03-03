@@ -1,10 +1,14 @@
+import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
 import { GroupMemberGuard, RolesModule } from '@libs/auth'
 import { CONSUME_CHANNEL, PUBLISH_CHANNEL } from '@libs/constants'
-import { SubmissionController } from './submission.controller'
+import {
+  ContestSubmissionController,
+  SubmissionController
+} from './submission.controller'
 import { SubmissionService } from './submission.service'
 
 @Module({
@@ -43,9 +47,10 @@ import { SubmissionService } from './submission.service'
       },
       inject: [ConfigService]
     }),
+    HttpModule,
     RolesModule
   ],
-  controllers: [SubmissionController],
+  controllers: [SubmissionController, ContestSubmissionController],
   providers: [
     SubmissionService,
     { provide: APP_GUARD, useClass: GroupMemberGuard }

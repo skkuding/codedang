@@ -4,20 +4,19 @@ import {
   CarouselContent,
   CarouselItem,
   CarouselNext,
-  CarouselPrevious,
-  CarouselNextGradient,
-  CarouselPrevGradient
+  CarouselPrevious
 } from '@/components/ui/carousel'
-import { fetcher } from '@/lib/utils'
+import { fetcher, fetcherWithAuth } from '@/lib/utils'
 import type { Contest } from '@/types/type'
 import type { Route } from 'next'
+import type { Session } from 'next-auth'
 import Link from 'next/link'
 
 const getContests = async () => {
   const data: {
     ongoing: Contest[]
     upcoming: Contest[]
-  } = await fetcher.get('contest').json()
+  } = await fetcher.get('contest/ongoing-upcoming').json()
   data.ongoing.forEach((contest) => {
     contest.status = 'ongoing'
   })
@@ -27,39 +26,79 @@ const getContests = async () => {
   return data.ongoing.concat(data.upcoming)
 }
 
-export default async function Contest({ type }: { type: string }) {
-  const contests = await getContests()
+const getRegisteredContests = async () => {
+  const data: {
+    registeredOngoing: Contest[]
+    registeredUpcoming: Contest[]
+    ongoing: Contest[]
+    upcoming: Contest[]
+  } = await fetcherWithAuth
+    .get('contest/ongoing-upcoming-with-registered')
+    .json()
+  data.registeredOngoing.forEach((contest) => {
+    contest.status = 'registeredOngoing'
+  })
+  data.registeredUpcoming.forEach((contest) => {
+    contest.status = 'registeredUpcoming'
+  })
+  data.ongoing.forEach((contest) => {
+    contest.status = 'ongoing'
+  })
+  data.upcoming.forEach((contest) => {
+    contest.status = 'upcoming'
+  })
+  return data.ongoing.concat(
+    data.upcoming.concat(data.registeredOngoing.concat(data.registeredUpcoming))
+  )
+}
 
-  return (
-    <div className="flex h-full flex-col ">
-      <Carousel>
-        <div className="flex items-center justify-between">
-          <div className="pb-5 text-2xl font-bold text-gray-700">{type}</div>
-          <div className="flex items-center justify-end gap-2">
-            <CarouselPrevious />
-            <CarouselNext />
-          </div>
+export default async function Contest({
+  title,
+  type,
+  session
+}: {
+  type: string
+  title: string
+  session?: Session | null
+}) {
+  const data = (
+    session ? await getRegisteredContests() : await getContests()
+  ).filter(
+    (contest) =>
+      contest.status.toLowerCase() === 'registered' + type.toLowerCase() ||
+      contest.status.toLowerCase() === type.toLowerCase()
+  )
+
+  const contestChunks = []
+  for (let i = 0; i < data.length; i += 3)
+    contestChunks.push(data.slice(i, i + 3))
+
+  return data.length === 0 ? (
+    <></>
+  ) : (
+    <Carousel>
+      <div className="mb-5 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-700">{title}</h1>
+        <div className="flex items-center justify-end gap-2">
+          <CarouselPrevious />
+          <CarouselNext />
         </div>
-        <CarouselContent className="bottom-30 flex w-full gap-1.5 px-3 py-2">
-          {contests
-            .filter(
-              (contest) => contest.status.toLowerCase() === type.toLowerCase()
-            )
-            .map((contest) => (
-              <CarouselItem key={contest.id}>
-                <Link
-                  key={contest.id}
-                  href={`/contest/${contest.id}` as Route}
-                  className="inline-block h-[120px] w-[375px]"
-                >
-                  <ContestCard contest={contest} />
-                </Link>
-              </CarouselItem>
+      </div>
+      <CarouselContent className="p-1">
+        {contestChunks.map((contestChunk) => (
+          <CarouselItem key={contestChunk[0].id} className="flex w-full gap-3">
+            {contestChunk.map((contest) => (
+              <Link
+                key={contest.id}
+                href={`/contest/${contest.id}` as Route}
+                className="block w-1/3 overflow-hidden p-2"
+              >
+                <ContestCard contest={contest} />
+              </Link>
             ))}
-        </CarouselContent>
-        <CarouselPrevGradient />
-        <CarouselNextGradient />
-      </Carousel>
-    </div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+    </Carousel>
   )
 }

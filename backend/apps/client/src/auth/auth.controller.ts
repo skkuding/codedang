@@ -52,7 +52,7 @@ export class AuthController {
       this.setJwtResponse(res, jwtTokens)
     } catch (error) {
       if (error instanceof UnidentifiedException) {
-        throw new UnauthorizedException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException('Login failed')
@@ -64,8 +64,12 @@ export class AuthController {
     @Req() req: AuthenticatedRequest,
     @Res({ passthrough: true }) res: Response
   ) {
+    const refreshToken = req.cookies['refresh_token']
+    // FIX ME: refreshToken이 없을 때 에러를 던지는 것이 맞는지 확인
+    // 일단은 refreshToken이 없을 때는 무시하도록 함
+    if (!refreshToken) return
     try {
-      await this.authService.deleteRefreshToken(req.user.id)
+      await this.authService.deleteRefreshToken(req.user.id, refreshToken)
       res.clearCookie('refresh_token', REFRESH_TOKEN_COOKIE_OPTIONS)
     } catch (error) {
       this.logger.error(error)
@@ -87,7 +91,7 @@ export class AuthController {
       this.setJwtResponse(res, newJwtTokens)
     } catch (error) {
       if (error instanceof InvalidJwtTokenException) {
-        throw new UnauthorizedException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException('Failed to reissue tokens')
@@ -114,7 +118,7 @@ export class AuthController {
       return await this.authService.githubLogin(res, githubUser)
     } catch (error) {
       if (error instanceof UnidentifiedException) {
-        throw new UnauthorizedException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException('Login failed')
@@ -142,7 +146,7 @@ export class AuthController {
       return await this.authService.kakaoLogin(res, kakaoUser)
     } catch (error) {
       if (error instanceof UnidentifiedException) {
-        throw new UnauthorizedException(error.message)
+        throw error.convert2HTTPException()
       }
       this.logger.error(error)
       throw new InternalServerErrorException('Login failed')

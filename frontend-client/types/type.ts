@@ -1,5 +1,11 @@
-export type ContestStatus = 'ongoing' | 'upcoming' | 'finished'
+export type ContestStatus =
+  | 'ongoing'
+  | 'upcoming'
+  | 'finished'
+  | 'registeredOngoing'
+  | 'registeredUpcoming'
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
+export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
 
 export interface Contest {
   id: number
@@ -8,13 +14,16 @@ export interface Contest {
   endTime: Date
   group: { id: string; groupName: string }
   status: ContestStatus
+  participants: number
 }
 
 export interface WorkbookProblem {
   order: number
-  problemId: number
+  id: number
   title: string
   difficulty: Level
+  submissionCount: number
+  acceptedRate: number
 }
 
 export interface Notice {
@@ -52,19 +61,110 @@ export interface Standings {
   totalScore: number
 }
 
+export interface ContestProblem {
+  id: number
+  order: number
+  title: string
+  difficulty: Level
+  submissionCount: number
+  acceptedRate: number
+}
+
 export interface ProblemDetail {
   id: number
   title: string
   description: string
   inputDescription: string
   outputDescription: string
-  inputExamples: string[]
-  outputExamples: string[]
-  languages: string[]
+  samples: {
+    id: number
+    input: string
+    output: string
+  }[]
+  languages: Language[]
   timeLimit: number
   memoryLimit: number
+  source: string
   tags: {
     id: number
     name: string
   }[]
+  hint: string
+}
+
+export interface SubmissionItem {
+  id: number
+  user: {
+    username: string
+  }
+  createTime: string
+  language: string
+  result: string
+  codeSize: number
+}
+
+export interface Submission {
+  id: number
+  userId: number
+  problemId: number
+  contestId: number | null
+  workbookId: number | null
+  code: { id: number; text: string; lockded: boolean }[]
+  language: string
+  result: string
+  createTime: string
+  updateTime: string
+}
+
+export interface SubmissionDetail {
+  problemId: number
+  username: string
+  code: string
+  language: Language
+  createTime: Date
+  result: string
+  testcaseResult: {
+    id: number
+    submissionId: number
+    problemTestCaseId: number
+    result: string
+    cpuTime: string
+    memoryUsage: number
+    createTime: Date
+    updateTime: Date
+  }[]
+}
+
+export interface ContestAnnouncement {
+  id: number
+  content: string
+  problemId: number
+  createTime: string
+  updateTime: string
+}
+
+export interface Tag {
+  id: number
+  name: string
+}
+
+export interface Sample {
+  input: string
+  output: string
+}
+
+export interface Testcase {
+  input: string
+  output: string
+}
+
+export interface Snippet {
+  id: number
+  text: string
+  locked: boolean
+}
+
+export interface Template {
+  language: Language
+  code: Snippet[]
 }

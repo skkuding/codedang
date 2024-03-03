@@ -1,8 +1,9 @@
 import { type ClassValue, clsx } from 'clsx'
-import ky from 'ky'
+import ky, { TimeoutError } from 'ky'
+import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 import { auth } from './auth'
-import { baseUrl } from './vars'
+import { baseUrl } from './constants'
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
@@ -11,7 +12,18 @@ export const cn = (...inputs: ClassValue[]) => {
 export const fetcher = ky.create({
   prefixUrl: baseUrl,
   throwHttpErrors: false,
-  retry: 0
+  retry: 0,
+  timeout: 5000,
+  hooks: {
+    beforeError: [
+      (error) => {
+        if (error instanceof TimeoutError) {
+          toast.error('Request timed out. Please try again later.')
+        }
+        return error
+      }
+    ]
+  }
 })
 
 export const fetcherWithAuth = fetcher.extend({
@@ -41,3 +53,7 @@ export const fetcherWithAuth = fetcher.extend({
     ]
   }
 })
+
+export const convertToLetter = (n: number) => {
+  return String.fromCharCode(65 + n)
+}

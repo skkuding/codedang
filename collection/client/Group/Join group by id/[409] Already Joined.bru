@@ -1,0 +1,32 @@
+meta {
+  name: [409] Already joined
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/group/4/join
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 409
+  res("message"): eq Already joined this group
+}
+
+script:pre-request {
+  const axios = require("axios");
+
+  await require("./login").loginUser(req);
+
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const authorization = bru.getVar("jwtToken");
+  try {
+    await axios.post(
+      baseUrl + "/group/4/join",
+      {},
+      { headers: { authorization } }
+    )
+  } catch (error) {}
+}
