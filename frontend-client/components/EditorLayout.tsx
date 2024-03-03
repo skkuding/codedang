@@ -75,7 +75,9 @@ export default async function EditorLayout({
           </div>
         </div>
       </header>
-      <EditorResizablePanel problem={problem}>{children}</EditorResizablePanel>
+      <EditorResizablePanel problem={problem} contestId={contestId}>
+        {children}
+      </EditorResizablePanel>
     </div>
   )
 }

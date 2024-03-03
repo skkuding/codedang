@@ -19,12 +19,14 @@ import Loading from '../app/problem/[problemId]/loading'
 import EditorHeader from './EditorHeader'
 
 interface ProblemEditorProps {
+  contestId?: string
   problem: ProblemDetail
   children: React.ReactNode
 }
 
 export default function EditorMainResizablePanel({
   problem,
+  contestId,
   children
 }: ProblemEditorProps) {
   // get programming language from localStorage for default value
@@ -93,7 +95,7 @@ export default function EditorMainResizablePanel({
 
       <ResizablePanel defaultSize={65} className="bg-slate-900">
         <div className="grid-rows-editor grid h-full">
-          <EditorHeader problem={problem} />
+          <EditorHeader problem={problem} contestId={contestId} />
           <CodeEditor
             value={code}
             language={language as Language}

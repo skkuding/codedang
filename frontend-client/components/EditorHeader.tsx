@@ -34,9 +34,10 @@ import { toast } from 'sonner'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
+  contestId?: string
 }
 
-export default function Editor({ problem }: ProblemEditorProps) {
+export default function Editor({ problem, contestId }: ProblemEditorProps) {
   const { code, language, clearCode, setLanguage } = useEditorStore()
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
@@ -95,7 +96,8 @@ export default function Editor({ problem }: ProblemEditorProps) {
         ]
       },
       searchParams: {
-        problemId: problem.id
+        problemId: problem.id,
+        ...(contestId && { contestId })
       },
       next: {
         revalidate: 0
