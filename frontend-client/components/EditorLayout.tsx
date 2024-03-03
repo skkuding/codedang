@@ -1,5 +1,5 @@
 import EditorResizablePanel from '@/components/EditorResizablePanel'
-import { fetcher } from '@/lib/utils'
+import { convertToLetter, fetcher, fetcherWithAuth } from '@/lib/utils'
 import codedangLogo from '@/public/codedang-editor.svg'
 import type { Contest, ContestProblem, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
@@ -15,8 +15,8 @@ import {
 } from './ui/dropdown-menu'
 
 interface EditorLayoutProps {
-  contestId?: string | null
-  problemId: string
+  contestId?: number
+  problemId: number
   children: React.ReactNode
 }
 
@@ -25,18 +25,18 @@ export default async function EditorLayout({
   problemId,
   children
 }: EditorLayoutProps) {
-  const problems: { problems: ContestProblem[] } | null = contestId
-    ? await fetcher('problem', {
-        searchParams: {
-          contestId
-        }
-      }).json()
-    : null
+  let problems: { problems: ContestProblem[] } | undefined
+  let contest: Contest | undefined
+
+  if (contestId) {
+    // for getting contest info and problems list
+    problems = await fetcherWithAuth.get(`contest/${contestId}/problem`).json()
+    contest = await fetcher(`contest/${contestId}`).json()
+  }
+
+  // for getting problem detail
   const problem: ProblemDetail = await fetcher(`problem/${problemId}`).json()
 
-  const contest: Contest | null = contestId
-    ? await fetcher(`contest/${contestId}`).json()
-    : null
   return (
     <div className="grid-rows-editor grid h-dvh w-full min-w-[1000px] overflow-x-auto bg-slate-800 text-white">
       <header className="flex justify-between bg-slate-900 px-4">
@@ -56,14 +56,14 @@ export default async function EditorLayout({
             {contest ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex gap-1 text-lg font-bold text-white outline-none">
-                  <h1>{`${problems?.problems.find((item) => item.id === Number(problemId))?.order}. ${problem.title}`}</h1>
+                  <h1>{`${convertToLetter(problems?.problems.find((item) => item.id === Number(problemId))?.order as number)}. ${problem.title}`}</h1>
                   <FaSortDown />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="border-slate-700 bg-slate-900">
                   {problems?.problems.map((p: ContestProblem) => (
                     <Link key={p.id} href={`${p.id}` as Route}>
                       <DropdownMenuItem className="text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white">
-                        {`${p.order}. ${p.title}`}
+                        {`${convertToLetter(p.order)}. ${p.title}`}
                       </DropdownMenuItem>
                     </Link>
                   ))}

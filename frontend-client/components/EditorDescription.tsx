@@ -7,7 +7,8 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
-import type { ProblemDetail } from '@/types/type'
+import { convertToLetter } from '@/lib/utils'
+import type { ContestProblem, ProblemDetail } from '@/types/type'
 import { motion } from 'framer-motion'
 import { sanitize } from 'isomorphic-dompurify'
 import { CheckCircle, Lightbulb, Tag } from 'lucide-react'
@@ -42,13 +43,19 @@ const useCopy = () => {
   return { copiedID, copy }
 }
 
-export function EditorDescription({ problem }: { problem: ProblemDetail }) {
+export function EditorDescription({
+  problem,
+  contestProblems
+}: {
+  problem: ProblemDetail
+  contestProblems?: ContestProblem[]
+}) {
   const { copiedID, copy } = useCopy()
 
   return (
     <div className="dark flex h-full flex-col gap-8 p-6 text-lg">
       <div>
-        <h1 className="mb-3 text-xl font-bold">{`#${problem.id}. ${problem.title}`}</h1>
+        <h1 className="mb-3 text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
         <div
           className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
           dangerouslySetInnerHTML={{ __html: sanitize(problem.description) }}
