@@ -13,8 +13,16 @@ import { columns } from './_components/Columns'
 export const dynamic = 'force-dynamic'
 
 const GET_CONTESTS = gql(`
-  query getContests {
-    getContests {
+  query getContests (
+    $groupId: Int!
+    $cursor: Int
+    $take: Int!
+  ) {
+    getContests (
+      groupId: $groupId
+      cursor: $cursor
+      take: $take
+    ) {
       id
       title
       startTime
@@ -29,7 +37,6 @@ export default function Page() {
   const { data, loading } = useQuery(GET_CONTESTS, {
     variables: {
       groupId: 1,
-      cursor: 1,
       take: 100
     }
   })
@@ -37,7 +44,7 @@ export default function Page() {
   const contests = data?.getContests || []
 
   return (
-    <ScrollArea className="w-full">
+    <ScrollArea className="shrink-0">
       <div className="container mx-auto space-y-5 py-10">
         <div className="flex justify-between">
           <div>
