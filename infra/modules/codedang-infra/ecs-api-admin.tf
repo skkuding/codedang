@@ -113,6 +113,9 @@ resource "aws_ecs_task_definition" "admin_api" {
     testcase_bucket_name = aws_s3_bucket.testcase.id,
     testcase_access_key  = aws_iam_access_key.testcase.id,
     testcase_secret_key  = aws_iam_access_key.testcase.secret,
+    media_bucket_name    = aws_s3_bucket.media.id,
+    media_access_key     = aws_iam_access_key.media.id,
+    media_secret_key     = aws_iam_access_key.media.secret,
     loki_url             = var.loki_url,
   })
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
