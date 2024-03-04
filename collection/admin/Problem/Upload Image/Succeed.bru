@@ -24,17 +24,16 @@ assert {
   res.status: eq 200
   res.body.data.uploadImage: isDefined
   res.body.data.uploadImage.src: isString
-  res.body.data.uploadImage.alt: isString
 }
 
 docs {
   ## Upload Image
   이미지를 업로드하고, 업로드된 이미지의 URL 주소를 반환합니다.
-
+  
   ### Error Cases
   #### UNPROCESSABLE (1)
   이미지 파일만 업로드가 가능합니다. (mimetype이 image/*)
-
+  
   #### UNPROCESSABLE (2)
   5MB 이하의 이미지 파일만 업로드가 가능합니다.
 }

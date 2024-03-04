@@ -34,7 +34,7 @@ export class StorageService {
     content: ReadStream,
     type: string
   ) {
-    await this.client.send(
+    await this.mediaClient.send(
       new PutObjectCommand({
         Bucket: this.config.get('MEDIA_BUCKET_NAME'),
         Key: filename,
