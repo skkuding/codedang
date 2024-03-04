@@ -65,4 +65,13 @@ export class StorageService {
       })
     )
   }
+
+  async deleteImage(filename: string) {
+    await this.mediaClient.send(
+      new DeleteObjectCommand({
+        Bucket: this.config.get('MEDIA_BUCKET_NAME'),
+        Key: filename
+      })
+    )
+  }
 }
