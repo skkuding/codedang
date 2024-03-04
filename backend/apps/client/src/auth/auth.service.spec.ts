@@ -177,7 +177,7 @@ describe('AuthService', () => {
   describe('isValidRefreshToken', () => {
     it("should return true when the given refresh token match with the user's cached refresh token", async () => {
       //given
-      stub(cache, 'get').resolves(REFRESH_TOKEN)
+      stub(cache, 'get').resolves(1)
 
       //when
       const result = await service.isValidRefreshToken(REFRESH_TOKEN, user.id)

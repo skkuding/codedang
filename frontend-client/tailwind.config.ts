@@ -26,14 +26,14 @@ export default {
         editor: '3rem minmax(0, 1fr)'
       },
       fontFamily: {
-        sans: [
-          'var(--font-manrope)',
-          'var(--font-noto)',
-          ...defaultTheme.fontFamily.sans
-        ]
+        sans: ['--font-pretendard', ...defaultTheme.fontFamily.sans],
+        mono: ['var(--font-mono)', ...defaultTheme.fontFamily.mono]
       },
       colors: {
-        primary: '#3581FA',
+        primary: {
+          DEFAULT: '#3581FA',
+          light: '#5FA4F5'
+        },
         secondary: '#30D7AE',
         level: {
           1: colors.violet[400],

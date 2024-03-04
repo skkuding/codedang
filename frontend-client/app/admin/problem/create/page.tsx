@@ -13,11 +13,11 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/ui/popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { languages, levels } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import type { Testcase, Sample } from '@/types/type'
 import { useMutation, useQuery } from '@apollo/client'
 import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -27,7 +27,6 @@ import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { HiLockClosed, HiLockOpen } from 'react-icons/hi'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
 import { MdHelpOutline } from 'react-icons/md'
 import { PiWarningBold } from 'react-icons/pi'
@@ -35,14 +34,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Lable'
-import type { TemplateLanguage } from '../utils'
-import {
-  GET_TAGS,
-  inputStyle,
-  languageMapper,
-  languageOptions,
-  levels
-} from '../utils'
+import { GET_TAGS, inputStyle } from '../utils'
 
 const CREATE_PROBLEM = gql(`
   mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
@@ -67,7 +59,6 @@ const CREATE_PROBLEM = gql(`
       problemTestcase {
         input
         output
-        scoreWeight
       }
       timeLimit
       memoryLimit
@@ -81,11 +72,9 @@ const CREATE_PROBLEM = gql(`
 const schema = z.object({
   title: z.string().min(1).max(25),
   isVisible: z.boolean(),
-  difficulty: z.enum(['Level1', 'Level2', 'Level3', 'Level4', 'Level5']),
-  languages: z.array(
-    z.enum(['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3'])
-  ),
-  tagIds: z.array(z.number()).min(1),
+  difficulty: z.enum(levels),
+  languages: z.array(z.enum(languages)),
+  tagIds: z.array(z.number()),
   description: z.string().min(1),
   inputDescription: z.string().min(1),
   outputDescription: z.string().min(1),
@@ -101,8 +90,7 @@ const schema = z.object({
     .array(
       z.object({
         input: z.string().min(1),
-        output: z.string().min(1),
-        scoreWeight: z.number().optional()
+        output: z.string().min(1)
       })
     )
     .min(1),
@@ -136,17 +124,11 @@ const schema = z.object({
 })
 
 export default function Page() {
-  const [showHint, setShowHint] = useState<boolean>(false)
-  const [showSource, setShowSource] = useState<boolean>(false)
-  const [samples, setSamples] = useState<Sample[]>([{ input: '', output: '' }])
-  const [testcases, setTestcases] = useState<Testcase[]>([
-    { input: '', output: '' }
-  ])
-  const [languages, setLanguages] = useState<TemplateLanguage[]>([])
-
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
-    tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
+    tagsData?.getTags.map(({ id, name }) => ({ id: Number(id), name })) ?? []
+  const [showHint, setShowHint] = useState(false)
+  const [showSource, setShowSource] = useState(false)
 
   const router = useRouter()
 
@@ -155,19 +137,25 @@ export default function Page() {
     control,
     register,
     getValues,
+    watch,
     setValue,
     formState: { errors }
   } = useForm<CreateProblemInput>({
     resolver: zodResolver(schema),
     defaultValues: {
       difficulty: Level.Level1,
+      tagIds: [],
       samples: [{ input: '', output: '' }],
       testcases: [{ input: '', output: '' }],
       hint: '',
       source: '',
-      template: []
+      template: [],
+      isVisible: true
     }
   })
+
+  const watchedSamples = watch('samples')
+  const watchedTestcases = watch('testcases')
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
   const onSubmit = async (input: CreateProblemInput) => {
@@ -187,26 +175,23 @@ export default function Page() {
   }
 
   const addExample = (type: 'samples' | 'testcases') => {
-    const currentValues = getValues(type)
-    setValue(type, [...currentValues, { input: '', output: '' }])
-    type === 'samples'
-      ? setSamples(() => [...samples, { input: '', output: '' }])
-      : setTestcases(() => [...testcases, { input: '', output: '' }])
+    setValue(type, [...getValues(type), { input: '', output: '' }])
   }
 
   const removeExample = (type: 'samples' | 'testcases', index: number) => {
     const currentValues = getValues(type)
     if (currentValues.length === 1) {
-      toast.warning(`At least one ${type} is required`)
+      toast.warning(
+        `At least one ${type === 'samples' ? 'sample' : 'testcase'} is required`
+      )
       return
     }
     const updatedValues = currentValues.filter((_, i) => i !== index)
     setValue(type, updatedValues)
-    type === 'samples' ? setSamples(updatedValues) : setTestcases(updatedValues)
   }
 
   return (
-    <ScrollArea className="w-full">
+    <ScrollArea className="shrink-0">
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center gap-4">
           <Link href="/admin/problem">
@@ -260,14 +245,13 @@ export default function Page() {
                 <Controller
                   control={control}
                   name="isVisible"
-                  render={({ field: { onChange, onBlur, value } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <div className="flex gap-6">
                       <label className="flex gap-2">
                         <input
                           type="radio"
-                          onBlur={onBlur}
                           onChange={() => onChange(true)}
-                          checked={value === true}
+                          checked={value}
                           className="accent-black"
                         />
                         <FaEye
@@ -279,7 +263,6 @@ export default function Page() {
                       <label className="flex gap-2">
                         <input
                           type="radio"
-                          onBlur={onBlur}
                           onChange={() => onChange(false)}
                           checked={value === false}
                           className="accent-black"
@@ -309,7 +292,11 @@ export default function Page() {
               <div className="flex flex-col gap-1">
                 <Controller
                   render={({ field }) => (
-                    <OptionSelect options={levels} onChange={field.onChange} />
+                    <OptionSelect
+                      options={levels}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
                   )}
                   name="difficulty"
                   control={control}
@@ -326,22 +313,9 @@ export default function Page() {
                   render={({ field }) => (
                     <CheckboxSelect
                       title="Language"
-                      options={languageOptions}
+                      options={languages}
                       onChange={(selectedLanguages) => {
                         field.onChange(selectedLanguages)
-                        setLanguages(
-                          selectedLanguages.map((language) => ({
-                            language,
-                            isVisible:
-                              languages.filter(
-                                (prev) => prev.language === language
-                              ).length > 0
-                                ? languages.filter(
-                                    (prev) => prev.language === language
-                                  )[0].isVisible
-                                : false
-                          }))
-                        )
                       }}
                     />
                   )}
@@ -395,13 +369,17 @@ export default function Page() {
 
           <div className="flex flex-col gap-1">
             <div className="flex justify-between">
-              <div className="flex flex-col gap-1">
+              <div className="flex w-[360px] flex-col gap-1">
                 <Label>Input Description</Label>
-                <Textarea
-                  id="inputDescription"
-                  placeholder="Enter a description..."
-                  className="h-[120px] w-[360px] resize-none bg-white"
-                  {...register('inputDescription')}
+                <Controller
+                  render={({ field }) => (
+                    <TextEditor
+                      placeholder="Enter a description..."
+                      onChange={field.onChange}
+                    />
+                  )}
+                  name="inputDescription"
+                  control={control}
                 />
                 {errors.inputDescription && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
@@ -410,13 +388,17 @@ export default function Page() {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex w-[360px] flex-col gap-1">
                 <Label>Output Description</Label>
-                <Textarea
-                  id="outputDescription"
-                  placeholder="Enter a description..."
-                  className="h-[120px] w-[360px] resize-none bg-white"
-                  {...register('outputDescription')}
+                <Controller
+                  render={({ field }) => (
+                    <TextEditor
+                      placeholder="Enter a description..."
+                      onChange={field.onChange}
+                    />
+                  )}
+                  name="outputDescription"
+                  control={control}
                 />
                 {errors.outputDescription && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
@@ -439,8 +421,8 @@ export default function Page() {
               </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              {getValues('samples') &&
-                getValues('samples').map((_sample, index) => (
+              {watchedSamples &&
+                watchedSamples.map((_sample, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       onRemove={() => removeExample('samples', index)}
@@ -470,8 +452,8 @@ export default function Page() {
               </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              {getValues('testcases') &&
-                getValues('testcases').map((_testcase, index) => (
+              {watchedTestcases &&
+                watchedTestcases.map((_testcase, index) => (
                   <div key={index} className="flex flex-col gap-1">
                     <ExampleTextarea
                       key={index}
@@ -552,6 +534,7 @@ export default function Page() {
                   setShowHint(!showHint)
                   setValue('hint', '')
                 }}
+                checked={showHint}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
@@ -559,7 +542,7 @@ export default function Page() {
               <Textarea
                 id="hint"
                 placeholder="Enter a hint"
-                className="h-[120px] w-[760px] resize-none bg-white"
+                className="min-h-[120px] w-[760px] bg-white"
                 {...register('hint')}
               />
             )}
@@ -573,6 +556,7 @@ export default function Page() {
                   setShowSource(!showSource)
                   setValue('source', '')
                 }}
+                checked={showSource}
                 className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
               />
             </div>
@@ -587,101 +571,6 @@ export default function Page() {
             )}
           </div>
 
-          <div className="flex flex-col gap-6">
-            {languages &&
-              languages.map((templateLanguage, index) => (
-                <div key={index} className="flex gap-4">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <Label required={false}>
-                        {templateLanguage.language} Template
-                      </Label>
-                      <Switch
-                        onCheckedChange={() => {
-                          setLanguages((prev) =>
-                            prev.map((prevLanguage) =>
-                              prevLanguage.language ===
-                              templateLanguage.language
-                                ? {
-                                    ...prevLanguage,
-                                    isVisible: !prevLanguage.isVisible
-                                  }
-                                : prevLanguage
-                            )
-                          )
-                          setValue(`template.${index}`, {
-                            language: languageMapper[templateLanguage.language],
-                            code: [
-                              {
-                                id: index,
-                                text: '',
-                                locked: true
-                              }
-                            ]
-                          })
-                        }}
-                        className="data-[state=checked]:bg-black data-[state=unchecked]:bg-gray-300"
-                      />
-                    </div>
-                    {templateLanguage.isVisible && (
-                      <Textarea
-                        placeholder={`Enter a ${templateLanguage.language} template...`}
-                        className="h-[180px] w-[480px] bg-white"
-                        {...register(`template.${index}.code.0.text`)}
-                      />
-                    )}
-                  </div>
-                  {templateLanguage.isVisible && (
-                    <div className="flex flex-col gap-3">
-                      <Label>Locked</Label>
-                      <div className="flex items-center gap-2">
-                        <Controller
-                          control={control}
-                          name={`template.${index}.code.0.locked`}
-                          render={({ field: { onChange, onBlur, value } }) => (
-                            <div className="flex gap-4">
-                              <label className="flex gap-1">
-                                <input
-                                  type="radio"
-                                  onBlur={onBlur}
-                                  onChange={() => onChange(true)}
-                                  checked={value === true}
-                                  className="accent-black"
-                                />
-                                <HiLockClosed
-                                  className={
-                                    value === true
-                                      ? 'text-black'
-                                      : 'text-gray-400'
-                                  }
-                                />
-                              </label>
-                              <label className="flex gap-1">
-                                <input
-                                  type="radio"
-                                  onBlur={onBlur}
-                                  onChange={() => onChange(false)}
-                                  checked={value === false}
-                                  className="accent-black"
-                                />
-                                <HiLockOpen
-                                  className={
-                                    value === false
-                                      ? 'text-black'
-                                      : 'text-gray-400'
-                                  }
-                                />
-                              </label>
-                            </div>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-          </div>
-
           <Button
             type="submit"
             className="flex h-[36px] w-[100px] items-center gap-2 px-0 "
@@ -691,6 +580,7 @@ export default function Page() {
           </Button>
         </form>
       </main>
+      <ScrollBar orientation="horizontal" />
     </ScrollArea>
   )
 }

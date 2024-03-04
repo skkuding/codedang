@@ -1,17 +1,21 @@
 'use client'
 
+import type { Language } from '@/types/type'
+import { cpp } from '@codemirror/lang-cpp'
+import { java } from '@codemirror/lang-java'
+import { python } from '@codemirror/lang-python'
+import type { LanguageSupport } from '@codemirror/language'
 import { tags as t } from '@lezer/highlight'
-import type { LanguageName } from '@uiw/codemirror-extensions-langs'
-import { loadLanguage } from '@uiw/codemirror-extensions-langs'
 import { createTheme } from '@uiw/codemirror-themes'
-import type { Extension, ReactCodeMirrorProps } from '@uiw/react-codemirror'
-import ReactCodeMirror from '@uiw/react-codemirror'
+import type { ReactCodeMirrorProps } from '@uiw/react-codemirror'
+import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { ScrollArea, ScrollBar } from './ui/scroll-area'
 
 const editorTheme = createTheme({
   settings: {
     background: '#0f172a',
     foreground: '#9cdcfe',
+    fontFamily: 'var(--font-mono), monospace',
     caret: '#c6c6c6',
     selection: '#6199ff2f',
     selectionMatch: '#72a1ff59',
@@ -44,23 +48,35 @@ const editorTheme = createTheme({
   theme: 'dark'
 })
 
-interface CodeeditorProps extends ReactCodeMirrorProps {
-  language: string
+const fontSize = EditorView.baseTheme({
+  '&': {
+    fontSize: '17px'
+  }
+})
+
+const languageParser: Record<Language, () => LanguageSupport> = {
+  Cpp: cpp,
+  C: cpp,
+  Java: java,
+  Python3: python
 }
 
-export default function Codeeditor({
+interface Props extends ReactCodeMirrorProps {
+  language: Language
+}
+
+export default function CodeEditor({
   value,
   language,
   onChange,
   readOnly: readOnly = false,
   ...props
-}: CodeeditorProps) {
-  language = language === 'Python3' ? 'python' : language?.toLowerCase()
+}: Props) {
   return (
     <ScrollArea className="rounded-md [&>div>div]:h-full">
       <ReactCodeMirror
         theme={editorTheme}
-        extensions={[loadLanguage(language as LanguageName)] as Extension[]}
+        extensions={[fontSize, languageParser[language]()]}
         value={value}
         onChange={onChange}
         readOnly={readOnly}

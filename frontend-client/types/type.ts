@@ -5,7 +5,7 @@ export type ContestStatus =
   | 'registeredOngoing'
   | 'registeredUpcoming'
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
-export type Language = 'C' | 'Cpp' | 'Golang' | 'Java' | 'Python2' | 'Python3'
+export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
 
 export interface Contest {
   id: number
@@ -76,11 +76,15 @@ export interface ProblemDetail {
   description: string
   inputDescription: string
   outputDescription: string
-  inputExamples: string[]
-  outputExamples: string[]
-  languages: string[]
+  samples: {
+    id: number
+    input: string
+    output: string
+  }[]
+  languages: Language[]
   timeLimit: number
   memoryLimit: number
+  source: string
   tags: {
     id: number
     name: string
@@ -116,8 +120,8 @@ export interface SubmissionDetail {
   problemId: number
   username: string
   code: string
-  language: string
-  createTime: string
+  language: Language
+  createTime: Date
   result: string
   testcaseResult: {
     id: number
@@ -126,8 +130,8 @@ export interface SubmissionDetail {
     result: string
     cpuTime: string
     memoryUsage: number
-    createTime: string
-    updateTime: string
+    createTime: Date
+    updateTime: Date
   }[]
 }
 
@@ -152,7 +156,6 @@ export interface Sample {
 export interface Testcase {
   input: string
   output: string
-  scoreWeight?: number
 }
 
 export interface Snippet {

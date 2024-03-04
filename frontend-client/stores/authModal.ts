@@ -4,10 +4,12 @@ interface AuthModalStore {
   currentModal: string
   showSignIn: () => void
   showSignUp: () => void
+  hideModal: () => void
 }
 const useAuthModalStore = create<AuthModalStore>(
   (set: (arg: { currentModal: string }) => void) => ({
     currentModal: '',
+    hideModal: () => set({ currentModal: '' }),
     showSignIn: () => {
       set({ currentModal: '' })
       setTimeout(() => {

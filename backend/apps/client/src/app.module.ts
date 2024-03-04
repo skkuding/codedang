@@ -1,11 +1,13 @@
 import { MailerModule } from '@nestjs-modules/mailer'
 import { CacheModule } from '@nestjs/cache-manager'
-import { Module } from '@nestjs/common'
+import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_GUARD } from '@nestjs/core'
+import { APP_GUARD, APP_FILTER, HttpAdapterHost } from '@nestjs/core'
+import type { Server } from 'http'
 import { LoggerModule } from 'nestjs-pino'
 import { JwtAuthModule, JwtAuthGuard } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
+import { ClientExceptionFilter } from '@libs/exception'
 import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { AnnouncementModule } from './announcement/announcement.module'
@@ -47,6 +49,21 @@ import { WorkbookModule } from './workbook/workbook.module'
     LoggerModule.forRoot(pinoLoggerModuleOption)
   ],
   controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }]
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_FILTER, useClass: ClientExceptionFilter }
+  ]
 })
-export class AppModule {}
+export class AppModule implements OnApplicationBootstrap {
+  constructor(private readonly refHost: HttpAdapterHost) {}
+
+  onApplicationBootstrap() {
+    // Keep-Alive timeout of reverse proxy must be longer than of the backend
+    // Set timeout of Caddy to 60s and of the backend to 61s to avoid timeout error
+    // https://adamcrowder.net/posts/node-express-api-and-aws-alb-502/
+    const server: Server = this.refHost.httpAdapter.getHttpServer()
+    server.keepAliveTimeout = 61 * 1000
+    server.headersTimeout = 62 * 1000
+  }
+}

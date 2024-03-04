@@ -1,3 +1,5 @@
+'use client'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -18,7 +20,7 @@ import { useState, useEffect } from 'react'
 
 interface DataProps<T> {
   title: string
-  options: T[]
+  options: T[] | readonly T[]
   onChange: (selectedValues: T[]) => void
   defaultValue?: T[]
 }

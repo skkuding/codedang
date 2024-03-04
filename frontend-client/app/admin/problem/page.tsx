@@ -3,13 +3,14 @@
 import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
-import * as React from 'react'
 import { columns } from './_components/Columns'
+import UploadDialog from './_components/UploadDialog'
 
 const GET_PROBLEMS = gql(`
   query GetProblems(
@@ -43,14 +44,11 @@ const GET_PROBLEMS = gql(`
   }
 `)
 
-export const dynamic = 'force-dynamic'
-
 export default function Page() {
-  const { data } = useQuery(GET_PROBLEMS, {
+  const { data, loading, refetch } = useQuery(GET_PROBLEMS, {
     variables: {
       groupId: 1,
-      cursor: 1,
-      take: 20,
+      take: 100,
       input: {
         difficulty: [
           Level.Level1,
@@ -69,7 +67,7 @@ export default function Page() {
       ...problem,
       id: Number(problem.id),
       languages: problem.languages ?? [],
-      problemTag: problem.tag.map(({ id, tag }) => ({
+      tag: problem.tag.map(({ id, tag }) => ({
         id: +id,
         tag: {
           ...tag,
@@ -79,7 +77,7 @@ export default function Page() {
     })) ?? []
 
   return (
-    <ScrollArea className="w-full">
+    <ScrollArea className="shrink-0">
       <div className="container mx-auto space-y-5 py-10">
         <div className="flex justify-between">
           <div>
@@ -88,15 +86,38 @@ export default function Page() {
               Here&apos;s a list you made
             </p>
           </div>
-          <Link href="/admin/problem/create">
-            <Button variant="default">
-              <PlusCircleIcon className="mr-2 h-4 w-4" />
-              Create
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <UploadDialog refetch={refetch} />
+            <Link href="/admin/problem/create">
+              <Button variant="default">
+                <PlusCircleIcon className="mr-2 h-4 w-4" />
+                Create
+              </Button>
+            </Link>
+          </div>
         </div>
-        <DataTableAdmin columns={columns} data={problems} />
+        {loading ? (
+          <>
+            <div className="mb-16 flex gap-4">
+              <span className="w-2/12">
+                <Skeleton className="h-10 w-full" />
+              </span>
+              <span className="w-1/12">
+                <Skeleton className="h-10 w-full" />
+              </span>
+              <span className="w-1/12">
+                <Skeleton className="h-10 w-full" />
+              </span>
+            </div>
+            {[...Array(10)].map((_, i) => (
+              <Skeleton key={i} className="my-2 flex h-12 w-full rounded-xl" />
+            ))}
+          </>
+        ) : (
+          <DataTableAdmin columns={columns} data={problems} />
+        )}
       </div>
+      <ScrollBar orientation="horizontal" />
     </ScrollArea>
   )
 }

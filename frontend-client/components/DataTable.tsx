@@ -41,6 +41,8 @@ interface DataTableProps<TData, TValue> {
  * tailwindcss class name for each header
  * @param name
  * name of the table, used for routing
+ * @param linked
+ * if true, each row is linked to the detail page
  * @example
  * ```tsx
  * // page.tsx
@@ -50,6 +52,7 @@ interface DataTableProps<TData, TValue> {
  *  createTime: 'w-1/4 md:w-1/6'
  *  }}
  *  name="notice"
+ * linked # for routing
  * />
  * ```
  * ```tsx

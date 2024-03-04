@@ -14,12 +14,14 @@ const bootstrap = async () => {
   app.useGlobalInterceptors(new LoggerErrorInterceptor())
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
   app.use(cookieParser())
-  app.enableCors({
-    allowedHeaders: ['*'],
-    exposedHeaders: ['authorization', 'email-auth'],
-    credentials: true
-  })
   if (process.env.NODE_ENV !== 'production') {
+    app.enableCors({
+      origin: 'http://localhost:5525',
+      credentials: true,
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      allowedHeaders: ['*'],
+      exposedHeaders: ['Content-Type', 'Authorization', 'Email-Auth']
+    })
     const config = new DocumentBuilder()
       .setTitle('SKKU coding platform')
       .setDescription('API description')

@@ -1,6 +1,6 @@
 'use client'
 
-import Codeeditor from '@/components/Codeeditor'
+import CodeEditor from '@/components/CodeEditor'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -8,9 +8,9 @@ import {
 } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useStorage } from '@/lib/hooks'
+import { useStorage } from '@/lib/storage'
 import useEditorStore from '@/stores/editor'
-import type { ProblemDetail } from '@/types/type'
+import type { Language, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -21,16 +21,22 @@ import EditorHeader from './EditorHeader'
 interface ProblemEditorProps {
   problem: ProblemDetail
   children: React.ReactNode
+  contestId?: number
 }
 
 export default function EditorMainResizablePanel({
   problem,
+  contestId,
   children
 }: ProblemEditorProps) {
   // get programming language from localStorage for default value
-  const { value } = useStorage('programming_lang', problem.languages[0])
+  const { value } = useStorage<Language>(
+    'programming_lang',
+    problem.languages[0]
+  )
   const { code, setCode, setLanguage, language } = useEditorStore()
   const pathname = usePathname()
+  const base = contestId ? `/contest/${contestId}` : ''
 
   useEffect(() => {
     if (!language) {
@@ -55,24 +61,26 @@ export default function EditorMainResizablePanel({
           <div className="flex h-full w-full items-center border-b border-slate-700 bg-slate-800 px-6">
             <Tabs
               value={
-                pathname.startsWith(`/problem/${problem.id}/submission`)
+                pathname.startsWith(`${base}/problem/${problem.id}/submission`)
                   ? 'Submission'
                   : 'Description'
               }
             >
               <TabsList className="bg-slate-900">
-                <Link href={`/problem/${problem.id}`}>
+                <Link href={`${base}/problem/${problem.id}` as Route}>
                   <TabsTrigger
                     value="Description"
-                    className="data-[state=active]:bg-slate-700 data-[state=active]:text-blue-400"
+                    className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
                   >
                     Description
                   </TabsTrigger>
                 </Link>
-                <Link href={`/problem/${problem.id}/submission` as Route}>
+                <Link
+                  href={`${base}/problem/${problem.id}/submission` as Route}
+                >
                   <TabsTrigger
                     value="Submission"
-                    className="data-[state=active]:bg-slate-700 data-[state=active]:text-blue-400"
+                    className="data-[state=active]:text-primary-light data-[state=active]:bg-slate-700"
                   >
                     Submission
                   </TabsTrigger>
@@ -90,10 +98,10 @@ export default function EditorMainResizablePanel({
 
       <ResizablePanel defaultSize={65} className="bg-slate-900">
         <div className="grid-rows-editor grid h-full">
-          <EditorHeader problem={problem} />
-          <Codeeditor
+          <EditorHeader problem={problem} contestId={contestId} />
+          <CodeEditor
             value={code}
-            language={language as string}
+            language={language as Language}
             onChange={setCode}
             height="100%"
             className="h-full"
