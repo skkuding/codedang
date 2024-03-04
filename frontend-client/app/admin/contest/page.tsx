@@ -41,7 +41,11 @@ export default function Page() {
     }
   })
 
-  const contests = data?.getContests || []
+  const contests =
+    data?.getContests.map((contest) => ({
+      ...contest,
+      id: Number(contest.id)
+    })) || []
 
   return (
     <ScrollArea className="shrink-0">
