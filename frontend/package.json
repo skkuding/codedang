@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.9.5",
-    "@codemirror/autocomplete": "^6.12.0",
+    "@codemirror/autocomplete": "^6.13.0",
     "@codemirror/commands": "^6.3.3",
     "@codemirror/lang-cpp": "^6.0.2",
     "@codemirror/lang-java": "^6.0.1",
@@ -19,7 +19,7 @@
     "@codemirror/language": "^6.10.1",
     "@codemirror/state": "^6.4.1",
     "@codemirror/theme-one-dark": "^6.1.2",
-    "@codemirror/view": "^6.24.1",
+    "@codemirror/view": "^6.25.0",
     "@tiptap/pm": "^2.2.4",
     "@tiptap/starter-kit": "^2.2.4",
     "@tiptap/vue-3": "^2.2.4",
