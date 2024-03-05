@@ -89,11 +89,11 @@ export class ContestProblemService {
       userId
     )
     const now = new Date()
-    if (!contest.canRegister && contest.startTime > now) {
+    if (contest.isRegistered && contest.startTime > now) {
       throw new ForbiddenAccessException(
         'Cannot access to problems before the contest starts.'
       )
-    } else if (contest.canRegister && contest.endTime > now) {
+    } else if (!contest.isRegistered && contest.endTime > now) {
       throw new ForbiddenAccessException(
         'Register to access the problems of this contest.'
       )
@@ -125,11 +125,11 @@ export class ContestProblemService {
       userId
     )
     const now = new Date()
-    if (!contest.canRegister && contest.startTime > now) {
+    if (contest.isRegistered && contest.startTime > now) {
       throw new ForbiddenAccessException(
         'Cannot access to problems before the contest starts.'
       )
-    } else if (contest.canRegister && contest.endTime > now) {
+    } else if (!contest.isRegistered && contest.endTime > now) {
       throw new ForbiddenAccessException('Register to access this problem.')
     }
 
