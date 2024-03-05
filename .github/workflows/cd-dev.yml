@@ -27,7 +27,7 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          file: ./apps/backend/Dockerfile
+          file: ./apps/backend/Dockerfile # build with root context
           push: true
           build-args: 'target=client'
           tags: ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
@@ -49,7 +49,7 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          file: ./apps/backend/Dockerfile
+          file: ./apps/backend/Dockerfile # build with root context
           push: true
           build-args: 'target=admin'
           tags: ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
@@ -72,7 +72,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          context: '{{defaultContext}}:iris'
+          context: '{{defaultContext}}:apps/iris'
           tags: ghcr.io/${{ github.repository_owner }}/codedang-iris:latest
 
   run-server:

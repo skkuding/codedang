@@ -82,7 +82,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          context: '{{defaultContext}}:iris'
+          context: '{{defaultContext}}:apps/iris'
           tags: ${{ steps.login-ecr.outputs.registry }}/codedang-iris:latest
 
   deploy:

@@ -25,7 +25,7 @@ ENV NODE_ENV=production
 ENV TARGET=${target}
 
 COPY --from=builder /build/out /app
-COPY ./backend/entrypoint.sh /app
+COPY ./apps/backend/entrypoint.sh /app
 WORKDIR /app
 
 ENTRYPOINT ["/app/entrypoint.sh"]
