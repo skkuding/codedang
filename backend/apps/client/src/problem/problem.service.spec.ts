@@ -265,7 +265,7 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        canRegister: false
+        isRegistered: true
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -287,7 +287,7 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        canRegister: false
+        isRegistered: true
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -325,7 +325,7 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.future(),
         endTime: faker.date.future(),
-        canRegister: false
+        isRegistered: true
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -339,7 +339,7 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        canRegister: true
+        isRegistered: false
       })
       db.contestProblem.findMany.resolves(mockContestProblems)
 
@@ -356,7 +356,7 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        canRegister: false
+        isRegistered: true
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
 
@@ -379,7 +379,7 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        canRegister: false
+        isRegistered: true
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
 
@@ -412,7 +412,7 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.future(),
         endTime: faker.date.future(),
-        canRegister: false
+        isRegistered: true
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       await expect(
@@ -425,7 +425,7 @@ describe('ContestProblemService', () => {
       getContestSpy.resolves({
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        canRegister: true
+        isRegistered: false
       })
       db.contestProblem.findUniqueOrThrow.resolves(mockContestProblem)
       await expect(
