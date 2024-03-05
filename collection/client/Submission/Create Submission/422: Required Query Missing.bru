@@ -1,0 +1,42 @@
+meta {
+  name: 422: Required Query Missing
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/submission
+  body: json
+  auth: none
+}
+
+query {
+  ~problemId: 
+  ~groupId: 1
+  ~workbookId: 1
+  ~contestId: 1
+}
+
+body:json {
+  {
+    "code": [
+      {
+        "id": 1,
+        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a + b);}",
+        "locked": false
+      }
+    ],
+    "language": "C"
+  }
+}
+
+assert {
+  res.status: eq 422
+  res.body.message: eq Required query is missing: problemId
+  res.body.error: eq Unprocessable Entity
+  res.body.statusCode: eq 422
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}

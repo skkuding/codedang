@@ -9,7 +9,7 @@ export const submissionResults: SubmissionResult[] = [
     result: ResultStatus.Accepted,
     submissionId: 1,
     updateTime: new Date('2023-01-01'),
-    cpuTime: BigInt(12345),
+    cpuTime: Number(12345),
     memoryUsage: 12345
   },
   {
@@ -19,7 +19,7 @@ export const submissionResults: SubmissionResult[] = [
     result: ResultStatus.Accepted,
     submissionId: 2,
     updateTime: new Date('2023-01-01'),
-    cpuTime: BigInt(12345),
+    cpuTime: Number(12345),
     memoryUsage: 12345
   },
   {
@@ -29,7 +29,7 @@ export const submissionResults: SubmissionResult[] = [
     result: ResultStatus.WrongAnswer,
     submissionId: 1,
     updateTime: new Date('2023-01-01'),
-    cpuTime: BigInt(12345),
+    cpuTime: Number(12345),
     memoryUsage: 12345
   },
   {
@@ -39,7 +39,7 @@ export const submissionResults: SubmissionResult[] = [
     result: ResultStatus.CompileError,
     submissionId: 1,
     updateTime: new Date('2023-01-01'),
-    cpuTime: BigInt(12345),
+    cpuTime: Number(12345),
     memoryUsage: 12345
   }
 ]

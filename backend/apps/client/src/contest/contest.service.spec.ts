@@ -81,7 +81,54 @@ const contests = [
   ...ongoingContests,
   ...finishedContests,
   ...upcomingContests
-] satisfies Partial<ContestResult>[]
+] satisfies Partial<ContestSelectResult>[]
+
+const sortedContestRecordsWithUserDetail = [
+  {
+    user: {
+      id: 13,
+      username: 'user10'
+    },
+    score: 36,
+    totalPenalty: 720
+  },
+  {
+    user: {
+      id: 12,
+      username: 'user09'
+    },
+    score: 33,
+    totalPenalty: 660
+  },
+  {
+    user: {
+      id: 11,
+      username: 'user08'
+    },
+    score: 30,
+    totalPenalty: 600
+  }
+]
+
+const mockPrismaService = {
+  contest: {
+    findUnique: stub(),
+    findUniqueOrThrow: stub(),
+    findFirst: stub(),
+    findFirstOrThrow: stub(),
+    findMany: stub()
+  },
+  contestRecord: {
+    findFirst: stub(),
+    findMany: stub(),
+    create: stub()
+  },
+  userGroup: {
+    findFirst: stub(),
+    findMany: stub()
+  },
+  getPaginator: PrismaService.prototype.getPaginator
+}
 
 describe('ContestService', () => {
   let service: ContestService
@@ -298,7 +345,18 @@ describe('ContestService', () => {
     })
 
     it('should return contest', async () => {
-      expect(await service.getContest(contestId, groupId, user01Id)).to.be.ok
+      mockPrismaService.contest.findUniqueOrThrow.resolves(contestDetail)
+      mockPrismaService.contestRecord.findMany.resolves(
+        sortedContestRecordsWithUserDetail
+      )
+
+      expect(await service.getContest(groupId, contestId)).to.deep.equal({
+        ...contestDetail,
+        standings: sortedContestRecordsWithUserDetail.map((record, index) => ({
+          ...record,
+          standing: index + 1
+        }))
+      })
     })
   })
 
