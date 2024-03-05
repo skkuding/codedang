@@ -280,16 +280,16 @@ export class ContestService {
   }
 
   async getContest(id: number, groupId = OPEN_SPACE_ID, userId?: number) {
-    // check if the user can register this contest
+    // check if the user has already registered this contest
     // initial value is false
-    let canRegister = false
+    let isRegistered = false
     let contest
     if (userId) {
       const hasRegistered = await this.prisma.contestRecord.findFirst({
         where: { userId, contestId: id }
       })
-      if (!hasRegistered) {
-        canRegister = true
+      if (hasRegistered) {
+        isRegistered = true
       }
     }
     try {
@@ -353,7 +353,7 @@ export class ContestService {
     // combine contest and sortedContestRecordsWithUserDetail
     return {
       ...contest,
-      canRegister
+      isRegistered
     }
   }
 
