@@ -5,7 +5,7 @@ export type ContestStatus =
   | 'registeredOngoing'
   | 'registeredUpcoming'
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
-export type Language = 'C' | 'Cpp' | 'Golang' | 'Java' | 'Python2' | 'Python3'
+export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
 
 export interface Contest {
   id: number
@@ -121,7 +121,7 @@ export interface SubmissionDetail {
   username: string
   code: string
   language: Language
-  createTime: string
+  createTime: Date
   result: string
   testcaseResult: {
     id: number
@@ -130,8 +130,8 @@ export interface SubmissionDetail {
     result: string
     cpuTime: string
     memoryUsage: number
-    createTime: string
-    updateTime: string
+    createTime: Date
+    updateTime: Date
   }[]
 }
 

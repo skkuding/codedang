@@ -2,8 +2,8 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { baseUrl } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { baseUrl } from '@/lib/vars'
 import useSignUpModalStore from '@/stores/signUpModal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'

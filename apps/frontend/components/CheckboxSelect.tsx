@@ -20,7 +20,7 @@ import { useState, useEffect } from 'react'
 
 interface DataProps<T> {
   title: string
-  options: T[]
+  options: T[] | readonly T[]
   onChange: (selectedValues: T[]) => void
   defaultValue?: T[]
 }

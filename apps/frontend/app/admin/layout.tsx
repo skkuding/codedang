@@ -4,7 +4,6 @@ import type { Route } from 'next'
 import Link from 'next/link'
 import { FaArrowRightFromBracket } from 'react-icons/fa6'
 import ClientApolloProvider from './_components/ApolloProvider'
-// import GroupSelect from './_components/GroupSelect'
 import SideBar from './_components/SideBar'
 
 export default function Layout({ children }: { children: React.ReactNode }) {

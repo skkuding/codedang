@@ -1,5 +1,5 @@
+import { ACCESS_TOKEN_EXPIRE_TIME } from '@/lib/constants'
 import { fetcher } from '@/lib/utils'
-import { ACCESS_TOKEN_EXPIRE_TIME } from '@/lib/vars'
 import {
   getServerSession,
   type NextAuthOptions,

@@ -3,7 +3,7 @@ import ky, { TimeoutError } from 'ky'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 import { auth } from './auth'
-import { baseUrl } from './vars'
+import { baseUrl } from './constants'
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
@@ -55,10 +55,5 @@ export const fetcherWithAuth = fetcher.extend({
 })
 
 export const convertToLetter = (n: number) => {
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  const firstDigit = Math.floor(n / 26) - 1
-
-  return firstDigit >= 0
-    ? alphabet[firstDigit] + alphabet[n % 26]
-    : alphabet[n % 26]
+  return String.fromCharCode(65 + n)
 }
