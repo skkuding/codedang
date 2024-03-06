@@ -54,22 +54,16 @@ export class NoticeService {
       }
     })
 
-    const total = search
-      ? await this.prisma.notice.count({
-          where: {
-            title: {
-              contains: search
-            },
-            isVisible: true,
-            isFixed: fixed
-          }
-        })
-      : await this.prisma.notice.count({
-          where: {
-            isVisible: true,
-            isFixed: fixed
-          }
-        })
+    const total = await this.prisma.notice.count({
+      where: {
+        title: {
+          contains: search,
+          mode: 'insensitive'
+        },
+        isVisible: true,
+        isFixed: fixed
+      }
+    })
 
     return { data, total }
   }

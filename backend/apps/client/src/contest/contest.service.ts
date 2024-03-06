@@ -220,40 +220,24 @@ export class ContestService {
       orderBy: [{ endTime: 'desc' }, { id: 'desc' }]
     })
 
-    const total = search
-      ? await this.prisma.contest.count({
-          where: {
-            groupId,
-            endTime: {
-              lte: now
-            },
-            id: {
-              in: registeredContestIds
-            },
-            title: {
-              contains: search
-            },
-            config: {
-              path: ['isVisible'],
-              equals: true
-            }
-          }
-        })
-      : await this.prisma.contest.count({
-          where: {
-            groupId,
-            endTime: {
-              lte: now
-            },
-            id: {
-              in: registeredContestIds
-            },
-            config: {
-              path: ['isVisible'],
-              equals: true
-            }
-          }
-        })
+    const total = await this.prisma.contest.count({
+      where: {
+        groupId,
+        endTime: {
+          lte: now
+        },
+        id: {
+          in: registeredContestIds
+        },
+        title: {
+          contains: search
+        },
+        config: {
+          path: ['isVisible'],
+          equals: true
+        }
+      }
+    })
 
     return { data: this.renameToParticipants(contests), total }
   }
@@ -287,34 +271,21 @@ export class ContestService {
       orderBy: [{ endTime: 'desc' }, { id: 'desc' }]
     })
 
-    const total = search
-      ? await this.prisma.contest.count({
-          where: {
-            endTime: {
-              lte: now
-            },
-            groupId,
-            config: {
-              path: ['isVisible'],
-              equals: true
-            },
-            title: {
-              contains: search
-            }
-          }
-        })
-      : await this.prisma.contest.count({
-          where: {
-            endTime: {
-              lte: now
-            },
-            groupId,
-            config: {
-              path: ['isVisible'],
-              equals: true
-            }
-          }
-        })
+    const total = await this.prisma.contest.count({
+      where: {
+        endTime: {
+          lte: now
+        },
+        groupId,
+        config: {
+          path: ['isVisible'],
+          equals: true
+        },
+        title: {
+          contains: search
+        }
+      }
+    })
 
     return { data: this.renameToParticipants(finished), total }
   }
