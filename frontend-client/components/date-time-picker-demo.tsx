@@ -14,11 +14,19 @@ import { Calendar as CalendarIcon } from 'lucide-react'
 import * as React from 'react'
 
 export function DateTimePickerDemo({
-  onChange
+  onChange,
+  defaultValue
 }: {
   onChange: (date: Date) => void
+  defaultValue?: Date
 }) {
   const [date, setDate] = React.useState<Date>()
+
+  React.useEffect(() => {
+    if (defaultValue) {
+      setDate(defaultValue)
+    }
+  }, [defaultValue])
 
   return (
     <Popover onOpenChange={() => onChange(date)}>
