@@ -4,7 +4,6 @@ import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
 import { AdminModule } from './admin.module'
 import tracer from './tracer'
 
-tracer.init()
 const bootstrap = async () => {
   const app = await NestFactory.create(AdminModule, { bufferLogs: true })
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 2 }))
@@ -19,4 +18,5 @@ const bootstrap = async () => {
   await app.listen(3000)
 }
 
+tracer.init()
 bootstrap()

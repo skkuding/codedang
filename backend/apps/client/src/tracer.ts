@@ -14,9 +14,9 @@ import { PrismaInstrumentation } from '@prisma/instrumentation'
 class Tracer {
   private sdk: NodeSDK | null = null
 
-  // url is optional and can be omitted - default is http://localhost:4318/v1/traces
+  // http://localhost:4318/v1/traces
   private exporter = new OTLPTraceExporter({
-    url: 'http://localhost:44318/v1/traces'
+    url: 'http://' + process.env.OTEL_EXPORTER_OTLP_ENDPOINT + '/v1/traces'
   })
 
   private provider = new BasicTracerProvider({
@@ -26,6 +26,14 @@ class Tracer {
   })
 
   public init() {
+    if (
+      process.env.OTEL_EXPORTER_OTLP_ENDPOINT == undefined ||
+      process.env.OTEL_EXPORTER_OTLP_ENDPOINT == ''
+    ) {
+      console.error('The exporter url is not defined')
+      return
+    }
+
     try {
       // export spans to opentelemetry collector
       if (process.env.NODE_ENV == 'production') {

@@ -6,7 +6,6 @@ import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
 import { AppModule } from './app.module'
 import tracer from './tracer'
 
-tracer.init()
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true
@@ -40,4 +39,5 @@ const bootstrap = async () => {
   await app.listen(4000)
 }
 
+tracer.init()
 bootstrap()

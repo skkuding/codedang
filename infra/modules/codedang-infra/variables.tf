@@ -99,3 +99,15 @@ variable "kakao_client_secret" {
   default   = "kakao_client_secret"
   sensitive = true
 }
+
+variable "otel_url" {
+  type      = string
+  default   = "127.0.0.1"
+  sensitive = true
+}
+
+variable "otel_port" {
+  type      = number
+  default   = 4317
+  sensitive = true
+}

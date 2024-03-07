@@ -33,9 +33,12 @@ func main() {
 	ctx := context.Background()
 
 	cache := cache.NewCache(ctx)
-
-	shutdown := observability.InitTracer(ctx)
-	defer shutdown()
+  if utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "") != "" {
+    shutdown := observability.InitTracer(ctx)
+  	defer shutdown()
+  }else {
+    logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT")
+  }
 
 	bucketName := os.Getenv("TESTCASE_BUCKET_NAME")
 	if bucketName == "" {

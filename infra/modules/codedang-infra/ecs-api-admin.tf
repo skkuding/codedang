@@ -111,6 +111,7 @@ resource "aws_ecs_task_definition" "admin_api" {
     testcase_bucket_name = aws_s3_bucket.testcase.id,
     testcase_access_key  = aws_iam_access_key.testcase.id,
     testcase_secret_key  = aws_iam_access_key.testcase.secret,
+    otel_endpoint        = "${var.otel_url}:${var.otel_port}",
   })
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 }

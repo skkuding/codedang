@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/skkuding/codedang/iris/src/utils"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
@@ -61,7 +62,8 @@ func newResource(ctx context.Context) (*resource.Resource, error) {
 }
 
 func newExporter(ctx context.Context) (*otlptrace.Exporter, error) {
-	exp, err := otlptracehttp.New(ctx, otlptracehttp.WithEndpoint("localhost:44318"), otlptracehttp.WithInsecure())
+  oltpEndpoint := utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
+	exp, err := otlptracehttp.New(ctx, otlptracehttp.WithEndpoint(oltpEndpoint), otlptracehttp.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
