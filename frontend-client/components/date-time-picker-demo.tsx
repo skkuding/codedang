@@ -13,11 +13,15 @@ import { format } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
 import * as React from 'react'
 
-export function DateTimePickerDemo() {
+export function DateTimePickerDemo({
+  onChange
+}: {
+  onChange: (date: Date) => void
+}) {
   const [date, setDate] = React.useState<Date>()
 
   return (
-    <Popover>
+    <Popover onOpenChange={() => onChange(date)}>
       <PopoverTrigger asChild>
         <Button
           variant={'outline'}
