@@ -62,7 +62,6 @@ pnpm install
 pnpm exec lefthook install
 
 # Init MinIO
-pnpm run init:testcases
 pnpm run init:storage
 
 # Enable git auto completion
