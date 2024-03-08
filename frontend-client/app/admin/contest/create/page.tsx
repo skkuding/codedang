@@ -79,7 +79,7 @@ export default function Page() {
       return
     }
     toast.success('Contest created successfully')
-    router.push(`/admin/contest/${contestId}`)
+    router.push(`/admin/problem/create?contestId=${contestId}`)
   }
 
   return (
@@ -172,7 +172,7 @@ export default function Page() {
             className="flex h-[36px] w-[100px] items-center gap-2 px-0 "
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
-            <div className="mb-[2px] text-base">Create</div>
+            <div className="mb-[2px] text-base">Create Problem</div>
           </Button>
         </form>
       </main>
