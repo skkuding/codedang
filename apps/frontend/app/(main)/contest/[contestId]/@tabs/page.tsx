@@ -1,7 +1,6 @@
 import { auth } from '@/lib/auth'
-import { fetcher } from '@/lib/utils'
+import { fetcherWithAuth } from '@/lib/utils'
 import { sanitize } from 'isomorphic-dompurify'
-import DeregisterButton from './_components/DeregisterButton'
 import RegisterButton from './_components/RegisterButton'
 
 interface ContestTop {
@@ -34,13 +33,13 @@ interface ContestTopProps {
 export default async function ContestTop({ params }: ContestTopProps) {
   const session = await auth()
   const { contestId } = params
-  const data: ContestTop = await fetcher.get(`contest/${contestId}`).json()
+  const data: ContestTop = await fetcherWithAuth
+    .get(`contest/${contestId}`)
+    .json()
 
   const startTime = new Date(data.startTime)
   const endTime = new Date(data.endTime)
   const currentTime = new Date()
-
-  console.log(data)
 
   return (
     <>
@@ -49,27 +48,27 @@ export default async function ContestTop({ params }: ContestTopProps) {
         dangerouslySetInnerHTML={{ __html: sanitize(data.description) }}
       />
 
-      {/* Upcoming일때 */}
-      {session && currentTime < startTime && !data.isRegistered && (
+      {/* Upcoming */}
+      {session && currentTime < startTime && (
         <div className="mt-10 flex justify-center">
-          <RegisterButton id={contestId} />
-        </div>
-      )}
-      {session && currentTime < startTime && data.isRegistered && (
-        <div className="mt-10 flex justify-center">
-          <DeregisterButton id={contestId} />
+          <RegisterButton
+            id={contestId}
+            registered={data.isRegistered}
+            state="Upcoming"
+          />
         </div>
       )}
 
-      {/* Ongoing일때 */}
-      {session &&
-        currentTime >= startTime &&
-        currentTime < endTime &&
-        !data.isRegistered && (
-          <div className="mt-10 flex justify-center">
-            <RegisterButton id={contestId} />
-          </div>
-        )}
+      {/* Ongoing */}
+      {session && currentTime >= startTime && currentTime < endTime && (
+        <div className="mt-10 flex justify-center">
+          <RegisterButton
+            id={contestId}
+            registered={data.isRegistered}
+            state="Ongoing"
+          />
+        </div>
+      )}
     </>
   )
 }
