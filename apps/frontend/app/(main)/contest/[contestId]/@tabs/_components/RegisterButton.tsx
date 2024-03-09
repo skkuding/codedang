@@ -59,6 +59,7 @@ export default function RegisterButton({
               className="px-12 py-6 text-lg font-light"
               onClick={() => {
                 clickRegister(id)
+                setIsRegistered(true)
                 toast.success('Registered successfully to Ongoing test')
               }}
             >
