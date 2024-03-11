@@ -13,7 +13,6 @@ const getProblems = async () => {
       }
     })
     .json()
-
   return problems
 }
 
