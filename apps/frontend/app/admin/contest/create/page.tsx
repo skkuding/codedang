@@ -18,6 +18,7 @@ import { useMutation } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -65,6 +66,7 @@ export default function Page() {
     control,
     register,
     getValues,
+    setValue,
     formState: { errors }
   } = useForm<CreateContestInput>({
     resolver: zodResolver(schema),
@@ -92,6 +94,29 @@ export default function Page() {
     toast.success('Contest created successfully')
     router.push(`/admin/problem/create?contestId=${contestId}`)
   }
+
+  const saveToLocalStorage = () => {
+    const formData = {
+      title: getValues('title'),
+      startTime: getValues('startTime'),
+      endTime: getValues('endTime'),
+      description: getValues('description')
+    }
+    localStorage.setItem('contestFormData', JSON.stringify(formData))
+  }
+
+  useEffect(() => {
+    const storedData = localStorage.getItem('contestFormData')
+    if (storedData) {
+      const parsedData = JSON.parse(storedData)
+      setValue('title', parsedData.title)
+      setValue('startTime', new Date(parsedData.startTime))
+      setValue('endTime', new Date(parsedData.endTime))
+      setValue('description', parsedData.description)
+    } else {
+      setValue('description', ' ')
+    }
+  }, [])
 
   return (
     <ScrollArea className="w-full">
@@ -129,7 +154,10 @@ export default function Page() {
               <Label>Start Time</Label>
               <Controller
                 render={({ field }) => (
-                  <DateTimePickerDemo onChange={field.onChange} />
+                  <DateTimePickerDemo
+                    onChange={field.onChange}
+                    defaultValue={field.value}
+                  />
                 )}
                 name="startTime"
                 control={control}
@@ -145,7 +173,10 @@ export default function Page() {
               <Label>End Time</Label>
               <Controller
                 render={({ field }) => (
-                  <DateTimePickerDemo onChange={field.onChange} />
+                  <DateTimePickerDemo
+                    onChange={field.onChange}
+                    defaultValue={field.value}
+                  />
                 )}
                 name="endTime"
                 control={control}
@@ -161,16 +192,19 @@ export default function Page() {
 
           <div className="flex flex-col gap-1">
             <Label>Description</Label>
-            <Controller
-              render={({ field }) => (
-                <TextEditor
-                  placeholder="Enter a description..."
-                  onChange={field.onChange}
-                />
-              )}
-              name="description"
-              control={control}
-            />
+            {getValues('description') && (
+              <Controller
+                render={({ field }) => (
+                  <TextEditor
+                    placeholder="Enter a description..."
+                    onChange={field.onChange}
+                    defaultValue={field.value}
+                  />
+                )}
+                name="description"
+                control={control}
+              />
+            )}
             {errors.description && (
               <div className="flex items-center gap-1 text-xs text-red-500">
                 <PiWarningBold />
@@ -211,10 +245,12 @@ export default function Page() {
                   </PopoverContent>
                 </Popover>
               </div>
-
               <Button
                 type="button"
-                className="flex h-[36px] w-36 items-center gap-2 px-0 "
+                className="flex h-[36px] w-36 items-center gap-2 px-0"
+                onClick={() => {
+                  saveToLocalStorage()
+                }}
               >
                 <PlusCircleIcon className="h-4 w-4" />
                 <div className="mb-[2px] text-sm">Create Problem</div>
