@@ -26,14 +26,6 @@ class Tracer {
   })
 
   public init() {
-    if (
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT == undefined ||
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT == ''
-    ) {
-      console.error('The exporter url is not defined')
-      return
-    }
-
     try {
       // export spans to opentelemetry collector
       if (process.env.NODE_ENV == 'production') {

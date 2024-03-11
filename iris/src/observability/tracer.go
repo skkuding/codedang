@@ -62,7 +62,7 @@ func newResource(ctx context.Context) (*resource.Resource, error) {
 }
 
 func newExporter(ctx context.Context) (*otlptrace.Exporter, error) {
-  oltpEndpoint := utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
+	oltpEndpoint := utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
 	exp, err := otlptracehttp.New(ctx, otlptracehttp.WithEndpoint(oltpEndpoint), otlptracehttp.WithInsecure())
 	if err != nil {
 		return nil, err
