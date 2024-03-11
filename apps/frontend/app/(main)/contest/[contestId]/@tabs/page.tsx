@@ -40,6 +40,12 @@ export default async function ContestTop({ params }: ContestTopProps) {
   const startTime = new Date(data.startTime)
   const endTime = new Date(data.endTime)
   const currentTime = new Date()
+  const state =
+    currentTime >= endTime
+      ? 'Finished'
+      : currentTime < startTime
+        ? 'Upcoming'
+        : 'Ongoing'
 
   return (
     <>
@@ -48,24 +54,12 @@ export default async function ContestTop({ params }: ContestTopProps) {
         dangerouslySetInnerHTML={{ __html: sanitize(data.description) }}
       />
 
-      {/* Upcoming */}
-      {session && currentTime < startTime && (
+      {session && state !== 'Finished' && (
         <div className="mt-10 flex justify-center">
           <RegisterButton
             id={contestId}
             registered={data.isRegistered}
-            state="Upcoming"
-          />
-        </div>
-      )}
-
-      {/* Ongoing */}
-      {session && currentTime >= startTime && currentTime < endTime && (
-        <div className="mt-10 flex justify-center">
-          <RegisterButton
-            id={contestId}
-            registered={data.isRegistered}
-            state="Ongoing"
+            state={state}
           />
         </div>
       )}
