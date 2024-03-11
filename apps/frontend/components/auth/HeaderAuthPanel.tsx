@@ -37,7 +37,6 @@ export default function HeaderAuthPanel({
     (state) => state
   )
   const { setModalPage } = useSignUpModalStore((state) => state)
-
   return (
     <div className="ml-2 flex items-center gap-2">
       {session ? (
