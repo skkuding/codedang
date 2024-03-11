@@ -43,11 +43,11 @@ export default function RegisterButton({
             if (isRegistered) {
               clickDeregister(id)
               setIsRegistered(false)
-              toast.success('Deregistered successfully to Upcoming test')
+              toast.success('Deregistered Upcoming test successfully')
             } else {
               clickRegister(id)
               setIsRegistered(true)
-              toast.success('Registered successfully to Upcoming test')
+              toast.success('Registered Upcoming test successfully')
             }
           }}
         >
@@ -61,7 +61,7 @@ export default function RegisterButton({
               onClick={() => {
                 clickRegister(id)
                 setIsRegistered(true)
-                toast.success('Registered successfully to Ongoing test')
+                toast.success('Registered Ongoing test successfully')
               }}
             >
               Register
