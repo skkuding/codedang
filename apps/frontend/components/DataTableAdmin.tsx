@@ -97,9 +97,17 @@ export function DataTableAdmin<TData, TValue>({
   }
 `)
 
+  const DELETE_CONTEST = gql(`
+    mutation DeleteContest($groupId: Int!, $contestId: Int!) {
+      deleteContest(groupId: $groupId, contestId: $contestId) {
+        id
+      }
+    }
+`)
+
   const [deleteProblem] = useMutation(DELETE_PROBLEM)
 
-  // TODO: contest랑 notice도 같은 방식으로 추가
+  // TODO: notice도 같은 방식으로 추가
   const handleDeleteRows = async () => {
     const selectedRows = table.getSelectedRowModel().rows as {
       original: { id: number }
@@ -111,6 +119,13 @@ export function DataTableAdmin<TData, TValue>({
           variables: {
             groupId: 1,
             id: row.original.id
+          }
+        })
+      } else if (page === 'contest') {
+        return deleteContest({
+          variables: {
+            groupId: 1,
+            contestId: row.original.id
           }
         })
       } else {
