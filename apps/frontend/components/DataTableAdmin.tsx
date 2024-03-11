@@ -106,6 +106,7 @@ export function DataTableAdmin<TData, TValue>({
 `)
 
   const [deleteProblem] = useMutation(DELETE_PROBLEM)
+  const [deleteContest] = useMutation(DELETE_CONTEST)
 
   // TODO: notice도 같은 방식으로 추가
   const handleDeleteRows = async () => {
