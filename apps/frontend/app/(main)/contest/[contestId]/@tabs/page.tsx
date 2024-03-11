@@ -16,20 +16,6 @@ interface ContestTopProps {
   }
 }
 
-/*
-
-  Register : Upcoming, Ongoing
-  Deregister : Upcoming
-
-  +) Finished 일때는 아무것도 안뜸
-
-  * 나눠야하는 경우 (전부 로그인 돼있을때의 경우!)
-  1. Finished인 경우 -> 아무것도 안뜸
-  2. Upcoming이면서, 현재상태가 Register 인 경우 -> Deregister 버튼
-  3. Upcoming, Ongoing이면서, 현재상태가 Unregister 인 경우 -> Register 버튼
-
-*/
-
 export default async function ContestTop({ params }: ContestTopProps) {
   const session = await auth()
   const { contestId } = params
