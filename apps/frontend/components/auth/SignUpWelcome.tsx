@@ -19,13 +19,13 @@ export default function SignUpWelcome() {
       <Button className="w-full" onClick={() => nextModal()}>
         Sign up with Email
       </Button>
-      <div className="flex items-center justify-center gap-5">
+      {/* <div className="flex items-center justify-center gap-5">
         <Separator className="flex-1" />
         <p className="w-fit flex-none text-center text-xs text-gray-500">
           continue with
         </p>
         <Separator className="flex-1" />
-      </div>
+      </div> */}
       {/* <div className="flex w-full items-center justify-center gap-5">
         <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#FEE500] hover:opacity-80">
           <Image src={KakaotalkLogo} alt="카카오톡" width={20} />
