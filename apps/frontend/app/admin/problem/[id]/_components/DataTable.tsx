@@ -85,7 +85,7 @@ export default function DataTable<TData extends Item, TValue>({
   return (
     <div>
       <Input
-        placeholder="Search"
+        placeholder="Search User"
         value={(table.getColumn('username')?.getFilterValue() as string) ?? ''}
         onChange={(event) => {
           table.getColumn('username')?.setFilterValue(event.target.value)
