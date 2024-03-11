@@ -8,12 +8,11 @@ const getProblems = async () => {
   const { problems }: { problems: WorkbookProblem[] } = await fetcher
     .get('problem', {
       searchParams: {
-        take: 3,
-        workbookId: 1
+        take: 3
+        // workbookId: 1
       }
     })
     .json()
-
   return problems
 }
 
