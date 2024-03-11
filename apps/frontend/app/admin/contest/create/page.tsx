@@ -1,23 +1,34 @@
 'use client'
 
 import { gql } from '@generated'
+import { DataTableAdmin } from '@/components/DataTableAdmin'
 import TextEditor from '@/components/TextEditor'
 import { DateTimePickerDemo } from '@/components/date-time-picker-demo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { CreateContestInput } from '@/generated'
 import { cn } from '@/lib/utils'
 import { useMutation } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { PlusCircleIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useForm, Controller } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
+import { MdHelpOutline } from 'react-icons/md'
 import { PiWarningBold } from 'react-icons/pi'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import Label from '../_components/Label'
+import { columns } from './_components/Columns'
+
+const problems = []
 
 const CREATE_CONTEST = gql(`
   mutation CreateContest($groupId: Int!, $input: CreateContestInput!) {
@@ -166,6 +177,50 @@ export default function Page() {
                 required
               </div>
             )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Label>Contest Problem List</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button>
+                      <MdHelpOutline className="text-gray-400 hover:text-gray-700" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    side="top"
+                    className="mb-2 w-[680px] bg-black px-4 py-2 text-white"
+                  >
+                    <ul className="text-xs font-normal">
+                      <li>
+                        The problems in the contest problem list are initially
+                        set to &apos;not visible&apos; at the time of creating
+                        the contest
+                      </li>
+                      <li>
+                        They become visible according to the specified start
+                        time and remain inaccessible in the problem list
+                      </li>
+                      <li>
+                        throughout the duration of the contest. After the
+                        contest period ends, they become visible again in the
+                        problem list.
+                      </li>
+                    </ul>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <Button
+                type="button"
+                className="flex h-[36px] w-36 items-center gap-2 px-0 "
+              >
+                <PlusCircleIcon className="h-4 w-4" />
+                <div className="mb-[2px] text-sm">Create Problem</div>
+              </Button>
+            </div>
+            <DataTableAdmin columns={columns} data={problems} />
           </div>
           <Button
             type="submit"
