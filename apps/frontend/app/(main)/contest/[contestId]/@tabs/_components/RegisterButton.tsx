@@ -33,12 +33,12 @@ export default function RegisterButton({
   state: string
 }) {
   const [isRegistered, setIsRegistered] = useState(registered)
-  const buttonBg = isRegistered ? 'bg-secondary' : 'bg-primary'
+  const buttonColor = isRegistered ? 'bg-secondary' : 'bg-primary'
   return (
     <>
       {state === 'Upcoming' ? (
         <Button
-          className={`px-12 py-6 text-lg font-light ${buttonBg} hover:${buttonBg}`}
+          className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
           onClick={() => {
             if (isRegistered) {
               clickDeregister(id)
@@ -57,7 +57,7 @@ export default function RegisterButton({
         <>
           {!isRegistered && (
             <Button
-              className={`px-12 py-6 text-lg font-light ${buttonBg} hover:${buttonBg}`}
+              className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
               onClick={() => {
                 clickRegister(id)
                 setIsRegistered(true)
