@@ -6,7 +6,7 @@ const config: KnipConfig = {
     '.': {
       entry: ['scripts/*.ts']
     },
-    backend: {
+    'apps/backend': {
       entry: [
         'apps/{admin,client}/**/{main.ts,app.module.ts}',
         'prisma/seed.ts'
@@ -34,41 +34,7 @@ const config: KnipConfig = {
         entry: ['{apps,libs}/**/*.spec.ts']
       }
     },
-    frontend: {
-      entry: [
-        'src/main.ts',
-        'src/common/layouts/*.vue',
-        'src/user/home/pages/**/*.vue',
-        'src/user/notice/pages/**/*.vue',
-        'src/user/problem/pages/**/*.vue',
-        'src/user/contest/pages/**/*.vue',
-        'src/user/group/pages/**/*.vue',
-        'src/user/workbook/pages/**/*.vue',
-        'src/admin/pages/**/*.vue',
-        'histoire.config.ts',
-        'src/histoire.setup.ts'
-      ],
-      project: ['**/*.{vue,ts}'],
-      ignore: ['**/*.story.vue'],
-      ignoreDependencies: [
-        'virtual:generated-layouts',
-        'virtual:generated-pages',
-        '@iconify-json/ant-design',
-        '@iconify-json/bi',
-        '@iconify-json/fa',
-        '@iconify-json/fa6-brands',
-        '@iconify-json/fa6-regular',
-        '@iconify-json/fa6-solid',
-        '@iconify-json/fluent',
-        '@iconify-json/iconoir',
-        '@iconify-json/material-symbols',
-        '@iconify-json/ri'
-      ], // TODO: handle icon packages
-      paths: {
-        '@/*': ['src/*']
-      }
-    },
-    'frontend-client': {
+    'apps/frontend': {
       ignoreDependencies: [
         'eslint-config-next', // used by ESLint
         'sharp' // used by next/image
@@ -85,15 +51,6 @@ const config: KnipConfig = {
   ignoreExportsUsedInFile: {
     interface: true,
     type: true
-  },
-  compilers: {
-    vue: (text) => {
-      const vueCompiler = /<script\b[^>]*>([\s\S]*?)<\/script>/gm
-      const scripts: string[] = []
-      let match
-      while ((match = vueCompiler.exec(text))) scripts.push(match[1])
-      return scripts.join(';')
-    }
   }
 }
 

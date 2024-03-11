@@ -54,7 +54,7 @@ const main = async () => {
   }
 
   // upload example testcase files
-  const dir = resolve(basename(__dirname), '../iris/tests/data/testcase')
+  const dir = resolve(basename(__dirname), '../apps/iris/tests/data/testcase')
   const files = await readdir(dir)
   for (const file of files) {
     const data = await readFile(resolve(dir, file), {
