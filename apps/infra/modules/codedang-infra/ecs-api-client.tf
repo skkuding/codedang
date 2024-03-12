@@ -120,6 +120,7 @@ resource "aws_ecs_task_definition" "client_api" {
     loki_url             = var.loki_url,
     kakao_client_id      = var.kakao_client_id,
     kakao_client_secret  = var.kakao_client_secret,
+    otel_endpoint        = "${var.otel_url}:${var.otel_port}",
   })
 
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn

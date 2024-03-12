@@ -12,6 +12,7 @@ import {
 import type { AxiosRequestConfig } from 'axios'
 import { plainToInstance } from 'class-transformer'
 import { ValidationError, validateOrReject } from 'class-validator'
+import { Span, TraceService } from 'nestjs-otel'
 import {
   OPEN_SPACE_ID,
   Status,
@@ -46,7 +47,8 @@ export class SubmissionService implements OnModuleInit {
     private readonly prisma: PrismaService,
     private readonly amqpConnection: AmqpConnection,
     private readonly configService: ConfigService,
-    private readonly httpService: HttpService
+    private readonly httpService: HttpService,
+    private readonly traceService: TraceService
   ) {}
   onModuleInit() {
     this.amqpConnection.createSubscriber(
@@ -80,6 +82,7 @@ export class SubmissionService implements OnModuleInit {
     )
   }
 
+  @Span()
   async submitToProblem(
     submissionDto: CreateSubmissionDto,
     userId: number,
@@ -98,6 +101,7 @@ export class SubmissionService implements OnModuleInit {
     return await this.createSubmission(submissionDto, problem, userId)
   }
 
+  @Span()
   async submitToContest(
     submissionDto: CreateSubmissionDto,
     userId: number,
@@ -151,6 +155,7 @@ export class SubmissionService implements OnModuleInit {
     })
   }
 
+  @Span()
   async submitToWorkbook(
     submissionDto: CreateSubmissionDto,
     userId: number,
@@ -179,6 +184,7 @@ export class SubmissionService implements OnModuleInit {
     })
   }
 
+  @Span()
   async createSubmission(
     submissionDto: CreateSubmissionDto,
     problem: Problem,
@@ -262,6 +268,7 @@ export class SubmissionService implements OnModuleInit {
       .padStart(6, '0')
   }
 
+  @Span()
   async checkDelay() {
     const baseUrl = this.configService.get(
       'RABBITMQ_API_URL',
@@ -294,6 +301,7 @@ export class SubmissionService implements OnModuleInit {
     }
   }
 
+  @Span()
   async publishJudgeRequestMessage(code: Snippet[], submission: Submission) {
     const problem = await this.prisma.problem.findUnique({
       where: { id: submission.problemId },
@@ -311,11 +319,17 @@ export class SubmissionService implements OnModuleInit {
     const judgeRequest = new JudgeRequest(code, submission.language, problem)
     // TODO: problem 단위가 아닌 testcase 단위로 채점하도록 iris 수정
 
+    const span = this.traceService.startSpan(
+      'publishJudgeRequestMessage.publish'
+    )
+    span.setAttributes({ submissionId: submission.id })
+
     this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
       messageId: String(submission.id),
       persistent: true,
       type: PUBLISH_TYPE
     })
+    span.end()
   }
 
   async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
@@ -325,6 +339,7 @@ export class SubmissionService implements OnModuleInit {
     return res
   }
 
+  @Span()
   async handleJudgerMessage(msg: JudgerResponse) {
     const submissionId = parseInt(msg.submissionId)
     const resultStatus = Status(msg.resultCode)
@@ -354,6 +369,7 @@ export class SubmissionService implements OnModuleInit {
     await this.updateSubmissionResult(submissionId, resultStatus, results)
   }
 
+  @Span()
   async updateSubmissionResult(
     id: number,
     resultStatus: ResultStatus,
@@ -425,6 +441,7 @@ export class SubmissionService implements OnModuleInit {
   }
 
   // FIXME: Workbook 구분
+  @Span()
   async getSubmissions({
     problemId,
     groupId = OPEN_SPACE_ID,
@@ -472,6 +489,7 @@ export class SubmissionService implements OnModuleInit {
     return submissions
   }
 
+  @Span()
   async getSubmission(
     id: number,
     problemId: number,
@@ -535,6 +553,7 @@ export class SubmissionService implements OnModuleInit {
     )
   }
 
+  @Span()
   async hasPassedProblem(
     userId: number,
     where: { problemId: number; contestId?: number }
@@ -552,6 +571,7 @@ export class SubmissionService implements OnModuleInit {
     )
   }
 
+  @Span()
   async getContestSubmissions({
     problemId,
     contestId,
@@ -611,6 +631,7 @@ export class SubmissionService implements OnModuleInit {
     })
   }
 
+  @Span()
   async getContestSubmission(
     id: number,
     problemId: number,
