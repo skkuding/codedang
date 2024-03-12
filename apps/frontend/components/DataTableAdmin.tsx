@@ -40,10 +40,12 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
+import DataTableAdminSearchbar from './DataTableAdminSearchbar'
 import DataTableLangFilter from './DataTableLangFilter'
 import { DataTablePagination } from './DataTablePagination'
 import { DataTableTagsFilter } from './DataTableTagsFilter'
-import { Input } from './ui/input'
+
+// import { Input } from './ui/input'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -127,18 +129,25 @@ export function DataTableAdmin<TData, TValue>({
       })
   }
 
+  /*
+    이용 예시)
+    <div className={space-y-4}>
+      -
+        DataTableAdminSearchBar
+        DataTableLangFilter
+        DataTableTagsFilter
+      -
+        DataTableAdmin
+      -
+    </div>
+  */
+
   return (
     <div className="space-y-4">
+      {/*  */}
       <div className="flex justify-between">
         <div className="flex gap-2">
-          <Input
-            placeholder="Search"
-            value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
-            onChange={(event) =>
-              table.getColumn('title')?.setFilterValue(event.target.value)
-            }
-            className="h-10 w-[150px] lg:w-[250px]"
-          />
+          <DataTableAdminSearchbar table={table} />
 
           {table.getColumn('languages') && (
             <DataTableLangFilter
@@ -156,6 +165,7 @@ export function DataTableAdmin<TData, TValue>({
             />
           )}
         </div>
+        {/*  */}
         {selectedRowCount !== 0 ? (
           <AlertDialog>
             <AlertDialogTrigger asChild>
