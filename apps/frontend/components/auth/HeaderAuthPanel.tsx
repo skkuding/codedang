@@ -113,16 +113,9 @@ export default function HeaderAuthPanel({
       {session ? (
         <DropdownMenu>
           <DropdownMenuTrigger className="flex gap-2 px-4 py-1 md:hidden">
-            <RxHamburgerMenu size="30" className="md:hidden" />
+            <RxHamburgerMenu size="30" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {session?.user.role !== 'User' && (
-              <Link href="/admin">
-                <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                  <UserRoundCog className="size-4" /> Management
-                </DropdownMenuItem>
-              </Link>
-            )}
             <DropdownMenuItem
               className="text-primary flex cursor-pointer items-center gap-1 font-semibold"
               onClick={() => {
@@ -131,6 +124,13 @@ export default function HeaderAuthPanel({
             >
               {session?.user.username}
             </DropdownMenuItem>
+            {session?.user.role !== 'User' && (
+              <Link href="/admin">
+                <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+                  <UserRoundCog className="size-4" /> Management
+                </DropdownMenuItem>
+              </Link>
+            )}
             <DropdownMenuSeparator className="bg-gray-300" />
             <Link href="/notice">
               <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
