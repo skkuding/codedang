@@ -319,11 +319,17 @@ export class SubmissionService implements OnModuleInit {
     const judgeRequest = new JudgeRequest(code, submission.language, problem)
     // TODO: problem 단위가 아닌 testcase 단위로 채점하도록 iris 수정
 
+    const span = this.traceService.startSpan(
+      'publishJudgeRequestMessage.publish'
+    )
+    span.setAttributes({ submissionId: submission.id })
+
     this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
       messageId: String(submission.id),
       persistent: true,
       type: PUBLISH_TYPE
     })
+    span.end()
   }
 
   async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
