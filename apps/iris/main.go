@@ -9,6 +9,7 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 	"github.com/skkuding/codedang/apps/iris/src/loader/cache"
 	"github.com/skkuding/codedang/apps/iris/src/loader/s3"
+	"github.com/skkuding/codedang/apps/iris/src/observability"
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
@@ -31,6 +32,16 @@ func main() {
 
 	ctx := context.Background()
 	cache := cache.NewCache(ctx)
+	if env == "production" {
+		if utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "") != "" {
+			shutdown := observability.InitTracer(ctx)
+			defer shutdown()
+		} else {
+			logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT")
+		}
+	} else {
+		logProvider.Log(logger.INFO, "Running in development mode")
+	}
 
 	bucketName := os.Getenv("TESTCASE_BUCKET_NAME")
 	if bucketName == "" {
