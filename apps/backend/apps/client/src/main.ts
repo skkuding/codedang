@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import * as cookieParser from 'cookie-parser'
 import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
 import { AppModule } from './app.module'
+import startMetricsExporter from './metric'
 import tracer from './tracer'
 
 tracer.init()
@@ -17,6 +18,7 @@ const bootstrap = async () => {
       console.log('The exporter url is not defined')
     } else {
       tracer.init()
+      startMetricsExporter()
     }
   }
 
