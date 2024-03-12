@@ -70,6 +70,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.51.0",
     "react-icons": "^5.0.1",
+    "react-intersection-observer": "^9.8.1",
     "react-resizable-panels": "^2.0.12",
     "react-use": "^17.5.0",
     "sharp": "^0.33.2",

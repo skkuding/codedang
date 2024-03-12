@@ -1,5 +1,5 @@
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect } from 'react'
 import { useInView } from 'react-intersection-observer'
 import type { URLSearchParams } from 'url'
 import { fetcher, fetcherWithAuth } from './utils'
@@ -79,11 +79,20 @@ export const useInfiniteScroll = <T extends Item>({
       }
     })
 
-  //To detect the bottom div
-  const scrollCounter = useRef(0) // 바닥에 닿은 횟수를 세는 카운터
   const { ref, inView } = useInView()
+
+  useEffect(() => {
+    if (inView && !isFetchingNextPage && hasNextPage) {
+      fetchNextPage()
+    }
+  }, [inView, isFetchingNextPage, hasNextPage, fetchNextPage, data])
+
+  /*
+
+  5번 이상 바닥에 닿으면 자동 페칭을 멈추고, loadmore 버튼을 보이게 합니다.
+  const scrollCounter = useRef(0) // 바닥에 닿은 횟수를 세는 카운터
   const [isLoadButton, setIsLoadButton] = useState(false)
-  //5번 이상 바닥에 닿으면 자동 페칭을 멈추고, loadmore 버튼을 보이게 합니다.
+
   useEffect(() => {
     if (inView && !isFetchingNextPage) {
       if (hasNextPage) {
@@ -97,13 +106,13 @@ export const useInfiniteScroll = <T extends Item>({
       }
     } else setIsLoadButton(false)
   }, [inView, isFetchingNextPage, hasNextPage, fetchNextPage, data])
+*/
 
   return {
     items: data.pages.flat().flatMap((page) => page.problems),
     total: data.pages.at(0)?.total,
     fetchNextPage,
     ref,
-    isLoadButton,
     isFetchingNextPage
   }
 }
