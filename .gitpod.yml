@@ -37,6 +37,7 @@ github:
 
 vscode:
   extensions:
+    - apollographql.vscode-apollo
     - bradlc.vscode-tailwindcss
     - bruno-api-client.bruno
     - csstools.postcss
@@ -48,4 +49,3 @@ vscode:
     - hashicorp.terraform
     - ms-azuretools.vscode-docker
     - prisma.prisma
-    - Vue.volar

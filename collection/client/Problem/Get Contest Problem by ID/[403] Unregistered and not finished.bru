@@ -1,0 +1,24 @@
+meta {
+  name: [403] Unregistered and not finished
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/contest/15/problem/1
+  body: none
+  auth: none
+}
+
+query {
+  ~groupId: 1
+}
+
+assert {
+  res.status: eq 404
+  res.body.message: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginManager(req);
+}

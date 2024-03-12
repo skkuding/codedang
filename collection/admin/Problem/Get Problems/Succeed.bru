@@ -1,0 +1,55 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetProblems($groupId: Int!, $cursor: Int, $take: Int!, $input: FilterProblemsInput!) {
+    getProblems(groupId: $groupId, cursor: $cursor, take: $take, input: $input) {
+      id
+      createdById
+      groupId
+      title
+      description
+      inputDescription
+      outputDescription
+      hint
+      problemTag {
+        id
+        tag {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "cursor": 1,
+    "take": 10,
+    "input": {
+      "difficulty": ["Level1", "Level2", "Level3", "Level4", "Level5"],
+      "languages": ["C", "Cpp", "Java", "Python3"]
+    }
+  }
+}
+
+assert {
+  res.body.data.getProblems: isDefined
+}
+
+docs {
+  ## Get Problems
+  조건에 맞는 Problem들을 가져옵니다.
+  조건에 맞는 Problem이 없다면, 빈 배열을 반환합니다.
+}

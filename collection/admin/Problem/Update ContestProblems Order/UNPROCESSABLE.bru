@@ -1,0 +1,38 @@
+meta {
+  name: UNPROCESSABLE
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateContestProblemsOrder($groupId: Int!, $contestId: Int!, $orders: [Int!]!) {
+    updateContestProblemsOrder(groupId: $groupId, contestId: $contestId, orders: $orders) {
+      order
+      contestId
+      problemId
+      score
+      createTime
+      updateTime
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "contestId": 1,
+    "orders": [8, 7, 6, 5, 4, 3, 2]
+  }
+}
+
+assert {
+  res.body.errors[0].message: eq the len of orders and the len of contestProblem are not equal.
+  res.body.errors[0].extensions.code: eq UNPROCESSABLE
+}

@@ -1,0 +1,42 @@
+meta {
+  name: NOT_FOUND
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation ($groupId: Int, $noticeId: Int!, $noticeInput: UpdateNoticeInput!) {
+    updateNotice(groupId: $groupId, noticeId: $noticeId, input: $noticeInput) {
+      id
+      title
+      content
+      isFixed
+      isVisible
+      groupId
+      createdBy {
+        username
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "noticeId": 999999,
+    "noticeInput": {
+      "title": "updated"
+    }
+  }
+}
+
+assert {
+  res.body.errors[0].extensions.code: eq "NOT_FOUND"
+   res.body.errors[0].message: eq "Notice does not exist"
+}

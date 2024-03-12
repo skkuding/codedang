@@ -1,3 +1,11 @@
 {
-  "recommendations": ["ms-vscode-remote.remote-containers"]
+  // Recommendations for Frontend team, developing without devcontainer
+  "recommendations": [
+    "apollographql.vscode-apollo",
+    "dbaeumer.vscode-eslint",
+    "donjayamanne.githistory",
+    "eamodio.gitlens",
+    "EditorConfig.EditorConfig",
+    "esbenp.prettier-vscode"
+  ]
 }

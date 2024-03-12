@@ -2,12 +2,20 @@
   "name": "codedang",
   "dockerComposeFile": "../docker-compose.yml",
   "service": "app",
-  "runServices": ["app", "database", "cache", "rabbitmq", "testcase"],
+  "runServices": [
+    "app",
+    "database",
+    "cache",
+    "rabbitmq",
+    "testcase",
+    "test-database"
+  ],
   "workspaceFolder": "/workspace",
   "postCreateCommand": "scripts/setup.sh",
   "customizations": {
     "vscode": {
       "extensions": [
+        "apollographql.vscode-apollo",
         "bradlc.vscode-tailwindcss",
         "bruno-api-client.bruno",
         "csstools.postcss",
@@ -18,8 +26,7 @@
         "golang.go",
         "hashicorp.terraform",
         "ms-azuretools.vscode-docker",
-        "prisma.prisma",
-        "Vue.volar"
+        "prisma.prisma"
       ]
     }
   },

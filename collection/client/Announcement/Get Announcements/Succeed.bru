@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/announcement?problemId=1
+  url: {{baseUrl}}/announcement?contestId=1
   body: none
   auth: none
 }
 
 query {
-  problemId: 1
-  ~contestId: 1
+  contestId: 1
+  ~problemId: 1
   ~groupId: 1
 }
 
@@ -32,12 +32,18 @@ docs {
 
   ## Query
 
-  > problemId 또는 contestId 중 하나 값은 필수로 주어져야 합니다.
-  > 두 값이 모두 주어진 경우, problemId가 우선 적용되어 problem announcements가 반환됩니다.
+  > 필수 query는 * 표시하였습니다.
 
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
-  |problemId *|Integer|안내 사항이 속한 문제  ID|
   |contestId *|Integer|안내 사항이 속한 대회 ID|
+  |problemId|Integer|안내 사항이 속한 문제  ID|
   |groupId|Integer|안내 사항이 속한 Group ID (default: 1)|
+
+  problemId가 주어진 경우, 해당하는 contest problem에 대한 안내 사항을 반환합니다.
+
+  ## Response
+
+  - `problemId`는 안내 사항과 연관된 문제의 order입니다.
+  - `problemId`가 null이라면, 해당 안내 사항은 특정 문제에 국한된 것이 아니라 대회 자체에 대한 것입니다.
 }

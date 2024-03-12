@@ -12,20 +12,7 @@ permissions: # permissions to the job (for the OpenID Connection)
   contents: read
 
 jobs:
-  build-frontend:
-    name: Build frontend bundle
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-pnpm
-
-      - name: Build static bundle
-        run: pnpm --filter frontend build
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: frontend-bundle
-          path: ./frontend/dist
+  # TODO: trigger Amplify deployment
 
   build-client-api:
     name: Build client-api image
@@ -36,7 +23,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_ECR }}
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_ECR_PUSH }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -46,10 +33,10 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          file: ./backend/Dockerfile
+          file: ./apps/backend/Dockerfile
           push: true
           build-args: 'target=client'
-          tags: ${{ steps.login-ecr.outputs.registry }}/codedang-admin-api:latest
+          tags: ${{ steps.login-ecr.outputs.registry }}/codedang-client-api:latest
 
   build-admin-api:
     name: Build admin-api image
@@ -60,7 +47,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_ECR }}
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_ECR_PUSH }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -70,7 +57,7 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          file: ./backend/Dockerfile
+          file: ./apps/backend/Dockerfile
           push: true
           build-args: 'target=admin'
           tags: ${{ steps.login-ecr.outputs.registry }}/codedang-admin-api:latest
@@ -84,7 +71,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_ECR }}
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_ECR_PUSH }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -95,13 +82,13 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          context: '{{defaultContext}}:iris'
+          context: '{{defaultContext}}:apps/iris'
           tags: ${{ steps.login-ecr.outputs.registry }}/codedang-iris:latest
 
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    needs: [build-frontend, build-client-api, build-admin-api, build-iris]
+    needs: [build-client-api, build-admin-api, build-iris]
     environment: production
     defaults:
       run:
@@ -112,39 +99,36 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_DEPLOY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Trigger Amplify Frontend Build
+        run: curl -X POST -d {} "${{ secrets.AMPLIFY_WEBHOOK }}" -H "Content-Type:application/json"
 
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.2
 
-      - name: Load frontend static bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-bundle
-          path: ./frontend/dist
-
       - name: Create Terraform variable file
-        working-directory: ./infra/deploy
+        working-directory: ./apps/infra/deploy
         run: |
           echo "$TFVARS" >> terraform.tfvars
           echo "$OAUTH_GITHUB" >> terraform.tfvars
           echo "$OAUTH_KAKAO" >> terraform.tfvars
         env:
-          TFVARS: ${{ secrets.TF_TFVARS }}
+          TFVARS: ${{ secrets.TFVARS }}
           OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
           OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
 
       - name: Terraform Init
-        working-directory: ./infra/deploy
+        working-directory: ./apps/infra/deploy
         run: terraform init
 
       # TODO: plan in the other job, and reuse the plan file
       - name: Terraform Plan
-        working-directory: ./infra/deploy
+        working-directory: ./apps/infra/deploy
         run: terraform plan -target=module.codedang-infra -input=false
 
       - name: Terraform Apply
-        working-directory: ./infra/deploy
+        working-directory: ./apps/infra/deploy
         run: terraform apply -target=module.codedang-infra -auto-approve -input=false
