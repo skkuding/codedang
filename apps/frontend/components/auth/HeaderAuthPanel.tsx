@@ -124,13 +124,7 @@ export default function HeaderAuthPanel({
             >
               {session?.user.username}
             </DropdownMenuItem>
-            {session?.user.role !== 'User' && (
-              <Link href="/admin">
-                <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
-                  <UserRoundCog className="size-4" /> Management
-                </DropdownMenuItem>
-              </Link>
-            )}
+
             <DropdownMenuSeparator className="bg-gray-300" />
             <Link href="/notice">
               <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
@@ -148,6 +142,13 @@ export default function HeaderAuthPanel({
               </DropdownMenuItem>
             </Link>
             <DropdownMenuSeparator className="bg-gray-300" />
+            {session?.user.role !== 'User' && (
+              <Link href="/admin">
+                <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+                  <UserRoundCog className="size-4" /> Management
+                </DropdownMenuItem>
+              </Link>
+            )}
             <DropdownMenuItem
               className="flex cursor-pointer items-center gap-1 font-semibold"
               onClick={() => {
