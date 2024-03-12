@@ -40,7 +40,7 @@ func main() {
 			logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT")
 		}
 	} else {
-		logProvider.Log(logger.ERROR, "Cannot find APP_ENV")
+		logProvider.Log(logger.INFO, "Running in development mode")
 	}
 
 	bucketName := os.Getenv("TESTCASE_BUCKET_NAME")
