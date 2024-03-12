@@ -15,6 +15,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "apollographql.vscode-apollo",
         "bradlc.vscode-tailwindcss",
         "bruno-api-client.bruno",
         "csstools.postcss",
@@ -25,8 +26,7 @@
         "golang.go",
         "hashicorp.terraform",
         "ms-azuretools.vscode-docker",
-        "prisma.prisma",
-        "Vue.volar"
+        "prisma.prisma"
       ]
     }
   },

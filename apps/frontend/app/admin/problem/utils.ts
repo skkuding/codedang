@@ -1,0 +1,13 @@
+import { gql } from '@generated'
+
+export const inputStyle =
+  'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
+
+export const GET_TAGS = gql(`
+  query GetTags {
+    getTags {
+      id
+      name
+    }
+  }
+`)

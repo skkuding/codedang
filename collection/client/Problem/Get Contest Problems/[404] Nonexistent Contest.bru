@@ -1,0 +1,26 @@
+meta {
+  name: [404] Nonexistent Contest
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/contest/999/problem?take=5
+  body: none
+  auth: none
+}
+
+query {
+  take: 5
+  ~cursor: 4
+  ~groupId: 2
+}
+
+assert {
+  res.status: eq 404
+  res.body.message: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}

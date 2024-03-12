@@ -3,6 +3,7 @@ name: CD - Development
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -26,7 +27,7 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          file: ./backend/Dockerfile
+          file: ./apps/backend/Dockerfile # build with root context
           push: true
           build-args: 'target=client'
           tags: ghcr.io/${{ github.repository_owner }}/codedang-client-api:latest
@@ -48,7 +49,7 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          file: ./backend/Dockerfile
+          file: ./apps/backend/Dockerfile # build with root context
           push: true
           build-args: 'target=admin'
           tags: ghcr.io/${{ github.repository_owner }}/codedang-admin-api:latest
@@ -71,7 +72,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          context: '{{defaultContext}}:iris'
+          context: '{{defaultContext}}:apps/iris'
           tags: ghcr.io/${{ github.repository_owner }}/codedang-iris:latest
 
   run-server:
@@ -87,7 +88,7 @@ jobs:
             docker-compose.yml
             scripts/deploy.sh
             .env.development
-            Caddyfile
+            apps/infra/stage/Caddyfile
             grafana-logs/promtail/promtail-config.yml
 
       - name: Load dotenv from secret
@@ -119,7 +120,7 @@ jobs:
           docker compose --profile deploy up promtail -d --no-deps
 
       - name: Copy Caddyfile into Caddy Container
-        run: docker cp ./Caddyfile caddy:/etc/caddy/Caddyfile
+        run: docker cp ./apps/infra/stage/Caddyfile caddy:/etc/caddy/Caddyfile
 
       - name: Graceful reload Caddy
         run: docker exec -w /etc/caddy caddy caddy reload

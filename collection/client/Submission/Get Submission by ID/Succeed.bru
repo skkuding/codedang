@@ -16,7 +16,7 @@ query {
 }
 
 script:pre-request {
-  require("./login").loginUser(req);
+  await require("./login").loginUser(req);
 }
 
 docs {

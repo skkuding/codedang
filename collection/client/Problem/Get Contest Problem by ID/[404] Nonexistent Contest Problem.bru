@@ -1,0 +1,37 @@
+meta {
+  name: [404] Nonexistent Contest Problem
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/contest/1/problem/999
+  body: none
+  auth: none
+}
+
+query {
+  ~groupId: 1
+}
+
+assert {
+  res.status: eq 200
+  res.body.order: isNumber
+  res.body.problem: isJson
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get Contest Problem by ID
+  
+  하나의 문제 정보를 가져옵니다.
+  
+  ## Query
+  
+  | 이름 | 타입 | 설명 |
+  |-----|-----|-----|
+  |groupId   |Integer|문제가 속한 Group ID|
+}

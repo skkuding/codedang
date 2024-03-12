@@ -13,3 +13,7 @@ get {
 query {
   problemId: 1
 }
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
