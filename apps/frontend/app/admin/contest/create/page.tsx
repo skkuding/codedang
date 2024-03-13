@@ -18,7 +18,7 @@ import { useMutation } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -29,8 +29,6 @@ import { z } from 'zod'
 import Label from '../_components/Label'
 import { columns } from './_components/Columns'
 
-const problems = []
-
 const CREATE_CONTEST = gql(`
   mutation CreateContest($groupId: Int!, $input: CreateContestInput!) {
     createContest(groupId: $groupId, input: $input) {
@@ -40,6 +38,56 @@ const CREATE_CONTEST = gql(`
       endTime
       startTime
       title
+    }
+  }
+`)
+
+const CREATE_PROBLEM = gql(`
+  mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
+    createProblem(groupId: $groupId, input: $input) {
+      id
+      createdById
+      groupId
+      title
+      isVisible
+      difficulty
+      languages
+      problemTag {
+        tagId
+      }
+      description
+      inputDescription
+      outputDescription
+      samples {
+        input
+        output
+      }
+      problemTestcase {
+        input
+        output
+      }
+      timeLimit
+      memoryLimit
+      hint
+      source
+      template
+    }
+  }
+`)
+
+const IMPORT_PROBLEMS_TO_CONTEST = gql(`
+  mutation ImportProblemsToContest(
+    $groupId: Int!,
+    $contestId: Int!,
+    $problemIds: [Int!]!
+  ) {
+    importProblemsToContest(
+      groupId: $groupId,
+      contestId: $contestId,
+      problemIds: $problemIds
+    ) {
+      contestId
+      problemId
     }
   }
 `)
@@ -59,6 +107,8 @@ const schema = z.object({
 })
 
 export default function Page() {
+  const [problems, setProblems] = useState([])
+
   const router = useRouter()
 
   const {
@@ -78,31 +128,53 @@ export default function Page() {
     }
   })
 
-  const [createContest, { error }] = useMutation(CREATE_CONTEST)
+  const [createProblem, { problemError }] = useMutation(CREATE_PROBLEM)
+  const [createContest, { contestError }] = useMutation(CREATE_CONTEST)
+  const [importProblemsToContest, { importError }] = useMutation(
+    IMPORT_PROBLEMS_TO_CONTEST
+  )
   const onSubmit = async (input: CreateContestInput) => {
+    const problemIds = []
     const { data } = await createContest({
       variables: {
         groupId: 1,
         input
       }
     })
-    const contestId = data.createContest.id
-    if (error) {
+    const contestId = Number(data.createContest.id)
+    if (contestError) {
       toast.error('Failed to create contest')
       return
     }
-    toast.success('Contest created successfully')
-    router.push(`/admin/problem/create?contestId=${contestId}`)
-  }
-
-  const saveToLocalStorage = () => {
-    const formData = {
-      title: getValues('title'),
-      startTime: getValues('startTime'),
-      endTime: getValues('endTime'),
-      description: getValues('description')
+    const createProblemPromise = problems.map(async (problem) => {
+      const { data } = await createProblem({
+        variables: {
+          groupId: 1,
+          input: problem
+        }
+      })
+      problemIds.push(Number(data.createProblem.id))
+      if (problemError) {
+        toast.error('Failed to create problem')
+        return
+      }
+    })
+    await Promise.all(createProblemPromise)
+    await importProblemsToContest({
+      variables: {
+        groupId: 1,
+        contestId,
+        problemIds
+      }
+    })
+    if (importError) {
+      toast.error('Failed to create contest')
+      return
     }
-    localStorage.setItem('contestFormData', JSON.stringify(formData))
+    localStorage.removeItem('contestFormData')
+    localStorage.removeItem('problemFormDatas')
+    toast.success('Contest created successfully')
+    router.push('/admin/contest')
   }
 
   useEffect(() => {
@@ -110,12 +182,17 @@ export default function Page() {
     if (storedData) {
       const parsedData = JSON.parse(storedData)
       setValue('title', parsedData.title)
-      setValue('startTime', new Date(parsedData.startTime))
-      setValue('endTime', new Date(parsedData.endTime))
+      if (parsedData.startTime) {
+        setValue('startTime', new Date(parsedData.startTime))
+      }
+      if (parsedData.endTime) {
+        setValue('endTime', new Date(parsedData.endTime))
+      }
       setValue('description', parsedData.description)
     } else {
       setValue('description', ' ')
     }
+    setProblems(JSON.parse(localStorage.getItem('problemFormDatas')) || [])
   }, [])
 
   return (
@@ -249,7 +326,17 @@ export default function Page() {
                 type="button"
                 className="flex h-[36px] w-36 items-center gap-2 px-0"
                 onClick={() => {
-                  saveToLocalStorage()
+                  const formData = {
+                    title: getValues('title'),
+                    startTime: getValues('startTime'),
+                    endTime: getValues('endTime'),
+                    description: getValues('description')
+                  }
+                  localStorage.setItem(
+                    'contestFormData',
+                    JSON.stringify(formData)
+                  )
+                  router.push('/admin/problem/create?iscontest=1')
                 }}
               >
                 <PlusCircleIcon className="h-4 w-4" />

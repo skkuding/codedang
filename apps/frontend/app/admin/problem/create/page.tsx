@@ -69,23 +69,6 @@ const CREATE_PROBLEM = gql(`
   }
 `)
 
-const IMPORT_PROBLEMS_TO_CONTEST = gql(`
-  mutation ImportProblemsToContest(
-    $groupId: Int!,
-    $contestId: Int!,
-    $problemIds: [Int!]!
-  ) {
-    importProblemsToContest(
-      groupId: $groupId,
-      contestId: $contestId,
-      problemIds: $problemIds
-    ) {
-      contestId
-      problemId
-    }
-  }
-`)
-
 const schema = z.object({
   title: z.string().min(1).max(25),
   isVisible: z.boolean(),
@@ -143,9 +126,9 @@ const schema = z.object({
 export default function Page({
   searchParams
 }: {
-  searchParams: { contestId: number | undefined }
+  searchParams: { iscontest: number | undefined }
 }) {
-  const contestId = searchParams.contestId ? Number(searchParams.contestId) : 0
+  const isContest = searchParams.iscontest ? Number(searchParams.iscontest) : 0
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
     tagsData?.getTags.map(({ id, name }) => ({ id: Number(id), name })) ?? []
@@ -180,38 +163,31 @@ export default function Page({
   const watchedTestcases = watch('testcases')
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
-  const [importProblemsToContest, { importError }] = useMutation(
-    IMPORT_PROBLEMS_TO_CONTEST
-  )
+
   const onSubmit = async (input: CreateProblemInput) => {
-    const { data } = await createProblem({
-      variables: {
-        groupId: 1,
-        input
-      }
-    })
-    const problemId = Number(data.createProblem.id)
-    if (error) {
-      toast.error('Failed to create problem')
-      return
-    }
-    if (contestId) {
-      await importProblemsToContest({
+    if (isContest) {
+      const storedData = JSON.parse(
+        localStorage.getItem('problemFormDatas') || '[]'
+      )
+      localStorage.setItem(
+        'problemFormDatas',
+        JSON.stringify([...storedData, input])
+      )
+      router.push('/admin/contest/create')
+    } else {
+      await createProblem({
         variables: {
           groupId: 1,
-          contestId,
-          problemIds: [problemId]
+          input
         }
       })
-      if (importError) {
-        toast.error('Failed to create contest problem')
-        router.push(`/admin/contest/${contestId}`)
+      if (error) {
+        toast.error('Failed to create problem')
         return
       }
+      toast.success('Problem created successfully')
+      router.push('/admin/problem')
     }
-    toast.success('Problem created successfully')
-    router.push('/admin/problem')
-    router.refresh()
   }
 
   const addExample = (type: 'samples' | 'testcases') => {
@@ -263,7 +239,7 @@ export default function Page({
                 </div>
               )}
             </div>
-            <div className={cn(contestId ? 'hidden' : 'flex flex-col gap-4')}>
+            <div className={cn(isContest ? 'hidden' : 'flex flex-col gap-4')}>
               <div className="flex items-center gap-2">
                 <Label>Visible</Label>
                 <Popover>
