@@ -92,6 +92,16 @@ const IMPORT_PROBLEMS_TO_CONTEST = gql(`
   }
 `)
 
+const UPDATE_CONTEST_PROBLEMS_ORDER = gql(`
+  mutation UpdateContestProblemsOrder($groupId: Int!, $contestId: Int!, $orders: [Int!]!) {
+    updateContestProblemsOrder(groupId: $groupId, contestId: $contestId, orders: $orders) {
+      order
+      contestId
+      problemId
+    }
+  }
+`)
+
 const inputStyle =
   'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
 
@@ -133,8 +143,21 @@ export default function Page() {
   const [importProblemsToContest, { importError }] = useMutation(
     IMPORT_PROBLEMS_TO_CONTEST
   )
+  const [updateContestProblemsOrder] = useMutation(
+    UPDATE_CONTEST_PROBLEMS_ORDER
+  )
   const onSubmit = async (input: CreateContestInput) => {
     const problemIds = []
+    const storedData = localStorage.getItem('orderArray')
+    if (!storedData) {
+      toast.error('Problem order not set')
+      return
+    }
+    const orders = JSON.parse(storedData)
+    if (new Set(orders).size !== orders.length) {
+      toast.error('Duplicate problem order found')
+      return
+    }
     const { data } = await createContest({
       variables: {
         groupId: 1,
@@ -171,8 +194,16 @@ export default function Page() {
       toast.error('Failed to create contest')
       return
     }
+    await updateContestProblemsOrder({
+      variables: {
+        groupId: 1,
+        contestId,
+        orders
+      }
+    })
     localStorage.removeItem('contestFormData')
     localStorage.removeItem('problemFormDatas')
+    localStorage.removeItem('orderArray')
     toast.success('Contest created successfully')
     router.push('/admin/contest')
   }
