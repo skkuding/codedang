@@ -187,6 +187,7 @@ export default function Page({
       }
       toast.success('Problem created successfully')
       router.push('/admin/problem')
+      router.refresh()
     }
   }
 

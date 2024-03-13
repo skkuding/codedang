@@ -200,6 +200,7 @@ export default function Page() {
     localStorage.removeItem('orderArray')
     toast.success('Contest created successfully')
     router.push('/admin/contest')
+    router.refresh()
   }
 
   useEffect(() => {
