@@ -152,6 +152,12 @@ export default function Page() {
       return
     }
     const orderArray = JSON.parse(storedData)
+    orderArray.forEach((order) => {
+      if (order === null) {
+        toast.error('Problem order not set')
+        return
+      }
+    })
     if (new Set(orderArray).size !== orderArray.length) {
       toast.error('Duplicate problem order found')
       return
