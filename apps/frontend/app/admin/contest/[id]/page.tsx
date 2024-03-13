@@ -6,9 +6,9 @@ import { DateTimePickerDemo } from '@/components/date-time-picker-demo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import type { UpdateContestInput } from '@/generated'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
+import type { UpdateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { useForm, Controller } from 'react-hook-form'
@@ -135,7 +135,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   <PiWarningBold />
                   {getValues('title').length === 0
                     ? 'required'
-                    : errors.title.message}
+                    : errors.title?.message}
                 </div>
               )}
             </div>
@@ -156,7 +156,7 @@ export default function Page({ params }: { params: { id: string } }) {
               {errors.startTime && (
                 <div className="flex items-center gap-1 text-xs text-red-500">
                   <PiWarningBold />
-                  {errors.startTime.message}
+                  {errors.startTime?.message as string}
                 </div>
               )}
             </div>
@@ -175,7 +175,7 @@ export default function Page({ params }: { params: { id: string } }) {
               {errors.endTime && (
                 <div className="flex items-center gap-1 text-xs text-red-500">
                   <PiWarningBold />
-                  {errors.endTime.message}
+                  {errors.endTime?.message as string}
                 </div>
               )}
             </div>

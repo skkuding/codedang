@@ -29,7 +29,7 @@ export function DateTimePickerDemo({
   }, [defaultValue])
 
   return (
-    <Popover onOpenChange={() => onChange(date)}>
+    <Popover onOpenChange={() => onChange(date!)}>
       <PopoverTrigger asChild>
         <Button
           variant={'outline'}

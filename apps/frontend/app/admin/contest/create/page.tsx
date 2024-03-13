@@ -12,9 +12,9 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import type { CreateContestInput } from '@/generated'
 import { cn } from '@/lib/utils'
 import { useMutation } from '@apollo/client'
+import type { CreateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -138,23 +138,21 @@ export default function Page() {
     }
   })
 
-  const [createProblem, { problemError }] = useMutation(CREATE_PROBLEM)
-  const [createContest, { contestError }] = useMutation(CREATE_CONTEST)
-  const [importProblemsToContest, { importError }] = useMutation(
-    IMPORT_PROBLEMS_TO_CONTEST
-  )
+  const [createProblem] = useMutation(CREATE_PROBLEM)
+  const [createContest, { error }] = useMutation(CREATE_CONTEST)
+  const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
   const onSubmit = async (input: CreateContestInput) => {
-    const problemIds = []
+    const problemIds: number[] = []
     const storedData = localStorage.getItem('orderArray')
     if (!storedData) {
       toast.error('Problem order not set')
       return
     }
-    const orders = JSON.parse(storedData)
-    if (new Set(orders).size !== orders.length) {
+    const orderArray = JSON.parse(storedData)
+    if (new Set(orderArray).size !== orderArray.length) {
       toast.error('Duplicate problem order found')
       return
     }
@@ -164,8 +162,8 @@ export default function Page() {
         input
       }
     })
-    const contestId = Number(data.createContest.id)
-    if (contestError) {
+    const contestId = Number(data?.createContest.id)
+    if (error) {
       toast.error('Failed to create contest')
       return
     }
@@ -176,11 +174,7 @@ export default function Page() {
           input: problem
         }
       })
-      problemIds.push(Number(data.createProblem.id))
-      if (problemError) {
-        toast.error('Failed to create problem')
-        return
-      }
+      problemIds.push(Number(data?.createProblem.id))
     })
     await Promise.all(createProblemPromise)
     await importProblemsToContest({
@@ -190,10 +184,10 @@ export default function Page() {
         problemIds
       }
     })
-    if (importError) {
-      toast.error('Failed to create contest')
-      return
-    }
+    const orders: number[] = []
+    orderArray.forEach((order: number, index: number) => {
+      orders[order] = problemIds[index]
+    })
     await updateContestProblemsOrder({
       variables: {
         groupId: 1,
@@ -223,7 +217,7 @@ export default function Page() {
     } else {
       setValue('description', ' ')
     }
-    setProblems(JSON.parse(localStorage.getItem('problemFormDatas')) || [])
+    setProblems(JSON.parse(localStorage.getItem('problemFormDatas') || '[]'))
   }, [])
 
   return (
@@ -251,7 +245,7 @@ export default function Page() {
                 <div className="flex items-center gap-1 text-xs text-red-500">
                   <PiWarningBold />
                   {getValues('title').length === 0
-                    ? 'required'
+                    ? 'Required'
                     : errors.title.message}
                 </div>
               )}
@@ -273,7 +267,7 @@ export default function Page() {
               {errors.startTime && (
                 <div className="flex items-center gap-1 text-xs text-red-500">
                   <PiWarningBold />
-                  {errors.startTime.message}
+                  {errors.startTime.message as string}
                 </div>
               )}
             </div>
@@ -292,7 +286,7 @@ export default function Page() {
               {errors.endTime && (
                 <div className="flex items-center gap-1 text-xs text-red-500">
                   <PiWarningBold />
-                  {errors.endTime.message}
+                  {errors.endTime.message as string}
                 </div>
               )}
             </div>

@@ -10,7 +10,7 @@ import {
 interface OptionSelectProps {
   options: string[] | readonly string[]
   onChange: (option: string) => void
-  value: string
+  value?: string
   placeholder?: string
 }
 
