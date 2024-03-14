@@ -21,7 +21,7 @@ func SetGlobalMeterProvider() {
 	// Create resource.
 	res, err := newMetricResource()
 	if err != nil {
-		panic(err)
+		reportErr(err, "failed to create metric resource")
 	}
 
 	// Create a meter provider.
@@ -29,7 +29,7 @@ func SetGlobalMeterProvider() {
 	// accepts a MeterProvider instance.
 	meterProvider, err := newMeterProvider(res, defaultMetricDuration)
 	if err != nil {
-		panic(err)
+		reportErr(err, "failed to create metric provider")
 	}
 
 	// Register as global meter provider so that it can be used via otel.Meter
@@ -80,7 +80,7 @@ func GetMemoryMeter(meter metric.Meter) {
 			return nil
 		}),
 	); err != nil {
-		panic(err)
+		reportErr(err, "failed to create memory meter")
 	}
 }
 
@@ -102,6 +102,6 @@ func GetCPUMeter(meter metric.Meter, duration time.Duration) {
 			return nil
 		}),
 	); err != nil {
-		panic(err)
+		reportErr(err, "failed to create CPU meter")
 	}
 }
