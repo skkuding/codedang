@@ -7,7 +7,6 @@ import { AppModule } from './app.module'
 import startMetricsExporter from './metric'
 import tracer from './tracer'
 
-tracer.init()
 const bootstrap = async () => {
   // otel instrumentation
   if (process.env.NODE_ENV == 'production') {
