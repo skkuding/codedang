@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/skkuding/codedang/apps/iris/src/connector"
 	"github.com/skkuding/codedang/apps/iris/src/connector/rabbitmq"
@@ -16,6 +17,7 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
+	"go.opentelemetry.io/otel"
 )
 
 type Env string
@@ -36,6 +38,10 @@ func main() {
 		if utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "") != "" {
 			shutdown := observability.InitTracer(ctx)
 			defer shutdown()
+			observability.SetGlobalMeterProvider()
+			// Aynchronous Instruments로써, go routine 불필요
+			observability.GetMemoryMeter(otel.Meter("memory-metrics"))
+			observability.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
 		} else {
 			logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT")
 		}

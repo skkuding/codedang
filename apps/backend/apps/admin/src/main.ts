@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { graphqlUploadExpress } from 'graphql-upload'
 import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
 import { AdminModule } from './admin.module'
+import startMetricsExporter from './metric'
 import tracer from './tracer'
 
 const bootstrap = async () => {
@@ -14,6 +15,7 @@ const bootstrap = async () => {
       console.log('The exporter url is not defined')
     } else {
       tracer.init()
+      startMetricsExporter()
     }
   }
 
