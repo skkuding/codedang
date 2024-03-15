@@ -1,50 +1,48 @@
-import SearchBar from '@/components/SearchBar'
+'use client'
+
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Problem } from '@/types/type'
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import { Suspense } from 'react'
-import ProblemTable from './_components/ProblemTable'
+import ProblemInfiniteTable from './_components/ProblemInfiniteTable'
 
-interface ProblemProps {
-  searchParams: { search: string; tag: string; order: string }
-}
-
-export default function Problem({ searchParams }: ProblemProps) {
-  const search = searchParams?.search ?? ''
-  const order = searchParams?.order ?? 'id-asc'
-
+export default function Problem() {
+  const queryClient = new QueryClient()
   return (
     <>
-      <div className="flex justify-end text-gray-500">
-        <SearchBar />
-      </div>
-      <Suspense
-        fallback={
-          <>
-            <div className="mt-4 flex">
-              <span className="w-5/12">
-                <Skeleton className="h-6 w-20" />
-              </span>
-              <span className="w-2/12">
-                <Skeleton className="mx-auto h-6 w-20" />
-              </span>
-              <span className="w-2/12">
-                <Skeleton className="mx-auto h-6 w-20" />
-              </span>
-              <span className="w-2/12">
-                <Skeleton className="mx-auto h-6 w-20" />
-              </span>
-              <span className="w-1/12">
-                <Skeleton className="mx-auto h-6 w-12" />
-              </span>
-            </div>
-            {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} className="my-2 flex h-12 w-full rounded-xl" />
-            ))}
-          </>
-        }
-      >
-        <ProblemTable search={search} order={order} />
-      </Suspense>
+      <QueryClientProvider client={queryClient}>
+        <Suspense
+          fallback={
+            <>
+              <div className="mt-4 flex">
+                <span className="w-5/12">
+                  <Skeleton className="h-6 w-20" />
+                </span>
+                <span className="w-2/12">
+                  <Skeleton className="mx-auto h-6 w-20" />
+                </span>
+                <span className="w-2/12">
+                  <Skeleton className="mx-auto h-6 w-20" />
+                </span>
+                <span className="w-2/12">
+                  <Skeleton className="mx-auto h-6 w-20" />
+                </span>
+                <span className="w-1/12">
+                  <Skeleton className="mx-auto h-6 w-12" />
+                </span>
+              </div>
+              {[...Array(5)].map((_, i) => (
+                <Skeleton
+                  key={i}
+                  className="my-2 flex h-12 w-full rounded-xl"
+                />
+              ))}
+            </>
+          }
+        >
+          <ProblemInfiniteTable />
+        </Suspense>
+      </QueryClientProvider>
     </>
   )
 }
