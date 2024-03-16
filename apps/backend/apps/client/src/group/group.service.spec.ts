@@ -18,8 +18,8 @@ import type { UserGroupData } from './interface/user-group-data.interface'
 describe('GroupService', async () => {
   let service: GroupService
   let cache: Cache
-
   const prisma = new PrismaClient().$extends(transactionExtension)
+
   const overridePrismaService = async (transaction: FlatTransactionClient) => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -43,7 +43,8 @@ describe('GroupService', async () => {
   }
 
   beforeEach(async () => {
-    const tx = await prisma.$begin()
+    // initial transaction client
+    const tx: FlatTransactionClient = await prisma.$begin()
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GroupService,
@@ -190,7 +191,7 @@ describe('GroupService', async () => {
   describe('joinGroupById', async () => {
     let groupId: number
     const userId = 4
-    let tx
+    let tx: FlatTransactionClient
     beforeEach(async () => {
       // override the useValue of PrismaService
       tx = await prisma.$begin()
@@ -299,7 +300,7 @@ describe('GroupService', async () => {
   describe('leaveGroup', async () => {
     const groupId = 3
     const userId = 4
-    let tx
+    let tx: FlatTransactionClient
     beforeEach(async () => {
       // override the useValue of PrismaService
       tx = await prisma.$begin()
