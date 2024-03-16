@@ -28,7 +28,6 @@ describe('GroupService', () => {
   beforeEach(async function () {
     // TODO: CI 테스트에서 timeout이 걸리는 문제를 우회하기 위해서 timeout을 0으로 설정 (timeout disabled)
     // local에서는 timeout을 disable 하지 않아도 테스트가 정상적으로 동작함 (default setting: 2000ms)
-    // timeout이 큰 문제라면 해결을 해야 하는 부분이지만, 현재로서는 사실 큰 문제는 없어 보임 (로컬에서 테스트가 엄청 느려지는 것이 아님)
     this.timeout(0)
     //transaction client
     tx = await prisma.$begin()
