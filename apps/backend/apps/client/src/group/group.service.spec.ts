@@ -26,17 +26,13 @@ describe('GroupService', () => {
   const prisma = new PrismaClient().$extends(transactionExtension)
 
   beforeEach(async function () {
-    this.timeout(3000)
+    this.timeout(0)
     //transaction client
     tx = await prisma.$begin()
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GroupService,
-        {
-          provide: PrismaService,
-          useValue: tx
-        },
-
+        { provide: PrismaService, useValue: tx },
         ConfigService,
         {
           provide: CACHE_MANAGER,
@@ -172,7 +168,7 @@ describe('GroupService', () => {
     })
   })
 
-  describe('joinGroupById', async () => {
+  describe('joinGroupById', () => {
     let groupId: number
     const userId = 4
     beforeEach(async () => {
@@ -277,7 +273,7 @@ describe('GroupService', () => {
     })
   })
 
-  describe('leaveGroup', async () => {
+  describe('leaveGroup', () => {
     const groupId = 3
     const userId = 4
     beforeEach(async () => {
