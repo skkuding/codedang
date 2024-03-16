@@ -195,7 +195,7 @@ describe('GroupService', async () => {
     beforeEach(async () => {
       // override the useValue of PrismaService
       tx = await prisma.$begin()
-      overridePrismaService(tx)
+      await overridePrismaService(tx)
       const group = await tx.group.create({
         data: {
           groupName: 'test',
@@ -304,7 +304,7 @@ describe('GroupService', async () => {
     beforeEach(async () => {
       // override the useValue of PrismaService
       tx = await prisma.$begin()
-      overridePrismaService(tx)
+      await overridePrismaService(tx)
       await tx.userGroup.createMany({
         data: [
           {
