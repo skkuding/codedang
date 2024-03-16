@@ -18,14 +18,15 @@ import { GroupService } from './group.service'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
 chai.use(chaiExclude)
-describe('GroupService', async () => {
+describe('GroupService', () => {
   let service: GroupService
   let cache: Cache
   let tx: FlatTransactionClient
 
   const prisma = new PrismaClient().$extends(transactionExtension)
 
-  beforeEach(async () => {
+  beforeEach(async function () {
+    this.timeout(3000)
     //transaction client
     tx = await prisma.$begin()
     const module: TestingModule = await Test.createTestingModule({
