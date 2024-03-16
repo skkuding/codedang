@@ -4,6 +4,8 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { Prisma, PrismaClient } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
+import * as chai from 'chai'
+import chaiExclude from 'chai-exclude'
 import { stub } from 'sinon'
 import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
 import {
@@ -15,6 +17,7 @@ import { transactionExtension } from '@libs/prisma'
 import { GroupService } from './group.service'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
+chai.use(chaiExclude)
 describe('GroupService', async () => {
   let service: GroupService
   let cache: Cache
