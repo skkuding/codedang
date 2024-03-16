@@ -21,33 +21,13 @@ chai.use(chaiExclude)
 describe('GroupService', async () => {
   let service: GroupService
   let cache: Cache
+  let tx: FlatTransactionClient
+
   const prisma = new PrismaClient().$extends(transactionExtension)
 
-  const overridePrismaService = async (transaction: FlatTransactionClient) => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        GroupService,
-        {
-          provide: PrismaService,
-          useValue: transaction
-        },
-        ConfigService,
-        {
-          provide: CACHE_MANAGER,
-          useFactory: () => ({
-            set: () => [],
-            get: () => []
-          })
-        }
-      ]
-    }).compile()
-    service = module.get<GroupService>(GroupService)
-    cache = module.get<Cache>(CACHE_MANAGER)
-  }
-
   beforeEach(async () => {
-    // initial transaction client
-    const tx: FlatTransactionClient = await prisma.$begin()
+    //transaction client
+    tx = await prisma.$begin()
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GroupService,
@@ -194,11 +174,7 @@ describe('GroupService', async () => {
   describe('joinGroupById', async () => {
     let groupId: number
     const userId = 4
-    let tx: FlatTransactionClient
     beforeEach(async () => {
-      // override the useValue of PrismaService
-      tx = await prisma.$begin()
-      await overridePrismaService(tx)
       const group = await tx.group.create({
         data: {
           groupName: 'test',
@@ -303,11 +279,7 @@ describe('GroupService', async () => {
   describe('leaveGroup', async () => {
     const groupId = 3
     const userId = 4
-    let tx: FlatTransactionClient
     beforeEach(async () => {
-      // override the useValue of PrismaService
-      tx = await prisma.$begin()
-      await overridePrismaService(tx)
       await tx.userGroup.createMany({
         data: [
           {
