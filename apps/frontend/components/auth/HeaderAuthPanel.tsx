@@ -160,43 +160,44 @@ export default function HeaderAuthPanel({
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Dialog open={currentModal !== ''} onOpenChange={hideModal}>
-          <DialogTrigger asChild>
-            <Button
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex gap-2 px-4 py-1 md:hidden">
+            <RxHamburgerMenu size="30" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <Link href="/notice">
+              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+                Notice
+              </DropdownMenuItem>
+            </Link>
+            <Link href="/contest">
+              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+                Contest
+              </DropdownMenuItem>
+            </Link>
+            <Link href="/problem">
+              <DropdownMenuItem className="flex cursor-pointer items-center gap-1 font-semibold">
+                Problem
+              </DropdownMenuItem>
+            </Link>
+            <DropdownMenuSeparator className="bg-gray-300" />
+            <DropdownMenuItem
+              className="flex cursor-pointer items-center gap-1 font-semibold"
               onClick={() => showSignIn()}
-              variant={variants[group]}
-              className={cn(
-                'flex border-none px-3 py-1 text-base md:hidden ',
-                group === 'editor' ? 'font-medium' : 'font-semibold'
-              )}
             >
               Log In
-            </Button>
-          </DialogTrigger>
-          <DialogTrigger asChild>
-            <Button
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="flex cursor-pointer items-center gap-1 font-semibold"
               onClick={() => {
                 showSignUp()
                 setModalPage(0)
               }}
-              variant={variants[group]}
-              className={cn(
-                'flex border-none px-3 py-1 text-base md:hidden ',
-                group === 'editor' ? 'font-medium' : 'font-bold'
-              )}
             >
               Sign Up
-            </Button>
-          </DialogTrigger>
-          <DialogContent
-            onOpenAutoFocus={(e) => {
-              e.preventDefault()
-            }}
-            className="min-h-[30rem] max-w-[20.5rem]"
-          >
-            <AuthModal />
-          </DialogContent>
-        </Dialog>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
     </div>
   )
