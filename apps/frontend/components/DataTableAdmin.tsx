@@ -46,17 +46,22 @@ import { DataTablePagination } from './DataTablePagination'
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  enableSearch?: boolean // Enable search title
+  enableFilter?: boolean // Enable filter for languages and tags
+  enableDelete?: boolean // Enable delete selected rows
 }
 
 export function DataTableAdmin<TData, TValue>({
   columns,
-  data
+  data,
+  enableSearch = false,
+  enableFilter = false,
+  enableDelete = false
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
   const pathname = usePathname()
   const page = pathname.split('/').pop()
-
   const router = useRouter()
 
   const table = useReactTable({
@@ -120,40 +125,47 @@ export function DataTableAdmin<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between">
-        <div className="flex gap-2">
-          <DataTableAdminSearchbar table={table} />
-          <DataTableAdminFilter table={table} />
-        </div>
-        {selectedRowCount !== 0 ? (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
+      {(enableSearch || enableFilter || enableDelete) && (
+        <div className="flex justify-between">
+          <div className="flex gap-2">
+            {enableSearch && <DataTableAdminSearchbar table={table} />}
+            {enableFilter && <DataTableAdminFilter table={table} />}
+          </div>
+
+          {enableDelete ? (
+            selectedRowCount !== 0 ? (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline">
+                    <PiTrashLight fontSize={18} />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to permanently delete{' '}
+                      {selectedRowCount} {page}(s)?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction asChild>
+                      <Button onClick={() => handleDeleteRows()}>
+                        Continue
+                      </Button>
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            ) : (
               <Button variant="outline">
                 <PiTrashLight fontSize={18} />
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to permanently delete {selectedRowCount}{' '}
-                  {page}(s)?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction asChild>
-                  <Button onClick={() => handleDeleteRows()}>Continue</Button>
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        ) : (
-          <Button variant="outline">
-            <PiTrashLight fontSize={18} />
-          </Button>
-        )}
-      </div>
+            )
+          ) : null}
+        </div>
+      )}
 
       <div className="rounded-md border">
         <Table>
