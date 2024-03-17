@@ -1,7 +1,6 @@
 'use client'
 
 import { gql } from '@generated'
-import { GET_TAGS } from '@/app/admin/problem/utils'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +21,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { useQuery, useMutation } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import {
   flexRender,
@@ -40,18 +39,14 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
-import DataTableLangFilter from './DataTableLangFilter'
+import DataTableAdminFilter from './DataTableAdminFilter'
+import DataTableAdminSearchbar from './DataTableAdminSearchbar'
 import { DataTablePagination } from './DataTablePagination'
-import { DataTableTagsFilter } from './DataTableTagsFilter'
-import { Input } from './ui/input'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 }
-
-// dummy data
-const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
 
 export function DataTableAdmin<TData, TValue>({
   columns,
@@ -63,10 +58,6 @@ export function DataTableAdmin<TData, TValue>({
   const page = pathname.split('/').pop()
 
   const router = useRouter()
-
-  const { data: tagsData } = useQuery(GET_TAGS)
-  const tags =
-    tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
 
   const table = useReactTable({
     data,
@@ -131,30 +122,8 @@ export function DataTableAdmin<TData, TValue>({
     <div className="space-y-4">
       <div className="flex justify-between">
         <div className="flex gap-2">
-          <Input
-            placeholder="Search"
-            value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
-            onChange={(event) =>
-              table.getColumn('title')?.setFilterValue(event.target.value)
-            }
-            className="h-10 w-[150px] lg:w-[250px]"
-          />
-
-          {table.getColumn('languages') && (
-            <DataTableLangFilter
-              column={table.getColumn('languages')}
-              title="Languages"
-              options={languageOptions}
-            />
-          )}
-
-          {table.getColumn('tag') && (
-            <DataTableTagsFilter
-              column={table.getColumn('tag')}
-              title="Tags"
-              options={tags}
-            />
-          )}
+          <DataTableAdminSearchbar table={table} />
+          <DataTableAdminFilter table={table} />
         </div>
         {selectedRowCount !== 0 ? (
           <AlertDialog>
