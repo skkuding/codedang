@@ -19,6 +19,8 @@ module "codedang-infra" {
   github_client_secret = var.github_client_secret
   kakao_client_id      = var.kakao_client_id
   kakao_client_secret  = var.kakao_client_secret
+  otel_url             = var.otel_url
+  otel_port            = var.otel_port
 }
 
 module "codedang-tf-backend" {
