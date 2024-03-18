@@ -1,5 +1,5 @@
 import { baseUrl } from '@/lib/constants'
-import dayjs from 'dayjs'
+import { dateFormatter } from '@/lib/utils'
 import { sanitize } from 'isomorphic-dompurify'
 import Link from 'next/link'
 import { RxHamburgerMenu } from 'react-icons/rx'
@@ -30,7 +30,7 @@ export default async function NoticeDetail({
         <h2 className="break-words text-lg font-semibold">{title}</h2>
         <div className="mt-1 flex justify-between text-sm text-gray-400">
           <p>{createdBy}</p>
-          <p>{dayjs(createTime).format('YYYY-MM-DD')}</p>
+          <p>{dateFormatter(createTime, 'YYYY-MM-DD')}</p>
         </div>
       </header>
       <main

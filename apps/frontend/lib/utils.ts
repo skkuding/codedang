@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from 'clsx'
+import dayjs from 'dayjs'
 import ky, { TimeoutError } from 'ky'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
@@ -56,4 +57,8 @@ export const fetcherWithAuth = fetcher.extend({
 
 export const convertToLetter = (n: number) => {
   return String.fromCharCode(65 + n)
+}
+
+export const dateFormatter = (date: string, format: string) => {
+  return dayjs(date).locale('ko').format(format)
 }
