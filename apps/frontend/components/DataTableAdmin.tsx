@@ -1,6 +1,7 @@
 'use client'
 
 import { gql } from '@generated'
+import { GET_TAGS } from '@/app/admin/problem/utils'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +22,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { useMutation } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import {
   flexRender,
@@ -39,9 +40,10 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
-import DataTableAdminFilter from './DataTableAdminFilter'
-import DataTableAdminSearchbar from './DataTableAdminSearchbar'
+import DataTableLangFilter from './DataTableLangFilter'
 import { DataTablePagination } from './DataTablePagination'
+import { DataTableTagsFilter } from './DataTableTagsFilter'
+import { Input } from './ui/input'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -49,21 +51,25 @@ interface DataTableProps<TData, TValue> {
   enableSearch?: boolean // Enable search title
   enableFilter?: boolean // Enable filter for languages and tags
   enableDelete?: boolean // Enable delete selected rows
+  enablePagination?: boolean // Enable pagination
 }
+
+const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
 
 export function DataTableAdmin<TData, TValue>({
   columns,
   data,
   enableSearch = false,
   enableFilter = false,
-  enableDelete = false
+  enableDelete = false,
+  enablePagination = false
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
   const pathname = usePathname()
   const page = pathname.split('/').pop()
   const router = useRouter()
-
+  const selectedRowCount = Object.values(rowSelection).filter(Boolean).length
   const table = useReactTable({
     data,
     columns,
@@ -83,8 +89,6 @@ export function DataTableAdmin<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues()
   })
 
-  const selectedRowCount = Object.values(rowSelection).filter(Boolean).length
-
   const DELETE_PROBLEM = gql(`
   mutation DeleteProblem($groupId: Int!, $id: Int!) {
     deleteProblem(groupId: $groupId, id: $id) {
@@ -94,13 +98,11 @@ export function DataTableAdmin<TData, TValue>({
 `)
 
   const [deleteProblem] = useMutation(DELETE_PROBLEM)
-
   // TODO: contest랑 notice도 같은 방식으로 추가
   const handleDeleteRows = async () => {
     const selectedRows = table.getSelectedRowModel().rows as {
       original: { id: number }
     }[]
-
     const deletePromise = selectedRows.map((row) => {
       if (page === 'problem') {
         return deleteProblem({
@@ -123,13 +125,45 @@ export function DataTableAdmin<TData, TValue>({
       })
   }
 
+  const { data: tagsData } = useQuery(GET_TAGS)
+  const tags =
+    tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
+
   return (
     <div className="space-y-4">
       {(enableSearch || enableFilter || enableDelete) && (
         <div className="flex justify-between">
           <div className="flex gap-2">
-            {enableSearch && <DataTableAdminSearchbar table={table} />}
-            {enableFilter && <DataTableAdminFilter table={table} />}
+            {enableSearch && (
+              <Input
+                placeholder="Search"
+                value={
+                  (table.getColumn('title')?.getFilterValue() as string) ?? ''
+                }
+                onChange={(event) =>
+                  table.getColumn('title')?.setFilterValue(event.target.value)
+                }
+                className="h-10 w-[150px] lg:w-[250px]"
+              />
+            )}
+            {enableFilter && (
+              <div className="flex gap-2">
+                {table.getColumn('languages') && (
+                  <DataTableLangFilter
+                    column={table.getColumn('languages')}
+                    title="Languages"
+                    options={languageOptions}
+                  />
+                )}
+                {table.getColumn('tag') && (
+                  <DataTableTagsFilter
+                    column={table.getColumn('tag')}
+                    title="Tags"
+                    options={tags}
+                  />
+                )}
+              </div>
+            )}
           </div>
 
           {enableDelete ? (
@@ -231,7 +265,7 @@ export function DataTableAdmin<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      {enablePagination && <DataTablePagination table={table} />}
     </div>
   )
 }

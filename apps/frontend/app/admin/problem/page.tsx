@@ -120,6 +120,7 @@ export default function Page() {
             enableSearch={true}
             enableFilter={true}
             enableDelete={true}
+            enablePagination={true}
           />
         )}
       </div>
