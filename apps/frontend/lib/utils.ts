@@ -60,5 +60,7 @@ export const convertToLetter = (n: number) => {
 }
 
 export const dateFormatter = (date: string, format: string) => {
-  return dayjs(date).locale('ko').format(format)
+  return dayjs(
+    new Date(date).toLocaleString('en-US', { timeZone: 'Asia/Seoul' })
+  ).format(format)
 }
