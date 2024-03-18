@@ -17,3 +17,5 @@ variable "github_client_id" {}
 variable "github_client_secret" {}
 variable "kakao_client_id" {}
 variable "kakao_client_secret" {}
+variable "otel_url" {}
+variable "otel_port" {}
