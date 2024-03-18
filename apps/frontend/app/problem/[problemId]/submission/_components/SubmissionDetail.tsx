@@ -8,9 +8,8 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { fetcherWithAuth } from '@/lib/utils'
+import { dateFormatter, fetcherWithAuth } from '@/lib/utils'
 import type { SubmissionDetail } from '@/types/type'
-import dayjs from 'dayjs'
 import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
 import dataIfError from './dataIfError'
@@ -73,7 +72,7 @@ export default async function SubmissionDetail({
           </div>
           <div>
             <h2>Submission Time</h2>
-            <p>{dayjs(submission.createTime).format('YYYY-MM-DD HH:mm:ss')}</p>
+            <p>{dateFormatter(submission.createTime, 'YYYY-MM-DD HH:mm:ss')}</p>
           </div>
         </div>
         <ScrollBar orientation="horizontal" />

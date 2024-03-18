@@ -1,9 +1,9 @@
 'use client'
 
 import Badge from '@/app/(main)/_components/Badge'
+import { dateFormatter } from '@/lib/utils'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
-import dayjs from 'dayjs'
 
 export const columns: ColumnDef<Contest>[] = [
   {
@@ -31,12 +31,12 @@ export const columns: ColumnDef<Contest>[] = [
   {
     header: 'Starts at',
     accessorKey: 'startTime',
-    cell: ({ row }) => dayjs(row.original.startTime).format('YYYY-MM-DD')
+    cell: ({ row }) => dateFormatter(row.original.startTime, 'YYYY-MM-DD')
   },
   {
     header: 'Ends at',
     accessorKey: 'endTime',
-    cell: ({ row }) => dayjs(row.original.endTime).format('YYYY-MM-DD')
+    cell: ({ row }) => dateFormatter(row.original.endTime, 'YYYY-MM-DD')
   },
   {
     header: 'Participants',

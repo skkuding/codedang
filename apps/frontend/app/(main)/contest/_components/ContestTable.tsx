@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { dateFormatter } from '@/lib/utils'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
@@ -15,7 +16,6 @@ import {
   getCoreRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import dayjs from 'dayjs'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 
@@ -47,7 +47,7 @@ export default function ContestTable({ data }: ContestTableProps) {
         return (
           <p className="text-center">
             <span className="text-xs md:text-sm">
-              {dayjs(row.original.startTime).format('YYYY-MM-DD')}
+              {dateFormatter(row.original.startTime, 'YYYY-MM-DD')}
             </span>
           </p>
         )
@@ -64,7 +64,7 @@ export default function ContestTable({ data }: ContestTableProps) {
         return (
           <p className="text-center">
             <span className="text-xs md:text-sm">
-              {dayjs(row.original.endTime).format('YYYY-MM-DD')}
+              {dateFormatter(row.original.endTime, 'YYYY-MM-DD')}
             </span>
           </p>
         )
