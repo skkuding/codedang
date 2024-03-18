@@ -1,9 +1,8 @@
 'use client'
 
-import { convertToLetter } from '@/lib/utils'
+import { convertToLetter, dateFormatter } from '@/lib/utils'
 import type { ContestAnnouncement } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
-import dayjs from 'dayjs'
 import './styles.css'
 
 export const columns: ColumnDef<ContestAnnouncement>[] = [
@@ -28,6 +27,7 @@ export const columns: ColumnDef<ContestAnnouncement>[] = [
   {
     header: () => 'Posted',
     accessorKey: 'updateTime',
-    cell: ({ row }) => dayjs(row.original.updateTime).format('YYYY-MM-DD HH:mm')
+    cell: ({ row }) =>
+      dateFormatter(row.original.updateTime, 'YYYY-MM-DD HH:mm')
   }
 ]
