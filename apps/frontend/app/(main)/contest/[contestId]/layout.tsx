@@ -1,6 +1,5 @@
-import { fetcher } from '@/lib/utils'
+import { fetcher, dateFormatter } from '@/lib/utils'
 import type { Contest } from '@/types/type'
-import dayjs from 'dayjs'
 import { FaRegClock } from 'react-icons/fa'
 import { FaRegCalendarAlt } from 'react-icons/fa'
 import TimeDiff from '../../_components/TimeDiff'
@@ -14,8 +13,8 @@ interface ContestDetailProps {
 
 const format = (target: Date, year: number): string =>
   new Date(target).getFullYear() === year
-    ? dayjs(target).format('MMM DD')
-    : dayjs(target).format('MMM DD, YYYY')
+    ? dateFormatter(target, 'MMM DD')
+    : dateFormatter(target, 'MMM DD,YYYY')
 
 export default async function Layout({
   params,

@@ -1,5 +1,5 @@
 import { baseUrl } from '@/lib/constants'
-import dayjs from 'dayjs'
+import { dateFormatter } from '@/lib/utils'
 import { sanitize } from 'isomorphic-dompurify'
 
 interface ContestDetailProps {
@@ -18,9 +18,9 @@ export default async function ContestDetail({ params }: ContestDetailProps) {
       <header className="flex justify-between border-b border-b-gray-200 p-5 py-4">
         <h2 className="break-words text-2xl font-extrabold">{title}</h2>
         <div className="mt-1 flex gap-1 text-sm text-gray-400">
-          <p>{dayjs(startTime).format('YYYY-MM-DD')}</p>
+          <p>{dateFormatter(startTime, 'YYYY-MM-DD')}</p>
           <p>-</p>
-          <p>{dayjs(endTime).format('YYYY-MM-DD')}</p>
+          <p>{dateFormatter(endTime, 'YYYY-MM-DD')}</p>
         </div>
       </header>
       <main
