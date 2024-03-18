@@ -3,8 +3,8 @@
 import { DataTableColumnHeader } from '@/components/DataTableColumnHeader'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
+import { dateFormatter } from '@/lib/utils'
 import type { ColumnDef } from '@tanstack/react-table'
-import dayjs from 'dayjs'
 import { FiEyeOff } from 'react-icons/fi'
 import { FiEye } from 'react-icons/fi'
 
@@ -108,8 +108,7 @@ export const columns: ColumnDef<Contest>[] = [
     ),
     cell: ({ row }) => (
       <p className="text-center">
-        {dayjs(row.original.startTime).format('YYYY-MM-DD HH:mm')} ~{' '}
-        {dayjs(row.original.endTime).format('YYYY-MM-DD HH:mm')}
+        {`${dateFormatter(row.original.startTime, 'YYYY-MM-DD')} ~ ${dateFormatter(row.original.endTime, 'YYYY-MM-DD')}`}
       </p>
     )
   },
