@@ -1,6 +1,7 @@
 'use client'
 
 import { gql } from '@generated'
+import { DataTableAdmin } from '@/components/DataTableAdmin'
 import TextEditor from '@/components/TextEditor'
 import { DateTimePickerDemo } from '@/components/date-time-picker-demo'
 import { Button } from '@/components/ui/button'
@@ -11,6 +12,7 @@ import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { IoMdCheckmarkCircleOutline } from 'react-icons/io'
@@ -18,6 +20,7 @@ import { PiWarningBold } from 'react-icons/pi'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import Label from '../_components/Label'
+import { columns } from './_components/Columns'
 
 const GET_CONTEST = gql(`
   query GetContest($contestId: Int!) {
@@ -44,6 +47,19 @@ const UPDATE_CONTEST = gql(`
   }
 `)
 
+const GET_CONTEST_PROBLEMS = gql(`
+  query GetContestProblems($groupId: Int!) {
+    getContestProblems(groupId: $groupId, contestId: 1) {
+      order
+      problemId
+      problem {
+        title
+        difficulty
+		  }
+    }
+  }
+`)
+
 const inputStyle =
   'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
 
@@ -60,6 +76,7 @@ const schema = z.object({
 })
 
 export default function Page({ params }: { params: { id: string } }) {
+  const [problems, setProblems] = useState([])
   const { id } = params
 
   const router = useRouter()
@@ -90,6 +107,26 @@ export default function Page({ params }: { params: { id: string } }) {
       setValue('description', data.description)
       setValue('startTime', new Date(data.startTime))
       setValue('endTime', new Date(data.endTime))
+    }
+  })
+
+  useQuery(GET_CONTEST_PROBLEMS, {
+    variables: { groupId: 1, contestId: Number(id) },
+    onCompleted: (data) => {
+      localStorage.setItem(
+        'orderArray',
+        JSON.stringify(data.getContestProblems.map((problem) => problem.order))
+      )
+      setProblems(
+        data.getContestProblems.map((problem) => {
+          return {
+            id: problem.problemId,
+            title: problem.problem.title,
+            order: problem.order,
+            difficulty: problem.problem.difficulty
+          }
+        })
+      )
     }
   })
 
@@ -202,6 +239,11 @@ export default function Page({ params }: { params: { id: string } }) {
                 required
               </div>
             )}
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <Label>Contest Problem List</Label>
+            <DataTableAdmin columns={columns} data={problems} />
           </div>
 
           <Button
