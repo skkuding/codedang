@@ -226,7 +226,9 @@ export function DataTableAdmin<TData, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => {
                 const href =
-                  `/admin/${page}/${(row.original as { id: number }).id}` as Route
+                  page === 'contest'
+                    ? (`/admin/contest/${(row.original as { id: number }).id}` as Route)
+                    : (`/admin/problem/${(row.original as { id: number }).id}` as Route)
                 return (
                   <TableRow
                     key={row.id}
