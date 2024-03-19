@@ -114,7 +114,14 @@ export default function Page() {
             ))}
           </>
         ) : (
-          <DataTableAdmin columns={columns} data={problems} />
+          <DataTableAdmin
+            columns={columns}
+            data={problems}
+            enableSearch={true}
+            enableFilter={true}
+            enableDelete={true}
+            enablePagination={true}
+          />
         )}
       </div>
       <ScrollBar orientation="horizontal" />
