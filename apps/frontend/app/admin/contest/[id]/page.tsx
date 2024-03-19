@@ -48,8 +48,8 @@ const UPDATE_CONTEST = gql(`
 `)
 
 const GET_CONTEST_PROBLEMS = gql(`
-  query GetContestProblems($groupId: Int!) {
-    getContestProblems(groupId: $groupId, contestId: 1) {
+  query GetContestProblems($groupId: Int!, $contestId: Int!) {
+    getContestProblems(groupId: $groupId, contestId: $contestId) {
       order
       problemId
       problem {

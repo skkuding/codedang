@@ -44,7 +44,12 @@ const GET_PROBLEMS = gql(`
   }
 `)
 
-export default function Page() {
+export default function Page({
+  searchParams
+}: {
+  searchParams: { import: boolean | undefined }
+}) {
+  const importProblem = searchParams.import
   const { data, loading, refetch } = useQuery(GET_PROBLEMS, {
     variables: {
       groupId: 1,
@@ -86,15 +91,22 @@ export default function Page() {
               Here&apos;s a list you made
             </p>
           </div>
-          <div className="flex gap-2">
-            <UploadDialog refetch={refetch} />
-            <Link href="/admin/problem/create">
-              <Button variant="default">
-                <PlusCircleIcon className="mr-2 h-4 w-4" />
-                Create
-              </Button>
-            </Link>
-          </div>
+          {importProblem ? (
+            <Button variant="default">
+              <PlusCircleIcon className="mr-2 h-4 w-4" />
+              Import
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <UploadDialog refetch={refetch} />
+              <Link href="/admin/problem/create">
+                <Button variant="default">
+                  <PlusCircleIcon className="mr-2 h-4 w-4" />
+                  Create
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
         {loading ? (
           <>

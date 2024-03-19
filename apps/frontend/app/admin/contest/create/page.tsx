@@ -368,11 +368,11 @@ export default function Page() {
                     'contestFormData',
                     JSON.stringify(formData)
                   )
-                  router.push('/admin/problem/create?iscontest=1')
+                  router.push('/admin/problem?import=true')
                 }}
               >
                 <PlusCircleIcon className="h-4 w-4" />
-                <div className="mb-[2px] text-sm">Create Problem</div>
+                <div className="mb-[2px] text-sm">Import Problem</div>
               </Button>
             </div>
             <DataTableAdmin columns={columns} data={problems} />

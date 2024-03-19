@@ -123,12 +123,7 @@ const schema = z.object({
     .optional()
 })
 
-export default function Page({
-  searchParams
-}: {
-  searchParams: { iscontest: number | undefined }
-}) {
-  const isContest = searchParams.iscontest ? Number(searchParams.iscontest) : 0
+export default function Page() {
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
     tagsData?.getTags.map(({ id, name }) => ({ id: Number(id), name })) ?? []
@@ -155,7 +150,7 @@ export default function Page({
       hint: '',
       source: '',
       template: [],
-      isVisible: false
+      isVisible: true
     }
   })
 
@@ -163,32 +158,20 @@ export default function Page({
   const watchedTestcases = watch('testcases')
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
-
   const onSubmit = async (input: CreateProblemInput) => {
-    if (isContest) {
-      const storedData = JSON.parse(
-        localStorage.getItem('problemFormDatas') || '[]'
-      )
-      localStorage.setItem(
-        'problemFormDatas',
-        JSON.stringify([...storedData, input])
-      )
-      router.push('/admin/contest/create')
-    } else {
-      await createProblem({
-        variables: {
-          groupId: 1,
-          input
-        }
-      })
-      if (error) {
-        toast.error('Failed to create problem')
-        return
+    await createProblem({
+      variables: {
+        groupId: 1,
+        input
       }
-      toast.success('Problem created successfully')
-      router.push('/admin/problem')
-      router.refresh()
+    })
+    if (error) {
+      toast.error('Failed to create problem')
+      return
     }
+    toast.success('Problem created successfully')
+    router.push('/admin/problem')
+    router.refresh()
   }
 
   const addExample = (type: 'samples' | 'testcases') => {
@@ -240,7 +223,7 @@ export default function Page({
                 </div>
               )}
             </div>
-            <div className={cn(isContest ? 'hidden' : 'flex flex-col gap-4')}>
+            <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2">
                 <Label>Visible</Label>
                 <Popover>
