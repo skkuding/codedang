@@ -7,7 +7,14 @@ import { Suspense } from 'react'
 import ProblemInfiniteTable from './_components/ProblemInfiniteTable'
 
 export default function Problem() {
-  const queryClient = new QueryClient()
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        staleTime: 60 * 1000
+      }
+    }
+  })
   return (
     <>
       <QueryClientProvider client={queryClient}>
