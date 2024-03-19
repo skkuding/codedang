@@ -50,7 +50,7 @@ func newMetricResource() (*resource.Resource, error) {
 
 func newMeterProvider(res *resource.Resource, second time.Duration) (*sdkmetric.MeterProvider, error) {
 	// Use OLTP Exporter for Grafana Agent (Recommended)
-	entryPoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
+	entryPoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL")
 	otlpExporter, err := otlpmetrichttp.New(context.Background(), otlpmetrichttp.WithEndpointURL("http://"+entryPoint+"/v1/metrics"))
 	if err != nil {
 		return nil, err

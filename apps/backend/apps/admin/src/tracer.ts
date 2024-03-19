@@ -15,7 +15,7 @@ class Tracer {
 
   // http://localhost:4318/v1/traces
   private exporter = new OTLPTraceExporter({
-    url: 'http://' + process.env.OTEL_EXPORTER_OTLP_ENDPOINT + '/v1/traces'
+    url: 'http://' + process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL + '/v1/traces'
   })
 
   private provider = new BasicTracerProvider({

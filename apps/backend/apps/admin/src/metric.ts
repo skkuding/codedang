@@ -9,7 +9,8 @@ import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 
 const startMetricsExporter = () => {
   const options = {
-    url: 'http://' + process.env.OTEL_EXPORTER_OTLP_ENDPOINT + '/v1/metrics', // Grafana Agent Metric을 받는 url
+    url:
+      'http://' + process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL + '/v1/metrics', // Grafana Agent Metric을 받는 url
     headers: {},
     concurrencyLimit: 5
   }

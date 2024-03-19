@@ -11,8 +11,8 @@ const bootstrap = async () => {
   // otel instrumentation
   if (process.env.NODE_ENV == 'production') {
     if (
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT == undefined ||
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT == ''
+      process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == undefined ||
+      process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == ''
     ) {
       console.log('The exporter url is not defined')
     } else {
