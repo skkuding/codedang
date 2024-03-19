@@ -35,7 +35,7 @@ func main() {
 	ctx := context.Background()
 	cache := cache.NewCache(ctx)
 	if env == "production" {
-		if utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "") != "" {
+		if utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "") != "" {
 			shutdown := observability.InitTracer(ctx)
 			defer shutdown()
 			observability.SetGlobalMeterProvider()
@@ -43,7 +43,7 @@ func main() {
 			observability.GetMemoryMeter(otel.Meter("memory-metrics"))
 			observability.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
 		} else {
-			logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT")
+			logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT_URL")
 		}
 	} else {
 		logProvider.Log(logger.INFO, "Running in development mode")
