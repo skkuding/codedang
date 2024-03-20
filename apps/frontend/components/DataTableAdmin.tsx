@@ -91,6 +91,13 @@ export function DataTableAdmin<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues()
   })
 
+  let deletingObject
+  if (pathname === '/admin/contest') {
+    deletingObject = 'contest'
+  } else {
+    deletingObject = 'problem'
+  }
+
   const DELETE_PROBLEM = gql(`
   mutation DeleteProblem($groupId: Int!, $id: Int!) {
     deleteProblem(groupId: $groupId, id: $id) {
@@ -142,6 +149,17 @@ export function DataTableAdmin<TData, TValue>({
     const selectedRows = table.getSelectedRowModel().rows as {
       original: { id: number }
     }[]
+    if (pathname === '/admin/contest/create') {
+      const storedValue = localStorage.getItem('importProblems')
+      const problems = storedValue ? JSON.parse(storedValue) : []
+      const newProblems = problems.filter(
+        (problem) => !selectedRows.some((row) => row.original.id === problem.id)
+      )
+      localStorage.setItem('importProblems', JSON.stringify(newProblems))
+      // router.refresh 해도 새로고침이 안돼서 location.reload()로 대체
+      location.reload()
+      return
+    }
     const deletePromise = selectedRows.map((row) => {
       if (page === 'problem') {
         return deleteProblem({
@@ -220,8 +238,8 @@ export function DataTableAdmin<TData, TValue>({
           {enableDelete ? (
             selectedRowCount !== 0 ? (
               <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline">
+                <AlertDialogTrigger>
+                  <Button variant="outline" type="button">
                     <PiTrashLight fontSize={18} />
                   </Button>
                 </AlertDialogTrigger>
@@ -230,7 +248,7 @@ export function DataTableAdmin<TData, TValue>({
                     <AlertDialogTitle>Delete</AlertDialogTitle>
                     <AlertDialogDescription>
                       Are you sure you want to permanently delete{' '}
-                      {selectedRowCount} {page}(s)?
+                      {selectedRowCount} {deletingObject}(s)?
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -244,7 +262,7 @@ export function DataTableAdmin<TData, TValue>({
                 </AlertDialogContent>
               </AlertDialog>
             ) : (
-              <Button variant="outline">
+              <Button variant="outline" type="button">
                 <PiTrashLight fontSize={18} />
               </Button>
             )
