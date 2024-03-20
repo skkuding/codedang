@@ -1,6 +1,5 @@
 import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
-import type { ContestProblem } from '@/types/type'
 import { sanitize } from 'isomorphic-dompurify'
 import RegisterButton from './_components/RegisterButton'
 
@@ -22,11 +21,6 @@ export default async function ContestTop({ params }: ContestTopProps) {
   const { contestId } = params
   const data: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
-    .json()
-  const { problems }: { problems: ContestProblem[] } = await fetcherWithAuth
-    .get(`contest/${contestId}/problem`, {
-      searchParams: { take: 1 }
-    })
     .json()
 
   const startTime = new Date(data.startTime)
@@ -51,7 +45,6 @@ export default async function ContestTop({ params }: ContestTopProps) {
             id={contestId}
             registered={data.isRegistered}
             state={state}
-            firstProblemId={problems?.at(0)?.id}
           />
         </div>
       )}
