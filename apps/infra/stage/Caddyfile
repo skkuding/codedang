@@ -1,0 +1,89 @@
+(cors) {
+	# 1. Preflight request
+	# Matcher: If Origin header equals to the argument and method is OPTIONS
+	# Handler: Set CORS headers and respond with 204
+	@cors-preflight{args[0]} {
+		header Origin {args[0]}
+		method OPTIONS
+	}
+
+	handle @cors-preflight{args[0]} {
+		header {
+			Access-Control-Allow-Credentials true
+			Access-Control-Allow-Origin "{header.Origin}"
+			Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+			Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth, Apollo-Require-Preflight"
+			Access-Control-Expose-Headers "Email-Auth"
+		}
+		respond "" 204
+	}
+
+
+	# 2. Actual request
+	# Matcher: If Origin header equals to the argument
+	# Handler: Set CORS headers
+	@cors{args[0]} header Origin {args[0]}
+	handle @cors{args[0]} {
+		header {
+			Access-Control-Allow-Credentials true
+			Access-Control-Allow-Origin "{header.Origin}"
+			Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+			Access-Control-Allow-Headers "Content-Type, Authorization, Email-Auth, Apollo-Require-Preflight"
+			Access-Control-Expose-Headers "Email-Auth"
+		}
+	}
+}
+
+# Global options
+{
+	# Keep-Alive timeout of reverse proxy must be longer than of the backend
+	# Set timeout of Caddy to 60s and of the backend to 61s to avoid timeout error
+	# https://adamcrowder.net/posts/node-express-api-and-aws-alb-502/
+	servers {
+		timeouts {
+			idle 1m
+		}
+	}
+}
+
+dev.codedang.com {
+	handle /api/* {
+		reverse_proxy 127.0.0.1:4000
+
+		# CORS rules
+		# frontend server (Next.js)
+		import cors http://localhost:5525
+
+		# Use wildcard matcher to allow all subdomains
+		# https://caddyserver.com/docs/caddyfile/matchers#header
+		import cors *.codedang.com
+		import cors *.gitpod.io
+		import cors *.vercel.app
+
+		# 캐시 설정
+		header {
+			Set-Cookie (.*) "$1; SameSite=None; Secure"
+			defer
+		}
+	}
+
+	handle /logs* {
+		reverse_proxy 127.0.0.1:9999
+	}
+
+	handle /graphql {
+		reverse_proxy 127.0.0.1:3000
+
+		import cors http://localhost:5525
+		import cors *.codedang.com
+		import cors *.gitpod.io
+		import cors *.vercel.app
+	}
+
+	handle {
+		reverse_proxy https://codedang.vercel.app {
+			# Must override host to avoid Vercel error
+			header_up Host codedang.vercel.app
+		}
+	}
+}

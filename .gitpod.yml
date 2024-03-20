@@ -49,4 +49,3 @@ vscode:
     - hashicorp.terraform
     - ms-azuretools.vscode-docker
     - prisma.prisma
-    - Vue.volar

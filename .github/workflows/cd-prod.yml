@@ -33,7 +33,7 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          file: ./backend/Dockerfile
+          file: ./apps/backend/Dockerfile
           push: true
           build-args: 'target=client'
           tags: ${{ steps.login-ecr.outputs.registry }}/codedang-client-api:latest
@@ -57,7 +57,7 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          file: ./backend/Dockerfile
+          file: ./apps/backend/Dockerfile
           push: true
           build-args: 'target=admin'
           tags: ${{ steps.login-ecr.outputs.registry }}/codedang-admin-api:latest
@@ -82,7 +82,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          context: '{{defaultContext}}:iris'
+          context: '{{defaultContext}}:apps/iris'
           tags: ${{ steps.login-ecr.outputs.registry }}/codedang-iris:latest
 
   deploy:
@@ -110,7 +110,7 @@ jobs:
           terraform_version: 1.5.2
 
       - name: Create Terraform variable file
-        working-directory: ./infra/deploy
+        working-directory: ./apps/infra/deploy
         run: |
           echo "$TFVARS" >> terraform.tfvars
           echo "$OAUTH_GITHUB" >> terraform.tfvars
@@ -121,14 +121,14 @@ jobs:
           OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
 
       - name: Terraform Init
-        working-directory: ./infra/deploy
+        working-directory: ./apps/infra/deploy
         run: terraform init
 
       # TODO: plan in the other job, and reuse the plan file
       - name: Terraform Plan
-        working-directory: ./infra/deploy
+        working-directory: ./apps/infra/deploy
         run: terraform plan -target=module.codedang-infra -input=false
 
       - name: Terraform Apply
-        working-directory: ./infra/deploy
+        working-directory: ./apps/infra/deploy
         run: terraform apply -target=module.codedang-infra -auto-approve -input=false

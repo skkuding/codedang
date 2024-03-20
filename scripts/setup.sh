@@ -39,19 +39,19 @@ do
 done < .env.development
 
 # If dotenv schema is not updated, remove the file
-if [ -f backend/.env ] && grep -q DATABASE_URL backend/.env
+if [ -f apps/backend/.env ] && grep -q DATABASE_URL apps/backend/.env
 then
-  rm backend/.env
+  rm apps/backend/.env
 fi
 
 # If .env does not exist, create one
-if [ ! -f backend/.env ]
+if [ ! -f apps/backend/.env ]
 then
-  echo "NODEMAILER_HOST=\"email-smtp.ap-northeast-2.amazonaws.com\"" >> backend/.env
-  echo "NODEMAILER_USER=\"\"" >> backend/.env
-  echo "NODEMAILER_PASS=\"\"" >> backend/.env
-  echo "NODEMAILER_FROM=\"\"" >> backend/.env
-  echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum | head -c 64)" >> backend/.env
+  echo "NODEMAILER_HOST=\"email-smtp.ap-northeast-2.amazonaws.com\"" >> apps/backend/.env
+  echo "NODEMAILER_USER=\"\"" >> apps/backend/.env
+  echo "NODEMAILER_PASS=\"\"" >> apps/backend/.env
+  echo "NODEMAILER_FROM=\"\"" >> apps/backend/.env
+  echo "JWT_SECRET=$(head -c 64 /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | sha256sum | head -c 64)" >> apps/backend/.env
 fi
 
 # Install pnpm and Node.js packages
@@ -73,17 +73,17 @@ fi
 # Apply database migration
 for i in {1..5}
 do
-  pnpm --filter backend exec prisma migrate dev && break # break if migration succeed
+  pnpm --filter="@codedang/backend" exec prisma migrate dev && break # break if migration succeed
   echo -e '\n⚠️ Failed to migrate. Waiting for db to be ready...\n'
   sleep 5
 done
 
 # Install Go dependencies
-cd $BASEDIR/iris
+cd $BASEDIR/apps/iris
 go get
 
 # Setup sandbox
-cp $BASEDIR/iris/lib/judger/policy/java_policy /app/sandbox/policy/
+cp $BASEDIR/apps/iris/lib/judger/policy/java_policy /app/sandbox/policy/
 
 # Check RabbitMQ connection
 while ! nc -z "$RABBITMQ_HOST" "$RABBITMQ_PORT"; do sleep 3; done
