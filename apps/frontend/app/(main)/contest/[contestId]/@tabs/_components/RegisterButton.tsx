@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { fetcherWithAuth } from '@/lib/utils'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -26,14 +27,17 @@ const clickDeregister = async (contestId: string) => {
 export default function RegisterButton({
   id,
   registered,
-  state
+  state,
+  firstProblemId
 }: {
   id: string
   registered: boolean
   state: string
+  firstProblemId?: number
 }) {
   const [isRegistered, setIsRegistered] = useState(registered)
   const buttonColor = isRegistered ? 'bg-secondary' : 'bg-primary'
+  const router = useRouter()
   return (
     <>
       {state === 'Upcoming' ? (
@@ -55,7 +59,7 @@ export default function RegisterButton({
         </Button>
       ) : (
         <>
-          {!isRegistered && (
+          {!isRegistered ? (
             <Button
               className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
               onClick={() => {
@@ -66,6 +70,19 @@ export default function RegisterButton({
             >
               Register
             </Button>
+          ) : (
+            <>
+              {firstProblemId && (
+                <Button
+                  className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
+                  onClick={() =>
+                    router.push(`/contest/${id}/problem/${firstProblemId}`)
+                  }
+                >
+                  Go To First Problem!
+                </Button>
+              )}
+            </>
           )}
         </>
       )}

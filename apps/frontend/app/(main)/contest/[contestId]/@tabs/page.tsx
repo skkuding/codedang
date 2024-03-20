@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
+import type { ContestProblem } from '@/types/type'
 import { sanitize } from 'isomorphic-dompurify'
 import RegisterButton from './_components/RegisterButton'
 
@@ -22,6 +23,11 @@ export default async function ContestTop({ params }: ContestTopProps) {
   const data: ContestTop = await fetcherWithAuth
     .get(`contest/${contestId}`)
     .json()
+  const { problems }: { problems: ContestProblem[] } = await fetcherWithAuth
+    .get(`contest/${contestId}/problem`, {
+      searchParams: { take: 1 }
+    })
+    .json()
 
   const startTime = new Date(data.startTime)
   const endTime = new Date(data.endTime)
@@ -39,13 +45,13 @@ export default async function ContestTop({ params }: ContestTopProps) {
         className="prose w-full max-w-full border-b-2 border-b-gray-300 p-5 py-12"
         dangerouslySetInnerHTML={{ __html: sanitize(data.description) }}
       />
-
       {session && state !== 'Finished' && (
         <div className="mt-10 flex justify-center">
           <RegisterButton
             id={contestId}
             registered={data.isRegistered}
             state={state}
+            firstProblemId={problems?.at(0)?.id}
           />
         </div>
       )}
