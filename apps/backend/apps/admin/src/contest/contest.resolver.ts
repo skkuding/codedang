@@ -201,4 +201,26 @@ export class ContestResolver {
       throw new InternalServerErrorException()
     }
   }
+
+  @Mutation(() => [ContestProblem])
+  async removeProblemsFromContest(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('contestId', { type: () => Int })
+    contestId: number,
+    @Args('problemIds', { type: () => [Int] }) problemIds: number[]
+  ) {
+    try {
+      return await this.contestService.removeProblemsFromContest(
+        groupId,
+        contestId,
+        problemIds
+      )
+    } catch (error) {
+      if (error instanceof EntityNotExistException) {
+        throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
 }
