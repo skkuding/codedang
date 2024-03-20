@@ -123,8 +123,8 @@ export default function Page({ params }: { params: { id: string } }) {
       const storedContestFormData = localStorage.getItem(
         `contestFormData-${id}`
       )
+      setValue('id', Number(id))
       if (storedContestFormData) {
-        setValue('id', Number(id))
         const contestFormData = JSON.parse(storedContestFormData)
         setValue('title', contestFormData.title)
         if (contestFormData.startTime) {
@@ -136,7 +136,6 @@ export default function Page({ params }: { params: { id: string } }) {
         setValue('description', contestFormData.description)
       } else {
         const data = contestData.getContest
-        setValue('id', Number(id))
         setValue('title', data.title)
         setValue('description', data.description)
         setValue('startTime', new Date(data.startTime))

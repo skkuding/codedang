@@ -52,6 +52,15 @@ interface DataTableProps<TData, TValue> {
   enableFilter?: boolean // Enable filter for languages and tags
   enableDelete?: boolean // Enable delete selected rows
   enablePagination?: boolean // Enable pagination
+  enableImport?: boolean // Enable import selected rows
+  checkSelectedRows?: boolean // Check selected rows
+}
+
+interface ContestProblem {
+  index: number
+  id: number
+  title: string
+  difficulty: string
 }
 
 const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
@@ -130,16 +139,24 @@ export function DataTableAdmin<TData, TValue>({
         if (!importedProblems) return
       }
       const problems = JSON.parse(importedProblems)
-      const problemIndex = problems.map((problem) => problem.index)
+      const problemIndex = problems.map(
+        (problem: ContestProblem) => problem.index
+      )
       setRowSelection(
-        problemIndex.reduce((acc, index) => ({ ...acc, [index]: true }), {})
+        problemIndex.reduce(
+          (acc: { [key: number]: boolean }, index: number) => ({
+            ...acc,
+            [index]: true
+          }),
+          {}
+        )
       )
     }
   }, [checkSelectedRows, searchParams])
 
   const handleImportProblems = async () => {
     const selectedProblems = table.getSelectedRowModel().rows as {
-      original: { id: number; title: string; difficulty }
+      original: { id: number; title: string; difficulty: string }
       index: number
     }[]
     const problems = selectedProblems.map((problem) => ({
@@ -170,7 +187,8 @@ export function DataTableAdmin<TData, TValue>({
       const storedValue = localStorage.getItem('importProblems')
       const problems = storedValue ? JSON.parse(storedValue) : []
       const newProblems = problems.filter(
-        (problem) => !selectedRows.some((row) => row.original.id === problem.id)
+        (problem: ContestProblem) =>
+          !selectedRows.some((row) => row.original.id === problem.id)
       )
       localStorage.setItem('importProblems', JSON.stringify(newProblems))
       // router.refresh 해도 새로고침이 안돼서 location.reload()로 대체
