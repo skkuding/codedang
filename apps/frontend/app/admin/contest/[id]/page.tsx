@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { PlusCircleIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
@@ -85,8 +86,16 @@ const schema = z.object({
   endTime: z.date()
 })
 
+interface Problem {
+  id: number
+  title: string
+  order: number
+  difficulty: string
+}
+
 export default function Page({ params }: { params: { id: string } }) {
-  const [problems, setProblems] = useState([])
+  const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])
+  const [problems, setProblems] = useState<Problem[]>([])
   const { id } = params
 
   const router = useRouter()
@@ -111,32 +120,65 @@ export default function Page({ params }: { params: { id: string } }) {
   useQuery(GET_CONTEST, {
     variables: { contestId: Number(id) },
     onCompleted: (contestData) => {
-      const data = contestData.getContest
-      setValue('id', Number(id))
-      setValue('title', data.title)
-      setValue('description', data.description)
-      setValue('startTime', new Date(data.startTime))
-      setValue('endTime', new Date(data.endTime))
+      const storedContestFormData = localStorage.getItem(
+        `contestFormData-${id}`
+      )
+      if (storedContestFormData) {
+        setValue('id', Number(id))
+        const contestFormData = JSON.parse(storedContestFormData)
+        setValue('title', contestFormData.title)
+        if (contestFormData.startTime) {
+          setValue('startTime', new Date(contestFormData.startTime))
+        }
+        if (contestFormData.endTime) {
+          setValue('endTime', new Date(contestFormData.endTime))
+        }
+        setValue('description', contestFormData.description)
+      } else {
+        const data = contestData.getContest
+        setValue('id', Number(id))
+        setValue('title', data.title)
+        setValue('description', data.description)
+        setValue('startTime', new Date(data.startTime))
+        setValue('endTime', new Date(data.endTime))
+      }
     }
   })
 
   useQuery(GET_CONTEST_PROBLEMS, {
     variables: { groupId: 1, contestId: Number(id) },
     onCompleted: (data) => {
-      localStorage.setItem(
-        'orderArray',
-        JSON.stringify(data.getContestProblems.map((problem) => problem.order))
+      setPrevProblemIds(
+        data.getContestProblems.map((problem) => problem.problemId)
       )
-      setProblems(
-        data.getContestProblems.map((problem) => {
-          return {
-            id: problem.problemId,
-            title: problem.problem.title,
-            order: problem.order,
-            difficulty: problem.problem.difficulty
-          }
-        })
+      const importedProblems = JSON.parse(
+        localStorage.getItem(`importProblems-${id}`) || '[]'
       )
+      if (importedProblems.length > 0) {
+        setProblems(importedProblems)
+        const orderArray = importedProblems.map(
+          // eslint-disable-next-line
+          (_: any, index: number) => index
+        )
+        localStorage.setItem('orderArray', JSON.stringify(orderArray))
+      } else {
+        localStorage.setItem(
+          'orderArray',
+          JSON.stringify(
+            data.getContestProblems.map((problem) => problem.order)
+          )
+        )
+        setProblems(
+          data.getContestProblems.map((problem) => {
+            return {
+              id: problem.problemId,
+              title: problem.problem.title,
+              order: problem.order,
+              difficulty: problem.problem.difficulty
+            }
+          })
+        )
+      }
     }
   })
 
@@ -144,6 +186,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
+
   const onSubmit = async (input: UpdateContestInput) => {
     if (input.startTime >= input.endTime) {
       toast.error('Start time must be less than end time')
@@ -151,17 +194,28 @@ export default function Page({ params }: { params: { id: string } }) {
     }
 
     const problemIds = problems.map((problem) => problem.id)
-    const storedData = localStorage.getItem('orderArray')
-    if (!storedData) {
+
+    const removedProblems = prevProblemIds.filter(
+      (id) => !problemIds.includes(id)
+    )
+    const addedProblems = problemIds.filter(
+      (id) => !prevProblemIds.includes(id)
+    )
+    console.log('prevProblemIds', prevProblemIds)
+    console.log('problemIds', problemIds)
+    console.log('removedProblems', removedProblems)
+    console.log('addedProblems', addedProblems)
+    return
+    const orderArray = JSON.parse(localStorage.getItem('orderArray') || '[]')
+    if (orderArray.length === 0) {
       toast.error('Problem order not set')
       return
     }
-    const orderArray = JSON.parse(storedData)
     if (orderArray.length !== problemIds.length) {
       toast.error('Problem order not set')
       return
     }
-    orderArray.forEach((order) => {
+    orderArray.forEach((order: number) => {
       if (order === null) {
         toast.error('Problem order not set')
         return
@@ -186,6 +240,7 @@ export default function Page({ params }: { params: { id: string } }) {
     orderArray.forEach((order: number, index: number) => {
       orders[order] = problemIds[index]
     })
+
     await updateContestProblemsOrder({
       variables: {
         groupId: 1,
@@ -193,6 +248,8 @@ export default function Page({ params }: { params: { id: string } }) {
         orders
       }
     })
+    localStorage.removeItem('orderArray')
+    localStorage.removeItem(`contestFormData-${id}`)
     localStorage.removeItem('orderArray')
     toast.success('Contest updated successfully')
     router.push('/admin/contest')
@@ -294,13 +351,41 @@ export default function Page({ params }: { params: { id: string } }) {
           </div>
 
           <div className="flex flex-col gap-1">
-            <Label>Contest Problem List</Label>
-            <DataTableAdmin columns={columns} data={problems} />
+            <div className="flex items-center justify-between">
+              <Label>Contest Problem List</Label>
+              <Button
+                type="button"
+                className="flex h-[36px] w-36 items-center gap-2 px-0"
+                onClick={() => {
+                  const formData = {
+                    title: getValues('title'),
+                    startTime: getValues('startTime'),
+                    endTime: getValues('endTime'),
+                    description: getValues('description')
+                  }
+                  localStorage.setItem(
+                    `contestFormData-${id}`,
+                    JSON.stringify(formData)
+                  )
+                  router.push(`/admin/problem?import=true&contestId=${id}`)
+                }}
+              >
+                <PlusCircleIcon className="h-4 w-4" />
+                <div className="mb-[2px] text-sm">Import Problem</div>
+              </Button>
+            </div>
+            <DataTableAdmin
+              // eslint-disable-next-line
+              columns={columns as any[]}
+              data={problems as Problem[]}
+              enableDelete={true}
+              enableSearch={true}
+            />
           </div>
 
           <Button
             type="submit"
-            className="flex h-[36px] w-[100px] items-center gap-2 px-0 "
+            className="flex h-[36px] w-[100px] items-center gap-2 px-0"
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
             <div className="mb-[2px] text-base">Submit</div>

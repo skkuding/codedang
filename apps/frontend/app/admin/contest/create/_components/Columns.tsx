@@ -9,7 +9,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 interface Problem {
   id: number
   title: string
-  order: string
+  order: number
   difficulty: Level
 }
 

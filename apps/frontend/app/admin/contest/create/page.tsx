@@ -83,8 +83,15 @@ const schema = z.object({
   endTime: z.date()
 })
 
+interface ContestProblem {
+  id: number
+  title: string
+  order: number
+  difficulty: string
+}
+
 export default function Page() {
-  const [problems, setProblems] = useState([])
+  const [problems, setProblems] = useState<ContestProblem[]>([])
 
   const router = useRouter()
 
@@ -127,7 +134,7 @@ export default function Page() {
       toast.error('Problem order not set')
       return
     }
-    orderArray.forEach((order) => {
+    orderArray.forEach((order: number) => {
       if (order === null) {
         toast.error('Problem order not set')
         return
@@ -196,7 +203,8 @@ export default function Page() {
     )
     setProblems(importedProblems)
 
-    const orderArray = importedProblems.map((_, index) => index)
+    // eslint-disable-next-line
+    const orderArray = importedProblems.map((_: any, index: number) => index)
     localStorage.setItem('orderArray', JSON.stringify(orderArray))
   }, [])
 
@@ -349,7 +357,8 @@ export default function Page() {
               </Button>
             </div>
             <DataTableAdmin
-              columns={columns}
+              // eslint-disable-next-line
+              columns={columns as any}
               data={problems}
               enableDelete={true}
               enableSearch={true}

@@ -9,7 +9,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 interface Problem {
   id: number
   title: string
-  order: string
+  order: number
   difficulty: Level
 }
 
@@ -58,7 +58,11 @@ export const columns: ColumnDef<Problem>[] = [
       return (
         <div className="flex justify-center">
           <OptionSelect
-            placeholder={String.fromCharCode(65 + row.original.order)}
+            placeholder={
+              row.original.order
+                ? String.fromCharCode(Number(65 + row.original.order))
+                : String.fromCharCode(Number(65 + row.index))
+            }
             options={alphabetArray}
             onChange={(selectedOrder) => {
               const storedValue = localStorage.getItem('orderArray')

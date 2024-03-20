@@ -36,7 +36,7 @@ import {
 } from '@tanstack/react-table'
 import { PlusCircleIcon } from 'lucide-react'
 import type { Route } from 'next'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
@@ -66,6 +66,7 @@ export function DataTableAdmin<TData, TValue>({
   enableImport = false,
   checkSelectedRows = false
 }: DataTableProps<TData, TValue>) {
+  const searchParams = useSearchParams()
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
   const pathname = usePathname()
@@ -119,15 +120,22 @@ export function DataTableAdmin<TData, TValue>({
 
   useEffect(() => {
     if (checkSelectedRows) {
-      const importedProblems = localStorage.getItem('importProblems')
-      if (!importedProblems) return
+      const contestId = searchParams.get('contestId')
+      let importedProblems
+      if (contestId === null) {
+        importedProblems = localStorage.getItem('importProblems')
+        if (!importedProblems) return
+      } else {
+        importedProblems = localStorage.getItem(`importProblems-${contestId}`)
+        if (!importedProblems) return
+      }
       const problems = JSON.parse(importedProblems)
       const problemIndex = problems.map((problem) => problem.index)
       setRowSelection(
         problemIndex.reduce((acc, index) => ({ ...acc, [index]: true }), {})
       )
     }
-  }, [checkSelectedRows])
+  }, [checkSelectedRows, searchParams])
 
   const handleImportProblems = async () => {
     const selectedProblems = table.getSelectedRowModel().rows as {
@@ -140,8 +148,17 @@ export function DataTableAdmin<TData, TValue>({
       title: problem.original.title,
       difficulty: problem.original.difficulty
     }))
-    localStorage.setItem('importProblems', JSON.stringify(problems))
-    router.push('/admin/contest/create')
+    const contestId = searchParams.get('contestId')
+    if (contestId === null) {
+      localStorage.setItem('importProblems', JSON.stringify(problems))
+      router.push('/admin/contest/create')
+    } else {
+      localStorage.setItem(
+        `importProblems-${contestId}`,
+        JSON.stringify(problems)
+      )
+      router.push(`/admin/contest/${contestId}`)
+    }
   }
 
   // TODO: notice도 같은 방식으로 추가
@@ -195,7 +212,7 @@ export function DataTableAdmin<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      {(enableSearch || enableFilter || enableDelete) && (
+      {(enableSearch || enableFilter || enableImport || enableDelete) && (
         <div className="flex justify-between">
           <div className="flex gap-2">
             {enableSearch && (
