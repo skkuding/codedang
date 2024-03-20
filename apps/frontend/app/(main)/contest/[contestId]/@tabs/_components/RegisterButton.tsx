@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { fetcherWithAuth } from '@/lib/utils'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -34,6 +35,7 @@ export default function RegisterButton({
 }) {
   const [isRegistered, setIsRegistered] = useState(registered)
   const buttonColor = isRegistered ? 'bg-secondary' : 'bg-primary'
+  const router = useRouter()
   return (
     <>
       {state === 'Upcoming' ? (
@@ -55,7 +57,7 @@ export default function RegisterButton({
         </Button>
       ) : (
         <>
-          {!isRegistered && (
+          {!isRegistered ? (
             <Button
               className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
               onClick={() => {
@@ -65,6 +67,15 @@ export default function RegisterButton({
               }}
             >
               Register
+            </Button>
+          ) : (
+            <Button
+              className={`bg-green-600 px-12 py-6 text-lg font-light hover:bg-green-600`}
+              onClick={() => {
+                router.push(`/contest/${id}/problem/1`)
+              }}
+            >
+              Start Contest
             </Button>
           )}
         </>
