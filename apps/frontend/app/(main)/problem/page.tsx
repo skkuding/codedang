@@ -10,8 +10,7 @@ export default function Problem() {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        refetchOnWindowFocus: false,
-        staleTime: 60 * 1000
+        refetchOnWindowFocus: false
       }
     }
   })
