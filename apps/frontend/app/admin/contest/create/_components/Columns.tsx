@@ -58,7 +58,7 @@ export const columns: ColumnDef<Problem>[] = [
       return (
         <div className="flex justify-center">
           <OptionSelect
-            placeholder="order"
+            placeholder={String.fromCharCode(65 + row.index)}
             options={alphabetArray}
             onChange={(selectedOrder) => {
               const storedValue = localStorage.getItem('orderArray')

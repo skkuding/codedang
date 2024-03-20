@@ -132,6 +132,10 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const [updateContest, { error }] = useMutation(UPDATE_CONTEST)
   const onSubmit = async (input: UpdateContestInput) => {
+    if (input.startTime >= input.endTime) {
+      toast.error('Start time must be less than end time')
+      return
+    }
     await updateContest({
       variables: {
         groupId: 1,

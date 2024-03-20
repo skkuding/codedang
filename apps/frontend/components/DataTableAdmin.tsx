@@ -34,10 +34,10 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import { PlusCircleIcon } from 'lucide-react'
 import type { Route } from 'next'
-import { useRouter } from 'next/navigation'
-import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
 import DataTableLangFilter from './DataTableLangFilter'
@@ -62,7 +62,9 @@ export function DataTableAdmin<TData, TValue>({
   enableSearch = false,
   enableFilter = false,
   enableDelete = false,
-  enablePagination = false
+  enablePagination = false,
+  enableImport = false,
+  checkSelectedRows = false
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -107,6 +109,33 @@ export function DataTableAdmin<TData, TValue>({
 
   const [deleteProblem] = useMutation(DELETE_PROBLEM)
   const [deleteContest] = useMutation(DELETE_CONTEST)
+
+  useEffect(() => {
+    if (checkSelectedRows) {
+      const importedProblems = localStorage.getItem('importProblems')
+      if (!importedProblems) return
+      const problems = JSON.parse(importedProblems)
+      const problemIndex = problems.map((problem) => problem.index)
+      setRowSelection(
+        problemIndex.reduce((acc, index) => ({ ...acc, [index]: true }), {})
+      )
+    }
+  }, [checkSelectedRows])
+
+  const handleImportProblems = async () => {
+    const selectedProblems = table.getSelectedRowModel().rows as {
+      original: { id: number; title: string; difficulty }
+      index: number
+    }[]
+    const problems = selectedProblems.map((problem) => ({
+      index: problem.index,
+      id: problem.original.id,
+      title: problem.original.title,
+      difficulty: problem.original.difficulty
+    }))
+    localStorage.setItem('importProblems', JSON.stringify(problems))
+    router.push('/admin/contest/create')
+  }
 
   // TODO: notice도 같은 방식으로 추가
   const handleDeleteRows = async () => {
@@ -182,7 +211,12 @@ export function DataTableAdmin<TData, TValue>({
               </div>
             )}
           </div>
-
+          {enableImport ? (
+            <Button onClick={() => handleImportProblems()}>
+              <PlusCircleIcon className="mr-2 h-4 w-4" />
+              Import
+            </Button>
+          ) : null}
           {enableDelete ? (
             selectedRowCount !== 0 ? (
               <AlertDialog>

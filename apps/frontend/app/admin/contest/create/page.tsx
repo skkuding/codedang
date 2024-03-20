@@ -42,39 +42,6 @@ const CREATE_CONTEST = gql(`
   }
 `)
 
-const CREATE_PROBLEM = gql(`
-  mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
-    createProblem(groupId: $groupId, input: $input) {
-      id
-      createdById
-      groupId
-      title
-      isVisible
-      difficulty
-      languages
-      problemTag {
-        tagId
-      }
-      description
-      inputDescription
-      outputDescription
-      samples {
-        input
-        output
-      }
-      problemTestcase {
-        input
-        output
-      }
-      timeLimit
-      memoryLimit
-      hint
-      source
-      template
-    }
-  }
-`)
-
 const IMPORT_PROBLEMS_TO_CONTEST = gql(`
   mutation ImportProblemsToContest(
     $groupId: Int!,
@@ -138,20 +105,27 @@ export default function Page() {
     }
   })
 
-  const [createProblem] = useMutation(CREATE_PROBLEM)
   const [createContest, { error }] = useMutation(CREATE_CONTEST)
   const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
   const onSubmit = async (input: CreateContestInput) => {
-    const problemIds: number[] = []
+    if (input.startTime >= input.endTime) {
+      toast.error('Start time must be less than end time')
+      return
+    }
+    const problemIds = problems.map((problem) => problem.id)
     const storedData = localStorage.getItem('orderArray')
     if (!storedData) {
       toast.error('Problem order not set')
       return
     }
     const orderArray = JSON.parse(storedData)
+    if (orderArray.length !== problemIds.length) {
+      toast.error('Problem order not set')
+      return
+    }
     orderArray.forEach((order) => {
       if (order === null) {
         toast.error('Problem order not set')
@@ -162,6 +136,7 @@ export default function Page() {
       toast.error('Duplicate problem order found')
       return
     }
+
     const { data } = await createContest({
       variables: {
         groupId: 1,
@@ -173,16 +148,6 @@ export default function Page() {
       toast.error('Failed to create contest')
       return
     }
-    const createProblemPromise = problems.map(async (problem) => {
-      const { data } = await createProblem({
-        variables: {
-          groupId: 1,
-          input: problem
-        }
-      })
-      problemIds.push(Number(data?.createProblem.id))
-    })
-    await Promise.all(createProblemPromise)
     await importProblemsToContest({
       variables: {
         groupId: 1,
@@ -202,7 +167,7 @@ export default function Page() {
       }
     })
     localStorage.removeItem('contestFormData')
-    localStorage.removeItem('problemFormDatas')
+    localStorage.removeItem('importProblems')
     localStorage.removeItem('orderArray')
     toast.success('Contest created successfully')
     router.push('/admin/contest')
@@ -210,21 +175,28 @@ export default function Page() {
   }
 
   useEffect(() => {
-    const storedData = localStorage.getItem('contestFormData')
-    if (storedData) {
-      const parsedData = JSON.parse(storedData)
-      setValue('title', parsedData.title)
-      if (parsedData.startTime) {
-        setValue('startTime', new Date(parsedData.startTime))
+    const storedContestFormData = localStorage.getItem('contestFormData')
+    if (storedContestFormData) {
+      const contestFormData = JSON.parse(storedContestFormData)
+      setValue('title', contestFormData.title)
+      if (contestFormData.startTime) {
+        setValue('startTime', new Date(contestFormData.startTime))
       }
-      if (parsedData.endTime) {
-        setValue('endTime', new Date(parsedData.endTime))
+      if (contestFormData.endTime) {
+        setValue('endTime', new Date(contestFormData.endTime))
       }
-      setValue('description', parsedData.description)
+      setValue('description', contestFormData.description)
     } else {
       setValue('description', ' ')
     }
-    setProblems(JSON.parse(localStorage.getItem('problemFormDatas') || '[]'))
+
+    const importedProblems = JSON.parse(
+      localStorage.getItem('importProblems') || '[]'
+    )
+    setProblems(importedProblems)
+
+    const orderArray = importedProblems.map((_, index) => index)
+    localStorage.setItem('orderArray', JSON.stringify(orderArray))
   }, [])
 
   return (
@@ -375,7 +347,12 @@ export default function Page() {
                 <div className="mb-[2px] text-sm">Import Problem</div>
               </Button>
             </div>
-            <DataTableAdmin columns={columns} data={problems} />
+            <DataTableAdmin
+              columns={columns}
+              data={problems}
+              enableDelete={true}
+              enableSearch={true}
+            />
           </div>
           <Button
             type="submit"

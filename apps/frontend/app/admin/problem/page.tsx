@@ -91,12 +91,7 @@ export default function Page({
               Here&apos;s a list you made
             </p>
           </div>
-          {importProblem ? (
-            <Button variant="default">
-              <PlusCircleIcon className="mr-2 h-4 w-4" />
-              Import
-            </Button>
-          ) : (
+          {importProblem ? null : (
             <div className="flex gap-2">
               <UploadDialog refetch={refetch} />
               <Link href="/admin/problem/create">
@@ -131,8 +126,10 @@ export default function Page({
             data={problems}
             enableSearch={true}
             enableFilter={true}
-            enableDelete={true}
+            enableDelete={importProblem ? false : true}
             enablePagination={true}
+            enableImport={importProblem ? true : false}
+            checkSelectedRows={importProblem ? true : false}
           />
         )}
       </div>

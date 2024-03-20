@@ -76,7 +76,13 @@ export default function Page() {
             ))}
           </>
         ) : (
-          <DataTableAdmin columns={columns} data={contests} />
+          <DataTableAdmin
+            columns={columns}
+            data={contests}
+            enableSearch={true}
+            enableDelete={true}
+            enablePagination={true}
+          />
         )}
       </div>
     </ScrollArea>
