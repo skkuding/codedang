@@ -110,6 +110,7 @@ export default function Page() {
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
+
   const onSubmit = async (input: CreateContestInput) => {
     if (input.startTime >= input.endTime) {
       toast.error('Start time must be less than end time')

@@ -60,6 +60,16 @@ const GET_CONTEST_PROBLEMS = gql(`
   }
 `)
 
+const UPDATE_CONTEST_PROBLEMS_ORDER = gql(`
+  mutation UpdateContestProblemsOrder($groupId: Int!, $contestId: Int!, $orders: [Int!]!) {
+    updateContestProblemsOrder(groupId: $groupId, contestId: $contestId, orders: $orders) {
+      order
+      contestId
+      problemId
+    }
+  }
+`)
+
 const inputStyle =
   'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
 
@@ -131,11 +141,37 @@ export default function Page({ params }: { params: { id: string } }) {
   })
 
   const [updateContest, { error }] = useMutation(UPDATE_CONTEST)
+  const [updateContestProblemsOrder] = useMutation(
+    UPDATE_CONTEST_PROBLEMS_ORDER
+  )
   const onSubmit = async (input: UpdateContestInput) => {
     if (input.startTime >= input.endTime) {
       toast.error('Start time must be less than end time')
       return
     }
+
+    const problemIds = problems.map((problem) => problem.id)
+    const storedData = localStorage.getItem('orderArray')
+    if (!storedData) {
+      toast.error('Problem order not set')
+      return
+    }
+    const orderArray = JSON.parse(storedData)
+    if (orderArray.length !== problemIds.length) {
+      toast.error('Problem order not set')
+      return
+    }
+    orderArray.forEach((order) => {
+      if (order === null) {
+        toast.error('Problem order not set')
+        return
+      }
+    })
+    if (new Set(orderArray).size !== orderArray.length) {
+      toast.error('Duplicate problem order found')
+      return
+    }
+
     await updateContest({
       variables: {
         groupId: 1,
@@ -146,6 +182,18 @@ export default function Page({ params }: { params: { id: string } }) {
       toast.error('Failed to update contest')
       return
     }
+    const orders: number[] = []
+    orderArray.forEach((order: number, index: number) => {
+      orders[order] = problemIds[index]
+    })
+    await updateContestProblemsOrder({
+      variables: {
+        groupId: 1,
+        contestId: Number(id),
+        orders
+      }
+    })
+    localStorage.removeItem('orderArray')
     toast.success('Contest updated successfully')
     router.push('/admin/contest')
   }
