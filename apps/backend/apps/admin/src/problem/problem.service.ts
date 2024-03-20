@@ -310,6 +310,14 @@ export class ProblemService {
     })
   }
 
+  async getProblemById(id: number) {
+    return await this.prisma.problem.findFirstOrThrow({
+      where: {
+        id
+      }
+    })
+  }
+
   async updateProblem(input: UpdateProblemInput, groupId: number) {
     const { id, languages, template, tags, testcases, samples, ...data } = input
     const problem = await this.getProblem(id, groupId)

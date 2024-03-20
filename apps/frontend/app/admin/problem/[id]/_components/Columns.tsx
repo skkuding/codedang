@@ -1,8 +1,8 @@
 'use client'
 
+import { dateFormatter } from '@/lib/utils'
 import type { SubmissionItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
-import dayjs from 'dayjs'
 
 export const columns: ColumnDef<SubmissionItem>[] = [
   {
@@ -43,7 +43,7 @@ export const columns: ColumnDef<SubmissionItem>[] = [
     header: () => 'Submission Time',
     accessorKey: 'createTime',
     cell: ({ row }) =>
-      dayjs(row.original.createTime).format('YYYY-MM-DD HH:mm:ss')
+      dateFormatter(row.original.createTime, 'YYYY-MM-DD HH:mm:ss')
   },
   {
     header: () => 'Code Size',

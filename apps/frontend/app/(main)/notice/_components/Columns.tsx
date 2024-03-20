@@ -1,9 +1,8 @@
 'use client'
 
-import { cn } from '@/lib/utils'
+import { cn, dateFormatter } from '@/lib/utils'
 import type { Notice } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
-import dayjs from 'dayjs'
 import { PiPushPinFill } from 'react-icons/pi'
 
 export const columns: ColumnDef<Notice>[] = [
@@ -38,6 +37,6 @@ export const columns: ColumnDef<Notice>[] = [
   {
     header: 'Date',
     accessorKey: 'createTime',
-    cell: ({ row }) => dayjs(row.original.createTime).format('YYYY-MM-DD')
+    cell: ({ row }) => dateFormatter(row.original.createTime, 'YYYY-MM-DD')
   }
 ]

@@ -6,6 +6,7 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { Language, ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
+import { TraceService } from 'nestjs-otel'
 import { spy, stub } from 'sinon'
 import {
   ConflictFoundException,
@@ -69,7 +70,8 @@ describe('SubmissionService', () => {
             createSubscriber: () => []
           })
         },
-        ConfigService
+        ConfigService,
+        TraceService
       ]
     }).compile()
 
