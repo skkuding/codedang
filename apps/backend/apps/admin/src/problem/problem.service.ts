@@ -257,10 +257,6 @@ export class ProblemService {
     }
 
     const fileSize = await this.getFileSize(createReadStream())
-    if (fileSize > MAX_IMAGE_SIZE) {
-      throw new UnprocessableDataException('Image size limitation exceeded')
-    }
-
     try {
       await this.storageService.uploadImage(
         newFilename,
@@ -286,11 +282,19 @@ export class ProblemService {
   }
 
   async getFileSize(readStream: ReadStream): Promise<number> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const chunks: Buffer[] = []
 
       readStream.on('data', (chunk: Buffer) => {
         chunks.push(chunk)
+
+        const totalSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
+        if (totalSize > MAX_IMAGE_SIZE) {
+          readStream.destroy()
+          reject(
+            new UnprocessableDataException('File size exceeds maximum limit')
+          )
+        }
       })
 
       readStream.on('end', () => {
@@ -299,8 +303,10 @@ export class ProblemService {
       })
 
       readStream.on('error', () => {
-        throw new UnprocessableDataException(
-          'Error occurred during calculating image size.'
+        reject(
+          new UnprocessableDataException(
+            'Error occurred during calculating image size.'
+          )
         )
       })
     })
