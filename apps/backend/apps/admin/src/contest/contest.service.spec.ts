@@ -175,7 +175,8 @@ const db = {
     create: stub().resolves(ContestProblem)
   },
   problem: {
-    update: stub().resolves(Problem)
+    update: stub().resolves(Problem),
+    findFirstOrThrow: stub().resolves(Problem)
   },
   group: {
     findUnique: stub().resolves(Group)
