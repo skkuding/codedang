@@ -296,10 +296,13 @@ export class ContestService {
     for (const problemId of problemIds) {
       try {
         const [, contestProblem] = await this.prisma.$transaction([
-          this.prisma.problem.update({
+          this.prisma.problem.updateMany({
             where: {
               id: problemId,
-              groupId
+              groupId,
+              exposeTime: {
+                lt: contest.endTime
+              }
             },
             data: {
               exposeTime: contest.endTime
@@ -345,10 +348,13 @@ export class ContestService {
     for (const problemId of problemIds) {
       try {
         const [, contestProblem] = await this.prisma.$transaction([
-          this.prisma.problem.update({
+          this.prisma.problem.updateMany({
             where: {
               id: problemId,
-              groupId
+              groupId,
+              exposeTime: {
+                lte: contest.endTime
+              }
             },
             data: {
               exposeTime: new Date()
