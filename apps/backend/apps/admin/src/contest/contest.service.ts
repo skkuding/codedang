@@ -299,7 +299,10 @@ export class ContestService {
           this.prisma.problem.update({
             where: {
               id: problemId,
-              groupId
+              groupId,
+              exposeTime: {
+                lte: contest.endTime
+              }
             },
             data: {
               exposeTime: contest.endTime
