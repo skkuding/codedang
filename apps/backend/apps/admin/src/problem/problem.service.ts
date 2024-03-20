@@ -250,7 +250,7 @@ export class ProblemService {
 
   async uploadImage(input: UploadFileInput) {
     const { filename, mimetype, createReadStream } = await input.file
-    const newFilename = randomUUID() + filename
+    const newFilename = randomUUID() + '.' + (filename.split('.').pop() || '') // 확장자
 
     if (!mimetype.includes('image/')) {
       throw new UnprocessableDataException('Only image files can be accepted')
