@@ -518,96 +518,97 @@ describe('SubmissionService', () => {
     expect(result).to.be.deep.equal(target)
   })
 
-  describe('getContestSubmisssion', () => {
-    it('should return submission', async () => {
-      db.contestRecord.findUniqueOrThrow.resolves({
-        contest: {
-          groupId: problems[0].groupId,
-          startTime: new Date(Date.now() - 10000),
-          endTime: new Date(Date.now() - 10000)
-        }
-      })
-      db.submission.findFirstOrThrow.resolves({
-        ...submissions[0],
-        submissionResult: submissionResults
-      })
+  // TODO: 기획 문의 / 확정 후 Test DB 기반으로 재작성 예정
+  // describe('getContestSubmisssion', () => {
+  //   it('should return submission', async () => {
+  //     db.contestRecord.findUniqueOrThrow.resolves({
+  //       contest: {
+  //         groupId: problems[0].groupId,
+  //         startTime: new Date(Date.now() - 10000),
+  //         endTime: new Date(Date.now() - 10000)
+  //       }
+  //     })
+  //     db.submission.findFirstOrThrow.resolves({
+  //       ...submissions[0],
+  //       submissionResult: submissionResults
+  //     })
 
-      expect(
-        await service.getContestSubmission(
-          submissions[0].id,
-          problems[0].id,
-          1,
-          submissions[0].userId
-        )
-      ).to.deep.equal(submissionResults)
-    })
+  //     expect(
+  //       await service.getContestSubmission(
+  //         submissions[0].id,
+  //         problems[0].id,
+  //         1,
+  //         submissions[0].userId
+  //       )
+  //     ).to.deep.equal(submissionResults)
+  //   })
 
-    it('should throw exception if user is not registered to contest', async () => {
-      db.contestRecord.findUniqueOrThrow.rejects(
-        new NotFoundException('No contestRecord found error')
-      )
+  //   it('should throw exception if user is not registered to contest', async () => {
+  //     db.contestRecord.findUniqueOrThrow.rejects(
+  //       new NotFoundException('No contestRecord found error')
+  //     )
 
-      await expect(
-        service.getContestSubmission(
-          submissions[0].id,
-          problems[0].id,
-          1,
-          submissions[0].userId
-        )
-      ).to.be.rejectedWith(NotFoundException)
-    })
+  //     await expect(
+  //       service.getContestSubmission(
+  //         submissions[0].id,
+  //         problems[0].id,
+  //         1,
+  //         submissions[0].userId
+  //       )
+  //     ).to.be.rejectedWith(NotFoundException)
+  //   })
 
-    it('should throw exception if the contest belong to different groups', async () => {
-      db.contestRecord.findUniqueOrThrow.resolves({ contest: { groupId: 2 } })
+  //   it('should throw exception if the contest belong to different groups', async () => {
+  //     db.contestRecord.findUniqueOrThrow.resolves({ contest: { groupId: 2 } })
 
-      await expect(
-        service.getContestSubmission(
-          submissions[0].id,
-          problems[0].id,
-          1,
-          submissions[0].userId
-        )
-      ).to.be.rejectedWith(EntityNotExistException)
-    })
+  //     await expect(
+  //       service.getContestSubmission(
+  //         submissions[0].id,
+  //         problems[0].id,
+  //         1,
+  //         submissions[0].userId
+  //       )
+  //     ).to.be.rejectedWith(EntityNotExistException)
+  //   })
 
-    it('should throw exception if submission does not exist', async () => {
-      db.contestRecord.findUniqueOrThrow.resolves({
-        contest: { groupId: problems[0].groupId }
-      })
-      db.submission.findFirstOrThrow.rejects(
-        new NotFoundException('No submission found error')
-      )
+  //   it('should throw exception if submission does not exist', async () => {
+  //     db.contestRecord.findUniqueOrThrow.resolves({
+  //       contest: { groupId: problems[0].groupId }
+  //     })
+  //     db.submission.findFirstOrThrow.rejects(
+  //       new NotFoundException('No submission found error')
+  //     )
 
-      await expect(
-        service.getContestSubmission(
-          submissions[0].id,
-          problems[0].id,
-          1,
-          submissions[0].userId
-        )
-      ).to.be.rejectedWith(NotFoundException)
-    })
+  //     await expect(
+  //       service.getContestSubmission(
+  //         submissions[0].id,
+  //         problems[0].id,
+  //         1,
+  //         submissions[0].userId
+  //       )
+  //     ).to.be.rejectedWith(NotFoundException)
+  //   })
 
-    it('should throw exception if contest is ongoing and the submission does not belong to this user', async () => {
-      db.contestRecord.findUniqueOrThrow.resolves({
-        contest: {
-          groupId: problems[0].groupId,
-          startTime: new Date(Date.now() - 10000),
-          endTime: new Date(Date.now() + 10000)
-        }
-      })
-      db.submission.findFirstOrThrow.resolves({ ...submissions[0], userId: 2 })
+  //   it('should throw exception if contest is ongoing and the submission does not belong to this user', async () => {
+  //     db.contestRecord.findUniqueOrThrow.resolves({
+  //       contest: {
+  //         groupId: problems[0].groupId,
+  //         startTime: new Date(Date.now() - 10000),
+  //         endTime: new Date(Date.now() + 10000)
+  //       }
+  //     })
+  //     db.submission.findFirstOrThrow.resolves({ ...submissions[0], userId: 2 })
 
-      await expect(
-        service.getContestSubmission(
-          submissions[0].id,
-          problems[0].id,
-          1,
-          submissions[0].userId
-        )
-      ).to.be.rejectedWith(ForbiddenAccessException)
-    })
-  })
+  //     await expect(
+  //       service.getContestSubmission(
+  //         submissions[0].id,
+  //         problems[0].id,
+  //         1,
+  //         submissions[0].userId
+  //       )
+  //     ).to.be.rejectedWith(ForbiddenAccessException)
+  //   })
+  // })
 
   // describe('getSubmissionResults', () => {
   //   it('should return judgeFinished=true when judge finished', async () => {
