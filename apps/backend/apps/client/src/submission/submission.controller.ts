@@ -127,12 +127,12 @@ export class SubmissionController {
   ) {
     try {
       if (contestId) {
-        return await this.submissionService.getContestSubmission(
+        return await this.submissionService.getSubmission(
           id,
           problemId,
-          contestId,
           req.user.id,
-          groupId
+          groupId,
+          contestId
         )
       }
       return await this.submissionService.getSubmission(
