@@ -1,4 +1,4 @@
-import { fetcher } from '@/lib/utils'
+import { fetcher, fetcherWithAuth } from '@/lib/utils'
 import { useEffect, useState, useRef, useCallback } from 'react'
 
 interface Item {
@@ -25,7 +25,8 @@ interface Item {
 export const usePagination = <T extends Item>(
   url: string,
   itemsPerPage = 10,
-  pagesPerSlot = 5
+  pagesPerSlot = 5,
+  withauth = false
 ) => {
   const [items, setItems] = useState<T[]>()
   const slotItems = useRef<T[]>([])
@@ -80,9 +81,13 @@ export const usePagination = <T extends Item>(
   useEffect(() => {
     ;(async () => {
       // TODO: fetcher <-> fetcherWithAuth 중 선택할 수 있도록 수정
-      const res = await fetcher.get(path, {
-        searchParams: query
-      })
+      const res = withauth
+        ? await fetcherWithAuth.get(path, {
+            searchParams: query
+          })
+        : await fetcher.get(path, {
+            searchParams: query
+          })
       console.log(res.status)
       const data: T[] = await res.json()
 

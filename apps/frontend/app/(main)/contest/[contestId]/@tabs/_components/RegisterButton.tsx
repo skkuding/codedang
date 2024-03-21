@@ -2,7 +2,8 @@
 
 import { Button } from '@/components/ui/button'
 import { fetcherWithAuth } from '@/lib/utils'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 const clickRegister = async (contestId: string) => {
@@ -23,6 +24,15 @@ const clickDeregister = async (contestId: string) => {
     .catch((err) => console.log(err))
 }
 
+const getFirstProblemId = async (contestId: string) => {
+  const { problems }: { problems: { id: string }[] } = await fetcherWithAuth
+    .get(`contest/${contestId}/problem`, {
+      searchParams: { take: 1 }
+    })
+    .json()
+  return problems?.at(0)?.id
+}
+
 export default function RegisterButton({
   id,
   registered,
@@ -33,7 +43,17 @@ export default function RegisterButton({
   state: string
 }) {
   const [isRegistered, setIsRegistered] = useState(registered)
+  const [firstProblemId, setFirstProblemId] = useState('')
   const buttonColor = isRegistered ? 'bg-secondary' : 'bg-primary'
+  const router = useRouter()
+  useEffect(() => {
+    async function fetchFirstProblemId() {
+      const firstId =
+        isRegistered && state === 'Ongoing' ? await getFirstProblemId(id) : ''
+      firstId && setFirstProblemId(firstId)
+    }
+    fetchFirstProblemId()
+  }, [isRegistered])
   return (
     <>
       {state === 'Upcoming' ? (
@@ -55,7 +75,7 @@ export default function RegisterButton({
         </Button>
       ) : (
         <>
-          {!isRegistered && (
+          {!isRegistered ? (
             <Button
               className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
               onClick={() => {
@@ -66,6 +86,19 @@ export default function RegisterButton({
             >
               Register
             </Button>
+          ) : (
+            <>
+              {firstProblemId && (
+                <Button
+                  className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
+                  onClick={() =>
+                    router.push(`/contest/${id}/problem/${firstProblemId}`)
+                  }
+                >
+                  Go To First Problem!
+                </Button>
+              )}
+            </>
           )}
         </>
       )}
