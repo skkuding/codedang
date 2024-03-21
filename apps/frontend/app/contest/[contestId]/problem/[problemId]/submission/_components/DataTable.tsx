@@ -18,6 +18,7 @@ import {
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -119,7 +120,9 @@ export default function DataTable<TData extends Item, TValue>({
                 data-state={row.getIsSelected() && 'selected'}
                 className="cursor-pointer border-t border-slate-600 text-slate-300 hover:bg-slate-600/50 hover:font-semibold"
                 onClick={() => {
-                  router.push(href)
+                  toast.warning(
+                    'You cannot view submission detail for the contest.'
+                  )
                 }}
               >
                 {row.getVisibleCells().map((cell) => (

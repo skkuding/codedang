@@ -17,15 +17,16 @@ import dataIfError from './dataIfError'
 interface Props {
   problemId: number
   submissionId: number
-  contestId?: number
+  contestId: number
 }
 
 export default async function SubmissionDetail({
   problemId,
-  submissionId
+  submissionId,
+  contestId
 }: Props) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
-    searchParams: { problemId },
+    searchParams: { problemId, contestId },
     next: {
       tags: [`submission/${submissionId}`]
     }
