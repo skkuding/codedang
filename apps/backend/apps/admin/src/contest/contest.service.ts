@@ -305,7 +305,6 @@ export class ContestService {
           await this.prisma.problem.update({
             where: {
               id: problemId,
-              groupId,
               exposeTime: {
                 lte: contest.endTime
               }
@@ -325,6 +324,57 @@ export class ContestService {
             problemId
           }
         })
+        contestProblems.push(contestProblem)
+      } catch (error) {
+        continue
+      }
+    }
+
+    return contestProblems
+  }
+
+  async removeProblemsFromContest(
+    groupId: number,
+    contestId: number,
+    problemIds: number[]
+  ) {
+    const contest = await this.prisma.contest.findUnique({
+      where: {
+        id: contestId,
+        groupId
+      }
+    })
+    if (!contest) {
+      throw new EntityNotExistException('contest')
+    }
+
+    const contestProblems: ContestProblem[] = []
+
+    for (const problemId of problemIds) {
+      try {
+        const [, contestProblem] = await this.prisma.$transaction([
+          this.prisma.problem.updateMany({
+            where: {
+              id: problemId,
+              exposeTime: {
+                lte: contest.endTime // TODO: contest에서 problem이 삭제될 때 exposeTime이 어떻게 조정되어야하는지에 관한 논의 필요
+              }
+            },
+            data: {
+              exposeTime: new Date()
+            }
+          }),
+          this.prisma.contestProblem.delete({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              contestId_problemId: {
+                contestId,
+                problemId
+              }
+            }
+          })
+        ])
+
         contestProblems.push(contestProblem)
       } catch (error) {
         continue
