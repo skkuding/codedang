@@ -34,10 +34,10 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import { PlusCircleIcon } from 'lucide-react'
 import type { Route } from 'next'
-import { useRouter } from 'next/navigation'
-import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState, Suspense } from 'react'
 import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
 import DataTableLangFilter from './DataTableLangFilter'
@@ -52,9 +52,26 @@ interface DataTableProps<TData, TValue> {
   enableFilter?: boolean // Enable filter for languages and tags
   enableDelete?: boolean // Enable delete selected rows
   enablePagination?: boolean // Enable pagination
+  enableImport?: boolean // Enable import selected rows
+  checkSelectedRows?: boolean // Check selected rows
+}
+
+interface ContestProblem {
+  index: number
+  id: number
+  title: string
+  difficulty: string
 }
 
 const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
+
+let contestId: string | null = null
+
+function Search() {
+  const searchParams = useSearchParams()
+  contestId = searchParams.get('contestId')
+  return null
+}
 
 export function DataTableAdmin<TData, TValue>({
   columns,
@@ -62,7 +79,9 @@ export function DataTableAdmin<TData, TValue>({
   enableSearch = false,
   enableFilter = false,
   enableDelete = false,
-  enablePagination = false
+  enablePagination = false,
+  enableImport = false,
+  checkSelectedRows = false
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -89,6 +108,13 @@ export function DataTableAdmin<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues()
   })
 
+  let deletingObject
+  if (pathname === '/admin/contest') {
+    deletingObject = 'contest'
+  } else {
+    deletingObject = 'problem'
+  }
+
   const DELETE_PROBLEM = gql(`
   mutation DeleteProblem($groupId: Int!, $id: Int!) {
     deleteProblem(groupId: $groupId, id: $id) {
@@ -97,18 +123,96 @@ export function DataTableAdmin<TData, TValue>({
   }
 `)
 
+  const DELETE_CONTEST = gql(`
+    mutation DeleteContest($groupId: Int!, $contestId: Int!) {
+      deleteContest(groupId: $groupId, contestId: $contestId) {
+        id
+      }
+    }
+`)
+
   const [deleteProblem] = useMutation(DELETE_PROBLEM)
-  // TODO: contest랑 notice도 같은 방식으로 추가
+  const [deleteContest] = useMutation(DELETE_CONTEST)
+
+  useEffect(() => {
+    if (checkSelectedRows) {
+      let importedProblems
+      if (contestId === null) {
+        importedProblems = localStorage.getItem('importProblems')
+        if (!importedProblems) return
+      } else {
+        importedProblems = localStorage.getItem(`importProblems-${contestId}`)
+        if (!importedProblems) return
+      }
+      const problems = JSON.parse(importedProblems)
+      const problemIndex = problems.map(
+        (problem: ContestProblem) => problem.index
+      )
+      setRowSelection(
+        problemIndex.reduce(
+          (acc: { [key: number]: boolean }, index: number) => ({
+            ...acc,
+            [index]: true
+          }),
+          {}
+        )
+      )
+    }
+  }, [checkSelectedRows])
+
+  const handleImportProblems = async () => {
+    const selectedProblems = table.getSelectedRowModel().rows as {
+      original: { id: number; title: string; difficulty: string }
+      index: number
+    }[]
+    const problems = selectedProblems.map((problem) => ({
+      index: problem.index,
+      id: problem.original.id,
+      title: problem.original.title,
+      difficulty: problem.original.difficulty
+    }))
+    if (contestId === null) {
+      localStorage.setItem('importProblems', JSON.stringify(problems))
+      router.push('/admin/contest/create')
+    } else {
+      localStorage.setItem(
+        `importProblems-${contestId}`,
+        JSON.stringify(problems)
+      )
+      router.push(`/admin/contest/${contestId}`)
+    }
+  }
+
+  // TODO: notice도 같은 방식으로 추가
   const handleDeleteRows = async () => {
     const selectedRows = table.getSelectedRowModel().rows as {
       original: { id: number }
     }[]
+    if (pathname === '/admin/contest/create') {
+      const storedValue = localStorage.getItem('importProblems')
+      const problems = storedValue ? JSON.parse(storedValue) : []
+      const newProblems = problems.filter(
+        (problem: ContestProblem) =>
+          !selectedRows.some((row) => row.original.id === problem.id)
+      )
+      localStorage.setItem('importProblems', JSON.stringify(newProblems))
+      // router.refresh 해도 새로고침이 안돼서 location.reload()로 대체
+      location.reload()
+      return
+    }
     const deletePromise = selectedRows.map((row) => {
       if (page === 'problem') {
         return deleteProblem({
           variables: {
             groupId: 1,
             id: row.original.id
+          }
+        })
+      } else if (page === 'contest') {
+        return deleteContest({
+          variables: {
+            groupId: 1,
+            contestId: row.original.id
           }
         })
       } else {
@@ -131,7 +235,10 @@ export function DataTableAdmin<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      {(enableSearch || enableFilter || enableDelete) && (
+      <Suspense>
+        <Search />
+      </Suspense>
+      {(enableSearch || enableFilter || enableImport || enableDelete) && (
         <div className="flex justify-between">
           <div className="flex gap-2">
             {enableSearch && (
@@ -165,12 +272,17 @@ export function DataTableAdmin<TData, TValue>({
               </div>
             )}
           </div>
-
+          {enableImport ? (
+            <Button onClick={() => handleImportProblems()}>
+              <PlusCircleIcon className="mr-2 h-4 w-4" />
+              Import
+            </Button>
+          ) : null}
           {enableDelete ? (
             selectedRowCount !== 0 ? (
               <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline">
+                <AlertDialogTrigger>
+                  <Button variant="outline" type="button">
                     <PiTrashLight fontSize={18} />
                   </Button>
                 </AlertDialogTrigger>
@@ -179,7 +291,7 @@ export function DataTableAdmin<TData, TValue>({
                     <AlertDialogTitle>Delete</AlertDialogTitle>
                     <AlertDialogDescription>
                       Are you sure you want to permanently delete{' '}
-                      {selectedRowCount} {page}(s)?
+                      {selectedRowCount} {deletingObject}(s)?
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -193,7 +305,7 @@ export function DataTableAdmin<TData, TValue>({
                 </AlertDialogContent>
               </AlertDialog>
             ) : (
-              <Button variant="outline">
+              <Button variant="outline" type="button">
                 <PiTrashLight fontSize={18} />
               </Button>
             )
