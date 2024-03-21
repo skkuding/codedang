@@ -305,7 +305,6 @@ export class ContestService {
           await this.prisma.problem.update({
             where: {
               id: problemId,
-              groupId,
               exposeTime: {
                 lte: contest.endTime
               }
@@ -357,9 +356,8 @@ export class ContestService {
           this.prisma.problem.updateMany({
             where: {
               id: problemId,
-              groupId,
               exposeTime: {
-                lte: contest.endTime
+                lte: contest.endTime // TODO: contest에서 problem이 삭제될 때 exposeTime이 어떻게 조정되어야하는지에 관한 논의 필요
               }
             },
             data: {
