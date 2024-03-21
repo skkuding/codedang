@@ -59,7 +59,7 @@ export const columns: ColumnDef<Problem>[] = [
         <div className="flex justify-center">
           <OptionSelect
             placeholder={
-              row.original.order !== null
+              row.original.order !== undefined
                 ? String.fromCharCode(Number(65 + row.original.order))
                 : String.fromCharCode(Number(65 + row.index))
             }
