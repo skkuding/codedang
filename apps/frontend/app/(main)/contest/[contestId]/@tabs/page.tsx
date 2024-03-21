@@ -39,7 +39,6 @@ export default async function ContestTop({ params }: ContestTopProps) {
         className="prose w-full max-w-full border-b-2 border-b-gray-300 p-5 py-12"
         dangerouslySetInnerHTML={{ __html: sanitize(data.description) }}
       />
-
       {session && state !== 'Finished' && (
         <div className="mt-10 flex justify-center">
           <RegisterButton
