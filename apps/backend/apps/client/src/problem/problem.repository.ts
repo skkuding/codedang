@@ -133,6 +133,9 @@ export class ProblemRepository {
           // TODO: 검색 방식 변경 시 함께 변경 요함
           contains: search
         },
+        exposeTime: {
+          lte: new Date()
+        },
         isVisible: true
       }
     })
