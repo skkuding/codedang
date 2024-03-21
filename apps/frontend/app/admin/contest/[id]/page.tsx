@@ -194,6 +194,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
     const problemIds = problems.map((problem) => problem.id)
 
+    // TODO: connect romoveproblem API
     const removedProblems = prevProblemIds.filter(
       (id) => !problemIds.includes(id)
     )
@@ -205,6 +206,7 @@ export default function Page({ params }: { params: { id: string } }) {
     console.log('removedProblems', removedProblems)
     console.log('addedProblems', addedProblems)
     return
+
     const orderArray = JSON.parse(localStorage.getItem('orderArray') || '[]')
     if (orderArray.length === 0) {
       toast.error('Problem order not set')

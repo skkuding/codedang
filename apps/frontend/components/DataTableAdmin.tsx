@@ -37,7 +37,7 @@ import {
 import { PlusCircleIcon } from 'lucide-react'
 import type { Route } from 'next'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { PiTrashLight } from 'react-icons/pi'
 import { toast } from 'sonner'
 import DataTableLangFilter from './DataTableLangFilter'
@@ -65,6 +65,14 @@ interface ContestProblem {
 
 const languageOptions = ['C', 'Cpp', 'Golang', 'Java', 'Python2', 'Python3']
 
+let contestId: string | null = null
+
+function Search() {
+  const searchParams = useSearchParams()
+  contestId = searchParams.get('contestId')
+  return null
+}
+
 export function DataTableAdmin<TData, TValue>({
   columns,
   data,
@@ -75,7 +83,6 @@ export function DataTableAdmin<TData, TValue>({
   enableImport = false,
   checkSelectedRows = false
 }: DataTableProps<TData, TValue>) {
-  const searchParams = useSearchParams()
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
   const pathname = usePathname()
@@ -129,7 +136,6 @@ export function DataTableAdmin<TData, TValue>({
 
   useEffect(() => {
     if (checkSelectedRows) {
-      const contestId = searchParams.get('contestId')
       let importedProblems
       if (contestId === null) {
         importedProblems = localStorage.getItem('importProblems')
@@ -152,7 +158,7 @@ export function DataTableAdmin<TData, TValue>({
         )
       )
     }
-  }, [checkSelectedRows, searchParams])
+  }, [checkSelectedRows])
 
   const handleImportProblems = async () => {
     const selectedProblems = table.getSelectedRowModel().rows as {
@@ -165,7 +171,6 @@ export function DataTableAdmin<TData, TValue>({
       title: problem.original.title,
       difficulty: problem.original.difficulty
     }))
-    const contestId = searchParams.get('contestId')
     if (contestId === null) {
       localStorage.setItem('importProblems', JSON.stringify(problems))
       router.push('/admin/contest/create')
@@ -230,6 +235,9 @@ export function DataTableAdmin<TData, TValue>({
 
   return (
     <div className="space-y-4">
+      <Suspense>
+        <Search />
+      </Suspense>
       {(enableSearch || enableFilter || enableImport || enableDelete) && (
         <div className="flex justify-between">
           <div className="flex gap-2">
