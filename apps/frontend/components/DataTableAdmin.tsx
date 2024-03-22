@@ -199,6 +199,20 @@ export function DataTableAdmin<TData, TValue>({
       // router.refresh 해도 새로고침이 안돼서 location.reload()로 대체
       location.reload()
       return
+    } else if (pathname.includes('/admin/contest/')) {
+      const contestId = page
+      const storedValue = localStorage.getItem(`importProblems-${contestId}`)
+      const problems = storedValue ? JSON.parse(storedValue) : []
+      const newProblems = problems.filter(
+        (problem: ContestProblem) =>
+          !selectedRows.some((row) => row.original.id === problem.id)
+      )
+      localStorage.setItem(
+        `importProblems-${contestId}`,
+        JSON.stringify(newProblems)
+      )
+      location.reload()
+      return
     }
     const deletePromise = selectedRows.map((row) => {
       if (page === 'problem') {

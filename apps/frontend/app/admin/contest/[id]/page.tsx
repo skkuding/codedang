@@ -61,6 +61,40 @@ const GET_CONTEST_PROBLEMS = gql(`
   }
 `)
 
+const IMPORT_PROBLEMS_TO_CONTEST = gql(`
+  mutation ImportProblemsToContest(
+    $groupId: Int!,
+    $contestId: Int!,
+    $problemIds: [Int!]!
+  ) {
+    importProblemsToContest(
+      groupId: $groupId,
+      contestId: $contestId,
+      problemIds: $problemIds
+    ) {
+      contestId
+      problemId
+    }
+  }
+`)
+
+const REMOVE_PROBLEMS_FROM_CONTEST = gql(`
+  mutation RemoveProblemsFromContest(
+    $groupId: Int!,
+    $contestId: Int!,
+    $problemIds: [Int!]!
+  ) {
+    removeProblemsFromContest(
+      groupId: $groupId,
+      contestId: $contestId,
+      problemIds: $problemIds
+    ) {
+      contestId
+      problemId
+    }
+  }
+`)
+
 const UPDATE_CONTEST_PROBLEMS_ORDER = gql(`
   mutation UpdateContestProblemsOrder($groupId: Int!, $contestId: Int!, $orders: [Int!]!) {
     updateContestProblemsOrder(groupId: $groupId, contestId: $contestId, orders: $orders) {
@@ -146,10 +180,10 @@ export default function Page({ params }: { params: { id: string } }) {
 
   useQuery(GET_CONTEST_PROBLEMS, {
     variables: { groupId: 1, contestId: Number(id) },
-    onCompleted: (data) => {
-      setPrevProblemIds(
-        data.getContestProblems.map((problem) => problem.problemId)
-      )
+    onCompleted: (problemData) => {
+      const data = problemData.getContestProblems
+
+      setPrevProblemIds(data.map((problem) => problem.problemId))
       const importedProblems = JSON.parse(
         localStorage.getItem(`importProblems-${id}`) || '[]'
       )
@@ -161,27 +195,30 @@ export default function Page({ params }: { params: { id: string } }) {
         )
         localStorage.setItem('orderArray', JSON.stringify(orderArray))
       } else {
+        const contestProblems = data.map((problem) => {
+          return {
+            id: problem.problemId,
+            title: problem.problem.title,
+            order: problem.order,
+            difficulty: problem.problem.difficulty
+          }
+        })
         localStorage.setItem(
           'orderArray',
-          JSON.stringify(
-            data.getContestProblems.map((problem) => problem.order)
-          )
+          JSON.stringify(data.map((problem) => problem.order))
         )
-        setProblems(
-          data.getContestProblems.map((problem) => {
-            return {
-              id: problem.problemId,
-              title: problem.problem.title,
-              order: problem.order,
-              difficulty: problem.problem.difficulty
-            }
-          })
+        localStorage.setItem(
+          `importProblems-${id}`,
+          JSON.stringify(contestProblems)
         )
+        setProblems(contestProblems)
       }
     }
   })
 
   const [updateContest, { error }] = useMutation(UPDATE_CONTEST)
+  const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
+  const [removeProblemsFromContest] = useMutation(REMOVE_PROBLEMS_FROM_CONTEST)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
@@ -201,11 +238,6 @@ export default function Page({ params }: { params: { id: string } }) {
     const addedProblems = problemIds.filter(
       (id) => !prevProblemIds.includes(id)
     )
-    console.log('prevProblemIds', prevProblemIds)
-    console.log('problemIds', problemIds)
-    console.log('removedProblems', removedProblems)
-    console.log('addedProblems', addedProblems)
-    return
 
     const orderArray = JSON.parse(localStorage.getItem('orderArray') || '[]')
     if (orderArray.length === 0) {
@@ -237,11 +269,30 @@ export default function Page({ params }: { params: { id: string } }) {
       toast.error('Failed to update contest')
       return
     }
+
+    if (addedProblems.length !== 0) {
+      await importProblemsToContest({
+        variables: {
+          groupId: 1,
+          contestId: Number(id),
+          problemIds: addedProblems
+        }
+      })
+    }
+    if (removedProblems.length !== 0) {
+      await removeProblemsFromContest({
+        variables: {
+          groupId: 1,
+          contestId: Number(id),
+          problemIds: removedProblems
+        }
+      })
+    }
+
     const orders: number[] = []
     orderArray.forEach((order: number, index: number) => {
       orders[order] = problemIds[index]
     })
-
     await updateContestProblemsOrder({
       variables: {
         groupId: 1,
