@@ -207,7 +207,7 @@ export default function Page() {
     // eslint-disable-next-line
     const orderArray = importedProblems.map((_: any, index: number) => index)
     localStorage.setItem('orderArray', JSON.stringify(orderArray))
-  }, [])
+  }, [setValue])
 
   return (
     <ScrollArea className="w-full">
