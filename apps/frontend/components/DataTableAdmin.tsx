@@ -311,8 +311,11 @@ export function DataTableAdmin<TData, TValue>({
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction asChild>
-                      <Button onClick={() => handleDeleteRows()}>
-                        Continue
+                      <Button
+                        onClick={() => handleDeleteRows()}
+                        className="bg-red-500 hover:bg-red-500/90"
+                      >
+                        Delete
                       </Button>
                     </AlertDialogAction>
                   </AlertDialogFooter>
