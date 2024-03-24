@@ -665,7 +665,8 @@ export class SubmissionService implements OnModuleInit {
       take,
       where: {
         problemId,
-        contestId
+        contestId,
+        userId
       },
       select: {
         id: true,
