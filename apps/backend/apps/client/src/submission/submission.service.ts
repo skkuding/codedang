@@ -526,15 +526,24 @@ export class SubmissionService implements OnModuleInit {
       contest = contestRecord.contest
     }
 
-    await this.prisma.problem.findFirstOrThrow({
-      where: {
-        id: problemId,
-        groupId,
-        exposeTime: {
-          lt: new Date()
+    if (!contestId) {
+      await this.prisma.problem.findFirstOrThrow({
+        where: {
+          id: problemId,
+          groupId,
+          exposeTime: {
+            lt: new Date() // contestId가 없는 경우에는 공개된 문제인 경우에만 제출 내역을 가져와야 함
+          }
         }
-      }
-    })
+      })
+    } else {
+      await this.prisma.problem.findFirstOrThrow({
+        where: {
+          id: problemId,
+          groupId
+        }
+      })
+    }
 
     const submission = await this.prisma.submission.findFirstOrThrow({
       where: {
