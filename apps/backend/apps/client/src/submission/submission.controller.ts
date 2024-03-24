@@ -126,7 +126,6 @@ export class SubmissionController {
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
-      console.log('contestID!!!!!!!!!', contestId)
       return await this.submissionService.getSubmission(
         id,
         problemId,
