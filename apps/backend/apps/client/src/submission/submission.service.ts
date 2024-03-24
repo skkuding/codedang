@@ -495,7 +495,7 @@ export class SubmissionService implements OnModuleInit {
     problemId: number,
     userId: number,
     groupId = OPEN_SPACE_ID,
-    contestId?: number
+    contestId: number | null
   ) {
     const now = new Date()
     let contest: { groupId: number; startTime: Date; endTime: Date } | null =
