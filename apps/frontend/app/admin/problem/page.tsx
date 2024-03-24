@@ -65,7 +65,7 @@ export default function Page({
     if (searchParams.import) {
       setOpenDialog(true)
     }
-  }, [])
+  }, [searchParams.import])
 
   const importProblem = searchParams.import
   const { data, loading, refetch } = useQuery(GET_PROBLEMS, {
