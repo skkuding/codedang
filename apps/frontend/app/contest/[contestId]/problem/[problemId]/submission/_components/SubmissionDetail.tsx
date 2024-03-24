@@ -33,16 +33,6 @@ export default async function SubmissionDetail({
   })
 
   const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
-  if (res.status == 403) {
-    return (
-      <div className="flex h-[300px] flex-col items-center justify-center gap-20">
-        <IoIosLock size={100} />
-        <p>
-          Unable to check others&apos; until your correct submission is accepted
-        </p>
-      </div>
-    )
-  }
 
   if (submission.result == 'Judging') {
     revalidateTag(`submission/${submissionId}`)
@@ -130,8 +120,8 @@ export default async function SubmissionDetail({
           <IoIosLock size={100} />
           <p className="mt-4 text-xl font-semibold">Access Denied</p>
           <p className="w-10/12 text-center">
-            {`If you want to check other users' code,
-                please submit a correct answer of your own.`}
+            {`During the contest, you are not allowed to view others' answers.
+`}
           </p>
         </div>
       )}
