@@ -131,6 +131,7 @@ interface Problem {
 export default function Page({ params }: { params: { id: string } }) {
   const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])
   const [problems, setProblems] = useState<Problem[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const { id } = params
 
   const router = useRouter()
@@ -176,6 +177,7 @@ export default function Page({ params }: { params: { id: string } }) {
         setValue('startTime', new Date(data.startTime))
         setValue('endTime', new Date(data.endTime))
       }
+      setIsLoading(false)
     }
   })
 
@@ -413,6 +415,7 @@ export default function Page({ params }: { params: { id: string } }) {
               <Button
                 type="button"
                 className="flex h-[36px] w-36 items-center gap-2 px-0"
+                disabled={isLoading}
                 onClick={() => {
                   const formData = {
                     title: getValues('title'),
@@ -443,6 +446,7 @@ export default function Page({ params }: { params: { id: string } }) {
           <Button
             type="submit"
             className="flex h-[36px] w-[100px] items-center gap-2 px-0"
+            disabled={isLoading}
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
             <div className="mb-[2px] text-base">Submit</div>

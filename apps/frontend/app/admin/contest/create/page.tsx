@@ -93,6 +93,7 @@ interface ContestProblem {
 
 export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const router = useRouter()
 
@@ -207,6 +208,8 @@ export default function Page() {
     // eslint-disable-next-line
     const orderArray = importedProblems.map((_: any, index: number) => index)
     localStorage.setItem('orderArray', JSON.stringify(orderArray))
+
+    setIsLoading(false)
   }, [setValue])
 
   return (
@@ -341,6 +344,7 @@ export default function Page() {
               <Button
                 type="button"
                 className="flex h-[36px] w-36 items-center gap-2 px-0"
+                disabled={isLoading}
                 onClick={() => {
                   const formData = {
                     title: getValues('title'),
@@ -370,6 +374,7 @@ export default function Page() {
           <Button
             type="submit"
             className="flex h-[36px] w-[100px] items-center gap-2 px-0 "
+            disabled={isLoading}
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
             <div className="mb-[2px] text-base">Create</div>
