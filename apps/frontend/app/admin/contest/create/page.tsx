@@ -17,6 +17,7 @@ import { useMutation } from '@apollo/client'
 import type { CreateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
@@ -92,6 +93,7 @@ interface ContestProblem {
 
 export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const router = useRouter()
 
@@ -206,13 +208,17 @@ export default function Page() {
     // eslint-disable-next-line
     const orderArray = importedProblems.map((_: any, index: number) => index)
     localStorage.setItem('orderArray', JSON.stringify(orderArray))
-  }, [])
+
+    setIsLoading(false)
+  }, [setValue])
 
   return (
     <ScrollArea className="w-full">
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center gap-4">
-          <FaAngleLeft className="h-12" />
+          <Link href="/admin/contest">
+            <FaAngleLeft className="h-12" />
+          </Link>
           <span className="text-4xl font-bold">Create Contest</span>
         </div>
         <form
@@ -338,6 +344,7 @@ export default function Page() {
               <Button
                 type="button"
                 className="flex h-[36px] w-36 items-center gap-2 px-0"
+                disabled={isLoading}
                 onClick={() => {
                   const formData = {
                     title: getValues('title'),
@@ -367,6 +374,7 @@ export default function Page() {
           <Button
             type="submit"
             className="flex h-[36px] w-[100px] items-center gap-2 px-0 "
+            disabled={isLoading}
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
             <div className="mb-[2px] text-base">Create</div>

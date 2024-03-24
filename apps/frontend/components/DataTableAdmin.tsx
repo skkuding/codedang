@@ -57,7 +57,6 @@ interface DataTableProps<TData, TValue> {
 }
 
 interface ContestProblem {
-  index: number
   id: number
   title: string
   difficulty: string
@@ -145,9 +144,13 @@ export function DataTableAdmin<TData, TValue>({
         if (!importedProblems) return
       }
       const problems = JSON.parse(importedProblems)
-      const problemIndex = problems.map(
-        (problem: ContestProblem) => problem.index
-      )
+      const problemIds = problems.map((problem: ContestProblem) => problem.id)
+      const problemIndex = data.reduce((acc: number[], problem, index) => {
+        if (problemIds.includes((problem as { id: number }).id)) {
+          acc.push(index as number)
+        }
+        return acc
+      }, [])
       setRowSelection(
         problemIndex.reduce(
           (acc: { [key: number]: boolean }, index: number) => ({
@@ -158,15 +161,13 @@ export function DataTableAdmin<TData, TValue>({
         )
       )
     }
-  }, [checkSelectedRows])
+  }, [checkSelectedRows, data])
 
   const handleImportProblems = async () => {
     const selectedProblems = table.getSelectedRowModel().rows as {
       original: { id: number; title: string; difficulty: string }
-      index: number
     }[]
     const problems = selectedProblems.map((problem) => ({
-      index: problem.index,
       id: problem.original.id,
       title: problem.original.title,
       difficulty: problem.original.difficulty
@@ -197,6 +198,20 @@ export function DataTableAdmin<TData, TValue>({
       )
       localStorage.setItem('importProblems', JSON.stringify(newProblems))
       // router.refresh 해도 새로고침이 안돼서 location.reload()로 대체
+      location.reload()
+      return
+    } else if (pathname.includes('/admin/contest/')) {
+      const contestId = page
+      const storedValue = localStorage.getItem(`importProblems-${contestId}`)
+      const problems = storedValue ? JSON.parse(storedValue) : []
+      const newProblems = problems.filter(
+        (problem: ContestProblem) =>
+          !selectedRows.some((row) => row.original.id === problem.id)
+      )
+      localStorage.setItem(
+        `importProblems-${contestId}`,
+        JSON.stringify(newProblems)
+      )
       location.reload()
       return
     }
@@ -297,8 +312,11 @@ export function DataTableAdmin<TData, TValue>({
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction asChild>
-                      <Button onClick={() => handleDeleteRows()}>
-                        Continue
+                      <Button
+                        onClick={() => handleDeleteRows()}
+                        className="bg-red-500 hover:bg-red-500/90"
+                      >
+                        Delete
                       </Button>
                     </AlertDialogAction>
                   </AlertDialogFooter>

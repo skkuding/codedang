@@ -12,6 +12,7 @@ import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircleIcon } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
@@ -61,6 +62,40 @@ const GET_CONTEST_PROBLEMS = gql(`
   }
 `)
 
+const IMPORT_PROBLEMS_TO_CONTEST = gql(`
+  mutation ImportProblemsToContest(
+    $groupId: Int!,
+    $contestId: Int!,
+    $problemIds: [Int!]!
+  ) {
+    importProblemsToContest(
+      groupId: $groupId,
+      contestId: $contestId,
+      problemIds: $problemIds
+    ) {
+      contestId
+      problemId
+    }
+  }
+`)
+
+const REMOVE_PROBLEMS_FROM_CONTEST = gql(`
+  mutation RemoveProblemsFromContest(
+    $groupId: Int!,
+    $contestId: Int!,
+    $problemIds: [Int!]!
+  ) {
+    removeProblemsFromContest(
+      groupId: $groupId,
+      contestId: $contestId,
+      problemIds: $problemIds
+    ) {
+      contestId
+      problemId
+    }
+  }
+`)
+
 const UPDATE_CONTEST_PROBLEMS_ORDER = gql(`
   mutation UpdateContestProblemsOrder($groupId: Int!, $contestId: Int!, $orders: [Int!]!) {
     updateContestProblemsOrder(groupId: $groupId, contestId: $contestId, orders: $orders) {
@@ -96,6 +131,7 @@ interface Problem {
 export default function Page({ params }: { params: { id: string } }) {
   const [prevProblemIds, setPrevProblemIds] = useState<number[]>([])
   const [problems, setProblems] = useState<Problem[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const { id } = params
 
   const router = useRouter()
@@ -141,47 +177,53 @@ export default function Page({ params }: { params: { id: string } }) {
         setValue('startTime', new Date(data.startTime))
         setValue('endTime', new Date(data.endTime))
       }
+      setIsLoading(false)
     }
   })
 
   useQuery(GET_CONTEST_PROBLEMS, {
     variables: { groupId: 1, contestId: Number(id) },
-    onCompleted: (data) => {
-      setPrevProblemIds(
-        data.getContestProblems.map((problem) => problem.problemId)
-      )
-      const importedProblems = JSON.parse(
-        localStorage.getItem(`importProblems-${id}`) || '[]'
-      )
-      if (importedProblems.length > 0) {
-        setProblems(importedProblems)
-        const orderArray = importedProblems.map(
-          // eslint-disable-next-line
-          (_: any, index: number) => index
-        )
-        localStorage.setItem('orderArray', JSON.stringify(orderArray))
-      } else {
+    onCompleted: (problemData) => {
+      const data = problemData.getContestProblems
+
+      setPrevProblemIds(data.map((problem) => problem.problemId))
+      const importedProblems = localStorage.getItem(`importProblems-${id}`)
+
+      if (importedProblems === null) {
+        const contestProblems = data.map((problem) => {
+          return {
+            id: problem.problemId,
+            title: problem.problem.title,
+            order: problem.order,
+            difficulty: problem.problem.difficulty
+          }
+        })
         localStorage.setItem(
           'orderArray',
-          JSON.stringify(
-            data.getContestProblems.map((problem) => problem.order)
+          JSON.stringify(data.map((problem) => problem.order))
+        )
+        localStorage.setItem(
+          `importProblems-${id}`,
+          JSON.stringify(contestProblems)
+        )
+        setProblems(contestProblems)
+      } else {
+        const parsedData = JSON.parse(importedProblems)
+        if (parsedData.length > 0) {
+          setProblems(parsedData)
+          const orderArray = parsedData.map(
+            // eslint-disable-next-line
+            (_: any, index: number) => index
           )
-        )
-        setProblems(
-          data.getContestProblems.map((problem) => {
-            return {
-              id: problem.problemId,
-              title: problem.problem.title,
-              order: problem.order,
-              difficulty: problem.problem.difficulty
-            }
-          })
-        )
+          localStorage.setItem('orderArray', JSON.stringify(orderArray))
+        }
       }
     }
   })
 
   const [updateContest, { error }] = useMutation(UPDATE_CONTEST)
+  const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
+  const [removeProblemsFromContest] = useMutation(REMOVE_PROBLEMS_FROM_CONTEST)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
@@ -201,11 +243,6 @@ export default function Page({ params }: { params: { id: string } }) {
     const addedProblems = problemIds.filter(
       (id) => !prevProblemIds.includes(id)
     )
-    console.log('prevProblemIds', prevProblemIds)
-    console.log('problemIds', problemIds)
-    console.log('removedProblems', removedProblems)
-    console.log('addedProblems', addedProblems)
-    return
 
     const orderArray = JSON.parse(localStorage.getItem('orderArray') || '[]')
     if (orderArray.length === 0) {
@@ -237,11 +274,30 @@ export default function Page({ params }: { params: { id: string } }) {
       toast.error('Failed to update contest')
       return
     }
+
+    if (addedProblems.length !== 0) {
+      await importProblemsToContest({
+        variables: {
+          groupId: 1,
+          contestId: Number(id),
+          problemIds: addedProblems
+        }
+      })
+    }
+    if (removedProblems.length !== 0) {
+      await removeProblemsFromContest({
+        variables: {
+          groupId: 1,
+          contestId: Number(id),
+          problemIds: removedProblems
+        }
+      })
+    }
+
     const orders: number[] = []
     orderArray.forEach((order: number, index: number) => {
       orders[order] = problemIds[index]
     })
-
     await updateContestProblemsOrder({
       variables: {
         groupId: 1,
@@ -260,7 +316,9 @@ export default function Page({ params }: { params: { id: string } }) {
     <ScrollArea className="w-full">
       <main className="flex flex-col gap-6 px-20 py-16">
         <div className="flex items-center gap-4">
-          <FaAngleLeft className="h-12" />
+          <Link href="/admin/contest">
+            <FaAngleLeft className="h-12" />
+          </Link>
           <span className="text-4xl font-bold">Edit Contest</span>
         </div>
         <form
@@ -357,6 +415,7 @@ export default function Page({ params }: { params: { id: string } }) {
               <Button
                 type="button"
                 className="flex h-[36px] w-36 items-center gap-2 px-0"
+                disabled={isLoading}
                 onClick={() => {
                   const formData = {
                     title: getValues('title'),
@@ -387,6 +446,7 @@ export default function Page({ params }: { params: { id: string } }) {
           <Button
             type="submit"
             className="flex h-[36px] w-[100px] items-center gap-2 px-0"
+            disabled={isLoading}
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
             <div className="mb-[2px] text-base">Submit</div>
