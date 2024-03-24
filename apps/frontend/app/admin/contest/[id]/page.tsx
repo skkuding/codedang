@@ -185,17 +185,9 @@ export default function Page({ params }: { params: { id: string } }) {
       const data = problemData.getContestProblems
 
       setPrevProblemIds(data.map((problem) => problem.problemId))
-      const importedProblems = JSON.parse(
-        localStorage.getItem(`importProblems-${id}`) || '[]'
-      )
-      if (importedProblems.length > 0) {
-        setProblems(importedProblems)
-        const orderArray = importedProblems.map(
-          // eslint-disable-next-line
-          (_: any, index: number) => index
-        )
-        localStorage.setItem('orderArray', JSON.stringify(orderArray))
-      } else {
+      const importedProblems = localStorage.getItem(`importProblems-${id}`)
+
+      if (importedProblems === null) {
         const contestProblems = data.map((problem) => {
           return {
             id: problem.problemId,
@@ -213,6 +205,16 @@ export default function Page({ params }: { params: { id: string } }) {
           JSON.stringify(contestProblems)
         )
         setProblems(contestProblems)
+      } else {
+        const parsedData = JSON.parse(importedProblems)
+        if (parsedData.length > 0) {
+          setProblems(parsedData)
+          const orderArray = parsedData.map(
+            // eslint-disable-next-line
+            (_: any, index: number) => index
+          )
+          localStorage.setItem('orderArray', JSON.stringify(orderArray))
+        }
       }
     }
   })
