@@ -57,7 +57,7 @@ export default function Editor({ problem, contestId }: ProblemEditorProps) {
         if (submission.result !== 'Judging') {
           setLoading(false)
           const href = contestId
-            ? `/contest/${contestId}/problem/${problem.id}/submission/`
+            ? `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}`
             : `/problem/${problem.id}/submission/${submissionId}`
           router.push(href as Route)
           if (submission.result === 'Accepted') {
