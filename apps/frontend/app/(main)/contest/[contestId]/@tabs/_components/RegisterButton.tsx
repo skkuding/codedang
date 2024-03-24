@@ -1,10 +1,9 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
 import { fetcherWithAuth } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
-import { Suspense, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 const getFirstProblemId = async (contestId: string) => {
@@ -61,51 +60,49 @@ export default function RegisterButton({
   }, [registered])
   return (
     <>
-      <Suspense fallback={<Skeleton className="px-12 py-6"></Skeleton>}>
-        {state === 'Upcoming' ? (
-          <Button
-            className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
-            onClick={() => {
-              if (registered) {
-                clickDeregister(id)
-                toast.success('Deregistered Upcoming test successfully')
-              } else {
+      {state === 'Upcoming' ? (
+        <Button
+          className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
+          onClick={() => {
+            if (registered) {
+              clickDeregister(id)
+              toast.success('Deregistered Upcoming test successfully')
+            } else {
+              clickRegister(id)
+              toast.success('Registered Upcoming test successfully')
+            }
+          }}
+        >
+          {registered ? 'Deregister' : 'Register'}
+        </Button>
+      ) : (
+        <>
+          {!registered ? (
+            <Button
+              className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
+              onClick={() => {
                 clickRegister(id)
-                toast.success('Registered Upcoming test successfully')
-              }
-            }}
-          >
-            {registered ? 'Deregister' : 'Register'}
-          </Button>
-        ) : (
-          <>
-            {!registered ? (
-              <Button
-                className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
-                onClick={() => {
-                  clickRegister(id)
-                  toast.success('Registered Ongoing test successfully')
-                }}
-              >
-                Register
-              </Button>
-            ) : (
-              <>
-                {firstProblemId && (
-                  <Button
-                    className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
-                    onClick={() =>
-                      router.push(`/contest/${id}/problem/${firstProblemId}`)
-                    }
-                  >
-                    Go To First Problem!
-                  </Button>
-                )}
-              </>
-            )}
-          </>
-        )}
-      </Suspense>
+                toast.success('Registered Ongoing test successfully')
+              }}
+            >
+              Register
+            </Button>
+          ) : (
+            <>
+              {firstProblemId && (
+                <Button
+                  className={`px-12 py-6 text-lg font-light ${buttonColor} hover:${buttonColor}`}
+                  onClick={() =>
+                    router.push(`/contest/${id}/problem/${firstProblemId}`)
+                  }
+                >
+                  Go To First Problem!
+                </Button>
+              )}
+            </>
+          )}
+        </>
+      )}
     </>
   )
 }
