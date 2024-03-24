@@ -344,7 +344,9 @@ describe('SubmissionService', () => {
         await service.getSubmission(
           submissions[0].id,
           problems[0].id,
-          submissions[0].userId
+          submissions[0].userId,
+          undefined,
+          null
         )
       ).to.be.deep.equal({
         problemId: problems[0].id,
@@ -367,7 +369,9 @@ describe('SubmissionService', () => {
         service.getSubmission(
           submissions[0].id,
           problems[0].id,
-          submissions[0].userId
+          submissions[0].userId,
+          undefined,
+          null
         )
       ).to.be.rejectedWith(NotFoundException)
     })
@@ -382,7 +386,9 @@ describe('SubmissionService', () => {
         service.getSubmission(
           submissions[0].id,
           problems[0].id,
-          submissions[0].userId
+          submissions[0].userId,
+          undefined,
+          null
         )
       ).to.be.rejectedWith(NotFoundException)
     })
@@ -397,7 +403,9 @@ describe('SubmissionService', () => {
         service.getSubmission(
           submissions[0].id,
           problems[0].id,
-          submissions[0].userId
+          submissions[0].userId,
+          undefined,
+          null
         )
       ).to.be.rejectedWith(ForbiddenAccessException)
       expect(await passSpy.returnValues[0]).to.be.false
