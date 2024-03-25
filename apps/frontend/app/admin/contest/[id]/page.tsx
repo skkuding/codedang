@@ -330,9 +330,9 @@ export default function Page({ params }: { params: { id: string } }) {
     localStorage.removeItem('orderArray')
     localStorage.removeItem(`contestFormData-${id}`)
     localStorage.removeItem(`importProblems-${id}`)
-    localStorage.removeItem('orderArray')
     toast.success('Contest updated successfully')
     router.push('/admin/contest')
+    router.refresh()
   }
 
   return (
