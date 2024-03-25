@@ -1,0 +1,33 @@
+meta {
+  name: NOT_FOUND
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteTag($tagName: String!) {
+    deleteTag(tagName: $tagName) {
+      id
+      name
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "tagName": "something that does not exist"
+  }
+}
+
+assert {
+  res.body.errors[0].extensions.code: eq NOT_FOUND
+  res.body.errors[0].message: eq tag does not exist
+}
