@@ -31,16 +31,6 @@ export default async function SubmissionDetail({
   })
 
   const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
-  if (res.status == 403) {
-    return (
-      <div className="flex h-[300px] flex-col items-center justify-center gap-20">
-        <IoIosLock size={100} />
-        <p>
-          Unable to check others&apos; until your correct submission is accepted
-        </p>
-      </div>
-    )
-  }
 
   if (submission.result == 'Judging') {
     revalidateTag(`submission/${submissionId}`)
