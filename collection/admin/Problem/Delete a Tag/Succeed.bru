@@ -1,0 +1,51 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteTag($tagName: String!) {
+    deleteTag(tagName: $tagName) {
+      id
+      name
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "tagName": "동적 계획법"
+  }
+}
+
+assert {
+  res.body.data.deleteTag: isDefined
+}
+
+docs {
+  ## Delete a Tag
+  
+  `tagName`을 찾아서 tag를 삭제합니다.
+  
+  ### Args 
+  
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |`tagName`|`String`|tag 이름|
+  
+  ### Error Case
+  
+  #### NOT_FOUND
+  
+  DB table에 존재하지 않는 `tagName`이면 NOT_FOUND 에러가 발생합니다.
+  
+}

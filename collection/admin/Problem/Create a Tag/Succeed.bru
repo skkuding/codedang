@@ -1,0 +1,51 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateTag($tagName: String!) {
+    createTag(tagName: $tagName) {
+      id
+      name
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "tagName": "동적 계획법"
+  }
+}
+
+assert {
+  res.body.data.createTag: isDefined
+}
+
+docs {
+  ## Create a Tag
+  `tagName`을 기반으로 Tag를 생성합니다.
+  
+  ### Args 
+  
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |`tagName`|`String!`|`tagName` String|
+  
+  
+  
+  ### Error Case
+  
+  #### CONFLICT
+  
+  생성하려는 tagName이 이미 존재하는 tagName이면 `CONFLICT` 에러가 발생합니다.
+}
