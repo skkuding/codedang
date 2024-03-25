@@ -1012,10 +1012,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: true
-        }
+        isVisible: true,
+        isRankVisible: true
       }
     },
     {
@@ -1026,10 +1024,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: true
-        }
+        isVisible: true,
+        isRankVisible: true
       }
     },
     {
@@ -1040,10 +1036,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: true
-        }
+        isVisible: true,
+        isRankVisible: true
       }
     },
     {
@@ -1054,10 +1048,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: true
-        }
+        isVisible: true,
+        isRankVisible: true
       }
     },
     {
@@ -1068,10 +1060,8 @@ const createContests = async () => {
         groupId: privateGroup.id,
         startTime: new Date('2024-01-01T00:00:00.000Z'),
         endTime: new Date('2028-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: true
-        }
+        isVisible: true,
+        isRankVisible: true
       }
     },
     // Finished Contests
@@ -1083,10 +1073,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: false
-        }
+        isVisible: true,
+        isRankVisible: false
       }
     },
     {
@@ -1097,10 +1085,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: true
-        }
+        isVisible: true,
+        isRankVisible: true
       }
     },
     {
@@ -1111,10 +1097,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: false
-        }
+        isVisible: true,
+        isRankVisible: false
       }
     },
     {
@@ -1125,10 +1109,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: false
-        }
+        isVisible: true,
+        isRankVisible: false
       }
     },
     {
@@ -1139,10 +1121,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: false
-        }
+        isVisible: true,
+        isRankVisible: false
       }
     },
     {
@@ -1153,10 +1133,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: false
-        }
+        isVisible: true,
+        isRankVisible: false
       }
     },
     {
@@ -1167,10 +1145,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: false
-        }
+        isVisible: true,
+        isRankVisible: false
       }
     },
     {
@@ -1181,10 +1157,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: false
-        }
+        isVisible: true,
+        isRankVisible: false
       }
     },
     {
@@ -1195,10 +1169,8 @@ const createContests = async () => {
         groupId: privateGroup.id,
         startTime: new Date('2023-01-01T00:00:00.000Z'),
         endTime: new Date('2024-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: true
-        }
+        isVisible: true,
+        isRankVisible: true
       }
     },
     // Upcoming Contests
@@ -1210,10 +1182,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: true
-        }
+        isVisible: true,
+        isRankVisible: true
       }
     },
     {
@@ -1224,10 +1194,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: true
-        }
+        isVisible: true,
+        isRankVisible: true
       }
     },
     {
@@ -1239,10 +1207,8 @@ const createContests = async () => {
         groupId: publicGroup.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: false,
-          isRankVisible: true
-        }
+        isVisible: false,
+        isRankVisible: true
       }
     },
     {
@@ -1253,10 +1219,8 @@ const createContests = async () => {
         groupId: privateGroup.id,
         startTime: new Date('3024-01-01T00:00:00.000Z'),
         endTime: new Date('3025-01-01T23:59:59.000Z'),
-        config: {
-          isVisible: true,
-          isRankVisible: true
-        }
+        isVisible: true,
+        isRankVisible: true
       }
     }
   ]
