@@ -72,7 +72,7 @@
     "passport-jwt": "^4.0.1",
     "passport-kakao": "^1.0.1",
     "pino-http": "^9.0.0",
-    "pino-pretty": "^10.3.1",
+    "pino-pretty": "^11.0.0",
     "reflect-metadata": "^0.2.1",
     "sql-formatter": "^15.3.0",
     "zod": "^3.22.4"
