@@ -18,7 +18,8 @@ type s3DataSource struct {
 
 func NewS3DataSource(bucket string) *s3DataSource {
 	var client *s3.Client
-	endpoint := os.Getenv("TESTCASE_ENDPOINT_URL")
+	// endpoint := os.Getenv("TESTCASE_ENDPOINT_URL")
+	endpoint := os.Getenv("STORAGE_BUCKET_ENDPOINT_URL")
 	if endpoint == "" {
 		// Connect to AWS S3
 		client = s3.New(s3.Options{Region: "ap-northeast-2"})

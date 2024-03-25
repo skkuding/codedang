@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
 import { StorageModule } from '@admin/storage/storage.module'
 import { ProblemTagResolver, TagResolver } from './problem-tag.resolver'
 import {
@@ -9,7 +10,7 @@ import {
 import { ProblemService } from './problem.service'
 
 @Module({
-  imports: [StorageModule],
+  imports: [StorageModule, ConfigModule],
   providers: [
     ProblemResolver,
     ProblemTagResolver,

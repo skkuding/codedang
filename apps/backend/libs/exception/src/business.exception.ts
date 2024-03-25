@@ -78,8 +78,8 @@ export class UnprocessableDataException extends BusinessException {
 
 /** [422] Throw when file data is invalid or cannot be processed. */
 export class UnprocessableFileDataException extends UnprocessableDataException {
-  constructor(message, fileName, rowNumber) {
-    super(`${message} @${fileName}:${rowNumber}`)
+  constructor(message, fileName) {
+    super(`${message} @${fileName}`)
   }
 }
 
