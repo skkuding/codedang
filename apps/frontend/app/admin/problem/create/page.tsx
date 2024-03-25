@@ -33,7 +33,7 @@ import { PiWarningBold } from 'react-icons/pi'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
-import Label from '../_components/Lable'
+import Label from '../_components/Label'
 import { GET_TAGS, inputStyle } from '../utils'
 
 const CREATE_PROBLEM = gql(`

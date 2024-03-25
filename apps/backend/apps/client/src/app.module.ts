@@ -4,6 +4,7 @@ import { Module, type OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD, APP_FILTER, HttpAdapterHost } from '@nestjs/core'
 import type { Server } from 'http'
+import { OpenTelemetryModule } from 'nestjs-otel'
 import { LoggerModule } from 'nestjs-pino'
 import { JwtAuthModule, JwtAuthGuard } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
@@ -46,7 +47,8 @@ import { WorkbookModule } from './workbook/workbook.module'
     WorkbookModule,
     EmailModule,
     AnnouncementModule,
-    LoggerModule.forRoot(pinoLoggerModuleOption)
+    LoggerModule.forRoot(pinoLoggerModuleOption),
+    OpenTelemetryModule.forRoot()
   ],
   controllers: [AppController],
   providers: [

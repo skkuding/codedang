@@ -7,7 +7,7 @@ import type { Route } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import Carousel from './_components/Carousel'
-import ContestCards from './_components/ContestCards'
+// import ContestCards from './_components/ContestCards'
 import ProblemCards from './_components/ProblemCards'
 
 // FIXME: Build error occurs when using static routes
@@ -49,7 +49,7 @@ export default function Home() {
   return (
     <div className="flex w-full flex-col gap-12 lg:items-center">
       <Carousel slides={slides} />
-      <div className="flex w-full flex-col gap-3">
+      {/* <div className="flex w-full flex-col gap-3">
         <div className="flex w-full items-center justify-between text-gray-700">
           <p className="text-xl font-bold">Contest</p>
           <Link href="/contest">
@@ -67,7 +67,7 @@ export default function Home() {
             <ContestCards />
           </Suspense>
         </div>
-      </div>
+      </div> */}
       <div className="flex w-full flex-col gap-3">
         <div className="flex w-full items-center justify-between text-gray-700">
           <p className="text-xl font-bold">Professor’s Recommendation</p>

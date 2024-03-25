@@ -1,10 +1,15 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException
+} from '@nestjs/common'
 import { Language } from '@generated'
 import type { ContestProblem, Tag, WorkbookProblem } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
+import { Prisma } from '@prisma/client'
 import { Workbook } from 'exceljs'
 import {
   DuplicateFoundException,
@@ -310,6 +315,14 @@ export class ProblemService {
     })
   }
 
+  async getProblemById(id: number) {
+    return await this.prisma.problem.findFirstOrThrow({
+      where: {
+        id
+      }
+    })
+  }
+
   async updateProblem(input: UpdateProblemInput, groupId: number) {
     const { id, languages, template, tags, testcases, samples, ...data } = input
     const problem = await this.getProblem(id, groupId)
@@ -535,6 +548,46 @@ export class ProblemService {
     return await this.prisma.$transaction(queries)
   }
 
+  /**
+   * 새로운 태그를 생성합니다
+   * @param tagName - unique한 태그이름
+   * @returns
+   * @throws DuplicateFoundException - 이미 존재하는 태그일 경우
+   */
+  async createTag(tagName: string): Promise<Tag> {
+    // throw error if tag already exists
+    try {
+      return await this.prisma.tag.create({
+        data: {
+          name: tagName
+        }
+      })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      )
+        throw new DuplicateFoundException('tag')
+
+      throw new InternalServerErrorException(error)
+    }
+  }
+
+  async deleteTag(tagName: string): Promise<Partial<Tag>> {
+    const tag = await this.prisma.tag.findFirst({
+      where: {
+        name: tagName
+      }
+    })
+    if (!tag) {
+      throw new EntityNotExistException('tag')
+    }
+    return await this.prisma.tag.delete({
+      where: {
+        id: tag.id
+      }
+    })
+  }
   async getTags(): Promise<Partial<Tag>[]> {
     return await this.prisma.tag.findMany()
   }

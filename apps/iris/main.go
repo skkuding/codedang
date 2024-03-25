@@ -3,18 +3,21 @@ package main
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/skkuding/codedang/apps/iris/src/connector"
 	"github.com/skkuding/codedang/apps/iris/src/connector/rabbitmq"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 	"github.com/skkuding/codedang/apps/iris/src/loader/cache"
 	"github.com/skkuding/codedang/apps/iris/src/loader/s3"
+	"github.com/skkuding/codedang/apps/iris/src/observability"
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
+	"go.opentelemetry.io/otel"
 )
 
 type Env string
@@ -31,6 +34,20 @@ func main() {
 
 	ctx := context.Background()
 	cache := cache.NewCache(ctx)
+	if env == "production" {
+		if utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "") != "" {
+			shutdown := observability.InitTracer(ctx)
+			defer shutdown()
+			observability.SetGlobalMeterProvider()
+			// Aynchronous Instruments로써, go routine 불필요
+			observability.GetMemoryMeter(otel.Meter("memory-metrics"))
+			observability.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
+		} else {
+			logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT_URL")
+		}
+	} else {
+		logProvider.Log(logger.INFO, "Running in development mode")
+	}
 
 	bucketName := os.Getenv("TESTCASE_BUCKET_NAME")
 	if bucketName == "" {

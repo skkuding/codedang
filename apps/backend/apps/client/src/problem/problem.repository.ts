@@ -109,6 +109,9 @@ export class ProblemRepository {
           // 아니면 텍스트가 많은 field에서는 full-text search를 사용하고, 텍스트가 적은 field에서는 contains를 사용하는 방법도 고려해보자.
           contains: search
         },
+        exposeTime: {
+          lte: new Date()
+        },
         isVisible: true
       },
       select: {
@@ -129,6 +132,9 @@ export class ProblemRepository {
         title: {
           // TODO: 검색 방식 변경 시 함께 변경 요함
           contains: search
+        },
+        exposeTime: {
+          lte: new Date()
         },
         isVisible: true
       }

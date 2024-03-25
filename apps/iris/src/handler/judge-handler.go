@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -14,6 +15,9 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type Request struct {
@@ -135,6 +139,17 @@ func NewJudgeHandler(
 // handle top layer logical flow
 func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 	startedAt := time.Now()
+	tracer := otel.Tracer("Handle Tracer")
+	handleCtx, span := tracer.Start(
+		context.Background(),
+		"JUDGE Handler",
+		trace.WithAttributes(attribute.Int("submissionId", func() int {
+			submissionId, _ := strconv.Atoi(id)
+			return submissionId
+		}()),
+		),
+	)
+	defer span.End()
 
 	//TODO: validation logic here
 	req := Request{}
@@ -195,9 +210,9 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 
 	// err = j.judger.Judge(task)
 	testcaseOutCh := make(chan result.ChResult)
-	go j.getTestcase(testcaseOutCh, strconv.Itoa(validReq.ProblemId))
+	go j.getTestcase(handleCtx, testcaseOutCh, strconv.Itoa(validReq.ProblemId))
 	compileOutCh := make(chan result.ChResult)
-	go j.compile(compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
+	go j.compile(handleCtx, compileOutCh, sandbox.CompileRequest{Dir: dir, Language: sandbox.Language(validReq.Language)})
 
 	testcaseOut := <-testcaseOutCh
 	compileOut := <-compileOutCh
@@ -256,6 +271,9 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 	res.TotalTestcase = tcNum
 
 	for i := 0; i < tcNum; i++ {
+		runTracer := otel.Tracer("Run Tracer")
+		_, runSpan := runTracer.Start(handleCtx, "go:runner.run:"+strconv.Itoa(i+1))
+
 		time.Sleep(time.Millisecond)
 		runResult, err := j.runner.Run(sandbox.RunRequest{
 			Order:       i,
@@ -286,6 +304,7 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 		} else {
 			res.SetJudgeResultCode(i, WRONG_ANSWER)
 		}
+		runSpan.End()
 	}
 
 	marshaledRes, err := json.Marshal(res)
@@ -296,7 +315,11 @@ func (j *JudgeHandler) Handle(id string, data []byte) (json.RawMessage, error) {
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler) compile(out chan<- result.ChResult, dto sandbox.CompileRequest) {
+func (j *JudgeHandler) compile(traceCtx context.Context, out chan<- result.ChResult, dto sandbox.CompileRequest) {
+	tracer := otel.Tracer("Compile Tracer")
+	_, span := tracer.Start(traceCtx, "go:goroutine:compile")
+	defer span.End()
+
 	res, err := j.compiler.Compile(dto)
 	if err != nil {
 		out <- result.ChResult{Err: err}
@@ -306,7 +329,11 @@ func (j *JudgeHandler) compile(out chan<- result.ChResult, dto sandbox.CompileRe
 }
 
 // wrapper to use goroutine
-func (j *JudgeHandler) getTestcase(out chan<- result.ChResult, problemId string) {
+func (j *JudgeHandler) getTestcase(traceCtx context.Context, out chan<- result.ChResult, problemId string) {
+	tracer := otel.Tracer("GetTestcase Tracer")
+	_, span := tracer.Start(traceCtx, "go:goroutine:getTestcase")
+	defer span.End()
+
 	res, err := j.testcaseManager.GetTestcase(problemId)
 	if err != nil {
 		out <- result.ChResult{Err: err}

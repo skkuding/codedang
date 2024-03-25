@@ -61,7 +61,10 @@ export default async function EditorLayout({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="border-slate-700 bg-slate-900">
                   {problems?.problems.map((p: ContestProblem) => (
-                    <Link key={p.id} href={`${p.id}` as Route}>
+                    <Link
+                      key={p.id}
+                      href={`/contest/${contestId}/problem/${p.id}` as Route}
+                    >
                       <DropdownMenuItem className="text-white hover:cursor-pointer focus:bg-slate-800 focus:text-white">
                         {`${convertToLetter(p.order)}. ${p.title}`}
                       </DropdownMenuItem>

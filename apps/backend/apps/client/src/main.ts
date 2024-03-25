@@ -4,8 +4,23 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import * as cookieParser from 'cookie-parser'
 import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
 import { AppModule } from './app.module'
+import startMetricsExporter from './metric'
+import tracer from './tracer'
 
 const bootstrap = async () => {
+  // otel instrumentation
+  if (process.env.NODE_ENV == 'production') {
+    if (
+      process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == undefined ||
+      process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL == ''
+    ) {
+      console.log('The exporter url is not defined')
+    } else {
+      tracer.init()
+      startMetricsExporter()
+    }
+  }
+
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true
   })

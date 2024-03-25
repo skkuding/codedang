@@ -8,9 +8,8 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { fetcherWithAuth } from '@/lib/utils'
+import { dateFormatter, fetcherWithAuth } from '@/lib/utils'
 import type { SubmissionDetail } from '@/types/type'
-import dayjs from 'dayjs'
 import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
 import dataIfError from './dataIfError'
@@ -32,16 +31,6 @@ export default async function SubmissionDetail({
   })
 
   const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
-  if (res.status == 403) {
-    return (
-      <div className="flex h-[300px] flex-col items-center justify-center gap-20">
-        <IoIosLock size={100} />
-        <p>
-          Unable to check others&apos; until your correct submission is accepted
-        </p>
-      </div>
-    )
-  }
 
   if (submission.result == 'Judging') {
     revalidateTag(`submission/${submissionId}`)
@@ -73,7 +62,7 @@ export default async function SubmissionDetail({
           </div>
           <div>
             <h2>Submission Time</h2>
-            <p>{dayjs(submission.createTime).format('YYYY-MM-DD HH:mm:ss')}</p>
+            <p>{dateFormatter(submission.createTime, 'YYYY-MM-DD HH:mm:ss')}</p>
           </div>
         </div>
         <ScrollBar orientation="horizontal" />

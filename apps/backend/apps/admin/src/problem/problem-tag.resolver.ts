@@ -1,5 +1,12 @@
 import { InternalServerErrorException, Logger } from '@nestjs/common'
-import { Query, Resolver, ResolveField, Parent } from '@nestjs/graphql'
+import {
+  Query,
+  Resolver,
+  ResolveField,
+  Parent,
+  Mutation,
+  Args
+} from '@nestjs/graphql'
 import { ProblemTag, Tag } from '@generated'
 import { ProblemService } from './problem.service'
 
@@ -26,13 +33,21 @@ export class TagResolver {
 
   constructor(private readonly problemService: ProblemService) {}
 
+  @Mutation(() => Tag)
+  async createTag(
+    @Args('tagName', { type: () => String })
+    tagName: string
+  ) {
+    return await this.problemService.createTag(tagName)
+  }
+
+  @Mutation(() => Tag)
+  async deleteTag(@Args('tagName', { type: () => String }) tagName: string) {
+    return await this.problemService.deleteTag(tagName)
+  }
+
   @Query(() => [Tag])
   async getTags() {
-    try {
-      return await this.problemService.getTags()
-    } catch (error) {
-      this.logger.error(error)
-      throw new InternalServerErrorException()
-    }
+    return await this.problemService.getTags()
   }
 }

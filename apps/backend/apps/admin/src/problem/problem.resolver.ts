@@ -218,6 +218,89 @@ export class ProblemResolver {
       throw new InternalServerErrorException()
     }
   }
+}
+
+@Resolver(() => ContestProblem)
+export class ContestProblemResolver {
+  private readonly logger = new Logger(ProblemResolver.name)
+
+  constructor(private readonly problemService: ProblemService) {}
+
+  @Query(() => [ContestProblem], { name: 'getContestProblems' })
+  async getContestProblems(
+    @Args(
+      'groupId',
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
+      GroupIDPipe
+    )
+    groupId: number,
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number
+  ) {
+    try {
+      return await this.problemService.getContestProblems(groupId, contestId)
+    } catch (error) {
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof ForbiddenAccessException
+      ) {
+        throw error.convert2HTTPException()
+      } else if (error.code == 'P2025') {
+        throw new NotFoundException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException(error.message)
+    }
+  }
+
+  @Mutation(() => [ContestProblem])
+  async updateContestProblemsOrder(
+    @Args(
+      'groupId',
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
+      GroupIDPipe
+    )
+    groupId: number,
+    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
+    contestId: number,
+    @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
+  ) {
+    try {
+      return await this.problemService.updateContestProblemsOrder(
+        groupId,
+        contestId,
+        orders
+      )
+    } catch (error) {
+      if (
+        error instanceof UnprocessableDataException ||
+        error instanceof ForbiddenAccessException
+      ) {
+        throw error.convert2HTTPException()
+      } else if (error.code == 'P2025') {
+        throw new NotFoundException(error.message)
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException(error.message)
+    }
+  }
+
+  @ResolveField('problem', () => Problem)
+  async getProblem(@Parent() contestProblem: ContestProblem) {
+    try {
+      return await this.problemService.getProblemById(contestProblem.problemId)
+    } catch (error) {
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+}
+
+@Resolver(() => WorkbookProblem)
+export class WorkbookProblemResolver {
+  private readonly logger = new Logger(ProblemResolver.name)
+
+  constructor(private readonly problemService: ProblemService) {}
 
   @Query(() => [WorkbookProblem], { name: 'getWorkbookProblems' })
   async getWorkbookProblems(
@@ -279,62 +362,13 @@ export class ProblemResolver {
     }
   }
 
-  @Query(() => [ContestProblem], { name: 'getContestProblems' })
-  async getContestProblems(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
-    contestId: number
-  ) {
+  @ResolveField('problem', () => Problem)
+  async getProblem(@Parent() workbookProblem: WorkbookProblem) {
     try {
-      return await this.problemService.getContestProblems(groupId, contestId)
+      return await this.problemService.getProblemById(workbookProblem.problemId)
     } catch (error) {
-      if (
-        error instanceof UnprocessableDataException ||
-        error instanceof ForbiddenAccessException
-      ) {
-        throw error.convert2HTTPException()
-      } else if (error.code == 'P2025') {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException(error.message)
-    }
-  }
-
-  @Mutation(() => [ContestProblem])
-  async updateContestProblemsOrder(
-    @Args(
-      'groupId',
-      { defaultValue: OPEN_SPACE_ID, type: () => Int },
-      GroupIDPipe
-    )
-    groupId: number,
-    @Args('contestId', { type: () => Int }, new RequiredIntPipe('contestId'))
-    contestId: number,
-    @Args('orders', { type: () => [Int] }, ParseArrayPipe) orders: number[]
-  ) {
-    try {
-      return await this.problemService.updateContestProblemsOrder(
-        groupId,
-        contestId,
-        orders
-      )
-    } catch (error) {
-      if (
-        error instanceof UnprocessableDataException ||
-        error instanceof ForbiddenAccessException
-      ) {
-        throw error.convert2HTTPException()
-      } else if (error.code == 'P2025') {
-        throw new NotFoundException(error.message)
-      }
-      this.logger.error(error)
-      throw new InternalServerErrorException(error.message)
+      console.log(error)
+      throw new InternalServerErrorException()
     }
   }
 }

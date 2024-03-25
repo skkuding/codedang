@@ -27,11 +27,8 @@ export class ProblemService {
     order?: ProblemOrder
     search?: string
   }) {
-    let unprocessedProblems = await this.problemRepository.getProblems(options)
-
-    unprocessedProblems = unprocessedProblems.filter(
-      (problem) => problem.exposeTime <= new Date()
-    )
+    const unprocessedProblems =
+      await this.problemRepository.getProblems(options)
 
     const uniqueTagIds = new Set(
       unprocessedProblems.flatMap((item) => {

@@ -27,6 +27,7 @@ const GET_CONTESTS = gql(`
       title
       startTime
       endTime
+      description
       participants
       config
     }
@@ -57,9 +58,8 @@ export default function Page() {
               Here&apos;s a list you made
             </p>
           </div>
-          {/* TODO: 주소를 /admin/contest/create로 수정하기 */}
           <Button variant="default" asChild>
-            <Link href="/admin/problem/create">
+            <Link href="/admin/contest/create">
               <PlusCircleIcon className="mr-2 h-4 w-4" />
               Create
             </Link>
@@ -77,7 +77,13 @@ export default function Page() {
             ))}
           </>
         ) : (
-          <DataTableAdmin columns={columns} data={contests} />
+          <DataTableAdmin
+            columns={columns}
+            data={contests}
+            enableSearch={true}
+            enableDelete={true}
+            enablePagination={true}
+          />
         )}
       </div>
     </ScrollArea>

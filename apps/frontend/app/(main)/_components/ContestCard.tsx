@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { cn, dateFormatter } from '@/lib/utils'
 import type { Contest } from '@/types/type'
-import dayjs from 'dayjs'
 import { FaRegClock } from 'react-icons/fa'
 import { FaRegCalendarAlt } from 'react-icons/fa'
 import Badge from './Badge'
@@ -21,8 +20,8 @@ interface Props {
 
 const format = (target: Date, year: number): string =>
   new Date(target).getFullYear() === year
-    ? dayjs(target).format('MMM DD')
-    : dayjs(target).format('MMM DD, YYYY')
+    ? dateFormatter(target, 'MMM DD')
+    : dateFormatter(target, 'MMM DD, YYYY')
 
 export default function ContestCard({ contest }: Props) {
   const year = new Date().getFullYear()

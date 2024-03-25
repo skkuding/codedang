@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Prisma } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as chai from 'chai'
@@ -12,21 +12,29 @@ import {
   ConflictFoundException,
   EntityNotExistException
 } from '@libs/exception'
-import { PrismaService } from '@libs/prisma'
+import { PrismaService, type FlatTransactionClient } from '@libs/prisma'
+import { transactionExtension } from '@libs/prisma'
 import { GroupService } from './group.service'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
 chai.use(chaiExclude)
-
 describe('GroupService', () => {
   let service: GroupService
   let cache: Cache
-  let prisma: PrismaService
-  beforeEach(async () => {
+  let tx: FlatTransactionClient
+
+  const prisma = new PrismaClient().$extends(transactionExtension)
+
+  beforeEach(async function () {
+    // TODO: CI 테스트에서 timeout이 걸리는 문제를 우회하기 위해서 timeout을 0으로 설정 (timeout disabled)
+    // local에서는 timeout을 disable 하지 않아도 테스트가 정상적으로 동작함 (default setting: 2000ms)
+    this.timeout(0)
+    //transaction client
+    tx = await prisma.$begin()
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GroupService,
-        PrismaService,
+        { provide: PrismaService, useValue: tx },
         ConfigService,
         {
           provide: CACHE_MANAGER,
@@ -39,7 +47,6 @@ describe('GroupService', () => {
     }).compile()
     service = module.get<GroupService>(GroupService)
     cache = module.get<Cache>(CACHE_MANAGER)
-    prisma = module.get<PrismaService>(PrismaService)
   })
 
   it('should be defined', () => {
@@ -169,9 +176,8 @@ describe('GroupService', () => {
   describe('joinGroupById', () => {
     let groupId: number
     const userId = 4
-
     beforeEach(async () => {
-      const group = await prisma.group.create({
+      const group = await tx.group.create({
         data: {
           groupName: 'test',
           description: 'test',
@@ -185,26 +191,7 @@ describe('GroupService', () => {
     })
 
     afterEach(async () => {
-      try {
-        await prisma.userGroup.delete({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            userId_groupId: { userId, groupId }
-          }
-        })
-      } catch {
-        /* 삭제할 내용이 없는 경우 예외 무시 */
-      }
-
-      try {
-        await prisma.group.delete({
-          where: {
-            id: groupId
-          }
-        })
-      } catch {
-        /* 삭제할 내용 없을 경우 예외 무시 */
-      }
+      await tx.$rollback()
     })
 
     it('should return {isJoined: true} when group not set as requireApprovalBeforeJoin', async () => {
@@ -228,7 +215,7 @@ describe('GroupService', () => {
     })
 
     it('should return {isJoined: false} when group set as requireApprovalBeforeJoin', async () => {
-      await prisma.group.update({
+      await tx.group.update({
         where: {
           id: groupId
         },
@@ -253,7 +240,7 @@ describe('GroupService', () => {
     })
 
     it('should throw ConflictFoundException when user is already group memeber', async () => {
-      await prisma.userGroup.create({
+      await tx.userGroup.create({
         data: {
           userId,
           groupId,
@@ -273,7 +260,7 @@ describe('GroupService', () => {
         { userId, expiresAt: Date.now() + JOIN_GROUP_REQUEST_EXPIRE_TIME }
       ])
 
-      await prisma.group.update({
+      await tx.group.update({
         where: {
           id: groupId
         },
@@ -294,9 +281,8 @@ describe('GroupService', () => {
   describe('leaveGroup', () => {
     const groupId = 3
     const userId = 4
-
     beforeEach(async () => {
-      await prisma.userGroup.createMany({
+      await tx.userGroup.createMany({
         data: [
           {
             userId,
@@ -313,18 +299,7 @@ describe('GroupService', () => {
     })
 
     afterEach(async () => {
-      try {
-        await prisma.userGroup.deleteMany({
-          where: {
-            OR: [
-              { AND: [{ userId }, { groupId }] },
-              { AND: [{ userId: 5 }, { groupId }] }
-            ]
-          }
-        })
-      } catch {
-        return
-      }
+      await tx.$rollback()
     })
 
     it('should return deleted userGroup when valid userId and groupId passed', async () => {

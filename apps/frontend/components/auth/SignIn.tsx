@@ -2,9 +2,9 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
+// import { Separator } from '@/components/ui/separator'
 import CodedangLogo from '@/public/codedang.svg'
-import KakaotalkLogo from '@/public/kakaotalk.svg'
+// import KakaotalkLogo from '@/public/kakaotalk.svg'
 import useAuthModalStore from '@/stores/authModal'
 import { signIn } from 'next-auth/react'
 import Image from 'next/image'
@@ -12,8 +12,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
-import { FaGithub } from 'react-icons/fa'
-import { FcGoogle } from 'react-icons/fc'
+// import { FaGithub } from 'react-icons/fa'
+// import { FcGoogle } from 'react-icons/fc'
 import { toast } from 'sonner'
 
 interface Inputs {
@@ -23,7 +23,7 @@ interface Inputs {
 
 export default function SignIn() {
   const [disableButton, setDisableButton] = useState(false)
-  const { showSignUp } = useAuthModalStore((state) => state)
+  const { showSignUp, showRecoverAccount } = useAuthModalStore((state) => state)
   const router = useRouter()
   const { register, handleSubmit } = useForm<Inputs>()
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
@@ -68,14 +68,14 @@ export default function SignIn() {
             Log In
           </Button>
         </form>
-        <div className="flex items-center justify-center gap-5">
+        {/* <div className="flex items-center justify-center gap-5">
           <Separator className="flex-1" />
           <p className="w-fit flex-none text-center text-xs text-gray-500">
             OR continue with
           </p>
           <Separator className="flex-1" />
-        </div>
-        <div className="flex w-full items-center justify-center gap-5">
+        </div> */}
+        {/* <div className="flex w-full items-center justify-center gap-5">
           <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#FEE500] hover:opacity-80">
             <Image src={KakaotalkLogo} alt="카카오톡" width={20} />
           </div>
@@ -85,7 +85,7 @@ export default function SignIn() {
           <div className="flex aspect-square w-12 cursor-pointer items-center justify-center rounded-full bg-[#212528] hover:opacity-80">
             <FaGithub className="text-white" size="22" />
           </div>
-        </div>
+        </div> */}
       </div>
       <div className="flex items-center justify-between">
         <Button
@@ -96,6 +96,7 @@ export default function SignIn() {
           Sign Up
         </Button>
         <Button
+          onClick={() => showRecoverAccount()}
           variant={'link'}
           className="h-5 w-fit p-0 py-2 text-xs text-gray-500"
         >
