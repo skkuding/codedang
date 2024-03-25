@@ -1,8 +1,5 @@
 /*
-  Warnings:
-
-  - You are about to drop the column `config` on the `contest` table. All the data in the column will be lost.
-
+  contest 레코드가 생기기 전에 migration함
 */
 -- AlterTable
 ALTER TABLE "contest" DROP COLUMN "config",
