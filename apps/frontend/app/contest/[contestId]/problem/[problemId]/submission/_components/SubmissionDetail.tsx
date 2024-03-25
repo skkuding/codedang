@@ -22,15 +22,15 @@ interface Props {
 
 export default async function SubmissionDetail({
   problemId,
-  submissionId
+  submissionId,
+  contestId
 }: Props) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
-    searchParams: { problemId },
+    searchParams: { problemId, contestId: contestId ?? '' },
     next: {
       tags: [`submission/${submissionId}`]
     }
   })
-
   const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
   if (res.status == 403) {
     return (

@@ -48,14 +48,19 @@ export default function Editor({ problem, contestId }: ProblemEditorProps) {
     async () => {
       const res = await fetcherWithAuth(`submission/${submissionId}`, {
         searchParams: {
-          problemId: problem.id
+          problemId: problem.id,
+          contestId: contestId ?? ''
         }
       })
       if (res.ok) {
         const submission: Submission = await res.json()
         if (submission.result !== 'Judging') {
           setLoading(false)
-          router.push(`/problem/${problem.id}/submission/${submissionId}`)
+          router.push(
+            contestId
+              ? `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}`
+              : `/problem/${problem.id}/submission/${submissionId}`
+          )
           if (submission.result === 'Accepted') {
             confetti?.addConfetti()
           }
