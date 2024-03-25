@@ -15,6 +15,7 @@ import { useMutation } from '@apollo/client'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
+import { toast } from 'sonner'
 
 interface DataTableContest {
   id: number
@@ -47,6 +48,19 @@ function VisibleCell({ row }: { row: Row<DataTableContest> }) {
         id="hidden-mode"
         checked={row.original.config.isVisible}
         onCheckedChange={() => {
+          const currentTime = dateFormatter(new Date(), 'YYYY-MM-DD HH:mm:ss')
+          const startTime = dateFormatter(
+            row.original.startTime,
+            'YYYY-MM-DD HH:mm:ss'
+          )
+          const endTime = dateFormatter(
+            row.original.endTime,
+            'YYYY-MM-DD HH:mm:ss'
+          )
+          if (currentTime > startTime && currentTime < endTime) {
+            toast.error('Cannot change visibility of ongoing contest')
+            return
+          }
           row.original.config = {
             ...row.original.config,
             isVisible: !row.original.config.isVisible
