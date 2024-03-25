@@ -1,10 +1,15 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from '@nestjs/cache-manager'
-import { Inject, Injectable } from '@nestjs/common'
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException
+} from '@nestjs/common'
 import { Language } from '@generated'
 import type { ContestProblem, Tag, WorkbookProblem } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
+import { Prisma } from '@prisma/client'
 import { Workbook } from 'exceljs'
 import {
   DuplicateFoundException,
@@ -543,19 +548,29 @@ export class ProblemService {
     return await this.prisma.$transaction(queries)
   }
 
-  async createTag(tagName: string): Promise<Partial<Tag>> {
-    // check if tagNames are already exist
-    const existingTag = await this.prisma.tag.findFirst({
-      where: { name: tagName }
-    })
-    if (existingTag) {
-      throw new DuplicateFoundException('tag')
+  /**
+   * 새로운 태그를 생성합니다
+   * @param tagName - unique한 태그이름
+   * @returns
+   * @throws DuplicateFoundException - 이미 존재하는 태그일 경우
+   */
+  async createTag(tagName: string): Promise<Tag> {
+    // throw error if tag already exists
+    try {
+      return await this.prisma.tag.create({
+        data: {
+          name: tagName
+        }
+      })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      )
+        throw new DuplicateFoundException('tag')
+
+      throw new InternalServerErrorException(error)
     }
-    return await this.prisma.tag.create({
-      data: {
-        name: tagName
-      }
-    })
   }
 
   async deleteTag(tagName: string): Promise<Partial<Tag>> {
