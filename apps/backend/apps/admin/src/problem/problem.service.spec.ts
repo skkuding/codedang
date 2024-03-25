@@ -2,6 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Level } from '@generated'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { expect } from 'chai'
 import { spy, stub } from 'sinon'
 import {
@@ -510,10 +511,8 @@ describe('ProblemService', () => {
   describe('createTag', () => {
     it('should return a created tag', async () => {
       beforeEach(() => {
-        db.tag.findFirst.resetBehavior()
         db.tag.create.resetBehavior()
       })
-      db.tag.findFirst.resolves(null)
       db.tag.create.resolves(exampleTag)
       const result = await service.createTag('Brute Force')
       expect(result).to.deep.equal(exampleTag)
@@ -521,10 +520,14 @@ describe('ProblemService', () => {
 
     it('should handle a duplicate exception', async () => {
       beforeEach(() => {
-        db.tag.findFirst.resetBehavior()
         db.tag.create.resetBehavior()
       })
-      db.tag.findFirst.resolves(exampleTag)
+      db.tag.create.rejects(
+        new PrismaClientKnownRequestError('message', {
+          code: 'P2002',
+          clientVersion: '5.11.0'
+        })
+      )
       await expect(service.createTag('something duplicate')).to.be.rejectedWith(
         DuplicateFoundException
       )
