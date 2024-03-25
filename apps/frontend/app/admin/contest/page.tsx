@@ -27,6 +27,7 @@ const GET_CONTESTS = gql(`
       title
       startTime
       endTime
+      description
       participants
       config
     }

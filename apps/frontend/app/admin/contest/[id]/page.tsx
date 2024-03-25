@@ -106,6 +106,15 @@ const UPDATE_CONTEST_PROBLEMS_ORDER = gql(`
   }
 `)
 
+const EDIT_VISIBLE = gql(`
+mutation UpdateVisible($groupId: Int!, $input: UpdateProblemInput!) {
+  updateProblem(groupId: $groupId, input: $input) {
+    id
+    isVisible
+  }
+}
+`)
+
 const inputStyle =
   'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
 
@@ -224,6 +233,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [updateContest, { error }] = useMutation(UPDATE_CONTEST)
   const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
   const [removeProblemsFromContest] = useMutation(REMOVE_PROBLEMS_FROM_CONTEST)
+  const [updateVisible] = useMutation(EDIT_VISIBLE)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
@@ -235,14 +245,6 @@ export default function Page({ params }: { params: { id: string } }) {
     }
 
     const problemIds = problems.map((problem) => problem.id)
-
-    // TODO: connect romoveproblem API
-    const removedProblems = prevProblemIds.filter(
-      (id) => !problemIds.includes(id)
-    )
-    const addedProblems = problemIds.filter(
-      (id) => !prevProblemIds.includes(id)
-    )
 
     const orderArray = JSON.parse(localStorage.getItem('orderArray') || '[]')
     if (orderArray.length === 0) {
@@ -275,24 +277,32 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
 
-    if (addedProblems.length !== 0) {
-      await importProblemsToContest({
+    await removeProblemsFromContest({
+      variables: {
+        groupId: 1,
+        contestId: Number(id),
+        problemIds: prevProblemIds
+      }
+    })
+    await importProblemsToContest({
+      variables: {
+        groupId: 1,
+        contestId: Number(id),
+        problemIds
+      }
+    })
+    const updateVisiblePromise = problemIds.map((id) =>
+      updateVisible({
         variables: {
           groupId: 1,
-          contestId: Number(id),
-          problemIds: addedProblems
+          input: {
+            id,
+            isVisible: false
+          }
         }
       })
-    }
-    if (removedProblems.length !== 0) {
-      await removeProblemsFromContest({
-        variables: {
-          groupId: 1,
-          contestId: Number(id),
-          problemIds: removedProblems
-        }
-      })
-    }
+    )
+    await Promise.all(updateVisiblePromise)
 
     const orders: number[] = []
     orderArray.forEach((order: number, index: number) => {
@@ -307,9 +317,10 @@ export default function Page({ params }: { params: { id: string } }) {
     })
     localStorage.removeItem('orderArray')
     localStorage.removeItem(`contestFormData-${id}`)
-    localStorage.removeItem('orderArray')
+    localStorage.removeItem(`importProblems-${id}`)
     toast.success('Contest updated successfully')
     router.push('/admin/contest')
+    router.refresh()
   }
 
   return (

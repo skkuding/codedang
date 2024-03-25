@@ -70,6 +70,15 @@ const UPDATE_CONTEST_PROBLEMS_ORDER = gql(`
   }
 `)
 
+const EDIT_VISIBLE = gql(`
+  mutation UpdateVisible($groupId: Int!, $input: UpdateProblemInput!) {
+    updateProblem(groupId: $groupId, input: $input) {
+      id
+      isVisible
+    }
+  }
+`)
+
 const inputStyle =
   'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
 
@@ -116,6 +125,7 @@ export default function Page() {
 
   const [createContest, { error }] = useMutation(CREATE_CONTEST)
   const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
+  const [updateVisible] = useMutation(EDIT_VISIBLE)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
@@ -165,6 +175,20 @@ export default function Page() {
         problemIds
       }
     })
+
+    const updateVisiblePromise = problems.map((problem) =>
+      updateVisible({
+        variables: {
+          groupId: 1,
+          input: {
+            id: problem.id,
+            isVisible: false
+          }
+        }
+      })
+    )
+    await Promise.all(updateVisiblePromise)
+
     const orders: number[] = []
     orderArray.forEach((order: number, index: number) => {
       orders[order] = problemIds[index]

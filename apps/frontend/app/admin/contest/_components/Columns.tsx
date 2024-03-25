@@ -1,67 +1,132 @@
 'use client'
 
+import { gql } from '@generated'
 import { DataTableColumnHeader } from '@/components/DataTableColumnHeader'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
-import { dateFormatter } from '@/lib/utils'
-import type { ColumnDef } from '@tanstack/react-table'
-import { FiEyeOff } from 'react-icons/fi'
-import { FiEye } from 'react-icons/fi'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+import { cn, dateFormatter } from '@/lib/utils'
+import { useMutation } from '@apollo/client'
+import * as TooltipPrimitive from '@radix-ui/react-tooltip'
+import type { ColumnDef, Row } from '@tanstack/react-table'
+import { FiEye, FiEyeOff } from 'react-icons/fi'
+import { toast } from 'sonner'
 
-interface Contest {
+interface DataTableContest {
   id: number
   title: string
   startTime: string
   endTime: string
+  description: string
   participants: number
   config: {
     isVisible: boolean
+    isRankVisible: boolean
   }
 }
 
-// const EDIT_VISIBLE = gql(`
-//   mutation UpdateContestVisible($groupId: Int!, $input: UpdateContestInput!) {
-//     updateContest(groupId: $groupId, input: $input) {
-//       id
-//       config
-//     }
-//   }
-// `)
+const EDIT_VISIBLE = gql(`
+  mutation UpdateContestVisible($groupId: Int!, $input: UpdateContestInput!) {
+    updateContest(groupId: $groupId, input: $input) {
+      id
+      config
+    }
+  }
+`)
 
-function VisibleCell({ isVisible }: { isVisible: boolean; id: number }) {
-  // const [updateVisible] = useMutation(EDIT_VISIBLE)
+function VisibleCell({ row }: { row: Row<DataTableContest> }) {
+  const [updateVisible] = useMutation(EDIT_VISIBLE)
 
   return (
     <div className="flex space-x-2">
       <Switch
         id="hidden-mode"
-        checked={isVisible}
+        checked={row.original.config.isVisible}
         onCheckedChange={() => {
-          // updateVisible({
-          //   variables: {
-          //     groupId: 1,
-          //     input: {
-          //       id,
-          //       config: {
-          //         isVisible: !isVisible
-          //       }
-          //     }
-          //   }
-          // })
+          const currentTime = dateFormatter(new Date(), 'YYYY-MM-DD HH:mm:ss')
+          const startTime = dateFormatter(
+            row.original.startTime,
+            'YYYY-MM-DD HH:mm:ss'
+          )
+          const endTime = dateFormatter(
+            row.original.endTime,
+            'YYYY-MM-DD HH:mm:ss'
+          )
+          if (currentTime > startTime && currentTime < endTime) {
+            toast.error('Cannot change visibility of ongoing contest')
+            return
+          }
+          row.original.config = {
+            ...row.original.config,
+            isVisible: !row.original.config.isVisible
+          }
+          // TODO: contest update API 수정되면 고치기
+          updateVisible({
+            variables: {
+              groupId: 1,
+              input: {
+                id: row.original.id,
+                title: row.original.title,
+                startTime: row.original.startTime,
+                endTime: row.original.endTime,
+                description: row.original.description,
+                config: {
+                  isVisible: row.original.config.isVisible,
+                  isRankVisible: row.original.config.isRankVisible
+                }
+              }
+            }
+          })
         }}
       />
       <div className="flex items-center justify-center">
-        {isVisible ? (
-          <FiEye className="text-primary h-[14px] w-[14px]" />
-        ) : (
-          <FiEyeOff className="h-[14px] w-[14px] text-gray-400" />
-        )}
+        {
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button>
+                  {row.original.config.isVisible ? (
+                    <FiEye className="text-primary h-[14px] w-[14px]" />
+                  ) : (
+                    <FiEyeOff className="h-[14px] w-[14px] text-gray-400" />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent
+                className={cn(
+                  row.original.config.isVisible ? 'bg-primary' : 'bg-black'
+                )}
+                align="end"
+                alignOffset={-20}
+              >
+                {row.original.config.isVisible ? (
+                  <p>This contest is visible</p>
+                ) : (
+                  <p>This contest is not visible to users</p>
+                )}
+                <TooltipPrimitive.Arrow
+                  className={cn(
+                    'fill-current',
+                    row.original.config.isVisible
+                      ? 'text-primary'
+                      : 'text-black'
+                  )}
+                />
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        }
       </div>
     </div>
   )
 }
 
-export const columns: ColumnDef<Contest>[] = [
+export const columns: ColumnDef<DataTableContest>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -129,8 +194,7 @@ export const columns: ColumnDef<Contest>[] = [
       <DataTableColumnHeader column={column} title="Visible" />
     ),
     cell: ({ row }) => {
-      const isVisible: boolean = row.original.config.isVisible
-      return <VisibleCell isVisible={isVisible} id={+row.original.id} />
+      return <VisibleCell row={row} />
     }
   }
 ]
