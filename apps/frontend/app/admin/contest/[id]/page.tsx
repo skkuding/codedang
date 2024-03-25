@@ -246,14 +246,6 @@ export default function Page({ params }: { params: { id: string } }) {
 
     const problemIds = problems.map((problem) => problem.id)
 
-    // TODO: connect romoveproblem API
-    const removedProblems = prevProblemIds.filter(
-      (id) => !problemIds.includes(id)
-    )
-    const addedProblems = problemIds.filter(
-      (id) => !prevProblemIds.includes(id)
-    )
-
     const orderArray = JSON.parse(localStorage.getItem('orderArray') || '[]')
     if (orderArray.length === 0) {
       toast.error('Problem order not set')
@@ -285,36 +277,32 @@ export default function Page({ params }: { params: { id: string } }) {
       return
     }
 
-    if (addedProblems.length !== 0) {
-      await importProblemsToContest({
+    await removeProblemsFromContest({
+      variables: {
+        groupId: 1,
+        contestId: Number(id),
+        problemIds: prevProblemIds
+      }
+    })
+    await importProblemsToContest({
+      variables: {
+        groupId: 1,
+        contestId: Number(id),
+        problemIds
+      }
+    })
+    const updateVisiblePromise = problemIds.map((id) =>
+      updateVisible({
         variables: {
           groupId: 1,
-          contestId: Number(id),
-          problemIds: addedProblems
-        }
-      })
-      const updateVisiblePromise = addedProblems.map((id) =>
-        updateVisible({
-          variables: {
-            groupId: 1,
-            input: {
-              id,
-              isVisible: false
-            }
+          input: {
+            id,
+            isVisible: false
           }
-        })
-      )
-      await Promise.all(updateVisiblePromise)
-    }
-    if (removedProblems.length !== 0) {
-      await removeProblemsFromContest({
-        variables: {
-          groupId: 1,
-          contestId: Number(id),
-          problemIds: removedProblems
         }
       })
-    }
+    )
+    await Promise.all(updateVisiblePromise)
 
     const orders: number[] = []
     orderArray.forEach((order: number, index: number) => {
