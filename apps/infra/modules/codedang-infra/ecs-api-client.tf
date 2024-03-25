@@ -64,6 +64,7 @@ resource "aws_ecs_service" "client_api" {
   desired_count                     = 1
   launch_type                       = "EC2"
   health_check_grace_period_seconds = 300
+  force_new_deployment              = true
 
 
   # EC2 기반의 ECS라 필요 없을듯
