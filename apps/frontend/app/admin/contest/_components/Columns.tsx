@@ -96,7 +96,7 @@ export const columns: ColumnDef<Contest>[] = [
     enableHiding: false
   },
   {
-    accessorKey: 'period',
+    accessorKey: 'startTime',
     header: ({ column }) => (
       <div className="flex justify-center">
         <DataTableColumnHeader
@@ -113,7 +113,7 @@ export const columns: ColumnDef<Contest>[] = [
     )
   },
   {
-    accessorKey: 'register',
+    accessorKey: 'participants',
     header: ({ column }) => (
       <div className="flex justify-center">
         <DataTableColumnHeader column={column} title="Register" />
@@ -124,7 +124,7 @@ export const columns: ColumnDef<Contest>[] = [
     )
   },
   {
-    accessorKey: 'hidden',
+    accessorKey: 'config.isVisible',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Visible" />
     ),
