@@ -21,11 +21,12 @@ resource "aws_subnet" "private_iris2" {
 
 ###################### ECS Service ######################
 resource "aws_ecs_service" "iris" {
-  name            = "Codedang-Iris-Service"
-  cluster         = aws_ecs_cluster.iris.id
-  task_definition = aws_ecs_task_definition.iris.arn
-  desired_count   = 2
-  launch_type     = "EC2"
+  name                 = "Codedang-Iris-Service"
+  cluster              = aws_ecs_cluster.iris.id
+  task_definition      = aws_ecs_task_definition.iris.arn
+  desired_count        = 2
+  launch_type          = "EC2"
+  force_new_deployment = true
 }
 
 data "aws_ecr_repository" "iris" {
