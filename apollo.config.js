@@ -1,6 +1,6 @@
 module.exports = {
   client: {
-    includes: ['./frontend-client/**/*.ts', './frontend-client/**/*.tsx'],
+    includes: ['./apps/frontend/**/*.ts', './apps/frontend/**/*.tsx'],
     excludes: ['**/__generated__/**'],
     service: {
       name: 'codedang-graphql-app',
