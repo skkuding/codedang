@@ -40,7 +40,8 @@ const UPDATE_CONTEST = gql(`
   mutation UpdateContest($groupId: Int!, $input: UpdateContestInput!) {
     updateContest(groupId: $groupId, input: $input) {
       id
-      config
+      isRankVisible
+      isVisible
       description
       endTime
       startTime
@@ -121,10 +122,8 @@ const inputStyle =
 const schema = z.object({
   id: z.number(),
   title: z.string().min(1).max(100),
-  config: z.object({
-    isRankVisible: z.boolean(),
-    isVisible: z.boolean()
-  }),
+  isRankVisible: z.boolean(),
+  isVisible: z.boolean(),
   description: z.string().min(1),
   startTime: z.date(),
   endTime: z.date()
@@ -155,10 +154,8 @@ export default function Page({ params }: { params: { id: string } }) {
   } = useForm<UpdateContestInput>({
     resolver: zodResolver(schema),
     defaultValues: {
-      config: {
-        isRankVisible: true,
-        isVisible: true
-      }
+      isRankVisible: true,
+      isVisible: true
     }
   })
 
@@ -349,7 +346,7 @@ export default function Page({ params }: { params: { id: string } }) {
               {errors.title && (
                 <div className="flex items-center gap-1 text-xs text-red-500">
                   <PiWarningBold />
-                  {getValues('title').length === 0
+                  {getValues('title')?.length === 0
                     ? 'required'
                     : errors.title?.message}
                 </div>
@@ -405,7 +402,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   <TextEditor
                     placeholder="Enter a description..."
                     onChange={field.onChange}
-                    defaultValue={field.value}
+                    defaultValue={field.value ?? ''}
                   />
                 )}
                 name="description"

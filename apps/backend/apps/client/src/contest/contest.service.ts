@@ -59,10 +59,7 @@ export class ContestService {
           endTime: {
             gt: now
           },
-          config: {
-            path: ['isVisible'],
-            equals: true
-          }
+          isVisible: true
         },
         select: contestSelectOption,
         orderBy: {
@@ -105,10 +102,7 @@ export class ContestService {
     restContests = await this.prisma.contest.findMany({
       where: {
         groupId,
-        config: {
-          path: ['isVisible'],
-          equals: true
-        },
+        isVisible: true,
         id: {
           notIn: registeredContestIds
         },
@@ -211,10 +205,7 @@ export class ContestService {
         title: {
           contains: search
         },
-        config: {
-          path: ['isVisible'],
-          equals: true
-        }
+        isVisible: true
       },
       select: contestSelectOption,
       orderBy: [{ endTime: 'desc' }, { id: 'desc' }]
@@ -259,10 +250,7 @@ export class ContestService {
           lte: now
         },
         groupId,
-        config: {
-          path: ['isVisible'],
-          equals: true
-        },
+        isVisible: true,
         title: {
           contains: search
         }
@@ -333,10 +321,7 @@ export class ContestService {
         where: {
           id,
           groupId,
-          config: {
-            path: ['isVisible'],
-            equals: true
-          }
+          isVisible: true
         },
         select: {
           ...contestSelectOption,
@@ -423,10 +408,7 @@ export class ContestService {
     return !!(await this.prisma.contest.count({
       where: {
         id: contestId,
-        config: {
-          path: ['isVisible'],
-          equals: true
-        },
+        isVisible: true,
         groupId
       }
     }))

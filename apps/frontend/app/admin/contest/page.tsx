@@ -29,7 +29,8 @@ const GET_CONTESTS = gql(`
       endTime
       description
       participants
-      config
+      isRankVisible
+      isVisible
     }
   }
 `)

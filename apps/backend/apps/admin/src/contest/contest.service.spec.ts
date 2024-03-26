@@ -35,10 +35,8 @@ const contest: Contest = {
   description: 'description',
   startTime,
   endTime,
-  config: {
-    isVisible: true,
-    isRankVisible: true
-  },
+  isVisible: true,
+  isRankVisible: true,
   createTime,
   updateTime
 }
@@ -51,10 +49,8 @@ const contestWithCount = {
   description: 'description',
   startTime,
   endTime,
-  config: {
-    isVisible: true,
-    isRankVisible: true
-  },
+  isVisible: true,
+  isRankVisible: true,
   createTime,
   updateTime,
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -71,10 +67,8 @@ const contestWithParticipants: ContestWithParticipants = {
   description: 'description',
   startTime,
   endTime,
-  config: {
-    isVisible: true,
-    isRankVisible: true
-  },
+  isVisible: true,
+  isRankVisible: true,
   createTime,
   updateTime,
   participants: 10
@@ -144,10 +138,8 @@ const input = {
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
-  config: {
-    isVisible: false,
-    isRankVisible: false
-  }
+  isVisible: false,
+  isRankVisible: false
 } satisfies CreateContestInput
 
 const updateInput = {
@@ -156,10 +148,8 @@ const updateInput = {
   description: 'test description',
   startTime: faker.date.past(),
   endTime: faker.date.future(),
-  config: {
-    isVisible: false,
-    isRankVisible: false
-  }
+  isVisible: false,
+  isRankVisible: false
 } satisfies UpdateContestInput
 
 const db = {
