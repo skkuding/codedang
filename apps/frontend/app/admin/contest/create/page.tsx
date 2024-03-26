@@ -34,7 +34,8 @@ const CREATE_CONTEST = gql(`
   mutation CreateContest($groupId: Int!, $input: CreateContestInput!) {
     createContest(groupId: $groupId, input: $input) {
       id
-      config
+      isVisible
+      isRankVisible
       description
       endTime
       startTime
@@ -84,10 +85,8 @@ const inputStyle =
 
 const schema = z.object({
   title: z.string().min(1).max(100),
-  config: z.object({
-    isRankVisible: z.boolean().optional(),
-    isVisible: z.boolean().optional()
-  }),
+  isRankVisible: z.boolean().optional(),
+  isVisible: z.boolean().optional(),
   description: z.string().min(1),
   startTime: z.date(),
   endTime: z.date()
@@ -116,10 +115,8 @@ export default function Page() {
   } = useForm<CreateContestInput>({
     resolver: zodResolver(schema),
     defaultValues: {
-      config: {
-        isRankVisible: true,
-        isVisible: true
-      }
+      isRankVisible: true,
+      isVisible: true
     }
   })
 
