@@ -43,7 +43,7 @@ export default function ContestTabs({ contestId }: { contestId: string }) {
       >
         Announcement
       </Link>
-      <Link
+      {/* <Link
         href={`/contest/${id}/standings` as Route}
         className={cn(
           'text-lg text-gray-400',
@@ -51,7 +51,7 @@ export default function ContestTabs({ contestId }: { contestId: string }) {
         )}
       >
         Standings
-      </Link>
+      </Link> */}
     </div>
   )
 }
