@@ -269,7 +269,7 @@ model Contest {
   startTime     DateTime @map("start_time")
   endTime       DateTime @map("end_time")
   isVisible     Boolean  @default(true) @map("is_visible")
-  isRankVisible Boolean  @default(true)
+  isRankVisible Boolean  @default(true) @map("is_rank_visible")
   createTime    DateTime @default(now()) @map("create_time")
   updateTime    DateTime @updatedAt @map("update_time")
 
