@@ -346,7 +346,7 @@ export default function Page({ params }: { params: { id: string } }) {
               {errors.title && (
                 <div className="flex items-center gap-1 text-xs text-red-500">
                   <PiWarningBold />
-                  {getValues('title').length === 0
+                  {getValues('title')?.length === 0
                     ? 'required'
                     : errors.title?.message}
                 </div>
@@ -402,7 +402,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   <TextEditor
                     placeholder="Enter a description..."
                     onChange={field.onChange}
-                    defaultValue={field.value}
+                    defaultValue={field.value ?? ''}
                   />
                 )}
                 name="description"
