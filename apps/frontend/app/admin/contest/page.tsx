@@ -39,7 +39,7 @@ export default function Page() {
   const { data, loading } = useQuery(GET_CONTESTS, {
     variables: {
       groupId: 1,
-      take: 100
+      take: 300
     }
   })
 
