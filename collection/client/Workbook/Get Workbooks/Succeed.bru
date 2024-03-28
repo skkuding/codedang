@@ -18,10 +18,10 @@ query {
 
 assert {
   res.status: eq 200
-  res.body[0].id: isNumber
-  res.body[0].title: isString
-  res.body[0].description: isString
-  res.body[0].updateTime: isString
+  res.body.data[0].id: isNumber
+  res.body.data[0].title: isString
+  res.body.data[0].description: isString
+  res.body.data[0].updateTime: isString
 }
 
 docs {

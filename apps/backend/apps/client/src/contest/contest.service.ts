@@ -211,7 +211,23 @@ export class ContestService {
       orderBy: [{ endTime: 'desc' }, { id: 'desc' }]
     })
 
-    return this.renameToParticipants(contests)
+    const total = await this.prisma.contest.count({
+      where: {
+        groupId,
+        endTime: {
+          lte: now
+        },
+        id: {
+          in: registeredContestIds
+        },
+        title: {
+          contains: search
+        },
+        isVisible: true
+      }
+    })
+
+    return { data: this.renameToParticipants(contests), total }
   }
 
   async getFinishedContestsByGroupId(
@@ -239,7 +255,21 @@ export class ContestService {
       select: contestSelectOption,
       orderBy: [{ endTime: 'desc' }, { id: 'desc' }]
     })
-    return { finished: this.renameToParticipants(finished) }
+
+    const total = await this.prisma.contest.count({
+      where: {
+        endTime: {
+          lte: now
+        },
+        groupId,
+        isVisible: true,
+        title: {
+          contains: search
+        }
+      }
+    })
+
+    return { data: this.renameToParticipants(finished), total }
   }
 
   // TODO: participants 대신 _count.contestRecord 그대로 사용하는 것 고려해보기

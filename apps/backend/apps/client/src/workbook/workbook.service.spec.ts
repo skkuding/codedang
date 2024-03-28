@@ -107,7 +107,8 @@ const db = {
     findFirst: stub(),
     create: stub(),
     update: stub(),
-    delete: stub()
+    delete: stub(),
+    count: stub().resolves(3)
   },
   workbookProblem: {
     findMany: stub()
@@ -137,7 +138,10 @@ describe('WorkbookService', () => {
       0,
       3
     )
-    expect(returnedPublicWorkbooks).to.deep.equal(visiblePublicWorkbooks)
+    expect(returnedPublicWorkbooks).to.deep.equal({
+      data: visiblePublicWorkbooks,
+      total: 3
+    })
   })
 
   it('get a list of private group workbooks', async () => {
@@ -148,7 +152,10 @@ describe('WorkbookService', () => {
       3,
       PRIVATE_GROUP_ID
     )
-    expect(returnedGroupWorkbooks).to.deep.equal(groupWorkbooks)
+    expect(returnedGroupWorkbooks).to.deep.equal({
+      data: groupWorkbooks,
+      total: 3
+    })
   })
 
   it('get details of a workbook (user)', async () => {

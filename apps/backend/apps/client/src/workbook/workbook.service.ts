@@ -29,7 +29,15 @@ export class WorkbookService {
         updateTime: true
       }
     })
-    return workbooks
+
+    const total = await this.prisma.workbook.count({
+      where: {
+        groupId,
+        isVisible: true
+      }
+    })
+
+    return { data: workbooks, total }
   }
 
   async getWorkbook(

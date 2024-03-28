@@ -55,7 +55,8 @@ const db = {
     findUnique: stub().resolves(notice),
     findUniqueOrThrow: stub().resolves(notice),
     findFirst: stub(),
-    findFirstOrThrow: stub()
+    findFirstOrThrow: stub(),
+    count: stub().resolves(24)
   },
   group: {
     findUnique: stub().resolves(group)
@@ -121,7 +122,10 @@ describe('NoticeService', () => {
         take: 3,
         groupId: group.id
       })
-      expect(getNoticesByGroupId).to.deep.equal(userNotices)
+      expect(getNoticesByGroupId).to.deep.equal({
+        data: userNotices,
+        total: 24
+      })
     })
   })
 
@@ -165,7 +169,11 @@ describe('NoticeService', () => {
         take: 3,
         groupId: group.id
       })
-      expect(getFixedNoticesByGroupId).to.deep.equal(userNotices)
+
+      expect(getFixedNoticesByGroupId).to.deep.equal({
+        data: userNotices,
+        total: 24
+      })
     })
   })
 

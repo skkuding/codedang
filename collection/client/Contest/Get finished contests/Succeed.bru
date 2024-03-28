@@ -19,13 +19,13 @@ query {
 
 assert {
   res.status: eq 200
-  res("finished")[0].id: isNumber
-  res("finished")[0].title: isString
-  res("finished")[0].startTime: isString
-  res("finished")[0].endTime: isString
-  res("finished")[0].group.id: isNumber
-  res("finished")[0].group.groupName: isString
-  res("finished")[0].participants: isNumber
+  res("data")[0].id: isNumber
+  res("data")[0].title: isString
+  res("data")[0].startTime: isString
+  res("data")[0].endTime: isString
+  res("data")[0].group.id: isNumber
+  res("data")[0].group.groupName: isString
+  res("data")[0].participants: isNumber
 }
 
 docs {

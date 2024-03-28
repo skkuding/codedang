@@ -163,7 +163,7 @@ describe('ProblemService', () => {
       // then
       expect(result).to.deep.equal(
         plainToInstance(ProblemsResponseDto, {
-          problems: [
+          data: [
             {
               ...mockProblems[0],
               submissionCount: 10,
@@ -275,7 +275,7 @@ describe('ContestProblemService', () => {
       // then
       expect(result).to.deep.equal(
         plainToInstance(RelatedProblemsResponseDto, {
-          problems: mockContestProblems,
+          data: mockContestProblems,
           total: 2
         })
       )
@@ -303,7 +303,7 @@ describe('ContestProblemService', () => {
       // then
       expect(result).to.deep.equal(
         plainToInstance(RelatedProblemsResponseDto, {
-          problems: mockContestProblems,
+          data: mockContestProblems,
           total: 2
         })
       )
@@ -491,7 +491,7 @@ describe('WorkbookProblemService', () => {
       // then
       expect(result).to.deep.equal(
         plainToInstance(RelatedProblemsResponseDto, {
-          problems: mockWorkbookProblems,
+          data: mockWorkbookProblems,
           total: 2
         })
       )
@@ -513,7 +513,7 @@ describe('WorkbookProblemService', () => {
       // then
       expect(result).to.deep.equal(
         plainToInstance(RelatedProblemsResponseDto, {
-          problems: mockWorkbookProblems,
+          data: mockWorkbookProblems,
           total: 2
         })
       )
