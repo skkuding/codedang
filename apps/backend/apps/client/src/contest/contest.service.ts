@@ -223,10 +223,7 @@ export class ContestService {
         title: {
           contains: search
         },
-        config: {
-          path: ['isVisible'],
-          equals: true
-        }
+        isVisible: true
       }
     })
 
@@ -265,10 +262,7 @@ export class ContestService {
           lte: now
         },
         groupId,
-        config: {
-          path: ['isVisible'],
-          equals: true
-        },
+        isVisible: true,
         title: {
           contains: search
         }
