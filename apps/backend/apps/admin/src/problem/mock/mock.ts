@@ -355,7 +355,8 @@ export const exampleContest: Contest = {
   description: 'example',
   groupId: 1,
   createdById: 1,
-  config: { isVisible: true, isRankVisible: true },
+  isVisible: true,
+  isRankVisible: true,
   startTime: new Date(),
   endTime: new Date(),
   createTime: new Date(),
@@ -545,7 +546,7 @@ export const exampleProblemTags: ProblemTag[] = [
 
 export const exampleTag: Tag = {
   id: 1,
-  name: 'brute force',
+  name: 'Brute Force',
   createTime: new Date(),
   updateTime: new Date()
 }

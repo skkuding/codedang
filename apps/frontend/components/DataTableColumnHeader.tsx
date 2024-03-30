@@ -51,11 +51,11 @@ export function DataTableColumnHeader<TData, TValue>({
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
             <ArrowUpIcon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
-            Asc
+            {title === 'Visible' ? 'Hidden first' : 'Asc'}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
             <ArrowDownIcon className="text-muted-foreground/70 mr-2 h-3.5 w-3.5" />
-            Desc
+            {title === 'Visible' ? 'Visible first' : 'Desc'}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

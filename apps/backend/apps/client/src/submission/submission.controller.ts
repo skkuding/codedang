@@ -126,20 +126,12 @@ export class SubmissionController {
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     try {
-      if (contestId) {
-        return await this.submissionService.getContestSubmission(
-          id,
-          problemId,
-          contestId,
-          req.user.id,
-          groupId
-        )
-      }
       return await this.submissionService.getSubmission(
         id,
         problemId,
         req.user.id,
-        groupId
+        groupId,
+        contestId
       )
     } catch (error) {
       if (

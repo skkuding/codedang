@@ -2,9 +2,11 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Level } from '@generated'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { expect } from 'chai'
 import { spy, stub } from 'sinon'
 import {
+  DuplicateFoundException,
   EntityNotExistException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -55,7 +57,12 @@ const db = {
     findMany: stub()
   },
   tag: {
-    findUnique: stub()
+    findUnique: stub(),
+    findMany: stub(),
+    create: stub(),
+    findFirst: stub(),
+    update: stub(),
+    delete: stub()
   },
   workbook: {
     findFirstOrThrow: stub()
@@ -502,6 +509,56 @@ describe('ProblemService', () => {
     })
   })
 
+  describe('createTag', () => {
+    it('should return a created tag', async () => {
+      beforeEach(() => {
+        db.tag.create.resetBehavior()
+      })
+      db.tag.create.resolves(exampleTag)
+      const result = await service.createTag('Brute Force')
+      expect(result).to.deep.equal(exampleTag)
+    })
+
+    it('should handle a duplicate exception', async () => {
+      beforeEach(() => {
+        db.tag.create.resetBehavior()
+      })
+      db.tag.create.rejects(
+        new PrismaClientKnownRequestError('message', {
+          code: 'P2002',
+          clientVersion: '5.11.0'
+        })
+      )
+      await expect(service.createTag('something duplicate')).to.be.rejectedWith(
+        DuplicateFoundException
+      )
+    })
+  })
+
+  describe('deleteTag', () => {
+    beforeEach(() => {
+      db.tag.findFirst.reset()
+      db.tag.delete.reset()
+    })
+    afterEach(() => {
+      db.tag.findFirst.reset()
+      db.tag.delete.reset()
+    })
+
+    it('should return deleted tag', async () => {
+      db.tag.findFirst.resolves(exampleTag)
+      db.tag.delete.resolves(exampleTag)
+      const result = await service.deleteTag('Brute Force')
+      expect(result).to.deep.equal(exampleTag)
+    })
+
+    it('should handle a entity not exist exception', async () => {
+      db.tag.findFirst.resolves(null)
+      await expect(
+        service.deleteTag('something does not exist')
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
   describe('getTag', () => {
     afterEach(() => {
       db.tag.findUnique.reset()

@@ -494,22 +494,62 @@ export class SubmissionService implements OnModuleInit {
     id: number,
     problemId: number,
     userId: number,
-    groupId = OPEN_SPACE_ID
+    groupId = OPEN_SPACE_ID,
+    contestId: number | null
   ) {
-    await this.prisma.problem.findFirstOrThrow({
-      where: {
-        id: problemId,
-        groupId,
-        exposeTime: {
-          lt: new Date()
+    const now = new Date()
+    let contest: { groupId: number; startTime: Date; endTime: Date } | null =
+      null
+
+    if (contestId) {
+      const contestRecord = await this.prisma.contestRecord.findUniqueOrThrow({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_userId: {
+            contestId,
+            userId
+          }
+        },
+        select: {
+          contest: {
+            select: {
+              groupId: true,
+              startTime: true,
+              endTime: true
+            }
+          }
         }
+      })
+      if (contestRecord.contest.groupId !== groupId) {
+        throw new EntityNotExistException('contest')
       }
-    })
+      contest = contestRecord.contest
+    }
+
+    if (!contestId) {
+      await this.prisma.problem.findFirstOrThrow({
+        where: {
+          id: problemId,
+          groupId,
+          exposeTime: {
+            lt: new Date() // contestId가 없는 경우에는 공개된 문제인 경우에만 제출 내역을 가져와야 함
+          }
+        }
+      })
+    } else {
+      await this.prisma.problem.findFirstOrThrow({
+        where: {
+          id: problemId,
+          groupId
+        }
+      })
+    }
 
     const submission = await this.prisma.submission.findFirstOrThrow({
       where: {
         id,
-        problemId
+        problemId,
+        contestId
       },
       select: {
         userId: true,
@@ -526,6 +566,18 @@ export class SubmissionService implements OnModuleInit {
         codeSize: true
       }
     })
+
+    if (
+      contest &&
+      contest.startTime <= now &&
+      contest.endTime > now &&
+      submission.userId !== userId
+    ) {
+      throw new ForbiddenAccessException(
+        "Contest should end first before you browse other people's submissions"
+      )
+    }
+
     if (
       submission.userId === userId ||
       (await this.hasPassedProblem(userId, { problemId }))
@@ -613,7 +665,8 @@ export class SubmissionService implements OnModuleInit {
       take,
       where: {
         problemId,
-        contestId
+        contestId,
+        userId
       },
       select: {
         id: true,
@@ -629,61 +682,5 @@ export class SubmissionService implements OnModuleInit {
       },
       orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
-  }
-
-  @Span()
-  async getContestSubmission(
-    id: number,
-    problemId: number,
-    contestId: number,
-    userId: number,
-    groupId = OPEN_SPACE_ID
-  ): Promise<SubmissionResult[]> {
-    const now = new Date()
-    const { contest } = await this.prisma.contestRecord.findUniqueOrThrow({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        contestId_userId: {
-          contestId,
-          userId
-        }
-      },
-      select: {
-        contest: {
-          select: {
-            groupId: true,
-            startTime: true,
-            endTime: true
-          }
-        }
-      }
-    })
-    if (contest.groupId !== groupId) {
-      throw new EntityNotExistException('contest')
-    }
-
-    const submission = await this.prisma.submission.findFirstOrThrow({
-      where: {
-        id,
-        problemId,
-        contestId
-      },
-      select: {
-        userId: true,
-        submissionResult: true,
-        codeSize: true
-      }
-    })
-
-    if (
-      contest.startTime <= now &&
-      contest.endTime > now &&
-      submission.userId !== userId
-    ) {
-      throw new ForbiddenAccessException(
-        "Contest should end first before you browse other people's submissions"
-      )
-    }
-    return submission.submissionResult
   }
 }

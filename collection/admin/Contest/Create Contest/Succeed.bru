@@ -19,10 +19,8 @@ body:graphql {
         description: "thisisnewcontest"
         startTime: "2024-01-01"
         endTime: "2030-01-01"
-        config: {
-          isVisible: true
-          isRankVisible: true
-        }
+        isVisible: true
+        isRankVisible: true
       }
     ) {
       id
@@ -33,7 +31,7 @@ body:graphql {
 }
 
 assert {
-  res.body.data.createContest: isDefined 
+  res.body.data.createContest: isDefined
 }
 
 docs {
