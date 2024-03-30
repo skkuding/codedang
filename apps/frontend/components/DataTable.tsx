@@ -30,6 +30,7 @@ interface DataTableProps<TData, TValue> {
     [key: string]: string
   }
   linked?: boolean
+  emptyMessage?: string
 }
 
 /**
@@ -73,7 +74,8 @@ export default function DataTable<TData extends Item, TValue>({
   columns,
   data,
   headerStyle,
-  linked = false
+  linked = false,
+  emptyMessage = 'No results.'
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -145,7 +147,7 @@ export default function DataTable<TData extends Item, TValue>({
         ) : (
           <TableRow>
             <TableCell colSpan={columns.length} className="h-24 text-center">
-              No results.
+              {emptyMessage}
             </TableCell>
           </TableRow>
         )}

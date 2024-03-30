@@ -27,6 +27,7 @@ export default async function FinishedContestTable() {
           status: 'w-1/4 md:w-1/6'
         }}
         linked
+        emptyMessage="No finished contests found."
       />
     </>
   )
