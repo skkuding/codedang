@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [frontend, frontend-client, backend, backend-admin]
+        target: [frontend, backend, backend-admin]
 
     steps:
       - uses: actions/checkout@v4
@@ -21,31 +21,30 @@ jobs:
 
       - name: Generate Prisma Client
         if: ${{ matrix.target == 'backend' || matrix.target == 'backend-admin' }}
-        run: pnpm --filter backend exec prisma generate
+        run: pnpm --filter="@codedang/backend" exec prisma generate
 
       - name: Setup Next.js build cache
-        if: ${{ matrix.target == 'frontend-client' }}
+        if: ${{ matrix.target == 'frontend' }}
         uses: actions/cache@v4
         with:
-          path: frontend-client/.next/cache
+          path: apps/frontend/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
 
       - name: Load Next.js environment
-        if: ${{ matrix.target == 'frontend-client' }}
+        if: ${{ matrix.target == 'frontend' }}
         run: |
-          echo "NEXT_PUBLIC_BASEURL=https://dev.codedang.com/api" >> frontend-client/.env
-          echo "NEXT_URL=https://dev.codedang.com" >> frontend-client/.env
+          echo "NEXT_PUBLIC_BASEURL=https://dev-aws.codedang.com/api" >> apps/frontend/.env
+          echo "NEXT_PUBLIC_GQL_BASEURL=https://dev-aws.codedang.com/graphql" >> apps/frontend/.env
+          echo "NEXT_URL=https://dev.codedang.com" >> apps/frontend/.env
 
-      # If target is backend-admin, run `pnpm --filter backend build admin`
-      # For other targets, run `pnpm --filter <target> build`
       - name: Build (backend admin)
         if: ${{ matrix.target == 'backend-admin' }}
-        run: pnpm --filter backend build admin
+        run: pnpm --filter="@codedang/backend" build admin
       - name: Build
         if: ${{ matrix.target != 'backend-admin' }}
-        run: pnpm --filter ${{ matrix.target }} build
+        run: pnpm --filter="apps/${{ matrix.target }}" build
 
   typecheck:
     name: Typecheck
@@ -56,15 +55,12 @@ jobs:
       - uses: ./.github/actions/setup-pnpm
 
       - name: Generate Prisma Client
-        run: pnpm --filter backend exec prisma generate
+        run: pnpm --filter="@codedang/backend" exec prisma generate
 
-      - name: Check types (backend)
-        run: pnpm --filter backend exec tsc --noEmit
+      - name: Check types (backend) # For spec files
+        run: pnpm --filter="@codedang/backend" exec tsc --noEmit
 
-      - name: Check types (frontend)
-        run: pnpm --filter frontend exec vue-tsc --noEmit
-
-      # Typecheck is not performed for frontend-client intentionally.
+      # Typecheck is not performed for frontend intentionally.
       # Check: https://github.com/vercel/next.js/issues/53959
       # Unlike backend, we don't have spec file to check types.
       # So typechecking performed in the build step is enough.
@@ -80,8 +76,8 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: iris/go.mod
-          cache-dependency-path: iris/go.sum
+          go-version-file: apps/iris/go.mod
+          cache-dependency-path: apps/iris/go.sum
 
       - name: Lint pull request title
         if: ${{ github.event_name == 'pull_request' }}
@@ -97,7 +93,7 @@ jobs:
             echo "  go fmt ./..."
             exit 1
           fi
-        working-directory: ./iris
+        working-directory: ./apps/iris
 
       - name: Lint (Node.js)
         run: pnpm lint
@@ -126,7 +122,7 @@ jobs:
 
       - name: Check Prisma Migration
         run: |
-          pnpm --filter backend exec prisma migrate diff \
+          pnpm --filter="@codedang/backend" exec prisma migrate diff \
             --from-migrations ./prisma/migrations \
             --to-schema-datamodel ./prisma/schema.prisma \
             --shadow-database-url ${{ env.DATABASE_URL }} \
@@ -135,10 +131,7 @@ jobs:
           "Please run 'pnpm prisma migrate dev' locally and commit the changes." && exit 1)
 
       - name: Migrate Prisma
-        run: pnpm --filter backend exec prisma migrate reset --force
-
-      - name: Check types in Typescript
-        run: pnpm --filter backend exec tsc --noEmit
+        run: pnpm --filter="@codedang/backend" exec prisma migrate reset --force
 
       - name: Test
         run: pnpm -r test

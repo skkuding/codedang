@@ -1,0 +1,17 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/email-auth/send-email/password-reset
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "skkucodingplatform@gmail.com"
+  }
+}
