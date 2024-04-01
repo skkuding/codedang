@@ -2,7 +2,7 @@ import { InputType, Int, Field } from '@nestjs/graphql'
 
 @InputType()
 export class AnnouncementInput {
-  @Field({ nullable: true })
+  @Field(() => Int, { nullable: true })
   problemId?: number
 
   @Field(() => Int)
