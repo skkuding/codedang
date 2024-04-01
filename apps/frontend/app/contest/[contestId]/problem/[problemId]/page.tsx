@@ -1,5 +1,5 @@
 import { EditorDescription } from '@/components/EditorDescription'
-import { fetcher, fetcherWithAuth } from '@/lib/utils'
+import { fetcherWithAuth } from '@/lib/utils'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
 
 export default async function DescriptionPage({
@@ -7,14 +7,16 @@ export default async function DescriptionPage({
 }: {
   params: { problemId: number; contestId: number }
 }) {
-  const { problemId } = params
-  const problem: ProblemDetail = await fetcher(`problem/${problemId}`).json()
+  const { problemId, contestId } = params
+  const contestProblem: { problem: ProblemDetail } = await fetcherWithAuth(
+    `contest/${contestId}/problem/${problemId}`
+  ).json()
   const contestProblems: { problems: ContestProblem[] } = await fetcherWithAuth(
     `contest/${params.contestId}/problem`
   ).json()
   return (
     <EditorDescription
-      problem={problem}
+      problem={contestProblem.problem}
       contestProblems={contestProblems.problems}
     />
   )

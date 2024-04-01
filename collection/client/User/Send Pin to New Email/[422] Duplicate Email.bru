@@ -1,0 +1,17 @@
+meta {
+  name: [422] Duplicate Email
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/email-auth/send-email/register-new
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "skkucodingplatform@gmail.com"
+  }
+}

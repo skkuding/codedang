@@ -1,0 +1,34 @@
+meta {
+  name: [409] Duplicate Username
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/user/sign-up
+  body: json
+  auth: none
+}
+
+headers {
+  email-auth: {{email_token}}
+}
+
+body:json {
+  {
+    "username": "super",
+    "password": "it'smehi",
+    "email": "nicole2974@g.skku.edu",
+    "realName": "MyeongRyunLee"
+  }
+}
+
+script:pre-request {
+  const axios = require('axios')
+  const baseUrl = bru.getEnvVar('baseUrl')
+  const res = await axios.post(baseUrl + '/email-auth/verify-pin',{
+    "pin": "870155", // email 속의 pin
+    "email": "nicole2974@g.skku.edu" // email 주소
+  })
+  req.setHeader('email-auth', res.headers['email-auth'])
+}

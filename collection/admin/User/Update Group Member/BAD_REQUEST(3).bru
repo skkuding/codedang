@@ -1,0 +1,35 @@
+meta {
+  name: BAD_REQUEST(3)
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateGroupMember($userId: Int!, $groupId: Int!, $toGroupLeader: Boolean!) {
+    updateGroupMember(userId: $userId, groupId: $groupId, toGroupLeader: $toGroupLeader) {
+    	userId
+      groupId
+      isGroupLeader
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 4,
+    "userId": 1,
+    "toGroupLeader": false
+  }
+}
+
+assert {
+  res.body.errors[0].message: eq userId 1 is admin
+}

@@ -5,8 +5,7 @@ import {
   ParseBoolPipe
 } from '@nestjs/common'
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { ContestProblem } from '@generated'
-import { Contest } from '@generated'
+import { Contest, ContestProblem } from '@generated'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
@@ -38,7 +37,7 @@ export class ContestResolver {
     take: number,
     @Args(
       'groupId',
-      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
       GroupIDPipe
     )
     groupId: number,
@@ -70,7 +69,7 @@ export class ContestResolver {
     @Args('input') input: CreateContestInput,
     @Args(
       'groupId',
-      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
       GroupIDPipe
     )
     groupId: number,
@@ -116,8 +115,7 @@ export class ContestResolver {
   @Mutation(() => Contest)
   async deleteContest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('contestId', { type: () => Int })
-    contestId: number
+    @Args('contestId', { type: () => Int }) contestId: number
   ) {
     try {
       return await this.contestService.deleteContest(groupId, contestId)
@@ -139,8 +137,7 @@ export class ContestResolver {
   @Mutation(() => PublicizingRequest)
   async createPublicizingRequest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('contestId', { type: () => Int })
-    contestId: number
+    @Args('contestId', { type: () => Int }) contestId: number
   ) {
     try {
       return await this.contestService.createPublicizingRequest(
@@ -162,8 +159,7 @@ export class ContestResolver {
   @Mutation(() => PublicizingResponse)
   @UseRolesGuard()
   async handlePublicizingRequest(
-    @Args('contestId', { type: () => Int })
-    contestId: number,
+    @Args('contestId', { type: () => Int }) contestId: number,
     @Args('isAccepted', ParseBoolPipe) isAccepted: boolean
   ) {
     try {
@@ -183,8 +179,7 @@ export class ContestResolver {
   @Mutation(() => [ContestProblem])
   async importProblemsToContest(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
-    @Args('contestId', { type: () => Int })
-    contestId: number,
+    @Args('contestId', { type: () => Int }) contestId: number,
     @Args('problemIds', { type: () => [Int] }) problemIds: number[]
   ) {
     try {
