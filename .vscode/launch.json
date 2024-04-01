@@ -10,7 +10,7 @@
       "name": "Backend Client",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["run", "start:debug"],
-      "cwd": "${workspaceFolder}/backend",
+      "cwd": "${workspaceFolder}/apps/backend",
       "console": "integratedTerminal"
     },
     {
@@ -19,7 +19,7 @@
       "name": "Backend Admin",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["run", "start:debug", "admin"],
-      "cwd": "${workspaceFolder}/backend",
+      "cwd": "${workspaceFolder}/apps/backend",
       "console": "integratedTerminal"
     },
     {
@@ -28,22 +28,15 @@
       "name": "Backend Test 🧪",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["run", "test:debug"],
-      "cwd": "${workspaceFolder}/backend",
+      "cwd": "${workspaceFolder}/apps/backend",
       "console": "integratedTerminal"
-    },
-    {
-      "type": "chrome",
-      "request": "launch",
-      "name": "Frontend (Vue.js)",
-      "url": "http://localhost:5173",
-      "webRoot": "${workspaceFolder}/frontend/src"
     },
     {
       "type": "go",
       "request": "launch",
       "name": "Iris 🐶",
-      "cwd": "${workspaceFolder}/iris",
-      "program": "${workspaceFolder}/iris/main.go",
+      "cwd": "${workspaceFolder}/apps/iris",
+      "program": "${workspaceFolder}/apps/iris/main.go",
       "console": "integratedTerminal",
       "asRoot": true,
       "envFile": "${workspaceFolder}/.env"

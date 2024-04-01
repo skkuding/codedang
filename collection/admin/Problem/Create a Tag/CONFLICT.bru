@@ -1,0 +1,33 @@
+meta {
+  name: CONFLICT
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateTag($tagName: String!) {
+    createTag(tagName: $tagName) {
+      id
+      name
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "tagName": "If Statement"
+  }
+}
+
+assert {
+  res.body.errors[0].extensions.code: eq CONFLICT
+  res.body.errors[0].message: eq tag is already in use
+}
