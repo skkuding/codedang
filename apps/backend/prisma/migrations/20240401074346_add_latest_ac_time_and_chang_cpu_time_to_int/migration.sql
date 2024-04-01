@@ -5,4 +5,7 @@
 
 */
 -- AlterTable
+ALTER TABLE "contest_record" ADD COLUMN     "latest_accepted_time" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
 ALTER TABLE "submission_result" ALTER COLUMN "cpu_time" SET DATA TYPE INTEGER;
