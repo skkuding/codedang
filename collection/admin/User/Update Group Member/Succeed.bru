@@ -1,0 +1,63 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateGroupMember($userId: Int!, $groupId: Int!, $toGroupLeader: Boolean!) {
+    updateGroupMember(userId: $userId, groupId: $groupId, toGroupLeader: $toGroupLeader) {
+    	userId
+      groupId
+      isGroupLeader
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2,
+    "userId": 5,
+    "toGroupLeader": false
+  }
+}
+
+assert {
+  res.body.data.updateGroupMember.userId: isNumber
+  res.body.data.updateGroupMember.groupId: isNumber
+  res.body.data.updateGroupMember.isGroupLeader: eq false
+}
+
+docs {
+  ## Update Group Member
+  Group Member의 Role을 upgrade하거나 downgrade합니다.
+  
+  ### Args / Query / Params / Body
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |userId|Int|Role을 수정하고 싶은 유저의 id|
+  |groupId|Int|해당 유저가 가입된 group의 id|
+  |toGroupLeader|Boolean|downgrade, upgrade할지의 여부|
+  
+  ### Error Case
+  
+  #### Already Member
+  downgrade를 하려고 하였지만, 이미 Member인 경우
+  
+  #### Already Manager
+  upgrade를 하려고 하였지만, 이미 Manager인 경우
+  
+  #### Member is Admin
+  downgrade를 하려고 하였지만, Role이 Admin 이상이어서 downgrade가 되지 않는 경우
+  
+  #### Group Leader < 2
+  해당 group 내의 Group Leader 수가 1명뿐이라 downgrade를 할 수 없는 경우
+}

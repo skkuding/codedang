@@ -1,0 +1,55 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetJoinRequests($groupId: Int!) {
+    getJoinRequests(groupId: $groupId) {
+    	id
+      username
+      email
+      lastLogin
+      createTime
+      updateTime
+      role
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 3
+  }
+}
+
+assert {
+  res.body.data.getJoinRequests[0].id: isString 
+  res.body.data.getJoinRequests[0].username: isString
+  res.body.data.getJoinRequests[0].email: isString
+  res.body.data.getJoinRequests[0].lastLogin: isDefined
+  res.body.data.getJoinRequests[0].createTime: isDefined
+  res.body.data.getJoinRequests[0].updateTime: isDefined
+  res.body.data.getJoinRequests[0].role: isDefined
+}
+
+docs {
+  ## Get Join Requests
+  해당 group에 들어온 Join Request들을 반환합니다.
+  
+  ### Args / Query / Params / Body
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |groupId|Int|Join Request들을 조회하고 싶은 groupId|
+  
+  ### Error Case
+  
+  해당 없음 (존재하지 않은 groupId일 때에는 []를 반환합니다.)
+}
