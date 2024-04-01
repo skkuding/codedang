@@ -1,0 +1,35 @@
+meta {
+  name: BAD_REQUEST(2)
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateGroupMember($userId: Int!, $groupId: Int!, $toGroupLeader: Boolean!) {
+    updateGroupMember(userId: $userId, groupId: $groupId, toGroupLeader: $toGroupLeader) {
+    	userId
+      groupId
+      isGroupLeader
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 2,
+    "userId": 3,
+    "toGroupLeader": true
+  }
+}
+
+assert {
+  res.body.errors[0].message: eq userId 3 is already manager
+}
