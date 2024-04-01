@@ -34,32 +34,32 @@ script:pre-request {
 
 docs {
   ## Get Submission by ID
-  
+
   문제의 제출 내역 정보를 가져옵니다.
-  
+
   ### Path
-  
+
   | 이름 | 타입 | 설명 |
-  |-----|-----|-----| 
-  |:id|Integer|Submission ID| 
-  
+  |-----|-----|-----|
+  |:id|Integer|Submission ID|
+
   ### Query
-  
+
   > 필수 query는 * 표시하였습니다.
-  
+
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |problemId *|Integer|문제 ID|
   |contestId|Integer|문제가 속한 대회 ID|
   |groupId|Integer|문제가 속한 Group ID (default: 1)|
-  
+
   ### Error Case
-  
+
   #### 404: Nonexistent Submission
-  
+
   존재하지 않는 `submissionId`를 요청합니다.
-  
+
   #### 404: Nonexistent Problem
-  
+
   존재하지 않는 `problemId`를 요청합니다.
 }

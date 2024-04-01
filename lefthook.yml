@@ -2,10 +2,10 @@ pre-commit:
   parallel: true
   commands:
     eslint:
-      glob: '*.{js,ts,vue,jsx,tsx}'
+      glob: '*.{js,ts,jsx,tsx}'
       run: pnpm eslint {staged_files}
     prettier:
-      glob: '*.{js,ts,vue,css,yaml,yml,jsx,tsx}'
+      glob: '*.{js,ts,css,yaml,yml,jsx,tsx}'
       run: pnpm prettier --check {staged_files}
     gofmt:
       glob: '*.go'
