@@ -1,0 +1,20 @@
+meta {
+  name: [401] Unauthorized
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/user/sign-up
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "test",
+    "password": "it'smehi",
+    "email": "skkucp@gmail.com",
+    "realName": "MyeongRyunLee"
+  }
+}

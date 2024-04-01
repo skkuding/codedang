@@ -1,0 +1,32 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/email-auth/verify-pin
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "pin": "798435",
+    // email 속 pin 숫자
+    "email": "skkucp@gmail.com" 
+    // 해당 pin을 받은 email
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+docs {
+  # Verify Pin and Issue Jwt
+  
+  - 해당 `email`으로 전송된 pin을 인증하고 Jwt를 발급합니다.
+    - `email`에 실제로 온 pin을 **직접** 입력하셔야 합니다.
+  - 올바르지 않은 pin일시에는 `401`을 반환합니다.
+}

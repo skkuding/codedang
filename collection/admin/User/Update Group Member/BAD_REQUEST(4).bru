@@ -1,0 +1,35 @@
+meta {
+  name: BAD_REQUEST(4)
+  type: graphql
+  seq: 5
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation UpdateGroupMember($userId: Int!, $groupId: Int!, $toGroupLeader: Boolean!) {
+    updateGroupMember(userId: $userId, groupId: $groupId, toGroupLeader: $toGroupLeader) {
+    	userId
+      groupId
+      isGroupLeader
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 3,
+    "userId": 3,
+    "toGroupLeader": false
+  }
+}
+
+assert {
+  res.body.errors[0].message: eq One or more managers are required
+}
