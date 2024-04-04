@@ -18,7 +18,7 @@ const getInstanceId = (): Promise<string> => {
     }
 
     const req = http.request(options, (res) => {
-      let data: string = ''
+      let data = ''
       res.on('data', (chunk: Buffer) => {
         data += chunk.toString()
       })
@@ -56,7 +56,7 @@ const startMetricsExporter = async () => {
 
     // Creates MeterProvider and installs the exporter as a MetricReader
     const meterProvider = new MeterProvider({
-      resource: resource
+      resource
     })
     meterProvider.addMetricReader(
       new PeriodicExportingMetricReader({
