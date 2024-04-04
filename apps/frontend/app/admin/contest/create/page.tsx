@@ -102,6 +102,7 @@ interface ContestProblem {
 export default function Page() {
   const [problems, setProblems] = useState<ContestProblem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isCreating, setIsCreating] = useState<boolean>(false)
 
   const router = useRouter()
 
@@ -154,6 +155,7 @@ export default function Page() {
       return
     }
 
+    setIsCreating(true)
     const { data } = await createContest({
       variables: {
         groupId: 1,
@@ -163,6 +165,7 @@ export default function Page() {
     const contestId = Number(data?.createContest.id)
     if (error) {
       toast.error('Failed to create contest')
+      setIsCreating(false)
       return
     }
     await importProblemsToContest({
@@ -395,7 +398,7 @@ export default function Page() {
           <Button
             type="submit"
             className="flex h-[36px] w-[100px] items-center gap-2 px-0 "
-            disabled={isLoading}
+            disabled={isLoading || isCreating}
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
             <div className="mb-[2px] text-base">Create</div>
