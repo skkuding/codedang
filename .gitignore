@@ -130,3 +130,7 @@ terraform.rc
 
 # Go workspace file
 go.work
+
+# nyc files
+.nyc_output
+coverage

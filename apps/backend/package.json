@@ -13,6 +13,7 @@
     "test": "pnpm run pretest && cross-env DATABASE_URL=$TEST_DATABASE_URL mocha \"*/**/*.spec.ts\"",
     "test:watch": "pnpm run pretest && cross-env DATABASE_URL=$TEST_DATABASE_URL mocha --watch \"*/**/*.spec.ts\"",
     "test:debug": "pnpm run pretest && cross-env DATABASE_URL=$TEST_DATABASE_URL mocha --inspect \"*/**/*.spec.ts\"",
+    "test:coverage": "nyc npm run test",
     "studio": "npx prisma studio",
     "studio:test": "cross-env DATABASE_URL=$TEST_DATABASE_URL npx prisma studio"
   },
