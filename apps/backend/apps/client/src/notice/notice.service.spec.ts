@@ -9,6 +9,7 @@ const noticeId = 2
 const userId = 1
 const groupId = 1
 const username = 'manager'
+const totalNotice = 24
 
 const notice = {
   id: noticeId,
@@ -124,7 +125,7 @@ describe('NoticeService', () => {
       })
       expect(getNoticesByGroupId).to.deep.equal({
         data: userNotices,
-        total: 24
+        total: totalNotice
       })
     })
   })
@@ -172,7 +173,7 @@ describe('NoticeService', () => {
 
       expect(getFixedNoticesByGroupId).to.deep.equal({
         data: userNotices,
-        total: 24
+        total: totalNotice
       })
     })
   })
