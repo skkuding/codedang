@@ -130,3 +130,6 @@ terraform.rc
 
 # Go workspace file
 go.work
+
+# PEM-encoded certificate data
+*.pem
