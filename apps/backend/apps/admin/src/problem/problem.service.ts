@@ -11,6 +11,7 @@ import type { ContestProblem, Tag, WorkbookProblem } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
 import { Prisma } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
 import { Workbook } from 'exceljs'
 import type { ReadStream } from 'fs'
@@ -253,7 +254,7 @@ export class ProblemService {
     )
   }
 
-  async uploadImage(input: UploadFileInput) {
+  async uploadImage(input: UploadFileInput, userId: number) {
     const { mimetype, createReadStream } = await input.file
     const newFilename = randomUUID()
 
@@ -269,7 +270,16 @@ export class ProblemService {
         createReadStream(),
         mimetype
       )
+      await this.prisma.image.create({
+        data: {
+          filename: newFilename,
+          createdById: userId
+        }
+      })
     } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        await this.storageService.deleteImage(newFilename) // 이미지가 S3에 업로드되었지만, DB에 이미지 정보 등록을 실패한 경우 rollback
+      }
       throw new UnprocessableFileDataException(
         'Error occurred during image upload.',
         newFilename
@@ -284,6 +294,18 @@ export class ProblemService {
         '/' +
         newFilename
     }
+  }
+
+  async deleteImage(filename: string, userId: number) {
+    const image = await this.prisma.image.delete({
+      where: {
+        filename,
+        createdById: userId
+      }
+    })
+    await this.storageService.deleteImage(filename)
+
+    return image
   }
 
   async getFileSize(readStream: ReadStream): Promise<number> {
@@ -482,14 +504,36 @@ export class ProblemService {
   }
 
   async deleteProblem(id: number, groupId: number) {
-    await this.getProblem(id, groupId)
+    const problem = await this.getProblem(id, groupId)
 
     const result = await this.prisma.problem.delete({
       where: { id }
     })
     await this.storageService.deleteObject(`${id}.json`)
 
+    const uuidImageFileNames = this.extractUUIDs(problem.description)
+    if (uuidImageFileNames) {
+      for (const filename of uuidImageFileNames) {
+        await this.storageService.deleteImage(filename)
+        await this.prisma.image.delete({
+          where: {
+            filename
+          }
+        })
+      }
+    }
+
     return result
+  }
+
+  extractUUIDs(input: string) {
+    const uuidRegex =
+      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi
+    const matches = input.match(uuidRegex)
+    if (!matches) {
+      return []
+    }
+    return matches
   }
 
   async getWorkbookProblems(

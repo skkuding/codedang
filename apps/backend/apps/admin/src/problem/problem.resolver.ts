@@ -19,12 +19,14 @@ import {
 } from '@nestjs/graphql'
 import {
   ContestProblem,
+  Image,
   Problem,
   ProblemTag,
   ProblemTestcase,
   WorkbookProblem
 } from '@generated'
 import { Prisma } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { AuthenticatedRequest } from '@libs/auth'
 import { OPEN_SPACE_ID } from '@libs/constants'
 import {
@@ -33,7 +35,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
-import { Image } from './model/image.output'
+import { ImageSource } from './model/image.output'
 import {
   CreateProblemInput,
   UploadFileInput,
@@ -106,13 +108,37 @@ export class ProblemResolver {
     }
   }
 
-  @Mutation(() => Image)
-  async uploadImage(@Args('input') input: UploadFileInput) {
+  @Mutation(() => ImageSource)
+  async uploadImage(
+    @Args('input') input: UploadFileInput,
+    @Context('req') req: AuthenticatedRequest
+  ) {
     try {
-      return await this.problemService.uploadImage(input)
+      return await this.problemService.uploadImage(input, req.user.id)
     } catch (error) {
       if (error instanceof UnprocessableDataException) {
         throw error.convert2HTTPException()
+      }
+      this.logger.error(error)
+      throw new InternalServerErrorException()
+    }
+  }
+
+  @Mutation(() => Image)
+  async deleteImage(
+    @Args('filename') filename: string,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    try {
+      return await this.problemService.deleteImage(filename, req.user.id)
+    } catch (error) {
+      if (error instanceof UnprocessableDataException) {
+        throw error.convert2HTTPException()
+      } else if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code == 'P2025'
+      ) {
+        throw new NotFoundException(error.message)
       }
       this.logger.error(error)
       throw new InternalServerErrorException()
