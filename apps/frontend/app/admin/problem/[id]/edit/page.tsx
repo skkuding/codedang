@@ -109,7 +109,7 @@ const UPDATE_PROBLEM = gql(`
 
 const schema = z.object({
   id: z.number(),
-  title: z.string().min(1).max(25),
+  title: z.string().min(1).max(200),
   isVisible: z.boolean(),
   difficulty: z.enum(levels),
   languages: z.array(z.enum(languages)),
