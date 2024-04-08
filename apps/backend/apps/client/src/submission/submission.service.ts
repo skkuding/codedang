@@ -454,6 +454,7 @@ export class SubmissionService implements OnModuleInit {
       const userId = submission.userId
       let toBeAddedScore = 0,
         toBeAddedPenalty = 0,
+        toBeAddedAcceptedProblemNum = 0,
         isFinishTimeToBeUpdated = false
       const contestRecord = await this.prisma.contestRecord.findUniqueOrThrow({
         where: {
@@ -465,6 +466,7 @@ export class SubmissionService implements OnModuleInit {
         },
         select: {
           id: true,
+          acceptedProblemNum: true,
           score: true,
           totalPenalty: true,
           finishTime: true
@@ -484,6 +486,7 @@ export class SubmissionService implements OnModuleInit {
           })
         ).score
         isFinishTimeToBeUpdated = true
+        toBeAddedAcceptedProblemNum = 1
       } else {
         toBeAddedPenalty = 1
       }
@@ -493,6 +496,8 @@ export class SubmissionService implements OnModuleInit {
           id: contestRecord.id
         },
         data: {
+          acceptedProblemNum:
+            contestRecord.acceptedProblemNum + toBeAddedAcceptedProblemNum,
           score: contestRecord.score + toBeAddedScore,
           totalPenalty: contestRecord.totalPenalty + toBeAddedPenalty,
           finishTime: isFinishTimeToBeUpdated
