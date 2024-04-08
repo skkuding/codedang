@@ -1,0 +1,24 @@
+import { gql } from '@generated'
+
+export const GET_CONTESTS = gql(`
+  query getContests (
+    $groupId: Int!
+    $cursor: Int
+    $take: Int!
+  ) {
+    getContests (
+      groupId: $groupId
+      cursor: $cursor
+      take: $take
+    ) {
+      id
+      title
+      startTime
+      endTime
+      description
+      participants
+      isRankVisible
+      isVisible
+    }
+  }
+`)

@@ -1,39 +1,16 @@
 'use client'
 
-import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
+import GET_CONTESTS from '@/graphql/queries.graphql'
 import { useQuery } from '@apollo/client'
 import { PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { columns } from './_components/Columns'
 
 export const dynamic = 'force-dynamic'
-
-const GET_CONTESTS = gql(`
-  query getContests (
-    $groupId: Int!
-    $cursor: Int
-    $take: Int!
-  ) {
-    getContests (
-      groupId: $groupId
-      cursor: $cursor
-      take: $take
-    ) {
-      id
-      title
-      startTime
-      endTime
-      description
-      participants
-      isRankVisible
-      isVisible
-    }
-  }
-`)
 
 export default function Page() {
   const { data, loading } = useQuery(GET_CONTESTS, {
