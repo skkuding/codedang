@@ -219,6 +219,14 @@ export class SubmissionService implements OnModuleInit {
     }
 
     if (idOptions && idOptions.contestId) {
+      // 해당 contestId에 해당하는 Contest에서 해당 problemId에 해당하는 문제로 AC를 받은 submission이 있는지 확인
+      const hasPassed = await this.hasPassedProblem(userId, {
+        problemId: problem.id,
+        contestId: idOptions.contestId
+      })
+      if (hasPassed) {
+        throw new ConflictFoundException('You have already passed this problem')
+      }
       submission = await this.prisma.submission.create({
         data: { ...submissionData, contestId: idOptions.contestId }
       })
@@ -435,6 +443,61 @@ export class SubmissionService implements OnModuleInit {
           submissionCount,
           acceptedCount,
           acceptedRate: acceptedCount / submissionCount
+        }
+      })
+    }
+
+    // contestId가 있는 경우에는 contestRecord 업데이트
+    // participants들의 score와 penalty를 업데이트
+    if (submission.userId && submission.contestId) {
+      const contestId = submission.contestId
+      const userId = submission.userId
+      let toBeAddedScore = 0,
+        toBeAddedPenalty = 0,
+        isFinishTimeToBeUpdated = false
+      const contestRecord = await this.prisma.contestRecord.findUniqueOrThrow({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_userId: {
+            contestId,
+            userId
+          }
+        },
+        select: {
+          id: true,
+          score: true,
+          totalPenalty: true,
+          finishTime: true
+        }
+      })
+
+      if (resultStatus === ResultStatus.Accepted) {
+        toBeAddedScore = (
+          await this.prisma.contestProblem.findFirstOrThrow({
+            where: {
+              contestId,
+              problemId: submission.problemId
+            },
+            select: {
+              score: true
+            }
+          })
+        ).score
+        isFinishTimeToBeUpdated = true
+      } else {
+        toBeAddedPenalty = 1
+      }
+
+      await this.prisma.contestRecord.update({
+        where: {
+          id: contestRecord.id
+        },
+        data: {
+          score: contestRecord.score + toBeAddedScore,
+          totalPenalty: contestRecord.totalPenalty + toBeAddedPenalty,
+          finishTime: isFinishTimeToBeUpdated
+            ? submission.updateTime
+            : contestRecord.finishTime
         }
       })
     }
