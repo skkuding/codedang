@@ -70,7 +70,7 @@ const CREATE_PROBLEM = gql(`
 `)
 
 const schema = z.object({
-  title: z.string().min(1).max(25),
+  title: z.string().min(1).max(200),
   isVisible: z.boolean(),
   difficulty: z.enum(levels),
   languages: z.array(z.enum(languages)),
