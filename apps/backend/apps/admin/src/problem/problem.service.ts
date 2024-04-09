@@ -513,14 +513,19 @@ export class ProblemService {
 
     const uuidImageFileNames = this.extractUUIDs(problem.description)
     if (uuidImageFileNames) {
-      for (const filename of uuidImageFileNames) {
-        await this.storageService.deleteImage(filename)
-        await this.prisma.image.delete({
-          where: {
-            filename
+      await this.prisma.image.deleteMany({
+        where: {
+          filename: {
+            in: uuidImageFileNames
           }
-        })
-      }
+        }
+      })
+
+      const deleteFromS3Results = uuidImageFileNames.map((filename: string) => {
+        return this.storageService.deleteImage(filename)
+      })
+
+      await Promise.all(deleteFromS3Results)
     }
 
     return result
