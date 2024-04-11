@@ -133,3 +133,7 @@ go.work
 
 # PEM-encoded certificate data
 *.pem
+
+# nyc files
+.nyc_output
+coverage
