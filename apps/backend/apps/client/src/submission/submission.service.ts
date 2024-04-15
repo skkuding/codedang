@@ -628,6 +628,7 @@ export class SubmissionService implements OnModuleInit {
     problemId,
     contestId,
     userId,
+    isAdmin,
     groupId = OPEN_SPACE_ID,
     cursor = null,
     take = 10
@@ -635,6 +636,7 @@ export class SubmissionService implements OnModuleInit {
     problemId: number
     contestId: number
     userId: number
+    isAdmin: boolean
     groupId?: number
     cursor?: number | null
     take?: number
@@ -666,7 +668,7 @@ export class SubmissionService implements OnModuleInit {
       where: {
         problemId,
         contestId,
-        userId
+        userId: isAdmin ? undefined : userId // Admin 계정인 경우 자신이 생성한 submission이 아니더라도 조회가 가능
       },
       select: {
         id: true,
