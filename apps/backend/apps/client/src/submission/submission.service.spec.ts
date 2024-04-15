@@ -422,7 +422,8 @@ describe('SubmissionService', () => {
         await service.getContestSubmissions({
           problemId: problems[0].id,
           contestId: 1,
-          userId: submissions[0].userId
+          userId: submissions[0].userId,
+          isAdmin: false
         })
       )
     })
@@ -436,7 +437,8 @@ describe('SubmissionService', () => {
         service.getContestSubmissions({
           problemId: problems[0].id,
           contestId: 1,
-          userId: submissions[0].userId
+          userId: submissions[0].userId,
+          isAdmin: false
         })
       ).to.be.rejectedWith(NotFoundException)
     })
@@ -451,7 +453,8 @@ describe('SubmissionService', () => {
         service.getContestSubmissions({
           problemId: problems[0].id,
           contestId: 1,
-          userId: submissions[0].userId
+          userId: submissions[0].userId,
+          isAdmin: false
         })
       ).to.be.rejectedWith(NotFoundException)
     })
