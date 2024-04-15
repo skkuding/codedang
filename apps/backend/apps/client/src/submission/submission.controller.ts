@@ -172,7 +172,6 @@ export class ContestSubmissionController {
         problemId,
         contestId,
         userId: req.user.id,
-        isAdmin: req.user.isAdmin(),
         groupId
       })
     } catch (error) {
