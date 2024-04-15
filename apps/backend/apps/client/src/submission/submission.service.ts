@@ -628,7 +628,6 @@ export class SubmissionService implements OnModuleInit {
     problemId,
     contestId,
     userId,
-    isAdmin,
     groupId = OPEN_SPACE_ID,
     cursor = null,
     take = 10
@@ -636,22 +635,31 @@ export class SubmissionService implements OnModuleInit {
     problemId: number
     contestId: number
     userId: number
-    isAdmin: boolean
     groupId?: number
     cursor?: number | null
     take?: number
   }): Promise<Partial<Submission>[]> {
     const paginator = this.prisma.getPaginator(cursor)
 
-    await this.prisma.contestRecord.findUniqueOrThrow({
+    const isAdmin = await this.prisma.user.findFirst({
       where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        contestId_userId: {
-          contestId,
-          userId
-        }
+        id: userId,
+        role: 'Admin'
       }
     })
+
+    if (!isAdmin) {
+      await this.prisma.contestRecord.findUniqueOrThrow({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_userId: {
+            contestId,
+            userId
+          }
+        }
+      })
+    }
+
     await this.prisma.contestProblem.findFirstOrThrow({
       where: {
         problem: {
