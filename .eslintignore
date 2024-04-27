@@ -4,3 +4,5 @@ node_modules
 @generated
 collection
 .next
+.eslintrc.js
+*.config.js
