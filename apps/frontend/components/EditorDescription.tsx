@@ -203,24 +203,27 @@ export function EditorDescription({
       </div>
 
       <Accordion type="multiple">
-        <AccordionItem value="item-1" className="border-b-slate-700">
-          <AccordionTrigger className="hover:no-underline">
-            <div className="flex items-center gap-2 text-base">
-              <Tag size={16} />
-              Tags
-            </div>
-          </AccordionTrigger>
-          <AccordionContent>
-            {problem.tags.map((tag) => (
-              <Badge
-                key={tag.id}
-                className="bg-slate-300 text-slate-800 hover:bg-slate-300"
-              >
-                {tag.name}
-              </Badge>
-            ))}
-          </AccordionContent>
-        </AccordionItem>
+        {problem.tags && (
+          <AccordionItem value="item-1" className="border-b-slate-700">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-2 text-base">
+                <Tag size={16} />
+                Tags
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              {problem.tags.map((tag) => (
+                <Badge
+                  key={tag.id}
+                  className="bg-slate-300 text-slate-800 hover:bg-slate-300"
+                >
+                  {tag.name}
+                </Badge>
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
         {problem.hint && (
           <AccordionItem value="item-2" className="border-b-slate-700">
             <AccordionTrigger className="hover:no-underline">

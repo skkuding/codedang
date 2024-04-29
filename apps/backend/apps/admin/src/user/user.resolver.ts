@@ -22,7 +22,7 @@ export class UserResolver {
   async getGroupMembers(
     @Args(
       'groupId',
-      { type: () => Int, defaultValue: OPEN_SPACE_ID },
+      { defaultValue: OPEN_SPACE_ID, type: () => Int },
       GroupIDPipe
     )
     groupId: number,

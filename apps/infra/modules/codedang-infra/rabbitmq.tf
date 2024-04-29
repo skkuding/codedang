@@ -57,7 +57,7 @@ resource "rabbitmq_exchange" "exchange" {
 
   settings {
     type    = "direct"
-    durable = false
+    durable = true
   }
 }
 

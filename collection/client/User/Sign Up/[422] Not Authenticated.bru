@@ -1,0 +1,30 @@
+meta {
+  name: [422] Not Authenticated
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/user/sign-up
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "test",
+    "password": "it'smehi",
+    "email": "nonono@gmail.com",
+    "realName": "MyeongRyunLee"
+  }
+}
+
+script:pre-request {
+  const axios = require('axios')
+  const baseUrl = bru.getEnvVar('baseUrl')
+  const res = await axios.post(baseUrl + '/email-auth/verify-pin',{
+    "pin": "244266", // email 속의 pin
+    "email": "nicole2974@g.skku.edu" // email 주소
+  })
+  req.setHeader('email-auth', res.headers['email-auth'])
+}

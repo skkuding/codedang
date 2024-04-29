@@ -70,7 +70,7 @@ const CREATE_PROBLEM = gql(`
 `)
 
 const schema = z.object({
-  title: z.string().min(1).max(25),
+  title: z.string().min(1).max(200),
   isVisible: z.boolean(),
   difficulty: z.enum(levels),
   languages: z.array(z.enum(languages)),
@@ -129,6 +129,7 @@ export default function Page() {
     tagsData?.getTags.map(({ id, name }) => ({ id: Number(id), name })) ?? []
   const [showHint, setShowHint] = useState(false)
   const [showSource, setShowSource] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
 
   const router = useRouter()
 
@@ -159,6 +160,7 @@ export default function Page() {
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
   const onSubmit = async (input: CreateProblemInput) => {
+    setIsCreating(true)
     await createProblem({
       variables: {
         groupId: 1,
@@ -167,6 +169,7 @@ export default function Page() {
     })
     if (error) {
       toast.error('Failed to create problem')
+      setIsCreating(false)
       return
     }
     toast.success('Problem created successfully')
@@ -574,6 +577,7 @@ export default function Page() {
           <Button
             type="submit"
             className="flex h-[36px] w-[100px] items-center gap-2 px-0 "
+            disabled={isCreating}
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />
             <div className="mb-[2px] text-base">Create</div>

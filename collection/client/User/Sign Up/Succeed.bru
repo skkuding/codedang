@@ -1,0 +1,46 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/user/sign-up
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "test",
+    "password": "it'smehi",
+    "email": "nicole2974@g.skku.edu",
+    "realName": "MyeongRyunLee"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  const axios = require('axios')
+  const baseUrl = bru.getEnvVar('baseUrl')
+  const res = await axios.post(baseUrl + '/email-auth/verify-pin',{
+    "pin": "414775", // email 속의 pin
+    "email": "nicole2974@g.skku.edu" // email 주소
+  })
+  req.setHeader('email-auth', res.headers['email-auth'])
+}
+
+docs {
+  # Sign up
+  
+  - 새로운 사용자 계정을 생성합니다.
+  - API를 테스트하고 싶으시다면, Send Pin for New Email을 통해 이메일로 받은 Pin과 해당 이메일을 Pre-script 속 pin과 email에 입력해주세요.
+  - password가 올바르지 않은 형식이라면 `422`를 반환합니다.
+  - 인증이 올바르지 않는다면 `401`을 반환합니다.
+  - username이 올바르지 않다면 `400`을 반환합니다.
+  - email_auth 속 email과 회원가입하려는 email 주소가 다른 경우에는 `422`를 반환합니다.
+  - userrname이 중복이라면 `409`를 반환합니다.
+}
