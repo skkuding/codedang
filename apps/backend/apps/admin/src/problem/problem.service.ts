@@ -20,6 +20,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
+import { maxDate } from './model/problem.constants'
 import type {
   CreateProblemInput,
   UploadFileInput,
@@ -49,7 +50,15 @@ export class ProblemService {
     userId: number,
     groupId: number
   ) {
-    const { languages, template, tagIds, samples, testcases, ...data } = input
+    const {
+      languages,
+      template,
+      tagIds,
+      samples,
+      testcases,
+      isVisible,
+      ...data
+    } = input
     if (!languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
@@ -66,6 +75,7 @@ export class ProblemService {
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
+        exposeTime: isVisible ? new Date() : maxDate,
         samples: {
           create: samples
         },
@@ -324,7 +334,16 @@ export class ProblemService {
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
-    const { id, languages, template, tags, testcases, samples, ...data } = input
+    const {
+      id,
+      languages,
+      template,
+      tags,
+      testcases,
+      samples,
+      isVisible,
+      ...data
+    } = input
     const problem = await this.getProblem(id, groupId)
 
     if (languages && !languages.length) {
@@ -359,6 +378,7 @@ export class ProblemService {
             }
           })
         },
+        ...(isVisible && { exposeTime: isVisible ? new Date() : maxDate }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
         problemTag

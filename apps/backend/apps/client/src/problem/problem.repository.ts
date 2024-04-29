@@ -111,8 +111,7 @@ export class ProblemRepository {
         },
         exposeTime: {
           lte: new Date()
-        },
-        isVisible: true
+        }
       },
       select: {
         ...this.problemsSelectOption,
@@ -135,8 +134,7 @@ export class ProblemRepository {
         },
         exposeTime: {
           lte: new Date()
-        },
-        isVisible: true
+        }
       }
     })
   }
@@ -167,7 +165,9 @@ export class ProblemRepository {
       where: {
         id: problemId,
         groupId,
-        isVisible: true
+        exposeTime: {
+          lte: new Date()
+        }
       },
       select: this.problemSelectOption
     })
@@ -207,7 +207,9 @@ export class ProblemRepository {
       where: {
         contestId,
         problem: {
-          isVisible: true
+          exposeTime: {
+            lte: new Date()
+          }
         }
       },
       select: {
@@ -224,7 +226,9 @@ export class ProblemRepository {
       where: {
         contestId,
         problem: {
-          isVisible: true
+          exposeTime: {
+            lte: new Date()
+          }
         }
       }
     })
@@ -239,7 +243,9 @@ export class ProblemRepository {
           problemId
         },
         problem: {
-          isVisible: true
+          exposeTime: {
+            lte: new Date()
+          }
         }
       },
       select: {
@@ -270,7 +276,9 @@ export class ProblemRepository {
       where: {
         workbookId,
         problem: {
-          isVisible: true
+          exposeTime: {
+            lte: new Date()
+          }
         }
       },
       select: {
@@ -287,7 +295,9 @@ export class ProblemRepository {
       where: {
         workbookId,
         problem: {
-          isVisible: true
+          exposeTime: {
+            lte: new Date()
+          }
         }
       }
     })
@@ -302,7 +312,9 @@ export class ProblemRepository {
           problemId
         },
         problem: {
-          isVisible: true
+          exposeTime: {
+            lte: new Date()
+          }
         }
       },
       select: {

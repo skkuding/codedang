@@ -25,9 +25,9 @@ const fixturePath = join(__dirname, '__fixtures__')
 
 let superAdminUser: User
 let managerUser: User
-const users: User[] = []
 let publicGroup: Group
 let privateGroup: Group
+const users: User[] = []
 const problems: Problem[] = []
 const problemTestcases: ProblemTestcase[] = []
 const contests: Contest[] = []
@@ -895,7 +895,7 @@ const createProblems = async () => {
             }
           ]
         },
-        isVisible: false
+        exposeTime: new Date('2999-12-31T00:00:00.000Z')
       }
     })
   )
@@ -928,7 +928,7 @@ const createProblems = async () => {
             }
           ]
         },
-        isVisible: false
+        exposeTime: new Date('2999-12-31T00:00:00.000Z')
       }
     })
   )

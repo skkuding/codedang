@@ -167,7 +167,6 @@ model Problem {
   ///             "locked": boolean
   ///           }[]
   /// }
-  isVisible       Boolean    @default(true) @map("is_visible")
   template        Json[]
   languages       Language[]
   timeLimit       Int        @map("time_limit") // unit: MilliSeconds
