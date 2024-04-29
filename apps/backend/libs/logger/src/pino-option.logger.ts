@@ -62,6 +62,7 @@ export const pinoLoggerModuleOption: Params = {
         req.body = req.raw?.body
         return req
       }
-    }
+    },
+    redact: ['req.body.password']
   }
 }
