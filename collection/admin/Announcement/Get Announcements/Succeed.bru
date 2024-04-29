@@ -11,7 +11,7 @@ post {
 }
 
 body:graphql {
-  query {
+  query($contestId: Int!, $problemId: Int) {
     getAnnouncements(
       contestId: $contestId
       problemId: $problemId

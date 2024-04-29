@@ -11,7 +11,7 @@ post {
 }
 
 body:graphql {
-  query {
+  query($id: Int!) {
     getAnnouncementById(
       id: $id
     ) {
