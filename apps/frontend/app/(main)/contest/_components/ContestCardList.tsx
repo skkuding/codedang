@@ -69,6 +69,8 @@ export default async function Contest({
       contest.status.toLowerCase() === type.toLowerCase()
   )
 
+  data.sort((a, b) => +new Date(a.startTime) - +new Date(b.startTime))
+
   const contestChunks = []
   for (let i = 0; i < data.length; i += 3)
     contestChunks.push(data.slice(i, i + 3))
