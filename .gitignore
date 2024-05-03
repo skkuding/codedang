@@ -61,6 +61,7 @@ dist/
 .env.test.local
 .env.production.local
 .env.local
+.env.stage.local
 
 # Ignore all local history of files
 .history
@@ -137,3 +138,5 @@ go.work
 # nyc files
 .nyc_output
 coverage
+
+*.pkg

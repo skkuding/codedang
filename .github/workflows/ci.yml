@@ -35,9 +35,9 @@ jobs:
       - name: Load Next.js environment
         if: ${{ matrix.target == 'frontend' }}
         run: |
-          echo "NEXT_PUBLIC_BASEURL=https://dev-aws.codedang.com/api" >> apps/frontend/.env
-          echo "NEXT_PUBLIC_GQL_BASEURL=https://dev-aws.codedang.com/graphql" >> apps/frontend/.env
-          echo "NEXT_URL=https://dev.codedang.com" >> apps/frontend/.env
+          echo "NEXT_PUBLIC_BASEURL=https://stage.codedang.com/api" >> apps/frontend/.env
+          echo "NEXT_PUBLIC_GQL_BASEURL=https://stage.codedang.com/graphql" >> apps/frontend/.env
+          echo "NEXT_URL=https://stage.codedang.com" >> apps/frontend/.env
 
       - name: Build (backend admin)
         if: ${{ matrix.target == 'backend-admin' }}

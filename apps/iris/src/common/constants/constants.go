@@ -3,8 +3,8 @@ package constants
 type Env string
 
 const (
-	Production  Env = "production"
-	Development Env = "development"
+	Production Env = "production"
+	Stage      Env = "stage"
 )
 
 const (
@@ -39,8 +39,9 @@ const (
 )
 
 const (
-	LOG_PATH_DEV  = "./logs/server.log"
-	LOG_PATH_PROD = "./logs/server.log" // "/app/logs/server.log"
+	// LOG_PATH_DEV  = "./logs/server.log"
+	LOG_PATH_STAGE = "./logs/server.log"
+	LOG_PATH_PROD  = "./logs/server.log" // "/app/logs/server.log"
 )
 
 const MAX_MQ_CHANNEL = 10
