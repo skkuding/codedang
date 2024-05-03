@@ -16,6 +16,7 @@ import { LogOut, User, UserRoundCog } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
+import { useState } from 'react'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import AuthModal from './AuthModal'
 
@@ -37,6 +38,7 @@ export default function HeaderAuthPanel({
     (state) => state
   )
   const { setModalPage } = useSignUpModalStore((state) => state)
+  const [signupActivate, setSignupActivate] = useState(false)
   return (
     <div className="ml-2 flex items-center gap-2">
       {session ? (
@@ -87,18 +89,36 @@ export default function HeaderAuthPanel({
           </DialogTrigger>
           <DialogTrigger asChild>
             <Button
+              disabled={signupActivate}
+              onClick={() => {
+                setSignupActivate(true)
+                showSignUp()
+                setModalPage(0)
+                setTimeout(() => {
+                  setSignupActivate(false)
+                }, 400)
+              }}
+              variant={variants[group]}
+              className={cn(
+                'hidden px-3 py-1 text-base md:block',
+                group === 'editor' ? 'font-medium' : 'font-bold'
+              )}
+            >
+              Sign Up
+            </Button>
+            {/* <Button
               onClick={() => {
                 showSignUp()
                 setModalPage(0)
               }}
               variant={variants[group]}
               className={cn(
-                'hidden px-3 py-1 text-base md:block ',
+                'hidden px-3 py-1 text-base md:block',
                 group === 'editor' ? 'font-medium' : 'font-bold'
               )}
             >
               Sign Up
-            </Button>
+            </Button> */}
           </DialogTrigger>
           <DialogContent
             onOpenAutoFocus={(e) => {
