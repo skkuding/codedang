@@ -36,7 +36,7 @@ do
   else
       echo "$name=$value" >> .env
   fi
-done < .env.development
+done < .env.stage
 
 # If dotenv schema is not updated, remove the file
 if [ -f apps/backend/.env ] && grep -q DATABASE_URL apps/backend/.env
