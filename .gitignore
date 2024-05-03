@@ -62,7 +62,6 @@ dist/
 .env.production.local
 .env.local
 .env.stage.local
-.env.stage
 
 # Ignore all local history of files
 .history
