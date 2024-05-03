@@ -13,7 +13,7 @@ BASEDIR=$(dirname $(dirname $(realpath $0)))
 
 cd $BASEDIR
 
-# Write .env file from .env.development
+# Write .env file from .env.stage
 if [ -f .env ]
 then
   rm .env

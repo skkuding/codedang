@@ -1,4 +1,4 @@
-name: Reset Seed (Development)
+name: Reset Seed (Stage)
 
 on: workflow_dispatch
 

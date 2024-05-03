@@ -5,7 +5,6 @@
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
-    "start:stage": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/backend/main",
     "start:testdb": "cross-env DATABASE_URL=$TEST_DATABASE_URL nest start",
