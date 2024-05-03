@@ -38,7 +38,7 @@ export default function HeaderAuthPanel({
     (state) => state
   )
   const { setModalPage } = useSignUpModalStore((state) => state)
-  const [signupActivate, setSignupActivate] = useState(false)
+  const [signupDisabled, setSignupDisabled] = useState(false)
   return (
     <div className="ml-2 flex items-center gap-2">
       {session ? (
@@ -89,13 +89,13 @@ export default function HeaderAuthPanel({
           </DialogTrigger>
           <DialogTrigger asChild>
             <Button
-              disabled={signupActivate}
+              disabled={signupDisabled}
               onClick={() => {
-                setSignupActivate(true)
+                setSignupDisabled(true)
                 showSignUp()
                 setModalPage(0)
                 setTimeout(() => {
-                  setSignupActivate(false)
+                  setSignupDisabled(false)
                 }, 400)
               }}
               variant={variants[group]}
