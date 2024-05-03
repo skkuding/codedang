@@ -106,19 +106,6 @@ export default function HeaderAuthPanel({
             >
               Sign Up
             </Button>
-            {/* <Button
-              onClick={() => {
-                showSignUp()
-                setModalPage(0)
-              }}
-              variant={variants[group]}
-              className={cn(
-                'hidden px-3 py-1 text-base md:block',
-                group === 'editor' ? 'font-medium' : 'font-bold'
-              )}
-            >
-              Sign Up
-            </Button> */}
           </DialogTrigger>
           <DialogContent
             onOpenAutoFocus={(e) => {
