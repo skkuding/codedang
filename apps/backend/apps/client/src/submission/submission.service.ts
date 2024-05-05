@@ -641,15 +641,25 @@ export class SubmissionService implements OnModuleInit {
   }): Promise<Partial<Submission>[]> {
     const paginator = this.prisma.getPaginator(cursor)
 
-    await this.prisma.contestRecord.findUniqueOrThrow({
+    const isAdmin = await this.prisma.user.findFirst({
       where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        contestId_userId: {
-          contestId,
-          userId
-        }
+        id: userId,
+        role: 'Admin'
       }
     })
+
+    if (!isAdmin) {
+      await this.prisma.contestRecord.findUniqueOrThrow({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_userId: {
+            contestId,
+            userId
+          }
+        }
+      })
+    }
+
     await this.prisma.contestProblem.findFirstOrThrow({
       where: {
         problem: {
@@ -666,7 +676,7 @@ export class SubmissionService implements OnModuleInit {
       where: {
         problemId,
         contestId,
-        userId
+        userId: isAdmin ? undefined : userId // Admin 계정인 경우 자신이 생성한 submission이 아니더라도 조회가 가능
       },
       select: {
         id: true,

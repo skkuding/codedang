@@ -61,6 +61,7 @@ dist/
 .env.test.local
 .env.production.local
 .env.local
+.env.stage.local
 
 # Ignore all local history of files
 .history
@@ -133,3 +134,11 @@ go.work
 
 # PEM-encoded certificate data
 *.pem
+
+# nyc files
+.nyc_output
+coverage
+
+*.pkg
+
+

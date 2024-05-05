@@ -1,4 +1,4 @@
-name: Reset Seed (Development)
+name: Reset Seed (Stage)
 
 on: workflow_dispatch
 
@@ -7,8 +7,8 @@ jobs:
     name: Reset Seed
     runs-on: self-hosted
     steps:
-      - name: Load DATABASE_URL From Existing .env.development
-        run: export DATABASE_URL=$(grep "^DATABASE_URL=" .env.development | cut -d '=' -f2)
+      - name: Load DATABASE_URL From Existing .env.stage
+        run: export DATABASE_URL=$(grep "^DATABASE_URL=" .env.stage | cut -d '=' -f2)
 
       - name: Run Reset Seed Command
         run: docker exec backend-client npx prisma migrate reset -f

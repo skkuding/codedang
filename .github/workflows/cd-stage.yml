@@ -1,4 +1,4 @@
-name: CD - Development
+name: CD - Stage
 
 on:
   push:
@@ -76,10 +76,10 @@ jobs:
           tags: ghcr.io/${{ github.repository_owner }}/codedang-iris:latest
 
   run-server:
-    name: Run development server
+    name: Run stage server
     runs-on: self-hosted
     needs: [build-client-api, build-admin-api, build-iris]
-    environment: development
+    environment: stage
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -87,7 +87,7 @@ jobs:
           sparse-checkout: |
             docker-compose.yml
             scripts/deploy.sh
-            .env.development
+            .env.stage
             apps/infra/stage/Caddyfile
             grafana-logs/promtail/promtail-config.yml
 
@@ -143,8 +143,8 @@ jobs:
 
       - name: Run Bruno Collection (Client)
         working-directory: ./collection/client
-        run: bru run --env development
+        run: bru run --env stage
 
       - name: Run Bruno Collection (Admin)
         working-directory: ./collection/admin
-        run: bru run --env development
+        run: bru run --env stage

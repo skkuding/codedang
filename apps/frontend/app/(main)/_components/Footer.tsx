@@ -3,7 +3,7 @@
 import { IoIosLink } from 'react-icons/io'
 import { RiGithubFill } from 'react-icons/ri'
 import { RiKakaoTalkFill } from 'react-icons/ri'
-import { TbMailFilled } from 'react-icons/tb'
+import { TbMail } from 'react-icons/tb'
 import { toast } from 'sonner'
 
 export default function Footer() {
@@ -33,7 +33,7 @@ export default function Footer() {
               size="27"
             />
           </a>
-          <TbMailFilled
+          <TbMail
             onClick={copyToClipboard}
             className="cursor-pointer hover:text-gray-500"
             size="27"
