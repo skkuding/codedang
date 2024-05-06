@@ -80,6 +80,12 @@ export class UserService {
   }
 
   async sendPinForRegisterNewEmail({ email }: UserEmailDto): Promise<string> {
+    // TODO: load test를 위함, 테스트 후 삭제 예정
+    if (email === this.config.get('EMAIL_FOR_LOAD_TEST')) {
+      this.logger.debug('load test - sendPinForRegisterNewEmail')
+      return this.createPinAndSendEmail(email)
+    }
+
     const duplicatedUser = await this.getUserCredentialByEmail(email)
     if (duplicatedUser) {
       this.logger.debug('email duplicated')
@@ -108,6 +114,12 @@ export class UserService {
   }
 
   async createPinAndSendEmail(email: string): Promise<string> {
+    // TODO: load test를 위함, 테스트 후 삭제 예정
+    if (email === this.config.get('EMAIL_FOR_LOAD_TEST')) {
+      this.logger.debug('load test - createPinAndSendEmail')
+      return 'You entered an email for testing'
+    }
+
     const pin = this.createPinRandomly(6)
 
     await this.emailService.sendEmailAuthenticationPin(email, pin)
@@ -206,6 +218,15 @@ export class UserService {
     pin,
     email
   }: EmailAuthenticationPinDto): Promise<string> {
+    // TODO: load test를 위함, 테스트 후 삭제 예정
+    if (pin === this.config.get('PIN_FOR_LOAD_TEST')) {
+      this.logger.debug('load test - verifyPinAndIssueJwt')
+      const payload: EmailAuthJwtPayload = { email }
+      const token = await this.createJwt(payload)
+
+      return token
+    }
+
     await this.verifyPin(pin, email)
 
     const payload: EmailAuthJwtPayload = { email }
@@ -562,6 +583,12 @@ export class UserService {
   }
 
   async checkDuplicatedUsername(usernameDto: UsernameDto) {
+    // TODO: load test를 위함, 테스트 후 삭제 예정
+    if (usernameDto.username === this.config.get('USERNAME_FOR_LOAD_TEST')) {
+      this.logger.debug('load test - checkDuplicatedUsername')
+      return
+    }
+
     const duplicatedUser = await this.prisma.user.findUnique({
       where: {
         username: usernameDto.username
