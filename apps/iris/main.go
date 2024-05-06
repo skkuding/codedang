@@ -23,13 +23,13 @@ import (
 type Env string
 
 const (
-	Production  Env = "production"
-	Development Env = "development"
+	Production Env = "production"
+	Stage      Env = "stage"
 )
 
 func main() {
 	// profile()
-	env := Env(utils.Getenv("APP_ENV", "development"))
+	env := Env(utils.Getenv("APP_ENV", "stage"))
 	logProvider := logger.NewLogger(logger.Console, env == Production)
 
 	ctx := context.Background()
@@ -46,7 +46,7 @@ func main() {
 			logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT_URL")
 		}
 	} else {
-		logProvider.Log(logger.INFO, "Running in development mode")
+		logProvider.Log(logger.INFO, "Running in stage mode")
 	}
 
 	bucketName := os.Getenv("TESTCASE_BUCKET_NAME")

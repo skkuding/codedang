@@ -7,7 +7,7 @@ WORKDIR /build
 RUN go build
 
 ### PRODUCTION ###
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ENV APP_ENV=production
 COPY --from=builder /build/iris .

@@ -4,7 +4,7 @@ module.exports = {
     excludes: ['**/__generated__/**'],
     service: {
       name: 'codedang-graphql-app',
-      url: 'https://dev.codedang.com/graphql'
+      url: 'https://stage.codedang.com/graphql'
     }
   }
 }
