@@ -6,7 +6,7 @@ import type { User, UserProfile } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
-import { randomInt } from 'crypto'
+import { randomInt, randomUUID } from 'crypto'
 import type { Request } from 'express'
 import { generate } from 'generate-password'
 import { ExtractJwt } from 'passport-jwt'
@@ -277,7 +277,35 @@ export class UserService {
     return jwt
   }
 
+  /** TODO: load test를 위함, 테스트 후 삭제 예정 */
+  async signUpForLoadTest(signUpDto: SignUpDto) {
+    const newSignUpDto: SignUpDto = {
+      ...signUpDto,
+      username: signUpDto.username + randomUUID(),
+      email: signUpDto.email + randomUUID()
+    }
+
+    const user: User = await this.createUser(newSignUpDto)
+    const CreateUserProfileData: CreateUserProfileData = {
+      userId: user.id,
+      realName: signUpDto.realName
+    }
+    await this.createUserProfile(CreateUserProfileData)
+    await this.registerUserToPublicGroup(user.id)
+
+    return user
+  }
+
   async signUp(req: Request, signUpDto: SignUpDto) {
+    // TODO: load test를 위함, 테스트 후 삭제 예정
+    if (
+      signUpDto.email === this.config.get('EMAIL_FOR_LOAD_TEST') ||
+      signUpDto.username === this.config.get('USERNAME_FOR_LOAD_TEST')
+    ) {
+      this.logger.debug('load test - sign up')
+      return await this.signUpForLoadTest(signUpDto)
+    }
+
     const { email } = await this.verifyJwtFromRequestHeader(req)
     if (email != signUpDto.email) {
       this.logger.debug(
