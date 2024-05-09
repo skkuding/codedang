@@ -28,17 +28,19 @@ const (
 )
 
 func main() {
+
 	// profile()
 	env := Env(utils.Getenv("APP_ENV", "stage"))
 	logProvider := logger.NewLogger(logger.Console, env == Production)
 
 	ctx := context.Background()
-	cache := cache.NewCache(ctx)
 	if env == "production" {
+		// load container Id from args
+		containerId := os.Args[1]
 		if utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "") != "" {
 			shutdown := observability.InitTracer(ctx)
 			defer shutdown()
-			observability.SetGlobalMeterProvider()
+			observability.SetGlobalMeterProvider(containerId)
 			// Aynchronous Instruments로써, go routine 불필요
 			observability.GetMemoryMeter(otel.Meter("memory-metrics"))
 			observability.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
@@ -48,6 +50,8 @@ func main() {
 	} else {
 		logProvider.Log(logger.INFO, "Running in stage mode")
 	}
+
+	cache := cache.NewCache(ctx)
 
 	bucketName := os.Getenv("TESTCASE_BUCKET_NAME")
 	if bucketName == "" {
