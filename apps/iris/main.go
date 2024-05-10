@@ -37,10 +37,6 @@ func main() {
 	if env == "production" {
 		// load container Id from args
 		containerId := os.Args[1]
-		if len(containerId) == 0 {
-			logProvider.Log(logger.ERROR, "Cannot find containerId Args")
-		}
-
 		if utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "") != "" {
 			shutdown := observability.InitTracer(ctx)
 			defer shutdown()

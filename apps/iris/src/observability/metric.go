@@ -49,13 +49,11 @@ func newMetricResource(containerId string) (*resource.Resource, error) {
 		resource.NewWithAttributes(semconv.SchemaURL,
 			semconv.ServiceName("iris-metric"),
 			semconv.ServiceVersion("0.1.0"),
-			semconv.ServiceInstanceID(concatString(getInstanceId(), containerId)),
+			semconv.ServiceInstanceID(getInstanceId()),
+			semconv.ContainerID(containerId),
 		))
 }
 
-func concatString(instanceId string, containerId string) string {
-	return instanceId + "-" + containerId
-}
 func newMeterProvider(res *resource.Resource, second time.Duration) (*sdkmetric.MeterProvider, error) {
 	// Use OLTP Exporter for Grafana Agent (Recommended)
 	entryPoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL")
