@@ -64,5 +64,6 @@ export const pinoLoggerModuleOption: Params = {
       }
     },
     redact: ['req.body.password']
+    // enabled: !!process.env.NOLOG
   }
 }
