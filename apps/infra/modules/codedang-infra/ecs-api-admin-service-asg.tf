@@ -1,5 +1,5 @@
 ###################### cloudwatch alert ######################
-resource "aws_cloudwatch_metric_alarm" "ecs_admin_api_scale-down" {
+resource "aws_cloudwatch_metric_alarm" "ecs_admin_api_scale_down" {
   alarm_name          = "Codedang-Admin-Api-Service-Scale-Down-Alert"
   comparison_operator = "LessThanThreshold"
   datapoints_to_alarm = 10
@@ -18,7 +18,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_admin_api_scale-down" {
   }
 }
 
-resource "aws_cloudwatch_metric_alarm" "ecs_admin_api_scale-up" {
+resource "aws_cloudwatch_metric_alarm" "ecs_admin_api_scale_up" {
   alarm_name          = "Codedang-Admin-Api-Service-Scale-Up-Alert"
   comparison_operator = "GreaterThanThreshold"
   datapoints_to_alarm = 1
