@@ -54,8 +54,9 @@ resource "aws_appautoscaling_policy" "service_asp_admin_api_scale_up" {
   service_namespace  = aws_appautoscaling_target.service_asg_admin_api.service_namespace
 
   step_scaling_policy_configuration {
-    adjustment_type = "ChangeInCapacity"
-    cooldown        = 60
+    adjustment_type         = "ChangeInCapacity"
+    cooldown                = 60
+    metric_aggregation_type = "Average"
 
     step_adjustment {
       metric_interval_lower_bound = 0
@@ -72,8 +73,9 @@ resource "aws_appautoscaling_policy" "service_asp_admin_api_scale_down" {
   service_namespace  = aws_appautoscaling_target.service_asg_admin_api.service_namespace
 
   step_scaling_policy_configuration {
-    adjustment_type = "ChangeInCapacity"
-    cooldown        = 30
+    adjustment_type         = "ChangeInCapacity"
+    cooldown                = 30
+    metric_aggregation_type = "Average"
 
     step_adjustment {
       metric_interval_upper_bound = -30
