@@ -89,7 +89,7 @@ jobs:
             scripts/deploy.sh
             .env.stage
             apps/infra/stage/Caddyfile
-            grafana-logs/promtail/promtail-config.yml
+            apps/grafana-logs/promtail/promtail-config.yml
 
       - name: Load dotenv from secret
         run: |
