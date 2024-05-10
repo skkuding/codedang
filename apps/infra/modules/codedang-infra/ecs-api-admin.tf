@@ -94,8 +94,7 @@ resource "aws_ecs_task_definition" "admin_api" {
   family                   = "Codedang-Admin-Api"
   requires_compatibilities = ["EC2"]
   network_mode             = "bridge"
-  cpu                      = 512
-  memory                   = 512
+  memory                   = 950
   container_definitions = templatefile("${path.module}/backend/admin-task-definition.tftpl", {
     task_name = "Codedang-Admin-Api",
     # aurora-posrgresql
