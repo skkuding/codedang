@@ -285,6 +285,31 @@ export class UserService {
       email: signUpDto.email + randomUUID()
     }
 
+    const duplicatedUser = await this.prisma.user.findUnique({
+      where: {
+        username: newSignUpDto.username
+      }
+    })
+    if (duplicatedUser) {
+      this.logger.debug('username duplicated')
+      throw new DuplicateFoundException('Username')
+    }
+
+    if (!this.isValidUsername(signUpDto.username)) {
+      this.logger.debug('signUp - fail (invalid username)')
+      throw new UnprocessableDataException('Bad username')
+    } else if (!this.isValidPassword(signUpDto.password)) {
+      this.logger.debug('signUp - fail (invalid password)')
+      throw new UnprocessableDataException('Bad password')
+    }
+    try {
+      await this.deletePinFromCache(
+        emailAuthenticationPinCacheKey(newSignUpDto.email)
+      )
+    } catch (e) {
+      // pass
+    }
+
     const user: User = await this.createUser(newSignUpDto)
     const CreateUserProfileData: CreateUserProfileData = {
       userId: user.id,
