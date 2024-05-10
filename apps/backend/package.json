@@ -23,7 +23,7 @@
     "@aws-sdk/client-ses": "^3.572.0",
     "@aws-sdk/credential-provider-node": "^3.572.0",
     "@golevelup/nestjs-rabbitmq": "^5.3.0",
-    "@nestjs-modules/mailer": "^1.11.2",
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/apollo": "^12.1.0",
     "@nestjs/axios": "^3.0.2",
     "@nestjs/cache-manager": "^2.2.2",
