@@ -28,7 +28,10 @@
         "hashicorp.terraform",
         "ms-azuretools.vscode-docker",
         "prisma.prisma"
-      ]
+      ],
+      "settings": {
+        "extensions.verifySignature": false
+      }
     }
   },
   "features": {
