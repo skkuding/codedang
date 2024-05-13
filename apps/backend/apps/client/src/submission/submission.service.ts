@@ -505,21 +505,22 @@ export class SubmissionService implements OnModuleInit {
       let maxCpuTime = BigInt(0)
       let maxMemoryUsage = 0
 
-      submission.submissionResult.forEach((res) => {
-        if (res.cpuTime > maxCpuTime) {
-          maxCpuTime = BigInt(res.cpuTime)
-        }
-        if (res.memoryUsage > maxMemoryUsage) {
-          maxMemoryUsage = res.memoryUsage
-        }
-      })
+      // 만약 제출 결과가 Accepted가 아닌 경우에는 maxCpuTime과 maxMemoryUsage를 0으로 설정
+      if (submission.result === ResultStatus.Accepted) {
+        submission.submissionResult.forEach((res) => {
+          if (res.cpuTime > maxCpuTime) {
+            maxCpuTime = BigInt(res.cpuTime)
+          }
+          if (res.memoryUsage > maxMemoryUsage) {
+            maxMemoryUsage = res.memoryUsage
+          }
+        })
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { submissionResult, ...rest } = submission
       return {
-        id: submission.id,
-        username: submission.user?.username,
-        createTime: submission.createTime,
-        language: submission.language,
-        result: submission.result,
-        codeSize: submission.codeSize,
+        ...rest,
         maxCpuTime: maxCpuTime.toString(),
         maxMemoryUsage
       }
@@ -544,6 +545,7 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
+    console.log(result)
     return result
   }
 

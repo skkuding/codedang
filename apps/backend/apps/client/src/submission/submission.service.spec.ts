@@ -320,7 +320,7 @@ describe('SubmissionService', () => {
       console.log(submissionReturns)
       expect(
         await service.getSubmissions({ problemId: problems[0].id })
-      ).to.be.deep.equal({ data: submissions, total: 1 })
+      ).to.be.deep.equal(submissionReturns)
     })
 
     it('should throw not found error', async () => {
