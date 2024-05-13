@@ -540,6 +540,10 @@ export class SubmissionService implements OnModuleInit {
           return Number(BigInt(a.maxCpuTime) - BigInt(b.maxCpuTime)) // Convert BigInt result to Number
         case SubmissionOrder.cpuTimeDESC:
           return Number(BigInt(b.maxCpuTime) - BigInt(a.maxCpuTime)) // Convert BigInt result to Number
+        case SubmissionOrder.dateASC:
+          return a.createTime.getTime() - b.createTime.getTime()
+        case SubmissionOrder.dateDESC:
+          return b.createTime.getTime() - a.createTime.getTime()
         default:
           return 0 // Default to no sorting if the order is not recognized
       }
