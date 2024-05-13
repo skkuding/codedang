@@ -28,6 +28,9 @@ import { judgerResponse, submissionResults } from './mock/submissionResult.mock'
 import { SubmissionService } from './submission.service'
 
 const db = {
+  user: {
+    findFirst: stub()
+  },
   submission: {
     findMany: stub(),
     findFirstOrThrow: stub(),
@@ -312,6 +315,8 @@ describe('SubmissionService', () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.submission.findMany.resolves(submissionsWithResult)
 
+      console.log(submissionsWithResult)
+      console.log(submissionReturns)
       expect(
         await service.getSubmissions({ problemId: problems[0].id })
       ).to.be.deep.equal(submissionReturns)
@@ -419,6 +424,7 @@ describe('SubmissionService', () => {
 
   describe('getContestSubmisssions', () => {
     it('should return submissions', async () => {
+      db.user.findFirst.resolves()
       db.contestRecord.findUniqueOrThrow.resolves()
       db.contestProblem.findFirstOrThrow.resolves()
       db.submission.findMany.resolves(submissions)
