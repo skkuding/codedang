@@ -18,7 +18,12 @@ import { PrismaService } from '@libs/prisma'
 import { Snippet } from './dto/create-submission.dto'
 import type { JudgerResponse } from './dto/judger-response.dto'
 import { problems } from './mock/problem.mock'
-import { submissions, submissionDto } from './mock/submission.mock'
+import {
+  submissions,
+  submissionDto,
+  submissionReturns,
+  submissionsWithResult
+} from './mock/submission.mock'
 import { judgerResponse, submissionResults } from './mock/submissionResult.mock'
 import { SubmissionService } from './submission.service'
 
@@ -305,11 +310,11 @@ describe('SubmissionService', () => {
   describe('getSubmissions', () => {
     it('should return submissions', async () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
-      db.submission.findMany.resolves(submissions)
+      db.submission.findMany.resolves(submissionsWithResult)
 
       expect(
         await service.getSubmissions({ problemId: problems[0].id })
-      ).to.be.deep.equal(submissions)
+      ).to.be.deep.equal(submissionReturns)
     })
 
     it('should throw not found error', async () => {

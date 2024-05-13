@@ -1,14 +1,17 @@
 import { Language, ResultStatus } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { type CreateSubmissionDto, Snippet } from '../dto/create-submission.dto'
+import { submissionResults } from './submissionResult.mock'
+
+const codes = [
+  { id: 1, text: 'code', locked: false },
+  { id: 2, text: 'unchanged', locked: true }
+]
 
 export const submissions = [
   {
     id: 1,
-    code: [
-      { id: 1, text: 'code', locked: false },
-      { id: 2, text: 'unchanged', locked: true }
-    ],
+    code: codes,
     result: ResultStatus.Judging,
     createTime: new Date('2023-01-01'),
     updateTime: new Date('2023-01-01'),
@@ -20,10 +23,7 @@ export const submissions = [
   },
   {
     id: 2,
-    code: [
-      { id: 1, text: 'code', locked: false },
-      { id: 2, text: 'changed', locked: true }
-    ],
+    code: codes,
     result: ResultStatus.Judging,
     createTime: new Date('2023-01-01'),
     updateTime: new Date('2023-01-01'),
@@ -32,7 +32,38 @@ export const submissions = [
     problemId: 1,
     contestId: null,
     workbookId: null
+  },
+  {
+    id: 3,
+    code: codes,
+    result: ResultStatus.Accepted,
+    createTime: new Date('2023-01-01'),
+    updateTime: new Date('2023-01-01'),
+    language: Language.C,
+    userId: 1,
+    problemId: 1,
+    contestId: null,
+    workbookId: null
   }
+]
+
+export const submissionsWithResult = [
+  {
+    ...submissions[0],
+    submissionResult: [
+      submissionResults[0],
+      submissionResults[2],
+      submissionResults[3]
+    ]
+  },
+  { ...submissions[1], submissionResult: [submissionResults[1]] },
+  { ...submissions[2], submissionResult: [submissionResults[0]] }
+]
+
+export const submissionReturns = [
+  { ...submissions[0], maxMemoryUsage: 0, maxCpuTime: '0' },
+  { ...submissions[1], maxMemoryUsage: 0, maxCpuTime: '0' },
+  { ...submissions[2], maxMemoryUsage: 12345, maxCpuTime: '12345' }
 ]
 
 export const submissionDto: CreateSubmissionDto = {
