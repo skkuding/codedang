@@ -94,8 +94,7 @@ resource "aws_ecs_task_definition" "client_api" {
   family                   = "Codedang-Client-Api"
   requires_compatibilities = ["EC2"]
   network_mode             = "bridge"
-  cpu                      = 512
-  memory                   = 512
+  memory                   = 950
   container_definitions = templatefile("${path.module}/backend/client-task-definition.tftpl", {
     task_name = "Codedang-Client-Api",
     # aurora-posrgresql
