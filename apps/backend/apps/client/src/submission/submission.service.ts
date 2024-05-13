@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { HttpService } from '@nestjs/axios'
 import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -38,6 +39,7 @@ import {
 } from './dto/create-submission.dto'
 import { JudgeRequest } from './dto/judge-request.class'
 import { JudgerResponse } from './dto/judger-response.dto'
+import { SubmissionOrder } from './enum/submission-order.enum'
 
 @Injectable()
 export class SubmissionService implements OnModuleInit {
@@ -445,11 +447,13 @@ export class SubmissionService implements OnModuleInit {
   async getSubmissions({
     problemId,
     groupId = OPEN_SPACE_ID,
+    order = SubmissionOrder.idASC,
     cursor = null,
     take = 10
   }: {
     problemId: number
     groupId?: number
+    order?: SubmissionOrder
     cursor?: number | null
     take?: number
   }): Promise<Partial<Submission>[]> {
@@ -481,12 +485,66 @@ export class SubmissionService implements OnModuleInit {
         createTime: true,
         language: true,
         result: true,
-        codeSize: true
+        codeSize: true,
+        submissionResult: {
+          where: {
+            result: ResultStatus.Accepted
+          },
+          select: {
+            result: true,
+            cpuTime: true,
+            memoryUsage: true
+          }
+        }
       },
       orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
 
-    return submissions
+    const result = submissions.map((submission) => {
+      // 최대 cpuTime과 memoryUsage를 구함
+      let maxCpuTime = BigInt(0)
+      let maxMemoryUsage = 0
+
+      submission.submissionResult.forEach((res) => {
+        if (res.cpuTime > maxCpuTime) {
+          maxCpuTime = BigInt(res.cpuTime)
+        }
+        if (res.memoryUsage > maxMemoryUsage) {
+          maxMemoryUsage = res.memoryUsage
+        }
+      })
+      return {
+        id: submission.id,
+        username: submission.user?.username,
+        createTime: submission.createTime,
+        language: submission.language,
+        result: submission.result,
+        codeSize: submission.codeSize,
+        maxCpuTime: maxCpuTime.toString(),
+        maxMemoryUsage
+      }
+    })
+
+    result.sort((a, b) => {
+      switch (order) {
+        case SubmissionOrder.idASC:
+          return a.id - b.id
+        case SubmissionOrder.idDESC:
+          return b.id - a.id
+        case SubmissionOrder.memoryASC:
+          return a.maxMemoryUsage - b.maxMemoryUsage
+        case SubmissionOrder.memoryDESC:
+          return b.maxMemoryUsage - a.maxMemoryUsage
+        case SubmissionOrder.cpuTimeASC:
+          return Number(BigInt(a.maxCpuTime) - BigInt(b.maxCpuTime)) // Convert BigInt result to Number
+        case SubmissionOrder.cpuTimeDESC:
+          return Number(BigInt(b.maxCpuTime) - BigInt(a.maxCpuTime)) // Convert BigInt result to Number
+        default:
+          return 0 // Default to no sorting if the order is not recognized
+      }
+    })
+
+    return result
   }
 
   @Span()
