@@ -25,6 +25,7 @@ import {
   RequiredIntPipe
 } from '@libs/pipe'
 import { CreateSubmissionDto } from './dto/create-submission.dto'
+import type { SubmissionOrder } from './enum/submission-order.enum'
 import { SubmissionService } from './submission.service'
 
 @Controller('submission')
@@ -94,6 +95,7 @@ export class SubmissionController {
     @Query('cursor', CursorValidationPipe) cursor: number | null,
     @Query('take', new DefaultValuePipe(10), new RequiredIntPipe('take'))
     take: number,
+    @Query('order') order: SubmissionOrder,
     @Query('problemId', new RequiredIntPipe('problemId')) problemId: number,
     @Query('groupId', GroupIDPipe) groupId: number
   ) {
@@ -101,6 +103,7 @@ export class SubmissionController {
       return await this.submissionService.getSubmissions({
         cursor,
         take,
+        order,
         problemId,
         groupId
       })
