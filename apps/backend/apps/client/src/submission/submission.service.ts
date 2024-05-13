@@ -500,9 +500,51 @@ export class SubmissionService implements OnModuleInit {
       orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
 
-    const total = await this.prisma.submission.count({ where: { problemId } })
+    const result = submissions.map((submission) => {
+      // 최대 cpuTime과 memoryUsage를 구함
+      let maxCpuTime = BigInt(0)
+      let maxMemoryUsage = 0
 
-    return { data: submissions, total }
+      submission.submissionResult.forEach((res) => {
+        if (res.cpuTime > maxCpuTime) {
+          maxCpuTime = BigInt(res.cpuTime)
+        }
+        if (res.memoryUsage > maxMemoryUsage) {
+          maxMemoryUsage = res.memoryUsage
+        }
+      })
+      return {
+        id: submission.id,
+        username: submission.user?.username,
+        createTime: submission.createTime,
+        language: submission.language,
+        result: submission.result,
+        codeSize: submission.codeSize,
+        maxCpuTime: maxCpuTime.toString(),
+        maxMemoryUsage
+      }
+    })
+
+    result.sort((a, b) => {
+      switch (order) {
+        case SubmissionOrder.idASC:
+          return a.id - b.id
+        case SubmissionOrder.idDESC:
+          return b.id - a.id
+        case SubmissionOrder.memoryASC:
+          return a.maxMemoryUsage - b.maxMemoryUsage
+        case SubmissionOrder.memoryDESC:
+          return b.maxMemoryUsage - a.maxMemoryUsage
+        case SubmissionOrder.cpuTimeASC:
+          return Number(BigInt(a.maxCpuTime) - BigInt(b.maxCpuTime)) // Convert BigInt result to Number
+        case SubmissionOrder.cpuTimeDESC:
+          return Number(BigInt(b.maxCpuTime) - BigInt(a.maxCpuTime)) // Convert BigInt result to Number
+        default:
+          return 0 // Default to no sorting if the order is not recognized
+      }
+    })
+
+    return result
   }
 
   @Span()

@@ -4,7 +4,5 @@ export enum SubmissionOrder {
   memoryASC = 'memory-asc',
   memoryDESC = 'memory-desc',
   cpuTimeASC = 'cpuTime-asc',
-  cpuTimeDESC = 'cpuTime-desc',
-  dateASC = 'date-asc',
-  dateDESC = 'date-desc'
+  cpuTimeDESC = 'cpuTime-desc'
 }
