@@ -545,7 +545,6 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    console.log(result)
     return result
   }
 

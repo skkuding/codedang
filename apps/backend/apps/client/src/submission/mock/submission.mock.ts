@@ -3,15 +3,13 @@ import { plainToInstance } from 'class-transformer'
 import { type CreateSubmissionDto, Snippet } from '../dto/create-submission.dto'
 import { submissionResults } from './submissionResult.mock'
 
-const codes = [
-  { id: 1, text: 'code', locked: false },
-  { id: 2, text: 'unchanged', locked: true }
-]
-
 export const submissions = [
   {
     id: 1,
-    code: codes,
+    code: [
+      { id: 1, text: 'code', locked: false },
+      { id: 2, text: 'unchanged', locked: true }
+    ],
     result: ResultStatus.Judging,
     createTime: new Date('2023-01-01'),
     updateTime: new Date('2023-01-01'),
@@ -23,7 +21,10 @@ export const submissions = [
   },
   {
     id: 2,
-    code: codes,
+    code: [
+      { id: 1, text: 'code', locked: false },
+      { id: 2, text: 'changed', locked: true }
+    ],
     result: ResultStatus.Judging,
     createTime: new Date('2023-01-01'),
     updateTime: new Date('2023-01-01'),
@@ -35,7 +36,10 @@ export const submissions = [
   },
   {
     id: 3,
-    code: codes,
+    code: [
+      { id: 1, text: 'code', locked: false },
+      { id: 2, text: 'unchanged', locked: true }
+    ],
     result: ResultStatus.Accepted,
     createTime: new Date('2023-01-01'),
     updateTime: new Date('2023-01-01'),
