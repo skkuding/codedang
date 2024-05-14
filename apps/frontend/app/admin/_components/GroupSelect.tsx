@@ -5,7 +5,8 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandItem
+  CommandItem,
+  CommandList
 } from '@/components/ui/command'
 import {
   Popover,
@@ -56,28 +57,30 @@ export default function GroupSelect() {
       </PopoverTrigger>
       <PopoverContent className="mx-2 w-48 p-0 font-semibold">
         <Command>
-          <CommandEmpty>No group found.</CommandEmpty>
-          <CommandGroup>
-            {groups.map((framework) => (
-              <CommandItem
-                key={framework.id}
-                value={framework.id}
-                className="text-slate-600"
-                onSelect={(currentValue) => {
-                  setValue(currentValue === value ? '' : currentValue)
-                  setOpen(false)
-                }}
-              >
-                <Check
-                  className={cn(
-                    'mr-2 h-4 w-4',
-                    value === framework.id ? 'opacity-100' : 'opacity-0'
-                  )}
-                />
-                {framework.label}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <CommandList>
+            <CommandEmpty>No group found.</CommandEmpty>
+            <CommandGroup>
+              {groups.map((framework) => (
+                <CommandItem
+                  key={framework.id}
+                  value={framework.id}
+                  className="text-slate-600"
+                  onSelect={(currentValue) => {
+                    setValue(currentValue === value ? '' : currentValue)
+                    setOpen(false)
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      'mr-2 h-4 w-4',
+                      value === framework.id ? 'opacity-100' : 'opacity-0'
+                    )}
+                  />
+                  {framework.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>

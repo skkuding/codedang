@@ -8,7 +8,7 @@ rm -rf $BASEDIR
 git clone https://github.com/skkuding/codedang $BASEDIR
 cd $BASEDIR
 
-source $BASEDIR/.env.development
+source $BASEDIR/.env.stage
 
 wget -qO- https://get.pnpm.io/install.sh | bash -
 source /root/.bashrc

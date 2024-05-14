@@ -11,6 +11,7 @@
     "test-database"
   ],
   "workspaceFolder": "/workspace",
+  "initializeCommand": "touch .env",
   "postCreateCommand": "scripts/setup.sh",
   "customizations": {
     "vscode": {
@@ -27,7 +28,10 @@
         "hashicorp.terraform",
         "ms-azuretools.vscode-docker",
         "prisma.prisma"
-      ]
+      ],
+      "settings": {
+        "extensions.verifySignature": false
+      }
     }
   },
   "features": {

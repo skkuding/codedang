@@ -57,6 +57,7 @@ export default function SignUpRegister() {
   const [inputFocus, setInputFocus] = useState<number>(0)
   const [disableUsername, setDisableUsername] = useState<boolean>(false)
   const [usernameVerify, setUsernameVerify] = useState<boolean>(false)
+  const [signUpDisable, setSignUpDisable] = useState<boolean>(false)
 
   const {
     handleSubmit,
@@ -75,6 +76,7 @@ export default function SignUpRegister() {
     username: string
   }) => {
     try {
+      setSignUpDisable(true)
       await fetch(baseUrl + '/user/sign-up', {
         method: 'POST',
         headers: {
@@ -94,6 +96,7 @@ export default function SignUpRegister() {
       })
     } catch {
       toast.error('Sign up failed!')
+      setSignUpDisable(false)
     }
   }
   const validation = async (field: string) => {
@@ -269,7 +272,7 @@ export default function SignUpRegister() {
         </div>
 
         <Button
-          disabled={!isValid || !disableUsername}
+          disabled={!isValid || !disableUsername || signUpDisable}
           className={cn(isValid && disableUsername ? '' : 'bg-gray-400')}
           type="submit"
         >

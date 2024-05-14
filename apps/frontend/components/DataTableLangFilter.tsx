@@ -5,7 +5,8 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandItem
+  CommandItem,
+  CommandList
 } from '@/components/ui/command'
 import {
   Popover,
@@ -73,28 +74,30 @@ export default function DataTableLangFilter<TData, TValue>({
 
       <PopoverContent className="w-[115px] p-0" align="start">
         <Command>
-          <CommandEmpty>No language found.</CommandEmpty>
-          <CommandGroup>
-            {options.map((option) => (
-              <CommandItem key={option} value={option} className="gap-x-2">
-                <Checkbox
-                  checked={selectedValues.has(option)}
-                  onCheckedChange={() => {
-                    if (selectedValues.has(option)) {
-                      selectedValues.delete(option)
-                    } else {
-                      selectedValues.add(option)
-                    }
-                    const filterValues = Array.from(selectedValues)
-                    column?.setFilterValue(
-                      filterValues.length ? filterValues : undefined
-                    )
-                  }}
-                />
-                {option}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <CommandList>
+            <CommandEmpty>No language found.</CommandEmpty>
+            <CommandGroup>
+              {options.map((option) => (
+                <CommandItem key={option} value={option} className="gap-x-2">
+                  <Checkbox
+                    checked={selectedValues.has(option)}
+                    onCheckedChange={() => {
+                      if (selectedValues.has(option)) {
+                        selectedValues.delete(option)
+                      } else {
+                        selectedValues.add(option)
+                      }
+                      const filterValues = Array.from(selectedValues)
+                      column?.setFilterValue(
+                        filterValues.length ? filterValues : undefined
+                      )
+                    }}
+                  />
+                  {option}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>

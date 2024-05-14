@@ -6,10 +6,9 @@ WORKDIR /build
 
 RUN go build
 
-### PRODUCTION ###
-FROM ubuntu:22.04
+### SERVER ###
+FROM ubuntu:24.04
 
-ENV APP_ENV=production
 COPY --from=builder /build/iris .
 
 # Install dependencies
@@ -29,4 +28,6 @@ RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" 
   fi
 RUN chmod 750 /app/sandbox/libjudger.so
 
-ENTRYPOINT ["./iris"]
+COPY ./entrypoint.sh .
+
+ENTRYPOINT ["./entrypoint.sh"]

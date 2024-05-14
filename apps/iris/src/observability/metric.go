@@ -2,6 +2,7 @@ package observability
 
 import (
 	"context"
+	"io"
 	"os"
 	"runtime"
 	"time"
@@ -13,13 +14,16 @@ import (
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
+
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/ec2/imds"
 )
 
 const defaultMetricDuration time.Duration = 3 * time.Second
 
-func SetGlobalMeterProvider() {
+func SetGlobalMeterProvider(containerId string) {
 	// Create resource.
-	res, err := newMetricResource()
+	res, err := newMetricResource(containerId)
 	if err != nil {
 		reportErr(err, "failed to create metric resource")
 	}
@@ -40,14 +44,18 @@ func SetGlobalMeterProvider() {
 	otel.SetMeterProvider(meterProvider)
 }
 
-func newMetricResource() (*resource.Resource, error) {
+func newMetricResource(containerId string) (*resource.Resource, error) {
 	return resource.Merge(resource.Default(),
 		resource.NewWithAttributes(semconv.SchemaURL,
 			semconv.ServiceName("iris-metric"),
 			semconv.ServiceVersion("0.1.0"),
+			semconv.ServiceInstanceID(concatString(getInstanceId(), containerId)),
 		))
 }
 
+func concatString(instanceId string, containerId string) string {
+	return instanceId + "-" + containerId
+}
 func newMeterProvider(res *resource.Resource, second time.Duration) (*sdkmetric.MeterProvider, error) {
 	// Use OLTP Exporter for Grafana Agent (Recommended)
 	entryPoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL")
@@ -104,4 +112,31 @@ func GetCPUMeter(meter metric.Meter, duration time.Duration) {
 	); err != nil {
 		reportErr(err, "failed to create CPU meter")
 	}
+}
+
+func getInstanceId() string {
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		reportErr(err, "failed to get Config Of AWS")
+		return "Instance-Id-Not-Found"
+	}
+
+	client := imds.NewFromConfig(cfg)
+	output, err := client.GetMetadata(context.TODO(), &imds.GetMetadataInput{
+		Path: "instance-id",
+	})
+
+	if err != nil {
+		reportErr(err, "failed to get Instance Id")
+		return "Instance-Id-Not-Found"
+	}
+
+	defer output.Content.Close()
+
+	bytes, err := io.ReadAll(output.Content)
+	if err != nil {
+		reportErr(err, "failed to Type Cast from Metadata Output to String")
+		return "Instance-Id-Not-Found"
+	}
+	return string(bytes)
 }
