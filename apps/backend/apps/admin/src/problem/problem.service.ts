@@ -297,15 +297,16 @@ export class ProblemService {
   }
 
   async deleteImage(filename: string, userId: number) {
-    const image = await this.prisma.image.delete({
+    const image = this.prisma.image.delete({
       where: {
         filename,
         createdById: userId
       }
     })
-    await this.storageService.deleteImage(filename)
+    const s3ImageDeleteResult = this.storageService.deleteImage(filename)
 
-    return image
+    const [resolvedImage] = await Promise.all([image, s3ImageDeleteResult])
+    return resolvedImage
   }
 
   async getFileSize(readStream: ReadStream): Promise<number> {
