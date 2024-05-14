@@ -56,12 +56,13 @@ export class NoticeService {
 
     const total = await this.prisma.notice.count({
       where: {
+        groupId,
+        isVisible: true,
+        isFixed: fixed,
         title: {
           contains: search,
           mode: 'insensitive'
-        },
-        isVisible: true,
-        isFixed: fixed
+        }
       }
     })
 
