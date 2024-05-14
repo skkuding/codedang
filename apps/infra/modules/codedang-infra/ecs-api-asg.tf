@@ -51,7 +51,7 @@ resource "aws_autoscaling_policy" "asp_api" {
   estimated_instance_warmup = 300
 
   target_tracking_configuration {
-    target_value = 90
+    target_value = 70
     predefined_metric_specification {
       predefined_metric_type = "ASGAverageCPUUtilization"
     }
