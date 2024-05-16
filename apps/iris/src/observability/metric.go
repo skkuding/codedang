@@ -21,9 +21,9 @@ import (
 
 const defaultMetricDuration time.Duration = 3 * time.Second
 
-func SetGlobalMeterProvider() {
+func SetGlobalMeterProvider(containerId string) {
 	// Create resource.
-	res, err := newMetricResource()
+	res, err := newMetricResource(containerId)
 	if err != nil {
 		reportErr(err, "failed to create metric resource")
 	}
@@ -44,15 +44,18 @@ func SetGlobalMeterProvider() {
 	otel.SetMeterProvider(meterProvider)
 }
 
-func newMetricResource() (*resource.Resource, error) {
+func newMetricResource(containerId string) (*resource.Resource, error) {
 	return resource.Merge(resource.Default(),
 		resource.NewWithAttributes(semconv.SchemaURL,
 			semconv.ServiceName("iris-metric"),
 			semconv.ServiceVersion("0.1.0"),
-			semconv.ServiceInstanceID(getInstanceId()),
+			semconv.ServiceInstanceID(concatString(getInstanceId(), containerId)),
 		))
 }
 
+func concatString(instanceId string, containerId string) string {
+	return instanceId + "-" + containerId
+}
 func newMeterProvider(res *resource.Resource, second time.Duration) (*sdkmetric.MeterProvider, error) {
 	// Use OLTP Exporter for Grafana Agent (Recommended)
 	entryPoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL")

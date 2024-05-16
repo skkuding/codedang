@@ -47,7 +47,7 @@ func NewLogger(mode Mode, isProduction bool) *logger {
 		}
 	} else {
 		cfg = zap.NewDevelopmentConfig()
-		setMode(&cfg, mode, constants.LOG_PATH_DEV).
+		setMode(&cfg, mode, constants.LOG_PATH_STAGE).
 			EncoderConfig = zap.NewDevelopmentEncoderConfig()
 		cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 		// cfg.Encoding = "json"

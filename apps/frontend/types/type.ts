@@ -4,34 +4,15 @@ export type ContestStatus =
   | 'finished'
   | 'registeredOngoing'
   | 'registeredUpcoming'
+
 export type Level = 'Level1' | 'Level2' | 'Level3' | 'Level4' | 'Level5'
+
 export type Language = 'C' | 'Cpp' | 'Java' | 'Python3'
+// Problem type definition
 
-export interface Contest {
+export interface Tag {
   id: number
-  title: string
-  startTime: Date
-  endTime: Date
-  group: { id: string; groupName: string }
-  status: ContestStatus
-  participants: number
-}
-
-export interface WorkbookProblem {
-  order: number
-  id: number
-  title: string
-  difficulty: Level
-  submissionCount: number
-  acceptedRate: number
-}
-
-export interface Notice {
-  id: number
-  title: string
-  createTime: string
-  isFixed: boolean
-  createdBy: string
+  name: string
 }
 
 export interface Problem {
@@ -40,34 +21,21 @@ export interface Problem {
   difficulty: Level
   submissionCount: number
   acceptedRate: number
-  tags?: {
-    id: number
-    name: string
-  }[]
+  tags?: Tag[]
   info?: string
 }
 
-interface ProblemScore {
-  problemId: number
-  score: number
-  time: string
-}
+/**
+ * WorkbookProblem and ContestProblem are duplicated interfaces but they are used in different contexts so they are kept separate.
+ * But you can merge them into a single interface if you have some reason to do so.
+ **/
 
-export interface Standings {
-  ranking: number
-  userId: number
-  problemScore: ProblemScore[]
-  solved: number
-  totalScore: number
-}
-
-export interface ContestProblem {
-  id: number
+export interface WorkbookProblem extends Omit<Problem, 'tags' | 'info'> {
   order: number
-  title: string
-  difficulty: Level
-  submissionCount: number
-  acceptedRate: number
+}
+
+export interface ContestProblem extends Omit<Problem, 'tags' | 'info'> {
+  order: number
 }
 
 export interface ProblemDetail {
@@ -85,11 +53,72 @@ export interface ProblemDetail {
   timeLimit: number
   memoryLimit: number
   source: string
-  tags: {
-    id: number
-    name: string
-  }[]
+  tags: Tag[]
   hint: string
+}
+
+// Contest type definition
+
+export interface Contest {
+  id: number
+  title: string
+  startTime: Date
+  endTime: Date
+  group: {
+    id: string
+    groupName: string
+  }
+  status: ContestStatus
+  participants: number
+}
+
+export interface ContestAnnouncement {
+  id: number
+  content: string
+  problemId: number
+  createTime: string
+  updateTime: string
+}
+
+export interface Standings {
+  ranking: number
+  userId: number
+  problemScore: {
+    problemId: number
+    score: number
+    time: string
+  }[]
+  solved: number
+  totalScore: number
+}
+
+// Notice type definition
+
+export interface Notice {
+  id: number
+  title: string
+  createTime: string
+  isFixed: boolean
+  createdBy: string
+}
+
+// Submission type definition
+
+export interface Submission {
+  id: number
+  userId: number
+  problemId: number
+  contestId: number | null
+  workbookId: number | null
+  code: {
+    id: number
+    text: string
+    locked: boolean
+  }[]
+  language: string
+  result: string
+  createTime: string
+  updateTime: string
 }
 
 export interface SubmissionItem {
@@ -101,19 +130,6 @@ export interface SubmissionItem {
   language: string
   result: string
   codeSize: number
-}
-
-export interface Submission {
-  id: number
-  userId: number
-  problemId: number
-  contestId: number | null
-  workbookId: number | null
-  code: { id: number; text: string; lockded: boolean }[]
-  language: string
-  result: string
-  createTime: string
-  updateTime: string
 }
 
 export interface SubmissionDetail {
@@ -133,38 +149,4 @@ export interface SubmissionDetail {
     createTime: Date
     updateTime: Date
   }[]
-}
-
-export interface ContestAnnouncement {
-  id: number
-  content: string
-  problemId: number
-  createTime: string
-  updateTime: string
-}
-
-export interface Tag {
-  id: number
-  name: string
-}
-
-export interface Sample {
-  input: string
-  output: string
-}
-
-export interface Testcase {
-  input: string
-  output: string
-}
-
-export interface Snippet {
-  id: number
-  text: string
-  locked: boolean
-}
-
-export interface Template {
-  language: Language
-  code: Snippet[]
 }

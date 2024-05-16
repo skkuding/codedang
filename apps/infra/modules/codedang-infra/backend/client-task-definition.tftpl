@@ -2,7 +2,7 @@
   {
     "name": "log_router",
     "image": "grafana/fluent-bit-plugin-loki:2.0.0-amd64",
-    "cpu": 0,
+    "cpu": 100,
     "memoryReservation": 50,
     "portMappings": [],
     "essential": true,
@@ -20,6 +20,8 @@
   {
     "name": "${task_name}",
     "image": "${ecr_uri}",
+    "cpu": 924,
+    "memoryReservation": 512,
     "essential": true,
     "portMappings": [
       {

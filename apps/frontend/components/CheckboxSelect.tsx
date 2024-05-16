@@ -7,7 +7,8 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandItem
+  CommandItem,
+  CommandList
 } from '@/components/ui/command'
 import {
   Popover,
@@ -91,18 +92,20 @@ export default function LanguageSelect<T extends string>({
 
       <PopoverContent className="w-[115px] p-0" align="start">
         <Command>
-          <CommandEmpty>No language found.</CommandEmpty>
-          <CommandGroup>
-            {options.map((option) => (
-              <CommandItem key={option} value={option} className="gap-x-2">
-                <Checkbox
-                  checked={selectedValues.includes(option)}
-                  onCheckedChange={() => handleCheckboxChange(option)}
-                ></Checkbox>
-                {option}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <CommandList>
+            <CommandEmpty>No language found.</CommandEmpty>
+            <CommandGroup>
+              {options.map((option) => (
+                <CommandItem key={option} value={option} className="gap-x-2">
+                  <Checkbox
+                    checked={selectedValues.includes(option)}
+                    onCheckedChange={() => handleCheckboxChange(option)}
+                  ></Checkbox>
+                  {option}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>

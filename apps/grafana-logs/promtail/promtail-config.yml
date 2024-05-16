@@ -6,7 +6,7 @@ positions:
 clients:
   - url: http://${LOKI_SERVER_URL}/loki/api/v1/push
 scrape_configs:
-  - job_name: codedang-dev
+  - job_name: codedang-stage
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 5s

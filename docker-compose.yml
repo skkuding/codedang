@@ -14,7 +14,7 @@ services:
       - database
     stdin_open: true
     tty: true
-    env_file: .env.development
+    env_file: .env.stage
     environment:
       DEVCONTAINER: 1
     network_mode: host
@@ -68,7 +68,7 @@ services:
     ports:
       - 15672:15672 # Admin Management
       - 5672:5672
-    env_file: .env.development
+    env_file: .env.stage
     environment:
       RABBITMQ_ERLANG_COOKIE: RabbitMQ-My-Cookies
     volumes:
@@ -93,7 +93,7 @@ services:
       setup:
         condition: service_completed_successfully
     env_file:
-      - .env.development
+      - .env.stage
       - .env
     network_mode: host
 
@@ -106,7 +106,7 @@ services:
       setup:
         condition: service_completed_successfully
     env_file:
-      - .env.development
+      - .env.stage
       - .env
     network_mode: host
 
@@ -118,7 +118,7 @@ services:
     depends_on:
       setup:
         condition: service_completed_successfully
-    env_file: .env.development
+    env_file: .env.stage
     network_mode: host
 
   promtail:
@@ -133,7 +133,7 @@ services:
       - iris
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./grafana-logs/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
+      - $PWD/apps/grafana-logs/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
     command:
       - -config.file=/etc/promtail/promtail-config.yml
       - -config.expand-env=true

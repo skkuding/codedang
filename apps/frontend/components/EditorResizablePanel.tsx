@@ -29,24 +29,8 @@ export default function EditorMainResizablePanel({
   contestId,
   children
 }: ProblemEditorProps) {
-  // get programming language from localStorage for default value
-  const { value } = useStorage<Language>(
-    'programming_lang',
-    problem.languages[0]
-  )
-  const { code, setCode, setLanguage, language } = useEditorStore()
   const pathname = usePathname()
   const base = contestId ? `/contest/${contestId}` : ''
-
-  useEffect(() => {
-    if (!language) {
-      setLanguage(value ?? problem.languages[0])
-    } else if (language && !problem.languages.includes(language)) {
-      // if value in storage is not in languages, set value to the first language
-      setLanguage(problem.languages[0])
-    }
-  }, [problem.languages, value, setLanguage, language])
-
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -99,15 +83,40 @@ export default function EditorMainResizablePanel({
       <ResizablePanel defaultSize={65} className="bg-slate-900">
         <div className="grid-rows-editor grid h-full">
           <EditorHeader problem={problem} contestId={contestId} />
-          <CodeEditor
-            value={code}
-            language={language as Language}
-            onChange={setCode}
-            height="100%"
-            className="h-full"
-          />
+          <CodeEditorInEditorResizablePanel problem={problem} />
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
+  )
+}
+
+function CodeEditorInEditorResizablePanel({
+  problem
+}: {
+  problem: ProblemDetail
+}) {
+  // get programming language from localStorage for default value
+  const { value } = useStorage<Language>(
+    'programming_lang',
+    problem.languages[0]
+  )
+  const { code, setCode, setLanguage, language } = useEditorStore()
+
+  useEffect(() => {
+    if (!language) {
+      setLanguage(value ?? problem.languages[0])
+    } else if (language && !problem.languages.includes(language)) {
+      // if value in storage is not in languages, set value to the first language
+      setLanguage(problem.languages[0])
+    }
+  }, [problem.languages, value, setLanguage, language])
+  return (
+    <CodeEditor
+      value={code}
+      language={language as Language}
+      onChange={setCode}
+      height="100%"
+      className="h-full"
+    />
   )
 }

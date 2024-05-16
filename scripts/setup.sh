@@ -13,7 +13,7 @@ BASEDIR=$(dirname $(dirname $(realpath $0)))
 
 cd $BASEDIR
 
-# Write .env file from .env.development
+# Write .env file from .env.stage
 if [ -f .env ]
 then
   rm .env
@@ -36,7 +36,7 @@ do
   else
       echo "$name=$value" >> .env
   fi
-done < .env.development
+done < .env.stage
 
 # If dotenv schema is not updated, remove the file
 if [ -f apps/backend/.env ] && grep -q DATABASE_URL apps/backend/.env
