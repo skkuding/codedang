@@ -39,6 +39,7 @@ import {
   FilterProblemsInput,
   UpdateProblemInput
 } from './model/problem.input'
+import { ProblemWithIsVisible } from './model/problem.output'
 import { ProblemService } from './problem.service'
 
 @Resolver(() => Problem)
@@ -47,7 +48,7 @@ export class ProblemResolver {
 
   constructor(private readonly problemService: ProblemService) {}
 
-  @Mutation(() => Problem)
+  @Mutation(() => ProblemWithIsVisible)
   async createProblem(
     @Context('req') req: AuthenticatedRequest,
     @Args(
@@ -78,7 +79,7 @@ export class ProblemResolver {
     }
   }
 
-  @Mutation(() => [Problem])
+  @Mutation(() => [ProblemWithIsVisible])
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async uploadProblems(
     @Context('req') req: AuthenticatedRequest,
@@ -105,7 +106,7 @@ export class ProblemResolver {
     }
   }
 
-  @Query(() => [Problem])
+  @Query(() => [ProblemWithIsVisible])
   async getProblems(
     @Args(
       'groupId',
@@ -121,7 +122,7 @@ export class ProblemResolver {
     return await this.problemService.getProblems(input, groupId, cursor, take)
   }
 
-  @Query(() => Problem)
+  @Query(() => ProblemWithIsVisible)
   async getProblem(
     @Args(
       'groupId',
@@ -146,7 +147,7 @@ export class ProblemResolver {
   }
 
   @ResolveField('tag', () => [ProblemTag])
-  async getProblemTags(@Parent() problem: Problem) {
+  async getProblemTags(@Parent() problem: ProblemWithIsVisible) {
     try {
       return await this.problemService.getProblemTags(problem.id)
     } catch (error) {
@@ -156,7 +157,7 @@ export class ProblemResolver {
   }
 
   @ResolveField('testcase', () => [ProblemTestcase])
-  async getProblemTestCases(@Parent() problem: Problem) {
+  async getProblemTestCases(@Parent() problem: ProblemWithIsVisible) {
     try {
       return await this.problemService.getProblemTestcases(problem.id)
     } catch (error) {
@@ -165,7 +166,7 @@ export class ProblemResolver {
     }
   }
 
-  @Mutation(() => Problem)
+  @Mutation(() => ProblemWithIsVisible)
   async updateProblem(
     @Args(
       'groupId',
@@ -195,7 +196,7 @@ export class ProblemResolver {
     }
   }
 
-  @Mutation(() => Problem)
+  @Mutation(() => ProblemWithIsVisible)
   async deleteProblem(
     @Args(
       'groupId',
@@ -285,7 +286,7 @@ export class ContestProblemResolver {
     }
   }
 
-  @ResolveField('problem', () => Problem)
+  @ResolveField('problem', () => ProblemWithIsVisible)
   async getProblem(@Parent() contestProblem: ContestProblem) {
     try {
       return await this.problemService.getProblemById(contestProblem.problemId)
@@ -360,7 +361,7 @@ export class WorkbookProblemResolver {
     }
   }
 
-  @ResolveField('problem', () => Problem)
+  @ResolveField('problem', () => ProblemWithIsVisible)
   async getProblem(@Parent() workbookProblem: WorkbookProblem) {
     try {
       return await this.problemService.getProblemById(workbookProblem.problemId)

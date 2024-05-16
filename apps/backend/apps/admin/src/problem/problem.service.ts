@@ -9,7 +9,7 @@ import { Language } from '@generated'
 import type { ContestProblem, Tag, WorkbookProblem } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
-import { Prisma } from '@prisma/client'
+import { Prisma, type Problem } from '@prisma/client'
 import { Workbook } from 'exceljs'
 import {
   DuplicateFoundException,
@@ -94,7 +94,7 @@ export class ProblemService {
       }
     })
     await this.createTestcases(problem.id, testcases)
-    return problem
+    return this.changeExposetimeToIsvisible(problem)
   }
 
   // TODO: 테스트케이스별로 파일 따로 업로드 -> 수정 시 updateTestcases, deleteProblem 로직 함께 정리
@@ -297,7 +297,7 @@ export class ProblemService {
       whereOptions.languages = { hasSome: input.languages }
     }
 
-    return await this.prisma.problem.findMany({
+    const problems: Problem[] = await this.prisma.problem.findMany({
       ...paginator,
       where: {
         ...whereOptions,
@@ -305,10 +305,11 @@ export class ProblemService {
       },
       take
     })
+    return this.changeExposetimeToIsvisible(problems)
   }
 
   async getProblem(id: number, groupId: number) {
-    return await this.prisma.problem.findFirstOrThrow({
+    const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id,
         groupId
@@ -323,6 +324,7 @@ export class ProblemService {
         }
       }
     })
+    return this.changeExposetimeToIsvisible(problem)
   }
 
   async getProblemById(id: number) {
@@ -351,7 +353,8 @@ export class ProblemService {
         'A problem should support at least one language'
       )
     }
-    const supportedLangs = languages ?? problem.languages
+    const supportedLangs =
+      languages ?? ('languages' in problem ? problem.languages : [])
     template?.forEach((template) => {
       if (!supportedLangs.includes(template.language)) {
         throw new UnprocessableDataException(
@@ -644,5 +647,24 @@ export class ProblemService {
         id: tc.id.split(':')[1]
       }
     })
+  }
+
+  async changeExposetimeToIsvisible(
+    problems: Problem[] | Problem
+  ): Promise<
+    | (Omit<Problem, 'exposeTime'> & { isVisible: boolean })[]
+    | (Omit<Problem, 'exposeTime'> & { isVisible: boolean })
+  > {
+    const newProblems =
+      (Array.isArray(problems) ? problems : [problems]).map(
+        (problem: Problem) => {
+          const { exposeTime, ...data } = problem
+          return {
+            isVisible: exposeTime < new Date() ? true : false,
+            ...data
+          }
+        }
+      ) ?? []
+    return newProblems.length == 1 ? newProblems[0] : newProblems
   }
 }
