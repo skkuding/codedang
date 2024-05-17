@@ -101,7 +101,7 @@ resource "aws_ecs_task_definition" "client_api" {
     # database_url      = "postgresql://${var.postgres_username}:${random_password.postgres_password.result}@${aws_rds_cluster.cluster.endpoint}:${var.postgres_port}/skkuding?schema=public",
 
     # posrgresql (free tier)
-    database_url         = "postgresql://${var.postgres_username}:${random_password.postgres_password.result}@${aws_db_instance.db-test.endpoint}/skkuding?schema=public?connection_limit=30",
+    database_url         = "postgresql://${var.postgres_username}:${random_password.postgres_password.result}@${aws_db_instance.db-test.endpoint}/skkuding?schema=public&connection_limit=30",
     ecr_uri              = data.aws_ecr_repository.client_api.repository_url,
     container_port       = 4000,
     cloudwatch_region    = var.region,
