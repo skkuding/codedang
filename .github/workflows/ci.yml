@@ -91,12 +91,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'apps/backend/**'
+
       - uses: ./.github/actions/setup-pnpm
+        if: steps.filter.outputs.backend == 'true'
 
       - name: Generate Prisma Client
+        if: steps.filter.outputs.backend == 'true'
         run: pnpm --filter="@codedang/backend" exec prisma generate
 
       - name: Check types (backend) # For spec files
+        if: steps.filter.outputs.backend == 'true'
         run: pnpm --filter="@codedang/backend" exec tsc --noEmit
 
       # Typecheck is not performed for frontend intentionally.
@@ -137,8 +149,8 @@ jobs:
       - name: Lint (Node.js)
         run: pnpm lint
 
-  test:
-    name: Test
+  test-backend:
+    name: Test Backend
     runs-on: ubuntu-latest
 
     env:
@@ -157,9 +169,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'apps/backend/**'
+              - 'pnpm-lock.yaml'
+
       - uses: ./.github/actions/setup-pnpm
+        if: steps.filter.outputs.backend == 'true'
 
       - name: Check Prisma Migration
+        if: steps.filter.outputs.backend == 'true'
         run: |
           pnpm --filter="@codedang/backend" exec prisma migrate diff \
             --from-migrations ./prisma/migrations \
@@ -170,7 +194,9 @@ jobs:
           "Please run 'pnpm prisma migrate dev' locally and commit the changes." && exit 1)
 
       - name: Migrate Prisma
+        if: steps.filter.outputs.backend == 'true'
         run: pnpm --filter="@codedang/backend" exec prisma migrate reset --force
 
       - name: Test
-        run: pnpm -r test
+        if: steps.filter.outputs.backend == 'true'
+        run: pnpm --filter="@codedang/backend" test
