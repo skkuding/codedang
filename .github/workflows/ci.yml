@@ -36,14 +36,14 @@ jobs:
               - 'apps/backend/apps/admin/**'
 
       - uses: ./.github/actions/setup-pnpm
-        if: steps.filter.outputs.${{ matrix.target }} == 'true'
+        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
 
       - name: Generate Prisma Client
-        if: steps.filter.outputs.${{ matrix.target }} == 'true'
+        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
         run: pnpm --filter="@codedang/backend" exec prisma generate
 
       - name: Build
-        if: steps.filter.outputs.${{ matrix.target }} == 'true'
+        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
         run: pnpm --filter="@codedang/backend" build ${{ matrix.target }}
 
   build-frontend:
