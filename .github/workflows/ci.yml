@@ -133,10 +133,5 @@ jobs:
       - name: Migrate Prisma
         run: pnpm --filter="@codedang/backend" exec prisma migrate reset --force
 
-      - name: Backend test
-        if: ${{matrix.target == 'backend' || matrix.target == 'backend-admin'}}
-        run: pnpm --filter=@codedang/backend test
-
-      - name: Frontend test
-        if: ${{matrix.target == 'frontend'}}
-        run: pnpm --filter=@codedang/frontend test
+      - name: Test
+        run: pnpm -r test
