@@ -135,8 +135,8 @@ jobs:
 
       - name: Backend test
         if: ${{matrix.target == 'backend' || matrix.target == 'backend-admin'}}
-        run: pnpm --filter=backend test
+        run: pnpm --filter=@codedang/backend test
 
       - name: Frontend test
         if: ${{matrix.target == 'frontend'}}
-        run: pnpm --filter=frontend test
+        run: pnpm --filter=@codedang/frontend test
