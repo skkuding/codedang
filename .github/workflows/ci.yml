@@ -7,25 +7,67 @@ on:
     types: [opened, edited, synchronize, reopened]
 
 jobs:
-  build:
-    name: Build
+  build-backend:
+    name: Build Backend
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        target: [frontend, backend, backend-admin]
+        target: [client, admin]
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            shared: &shared
+              - 'apps/backend/libs/**'
+              - 'apps/backend/prisma/**'
+              - 'apps/backend/*.json'
+              - 'pnpm-lock.yaml'
+            client:
+              - *shared
+              - 'apps/backend/apps/client/**'
+            admin:
+              - *shared
+              - 'apps/backend/apps/admin/**'
+
       - uses: ./.github/actions/setup-pnpm
+        if: steps.filter.outputs.${{ matrix.target }} == 'true'
 
       - name: Generate Prisma Client
-        if: ${{ matrix.target == 'backend' || matrix.target == 'backend-admin' }}
+        if: steps.filter.outputs.${{ matrix.target }} == 'true'
         run: pnpm --filter="@codedang/backend" exec prisma generate
 
+      - name: Build
+        if: steps.filter.outputs.${{ matrix.target }} == 'true'
+        run: pnpm --filter="@codedang/backend" build ${{ matrix.target }}
+
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'apps/frontend/**'
+              - 'pnpm-lock.yaml'
+
+      - uses: ./.github/actions/setup-pnpm
+        if: steps.filter.outputs.frontend == 'true'
+
       - name: Setup Next.js build cache
-        if: ${{ matrix.target == 'frontend' }}
         uses: actions/cache@v4
+        if: steps.filter.outputs.frontend == 'true'
         with:
           path: apps/frontend/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
@@ -33,18 +75,15 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
 
       - name: Load Next.js environment
-        if: ${{ matrix.target == 'frontend' }}
+        if: steps.filter.outputs.frontend == 'true'
         run: |
           echo "NEXT_PUBLIC_BASEURL=https://stage.codedang.com/api" >> apps/frontend/.env
           echo "NEXT_PUBLIC_GQL_BASEURL=https://stage.codedang.com/graphql" >> apps/frontend/.env
           echo "NEXT_URL=https://stage.codedang.com" >> apps/frontend/.env
 
-      - name: Build (backend admin)
-        if: ${{ matrix.target == 'backend-admin' }}
-        run: pnpm --filter="@codedang/backend" build admin
       - name: Build
-        if: ${{ matrix.target != 'backend-admin' }}
-        run: pnpm --filter="apps/${{ matrix.target }}" build
+        if: steps.filter.outputs.frontend == 'true'
+        run: pnpm --filter="@codedang/frontend" build
 
   typecheck:
     name: Typecheck
