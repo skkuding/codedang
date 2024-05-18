@@ -310,15 +310,35 @@ export class UserService {
       // pass
     }
 
-    const user: User = await this.createUser(newSignUpDto)
-    const CreateUserProfileData: CreateUserProfileData = {
-      userId: user.id,
-      realName: signUpDto.realName
-    }
-    await this.createUserProfile(CreateUserProfileData)
-    await this.registerUserToPublicGroup(user.id)
+    const returnUser: User = await this.prisma.$transaction(async (prisma) => {
+      const user = await prisma.user.create({
+        data: {
+          username: signUpDto.username,
+          password: newSignUpDto.password,
+          email: signUpDto.email
+        }
+      })
 
-    return user
+      await prisma.userProfile.create({
+        data: {
+          realName: signUpDto.realName,
+          user: {
+            connect: { id: user.id }
+          }
+        }
+      })
+
+      await prisma.userGroup.create({
+        data: {
+          userId: user.id,
+          groupId: 1,
+          isGroupLeader: false
+        }
+      })
+      return user
+    })
+
+    return returnUser
   }
 
   async signUp(req: Request, signUpDto: SignUpDto) {
