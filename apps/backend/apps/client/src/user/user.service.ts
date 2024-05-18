@@ -313,15 +313,15 @@ export class UserService {
     const returnUser: User = await this.prisma.$transaction(async (prisma) => {
       const user = await prisma.user.create({
         data: {
-          username: signUpDto.username,
+          username: newSignUpDto.username,
           password: newSignUpDto.password,
-          email: signUpDto.email
+          email: newSignUpDto.email
         }
       })
 
       await prisma.userProfile.create({
         data: {
-          realName: signUpDto.realName,
+          realName: newSignUpDto.realName,
           user: {
             connect: { id: user.id }
           }
