@@ -12,7 +12,7 @@ import { generate } from 'generate-password'
 import { ExtractJwt } from 'passport-jwt'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
-import { EMAIL_AUTH_EXPIRE_TIME } from '@libs/constants'
+import { EMAIL_AUTH_EXPIRE_TIME, OPEN_SPACE_ID } from '@libs/constants'
 import {
   ConflictFoundException,
   DuplicateFoundException,
@@ -32,7 +32,7 @@ import type { SocialSignUpDto } from './dto/social-signup.dto'
 import type { UpdateUserEmailDto } from './dto/update-user-email.dto'
 import type { UpdateUserProfileDto } from './dto/update-userprofile.dto'
 import type { UserEmailDto } from './dto/userEmail.dto'
-import type { UsernameDto } from './dto/username.dto'
+import { UsernameDto } from './dto/username.dto'
 import type { CreateUserProfileData } from './interface/create-userprofile.interface'
 import type {
   EmailAuthJwtPayload,
@@ -277,6 +277,46 @@ export class UserService {
     return jwt
   }
 
+  /**
+   * 기존 signUp 함수의 마지막 부분 -
+   * createUser(), createUserProfile(), registerUserToPublicGroup()의 atomic한 처리를 위한 함수
+   * 위 세 함수의 DB 접근을 묶어 transaction 처리
+   *
+   */
+  async initializeUser(signUpDto: SignUpDto): Promise<User> {
+    const encryptedPassword = await hash(signUpDto.password)
+
+    return await this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          username: signUpDto.username,
+          password: encryptedPassword,
+          email: signUpDto.email
+        }
+      })
+      this.logger.debug(user, 'createUser')
+
+      const [userProfile, userGroup] = await Promise.all([
+        tx.userProfile.create({
+          data: {
+            userId: user.id,
+            realName: signUpDto.realName
+          }
+        }),
+        tx.userGroup.create({
+          data: {
+            userId: user.id,
+            groupId: OPEN_SPACE_ID
+          }
+        })
+      ])
+      this.logger.debug(userProfile, 'createUserProfile')
+      this.logger.debug(userGroup, 'createUserGroup')
+
+      return user
+    })
+  }
+
   /** TODO: load test를 위함, 테스트 후 삭제 예정 */
   async signUpForLoadTest(signUpDto: SignUpDto) {
     const newSignUpDto: SignUpDto = {
@@ -304,41 +344,13 @@ export class UserService {
     }
     try {
       await this.deletePinFromCache(
-        emailAuthenticationPinCacheKey(newSignUpDto.email)
+        emailAuthenticationPinCacheKey(newSignUpDto.email) // 캐시 접근까지 테스트 로직에 포함하기 위함
       )
     } catch (e) {
       // pass
     }
 
-    const returnUser: User = await this.prisma.$transaction(async (prisma) => {
-      const user = await prisma.user.create({
-        data: {
-          username: newSignUpDto.username,
-          password: newSignUpDto.password,
-          email: newSignUpDto.email
-        }
-      })
-
-      await prisma.userProfile.create({
-        data: {
-          realName: newSignUpDto.realName,
-          user: {
-            connect: { id: user.id }
-          }
-        }
-      })
-
-      await prisma.userGroup.create({
-        data: {
-          userId: user.id,
-          groupId: 1,
-          isGroupLeader: false
-        }
-      })
-      return user
-    })
-
-    return returnUser
+    return await this.initializeUser(newSignUpDto)
   }
 
   async signUp(req: Request, signUpDto: SignUpDto) {
