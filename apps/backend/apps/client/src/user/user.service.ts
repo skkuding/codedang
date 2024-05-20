@@ -284,13 +284,13 @@ export class UserService {
    *
    */
   async initializeUser(signUpDto: SignUpDto): Promise<User> {
-    const encryptedPassword = await hash(signUpDto.password)
+    // const encryptedPassword = await hash(signUpDto.password)
 
     return await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
           username: signUpDto.username,
-          password: encryptedPassword,
+          password: signUpDto.password,
           email: signUpDto.email
         }
       })
