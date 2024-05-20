@@ -296,20 +296,20 @@ export class UserService {
       })
       this.logger.debug(user, 'createUser')
 
-      const [userProfile, userGroup] = await Promise.all([
-        tx.userProfile.create({
-          data: {
-            userId: user.id,
-            realName: signUpDto.realName
-          }
-        }),
-        tx.userGroup.create({
-          data: {
-            userId: user.id,
-            groupId: OPEN_SPACE_ID
-          }
-        })
-      ])
+      const userProfile = await tx.userProfile.create({
+        data: {
+          userId: user.id,
+          realName: signUpDto.realName
+        }
+      })
+
+      const userGroup = await tx.userGroup.create({
+        data: {
+          userId: user.id,
+          groupId: OPEN_SPACE_ID
+        }
+      })
+
       this.logger.debug(userProfile, 'createUserProfile')
       this.logger.debug(userGroup, 'createUserGroup')
 
