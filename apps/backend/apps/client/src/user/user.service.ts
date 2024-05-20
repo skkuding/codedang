@@ -346,13 +346,13 @@ export class UserService {
       this.logger.debug('signUp - fail (invalid password)')
       throw new UnprocessableDataException('Bad password')
     }
-    try {
-      await this.deletePinFromCache(
-        emailAuthenticationPinCacheKey(newSignUpDto.email) // 캐시 접근까지 테스트 로직에 포함하기 위함
-      )
-    } catch (e) {
-      // pass
-    }
+    // try {
+    //   await this.deletePinFromCache(
+    //     emailAuthenticationPinCacheKey(newSignUpDto.email) // 캐시 접근까지 테스트 로직에 포함하기 위함
+    //   )
+    // } catch (e) {
+    //   // pass
+    // }
 
     return await this.initializeUser(newSignUpDto)
   }
