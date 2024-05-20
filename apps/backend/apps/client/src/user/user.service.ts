@@ -350,7 +350,17 @@ export class UserService {
       // pass
     }
 
-    return await this.initializeUser(newSignUpDto)
+    const user: User = await this.createUser(newSignUpDto)
+    const CreateUserProfileData: CreateUserProfileData = {
+      userId: user.id,
+      realName: signUpDto.realName
+    }
+    await this.createUserProfile(CreateUserProfileData)
+    await this.registerUserToPublicGroup(user.id)
+
+    return user
+
+    // return await this.initializeUser(newSignUpDto)
   }
 
   async signUp(req: Request, signUpDto: SignUpDto) {
@@ -457,12 +467,12 @@ export class UserService {
   }
 
   async createUser(signUpDto: SignUpDto): Promise<User> {
-    const encryptedPassword = await hash(signUpDto.password)
+    // const encryptedPassword = await hash(signUpDto.password)
 
     const user = await this.prisma.user.create({
       data: {
         username: signUpDto.username,
-        password: encryptedPassword,
+        password: signUpDto.password,
         email: signUpDto.email
       }
     })
