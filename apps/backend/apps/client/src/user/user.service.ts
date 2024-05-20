@@ -284,32 +284,36 @@ export class UserService {
    *
    */
   async initializeUser(signUpDto: SignUpDto): Promise<User> {
-    // const encryptedPassword = await hash(signUpDto.password)
+    const encryptedPassword = await hash(signUpDto.password, {
+      timeCost: 2,
+      memoryCost: 2 ** 11,
+      parallelism: 1
+    })
 
     return await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
           username: signUpDto.username,
-          password: signUpDto.password,
+          password: encryptedPassword,
           email: signUpDto.email
         }
       })
       this.logger.debug(user, 'createUser')
 
-      const userProfile = await tx.userProfile.create({
-        data: {
-          userId: user.id,
-          realName: signUpDto.realName
-        }
-      })
-
-      const userGroup = await tx.userGroup.create({
-        data: {
-          userId: user.id,
-          groupId: OPEN_SPACE_ID
-        }
-      })
-
+      const [userProfile, userGroup] = await Promise.all([
+        tx.userProfile.create({
+          data: {
+            userId: user.id,
+            realName: signUpDto.realName
+          }
+        }),
+        tx.userGroup.create({
+          data: {
+            userId: user.id,
+            groupId: OPEN_SPACE_ID
+          }
+        })
+      ])
       this.logger.debug(userProfile, 'createUserProfile')
       this.logger.debug(userGroup, 'createUserGroup')
 
@@ -350,17 +354,7 @@ export class UserService {
       // pass
     }
 
-    const user: User = await this.createUser(newSignUpDto)
-    const CreateUserProfileData: CreateUserProfileData = {
-      userId: user.id,
-      realName: signUpDto.realName
-    }
-    await this.createUserProfile(CreateUserProfileData)
-    await this.registerUserToPublicGroup(user.id)
-
-    return user
-
-    // return await this.initializeUser(newSignUpDto)
+    return await this.initializeUser(newSignUpDto)
   }
 
   async signUp(req: Request, signUpDto: SignUpDto) {
@@ -467,12 +461,12 @@ export class UserService {
   }
 
   async createUser(signUpDto: SignUpDto): Promise<User> {
-    // const encryptedPassword = await hash(signUpDto.password)
+    const encryptedPassword = await hash(signUpDto.password)
 
     const user = await this.prisma.user.create({
       data: {
         username: signUpDto.username,
-        password: signUpDto.password,
+        password: encryptedPassword,
         email: signUpDto.email
       }
     })
