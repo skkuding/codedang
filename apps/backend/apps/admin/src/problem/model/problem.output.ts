@@ -1,5 +1,5 @@
 import { Field, ObjectType, OmitType } from '@nestjs/graphql'
-import { Problem, ProblemTestcase, ProblemTag } from '@admin/@generated'
+import { Problem } from '@admin/@generated'
 
 @ObjectType()
 export class ProblemWithIsVisible extends OmitType(Problem, [
@@ -7,10 +7,4 @@ export class ProblemWithIsVisible extends OmitType(Problem, [
 ] as const) {
   @Field(() => Boolean, { nullable: false })
   isVisible!: boolean
-
-  @Field(() => [ProblemTestcase], { nullable: true })
-  problemTestcase?: Array<ProblemTestcase>
-
-  @Field(() => [ProblemTag], { nullable: true })
-  problemTag?: Array<ProblemTag>
 }

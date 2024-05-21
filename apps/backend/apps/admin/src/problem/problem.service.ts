@@ -20,7 +20,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
-import { maxDate } from './model/problem.constants'
+import { minDate, maxDate } from './model/problem.constants'
 import type {
   CreateProblemInput,
   UploadFileInput,
@@ -75,7 +75,7 @@ export class ProblemService {
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
-        exposeTime: isVisible ? new Date() : maxDate,
+        exposeTime: isVisible ? minDate : maxDate,
         samples: {
           create: samples
         },
@@ -328,11 +328,12 @@ export class ProblemService {
   }
 
   async getProblemById(id: number) {
-    return await this.prisma.problem.findFirstOrThrow({
+    const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id
       }
     })
+    return this.changeExposetimeToIsvisible(problem)
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
@@ -346,15 +347,28 @@ export class ProblemService {
       isVisible,
       ...data
     } = input
-    const problem = await this.getProblem(id, groupId)
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: {
+        id,
+        groupId
+      }
+    })
 
     if (languages && !languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
       )
     }
-    const supportedLangs =
-      languages ?? ('languages' in problem ? problem.languages : [])
+    if (
+      isVisible != undefined &&
+      problem.exposeTime != maxDate &&
+      problem.exposeTime != minDate
+    ) {
+      throw new UnprocessableDataException(
+        'Visibility setting cannot be changed because of the contest'
+      )
+    }
+    const supportedLangs = languages ?? problem.languages
     template?.forEach((template) => {
       if (!supportedLangs.includes(template.language)) {
         throw new UnprocessableDataException(
@@ -369,7 +383,7 @@ export class ProblemService {
       await this.updateTestcases(id, testcases)
     }
 
-    return await this.prisma.problem.update({
+    const updatedProblem = await this.prisma.problem.update({
       where: { id },
       data: {
         ...data,
@@ -381,12 +395,15 @@ export class ProblemService {
             }
           })
         },
-        ...(isVisible && { exposeTime: isVisible ? new Date() : maxDate }),
+        ...(isVisible != undefined && {
+          exposeTime: isVisible ? minDate : maxDate
+        }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
         problemTag
       }
     })
+    return this.changeExposetimeToIsvisible(updatedProblem)
   }
 
   async updateProblemTag(

@@ -19,6 +19,7 @@ import {
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
+import { maxDate, minDate } from '@admin/problem/model/problem.constants'
 
 const prisma = new PrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
@@ -650,7 +651,8 @@ const createProblems = async () => {
               output: '23'
             }
           ]
-        }
+        },
+        exposeTime: ongoingContests[0].startTime
       }
     })
   )
@@ -681,7 +683,8 @@ const createProblems = async () => {
         source: 'Canadian Computing Competition(CCC) 2012 Junior 2번',
         samples: {
           create: [{ input: '1\n10\n12\n13', output: 'Uphill' }]
-        }
+        },
+        exposeTime: ongoingContests[0].startTime
       }
     })
   )
@@ -716,7 +719,8 @@ const createProblems = async () => {
             { input: 'NO', output: 'YES' },
             { input: 'SHOW', output: 'NO' }
           ]
-        }
+        },
+        exposeTime: ongoingContests[0].startTime
       }
     })
   )
@@ -747,7 +751,8 @@ const createProblems = async () => {
         source: 'USACO 2012 US Open Bronze 1번',
         samples: {
           create: [{ input: '9\n2\n7\n3\n7\n7\n3\n7\n5\n7\n', output: '4' }]
-        }
+        },
+        exposeTime: ongoingContests[0].startTime
       }
     })
   )
@@ -783,7 +788,8 @@ const createProblems = async () => {
               output: 'POSSIBLE'
             }
           ]
-        }
+        },
+        exposeTime: ongoingContests[0].startTime
       }
     })
   )
@@ -812,7 +818,8 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'USACO November 2011 Silver 3번',
-        samples: { create: [{ input: '3 6', output: '5' }] }
+        samples: { create: [{ input: '3 6', output: '5' }] },
+        exposeTime: ongoingContests[0].startTime
       }
     })
   )
@@ -853,7 +860,8 @@ const createProblems = async () => {
               output: '0'
             }
           ]
-        }
+        },
+        exposeTime: minDate
       }
     })
   )
@@ -895,7 +903,7 @@ const createProblems = async () => {
             }
           ]
         },
-        exposeTime: new Date('2999-12-31T00:00:00.000Z')
+        exposeTime: maxDate
       }
     })
   )
@@ -928,13 +936,13 @@ const createProblems = async () => {
             }
           ]
         },
-        exposeTime: new Date('2999-12-31T00:00:00.000Z')
+        exposeTime: maxDate
       }
     })
   )
 
   // add simple testcases
-  for (const problem of problems) {
+  for (const problem of problems.slice(0, 6)) {
     problemTestcases.push(
       await prisma.problemTestcase.create({
         data: {

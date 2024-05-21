@@ -19,7 +19,6 @@ import {
 } from '@nestjs/graphql'
 import {
   ContestProblem,
-  Problem,
   ProblemTag,
   ProblemTestcase,
   WorkbookProblem
@@ -42,7 +41,7 @@ import {
 import { ProblemWithIsVisible } from './model/problem.output'
 import { ProblemService } from './problem.service'
 
-@Resolver(() => Problem)
+@Resolver(() => ProblemWithIsVisible)
 export class ProblemResolver {
   private readonly logger = new Logger(ProblemResolver.name)
 
