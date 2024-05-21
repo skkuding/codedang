@@ -186,7 +186,11 @@ export class UserService {
           email
         },
         data: {
-          password: await hash(newPassword)
+          password: await hash(newPassword, {
+            timeCost: 2,
+            memoryCost: 2 ** 11,
+            parallelism: 1
+          })
         }
       })
       this.logger.debug(user, 'updateUserPasswordInPrisma')
@@ -351,7 +355,11 @@ export class UserService {
   }
 
   async createUser(signUpDto: SignUpDto): Promise<User> {
-    const encryptedPassword = await hash(signUpDto.password)
+    const encryptedPassword = await hash(signUpDto.password, {
+      timeCost: 2,
+      memoryCost: 2 ** 11,
+      parallelism: 1
+    })
 
     const user = await this.prisma.user.create({
       data: {
