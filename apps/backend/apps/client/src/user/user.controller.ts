@@ -105,6 +105,10 @@ export class EmailAuthenticationController {
   setJwtInHeader(res: Response, jwt: string) {
     res.setHeader('email-auth', `${jwt}`)
   }
+  @Post('test/local')
+  async testForLocal(@Body() signupDto: SignUpDto) {
+    return await this.userService.testForLocal(signupDto)
+  }
 
   @Post('send-email/password-reset')
   async sendPinForPasswordReset(@Body() userEmailDto: UserEmailDto) {

@@ -357,6 +357,90 @@ export class UserService {
     return await this.initializeUser(newSignUpDto)
   }
 
+  async testForLocal(signUpDto: SignUpDto): Promise<User> {
+    const start = performance.now()
+    const _username = randomUUID()
+    const _email = signUpDto.email + randomUUID()
+    const _password = signUpDto.password + randomUUID()
+    // console.log(
+    //   `username : ${_username} now Date : ${Date.now()} Non-transaction start : ${performance.now() - start} `
+    // )
+    // const user = await this.prisma.user.create({
+    //   data: {
+    //     username: _username,
+    //     password: _password,
+    //     email: _email
+    //   }
+    // })
+    // console.log(
+    //   `username : ${_username} now Date : ${Date.now()} profile create start : ${performance.now() - start} `
+    // )
+    // await this.prisma.userProfile.create({
+    //   data: {
+    //     realName: _username,
+    //     user: {
+    //       connect: { id: user.id }
+    //     }
+    //   }
+    // })
+    // console.log(
+    //   `username : ${_username} now Date : ${Date.now()}  group create start : ${performance.now() - start} `
+    // )
+    // await this.prisma.userGroup.create({
+    //   data: {
+    //     userId: user.id,
+    //     groupId: 1,
+    //     isGroupLeader: false
+    //   }
+    // })
+    // console.log(
+    //   `username : ${_username} now Date : ${Date.now()} done : ${performance.now() - start} `
+    // )
+    // return user
+
+    console.log(
+      `username : ${_username} now Date : ${Date.now()} transaction start : ${performance.now() - start} `
+    )
+    const returnUser = await this.prisma.$transaction(async (prisma) => {
+      console.log(
+        `username : ${_username} now Date : ${Date.now()} user create start : ${performance.now() - start} `
+      )
+      const user = await prisma.user.create({
+        data: {
+          username: _username,
+          password: _password,
+          email: _email
+        }
+      })
+      console.log(
+        `username : ${_username} now Date : ${Date.now()} profile create start : ${performance.now() - start} `
+      )
+      await prisma.userProfile.create({
+        data: {
+          realName: _username,
+          user: {
+            connect: { id: user.id }
+          }
+        }
+      })
+      console.log(
+        `username : ${_username} now Date : ${Date.now()}  group create start : ${performance.now() - start} `
+      )
+      await prisma.userGroup.create({
+        data: {
+          userId: user.id,
+          groupId: 1,
+          isGroupLeader: false
+        }
+      })
+      console.log(
+        `username : ${_username} now Date : ${Date.now()} done : ${performance.now() - start} `
+      )
+      return user
+    })
+    return returnUser
+  }
+
   async signUp(req: Request, signUpDto: SignUpDto) {
     // TODO: load test를 위함, 테스트 후 삭제 예정
     if (

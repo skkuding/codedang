@@ -1,5 +1,5 @@
 import type { OnModuleInit } from '@nestjs/common'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import type { Prisma } from '@prisma/client'
 import { PrismaClient } from '@prisma/client'
@@ -14,7 +14,7 @@ export class PrismaService
   extends PrismaClient<Prisma.PrismaClientOptions, Prisma.LogLevel>
   implements OnModuleInit
 {
-  private readonly logger = new Logger(PrismaService.name)
+  // private readonly logger = new Logger(PrismaService.name)
   constructor(private config: ConfigService) {
     super({
       datasources: {
@@ -44,18 +44,18 @@ export class PrismaService
   }
 
   async onModuleInit() {
-    this.$on('error', (event) => {
-      this.logger.error(event)
-    })
-    this.$on('warn', (event) => {
-      this.logger.warn(event)
-    })
-    this.$on('info', (event) => {
-      this.logger.log(event)
-    })
-    this.$on('query', (event) => {
-      this.logger.debug(event, 'SQL Query')
-    })
+    // this.$on('error', (event) => {
+    //   this.logger.error(event)
+    // })
+    // this.$on('warn', (event) => {
+    //   this.logger.warn(event)
+    // })
+    // this.$on('info', (event) => {
+    //   this.logger.log(event)
+    // })
+    // this.$on('query', (event) => {
+    //   this.logger.debug(event, 'SQL Query')
+    // })
 
     await this.$connect()
   }
