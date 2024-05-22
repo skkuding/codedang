@@ -358,13 +358,11 @@ export class UserService {
   }
 
   async testForLocal(signUpDto: SignUpDto): Promise<User> {
+    // console.log(this.config.get('DATABASE_URL'))
     const start = performance.now()
     const _username = randomUUID()
     const _email = signUpDto.email + randomUUID()
     const _password = signUpDto.password + randomUUID()
-    // console.log(
-    //   `username : ${_username} now Date : ${Date.now()} Non-transaction start : ${performance.now() - start} `
-    // )
     // const user = await this.prisma.user.create({
     //   data: {
     //     username: _username,
@@ -373,7 +371,7 @@ export class UserService {
     //   }
     // })
     // console.log(
-    //   `username : ${_username} now Date : ${Date.now()} profile create start : ${performance.now() - start} `
+    //   `username : ${_username} now Date : ${Date.now()} user create done : ${performance.now() - start} `
     // )
     // await this.prisma.userProfile.create({
     //   data: {
@@ -384,7 +382,7 @@ export class UserService {
     //   }
     // })
     // console.log(
-    //   `username : ${_username} now Date : ${Date.now()}  group create start : ${performance.now() - start} `
+    //   `username : ${_username} now Date : ${Date.now()} profile create done : ${performance.now() - start} `
     // )
     // await this.prisma.userGroup.create({
     //   data: {
@@ -394,17 +392,14 @@ export class UserService {
     //   }
     // })
     // console.log(
-    //   `username : ${_username} now Date : ${Date.now()} done : ${performance.now() - start} `
+    //   `username : ${_username} now Date : ${Date.now()} all done : ${performance.now() - start} `
     // )
     // return user
 
-    console.log(
-      `username : ${_username} now Date : ${Date.now()} transaction start : ${performance.now() - start} `
-    )
     const returnUser = await this.prisma.$transaction(async (prisma) => {
-      console.log(
-        `username : ${_username} now Date : ${Date.now()} user create start : ${performance.now() - start} `
-      )
+      // console.log(
+      //   `username : ${_username} now Date : ${Date.now()} transaction start : ${performance.now() - start} `
+      // )
       const user = await prisma.user.create({
         data: {
           username: _username,
@@ -413,8 +408,9 @@ export class UserService {
         }
       })
       console.log(
-        `username : ${_username} now Date : ${Date.now()} profile create start : ${performance.now() - start} `
+        `username : ${_username} now Date : ${Date.now()} user create done : ${performance.now() - start} `
       )
+
       await prisma.userProfile.create({
         data: {
           realName: _username,
@@ -424,8 +420,9 @@ export class UserService {
         }
       })
       console.log(
-        `username : ${_username} now Date : ${Date.now()}  group create start : ${performance.now() - start} `
+        `username : ${_username} now Date : ${Date.now()} profile create done : ${performance.now() - start} `
       )
+
       await prisma.userGroup.create({
         data: {
           userId: user.id,
@@ -434,7 +431,7 @@ export class UserService {
         }
       })
       console.log(
-        `username : ${_username} now Date : ${Date.now()} done : ${performance.now() - start} `
+        `username : ${_username} now Date : ${Date.now()} all done  : ${performance.now() - start} `
       )
       return user
     })
