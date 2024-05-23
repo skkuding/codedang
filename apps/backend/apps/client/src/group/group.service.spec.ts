@@ -133,22 +133,25 @@ describe('GroupService', () => {
       const cursor = null
       const res = await service.getGroups(cursor, take)
 
-      expect(res).to.deep.equal([
-        {
-          id: 3,
-          groupName: 'Example Private Group 2',
-          description:
-            'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
-          memberNum: 1
-        },
-        {
-          id: 4,
-          groupName: 'Example Private Group 3',
-          description:
-            'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
-          memberNum: 2
-        }
-      ])
+      expect(res).to.deep.equal({
+        data: [
+          {
+            id: 3,
+            groupName: 'Example Private Group 2',
+            description:
+              'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+            memberNum: 1
+          },
+          {
+            id: 4,
+            groupName: 'Example Private Group 3',
+            description:
+              'This is an example private group just for testing. Check if this group is not shown to users not registered to this group.',
+            memberNum: 2
+          }
+        ],
+        total: 4
+      })
     })
   })
 

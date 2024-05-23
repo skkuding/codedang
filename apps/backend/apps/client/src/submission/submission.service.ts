@@ -456,7 +456,7 @@ export class SubmissionService implements OnModuleInit {
     order?: SubmissionOrder
     cursor?: number | null
     take?: number
-  }): Promise<Partial<Submission>[]> {
+  }) {
     const paginator = this.prisma.getPaginator(cursor)
 
     await this.prisma.problem.findFirstOrThrow({
@@ -500,56 +500,9 @@ export class SubmissionService implements OnModuleInit {
       orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
 
-    const result = submissions.map((submission) => {
-      // 최대 cpuTime과 memoryUsage를 구함
-      let maxCpuTime = BigInt(0)
-      let maxMemoryUsage = 0
+    const total = await this.prisma.submission.count({ where: { problemId } })
 
-      // 만약 제출 결과가 Accepted가 아닌 경우에는 maxCpuTime과 maxMemoryUsage를 0으로 설정
-      if (submission.result === ResultStatus.Accepted) {
-        submission.submissionResult.forEach((res) => {
-          if (res.cpuTime > maxCpuTime) {
-            maxCpuTime = BigInt(res.cpuTime)
-          }
-          if (res.memoryUsage > maxMemoryUsage) {
-            maxMemoryUsage = res.memoryUsage
-          }
-        })
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { submissionResult, ...rest } = submission
-      return {
-        ...rest,
-        maxCpuTime: maxCpuTime.toString(),
-        maxMemoryUsage
-      }
-    })
-
-    result.sort((a, b) => {
-      switch (order) {
-        case SubmissionOrder.idASC:
-          return a.id - b.id
-        case SubmissionOrder.idDESC:
-          return b.id - a.id
-        case SubmissionOrder.memoryASC:
-          return a.maxMemoryUsage - b.maxMemoryUsage
-        case SubmissionOrder.memoryDESC:
-          return b.maxMemoryUsage - a.maxMemoryUsage
-        case SubmissionOrder.cpuTimeASC:
-          return Number(BigInt(a.maxCpuTime) - BigInt(b.maxCpuTime)) // Convert BigInt result to Number
-        case SubmissionOrder.cpuTimeDESC:
-          return Number(BigInt(b.maxCpuTime) - BigInt(a.maxCpuTime)) // Convert BigInt result to Number
-        case SubmissionOrder.dateASC:
-          return a.createTime.getTime() - b.createTime.getTime()
-        case SubmissionOrder.dateDESC:
-          return b.createTime.getTime() - a.createTime.getTime()
-        default:
-          return 0 // Default to no sorting if the order is not recognized
-      }
-    })
-
-    return result
+    return { data: submissions, total }
   }
 
   @Span()
@@ -701,7 +654,7 @@ export class SubmissionService implements OnModuleInit {
     groupId?: number
     cursor?: number | null
     take?: number
-  }): Promise<Partial<Submission>[]> {
+  }) {
     const paginator = this.prisma.getPaginator(cursor)
 
     const isAdmin = await this.prisma.user.findFirst({
@@ -733,7 +686,7 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    return await this.prisma.submission.findMany({
+    const submissions = await this.prisma.submission.findMany({
       ...paginator,
       take,
       where: {
@@ -755,5 +708,11 @@ export class SubmissionService implements OnModuleInit {
       },
       orderBy: [{ id: 'desc' }, { createTime: 'desc' }]
     })
+
+    const total = await this.prisma.submission.count({
+      where: { problemId, contestId }
+    })
+
+    return { data: submissions, total }
   }
 }
