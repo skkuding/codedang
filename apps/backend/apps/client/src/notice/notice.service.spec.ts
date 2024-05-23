@@ -9,6 +9,7 @@ const noticeId = 2
 const userId = 1
 const groupId = 1
 const username = 'manager'
+const totalNotice = 24
 
 const notice = {
   id: noticeId,
@@ -55,7 +56,8 @@ const db = {
     findUnique: stub().resolves(notice),
     findUniqueOrThrow: stub().resolves(notice),
     findFirst: stub(),
-    findFirstOrThrow: stub()
+    findFirstOrThrow: stub(),
+    count: stub().resolves(24)
   },
   group: {
     findUnique: stub().resolves(group)
@@ -121,7 +123,10 @@ describe('NoticeService', () => {
         take: 3,
         groupId: group.id
       })
-      expect(getNoticesByGroupId).to.deep.equal(userNotices)
+      expect(getNoticesByGroupId).to.deep.equal({
+        data: userNotices,
+        total: totalNotice
+      })
     })
   })
 
@@ -165,7 +170,11 @@ describe('NoticeService', () => {
         take: 3,
         groupId: group.id
       })
-      expect(getFixedNoticesByGroupId).to.deep.equal(userNotices)
+
+      expect(getFixedNoticesByGroupId).to.deep.equal({
+        data: userNotices,
+        total: totalNotice
+      })
     })
   })
 
