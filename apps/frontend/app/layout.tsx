@@ -1,20 +1,12 @@
 import { Toaster } from '@/components/ui/sonner'
 import { metaBaseUrl } from '@/lib/constants'
-import { cn } from '@/lib/utils'
 import type { Metadata, Viewport } from 'next'
 import { Ubuntu_Mono } from 'next/font/google'
-import localFont from 'next/font/local'
+import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'
 import './globals.css'
 
 // TODO: 추후에 페이지 별로 revalidate 시간 논의 및 조정 필요
 export const revalidate = 5
-
-const pretendard = localFont({
-  src: './PretendardVariable.woff2',
-  display: 'swap',
-  weight: '45 920',
-  variable: '--font-pretendard'
-})
 
 const mono = Ubuntu_Mono({
   subsets: ['latin'],
@@ -42,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={cn(pretendard.variable, mono.variable)}>
+    <html lang="en" className={mono.variable}>
       <body>
         {children}
         <Toaster

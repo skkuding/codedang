@@ -26,7 +26,7 @@ export default {
         editor: '3rem minmax(0, 1fr)'
       },
       fontFamily: {
-        sans: ['--font-pretendard', ...defaultTheme.fontFamily.sans],
+        sans: ['Pretendard Variable', ...defaultTheme.fontFamily.sans],
         mono: ['var(--font-mono)', ...defaultTheme.fontFamily.mono]
       },
       colors: {
