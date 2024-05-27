@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:20-bullseye
+FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:22-bullseye
 
 # Install sandbox
 RUN mkdir -p /app/sandbox/policy /app/sandbox/results \
