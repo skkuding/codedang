@@ -20,20 +20,20 @@ query {
 
 assert {
   res.status: eq 200
-  res.body[0].id: isNumber
-  res.body[0].title: isString
-  res.body[0].createTime: isString
-  res.body[0].isFixed: isBoolean
-  res.body[0].createdBy: isString
+  res.body.data[0].id: isNumber
+  res.body.data[0].title: isString
+  res.body.data[0].createTime: isString
+  res.body.data[0].isFixed: isBoolean
+  res.body.data[0].createdBy: isString
 }
 
 docs {
   # Get Notices
-
+  
   공개된 공지사항 목록을 가져옵니다.
-
+  
   ## Query
-
+  
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |take  |Integer|가져올 공지사항 개수 (default: 10)|
