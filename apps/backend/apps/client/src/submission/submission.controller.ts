@@ -130,6 +130,7 @@ export class SubmissionController {
         id,
         problemId,
         req.user.id,
+        req.user.role,
         groupId,
         contestId
       )
