@@ -8,7 +8,7 @@ terraform {
 
   backend "s3" {
     bucket         = "codedang-tf-state"
-    key            = "terraform/codedang.tfstate"
+    key            = "terraform/storage.tfstate"
     region         = "ap-northeast-2"
     encrypt        = true
     dynamodb_table = "terraform-state-lock"
