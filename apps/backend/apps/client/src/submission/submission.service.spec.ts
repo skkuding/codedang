@@ -3,7 +3,7 @@ import { NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
-import { Language, ResultStatus } from '@prisma/client'
+import { Language, ResultStatus, Role } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
@@ -346,6 +346,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
@@ -371,6 +372,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
@@ -388,6 +390,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
@@ -405,6 +408,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
