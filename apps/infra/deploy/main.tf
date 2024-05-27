@@ -33,7 +33,3 @@ module "codedang-infra" {
   otel_port            = var.otel_port
 
 }
-
-# module "codedang-tf-backend" {
-#   source = "../modules/codedang-tf-backend"
-# }
