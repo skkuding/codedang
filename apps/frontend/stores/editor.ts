@@ -1,11 +1,7 @@
 import type { Language } from '@/types/type'
-import { create } from 'zustand'
+import { createContext } from 'react'
+import { create, createStore } from 'zustand'
 import { persist } from 'zustand/middleware'
-
-interface CodeStore {
-  code: string
-  setCode: (code: string) => void
-}
 
 interface LanguageStore {
   language: Language
@@ -25,15 +21,21 @@ export const useLanguageStore = create(
     }
   )
 )
+interface CodeState {
+  code: string
+  setCode: (code: string) => void
+}
 
-export const useCodeStore = (
+type CodeStore = ReturnType<typeof createCodeStore>
+
+export const createCodeStore = (
   language: Language,
-  problemId: string | number,
-  contestId?: string | number
+  problemId: number,
+  contestId?: number
 ) => {
   const problemKey = `${problemId}${contestId ? `_${contestId}` : ''}_${language}`
-  return create(
-    persist<CodeStore>(
+  return createStore<CodeState>()(
+    persist<CodeState>(
       (set) => ({
         code: '',
         setCode: (code) => {
@@ -44,5 +46,7 @@ export const useCodeStore = (
         name: problemKey
       }
     )
-  )()
+  )
 }
+
+export const CodeContext = createContext<CodeStore | null>(null)

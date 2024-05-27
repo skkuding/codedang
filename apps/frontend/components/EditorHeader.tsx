@@ -23,15 +23,16 @@ import {
 import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
 import useAuthModalStore from '@/stores/authModal'
-import { useCodeStore, useLanguageStore } from '@/stores/editor'
+import { CodeContext, useLanguageStore } from '@/stores/editor'
 import type { Language, ProblemDetail, Submission } from '@/types/type'
 import JSConfetti from 'js-confetti'
 import { Trash2Icon } from 'lucide-react'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useInterval } from 'react-use'
 import { toast } from 'sonner'
+import { useStore } from 'zustand'
 
 interface ProblemEditorProps {
   problem: ProblemDetail
@@ -40,7 +41,9 @@ interface ProblemEditorProps {
 
 export default function Editor({ problem, contestId }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore()
-  const { code, setCode } = useCodeStore(language, problem.id, contestId)
+  const store = useContext(CodeContext)
+  if (!store) throw new Error('CodeContext is not provided')
+  const { code, setCode } = useStore(store)
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const router = useRouter()
