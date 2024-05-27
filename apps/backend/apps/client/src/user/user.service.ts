@@ -12,7 +12,7 @@ import { generate } from 'generate-password'
 import { ExtractJwt } from 'passport-jwt'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
-import { EMAIL_AUTH_EXPIRE_TIME } from '@libs/constants'
+import { EMAIL_AUTH_EXPIRE_TIME, ARGON2_HASH_OPTION } from '@libs/constants'
 import {
   ConflictFoundException,
   DuplicateFoundException,
@@ -186,7 +186,7 @@ export class UserService {
           email
         },
         data: {
-          password: await hash(newPassword)
+          password: await hash(newPassword, ARGON2_HASH_OPTION)
         }
       })
       this.logger.debug(user, 'updateUserPasswordInPrisma')
@@ -351,7 +351,7 @@ export class UserService {
   }
 
   async createUser(signUpDto: SignUpDto): Promise<User> {
-    const encryptedPassword = await hash(signUpDto.password)
+    const encryptedPassword = await hash(signUpDto.password, ARGON2_HASH_OPTION)
 
     const user = await this.prisma.user.create({
       data: {
