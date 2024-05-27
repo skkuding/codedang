@@ -9,7 +9,7 @@ interface Item {
 }
 
 interface DataSet<T> {
-  problems: T[] //TODO: 백엔드 get류 api return type 통일되면 problems -> data로 고치기
+  data: T[]
   total: number
 }
 
@@ -72,10 +72,10 @@ export const useInfiniteScroll = <T extends Item>({
       queryFn: getInfiniteData,
       initialPageParam: 0,
       getNextPageParam: (lastPage: DataSet<T>) => {
-        return lastPage?.problems.length === 0 || //TODO: fix problem to data
-          lastPage?.problems.length < itemsPerPage
+        return lastPage?.data.length === 0 || //TODO: fix problem to data
+          lastPage?.data.length < itemsPerPage
           ? undefined //페이지에 있는 아이템 수가 0이거나 itemsPerPage보다 작으면 undefined를 반환합니다.
-          : lastPage.problems.at(-1)?.id //cursor를 getData의 params로 넘겨줍니다.
+          : lastPage.data.at(-1)?.id //cursor를 getData의 params로 넘겨줍니다.
       }
     })
 
@@ -109,7 +109,7 @@ export const useInfiniteScroll = <T extends Item>({
 */
 
   return {
-    items: data.pages.flat().flatMap((page) => page.problems),
+    items: data.pages.flat().flatMap((page) => page.data),
     total: data.pages.at(0)?.total,
     fetchNextPage,
     ref,
