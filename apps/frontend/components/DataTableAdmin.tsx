@@ -1,7 +1,5 @@
 'use client'
 
-import { gql } from '@generated'
-import { GET_TAGS } from '@/app/admin/problem/utils'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +20,9 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { DELETE_CONTEST } from '@/graphql/contest/mutations'
+import { DELETE_PROBLEM } from '@/graphql/problem/mutations'
+import { GET_TAGS } from '@/graphql/problem/queries'
 import { useMutation, useQuery } from '@apollo/client'
 import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import {
@@ -113,22 +114,6 @@ export function DataTableAdmin<TData, TValue>({
   } else {
     deletingObject = 'problem'
   }
-
-  const DELETE_PROBLEM = gql(`
-  mutation DeleteProblem($groupId: Int!, $id: Int!) {
-    deleteProblem(groupId: $groupId, id: $id) {
-      id
-    }
-  }
-`)
-
-  const DELETE_CONTEST = gql(`
-    mutation DeleteContest($groupId: Int!, $contestId: Int!) {
-      deleteContest(groupId: $groupId, contestId: $contestId) {
-        id
-      }
-    }
-`)
 
   const [deleteProblem] = useMutation(DELETE_PROBLEM)
   const [deleteContest] = useMutation(DELETE_CONTEST)

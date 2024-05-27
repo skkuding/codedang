@@ -1,6 +1,5 @@
 'use client'
 
-import { gql } from '@generated'
 import CheckboxSelect from '@/components/CheckboxSelect'
 import OptionSelect from '@/components/OptionSelect'
 import TagsSelect from '@/components/TagsSelect'
@@ -16,6 +15,8 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { CREATE_PROBLEM } from '@/graphql/problem/mutations'
+import { GET_TAGS } from '@/graphql/problem/queries'
 import { languages, levels } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
@@ -34,40 +35,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import ExampleTextarea from '../_components/ExampleTextarea'
 import Label from '../_components/Label'
-import { GET_TAGS, inputStyle } from '../utils'
-
-const CREATE_PROBLEM = gql(`
-  mutation CreateProblem($groupId: Int!, $input: CreateProblemInput!) {
-    createProblem(groupId: $groupId, input: $input) {
-      id
-      createdById
-      groupId
-      title
-      isVisible
-      difficulty
-      languages
-      problemTag {
-        tagId
-      }
-      description
-      inputDescription
-      outputDescription
-      samples {
-        input
-        output
-      }
-      problemTestcase {
-        input
-        output
-      }
-      timeLimit
-      memoryLimit
-      hint
-      source
-      template
-    }
-  }
-`)
+import { inputStyle } from '../utils'
 
 const schema = z.object({
   title: z.string().min(1).max(200),
