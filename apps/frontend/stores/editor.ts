@@ -1,23 +1,48 @@
 import type { Language } from '@/types/type'
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
-interface EditorStore {
+interface CodeStore {
   code: string
-  language: Language
-  setLanguage: (language: Language) => void
   setCode: (code: string) => void
-  clearCode: () => void
 }
 
-const useEditorStore = create<EditorStore>((set) => ({
-  code: '',
-  language: 'C',
-  setLanguage: (language) => {
-    localStorage.setItem('programming_lang', language)
-    set({ language })
-  },
-  setCode: (code: string) => set({ code }),
-  clearCode: () => set({ code: '' })
-}))
+interface LanguageStore {
+  language: Language
+  setLanguage: (language: Language) => void
+}
 
-export default useEditorStore
+export const useLanguageStore = create(
+  persist<LanguageStore>(
+    (set) => ({
+      language: 'C',
+      setLanguage: (language) => {
+        set({ language })
+      }
+    }),
+    {
+      name: 'language'
+    }
+  )
+)
+
+export const useCodeStore = (
+  language: Language,
+  problemId: string | number,
+  contestId?: string | number
+) => {
+  const problemKey = `${problemId}${contestId ? `_${contestId}` : ''}_${language}`
+  return create(
+    persist<CodeStore>(
+      (set) => ({
+        code: '',
+        setCode: (code) => {
+          set({ code })
+        }
+      }),
+      {
+        name: problemKey
+      }
+    )
+  )()
+}

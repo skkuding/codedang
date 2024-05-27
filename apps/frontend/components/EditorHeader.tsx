@@ -23,7 +23,7 @@ import {
 import { auth } from '@/lib/auth'
 import { fetcherWithAuth } from '@/lib/utils'
 import useAuthModalStore from '@/stores/authModal'
-import useEditorStore from '@/stores/editor'
+import { useCodeStore, useLanguageStore } from '@/stores/editor'
 import type { Language, ProblemDetail, Submission } from '@/types/type'
 import JSConfetti from 'js-confetti'
 import { Trash2Icon } from 'lucide-react'
@@ -39,7 +39,8 @@ interface ProblemEditorProps {
 }
 
 export default function Editor({ problem, contestId }: ProblemEditorProps) {
-  const { code, language, clearCode, setLanguage } = useEditorStore()
+  const { language, setLanguage } = useLanguageStore()
+  const { code, setCode } = useCodeStore(language, problem.id, contestId)
   const [loading, setLoading] = useState(false)
   const [submissionId, setSubmissionId] = useState<number | null>(null)
   const router = useRouter()
@@ -141,7 +142,9 @@ export default function Editor({ problem, contestId }: ProblemEditorProps) {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex gap-2">
-              <AlertDialogAction onClick={clearCode}>Clear</AlertDialogAction>
+              <AlertDialogAction onClick={() => setCode('')}>
+                Clear
+              </AlertDialogAction>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
             </AlertDialogFooter>
           </AlertDialogContent>

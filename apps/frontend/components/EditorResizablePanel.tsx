@@ -8,13 +8,12 @@ import {
 } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useStorage } from '@/lib/storage'
-import useEditorStore from '@/stores/editor'
+import { useCodeStore, useLanguageStore } from '@/stores/editor'
 import type { Language, ProblemDetail } from '@/types/type'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Suspense, useEffect } from 'react'
+import { Suspense } from 'react'
 import Loading from '../app/problem/[problemId]/loading'
 import EditorHeader from './EditorHeader'
 
@@ -83,7 +82,10 @@ export default function EditorMainResizablePanel({
       <ResizablePanel defaultSize={65} className="bg-slate-900">
         <div className="grid-rows-editor grid h-full">
           <EditorHeader problem={problem} contestId={contestId} />
-          <CodeEditorInEditorResizablePanel problem={problem} />
+          <CodeEditorInEditorResizablePanel
+            problem={problem}
+            contestId={contestId}
+          />
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
@@ -91,25 +93,14 @@ export default function EditorMainResizablePanel({
 }
 
 function CodeEditorInEditorResizablePanel({
-  problem
+  problem,
+  contestId
 }: {
   problem: ProblemDetail
+  contestId?: number
 }) {
-  // get programming language from localStorage for default value
-  const { value } = useStorage<Language>(
-    'programming_lang',
-    problem.languages[0]
-  )
-  const { code, setCode, setLanguage, language } = useEditorStore()
-
-  useEffect(() => {
-    if (!language) {
-      setLanguage(value ?? problem.languages[0])
-    } else if (language && !problem.languages.includes(language)) {
-      // if value in storage is not in languages, set value to the first language
-      setLanguage(problem.languages[0])
-    }
-  }, [problem.languages, value, setLanguage, language])
+  const { language } = useLanguageStore()
+  const { code, setCode } = useCodeStore(language, problem.id, contestId)
   return (
     <CodeEditor
       value={code}
