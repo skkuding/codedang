@@ -1,6 +1,5 @@
 'use client'
 
-import { gql } from '@generated'
 import { DataTableColumnHeader } from '@/components/DataTableColumnHeader'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
@@ -10,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { UPDATE_CONTEST_VISIBLE } from '@/graphql/contest/mutations'
 import { cn, dateFormatter } from '@/lib/utils'
 import { useMutation } from '@apollo/client'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
@@ -28,18 +28,8 @@ interface DataTableContest {
   isRankVisible: boolean
 }
 
-const EDIT_VISIBLE = gql(`
-  mutation UpdateContestVisible($groupId: Int!, $input: UpdateContestInput!) {
-    updateContest(groupId: $groupId, input: $input) {
-      id
-      isVisible
-      isRankVisible
-    }
-  }
-`)
-
 function VisibleCell({ row }: { row: Row<DataTableContest> }) {
-  const [updateVisible] = useMutation(EDIT_VISIBLE)
+  const [updateVisible] = useMutation(UPDATE_CONTEST_VISIBLE)
 
   return (
     <div className="flex space-x-2">

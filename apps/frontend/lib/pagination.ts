@@ -5,6 +5,11 @@ interface Item {
   id: number
 }
 
+interface DataSet<T> {
+  data: T[]
+  total: number
+}
+
 /**
  * Custom Hook to get cursor-based paginated items.
  *
@@ -29,7 +34,7 @@ export const usePagination = <T extends Item>(
   withauth = false
 ) => {
   const [items, setItems] = useState<T[]>()
-  const slotItems = useRef<T[]>([])
+  const slotItems = useRef<DataSet<T>>({ data: [], total: 0 })
 
   const page = useRef(1) // TODO: 새로고침 후에 현재 페이지로 돌아갈 수 있도록 수정
   const slot = useRef(0)
@@ -57,7 +62,7 @@ export const usePagination = <T extends Item>(
       page.current = newPage
       const start =
         ((newPage - nav.current.page.first) % pagesPerSlot) * itemsPerPage
-      setItems(slotItems.current.slice(start, start + itemsPerPage))
+      setItems(slotItems.current.data?.slice(start, start + itemsPerPage))
     },
     [itemsPerPage, pagesPerSlot]
   )
@@ -89,31 +94,34 @@ export const usePagination = <T extends Item>(
             searchParams: query
           })
       console.log(res.status)
-      const data: T[] = await res.json()
+      const resData: DataSet<T> = await res.json()
 
       const next = Number(query.get('take')) > 0
-      const full = data.length >= take
+      const full = resData.data?.length >= take
       if (full) {
-        if (next) data.pop()
-        else data.shift()
+        if (next) resData.data.pop()
+        else resData.data.shift()
       }
       nav.current = {
         page: {
           first: slot.current * pagesPerSlot + 1,
-          count: Math.min(Math.ceil(data.length / itemsPerPage), pagesPerSlot)
+          count: Math.min(
+            Math.ceil(resData.data?.length / itemsPerPage),
+            pagesPerSlot
+          )
         },
         slot: {
           prev:
             (next && slot.current > 0) || (!next && full)
-              ? `${baseQuery}&cursor=${data.at(0)!.id}&take=${-take}`
+              ? `${baseQuery}&cursor=${resData.data.at(0)!.id}&take=${-take}`
               : '',
           next:
             (next && full) || !next
-              ? `${baseQuery}&cursor=${data.at(-1)!.id}&take=${take}`
+              ? `${baseQuery}&cursor=${resData.data.at(-1)!.id}&take=${take}`
               : ''
         }
       }
-      slotItems.current = data
+      slotItems.current = resData
       gotoPage(page.current)
     })()
   }, [query, path, baseQuery, itemsPerPage, pagesPerSlot, take, gotoPage])

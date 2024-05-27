@@ -1,6 +1,5 @@
 'use client'
 
-import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
+import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useQuery } from '@apollo/client'
 import { Language, Level } from '@generated/graphql'
 import { PlusCircleIcon } from 'lucide-react'
@@ -21,38 +21,6 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { columns } from './_components/Columns'
 import UploadDialog from './_components/UploadDialog'
-
-const GET_PROBLEMS = gql(`
-  query GetProblems(
-    $groupId: Int!
-    $cursor: Int
-    $take: Int!
-    $input: FilterProblemsInput!
-  ) {
-    getProblems(
-      groupId: $groupId
-      cursor: $cursor
-      take: $take
-      input: $input
-    ) {
-      id
-      title
-      createTime
-      difficulty
-      submissionCount
-      acceptedRate
-      isVisible
-      languages
-      tag {
-        id
-        tag {
-          id
-          name
-        }
-      }
-    }
-  }
-`)
 
 export default function Page({
   searchParams
