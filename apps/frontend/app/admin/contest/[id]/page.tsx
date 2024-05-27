@@ -13,7 +13,7 @@ import {
 } from '@/graphql/contest/mutations'
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import {
-  EDIT_VISIBLE,
+  UPDATE_PROBLEM_VISIBLE,
   UPDATE_CONTEST_PROBLEMS_ORDER
 } from '@/graphql/problem/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
@@ -148,7 +148,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [updateContest, { error }] = useMutation(UPDATE_CONTEST)
   const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
   const [removeProblemsFromContest] = useMutation(REMOVE_PROBLEMS_FROM_CONTEST)
-  const [updateVisible] = useMutation(EDIT_VISIBLE)
+  const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )

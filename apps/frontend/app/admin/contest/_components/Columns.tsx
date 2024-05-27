@@ -9,7 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { EDIT_VISIBLE } from '@/graphql/contest/mutations'
+import { UPDATE_CONTEST_VISIBLE } from '@/graphql/contest/mutations'
 import { cn, dateFormatter } from '@/lib/utils'
 import { useMutation } from '@apollo/client'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
@@ -29,7 +29,7 @@ interface DataTableContest {
 }
 
 function VisibleCell({ row }: { row: Row<DataTableContest> }) {
-  const [updateVisible] = useMutation(EDIT_VISIBLE)
+  const [updateVisible] = useMutation(UPDATE_CONTEST_VISIBLE)
 
   return (
     <div className="flex space-x-2">

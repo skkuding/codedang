@@ -16,7 +16,7 @@ import {
   IMPORT_PROBLEMS_TO_CONTEST
 } from '@/graphql/contest/mutations'
 import {
-  EDIT_VISIBLE,
+  UPDATE_PROBLEM_VISIBLE,
   UPDATE_CONTEST_PROBLEMS_ORDER
 } from '@/graphql/problem/mutations'
 import { cn } from '@/lib/utils'
@@ -80,7 +80,7 @@ export default function Page() {
 
   const [createContest, { error }] = useMutation(CREATE_CONTEST)
   const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
-  const [updateVisible] = useMutation(EDIT_VISIBLE)
+  const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
