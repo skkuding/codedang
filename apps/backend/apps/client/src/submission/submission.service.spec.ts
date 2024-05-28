@@ -48,6 +48,10 @@ const db = {
   contestRecord: {
     findUniqueOrThrow: stub()
   },
+  user: {
+    findFirstOrThrow: stub(),
+    findFirst: stub()
+  },
   getPaginator: PrismaService.prototype.getPaginator
 }
 
@@ -340,13 +344,17 @@ describe('SubmissionService', () => {
         user: { username: 'username' },
         submissionResult: submissionResults
       })
+      db.user.findFirstOrThrow.resolves({
+        username: 'username',
+        id: submissions[0].userId,
+        role: Role.User
+      })
 
       expect(
         await service.getSubmission(
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
-          Role.User,
           undefined,
           null
         )
@@ -372,7 +380,6 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
-          Role.User,
           undefined,
           null
         )
@@ -390,7 +397,6 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
-          Role.User,
           undefined,
           null
         )
@@ -408,7 +414,6 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
-          Role.User,
           undefined,
           null
         )
