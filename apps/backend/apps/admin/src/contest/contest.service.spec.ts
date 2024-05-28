@@ -97,7 +97,6 @@ const problem: Problem = {
   inputDescription: 'inputdescription',
   outputDescription: 'outputdescription',
   hint: 'hint',
-  isVisible: true,
   template: [],
   languages: ['C'],
   timeLimit: 10000,
