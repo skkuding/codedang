@@ -8,7 +8,7 @@ import {
   type SubmissionResult,
   type Language,
   type Problem,
-  type Role
+  Role
 } from '@prisma/client'
 import type { AxiosRequestConfig } from 'axios'
 import { plainToInstance } from 'class-transformer'
@@ -497,7 +497,6 @@ export class SubmissionService implements OnModuleInit {
     id: number,
     problemId: number,
     userId: number,
-    userRole: Role,
     groupId = OPEN_SPACE_ID,
     contestId: number | null
   ) {
@@ -571,12 +570,24 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
+    // TODO: GroupMemberGuard 문제 해결 시 controller에서 parameter로 받도록 변경해야합니다.
+    const user = await this.prisma.user.findFirstOrThrow({
+      select: {
+        role: true
+      },
+      where: {
+        id: userId
+      }
+    })
+
+    const userRole = user.role as Role
+
     if (
       contest &&
       contest.startTime <= now &&
       contest.endTime > now &&
       submission.userId !== userId &&
-      userRole === 'User'
+      userRole === Role.User
     ) {
       throw new ForbiddenAccessException(
         "Contest should end first before you browse other people's submissions"
