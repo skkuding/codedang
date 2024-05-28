@@ -1,12 +1,22 @@
 'use client'
 
-import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import TextEditor from '@/components/TextEditor'
 import { DateTimePickerDemo } from '@/components/date-time-picker-demo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  IMPORT_PROBLEMS_TO_CONTEST,
+  UPDATE_CONTEST,
+  REMOVE_PROBLEMS_FROM_CONTEST
+} from '@/graphql/contest/mutations'
+import { GET_CONTEST } from '@/graphql/contest/queries'
+import {
+  UPDATE_PROBLEM_VISIBLE,
+  UPDATE_CONTEST_PROBLEMS_ORDER
+} from '@/graphql/problem/mutations'
+import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
 import type { UpdateContestInput } from '@generated/graphql'
@@ -23,98 +33,6 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import Label from '../_components/Label'
 import { columns } from './_components/Columns'
-
-const GET_CONTEST = gql(`
-  query GetContest($contestId: Int!) {
-    getContest(contestId: $contestId) {
-      id
-      description
-      endTime
-      startTime
-      title
-    }
-  }
-`)
-
-const UPDATE_CONTEST = gql(`
-  mutation UpdateContest($groupId: Int!, $input: UpdateContestInput!) {
-    updateContest(groupId: $groupId, input: $input) {
-      id
-      isRankVisible
-      isVisible
-      description
-      endTime
-      startTime
-      title
-    }
-  }
-`)
-
-const GET_CONTEST_PROBLEMS = gql(`
-  query GetContestProblems($groupId: Int!, $contestId: Int!) {
-    getContestProblems(groupId: $groupId, contestId: $contestId) {
-      order
-      problemId
-      problem {
-        title
-        difficulty
-		  }
-    }
-  }
-`)
-
-const IMPORT_PROBLEMS_TO_CONTEST = gql(`
-  mutation ImportProblemsToContest(
-    $groupId: Int!,
-    $contestId: Int!,
-    $problemIds: [Int!]!
-  ) {
-    importProblemsToContest(
-      groupId: $groupId,
-      contestId: $contestId,
-      problemIds: $problemIds
-    ) {
-      contestId
-      problemId
-    }
-  }
-`)
-
-const REMOVE_PROBLEMS_FROM_CONTEST = gql(`
-  mutation RemoveProblemsFromContest(
-    $groupId: Int!,
-    $contestId: Int!,
-    $problemIds: [Int!]!
-  ) {
-    removeProblemsFromContest(
-      groupId: $groupId,
-      contestId: $contestId,
-      problemIds: $problemIds
-    ) {
-      contestId
-      problemId
-    }
-  }
-`)
-
-const UPDATE_CONTEST_PROBLEMS_ORDER = gql(`
-  mutation UpdateContestProblemsOrder($groupId: Int!, $contestId: Int!, $orders: [Int!]!) {
-    updateContestProblemsOrder(groupId: $groupId, contestId: $contestId, orders: $orders) {
-      order
-      contestId
-      problemId
-    }
-  }
-`)
-
-const EDIT_VISIBLE = gql(`
-mutation UpdateVisible($groupId: Int!, $input: UpdateProblemInput!) {
-  updateProblem(groupId: $groupId, input: $input) {
-    id
-    isVisible
-  }
-}
-`)
 
 const inputStyle =
   'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
@@ -230,7 +148,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [updateContest, { error }] = useMutation(UPDATE_CONTEST)
   const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
   const [removeProblemsFromContest] = useMutation(REMOVE_PROBLEMS_FROM_CONTEST)
-  const [updateVisible] = useMutation(EDIT_VISIBLE)
+  const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )
