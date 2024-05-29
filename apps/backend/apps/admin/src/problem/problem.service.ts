@@ -365,7 +365,7 @@ export class ProblemService {
       problem.exposeTime != minDate
     ) {
       throw new UnprocessableDataException(
-        'Visibility setting cannot be changed because of the contest'
+        'Visibility setting cannot be changed when problem is included in the contest'
       )
     }
     const supportedLangs = languages ?? problem.languages

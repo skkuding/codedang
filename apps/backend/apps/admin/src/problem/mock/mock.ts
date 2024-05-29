@@ -11,6 +11,7 @@ import type {
 import { faker } from '@faker-js/faker'
 import { createReadStream } from 'fs'
 import type { FileUploadDto } from '../dto/file-upload.dto'
+import { minDate, maxDate } from '../model/problem.constants'
 import type { UploadFileInput } from '../model/problem.input'
 import type { Template } from '../model/template.input'
 import type { Testcase } from '../model/testcase.input'
@@ -48,7 +49,7 @@ export const problems: Problem[] = [
     acceptedRate: 0.5,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    exposeTime: new Date(),
+    exposeTime: maxDate,
     samples: [],
     engTitle: null,
     engDescription: null,
@@ -76,7 +77,7 @@ export const problems: Problem[] = [
     acceptedRate: 0.5,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    exposeTime: new Date(),
+    exposeTime: faker.date.past(), //contest exposeTime
     samples: [],
     engTitle: null,
     engDescription: null,
@@ -85,6 +86,14 @@ export const problems: Problem[] = [
     engOutputDescription: null
   }
 ]
+
+export const problemsWithoutExposeTime = problems.map((problem) => {
+  const { exposeTime, ...problemWithoutExposeTime } = problem
+  return {
+    isVisible: exposeTime < new Date() ? true : false,
+    ...problemWithoutExposeTime
+  }
+})
 
 export const testcaseInput: Testcase = {
   input: "wake up, daddy's home",
@@ -134,7 +143,7 @@ export const importedProblems: Problem[] = [
     acceptedRate: 0.5,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    exposeTime: new Date(),
+    exposeTime: minDate,
     samples: [],
     engTitle: null,
     engDescription: null,
@@ -178,7 +187,7 @@ export const importedProblems: Problem[] = [
     acceptedRate: 0.5,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    exposeTime: new Date(),
+    exposeTime: minDate,
     samples: [],
     engTitle: null,
     engDescription: null,
@@ -187,6 +196,16 @@ export const importedProblems: Problem[] = [
     engOutputDescription: null
   }
 ]
+
+export const importedProblemsWithoutExposeTime = importedProblems.map(
+  (problem) => {
+    const { exposeTime, ...problemWithoutExposeTime } = problem
+    return {
+      isVisible: exposeTime < new Date() ? true : false,
+      ...problemWithoutExposeTime
+    }
+  }
+)
 
 export const exampleWorkbook: Workbook = {
   id: 1,
