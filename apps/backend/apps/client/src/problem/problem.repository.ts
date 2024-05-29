@@ -23,7 +23,6 @@ export class ProblemRepository {
     id: true,
     title: true,
     engTitle: true,
-    exposeTime: true,
     difficulty: true,
     acceptedRate: true,
     submissionCount: true
@@ -205,12 +204,7 @@ export class ProblemRepository {
       take,
       orderBy: { order: 'asc' },
       where: {
-        contestId,
-        problem: {
-          exposeTime: {
-            lte: new Date()
-          }
-        }
+        contestId
       },
       select: {
         order: true,
@@ -224,12 +218,7 @@ export class ProblemRepository {
   async getContestProblemTotalCount(contestId: number) {
     return await this.prisma.contestProblem.count({
       where: {
-        contestId,
-        problem: {
-          exposeTime: {
-            lte: new Date()
-          }
-        }
+        contestId
       }
     })
   }
@@ -241,11 +230,6 @@ export class ProblemRepository {
         contestId_problemId: {
           contestId,
           problemId
-        },
-        problem: {
-          exposeTime: {
-            lte: new Date()
-          }
         }
       },
       select: {

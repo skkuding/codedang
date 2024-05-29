@@ -5,4 +5,5 @@
 
 */
 -- AlterTable
-ALTER TABLE "problem" DROP COLUMN "is_visible";
+ALTER TABLE "problem" DROP COLUMN "is_visible",
+ALTER COLUMN "expose_time" DROP DEFAULT;

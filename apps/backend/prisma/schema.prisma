@@ -176,7 +176,7 @@ model Problem {
   submissionCount Int        @default(0) @map("submission_count")
   acceptedCount   Int        @default(0) @map("accepted_count")
   acceptedRate    Float      @default(0) @map("accepted_rate")
-  exposeTime      DateTime   @default(now()) @map("expose_time")
+  exposeTime      DateTime   @map("expose_time") // 모든 이용자들에게 공개되는 시각
   createTime      DateTime   @default(now()) @map("create_time")
   updateTime      DateTime   @updatedAt @map("update_time")
 

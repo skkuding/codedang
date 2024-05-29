@@ -5,6 +5,6 @@ import { Problem } from '@admin/@generated'
 export class ProblemWithIsVisible extends OmitType(Problem, [
   'exposeTime'
 ] as const) {
-  @Field(() => Boolean, { nullable: false })
-  isVisible!: boolean
+  @Field(() => Boolean, { nullable: true })
+  isVisible!: boolean | null
 }

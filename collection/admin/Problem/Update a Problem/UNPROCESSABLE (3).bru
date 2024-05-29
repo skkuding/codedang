@@ -29,7 +29,7 @@ body:graphql:vars {
   {
     "groupId": 1,
     "input": {
-      "id": 5,
+      "id": 1,
       "isVisible": false
     }
   }
@@ -37,5 +37,5 @@ body:graphql:vars {
 
 assert {
   res.body.errors[0].extensions.code: eq UNPROCESSABLE
-  res.body.errors[0].message: eq Visibility setting cannot be changed when problem is included in the contest
+  res.body.errors[0].message: eq Unable to set the visible property until the contest is over
 }

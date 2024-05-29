@@ -260,7 +260,7 @@ describe('ProblemService', () => {
       expect(uploadSpy.called).to.be.false
     })
 
-    it('should throw error when user changes visibility of problem related to contest', async () => {
+    it('should throw error when user changes visible property of problem included in upcoming/ongoing contest', async () => {
       const uploadSpy = stub(storageService, 'uploadObject').resolves()
       db.problem.findFirstOrThrow.resolves(problems[1])
       await expect(

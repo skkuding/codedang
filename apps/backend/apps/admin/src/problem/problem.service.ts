@@ -359,13 +359,9 @@ export class ProblemService {
         'A problem should support at least one language'
       )
     }
-    if (
-      isVisible != undefined &&
-      problem.exposeTime != maxDate &&
-      problem.exposeTime != minDate
-    ) {
+    if (isVisible != undefined && new Date() < problem.exposeTime) {
       throw new UnprocessableDataException(
-        'Visibility setting cannot be changed when problem is included in the contest'
+        'Unable to set the visible property until the contest is over'
       )
     }
     const supportedLangs = languages ?? problem.languages
@@ -669,15 +665,20 @@ export class ProblemService {
   async changeExposetimeToIsvisible(
     problems: Problem[] | Problem
   ): Promise<
-    | (Omit<Problem, 'exposeTime'> & { isVisible: boolean })[]
-    | (Omit<Problem, 'exposeTime'> & { isVisible: boolean })
+    | (Omit<Problem, 'exposeTime'> & { isVisible: boolean | null })[]
+    | (Omit<Problem, 'exposeTime'> & { isVisible: boolean | null })
   > {
     const newProblems =
       (Array.isArray(problems) ? problems : [problems]).map(
         (problem: Problem) => {
           const { exposeTime, ...data } = problem
           return {
-            isVisible: exposeTime < new Date() ? true : false,
+            isVisible:
+              exposeTime < new Date()
+                ? true
+                : exposeTime == maxDate
+                  ? false
+                  : null,
             ...data
           }
         }

@@ -77,7 +77,7 @@ export const problems: Problem[] = [
     acceptedRate: 0.5,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    exposeTime: faker.date.past(), //contest exposeTime
+    exposeTime: faker.date.future(), //contest endTime
     samples: [],
     engTitle: null,
     engDescription: null,
@@ -90,7 +90,8 @@ export const problems: Problem[] = [
 export const problemsWithoutExposeTime = problems.map((problem) => {
   const { exposeTime, ...problemWithoutExposeTime } = problem
   return {
-    isVisible: exposeTime < new Date() ? true : false,
+    isVisible:
+      exposeTime < new Date() ? true : exposeTime == maxDate ? false : null,
     ...problemWithoutExposeTime
   }
 })
@@ -201,7 +202,8 @@ export const importedProblemsWithoutExposeTime = importedProblems.map(
   (problem) => {
     const { exposeTime, ...problemWithoutExposeTime } = problem
     return {
-      isVisible: exposeTime < new Date() ? true : false,
+      isVisible:
+        exposeTime < new Date() ? true : exposeTime == maxDate ? false : null,
       ...problemWithoutExposeTime
     }
   }

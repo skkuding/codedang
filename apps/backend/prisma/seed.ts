@@ -654,7 +654,7 @@ const createProblems = async () => {
             }
           ]
         },
-        exposeTime: new Date('2024-01-01T00:00:00.000Z') //ongoingContests[0].startTime
+        exposeTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
   )
@@ -686,7 +686,7 @@ const createProblems = async () => {
         samples: {
           create: [{ input: '1\n10\n12\n13', output: 'Uphill' }]
         },
-        exposeTime: new Date('2024-01-01T00:00:00.000Z') //ongoingContests[0].startTime
+        exposeTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
   )
@@ -722,7 +722,7 @@ const createProblems = async () => {
             { input: 'SHOW', output: 'NO' }
           ]
         },
-        exposeTime: new Date('2024-01-01T00:00:00.000Z') //ongoingContests[0].startTime
+        exposeTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
   )
@@ -754,7 +754,7 @@ const createProblems = async () => {
         samples: {
           create: [{ input: '9\n2\n7\n3\n7\n7\n3\n7\n5\n7\n', output: '4' }]
         },
-        exposeTime: new Date('2024-01-01T00:00:00.000Z') //ongoingContests[0].startTime
+        exposeTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
       }
     })
   )
@@ -791,7 +791,7 @@ const createProblems = async () => {
             }
           ]
         },
-        exposeTime: new Date('2024-01-01T00:00:00.000Z') //ongoingContests[0].startTime
+        exposeTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
       }
     })
   )
@@ -821,7 +821,7 @@ const createProblems = async () => {
         memoryLimit: 128,
         source: 'USACO November 2011 Silver 3번',
         samples: { create: [{ input: '3 6', output: '5' }] },
-        exposeTime: new Date('2024-01-01T00:00:00.000Z') //ongoingContests[0].startTime
+        exposeTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
       }
     })
   )
@@ -1256,12 +1256,23 @@ const createContests = async () => {
     }
   }
 
-  // add problems to contest
-  for (const problem of problems.slice(0, 6)) {
+  // add problems to ongoing contest
+  for (const problem of problems.slice(0, 3)) {
     await prisma.contestProblem.create({
       data: {
         order: problem.id - 1,
         contestId: ongoingContests[0].id,
+        problemId: problem.id
+      }
+    })
+  }
+
+  // add problems to finished contest
+  for (const problem of problems.slice(3, 6)) {
+    await prisma.contestProblem.create({
+      data: {
+        order: problem.id - 1,
+        contestId: endedContests[0].id,
         problemId: problem.id
       }
     })
