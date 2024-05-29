@@ -11,6 +11,7 @@ import { convertToLetter } from '@/lib/utils'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
 import { motion } from 'framer-motion'
 import { sanitize } from 'isomorphic-dompurify'
+import katex from 'katex'
 import { CheckCircle, Lightbulb, Tag } from 'lucide-react'
 import { Clipboard } from 'lucide-react'
 import { useState } from 'react'
@@ -43,6 +44,22 @@ const useCopy = () => {
   return { copiedID, copy }
 }
 
+const renderMathExpressions = (html: string) => {
+  const div = document.createElement('div')
+  div.innerHTML = html
+
+  div.querySelectorAll('math-component').forEach((el) => {
+    const content = el.getAttribute('content') || ''
+    const mathHtml = katex.renderToString(content, {
+      throwOnError: false,
+      strict: false,
+      globalGroup: true
+    })
+    el.outerHTML = mathHtml
+  })
+  return div.innerHTML
+}
+
 export function EditorDescription({
   problem,
   contestProblems
@@ -51,14 +68,14 @@ export function EditorDescription({
   contestProblems?: ContestProblem[]
 }) {
   const { copiedID, copy } = useCopy()
-
+  const description = renderMathExpressions(problem.description)
   return (
     <div className="dark flex h-full flex-col gap-8 p-6 text-lg">
       <div>
         <h1 className="mb-3 text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
         <div
           className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
-          dangerouslySetInnerHTML={{ __html: sanitize(problem.description) }}
+          dangerouslySetInnerHTML={{ __html: sanitize(description) }}
         />
       </div>
       <div>
