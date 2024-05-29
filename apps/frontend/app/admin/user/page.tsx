@@ -1,23 +1,12 @@
 'use client'
 
-import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import { ScrollBar } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
+import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
 import { useQuery } from '@apollo/client'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { columns } from './_components/Columns'
-
-const GET_GROUP_MEMBERS = gql(`
-  query GetGroupMembers($groupId: Int!, $cursor: Int, $take: Int!, $leaderOnly: Boolean!) {
-    getGroupMembers(groupId: $groupId, cursor: $cursor, take: $take, leaderOnly: $leaderOnly) {
-      username
-      userId
-      name
-      email
-    }
-  }
-`)
 
 export default function User() {
   const { data, loading } = useQuery(GET_GROUP_MEMBERS, {

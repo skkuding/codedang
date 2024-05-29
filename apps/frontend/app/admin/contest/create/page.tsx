@@ -1,6 +1,5 @@
 'use client'
 
-import { gql } from '@generated'
 import { DataTableAdmin } from '@/components/DataTableAdmin'
 import TextEditor from '@/components/TextEditor'
 import { DateTimePickerDemo } from '@/components/date-time-picker-demo'
@@ -12,6 +11,14 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  CREATE_CONTEST,
+  IMPORT_PROBLEMS_TO_CONTEST
+} from '@/graphql/contest/mutations'
+import {
+  UPDATE_PROBLEM_VISIBLE,
+  UPDATE_CONTEST_PROBLEMS_ORDER
+} from '@/graphql/problem/mutations'
 import { cn } from '@/lib/utils'
 import { useMutation } from '@apollo/client'
 import type { CreateContestInput } from '@generated/graphql'
@@ -29,56 +36,6 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import Label from '../_components/Label'
 import { columns } from './_components/Columns'
-
-const CREATE_CONTEST = gql(`
-  mutation CreateContest($groupId: Int!, $input: CreateContestInput!) {
-    createContest(groupId: $groupId, input: $input) {
-      id
-      isVisible
-      isRankVisible
-      description
-      endTime
-      startTime
-      title
-    }
-  }
-`)
-
-const IMPORT_PROBLEMS_TO_CONTEST = gql(`
-  mutation ImportProblemsToContest(
-    $groupId: Int!,
-    $contestId: Int!,
-    $problemIds: [Int!]!
-  ) {
-    importProblemsToContest(
-      groupId: $groupId,
-      contestId: $contestId,
-      problemIds: $problemIds
-    ) {
-      contestId
-      problemId
-    }
-  }
-`)
-
-const UPDATE_CONTEST_PROBLEMS_ORDER = gql(`
-  mutation UpdateContestProblemsOrder($groupId: Int!, $contestId: Int!, $orders: [Int!]!) {
-    updateContestProblemsOrder(groupId: $groupId, contestId: $contestId, orders: $orders) {
-      order
-      contestId
-      problemId
-    }
-  }
-`)
-
-const EDIT_VISIBLE = gql(`
-  mutation UpdateVisible($groupId: Int!, $input: UpdateProblemInput!) {
-    updateProblem(groupId: $groupId, input: $input) {
-      id
-      isVisible
-    }
-  }
-`)
 
 const inputStyle =
   'border-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950'
@@ -123,7 +80,7 @@ export default function Page() {
 
   const [createContest, { error }] = useMutation(CREATE_CONTEST)
   const [importProblemsToContest] = useMutation(IMPORT_PROBLEMS_TO_CONTEST)
-  const [updateVisible] = useMutation(EDIT_VISIBLE)
+  const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
   const [updateContestProblemsOrder] = useMutation(
     UPDATE_CONTEST_PROBLEMS_ORDER
   )

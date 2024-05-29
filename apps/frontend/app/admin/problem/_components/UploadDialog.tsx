@@ -1,4 +1,3 @@
-import { gql } from '@generated'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -6,6 +5,7 @@ import {
   DialogContent,
   DialogTrigger
 } from '@/components/ui/dialog'
+import { UPLOAD_PROBLEMS } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import { UploadIcon, UploadCloudIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -17,14 +17,6 @@ import { toast } from 'sonner'
 interface Props {
   refetch: () => Promise<unknown>
 }
-
-const UPLOAD_PROBLEMS = gql(`
-  mutation uploadProblems ($groupId: Int!, $input: UploadFileInput!) {
-    uploadProblems(groupId: $groupId, input: $input) {
-      id
-    }
-  }
-`)
 
 export default function UploadDialog({ refetch }: Props) {
   const [file, setFile] = useState<File | null>(null)
