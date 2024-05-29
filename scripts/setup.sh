@@ -61,8 +61,8 @@ pnpm install
 # Install lefthook for git hook
 pnpm exec lefthook install
 
-# Upload testcases to MinIO
-pnpm run init:testcases
+# Init MinIO
+pnpm run init:storage
 
 # Enable git auto completion
 if ! grep -q "bash-completion/completions/git" ~/.bashrc
