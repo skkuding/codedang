@@ -154,7 +154,7 @@ export default function TextEditor({
     editorProps: {
       attributes: {
         class:
-          'rounded-b-md border overflow-y-auto w-full h-[200px] border-input bg-backround px-3 ring-offset-2 disabled:cursur-not-allowed disabled:opacity-50'
+          'rounded-b-md border overflow-y-auto w-full h-[200px] border-input bg-backround px-3 ring-offset-2 disabled:cursur-not-allowed disabled:opacity-50 resize-y'
       }
     },
     onUpdate({ editor }) {

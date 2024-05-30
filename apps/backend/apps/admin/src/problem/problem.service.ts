@@ -5,12 +5,17 @@ import {
   Injectable,
   InternalServerErrorException
 } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { Language } from '@generated'
-import type { ContestProblem, Tag, WorkbookProblem } from '@generated'
+import type { ContestProblem, Problem, Tag, WorkbookProblem } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
-import { Prisma, type Problem } from '@prisma/client'
+import { Prisma } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import { randomUUID } from 'crypto'
 import { Workbook } from 'exceljs'
+import type { ReadStream } from 'fs'
+import { MAX_IMAGE_SIZE } from '@libs/constants'
 import {
   DuplicateFoundException,
   EntityNotExistException,
@@ -42,6 +47,7 @@ export class ProblemService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly storageService: StorageService,
+    private readonly config: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -143,25 +149,20 @@ export class ProblemService {
       throw new UnprocessableDataException(
         'Extensions except Excel(.xlsx, .xls) are not supported.'
       )
-
     const header = {}
     const problems: CreateProblemInput[] = []
-
     const workbook = new Workbook()
     const worksheet = (await workbook.xlsx.read(createReadStream()))
       .worksheets[0]
-
     worksheet.getRow(1).eachCell((cell, idx) => {
       if (!ImportedProblemHeader.includes(cell.text))
         throw new UnprocessableFileDataException(
-          `Field ${cell.text} is not supported`,
-          filename,
-          1
+          `Field ${cell.text} is not supported: ${1}`,
+          filename
         )
       header[cell.text] = idx
     })
     worksheet.spliceRows(1, 1)
-
     const unsupportedFields = [
       header['InputFileName'],
       header['InputFilePath'],
@@ -172,9 +173,8 @@ export class ProblemService {
       for (const colNumber of unsupportedFields) {
         if (row.getCell(colNumber).text !== '')
           throw new UnprocessableFileDataException(
-            'Using inputFile, outputFile is not supported',
-            filename,
-            rowNumber + 1
+            `Using inputFile, outputFile is not supported: ${rowNumber + 1}`,
+            filename
           )
       }
       const title = row.getCell(header['문제제목']).text
@@ -184,17 +184,13 @@ export class ProblemService {
       const languages: Language[] = []
       const level: Level = Level['Level' + levelText]
       const template: Template[] = []
-
       for (let text of languagesText) {
         if (text === 'Python') {
           text = 'Python3'
         }
-
         if (!(text in Language)) continue
-
         const language = text as keyof typeof Language
         const code = row.getCell(header[`${language}SampleCode`]).text
-
         template.push({
           language,
           code: [
@@ -207,42 +203,33 @@ export class ProblemService {
         })
         languages.push(Language[language])
       }
-
       if (!languages.length) {
         throw new UnprocessableFileDataException(
-          'A problem should support at least one language',
-          filename,
-          rowNumber + 1
+          `A problem should support at least one language: ${rowNumber + 1}`,
+          filename
         )
       }
-
       //TODO: specify timeLimit, memoryLimit(default: 2sec, 512mb)
-
       const testCnt = parseInt(row.getCell(header['TestCnt']).text)
       const inputText = row.getCell(header['Input']).text
       const outputs = row.getCell(header['Output']).text.split('::')
       const scoreWeights = row.getCell(header['Score']).text.split('::')
-
       if (testCnt === 0) return
-
       let inputs: string[] = []
       if (inputText === '' && testCnt !== 0) {
         for (let i = 0; i < testCnt; i++) inputs.push('')
       } else {
         inputs = inputText.split('::')
       }
-
       if (
         (inputs.length !== testCnt || outputs.length !== testCnt) &&
         inputText != ''
       ) {
         throw new UnprocessableFileDataException(
-          'TestCnt must match the length of Input and Output. Or Testcases should not include ::.',
-          filename,
-          rowNumber + 1
+          `TestCnt must match the length of Input and Output. Or Testcases should not include ::. :${rowNumber + 1}`,
+          filename
         )
       }
-
       const testcaseInput: Testcase[] = []
       for (let i = 0; i < testCnt; i++) {
         testcaseInput.push({
@@ -251,7 +238,6 @@ export class ProblemService {
           scoreWeight: parseInt(scoreWeights[i]) || undefined
         })
       }
-
       problems.push({
         title,
         description,
@@ -270,13 +256,98 @@ export class ProblemService {
         samples: []
       })
     })
-
     return await Promise.all(
       problems.map(async (data) => {
         const problem = await this.createProblem(data, userId, groupId)
         return problem
       })
     )
+  }
+
+  async uploadImage(input: UploadFileInput, userId: number) {
+    const { mimetype, createReadStream } = await input.file
+    const newFilename = randomUUID()
+
+    if (!mimetype.includes('image/')) {
+      throw new UnprocessableDataException('Only image files can be accepted')
+    }
+
+    const fileSize = await this.getFileSize(createReadStream())
+    try {
+      await this.storageService.uploadImage(
+        newFilename,
+        fileSize,
+        createReadStream(),
+        mimetype
+      )
+      await this.prisma.image.create({
+        data: {
+          filename: newFilename,
+          createdById: userId
+        }
+      })
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        await this.storageService.deleteImage(newFilename) // 이미지가 S3에 업로드되었지만, DB에 이미지 정보 등록을 실패한 경우 rollback
+      }
+      throw new UnprocessableFileDataException(
+        'Error occurred during image upload.',
+        newFilename
+      )
+    }
+
+    return {
+      src:
+        this.config.get('STORAGE_BUCKET_ENDPOINT_URL') +
+        '/' +
+        this.config.get('MEDIA_BUCKET_NAME') +
+        '/' +
+        newFilename
+    }
+  }
+
+  async deleteImage(filename: string, userId: number) {
+    const image = this.prisma.image.delete({
+      where: {
+        filename,
+        createdById: userId
+      }
+    })
+    const s3ImageDeleteResult = this.storageService.deleteImage(filename)
+
+    const [resolvedImage] = await Promise.all([image, s3ImageDeleteResult])
+    return resolvedImage
+  }
+
+  async getFileSize(readStream: ReadStream): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const chunks: Buffer[] = []
+
+      readStream.on('data', (chunk: Buffer) => {
+        chunks.push(chunk)
+
+        const totalSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
+        if (totalSize > MAX_IMAGE_SIZE) {
+          readStream.destroy()
+          reject(
+            new UnprocessableDataException('File size exceeds maximum limit')
+          )
+        }
+      })
+
+      readStream.on('end', () => {
+        const fileSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
+        resolve(fileSize)
+      })
+
+      readStream.on('error', () => {
+        reject(
+          new UnprocessableDataException(
+            'Error occurred during calculating image size.'
+          )
+        )
+      })
+    })
   }
 
   async getProblems(
@@ -470,14 +541,46 @@ export class ProblemService {
   }
 
   async deleteProblem(id: number, groupId: number) {
-    await this.getProblem(id, groupId)
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: {
+        id,
+        groupId
+      }
+    })
 
     const result = await this.prisma.problem.delete({
       where: { id }
     })
     await this.storageService.deleteObject(`${id}.json`)
 
+    const uuidImageFileNames = this.extractUUIDs(problem.description)
+    if (uuidImageFileNames) {
+      await this.prisma.image.deleteMany({
+        where: {
+          filename: {
+            in: uuidImageFileNames
+          }
+        }
+      })
+
+      const deleteFromS3Results = uuidImageFileNames.map((filename: string) => {
+        return this.storageService.deleteImage(filename)
+      })
+
+      await Promise.all(deleteFromS3Results)
+    }
+
     return result
+  }
+
+  extractUUIDs(input: string) {
+    const uuidRegex =
+      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi
+    const matches = input.match(uuidRegex)
+    if (!matches) {
+      return []
+    }
+    return matches
   }
 
   async getWorkbookProblems(
