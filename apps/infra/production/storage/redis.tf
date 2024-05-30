@@ -1,16 +1,16 @@
 resource "aws_subnet" "private_redis1" {
-  vpc_id            = aws_vpc.main.id
+  vpc_id            = data.aws_vpc.main.id
   cidr_block        = "10.0.31.0/24"
-  availability_zone = var.availability_zones[0]
+  availability_zone = "ap-northeast-2a"
 
   tags = {
     Name = "Codedang_Redis-Subnet1"
   }
 }
 resource "aws_subnet" "private_redis2" {
-  vpc_id            = aws_vpc.main.id
+  vpc_id            = data.aws_vpc.main.id
   cidr_block        = "10.0.32.0/24"
-  availability_zone = var.availability_zones[1]
+  availability_zone = "ap-northeast-2b"
 
   tags = {
     Name = "Codedang_Redis-Subnet2"
