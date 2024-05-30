@@ -33,6 +33,7 @@ import type {
   UpdateProblemInput,
   UpdateProblemTagInput
 } from './model/problem.input'
+import type { ProblemWithIsVisible } from './model/problem.output'
 import type { Template } from './model/template.input'
 import type { Testcase } from './model/testcase.input'
 
@@ -100,7 +101,7 @@ export class ProblemService {
       }
     })
     await this.createTestcases(problem.id, testcases)
-    return this.changeExposetimeToIsvisible(problem)
+    return this.changeExposetimeToIsVisible(problem)
   }
 
   // TODO: 테스트케이스별로 파일 따로 업로드 -> 수정 시 updateTestcases, deleteProblem 로직 함께 정리
@@ -376,7 +377,7 @@ export class ProblemService {
       },
       take
     })
-    return this.changeExposetimeToIsvisible(problems)
+    return this.changeExposetimeToIsVisible(problems)
   }
 
   async getProblem(id: number, groupId: number) {
@@ -395,7 +396,7 @@ export class ProblemService {
         }
       }
     })
-    return this.changeExposetimeToIsvisible(problem)
+    return this.changeExposetimeToIsVisible(problem)
   }
 
   async getProblemById(id: number) {
@@ -404,7 +405,7 @@ export class ProblemService {
         id
       }
     })
-    return this.changeExposetimeToIsvisible(problem)
+    return this.changeExposetimeToIsVisible(problem)
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
@@ -470,7 +471,7 @@ export class ProblemService {
         problemTag
       }
     })
-    return this.changeExposetimeToIsvisible(updatedProblem)
+    return this.changeExposetimeToIsVisible(updatedProblem)
   }
 
   async updateProblemTag(
@@ -765,27 +766,25 @@ export class ProblemService {
     })
   }
 
-  async changeExposetimeToIsvisible(
+  async changeExposetimeToIsVisible(
     problems: Problem[] | Problem
-  ): Promise<
-    | (Omit<Problem, 'exposeTime'> & { isVisible: boolean | null })[]
-    | (Omit<Problem, 'exposeTime'> & { isVisible: boolean | null })
-  > {
-    const newProblems =
-      (Array.isArray(problems) ? problems : [problems]).map(
-        (problem: Problem) => {
-          const { exposeTime, ...data } = problem
-          return {
-            isVisible:
-              exposeTime < new Date()
-                ? true
-                : exposeTime == maxDate
-                  ? false
-                  : null,
-            ...data
-          }
-        }
-      ) ?? []
-    return newProblems.length == 1 ? newProblems[0] : newProblems
+  ): Promise<ProblemWithIsVisible[] | ProblemWithIsVisible> {
+    const problemsWithIsVisible = (
+      Array.isArray(problems) ? problems : [problems]
+    ).map((problem: Problem) => {
+      const { exposeTime, ...data } = problem
+      return {
+        isVisible:
+          exposeTime < new Date()
+            ? true
+            : exposeTime.getTime() === maxDate.getTime()
+              ? false
+              : null,
+        ...data
+      }
+    })
+    return problemsWithIsVisible.length == 1
+      ? problemsWithIsVisible[0]
+      : problemsWithIsVisible
   }
 }

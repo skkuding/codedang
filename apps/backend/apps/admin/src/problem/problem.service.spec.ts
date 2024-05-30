@@ -26,10 +26,10 @@ import {
   fileUploadInput,
   groupId,
   importedProblems,
-  importedProblemsWithoutExposeTime,
+  importedProblemsWithIsVisible,
   problemId,
   problems,
-  problemsWithoutExposeTime,
+  problemsWithIsVisible,
   template,
   testcaseInput
 } from './mock/mock'
@@ -140,7 +140,7 @@ describe('ProblemService', () => {
         problems[0].createdById!,
         groupId
       )
-      expect(result).to.deep.equal(problemsWithoutExposeTime[0])
+      expect(result).to.deep.equal(problemsWithIsVisible[0])
       expect(uploadSpy.calledOnce).to.be.true
     })
 
@@ -186,7 +186,7 @@ describe('ProblemService', () => {
 
       expect(s3UploadCache.calledTwice).to.be.true
       expect(createTestcasesSpy.calledTwice).to.be.true
-      expect(res).to.deep.equal(importedProblemsWithoutExposeTime)
+      expect(res).to.deep.equal(importedProblemsWithIsVisible)
     })
   })
 
@@ -194,7 +194,7 @@ describe('ProblemService', () => {
     it('should return group problems', async () => {
       db.problem.findMany.resolves(problems)
       const result = await service.getProblems({}, groupId, 1, 5)
-      expect(result).to.deep.equal(problemsWithoutExposeTime)
+      expect(result).to.deep.equal(problemsWithIsVisible)
     })
   })
 
@@ -202,7 +202,7 @@ describe('ProblemService', () => {
     it('should return a group problem', async () => {
       db.problem.findFirstOrThrow.resolves(problems[0])
       const result = await service.getProblem(problemId, groupId)
-      expect(result).to.deep.equal(problemsWithoutExposeTime[0])
+      expect(result).to.deep.equal(problemsWithIsVisible[0])
     })
   })
 
@@ -225,7 +225,7 @@ describe('ProblemService', () => {
         groupId
       )
       expect(result).to.deep.equal({
-        ...problemsWithoutExposeTime[0],
+        ...problemsWithIsVisible[0],
         title: 'revised'
       })
       expect(uploadSpy.calledOnce).to.be.true

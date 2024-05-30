@@ -13,6 +13,7 @@ import { createReadStream } from 'fs'
 import type { FileUploadDto } from '../dto/file-upload.dto'
 import { minDate, maxDate } from '../model/problem.constants'
 import type { UploadFileInput } from '../model/problem.input'
+import type { ProblemWithIsVisible } from '../model/problem.output'
 import type { Template } from '../model/template.input'
 import type { Testcase } from '../model/testcase.input'
 
@@ -87,14 +88,16 @@ export const problems: Problem[] = [
   }
 ]
 
-export const problemsWithoutExposeTime = problems.map((problem) => {
-  const { exposeTime, ...problemWithoutExposeTime } = problem
-  return {
-    isVisible:
-      exposeTime < new Date() ? true : exposeTime == maxDate ? false : null,
-    ...problemWithoutExposeTime
+export const problemsWithIsVisible: ProblemWithIsVisible[] = problems.map(
+  (problem) => {
+    const { exposeTime, ...data } = problem
+    return {
+      isVisible:
+        exposeTime < new Date() ? true : exposeTime == maxDate ? false : null,
+      ...data
+    }
   }
-})
+)
 
 export const testcaseInput: Testcase = {
   input: "wake up, daddy's home",
@@ -198,16 +201,15 @@ export const importedProblems: Problem[] = [
   }
 ]
 
-export const importedProblemsWithoutExposeTime = importedProblems.map(
-  (problem) => {
-    const { exposeTime, ...problemWithoutExposeTime } = problem
+export const importedProblemsWithIsVisible: ProblemWithIsVisible[] =
+  importedProblems.map((problem) => {
+    const { exposeTime, ...data } = problem
     return {
       isVisible:
         exposeTime < new Date() ? true : exposeTime == maxDate ? false : null,
-      ...problemWithoutExposeTime
+      ...data
     }
-  }
-)
+  })
 
 export const exampleWorkbook: Workbook = {
   id: 1,
