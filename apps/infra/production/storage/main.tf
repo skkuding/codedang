@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~>5.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~>3.6"
+    }
   }
 
   backend "s3" {
@@ -16,5 +20,11 @@ terraform {
 }
 
 provider "aws" {
-  region = var.region
+  region = "ap-northeast-2"
+}
+
+data "aws_vpc" "main" {
+  tags = {
+    Name = "Codedang-VPC"
+  }
 }
