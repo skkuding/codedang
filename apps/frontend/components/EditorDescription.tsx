@@ -14,7 +14,7 @@ import { sanitize } from 'isomorphic-dompurify'
 import katex from 'katex'
 import { CheckCircle, Lightbulb, Tag } from 'lucide-react'
 import { Clipboard } from 'lucide-react'
-import { useState, useRef, type RefObject } from 'react'
+import { useState, useEffect, useRef, type RefObject } from 'react'
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
 import {
   Tooltip,
@@ -56,11 +56,9 @@ const renderKatex = (html: string, katexRef: RefObject<HTMLDivElement>) => {
         globalGroup: true,
         output: 'mathml'
       })
-      console.log(mathHtml)
       el.outerHTML = mathHtml
     })
   }
-  return <div ref={katexRef}></div>
 }
 
 export function EditorDescription({
@@ -72,16 +70,18 @@ export function EditorDescription({
 }) {
   const { copiedID, copy } = useCopy()
   const katexRef = useRef<HTMLDivElement>(null)!
-  const katexContent = renderKatex(problem.description, katexRef)
+  useEffect(() => {
+    renderKatex(problem.description, katexRef)
+  }, [problem.description, katexRef])
 
-  //const description = renderMathExpressions(problem.description)
+  const katexContent = <div ref={katexRef} />
   return (
     <div className="dark flex h-full flex-col gap-8 p-6 text-lg">
       <div>
         <h1 className="mb-3 text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
-        <div className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300" />
-        {katexContent}
-        <div />
+        <div className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
+          {katexContent}
+        </div>
       </div>
       <div>
         <h2 className="mb-3 font-bold">Input</h2>
