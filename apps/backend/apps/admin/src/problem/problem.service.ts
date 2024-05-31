@@ -766,9 +766,9 @@ export class ProblemService {
     })
   }
 
-  async changeExposetimeToIsVisible(
+  changeExposetimeToIsVisible(
     problems: Problem[] | Problem
-  ): Promise<ProblemWithIsVisible[] | ProblemWithIsVisible> {
+  ): ProblemWithIsVisible[] | ProblemWithIsVisible {
     const problemsWithIsVisible = (
       Array.isArray(problems) ? problems : [problems]
     ).map((problem: Problem) => {

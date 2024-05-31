@@ -17,6 +17,23 @@ import type { ProblemWithIsVisible } from '../model/problem.output'
 import type { Template } from '../model/template.input'
 import type { Testcase } from '../model/testcase.input'
 
+const changeExposetimeToIsVisible = function (
+  problems: Problem[]
+): ProblemWithIsVisible[] {
+  return problems.map((problem: Problem) => {
+    const { exposeTime, ...data } = problem
+    return {
+      isVisible:
+        exposeTime < new Date()
+          ? true
+          : exposeTime.getTime() === maxDate.getTime()
+            ? false
+            : null,
+      ...data
+    }
+  })
+}
+
 export const problemId = 1
 export const groupId = 1
 export const template: Template = {
@@ -88,16 +105,8 @@ export const problems: Problem[] = [
   }
 ]
 
-export const problemsWithIsVisible: ProblemWithIsVisible[] = problems.map(
-  (problem) => {
-    const { exposeTime, ...data } = problem
-    return {
-      isVisible:
-        exposeTime < new Date() ? true : exposeTime == maxDate ? false : null,
-      ...data
-    }
-  }
-)
+export const problemsWithIsVisible: ProblemWithIsVisible[] =
+  changeExposetimeToIsVisible(problems)
 
 export const testcaseInput: Testcase = {
   input: "wake up, daddy's home",
@@ -202,14 +211,7 @@ export const importedProblems: Problem[] = [
 ]
 
 export const importedProblemsWithIsVisible: ProblemWithIsVisible[] =
-  importedProblems.map((problem) => {
-    const { exposeTime, ...data } = problem
-    return {
-      isVisible:
-        exposeTime < new Date() ? true : exposeTime == maxDate ? false : null,
-      ...data
-    }
-  })
+  changeExposetimeToIsVisible(importedProblems)
 
 export const exampleWorkbook: Workbook = {
   id: 1,
