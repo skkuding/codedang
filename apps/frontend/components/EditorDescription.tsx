@@ -14,7 +14,7 @@ import { sanitize } from 'isomorphic-dompurify'
 import katex from 'katex'
 import { CheckCircle, Lightbulb, Tag } from 'lucide-react'
 import { Clipboard } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef, type RefObject } from 'react'
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
 import {
   Tooltip,
@@ -44,20 +44,23 @@ const useCopy = () => {
   return { copiedID, copy }
 }
 
-const renderMathExpressions = (html: string) => {
-  const div = document.createElement('div')
-  div.innerHTML = html
-
-  div.querySelectorAll('math-component').forEach((el) => {
-    const content = el.getAttribute('content') || ''
-    const mathHtml = katex.renderToString(content, {
-      throwOnError: false,
-      strict: false,
-      globalGroup: true
+const renderKatex = (html: string, katexRef: RefObject<HTMLDivElement>) => {
+  if (katexRef.current) {
+    katexRef.current.innerHTML = html
+    const div = katexRef.current
+    div.querySelectorAll('math-component').forEach((el) => {
+      const content = el.getAttribute('content') || ''
+      const mathHtml = katex.renderToString(content, {
+        throwOnError: false,
+        strict: false,
+        globalGroup: true,
+        output: 'mathml'
+      })
+      console.log(mathHtml)
+      el.outerHTML = mathHtml
     })
-    el.outerHTML = mathHtml
-  })
-  return div.innerHTML
+  }
+  return <div ref={katexRef}></div>
 }
 
 export function EditorDescription({
@@ -68,15 +71,17 @@ export function EditorDescription({
   contestProblems?: ContestProblem[]
 }) {
   const { copiedID, copy } = useCopy()
-  const description = renderMathExpressions(problem.description)
+  const katexRef = useRef<HTMLDivElement>(null)!
+  const katexContent = renderKatex(problem.description, katexRef)
+
+  //const description = renderMathExpressions(problem.description)
   return (
     <div className="dark flex h-full flex-col gap-8 p-6 text-lg">
       <div>
         <h1 className="mb-3 text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
-        <div
-          className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
-          dangerouslySetInnerHTML={{ __html: sanitize(description) }}
-        />
+        <div className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300" />
+        {katexContent}
+        <div />
       </div>
       <div>
         <h2 className="mb-3 font-bold">Input</h2>
