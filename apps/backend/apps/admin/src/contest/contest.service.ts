@@ -284,39 +284,6 @@ export class ContestService {
 
     for (const problemId of problemIds) {
       try {
-        const problem = await this.prisma.problem.findFirstOrThrow({
-          where: {
-            id: problemId
-          }
-        })
-
-        // import중인 contest 외 다른 contest에 속해있는지 확인
-        if (
-          problem.exposeTime.getTime() !== minDate.getTime() &&
-          problem.exposeTime.getTime() !== maxDate.getTime()
-        ) {
-          await this.prisma.problem.update({
-            where: {
-              id: problemId,
-              exposeTime: {
-                lte: contest.endTime
-              }
-            },
-            data: {
-              exposeTime: contest.endTime
-            }
-          })
-        } else {
-          await this.prisma.problem.update({
-            where: {
-              id: problemId
-            },
-            data: {
-              exposeTime: contest.endTime
-            }
-          })
-        }
-
         const contestProblem = await this.prisma.contestProblem.create({
           data: {
             // 원래 id: 'temp'이었는데, contestProblem db schema field가 바뀌어서
@@ -327,6 +294,32 @@ export class ContestService {
           }
         })
         contestProblems.push(contestProblem)
+
+        await this.prisma.problem.update({
+          where: {
+            id: problemId,
+            OR: [
+              {
+                exposeTime: {
+                  equals: minDate
+                }
+              },
+              {
+                exposeTime: {
+                  equals: maxDate
+                }
+              },
+              {
+                exposeTime: {
+                  lte: contest.endTime
+                }
+              }
+            ]
+          },
+          data: {
+            exposeTime: contest.endTime
+          }
+        })
       } catch (error) {
         continue
       }
