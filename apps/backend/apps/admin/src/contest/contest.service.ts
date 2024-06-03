@@ -283,25 +283,14 @@ export class ContestService {
 
     for (const problemId of problemIds) {
       try {
-        const problem = await this.prisma.problem.findFirstOrThrow({
+        await this.prisma.problem.update({
           where: {
             id: problemId
+          },
+          data: {
+            exposeTime: contest.endTime
           }
         })
-
-        if (problem.exposeTime <= contest.endTime) {
-          await this.prisma.problem.update({
-            where: {
-              id: problemId,
-              exposeTime: {
-                lte: contest.endTime
-              }
-            },
-            data: {
-              exposeTime: contest.endTime
-            }
-          })
-        }
 
         const contestProblem = await this.prisma.contestProblem.create({
           data: {
