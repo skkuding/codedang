@@ -18,6 +18,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { maxDate, minDate } from '@admin/problem/model/problem.constants'
 import type { CreateContestInput } from './model/contest.input'
 import type { UpdateContestInput } from './model/contest.input'
 import type { PublicizingRequest } from './model/publicizing-request.model'
@@ -283,14 +284,38 @@ export class ContestService {
 
     for (const problemId of problemIds) {
       try {
-        await this.prisma.problem.update({
+        const problem = await this.prisma.problem.findFirstOrThrow({
           where: {
             id: problemId
-          },
-          data: {
-            exposeTime: contest.endTime
           }
         })
+
+        // import중인 contest 외 다른 contest에 속해있는지 확인
+        if (
+          problem.exposeTime.getTime() !== minDate.getTime() &&
+          problem.exposeTime.getTime() !== maxDate.getTime()
+        ) {
+          await this.prisma.problem.update({
+            where: {
+              id: problemId,
+              exposeTime: {
+                lte: contest.endTime
+              }
+            },
+            data: {
+              exposeTime: contest.endTime
+            }
+          })
+        } else {
+          await this.prisma.problem.update({
+            where: {
+              id: problemId
+            },
+            data: {
+              exposeTime: contest.endTime
+            }
+          })
+        }
 
         const contestProblem = await this.prisma.contestProblem.create({
           data: {
