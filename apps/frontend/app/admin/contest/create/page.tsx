@@ -354,7 +354,7 @@ export default function Page() {
           </div>
           <Button
             type="submit"
-            className="flex h-[36px] w-[100px] items-center gap-2 px-0 "
+            className="flex h-[36px] w-[100px] items-center gap-2 px-0"
             disabled={isLoading || isCreating}
           >
             <IoMdCheckmarkCircleOutline fontSize={20} />

@@ -108,9 +108,7 @@ export default function TagsSelect({
                     <Badge
                       key={option.id}
                       variant="secondary"
-                      className={`mr-2 cursor-pointer rounded-lg border-solid px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80
-                  ${selectedValues.includes(option.id) ? 'border-gray-100/80 bg-gray-100/80' : 'border-gray-200/80 bg-white '}
-                `}
+                      className={`mr-2 cursor-pointer rounded-lg border-solid px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80 ${selectedValues.includes(option.id) ? 'border-gray-100/80 bg-gray-100/80' : 'border-gray-200/80 bg-white'} `}
                       onClick={() => handleCheckboxChange(option.id)}
                     >
                       {option.name}
@@ -131,9 +129,7 @@ export default function TagsSelect({
                       <Badge
                         key={option.id}
                         variant="secondary"
-                        className={`mr-2 cursor-pointer rounded-lg border-solid px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80
-                  ${selectedValues.includes(option.id) ? 'border-gray-100/80 bg-gray-100/80' : 'border-gray-200/80 bg-white '}
-                `}
+                        className={`mr-2 cursor-pointer rounded-lg border-solid px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80 ${selectedValues.includes(option.id) ? 'border-gray-100/80 bg-gray-100/80' : 'border-gray-200/80 bg-white'} `}
                         onClick={() => handleCheckboxChange(option.id)}
                       >
                         {option.name}
