@@ -18,3 +18,9 @@ terraform {
 provider "aws" {
   region = "ap-northeast-2"
 }
+
+provider "rabbitmq" {
+  endpoint = aws_mq_broker.judge_queue.instances.0.console_url
+  username = var.rabbitmq_username
+  password = random_password.rabbitmq_password.result
+}
