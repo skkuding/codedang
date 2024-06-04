@@ -6,14 +6,12 @@ variable "postgres_username" {
 
 variable "postgres_port" {
   description = "Port for Postgres DB"
-  type        = string
-  default     = "5432"
-  sensitive   = true
+  type        = number
+  default     = 5432
 }
 
 variable "redis_port" {
   description = "Port for Redis"
-  type        = string
-  default     = "6379"
-  sensitive   = true
+  type        = number
+  default     = 6379
 }
