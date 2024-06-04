@@ -23,7 +23,7 @@ module "admin_api_loadbalancer" {
 }
 
 module "admin_api" {
-  source = "../modules/microservice"
+  source = "../modules/service_autoscaling"
 
   #TODO
   task_definition = {

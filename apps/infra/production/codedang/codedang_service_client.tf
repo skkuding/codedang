@@ -26,7 +26,7 @@ module "client_api_loadbalancer" {
 }
 
 module "client_api" {
-  source = "../modules/microservice"
+  source = "../modules/service_autoscaling"
 
   #TODO
   task_definition = {
