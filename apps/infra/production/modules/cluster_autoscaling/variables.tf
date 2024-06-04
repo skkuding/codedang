@@ -48,6 +48,7 @@ variable "security_group" {
   type = object({
     name        = string
     description = string
+    tags_name   = string
 
     ingress = object({
       description = string
@@ -63,5 +64,5 @@ variable "security_group" {
       self             = optional(bool, false)
     })
   })
-  description = "The security group for launch template network inteface. e.g. {name='codedang-sg', description='codedang allow you', ingress={description='from you', from_port=11111, to_port=22222, protocol='tcp'}}"
+  description = "The security group for launch template network inteface. e.g. {name='codedang-sg', description='codedang allow you', tags_name='codedang-sg', ingress={description='from you', from_port=11111, to_port=22222, protocol='tcp'}}"
 }

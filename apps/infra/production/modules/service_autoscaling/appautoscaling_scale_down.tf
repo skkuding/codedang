@@ -26,7 +26,6 @@ resource "aws_appautoscaling_policy" "scale_down" {
   service_namespace  = aws_appautoscaling_target.this.service_namespace
 
   step_scaling_policy_configuration {
-    # TODO
     adjustment_type          = "ChangeInCapacity"
     cooldown                 = 60
     metric_aggregation_type  = "Average"

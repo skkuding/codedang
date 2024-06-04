@@ -66,7 +66,9 @@ module "admin_api" {
   appautoscaling_target = {
     min_capacity = 1
     max_capacity = 8
-    resource_id  = "service/Codedang-Api/Codedang-Admin-Api-Service"
+    resource_id = {
+      cluster_name = module.codedang_api.ecs_cluster.name
+    }
   }
 
   scale_down = {
