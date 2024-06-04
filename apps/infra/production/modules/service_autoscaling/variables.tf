@@ -39,6 +39,7 @@ variable "scale_up" {
       alarm_name        = string
       alarm_description = string
       threshold         = number
+      statistic         = optional(string, "Maximum")
 
       dimensions = object({
         cluster_name = string

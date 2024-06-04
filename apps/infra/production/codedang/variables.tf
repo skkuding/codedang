@@ -30,6 +30,7 @@ variable "loki_url" {}
 variable "testcase_bucket_name" { default = "" }
 variable "testcase_access_key" { default = "" }
 variable "testcase_secret_key" { default = "" }
+variable "testcase_bucket_arn" { default = "" }
 variable "media_bucket_name" { default = "" }
 variable "media_access_key" { default = "" }
 variable "media_secret_key" { default = "" }

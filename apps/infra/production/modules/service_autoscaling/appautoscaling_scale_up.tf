@@ -9,7 +9,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_up" {
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
   period              = 60
-  statistic           = "Maximum"
+  statistic           = var.scale_up.cloudwatch_metric_alarm.statistic
   threshold           = var.scale_up.cloudwatch_metric_alarm.threshold
 
   dimensions = {
