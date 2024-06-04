@@ -26,7 +26,7 @@ export default function ExampleTextarea({
       )}
     >
       <RxCross2
-        className="absolute right-2 top-2 w-3 cursor-pointer p-0 text-gray-400 "
+        className="absolute right-2 top-2 w-3 cursor-pointer p-0 text-gray-400"
         onClick={() => onRemove()}
       />
       <Textarea

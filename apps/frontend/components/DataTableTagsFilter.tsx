@@ -83,7 +83,7 @@ export function DataTableTagsFilter<TData, TValue>({
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className=" p-0" align="start">
+      <PopoverContent className="p-0" align="start">
         <Command>
           <CommandInput
             placeholder="search"
@@ -97,9 +97,7 @@ export function DataTableTagsFilter<TData, TValue>({
                     <Badge
                       key={option.id}
                       variant="secondary"
-                      className={`mr-2 cursor-pointer rounded-lg border-solid px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80
-                      ${selectedValues.has(option.id) ? 'border-gray-100/80 bg-gray-100/80' : 'border-gray-200/80 bg-white '}
-                      `}
+                      className={`mr-2 cursor-pointer rounded-lg border-solid px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80 ${selectedValues.has(option.id) ? 'border-gray-100/80 bg-gray-100/80' : 'border-gray-200/80 bg-white'} `}
                       onClick={() => {
                         if (selectedValues.has(option.id)) {
                           selectedValues.delete(option.id)
@@ -130,9 +128,7 @@ export function DataTableTagsFilter<TData, TValue>({
                       <Badge
                         key={option.id}
                         variant="secondary"
-                        className={`mr-2 cursor-pointer rounded-lg border-solid px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80
-                ${selectedValues.has(option.id) ? 'border-gray-100/80 bg-gray-100/80' : 'border-gray-200/80 bg-white '}
-              `}
+                        className={`mr-2 cursor-pointer rounded-lg border-solid px-2 font-normal hover:bg-gray-100/80 active:bg-gray-100/80 ${selectedValues.has(option.id) ? 'border-gray-100/80 bg-gray-100/80' : 'border-gray-200/80 bg-white'} `}
                         onClick={() => {
                           if (selectedValues.has(option.id)) {
                             selectedValues.delete(option.id)
