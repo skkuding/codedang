@@ -52,6 +52,12 @@ variable "ecs_service" {
     name          = string
     cluster_arn   = string
     desired_count = number
+
+    load_balancer = optional(object({
+      container_name   = string
+      container_port   = number
+      target_group_arn = string
+    }), null)
   })
 }
 

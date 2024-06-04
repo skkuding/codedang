@@ -6,8 +6,11 @@ module "admin_api_loadbalancer" {
   source = "../modules/loadbalancing"
 
   lb = {
-    name    = "Codedang-Admin-Api-LB"
-    subnets = []
+    name = "Codedang-Admin-Api-LB"
+    subnets = [
+      var.public_subnet1,
+      var.public_subnet2
+    ]
   }
 
   lb_target_group = {
@@ -31,19 +34,19 @@ module "admin_api" {
     memory = 950
     container_definitions = jsonencode([
       jsondecode(templatefile("container_definitions/admin_api.json", {
-        ecr_uri                         = data.aws_ecr_repository.client_api.repository_url,
-        database_url                    = "",
-        redis_host                      = "",
-        redis_port                      = "",
-        jwt_secret                      = "",
-        testcase_bucket_name            = "",
-        testcase_access_key             = "",
-        testcase_secret_key             = "",
-        media_bucket_name               = "",
-        media_access_key                = "",
-        media_secret_key                = ""
-        otel_exporter_otlp_endpoint_url = "",
-        loki_url                        = "",
+        ecr_uri                         = data.aws_ecr_repository.admin_api.repository_url,
+        database_url                    = var.database_url,
+        redis_host                      = var.redis_host,
+        redis_port                      = var.redis_port,
+        jwt_secret                      = var.jwt_secret,
+        testcase_bucket_name            = var.testcase_bucket_name,
+        testcase_access_key             = var.testcase_access_key,
+        testcase_secret_key             = var.testcase_secret_key,
+        media_bucket_name               = var.media_bucket_name,
+        media_access_key                = var.media_access_key,
+        media_secret_key                = var.media_secret_key,
+        otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
+        loki_url                        = var.loki_url,
       })),
       jsondecode(file("container_definitions/log_router.json"))
     ])
@@ -52,8 +55,13 @@ module "admin_api" {
 
   ecs_service = {
     name          = "Codedang-Admin-Api-Service"
-    cluster_arn   = module.api.ecs_cluster.arn
+    cluster_arn   = module.codedang_api.ecs_cluster.arn
     desired_count = 1
+    load_balancer = {
+      container_name   = "Codedang-Admin-Api"
+      container_port   = 3000
+      target_group_arn = module.admin_api_loadbalancer.target_group_arn
+    }
   }
 
   appautoscaling_target = {
@@ -72,7 +80,7 @@ module "admin_api" {
       threshold           = 50
 
       dimensions = {
-        cluster_name = module.api.ecs_cluster.name
+        cluster_name = module.codedang_api.ecs_cluster.name
       }
     }
   }
@@ -84,7 +92,7 @@ module "admin_api" {
       threshold         = 120
 
       dimensions = {
-        cluster_name = module.api.ecs_cluster.name
+        cluster_name = module.codedang_api.ecs_cluster.name
       }
     }
   }

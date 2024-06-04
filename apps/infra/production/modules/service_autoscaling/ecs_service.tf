@@ -16,4 +16,13 @@ resource "aws_ecs_service" "this" {
   desired_count        = var.ecs_service.desired_count
   launch_type          = "EC2"
   force_new_deployment = true
+
+  dynamic "load_balancer" {
+    for_each = var.ecs_service.load_balancer != null ? [var.ecs_service.load_balancer] : []
+    content {
+      container_name   = load_balancer.value.container_name
+      container_port   = load_balancer.value.container_port
+      target_group_arn = load_balancer.value.target_group_arn
+    }
+  }
 }

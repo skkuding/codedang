@@ -1,4 +1,4 @@
-module "api" {
+module "codedang_api" {
   source = "../modules/cluster_autoscaling"
 
   launch_template = {
