@@ -39,6 +39,7 @@ module "codedang_api" {
   security_group = {
     name        = "Codedang-SG-ECS-Api"
     description = "Allow ECS inbound traffic"
+    tags_name   = "Codedang-SG-ECS-API"
 
     ingress = {
       description = "From ALB"

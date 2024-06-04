@@ -40,6 +40,7 @@ module "codedang_iris" {
   security_group = {
     name        = "Codedang-SG-Iris"
     description = "Allow Message Queue inbound traffic"
+    tags_name   = "Codedang-SG-Iris"
 
     ingress = {
       description = "Iris"
