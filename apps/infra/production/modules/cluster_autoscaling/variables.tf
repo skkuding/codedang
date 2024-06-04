@@ -42,6 +42,7 @@ variable "security_group" {
   type = object({
     name        = string
     description = string
+    tags_name   = string
 
     ingress = object({
       description = string
@@ -56,7 +57,5 @@ variable "security_group" {
       prefix_list_ids  = optional(list(string), [])
       self             = optional(bool, false)
     })
-
-    tags_name = string
   })
 }

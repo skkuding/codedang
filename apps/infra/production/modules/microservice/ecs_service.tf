@@ -6,7 +6,7 @@ resource "aws_ecs_task_definition" "this" {
   memory                   = var.task_definition.memory
   container_definitions    = var.task_definition.container_definitions
   execution_role_arn       = var.task_definition.execution_role_arn
-  task_role_arn            = var.task_definition.task_role_arn
+  task_role_arn            = try(aws_iam_role.task_role[0].arn, null)
 }
 
 resource "aws_ecs_service" "this" {

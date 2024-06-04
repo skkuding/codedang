@@ -11,3 +11,9 @@ terraform {
 provider "aws" {
   region = "ap-northeast-2"
 }
+
+data "aws_vpc" "main" {
+  tags = {
+    Name = "Codedang-VPC"
+  }
+}

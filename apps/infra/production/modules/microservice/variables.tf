@@ -13,15 +13,6 @@ variable "task_definition" {
     memory                = number
     container_definitions = any
     execution_role_arn    = string
-    task_role_arn         = string
-  })
-}
-
-variable "ecs_service" {
-  type = object({
-    name          = string
-    cluster_arn   = string
-    desired_count = number
   })
 }
 
@@ -54,4 +45,27 @@ variable "scale_up" {
       })
     })
   })
+}
+
+variable "ecs_service" {
+  type = object({
+    name          = string
+    cluster_arn   = string
+    desired_count = number
+  })
+}
+
+variable "task_role" {
+  type = object({
+    iam_role = object({
+      name        = string
+      description = string
+    })
+
+    iam_policy = object({
+      name   = string
+      policy = string
+    })
+  })
+  default = null
 }
