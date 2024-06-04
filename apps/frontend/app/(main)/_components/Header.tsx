@@ -1,12 +1,12 @@
 import HeaderAuthPanel from '@/components/auth/HeaderAuthPanel'
-import { auth } from '@/lib/auth'
+// import { auth } from '@/lib/auth'
 import CodedangLogo from '@/public/codedang.svg'
 import Image from 'next/image'
 import Link from 'next/link'
 import NavLink from './NavLink'
 
 export default async function Header() {
-  const session = await auth()
+  // const session = await auth()
   return (
     <header className="border-b-gray grid h-16 w-full place-items-center border-b bg-white px-5">
       <div className="flex w-full max-w-7xl items-center justify-between gap-5">
@@ -25,7 +25,7 @@ export default async function Header() {
           </nav>
         </div>
 
-        <HeaderAuthPanel session={session} />
+        <HeaderAuthPanel session={null} />
       </div>
     </header>
   )
