@@ -4,7 +4,7 @@ resource "aws_launch_template" "this" {
   instance_type = "t3a.small"
   key_name      = var.launch_template.key_name
   user_data = base64encode(templatefile("${path.module}/launch_template/user_data.sh", {
-    cluster_name = var.ecs_cluster_name
+    cluster_name = aws_ecs_cluster.this.name
   }))
 
   iam_instance_profile {
