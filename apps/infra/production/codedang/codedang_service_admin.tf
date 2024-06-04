@@ -20,8 +20,7 @@ module "admin_api_loadbalancer" {
   }
 
   security_group = {
-    name      = "Codedang-SG-LB-Admin"
-    tags_name = "Codedang-SG-LB-Admin"
+    name = "Codedang-SG-LB-Admin"
   }
 }
 

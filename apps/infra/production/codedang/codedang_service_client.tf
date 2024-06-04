@@ -20,8 +20,7 @@ module "client_api_loadbalancer" {
   }
 
   security_group = {
-    name      = "Codedang-SG-LB-Client"
-    tags_name = "Codedang-SG-LB-Client"
+    name = "Codedang-SG-LB-Client"
   }
 }
 

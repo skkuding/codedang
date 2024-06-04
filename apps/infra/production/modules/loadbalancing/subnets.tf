@@ -28,6 +28,6 @@ resource "aws_security_group" "this" {
   }
 
   tags = {
-    Name = var.security_group.tags_name
+    Name = var.security_group.name
   }
 }
