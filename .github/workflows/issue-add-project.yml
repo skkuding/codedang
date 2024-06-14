@@ -1,0 +1,99 @@
+name: Add Issue to project
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  add-issue-to-project:
+    name: Get project data
+    runs-on: ubuntu-latest
+    steps:
+      - name: get team data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORGANIZATION: skkuding
+          PROJECT_NUMBER: 7
+        run: |
+          gh api graphql -f query='
+            query($org: String!, $number: Int!) {
+              user(login: $org){
+                projectV2(number: $number) {
+                  id
+                  fields(first:20) {
+                    nodes {
+                      ... on ProjectV2Field {
+                        id
+                        name
+                      }
+                      ... on ProjectV2SingleSelectField {
+                        id
+                        name
+                        options {
+                          id
+                          name
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
+          echo 'PROJECT_ID='$(jq '.data.user.projectV2.id' project_data.json) >> $GITHUB_ENV
+          echo 'TEAMS_FIELD_ID='$(jq '.data.user.projectV2.fields.nodes[] | select(.name== "Teams") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'TEAMS_FE_ID='$(jq '.data.user.projectV2.fields.nodes[] | select(.name== "Teams") | .options[] | select(.name=="Frontend🍒") |.id' project_data.json) >> $GITHUB_ENV
+          echo 'TEAMS_BE_ID='$(jq '.data.user.projectV2.fields.nodes[] | select(.name== "Teams") | .options[] | select(.name=="Backend🍑") |.id' project_data.json) >> $GITHUB_ENV
+          echo 'TEAMS_DE_ID='$(jq '.data.user.projectV2.fields.nodes[] | select(.name== "Teams") | .options[] | select(.name=="Dev-Ops🔮") |.id' project_data.json) >> $GITHUB_ENV
+
+      - name: add issue to project
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_ID: ${{ github.event.issue.node_id }}
+        run: |
+          gh api graphql -f query='
+            mutation($pid: ID!, $iid: ID!) {
+              addProjectV2ItemById(input: {projectId: $pid, contentId: $cid}) {
+                item {
+                  id
+                }
+              }
+            }' -f pid=$PROJECT_ID -f cid=$CONTENT_ID  > issue_project_data.json
+          echo 'ISSUE_PROJECT_ID='$(jq '.data.addProjectV2ItemById.item.id' project_data.json) >> $GITHUB_ENV
+
+      - name: config teams
+        if: contains(github.event.issue.labels.*.name, format('feat{0} frontend', ':'))
+        run: echo 'TEAM_VALUE_ID='$TEAMS_FE_ID >> $GITHUB_ENV
+      - name: config teams
+        if: contains(github.event.issue.labels.*.name, format('feat{0} backend', ':'))
+        run: echo 'TEAM_VALUE_ID='TEAMS_BE_ID >> $GITHUB_ENV
+      - name: config teams
+        if: contains(github.event.issue.labels.*.name, format('feat{0} ci', ':'))
+        run: echo 'TEAM_VALUE_ID='TEAMS_DE_ID >> $GITHUB_ENV
+
+      - name: add teams to project
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api graphql -f query='
+            mutation(
+              $project: ID!,
+              $item: ID!,
+              $team_field: ID!,
+              $team_value: String!
+            ) {
+              updateProjectV2ItemFieldValue(
+                input: {
+                  projectId: $project,
+                  fieldId: $team_field,
+                  itemId: $item,
+                  value: {
+                    singleSelectOptionId: $team_value
+                  }
+                }
+              ) {
+                projectV2Item {
+                  id
+                }
+              }
+            }' -f project=$PROJECT_ID -f item=$ISSUE_PROJECT_ID -f team_field=$TEAMS_FIELD_ID -f team_value=${{ env.TEAM_VALUE_ID }} --silent
