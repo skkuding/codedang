@@ -1,0 +1,73 @@
+name: CD - Production Target
+
+on:
+  workflow_dispatch:
+    inputs:
+      terraform_project:
+        description: 'Select Terraform Project to Update'
+        required: true
+        type: choice
+        options:
+          - 'storage'
+          - 'network'
+
+jobs:
+  prepare:
+    name: Prepare tfvars variable
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Terraform Project
+        id: set_terraform_project
+        run: |
+          echo "TFVARS_TARGET=TFVARS_${{ github.event.inputs.terraform_project }}" >> $GITHUB_OUTPUT
+    outputs:
+      tfvars_target: ${{ steps.set_terraform_project.outputs.tfvars_target }}
+
+  deploy-terraform:
+    name: Deploy Terraform Project
+    runs-on: ubuntu-latest
+    env:
+      TFVARS_TARGET: ${{ needs.prepare.outputs.tfvars_target }}
+    needs: prepare
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_FOR_DEPLOY }}
+          aws-region: ap-northeast-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.2
+
+      - name: Create Terraform variable file
+        working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
+        run: |
+          echo "Create Terraform variable file"
+          echo "$TFVARS" >> terraform.tfvars
+        env:
+          TFVARS: ${{ secrets[env.TFVARS_TARGET] }}
+
+      - name: Terraform Init
+        working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
+        run: terraform init
+
+      - name: Terraform Plan - target
+        working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
+        run: terraform plan -input=false
+
+      - name: Terraform Apply - target
+        working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
+        run: terraform apply -auto-approve -input=false
+
+      - name: Terraform Plan - codedang
+        working-directory: ./apps/infra/production/codedang
+        run: terraform output
+
+      - name: Terraform Apply - target
+        working-directory: ./apps/infra/production/codedang
+        run: terraform apply -auto-approve -input=false
