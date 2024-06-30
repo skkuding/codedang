@@ -110,7 +110,7 @@ jobs:
           terraform_version: 1.5.2
 
       - name: Create Terraform variable file
-        working-directory: ./apps/infra/deploy
+        working-directory: ./apps/infra/production/codedang
         run: |
           echo "$TFVARS" >> terraform.tfvars
           echo "$OAUTH_GITHUB" >> terraform.tfvars
@@ -121,14 +121,14 @@ jobs:
           OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
 
       - name: Terraform Init
-        working-directory: ./apps/infra/deploy
+        working-directory: ./apps/infra/production/codedang
         run: terraform init
 
       # TODO: plan in the other job, and reuse the plan file
       - name: Terraform Plan
-        working-directory: ./apps/infra/deploy
-        run: terraform plan -target=module.codedang-infra -input=false
+        working-directory: ./apps/infra/production/codedang
+        run: terraform plan -input=false
 
       - name: Terraform Apply
-        working-directory: ./apps/infra/deploy
-        run: terraform apply -target=module.codedang-infra -auto-approve -input=false
+        working-directory: ./apps/infra/production/codedang
+        run: terraform apply -auto-approve -input=false
