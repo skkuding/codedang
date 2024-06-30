@@ -44,15 +44,14 @@ jobs:
         with:
           terraform_version: 1.5.2
 
-      - name: Create Terraform variable file
+      - name: Create Terraform variable file - target
         working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
         run: |
-          echo "Create Terraform variable file"
           echo "$TFVARS" >> terraform.tfvars
         env:
           TFVARS: ${{ secrets[env.TFVARS_TARGET] }}
 
-      - name: Terraform Init
+      - name: Terraform Init - target
         working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
         run: terraform init
 
@@ -64,10 +63,25 @@ jobs:
         working-directory: ./apps/infra/production/${{ github.event.inputs.terraform_project }}
         run: terraform apply -auto-approve -input=false
 
+      - name: Create Terraform variable file - codedang
+        working-directory: ./apps/infra/production/codedang
+        run: |
+          echo "$TFVARS" >> terraform.tfvars
+          echo "$OAUTH_GITHUB" >> terraform.tfvars
+          echo "$OAUTH_KAKAO" >> terraform.tfvars
+        env:
+          TFVARS: ${{ secrets.TFVARS }}
+          OAUTH_GITHUB: ${{ secrets.OAUTH_GITHUB }}
+          OAUTH_KAKAO: ${{ secrets.OAUTH_KAKAO }}
+
+      - name: Terraform Init - codedang
+        working-directory: ./apps/infra/production/codedang
+        run: terraform init
+
       - name: Terraform Plan - codedang
         working-directory: ./apps/infra/production/codedang
-        run: terraform output
+        run: terraform plan -input=false
 
-      - name: Terraform Apply - target
+      - name: Terraform Apply - codedang
         working-directory: ./apps/infra/production/codedang
         run: terraform apply -auto-approve -input=false
