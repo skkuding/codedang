@@ -497,6 +497,7 @@ export class SubmissionService implements OnModuleInit {
     id: number,
     problemId: number,
     userId: number,
+    userRole: Role,
     groupId = OPEN_SPACE_ID,
     contestId: number | null
   ) {
@@ -570,18 +571,6 @@ export class SubmissionService implements OnModuleInit {
       }
     })
 
-    // TODO: GroupMemberGuard 문제 해결 시 controller에서 parameter로 받도록 변경해야합니다.
-    const user = await this.prisma.user.findFirstOrThrow({
-      select: {
-        role: true
-      },
-      where: {
-        id: userId
-      }
-    })
-
-    const userRole = user.role as Role
-
     if (
       contest &&
       contest.startTime <= now &&
@@ -596,6 +585,8 @@ export class SubmissionService implements OnModuleInit {
 
     if (
       submission.userId === userId ||
+      userRole === Role.Admin ||
+      userRole === Role.SuperAdmin ||
       (await this.hasPassedProblem(userId, { problemId }))
     ) {
       const code = plainToInstance(Snippet, submission.code)
@@ -616,6 +607,7 @@ export class SubmissionService implements OnModuleInit {
         testcaseResult: results
       }
     }
+
     throw new ForbiddenAccessException(
       "You must pass the problem first to browse other people's submissions"
     )

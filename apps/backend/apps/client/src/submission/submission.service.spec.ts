@@ -355,6 +355,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
@@ -380,6 +381,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
@@ -397,6 +399,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
@@ -414,6 +417,7 @@ describe('SubmissionService', () => {
           submissions[0].id,
           problems[0].id,
           submissions[0].userId,
+          Role.User,
           undefined,
           null
         )
