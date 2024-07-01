@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import useAuthModalStore from '@/stores/authModal'
-import useSignUpModalStore from '@/stores/signUpModal'
 import { LogOut, User, UserRoundCog } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
@@ -36,7 +35,6 @@ export default function HeaderAuthPanel({
   const { currentModal, hideModal, showSignIn, showSignUp } = useAuthModalStore(
     (state) => state
   )
-  const { setModalPage } = useSignUpModalStore((state) => state)
   return (
     <div className="ml-2 flex items-center gap-2">
       {session ? (
@@ -89,7 +87,6 @@ export default function HeaderAuthPanel({
             <Button
               onClick={() => {
                 showSignUp()
-                setModalPage(0)
               }}
               variant={variants[group]}
               className={cn(
@@ -191,7 +188,6 @@ export default function HeaderAuthPanel({
               className="flex cursor-pointer items-center gap-1 font-semibold"
               onClick={() => {
                 showSignUp()
-                setModalPage(0)
               }}
             >
               Sign Up
