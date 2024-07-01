@@ -4,7 +4,7 @@
 ### BUILDER ###
 ARG target=client
 
-FROM node:20.13.1-alpine AS builder
+FROM node:20.14.0-alpine AS builder
 ARG target
 
 COPY . /build
@@ -18,7 +18,7 @@ RUN npx prisma generate
 RUN npm run build ${target}
 
 ### PRODUCTION ###
-FROM node:20.13.1-alpine
+FROM node:20.14.0-alpine
 ARG target
 
 ENV NODE_ENV=production

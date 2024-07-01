@@ -58,6 +58,7 @@ model User {
   submission    Submission[]
   useroauth     UserOAuth?
   CodeDraft     CodeDraft[]
+  Image         Image[]
 
   @@map("user")
 }
@@ -191,6 +192,13 @@ model Problem {
   codeDraft       CodeDraft[]
 
   @@map("problem")
+}
+
+model Image {
+  filename    String   @id @unique
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?
+  createTime  DateTime @default(now()) @map("create_time")
 }
 
 enum Level {

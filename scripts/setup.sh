@@ -61,14 +61,17 @@ pnpm install
 # Install lefthook for git hook
 pnpm exec lefthook install
 
-# Upload testcases to MinIO
-pnpm run init:testcases
+# Init MinIO
+pnpm run init:storage
 
 # Enable git auto completion
 if ! grep -q "bash-completion/completions/git" ~/.bashrc
 then
   echo "source /usr/share/bash-completion/completions/git" >> ~/.bashrc
 fi
+
+# Set aws profile for terraform as skkuding
+echo "export AWS_PROFILE=skkuding" >> ~/.bashrc
 
 # Apply database migration
 for i in {1..5}

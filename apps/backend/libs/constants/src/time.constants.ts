@@ -23,3 +23,8 @@ export const INVIATION_EXPIRE_TIME = 14 * SECONDS_PER_DAY * 1000
 
 export const OPEN_SPACE_ID = 1
 export const PUBLICIZING_REQUEST_KEY = 'publicize'
+
+/** Image Size Limitation */
+const KILOBYTE = 1024
+const MEGABYTE = 1024 * KILOBYTE
+export const MAX_IMAGE_SIZE = 5 * MEGABYTE
