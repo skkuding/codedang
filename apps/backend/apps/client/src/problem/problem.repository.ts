@@ -23,7 +23,6 @@ export class ProblemRepository {
     id: true,
     title: true,
     engTitle: true,
-    exposeTime: true,
     difficulty: true,
     acceptedRate: true,
     submissionCount: true
@@ -111,8 +110,7 @@ export class ProblemRepository {
         },
         exposeTime: {
           lte: new Date()
-        },
-        isVisible: true
+        }
       },
       select: {
         ...this.problemsSelectOption,
@@ -135,8 +133,7 @@ export class ProblemRepository {
         },
         exposeTime: {
           lte: new Date()
-        },
-        isVisible: true
+        }
       }
     })
   }
@@ -167,7 +164,9 @@ export class ProblemRepository {
       where: {
         id: problemId,
         groupId,
-        isVisible: true
+        exposeTime: {
+          lte: new Date()
+        }
       },
       select: this.problemSelectOption
     })
@@ -205,10 +204,7 @@ export class ProblemRepository {
       take,
       orderBy: { order: 'asc' },
       where: {
-        contestId,
-        problem: {
-          isVisible: true
-        }
+        contestId
       },
       select: {
         order: true,
@@ -222,10 +218,7 @@ export class ProblemRepository {
   async getContestProblemTotalCount(contestId: number) {
     return await this.prisma.contestProblem.count({
       where: {
-        contestId,
-        problem: {
-          isVisible: true
-        }
+        contestId
       }
     })
   }
@@ -237,9 +230,6 @@ export class ProblemRepository {
         contestId_problemId: {
           contestId,
           problemId
-        },
-        problem: {
-          isVisible: true
         }
       },
       select: {
@@ -270,7 +260,9 @@ export class ProblemRepository {
       where: {
         workbookId,
         problem: {
-          isVisible: true
+          exposeTime: {
+            lte: new Date()
+          }
         }
       },
       select: {
@@ -287,7 +279,9 @@ export class ProblemRepository {
       where: {
         workbookId,
         problem: {
-          isVisible: true
+          exposeTime: {
+            lte: new Date()
+          }
         }
       }
     })
@@ -302,7 +296,9 @@ export class ProblemRepository {
           problemId
         },
         problem: {
-          isVisible: true
+          exposeTime: {
+            lte: new Date()
+          }
         }
       },
       select: {

@@ -11,9 +11,28 @@ import type {
 import { faker } from '@faker-js/faker'
 import { createReadStream } from 'fs'
 import type { FileUploadDto } from '../dto/file-upload.dto'
+import { minDate, maxDate } from '../model/problem.constants'
 import type { UploadFileInput } from '../model/problem.input'
+import type { ProblemWithIsVisible } from '../model/problem.output'
 import type { Template } from '../model/template.input'
 import type { Testcase } from '../model/testcase.input'
+
+const changeExposetimeToIsVisible = function (
+  problems: Problem[]
+): ProblemWithIsVisible[] {
+  return problems.map((problem: Problem) => {
+    const { exposeTime, ...data } = problem
+    return {
+      isVisible:
+        exposeTime < new Date()
+          ? true
+          : exposeTime.getTime() === maxDate.getTime()
+            ? false
+            : null,
+      ...data
+    }
+  })
+}
 
 export const problemId = 1
 export const groupId = 1
@@ -48,9 +67,8 @@ export const problems: Problem[] = [
     acceptedRate: 0.5,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    exposeTime: faker.date.anytime(),
+    exposeTime: maxDate,
     samples: [],
-    isVisible: true,
     engTitle: null,
     engDescription: null,
     engHint: null,
@@ -77,9 +95,8 @@ export const problems: Problem[] = [
     acceptedRate: 0.5,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    exposeTime: faker.date.anytime(),
+    exposeTime: faker.date.future(), //contest endTime
     samples: [],
-    isVisible: true,
     engTitle: null,
     engDescription: null,
     engHint: null,
@@ -87,6 +104,9 @@ export const problems: Problem[] = [
     engOutputDescription: null
   }
 ]
+
+export const problemsWithIsVisible: ProblemWithIsVisible[] =
+  changeExposetimeToIsVisible(problems)
 
 export const testcaseInput: Testcase = {
   input: "wake up, daddy's home",
@@ -136,9 +156,8 @@ export const importedProblems: Problem[] = [
     acceptedRate: 0.5,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    exposeTime: faker.date.anytime(),
+    exposeTime: minDate,
     samples: [],
-    isVisible: true,
     engTitle: null,
     engDescription: null,
     engHint: null,
@@ -181,9 +200,8 @@ export const importedProblems: Problem[] = [
     acceptedRate: 0.5,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
-    exposeTime: faker.date.anytime(),
+    exposeTime: minDate,
     samples: [],
-    isVisible: true,
     engTitle: null,
     engDescription: null,
     engHint: null,
@@ -191,6 +209,9 @@ export const importedProblems: Problem[] = [
     engOutputDescription: null
   }
 ]
+
+export const importedProblemsWithIsVisible: ProblemWithIsVisible[] =
+  changeExposetimeToIsVisible(importedProblems)
 
 export const exampleWorkbook: Workbook = {
   id: 1,

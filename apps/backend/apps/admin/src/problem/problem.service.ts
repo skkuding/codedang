@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Language } from '@generated'
-import type { ContestProblem, Tag, WorkbookProblem } from '@generated'
+import type { ContestProblem, Problem, Tag, WorkbookProblem } from '@generated'
 import { Level } from '@generated'
 import type { ProblemWhereInput } from '@generated'
 import { Prisma } from '@prisma/client'
@@ -25,6 +25,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@admin/storage/storage.service'
 import { ImportedProblemHeader } from './model/problem.constants'
+import { minDate, maxDate } from './model/problem.constants'
 import type {
   CreateProblemInput,
   UploadFileInput,
@@ -32,6 +33,7 @@ import type {
   UpdateProblemInput,
   UpdateProblemTagInput
 } from './model/problem.input'
+import type { ProblemWithIsVisible } from './model/problem.output'
 import type { Template } from './model/template.input'
 import type { Testcase } from './model/testcase.input'
 
@@ -55,7 +57,15 @@ export class ProblemService {
     userId: number,
     groupId: number
   ) {
-    const { languages, template, tagIds, samples, testcases, ...data } = input
+    const {
+      languages,
+      template,
+      tagIds,
+      samples,
+      testcases,
+      isVisible,
+      ...data
+    } = input
     if (!languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
@@ -72,6 +82,7 @@ export class ProblemService {
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
+        exposeTime: isVisible ? minDate : maxDate,
         samples: {
           create: samples
         },
@@ -90,7 +101,7 @@ export class ProblemService {
       }
     })
     await this.createTestcases(problem.id, testcases)
-    return problem
+    return this.changeExposetimeToIsVisible(problem)
   }
 
   // TODO: 테스트케이스별로 파일 따로 업로드 -> 수정 시 updateTestcases, deleteProblem 로직 함께 정리
@@ -358,7 +369,7 @@ export class ProblemService {
       whereOptions.languages = { hasSome: input.languages }
     }
 
-    return await this.prisma.problem.findMany({
+    const problems: Problem[] = await this.prisma.problem.findMany({
       ...paginator,
       where: {
         ...whereOptions,
@@ -366,10 +377,11 @@ export class ProblemService {
       },
       take
     })
+    return this.changeExposetimeToIsVisible(problems)
   }
 
   async getProblem(id: number, groupId: number) {
-    return await this.prisma.problem.findFirstOrThrow({
+    const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id,
         groupId
@@ -384,23 +396,44 @@ export class ProblemService {
         }
       }
     })
+    return this.changeExposetimeToIsVisible(problem)
   }
 
   async getProblemById(id: number) {
-    return await this.prisma.problem.findFirstOrThrow({
+    const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id
       }
     })
+    return this.changeExposetimeToIsVisible(problem)
   }
 
   async updateProblem(input: UpdateProblemInput, groupId: number) {
-    const { id, languages, template, tags, testcases, samples, ...data } = input
-    const problem = await this.getProblem(id, groupId)
+    const {
+      id,
+      languages,
+      template,
+      tags,
+      testcases,
+      samples,
+      isVisible,
+      ...data
+    } = input
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: {
+        id,
+        groupId
+      }
+    })
 
     if (languages && !languages.length) {
       throw new UnprocessableDataException(
         'A problem should support at least one language'
+      )
+    }
+    if (isVisible != undefined && new Date() < problem.exposeTime) {
+      throw new UnprocessableDataException(
+        'Unable to set the visible property until the contest is over'
       )
     }
     const supportedLangs = languages ?? problem.languages
@@ -418,7 +451,7 @@ export class ProblemService {
       await this.updateTestcases(id, testcases)
     }
 
-    return await this.prisma.problem.update({
+    const updatedProblem = await this.prisma.problem.update({
       where: { id },
       data: {
         ...data,
@@ -430,11 +463,15 @@ export class ProblemService {
             }
           })
         },
+        ...(isVisible != undefined && {
+          exposeTime: isVisible ? minDate : maxDate
+        }),
         ...(languages && { languages }),
         ...(template && { template: [JSON.stringify(template)] }),
         problemTag
       }
     })
+    return this.changeExposetimeToIsVisible(updatedProblem)
   }
 
   async updateProblemTag(
@@ -505,7 +542,12 @@ export class ProblemService {
   }
 
   async deleteProblem(id: number, groupId: number) {
-    const problem = await this.getProblem(id, groupId)
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: {
+        id,
+        groupId
+      }
+    })
 
     const result = await this.prisma.problem.delete({
       where: { id }
@@ -722,5 +764,27 @@ export class ProblemService {
         id: tc.id.split(':')[1]
       }
     })
+  }
+
+  changeExposetimeToIsVisible(
+    problems: Problem[] | Problem
+  ): ProblemWithIsVisible[] | ProblemWithIsVisible {
+    const problemsWithIsVisible = (
+      Array.isArray(problems) ? problems : [problems]
+    ).map((problem: Problem) => {
+      const { exposeTime, ...data } = problem
+      return {
+        isVisible:
+          exposeTime < new Date()
+            ? true
+            : exposeTime.getTime() === maxDate.getTime()
+              ? false
+              : null,
+        ...data
+      }
+    })
+    return problemsWithIsVisible.length == 1
+      ? problemsWithIsVisible[0]
+      : problemsWithIsVisible
   }
 }

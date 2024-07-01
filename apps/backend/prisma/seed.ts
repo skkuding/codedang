@@ -25,9 +25,9 @@ const fixturePath = join(__dirname, '__fixtures__')
 
 let superAdminUser: User
 let managerUser: User
-const users: User[] = []
 let publicGroup: Group
 let privateGroup: Group
+const users: User[] = []
 const problems: Problem[] = []
 const problemTestcases: ProblemTestcase[] = []
 const contests: Contest[] = []
@@ -38,6 +38,9 @@ const workbooks: Workbook[] = []
 const privateWorkbooks: Workbook[] = []
 const submissions: Submission[] = []
 const announcements: Announcement[] = []
+
+const maxDate: Date = new Date('2999-12-31T00:00:00.000Z')
+const minDate: Date = new Date('2000-01-01T00:00:00.000Z')
 
 const createUsers = async () => {
   // create super admin user
@@ -650,7 +653,8 @@ const createProblems = async () => {
               output: '23'
             }
           ]
-        }
+        },
+        exposeTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
   )
@@ -681,7 +685,8 @@ const createProblems = async () => {
         source: 'Canadian Computing Competition(CCC) 2012 Junior 2번',
         samples: {
           create: [{ input: '1\n10\n12\n13', output: 'Uphill' }]
-        }
+        },
+        exposeTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
   )
@@ -716,7 +721,8 @@ const createProblems = async () => {
             { input: 'NO', output: 'YES' },
             { input: 'SHOW', output: 'NO' }
           ]
-        }
+        },
+        exposeTime: new Date('2028-01-01T23:59:59.000Z') //ongoingContests[0].endTime
       }
     })
   )
@@ -747,7 +753,8 @@ const createProblems = async () => {
         source: 'USACO 2012 US Open Bronze 1번',
         samples: {
           create: [{ input: '9\n2\n7\n3\n7\n7\n3\n7\n5\n7\n', output: '4' }]
-        }
+        },
+        exposeTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
       }
     })
   )
@@ -783,7 +790,8 @@ const createProblems = async () => {
               output: 'POSSIBLE'
             }
           ]
-        }
+        },
+        exposeTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
       }
     })
   )
@@ -812,7 +820,8 @@ const createProblems = async () => {
         timeLimit: 1000,
         memoryLimit: 128,
         source: 'USACO November 2011 Silver 3번',
-        samples: { create: [{ input: '3 6', output: '5' }] }
+        samples: { create: [{ input: '3 6', output: '5' }] },
+        exposeTime: new Date('2024-01-01T23:59:59.000Z') //endedContests[0].endTime
       }
     })
   )
@@ -853,7 +862,8 @@ const createProblems = async () => {
               output: '0'
             }
           ]
-        }
+        },
+        exposeTime: minDate
       }
     })
   )
@@ -895,7 +905,7 @@ const createProblems = async () => {
             }
           ]
         },
-        isVisible: false
+        exposeTime: maxDate
       }
     })
   )
@@ -928,7 +938,7 @@ const createProblems = async () => {
             }
           ]
         },
-        isVisible: false
+        exposeTime: maxDate
       }
     })
   )
@@ -1246,12 +1256,23 @@ const createContests = async () => {
     }
   }
 
-  // add problems to contest
-  for (const problem of problems) {
+  // add problems to ongoing contest
+  for (const problem of problems.slice(0, 3)) {
     await prisma.contestProblem.create({
       data: {
         order: problem.id - 1,
         contestId: ongoingContests[0].id,
+        problemId: problem.id
+      }
+    })
+  }
+
+  // add problems to finished contest
+  for (const problem of problems.slice(3, 6)) {
+    await prisma.contestProblem.create({
+      data: {
+        order: problem.id - 1,
+        contestId: endedContests[0].id,
         problemId: problem.id
       }
     })
