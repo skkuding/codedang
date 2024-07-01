@@ -1,18 +1,18 @@
 meta {
-  name: Succeed
+  name: Succeed (with contestId, AC)
   type: http
-  seq: 1
+  seq: 3
 }
 
 post {
-  url: {{baseUrl}}/submission?problemId=1
+  url: {{baseUrl}}/submission?problemId=1&contestId=1
   body: json
   auth: none
 }
 
 params:query {
   problemId: 1
-  ~contestId: 1
+  contestId: 1
   ~groupId: 1
   ~workbookId: 1
 }
