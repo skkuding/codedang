@@ -11,6 +11,9 @@ pre-commit:
       glob: '*.go'
       run: go fmt -n ./...
       root: iris
+    terraformfmt:
+      glob: '*.tf'
+      run: terraform fmt {staged_files}
 
 commit-msg:
   commands:

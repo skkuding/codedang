@@ -25,6 +25,10 @@ resource "aws_eip" "nat_eip" {
   }
 
   depends_on = [aws_internet_gateway.main]
+
+  tags = {
+    Name = "Codedang-NatEIP"
+  }
 }
 
 resource "aws_subnet" "public_subnet1" {

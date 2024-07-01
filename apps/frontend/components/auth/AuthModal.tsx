@@ -9,6 +9,7 @@ export default function AuthModal() {
   return (
     <>
       <Transition
+        as="div"
         show={currentModal === 'signIn'}
         enter="transition-opacity duration-150"
         enterFrom="opacity-0"
@@ -20,6 +21,7 @@ export default function AuthModal() {
         <SignIn />
       </Transition>
       <Transition
+        as="div"
         show={currentModal === 'signUp'}
         enter="transition-opacity duration-150"
         enterFrom="opacity-0"
@@ -31,6 +33,7 @@ export default function AuthModal() {
         <SignUp />
       </Transition>
       <Transition
+        as="div"
         show={currentModal === 'recoverAccount'}
         enter="transition-opacity duration-150"
         enterFrom="opacity-0"

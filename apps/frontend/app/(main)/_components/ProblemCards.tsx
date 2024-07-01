@@ -4,8 +4,13 @@ import type { Route } from 'next'
 import Link from 'next/link'
 import ProblemCard from './ProblemCard'
 
+interface ProblemCardsProps {
+  data: WorkbookProblem[]
+  total: number
+}
+
 const getProblems = async () => {
-  const { problems }: { problems: WorkbookProblem[] } = await fetcher
+  const problems: ProblemCardsProps = await fetcher
     .get('problem', {
       searchParams: {
         take: 3
@@ -13,7 +18,8 @@ const getProblems = async () => {
       }
     })
     .json()
-  return problems
+
+  return problems.data
 }
 
 export default async function ProblemCards() {

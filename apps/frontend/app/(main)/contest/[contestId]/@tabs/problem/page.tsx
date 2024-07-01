@@ -8,6 +8,11 @@ interface ContestProblemProps {
   params: { contestId: string }
 }
 
+interface ContestApiResponse {
+  data: ContestProblem[]
+  total: number
+}
+
 export default async function ContestProblem({ params }: ContestProblemProps) {
   const { contestId } = params
   const res = await fetcherWithAuth.get(`contest/${contestId}/problem`, {
@@ -34,10 +39,11 @@ export default async function ContestProblem({ params }: ContestProblemProps) {
     )
   }
 
-  const { problems }: { problems: ContestProblem[] } = await res.json()
+  const problems: ContestApiResponse = await res.json()
+
   return (
     <DataTable
-      data={problems}
+      data={problems.data}
       columns={columns}
       headerStyle={{
         order: 'w-[8%]',

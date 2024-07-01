@@ -1,8 +1,8 @@
-import { gql } from '@generated'
 import { DataTableColumnHeader } from '@/components/DataTableColumnHeader'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
+import { UPDATE_PROBLEM_VISIBLE } from '@/graphql/problem/mutations'
 import { useMutation } from '@apollo/client'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { FiEyeOff } from 'react-icons/fi'
@@ -25,17 +25,8 @@ interface DataTableProblem {
   tag: { id: number; tag: Tag }[]
 }
 
-const EDIT_VISIBLE = gql(`
-  mutation UpdateVisible($groupId: Int!, $input: UpdateProblemInput!) {
-    updateProblem(groupId: $groupId, input: $input) {
-      id
-      isVisible
-    }
-  }
-`)
-
 function VisibleCell({ row }: { row: Row<DataTableProblem> }) {
-  const [updateVisible] = useMutation(EDIT_VISIBLE)
+  const [updateVisible] = useMutation(UPDATE_PROBLEM_VISIBLE)
 
   return (
     <div className="flex space-x-2">

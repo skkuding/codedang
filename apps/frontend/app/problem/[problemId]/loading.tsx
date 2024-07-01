@@ -5,7 +5,7 @@ export default function Loading() {
   return (
     <div className="flex h-fit flex-col gap-4 p-6 text-lg">
       <Skeleton className="h-7 w-32 bg-slate-900" />
-      <div className="flex flex-col gap-1 ">
+      <div className="flex flex-col gap-1">
         <Skeleton className="h-4 w-full bg-slate-900" />
         <Skeleton className="h-4 w-full bg-slate-900" />
         <Skeleton className="h-4 w-full bg-slate-900" />
@@ -38,7 +38,7 @@ export default function Loading() {
       <Skeleton className="h-7 w-40 bg-slate-900" />
       <Skeleton className="h-7 w-40 bg-slate-900" />
       <Skeleton className="h-7 w-40 bg-slate-900" />
-      <div className="mt-5 flex gap-2 ">
+      <div className="mt-5 flex gap-2">
         <Skeleton className="h-7 w-12 bg-slate-900" />
         <Skeleton className="h-7 w-12 rounded-full bg-slate-900" />
       </div>

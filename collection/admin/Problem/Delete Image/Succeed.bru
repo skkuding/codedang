@@ -1,0 +1,31 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteImage ($filename: String!) {
+    deleteImage(filename: $filename) {
+      filename
+      createdById
+      createTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "filename": "fill this field with filename after executing upload-image api"
+  }
+}
+
+assert {
+  res.body.data.deleteImage: isDefined 
+}

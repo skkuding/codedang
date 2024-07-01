@@ -3,12 +3,16 @@ import { fetcher } from '@/lib/utils'
 import type { Contest } from '@/types/type'
 import { columns } from './Columns'
 
-export default async function FinishedContestTable() {
-  const data: {
-    finished: Contest[]
-  } = await fetcher.get('contest/finished?take=51').json()
+interface ContestProps {
+  data: Contest[]
+}
 
-  data.finished.forEach((contest) => {
+export default async function FinishedContestTable() {
+  const ContestData: ContestProps = await fetcher
+    .get('contest/finished?take=51')
+    .json()
+
+  ContestData.data.forEach((contest) => {
     contest.status = 'finished'
   })
 
@@ -17,7 +21,7 @@ export default async function FinishedContestTable() {
       <p className="text-xl font-bold md:text-2xl">Finished</p>
       {/* TODO: Add search bar */}
       <DataTable
-        data={data.finished}
+        data={ContestData.data}
         columns={columns}
         headerStyle={{
           title: 'text-left w-2/5 md:w-3/6',

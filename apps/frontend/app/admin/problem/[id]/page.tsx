@@ -1,9 +1,9 @@
 'use client'
 
-import { gql } from '@generated'
 import Paginator from '@/components/Paginator'
 import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { GET_PROBLEM_DETAIL } from '@/graphql/problem/queries'
 import { usePagination } from '@/lib/pagination'
 import type { SubmissionItem } from '@/types/type'
 import { useQuery } from '@apollo/client'
@@ -13,19 +13,10 @@ import { FaAngleLeft, FaPencil } from 'react-icons/fa6'
 import { columns } from './_components/Columns'
 import DataTable from './_components/DataTable'
 
-const GET_PROBLEM = gql(`
-  query GetProblemDetail($groupId: Int!, $id: Int!) {
-    getProblem(groupId: $groupId, id: $id) {
-      title
-      description
-    }
-  }
-`)
-
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
 
-  const problemData = useQuery(GET_PROBLEM, {
+  const problemData = useQuery(GET_PROBLEM_DETAIL, {
     variables: {
       groupId: 1,
       id: +id

@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.48.0"
+      version = "5.52.0"
     }
   }
 
@@ -33,7 +33,3 @@ module "codedang-infra" {
   otel_port            = var.otel_port
 
 }
-
-# module "codedang-tf-backend" {
-#   source = "../modules/codedang-tf-backend"
-# }
