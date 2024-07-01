@@ -31,7 +31,7 @@ export class GroupMemberGuard implements CanActivate {
           : parseInt(request.query.groupId as string)
     }
 
-    if (groupId === OPEN_SPACE_ID) {
+    if (!request.user && groupId === OPEN_SPACE_ID) {
       return true
     }
 
@@ -40,7 +40,7 @@ export class GroupMemberGuard implements CanActivate {
       const userRole = (await this.service.getUserRole(user.id)).role
       user.role = userRole
     }
-    if (user.isAdmin() || user.isSuperAdmin()) {
+    if (user.isAdmin() || user.isSuperAdmin() || groupId === OPEN_SPACE_ID) {
       return true
     }
 

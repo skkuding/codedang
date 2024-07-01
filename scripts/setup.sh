@@ -70,6 +70,9 @@ then
   echo "source /usr/share/bash-completion/completions/git" >> ~/.bashrc
 fi
 
+# Set aws profile for terraform as skkuding
+echo "export AWS_PROFILE=skkuding" >> ~/.bashrc
+
 # Apply database migration
 for i in {1..5}
 do

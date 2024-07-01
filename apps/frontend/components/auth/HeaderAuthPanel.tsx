@@ -93,7 +93,7 @@ export default function HeaderAuthPanel({
               }}
               variant={variants[group]}
               className={cn(
-                'hidden px-3 py-1 text-base md:block ',
+                'hidden px-3 py-1 text-base md:block',
                 group === 'editor' ? 'font-medium' : 'font-bold'
               )}
             >
