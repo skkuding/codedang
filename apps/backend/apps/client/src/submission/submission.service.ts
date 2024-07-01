@@ -191,8 +191,6 @@ export class SubmissionService implements OnModuleInit {
     userId: number,
     idOptions?: { contestId?: number; workbookId?: number }
   ) {
-    let submission: Submission
-
     if (!problem.languages.includes(submissionDto.language)) {
       throw new ConflictFoundException(
         `This problem does not support language ${submissionDto.language}`
@@ -218,7 +216,18 @@ export class SubmissionService implements OnModuleInit {
       ...data
     }
 
-    if (idOptions && idOptions.contestId) {
+    if (
+      idOptions === undefined ||
+      (!idOptions.contestId && !idOptions.workbookId)
+    ) {
+      const submission = await this.prisma.submission.create({
+        data: submissionData
+      })
+      await this.publishJudgeRequestMessage(code, submission)
+      return submission
+    }
+
+    if (idOptions.contestId) {
       // 해당 contestId에 해당하는 Contest에서 해당 problemId에 해당하는 문제로 AC를 받은 submission이 있는지 확인
       const hasPassed = await this.hasPassedProblem(userId, {
         problemId: problem.id,
@@ -229,22 +238,22 @@ export class SubmissionService implements OnModuleInit {
           'You have already gotten AC for this problem'
         )
       }
-      submission = await this.prisma.submission.create({
+      const submission = await this.prisma.submission.create({
         data: { ...submissionData, contestId: idOptions.contestId }
       })
-    } else if (idOptions && idOptions.workbookId) {
-      submission = await this.prisma.submission.create({
-        data: { ...submissionData, workbookId: idOptions.workbookId }
-      })
-    } else {
-      submission = await this.prisma.submission.create({
-        data: submissionData
-      })
+
+      await this.publishJudgeRequestMessage(code, submission)
+      return submission
     }
 
-    await this.publishJudgeRequestMessage(code, submission)
+    if (idOptions.workbookId) {
+      const submission = await this.prisma.submission.create({
+        data: { ...submissionData, workbookId: idOptions.workbookId }
+      })
 
-    return submission
+      await this.publishJudgeRequestMessage(code, submission)
+      return submission
+    }
   }
 
   isValidCode(code: Snippet[], language: Language, templates: Template[]) {
