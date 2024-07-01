@@ -225,7 +225,9 @@ export class SubmissionService implements OnModuleInit {
         contestId: idOptions.contestId
       })
       if (hasPassed) {
-        throw new ConflictFoundException('You have already passed this problem')
+        throw new ConflictFoundException(
+          'You have already gotten AC for this problem'
+        )
       }
       submission = await this.prisma.submission.create({
         data: { ...submissionData, contestId: idOptions.contestId }
