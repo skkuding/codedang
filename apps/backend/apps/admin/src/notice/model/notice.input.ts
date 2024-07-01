@@ -1,5 +1,5 @@
 import { InputType, PartialType, PickType } from '@nestjs/graphql'
-import { NoticeCreateInput } from '@generated'
+import { NoticeCreateInput } from '@admin/@generated'
 
 @InputType()
 export class CreateNoticeInput extends PickType(NoticeCreateInput, [

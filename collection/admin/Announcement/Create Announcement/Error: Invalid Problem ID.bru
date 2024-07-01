@@ -1,0 +1,41 @@
+meta {
+  name: Error: Invalid Problem ID
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation($problemId: Int, $contestId: Int!, $content: String!) {
+    createAnnouncement(
+      createAnnouncementInput: {
+        problemId: $problemId
+        contestId: $contestId
+        content: $content
+      }
+    ) {
+      id
+      problemId
+      content
+    }
+  }
+  
+  
+}
+
+body:graphql:vars {
+  {
+    "problemId": -9999999,
+    "contestId": -9999999,
+    "content": "this is new announcement"
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+}

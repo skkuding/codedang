@@ -1,6 +1,5 @@
 import { InternalServerErrorException, Logger } from '@nestjs/common'
 import { Args, Int, Query, Mutation, Resolver, Context } from '@nestjs/graphql'
-import { Group } from '@generated'
 import { Role } from '@prisma/client'
 import { AuthenticatedRequest, UseRolesGuard } from '@libs/auth'
 import {
@@ -9,6 +8,7 @@ import {
   ForbiddenAccessException
 } from '@libs/exception'
 import { CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
+import { Group } from '@admin/@generated'
 import { GroupService } from './group.service'
 import { CreateGroupInput, UpdateGroupInput } from './model/group.input'
 import { DeletedUserGroup, FindGroup } from './model/group.output'
