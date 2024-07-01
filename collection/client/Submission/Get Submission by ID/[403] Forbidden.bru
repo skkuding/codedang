@@ -1,7 +1,7 @@
 meta {
-  name: Succeed
+  name: [403] Forbidden
   type: http
-  seq: 1
+  seq: 4
 }
 
 get {
@@ -17,7 +17,7 @@ query {
 }
 
 script:pre-request {
-  await require("./login").loginUser(req);
+  await require("./login").loginUser2nd(req);
 }
 
 docs {
