@@ -216,6 +216,7 @@ export class SubmissionService implements OnModuleInit {
       ...data
     }
 
+    // idOptions Object가 undefined이거나 contestId와 workbookId가 모두 없는 경우
     if (
       idOptions === undefined ||
       (!idOptions.contestId && !idOptions.workbookId)
