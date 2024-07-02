@@ -78,12 +78,6 @@ export default function Page({ params }: { params: { id: string } }) {
             </Button>
           </Link>
         </div>
-        {/* <div
-          className="prose mb-12 w-full max-w-full border-y-2 border-y-gray-300 p-5 py-12"
-          dangerouslySetInnerHTML={{
-            __html: sanitize(katexContent.toString() ?? '')
-          }}
-        /> */}
         {katexContent}
         <p className="text-xl font-bold">Submission</p>
         <DataTable
