@@ -3,19 +3,42 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
 import * as chai from 'chai'
 import chaiExclude from 'chai-exclude'
-import { PrismaService } from '@libs/prisma'
+import { PrismaService, PrismaTestService } from '@libs/prisma'
 import { AnnouncementService } from './announcement.service'
 
 chai.use(chaiExclude)
 
 describe('AnnouncementService', () => {
   let service: AnnouncementService
+  let prisma: PrismaTestService
+
+  before(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AnnouncementService,
+        PrismaTestService,
+        {
+          provide: PrismaService,
+          useExisting: PrismaTestService
+        },
+        ConfigService
+      ]
+    }).compile()
+
+    service = module.get<AnnouncementService>(AnnouncementService)
+    prisma = module.get<PrismaTestService>(PrismaTestService)
+  })
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [AnnouncementService, PrismaService, ConfigService]
-    }).compile()
-    service = module.get<AnnouncementService>(AnnouncementService)
+    await prisma.startTransaction()
+  })
+
+  afterEach(async () => {
+    await prisma.rollbackTransaction()
+  })
+
+  after(async () => {
+    await prisma.$disconnect()
   })
 
   it('should be defined', () => {
