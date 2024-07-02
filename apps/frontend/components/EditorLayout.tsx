@@ -20,12 +20,17 @@ interface EditorLayoutProps {
   children: React.ReactNode
 }
 
+interface ContestProblemProps {
+  data: ContestProblem[]
+  total: number
+}
+
 export default async function EditorLayout({
   contestId,
   problemId,
   children
 }: EditorLayoutProps) {
-  let problems: { problems: ContestProblem[] } | undefined
+  let problems: ContestProblemProps | undefined
   let contest: Contest | undefined
 
   if (contestId) {
@@ -56,11 +61,11 @@ export default async function EditorLayout({
             {contest ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex gap-1 text-lg font-bold text-white outline-none">
-                  <h1>{`${convertToLetter(problems?.problems.find((item) => item.id === Number(problemId))?.order as number)}. ${problem.title}`}</h1>
+                  <h1>{`${convertToLetter(problems?.data.find((item) => item.id === Number(problemId))?.order as number)}. ${problem.title}`}</h1>
                   <FaSortDown />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="border-slate-700 bg-slate-900">
-                  {problems?.problems.map((p: ContestProblem) => (
+                  {problems?.data.map((p: ContestProblem) => (
                     <Link
                       key={p.id}
                       href={`/contest/${contestId}/problem/${p.id}` as Route}
