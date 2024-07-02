@@ -14,7 +14,7 @@ import { DialogClose } from '@radix-ui/react-dialog'
 import { mergeAttributes, Node } from '@tiptap/core'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
-import type { Extension } from '@tiptap/react'
+import { Extension } from '@tiptap/react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { ReactNodeViewRenderer } from '@tiptap/react'
 import type { NodeViewWrapperProps } from '@tiptap/react'
@@ -84,6 +84,25 @@ function MathPreview(props: NodeViewWrapperProps) {
   )
 }
 
+export const Indentation = Extension.create({
+  name: 'indentation',
+  addKeyboardShortcuts() {
+    return {
+      Tab: ({ editor }) => {
+        const { state, dispatch } = editor.view
+        const { selection } = state
+        const transaction = state.tr.insertText(
+          '  ',
+          selection.from,
+          selection.to
+        ) // Insert two spaces
+        dispatch(transaction)
+        return true
+      }
+    }
+  }
+})
+
 export const MathExtension = Node.create({
   name: 'mathComponent',
   group: 'inline math',
@@ -149,7 +168,8 @@ export default function TextEditor({
         emptyEditorClass:
           'before:absolute before:text-gray-300 before:float-left before:content-[attr(data-placeholder)] before:pointer-events-none'
       }),
-      Link
+      Link,
+      Indentation
     ],
     editorProps: {
       attributes: {
