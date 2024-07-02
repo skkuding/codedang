@@ -1,20 +1,20 @@
 meta {
-  name: Succeed
+  name: Succeed (with workbookId)
   type: http
-  seq: 1
+  seq: 4
 }
 
 post {
-  url: {{baseUrl}}/submission?problemId=1
+  url: {{baseUrl}}/submission?problemId=1&workbookId=1
   body: json
   auth: none
 }
 
 params:query {
   problemId: 1
+  workbookId: 1
   ~contestId: 1
   ~groupId: 1
-  ~workbookId: 1
 }
 
 body:json {
