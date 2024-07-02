@@ -11,9 +11,10 @@ import { convertToLetter } from '@/lib/utils'
 import type { ContestProblem, ProblemDetail } from '@/types/type'
 import { motion } from 'framer-motion'
 import { sanitize } from 'isomorphic-dompurify'
+import katex from 'katex'
 import { CheckCircle, Lightbulb, Tag } from 'lucide-react'
 import { Clipboard } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect, useRef, type RefObject } from 'react'
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard'
 import {
   Tooltip,
@@ -43,6 +44,23 @@ const useCopy = () => {
   return { copiedID, copy }
 }
 
+const renderKatex = (html: string, katexRef: RefObject<HTMLDivElement>) => {
+  if (katexRef.current) {
+    katexRef.current.innerHTML = html
+    const div = katexRef.current
+    div.querySelectorAll('math-component').forEach((el) => {
+      const content = el.getAttribute('content') || ''
+      const mathHtml = katex.renderToString(content, {
+        throwOnError: false,
+        strict: false,
+        globalGroup: true,
+        output: 'mathml'
+      })
+      el.outerHTML = mathHtml
+    })
+  }
+}
+
 export function EditorDescription({
   problem,
   contestProblems
@@ -51,15 +69,19 @@ export function EditorDescription({
   contestProblems?: ContestProblem[]
 }) {
   const { copiedID, copy } = useCopy()
+  const katexRef = useRef<HTMLDivElement>(null)!
+  useEffect(() => {
+    renderKatex(problem.description, katexRef)
+  }, [problem.description, katexRef])
 
+  const katexContent = <div ref={katexRef} />
   return (
     <div className="dark flex h-full flex-col gap-8 p-6 text-lg">
       <div>
         <h1 className="mb-3 text-xl font-bold">{`#${contestProblems ? convertToLetter(contestProblems.find((item) => item.id === problem.id)?.order as number) : problem.id}. ${problem.title}`}</h1>
-        <div
-          className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300"
-          dangerouslySetInnerHTML={{ __html: sanitize(problem.description) }}
-        />
+        <div className="prose prose-invert max-w-full text-sm leading-relaxed text-slate-300">
+          {katexContent}
+        </div>
       </div>
       <div>
         <h2 className="mb-3 font-bold">Input</h2>
