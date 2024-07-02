@@ -98,7 +98,7 @@
     "chai": "^4.4.1",
     "chai-as-promised": "^7.1.2",
     "mocha": "^10.5.2",
-    "nyc": "^15.1.0",
+    "nyc": "^17.0.0",
     "prisma": "^5.16.1",
     "prisma-nestjs-graphql": "^20.0.3",
     "proxyquire": "^2.1.3",
