@@ -65,7 +65,7 @@
     "graphql-type-json": "^0.3.2",
     "graphql-upload": "13.0.0",
     "handlebars": "^4.7.8",
-    "nestjs-otel": "^5.1.5",
+    "nestjs-otel": "^6.1.1",
     "nestjs-pino": "^4.1.0",
     "nodemailer": "^6.9.14",
     "passport": "^0.7.0",
