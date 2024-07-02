@@ -16,7 +16,7 @@
     "@codemirror/lang-java": "^6.0.1",
     "@codemirror/lang-python": "^6.1.6",
     "@codemirror/state": "^6.4.1",
-    "@codemirror/view": "^6.26.3",
+    "@codemirror/view": "^6.28.3",
     "@headlessui/react": "^2.1.1",
     "@hookform/resolvers": "^3.6.0",
     "@lezer/highlight": "^1.2.0",
@@ -83,7 +83,7 @@
     "zustand": "^4.5.4"
   },
   "devDependencies": {
-    "@codemirror/language": "^6.10.1",
+    "@codemirror/language": "^6.10.2",
     "@graphql-codegen/cli": "^5.0.2",
     "@graphql-codegen/client-preset": "^4.3.2",
     "@graphql-typed-document-node/core": "^3.2.0",
