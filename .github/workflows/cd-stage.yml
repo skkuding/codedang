@@ -143,8 +143,8 @@ jobs:
 
       - name: Run Bruno Collection (Client)
         working-directory: ./collection/client
-        run: bru run --env stage
+        run: bru run --env Stage
 
       - name: Run Bruno Collection (Admin)
         working-directory: ./collection/admin
-        run: bru run --env stage
+        run: bru run --env Stage
