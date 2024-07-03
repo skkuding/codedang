@@ -21,7 +21,7 @@ const getFixedNotices = async () => {
       }
     })
     .json()
-
+  // console.log(notices)
   return notices.data
 }
 
@@ -34,7 +34,7 @@ const getNotices = async (search: string) => {
       }
     })
     .json()
-
+  // console.log(notices)
   return notices.data
 }
 
@@ -48,6 +48,9 @@ export default async function NoticeTable({ search }: Props) {
     fixedNoticesFetcher,
     noticesFetcher
   ])
+
+  fixedNotices == undefined ? [] : fixedNotices
+
   const currentPageData = fixedNotices.concat(notices)
 
   return (
