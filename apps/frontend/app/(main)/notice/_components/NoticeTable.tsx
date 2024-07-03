@@ -21,7 +21,7 @@ const getFixedNotices = async () => {
       }
     })
     .json()
-  // console.log(notices)
+
   return notices.data
 }
 
@@ -34,7 +34,7 @@ const getNotices = async (search: string) => {
       }
     })
     .json()
-  // console.log(notices)
+
   return notices.data
 }
 
