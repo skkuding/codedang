@@ -99,7 +99,6 @@ export default function Page({ params }: { params: { id: string } }) {
   const { id } = params
   const [showHint, setShowHint] = useState(true)
   const [showSource, setShowSource] = useState(true)
-
   const { data: tagsData } = useQuery(GET_TAGS)
   const tags =
     tagsData?.getTags.map(({ id, name }) => ({ id: +id, name })) ?? []
@@ -402,17 +401,23 @@ export default function Page({ params }: { params: { id: string } }) {
               </div>
             )}
           </div>
-
           <div className="flex flex-col gap-1">
             <div className="flex justify-between">
-              <div className="flex flex-col gap-1">
+              <div className="flex w-[360px] flex-col gap-1">
                 <Label>Input Description</Label>
-                <Textarea
-                  id="inputDescription"
-                  placeholder="Enter a description..."
-                  className="min-h-[120px] w-[360px] bg-white"
-                  {...register('inputDescription')}
-                />
+                {getValues('inputDescription') && (
+                  <Controller
+                    render={({ field }) => (
+                      <TextEditor
+                        placeholder="Enter a description..."
+                        onChange={field.onChange}
+                        defaultValue={field.value as string}
+                      />
+                    )}
+                    name="inputDescription"
+                    control={control}
+                  />
+                )}
                 {errors.inputDescription && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
                     <PiWarningBold />
@@ -420,14 +425,22 @@ export default function Page({ params }: { params: { id: string } }) {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex w-[360px] flex-col gap-1">
                 <Label>Output Description</Label>
-                <Textarea
-                  id="outputDescription"
-                  placeholder="Enter a description..."
-                  className="min-h-[120px] w-[360px] bg-white"
-                  {...register('outputDescription')}
-                />
+                {getValues('outputDescription') && (
+                  <Controller
+                    render={({ field }) => (
+                      <TextEditor
+                        placeholder="Enter a description..."
+                        onChange={field.onChange}
+                        defaultValue={field.value as string}
+                      />
+                    )}
+                    name="outputDescription"
+                    control={control}
+                  />
+                )}
+
                 {errors.outputDescription && (
                   <div className="flex items-center gap-1 text-xs text-red-500">
                     <PiWarningBold />
