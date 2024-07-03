@@ -21,7 +21,7 @@ import { GET_TAGS } from '@/graphql/problem/queries'
 import { languages, levels } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
-import type { UpdateProblemInput } from '@generated/graphql'
+import type { Template, UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -153,7 +153,7 @@ export default function Page({ params }: { params: { id: string } }) {
       setValue('source', data.source)
       if (data.template) {
         const templates = JSON.parse(data.template[0])
-        templates.map((template: any, index: number) => {
+        templates.map((template: Template, index: number) => {
           setValue(`template.${index}`, {
             language: template.language,
             code: [
