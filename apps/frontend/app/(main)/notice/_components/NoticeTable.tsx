@@ -48,6 +48,9 @@ export default async function NoticeTable({ search }: Props) {
     fixedNoticesFetcher,
     noticesFetcher
   ])
+
+  fixedNotices == undefined ? [] : fixedNotices
+
   const currentPageData = fixedNotices.concat(notices)
 
   return (
