@@ -24,7 +24,7 @@ import { Level, type CreateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -125,6 +125,24 @@ export default function Page() {
 
   const watchedSamples = watch('samples')
   const watchedTestcases = watch('testcases')
+  const watchedLanguages = watch('languages')
+
+  useEffect(() => {
+    if (watchedLanguages) {
+      watchedLanguages.map((language, index) => {
+        setValue(`template.${index}`, {
+          language: language,
+          code: [
+            {
+              id: index,
+              text: '',
+              locked: false
+            }
+          ]
+        })
+      })
+    }
+  }, [watchedLanguages])
 
   const [createProblem, { error }] = useMutation(CREATE_PROBLEM)
   const onSubmit = async (input: CreateProblemInput) => {
@@ -542,6 +560,31 @@ export default function Page() {
             )}
           </div>
 
+          <div className="flex flex-col gap-6">
+            {watchedLanguages &&
+              watchedLanguages.map((language, index) => (
+                <div key={index} className="flex gap-4">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <Label required={false}>{language} Template</Label>
+                    </div>
+                    {language && (
+                      <Textarea
+                        placeholder={`Enter a ${language} template...`}
+                        className="h-[180px] w-[480px] bg-white"
+                        {...register(`template.${index}.code.0.text`)}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
+          {errors.template && (
+            <div className="flex items-center gap-1 text-xs text-red-500">
+              <PiWarningBold />
+              {errors.template.message}
+            </div>
+          )}
           <Button
             type="submit"
             className="flex h-[36px] w-[100px] items-center gap-2 px-0"
