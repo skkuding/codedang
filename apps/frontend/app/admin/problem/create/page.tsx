@@ -135,7 +135,7 @@ export default function Page() {
           code: [
             {
               id: index,
-              text: '',
+              text: getValues(`template.${index}.code.0.text`),
               locked: false
             }
           ]
@@ -579,12 +579,6 @@ export default function Page() {
                 </div>
               ))}
           </div>
-          {errors.template && (
-            <div className="flex items-center gap-1 text-xs text-red-500">
-              <PiWarningBold />
-              {errors.template.message}
-            </div>
-          )}
           <Button
             type="submit"
             className="flex h-[36px] w-[100px] items-center gap-2 px-0"

@@ -25,7 +25,7 @@ import type { UpdateProblemInput } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FaAngleLeft } from 'react-icons/fa6'
@@ -151,12 +151,44 @@ export default function Page({ params }: { params: { id: string } }) {
       setValue('memoryLimit', data.memoryLimit)
       setValue('hint', data.hint)
       setValue('source', data.source)
-      setValue('template', [])
+      if (data.template) {
+        const templates = JSON.parse(data.template[0])
+        templates.map((template: any, index: number) => {
+          setValue(`template.${index}`, {
+            language: template.language,
+            code: [
+              {
+                id: template.code[0].id,
+                text: template.code[0].text,
+                locked: template.code[0].locked
+              }
+            ]
+          })
+        })
+      }
     }
   })
 
   const watchedSamples = watch('samples.create')
   const watchedTestcases = watch('testcases')
+  const watchedLanguages = watch('languages')
+
+  useEffect(() => {
+    if (watchedLanguages) {
+      watchedLanguages.map((language, index) => {
+        setValue(`template.${index}`, {
+          language: language,
+          code: [
+            {
+              id: index,
+              text: getValues(`template.${index}.code.0.text`),
+              locked: false
+            }
+          ]
+        })
+      })
+    }
+  }, [watchedLanguages])
 
   const [updateProblem, { error }] = useMutation(UPDATE_PROBLEM)
   const onSubmit = async (input: UpdateProblemInput) => {
@@ -613,7 +645,25 @@ export default function Page({ params }: { params: { id: string } }) {
               />
             )}
           </div>
-
+          <div className="flex flex-col gap-6">
+            {watchedLanguages &&
+              watchedLanguages.map((language, index) => (
+                <div key={index} className="flex gap-4">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <Label required={false}>{language} Template</Label>
+                    </div>
+                    {language && (
+                      <Textarea
+                        placeholder={`Enter a ${language} template...`}
+                        className="h-[180px] w-[480px] bg-white"
+                        {...register(`template.${index}.code.0.text`)}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
           <Button
             type="submit"
             className="flex h-[36px] w-[100px] items-center gap-2 px-0"
