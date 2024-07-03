@@ -20,7 +20,7 @@ import { GET_TAGS } from '@/graphql/problem/queries'
 import { languages, levels } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery } from '@apollo/client'
-import { Level, type CreateProblemInput } from '@generated/graphql'
+import { Level, type CreateProblemInput, Template } from '@generated/graphql'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -129,13 +129,35 @@ export default function Page() {
 
   useEffect(() => {
     if (watchedLanguages) {
-      watchedLanguages.map((language, index) => {
+      let templates: Template[] = [] // temp array to store templates
+      const savedTemplates = getValues('template') // templates saved in form
+      watchedLanguages.map((language) => {
+        const temp = savedTemplates!.filter(
+          (template) => template.language === language
+        )
+        if (temp.length !== 0) {
+          templates.push(temp[0])
+        } else {
+          // push dummy template to array
+          templates.push({
+            language,
+            code: [
+              {
+                id: -1,
+                text: '',
+                locked: false
+              }
+            ]
+          })
+        }
+      })
+      templates.map((template, index) => {
         setValue(`template.${index}`, {
-          language: language,
+          language: template.language,
           code: [
             {
               id: index,
-              text: getValues(`template.${index}.code.0.text`),
+              text: template.code[0].text ?? '',
               locked: false
             }
           ]

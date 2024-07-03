@@ -175,13 +175,35 @@ export default function Page({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     if (watchedLanguages) {
-      watchedLanguages.map((language, index) => {
+      let templates: Template[] = [] // temp array to store templates
+      const savedTemplates = getValues('template') // templates saved in form
+      watchedLanguages.map((language) => {
+        const temp = savedTemplates!.filter(
+          (template) => template.language === language
+        )
+        if (temp.length !== 0) {
+          templates.push(temp[0])
+        } else {
+          // push dummy template to array
+          templates.push({
+            language,
+            code: [
+              {
+                id: -1,
+                text: '',
+                locked: false
+              }
+            ]
+          })
+        }
+      })
+      templates.map((template, index) => {
         setValue(`template.${index}`, {
-          language: language,
+          language: template.language,
           code: [
             {
               id: index,
-              text: getValues(`template.${index}.code.0.text`),
+              text: template.code[0].text ?? '',
               locked: false
             }
           ]
