@@ -101,6 +101,9 @@ export default function HeaderAuthPanel({
             onOpenAutoFocus={(e) => {
               e.preventDefault()
             }}
+            onInteractOutside={(e) => {
+              e.preventDefault()
+            }}
             className="min-h-[30rem] max-w-[20.5rem]"
           >
             <AuthModal />
