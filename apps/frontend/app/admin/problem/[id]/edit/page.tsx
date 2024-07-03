@@ -175,7 +175,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     if (watchedLanguages) {
-      let templates: Template[] = [] // temp array to store templates
+      const templates: Template[] = [] // temp array to store templates
       const savedTemplates = getValues('template') // templates saved in form
       watchedLanguages.map((language) => {
         const temp = savedTemplates!.filter(
