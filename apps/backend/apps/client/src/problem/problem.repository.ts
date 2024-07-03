@@ -50,7 +50,8 @@ export class ProblemRepository {
         input: true,
         output: true
       }
-    }
+    },
+    template: true
   }
 
   private readonly codeDraftSelectOption = {
