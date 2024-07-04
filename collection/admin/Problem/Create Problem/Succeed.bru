@@ -1,0 +1,91 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreateProblem($groupId: Int!, $input:  CreateProblemInput!) {
+    createProblem(groupId: $groupId, input: $input) {
+      id
+      createdById
+      groupId
+      title
+      description
+      inputDescription
+      outputDescription
+      hint
+      isVisible
+      template
+      samples {
+        input
+        output
+      }
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "input": {
+      "title": "createdProblem",
+      "description": "description",
+      "inputDescription": "input description",
+      "outputDescription": "output description",
+      "hint": "hint",
+      "isVisible": false,
+      "template": {
+        "language": "Cpp",
+        "code": [
+          {
+            "id": 1,
+            "text": "int main() {}",
+            "locked": false
+          }
+        ]
+      },
+      "languages": ["Cpp"],
+      "timeLimit": 0,
+      "memoryLimit": 0,
+      "difficulty": "Level2",
+      "source": "source",
+      "samples": [
+        {
+          "input": "1 2",
+          "output": "3"
+        }
+      ],
+      "testcases": [
+        {
+          "input": "input",
+          "output": "output"
+        }
+      ],
+      "tagIds": [1]
+    }
+  }
+}
+
+assert {
+  res.body.data.createProblem: isDefined
+}
+
+docs {
+  ## Create Problem
+  Problem을 생성합니다.
+  
+  ### Error Cases
+  #### UNPROCESSABLE(1)
+  Problem은 최소 1개 이상의 프로그래밍 언어를 지원해야 합니다.
+  #### UNPROCESSABLE(2)
+  Problem은 Template에 존재하는 프로그래밍 언어를 지원해야 합니다.
+}

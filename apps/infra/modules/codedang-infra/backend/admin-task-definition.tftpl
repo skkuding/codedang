@@ -1,0 +1,94 @@
+[
+  {
+    "name": "log_router",
+    "image": "grafana/fluent-bit-plugin-loki:2.0.0-amd64",
+    "cpu": 100,
+    "memoryReservation": 50,
+    "portMappings": [],
+    "essential": true,
+    "environment": [],
+    "mountPoints": [],
+    "volumesFrom": [],
+    "user": "0",
+    "firelensConfiguration": {
+      "type": "fluentbit",
+      "options": {
+          "enable-ecs-log-metadata": "true"
+      }
+    }
+  },
+  {
+    "name": "${task_name}",
+    "image": "${ecr_uri}",
+    "cpu": 924,
+    "memoryReservation": 512,
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": ${container_port}
+      }
+    ],
+    "environment": [
+      {
+        "name": "DATABASE_URL",
+        "value": "${database_url}"
+      },
+      {
+        "name": "REDIS_HOST",
+        "value": "${redis_host}"
+      },
+      {
+        "name": "REDIS_PORT",
+        "value": "${redis_port}"
+      },
+      {
+        "name": "JWT_SECRET",
+        "value": "${jwt_secret}"
+      },
+      {
+        "name": "NODEMAILER_FROM",
+        "value": "${nodemailer_from}"
+      },
+      {
+        "name" : "TESTCASE_BUCKET_NAME",
+        "value" : "${testcase_bucket_name}"
+      },
+      {
+        "name" : "TESTCASE_ACCESS_KEY",
+        "value" : "${testcase_access_key}"
+      },
+      {
+        "name" : "TESTCASE_SECRET_KEY",
+        "value" : "${testcase_secret_key}"
+      },
+      {
+        "name" : "MEDIA_BUCKET_NAME",
+        "value" : "${media_bucket_name}"
+      },
+      {
+        "name" : "MEDIA_ACCESS_KEY",
+        "value" : "${media_access_key}"
+      },
+      {
+        "name" : "MEDIA_SECRET_KEY",
+        "value" : "${media_secret_key}"
+      },
+      {
+        "name" : "OTEL_EXPORTER_OTLP_ENDPOINT_URL",
+        "value" : "${otel_endpoint}"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awsfirelens",
+      "options": {
+        "LabelKeys": "container_name,ecs_task_definition,source,ecs_cluster",
+        "Labels": "{job=\"firelens\"}",
+        "LineFormat": "key_value",
+        "Name": "loki",
+        "RemoveKeys": "container_id,ecs_task_arn",
+        "Url": "${loki_url}"
+      },
+      "secretOptions": []
+    }
+  }
+]

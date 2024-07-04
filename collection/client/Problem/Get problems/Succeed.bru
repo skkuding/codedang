@@ -16,30 +16,29 @@ query {
   ~search: 정
   ~order: level-desc
   ~groupId: 2
-  ~contestId: 1
   ~workbookId: 1
 }
 
 assert {
   res.status: eq 200
-  res.body[0].id: isNumber
-  res.body[0].title: isString
-  res.body[0].difficulty: isString
-  res.body[0].submissionCount: isNumber
-  res.body[0].acceptedRate: isNumber
-  res.body[0].tags: isDefined
+  res.body.data[0].id: isNumber
+  res.body.data[0].title: isString
+  res.body.data[0].difficulty: isString
+  res.body.data[0].submissionCount: isNumber
+  res.body.data[0].acceptedRate: isNumber
+  res.body.data[0].tags: isDefined
+  res.body.total: isNumber
 }
 
 docs {
   # Get Problems
-
+  
   공개된 문제 목록을 가져옵니다.
-
+  
   ## Query
-
-  > contestId 또는 workbookId 중 하나 값은 필수로 주어져야 합니다.
-  > 두 값이 모두 주어진 경우, contestId 우선 적용되어 대회의 문제들이 반환됩니다.
-
+  
+  > workbookId가 주어진 경우 워크북의 문제들이 반환됩니다.
+  
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |take      |Integer|가져올 문제 개수 (default: 10)|
@@ -47,11 +46,10 @@ docs {
   |search    |String |검색 키워드|
   |order     |String |정렬 기준 (아래 참고)|
   |groupId   |Integer|문제가 속한 Group ID (default: 1)|
-  |contestId |Integer|문제가 속한 대회 ID|
   |workbookId|Integer|문제가 속한 문제집 ID|
-
+  
   ### 정렬 기준 옵션
-
+  
   - `id-asc`, `id-desc`
   - `title-asc`, `title-desc`
   - `level-asc`, `level-desc`

@@ -61,6 +61,7 @@ dist/
 .env.test.local
 .env.production.local
 .env.local
+.env.stage.local
 
 # Ignore all local history of files
 .history
@@ -72,12 +73,9 @@ dist/
 # pnpm store
 .pnpm-store
 
-# Vitepress
-docs/.vitepress/cache/
-
 # NestJS & GraphQL
 @generated/
-backend/schema.gql
+apps/backend/schema.gql
 
 # Go Debugger
 __debug_bin*
@@ -133,3 +131,14 @@ terraform.rc
 
 # Go workspace file
 go.work
+
+# PEM-encoded certificate data
+*.pem
+
+# nyc files
+.nyc_output
+coverage
+
+*.pkg
+
+

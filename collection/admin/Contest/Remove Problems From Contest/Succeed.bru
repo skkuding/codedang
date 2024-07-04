@@ -1,0 +1,39 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    removeProblemsFromContest(
+      groupId: 1
+      contestId: 6
+      problemIds: [2]
+    ) {
+      contestId
+      problemId
+      createTime
+      updateTime
+      order
+      score
+    }
+  }
+}
+
+assert {
+  res.body.data.removeProblemsFromContest: isDefined
+}
+
+docs {
+  # remove Problems
+  
+  - Contest에 포함된 문제들을 remove합니다..
+  - 입력된 problemId, contestId, groupId의 조합과 일치하는 문제가 없을 경우 무시됩니다.
+}

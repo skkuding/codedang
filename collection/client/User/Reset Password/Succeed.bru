@@ -1,0 +1,42 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/user/password-reset
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "newPassword": "Supersuper"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: eq "Password Reset successfully"
+}
+
+script:pre-request {
+  const axios = require('axios')
+  const baseUrl = bru.getEnvVar('baseUrl')
+  const res = await axios.post(baseUrl + '/email-auth/verify-pin',{
+    "pin": "936665", // email 속의 pin
+    "email": "nicole2974@g.skku.edu" // email 주소
+  })
+  req.setHeader('email-auth', res.headers['email-auth'])
+  
+}
+
+docs {
+  # Reset Password
+  
+  - 사용자가 password를 잊어버렸을 때, 사용자의 이메일 pin을 인증받았을 때 password를 reset합니다.
+  - API 테스팅을 하려면 원하는 email을 통해 회원가입을 한 뒤, Send Pin for Password Reset을 해주세요. 그 다음 Pin과 해당 이메일 주소를 Pre-script에 입력하시면 테스팅이 가능합니다.
+  - jwtToken이 올바르지 않을 때에는 `401`을 반환합니다.
+  - password 형식이 올바르지 않을 때에는 `422`를 반환합니다.
+}

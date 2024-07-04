@@ -1,0 +1,59 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation HandleJoinRequest($userId: Int!, $groupId: Int!, $isAccept: Boolean!) {
+  	handleJoinRequest(userId: $userId, groupId: $groupId, isAccept: $isAccept) {
+    	userId
+      groupId
+      isGroupLeader
+      createTime
+      updateTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "userId": 4,
+    "groupId": 3,
+    "isAccept": true
+  }
+}
+
+assert {
+  res.body.data.handleJoinRequest.userId: isNumber 
+  res.body.data.handleJoinRequest.groupId: isNumber 
+  res.body.data.handleJoinRequest.isGroupLeader: isBoolean 
+  res.body.data.handleJoinRequest.createTime: isDefined 
+  res.body.data.handleJoinRequest.updateTime: isDefined 
+}
+
+docs {
+  ## Handle Join Request
+  특정 Group에 들어온 Join Request에 대해 승인 혹은 거절을 실행합니다. 
+  
+  ### Args / Query / Params / Body
+  | 이름 | 타입 | 설명 |
+  |--|--|--|
+  |userId|Int|승인 혹은 거절하고 싶은 user의 Id|
+  |groupId|Int|승인 혹은 거절하고 싶은 group의 Id|
+  |isAccept|Boolean|승인하고 싶다면 true, 거절하고 싶다면 false|
+  
+  
+  ### Error Case
+  
+  #### Invalid Request
+  - 해당 user가 해당 group에 Join Request를 보내지 않았을 경우
+  - 해당 userId의 user가 존재하지 않을 경우
+  - 해당 groupId의 group이 존재하지 않을 경우
+}

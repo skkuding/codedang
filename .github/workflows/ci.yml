@@ -7,45 +7,83 @@ on:
     types: [opened, edited, synchronize, reopened]
 
 jobs:
-  build:
-    name: Build
+  build-backend:
+    name: Build Backend
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        target: [frontend, frontend-client, backend, backend-admin]
+        target: [client, admin]
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            shared: &shared
+              - 'apps/backend/libs/**'
+              - 'apps/backend/prisma/**'
+              - 'apps/backend/*.json'
+              - 'pnpm-lock.yaml'
+            client:
+              - *shared
+              - 'apps/backend/apps/client/**'
+            admin:
+              - *shared
+              - 'apps/backend/apps/admin/**'
+
       - uses: ./.github/actions/setup-pnpm
+        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
 
       - name: Generate Prisma Client
-        if: ${{ matrix.target == 'backend' || matrix.target == 'backend-admin' }}
-        run: pnpm --filter backend exec prisma generate
+        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
+        run: pnpm --filter="@codedang/backend" exec prisma generate
+
+      - name: Build
+        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
+        run: pnpm --filter="@codedang/backend" build ${{ matrix.target }}
+
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'apps/frontend/**'
+              - 'pnpm-lock.yaml'
+
+      - uses: ./.github/actions/setup-pnpm
+        if: steps.filter.outputs.frontend == 'true'
 
       - name: Setup Next.js build cache
-        if: ${{ matrix.target == 'frontend-client' }}
         uses: actions/cache@v4
+        if: steps.filter.outputs.frontend == 'true'
         with:
-          path: frontend-client/.next/cache
+          path: apps/frontend/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
 
       - name: Load Next.js environment
-        if: ${{ matrix.target == 'frontend-client' }}
+        if: steps.filter.outputs.frontend == 'true'
         run: |
-          echo "NEXT_PUBLIC_BASEURL=https://dev.codedang.com/api" >> frontend-client/.env
-          echo "NEXT_URL=https://dev.codedang.com" >> frontend-client/.env
+          echo "NEXT_PUBLIC_BASEURL=https://stage.codedang.com/api" >> apps/frontend/.env
+          echo "NEXT_PUBLIC_GQL_BASEURL=https://stage.codedang.com/graphql" >> apps/frontend/.env
+          echo "NEXT_URL=https://stage.codedang.com" >> apps/frontend/.env
 
-      # If target is backend-admin, run `pnpm --filter backend build admin`
-      # For other targets, run `pnpm --filter <target> build`
-      - name: Build (backend admin)
-        if: ${{ matrix.target == 'backend-admin' }}
-        run: pnpm --filter backend build admin
       - name: Build
-        if: ${{ matrix.target != 'backend-admin' }}
-        run: pnpm --filter ${{ matrix.target }} build
+        if: steps.filter.outputs.frontend == 'true'
+        run: pnpm --filter="@codedang/frontend" build
 
   typecheck:
     name: Typecheck
@@ -53,18 +91,27 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'apps/backend/**'
+
       - uses: ./.github/actions/setup-pnpm
+        if: steps.filter.outputs.backend == 'true'
 
       - name: Generate Prisma Client
-        run: pnpm --filter backend exec prisma generate
+        if: steps.filter.outputs.backend == 'true'
+        run: pnpm --filter="@codedang/backend" exec prisma generate
 
-      - name: Check types (backend)
-        run: pnpm --filter backend exec tsc --noEmit
+      - name: Check types (backend) # For spec files
+        if: steps.filter.outputs.backend == 'true'
+        run: pnpm --filter="@codedang/backend" exec tsc --noEmit
 
-      - name: Check types (frontend)
-        run: pnpm --filter frontend exec vue-tsc --noEmit
-
-      # Typecheck is not performed for frontend-client intentionally.
+      # Typecheck is not performed for frontend intentionally.
       # Check: https://github.com/vercel/next.js/issues/53959
       # Unlike backend, we don't have spec file to check types.
       # So typechecking performed in the build step is enough.
@@ -80,8 +127,8 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: iris/go.mod
-          cache-dependency-path: iris/go.sum
+          go-version-file: apps/iris/go.mod
+          cache-dependency-path: apps/iris/go.sum
 
       - name: Lint pull request title
         if: ${{ github.event_name == 'pull_request' }}
@@ -97,17 +144,18 @@ jobs:
             echo "  go fmt ./..."
             exit 1
           fi
-        working-directory: ./iris
+        working-directory: ./apps/iris
 
       - name: Lint (Node.js)
         run: pnpm lint
 
-  test:
-    name: Test
+  test-backend:
+    name: Test Backend
     runs-on: ubuntu-latest
 
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
+      TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
 
     services:
       postgres:
@@ -121,11 +169,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'apps/backend/**'
+              - 'pnpm-lock.yaml'
+
       - uses: ./.github/actions/setup-pnpm
+        if: steps.filter.outputs.backend == 'true'
 
       - name: Check Prisma Migration
+        if: steps.filter.outputs.backend == 'true'
         run: |
-          pnpm --filter backend exec prisma migrate diff \
+          pnpm --filter="@codedang/backend" exec prisma migrate diff \
             --from-migrations ./prisma/migrations \
             --to-schema-datamodel ./prisma/schema.prisma \
             --shadow-database-url ${{ env.DATABASE_URL }} \
@@ -134,10 +194,9 @@ jobs:
           "Please run 'pnpm prisma migrate dev' locally and commit the changes." && exit 1)
 
       - name: Migrate Prisma
-        run: pnpm --filter backend exec prisma migrate reset --force
-
-      - name: Check types in Typescript
-        run: pnpm --filter backend exec tsc --noEmit
+        if: steps.filter.outputs.backend == 'true'
+        run: pnpm --filter="@codedang/backend" exec prisma migrate reset --force
 
       - name: Test
-        run: pnpm -r test
+        if: steps.filter.outputs.backend == 'true'
+        run: pnpm --filter="@codedang/backend" test

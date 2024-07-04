@@ -8,8 +8,15 @@
     "schedule:weekly",
     ":label(dependencies)"
   ],
+  "constraints": {
+    "go": "1.21"
+  },
   "rangeStrategy": "bump",
-  "reviewers": ["dotoleeoak"],
   "lockFileMaintenance": { "enabled": true },
-  "ignoreDeps": ["reflect-metadata"]
+  "packageRules": [
+    {
+      "matchDatasources": ["golang-version"],
+      "enabled": false
+    }
+  ]
 }

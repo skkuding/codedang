@@ -14,13 +14,13 @@ services:
       - database
     stdin_open: true
     tty: true
-    env_file: .env.development
+    env_file: .env.stage
     environment:
       DEVCONTAINER: 1
     network_mode: host
 
-  testcase:
-    container_name: codedang-testcase
+  storage:
+    container_name: codedang-storage
     image: minio/minio
     ports:
       - 9000:9000
@@ -30,7 +30,7 @@ services:
       MINIO_ROOT_USER: skku
       MINIO_ROOT_PASSWORD: skku1234
     volumes:
-      - codedang-testcase:/data
+      - codedang-storage:/data
 
   database:
     container_name: codedang-database
@@ -44,6 +44,18 @@ services:
     volumes:
       - codedang-database:/var/lib/postgresql/data
 
+  test-database:
+    container_name: codedang-test-database
+    image: postgres:16-alpine
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: skkuding
+    volumes:
+      - codedang-test-database:/var/lib/postgresql/data
+
   cache:
     container_name: codedang-cache
     image: redis:7-alpine
@@ -56,7 +68,7 @@ services:
     ports:
       - 15672:15672 # Admin Management
       - 5672:5672
-    env_file: .env.development
+    env_file: .env.stage
     environment:
       RABBITMQ_ERLANG_COOKIE: RabbitMQ-My-Cookies
     volumes:
@@ -64,7 +76,7 @@ services:
 
   caddy:
     profiles: ['deploy']
-    image: caddy:2.7.6-alpine
+    image: caddy:2.8.4-alpine
     container_name: caddy
     restart: always
     ports:
@@ -81,7 +93,7 @@ services:
       setup:
         condition: service_completed_successfully
     env_file:
-      - .env.development
+      - .env.stage
       - .env
     network_mode: host
 
@@ -94,7 +106,7 @@ services:
       setup:
         condition: service_completed_successfully
     env_file:
-      - .env.development
+      - .env.stage
       - .env
     network_mode: host
 
@@ -106,7 +118,7 @@ services:
     depends_on:
       setup:
         condition: service_completed_successfully
-    env_file: .env.development
+    env_file: .env.stage
     network_mode: host
 
   promtail:
@@ -121,7 +133,7 @@ services:
       - iris
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./grafana-logs/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
+      - $PWD/apps/grafana-logs/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
     command:
       - -config.file=/etc/promtail/promtail-config.yml
       - -config.expand-env=true
@@ -145,7 +157,7 @@ services:
     depends_on:
       - rabbitmq
       - database
-      - testcase
+      - storage
     volumes:
       - $PWD/scripts:/etc/scripts
       # - $PWD/dist:/etc/dist:z
@@ -153,6 +165,7 @@ services:
     command: ['/bin/bash', '/etc/scripts/deploy.sh']
 
 volumes:
-  codedang-testcase:
+  codedang-storage:
   codedang-database:
+  codedang-test-database:
   codedang-rabbitmq:

@@ -14,29 +14,34 @@ query {
   ~take: 10
   ~cursor: 1
   ~groupId: 1
+  ~search: 소
 }
 
 assert {
   res.status: eq 200
-  res("finished")[0].id: isNumber
-  res("finished")[0].title: isString
-  res("finished")[0].startTime: isString
-  res("finished")[0].endTime: isString
-  res("finished")[0].group.id: isNumber
-  res("finished")[0].group.groupName: isString
+  res("data")[0].id: isNumber
+  res("data")[0].title: isString
+  res("data")[0].startTime: isString
+  res("data")[0].endTime: isString
+  res("data")[0].group.id: isNumber
+  res("data")[0].group.groupName: isString
+  res("data")[0].participants: isNumber
 }
 
 docs {
-  # Add Finished Contests
+  ## Add Finished Contests
   
   종료된 대회들을 가져옵니다.
   
-  ## Query
+  pagination이 가능하며, 제목 검색 기능을 포함합니다.
+  
+  ### Query
   
   | 이름 | 타입 | 설명 |
   |-----|-----|-----|
   |take  |Integer|가져올 대회 개수 (default: 10)|
   |cursor|Integer|cursor 값 다음의 ID를 가진 대회들을 반환|
   |groupId |Integer|대회가 속한 Group ID (default: 1)|
+  |search|String|title을 기준으로 검색할 키워드. 포함하지 않으면 검색을 수행하지 않음|
   
 }

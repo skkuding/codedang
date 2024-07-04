@@ -8,7 +8,7 @@ rm -rf $BASEDIR
 git clone https://github.com/skkuding/codedang $BASEDIR
 cd $BASEDIR
 
-source $BASEDIR/.env.development
+source $BASEDIR/.env.stage
 
 wget -qO- https://get.pnpm.io/install.sh | bash -
 source /root/.bashrc
@@ -22,12 +22,7 @@ pnpm install
 pnpm run init:testcases
 
 # 데이터베이스 마이그레이션
-pnpm --filter backend exec prisma migrate reset -f
-
-# 프론트엔드 빌드
-# TODO: dist에 non-root 사용자도 접근할 수 있도록 권한 설정
-# pnpm --filter frontend run build
-# cp -r $BASEDIR/frontend/dist $DIST
+pnpm --filter="@codedang/backend" exec prisma migrate reset -f
 
 # RabbitMQ Admin 설치
 curl https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/main/deps/rabbitmq_management/bin/rabbitmqadmin -o /usr/local/bin/rabbitmqadmin

@@ -13,17 +13,15 @@ post {
 body:graphql {
   mutation {
     updateContest(
-      groupId: 2
+      groupId: 1
       input: {
         id: 3
         title: "Updated Contest Group 2"
         description: "thisisupdatedcontest"
         startTime: "2024-01-01"
         endTime: "2030-01-01"
-        config: {
-          isVisible: true
-          isRankVisible: true
-        }
+        isVisible: true
+        isRankVisible: true
       }
     ) {
       id

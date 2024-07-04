@@ -1,0 +1,37 @@
+meta {
+  name: NOT_FOUND
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query GetContestProblems($groupId: Int!, $contestId: Int!) {
+    getContestProblems(groupId: $groupId, contestId: $contestId) {
+      order
+      contestId
+      problemId
+      score
+      createTime
+      updateTime
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "groupId": 1,
+    "contestId":  99
+  }
+}
+
+assert {
+  res.body.errors[0].message: eq No Contest found
+  res.body.errors[0].extensions.code: eq NOT_FOUND
+}
