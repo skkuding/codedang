@@ -26,6 +26,7 @@ const startTime = faker.date.past()
 const endTime = faker.date.future()
 const createTime = faker.date.past()
 const updateTime = faker.date.past()
+const invitationCode = '123456'
 
 const contest: Contest = {
   id: contestId,
@@ -38,7 +39,8 @@ const contest: Contest = {
   isVisible: true,
   isRankVisible: true,
   createTime,
-  updateTime
+  updateTime,
+  invitationCode
 }
 
 const contestWithCount = {
@@ -53,6 +55,7 @@ const contestWithCount = {
   isRankVisible: true,
   createTime,
   updateTime,
+  invitationCode,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
     contestRecord: 10
@@ -71,7 +74,8 @@ const contestWithParticipants: ContestWithParticipants = {
   isRankVisible: true,
   createTime,
   updateTime,
-  participants: 10
+  participants: 10,
+  invitationCode
 }
 
 const group: Group = {
