@@ -279,10 +279,11 @@ describe('SubmissionService', () => {
           ]
         }
       }
-
+      db.submission.update.resolves(submissions[0])
       await expect(service.handleJudgerMessage(target)).to.be.rejectedWith(
         UnprocessableDataException
       )
+      db.submission.update.reset()
     })
   })
 
