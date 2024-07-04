@@ -439,7 +439,7 @@ describe('SubmissionService', () => {
           contestId: 1,
           userId: submissions[0].userId
         })
-      )
+      ).to.be.deep.equal({ data: submissions, total: 1 })
     })
 
     it('should throw exception if user is not registered to contest', async () => {
