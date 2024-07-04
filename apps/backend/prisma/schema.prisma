@@ -290,14 +290,15 @@ model Contest {
 }
 
 model ContestProblem {
-  order      Int
-  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId  Int      @map("contest_id")
-  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId  Int      @map("problem_id")
-  score      Int      @default(0)
-  createTime DateTime @default(now()) @map("create_time")
-  updateTime DateTime @updatedAt @map("update_time")
+  order           Int
+  contest         Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId       Int      @map("contest_id")
+  problem         Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId       Int      @map("problem_id")
+  score           Int      @default(0)
+  enableCopyPaste Boolean  @map("enable_copy_paste")
+  createTime      DateTime @default(now()) @map("create_time")
+  updateTime      DateTime @updatedAt @map("update_time")
 
   @@id([contestId, problemId])
   // @@unique([contestId, problemId])
