@@ -234,21 +234,38 @@ describe('SubmissionService', () => {
       expect(publishSpy.calledOnce).to.be.true
     })
 
+    it('should throw conflict found exception if user has already gotten AC', async () => {
+      const publishSpy = stub(amqpConnection, 'publish')
+      db.problem.findUnique.resolves(problems[0])
+      db.submission.create.resolves(submissions[0])
+      db.submission.findMany.resolves([{ result: ResultStatus.Accepted }])
+
+      await expect(
+        service.createSubmission(
+          submissionDto,
+          problems[0],
+          submissions[0].userId,
+          { contestId: CONTEST_ID }
+        )
+      ).to.be.rejectedWith(ConflictFoundException)
+      expect(publishSpy.calledOnce).to.be.false
+    })
+
     it('should create submission with workbookId', async () => {
       const publishSpy = stub(amqpConnection, 'publish')
       db.problem.findUnique.resolves(problems[0])
       db.submission.create.resolves({
         ...submissions[0],
-        contestId: WORKBOOK_ID
+        workbookId: WORKBOOK_ID
       })
       expect(
         await service.createSubmission(
           submissionDto,
           problems[0],
           submissions[0].userId,
-          { contestId: WORKBOOK_ID }
+          { workbookId: WORKBOOK_ID }
         )
-      ).to.be.deep.equal({ ...submissions[0], contestId: WORKBOOK_ID })
+      ).to.be.deep.equal({ ...submissions[0], workbookId: WORKBOOK_ID })
       expect(publishSpy.calledOnce).to.be.true
     })
 
