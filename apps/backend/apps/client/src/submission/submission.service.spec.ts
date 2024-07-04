@@ -46,7 +46,8 @@ const db = {
     findUniqueOrThrow: stub()
   },
   contestRecord: {
-    findUniqueOrThrow: stub()
+    findUniqueOrThrow: stub(),
+    update: stub()
   },
   user: {
     findFirst: stub()
@@ -344,9 +345,13 @@ describe('SubmissionService', () => {
   describe('updateSubmissionResult', () => {
     it('should call update submission result', async () => {
       db.submission.update.reset()
-      db.submission.update.resolves(submissions[0])
+      db.submission.update.resolves({
+        ...submissions[0],
+        contestId: CONTEST_ID
+      })
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.update.reset()
+
       submissionResults.forEach((result, index) => {
         db.submissionResult.create.onCall(index).resolves(result)
       })
