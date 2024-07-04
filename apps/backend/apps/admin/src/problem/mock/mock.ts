@@ -360,7 +360,8 @@ export const exampleContest: Contest = {
   startTime: new Date(),
   endTime: new Date(),
   createTime: new Date(),
-  updateTime: new Date()
+  updateTime: new Date(),
+  invitationCode: '123456'
 }
 export const exampleContestProblems: ContestProblem[] = [
   {

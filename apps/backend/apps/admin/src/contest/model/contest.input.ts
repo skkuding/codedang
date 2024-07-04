@@ -1,4 +1,5 @@
 import { Field, GraphQLISODateTime, InputType, Int } from '@nestjs/graphql'
+import { IsNumberString, Length } from 'class-validator'
 
 @InputType()
 export class CreateContestInput {
@@ -7,6 +8,11 @@ export class CreateContestInput {
 
   @Field(() => String, { nullable: false })
   description!: string
+
+  @Field(() => String, { nullable: true })
+  @IsNumberString()
+  @Length(6, 6)
+  invitationCode?: string
 
   @Field(() => GraphQLISODateTime, { nullable: false })
   startTime!: Date
@@ -31,6 +37,9 @@ export class UpdateContestInput {
 
   @Field(() => String, { nullable: true })
   description?: string
+
+  @Field(() => String, { nullable: true })
+  invitationCode?: string
 
   @Field(() => GraphQLISODateTime, { nullable: true })
   startTime?: Date
