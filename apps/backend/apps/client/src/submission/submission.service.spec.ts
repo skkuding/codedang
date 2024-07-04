@@ -234,6 +234,24 @@ describe('SubmissionService', () => {
       expect(publishSpy.calledOnce).to.be.true
     })
 
+    it('should create submission with workbookId', async () => {
+      const publishSpy = stub(amqpConnection, 'publish')
+      db.problem.findUnique.resolves(problems[0])
+      db.submission.create.resolves({
+        ...submissions[0],
+        contestId: WORKBOOK_ID
+      })
+      expect(
+        await service.createSubmission(
+          submissionDto,
+          problems[0],
+          submissions[0].userId,
+          { contestId: WORKBOOK_ID }
+        )
+      ).to.be.deep.equal({ ...submissions[0], contestId: WORKBOOK_ID })
+      expect(publishSpy.calledOnce).to.be.true
+    })
+
     it('should throw exception if the language is not supported', async () => {
       const publishSpy = stub(amqpConnection, 'publish')
       db.problem.findUnique.resolves(problems[0])
