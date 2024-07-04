@@ -1270,7 +1270,6 @@ const createContests = async () => {
       data: {
         order: problem.id - 1,
         contestId: ongoingContests[0].id,
-        enableCopyPaste: false,
         problemId: problem.id
       }
     })

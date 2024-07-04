@@ -19,6 +19,9 @@ export class CreateContestInput {
 
   @Field(() => Boolean, { nullable: false })
   isRankVisible!: boolean
+
+  @Field(() => Boolean, { nullable: false })
+  enableCopyPaste!: boolean
 }
 
 @InputType()
