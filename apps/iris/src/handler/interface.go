@@ -34,6 +34,9 @@ func SandboxResultCodeToJudgeResultCode(code sandbox.ResultCode) JudgeResultCode
 func ParseFirstError(j []JudgeResult) error {
 	for _, res := range j {
 		if res.ResultCode != ACCEPTED {
+      if res.RealTime >= 2000 && res.Signal == 9 && res.ResultCode == RUNTIME_ERROR {
+        return resultCodeToError(REAL_TIME_LIMIT_EXCEEDED)
+      }
 			return resultCodeToError(res.ResultCode)
 		}
 	}
