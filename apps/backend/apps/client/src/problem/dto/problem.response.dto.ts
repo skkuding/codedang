@@ -24,4 +24,5 @@ export class ProblemResponseDto {
   @Expose() acceptedRate: number
   @Expose() samples: Partial<ExampleIO>[]
   @Expose() tags: Partial<Tag>[]
+  @Expose() template: JSON[]
 }
