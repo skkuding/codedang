@@ -267,19 +267,20 @@ model Tag {
 }
 
 model Contest {
-  id            Int      @id @default(autoincrement())
-  createdBy     User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  createdById   Int?     @map("created_by_id")
-  group         Group    @relation(fields: [groupId], references: [id])
-  groupId       Int      @map("group_id")
-  title         String
-  description   String
-  startTime     DateTime @map("start_time")
-  endTime       DateTime @map("end_time")
-  isVisible     Boolean  @default(true) @map("is_visible")
-  isRankVisible Boolean  @default(true) @map("is_rank_visible")
-  createTime    DateTime @default(now()) @map("create_time")
-  updateTime    DateTime @updatedAt @map("update_time")
+  id              Int      @id @default(autoincrement())
+  createdBy       User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById     Int?     @map("created_by_id")
+  group           Group    @relation(fields: [groupId], references: [id])
+  groupId         Int      @map("group_id")
+  title           String
+  description     String
+  startTime       DateTime @map("start_time")
+  endTime         DateTime @map("end_time")
+  isVisible       Boolean  @default(true) @map("is_visible")
+  isRankVisible   Boolean  @default(true) @map("is_rank_visible")
+  enableCopyPaste Boolean  @map("enable_copy_paste")
+  createTime      DateTime @default(now()) @map("create_time")
+  updateTime      DateTime @updatedAt @map("update_time")
 
   contestProblem ContestProblem[]
   contestRecord  ContestRecord[]
