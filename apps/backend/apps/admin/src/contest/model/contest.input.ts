@@ -46,4 +46,7 @@ export class UpdateContestInput {
 
   @Field(() => Boolean, { nullable: true })
   isRankVisible?: boolean
+
+  @Field(() => Boolean, { nullable: true })
+  enableCopyPaste?: boolean
 }

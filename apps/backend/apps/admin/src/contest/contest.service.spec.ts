@@ -153,7 +153,8 @@ const updateInput = {
   startTime: faker.date.past(),
   endTime: faker.date.future(),
   isVisible: false,
-  isRankVisible: false
+  isRankVisible: false,
+  enableCopyPaste: false
 } satisfies UpdateContestInput
 
 const db = {
