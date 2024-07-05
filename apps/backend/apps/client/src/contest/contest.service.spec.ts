@@ -32,6 +32,7 @@ const contest = {
   endTime: now.add(1, 'day').toDate(),
   isVisible: true,
   isRankVisible: true,
+  enableCopyPaste: true,
   createTime: now.add(-1, 'day').toDate(),
   updateTime: now.add(-1, 'day').toDate(),
   group: {
