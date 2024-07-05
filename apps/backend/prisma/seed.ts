@@ -1035,7 +1035,7 @@ const createContests = async () => {
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        enableCopyPaste: false
+        enableCopyPaste: true
       }
     },
     {
@@ -1061,7 +1061,7 @@ const createContests = async () => {
         endTime: new Date('2028-01-01T23:59:59.000Z'),
         isVisible: true,
         isRankVisible: true,
-        enableCopyPaste: false
+        enableCopyPaste: true
       }
     },
     {

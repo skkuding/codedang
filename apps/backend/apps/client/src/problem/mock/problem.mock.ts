@@ -73,7 +73,6 @@ export const contestProblems = [
     contestId: 1,
     problemId: 1,
     score: 0,
-    enableCopyPaste: false,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     contest: {
@@ -85,7 +84,6 @@ export const contestProblems = [
     contestId: 1,
     problemId: 2,
     score: 0,
-    enableCopyPaste: true,
     createTime: faker.date.past(),
     updateTime: faker.date.past(),
     contest: {

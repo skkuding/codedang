@@ -23,6 +23,9 @@ import { judgerResponse, submissionResults } from './mock/submissionResult.mock'
 import { SubmissionService } from './submission.service'
 
 const db = {
+  user: {
+    findFirst: stub()
+  },
   submission: {
     findMany: stub(),
     findFirstOrThrow: stub(),
