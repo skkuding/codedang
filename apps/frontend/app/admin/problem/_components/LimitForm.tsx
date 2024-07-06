@@ -7,8 +7,7 @@ import ErrorMessage from './ErrorMessage'
 export default function LimitForm() {
   const {
     formState: { errors },
-    register,
-    getValues
+    register
   } = useFormContext()
 
   return (
@@ -27,11 +26,7 @@ export default function LimitForm() {
           />
           <p className="text-sm font-bold text-gray-600">ms</p>
         </div>
-        {errors.timeLimit && Number.isNaN(getValues('timeLimit')) ? (
-          <ErrorMessage />
-        ) : (
-          <ErrorMessage message={errors.timeLimit?.message?.toString()} />
-        )}
+        {errors.timeLimit && <ErrorMessage />}
       </div>
 
       <div className="flex flex-col gap-1">
@@ -48,11 +43,7 @@ export default function LimitForm() {
           />
           <p className="text-sm font-bold text-gray-600">MB</p>
         </div>
-        {errors.memoryLimit && Number.isNaN(getValues('memoryLimit')) ? (
-          <ErrorMessage />
-        ) : (
-          <ErrorMessage message={errors.memoryLimit?.message?.toString()} />
-        )}
+        {errors.memoryLimit && <ErrorMessage />}
       </div>
     </div>
   )
