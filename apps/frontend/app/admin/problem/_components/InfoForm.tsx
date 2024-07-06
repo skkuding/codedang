@@ -3,14 +3,67 @@ import OptionSelect from '@/components/OptionSelect'
 import TagsSelect from '@/components/TagsSelect'
 import { languages, levels } from '@/lib/constants'
 import type { Tag } from '@/types/type'
+import type { Template } from '@generated/graphql'
+import type { Language } from '@generated/graphql'
+import { useEffect } from 'react'
 import { useFormContext, useController } from 'react-hook-form'
 import ErrorMessage from './ErrorMessage'
 
-export default function InfoForm({ tags }: { tags: Tag[] }) {
+export default function InfoForm({
+  tags,
+  tagName
+}: {
+  tags: Tag[]
+  tagName: string
+}) {
   const {
+    watch,
     control,
-    formState: { errors }
+    getValues,
+    formState: { errors },
+    setValue
   } = useFormContext()
+
+  const watchedLanguages: Language[] = watch('languages')
+
+  useEffect(() => {
+    if (watchedLanguages) {
+      const templates: Template[] = [] // temp array to store templates
+      const savedTemplates: Template[] = getValues('template') // templates saved in form
+      watchedLanguages.map((language) => {
+        const temp = savedTemplates!.filter(
+          (template) => template.language === language
+        )
+        if (temp.length !== 0) {
+          templates.push(temp[0])
+        } else {
+          // push dummy template to array
+          templates.push({
+            language,
+            code: [
+              {
+                id: -1,
+                text: '',
+                locked: false
+              }
+            ]
+          })
+        }
+      })
+      templates.map((template, index) => {
+        setValue(`template.${index}`, {
+          language: template.language,
+          code: [
+            {
+              id: index,
+              text: template.code[0].text ?? '',
+              locked: false
+            }
+          ]
+        })
+      })
+    }
+  }, [watchedLanguages])
 
   const { field: difficultyField } = useController({
     name: 'difficulty',
@@ -25,7 +78,7 @@ export default function InfoForm({ tags }: { tags: Tag[] }) {
   })
 
   const { field: tagsField } = useController({
-    name: 'tags.create',
+    name: tagName,
     control,
     defaultValue: []
   })
