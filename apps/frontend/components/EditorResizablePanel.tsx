@@ -90,7 +90,11 @@ export default function EditorMainResizablePanel({
       <ResizablePanel defaultSize={65} className="bg-slate-900">
         <div className="grid-rows-editor grid h-full">
           <CodeContext.Provider value={store}>
-            <EditorHeader problem={problem} contestId={contestId} />
+            <EditorHeader
+              problem={problem}
+              contestId={contestId}
+              templateString={problem.template[0]}
+            />
             <CodeEditorInEditorResizablePanel
               templateString={problem.template[0]}
             />
